@@ -25,6 +25,15 @@
 | A-017 | 10 路径中"可点演示"vs"文档可读"的成本/价值权衡 | D-007 演示层实施预算：每条路径的"真可点 vs 文档可读"决策 | 前置 = ADR-0007 锁定（已锁）；中优先级；阻塞 A-018 | D-007 |
 | A-018 | Failure path 的 verdict-gate 触发条件 + 报告产物形态：每条 failure path 明文规定触发、降级、产物 | D-007 失败路径可演示：10 条 failure path 每条明文规定 verdict-gate / 降级 / 报告产物 | 前置 = ADR-0005 + ADR-0006 锁定（已锁）；高优先级；被 A-017 阻塞 | D-007 |
 
+## A-017 结论落盘（2026-09-11，票 #17 闭环）
+
+- **决议：6 条可点、4 条文档**——10 路径中 5 个 scale 的 happy path 全部可点，额外选择 `Micro-A failure` 可点；`Macro-A failure`、`Macro-B failure`、`Macro-C failure`、`Micro-B failure` 为文档可读，交由 A-018 明文触发/降级/报告产物，不在 v1 预算内真实点击复现。
+- **量化规则**：Demo v1 clickable 总预算上限 21 agent-days；单条 clickable 成本上限 5 agent-days；happy path 只要单条成本 ≤5 必选；failure path 需 `RiskImpact >= 4` 且 `FailureROI = (RiskImpact + GateClarity + FixtureSimplicity) / CostDays >= 5.0`。
+- **10 路径决策表**：`reports/17-report.md` §2 给出路径名 / 可点 or 文档 / 理由 / 估计成本；可点路径成本合计 18.5 agent-days，文档路径成本合计 6.5 agent-days。
+- **至少 5 路径可点论证**：`reports/17-report.md` §3 论证 5 条 happy path 是 ADR-0001/0002/0007 的最小完整性证明，并用 failure ROI 选中 `Micro-A failure` 作为最高价值失败演示。
+- **调研依据**：本窗口无 `ctx_*` / `ctx_batch_execute`，atomcode 指定 carrier 不可用；报告以 ISTQB risk-based testing、Cucumber BDD living documentation、OpenTelemetry Demo、Google SRE Monitoring 官方/一手文档直读补足工业对标，并明示 carrier 缺口。
+- **阻塞**：无（Blocked by: None），本票一次闭环；解锁 A-018。
+
 ## A-005 结论落盘（2026-09-11，票 #05 闭环）
 
 - 交付：25 格采集单元矩阵（行 S1-S5 × 列 5 scale）全填无占位，机检 PASS（`reports/05-matrix-check.mjs`）。
