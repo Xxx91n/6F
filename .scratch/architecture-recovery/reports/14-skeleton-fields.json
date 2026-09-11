@@ -1,0 +1,1002 @@
+{
+  "schema_version": "1.0.0",
+  "title": "A-014 报告模板共享骨架 — 章顺序 + 字段必含清单 + 5 scale x 4 象限交集字段表",
+  "decision_ref": "spec.md §Decision 6.1",
+  "adr_ref": "docs/adr/0006-shared-skeleton-scale-slice.md",
+  "blocked_by": "#05",
+  "quadrants": [
+    "structure",
+    "behavior",
+    "supply_chain",
+    "strategy"
+  ],
+  "scales": [
+    "MACRO-A",
+    "MACRO-B",
+    "MACRO-C",
+    "MICRO-A",
+    "MICRO-B"
+  ],
+  "skeleton": {
+    "locked": true,
+    "rule": "章集合与章顺序严格锁定，共 4 章，ordinal 1..4 连续无重复，不得增删、不得重排、不得用“约 4 章”等模糊表述",
+    "chapters": [
+      {
+        "id": "C1",
+        "name": "执行摘要",
+        "ordinal": 1,
+        "locked": true,
+        "purpose": "一屏给出审计对象、粒度、综合裁决与置信度；读者只读本章即可知道结论",
+        "fields": [
+          {
+            "name": "report_id",
+            "type": "string",
+            "required": true,
+            "description": "报告唯一标识，写入 fact table，作为跨 scale 聚合主键之一"
+          },
+          {
+            "name": "schema_version",
+            "type": "string(semver)",
+            "required": true,
+            "description": "本骨架契约版本，与 14-skeleton.schema.json 对齐"
+          },
+          {
+            "name": "scale",
+            "type": "enum[MACRO-A|MACRO-B|MACRO-C|MICRO-A|MICRO-B]",
+            "required": true,
+            "description": "审计粒度档位（ADR-0001 五档）"
+          },
+          {
+            "name": "subject_ref",
+            "type": "string",
+            "required": true,
+            "description": "审计对象定位符：repo@sha / PR# / 文件路径:行"
+          },
+          {
+            "name": "generated_at",
+            "type": "string(date-time)",
+            "required": true,
+            "description": "报告生成时刻，ISO 8601 UTC"
+          },
+          {
+            "name": "correlation_key",
+            "type": "string(32)",
+            "required": true,
+            "description": "trace_id/baggage_id（A-010），用于跨 scale 关联同一 commit/PR 的审计记录"
+          },
+          {
+            "name": "overall_verdict",
+            "type": "enum[pass|warn|fail|insufficient]",
+            "required": true,
+            "description": "综合裁决；insufficient 表示信号不足（对齐 S5 单人仓降权门语义）"
+          },
+          {
+            "name": "confidence",
+            "type": "number(0-1)",
+            "required": true,
+            "description": "裁决置信度；低于协议阈值时 overall_verdict 必须为 insufficient"
+          },
+          {
+            "name": "headline",
+            "type": "string",
+            "required": true,
+            "description": "一句话结论（措辞不锁，长度上限 200 字符）"
+          },
+          {
+            "name": "top_findings",
+            "type": "array[string]",
+            "required": true,
+            "description": "指向 C3 证据条目的 evidence_id，至少 1 项"
+          },
+          {
+            "name": "degraded_mode",
+            "type": "boolean",
+            "required": true,
+            "description": "是否处于降级产出；true 时走 A-018 failure path 语义并必带降级说明"
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "name": "四象限与裁决",
+        "ordinal": 2,
+        "locked": true,
+        "purpose": "按 structure → behavior → supply_chain → strategy 固定顺序给出四象限结论与 verdict-gate 印记",
+        "fields": [
+          {
+            "name": "quadrants",
+            "type": "array[QuadrantBlock](4)",
+            "required": true,
+            "description": "恰好 4 项，顺序锁定：structure → behavior → supply_chain → strategy"
+          },
+          {
+            "name": "quadrant",
+            "type": "enum[structure|behavior|supply_chain|strategy]",
+            "required": true,
+            "description": "象限标识（ADR-0001 四象限）"
+          },
+          {
+            "name": "applicability",
+            "type": "enum[native|projected|not_applicable]",
+            "required": true,
+            "description": "该象限在本 scale 的适用形态；native=原生有效，projected=由其他 scale 投影/聚合推得，not_applicable=无信号"
+          },
+          {
+            "name": "verdict",
+            "type": "enum[pass|warn|fail|insufficient]|null",
+            "required": true,
+            "description": "象限裁决；applicability=not_applicable 时必须为 null"
+          },
+          {
+            "name": "score",
+            "type": "number|null",
+            "required": true,
+            "description": "象限评分；为 null 时必须配合 verdict=insufficient"
+          },
+          {
+            "name": "confidence",
+            "type": "number|null",
+            "required": true,
+            "description": "象限置信度"
+          },
+          {
+            "name": "dimensions",
+            "type": "array[DimensionRef]",
+            "required": true,
+            "description": "关联维度引用；strategy 象限为 S1-S5（指向 #05 25 格矩阵），其余象限可空数组"
+          },
+          {
+            "name": "slice_fields",
+            "type": "object",
+            "required": true,
+            "description": "该 (scale, quadrant) 交集字段实例，键集由本文件 cells 表严格锁定"
+          },
+          {
+            "name": "verdict_gate.protocol_version",
+            "type": "string",
+            "required": true,
+            "description": "Adjudication Protocol 版本（code-as-policy，ADR-0005）"
+          },
+          {
+            "name": "verdict_gate.decision",
+            "type": "enum[accepted|rejected|overridden|insufficient]",
+            "required": true,
+            "description": "裁决结果"
+          },
+          {
+            "name": "verdict_gate.evidence_threshold_met",
+            "type": "boolean",
+            "required": true,
+            "description": "是否达到证据门槛"
+          },
+          {
+            "name": "verdict_gate.decided_at",
+            "type": "string(date-time)",
+            "required": true,
+            "description": "裁决时刻"
+          },
+          {
+            "name": "verdict_gate.override_reason",
+            "type": "string|null",
+            "required": true,
+            "description": "非 overridden 时必须为 null"
+          },
+          {
+            "name": "verdict_gate.audit_ref",
+            "type": "string",
+            "required": true,
+            "description": "审计日志指针，保证裁决可追溯"
+          },
+          {
+            "name": "conflict_markers",
+            "type": "array[ConflictMarker]",
+            "required": true,
+            "description": "跨 scale 冲突标记（无冲突时为空数组，字段本身不可缺省）"
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "name": "证据",
+        "ordinal": 3,
+        "locked": true,
+        "purpose": "承载全部被引用的证据条目，每条必带 grounded 引文校验盖章与可重放定位",
+        "fields": [
+          {
+            "name": "evidence_items",
+            "type": "array[EvidenceItem](>=1)",
+            "required": true,
+            "description": "证据条目，至少 1 项"
+          },
+          {
+            "name": "evidence_id",
+            "type": "string",
+            "required": true,
+            "description": "证据唯一标识，供 C1 top_findings 与 C4 evidence_refs 引用"
+          },
+          {
+            "name": "source",
+            "type": "enum[codelore|openssf_scorecard|git|adr_scan|repomix|manual]",
+            "required": true,
+            "description": "证据来源"
+          },
+          {
+            "name": "locator",
+            "type": "string",
+            "required": true,
+            "description": "定位符：file:line / commit sha / scorecard check 名"
+          },
+          {
+            "name": "claim",
+            "type": "string",
+            "required": true,
+            "description": "该证据支撑的断言"
+          },
+          {
+            "name": "grounded",
+            "type": "enum[verified|unverified]",
+            "required": true,
+            "description": "引文校验盖章（ADR-0006 的 ✓/⚠ 语义）：verified=已校验，unverified=未校验"
+          },
+          {
+            "name": "collected_at",
+            "type": "string(date-time)",
+            "required": true,
+            "description": "证据采集时刻"
+          },
+          {
+            "name": "reproduce_cmd",
+            "type": "string|null",
+            "required": true,
+            "description": "可重放命令；为 null 时 reproduce_absent_reason 必填"
+          },
+          {
+            "name": "reproduce_absent_reason",
+            "type": "string|null",
+            "required": false,
+            "description": "条件必填：仅当 reproduce_cmd 为 null 时必填"
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "name": "行动建议",
+        "ordinal": 4,
+        "locked": true,
+        "purpose": "给出可行动建议，每条必带 verdict-gate 印记；未通过裁决的建议必须显式标 unverified",
+        "fields": [
+          {
+            "name": "recommendations",
+            "type": "array[Recommendation]",
+            "required": true,
+            "description": "建议条目"
+          },
+          {
+            "name": "rec_id",
+            "type": "string",
+            "required": true,
+            "description": "建议唯一标识"
+          },
+          {
+            "name": "priority",
+            "type": "enum[P0|P1|P2]",
+            "required": true,
+            "description": "优先级"
+          },
+          {
+            "name": "action",
+            "type": "string",
+            "required": true,
+            "description": "建议动作"
+          },
+          {
+            "name": "rationale",
+            "type": "string",
+            "required": true,
+            "description": "理由，须可追溯到 C3 证据"
+          },
+          {
+            "name": "expected_impact",
+            "type": "string",
+            "required": true,
+            "description": "预期影响"
+          },
+          {
+            "name": "effort",
+            "type": "enum[S|M|L]",
+            "required": true,
+            "description": "工作量档位"
+          },
+          {
+            "name": "verdict_gate_stamp",
+            "type": "enum[adjudicated|unverified]",
+            "required": true,
+            "description": "裁决印记（ADR-0006）：仅 adjudicated 条目进入正式报告；unverified 必须带 ⚠ 标记"
+          },
+          {
+            "name": "evidence_refs",
+            "type": "array[string]",
+            "required": true,
+            "description": "指向 C3 evidence_id，至少 1 项"
+          },
+          {
+            "name": "degraded_note",
+            "type": "string|null",
+            "required": false,
+            "description": "降级说明；failure path 产出时必填（A-018）"
+          }
+        ]
+      }
+    ]
+  },
+  "cells": [
+    {
+      "id": "STRATEGYxMACRO-A",
+      "scale": "MACRO-A",
+      "quadrant": "strategy",
+      "applicability": "native",
+      "origin": "A-005:reports/05-unit-matrix.json",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "portfolio_convergence_mean",
+          "type": "number",
+          "required": true,
+          "description": "S1 跨仓组合战略对齐收敛度",
+          "origin": "A-005:reports/05-unit-matrix.json#S1xMACRO-A"
+        },
+        {
+          "name": "adr_structure_completeness_mean",
+          "type": "number",
+          "required": true,
+          "description": "S2 跨仓 ADR 治理一致性完备度",
+          "origin": "A-005:reports/05-unit-matrix.json#S2xMACRO-A"
+        },
+        {
+          "name": "duplicate_abstraction_clusters",
+          "type": "integer",
+          "required": true,
+          "description": "S3 跨仓重复抽象簇计数",
+          "origin": "A-005:reports/05-unit-matrix.json#S3xMACRO-A"
+        },
+        {
+          "name": "reverse_dependency_edges",
+          "type": "integer",
+          "required": true,
+          "description": "S4 逆向依赖边计数",
+          "origin": "A-005:reports/05-unit-matrix.json#S4xMACRO-A"
+        },
+        {
+          "name": "ownership_overlap_ratio",
+          "type": "number",
+          "required": true,
+          "description": "S5 跨仓所有权重叠比",
+          "origin": "A-005:reports/05-unit-matrix.json#S5xMACRO-A"
+        }
+      ],
+      "notes": "红级叠加条件：任意两仓定位声明直接冲突（per A-005 notes）"
+    },
+    {
+      "id": "STRATEGYxMACRO-B",
+      "scale": "MACRO-B",
+      "quadrant": "strategy",
+      "applicability": "native",
+      "origin": "A-005:reports/05-unit-matrix.json",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "positioning_keyword_coverage",
+          "type": "number",
+          "required": true,
+          "description": "S1 定位关键词覆盖率",
+          "origin": "A-005:reports/05-unit-matrix.json#S1xMACRO-B"
+        },
+        {
+          "name": "adr_element_completeness",
+          "type": "number",
+          "required": true,
+          "description": "S2 ADR 真决策五要素完备度",
+          "origin": "A-005:reports/05-unit-matrix.json#S2xMACRO-B"
+        },
+        {
+          "name": "single_impl_abstraction_ratio",
+          "type": "number",
+          "required": true,
+          "description": "S3 单实现抽象占比（门面预算）",
+          "origin": "A-005:reports/05-unit-matrix.json#S3xMACRO-B"
+        },
+        {
+          "name": "dependency_violation_ratio",
+          "type": "number",
+          "required": true,
+          "description": "S4 依赖方向违规模块占比",
+          "origin": "A-005:reports/05-unit-matrix.json#S4xMACRO-B"
+        },
+        {
+          "name": "bus_factor_lt2_loc_ratio",
+          "type": "number",
+          "required": true,
+          "description": "S5 bus factor<2 的 LOC 占比（所有权同构）",
+          "origin": "A-005:reports/05-unit-matrix.json#S5xMACRO-B"
+        }
+      ],
+      "notes": "战略象限在 Macro-B 与结构象限共享部分事实，禁止重复落库（ADR-0005 事实唯一）"
+    },
+    {
+      "id": "STRATEGYxMACRO-C",
+      "scale": "MACRO-C",
+      "quadrant": "strategy",
+      "applicability": "native",
+      "origin": "A-005:reports/05-unit-matrix.json",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "coverage_delta_12m_pp",
+          "type": "number",
+          "required": true,
+          "description": "S1 定位覆盖度 12 个月变化（百分点）",
+          "origin": "A-005:reports/05-unit-matrix.json#S1xMACRO-C"
+        },
+        {
+          "name": "adr_lag_median_days",
+          "type": "number",
+          "required": true,
+          "description": "S2 ADR 撰写滞后中位数（天）",
+          "origin": "A-005:reports/05-unit-matrix.json#S2xMACRO-C"
+        },
+        {
+          "name": "abstraction_ratio_rising_quarters",
+          "type": "integer",
+          "required": true,
+          "description": "S3 抽象通胀上升季度数",
+          "origin": "A-005:reports/05-unit-matrix.json#S3xMACRO-C"
+        },
+        {
+          "name": "stale_assumption_ratio",
+          "type": "number",
+          "required": true,
+          "description": "S4 失效假设占比（演化考古主战场）",
+          "origin": "A-005:reports/05-unit-matrix.json#S4xMACRO-C"
+        },
+        {
+          "name": "ownership_lagging_modules_ratio",
+          "type": "number",
+          "required": true,
+          "description": "S5 所有权滞后模块占比",
+          "origin": "A-005:reports/05-unit-matrix.json#S5xMACRO-C"
+        }
+      ],
+      "notes": "主战场在 S4 假设失效检测（per CONTEXT.md S4 术语）"
+    },
+    {
+      "id": "STRATEGYxMICRO-A",
+      "scale": "MICRO-A",
+      "quadrant": "strategy",
+      "applicability": "native",
+      "origin": "A-005:reports/05-unit-matrix.json",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "pr_positioning_relevance",
+          "type": "number",
+          "required": true,
+          "description": "S1 PR 与声明定位的语义相关度",
+          "origin": "A-005:reports/05-unit-matrix.json#S1xMICRO-A"
+        },
+        {
+          "name": "adr_pr_binding_missing_ratio",
+          "type": "number",
+          "required": true,
+          "description": "S2 架构级 PR 未绑定 ADR 的比例",
+          "origin": "A-005:reports/05-unit-matrix.json#S2xMICRO-A"
+        },
+        {
+          "name": "new_single_impl_abstractions",
+          "type": "integer",
+          "required": true,
+          "description": "S3 PR 新引入单实现抽象数",
+          "origin": "A-005:reports/05-unit-matrix.json#S3xMICRO-A"
+        },
+        {
+          "name": "direction_violations_per_pr",
+          "type": "integer",
+          "required": true,
+          "description": "S4 PR 违反声明演化方向次数",
+          "origin": "A-005:reports/05-unit-matrix.json#S4xMICRO-A"
+        },
+        {
+          "name": "unapproved_boundary_cross_ratio",
+          "type": "number",
+          "required": true,
+          "description": "S5 PR 未批准跨所有权边界比例",
+          "origin": "A-005:reports/05-unit-matrix.json#S5xMICRO-A"
+        }
+      ],
+      "notes": "Micro-A 战略象限结论与 Macro-B 行为象限冲突时按冲突解决机制上抛 hub 裁决"
+    },
+    {
+      "id": "STRATEGYxMICRO-B",
+      "scale": "MICRO-B",
+      "quadrant": "strategy",
+      "applicability": "native",
+      "origin": "A-005:reports/05-unit-matrix.json",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "module_belonging_score",
+          "type": "number",
+          "required": true,
+          "description": "S1 文件/模块归属定位声明功能面得分",
+          "origin": "A-005:reports/05-unit-matrix.json#S1xMICRO-B"
+        },
+        {
+          "name": "adr_missing_sections",
+          "type": "integer",
+          "required": true,
+          "description": "S2 单 ADR 缺失必填 section 数",
+          "origin": "A-005:reports/05-unit-matrix.json#S2xMICRO-B"
+        },
+        {
+          "name": "file_loc",
+          "type": "integer",
+          "required": true,
+          "description": "S3 文件 LOC（门面度代理指标）",
+          "origin": "A-005:reports/05-unit-matrix.json#S3xMICRO-B"
+        },
+        {
+          "name": "vacancy_occupation_suspect",
+          "type": "integer",
+          "required": true,
+          "description": "S4 疑似占据 ADR 空位/out-of-scope 计数",
+          "origin": "A-005:reports/05-unit-matrix.json#S4xMICRO-B"
+        },
+        {
+          "name": "single_author_file_ratio",
+          "type": "number",
+          "required": true,
+          "description": "S5 单作者文件占比（单人仓信号弱，须降权）",
+          "origin": "A-005:reports/05-unit-matrix.json#S5xMICRO-B"
+        }
+      ],
+      "notes": "S5 在单人仓信号弱，必须降权并在报告显式标注信号不足（per CONTEXT.md S5 / A-004）"
+    },
+    {
+      "id": "STRUCTURExMACRO-A",
+      "scale": "MACRO-A",
+      "quadrant": "structure",
+      "applicability": "projected",
+      "origin": "ADR-0001 + CodeLore",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "cross_repo_dependency_edges",
+          "type": "integer",
+          "required": true,
+          "description": "跨仓依赖边总数",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "shared_lib_utilization",
+          "type": "number",
+          "required": true,
+          "description": "共享库利用率（重复抽象的反面）",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "duplicate_abstraction_clusters",
+          "type": "integer",
+          "required": true,
+          "description": "跨仓重复抽象簇数（与 STRATEGYxMACRO-A 共享同一事实，禁止重复落库）",
+          "origin": "A-005:reports/05-unit-matrix.json#S3xMACRO-A"
+        }
+      ],
+      "notes": "结构象限在 Macro-A 为跨仓投影（ADR-0001：四象限模型原生只在 Macro-B 内有效）"
+    },
+    {
+      "id": "STRUCTURExMACRO-B",
+      "scale": "MACRO-B",
+      "quadrant": "structure",
+      "applicability": "native",
+      "origin": "ADR-0001 + CodeLore",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "dependency_violation_ratio",
+          "type": "number",
+          "required": true,
+          "description": "依赖方向违规模块占比",
+          "origin": "A-005:reports/05-unit-matrix.json#S4xMACRO-B"
+        },
+        {
+          "name": "single_impl_abstraction_ratio",
+          "type": "number",
+          "required": true,
+          "description": "单实现抽象占比",
+          "origin": "A-005:reports/05-unit-matrix.json#S3xMACRO-B"
+        },
+        {
+          "name": "god_object_density",
+          "type": "number",
+          "required": true,
+          "description": "God Object/巨类密度",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "module_count",
+          "type": "integer",
+          "required": true,
+          "description": "模块总数（归一化分母）",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "唯一原生（native）的结构象限格：ADR-0001 定义四象限模型在仓库级全景评审内有效"
+    },
+    {
+      "id": "STRUCTURExMACRO-C",
+      "scale": "MACRO-C",
+      "quadrant": "structure",
+      "applicability": "projected",
+      "origin": "CodeLore 历史分析",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "boundary_erosion_trend",
+          "type": "number",
+          "required": true,
+          "description": "边界侵蚀趋势（正向=恶化）",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "module_churn_ratio",
+          "type": "number",
+          "required": true,
+          "description": "模块更替率",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "abstraction_impl_ratio",
+          "type": "number",
+          "required": true,
+          "description": "抽象/实现比（>1.5 判红，引自 A-005）",
+          "origin": "A-005:reports/05-unit-matrix.json#S3xMACRO-C"
+        }
+      ],
+      "notes": "结构演化视角，属从 Macro-C 时间切片投影"
+    },
+    {
+      "id": "STRUCTURExMICRO-A",
+      "scale": "MICRO-A",
+      "quadrant": "structure",
+      "applicability": "projected",
+      "origin": "CodeLore diff --llm",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "files_touched",
+          "type": "integer",
+          "required": true,
+          "description": "PR 触及文件数",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "diff_structure_delta",
+          "type": "integer",
+          "required": true,
+          "description": "PR 引入的结构性变更计数（新增边界/抽象/依赖）",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "new_god_object_delta_loc",
+          "type": "integer",
+          "required": true,
+          "description": "PR 新增 God Object 的 LOC 增量（>200 判红，引自 A-005）",
+          "origin": "A-005:reports/05-unit-matrix.json#S3xMICRO-A"
+        }
+      ],
+      "notes": "diff 级结构影响评估，非完整结构审计"
+    },
+    {
+      "id": "STRUCTURExMICRO-B",
+      "scale": "MICRO-B",
+      "quadrant": "structure",
+      "applicability": "native",
+      "origin": "CodeLore file facts",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "file_loc",
+          "type": "integer",
+          "required": true,
+          "description": "文件 LOC（>500 黄 / >1000 红，引自 A-005）",
+          "origin": "A-005:reports/05-unit-matrix.json#S3xMICRO-B"
+        },
+        {
+          "name": "file_cohesion",
+          "type": "number",
+          "required": true,
+          "description": "文件内聚度",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "god_object_flag",
+          "type": "boolean",
+          "required": true,
+          "description": "是否命中 God Object 判据",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "文件级结构为原生粒度（CodeLore file facts 直出）"
+    },
+    {
+      "id": "BEHAVIORxMACRO-A",
+      "scale": "MACRO-A",
+      "quadrant": "behavior",
+      "applicability": "projected",
+      "origin": "CodeLore 跨仓聚合",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "cross_repo_activity_gini",
+          "type": "number",
+          "required": true,
+          "description": "跨仓活跃度基尼系数（投入集中度）",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "repo_churn_ratio",
+          "type": "number",
+          "required": true,
+          "description": "组合级代码更替率",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "行为象限在 Macro-A 为跨仓聚合投影；无 CodeLore hotspot 原生语义"
+    },
+    {
+      "id": "BEHAVIORxMACRO-B",
+      "scale": "MACRO-B",
+      "quadrant": "behavior",
+      "applicability": "native",
+      "origin": "CodeLore hotspot",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "hotspot_rank",
+          "type": "array[HotspotEntry]",
+          "required": true,
+          "description": "hotspot 排序表（CodeLore 行为象限原生术语）",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "churn_complexity_correlation",
+          "type": "number",
+          "required": true,
+          "description": "变更频率与复杂度相关性",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "唯一原生行为象限格；hotspot 是本象限专属术语，禁止挪用到其他象限（per CONTEXT.md Hotspot 术语）"
+    },
+    {
+      "id": "BEHAVIORxMACRO-C",
+      "scale": "MACRO-C",
+      "quadrant": "behavior",
+      "applicability": "projected",
+      "origin": "CodeLore 历史分析",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "hotspot_drift_delta",
+          "type": "number",
+          "required": true,
+          "description": "hotspot 排序漂移量",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "churn_trend_12m",
+          "type": "number",
+          "required": true,
+          "description": "12 个月更替率趋势",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "行为演化视角投影"
+    },
+    {
+      "id": "BEHAVIORxMICRO-A",
+      "scale": "MICRO-A",
+      "quadrant": "behavior",
+      "applicability": "projected",
+      "origin": "git + PR 元数据",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "pr_churn_loc",
+          "type": "integer",
+          "required": true,
+          "description": "PR 变更 LOC",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "pr_review_latency_hours",
+          "type": "number",
+          "required": true,
+          "description": "PR 评审延迟（小时）",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "PR 级行为特征，非 hotspot 语义"
+    },
+    {
+      "id": "BEHAVIORxMICRO-B",
+      "scale": "MICRO-B",
+      "quadrant": "behavior",
+      "applicability": "native",
+      "origin": "CodeLore file facts + git",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "file_commit_frequency",
+          "type": "integer",
+          "required": true,
+          "description": "文件提交频次",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "file_change_coupling",
+          "type": "number",
+          "required": true,
+          "description": "文件变更耦合度（逻辑耦合）",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "文件级行为为原生粒度"
+    },
+    {
+      "id": "SUPPLY_CHAINxMACRO-A",
+      "scale": "MACRO-A",
+      "quadrant": "supply_chain",
+      "applicability": "projected",
+      "origin": "OpenSSF Scorecard 聚合",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "scorecard_mean",
+          "type": "number",
+          "required": true,
+          "description": "组合内各仓 Scorecard 均分",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "scorecard_min",
+          "type": "number",
+          "required": true,
+          "description": "组合内最低 Scorecard 分（短板仓定位）",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "critical_check_fail_ratio",
+          "type": "number",
+          "required": true,
+          "description": "关键 check 失败仓占比",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "Scorecard 是仓库级信号，跨仓格为聚合投影"
+    },
+    {
+      "id": "SUPPLY_CHAINxMACRO-B",
+      "scale": "MACRO-B",
+      "quadrant": "supply_chain",
+      "applicability": "native",
+      "origin": "OpenSSF Scorecard",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "scorecard_score",
+          "type": "number",
+          "required": true,
+          "description": "仓库 Scorecard 总分",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "scorecard_checks",
+          "type": "array[CheckEntry]",
+          "required": true,
+          "description": "逐 check 结果（name/score/reason 三元组）",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "critical_check_fail",
+          "type": "boolean",
+          "required": true,
+          "description": "是否存在关键 check 失败",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "唯一原生供应链象限格；与 ADR-0001 定义的证据层（CodeLore + OpenSSF Scorecard）直接对应"
+    },
+    {
+      "id": "SUPPLY_CHAINxMACRO-C",
+      "scale": "MACRO-C",
+      "quadrant": "supply_chain",
+      "applicability": "projected",
+      "origin": "OpenSSF Scorecard 时间序列",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "scorecard_delta_12m",
+          "type": "number",
+          "required": true,
+          "description": "12 个月 Scorecard 变化",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "check_regression_count",
+          "type": "integer",
+          "required": true,
+          "description": "check 回退计数",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "供应链治理演化视角投影"
+    },
+    {
+      "id": "SUPPLY_CHAINxMICRO-A",
+      "scale": "MICRO-A",
+      "quadrant": "supply_chain",
+      "applicability": "projected",
+      "origin": "PR diff + manifest 扫描",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "manifest_changed",
+          "type": "boolean",
+          "required": true,
+          "description": "PR 是否改动依赖清单文件",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "new_dependencies",
+          "type": "integer",
+          "required": true,
+          "description": "PR 新增依赖数",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "license_risk_flag",
+          "type": "boolean",
+          "required": true,
+          "description": "新增依赖是否命中许可证风险",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "仅当 manifest_changed=true 时本格有信号，否则 verdict 为 insufficient"
+    },
+    {
+      "id": "SUPPLY_CHAINxMICRO-B",
+      "scale": "MICRO-B",
+      "quadrant": "supply_chain",
+      "applicability": "projected",
+      "origin": "manifest 扫描",
+      "machine_checkable": true,
+      "slice_fields": [
+        {
+          "name": "manifest_file",
+          "type": "boolean",
+          "required": true,
+          "description": "本文件是否为依赖清单文件",
+          "origin": "A-014 expert/v1"
+        },
+        {
+          "name": "declared_dep_count",
+          "type": "integer",
+          "required": true,
+          "description": "声明依赖数（仅 manifest_file=true 时有意义）",
+          "origin": "A-014 expert/v1"
+        }
+      ],
+      "notes": "单文件无独立供应链信号；仅清单文件命中时有效，否则 applicability 可降为 not_applicable"
+    }
+  ]
+}
