@@ -1,0 +1,284 @@
+{
+  "artifact": "09-stale-marker-fields",
+  "ticket": "#09",
+  "a_xxx": "A-009",
+  "decision_ref": "spec.md §Decision 5.3",
+  "adr_ref": [
+    "docs/adr/0005-hub-of-facts-with-federated-adjudication.md",
+    "docs/adr/0006-shared-skeleton-scale-slice.md"
+  ],
+  "report_date": "2026-09-12",
+  "extends": {
+    "artifact": "reports/14-skeleton-fields.json",
+    "base_schema_version": "1.0.0",
+    "proposed_schema_version": "1.1.0",
+    "change_class": "ADDITION",
+    "change_class_basis": "A-008 版本语义：ADDITION = 向后兼容的新增字段（不删不改既有字段/枚举域）",
+    "adr_invariant": "ADR-0006 四章结构不变（C1→C2→C3→C4 逐字保留，yield=1）；仅在 C1 追加字段，不增删章节、不改章顺序"
+  },
+  "sla": {
+    "default_sla_seconds": 5,
+    "sla_is_numeric": true,
+    "warn_threshold_seconds": 5,
+    "error_threshold_seconds": 15,
+    "error_multiplier": 3,
+    "feasibility_upper_bound_seconds": 0.65,
+    "feasibility_headroom_ratio": 7.69,
+    "feasibility_source": "reports/07-report.md §4.4 — A-007 最坏陈旧读链路 = 100ms 窗口 + 30ms 提交 + 512ms checkpoint ≈ 0.65s",
+    "industry_anchors": [
+      {
+        "system": "DynamoDB",
+        "value_seconds": 1,
+        "note": "eventually consistent reads usually reach consistency within a second",
+        "source": "AWS docs HowItWorks.ReadConsistency"
+      },
+      {
+        "system": "CockroachDB follower read",
+        "value_seconds": 4.2,
+        "note": "follower_read_timestamp() = statement_timestamp() - 4.2s",
+        "source": "docs.cockroachlabs.com as-of-system-time"
+      },
+      {
+        "system": "Marten high-water staleThreshold",
+        "value_seconds": 30,
+        "note": "HWM 停止推进才判 unhealthy",
+        "source": "martendb.io healthchecks"
+      },
+      {
+        "system": "TimescaleDB refresh_lag",
+        "value_seconds": "2 x bucket_width",
+        "note": "默认接受落后两个桶宽",
+        "source": "tigerdata.com refresh-policies"
+      }
+    ],
+    "per_scale": [
+      {
+        "scale": "MICRO-A",
+        "trigger": "每次 push 或 hook",
+        "sla_seconds": 2,
+        "warn_seconds": 2,
+        "error_seconds": 6
+      },
+      {
+        "scale": "MICRO-B",
+        "trigger": "单文件查看或 LSP 调用",
+        "sla_seconds": 5,
+        "warn_seconds": 5,
+        "error_seconds": 15
+      },
+      {
+        "scale": "MACRO-B",
+        "trigger": "周期或手动",
+        "sla_seconds": 15,
+        "warn_seconds": 15,
+        "error_seconds": 45
+      },
+      {
+        "scale": "MACRO-C",
+        "trigger": "手动或版本发布节点",
+        "sla_seconds": 60,
+        "warn_seconds": 60,
+        "error_seconds": 180
+      },
+      {
+        "scale": "MACRO-A",
+        "trigger": "季度或手动",
+        "sla_seconds": 300,
+        "warn_seconds": 300,
+        "error_seconds": 900
+      }
+    ],
+    "tuning_guide": [
+      {
+        "id": "G1",
+        "rule": "按触发器交互性定档：交互式（Micro-A/Micro-B）取 ≤5s，周期式（Macro-B/C）取 15-60s，手动式（Macro-A）取 ≤300s",
+        "numeric_basis": "sla_seconds ∈ {2,5,15,60,300}"
+      },
+      {
+        "id": "G2",
+        "rule": "用 p95 而非 p50 定 SLA：SLA 必须覆盖 ≥95% 的评估采样点（对齐 Google SRE SLI 用分位数）",
+        "numeric_basis": "percentile = 95"
+      },
+      {
+        "id": "G3",
+        "rule": "成本杠杆：SLA 每收紧一档（5s→2s），刷新频率约 x2.5，写侧批提交成本线性上升；优先用 error budget 而非硬阈值告警",
+        "numeric_basis": "refresh_freq_multiplier ≈ 2.5"
+      },
+      {
+        "id": "G4",
+        "rule": "校准窗口 90 天：与 A-005 的 90 天校准窗口同源（expires 2026-12-10），到期重校准",
+        "numeric_basis": "calibration_window_days = 90"
+      },
+      {
+        "id": "G5",
+        "rule": "SLA 变更必须走 A-008 版本演进：SLA 常量入 fact table 元数据并版本化，不得就地改写",
+        "numeric_basis": "change_class ∈ {REVISION, MODEL}"
+      }
+    ]
+  },
+  "alerting": {
+    "evaluation_interval_seconds": 5,
+    "warn_consecutive_periods": 3,
+    "error_consecutive_periods": 3,
+    "clear_consecutive_periods": 6,
+    "trend_window_seconds": 60,
+    "stall_window_seconds": 30,
+    "triggers": [
+      {
+        "id": "T1",
+        "level": "warn",
+        "condition": "read_model_lag_seconds > warn_threshold_seconds",
+        "debounce": "连续 warn_consecutive_periods(3) 个评估周期",
+        "industry_basis": "Prometheus for: / Sensu occurrences"
+      },
+      {
+        "id": "T2",
+        "level": "stale",
+        "condition": "read_model_lag_seconds > error_threshold_seconds",
+        "debounce": "连续 error_consecutive_periods(3) 个评估周期",
+        "industry_basis": "dbt warn/error 两级阈值"
+      },
+      {
+        "id": "T3",
+        "level": "warn",
+        "condition": "read_model_lag_seconds 在 trend_window_seconds(60) 内单调非减且总增量 > warn_threshold_seconds",
+        "debounce": "趋势窗口内",
+        "industry_basis": "Confluent Cloud: grows continuously for a sustained period"
+      },
+      {
+        "id": "T4",
+        "level": "stale",
+        "condition": "read_model_version 在 stall_window_seconds(30) 内不变 且 fact_watermark_version 递增",
+        "debounce": "stall_window_seconds(30)",
+        "industry_basis": "Marten high-water staleThreshold 30s"
+      },
+      {
+        "id": "T5",
+        "level": "unknown",
+        "condition": "陈旧度探测 SQL 报错或返回空",
+        "debounce": "立即（fail-closed）",
+        "industry_basis": "A-012 防线失效降级 / fail-closed for verdict"
+      }
+    ],
+    "clearing": {
+      "id": "C1",
+      "rule": "连续 clear_consecutive_periods(6) 个周期 read_model_lag_seconds <= warn_threshold_seconds 才回 fresh",
+      "hysteresis": "非对称迟滞（清除阈值 6 > 触发阈值 3），对齐 Prometheus keep_firing_for"
+    },
+    "state_machine": [
+      "fresh",
+      "warn",
+      "stale",
+      "unknown"
+    ],
+    "transitions": [
+      "fresh -> warn : T1 或 T3",
+      "warn -> stale : T2 或 T4",
+      "fresh -> stale : T2 或 T4",
+      "warn -> fresh : C1 满足",
+      "stale -> fresh : C1 满足",
+      "any -> unknown : T5",
+      "unknown -> fresh : 探测恢复且 C1 满足"
+    ],
+    "alignment_with_A_012": "A-012 §4 指标 read_model_lag_seconds 阈值 > 5s 持续 3 周期 → critical，与本票 T1/T2 的 warn_consecutive_periods=3 逐值一致；本票为该指标的完整策略 owner，A-012 仅消费其触发语义（A-012 §6 已声明：陈旧读 SLA 的完整策略仍归 A-009）"
+  },
+  "marker_field": {
+    "chapter": "C1",
+    "chapter_name": "执行摘要",
+    "insertion": "追加到 C1 执行摘要 fields 数组末尾（既有 11 字段保持原位不变）",
+    "fields": [
+      {
+        "name": "stale_data_marker",
+        "type": "enum[fresh|warn|stale|unknown]",
+        "required": true,
+        "description": "陈旧数据标记本体；fresh=投影延迟 ≤ SLA，warn=超 warn 阈值，stale=超 error 阈值或投影停滞，unknown=探测失败（fail-closed）"
+      },
+      {
+        "name": "staleness_sla_seconds",
+        "type": "number",
+        "required": true,
+        "description": "本次报告生效的陈旧读 SLA（数字，秒；按 scale 取自 A-009 per_scale 表，默认 5）"
+      },
+      {
+        "name": "read_model_lag_seconds",
+        "type": "number",
+        "required": true,
+        "description": "实测投影延迟（秒）= now - fact 表 MAX(recorded_at)；字段名与 A-012 metric read_model_lag_seconds 逐字对齐"
+      },
+      {
+        "name": "read_model_version",
+        "type": "integer",
+        "required": true,
+        "description": "该 read model 已投影到的 fact 版本（来自控制表 read_model_state.last_processed_version）"
+      },
+      {
+        "name": "fact_watermark_version",
+        "type": "integer",
+        "required": true,
+        "description": "fact 表最新水位版本 = MAX(fact.version)，供 read_model_version 差值判定投影停滞"
+      }
+    ],
+    "reused_d006_field_names": [
+      {
+        "name": "generated_at",
+        "chapter": "C1",
+        "usage": "陈旧标记的评估基准时刻（报告生成时刻即 lag 评估时刻）"
+      },
+      {
+        "name": "degraded_mode",
+        "chapter": "C1",
+        "usage": "marker ∈ {stale, unknown} 时必须置 true（触发 A-018 failure path 语义）"
+      },
+      {
+        "name": "collected_at",
+        "chapter": "C3",
+        "usage": "逐证据采集时刻，用于证据级陈旧判定"
+      },
+      {
+        "name": "grounded",
+        "chapter": "C3",
+        "usage": "受影响证据在 marker ∈ {stale, unknown} 时必须置 unverified"
+      },
+      {
+        "name": "verdict_gate_stamp",
+        "chapter": "C4",
+        "usage": "受影响的行动建议在 marker ∈ {stale, unknown} 时必须置 unverified"
+      }
+    ],
+    "semantics_mapping": [
+      {
+        "marker": "fresh",
+        "degraded_mode": "false",
+        "grounded_c3": "不受影响",
+        "verdict_gate_stamp_c4": "不受影响",
+        "alert_level": "none"
+      },
+      {
+        "marker": "warn",
+        "degraded_mode": "false",
+        "grounded_c3": "可置 unverified",
+        "verdict_gate_stamp_c4": "不受影响",
+        "alert_level": "warn"
+      },
+      {
+        "marker": "stale",
+        "degraded_mode": "必须 true",
+        "grounded_c3": "必须 unverified",
+        "verdict_gate_stamp_c4": "必须 unverified",
+        "alert_level": "error"
+      },
+      {
+        "marker": "unknown",
+        "degraded_mode": "必须 true",
+        "grounded_c3": "必须 unverified",
+        "verdict_gate_stamp_c4": "必须 unverified",
+        "alert_level": "error（fail-closed）"
+      }
+    ],
+    "probe_sql": {
+      "fact_watermark": "SELECT MAX(version) AS fact_watermark_version, MAX(recorded_at) AS fact_watermark_at FROM fact;",
+      "read_model_version": "SELECT last_processed_version FROM control.read_model_state WHERE read_model_id = ?;",
+      "lag_seconds": "SELECT date_diff('second', (SELECT MAX(recorded_at) FROM fact), current_timestamp) AS read_model_lag_seconds;"
+    }
+  }
+}
