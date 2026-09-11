@@ -51,3 +51,13 @@
 - 依赖关系：与 A-002（ADR 时间戳头）共享证据基础（M3 的 St 需要时间戳）；与 A-003（LLM 抽取工具链）应复用而非另建；与 A-009 的「陈旧」概念**不合并**（A-009 管管道延迟，本票管决策与代码语义错位）。
 - 调研依据：atomcode 三引擎 14 查询 / 12 次抓取 / 22 来源；核心证据 = arXiv 2602.07609（一致性检测精度基准）、arXiv 2603.28592（AI 债 22.7% 存活率）、GitClear 2026（重复块 +81%）、SonarQube agentic AI gate、OpenSSF Scorecard。
 - 阻塞：无（Blocked by: None），本票一次闭环。
+
+## A-010 结论落盘（2026-09-11，票 #10 闭环）
+
+- **决议：fact table 内联双关联键**——在共享 DuckDB `fact` 表中前置 `trace_id` / `baggage_id`，不另起 `trace` / `baggage` 辅表，保持 ADR-0005 的 SSOT 与 read model 心智。
+- **字段定义**：`trace_id CHAR(32) NOT NULL`，来源为 OpenTelemetry `SpanContext.traceId` / W3C `traceparent` 的 16 bytes Trace ID，必须为 32 位小写 hex 且不得全零；`baggage_id CHAR(32) NOT NULL`，来源为 W3C `baggage` 中的 `baggage_id=<opaque-id>` 成员，由审计入口生成 128-bit CSPRNG lower-hex，必须为 32 位小写 hex、不得全零、不得含 PII 或业务可反推编码。
+- **语义分工**：`trace_id` 关联一次同步运行链路；`baggage_id` 关联同一 repo/commit/PR/run 的审计意图，覆盖异步 fan-out、重试和补跑导致的新 trace。
+- **OTel SDK 清单**：Macro-A/Macro-B/Micro-A/Micro-B 默认 OpenTelemetry JavaScript / Node.js SDK（官方 traces/metrics stable，契合 orchestration、PR hook、IDE/LSP wrapper）；Macro-C 默认 OpenTelemetry Python SDK（官方 traces/metrics stable，契合历史分析、corpus 校准、LLM 抽取流水线）；Rust SDK 仍为 Beta，仅作未来 CodeLore 内核增强，不作为默认主路径；Go SDK 仅在未来自研 Go collector 时启用。
+- **交付**：`reports/10-report.md` 含 DDL、字段校验约束、写入不变式、SDK 映射表、4 条跨 scale SQL（按 PR 反查全部 scale、按 trace 还原运行链路、按 commit 查冲突裁决、failure path 查缺失 scale）。
+- **调研依据**：W3C Trace Context、W3C Baggage、OpenTelemetry Traces/Baggage/Language SDK 官方文档；本窗口无 `ctx_*` 工具，atomcode 指定 carrier 不可用，报告已按缺口明示并以官方一手文档直读替代。
+- **阻塞**：无（Blocked by: None），本票一次闭环；输出供 A-008/A-009/A-012/A-013 复用。
