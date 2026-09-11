@@ -1,0 +1,981 @@
+{
+  "generated_at": "2026-09-11T16:32:11.032Z",
+  "protocol": "manual spot-check: 5 sampled intent units per repo x 3 repos = 15 units; label by reading top-3 delivery evidence (MiniLM + bge-small); delivered=13, absent=1, drift=1",
+  "labels": {
+    "env-manager#S1": {
+      "label": "delivered",
+      "why": "仓名与定位标签一致（弱信号，见 title 注记）"
+    },
+    "env-manager#S2": {
+      "label": "absent",
+      "why": "营销口号 Adapts seamlessly to every environment；top3 均为泛化 build/refactor 提交，无交付对应"
+    },
+    "env-manager#S3": {
+      "label": "delivered",
+      "why": "top1=feat(secrets) Phase6-7 sops+Azure KV；top3 全部为 secrets provider 系列提交"
+    },
+    "env-manager#S4": {
+      "label": "delivered",
+      "why": "feat(license,cli) ... PATH health + PATH entry add-path 测试提交"
+    },
+    "env-manager#S5": {
+      "label": "delivered",
+      "why": "feat(gui): add Tauri + TypeScript + Svelte GUI foundation"
+    },
+    "jiahao#S1": {
+      "label": "delivered",
+      "why": "pkg name 精确匹配（弱信号）"
+    },
+    "jiahao#S2": {
+      "label": "delivered",
+      "why": "ADR-0044 falsification evidence / ADR-0057 skip-honesty gate 即反假完成机制"
+    },
+    "jiahao#S3": {
+      "label": "delivered",
+      "why": "docs(adr-0032) generator surface rules + feat(hooks) verdict-gate generator profile advisory mode"
+    },
+    "jiahao#S4": {
+      "label": "delivered",
+      "why": "docs: verifier deployment discipline + ADR-0035 verifier audit fix"
+    },
+    "jiahao#S5": {
+      "label": "drift",
+      "why": "单位自身为 README 硬换行断句碎片（非完整声明）；部分回响 generator profile advisory"
+    },
+    "anysearch-cli#S1": {
+      "label": "delivered",
+      "why": "pkg name 精确匹配（弱信号）"
+    },
+    "anysearch-cli#S2": {
+      "label": "delivered",
+      "why": "feat: G009 Retroaererd Engine - fanout + RRF + sufficiency gate；path packages/kernel"
+    },
+    "anysearch-cli#S3": {
+      "label": "delivered",
+      "why": "path packages/retriever + feat: G008 AnySearch provider adapter"
+    },
+    "anysearch-cli#S4": {
+      "label": "delivered",
+      "why": "path apps/mcp + feat: G018 tool completion (search_web/recall_memory/research_web)"
+    },
+    "anysearch-cli#S5": {
+      "label": "delivered",
+      "why": "path apps/cli + feat(G010) CLI composition root - 8 commands"
+    }
+  },
+  "per_model": {
+    "minilm-l6-v2": {
+      "n_pos": 13,
+      "n_neg": 2,
+      "pos_mean": 0.6032,
+      "neg_mean": 0.3545,
+      "sweep": [
+        {
+          "theta": 0.2,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.25,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.3,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.35,
+          "tp": 13,
+          "fp": 1,
+          "tn": 1,
+          "fn": 0,
+          "precision": 0.9286,
+          "recall": 1,
+          "f1": 0.963
+        },
+        {
+          "theta": 0.4,
+          "tp": 13,
+          "fp": 0,
+          "tn": 2,
+          "fn": 0,
+          "precision": 1,
+          "recall": 1,
+          "f1": 1
+        },
+        {
+          "theta": 0.45,
+          "tp": 11,
+          "fp": 0,
+          "tn": 2,
+          "fn": 2,
+          "precision": 1,
+          "recall": 0.8462,
+          "f1": 0.9167
+        },
+        {
+          "theta": 0.5,
+          "tp": 9,
+          "fp": 0,
+          "tn": 2,
+          "fn": 4,
+          "precision": 1,
+          "recall": 0.6923,
+          "f1": 0.8182
+        },
+        {
+          "theta": 0.55,
+          "tp": 8,
+          "fp": 0,
+          "tn": 2,
+          "fn": 5,
+          "precision": 1,
+          "recall": 0.6154,
+          "f1": 0.7619
+        },
+        {
+          "theta": 0.6,
+          "tp": 7,
+          "fp": 0,
+          "tn": 2,
+          "fn": 6,
+          "precision": 1,
+          "recall": 0.5385,
+          "f1": 0.7
+        },
+        {
+          "theta": 0.65,
+          "tp": 2,
+          "fp": 0,
+          "tn": 2,
+          "fn": 11,
+          "precision": 1,
+          "recall": 0.1538,
+          "f1": 0.2667
+        },
+        {
+          "theta": 0.7,
+          "tp": 2,
+          "fp": 0,
+          "tn": 2,
+          "fn": 11,
+          "precision": 1,
+          "recall": 0.1538,
+          "f1": 0.2667
+        },
+        {
+          "theta": 0.75,
+          "tp": 2,
+          "fp": 0,
+          "tn": 2,
+          "fn": 11,
+          "precision": 1,
+          "recall": 0.1538,
+          "f1": 0.2667
+        },
+        {
+          "theta": 0.8,
+          "tp": 2,
+          "fp": 0,
+          "tn": 2,
+          "fn": 11,
+          "precision": 1,
+          "recall": 0.1538,
+          "f1": 0.2667
+        },
+        {
+          "theta": 0.85,
+          "tp": 2,
+          "fp": 0,
+          "tn": 2,
+          "fn": 11,
+          "precision": 1,
+          "recall": 0.1538,
+          "f1": 0.2667
+        },
+        {
+          "theta": 0.9,
+          "tp": 1,
+          "fp": 0,
+          "tn": 2,
+          "fn": 12,
+          "precision": 1,
+          "recall": 0.0769,
+          "f1": 0.1429
+        },
+        {
+          "theta": 0.95,
+          "tp": 1,
+          "fp": 0,
+          "tn": 2,
+          "fn": 12,
+          "precision": 1,
+          "recall": 0.0769,
+          "f1": 0.1429
+        }
+      ],
+      "at_0_70": {
+        "theta": 0.7,
+        "tp": 2,
+        "fp": 0,
+        "tn": 2,
+        "fn": 11,
+        "precision": 1,
+        "recall": 0.1538,
+        "f1": 0.2667
+      },
+      "best_f1": {
+        "theta": 0.4,
+        "tp": 13,
+        "fp": 0,
+        "tn": 2,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      }
+    },
+    "bge-small-en-v15": {
+      "n_pos": 13,
+      "n_neg": 2,
+      "pos_mean": 0.7534,
+      "neg_mean": 0.5919,
+      "sweep": [
+        {
+          "theta": 0.2,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.25,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.3,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.35,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.4,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.45,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.5,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.55,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.6,
+          "tp": 12,
+          "fp": 1,
+          "tn": 1,
+          "fn": 1,
+          "precision": 0.9231,
+          "recall": 0.9231,
+          "f1": 0.9231
+        },
+        {
+          "theta": 0.65,
+          "tp": 10,
+          "fp": 0,
+          "tn": 2,
+          "fn": 3,
+          "precision": 1,
+          "recall": 0.7692,
+          "f1": 0.8696
+        },
+        {
+          "theta": 0.7,
+          "tp": 9,
+          "fp": 0,
+          "tn": 2,
+          "fn": 4,
+          "precision": 1,
+          "recall": 0.6923,
+          "f1": 0.8182
+        },
+        {
+          "theta": 0.75,
+          "tp": 5,
+          "fp": 0,
+          "tn": 2,
+          "fn": 8,
+          "precision": 1,
+          "recall": 0.3846,
+          "f1": 0.5556
+        },
+        {
+          "theta": 0.8,
+          "tp": 3,
+          "fp": 0,
+          "tn": 2,
+          "fn": 10,
+          "precision": 1,
+          "recall": 0.2308,
+          "f1": 0.375
+        },
+        {
+          "theta": 0.85,
+          "tp": 2,
+          "fp": 0,
+          "tn": 2,
+          "fn": 11,
+          "precision": 1,
+          "recall": 0.1538,
+          "f1": 0.2667
+        },
+        {
+          "theta": 0.9,
+          "tp": 2,
+          "fp": 0,
+          "tn": 2,
+          "fn": 11,
+          "precision": 1,
+          "recall": 0.1538,
+          "f1": 0.2667
+        },
+        {
+          "theta": 0.95,
+          "tp": 2,
+          "fp": 0,
+          "tn": 2,
+          "fn": 11,
+          "precision": 1,
+          "recall": 0.1538,
+          "f1": 0.2667
+        }
+      ],
+      "at_0_70": {
+        "theta": 0.7,
+        "tp": 9,
+        "fp": 0,
+        "tn": 2,
+        "fn": 4,
+        "precision": 1,
+        "recall": 0.6923,
+        "f1": 0.8182
+      },
+      "best_f1": {
+        "theta": 0.2,
+        "tp": 13,
+        "fp": 2,
+        "tn": 0,
+        "fn": 0,
+        "precision": 0.8667,
+        "recall": 1,
+        "f1": 0.9286
+      }
+    },
+    "me5-small": {
+      "n_pos": 13,
+      "n_neg": 2,
+      "pos_mean": 0.8852,
+      "neg_mean": 0.8358,
+      "sweep": [
+        {
+          "theta": 0.2,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.25,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.3,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.35,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.4,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.45,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.5,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.55,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.6,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.65,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.7,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.75,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.8,
+          "tp": 13,
+          "fp": 2,
+          "tn": 0,
+          "fn": 0,
+          "precision": 0.8667,
+          "recall": 1,
+          "f1": 0.9286
+        },
+        {
+          "theta": 0.85,
+          "tp": 10,
+          "fp": 0,
+          "tn": 2,
+          "fn": 3,
+          "precision": 1,
+          "recall": 0.7692,
+          "f1": 0.8696
+        },
+        {
+          "theta": 0.9,
+          "tp": 5,
+          "fp": 0,
+          "tn": 2,
+          "fn": 8,
+          "precision": 1,
+          "recall": 0.3846,
+          "f1": 0.5556
+        },
+        {
+          "theta": 0.95,
+          "tp": 0,
+          "fp": 0,
+          "tn": 2,
+          "fn": 13,
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        }
+      ],
+      "at_0_70": {
+        "theta": 0.7,
+        "tp": 13,
+        "fp": 2,
+        "tn": 0,
+        "fn": 0,
+        "precision": 0.8667,
+        "recall": 1,
+        "f1": 0.9286
+      },
+      "best_f1": {
+        "theta": 0.2,
+        "tp": 13,
+        "fp": 2,
+        "tn": 0,
+        "fn": 0,
+        "precision": 0.8667,
+        "recall": 1,
+        "f1": 0.9286
+      }
+    }
+  },
+  "per_repo_mean_excluding_title": {
+    "minilm-l6-v2": {
+      "env-manager": 0.5287,
+      "jiahao": 0.4288,
+      "anysearch-cli": 0.6129
+    },
+    "bge-small-en-v15": {
+      "env-manager": 0.6805,
+      "jiahao": 0.6088,
+      "anysearch-cli": 0.7827
+    },
+    "me5-small": {
+      "env-manager": 0.8749,
+      "jiahao": 0.8424,
+      "anysearch-cli": 0.9013
+    }
+  },
+  "rows": [
+    {
+      "model": "minilm-l6-v2",
+      "records": [
+        {
+          "model": "minilm-l6-v2",
+          "sid": "env-manager#S1",
+          "score": 0.4092,
+          "label": "delivered",
+          "why": "仓名与定位标签一致（弱信号，见 title 注记）"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "env-manager#S2",
+          "score": 0.3421,
+          "label": "absent",
+          "why": "营销口号 Adapts seamlessly to every environment；top3 均为泛化 build/refactor 提交，无交付对应"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "env-manager#S3",
+          "score": 0.6476,
+          "label": "delivered",
+          "why": "top1=feat(secrets) Phase6-7 sops+Azure KV；top3 全部为 secrets provider 系列提交"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "env-manager#S4",
+          "score": 0.5866,
+          "label": "delivered",
+          "why": "feat(license,cli) ... PATH health + PATH entry add-path 测试提交"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "env-manager#S5",
+          "score": 0.5386,
+          "label": "delivered",
+          "why": "feat(gui): add Tauri + TypeScript + Svelte GUI foundation"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "jiahao#S1",
+          "score": 0.8836,
+          "label": "delivered",
+          "why": "pkg name 精确匹配（弱信号）"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "jiahao#S2",
+          "score": 0.4123,
+          "label": "delivered",
+          "why": "ADR-0044 falsification evidence / ADR-0057 skip-honesty gate 即反假完成机制"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "jiahao#S3",
+          "score": 0.4597,
+          "label": "delivered",
+          "why": "docs(adr-0032) generator surface rules + feat(hooks) verdict-gate generator profile advisory mode"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "jiahao#S4",
+          "score": 0.4761,
+          "label": "delivered",
+          "why": "docs: verifier deployment discipline + ADR-0035 verifier audit fix"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "jiahao#S5",
+          "score": 0.3669,
+          "label": "drift",
+          "why": "单位自身为 README 硬换行断句碎片（非完整声明）；部分回响 generator profile advisory"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "anysearch-cli#S1",
+          "score": 0.9761,
+          "label": "delivered",
+          "why": "pkg name 精确匹配（弱信号）"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "anysearch-cli#S2",
+          "score": 0.6061,
+          "label": "delivered",
+          "why": "feat: G009 Retroaererd Engine - fanout + RRF + sufficiency gate；path packages/kernel"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "anysearch-cli#S3",
+          "score": 0.6254,
+          "label": "delivered",
+          "why": "path packages/retriever + feat: G008 AnySearch provider adapter"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "anysearch-cli#S4",
+          "score": 0.6126,
+          "label": "delivered",
+          "why": "path apps/mcp + feat: G018 tool completion (search_web/recall_memory/research_web)"
+        },
+        {
+          "model": "minilm-l6-v2",
+          "sid": "anysearch-cli#S5",
+          "score": 0.6077,
+          "label": "delivered",
+          "why": "path apps/cli + feat(G010) CLI composition root - 8 commands"
+        }
+      ]
+    },
+    {
+      "model": "bge-small-en-v15",
+      "records": [
+        {
+          "model": "bge-small-en-v15",
+          "sid": "env-manager#S1",
+          "score": 0.7145,
+          "label": "delivered",
+          "why": "仓名与定位标签一致（弱信号，见 title 注记）"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "env-manager#S2",
+          "score": 0.5626,
+          "label": "absent",
+          "why": "营销口号 Adapts seamlessly to every environment；top3 均为泛化 build/refactor 提交，无交付对应"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "env-manager#S3",
+          "score": 0.7464,
+          "label": "delivered",
+          "why": "top1=feat(secrets) Phase6-7 sops+Azure KV；top3 全部为 secrets provider 系列提交"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "env-manager#S4",
+          "score": 0.6681,
+          "label": "delivered",
+          "why": "feat(license,cli) ... PATH health + PATH entry add-path 测试提交"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "env-manager#S5",
+          "score": 0.7448,
+          "label": "delivered",
+          "why": "feat(gui): add Tauri + TypeScript + Svelte GUI foundation"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "jiahao#S1",
+          "score": 0.9789,
+          "label": "delivered",
+          "why": "pkg name 精确匹配（弱信号）"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "jiahao#S2",
+          "score": 0.608,
+          "label": "delivered",
+          "why": "ADR-0044 falsification evidence / ADR-0057 skip-honesty gate 即反假完成机制"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "jiahao#S3",
+          "score": 0.6222,
+          "label": "delivered",
+          "why": "docs(adr-0032) generator surface rules + feat(hooks) verdict-gate generator profile advisory mode"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "jiahao#S4",
+          "score": 0.5839,
+          "label": "delivered",
+          "why": "docs: verifier deployment discipline + ADR-0035 verifier audit fix"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "jiahao#S5",
+          "score": 0.6213,
+          "label": "drift",
+          "why": "单位自身为 README 硬换行断句碎片（非完整声明）；部分回响 generator profile advisory"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "anysearch-cli#S1",
+          "score": 0.996,
+          "label": "delivered",
+          "why": "pkg name 精确匹配（弱信号）"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "anysearch-cli#S2",
+          "score": 0.7978,
+          "label": "delivered",
+          "why": "feat: G009 Retroaererd Engine - fanout + RRF + sufficiency gate；path packages/kernel"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "anysearch-cli#S3",
+          "score": 0.8023,
+          "label": "delivered",
+          "why": "path packages/retriever + feat: G008 AnySearch provider adapter"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "anysearch-cli#S4",
+          "score": 0.7453,
+          "label": "delivered",
+          "why": "path apps/mcp + feat: G018 tool completion (search_web/recall_memory/research_web)"
+        },
+        {
+          "model": "bge-small-en-v15",
+          "sid": "anysearch-cli#S5",
+          "score": 0.7855,
+          "label": "delivered",
+          "why": "path apps/cli + feat(G010) CLI composition root - 8 commands"
+        }
+      ]
+    },
+    {
+      "model": "me5-small",
+      "records": [
+        {
+          "model": "me5-small",
+          "sid": "env-manager#S1",
+          "score": 0.8468,
+          "label": "delivered",
+          "why": "仓名与定位标签一致（弱信号，见 title 注记）"
+        },
+        {
+          "model": "me5-small",
+          "sid": "env-manager#S2",
+          "score": 0.842,
+          "label": "absent",
+          "why": "营销口号 Adapts seamlessly to every environment；top3 均为泛化 build/refactor 提交，无交付对应"
+        },
+        {
+          "model": "me5-small",
+          "sid": "env-manager#S3",
+          "score": 0.8777,
+          "label": "delivered",
+          "why": "top1=feat(secrets) Phase6-7 sops+Azure KV；top3 全部为 secrets provider 系列提交"
+        },
+        {
+          "model": "me5-small",
+          "sid": "env-manager#S4",
+          "score": 0.8913,
+          "label": "delivered",
+          "why": "feat(license,cli) ... PATH health + PATH entry add-path 测试提交"
+        },
+        {
+          "model": "me5-small",
+          "sid": "env-manager#S5",
+          "score": 0.8886,
+          "label": "delivered",
+          "why": "feat(gui): add Tauri + TypeScript + Svelte GUI foundation"
+        },
+        {
+          "model": "me5-small",
+          "sid": "jiahao#S1",
+          "score": 0.9096,
+          "label": "delivered",
+          "why": "pkg name 精确匹配（弱信号）"
+        },
+        {
+          "model": "me5-small",
+          "sid": "jiahao#S2",
+          "score": 0.8405,
+          "label": "delivered",
+          "why": "ADR-0044 falsification evidence / ADR-0057 skip-honesty gate 即反假完成机制"
+        },
+        {
+          "model": "me5-small",
+          "sid": "jiahao#S3",
+          "score": 0.8482,
+          "label": "delivered",
+          "why": "docs(adr-0032) generator surface rules + feat(hooks) verdict-gate generator profile advisory mode"
+        },
+        {
+          "model": "me5-small",
+          "sid": "jiahao#S4",
+          "score": 0.8512,
+          "label": "delivered",
+          "why": "docs: verifier deployment discipline + ADR-0035 verifier audit fix"
+        },
+        {
+          "model": "me5-small",
+          "sid": "jiahao#S5",
+          "score": 0.8297,
+          "label": "drift",
+          "why": "单位自身为 README 硬换行断句碎片（非完整声明）；部分回响 generator profile advisory"
+        },
+        {
+          "model": "me5-small",
+          "sid": "anysearch-cli#S1",
+          "score": 0.9489,
+          "label": "delivered",
+          "why": "pkg name 精确匹配（弱信号）"
+        },
+        {
+          "model": "me5-small",
+          "sid": "anysearch-cli#S2",
+          "score": 0.8918,
+          "label": "delivered",
+          "why": "feat: G009 Retroaererd Engine - fanout + RRF + sufficiency gate；path packages/kernel"
+        },
+        {
+          "model": "me5-small",
+          "sid": "anysearch-cli#S3",
+          "score": 0.9023,
+          "label": "delivered",
+          "why": "path packages/retriever + feat: G008 AnySearch provider adapter"
+        },
+        {
+          "model": "me5-small",
+          "sid": "anysearch-cli#S4",
+          "score": 0.9059,
+          "label": "delivered",
+          "why": "path apps/mcp + feat: G018 tool completion (search_web/recall_memory/research_web)"
+        },
+        {
+          "model": "me5-small",
+          "sid": "anysearch-cli#S5",
+          "score": 0.9051,
+          "label": "delivered",
+          "why": "path apps/cli + feat(G010) CLI composition root - 8 commands"
+        }
+      ]
+    }
+  ]
+}
