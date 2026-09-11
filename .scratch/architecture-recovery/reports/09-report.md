@@ -252,9 +252,10 @@ A-009 = spec.md §Decision 5.3「Read model 失效策略」，覆盖 ledger A-00
 
 | 项 | 值 |
 |---|---|
-| 分支 | fix/architecture-recovery-09 |
-| 提交 | （提交后回填） |
-| 提交范围 | reports/09-report.md + reports/09-stale-marker-fields.json + reports/09-stale-check.mjs + reports/14-skeleton-fields.json + decision-ledger.md + WORKFLOW.md + issues/09-read-model-staleness.md |
+| 分支 | fix/architecture-recovery-09（已按 GitButler Hint 堆叠在 ticket-14-shared-skeleton 之上） |
+| 提交 1 | lzq — reports/09-report.md + reports/09-stale-marker-fields.json + reports/09-stale-check.mjs + issues/09-read-model-staleness.md |
+| 提交 2 | xpo — reports/14-skeleton-fields.json（A-009 追加扩展：C1 +5 字段，schema_version 1.0.0 → 1.1.0，ADDITION） |
+| 未提交（留在 zz） | decision-ledger.md + WORKFLOW.md —— 因跨栈依赖（ticket-05-unit-matrix vxs / w2-02-adr-timestamp-check qko）无法应用到本分支；**内容已落盘**，处置与 #15（wly）/ #03（lwz）完全一致，待首脑窗口 sweep |
 
 > 禁止命令遵守情况：不执行 git add / git commit / git push / git checkout / git merge / git rebase / git stash / git cherry-pick；所有版本控制写动作走 but CLI。
 > 未推送声明：未经用户指示不 push —— 本票止于本地提交。
