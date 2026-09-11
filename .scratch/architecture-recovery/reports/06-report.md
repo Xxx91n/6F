@@ -239,7 +239,7 @@ KV(Δt) = |decisions_in_AI_chat(Δt) ∪ 未转录决策| / |decisions_total(Δt
 | 上下文漂移（知识蒸发率） | KV | ratio [0,1] | ⚠ 半自动 | 待定 | **依赖 AI 会话日志可获取性（见 §7）** |
 | ADR 密度 | θ_density | ratio [0,1] | ✅ 全自动 | ≥0.80 / 0.50–0.80 / <0.50 | 决策事件检测规则的召回率 |
 
-**可机检性声明**：上表前 4 项（C_est / RI / St / θ_density）均可由脚本 + LLM 流水线**全自动**计算，分子分母均有明确定义的提取规则，**不含主观定性成分**。KV 为半自动（受限于会话日志可得性），因此**不计入自动阈值判定**，仅作为叙事层证据。每个指标的阈值均走 YAML 配置外置以支持跨仓校准（复用 ADR-0004 机制）。
+**可机检性声明**：上表除 KV 外的 4 项（C_est / RI / St / θ_density）均可由脚本 + LLM 流水线**全自动**计算，分子分母均有明确定义的提取规则，**不含主观定性成分**。KV 为半自动（受限于会话日志可得性），因此**不计入自动阈值判定**，仅作为叙事层证据。每个指标的阈值均走 YAML 配置外置以支持跨仓校准（复用 ADR-0004 机制）。
 
 #### 可选：综合退化指数（仅供组织层聚合，非本框架判定依据）
 
@@ -480,9 +480,19 @@ thresholds:                             # 初版参数，走 ADR-0004 跨仓校�
 本报告通过 `but` CLI 提交到本 session 独立分支，不使用任何 git write 命令：
 
 ```bash
-but diff
-but commit -b a006-adr-impact-framework -m "docs(A-006): ADR quality impact assessment framework (deferred per Decision 4.6)"
+but diff                                                        # 取 reports/06-report.md 的 hunk ID
+but commit -b a006-adr-impact-framework -m "docs(A-006): ..." lys:b
 ```
 
-> 禁止命令遵守情况：本次全程未执行 `git add` / `git commit` / `git push` / `git checkout` / `git merge` / `git rebase` / `git stash` / `git cherry-pick`。
+**实际执行结果：**
 
+| 项 | 值 |
+|---|---|
+| 分支 | `a006-adr-impact-framework`（独立 session 分支，未动 `ticket-05-unit-matrix` 等他分支） |
+| 提交 | 2 条提交于本分支：`lsr`/`pkz`（GitButler change ID；内容：框架报告 + 账本落盘）。commit SHA 会随 GitButler 历史编辑变化，故以 change ID 与提交信息为准，不引用 SHA |
+| 提交范围 | 仅 `reports/06-report.md`（单文件 hunk，未夹带其他 agent 的变更） |
+| 决策账本 | `.scratch/architecture-recovery/decision-ledger.md` 追加 `## A-006 结论落盘` 段（per WORKFLOW §4.2.4），与本提交同分支 |
+
+> **禁止命令遵守情况**：本次全程未执行 git add / git commit / git push / git checkout / git merge / git rebase / git stash / git cherry-pick。所有写操作走 `but` CLI；仅用只读 git 命令做核验。
+
+> **未推送声明**：`gb-local` 远端指向本地 workspace，且工作约定要求未经用户指示不 push —— 本票止于本地提交，不执行 `but push` / `but pr new`。
