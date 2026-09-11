@@ -1,0 +1,222 @@
+{
+  "artifact": "s5-team-size-downweight",
+  "ticket": "04",
+  "covers": "A-004",
+  "decision_ref": "spec.md §Decision 4.4",
+  "rule_version": "v1",
+  "provenance": {
+    "origin": "expert",
+    "calibrated_date": "2026-09-11",
+    "expires_at": "2026-12-10",
+    "recalibration": "90 天窗口，与 reports/05-unit-matrix.json provenance 同源；B2+ 试点仓入语料后按 Alves 桶内百分位重校准",
+    "literature_anchors": [
+      "Avelino et al. 2016 ICPC: 133 GitHub 项目 46% truck-factor=1、65% <=2 —— 单/双人掌控在小仓是常态而非红旗（B1/B2 阈值右移依据）",
+      "OpenSSF Best Practices Badge: Gold MUST bus_factor>=2 —— 绝对门槛只对 >=2 人团队可满足（B1 门控依据）",
+      "OpenSSF Scorecard Contributors/Code-Review: 小团队豁免条款原文 + 机器人不计分 —— 身份分类与豁免先例",
+      "Safeguard.sh 2026: 近 24 个月单人 >=90% commits = 结构性单人 —— structural-solo 判据蓝本（本规则改 365 天窗口）",
+      "Bird et al. 2011 ESEC/FSE: minor contributor = 模块内 commit 份额 <5% —— override 第二作者阈值依据（其 FLOSS 反证 EASE'14 已并列披露）",
+      "Team Topologies: 团队 5-9 人、每部分恰一个团队拥有 —— B3 上界 11 的粒度依据；Patricia Aas 2025 批评已并列披露"
+    ]
+  },
+  "actor_model": {
+    "identity_source": "git log --format='%aN <%aE>'（mailmap 优先；三试点仓均无 .mailmap，建议补建）",
+    "window_days": 365,
+    "branch_scope": "default branch",
+    "classification": [
+      {"class": "tool", "rule": "email=gitbutler@gitbutler.com 或 name 命中 /^(GitButler|release-please|renovate|dependabot|github-actions)/i"},
+      {"class": "ai_agent", "rule": "name 命中 /(codex|claude|copilot|agent|bot)/i 或 email 域 *.local / bot@* / dev@*.local；机器人不计入团队规模（Scorecard 先例）"},
+      {"class": "human", "rule": "其余身份"}
+    ],
+    "alias_merge": "同 email 必并；跨 email 别名默认不并（保守：宁可高估团队规模，不可漏降权）；.mailmap 是显式合并通道",
+    "note": "squash/merge 提交会把 AI 工作归属到人类别名下（jiahao 案例），author 字段系统性低估 AI 劳动份额 —— 不影响人类计数，已记入信息缺口"
+  },
+  "structural_solo_override": {
+    "predicate": "human_actors>=2 AND top_human_share>=0.90 AND every_other_human_share<0.05",
+    "action": "force bucket=B1, confidence=upper_bounded",
+    "rationale": "别名拆分（同一人多个 git 身份）不应让仓库逃过降权；Safeguard.sh 90% 结构性单人判据 + Bird 5% minor 线"
+  },
+  "buckets": [
+    {
+      "id": "B1", "label": "solo", "human_actors": {"min": 1, "max": 1},
+      "threshold_offset": 0.50, "weight_coefficient": 0.25,
+      "rationale": "单作者占比恒为 1，S5 无判别力（Avelino 46% TF=1 为常态基线）；offset 0.50 使全部 >=0.5 的 v1 比率阈值饱和不可达，强制走信号不足门；coefficient 0.25 仅在 status=sufficient 的罕见 B1（自带 CODEOWNERS+双人类评审）时参与聚合"
+    },
+    {
+      "id": "B2", "label": "duo-small", "human_actors": {"min": 2, "max": 5},
+      "threshold_offset": 0.25, "weight_coefficient": 0.50,
+      "rationale": "65% 项目 TF<=2，双人掌控仍是常态；bus_factor>=2（Badge Gold）恰在此桶变得可满足，故右移但不饱和"
+    },
+    {
+      "id": "B3", "label": "single-team", "human_actors": {"min": 6, "max": 11},
+      "threshold_offset": 0.10, "weight_coefficient": 0.75,
+      "rationale": "Team Topologies 单团队粒度 5-9（上界 11 留裕度）；接近原始阈值"
+    },
+    {
+      "id": "B4", "label": "org", "human_actors": {"min": 12, "max": null},
+      "threshold_offset": 0.00, "weight_coefficient": 1.00,
+      "rationale": "超出单团队（Dunbar≈15 上界语境）；v1 阈值的研究锚点（Bird 企业仓、Linux 26% 作者比）多在此粒度，不偏移"
+    }
+  ],
+  "threshold_application": "v1 阈值比较前先做 value_eff = value + threshold_offset(bucket)；S5 风险权重在象限聚合前先乘 weight_coefficient(bucket)",
+  "insufficient_signal_gates": [
+    {
+      "id": "G1", "name": "no_ownership_artifact",
+      "predicate": "bucket=B1 AND (CODEOWNERS 缺失 OR 人类 owner<=1) AND (无 PR reviewer 元数据 OR 人类 reviewer<=1)",
+      "anchor": "Scorecard Contributors 小团队豁免条款：文档明言仅 1 名活跃参与者的项目无法满足"
+    },
+    {
+      "id": "G2", "name": "sample_too_small",
+      "predicate": "window 内提交数 < 30",
+      "anchor": "Scorecard Contributors 采用 30 commits 窗口"
+    },
+    {
+      "id": "G3", "name": "ai_labor_majority",
+      "predicate": "ai_agent 提交占比 >= 0.50 AND human_actors <= 1",
+      "anchor": "S5 证据源（CODEOWNERS/blame/reviewer）预设人类组织问责；单人类+AI 代理劳动的所有权连续性不可由现有证据源度量（与 A-006 评估框架衔接）"
+    }
+  ],
+  "fallback": {
+    "verdict": "insufficient_signal",
+    "aggregate": "象限聚合剔除 S5 权重并按剩余维度权重归一化（drop_s5）",
+    "rendering": "报告按 CONTEXT.md Sufficiency Gate 渲染『信号不足（data doesn't show）』叙述段，不给 verified verdict",
+    "restore_evidence": [
+      "新增 CODEOWNERS 且人类 owner >= 2",
+      "窗口内出现 >= 2 名人类 reviewer 的 PR 记录",
+      "窗口提交 >= 30 且出现第二名人类 actor 份额 >= 5%"
+    ]
+  },
+  "matrix_binding": {
+    "snapshot_source": "reports/05-unit-matrix.json S1-S5 矩阵 S5 行（本票不改矩阵，降权在读取侧生效）",
+    "v1_threshold_snapshot": [
+      {"cell": "S5xMACRO-A", "yellow": {"metric": "ownership_overlap_ratio", "op": ">", "value": 0.3}, "red": {"metric": "ownership_mismatch_with_circular_deps", "op": ">", "value": 0}},
+      {"cell": "S5xMACRO-B", "yellow": {"metric": "bus_factor_lt2_loc_ratio", "op": ">", "value": 0.2}, "red": {"metric": "bus_factor_lt2_loc_ratio", "op": ">", "value": 0.4}},
+      {"cell": "S5xMACRO-C", "yellow": {"metric": "ownership_lagging_modules_ratio", "op": ">", "value": 0.3}, "red": {"metric": "ownership_lagging_modules_ratio", "op": ">", "value": 0.5}},
+      {"cell": "S5xMICRO-A", "yellow": {"metric": "unapproved_boundary_cross_ratio", "op": ">", "value": 0.1}, "red": {"metric": "unapproved_boundary_cross_ratio", "op": ">", "value": 0.3}},
+      {"cell": "S5xMICRO-B", "yellow": {"metric": "single_author_file_ratio", "op": ">", "value": 0.5}, "red": {"metric": "single_author_core_file_ratio", "op": ">", "value": 0.75}}
+    ],
+    "per_cell_rule": "B1：G1/G3 门几乎必触发，数值路径被 insufficient_signal 取代；B2-B4：offset 作用于该 cell 阈值，coefficient 乘 risk_weight；S5xMICRO-B notes『降权为 advisory』由本规则具象化"
+  },
+  "report_template_field": {
+    "block": "s5_signal_assessment",
+    "note": "提案字段块，待 #14（A-014 共享骨架）收编为共享模板必含字段；与 A-009 陈旧标记字段同族（status+reason+窗口）",
+    "fields": [
+      {"name": "status", "type": "enum", "values": ["sufficient", "insufficient"], "required": true},
+      {"name": "bucket_id", "type": "enum", "values": ["B1", "B2", "B3", "B4"], "required": true},
+      {"name": "human_actor_count", "type": "integer >=1", "required": true},
+      {"name": "actor_count_confidence", "type": "enum", "values": ["resolved", "upper_bounded"], "required": true},
+      {"name": "window", "type": "object", "fields": ["days", "from", "to"], "required": true},
+      {"name": "identity_summary", "type": "object", "fields": ["raw_identities", "human_actors", "ai_agent_actors[]", "tool_actors[]"], "required": true},
+      {"name": "ai_commit_share", "type": "number 0-1", "required": true},
+      {"name": "structural_solo", "type": "object", "fields": ["applied", "top_actor_share", "second_actor_share"], "required": true},
+      {"name": "downweight", "type": "object", "fields": ["threshold_offset", "weight_coefficient"], "required": true},
+      {"name": "reason_codes", "type": "enum[]", "values": ["G1_NO_OWNERSHIP_ARTIFACT", "G2_SAMPLE_TOO_SMALL", "G3_AI_LABOR_MAJORITY", "NONE"], "required": true},
+      {"name": "verdict", "type": "enum", "values": ["green", "yellow", "red", "insufficient_signal"], "required": true},
+      {"name": "aggregate_renormalization", "type": "enum", "values": ["drop_s5", "none"], "required": true},
+      {"name": "restore_evidence", "type": "string[]", "required": "当 status=insufficient 时必填"},
+      {"name": "rule_version", "type": "string", "required": true}
+    ]
+  },
+  "cases": [
+    {
+      "repo": "env-manager",
+      "path": "D:/Aworker/env-manager",
+      "window": {"days": 365, "from": "2026-07-10", "to": "2026-09-10"},
+      "total_commits": 472,
+      "window_commits": 472,
+      "identities": [
+        {"raw": "Env Manager Bot <dev@env-manager.local>", "count": 448, "class": "ai_agent"},
+        {"raw": "env-manager-bot <bot@env-manager.local>", "count": 10, "class": "ai_agent", "alias_of": "Env Manager Bot（同 bot 家族，name 规则并组）"},
+        {"raw": "Xxx91n <jinxi2410@gmail.com>", "count": 9, "class": "human"},
+        {"raw": "codex <codex@local>", "count": 3, "class": "ai_agent"},
+        {"raw": "Codex <codex@local>", "count": 1, "class": "ai_agent", "alias_of": "codex（同 email 必并）"},
+        {"raw": "GitButler <gitbutler@gitbutler.com>", "count": 1, "class": "tool"}
+      ],
+      "human_actor_count": 1,
+      "ai_commit_share": 0.979,
+      "naive_bucket": "B1",
+      "structural_solo": {"applied": false, "top_actor_share": 1.0, "second_actor_share": 0.0},
+      "final_bucket": "B1",
+      "actor_count_confidence": "resolved",
+      "codeowners_present": false,
+      "human_reviewers": null,
+      "modules": [
+        {"dir": "docs", "commits": 115, "top_author": "Env Manager Bot", "top_share": 0.913},
+        {"dir": "frontend", "commits": 206, "top_author": "Env Manager Bot", "top_share": 0.951},
+        {"dir": "scripts", "commits": 53, "top_author": "Env Manager Bot", "top_share": 0.962},
+        {"dir": "service", "commits": 37, "top_author": "Env Manager Bot", "top_share": 1.0},
+        {"dir": "src", "commits": 53, "top_author": "Env Manager Bot", "top_share": 1.0},
+        {"dir": "tests", "commits": 49, "top_author": "Env Manager Bot", "top_share": 1.0}
+      ],
+      "single_author_module_share": 1.0,
+      "v1_naive_yellow": "1.0 > 0.5 → 黄（误报：bot 劳动被当所有权信号）",
+      "downweighted": "0.5+0.50=1.0，严格 > 不可达 → 数值判定抑制",
+      "gates_triggered": ["G1_NO_OWNERSHIP_ARTIFACT", "G3_AI_LABOR_MAJORITY"],
+      "expected": {"status": "insufficient", "verdict": "insufficient_signal", "aggregate_renormalization": "drop_s5"}
+    },
+    {
+      "repo": "anysearch-cli",
+      "path": "D:/Aworker/anysearch-cli",
+      "window": {"days": 365, "from": "2026-08-18", "to": "2026-09-11"},
+      "total_commits": 192,
+      "window_commits": 192,
+      "identities": [
+        {"raw": "Euiop1 <iz0ms@Euiop1.oi>", "count": 188, "class": "human"},
+        {"raw": "TonPro <hello@tonpro.fu>", "count": 4, "class": "human", "note": "仅 2026-08-18 首日 scaffold 4 提交；无 bot 证据，保守计人类"}
+      ],
+      "human_actor_count": 2,
+      "ai_commit_share": 0.0,
+      "naive_bucket": "B2",
+      "structural_solo": {"applied": true, "top_actor_share": 0.979, "second_actor_share": 0.021},
+      "final_bucket": "B1",
+      "actor_count_confidence": "upper_bounded",
+      "codeowners_present": false,
+      "human_reviewers": null,
+      "modules": [
+        {"dir": "apps", "commits": 60, "top_author": "Euiop1", "top_share": 0.967},
+        {"dir": "docs", "commits": 101, "top_author": "Euiop1", "top_share": 0.980},
+        {"dir": "packages", "commits": 111, "top_author": "Euiop1", "top_share": 1.0},
+        {"dir": "scripts", "commits": 42, "top_author": "Euiop1", "top_share": 1.0}
+      ],
+      "single_author_module_share": 1.0,
+      "v1_naive_yellow": "1.0 > 0.5 → 黄（误报）",
+      "downweighted": "0.5+0.50=1.0 不可达 → 数值判定抑制；G1 触发 → insufficient_signal",
+      "gates_triggered": ["G1_NO_OWNERSHIP_ARTIFACT"],
+      "expected": {"status": "insufficient", "verdict": "insufficient_signal", "aggregate_renormalization": "drop_s5"}
+    },
+    {
+      "repo": "jiahao",
+      "path": "D:/Aworker/jiahao",
+      "window": {"days": 365, "from": "2026-08-22", "to": "2026-09-11"},
+      "total_commits": 171,
+      "window_commits": 171,
+      "identities": [
+        {"raw": "Euiop1 <iz0ms@Euiop1.oi>", "count": 167, "class": "human"},
+        {"raw": "Xxx91n <jinxi2410@gmail.com>", "count": 4, "class": "human", "note": "4 提交均为 codex PR（#1-#4）的 merge 提交；GitHub remote 属主=Xxx91n 与 env-manager 相同 → 与 Euiop1 同人疑似，未证实 → 保守不并，靠 override 兜底"}
+      ],
+      "human_actor_count": 2,
+      "ai_commit_share": 0.0,
+      "naive_bucket": "B2",
+      "structural_solo": {"applied": true, "top_actor_share": 0.977, "second_actor_share": 0.023},
+      "final_bucket": "B1",
+      "actor_count_confidence": "upper_bounded",
+      "codeowners_present": false,
+      "human_reviewers": 1,
+      "modules": [
+        {"dir": "adapters", "commits": 9, "top_author": "Euiop1", "top_share": 1.0},
+        {"dir": "bench", "commits": 20, "top_author": "Euiop1", "top_share": 1.0},
+        {"dir": "docs", "commits": 74, "top_author": "Euiop1", "top_share": 1.0},
+        {"dir": "hooks", "commits": 22, "top_author": "Euiop1", "top_share": 1.0},
+        {"dir": "jiahao-mcp", "commits": 4, "top_author": "Euiop1", "top_share": 1.0},
+        {"dir": "scripts", "commits": 59, "top_author": "Euiop1", "top_share": 1.0},
+        {"dir": "src", "commits": 61, "top_author": "Euiop1", "top_share": 1.0},
+        {"dir": "test", "commits": 91, "top_author": "Euiop1", "top_share": 0.989}
+      ],
+      "single_author_module_share": 1.0,
+      "v1_naive_yellow": "1.0 > 0.5 → 黄（误报）",
+      "downweighted": "0.5+0.50=1.0 不可达 → 数值判定抑制；reviewer=1 人类 → G1 成立 → insufficient_signal",
+      "gates_triggered": ["G1_NO_OWNERSHIP_ARTIFACT"],
+      "expected": {"status": "insufficient", "verdict": "insufficient_signal", "aggregate_renormalization": "drop_s5"}
+    }
+  ],
+  "verification_summary": "3/3 真实单人仓案例：naive v1 阈值全误报黄，降权后全部正确落入 insufficient_signal + drop_s5 回退；由 reports/04-downweight-check.mjs 机检"
+}
