@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "title": "A-014 报告模板共享骨架 — 章顺序 + 字段必含清单 + 5 scale x 4 象限交集字段表",
   "decision_ref": "spec.md §Decision 6.1",
   "adr_ref": "docs/adr/0006-shared-skeleton-scale-slice.md",
@@ -93,6 +93,36 @@
             "type": "boolean",
             "required": true,
             "description": "是否处于降级产出；true 时走 A-018 failure path 语义并必带降级说明"
+          },
+          {
+            "name": "stale_data_marker",
+            "type": "enum[fresh|warn|stale|unknown]",
+            "required": true,
+            "description": "陈旧数据标记本体（A-009）；fresh=投影延迟 ≤ SLA，warn=超 warn 阈值，stale=超 error 阈值或投影停滞，unknown=探测失败（fail-closed）"
+          },
+          {
+            "name": "staleness_sla_seconds",
+            "type": "number",
+            "required": true,
+            "description": "本次报告生效的陈旧读 SLA（数字，秒；按 scale 取自 A-009 per_scale 表，默认 5）"
+          },
+          {
+            "name": "read_model_lag_seconds",
+            "type": "number",
+            "required": true,
+            "description": "实测投影延迟（秒）= now - fact 表 MAX(recorded_at)；字段名与 A-012 metric 逐字对齐"
+          },
+          {
+            "name": "read_model_version",
+            "type": "integer",
+            "required": true,
+            "description": "该 read model 已投影到的 fact 版本（控制表 read_model_state.last_processed_version）"
+          },
+          {
+            "name": "fact_watermark_version",
+            "type": "integer",
+            "required": true,
+            "description": "fact 表最新水位版本 = MAX(fact.version)"
           }
         ]
       },
