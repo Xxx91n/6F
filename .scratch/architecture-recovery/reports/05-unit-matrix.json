@@ -1,0 +1,870 @@
+{
+  "schema_version": "1.0.0",
+  "dimensions": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5"
+  ],
+  "scales": [
+    "MACRO-A",
+    "MACRO-B",
+    "MACRO-C",
+    "MICRO-A",
+    "MICRO-B"
+  ],
+  "cells": [
+    {
+      "id": "S1xMACRO-A",
+      "dimension": "S1",
+      "scale": "MACRO-A",
+      "criterion": "跨仓组合战略对齐：各仓定位声明与组合叙事 embedding 收敛度、跨仓依赖方向与声明分工一致性",
+      "data_source": [
+        "各仓 README/roadmap",
+        "跨仓依赖图",
+        "组合战略声明"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "portfolio_convergence_mean",
+          "operator": "<",
+          "value": 0.75
+        },
+        "red": {
+          "metric": "portfolio_convergence_mean",
+          "operator": "<",
+          "value": 0.6
+        }
+      },
+      "scoring": "index",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "红级叠加条件：任意两仓定位声明直接冲突"
+    },
+    {
+      "id": "S1xMACRO-B",
+      "dimension": "S1",
+      "scale": "MACRO-B",
+      "criterion": "README 一句话定位/roadmap 与实际交付（PR 标题、issue 分流、CHANGELOG）的关键词+embedding 覆盖率与漂移起点检测",
+      "data_source": [
+        "README/docs/roadmap",
+        "CHANGELOG",
+        "git log",
+        "issue+label",
+        "PR 标题"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "positioning_keyword_coverage",
+          "operator": "<",
+          "value": 0.7
+        },
+        "red": {
+          "metric": "positioning_keyword_coverage",
+          "operator": "<",
+          "value": 0.5
+        }
+      },
+      "scoring": "percent",
+      "risk_weight": 3,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "70% 为初版 expert 参数非 hard rule（per Decision 4.1）；embedding 选型+关键词 fallback+人工抽检"
+    },
+    {
+      "id": "S1xMACRO-C",
+      "dimension": "S1",
+      "scale": "MACRO-C",
+      "criterion": "定位覆盖度 rolling window 时间序列与漂移起点（连续下滑趋势）检测",
+      "data_source": [
+        "git log",
+        "CHANGELOG",
+        "roadmap 归档"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "coverage_delta_12m_pp",
+          "operator": "<",
+          "value": -10
+        },
+        "red": {
+          "metric": "coverage_delta_12m_pp",
+          "operator": "<",
+          "value": -25
+        }
+      },
+      "scoring": "percent",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      }
+    },
+    {
+      "id": "S1xMICRO-A",
+      "dimension": "S1",
+      "scale": "MICRO-A",
+      "criterion": "PR 标题/描述与声明定位的语义相关度（off-topic 检测）",
+      "data_source": [
+        "PR 标题/描述",
+        "定位关键词表",
+        "embedding 服务"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "pr_positioning_relevance",
+          "operator": "<",
+          "value": 0.5
+        },
+        "red": {
+          "metric": "pr_positioning_relevance",
+          "operator": "<",
+          "value": 0.3
+        }
+      },
+      "scoring": "index",
+      "risk_weight": 1,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "红级叠加条件：30 天内同主题 off-topic 达 5 个"
+    },
+    {
+      "id": "S1xMICRO-B",
+      "dimension": "S1",
+      "scale": "MICRO-B",
+      "criterion": "文件/模块归属定位声明功能面（孤儿模块检测）",
+      "data_source": [
+        "文件路径/模块地图",
+        "定位关键词表"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "module_belonging_score",
+          "operator": "<",
+          "value": 0.4
+        },
+        "red": {
+          "metric": "module_belonging_score",
+          "operator": "<",
+          "value": 0.2
+        }
+      },
+      "scoring": "index",
+      "risk_weight": 1,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "advisory，不进入裁决路径；红级叠加条件：无 out-of-scope 声明"
+    },
+    {
+      "id": "S2xMACRO-A",
+      "dimension": "S2",
+      "scale": "MACRO-A",
+      "criterion": "跨仓 ADR 治理一致性：关键决策 ADR 覆盖率、模板一致性、supersede 链健康度",
+      "data_source": [
+        "各仓 docs/adr/ 全量结构扫描",
+        "跨仓共享决策清单"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "adr_structure_completeness_mean",
+          "operator": "<",
+          "value": 0.6
+        },
+        "red": {
+          "metric": "adr_structure_completeness_mean",
+          "operator": "<",
+          "value": 0.4
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      }
+    },
+    {
+      "id": "S2xMACRO-B",
+      "dimension": "S2",
+      "scale": "MACRO-B",
+      "criterion": "ADR 真决策五要素（Context 张力/Considered Options/正负 Consequences/immutable+supersede 链/决策当时写）+ YAML 时间戳头一致性",
+      "data_source": [
+        "docs/adr/ 全量结构扫描",
+        "git log --follow"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "adr_element_completeness",
+          "operator": "<",
+          "value": 0.8
+        },
+        "red": {
+          "metric": "adr_backdated_gt90d_ratio",
+          "operator": ">",
+          "value": 0.2
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 3,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "红阈值=事后补写>90 天占比>20%（per Decision 4.2 初版参数）"
+    },
+    {
+      "id": "S2xMACRO-C",
+      "dimension": "S2",
+      "scale": "MACRO-C",
+      "criterion": "ADR 撰写时点与决策发生时点的滞后分布 + TODO/FIXME 密度对照",
+      "data_source": [
+        "git log --follow",
+        "ADR 头时间戳",
+        "TODO/FIXME 扫描"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "adr_lag_median_days",
+          "operator": ">",
+          "value": 30
+        },
+        "red": {
+          "metric": "adr_lag_median_days",
+          "operator": ">",
+          "value": 90
+        }
+      },
+      "scoring": "count",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "时间戳头缺失时回退 git log 首次出现日（per Decision 4.2 回退方案）"
+    },
+    {
+      "id": "S2xMICRO-A",
+      "dimension": "S2",
+      "scale": "MICRO-A",
+      "criterion": "架构级变更 PR 与 ADR 创建/更新的绑定率（decision-PR binding）",
+      "data_source": [
+        "CodeLore diff --llm 架构变更分类",
+        "ADR 文件变更"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "adr_pr_binding_missing_ratio",
+          "operator": ">",
+          "value": 0.2
+        },
+        "red": {
+          "metric": "adr_pr_binding_missing_ratio",
+          "operator": ">",
+          "value": 0.4
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      }
+    },
+    {
+      "id": "S2xMICRO-B",
+      "dimension": "S2",
+      "scale": "MICRO-B",
+      "criterion": "单个 ADR 文件模板结构完备性（必填 section 与 Status 齐备）",
+      "data_source": [
+        "单 ADR markdown 结构解析"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "adr_missing_sections",
+          "operator": ">",
+          "value": 0
+        },
+        "red": {
+          "metric": "adr_missing_sections",
+          "operator": ">",
+          "value": 1
+        }
+      },
+      "scoring": "count",
+      "risk_weight": 1,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "advisory，进入文件质量卡"
+    },
+    {
+      "id": "S3xMACRO-A",
+      "dimension": "S3",
+      "scale": "MACRO-A",
+      "criterion": "跨仓重复抽象簇与门面投入对比（同型抽象跨仓计数、共享库利用率）",
+      "data_source": [
+        "各仓 CodeLore 抽象清单",
+        "跨仓依赖图"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "duplicate_abstraction_clusters",
+          "operator": ">",
+          "value": 2
+        },
+        "red": {
+          "metric": "duplicate_abstraction_clusters",
+          "operator": ">",
+          "value": 4
+        }
+      },
+      "scoring": "count",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "红级叠加条件：无合并计划"
+    },
+    {
+      "id": "S3xMACRO-B",
+      "dimension": "S3",
+      "scale": "MACRO-B",
+      "criterion": "God Object/巨类/单实现抽象/范式通胀密度 vs 结构投入（边界清晰/内聚/适度抽象）",
+      "data_source": [
+        "CodeLore 上帝对象分析",
+        "抽象利用率",
+        "shearing layers 识别"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "single_impl_abstraction_ratio",
+          "operator": ">",
+          "value": 0.3
+        },
+        "red": {
+          "metric": "single_impl_abstraction_ratio",
+          "operator": ">",
+          "value": 0.5
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 3,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      }
+    },
+    {
+      "id": "S3xMACRO-C",
+      "dimension": "S3",
+      "scale": "MACRO-C",
+      "criterion": "抽象通胀趋势：新增抽象/新增实现比值的时间序列",
+      "data_source": [
+        "CodeLore 历史分析"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "abstraction_ratio_rising_quarters",
+          "operator": ">",
+          "value": 1
+        },
+        "red": {
+          "metric": "abstraction_impl_ratio",
+          "operator": ">",
+          "value": 1.5
+        }
+      },
+      "scoring": "index",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "红级要求比值连续 3 季度>1.5"
+    },
+    {
+      "id": "S3xMICRO-A",
+      "dimension": "S3",
+      "scale": "MICRO-A",
+      "criterion": "PR 是否新引入 God Object/单实现抽象/范式通胀（diff 级）",
+      "data_source": [
+        "CodeLore diff --llm"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "new_single_impl_abstractions",
+          "operator": ">",
+          "value": 0
+        },
+        "red": {
+          "metric": "new_god_object_delta_loc",
+          "operator": ">",
+          "value": 200
+        }
+      },
+      "scoring": "count",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "黄级要求且无 justification 说明"
+    },
+    {
+      "id": "S3xMICRO-B",
+      "dimension": "S3",
+      "scale": "MICRO-B",
+      "criterion": "文件级内聚与门面度：巨类/高 LOC/低内聚文件质量卡（advisory 输出）",
+      "data_source": [
+        "CodeLore file facts"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "file_loc",
+          "operator": ">",
+          "value": 500
+        },
+        "red": {
+          "metric": "file_loc",
+          "operator": ">",
+          "value": 1000
+        }
+      },
+      "scoring": "count",
+      "risk_weight": 1,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "advisory；红级叠加条件：内聚 <0.3"
+    },
+    {
+      "id": "S4xMACRO-A",
+      "dimension": "S4",
+      "scale": "MACRO-A",
+      "criterion": "跨仓演化方向与组合战略一致性：依赖方向 vs 声明分层",
+      "data_source": [
+        "跨仓依赖图",
+        "各仓 roadmap/ADR 分层声明"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "reverse_dependency_edges",
+          "operator": ">",
+          "value": 0
+        },
+        "red": {
+          "metric": "cross_repo_circular_dependencies",
+          "operator": ">",
+          "value": 0
+        }
+      },
+      "scoring": "count",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      }
+    },
+    {
+      "id": "S4xMACRO-B",
+      "dimension": "S4",
+      "scale": "MACRO-B",
+      "criterion": "依赖方向违规模块占比 + ADR supersede 链活跃度",
+      "data_source": [
+        "CodeLore 依赖分析",
+        "docs/adr supersede 链"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "dependency_violation_ratio",
+          "operator": ">",
+          "value": 0.05
+        },
+        "red": {
+          "metric": "dependency_violation_ratio",
+          "operator": ">",
+          "value": 0.15
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 3,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      }
+    },
+    {
+      "id": "S4xMACRO-C",
+      "dimension": "S4",
+      "scale": "MACRO-C",
+      "criterion": "ADR 假设提取→假设失效检测（主战场；LLM 抽取+人工复核回路）+ 空位与负向声明诚实度",
+      "data_source": [
+        "docs/adr 假设段",
+        "代码事实对照",
+        "ADR supersede 链"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "stale_assumption_ratio",
+          "operator": ">",
+          "value": 0.1
+        },
+        "red": {
+          "metric": "stale_assumption_ratio",
+          "operator": ">",
+          "value": 0.25
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 3,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "红级叠加条件：核心假设失效且无 supersede（per Decision 4.3）"
+    },
+    {
+      "id": "S4xMICRO-A",
+      "dimension": "S4",
+      "scale": "MICRO-A",
+      "criterion": "PR 是否违反声明的演化方向（依赖方向违规/进入冻结区/负向声明违反）",
+      "data_source": [
+        "CodeLore diff --llm",
+        "ADR 负向声明清单"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "direction_violations_per_pr",
+          "operator": ">",
+          "value": 0
+        },
+        "red": {
+          "metric": "direction_violations_per_pr",
+          "operator": ">",
+          "value": 1
+        }
+      },
+      "scoring": "count",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "黄级要求无豁免标注"
+    },
+    {
+      "id": "S4xMICRO-B",
+      "dimension": "S4",
+      "scale": "MICRO-B",
+      "criterion": "文件是否占据 ADR 声明的空位/out-of-scope 区域（负向声明诚实度）",
+      "data_source": [
+        "文件路径",
+        "out-of-scope/空位声明清单"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "vacancy_occupation_suspect",
+          "operator": ">",
+          "value": 0
+        },
+        "red": {
+          "metric": "vacancy_occupation_confirmed",
+          "operator": ">",
+          "value": 0
+        }
+      },
+      "scoring": "count",
+      "risk_weight": 1,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "advisory；红级叠加条件：无 supersede"
+    },
+    {
+      "id": "S5xMACRO-A",
+      "dimension": "S5",
+      "scale": "MACRO-A",
+      "criterion": "跨仓所有权拓扑与组合分工同构性（同团队多仓职责重叠检测）",
+      "data_source": [
+        "各仓 CODEOWNERS",
+        "跨仓 commit 作者矩阵"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "ownership_overlap_ratio",
+          "operator": ">",
+          "value": 0.3
+        },
+        "red": {
+          "metric": "ownership_mismatch_with_circular_deps",
+          "operator": ">",
+          "value": 0
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      }
+    },
+    {
+      "id": "S5xMACRO-B",
+      "dimension": "S5",
+      "scale": "MACRO-B",
+      "criterion": "模块分解与所有权分解（git author 矩阵/CODEOWNERS/AGENTS.md）同构性 + bus factor",
+      "data_source": [
+        "CODEOWNERS",
+        "git blame 作者-模块矩阵",
+        "PR reviewer 分布"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "bus_factor_lt2_loc_ratio",
+          "operator": ">",
+          "value": 0.2
+        },
+        "red": {
+          "metric": "bus_factor_lt2_loc_ratio",
+          "operator": ">",
+          "value": 0.4
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 3,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      }
+    },
+    {
+      "id": "S5xMACRO-C",
+      "dimension": "S5",
+      "scale": "MACRO-C",
+      "criterion": "所有权漂移与模块演化的同步性（边界变更是否跟随演化）",
+      "data_source": [
+        "CODEOWNERS 历史",
+        "模块演化时间线"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "ownership_lagging_modules_ratio",
+          "operator": ">",
+          "value": 0.3
+        },
+        "red": {
+          "metric": "ownership_lagging_modules_ratio",
+          "operator": ">",
+          "value": 0.5
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      }
+    },
+    {
+      "id": "S5xMICRO-A",
+      "dimension": "S5",
+      "scale": "MICRO-A",
+      "criterion": "PR author/reviewer 是否跨越 ownership 边界（CODEOWNERS 审批覆盖率）",
+      "data_source": [
+        "PR 元数据",
+        "CODEOWNERS"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "unapproved_boundary_cross_ratio",
+          "operator": ">",
+          "value": 0.1
+        },
+        "red": {
+          "metric": "unapproved_boundary_cross_ratio",
+          "operator": ">",
+          "value": 0.3
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 2,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      }
+    },
+    {
+      "id": "S5xMICRO-B",
+      "dimension": "S5",
+      "scale": "MICRO-B",
+      "criterion": "文件维护者集中度（bus factor=1 文件占比），按团队规模分桶降权",
+      "data_source": [
+        "git blame",
+        "作者统计",
+        "团队规模信号"
+      ],
+      "threshold": {
+        "yellow": {
+          "metric": "single_author_file_ratio",
+          "operator": ">",
+          "value": 0.5
+        },
+        "red": {
+          "metric": "single_author_core_file_ratio",
+          "operator": ">",
+          "value": 0.75
+        }
+      },
+      "scoring": "ratio",
+      "risk_weight": 1,
+      "machine_checkable": true,
+      "provenance": {
+        "origin": "expert",
+        "version": "v1",
+        "calibrated_date": "2026-09-11",
+        "expires_at": "2026-12-10",
+        "sample_size": 0
+      },
+      "notes": "单人仓该维信号弱：降权为 advisory 并显式标注「信号不足」（per Decision 4.4）"
+    }
+  ],
+  "calibration": {
+    "strategy": "全部阈值为初版 v1（origin=expert），自 2026-09-11 起进入 90 天校准窗口；试点语料跑分后按三档机制+分桶归一化重校准并发布版本化 v2（schema 单元格结构不兼容时 matrix schema_version 递增）",
+    "tiers": [
+      {
+        "name": "static-baseline",
+        "method": "Alves 百分位法：以试点语料的 LOC 加权 70/80/90 百分位生成黄/红边界，要求尊重分布、可复现、可溯源"
+      },
+      {
+        "name": "relative-filter",
+        "method": "大系统与跨仓场景用百分位而非绝对值判级（Marinescu Rule 3），避免结构性差异误判（CBO=16 在 Controllers 分布仅 0.35 百分位的教训）"
+      },
+      {
+        "name": "dynamic-baseline",
+        "method": "Macro-C/持续观测场景用 EMA+相对 σ 容差带动态基线，仅从 green merged build 提升基线，防 moving-target"
+      }
+    ],
+    "buckets": [
+      "language",
+      "tech-stack",
+      "architecture-role",
+      "team-size"
+    ],
+    "recalibration_interval_days": 90,
+    "pilot_corpus": [
+      "env-manager",
+      "jiahao",
+      "anysearch-cli"
+    ]
+  }
+}
