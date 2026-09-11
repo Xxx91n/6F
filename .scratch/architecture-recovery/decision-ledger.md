@@ -74,3 +74,13 @@
 - **交付**：`reports/10-report.md` 含 DDL、字段校验约束、写入不变式、SDK 映射表、4 条跨 scale SQL（按 PR 反查全部 scale、按 trace 还原运行链路、按 commit 查冲突裁决、failure path 查缺失 scale）。
 - **调研依据**：W3C Trace Context、W3C Baggage、OpenTelemetry Traces/Baggage/Language SDK 官方文档；本窗口无 `ctx_*` 工具，atomcode 指定 carrier 不可用，报告已按缺口明示并以官方一手文档直读替代。
 - **阻塞**：无（Blocked by: None），本票一次闭环；输出供 A-008/A-009/A-012/A-013 复用。
+
+## A-012 结论落盘（2026-09-11，票 #12 闭环）
+
+- **决议：三条事件触发防线**——在 ADR-0005 HoF-FA / SSOT 前提下，不采 Data Mesh 自治副本模式；吸收其失败教训，设计 `Ownership Edge Gate`、`Contract + Lineage Canary Gate`、`Fact Claim + Reuse Gate` 三条防线，分别覆盖无人拥有 in-between、静默断裂、重复劳动。
+- **触发条件**：每条防线均以新增/变更 edge、`handoff_ready` 后 ack SLA、read model 发布 checkpoint、lineage event 缺失、fact claim/materialization 等事件或窗口阈值触发；明确禁止只写“持续监控”。
+- **量化指标**：报告定义 15 个指标，包括 `owner_missing_count`、`orphan_handoff_count`、`handoff_ack_latency_p95_seconds`、`expectation_success_percent`、`critical_unexpected_count`、`lineage_gap_count`、`read_model_lag_seconds`、`duplicate_materialization_count_24h`、`duplicate_job_seconds_ratio`、`ssot_bypass_count` 等，均含阈值。
+- **降级路径**：统一状态机 `normal -> warning -> quarantined -> degraded -> restored`；owner/contract/lineage/claim/metric 任一防线自身失效时，报告降级为 `⚠ unverified` / `data doesn't show`，只保留可审计事实，不给 verified verdict。
+- **交付**：`reports/12-report.md` 含三条防线的机制 + 触发条件 + 处置流程、指标清单、防线失效降级路径、完成定义对照、引用文件列表。
+- **调研依据**：本窗口无 `ctx_*` 工具，atomcode 指定 carrier 不可用，报告已按缺口明示；以 Data Mesh Principles、OpenLineage、Great Expectations、Google SRE Monitoring 官方/一手文档直读补足工业对标。
+- **阻塞**：无（Blocked by: None），本票一次闭环；输出供 A-008/A-009/A-013 复用。
