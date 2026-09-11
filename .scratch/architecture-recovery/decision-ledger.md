@@ -52,6 +52,19 @@
 - 调研依据：atomcode 三引擎 14 查询 / 12 次抓取 / 22 来源；核心证据 = arXiv 2602.07609（一致性检测精度基准）、arXiv 2603.28592（AI 债 22.7% 存活率）、GitClear 2026（重复块 +81%）、SonarQube agentic AI gate、OpenSSF Scorecard。
 - 阻塞：无（Blocked by: None），本票一次闭环。
 
+## A-007 结论落盘（2026-09-11，票 #07 闭环）
+
+- **决议：单写多读（Single-Writer / Multi-Reader，SWMR）**——per spec.md §Decision 5.1「决策点：单写多读 vs 多写多读；选前者（SSOT + 集中写入进程）」。**不接受多写多读**，排他理由 4 条（违反 ADR-0005 ④ 控制面/数据面分离 / 版本分配失去确定性 / OCC 冲突重试使 p99 无上界 / 吞吐收益为零，量级余量 3–4 个数量级）。
+- **事务隔离：DuckDB 快照隔离（Snapshot Isolation，≈ PostgreSQL repeatable read）**，即官方唯一保证级别，不做覆盖。理由：append-only 负载不需要写偏斜防护；单写者已给出事务全序；SI 的快照正是一次一致 read model 投影所需（报告可重放）；快照边界天然对应 `version` 水位线（对齐 ADR-0005 ③ 可审计）。拒绝 READ COMMITTED（引擎不提供 + 破坏投影一致性）、显式 SERIALIZABLE/悲观锁（与 OCC 设计对抗且冗余）、应用层互斥锁多写（把 hub 拉进数据面）。
+- **version schema：批量块分配（block allocation），全局单调、无空洞。** 写者内存水位 `next_version`，每批取块 `[v0, v0+B)`，提交成功才前移、中止则整块释放（gap-free）；启动时 `next_version = MAX(version)+1` 即崩溃恢复点。DDL：`version BIGINT PK` + `schema_version SMALLINT` + `trace_id`/`baggage_id` 预留槽位 + `payload JSON` + `recorded_at`（写者提交时刻）。拒绝 SEQUENCE（回滚产生空洞）、逐行 MAX+1（批内 10k 次元数据求值）、时间戳/UUID（无全序或无水位语义）。
+- **并发延迟量化（模型估计，Phase 4 待实测校准）**：写者批提交 p50 **10–30 ms**（10k 行/批，边际 1–3 μs/行）；四通道影响——I1 直接阻塞 **严格 0**（SI 硬保证，读不阻塞写）；I2 同机带宽争用 p99 ≤ 20 ms；I3 checkpoint 停顿 **128 ms（NVMe）/ 512 ms（SATA）**，基准频率 1.28 天 1 次、100× 峰值 78 次/天；I4 版本保留内存 MB 级。并发矩阵：N=0 → p99 ≤ 60 ms；N=5 → ≤ 150 ms；N=10 → ≤ 512 ms。
+- **与 A-009 对齐**：最坏陈旧读链路 = 100 ms 窗口 + 30 ms 提交 + 512 ms checkpoint ≈ **0.65 s ≪ 5 s SLA**——本票为 A-009 的 SLA 提供了可行性上界证据。
+- **强制设计约束（硬规则）**：批大小 ≥ 10k 行（禁单行 INSERT，延迟差 3,000× 量级）；`checkpoint_threshold = 256 MB`（默认 16 MB 的 16×）；读者快照持有 ≤ 60 s；WAL > 512 MB 告警；写者禁长事务。
+- **字段槽位边界**：`schema_version` 归 A-008、`trace_id`/`baggage_id` 归 A-010——本票只预留槽位不定规则，避免下游定义上游的返工。
+- **上游对齐**：本票是 ADR-0005 ① 事件单向写入 + ③ 冲突可审计 + ④ hub 不进数据面 的写入侧落地；证据链 = atomcode 三引擎 16 查询 / 14 URL 已读 / 8 域名 / 关键结论双源，对标 SQLite WAL、Apache Iceberg、Delta Lake 三个工业界方案。
+- **信息缺口（不掩盖）**：read-under-ingest 端到端 p99 无公开基准（本报告为分解模型估计，公式可证伪，Phase 4 须实测替换）；Quack / DuckLake 无公开性能基准；checkpoint 停顿官方无 p99 曲线。
+- **阻塞**：无（Blocked by: None），本票一次闭环；不阻塞他票。
+
 ## A-010 结论落盘（2026-09-11，票 #10 闭环）
 
 - **决议：fact table 内联双关联键**——在共享 DuckDB `fact` 表中前置 `trace_id` / `baggage_id`，不另起 `trace` / `baggage` 辅表，保持 ADR-0005 的 SSOT 与 read model 心智。
