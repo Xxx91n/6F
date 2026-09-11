@@ -75,6 +75,18 @@
 - **调研依据**：W3C Trace Context、W3C Baggage、OpenTelemetry Traces/Baggage/Language SDK 官方文档；本窗口无 `ctx_*` 工具，atomcode 指定 carrier 不可用，报告已按缺口明示并以官方一手文档直读替代。
 - **阻塞**：无（Blocked by: None），本票一次闭环；输出供 A-008/A-009/A-012/A-013 复用。
 
+## A-011 结论落盘（2026-09-11，票 #11 闭环）
+
+- **决议：自研手写薄协调层，不 adopt LangGraph supervisor，不混合**——hub = 「事实入 → 纯函数裁决 → 事件出」，幂等靠事实键（A-010 trace_id/baggage_id 槽位），hub 无自有持久状态；**重评触发器三件套**：T1 裁决/路由出现 LLM 非确定性推理 → 重评 LangGraph；T2 跨天人工裁决/精确一次跨服务副作用 → 重评 Temporal；T3 批量回填/调度/血缘一等需求 → 重评 Dagster。任一触发时 DuckDB fact table 仍是唯一领域 SSOT。
+- **决策矩阵 7 维**（reports/11-report.md §4.3）：adopt 在 SSOT 冲突面（checkpointer 第二状态库）、hub 元逻辑边界、学习曲线（10-14 天 + langgraph-supervisor 包官方弃维护）、安全暴露面（checkpoint 反序列化 RCE CVE-2025-64439 等 4 CVE）、语言栈耦合 5 维全劣；自研 5 优 2 中 0 劣；混合 0 优 2 中 5 劣（嵌入即产生状态对账面，退化为带全部成本的 adopt）。
+- **契合度评分 6 维均分 2.33/5**（§4.2）：最低分恰在本仓库宪法级约束——SSOT 状态模型契合 1/5、控制面/数据面分离 2/5、确定性/可审计性 2/5；语言/生态契合 4/5 不构成障碍也无锁定收益。
+- **排他理由 5 条**（§4.4）：SSOT 宪法级约束（不用 checkpointer 等于不用 LangGraph）；语义错位（supervisor 价值域 = LLM 子 agent 图控流，5 scale worker 是确定性服务）；官方 supervisor 包弃维护（违反 D-002 升级路径）；安全面叠加；语言栈前置未满足（adopt 会把栈决策偷跑成框架决策，自研保持 TS/Rust/Python 三栈开放）。
+- **与 A-013 互证**：A-013 已结论「LangGraph 替代/暂不默认采用，仅作 Python 侧实验 harness 或 A-011 候选」——本票将该候选路径正式关闭（T1 触发器除外），LangGraph checkpoint 不得替代 DuckDB fact table 审计事实的边界继续有效。
+- **自研代价（明示）**：放弃现成检查点/HITL/流式/图可视化（T1-T3 触发时再引入或自建）；幂等/重试/降级自写自测；「hub 无自有持久状态」作为硬不变量移交 A-012 评审 checklist。
+- **调研依据**：atomcode 双 run 串行深度调研（per WORKFLOW §4.2.3）：run 1 LangGraph 能力现状（PyPI 1.2.11 / npm 1.4.14 / MIT / v1.0 GA 2025-10-22，官方文档逐页核验 + CSA 安全报告 + HN/dev.to 批评面）；run 2 SSOT 契合与替代方案（searches 12 / angles 5/5 / full reads 10，Temporal/Fowler/Inngest/yeos.ai 十篇原文）；对标工业界 4 方案（Temporal durable execution / yeos.ai 移除实践 / Inngest 队列机制 / 官方 supervisor→subagents 迁移指南）。
+- **信息缺口（不掩盖）**：语言栈未锁定（A-010/A-011/A-013 共同前置，本票以三栈稳健性处理）；DuckDB+编排框架共存无一手实践案例（结论基于框架侧双源证据外推）；Klarna/Lyft 数字为厂商叙事未独立审计。
+- **阻塞**：无（Blocked by: None），本票一次闭环；不阻塞他票。
+
 ## A-012 结论落盘（2026-09-11，票 #12 闭环）
 
 - **决议：三条事件触发防线**——在 ADR-0005 HoF-FA / SSOT 前提下，不采 Data Mesh 自治副本模式；吸收其失败教训，设计 `Ownership Edge Gate`、`Contract + Lineage Canary Gate`、`Fact Claim + Reuse Gate` 三条防线，分别覆盖无人拥有 in-between、静默断裂、重复劳动。
@@ -93,3 +105,15 @@
 - **交付**：`reports/13-report.md` 含工具 × 维度矩阵、每个工具的采用/替代/自研决策、推荐集成组合、完成定义对照、引用文件列表。
 - **调研依据**：本窗口无 `ctx_*` 工具，atomcode 指定 carrier 不可用，报告已按缺口明示；以 dbt Semantic Layer、OpenTelemetry Baggage、AsyncAPI Specification、LangGraph Overview 官方文档直读补足工业对标。
 - **阻塞**：无（Blocked by: None），本票一次闭环；输出供 A-008/A-009/A-011 复用。
+
+## A-013 二次闭环落盘（2026-09-11，本窗口精化段 — 与上行初版段并存，初版段不动）
+
+- **定位**：初版段（并行窗口，提交 szs）在无 `ctx_*` 条件下完成 8 维矩阵与四工具决策并按 §7 自曝 atomcode 调研缺口。本段为其精化闭环：补齐 WORKFLOW §4.2.3 两轮串行 atomcode 深度调研，并在其结论上做证据级修正——**四工具决策方向与初版一致（metrics layer 自研轻量 / Baggage 采用受限 / AsyncAPI 采用 / LangGraph 不进 hub），无冲突推翻**。
+- **修正 1（LangGraph）**：初版「暂不默认采用」的首条理由是「官方证据主要 Python、TS 未取证」——调研实证 Python 与 JS/TS 双栈 1.0 GA（2025-10）、主要功能全对等（StateGraph/checkpointer/interrupt/流式/subgraphs），该理由**撤销**；维持不默认采用的理由收敛为：checkpointer 无 DuckDB 后端（官方矩阵 MemorySaver/SQLite/Postgres/MongoDB/Redis）、其线程状态若存业务事实即违反 SSOT、hub 决策权归 A-011。窄采用面与初版一致：Macro-C LLM 流水线本地 harness；本段新增量化边界：学习曲线 2-4 周（独立评测）、checkpoint 无界增长与 thread_id 255 字符上限为实坑、官方「vs Temporal」文为营销信源需降权、其状态持久化若启用必须经 A-007 单写者队列。
+- **修正 2（metrics layer 候选集）**：初版仅评 dbt SL/MetricFlow——本段扩展 Cube（JS 核心契合 TS 主栈、DuckDB 一级数据源、但常驻服务 + 第二缓存层，M3/M5 降）与 Malloy（compile-to-SQL 最轻嵌入、原生 duckdb.table、但无命名生产采用者），结论「自研轻量 metric_catalog」在三候选对比下更稳；指标目录字段初版表（metric_id/owner/definition_sql/unit/window/threshold/source_fact_types/report_binding）保留为采纳设计。
+- **补充 3（AsyncAPI）**：采用结论一致；追加硬约束——规范层 3.0→3.1 间隔两年、第三方工具常滞后至只支持 2.6.0（进 3.x 前须验证生成器）、**无官方 registry/版本管理协议**（契约版本注册走 A-008 自研 schema_registry 版本表）、**2026-07-14 generator 系 + spec-json-schemas 供应链攻击**（npm exact-version + provenance 校验，白名单 generator ≥3.3.0 / specs 6.11.1）。
+- **补充 4（Baggage）**：受限采用一致；W3C 64 条目/8KB 限值 + CVE-2026-45292（Java ≤1.61.0，1.62.0 修复）入红线；「Rust 三信号全 Beta、JS/Python Traces/Metrics Stable」与 A-010 SDK 清单双源互证一致。
+- **交付**：`reports/13-report.md`（二次闭环版：M1-M5 五维矩阵 + 每工具采用/替代/自研决策 + 采用面/禁用面/重评触发三件套 + 工业对标 4 组 + §5 atomcode 调研记录；报告头含与初版 szs 的版本关系声明）。
+- **调研依据**：atomcode R1（OTel Baggage × MetricFlow/Cube/Malloy，19 来源双源交叉）+ R2（AsyncAPI × LangGraph，A1-A10/L1-L10），ctx_batch_execute concurrency=1 timeout=600000 串行两轮，per §4.2.3。
+- **阻塞**：无；本票经「初版 + 本段精化」双提交完整闭环，输出供 A-008/A-009/A-011/A-012 复用。
+
