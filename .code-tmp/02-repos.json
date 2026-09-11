@@ -1,0 +1,8 @@
+[
+  { "name": "6F",            "root": "D:/Aworker/6F",                                       "adr_dirs": ["docs/adr"] },
+  { "name": "env-manager",   "root": "D:/Aworker/env-manager",                              "adr_dirs": ["docs/adr"] },
+  { "name": "jiahao",        "root": "D:/Aworker/jiahao",                                   "adr_dirs": ["docs/adr"] },
+  { "name": "anysearch-cli", "root": "D:/Aworker/anysearch-cli",                            "adr_dirs": ["docs/adr"] },
+  { "name": "log4brains (public, MADR+patch)", "root": "D:/Aworker/6F/.code-tmp/log4brains", "adr_dirs": ["docs/adr"] },
+  { "name": "madr-sample (public, MADR 4.0)",   "root": "D:/Aworker/6F/.code-tmp/madr-sample","adr_dirs": ["docs/decisions"] }
+]
