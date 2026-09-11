@@ -101,3 +101,8 @@
 - [docs/adr/0004-strategic-quadrant-five-dims.md](../../../docs/adr/0004-strategic-quadrant-five-dims.md) ｜ CONTEXT.md（S5 词条 / Sufficiency Gate）
 - [reports/05-unit-matrix.json](05-unit-matrix.json) + [reports/05-report.md](05-report.md)（上游矩阵，S5 行快照对账）
 - 本票产物：[reports/04-downweight.json](04-downweight.json) ｜ [reports/04-downweight-check.mjs](04-downweight-check.mjs) ｜ 本报告
+## 11. 提交面留痕（2026-09-12 补记）
+
+- **已入库**：本报告 + `04-downweight.json` + `04-downweight-check.mjs` → 分支 `fix/s5-single-author-04`（commit `vpl`）。
+- **留工作区（按 W1 先例 docs(A-017)：仅提交自身 section）**：① `decision-ledger.md` 的 A-004 状态行编辑——与 7 个他票窗口的行状态编辑同处一个 hunk，无法按 hunk 拆分；② 「A-004 结论落盘」段 hunk——GitButler 判定其依赖 `ticket-05-unit-matrix` 名下未落库改动，2026-09-12 复查重试仍被拒（`lines 129–153 depends on ticket-05-unit-matrix (vxs)`，纠缠区间较前日扩大，属其他窗口追加）——由所属窗口提交其行编辑时一并清扫；③ WORKFLOW.md lessons 行——该文件系他窗口产出且从未入库，整文件提交会吞并他人工作。
+- 上述三处磁盘状态即最新账本（D-6 防蒸发已满足），仅提交面未合拢，不阻塞本票语义闭环。
