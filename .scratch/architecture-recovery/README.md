@@ -186,4 +186,6 @@ W4 仍待 W3：
 
 **W4 Frontier 更新**：#16 (A-016) 的两项前置 #14 + #15 均已闭环，阻塞解除，可开工。
 
+**版本控制**：本票产物已提交至独立分支 `15-scale-slice-boundaries`（commits `svx` / `ktv`）。`WORKFLOW.md` 与 `decision-ledger.md` 的改动因跨栈依赖（`w2-02-adr-timestamp-check` / `ticket-05-unit-matrix`）被 `but commit` 原子拒绝，内容已落盘、待主脑统一收口，详见 `reports/15-report.md` §版本控制处置。
+
 **越权提交检查**：本票新增文件全部落在 .scratch/architecture-recovery/reports/ 与 .scratch/architecture-recovery/decision-ledger.md / WORKFLOW.md / README.md 范围内，未触动其他 agent 的工作。

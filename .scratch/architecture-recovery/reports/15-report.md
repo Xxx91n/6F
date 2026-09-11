@@ -154,3 +154,14 @@
 - 上游依赖：`reports/14-report.md`、`reports/14-skeleton-fields.json`（45 骨架字段 + 20 格 64 交集字段）、`reports/14-skeleton.schema.json`、`reports/14-skeleton-check.mjs`、`reports/05-unit-matrix.json`
 - 本票产物：`reports/15-report.md`（本文件）、`reports/15-slice-boundaries.json`、`reports/15-slice-boundaries.schema.json`、`reports/15-slice-check.mjs`、`reports/15-research-prompt.md`、`reports/15-atomcode-research.md`
 - 调研一手来源：SARIF v2.1.0 https://sarif.info/ ｜ SARIF result 属性表 https://sarif.info/Result/ ｜ OTel 语义约定命名规范 https://opentelemetry.io/docs/specs/semconv/general/naming/ ｜ Trail of Bits 报告解剖 https://trailofbits.com/anatomy-of-a-report/ ｜ GitHub code scanning SARIF 支持 https://docs.github.com/en/code-security/reference/code-scanning/sarif-files/sarif-support ｜ IEEE 829-2008 https://standards.ieee.org/ieee/829/3787/ ｜ NIST SSDF SP 800-218 https://csrc.nist.gov/projects/ssdf ｜ arc42 https://arc42.org/overview/ ｜ SARIF 批评 https://boostsecurity.io/blog/sarif-cant-save-you-now
+
+## 版本控制处置（per WORKFLOW §4.2.1）
+
+- **已提交**（独立分支 `15-scale-slice-boundaries`）：
+  - `svx` —— 本票 6 份产物：`15-report.md` / `15-slice-boundaries.json` / `15-slice-boundaries.schema.json` / `15-slice-check.mjs` / `15-research-prompt.md` / `15-atomcode-research.md`。
+  - `ktv` —— README W3 完成状态登记与 W4 Frontier 解锁说明。
+- **未能提交**：`.scratch/architecture-recovery/WORKFLOW.md` 与 `decision-ledger.md`
+  - **原因**：`but commit` 原子拒绝。WORKFLOW.md 的 272–278 / 282–290 行依赖 `w2-02-adr-timestamp-check`（commit `qko` = `docs(A-002): append W2 #02 lessons to WORKFLOW`）；decision-ledger.md 的 9–16 / 18–23 / 25–26 / 37–47 / 140–193 行依赖 `ticket-05-unit-matrix`（commit `vxs` = `05: close A-005 ...`）。两个依赖分属**两个不同的独立栈**（`w2` 栈与 `ic → ke` 栈），而本票分支 `sc` 是第三个独立栈，无法同时置于两者之上。
+  - **处置**：两文件内容**已落盘**——ledger A-015 行已置 `done` 并追加「A-015 结论落盘」段，WORKFLOW §4 已追加本票 lessons 行，满足 D-8 防蒸发要求。**未**执行 `but move` 重排他人栈（per §4.2.1「每个 Agent session 必须有独立 but branch，不动他人分支」）。
+  - **同类先例**：分支 `fix/s5-single-author-04` 上已有提交 `docs(A-004): record commit-surface disposition note (sq:e blocked by ticket-05-unit-matrix uncommitted deps)`——该阻塞属工作区级已知状况，既有处置惯例即为「记录处置说明」而非强行提交。本票沿用同一惯例。
+  - **建议收口**：待 `w2-02-adr-timestamp-check` 与 `ticket-05-unit-matrix` 两支落定后，由主脑统一提交这两个共享文档；届时本票的两处改动（ledger A-015 状态行 + 结论落盘段、WORKFLOW lessons 行）随同落库。
