@@ -84,3 +84,12 @@
 - **交付**：`reports/12-report.md` 含三条防线的机制 + 触发条件 + 处置流程、指标清单、防线失效降级路径、完成定义对照、引用文件列表。
 - **调研依据**：本窗口无 `ctx_*` 工具，atomcode 指定 carrier 不可用，报告已按缺口明示；以 Data Mesh Principles、OpenLineage、Great Expectations、Google SRE Monitoring 官方/一手文档直读补足工业对标。
 - **阻塞**：无（Blocked by: None），本票一次闭环；输出供 A-008/A-009/A-013 复用。
+
+## A-013 结论落盘（2026-09-11，票 #13 闭环）
+
+- **决议：工具分层采用**——`OpenTelemetry Baggage` 采用但仅限 opaque `baggage_id`；`AsyncAPI` 采用为事件契约 / schema 版本治理规范；`metrics layer` 只采用心智并自研轻量 `metric_catalog`，不默认引入 dbt Semantic Layer；`LangGraph` 替代/暂不默认采用，仅作 Python 侧实验 harness 或 A-011 候选。
+- **评估矩阵**：`reports/13-report.md` 使用 8 个维度评估四类工具：语言栈契合度、HoF-FA 心智一致性、契约/版本治理价值、观测/关联价值、运行时重量、隐私与安全风险、成熟度与生态、与既有票边界。
+- **关键边界**：metrics 不得成为第二事实源；Baggage 不得承载 PII/权限/可信身份；AsyncAPI 定义契约但不定义 broker/runtime；LangGraph checkpoint 不得替代 DuckDB fact table 的审计事实。
+- **交付**：`reports/13-report.md` 含工具 × 维度矩阵、每个工具的采用/替代/自研决策、推荐集成组合、完成定义对照、引用文件列表。
+- **调研依据**：本窗口无 `ctx_*` 工具，atomcode 指定 carrier 不可用，报告已按缺口明示；以 dbt Semantic Layer、OpenTelemetry Baggage、AsyncAPI Specification、LangGraph Overview 官方文档直读补足工业对标。
+- **阻塞**：无（Blocked by: None），本票一次闭环；输出供 A-008/A-009/A-011 复用。
