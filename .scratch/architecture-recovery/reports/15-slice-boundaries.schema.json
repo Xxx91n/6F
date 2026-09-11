@@ -1,0 +1,426 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "reports/15-slice-boundaries.schema.json",
+  "title": "A-015 Scale 切片差异边界契约（5 scale 切片差异表 + Macro-A/Micro-A 极端差异案例 + 命名空间冲突契约）",
+  "description": "spec.md §Decision 6.2 / ADR-0006 的形式化契约。切片字段与骨架字段的隔离规则在此 schema 中可机检。",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "decision_ref",
+    "adr_ref",
+    "blocked_by",
+    "scales",
+    "difference_columns",
+    "slices",
+    "extreme_case",
+    "namespace_contract",
+    "research"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+[.][0-9]+[.][0-9]+$"
+    },
+    "decision_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "adr_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "blocked_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scales": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "enum": [
+          "MACRO-A",
+          "MACRO-B",
+          "MACRO-C",
+          "MICRO-A",
+          "MICRO-B"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "difference_columns": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "spec_mandated",
+          "locked_by",
+          "description",
+          "industrial_basis",
+          "precedent_class",
+          "source_ref"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "spec_mandated": {
+            "type": "boolean"
+          },
+          "locked_by": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "industrial_basis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "precedent_class": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_ref": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "slices": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": [
+          "scale",
+          "label",
+          "trigger",
+          "inputs",
+          "output_granularity",
+          "citation_density",
+          "verdict_gate_stamp_position",
+          "time_window",
+          "degraded_form",
+          "slice_namespace",
+          "slice_field_count",
+          "blocking"
+        ],
+        "properties": {
+          "scale": {
+            "type": "string",
+            "enum": [
+              "MACRO-A",
+              "MACRO-B",
+              "MACRO-C",
+              "MICRO-A",
+              "MICRO-B"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "trigger": {
+            "type": "string",
+            "minLength": 1
+          },
+          "inputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "output_granularity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "citation_density": {
+            "type": "object",
+            "required": [
+              "min_evidence_per_claim",
+              "locator_precision",
+              "aggregation_rule"
+            ],
+            "properties": {
+              "min_evidence_per_claim": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "locator_precision": {
+                "type": "string",
+                "minLength": 1
+              },
+              "aggregation_rule": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "verdict_gate_stamp_position": {
+            "type": "string",
+            "minLength": 1
+          },
+          "time_window": {
+            "type": "string",
+            "minLength": 1
+          },
+          "degraded_form": {
+            "type": "string",
+            "minLength": 1
+          },
+          "slice_namespace": {
+            "type": "string",
+            "minLength": 1
+          },
+          "slice_field_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "blocking": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "extreme_case": {
+      "type": "object",
+      "required": [
+        "case_id",
+        "statement",
+        "shared_fact",
+        "divergence_dimensions",
+        "machine_checkable"
+      ],
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shared_fact": {
+          "type": "object",
+          "minProperties": 3
+        },
+        "divergence_dimensions": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "type": "object",
+            "required": [
+              "dim",
+              "macro_a",
+              "micro_a"
+            ],
+            "properties": {
+              "dim": {
+                "type": "string",
+                "minLength": 1
+              },
+              "macro_a": {
+                "type": "string",
+                "minLength": 1
+              },
+              "micro_a": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "machine_checkable": {
+          "const": true
+        }
+      }
+    },
+    "namespace_contract": {
+      "type": "object",
+      "required": [
+        "principle",
+        "skeleton_field_source",
+        "slice_field_source",
+        "rules",
+        "known_same_scale_reuse"
+      ],
+      "properties": {
+        "principle": {
+          "type": "string",
+          "minLength": 1
+        },
+        "skeleton_field_source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "slice_field_source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rules": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "statement",
+              "machine_check"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "machine_check": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "known_same_scale_reuse": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "field",
+              "scale",
+              "quadrants",
+              "origin",
+              "disposition"
+            ],
+            "properties": {
+              "field": {
+                "type": "string",
+                "minLength": 1
+              },
+              "scale": {
+                "type": "string",
+                "minLength": 1
+              },
+              "quadrants": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "origin": {
+                "type": "string",
+                "minLength": 1
+              },
+              "disposition": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "research": {
+      "type": "object",
+      "required": [
+        "carrier",
+        "confidence",
+        "key_findings",
+        "sources",
+        "adopted",
+        "deferred",
+        "gaps"
+      ],
+      "properties": {
+        "carrier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confidence": {
+          "type": "string",
+          "minLength": 1
+        },
+        "key_findings": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "url",
+              "contribution"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "url": {
+                "type": "string",
+                "minLength": 1
+              },
+              "contribution": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "adopted": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "deferred": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
