@@ -1,0 +1,140 @@
+{
+  "ticket": "18",
+  "a_xxx": "A-018",
+  "demo_path": "FP-4 / Micro-A failure：PR 结论无引文被 verdict-gate 拒绝",
+  "clickable": true,
+  "note": "同一 PR fixture 跑两条路径：差异只来自「结论是否绑定可解析证据」，不来自采集结果",
+  "scale": "Micro-A",
+  "pr": {
+    "repo": "acme/payments-gateway",
+    "pr_number": 412,
+    "head_sha": "a3f19c7",
+    "base_sha": "7be2041",
+    "files_changed": 3,
+    "lines_added": 46,
+    "lines_removed": 12
+  },
+  "evidence_refs": [
+    "commit:a3f19c7",
+    "sarif:SC-204",
+    "line:src/ratelimit.ts:44",
+    "commit:7be2041"
+  ],
+  "evidence": [
+    {
+      "ref": "commit:a3f19c7",
+      "type": "commit",
+      "source": "git",
+      "resolvable": true,
+      "detail": "src/ratelimit.ts:41-46 — 新增令牌桶限流"
+    },
+    {
+      "ref": "sarif:SC-204",
+      "type": "sarif",
+      "source": "openssf-scorecard",
+      "resolvable": true,
+      "detail": "src/ratelimit.ts:44 — 硬编码窗口常量"
+    },
+    {
+      "ref": "line:src/ratelimit.ts:44",
+      "type": "line",
+      "source": "codelore",
+      "resolvable": true,
+      "detail": "const WINDOW_MS = 60_000;"
+    },
+    {
+      "ref": "commit:7be2041",
+      "type": "commit",
+      "source": "git",
+      "resolvable": true,
+      "detail": "src/ratelimit.ts:38 — 变更前逻辑"
+    }
+  ],
+  "profiles": {
+    "happy": {
+      "label": "Micro-A happy：PR diff 行级审计 + verdict-gate",
+      "findings": [
+        {
+          "id": "F-1",
+          "file": "src/ratelimit.ts",
+          "line": 44,
+          "severity": "high",
+          "claim": "限流窗口常量硬编码为 60_000ms，未走配置中心",
+          "citations": [
+            {
+              "ref": "line:src/ratelimit.ts:44",
+              "type": "line"
+            },
+            {
+              "ref": "sarif:SC-204",
+              "type": "sarif"
+            }
+          ]
+        },
+        {
+          "id": "F-2",
+          "file": "src/ratelimit.ts",
+          "line": 46,
+          "severity": "medium",
+          "claim": "新增令牌桶未按既有 retry 策略做退避",
+          "citations": [
+            {
+              "ref": "line:src/ratelimit.ts:44",
+              "type": "line"
+            },
+            {
+              "ref": "sarif:SC-204",
+              "type": "sarif"
+            }
+          ]
+        },
+        {
+          "id": "F-3",
+          "file": "src/webhook.ts",
+          "line": 18,
+          "severity": "low",
+          "claim": "webhook 重试路径缺少幂等键",
+          "citations": [
+            {
+              "ref": "line:src/ratelimit.ts:44",
+              "type": "line"
+            },
+            {
+              "ref": "commit:7be2041",
+              "type": "commit"
+            }
+          ]
+        }
+      ]
+    },
+    "failure": {
+      "label": "Micro-A failure：PR 结论无引文被 verdict-gate 拒绝",
+      "findings": [
+        {
+          "id": "F-1",
+          "file": "src/ratelimit.ts",
+          "line": 44,
+          "severity": "high",
+          "claim": "限流窗口常量硬编码为 60_000ms，未走配置中心",
+          "citations": []
+        },
+        {
+          "id": "F-2",
+          "file": "src/ratelimit.ts",
+          "line": 46,
+          "severity": "medium",
+          "claim": "新增令牌桶未按既有 retry 策略做退避",
+          "citations": []
+        },
+        {
+          "id": "F-3",
+          "file": "src/webhook.ts",
+          "line": 18,
+          "severity": "low",
+          "claim": "webhook 重试路径缺少幂等键",
+          "citations": []
+        }
+      ]
+    }
+  }
+}
