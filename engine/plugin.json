@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "macro-audit",
+  "version": "0.1.0",
+  "description": "宏观+微观工程内容审计（Agent Plugin 五层盒子）",
+  "skills": [
+    "macro-audit"
+  ],
+  "mcp": "mcp.json",
+  "extensions": [
+    "com.macroaudit.hooks"
+  ]
+}

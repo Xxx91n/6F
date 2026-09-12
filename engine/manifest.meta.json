@@ -1,0 +1,12 @@
+{
+  "name": "macro-audit",
+  "version": "0.1.0",
+  "description": "宏观+微观工程内容审计（Agent Plugin 五层盒子）",
+  "skills": ["macro-audit"],
+  "mcp": { "transport": "stdio", "readOnly": true },
+  "extensions": ["com.macroaudit.hooks"],
+  "shells": ["plugin", "github-action", "cli", "report-generator"],
+  "modes": ["default", "ci-gate", "scheduled", "due-diligence", "manual", "file"],
+  "receipt": { "fields": ["evidence_refs", "verdict", "offline_verifiable", "issued_by", "issued_at"] },
+  "claudePlugin": { "name": "macro-audit", "version": "0.1.0" }
+}

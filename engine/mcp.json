@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "macro-audit-kernel": {
+      "transport": "stdio",
+      "readOnly": true,
+      "command": "macro-audit",
+      "args": [
+        "mcp"
+      ]
+    }
+  }
+}
