@@ -1,7 +1,9 @@
-# macro-audit — 方法论壳（只读）
-
+---
 name: macro-audit
 description: 宏观+微观工程内容审计。在 agent 工作流内触发 Macro-B 仓库级四象限评审（结构 / 行为 / 供应链 / 战略）。
+---
+
+# macro-audit — 方法论壳（只读）
 
 ## 只读隔离纪律（per ADR-0008）
 - 本壳只读：允许读取 rubric 与证据、调用 kernel MCP 只读查询面。

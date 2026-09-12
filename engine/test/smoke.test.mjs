@@ -20,7 +20,7 @@ const s = spawnSync(process.execPath, [cli, 'selftest'], { encoding: 'utf8' });
 check('cli selftest exits 0 (liveness)', s.status === 0, 'status=' + s.status);
 let sj = null;
 try { sj = JSON.parse(s.stdout); } catch (e) {}
-check('selftest ok=true (alive + minimal e2e)', !!sj && sj.ok === true, String(s.stdout).trim());
+check('selftest ok=true (spec-constant self-check)', !!sj && sj.ok === true, String(s.stdout).trim());
 
 const g = spawnSync(process.execPath, [join(root, 'scripts', 'gen-manifests.mjs')], { encoding: 'utf8' });
 check('gen-manifests exits 0 (dual manifest no drift)', g.status === 0, 'status=' + g.status);

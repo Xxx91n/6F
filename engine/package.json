@@ -6,7 +6,7 @@
   "description": "macro-audit kernel CLI + Agent Plugin (walking skeleton)",
   "license": "UNLICENSED",
   "bin": { "macro-audit": "dist/cli.js" },
-  "files": ["dist", "plugin.json", "mcp.json", "manifest.meta.json", "skills", "extensions", ".claude-plugin"],
+  "files": ["dist", "plugin.json", "mcp.json", "manifest.meta.json", "skills", "extensions", ".claude-plugin", "LICENSE", "CHANGELOG.md", "PROVENANCE.md"],
   "scripts": {
     "gen": "node scripts/gen-manifests.mjs",
     "build": "tsc -p tsconfig.json",
