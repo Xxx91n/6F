@@ -162,7 +162,7 @@
 > 来源：spec-phase-tasks.md 第二轮（R2-01 ~ R2-05）；决策：decision-ledger.md D-008 ~ D-013（全部 current）。
 > 与轮 1（D-004 ~ D-007 / A-001 ~ A-018）共用本 spec 结构；R2 覆盖表见文末。
 > D-008 为流程导航决策（方向 = 补完产品定义），内容由 R2-01 ~ R2-05 承接，不单独立条。
-> 边界：R2 全部完成前不启动工程实现（ADR-0002 边界不变）；边界变更属 D-014 待拍板项。
+> 边界（已更新 2026-09-12）：工程实现已启动并位于 6F/engine/（ADR-0002 superseded by ADR-0010 → ADR-0011；ledger D-014 revised / D-015 current）。
 
 ### User Stories（R2 增量）
 
@@ -279,6 +279,6 @@
 
 ### R2 Out of Scope / 信息缺口
 
-- 不启动工程实现（ADR-0002 边界；边界变更 = D-014 待拍板）。
+- 工程实现边界已变更：ADR-0002 superseded by ADR-0010 → ADR-0011（单仓 + engine/ 子目录）；ledger D-014 revised / D-015 current。
 - 待通读 Agent Plugins 1.0.0 规范全文后定稿 plugin.json / mcp.json 字段级 schema。
 - 双 manifest 生成脚本无直接先例，属自研范围。

@@ -22,5 +22,5 @@
 
 ## References
 - 调研报告：.scratch/macro-audit/reports/R2-Q7-atomcode-research.md
-- ledger D-014（current）；D-002 / D-008（revised，由本条承载迁移）
+- ledger D-014（revised，2026-09-12 用户更正架构）；D-015（current）；D-002 / D-008（revised）
 - 被 supersede：ADR-0002

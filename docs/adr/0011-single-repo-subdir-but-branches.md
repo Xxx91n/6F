@@ -11,7 +11,7 @@
 1. **单仓**：D:/Aworker/6F 为默认项目文件夹，是唯一 git 仓。
 2. **子目录**：实现内容位于 6F/engine/（原 6F-impl 内容整体迁入）；spec / 决策 / 契约位于 CONTEXT.md / docs/ / .scratch/。
 3. **分支隔离用 but**：并行工作通过 but 分支实现，不引入独立仓或 git worktree。
-4. **ADR-0010 superseded**：其「另起工程仓」被本条更正；其余内容（spec 仓角色正式化 / 版本化契约衔接 / walking skeleton 验收）保留。
+4. **ADR-0010 superseded**：其「另起工程仓」被本条更正；其 Decision 2「本仓不承载产品实现源码」亦被更正——单仓内 engine/ 子目录承载实现；其余内容（版本化契约衔接 / walking skeleton 验收）保留。
 5. 6F-impl 独立仓已删除（内容已迁入 6F/engine/，迁后 build/smoke 6/6 PASS）。
 
 ## Consequences

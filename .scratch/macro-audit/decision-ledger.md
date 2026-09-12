@@ -210,7 +210,7 @@
 
 > 触发：子 Agent 验收标准（编译/打包/启动测活/每平台 test 闭环）预设了可构建的软件交付物，与 ADR-0002「spec-level 规划、实现属仓外」边界冲突；用户倾向 A+B 组合。
 > 调研：atomcode 深度调研（检索标签 R2-Q7-engineering-boundary），报告 .scratch/macro-audit/reports/R2-Q7-atomcode-research.md。
-> 冲突协议执行：D-002、D-008 已标 revised（原记录保留）；D-014 已于 2026-09-12 经用户批准 → current（激活 B4.1；由 ADR-0010 supersede ADR-0002）。
+> 冲突协议执行：D-002、D-008 已标 revised（原记录保留）；D-014 曾于 2026-09-12 经用户批准 → current，后经用户更正架构 → revised（由 D-015 承载；ADR-0010 → ADR-0011）。
 
 | ID | 原问题 | 确认回答原文 | 规范化需求 | 显式约束 / 负向需求 | 状态 |
 |---|---|---|---|---|---|
@@ -221,6 +221,7 @@
 - 用户拍板后动作：若批准，写 ADR-0010（supersede ADR-0002）+ 建工程仓 + 按 R2-01~05 顺序封口 spec；若不批准，回退 D-002/D-008 为 current 并记录否决理由。
 - 调研信息缺口 8 项（报告 §6）：Agent Plugins 规范全文未通读、1.1.0 draft、DuckDB Node 双线选型、SEA/Bun+原生模块组合、双 manifest 生成无先例、spec↔工程仓契约衔接机制、MCP 2026-07-28 修订、国内 agent 生态支持度。
 - 证据：atomcode R2-Q7 报告（11 次原文 / 10+ 域名 / 三引擎交叉验证）。
+- （2026-09-12 追记）D-014 后经用户更正架构 → revised；「另起工程仓」被 D-015 / ADR-0011 取代。
 
 
 ---
