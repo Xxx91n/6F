@@ -1,6 +1,6 @@
 # spec 仓角色正式化 + 工程实现迁移至工程仓（supersede ADR-0002）
 
-**Status: accepted（2026-09-12）｜Supersedes: ADR-0002**
+**Status: superseded by ADR-0011（2026-09-12）｜Supersedes: ADR-0002**
 
 ## Context
 - A+B 组合（完成 R2 spec 契约 + 进入工程实现）经用户 2026-09-12 批准；触发源 = 子 Agent 验收标准（编译/打包/启动测活/每平台 test 闭环）预设可构建软件交付物，与 ADR-0002「本仓 = spec-level 规划、实现属仓外」边界冲突。
