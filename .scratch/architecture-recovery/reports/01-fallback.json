@@ -1,0 +1,91 @@
+{
+  "version": "v1",
+  "generated_at": "2026-09-11T16:32:29.081Z",
+  "ticket": "01 / A-001",
+  "scope": "S1 定位收敛语义对齐的 embedding -> 词法 fallback 决策",
+  "default_architecture": "hybrid (dense embedding + lexical BM25/TF-IDF), 非二选一",
+  "triggers": [
+    {
+      "id": "T1",
+      "name": "no_model_or_offline",
+      "predicate": "embedding_backend_health != ok OR model_file_missing OR consecutive_timeouts >= 3",
+      "action": "lexical_only",
+      "rationale": "BM25 零样本稳健基线，不依赖模型（BEIR NeurIPS 2021）",
+      "source_ref": "atomcode-Q4#1"
+    },
+    {
+      "id": "T2",
+      "name": "corpus_too_small",
+      "predicate": "effective_text_pairs < 100 OR total_tokens < min_sample",
+      "action": "lexical_only",
+      "rationale": "小语料下 dense 优势不成立；分布校准需样本量（Calibrated Similarity arXiv:2601.16907）",
+      "source_ref": "atomcode-Q4#2"
+    },
+    {
+      "id": "T3",
+      "name": "language_unsupported",
+      "predicate": "detected_language NOT IN model.supported_languages",
+      "action": "lexical_or_multilingual_model",
+      "rationale": "bge-small-en-v1.5 / gte-small 官方声明仅英文；低资源语种无嵌入模型",
+      "source_ref": "atomcode-Q4#3"
+    },
+    {
+      "id": "T4",
+      "name": "identifier_dense",
+      "predicate": "identifier_token_ratio >= 0.25 (version/error-code/API-endpoint/function-name 正则命中率)",
+      "action": "lexical_priority_in_hybrid",
+      "rationale": "BM25 靠 IDF 精确命中稀有区分 token；dense 漏精确标识符（Pinecone hybrid blog + arXiv:2210.11934）",
+      "source_ref": "atomcode-Q4#4"
+    },
+    {
+      "id": "T5",
+      "name": "cost_budget_exceeded",
+      "predicate": "api_price * projected_tokens > budget_line",
+      "action": "local_small_model_or_lexical",
+      "rationale": "官方定价与 α 指导（Pinecone：out-of-domain α 降到 0.3-0.6）",
+      "source_ref": "atomcode-Q4#5"
+    },
+    {
+      "id": "T6",
+      "name": "determinism_required",
+      "predicate": "requirement CONTAINS (reproducible|audit|compliance)",
+      "action": "lexical_only",
+      "rationale": "审计产品可复现性是硬需求；嵌入浮点与供应商静默更新不可复现（Voyage deprecated 表）",
+      "source_ref": "atomcode-Q4#6"
+    },
+    {
+      "id": "T7",
+      "name": "explainability_required",
+      "predicate": "need_per_token_attribution == true",
+      "action": "lexical_only",
+      "rationale": "BM25 的 IDF/TF 可逐 token 解释，嵌入为黑盒（InfoQ / Redis）",
+      "source_ref": "atomcode-Q4#7"
+    },
+    {
+      "id": "T8",
+      "name": "literal_naming_convention",
+      "predicate": "keyword_coverage_mean >= 0.85 AND lex_cos_mean >= 0.55",
+      "action": "lexical_adequate_lower_cost",
+      "rationale": "【本票实测新增】交付物直接使用包/目录字面名（anysearch-cli：kw=0.927, lex_cos=0.613）时词法已充分，可降本；反例 jiahao（kw=0.471）抽象词汇无词面回响，必须用 embedding",
+      "source_ref": "empirical: 01-align.json lexical"
+    }
+  ],
+  "combination": "lexical_priority <= (T1 OR T2 OR T3 OR T6 OR T7); hybrid_default otherwise; T4/T5 调权不换道; T8 仅降本不降召回",
+  "empirical_evidence": {
+    "anysearch-cli": {
+      "keyword_coverage": 0.927,
+      "lex_cos": 0.613,
+      "note": "字面命名型 -> T8 命中，词法充分"
+    },
+    "env-manager": {
+      "keyword_coverage": 0.743,
+      "lex_cos": 0.378,
+      "note": "中间态 -> 默认 hybrid"
+    },
+    "jiahao": {
+      "keyword_coverage": 0.471,
+      "lex_cos": 0.486,
+      "note": "抽象词汇型 -> T8 不命中，必须 embedding；词法覆盖率与语义对齐度不相关"
+    }
+  }
+}

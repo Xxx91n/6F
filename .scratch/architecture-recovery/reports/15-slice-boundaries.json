@@ -1,0 +1,440 @@
+{
+  "schema_version": "1.0.0",
+  "title": "A-015 Scale 切片差异边界 — 5 scale 切片差异表 + Macro-A/Micro-A 极端差异案例 + 切片字段命名空间冲突契约",
+  "decision_ref": "spec.md §Decision 6.2",
+  "adr_ref": "docs/adr/0006-shared-skeleton-scale-slice.md",
+  "ledger_ref": "decision-ledger.md A-015",
+  "blocked_by": "#14",
+  "upstream_contract": "reports/14-skeleton-fields.json",
+  "scales": [
+    "MACRO-A",
+    "MACRO-B",
+    "MACRO-C",
+    "MICRO-A",
+    "MICRO-B"
+  ],
+  "difference_columns": [
+    {
+      "id": "trigger",
+      "name": "触发器",
+      "spec_mandated": true,
+      "locked_by": "CONTEXT.md Trigger Sequence / ADR-0001",
+      "description": "该 scale 何时启动审计：周期 / 事件 / 按需",
+      "industrial_basis": "IEEE 829 的 suspension / resumption criteria（完整性级别决定触发与挂起判据）+ CONTEXT.md Trigger Sequence",
+      "precedent_class": "有直接先例（文档族层级）/ 字段级类比",
+      "source_ref": "IEEE 829-2008 标准页 + ProfessionalQA 测试文档标准"
+    },
+    {
+      "id": "inputs",
+      "name": "输入",
+      "spec_mandated": true,
+      "locked_by": "ADR-0001 数据源 / ADR-0005 证据层",
+      "description": "该 scale 的数据源与信号集（共享证据层 CodeLore + OpenSSF Scorecard，切片只声明组合方式）",
+      "industrial_basis": "IEEE 829 Level Test Plan 的 scope / approach / features to be tested；NIST SSDF 的 Practice / Task / Notional Implementation Example / Reference 四元素",
+      "precedent_class": "有直接先例",
+      "source_ref": "IEEE 829-2008 + NIST SSDF SP 800-218"
+    },
+    {
+      "id": "output_granularity",
+      "name": "输出粒度",
+      "spec_mandated": true,
+      "locked_by": "ADR-0001 / CONTEXT.md Macro Audit vs Micro Audit",
+      "description": "切片产物的定位粒度：组合级 / 模块级 / 时间窗级 / 行级 / 文件级",
+      "industrial_basis": "SARIF result 行级对象（message 唯一 required）vs arc42 12 节叙事文档；两端各有直接先例，但单一 schema 横跨 5 档连续谱无先例",
+      "precedent_class": "组合式创新（两端各有直接先例）",
+      "source_ref": "SARIF 2.1.0 §3.27 + arc42 模板总览 + GitHub SARIF 容量上限表"
+    },
+    {
+      "id": "citation_density",
+      "name": "引文密度",
+      "spec_mandated": true,
+      "locked_by": "CONTEXT.md Evidence Gate / ADR-0006 grounded 盖章",
+      "description": "每条结论所需的最少证据条数 + 定位精度 + 聚合规则",
+      "industrial_basis": "SARIF physicalLocation.region（startLine / startColumn 精度模型）+ GitHub code scanning 的 properties.precision 排序键；Trail of Bits 每 finding 必带 exploit scenario 与定位",
+      "precedent_class": "有直接先例",
+      "source_ref": "SARIF 2.1.0（sarif.info/Result）+ GitHub SARIF support + ToB 报告解剖"
+    },
+    {
+      "id": "verdict_gate_stamp_position",
+      "name": "verdict-gate 印记位置",
+      "spec_mandated": true,
+      "locked_by": "ADR-0006 三印记 / A-014 C2 C3 C4",
+      "description": "裁决印记落在骨架哪一章哪一字段；只能取自 A-014 锁定的三印记白名单",
+      "industrial_basis": "SARIF kind x level 双轴正交 + GitHub code scanning 告警到 PR check 的门禁；Trail of Bits 执行摘要 severity x difficulty 矩阵",
+      "precedent_class": "有直接先例",
+      "source_ref": "SARIF 2.1.0 §3.27.9-10 + GitHub SARIF support + ToB 报告解剖"
+    },
+    {
+      "id": "time_window",
+      "name": "时间跨度",
+      "spec_mandated": false,
+      "locked_by": "本票扩展（A-015）",
+      "description": "单次审计覆盖的时间区间",
+      "industrial_basis": "IEEE 829 完整性级别决定文档广度深度；SARIF baselineState（new / unchanged / absent）承载跨 run 状态对比",
+      "precedent_class": "有直接先例（baselineState）/ 类比（时间窗）",
+      "source_ref": "IEEE 829-2008 + SARIF 2.1.0 result.baselineState"
+    },
+    {
+      "id": "degraded_form",
+      "name": "降级形态",
+      "spec_mandated": false,
+      "locked_by": "A-018 Failure Path / CONTEXT.md Failure Semantics",
+      "description": "该 scale 失败时的降级路径与产物形态（共享骨架不变、只降内容完整度）",
+      "industrial_basis": "GitHub code scanning 容量上限表（按严重度与精度排序后截断）+ SARIF baselineState 用状态标记而非删除",
+      "precedent_class": "有直接先例",
+      "source_ref": "GitHub SARIF support 容量上限表 + SARIF baselineState"
+    },
+    {
+      "id": "slice_namespace",
+      "name": "切片命名空间",
+      "spec_mandated": false,
+      "locked_by": "本票扩展（A-015）+ ADR-0006 禁止跨 scale 引用",
+      "description": "该 scale 切片字段的挂载位置与命名空间",
+      "industrial_basis": "OTel 语义约定命名规范的保留前缀与前缀借用禁令；JSON Schema unevaluatedProperties 组合闭包；SARIF §3.8 properties 扩展袋；GitHub 消费端字段白名单",
+      "precedent_class": "有直接先例",
+      "source_ref": "OTel semconv naming + JSON Schema 2020-12 + SARIF 2.1.0 §3.8 + GitHub SARIF support"
+    }
+  ],
+  "slices": [
+    {
+      "scale": "MACRO-A",
+      "label": "跨仓战略",
+      "trigger": "季度周期 / 手动触发（portfolio 组合变更或季度战略复盘）",
+      "inputs": [
+        "自研战略 rubric（S1-S5 跨仓口径）",
+        "跨仓依赖图",
+        "portfolio 聚合 read model（DuckDB fact table 投影）",
+        "OpenSSF Scorecard 跨仓聚合"
+      ],
+      "output_granularity": "跨仓叙事报告：结论聚合到 repo 组合（portfolio 级），不出行级定位；需行/模块级证据时必须下钻到 Macro-B / Micro-A",
+      "citation_density": {
+        "min_evidence_per_claim": 3,
+        "locator_precision": "repo@sha（仓级定位）",
+        "aggregation_rule": "跨仓聚合；单仓异常不可直接作为组合结论，须标注样本仓数与覆盖比例"
+      },
+      "verdict_gate_stamp_position": "C2 quadrants[].verdict_gate（组合级裁决）+ C4 recommendations[].verdict_gate_stamp；strategy 象限 native 原生裁决，structure/behavior/supply_chain 三象限为 projected",
+      "time_window": "90d 滚动窗口（季度）",
+      "degraded_form": "FP-1 Macro-A failure：证据采集缺口 → degraded_mode=true + C1 degraded_note 必填 + 发起 GapRequest 补查轮；产物仍为完整 4 章",
+      "slice_namespace": "quadrants[].slice_fields（MACRO-A 独立投影）",
+      "slice_field_count": 13,
+      "blocking": false
+    },
+    {
+      "scale": "MACRO-B",
+      "label": "仓库级 4 象限",
+      "trigger": "周期（默认 30d）/ 手动",
+      "inputs": [
+        "CodeLore 仓库事实（结构 + hotspot）",
+        "OpenSSF Scorecard",
+        "repomix",
+        "docs/adr 全量结构扫描（S2）"
+      ],
+      "output_granularity": "四象限叙事报告：定位到 module / file 级，是 5 档中唯一四象限全部 native 的档位",
+      "citation_density": {
+        "min_evidence_per_claim": 2,
+        "locator_precision": "module / file 级",
+        "aggregation_rule": "单仓全量；四象限结论各自独立取证据，不做跨象限互证"
+      },
+      "verdict_gate_stamp_position": "C2 quadrants[].verdict_gate（四象限全部 native 原生裁决）+ C4 recommendations[].verdict_gate_stamp",
+      "time_window": "30d 滚动窗口",
+      "degraded_form": "FP-2 Macro-B failure（A-018 明文，Demo v1 文档可读）",
+      "slice_namespace": "quadrants[].slice_fields（MACRO-B 独立投影）",
+      "slice_field_count": 14,
+      "blocking": false
+    },
+    {
+      "scale": "MACRO-C",
+      "label": "演化考古",
+      "trigger": "手动 或 版本发布节点（tag / release）",
+      "inputs": [
+        "CodeLore 历史分析",
+        "corpus 校准",
+        "ADR supersede 链与假设段",
+        "OpenSSF Scorecard 时间序列"
+      ],
+      "output_granularity": "演化对比报告：以时间窗区间 delta 表达（如 coverage_delta_12m_pp），禁止以单点值充当演化结论",
+      "citation_density": {
+        "min_evidence_per_claim": 2,
+        "locator_precision": "commit sha / 时间窗口",
+        "aggregation_rule": "跨时间窗对比；每条结论必须成对给出基期值与现期值，缺一即判 insufficient"
+      },
+      "verdict_gate_stamp_position": "C2 quadrants[].verdict_gate（趋势裁决；strategy 象限 native，structure/behavior/supply_chain 为 projected）",
+      "time_window": "12m 对比窗口（基期 vs 现期）",
+      "degraded_form": "FP-3 Macro-C failure（A-018 明文，Demo v1 文档可读）",
+      "slice_namespace": "quadrants[].slice_fields（MACRO-C 独立投影）",
+      "slice_field_count": 12,
+      "blocking": false
+    },
+    {
+      "scale": "MICRO-A",
+      "label": "PR diff",
+      "trigger": "每次 push / PR hook（事件驱动，同步进 CI）",
+      "inputs": [
+        "CodeLore diff --llm",
+        "Receipt Gate",
+        "PR 元数据（reviewer 分布 / review latency）",
+        "manifest 扫描"
+      ],
+      "output_granularity": "行级带引文评审：定位到 file:line，每条结论必须可点回具体 diff 行",
+      "citation_density": {
+        "min_evidence_per_claim": 1,
+        "locator_precision": "file:line（行级定位，强制）",
+        "aggregation_rule": "单次 diff，不做跨仓聚合；引文缺失即 grounded=unverified，不得计入 verdict"
+      },
+      "verdict_gate_stamp_position": "C2 quadrants[].verdict_gate（行级裁决，决定 PR 是否阻断）+ C3 evidence_items[].grounded（每条证据必带 verified/unverified 盖章）+ C4 recommendations[].verdict_gate_stamp",
+      "time_window": "单次提交（单 commit / 单 PR）",
+      "degraded_form": "FP-4 Micro-A failure：happy 3/3 带引文 vs failure 0/3；共享骨架不变，仅内容完整度下降，证据章必须非空",
+      "slice_namespace": "quadrants[].slice_fields（MICRO-A 独立投影）",
+      "slice_field_count": 13,
+      "blocking": true
+    },
+    {
+      "scale": "MICRO-B",
+      "label": "文件级",
+      "trigger": "单文件查看 / LSP 调用（按需，非周期）",
+      "inputs": [
+        "CodeLore file facts",
+        "局部叙事（单文件上下文）",
+        "manifest 扫描（仅当命中 manifest 时）"
+      ],
+      "output_granularity": "单文件质量卡：定位到 file 级，行级定位可选；产物形态为 advisory 卡片而非裁决报告",
+      "citation_density": {
+        "min_evidence_per_claim": 1,
+        "locator_precision": "file 级（行级可选）",
+        "aggregation_rule": "单文件快照，不与历史对比；需要历史对比时升级到 Macro-C / Micro-A"
+      },
+      "verdict_gate_stamp_position": "不进入裁决路径（advisory）：C2 verdict_gate.decision 恒为 insufficient 且 verdict 恒为 null；C4 recommendations[].verdict_gate_stamp 恒为 unverified 并必带 unverified 标记",
+      "time_window": "单文件快照（当前工作树状态）",
+      "degraded_form": "FP-5 Micro-B failure（A-018 明文，Demo v1 文档可读）",
+      "slice_namespace": "quadrants[].slice_fields（MICRO-B 独立投影）",
+      "slice_field_count": 12,
+      "blocking": false
+    }
+  ],
+  "extreme_case": {
+    "case_id": "EXTREME-MACRO-A-vs-MICRO-A",
+    "statement": "Macro-A（跨仓叙事）与 Micro-A（行级评审）是 5 档粒度的两个极端端点：同一个 commit 事实在两端被投影为完全不同的表达形态，但共享同一 correlation_key 与同一 4 章骨架。",
+    "shared_fact": {
+      "correlation_key": "A-010 trace_id / baggage_id，32 字符，同一 commit/PR 在 5 scale 的关联键",
+      "commit_sha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+      "pr_ref": "PR #1234",
+      "repo_ref": "repo-x@sha",
+      "portfolio_ref": "portfolio-P（N=7 仓）"
+    },
+    "divergence_dimensions": [
+      {
+        "dim": "审计对象主体",
+        "macro_a": "portfolio 组合（7 个仓）",
+        "micro_a": "单次 PR diff（1 个 PR，3 files / 47 LOC）"
+      },
+      {
+        "dim": "输出粒度",
+        "macro_a": "跨仓叙事段，结论聚合到组合级",
+        "micro_a": "行级评审条目，定位到 file:line"
+      },
+      {
+        "dim": "引文定位精度",
+        "macro_a": "repo@sha（仓级）",
+        "micro_a": "file:line（行级，强制）"
+      },
+      {
+        "dim": "引文密度",
+        "macro_a": "每条结论 ≥3 条证据",
+        "micro_a": "每条结论 ≥1 条证据且必须为行级"
+      },
+      {
+        "dim": "裁决进入方式",
+        "macro_a": "组合级裁决（strategy native），不阻断任何提交",
+        "micro_a": "行级裁决，可阻断 PR 合并"
+      },
+      {
+        "dim": "时间跨度",
+        "macro_a": "90d 滚动窗口",
+        "micro_a": "单次提交"
+      },
+      {
+        "dim": "触发器",
+        "macro_a": "季度周期 / 手动",
+        "micro_a": "每次 push / PR hook"
+      },
+      {
+        "dim": "降级形态",
+        "macro_a": "FP-1：缺仓 → GapRequest 补查轮，产物仍为完整 4 章",
+        "micro_a": "FP-4：引文采集 0/3，证据章非空但 grounded=unverified"
+      },
+      {
+        "dim": "典型证据条量级",
+        "macro_a": "数十条（跨仓聚合）",
+        "micro_a": "个位数（单 diff，3 files）"
+      },
+      {
+        "dim": "关联方式",
+        "macro_a": "写入同一 correlation_key，可被 Micro-A 记录对齐回溯",
+        "micro_a": "写入同一 correlation_key，可被 Macro-A 组合视图上卷"
+      }
+    ],
+    "machine_checkable": true
+  },
+  "namespace_contract": {
+    "principle": "切片字段只能挂在 quadrants[].slice_fields 命名空间内，禁止提升到骨架顶层；切片字段名不得与骨架字段名同名；不同 scale 的切片字段名不得相交（ADR-0006 禁止跨 scale 引用）；同 scale 内跨象限复用同一 metric 时只引用不复制（ADR-0005 事实唯一）。",
+    "skeleton_field_source": "reports/14-skeleton-fields.json#skeleton.chapters[].fields[].name（45 项 / 44 唯一）",
+    "slice_field_source": "reports/14-skeleton-fields.json#cells[].slice_fields[].name（64 项 / 60 唯一）",
+    "rules": [
+      {
+        "id": "R1",
+        "name": "嵌套隔离",
+        "statement": "切片字段只能出现在 quadrants[].slice_fields 命名空间内，不得提升到骨架顶层字段集合",
+        "machine_check": "A1"
+      },
+      {
+        "id": "R2",
+        "name": "同名禁止",
+        "statement": "切片字段名集合与骨架字段名集合（44 唯一）交集必须为空",
+        "machine_check": "A4"
+      },
+      {
+        "id": "R3",
+        "name": "跨 scale 隔离",
+        "statement": "任意两个不同 scale 的切片字段名集合交集必须为空",
+        "machine_check": "A5"
+      },
+      {
+        "id": "R4",
+        "name": "事实唯一",
+        "statement": "同 scale 内跨象限复用的字段必须带 origin 引用（A-005 或 ADR），禁止复制定义",
+        "machine_check": "A6"
+      },
+      {
+        "id": "R5",
+        "name": "印记白名单",
+        "statement": "verdict_gate 印记位置只能取自 A-014 锁定的三印记：C2 verdict_gate / C3 grounded / C4 verdict_gate_stamp",
+        "machine_check": "A7"
+      },
+      {
+        "id": "R6",
+        "name": "占位词禁止",
+        "statement": "所有描述字段不得含占位词",
+        "machine_check": "A9"
+      },
+      {
+        "id": "R7",
+        "name": "前缀借用禁令",
+        "statement": "切片字段不得借用骨架字段名作为自己的前缀（OTel 语义约定命名规范模式）；当前以 quadrants[].slice_fields 嵌套作为命名空间载体，故不引入 scale_<s>. 前缀以免与 A-014 已锁定的 60 个切片字段名冲突；一旦某字段被提升出 slice_fields 命名空间即视为违规",
+        "machine_check": "A4/A5"
+      }
+    ],
+    "known_same_scale_reuse": [
+      {
+        "field": "duplicate_abstraction_clusters",
+        "scale": "MACRO-A",
+        "quadrants": [
+          "structure",
+          "strategy"
+        ],
+        "origin": "A-005 / ADR-0001",
+        "disposition": "只引用不复制（ADR-0005 事实唯一）"
+      },
+      {
+        "field": "single_impl_abstraction_ratio",
+        "scale": "MACRO-B",
+        "quadrants": [
+          "structure",
+          "strategy"
+        ],
+        "origin": "A-005",
+        "disposition": "只引用不复制"
+      },
+      {
+        "field": "dependency_violation_ratio",
+        "scale": "MACRO-B",
+        "quadrants": [
+          "structure",
+          "strategy"
+        ],
+        "origin": "A-005",
+        "disposition": "只引用不复制"
+      },
+      {
+        "field": "file_loc",
+        "scale": "MICRO-B",
+        "quadrants": [
+          "structure",
+          "strategy"
+        ],
+        "origin": "CodeLore file facts",
+        "disposition": "只引用不复制"
+      }
+    ]
+  },
+  "research": {
+    "carrier": "atomcode 深度调研（per WORKFLOW §4.2.3），2026-09-12，13 查询 / 4 角度 / 10 次全文核验 / 9 个独立域名",
+    "confidence": "高（关键结论均 >=2 独立信源交叉验证）",
+    "key_findings": [
+      "切片差异字段有充分工业界直接先例：SARIF 2.1.0 的 kind x level 双轴分级、physicalLocation.region 定位精度模型、properties 扩展袋，加 IEEE 829 完整性级别思想，足以支撑 5 类差异字段",
+      "Macro-A 与 Micro-A 的极端差异可用 4 个可机检维度完整刻画：输出粒度跨度 / 引文定位精度 / 裁决进入方式 / 降级形态；但单一格式横跨 5 档连续谱本身无直接先例，属组合式设计",
+      "命名空间隔离有 4 种成熟做法：OTel 保留前缀与前缀借用禁令、反向域名前缀、SARIF properties 扩展袋、JSON Schema unevaluatedProperties 组合闭包"
+    ],
+    "sources": [
+      {
+        "name": "SARIF v2.1.0 + Errata 01",
+        "url": "https://sarif.info/",
+        "contribution": "result 唯一 required=message、kind x level 双轴、region 定位、properties 扩展袋 §3.8"
+      },
+      {
+        "name": "SARIF result 对象全属性表",
+        "url": "https://sarif.info/Result/",
+        "contribution": "region 精度、fingerprints / baselineState 跨 run 身份"
+      },
+      {
+        "name": "OTel 语义约定命名规范",
+        "url": "https://opentelemetry.io/docs/specs/semconv/general/naming/",
+        "contribution": "点分命名空间、otel.* 保留前缀、前缀借用禁令、弃用而非删除"
+      },
+      {
+        "name": "Trail of Bits 报告解剖",
+        "url": "https://trailofbits.com/anatomy-of-a-report/",
+        "contribution": "8 部分固定骨架、severity x difficulty 双轴、每 finding 必带定位"
+      },
+      {
+        "name": "GitHub code scanning SARIF 支持",
+        "url": "https://docs.github.com/en/code-security/reference/code-scanning/sarif-files/sarif-support",
+        "contribution": "消费端字段白名单、PR diff 展示条件、容量上限截断"
+      },
+      {
+        "name": "IEEE 829-2008 标准页",
+        "url": "https://standards.ieee.org/ieee/829/3787/",
+        "contribution": "完整性级别决定文档广度与深度、Master/Level 文档族"
+      },
+      {
+        "name": "NIST SSDF SP 800-218",
+        "url": "https://csrc.nist.gov/projects/ssdf",
+        "contribution": "Practice / Task / Example / Reference 四元素结构"
+      },
+      {
+        "name": "arc42 模板总览",
+        "url": "https://arc42.org/overview/",
+        "contribution": "12 节固定模板，叙事端输出形态类比"
+      },
+      {
+        "name": "SARIF Can't Save You Now（批评）",
+        "url": "https://boostsecurity.io/blog/sarif-cant-save-you-now",
+        "contribution": "共享格式不等于免处理，联邦裁决层存在理由"
+      }
+    ],
+    "adopted": [
+      "采纳 SARIF kind x level 双轴心智：本票以 A-014 applicability（状态轴）+ blocking（门禁轴）落地，不新增 verdict_gate.severity 分桶",
+      "采纳 OTel 前缀借用禁令作为 R7",
+      "采纳 GitHub 消费端白名单作为集成层防线（白名单外字段不投影而非报错）"
+    ],
+    "deferred": [
+      "verdict_gate.severity 严重度分桶：社区对 CVSS 桶边界存在真实分歧，本票不代裁，留给后续票并须独立成文记录分桶依据",
+      "SARIF 2.2 的 precision 原生字段：2.2 尚未发布 OASIS 标准稿，本票用 citation_density.locator_precision 自建，2.2 发布后迁移",
+      "中间 3 档（Macro-B / Macro-C / Micro-B）的字段组合是否存在空档，需后续样例验证"
+    ],
+    "gaps": [
+      "OpenSSF Scorecard JSON v2 一手 schema 未抓到（github 429 / ossf.github.io 404），仅靠 Sonar 与 Marketplace 摘要佐证",
+      "IEEE 829-2008 正文为付费墙，引用止于文档族层级与完整性级别原则，未下钻到字段级",
+      "SARIF 2.2 规范正文未整读（precision / security-severity 提案已进入编辑修订但未发布）"
+    ]
+  }
+}

@@ -1,0 +1,1577 @@
+{
+  "schema_version": "1.0.0",
+  "scanned_at": "2026-09-11T15:52:44.460Z",
+  "scanner": "02-adr-header-scan.mjs",
+  "detection_rules": {
+    "date_keys": [
+      "date",
+      "decision-date",
+      "decision_date",
+      "decided",
+      "decided_at",
+      "decided-on",
+      "decided_on",
+      "created",
+      "created_at",
+      "created-on",
+      "created_on",
+      "last-updated",
+      "updated_at",
+      "last_updated"
+    ],
+    "status_keys": [
+      "status",
+      "state",
+      "decision-status"
+    ],
+    "meta_keys": [
+      "deciders",
+      "decision-makers",
+      "drivers",
+      "consulted",
+      "informed",
+      "tags",
+      "title",
+      "slug"
+    ],
+    "iso_date_pattern": "\\b(19|20)\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])(?:[T ][0-9:.+\\-Z]+)?\\b"
+  },
+  "repos": [
+    {
+      "name": "6F",
+      "root": "D:/Aworker/6F",
+      "adr_dirs": [
+        "docs/adr"
+      ],
+      "adr_files": [
+        {
+          "path": "docs/adr/0001-five-scale-scope.md",
+          "size_bytes": 379,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0002-no-mvp-slice.md",
+          "size_bytes": 276,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0003-boundary-product-and-usage.md",
+          "size_bytes": 296,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0004-strategic-quadrant-five-dims.md",
+          "size_bytes": 470,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0005-hub-of-facts-with-federated-adjudication.md",
+          "size_bytes": 642,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0006-shared-skeleton-scale-slice.md",
+          "size_bytes": 409,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0007-ten-demo-paths.md",
+          "size_bytes": 398,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        }
+      ],
+      "counts": {
+        "total": 7,
+        "full_header": 0,
+        "partial_header": 0,
+        "metadata_only": 0,
+        "no_header": 7,
+        "unknown": 0
+      }
+    },
+    {
+      "name": "env-manager",
+      "root": "D:/Aworker/env-manager",
+      "adr_dirs": [
+        "docs/adr"
+      ],
+      "adr_files": [
+        {
+          "path": "docs/adr/0001-secret-architecture-revision.md",
+          "size_bytes": 5336,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0002-service-watchdog-heartbeat.md",
+          "size_bytes": 3408,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0003-version-single-source-changelog.md",
+          "size_bytes": 2358,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0004-github-release-readiness-two-phase.md",
+          "size_bytes": 1122,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0005-sensitive-data-redaction.md",
+          "size_bytes": 2537,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0006-gui-z-index-layering.md",
+          "size_bytes": 795,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0007-form-control-color-scheme-override.md",
+          "size_bytes": 1089,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0008-public-release-and-mirror.md",
+          "size_bytes": 3016,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0009-stay-on-tauri-bundled-wix-v3.md",
+          "size_bytes": 7162,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0010-msi-hygiene-guid-pinning-eol-test-pyramid.md",
+          "size_bytes": 7647,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0011-msi-ui-wixui-installdir-desktop-shortcut.md",
+          "size_bytes": 4148,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0012-msi-uninstall-shortcut-logs-localappdata.md",
+          "size_bytes": 6760,
+          "has_frontmatter": true,
+          "classification": "full_header",
+          "header_date": {
+            "key": "date",
+            "value": "2026-08-24"
+          },
+          "header_keys": [
+            "title",
+            "status",
+            "date",
+            "deciders",
+            "tags"
+          ]
+        },
+        {
+          "path": "docs/adr/0013-resvg-js-for-svg-rendering.md",
+          "size_bytes": 2421,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0014-no-txr-txf-compensatory-writes.md",
+          "size_bytes": 5275,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        }
+      ],
+      "counts": {
+        "total": 14,
+        "full_header": 1,
+        "partial_header": 0,
+        "metadata_only": 0,
+        "no_header": 13,
+        "unknown": 0
+      }
+    },
+    {
+      "name": "jiahao",
+      "root": "D:/Aworker/jiahao",
+      "adr_dirs": [
+        "docs/adr"
+      ],
+      "adr_files": [
+        {
+          "path": "docs/adr/0001-prompt-as-mental-model-for-second-party-agents.md",
+          "size_bytes": 2862,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0002-jiahao-iron-laws-design.md",
+          "size_bytes": 3086,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0003-hook-architecture-design.md",
+          "size_bytes": 2752,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0004-verification-gate-ladder.md",
+          "size_bytes": 2974,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0005-skill-distribution-adapter-pattern.md",
+          "size_bytes": 1667,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0006-architecture-deepening.md",
+          "size_bytes": 3488,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0007-hash-chain-tamper-evidence.md",
+          "size_bytes": 2807,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0008-confidence-calibration.md",
+          "size_bytes": 2809,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0009-mcp-adapter.md",
+          "size_bytes": 2219,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0010-dual-profile-role-tagged-distribution.md",
+          "size_bytes": 7228,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0011-deployment-discipline-install-ux-drift-automation.md",
+          "size_bytes": 8282,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0012-detector-verdict-persistence-hook-idempotency.md",
+          "size_bytes": 5554,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0013-cross-turn-hash-chain.md",
+          "size_bytes": 6570,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0014-wordlist-migration-structural-signals.md",
+          "size_bytes": 5974,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0015-benchmark-adoption-citation-calibration.md",
+          "size_bytes": 4894,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0016-evidencelog-gateladder-split-shared-core.md",
+          "size_bytes": 3044,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0017-escalate-verdict-human-adjudication.md",
+          "size_bytes": 4066,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0018-calibration-flywheel-kappa.md",
+          "size_bytes": 4613,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0019-detector-v2-suppression-judge-seam.md",
+          "size_bytes": 6790,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0020-multi-page-enumeration-exhaustion-pairing.md",
+          "size_bytes": 5050,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0021-request-side-anchor-signals.md",
+          "size_bytes": 6610,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0022-detector-hardening-censoring-degradation.md",
+          "size_bytes": 4535,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0023-timeout-sentinel-reconciliation-degradation-evolution.md",
+          "size_bytes": 4142,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0024-sentinel-ownership-lock-reconcile-hardening-session-sweep.md",
+          "size_bytes": 3887,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0025-judge-form-convergence-corpus-telemetry.md",
+          "size_bytes": 6158,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0026-segmented-evidence-log-rotation.md",
+          "size_bytes": 7815,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0027-bench-gate-pre-registered-threshold-enforcement.md",
+          "size_bytes": 7185,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0028-multi-host-l0-golden-conformance-host-contracts.md",
+          "size_bytes": 9192,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0029-verifier-effectiveness-behavioral-probe-gate.md",
+          "size_bytes": 9973,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0030-corpus-growth-interval-gate-reverification-runbook.md",
+          "size_bytes": 7862,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0031-wiring-assertions-judge-bias-gate-tiers-isolation-provenance-debt-pack.md",
+          "size_bytes": 10360,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0032-generator-surface-rules-deepening-gsr-coverage-lifecycle.md",
+          "size_bytes": 10081,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0033-deferred-unfreeze-registry-pending-evaluation-expiry-forces-action.md",
+          "size_bytes": 8367,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0034-gate-registry-single-entrypoint-orchestration.md",
+          "size_bytes": 10407,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0035-deferred-registry-cadence-checkin-verifiedby-honesty-corrections.md",
+          "size_bytes": 7027,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0036-anti-gaming-audit-corpus-migration-freshness-gate-defaults.md",
+          "size_bytes": 10397,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0037-metamorphic-relations-third-corpus-family-staged-hybrid.md",
+          "size_bytes": 8524,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0038-npm-runtime-artifact-surface-corpus-distribution-boundary.md",
+          "size_bytes": 6240,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0039-tarball-runtime-surface-narrowing-docs-adr-archive-channel.md",
+          "size_bytes": 7204,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0040-gate-runtime-capability-declaration-three-state-exit-honest-unverifiable.md",
+          "size_bytes": 11355,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0041-exit-semantics-unification-structured-stderr-prefixes-lane-integration.md",
+          "size_bytes": 13175,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0042-config-load-warning-rule-code-contract-locking.md",
+          "size_bytes": 4209,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0043-fact-source-derived-artifact-discipline-prefix-vocabulary.md",
+          "size_bytes": 7387,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0044-claim-directed-falsification-mechanical-falsifiability-core-rule.md",
+          "size_bytes": 8358,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0045-stochastic-deterministic-boundary-evidence-path-verification.md",
+          "size_bytes": 5394,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0046-instrument-drift-recalibration.md",
+          "size_bytes": 5446,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0047-impact-tiered-instrument-change-control.md",
+          "size_bytes": 7208,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0048-metrological-ledger-record-tier-content-anchor-commit-discipline.md",
+          "size_bytes": 6641,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0049-decision-rule-anchor-and-metrological-ledger-completion.md",
+          "size_bytes": 8601,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0050-append-only-hardening-external-head-anchor-and-genesis-anchoring.md",
+          "size_bytes": 7097,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0051-closed-persistence-capability-class.md",
+          "size_bytes": 2970,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0052-witness-unavailable-failure-state.md",
+          "size_bytes": 3760,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0053-periodic-re-anchoring-and-anchor-freshness.md",
+          "size_bytes": 2181,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0054-anchor-freshness-verification-and-re-anchoring-activation.md",
+          "size_bytes": 4899,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0055-work-baseline-anchoring-and-seal-verification-performance.md",
+          "size_bytes": 4833,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0056-test-corpus-tiering-and-clean-clone-integrity.md",
+          "size_bytes": 5582,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0057-test-skip-honesty-and-suite-count-assertion.md",
+          "size_bytes": 5666,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        }
+      ],
+      "counts": {
+        "total": 57,
+        "full_header": 0,
+        "partial_header": 0,
+        "metadata_only": 0,
+        "no_header": 57,
+        "unknown": 0
+      }
+    },
+    {
+      "name": "anysearch-cli",
+      "root": "D:/Aworker/anysearch-cli",
+      "adr_dirs": [
+        "docs/adr"
+      ],
+      "adr_files": [
+        {
+          "path": "docs/adr/0001-typescript-pi-skeleton.md",
+          "size_bytes": 2746,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0002-domain-authority-cc-persona-toml.md",
+          "size_bytes": 2417,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0003-code-mode-soft-depends-context-mode-and-codegraph.md",
+          "size_bytes": 1864,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0004-kernel-split-seam-architecture.md",
+          "size_bytes": 3343,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0005-architecture-grill-round-2.md",
+          "size_bytes": 6413,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0006-architecture-grill-round-3-seam-wiring.md",
+          "size_bytes": 5447,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0007-architecture-grill-round-4-pi-agent-core-integration.md",
+          "size_bytes": 4523,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0008-architecture-grill-round-5-mcp-phase2-design.md",
+          "size_bytes": 7031,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0009-architecture-grill-round-6-phase3-plugin-design.md",
+          "size_bytes": 6241,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0010-architecture-grill-round-7-post-phase3-evolution.md",
+          "size_bytes": 5448,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0011-architecture-grill-round-8-sessionstart-progressive-disclosure.md",
+          "size_bytes": 4321,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0012-architecture-grill-round-9-l0l1-memory-pipeline-per-platform.md",
+          "size_bytes": 7503,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0013-architecture-grill-round-10-reuse-compress-noop-adjudication.md",
+          "size_bytes": 4917,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0014-architecture-grill-round-11-sufficiency-gate-deepening.md",
+          "size_bytes": 4069,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0015-architecture-grill-round-12-memory-pipeline-extraction.md",
+          "size_bytes": 8054,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0016-architecture-grill-round-13-temporal-decoupling-pure-function.md",
+          "size_bytes": 6886,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0017-architecture-grill-round-14-production-pipeline-mcp-dual-era.md",
+          "size_bytes": 6998,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0018-architecture-grill-round-15-mcp-sdk-v2-migration.md",
+          "size_bytes": 5988,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0019-architecture-grill-round-16-typebox-bridge-operationalization.md",
+          "size_bytes": 8633,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0020-architecture-grill-round-17-release-readiness-ship-gate.md",
+          "size_bytes": 6562,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0021-architecture-grill-round-18-memorypipeline-deepen-threshold-injection-ship-evidence.md",
+          "size_bytes": 11881,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0022-architecture-grill-round-19-consumer-answer-mode-exposure.md",
+          "size_bytes": 8066,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0023-architecture-grill-round-20-memory-retrieval-deepening.md",
+          "size_bytes": 8322,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0024-architecture-grill-round-21-t0-memory-md-durable-preference-layer.md",
+          "size_bytes": 10595,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0025-architecture-grill-round-22-native-smoke-ci-and-pref-review.md",
+          "size_bytes": 4778,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0026-architecture-grill-round-23-pnpm-version-pinning-v11-pmonfail-error.md",
+          "size_bytes": 4857,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0027-architecture-grill-round-24-memory-eval-harness.md",
+          "size_bytes": 7243,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0028-architecture-grill-round-25-eval-hardening-secret-guard-and-parity.md",
+          "size_bytes": 7935,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0029-architecture-grill-round-26-judge-calibration-eval-budget-guard.md",
+          "size_bytes": 6375,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0030-architecture-grill-round-27-memory-lifecycle-fused-freshness-factor.md",
+          "size_bytes": 9696,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0031-architecture-grill-round-28-entity-link-layer.md",
+          "size_bytes": 9327,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0032-architecture-grill-round-29-entity-merge-execution.md",
+          "size_bytes": 5492,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0033-architecture-grill-round-30-vector-semantic-arm.md",
+          "size_bytes": 5192,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0034-architecture-grill-round-31-answer-attribution-layer.md",
+          "size_bytes": 10398,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0035-architecture-grill-round-32-entity-relation-layer-kg-lite.md",
+          "size_bytes": 17164,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0036-architecture-grill-round-33-relation-arm-gain-observation.md",
+          "size_bytes": 12708,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0037-architecture-grill-round-34-consolidation-and-forgetting.md",
+          "size_bytes": 13600,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0038-architecture-grill-round-35-relation-gate-promotion-holdout-dual-track.md",
+          "size_bytes": 17096,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0039-architecture-grill-round-36-tau-observation-layer.md",
+          "size_bytes": 17476,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0040-architecture-grill-round-37-access-events-tamper-evidence.md",
+          "size_bytes": 18844,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0041-architecture-grill-round-38-gate-verification-object-layering.md",
+          "size_bytes": 9458,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0042-architecture-grill-round-39-observational-data-feeding.md",
+          "size_bytes": 8473,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0043-architecture-grill-round-40-consumed-synthetic-switch-governance.md",
+          "size_bytes": 19375,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0044-architecture-grill-round-41-adr0043-audit-remediation.md",
+          "size_bytes": 9730,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0045-architecture-grill-round-42-multi-arm-rrf-fusion-governance.md",
+          "size_bytes": 11081,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0046-architecture-grill-round-43-multi-arm-rrf-fusion-gain-observation.md",
+          "size_bytes": 6243,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0047-architecture-grill-round-44-emergency-ship-override-lifecycle.md",
+          "size_bytes": 1649,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0048-architecture-grill-round-45-local-eval-gate-calibration-contract.md",
+          "size_bytes": 1729,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0049-architecture-grill-round-46-calibration-revision-lifecycle.md",
+          "size_bytes": 3537,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0050-architecture-grill-round-47-fused-score-calibration-threshold-propagation.md",
+          "size_bytes": 2037,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0051-architecture-grill-round-48-attribution-calibration-runtime-injection-segment-audit.md",
+          "size_bytes": 4540,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0052-architecture-grill-round-49-observability-closed-loop-context-engineering.md",
+          "size_bytes": 7216,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0053-architecture-grill-round-50-content-trust-boundary-indirect-prompt-injection-defense.md",
+          "size_bytes": 8797,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0054-architecture-grill-round-51-adr0053-behavioral-loop-closure.md",
+          "size_bytes": 7294,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0055-architecture-grill-round-52-authorization-policy-single-source.md",
+          "size_bytes": 9730,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0056-architecture-grill-round-56-session-id-propagation-protocol.md",
+          "size_bytes": 10828,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        }
+      ],
+      "counts": {
+        "total": 56,
+        "full_header": 0,
+        "partial_header": 0,
+        "metadata_only": 0,
+        "no_header": 56,
+        "unknown": 0
+      }
+    },
+    {
+      "name": "log4brains (public, MADR+patch)",
+      "root": "D:/Aworker/6F/.code-tmp/log4brains",
+      "adr_dirs": [
+        "docs/adr"
+      ],
+      "adr_files": [
+        {
+          "path": "docs/adr/20200924-use-markdown-architectural-decision-records.md",
+          "size_bytes": 1811,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/20200925-multi-packages-architecture-in-a-monorepo-with-yarn-and-lerna.md",
+          "size_bytes": 1773,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/20200925-use-prettier-eslint-airbnb-for-the-code-style.md",
+          "size_bytes": 1528,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/20200926-use-the-adr-number-as-its-unique-id.md",
+          "size_bytes": 931,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/20200927-avoid-default-exports.md",
+          "size_bytes": 334,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/20201016-use-the-adr-slug-as-its-unique-id.md",
+          "size_bytes": 1287,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/20201026-the-core-api-is-responsible-for-enhancing-the-adr-markdown-body-with-mdx.md",
+          "size_bytes": 1012,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/20201103-use-lunr-for-search.md",
+          "size_bytes": 1109,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/20210113-distribute-log4brains-as-a-global-npm-package.md",
+          "size_bytes": 1955,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/20240926-transition-to-simplified-git-flow.md",
+          "size_bytes": 2720,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/20241217-switch-back-to-github-flow.md",
+          "size_bytes": 1780,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/index.md",
+          "size_bytes": 2160,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/README.md",
+          "size_bytes": 915,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/template.md",
+          "size_bytes": 2406,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        }
+      ],
+      "counts": {
+        "total": 14,
+        "full_header": 0,
+        "partial_header": 0,
+        "metadata_only": 0,
+        "no_header": 14,
+        "unknown": 0
+      }
+    },
+    {
+      "name": "madr-sample (public, MADR 4.0)",
+      "root": "D:/Aworker/6F/.code-tmp/madr-sample",
+      "adr_dirs": [
+        "docs/decisions"
+      ],
+      "adr_files": [
+        {
+          "path": "docs/decisions/0000-use-markdown-architectural-decision-records.md",
+          "size_bytes": 1436,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0001-use-CC0-or-MIT-as-license.md",
+          "size_bytes": 1604,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0002-do-not-use-numbers-in-headings.md",
+          "size_bytes": 721,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0003-provide-own-madr-tools.md",
+          "size_bytes": 971,
+          "has_frontmatter": true,
+          "classification": "partial_header",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order",
+            "status"
+          ]
+        },
+        {
+          "path": "docs/decisions/0004-write-own-toc-tool.md",
+          "size_bytes": 826,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0005-use-dashes-in-filenames.md",
+          "size_bytes": 1079,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0006-use-names-as-identifier.md",
+          "size_bytes": 699,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0007-do-not-emphasize-line-headings.md",
+          "size_bytes": 671,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0008-add-status-field.md",
+          "size_bytes": 2977,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0009-support-links-between-adrs-inside-an-adrs.md",
+          "size_bytes": 2691,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0010-support-categories.md",
+          "size_bytes": 3316,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0011-use-asterisk-as-list-marker.md",
+          "size_bytes": 720,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0012-use-curly-braces-to-denote-placeholder.md",
+          "size_bytes": 1907,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0013-use-yaml-front-matter-for-meta-data.md",
+          "size_bytes": 1540,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0014-allow-neutral-arguments.md",
+          "size_bytes": 2234,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0015-include-consulting-informed-of-raci.md",
+          "size_bytes": 1501,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0016-outcome-before-detailed-pros-cons.md",
+          "size_bytes": 2050,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0017-use-same-format-for-outcomes-and-options.md",
+          "size_bytes": 898,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/0018-use-confirmation-as-heading.md",
+          "size_bytes": 1038,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order"
+          ]
+        },
+        {
+          "path": "docs/decisions/adr-template.md",
+          "size_bytes": 3578,
+          "has_frontmatter": true,
+          "classification": "metadata_only",
+          "header_date": null,
+          "header_keys": [
+            "parent",
+            "nav_order",
+            "title"
+          ]
+        },
+        {
+          "path": "docs/decisions/index.md",
+          "size_bytes": 471,
+          "has_frontmatter": true,
+          "classification": "unknown",
+          "header_date": null,
+          "header_keys": [
+            "has_children",
+            "nav_order"
+          ]
+        }
+      ],
+      "counts": {
+        "total": 21,
+        "full_header": 0,
+        "partial_header": 1,
+        "metadata_only": 1,
+        "no_header": 0,
+        "unknown": 19
+      }
+    }
+  ],
+  "aggregate": {
+    "total_adrs_scanned": 169,
+    "full_header": 1,
+    "partial_header": 1,
+    "metadata_only": 1,
+    "no_header": 147,
+    "unknown": 19
+  }
+}

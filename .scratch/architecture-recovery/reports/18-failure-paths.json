@@ -1,0 +1,340 @@
+{
+  "ticket": "18",
+  "a_xxx": "A-018",
+  "decision": "spec.md §Decision 7.2",
+  "adr_ref": [
+    "docs/adr/0005-hub-of-facts-with-federated-adjudication.md",
+    "docs/adr/0006-shared-skeleton-scale-slice.md",
+    "docs/adr/0007-ten-demo-paths.md"
+  ],
+  "blocked_by": "#17",
+  "shared_skeleton": [
+    "执行摘要",
+    "4 象限 / 裁决",
+    "证据",
+    "行动建议"
+  ],
+  "skeleton_invariant": "ADR-0006 四章标题在任何降级下都必须存在（yield=1）；降级只改每章 integrity 字段值与印记，不改章节结构",
+  "stamp_vocabulary": {
+    "data_doesnt_show": "⚠ data doesn't show: <source_id>",
+    "contains_uncited_claims": "⚠ contains uncited claims",
+    "gap_request": "⚠ gap request: <target>",
+    "verdict_rejected": "⚠ verdict rejected: <reason_code>",
+    "rendering_degraded": "⚠ rendering degraded: <section_id>",
+    "unverified": "⚠ unverified"
+  },
+  "stamp_vocabulary_locked": true,
+  "paths": [
+    {
+      "id": "FP-1",
+      "name": "Macro-A failure：跨仓证据不足 / portfolio 缺事实",
+      "scale": "Macro-A",
+      "mode": "文档",
+      "failure_kind": "FP1 证据采集失败",
+      "elements": {
+        "trigger": {
+          "text": "portfolio 内至少 1 个目标仓在采集预算内未返回 / 返回空 / schema 违约 / 鉴权失败；或已采仓数 N 少于声明覆盖仓数 M。",
+          "machine_checkable": "collected_repos < declared_repos || source.status in [TIMEOUT, EMPTY, SCHEMA_VIOLATION, AUTH_FAILED]",
+          "budget": "per-source 独立采集预算（p99.9 + 2s）× 重试预算；预算耗尽即判定，不做自由裁量"
+        },
+        "degradation": {
+          "mode": "fail fast + 部分 harvest + gap 声明",
+          "steps": [
+            "按仓独立 breaker + bulkhead，慢依赖优先熔断",
+            "已采仓证据照常入证据章",
+            "未采仓对应章节降级为 gap 声明，不阻塞叙事",
+            "执行摘要显式声明 N/M 覆盖率"
+          ],
+          "forbidden": [
+            "naive retry 重试到成功（per C2 慢依赖比崩溃依赖更危险）",
+            "静默省略缺仓导致报告假装完整",
+            "因缺仓而拒绝出报告（违反 yield=1）"
+          ]
+        },
+        "verdict_stamp": {
+          "stamps": [
+            "⚠ data doesn't show: <source_id>",
+            "⚠ gap request: <target>"
+          ],
+          "reason_code": "SOURCE_UNAVAILABLE",
+          "enters_adjudication": false,
+          "note": "缺口仓不进入裁决，因此不产生 verdict rejected —— 采集缺口与裁决驳回是两类印记，不得混用"
+        },
+        "artifact": {
+          "skeleton": "共享 ADR-0006 四章（与 happy path 逐字相同）",
+          "integrity": {
+            "coverage": "N/M",
+            "verdict": "n/a（缺口仓未进裁决）",
+            "render": "ok"
+          },
+          "degradation_notes": [
+            "执行摘要带「本报告基于 N/M 个仓库，缺口见附录」",
+            "证据章该仓节 = gap 声明块（含 attempts / error class / 时间戳）"
+          ]
+        }
+      },
+      "happy_path_ref": {
+        "name": "Macro-A happy：跨仓战略对齐审计",
+        "mode": "可点",
+        "artifact": "M/M 全部采集成功；四章 harvest=1；零印记",
+        "contrast": [
+          "coverage: M/M → N/M",
+          "证据章该仓节：完整战略叙事 → gap 声明块",
+          "印记：无 → data doesn't show + gap request",
+          "章节结构：完全不变（唯一不变的硬约束）"
+        ]
+      }
+    },
+    {
+      "id": "FP-2",
+      "name": "Macro-B failure：仓库级证据门拒绝 / 引文缺失",
+      "scale": "Macro-B",
+      "mode": "文档",
+      "failure_kind": "FP2 叙事无引文 → FP3 裁决驳回",
+      "elements": {
+        "trigger": {
+          "text": "4 象限中任一象限的叙事断言存在 citations 为空或引用 ref 在证据集中不可解析。",
+          "machine_checkable": "quadrant.uncited_claims > 0 || quadrant.unresolvable_refs > 0",
+          "budget": "Evidence Gate 门槛：每条断言必须绑定 ≥1 条可解析证据；叙事预算显式含验证时间（per C5）"
+        },
+        "degradation": {
+          "mode": "部分叙事保留 + 无引文句降级为结构化断言列表 + GapRequest 补查轮",
+          "steps": [
+            "已完成且带引文的象限照常保留",
+            "无引文句降级为无引文链接的结构化断言列表",
+            "对该象限发 GapRequest（TTL + 升级通道，防 Wikipedia backlog 病）",
+            "未验证断言进 unverified 桶，绝不混入已验证结论"
+          ],
+          "forbidden": [
+            "用「看起来合理」的措辞补写引文",
+            "把 unverified 断言与已验证结论同权重输出"
+          ]
+        },
+        "verdict_stamp": {
+          "stamps": [
+            "⚠ contains uncited claims",
+            "⚠ verdict rejected: NO_CITATION"
+          ],
+          "reason_code": "NO_CITATION",
+          "enters_adjudication": true,
+          "rejection_taxonomy": [
+            "false_positive",
+            "out_of_scope",
+            "redundant",
+            "misalignment"
+          ],
+          "note": "per C3 实证（CodeRabbit 31,073 次评审 56.3% 被驳回）：驳回是常态不是异常，原因必须分类编码且可申诉"
+        },
+        "artifact": {
+          "skeleton": "共享 ADR-0006 四章（与 happy path 逐字相同）",
+          "integrity": {
+            "coverage": "full",
+            "verdict": "rejected（该象限）",
+            "render": "ok"
+          },
+          "degradation_notes": [
+            "被驳回象限原位占位 + 降级注释",
+            "行动建议章只收已过 gate 的建议",
+            "被驳回项进「未通过裁决」小节，保留 re-adjudication 入口"
+          ]
+        }
+      },
+      "happy_path_ref": {
+        "name": "Macro-B happy：单仓 4 象限审计",
+        "mode": "可点",
+        "artifact": "4 象限全部 grounded ✓ 引文校验盖章；全部进裁决；行动建议章满",
+        "contrast": [
+          "该象限 verdict: ok → rejected",
+          "引文盖章：grounded ✓ → ⚠ contains uncited claims",
+          "建议位置：行动建议章 → 「未通过裁决」小节",
+          "章节结构：完全不变"
+        ]
+      }
+    },
+    {
+      "id": "FP-3",
+      "name": "Macro-C failure：历史或 ADR 时间戳不足",
+      "scale": "Macro-C",
+      "mode": "文档",
+      "failure_kind": "FP1 历史证据缺口（时间维度）",
+      "elements": {
+        "trigger": {
+          "text": "目标仓 git 历史深度不足以支撑演化对比，或 ADR 缺 YAML 时间戳头导致 drift 不可计算；浅克隆（fetch-depth:1）一律判定为污染。",
+          "machine_checkable": "history_depth_commits < min_required || adr_timestamped_ratio < threshold || repo.shallow_clone === true",
+          "budget": "min_required 由 scale 切片定义；shallow_clone 为一票否决项"
+        },
+        "degradation": {
+          "mode": "时间轴降级为「可计算窗口」+ 窗口外显式声明 + 请求 full history",
+          "steps": [
+            "计算可支撑对比的时间窗口 [t0, t1]",
+            "窗口内正常出演化对比",
+            "窗口外章节显式标 data doesn't show，不做外推",
+            "发 gap request 请求 fetch-depth=0 重采"
+          ],
+          "forbidden": [
+            "用浅克隆 pack 边界伪造历史（W2 #02 教训：会把 4 年回顾文档误判为治理差）",
+            "用窗口内趋势外推到窗口外"
+          ]
+        },
+        "verdict_stamp": {
+          "stamps": [
+            "⚠ data doesn't show: git_history[<window>]",
+            "⚠ gap request: fetch-depth=0"
+          ],
+          "reason_code": "HISTORY_INSUFFICIENT",
+          "enters_adjudication": false,
+          "note": "shallow_clone 检测是硬前置：CI 评估时 fetch-depth: 0 为硬约束"
+        },
+        "artifact": {
+          "skeleton": "共享 ADR-0006 四章（与 happy path 逐字相同）",
+          "integrity": {
+            "coverage": "window_ratio",
+            "verdict": "n/a（窗口外未进裁决）",
+            "render": "ok"
+          },
+          "degradation_notes": [
+            "演化对比章显示「可计算窗口 [t0, t1]」",
+            "窗口外占位块，标注缺口而非留白"
+          ]
+        }
+      },
+      "happy_path_ref": {
+        "name": "Macro-C happy：演化考古 / ADR drift 审计",
+        "mode": "可点",
+        "artifact": "全时段可计算；drift 曲线完整；零印记",
+        "contrast": [
+          "时间轴：全时段 → 窗口 [t0, t1]",
+          "drift 曲线：完整 → 窗口内完整 + 窗口外占位",
+          "印记：无 → data doesn't show + gap request",
+          "章节结构：完全不变"
+        ]
+      }
+    },
+    {
+      "id": "FP-4",
+      "name": "Micro-A failure：PR 结论无引文被 verdict-gate 拒绝",
+      "scale": "Micro-A",
+      "mode": "可点（本票唯一真实跑通的 failure path）",
+      "failure_kind": "FP3 裁决被驳回",
+      "elements": {
+        "trigger": {
+          "text": "PR 行级结论的 citation 数为 0，或引用 ref 在采集证据集中不可解析；Micro-A 是裁决入口，不容忍 partial。",
+          "machine_checkable": "finding.citations.length === 0 || finding.citations.some(c => !evidence_refs.has(c.ref))",
+          "budget": "阈值：任一 finding 无引文即触发；Evidence Gate 零容忍（无 URI 即 abstain，per C4 EY citation enforcement）"
+        },
+        "degradation": {
+          "mode": "无引文 finding 进 unverified 桶 + GapRequest 补查轮 + 驳回原因分类编码",
+          "steps": [
+            "该 finding 打 unverified 并入桶",
+            "自动发 GapRequest（TTL 72h + 升级到 Adjudication Protocol 申诉通道）",
+            "驳回原因按分类学编码，供后续再训练",
+            "该 finding 不进入行动建议章"
+          ],
+          "forbidden": [
+            "降级为「概率性评论」（Micro-A 的核心卖点就是「不是概率性评论机器人」）",
+            "verdict 被驳回却仍出现在行动建议章"
+          ]
+        },
+        "verdict_stamp": {
+          "stamps": [
+            "⚠ contains uncited claims",
+            "⚠ verdict rejected: NO_CITATION",
+            "⚠ unverified"
+          ],
+          "reason_code": "NO_CITATION",
+          "enters_adjudication": true,
+          "rejection_taxonomy": [
+            "false_positive",
+            "out_of_scope",
+            "redundant",
+            "misalignment"
+          ],
+          "note": "A-017 决议：RiskImpact=5 / GateClarity=5 / FixtureSimplicity=5 / CostDays=2.0 → FailureROI=7.5，唯一过阈值的 failure path"
+        },
+        "artifact": {
+          "skeleton": "共享 ADR-0006 四章（与 happy path 逐字相同）",
+          "integrity": {
+            "coverage": "full",
+            "verdict": "rejected",
+            "render": "ok"
+          },
+          "degradation_notes": [
+            "行级评审表该行打印记",
+            "行动建议章为空 → 「未通过裁决」小节列出该 finding + re-adjudication 入口"
+          ]
+        }
+      },
+      "happy_path_ref": {
+        "name": "Micro-A happy：PR diff 行级审计 + verdict-gate",
+        "mode": "可点",
+        "artifact": "同一 PR fixture 全行带引文；Receipt Gate 通过；verdict-gate 印记为 pass；行动建议章有 N 条",
+        "contrast": [
+          "verdict: pass → rejected",
+          "行动建议章：N 条 → 0 条 + 「未通过裁决」小节",
+          "印记：无 → contains uncited claims + verdict rejected + unverified",
+          "章节结构：完全不变"
+        ],
+        "demo": "reports/18-demo-fixture.json + reports/18-failure-demo.mjs 实跑对比"
+      }
+    },
+    {
+      "id": "FP-5",
+      "name": "Micro-B failure：文件过大 / 解析失败 / 局部证据不足",
+      "scale": "Micro-B",
+      "mode": "文档",
+      "failure_kind": "FP1 解析失败 + FP4 渲染降级",
+      "elements": {
+        "trigger": {
+          "text": "文件大小超过解析上限，或解析器抛错，或局部 facts 采集失败。",
+          "machine_checkable": "file.bytes > parser_limit_bytes || parser.status === \"ERROR\" || facts.status === \"FAILED\"",
+          "budget": "parser_limit_bytes 由 scale 切片定义；Micro-B 为 advisory 层，不进主裁决路径"
+        },
+        "degradation": {
+          "mode": "分节渲染 + 失败节降级为纯文本/JSON 兜底 + 渲染层与裁决层隔离",
+          "steps": [
+            "已解析节正常渲染",
+            "失败节原位降级为结构化 JSON 兜底块",
+            "渲染状态写入 integrity.render，不写 verdict",
+            "advisory 语义保持：降级不外溢到主裁决路径"
+          ],
+          "forbidden": [
+            "解析失败污染 verdict-gate 状态（per C6 bulkhead 隔离）",
+            "整份质量卡因单节失败而拒出"
+          ]
+        },
+        "verdict_stamp": {
+          "stamps": [
+            "⚠ rendering degraded: <section_id>",
+            "⚠ data doesn't show: file_facts"
+          ],
+          "reason_code": "PARSE_FAILED",
+          "enters_adjudication": false,
+          "note": "Micro-B 是 advisory，本就不进主裁决路径，因此 PARSE_FAILED 是渲染/采集印记而非裁决驳回"
+        },
+        "artifact": {
+          "skeleton": "共享 ADR-0006 四章（与 happy path 逐字相同）",
+          "integrity": {
+            "coverage": "partial",
+            "verdict": "n/a（advisory）",
+            "render": "degraded"
+          },
+          "degradation_notes": [
+            "文件质量卡对应节原位占位 + 结构化 JSON 兜底",
+            "全报告 integrity metadata 标记渲染状态"
+          ]
+        }
+      },
+      "happy_path_ref": {
+        "name": "Micro-B happy：单文件质量卡",
+        "mode": "可点",
+        "artifact": "文件质量卡完整渲染；facts 全；advisory 输出",
+        "contrast": [
+          "render: ok → degraded",
+          "facts 节：完整 facts → JSON 兜底块",
+          "印记：无 → rendering degraded + data doesn't show",
+          "章节结构：完全不变"
+        ]
+      }
+    }
+  ]
+}
