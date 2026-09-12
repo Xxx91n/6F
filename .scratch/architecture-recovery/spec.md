@@ -154,3 +154,131 @@
 
 - 本 spec 是 to-spec 流程的产出；下一步 to-tickets 把每个 Decision 转 issue + handoff + prompt
 - 并行波次由 issue 的 Blocked by 字段推导（不新造顺序），输出到 README.md
+
+---
+
+## R2 — 产品定义补完（来源 D-008 ~ D-013，2026-09-12 grill 轮 2）
+
+> 来源：spec-phase-tasks.md 第二轮（R2-01 ~ R2-05）；决策：decision-ledger.md D-008 ~ D-013（全部 current）。
+> 与轮 1（D-004 ~ D-007 / A-001 ~ A-018）共用本 spec 结构；R2 覆盖表见文末。
+> D-008 为流程导航决策（方向 = 补完产品定义），内容由 R2-01 ~ R2-05 承接，不单独立条。
+> 边界：R2 全部完成前不启动工程实现（ADR-0002 边界不变）；边界变更属 D-014 待拍板项。
+
+### User Stories（R2 增量）
+
+7. As a 技术决策者（CTO / 架构师 / 尽调人）, I want 面向非作者可读的叙事化四象限报告 + 可追溯证据引文, so that 我能在尽调/架构决策前给出可驳回的判定
+8. As a 工程团队成员（TL / 平台组 / 质量负责人）, I want CI 门禁裁决（verdict-gate）+ 低误报的行级带引文评审, so that 我能把审计嵌入 push/PR 流程而不被噪音淹没
+9. As an agent 生态开发者（Claude Code / Codex 用户）, I want 一次安装的 Agent Plugin + 稳定的 MCP 只读查询面, so that 我能在 agent 会话内直接触发仓库评审
+10. As a 自用者（本人 + 三自有仓）, I want 本地可复现的审计报告, so that 我能用真实反馈回路校准 rubric 判据
+
+### R2-01 — 目标用户四类全集（persona 段落）
+
+**覆盖 D-009**｜**负向约束**：禁止收窄为单一用户类；不做用户间优先级排序与时序切片（与 D-002 拒绝 MVP 切片同风格）。
+
+#### Persona A — 技术决策者（CTO / 架构师 / 尽调人）
+- **何时用**：尽调或架构决策前的一次性审视；需对外部仓库/组合给出可追溯判定。
+- **拿走什么**：叙事化四象限报告（结构/行为/供应链/战略）+ 证据引文 + 战略诊断（S1-S5）；面向非作者可读。
+- **主要 scale**：Macro-A / Macro-B（+ Macro-C）。
+- **交付拉动**：报告可读性（面向非作者）。
+
+#### Persona B — 工程团队（TL / 平台组 / 质量负责人）
+- **何时用**：周期评审或 CI 门禁时刻（push / PR 自动触发）。
+- **拿走什么**：verdict-gate 裁决 + 行级带引文评审 + 低误报的可行动建议。
+- **主要 scale**：Micro-A / Macro-B。
+- **交付拉动**：CI 门禁可靠性与低误报。
+
+#### Persona C — agent 生态开发者（Claude Code / Codex 用户）
+- **何时用**：agent 工作流内嵌时刻（会话内“评审这个仓库”）。
+- **拿走什么**：一次安装的 Agent Plugin + MCP 只读证据查询面 + Macro-B 四象限叙事报告。
+- **主要 scale**：Macro-B（默认模式）。
+- **交付拉动**：plugin 分发与 MCP 接口稳定。
+
+#### Persona D — 自用（本人 + jiahao / anysearch-cli / env-manager）
+- **何时用**：手动触评时刻；作为 rubric 判据调优的校准锚。
+- **拿走什么**：本地可复现的审计报告 + rubric 校准的真实反馈回路。
+- **主要 scale**：Macro-B / Macro-C。
+- **交付拉动**：本地可复现。
+
+### R2-02 — 使用场景并集 + mode 枚举配置面
+
+**覆盖 D-010**｜**负向约束**：默认模式必须单一（不许多默认并存）；非默认模式必须配置可达，禁止降为二等或砍掉。
+
+#### 场景并集（4 类用户 × 时刻 × scale 归属，允许重叠）
+
+| # | 用户 | 时刻 | scale 归属 | 是否默认 |
+|---|---|---|---|---|
+| S1 | C agent 生态开发者 | agent 工作流内嵌 | Macro-B | ✅ 默认 |
+| S2 | B 工程团队 | CI 门禁（push/PR） | Micro-A | 配置可达 |
+| S3 | B 工程团队 | 周期评审 | Macro-B | 配置可达 |
+| S4 | A 技术决策者 | 尽调一次性 | Macro-B / Macro-C | 配置可达 |
+| S5 | A 技术决策者 | 架构决策前 | Macro-A | 配置可达 |
+| S6 | D 自用 | 手动触评 | Macro-B / Macro-C | 配置可达 |
+| S7 | 任意 | 单文件查看 / LSP | Micro-B | 配置可达 |
+
+#### mode 枚举配置面
+
+| mode | 取值 | 默认值 | 触发 / 切换语义 |
+|---|---|---|---|
+| default | agent 内嵌 Macro-B | ✅ 是 | 一次安装 + 首次授权后，会话内“评审这个仓库” |
+| ci-gate | Micro-A PR diff | 否 | CI 配置切换（GitHub Action 外壳） |
+| scheduled | Macro-B 周期 | 否 | 周期配置切换 |
+| due-diligence | Macro-B / C 一次性 | 否 | 手动 / 配置切换 |
+| manual | 自用手动 | 否 | CLI 手动触评 |
+| file | Micro-B 文件级 | 否 | LSP / 单文件查看（advisory，不进裁决） |
+
+- mode 枚举是外部接口配置契约的一部分；取值/默认值/切换面在此定义，字段级 schema 由 R2-03 / R2-04 细化。
+
+### R2-03 — 默认模式开箱路径契约
+
+**覆盖 D-011 / D-012 / D-013 细则⑤**
+
+- **默认模式**：C 类用户在 agent 工作流内嵌时刻触发的 Macro-B 仓库级四象限评审；开箱零配置（不需 CI / hook / 团队准备）。
+- **“零配置”精确语义** = 一次 install 命令 + 首次 MCP 工具授权（非零交互）。
+- **首次授权事件清单**（逐项）：
+  1. 安装 Agent Plugin（plugin.json + skills/ + mcp.json + 扩展目录 + 内核 CLI）；
+  2. 首次启动 kernel MCP（stdio）→ 客户端弹出 MCP 工具授权；
+  3. 首次读取本地仓库路径 → 本地文件读取授权；
+  4. （远程输入时）“远程 clone + 网络 + 本地 git 凭据使用”为一个授权事件（D-013 细则⑤）；
+  5. 首次写 DuckDB 事实表 / 缓存目录 → 本地写入授权。
+- **校验点**：默认模式必须与分发渠道同形（marketplace 一键装 → 零配置首跑）；默认体验不得需要 CI / hook 配置才能跑通（否则与一键安装渠道自相矛盾）。
+- **风险登记**：默认体验绑死“agent 会话内发起”——宿主不支持 plugin 形态时默认模式不可达（宿主支持矩阵属实现期调研，spec 层只声明前提）。
+
+### R2-04 — Agent Plugin 契约群
+
+**覆盖 D-012**
+
+- **plugin.json**：标准 Agent Plugins 1.0.0 schema（closed schema，$schema 常量 URI；客户端不得运行时拉取 schema）；字段含 name / version / description / skills / mcp / commands 等（字段级 schema 待通读规范全文后定稿，见信息缺口）。
+- **mcp.json**：kernel MCP 只读证据查询面；stdio 传输，指向 DuckDB 事实表；严格只读（同 GitHub Copilot code review MCP 强制 readOnlyHint 口径）。
+- **双 manifest 单一元数据源生成脚本规范**：单一元数据源（如 manifest.meta.json）→ 生成标准 plugin.json 与 Claude Code 原生 .claude-plugin/plugin.json；生成后 diff 比对防漂移；**无直接先例，属自研范围**（调研 R2-Q7 §3）。
+- **内核 CLI 四外壳命令面**：插件内嵌 / GitHub Action / 自用 CLI / 报告生成器——同一二进制多入口。
+- **receipt 协议字段**：环境外确定性 gate 出具的可核验回执（证据引用 + 判定结果 + 可离线复核）；报告“行动建议”章的 verdict-gate 印记即其报告层形态。
+- **provenance manifest 清单**：license + CHANGELOG + 签名收据（Sigstore / cosign keyless）+ 构建来源（SLSA 参照）。
+- **安全纪律**：skill 壳只读隔离（判定 / 写库 / 出报告只能内核 CLI）；hooks 永不作裁决执行点（仅 PostToolUse / Stop 触发/呈现 receipt）。
+
+### R2-05 — 输入面契约
+
+**覆盖 D-013**
+
+- **repo add 命令面**：repo add <path|owner/repo|url>；clone 只走 CLI 与配置文件，不暴露为 MCP 工具。
+- **消歧规则**：显式本地路径 → owner/repo 形态本地优先消歧（./ 前缀强制本地）→ 显式 URL（https / git@）才 clone。
+- **clone 缓存目录布局**：隔离缓存目录（如 <cache>/repos/<hash>/）；不写回用户工作区；评审后可清理。
+- **凭据复用**：本地 git 凭据链（SSH agent / credential helper / PAT 即用即清）；不新建凭据存储。
+- **全深度校验拒绝路径**：远程一律 fetch-depth 0 + 校验 .git 完整性；浅 clone 显式拒绝并提示。
+- **授权事件字段**：见 R2-03 首次授权事件清单第 4 项。
+
+### R2 Coverage（对账）
+
+| 来源 D-xxx | 覆盖的 R2 Decision |
+|---|---|
+| D-008 | （流程导航，由 R2-01 ~ R2-05 承接） |
+| D-009 | R2-01 |
+| D-010 | R2-02 |
+| D-011 | R2-03 |
+| D-012 | R2-03 / R2-04 |
+| D-013 | R2-03 / R2-05 |
+
+### R2 Out of Scope / 信息缺口
+
+- 不启动工程实现（ADR-0002 边界；边界变更 = D-014 待拍板）。
+- 待通读 Agent Plugins 1.0.0 规范全文后定稿 plugin.json / mcp.json 字段级 schema。
+- 双 manifest 生成脚本无直接先例，属自研范围。
