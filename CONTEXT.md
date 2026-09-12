@@ -2,6 +2,7 @@
 
 > 本仓库是 **spec-level 完整规划**产物（per ADR-0001 ~ ADR-0007），覆盖 5 scale 工程内容审计。
 > grill 决策层（2026-09-11 完成）已封口 7 条决策：5 scale 全覆盖 + 拒绝 MVP 切片 + 边界不含商业 + 战略 quadrant 5 维 S1-S5 + 集成架构 Hub-of-Facts with Federated Adjudication + 报告模板共享骨架 + scale 切片 + 演示 10 路径（5 scale × 关键+失败）。
+> 第二轮 grill（2026-09-12 完成）已封口 D-008 ~ D-013：目标用户四类全集 + 场景并集与单一默认模式（C-agent 内嵌 Macro-B 开箱）+ 分发形态 Agent Plugin 五层盒子双 manifest + 输入面本地默认/远程 URL 配置可达；对应 ADR-0008 / ADR-0009。
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -160,3 +161,19 @@ _Avoid_: 错误用例（缺降级语义）、异常路径（暗示崩溃）
 **Degraded Demonstration**:
 演示层的失败路径产物——failure path 的报告产物与 happy path 共享 D-006 骨架但必含 ⚠ unverified 标记 / 降级注释 / verdict-gate 拒绝印记；不允许 failure path 产物与 happy path 形态分离（否则用户无法对比裁决可追溯性）。
 _Avoid_: 错误报告（缺降级语义）、降级模式（缺演示产物维度）
+
+**Default Mode（默认模式）**:
+产品的开箱路径——C 类用户（agent 生态开发者）在 agent 工作流内嵌触发 Macro-B 仓库级四象限评审；其语义 = 一次安装命令 + 首次工具授权（非零交互）；其余模式（Micro-A CI 门禁 / 尽调一次性 / 自用手动触评）全部配置切换可达、不做默认。mode 枚举的取值/默认值/切换面属外部接口配置契约，spec 阶段展开。
+_Avoid_: 默认配置（暗示配置文件细节）、新手模式（暗示能力分级）
+
+**Agent Plugin（本产品用法）**:
+产品的分发形态——Agent Plugins 1.0.0 标准的五层盒子：plugin.json + skills/ 方法论壳 + mcp.json 只读证据查询面 + 反向域名扩展目录（hooks 触发/呈现面）+ 随分发内核确定性 CLI；双 manifest（标准 + Claude Code 原生）并行发布；内核 CLI 同一二进制四外壳（插件内嵌 / GitHub Action / 自用 CLI / 报告生成器）。
+_Avoid_: 插件（太泛，含浏览器插件）、扩展（IDE 语义）
+
+**Receipt（裁决回执）**:
+环境外确定性 gate（内核 CLI / CI action）对审计结论出具的可核验回执——携带证据引用与判定结果，可离线复核；报告「行动建议」章节中的 verdict-gate 印记即其在报告层的呈现形态。
+_Avoid_: certificate（暗示证书体系）、签名（只覆盖密码学一段）
+
+**Repo Intake（输入面）**:
+被审计仓库到达产品的形式裁决——本地路径默认 + 远程 URL 配置可达（clone 至隔离缓存、全深度、禁远程配置执行、凭据复用本地 git 凭据链）；clone 只走 CLI 入口（repo add / 配置文件），kernel MCP 查询面保持只读；浅 clone 显式拒绝并提示。
+_Avoid_: 导入（暗示格式转换）、加载（暗示运行时挂载）
