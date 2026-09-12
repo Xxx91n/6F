@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "16-render-split.schema.json",
+  "title": "A-016 渲染样式与模板结构切分契约 schema",
+  "$defs": {
+    "specField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type",
+        "required",
+        "layer",
+        "kind",
+        "container",
+        "description",
+        "origin"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "^ui:"
+          }
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "layer": {
+          "const": "spec"
+        },
+        "kind": {
+          "enum": [
+            "structure",
+            "slice-metric"
+          ]
+        },
+        "container": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "origin": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "styleField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type",
+        "required",
+        "layer",
+        "kind",
+        "token_ref",
+        "value",
+        "value_is_token_ref",
+        "applies_to",
+        "description",
+        "locked_by",
+        "industrial_basis"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^ui:"
+        },
+        "type": {
+          "const": "style-token"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "layer": {
+          "const": "demo"
+        },
+        "kind": {
+          "const": "style"
+        },
+        "token_ref": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9._]*$"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[{][a-zA-Z][a-zA-Z0-9._]*[}]$"
+        },
+        "value_is_token_ref": {
+          "const": true
+        },
+        "applies_to": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locked_by": {
+          "type": "string"
+        },
+        "resolved_by": {
+          "type": "string"
+        },
+        "industrial_basis": {
+          "type": "string"
+        }
+      }
+    },
+    "blacklistCategory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "severity",
+        "patterns",
+        "rationale",
+        "industrial_basis"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^B[0-9][0-9]$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "enum": [
+            "hard_ban",
+            "soft_warn"
+          ]
+        },
+        "patterns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "industrial_basis": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "namespaceRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "rule",
+        "machine_check"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^R[0-9]+$"
+        },
+        "rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "machine_check": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "title",
+    "decision_ref",
+    "adr_ref",
+    "ledger_ref",
+    "blocked_by",
+    "mental_model",
+    "spec_locked_fields",
+    "spec_locked_field_names",
+    "demo_style_fields",
+    "demo_locked_field_names",
+    "boundary_blacklist",
+    "boundary_scan_scope",
+    "namespace_contract",
+    "counts"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+[.][0-9]+[.][0-9]+$"
+    },
+    "title": {
+      "type": "string"
+    },
+    "decision_ref": {
+      "type": "string"
+    },
+    "adr_ref": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ledger_ref": {
+      "type": "string"
+    },
+    "blocked_by": {
+      "type": "string"
+    },
+    "upstream_contract": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mental_model": {
+      "type": "string"
+    },
+    "layer_split": {
+      "type": "object"
+    },
+    "spec_locked_fields": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/specField"
+      }
+    },
+    "spec_locked_field_names": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "demo_style_fields": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/styleField"
+      }
+    },
+    "demo_locked_field_names": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "boundary_blacklist": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/blacklistCategory"
+      }
+    },
+    "boundary_scan_scope": {
+      "type": "object",
+      "required": [
+        "targets",
+        "excluded"
+      ],
+      "properties": {
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclusion_rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "namespace_contract": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/namespaceRule"
+      }
+    },
+    "counts": {
+      "type": "object"
+    },
+    "research_ref": {
+      "type": "string"
+    }
+  }
+}
