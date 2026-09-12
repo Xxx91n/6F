@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T16:22:24.029Z",
+  "generated_at": "2026-09-12T02:32:39.158Z",
   "repos": {
     "env-manager": {
       "id": "env-manager",
@@ -3589,6 +3589,11 @@
       ],
       "delivery": {
         "commits": [
+          "fix(adr-0058): repair audit findings A1/A3/A4/A5 (test-job capability + summary count guard)",
+          "fix(git): ignore test-artifacts/ (ADR-0057 JUnit evidence output dir)",
+          "chore(hooks): de-GitButler .githooks - real pre-commit restored as active hook",
+          "docs(adr-0058): audit fixes - false/stale claims corrected",
+          "feat(ci): independent test job + always() success-only summary (ADR-0058)",
           "test(adr-0055): make stale-upstream flake deterministic (HEAD~1, not HEAD which equals origin/main after merge) (#4)",
           "fix(git): ignore test-artifacts/ (ADR-0057 JUnit evidence output dir) (#3)",
           "fix(audit): decision-rule TUR doc, drift fail-on-divergence + derived suites, skip-rule ids, README counts; post-audit ADR appendices",
@@ -3763,6 +3768,7 @@
           "docs/agents",
           "hooks",
           "jiahao-mcp",
+          "mr-artifacts",
           "private",
           "schemas",
           "scripts",
@@ -3798,9 +3804,14 @@
           {
             "label": "W1",
             "from": "2026-09-09T21:58:08+08:00",
-            "to": "2026-09-11T14:17:24+08:00",
-            "n": 31,
+            "to": "2026-09-12T10:23:27+08:00",
+            "n": 32,
             "subjects": [
+              "fix(adr-0058): repair audit findings A1/A3/A4/A5 (test-job capability + summary count guard)",
+              "fix(git): ignore test-artifacts/ (ADR-0057 JUnit evidence output dir)",
+              "chore(hooks): de-GitButler .githooks - real pre-commit restored as active hook",
+              "docs(adr-0058): audit fixes - false/stale claims corrected",
+              "feat(ci): independent test job + always() success-only summary (ADR-0058)",
               "test(adr-0055): make stale-upstream flake deterministic (HEAD~1, not HEAD which equals origin/main after merge) (#4)",
               "fix(git): ignore test-artifacts/ (ADR-0057 JUnit evidence output dir) (#3)",
               "fix(audit): decision-rule TUR doc, drift fail-on-divergence + derived suites, skip-rule ids, README counts; post-audit ADR appendices",
@@ -3827,19 +3838,19 @@
               "fix(adr-0046): close audit gaps in instrument quarantine gate",
               "feat(adr-0046): implement instrument identity gate and quarantine state machine",
               "ADR-0043 merged into ADR-0041 lane: fact-source spine deepening, derived-artifact discipline, prefix vocabulary single source",
-              "ADR-0041 impl: exit 2 narrowed to probed-capability-absence (registry gates + src/shared); fail-closed/usage paths exit 1 with closed-enum [usage]:/[config]:/[internal]: stderr prefixes; ::error annotation corrected to stdout with comma-separated properties + %25/%0D/%0A escaping (ADR-0040 D4 spec-defect fix, amended by ADR-0041 D5); run-gates aggregates child exit 2 into UNVERIFIABLE column instead of collapsing to fail (ADR-0040 D5 unfinished half); wiring assertions adr-0041 (D2 spawn locks, D3 vocab + aggregator, D5 format, D4 consumer-side registry lock for probe-corpus/judge-bias); Hyrum dependents updated same commit (adr-0036/0037/0038/0040 tests); H1 exact-commit record: registry entries at HEAD, script wiring arrived via parallel ride-along edits; M3 magic 200000 deleted (ADR-anchored), L1 check-drift top-level side effects wrapped in main(); bench-gate parses args before capability probe; README counts 486/33 -> 500/34, runbook exit-2 claims corrected",
-              "docs(adr-0041): D3 clarification - closed-enum prefix MUST narrowed to displaced fail-path; verdict detail lines exempt (evidence, unlabelled, per Bazel TIFF/SARIF result-vs-notification/TAP/MISRA/grep); [corpus-freshness] non-enum token removal ruled; R8/R9 rejected (prefix-all pollutes [internal]:, [config]: mislabels result as notification); impl-round mechanical lock noted (+2 atomcode-researched lenses pending D8 promotion)",
-              "docs(readme): correct test counts to measured truth (486 tests / 33 suites, was stale 411/29 and 427/30); adapters count verified 11; gates.json 18 entries verified via gate:all",
-              "docs(adr-0041): exit-semantics unification - exit 2 narrowed to probed-capability-absence (registry gates + src/shared only), three-code space + closed-enum stderr prefixes, ADR-0040 D4 ::error corrected to stdout with comma-separated properties (spec-level defect), consumer-side registry wiring (H1), order-preserving lane integration, internal-toolchain hard cutover, curated glossary 6 terms (grill round, docs-only, 7 serial atomcode researches)",
-              "ADR-0040 impl: runtime capability probes (closed enum repo-tree/bench-corpus/docs-adr/ci-mode in src/shared/capability.js), requireCapabilities + validateRequires wired into all 18 gates and run-gates precheck, honest exit-2 UNVERIFIABLE with two-line ::error, run-gates single aggregated UNVERIFIABLE row (exit stays 0 locally), lazy requires in check-probes/bench-gate so UNVERIFIABLE precedes module load; F3 adr-0038 cap parsed from ADR-0039 text, F7 size-metric clarified, F8 comment repaired, seed inventory + defer-0008 synced; regression = adr-0040-wiring helper test + 4 spawn representatives + tmp-tree UNVERIFIABLE lock"
+              "ADR-0041 impl: exit 2 narrowed to probed-capability-absence (registry gates + src/shared); fail-closed/usage paths exit 1 with closed-enum [usage]:/[config]:/[internal]: stderr prefixes; ::error annotation corrected to stdout with comma-separated properties + %25/%0D/%0A escaping (ADR-0040 D4 spec-defect fix, amended by ADR-0041 D5); run-gates aggregates child exit 2 into UNVERIFIABLE column instead of collapsing to fail (ADR-0040 D5 unfinished half); wiring assertions adr-0041 (D2 spawn locks, D3 vocab + aggregator, D5 format, D4 consumer-side registry lock for probe-corpus/judge-bias); Hyrum dependents updated same commit (adr-0036/0037/0038/0040 tests); H1 exact-commit record: registry entries at HEAD, script wiring arrived via parallel ride-along edits; M3 magic 200000 deleted (ADR-anchored), L1 check-drift top-level side effects wrapped in main(); bench-gate parses args before capability probe; README counts 486/33 -> 500/34, runbook exit-2 claims corrected"
             ]
           },
           {
             "label": "W2",
-            "from": "2026-08-30T01:36:08+08:00",
+            "from": "2026-08-30T04:07:32+08:00",
             "to": "2026-09-09T21:58:08+08:00",
-            "n": 31,
+            "n": 32,
             "subjects": [
+              "docs(adr-0041): D3 clarification - closed-enum prefix MUST narrowed to displaced fail-path; verdict detail lines exempt (evidence, unlabelled, per Bazel TIFF/SARIF result-vs-notification/TAP/MISRA/grep); [corpus-freshness] non-enum token removal ruled; R8/R9 rejected (prefix-all pollutes [internal]:, [config]: mislabels result as notification); impl-round mechanical lock noted (+2 atomcode-researched lenses pending D8 promotion)",
+              "docs(readme): correct test counts to measured truth (486 tests / 33 suites, was stale 411/29 and 427/30); adapters count verified 11; gates.json 18 entries verified via gate:all",
+              "docs(adr-0041): exit-semantics unification - exit 2 narrowed to probed-capability-absence (registry gates + src/shared only), three-code space + closed-enum stderr prefixes, ADR-0040 D4 ::error corrected to stdout with comma-separated properties (spec-level defect), consumer-side registry wiring (H1), order-preserving lane integration, internal-toolchain hard cutover, curated glossary 6 terms (grill round, docs-only, 7 serial atomcode researches)",
+              "ADR-0040 impl: runtime capability probes (closed enum repo-tree/bench-corpus/docs-adr/ci-mode in src/shared/capability.js), requireCapabilities + validateRequires wired into all 18 gates and run-gates precheck, honest exit-2 UNVERIFIABLE with two-line ::error, run-gates single aggregated UNVERIFIABLE row (exit stays 0 locally), lazy requires in check-probes/bench-gate so UNVERIFIABLE precedes module load; F3 adr-0038 cap parsed from ADR-0039 text, F7 size-metric clarified, F8 comment repaired, seed inventory + defer-0008 synced; regression = adr-0040-wiring helper test + 4 spawn representatives + tmp-tree UNVERIFIABLE lock",
               "docs(adr-0040): gate runtime capability declaration - closed requires enum in gates.json (repo-tree/bench-corpus/docs-adr/ci-mode), three-state exit 0/1/2 with narrow exit-2 UNVERIFIABLE semantics, two-line ::error honest degradation message, run-gates UNVERIFIABLE column, degradation schema unchanged, regression = helper jest + 4 spawn representatives + static wiring anchor; defer-0008 local-file escape (grill round, docs-only)",
               "ADR-0039 impl + audit F1/F2/F4/F8: files whitelist narrowed (docs/adr out of tarball, 140,778 B / 75 files measured, budget 200,000 B content-anchored in ADR-0039); corpus JSONL + thresholds parses fail closed exit 2 (mr + probes, symmetric); maintainer tier discriminator uses gitignored private/bench-corpus not .git; Wilson 75.8% pinned in ADR-0037 D5; spawn-level schema-bad->exit-2 regression lock",
               "docs(adr-0039): tarball runtime surface narrowing - docs/adr leaves npm artifact (archive channel = git tree, no new infra), whitelist keeps 3 machine fact-sources + CONTEXT.md; measured-anchor budget 200,000 bytes with ADR content anchor; stale ~50KB claims corrected (grill round, docs-only)",
@@ -3867,18 +3878,18 @@
               "ADR-0034 impl: gate registry (docs/gates.json) + gate:all single-entrypoint runner + ci-wiring contract assertion + defer-0004 generated-ci uplift",
               "docs(adr-0034): gate registry + single entrypoint gate:all + CRTM-as-entry ordering + three-face alignment (grill round, docs-only)",
               "ADR-0033 audit fixes: calendar-date validation, verbatim D7 predicate, anchor semantics doc, README counts",
-              "ADR-0033 impl: deferred registry + fail-closed checker + wiring tests",
-              "docs(adr-0033): deferred/unfreeze registry - fact-source + pending-evaluation + expiry-forces-action (grill round, docs-only)",
-              "audit(adr-0032): latch D5 retirement reason tag in gsr header validator + rebuild header regex with assembled standard escapes",
-              "feat(adr-0032): generator rule registry - gsr headers, coverage map gate, lifecycle state machine"
+              "ADR-0033 impl: deferred registry + fail-closed checker + wiring tests"
             ]
           },
           {
             "label": "W3",
-            "from": "2026-08-28T18:07:47+08:00",
-            "to": "2026-08-30T00:43:09+08:00",
-            "n": 31,
+            "from": "2026-08-28T18:33:04+08:00",
+            "to": "2026-08-30T03:50:22+08:00",
+            "n": 32,
             "subjects": [
+              "docs(adr-0033): deferred/unfreeze registry - fact-source + pending-evaluation + expiry-forces-action (grill round, docs-only)",
+              "audit(adr-0032): latch D5 retirement reason tag in gsr header validator + rebuild header regex with assembled standard escapes",
+              "feat(adr-0032): generator rule registry - gsr headers, coverage map gate, lifecycle state machine",
               "docs(adr-0032): generator surface rules deepening — gsr header + coverage map + equivalence pre-registration + lifecycle",
               "audit(adr-0031): conclude regression-arm test coverage + SR 11-7 superseded-by-SR 26-2 citation annotation",
               "audit(adr-0031): fail-closed confirmatory gates on non-computable metric (judge-bias SKIP bypass) + severity enum validation in judge input whitelist + swap_order naming errata",
@@ -3907,17 +3918,17 @@
               "fix(adr-0026): seal legacy_breakpoint on rotation anchors",
               "feat(adr-0026): segmented evidence log — rotation + cross-segment anchor + base-seq naming",
               "docs(adr-0026): segmented evidence log decision — rotation + cross-segment anchor + base-seq naming + transparent legacy migration (grill round, atomcode-researched)",
-              "fix(adr-0025): drop latency_ms_avg from judge telemetry snapshot — four-metric minimal set only (ADR-0025 D3/D5 audit finding)",
-              "docs(adr-0025): judge form convergence decision record + glossary",
-              "feat(adr-0025): judge seam signature lock + telemetry contract + honest-twin corpus"
+              "fix(adr-0025): drop latency_ms_avg from judge telemetry snapshot — four-metric minimal set only (ADR-0025 D3/D5 audit finding)"
             ]
           },
           {
             "label": "W4",
-            "from": "2026-08-25T00:56:15+08:00",
-            "to": "2026-08-28T15:54:29+08:00",
-            "n": 31,
+            "from": "2026-08-25T03:40:06+08:00",
+            "to": "2026-08-28T18:07:48+08:00",
+            "n": 32,
             "subjects": [
+              "docs(adr-0025): judge form convergence decision record + glossary",
+              "feat(adr-0025): judge seam signature lock + telemetry contract + honest-twin corpus",
               "feat(adr-0024): sentinel ownership lock, reconcile hardening, SessionEnd sweep",
               "docs(adr): ADR-0024 sentinel ownership lock + reconcile hardening + session-end sweep",
               "fix(adr-0023): schema unknown-kind (null) branch — close D4/D5 contradiction found in audit",
@@ -3947,16 +3958,16 @@
               "docs(adr): ADR-0016 — EvidenceLog/GateLadder split + shared core relocation (grill round, docs only)",
               "fix(audit): normalize() follows NFKC + \\p{P} + explicit-tail pattern (UTS#18/UAX#15)",
               "fix(audit): appendEvidence tail-prev-hash guard + detector.js mojibake cleanup",
-              "feat(adr0013): include prev_hash in recordHash, composite idempotency, verify-on-read",
-              "docs(adr): ADR-0013/0014/0015 — cross-turn chain + wordlist migration + benchmark adoption"
+              "feat(adr0013): include prev_hash in recordHash, composite idempotency, verify-on-read"
             ]
           },
           {
             "label": "W5",
             "from": "2026-08-22T23:32:18+08:00",
-            "to": "2026-08-24T03:20:17+08:00",
-            "n": 30,
+            "to": "2026-08-25T00:56:15+08:00",
+            "n": 31,
             "subjects": [
+              "docs(adr): ADR-0013/0014/0015 — cross-turn chain + wordlist migration + benchmark adoption",
               "feat(adr-0012): D1-D5 implementation — detector module, gate extras, verdict-gate severity matrix, SubagentStop parity",
               "docs(grill-round2026-08-24): ADR-0012 detector verdict persistence + hook idempotency + 5 new CONTEXT terms (27 total)",
               "fix(audit): install.js CLI edge cases + pre-commit scope + README ADR count",
@@ -3991,6 +4002,26 @@
           }
         ],
         "units": [
+          {
+            "kind": "commit",
+            "text": "fix(adr-0058): repair audit findings A1/A3/A4/A5 (test-job capability + summary count guard)"
+          },
+          {
+            "kind": "commit",
+            "text": "fix(git): ignore test-artifacts/ (ADR-0057 JUnit evidence output dir)"
+          },
+          {
+            "kind": "commit",
+            "text": "chore(hooks): de-GitButler .githooks - real pre-commit restored as active hook"
+          },
+          {
+            "kind": "commit",
+            "text": "docs(adr-0058): audit fixes - false/stale claims corrected"
+          },
+          {
+            "kind": "commit",
+            "text": "feat(ci): independent test job + always() success-only summary (ADR-0058)"
+          },
           {
             "kind": "commit",
             "text": "test(adr-0055): make stale-upstream flake deterministic (HEAD~1, not HEAD which equals origin/main after merge) (#4)"
@@ -4681,6 +4712,10 @@
           },
           {
             "kind": "path",
+            "text": "mr-artifacts"
+          },
+          {
+            "kind": "path",
             "text": "private"
           },
           {
@@ -4809,6 +4844,16 @@
       ],
       "delivery": {
         "commits": [
+          "fix(adr-0057): ship-gate step 5 dist assertion was unsatisfiable for 4 source-only packages (D-002/T3)",
+          "test(adr-0057): migrate all 7 packages to node:test discovery + turbo test task (D-002/T1/T2)",
+          "docs(adr-0057): add deferred-registry with ADR-0056 AC5 closed-by entry (D-006/T9)",
+          "test(adr-0057): seal embedding default suite offline-hermetic + test:online gate (D-005/T7)",
+          "test(adr-0057): derive repo root in domain-loader test, drop machine path (D-002/T5)",
+          "fix(adr-0057): create mcp DB parent dir on cold HOME + regression (D-004/T4)",
+          "ci(adr-0057): full-truth test job; fix pack destination escaping the workspace (D-002/D-003/T3)",
+          "test(adr-0057): drop superseded F3 integrity block (D-003/T6) - decision-pass contract now asserted on-chain",
+          "chore(adr-0057): untrack .scratch/ to match README + gitignore it",
+          "docs(adr): ADR-0057 round 57 test truthfulness + CI credibility (node:test runner, expectations inventory, AC5 closure pointer)",
           "docs(adr-0056): push closure with CI run evidence + pre-existing failure analysis",
           "docs(adr-0056): push closure report (origin/feat/grill-56-session-id-propagation @ 3faeb2d)",
           "docs(adr-0056): round-56 audit trail — audit report, audit handoff, fix report, fix handoff",
@@ -5006,6 +5051,7 @@
           "apps/cli",
           "apps/mcp",
           "apps/plugin",
+          "artifacts",
           "docs",
           "docs/adr",
           "docs/agents",
@@ -5053,10 +5099,20 @@
         "windows": [
           {
             "label": "W1",
-            "from": "2026-09-02T21:04:34+08:00",
-            "to": "2026-09-11T23:52:56+08:00",
-            "n": 39,
+            "from": "2026-09-05T20:35:51+08:00",
+            "to": "2026-09-12T10:05:06+08:00",
+            "n": 41,
             "subjects": [
+              "fix(adr-0057): ship-gate step 5 dist assertion was unsatisfiable for 4 source-only packages (D-002/T3)",
+              "test(adr-0057): migrate all 7 packages to node:test discovery + turbo test task (D-002/T1/T2)",
+              "docs(adr-0057): add deferred-registry with ADR-0056 AC5 closed-by entry (D-006/T9)",
+              "test(adr-0057): seal embedding default suite offline-hermetic + test:online gate (D-005/T7)",
+              "test(adr-0057): derive repo root in domain-loader test, drop machine path (D-002/T5)",
+              "fix(adr-0057): create mcp DB parent dir on cold HOME + regression (D-004/T4)",
+              "ci(adr-0057): full-truth test job; fix pack destination escaping the workspace (D-002/D-003/T3)",
+              "test(adr-0057): drop superseded F3 integrity block (D-003/T6) - decision-pass contract now asserted on-chain",
+              "chore(adr-0057): untrack .scratch/ to match README + gitignore it",
+              "docs(adr): ADR-0057 round 57 test truthfulness + CI credibility (node:test runner, expectations inventory, AC5 closure pointer)",
               "docs(adr-0056): push closure with CI run evidence + pre-existing failure analysis",
               "docs(adr-0056): push closure report (origin/feat/grill-56-session-id-propagation @ 3faeb2d)",
               "docs(adr-0056): round-56 audit trail — audit report, audit handoff, fix report, fix handoff",
@@ -5087,7 +5143,15 @@
               "feat(eval): implement ADR-0049 calibration revision lifecycle",
               "chore: integrate remaining cross-agent workspace changes",
               "fix(eval): ADR-0047 audit repairs",
-              "feat(eval): ADR-0048 calibration label lifecycle",
+              "feat(eval): ADR-0048 calibration label lifecycle"
+            ]
+          },
+          {
+            "label": "W2",
+            "from": "2026-08-29T23:54:47+08:00",
+            "to": "2026-09-05T12:25:39+08:00",
+            "n": 41,
+            "subjects": [
               "feat(eval): ADR-0047 emergency ship override lifecycle",
               "feat(eval): ADR-0046 multi-arm ablation + weakest-link gate + web provider ledger",
               "docs(adr): ADR-0045 Implementation Notes r118 + audit-checklist r45 fixer boxes ticked + found/fixed/deferred triplet",
@@ -5095,15 +5159,7 @@
               "docs(adr): r43/r45 document rounds - ADR-0044 remediation governance ADR, ADR-0045 fusion governance ADR, CONTEXT terms, audit-checklist r43/r45 checkpoint blocks",
               "fix(governance): ADR-0044 D1-D6 remediation",
               "docs(audit): r42 ADR-0043 acceptance — tick r40 checkpoint boxes (tsc/store/ship-gate/eval/packaged liveness verified)",
-              "feat(obs): ADR-0043 r42 impl — switch state machine S0-S4 with back edges (pure decideSwitch), pre-registered switch-registration.json thresholds with sha256 pinning, skip-ledger @3 state block with @1/@2 lossless upcast + fail-loud unknown versions + appendSwitchAction ring + quarantine, chain stage-transition events via sentinel session write path (chain-first rebuild, verify), consumed readings from durable DB w/ PSI vs pass-stable fixture, TOST reconcile + McNemar (exact<25/Yates>=25), hysteresis C4=3>rollback=2, ans switch-state [--verify] CLI, ship-gate switch-phase info step, CJS bundle lazy fileURLToPath fix. Verified: tsc clean all 7 pkgs, store 36 suites green (eval-switch-state 38, eval-skip 38), ship-gate exit 0 eval 123/123 fp 2cf98c9130018956 unchanged, packed CLI process alive, nonempty-DB shape exit 0"
-            ]
-          },
-          {
-            "label": "W2",
-            "from": "2026-08-29T10:41:27+08:00",
-            "to": "2026-09-02T08:50:58+08:00",
-            "n": 39,
-            "subjects": [
+              "feat(obs): ADR-0043 r42 impl — switch state machine S0-S4 with back edges (pure decideSwitch), pre-registered switch-registration.json thresholds with sha256 pinning, skip-ledger @3 state block with @1/@2 lossless upcast + fail-loud unknown versions + appendSwitchAction ring + quarantine, chain stage-transition events via sentinel session write path (chain-first rebuild, verify), consumed readings from durable DB w/ PSI vs pass-stable fixture, TOST reconcile + McNemar (exact<25/Yates>=25), hysteresis C4=3>rollback=2, ans switch-state [--verify] CLI, ship-gate switch-phase info step, CJS bundle lazy fileURLToPath fix. Verified: tsc clean all 7 pkgs, store 36 suites green (eval-switch-state 38, eval-skip 38), ship-gate exit 0 eval 123/123 fp 2cf98c9130018956 unchanged, packed CLI process alive, nonempty-DB shape exit 0",
               "docs(adr): ADR-0043 grill r40 consumed/synthetic switch governance — five-stage state machine S0-S4 with back edges, C1-C4 pre-registered readiness trigger, TOST reconcile + McNemar diagnostic, graded rollback vs fail-closed integrity lineage, evidence-driven freeze, skip-ledger @3 state block + chain stage-transition events + ans switch-state; CONTEXT.md +3 terms; audit-checklist r40 checkpoint",
               "fix(obs): ADR-0042 r110 audit repairs — real consumed gate inputs + widened data-absent (SP-F-01/05), PSI NaN fail-closed (SA-F-01), clause-identity skip keys (SA-F-02), loud ledger quarantine + atomic write (SA-F-03/08), defhash pins generatorVersion+file shas (SA-F-04), fixtureDefinitionHash in report/baseline (SA-F-06), bucket-key guard + CI path (SA-F-07), entry validation (SA-F-09); declared fingerprint flip 5be13f8abcfab1f9 -> 2cf98c9130018956 (50-run recalibrate)",
               "docs(audit): r109 ADR-0042 impl audit findings (SP-F-01..03 spec axis + SA-F-01..09 standards axis); ship-gate exit 1 unresolved — r110 fix round required",
@@ -5136,21 +5192,21 @@
               "docs(adr): ADR-0037 grill r34 episodic-to-semantic consolidation + reversible active forgetting (G019) — semantic_memories sixth RRF arm (shadow->promotion), deterministic ops quadruple, pi-ai three-protocol endpoint config (chat/messages/responses), classifyClaim fidelity gate, soft archive + archive_log undo, 3-phase plan with single fingerprint flip; CONTEXT +4 terms",
               "fix(store): r90 audit F1-F3 — ADR-0036 D5/CONTEXT RoR delta sign convention corrected to positive=arm helps; backfill retry snapshot covers relatedToWriteOnce (no double-count on retry); busy-injection test holds lock 5200ms past busy_timeout so the exponential-backoff branch actually executes; CHANGELOG Fixed + audit-checklist r90 section (F4/F5 recorded as observations)",
               "refactor(store): ADR-0036 D6 Phase-2 chunked backfill — per-batch IMMEDIATE tx + SQLITE_BUSY backoff(50ms->5s,<=8) + BUSY_SNAPSHOT fail-fast + passive WAL checkpoint + counter-snapshot restore on retry; dry-run rolled-back tx unchanged (r87 exact-prediction); ADR-0035 D7 r90 amendment + CLI help + CHANGELOG Changed + relation-edges D6 regression block",
-              "feat(store): ADR-0036 Phase-1 relation-arm gain harness — ArmProvenance capture + single-run counterfactual RoR ablation (drop-relation RRF recompute), paired BCa95 + sign-flip + Sakai lockN statistics in gate with fail-closed rule and WARN bands, golden relations group 12->78 (30 EN + 8 CN RoR with 14-distractor corpus, 14 EN + 8 CN alias, 6 no_edge), 50-run recalibration (sigmaDU=0.102, lockedN=17, fingerprint 9a135744b0c1f78f), eval-relation-gain.test.ts 20 asserts, audit-checklist ADR-0036 section, CHANGELOG entry",
+              "feat(store): ADR-0036 Phase-1 relation-arm gain harness — ArmProvenance capture + single-run counterfactual RoR ablation (drop-relation RRF recompute), paired BCa95 + sign-flip + Sakai lockN statistics in gate with fail-closed rule and WARN bands, golden relations group 12->78 (30 EN + 8 CN RoR with 14-distractor corpus, 14 EN + 8 CN alias, 6 no_edge), 50-run recalibration (sigmaDU=0.102, lockedN=17, fingerprint 9a135744b0c1f78f), eval-relation-gain.test.ts 20 asserts, audit-checklist ADR-0036 section, CHANGELOG entry"
+            ]
+          },
+          {
+            "label": "W3",
+            "from": "2026-08-26T00:31:13+08:00",
+            "to": "2026-08-29T20:16:34+08:00",
+            "n": 41,
+            "subjects": [
               "docs(adr): ADR-0036 grill r33 relation-arm gain observation (n=80 cap locked by Sakai formula w/ 53-case pilot sigma_d upper-CI, paired BCa>=0 AND point>=minGain=10pp, dual-track A-ablation-causal / B-SPC-from-A-delta, mdeForPaired MDE vs MEI separation + paired WARN band, RoR sole judgment metric w/ hit-rate demoted to sanity, chunked backfill per-batch tx + SQLITE_BUSY backoff w/ snapshot fail-fast, dry-run rollback preserved, 2-phase landing) + chunked backfill refactor plan; CONTEXT +4 terms (Relation-Arm Gain Observance / MDE vs MEI Separation / Judgment vs Sanity Metric / Chunked Backfill with Busy Retry)",
               "fix-store-r88-audit: ADR-0035 D7 per-batch wording corrected to single whole-run transaction + full-refresh x from-id/limit rejection guard (CLI exit 2 + store throw + regression tests) + audit-checklist ADR-0035 r87/r88 items",
               "fix-store-r87-audit-f1-f7",
               "feat(relations): ADR-0035 KG-lite fifth arm impl — golden relations group (12 cases, EN+CN), edges schema + edge_patterns, rules-first + LLM seam + relationTel, merge/unmerge edge redirect-restore (unmerge UNIQUE row-target fix), fifth RRF arm label relation w/ hop+no_edge observational zone, ans relation list + backfill-relations (dry-run default), ship-gate 1j + metrics.relation, eval baseline recalibrated",
               "docs(adr): ADR-0035 grill r32 entity relation layer (KG-lite) - fifth RRF arm w/ episode backlink, closed predicate table, single edges table system-time + 6 schema patches, rules-first+LLM-fallback extraction + 6 pipeline patches, fail-closed/observational split gate, 5-step landing minimal CLI, idempotent backfill-relations + CN goldens (P1-P10); CONTEXT +3 terms",
-              "fix(attribution): ADR-0034 r83 audit — reachable abstain bridge (all-weak semantics), host-injected judge escalation (applyJudgeEscalation), GapRequest reround seed, ship-gate 1g-1k real assertions + eval zone fail-closed, CLI --json pure JSON, mixed-abbrev signal + CJK bigram tokenize + single-char negations, partial_evidence production path, research_web merged-result re-attribution; ADR-0034 audit amendment addendum"
-            ]
-          },
-          {
-            "label": "W3",
-            "from": "2026-08-24T12:18:50+08:00",
-            "to": "2026-08-29T07:03:07+08:00",
-            "n": 39,
-            "subjects": [
+              "fix(attribution): ADR-0034 r83 audit — reachable abstain bridge (all-weak semantics), host-injected judge escalation (applyJudgeEscalation), GapRequest reround seed, ship-gate 1g-1k real assertions + eval zone fail-closed, CLI --json pure JSON, mixed-abbrev signal + CJK bigram tokenize + single-char negations, partial_evidence production path, research_web merged-result re-attribution; ADR-0034 audit amendment addendum",
               "feat(attribution): ADR-0034 answer attribution layer — kernel claim classifier (L0 Intl.Segmenter + L1 fragments + multi-signal fusion, deterministic contradiction gate), TypeBox schema + ship-gate assertions 1f/1g/1h, MCP dual-channel (content+structuredContent), CLI --json/TTY render, GapRequest reround bridge in sufficiency-gate, eval runner attribution zone, audit-checklist ADR-0034 section; fix(ship-gate): pack @anysearch/embedding (0.1.0-rc.0) as 7th tarball to resolve store workspace dep in clean-prefix npm install",
               "docs(adr): ADR-0034 grill r31 answer attribution layer — C topic (attribution depth), C+ two-tier claim verification cascade, C+ dual-channel MCP/CLI output, C observational gate cadence, C-prime signal-gated claim proposal, C2 unsupported named-gap escalation no rewrite; CONTEXT +3 terms",
               "fix(build): r80 audit — restore CLI tsup external (better-sqlite3 dropped in 93e4460), sync transformers/onnx/sharp externals both bundles",
@@ -5185,19 +5241,19 @@
               "fix(adr-0025): round58 audit — persist evidence + show live counterpart in pref review, id-arg validation, ADR-0025 append-only Amendment (key->id per Memento/mem0/resolver-oss/LangMem research)",
               "feat(adr-0025): native smoke CI matrix + pref review channel (r22 impl)",
               "fix(gitignore): .ship-gate/ inline comment broke pattern",
-              "chore(hygiene): dedupe gitignore, add .codegraph/ next to existing entries",
-              "chore(hygiene): untrack .codegraph/ .ship-gate/ local tooling artifacts, add to .gitignore",
-              "docs(adr-0025): grill r22 — native smoke CI matrix + equal-conflict pref review (D1-D4) + CONTEXT.md 3 terms",
-              "fix(adr-0024 audit round54): schema sync (schema.sql + schema-content.ts regen), append-only Amendment A1 (d-i'=gated supersede / d-i prime=quarantine), t0-projection caps test 10 assertions, atomcode cross-vendor verification",
-              "feat(adr-0023): memory retrieval deepening — FTS5 tokenization (per-word prefix + phrase OR, 8-term cap), multi-query + RRF k=60 fusion, S1 query rewrite fail-open seam, MemTX-simplified write adjudication (temporal supersede + quarantine for equal_conflict), STALE-lite probe suite (SR/PR/IPA); also pins bsdtar absolute path on win32 in ship-gate"
+              "chore(hygiene): dedupe gitignore, add .codegraph/ next to existing entries"
             ]
           },
           {
             "label": "W4",
-            "from": "2026-08-19T18:26:23+08:00",
-            "to": "2026-08-23T17:30:33+08:00",
-            "n": 39,
+            "from": "2026-08-20T00:14:32+08:00",
+            "to": "2026-08-26T00:29:03+08:00",
+            "n": 41,
             "subjects": [
+              "chore(hygiene): untrack .codegraph/ .ship-gate/ local tooling artifacts, add to .gitignore",
+              "docs(adr-0025): grill r22 — native smoke CI matrix + equal-conflict pref review (D1-D4) + CONTEXT.md 3 terms",
+              "fix(adr-0024 audit round54): schema sync (schema.sql + schema-content.ts regen), append-only Amendment A1 (d-i'=gated supersede / d-i prime=quarantine), t0-projection caps test 10 assertions, atomcode cross-vendor verification",
+              "feat(adr-0023): memory retrieval deepening — FTS5 tokenization (per-word prefix + phrase OR, 8-term cap), multi-query + RRF k=60 fusion, S1 query rewrite fail-open seam, MemTX-simplified write adjudication (temporal supersede + quarantine for equal_conflict), STALE-lite probe suite (SR/PR/IPA); also pins bsdtar absolute path on win32 in ship-gate",
               "audit(adr-0022): round 47 post-implementation fixes — capability-based answersAvailable, contract-locked verified=false, Exa citations passthrough, stable MCP output shape, budget 2x for answer mode, pi-runtime/tool-schemas index-mode parity, Exa failure to stderr, CLI no-silent-truncation",
               "feat(adr-0022): implement consumer answer exposure - providerAnswers metadata + answersAvailable + CLI/MCP/pi-runtime surfacing; CONTEXT.md term placement fix",
               "docs(adr-0022): grill round 19 consumer answer exposure + CONTEXT.md 3 terms",
@@ -5234,17 +5290,17 @@
               "fix: ADR-0012 audit — test path resolution + missing deliverables",
               "feat: ADR-0012 — L0/L1 memory pipeline upgrade + per-platform verification",
               "docs: ADR-0012 Grill Round 9 — L0/L1 memory pipeline + per-platform verification (15 decisions) + CONTEXT.md +5 terms",
-              "fix: ADR-0008 D4 audit — stateless HTTP transport config (sessionIdGenerator: undefined, enableJsonResponse: true, keepAliveMs: 0)",
-              "feat: ADR-0011 — SessionStart hook + progressive disclosure implementation",
-              "docs: neat-freak governance — mark kernel-split-architecture Completed + README + debt ledger update"
+              "fix: ADR-0008 D4 audit — stateless HTTP transport config (sessionIdGenerator: undefined, enableJsonResponse: true, keepAliveMs: 0)"
             ]
           },
           {
             "label": "W5",
             "from": "2026-08-18T15:39:54+08:00",
-            "to": "2026-08-19T18:20:14+08:00",
-            "n": 35,
+            "to": "2026-08-19T22:08:31+08:00",
+            "n": 37,
             "subjects": [
+              "feat: ADR-0011 — SessionStart hook + progressive disclosure implementation",
+              "docs: neat-freak governance — mark kernel-split-architecture Completed + README + debt ledger update",
               "fix: ADR-0008 D2 Time Edge Effect — wire time_decay() into ORDER BY + bi-temporal invalidation",
               "feat: ADR-0010 implementation — L1 hot-cold hybrid + SessionStart hook + SKILL.md + AGENTS.md",
               "docs: ADR-0010 — Architecture Grill Round 7 Post-Phase-3 Evolution",
@@ -5284,6 +5340,46 @@
           }
         ],
         "units": [
+          {
+            "kind": "commit",
+            "text": "fix(adr-0057): ship-gate step 5 dist assertion was unsatisfiable for 4 source-only packages (D-002/T3)"
+          },
+          {
+            "kind": "commit",
+            "text": "test(adr-0057): migrate all 7 packages to node:test discovery + turbo test task (D-002/T1/T2)"
+          },
+          {
+            "kind": "commit",
+            "text": "docs(adr-0057): add deferred-registry with ADR-0056 AC5 closed-by entry (D-006/T9)"
+          },
+          {
+            "kind": "commit",
+            "text": "test(adr-0057): seal embedding default suite offline-hermetic + test:online gate (D-005/T7)"
+          },
+          {
+            "kind": "commit",
+            "text": "test(adr-0057): derive repo root in domain-loader test, drop machine path (D-002/T5)"
+          },
+          {
+            "kind": "commit",
+            "text": "fix(adr-0057): create mcp DB parent dir on cold HOME + regression (D-004/T4)"
+          },
+          {
+            "kind": "commit",
+            "text": "ci(adr-0057): full-truth test job; fix pack destination escaping the workspace (D-002/D-003/T3)"
+          },
+          {
+            "kind": "commit",
+            "text": "test(adr-0057): drop superseded F3 integrity block (D-003/T6) - decision-pass contract now asserted on-chain"
+          },
+          {
+            "kind": "commit",
+            "text": "chore(adr-0057): untrack .scratch/ to match README + gitignore it"
+          },
+          {
+            "kind": "commit",
+            "text": "docs(adr): ADR-0057 round 57 test truthfulness + CI credibility (node:test runner, expectations inventory, AC5 closure pointer)"
+          },
           {
             "kind": "commit",
             "text": "docs(adr-0056): push closure with CI run evidence + pre-existing failure analysis"
@@ -6063,6 +6159,10 @@
           {
             "kind": "path",
             "text": "apps/plugin"
+          },
+          {
+            "kind": "path",
+            "text": "artifacts"
           },
           {
             "kind": "path",

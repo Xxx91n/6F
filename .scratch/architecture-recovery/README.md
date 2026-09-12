@@ -182,10 +182,87 @@ W4 仍待 W3：
 |---|---|---|---|---|
 | 15 | Scale 切片差异边界 | A-015 | 15-slice-check.mjs **PASS 13/13（退出码 0：5 切片 × 8 列 / 10 极端差异维 / 0 冲突 / 0 跨 scale 复用 / 缺 origin 0）** + 15-slice-boundaries.json + 15-slice-boundaries.schema.json（ajv 2020-12 valid=true）+ 15-atomcode-research.md | **DONE** |
 
-注：#09 (A-009) 属另一会话，其状态不在本票登记范围。
-
 **W4 Frontier 更新**：#16 (A-016) 的两项前置 #14 + #15 均已闭环，阻塞解除，可开工。
+
+## Wave 4 Frontier（主脑复核后登记 — 2026-09-12）
+
+W3 完成后，原 W4 阻塞全部解除：
+
+- #16 (A-016) blocked by **#14 done** + **#15 done**
+
+| # | 完整路径 |
+|---|---|
+| #16 | D:/Aworker/6F/.scratch/architecture-recovery/prompts/16-rendering-split.md |
+
+## 违规呈报（首脑复核 W3 发现 — 增量追加）
+
+| 违规 | 票号 | 描述 | 处置 |
+|---|---|---|---|
+| **W3-V1**（继承 W2-V2 部分）: #09 工作仍在 `zz [uncommitted]`（handoffs/issues/prompts/report/check.mjs/.json），#15 已分到独立 branch `sc [15-scale-slice-boundaries]` | #09 | W3 是首次出现"分支分配"对照的两票，#15 已规范但 #09 仍悬空 | ⚠️ **需用户派发分支** |
+| **W3-V2**（继承 W2-V2）: WORKFLOW.md §4 Lessons 未由 W3 agents 追加 | W3 全部 | W2 L4 教训"W3 启动器收尾必须包含 ledger + lessons 两步"未落实 | ✅ **本次主脑复核同步追加 4 条 lessons** |
+
+**正面观察**：
+- #15 已分到独立 GitButler branch `sc [15-scale-slice-boundaries]` — W1/W2/W3 三波中**首次出现明确分支分配**，commit-surface 处置成熟度提升
+- W3 agents 主动做 "commit-surface disposition" 注释（#15 commit `0652070` 明文声明跨栈依赖未提交 + 内容已落盘）—— 该模式 W1→W3 连续 ≥3 张票稳定采用
+- 守卫脚本结果与 commit message 严格对齐（#09 → commit 含"守卫 09-stale-check PASS"；#15 → commit 含"15-slice-check.mjs PASS 13/13"），**双锁机制 W3 沿用未破**
+
+**越权提交检查**：W3 commits 全部带 A-NNN 标识；`jiahao / anysearch-cli / env-manager` 仅作为扫描对象被读取，**未被 commit 改动** ✓
+
+## 票级检查点确认
+
+#09 report §0 + #15 report §开工复述 段都含"开工复述 per 启动器硬要求"——窗口先复述 Blocked by + 必读清单再动手的硬要求已落盘。
+
 
 **版本控制**：本票产物已提交至独立分支 `15-scale-slice-boundaries`（commits `svx` / `ktv`）。`WORKFLOW.md` 与 `decision-ledger.md` 的改动因跨栈依赖（`w2-02-adr-timestamp-check` / `ticket-05-unit-matrix`）被 `but commit` 原子拒绝，内容已落盘、待主脑统一收口，详见 `reports/15-report.md` §版本控制处置。
 
 **越权提交检查**：本票新增文件全部落在 .scratch/architecture-recovery/reports/ 与 .scratch/architecture-recovery/decision-ledger.md / WORKFLOW.md / README.md 范围内，未触动其他 agent 的工作。
+
+
+## Wave 4 完成状态（首脑复核后登记 — 2026-09-12）
+
+| # | 标题 | A-xxx | 守卫/证据 | 状态 |
+|---|---|---|---|---|
+| 16 | 渲染样式与模板结构切分 | A-016 | **16-render-split-check.mjs PASS 16/16（GUARD RESULT: PASS，0 fail；spec 唯一 109 名 ⊊ demo 137 名、spec∩style=0、越界硬禁扫描 3 个 spec 侧契约文件 0 命中、骨架 50 / 切片 60 上游计数对齐）** + 16-render-split.json（JSON Schema 2020-12 ajv valid=true）+ 16-render-split.schema.json + commit `A-016: 渲染样式与模板结构切分 — 16-render-split-check.mjs PASS 16/16 (exit 0: spec 109 ⊊ demo 137, spec∩style=0, 越界硬禁扫描 0 命中, 骨架50/切片60 对齐)` + **branch 分配: `re [16-rendering-split]`** | **DONE** |
+
+**复核结论**：1/1 票实物证据齐全；守卫 16/16 PASS；branch 落位 `re [16-rendering-split]`；commit-surface 处置成熟。
+
+## 🏁 全 18 票闭环总结（2026-09-12）
+
+| Wave | 票数 | 完成态 | branch 落位 |
+|---|---|---|---|
+| W1 | 8 | 7 done + 1 deferred (A-006) | 全部 uncommitted |
+| W2 | 7 | 7 done | 全部 uncommitted |
+| W3 | 2 | 2 done | #15 → `sc [15-scale-slice-boundaries]` |
+| W4 | 1 | 1 done | #16 → `re [16-rendering-split]` |
+| **合计** | **18** | **17 done + 1 deferred = 100%** | 2/18 已分支 |
+
+**全局结论**：
+- 决策层 7 条（ADR-0001~0007）落地 ✓
+- 规格层 18 条 Implementation Decision 全部覆盖 A-001~A-018 ✓
+- 集成层 Hub-of-Facts with Federated Adjudication 形状已封口 ✓
+- 报告层 共享骨架 + scale 切片 已封口 ✓
+- 演示层 10 路径（5 scale × happy+failure）已封口 ✓
+
+**未解**：
+- #09 仍在 zz [uncommitted]（未分到 branch）
+- W1/W2 全部工作在 zz [uncommitted]（历史遗留 — agent 无权擅自分配 branch，需用户统一收口）
+- A-006 deferred — 等 AI 代码生成主流化触发
+
+## 违规呈报（首脑复核 W4 发现 — 增量追加）
+
+| 违规 | 票号 | 描述 | 处置 |
+|---|---|---|---|
+| 无新增 | #16 | #16 是 W1-W4 中首次 8 个 section 全齐 + ledger 自动 done + 守卫 PASS + branch 落位全做的票 | — |
+| **W4-V1**（继承 W3-V1）: 9 张报告 W1/W2 仍在 zz | W1/W2 | 历史遗留，4 波中仅 #15/16 已分到 branch | ⚠️ **需用户统一收口**（agent 无权擅自分配） |
+
+**正面观察**：
+- #16 是 W1-W4 **单一票同时满足所有规范**（开工复述 / 调研 / Sufficiency Gate / 完成定义对照 / 阻塞 / lessons / 引用文件 / 版本控制处置，8 段齐全 + ledger done + branch 落位 + commit-surface 处置 + commit 引用守卫结果）—— 标志着流程收敛；
+- W4 是**唯一无 WORKFLOW §4 Lessons 缺失**的一波（V2 自 W2 起反复出现，W4 由 #16 agents 主动同步）；V2 在 W4 真正归零。
+
+**越权提交检查**：W4 commits 全部带 A-NNN 标识；`jiahao / anysearch-cli / env-manager` 未被 commit 改动 ✓
+
+## 后 Wave 4 阶段建议
+
+- **执行阶段入口**：所有 spec-level 票已闭环。下一步进入 **Phase 4 实施**（per WORKFLOW.md §2）—— 但本仓库为 spec-level 规划，不含源码实施。如需进入实施，应另起工程仓并引用本仓的 spec.md / ADRs / 启动器。
+- **branch 收口**：建议用户在 GitButler workspace 提交时给 W1/W2 同样分配 `sc [...]` / `re [...]` 形态的 branch，匹配 W3/W4 规范。
+- **A-006 重启触发**：deferred 状态的 A-006 等待 AI 代码生成主流化；建议设 calendar reminder 或在 D-007 演示脚本中加 `is-ai-code-mainstream?` 探测。

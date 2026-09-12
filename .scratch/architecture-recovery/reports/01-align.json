@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T16:30:56.679Z",
+  "generated_at": "2026-09-12T02:32:17.404Z",
   "corpora": "D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\01-corpora.json",
   "sampled": {
     "env-manager": [
@@ -204,7 +204,7 @@
     "minilm-l6-v2": {
       "hf": "Xenova/all-MiniLM-L6-v2",
       "note": "EN generic 6-layer",
-      "load_ms": 13272,
+      "load_ms": 1378,
       "per_repo": {
         "env-manager": {
           "n_delivery": 597,
@@ -959,7 +959,7 @@
     "bge-small-en-v15": {
       "hf": "Xenova/bge-small-en-v1.5",
       "note": "EN retrieval-optimized",
-      "load_ms": 20144,
+      "load_ms": 775,
       "per_repo": {
         "env-manager": {
           "n_delivery": 597,
@@ -1714,7 +1714,7 @@
     "me5-small": {
       "hf": "Xenova/multilingual-e5-small",
       "note": "multilingual",
-      "load_ms": 49842,
+      "load_ms": 3329,
       "per_repo": {
         "env-manager": {
           "n_delivery": 597,

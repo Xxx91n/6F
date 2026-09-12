@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "scanned_at": "2026-09-11T15:52:44.460Z",
+  "scanned_at": "2026-09-12T02:33:53.327Z",
   "scanner": "02-adr-header-scan.mjs",
   "detection_rules": {
     "date_keys": [
@@ -377,7 +377,7 @@
         },
         {
           "path": "docs/adr/0016-evidencelog-gateladder-split-shared-core.md",
-          "size_bytes": 3044,
+          "size_bytes": 3235,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -521,7 +521,7 @@
         },
         {
           "path": "docs/adr/0034-gate-registry-single-entrypoint-orchestration.md",
-          "size_bytes": 10407,
+          "size_bytes": 11036,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -705,7 +705,15 @@
         },
         {
           "path": "docs/adr/0057-test-skip-honesty-and-suite-count-assertion.md",
-          "size_bytes": 5666,
+          "size_bytes": 6169,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
+          "size_bytes": 17813,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -713,11 +721,11 @@
         }
       ],
       "counts": {
-        "total": 57,
+        "total": 58,
         "full_header": 0,
         "partial_header": 0,
         "metadata_only": 0,
-        "no_header": 57,
+        "no_header": 58,
         "unknown": 0
       }
     },
@@ -1170,7 +1178,23 @@
         },
         {
           "path": "docs/adr/0056-architecture-grill-round-56-session-id-propagation-protocol.md",
-          "size_bytes": 10828,
+          "size_bytes": 10869,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0057-architecture-grill-round-57-test-truthfulness-ci-credibility.md",
+          "size_bytes": 8218,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
+          "size_bytes": 9446,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -1178,400 +1202,21 @@
         }
       ],
       "counts": {
-        "total": 56,
+        "total": 58,
         "full_header": 0,
         "partial_header": 0,
         "metadata_only": 0,
-        "no_header": 56,
+        "no_header": 58,
         "unknown": 0
-      }
-    },
-    {
-      "name": "log4brains (public, MADR+patch)",
-      "root": "D:/Aworker/6F/.code-tmp/log4brains",
-      "adr_dirs": [
-        "docs/adr"
-      ],
-      "adr_files": [
-        {
-          "path": "docs/adr/20200924-use-markdown-architectural-decision-records.md",
-          "size_bytes": 1811,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/20200925-multi-packages-architecture-in-a-monorepo-with-yarn-and-lerna.md",
-          "size_bytes": 1773,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/20200925-use-prettier-eslint-airbnb-for-the-code-style.md",
-          "size_bytes": 1528,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/20200926-use-the-adr-number-as-its-unique-id.md",
-          "size_bytes": 931,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/20200927-avoid-default-exports.md",
-          "size_bytes": 334,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/20201016-use-the-adr-slug-as-its-unique-id.md",
-          "size_bytes": 1287,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/20201026-the-core-api-is-responsible-for-enhancing-the-adr-markdown-body-with-mdx.md",
-          "size_bytes": 1012,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/20201103-use-lunr-for-search.md",
-          "size_bytes": 1109,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/20210113-distribute-log4brains-as-a-global-npm-package.md",
-          "size_bytes": 1955,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/20240926-transition-to-simplified-git-flow.md",
-          "size_bytes": 2720,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/20241217-switch-back-to-github-flow.md",
-          "size_bytes": 1780,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/index.md",
-          "size_bytes": 2160,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/README.md",
-          "size_bytes": 915,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        },
-        {
-          "path": "docs/adr/template.md",
-          "size_bytes": 2406,
-          "has_frontmatter": false,
-          "classification": "no_header",
-          "header_date": null,
-          "header_keys": []
-        }
-      ],
-      "counts": {
-        "total": 14,
-        "full_header": 0,
-        "partial_header": 0,
-        "metadata_only": 0,
-        "no_header": 14,
-        "unknown": 0
-      }
-    },
-    {
-      "name": "madr-sample (public, MADR 4.0)",
-      "root": "D:/Aworker/6F/.code-tmp/madr-sample",
-      "adr_dirs": [
-        "docs/decisions"
-      ],
-      "adr_files": [
-        {
-          "path": "docs/decisions/0000-use-markdown-architectural-decision-records.md",
-          "size_bytes": 1436,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0001-use-CC0-or-MIT-as-license.md",
-          "size_bytes": 1604,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0002-do-not-use-numbers-in-headings.md",
-          "size_bytes": 721,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0003-provide-own-madr-tools.md",
-          "size_bytes": 971,
-          "has_frontmatter": true,
-          "classification": "partial_header",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order",
-            "status"
-          ]
-        },
-        {
-          "path": "docs/decisions/0004-write-own-toc-tool.md",
-          "size_bytes": 826,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0005-use-dashes-in-filenames.md",
-          "size_bytes": 1079,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0006-use-names-as-identifier.md",
-          "size_bytes": 699,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0007-do-not-emphasize-line-headings.md",
-          "size_bytes": 671,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0008-add-status-field.md",
-          "size_bytes": 2977,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0009-support-links-between-adrs-inside-an-adrs.md",
-          "size_bytes": 2691,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0010-support-categories.md",
-          "size_bytes": 3316,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0011-use-asterisk-as-list-marker.md",
-          "size_bytes": 720,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0012-use-curly-braces-to-denote-placeholder.md",
-          "size_bytes": 1907,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0013-use-yaml-front-matter-for-meta-data.md",
-          "size_bytes": 1540,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0014-allow-neutral-arguments.md",
-          "size_bytes": 2234,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0015-include-consulting-informed-of-raci.md",
-          "size_bytes": 1501,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0016-outcome-before-detailed-pros-cons.md",
-          "size_bytes": 2050,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0017-use-same-format-for-outcomes-and-options.md",
-          "size_bytes": 898,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/0018-use-confirmation-as-heading.md",
-          "size_bytes": 1038,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order"
-          ]
-        },
-        {
-          "path": "docs/decisions/adr-template.md",
-          "size_bytes": 3578,
-          "has_frontmatter": true,
-          "classification": "metadata_only",
-          "header_date": null,
-          "header_keys": [
-            "parent",
-            "nav_order",
-            "title"
-          ]
-        },
-        {
-          "path": "docs/decisions/index.md",
-          "size_bytes": 471,
-          "has_frontmatter": true,
-          "classification": "unknown",
-          "header_date": null,
-          "header_keys": [
-            "has_children",
-            "nav_order"
-          ]
-        }
-      ],
-      "counts": {
-        "total": 21,
-        "full_header": 0,
-        "partial_header": 1,
-        "metadata_only": 1,
-        "no_header": 0,
-        "unknown": 19
       }
     }
   ],
   "aggregate": {
-    "total_adrs_scanned": 169,
+    "total_adrs_scanned": 137,
     "full_header": 1,
-    "partial_header": 1,
-    "metadata_only": 1,
-    "no_header": 147,
-    "unknown": 19
+    "partial_header": 0,
+    "metadata_only": 0,
+    "no_header": 136,
+    "unknown": 0
   }
 }

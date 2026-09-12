@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-11T15:52:44.651Z",
+  "generated_at": "2026-09-12T02:32:44.138Z",
   "scanner": "02-adr-fallback.mjs",
   "strategy": "git log --follow --format=%aI --reverse — first commit author date on file path",
   "per_repo": [
@@ -86,7 +86,7 @@
           "delta_days": null
         }
       ],
-      "head_commit": "2026-09-11T23:40:22+08:00",
+      "head_commit": "2026-09-12T09:05:22+08:00",
       "counts": {
         "total": 7,
         "header_date": 0,
@@ -437,13 +437,13 @@
         {
           "path": "docs/adr/0016-evidencelog-gateladder-split-shared-core.md",
           "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
+          "inline_date": "2027-09-01",
+          "decision_date": "2027-09-01",
           "first_commit_date": "2026-08-25",
           "first_commit_sha": "1752a9c6fb58f6c7c62d5c859e4553846b17dbb6",
           "first_commit_author": "Euiop1",
           "first_commit_error": null,
-          "delta_days": null
+          "delta_days": -372
         },
         {
           "path": "docs/adr/0017-escalate-verdict-human-adjudication.md",
@@ -895,15 +895,26 @@
           "first_commit_author": "Euiop1",
           "first_commit_error": null,
           "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
+          "header_date": null,
+          "inline_date": "2025-02-26",
+          "decision_date": "2025-02-26",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "919c5bdad101fcc52297b4ef373dffb243617bbb",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 563
         }
       ],
-      "head_commit": "2026-09-11T14:17:24+08:00",
+      "head_commit": "2026-09-12T10:23:27+08:00",
       "counts": {
-        "total": 57,
+        "total": 58,
         "header_date": 0,
-        "inline_date": 46,
-        "no_date": 11,
-        "first_commit_ok": 57,
+        "inline_date": 48,
+        "no_date": 10,
+        "first_commit_ok": 58,
         "first_commit_failed": 0
       }
     },
@@ -1526,447 +1537,42 @@
           "first_commit_author": "Euiop1",
           "first_commit_error": null,
           "delta_days": null
+        },
+        {
+          "path": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
+          "header_date": null,
+          "inline_date": "2025-02-26",
+          "decision_date": "2025-02-26",
+          "first_commit_date": null,
+          "first_commit_sha": null,
+          "first_commit_author": null,
+          "first_commit_error": "no commits",
+          "delta_days": null
         }
       ],
-      "head_commit": "2026-09-11T23:32:08+08:00",
+      "head_commit": "2026-09-12T09:07:38+08:00",
       "counts": {
-        "total": 56,
+        "total": 57,
         "header_date": 0,
-        "inline_date": 38,
+        "inline_date": 39,
         "no_date": 18,
         "first_commit_ok": 56,
-        "first_commit_failed": 0
-      }
-    },
-    {
-      "name": "log4brains (public, MADR+patch)",
-      "root": "D:/Aworker/6F/.code-tmp/log4brains",
-      "files": [
-        {
-          "path": "docs/adr/20200924-use-markdown-architectural-decision-records.md",
-          "header_date": null,
-          "inline_date": "2020-09-24",
-          "decision_date": "2020-09-24",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 1545
-        },
-        {
-          "path": "docs/adr/20200925-multi-packages-architecture-in-a-monorepo-with-yarn-and-lerna.md",
-          "header_date": null,
-          "inline_date": "2020-09-25",
-          "decision_date": "2020-09-25",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 1544
-        },
-        {
-          "path": "docs/adr/20200925-use-prettier-eslint-airbnb-for-the-code-style.md",
-          "header_date": null,
-          "inline_date": "2020-09-25",
-          "decision_date": "2020-09-25",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 1544
-        },
-        {
-          "path": "docs/adr/20200926-use-the-adr-number-as-its-unique-id.md",
-          "header_date": null,
-          "inline_date": "2020-09-26",
-          "decision_date": "2020-09-26",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 1543
-        },
-        {
-          "path": "docs/adr/20200927-avoid-default-exports.md",
-          "header_date": null,
-          "inline_date": "2020-09-27",
-          "decision_date": "2020-09-27",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 1542
-        },
-        {
-          "path": "docs/adr/20201016-use-the-adr-slug-as-its-unique-id.md",
-          "header_date": null,
-          "inline_date": "2020-10-16",
-          "decision_date": "2020-10-16",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 1523
-        },
-        {
-          "path": "docs/adr/20201026-the-core-api-is-responsible-for-enhancing-the-adr-markdown-body-with-mdx.md",
-          "header_date": null,
-          "inline_date": "2020-10-26",
-          "decision_date": "2020-10-26",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 1513
-        },
-        {
-          "path": "docs/adr/20201103-use-lunr-for-search.md",
-          "header_date": null,
-          "inline_date": "2020-11-03",
-          "decision_date": "2020-11-03",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 1505
-        },
-        {
-          "path": "docs/adr/20210113-distribute-log4brains-as-a-global-npm-package.md",
-          "header_date": null,
-          "inline_date": "2021-01-13",
-          "decision_date": "2021-01-13",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 1434
-        },
-        {
-          "path": "docs/adr/20240926-transition-to-simplified-git-flow.md",
-          "header_date": null,
-          "inline_date": "2024-09-26",
-          "decision_date": "2024-09-26",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 82
-        },
-        {
-          "path": "docs/adr/20241217-switch-back-to-github-flow.md",
-          "header_date": null,
-          "inline_date": "2024-12-17",
-          "decision_date": "2024-12-17",
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": 0
-        },
-        {
-          "path": "docs/adr/index.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/adr/README.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/adr/template.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2024-12-17",
-          "first_commit_sha": "17e32021a8c5130386f17e921d4efa6da7709a66",
-          "first_commit_author": "Thomas Vaillant",
-          "first_commit_error": null,
-          "delta_days": null
-        }
-      ],
-      "head_commit": "2024-12-17T15:31:42+01:00",
-      "counts": {
-        "total": 14,
-        "header_date": 0,
-        "inline_date": 11,
-        "no_date": 3,
-        "first_commit_ok": 14,
-        "first_commit_failed": 0
-      }
-    },
-    {
-      "name": "madr-sample (public, MADR 4.0)",
-      "root": "D:/Aworker/6F/.code-tmp/madr-sample",
-      "files": [
-        {
-          "path": "docs/decisions/0000-use-markdown-architectural-decision-records.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0001-use-CC0-or-MIT-as-license.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0002-do-not-use-numbers-in-headings.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0003-provide-own-madr-tools.md",
-          "header_date": null,
-          "inline_date": "2018-06-14",
-          "decision_date": "2018-06-14",
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": 2997
-        },
-        {
-          "path": "docs/decisions/0004-write-own-toc-tool.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0005-use-dashes-in-filenames.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0006-use-names-as-identifier.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0007-do-not-emphasize-line-headings.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0008-add-status-field.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0009-support-links-between-adrs-inside-an-adrs.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0010-support-categories.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0011-use-asterisk-as-list-marker.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0012-use-curly-braces-to-denote-placeholder.md",
-          "header_date": null,
-          "inline_date": "2021-03-12",
-          "decision_date": "2021-03-12",
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": 1995
-        },
-        {
-          "path": "docs/decisions/0013-use-yaml-front-matter-for-meta-data.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0014-allow-neutral-arguments.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0015-include-consulting-informed-of-raci.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0016-outcome-before-detailed-pros-cons.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0017-use-same-format-for-outcomes-and-options.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/0018-use-confirmation-as-heading.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/adr-template.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        },
-        {
-          "path": "docs/decisions/index.md",
-          "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": "2026-08-28",
-          "first_commit_sha": "ba75bb1b20d42af5746b246ad348c202419ae681",
-          "first_commit_author": "dependabot[bot]",
-          "first_commit_error": null,
-          "delta_days": null
-        }
-      ],
-      "head_commit": "2026-08-28T09:43:57+02:00",
-      "counts": {
-        "total": 21,
-        "header_date": 0,
-        "inline_date": 2,
-        "no_date": 19,
-        "first_commit_ok": 21,
-        "first_commit_failed": 0
+        "first_commit_failed": 1
       }
     }
   ],
   "precision": {
-    "total_with_header_or_inline_date": 108,
-    "with_first_commit_date": 162,
-    "matched": 108,
+    "total_with_header_or_inline_date": 98,
+    "with_first_commit_date": 128,
+    "matched": 97,
     "delta_distribution_days": {
-      "0": 68,
+      "0": 67,
       "1": 7,
       "7": 1,
       "24": 1,
       "26": 1,
       "47": 1,
       "55": 1,
-      "82": 1,
       "90": 1,
       "106": 1,
       "143": 1,
@@ -1977,36 +1583,28 @@
       "306": 1,
       "331": 1,
       "562": 2,
+      "563": 1,
       "587": 1,
-      "1434": 1,
-      "1505": 1,
-      "1513": 1,
-      "1523": 1,
-      "1542": 1,
-      "1543": 1,
-      "1544": 2,
-      "1545": 1,
-      "1995": 1,
-      "2997": 1,
+      "-372": 1,
       "-1": 2,
       "-2": 1
     },
     "abs_delta": {
-      "n": 108,
+      "n": 97,
       "min": 0,
       "median": 0,
-      "p90": 1434,
-      "max": 2997,
-      "mean": 210.7
+      "p90": 269,
+      "max": 587,
+      "mean": 50.8
     },
     "abs_delta_buckets": {
-      "0d": 68,
+      "0d": 67,
       "1-7d": 11,
       "8-30d": 2,
-      "31-90d": 4,
+      "31-90d": 3,
       "91-180d": 4,
       "181-365d": 5,
-      ">365d": 14
+      ">365d": 5
     }
   }
 }

@@ -1,0 +1,22 @@
+# verify-build 终跑日志 — 2026-09-12
+
+命令: node <guard>.mjs （每个守卫单独跑）
+工作目录: D:/Aworker/6F/.scratch/architecture-recovery/reports
+
+| 守卫 | 状态 | 摘要 | 耗时 |
+|---|---|---|---|
+| 01-align.mjs | WARN | WARN | 310170ms |
+| 01-check.mjs | PASS | PASS | 1747ms |
+| 01-extract.mjs | WARN | WARN | 3363ms |
+| 01-spotcheck.mjs | WARN | WARN | 1319ms |
+| 02-adr-fallback.mjs | WARN | WARN | 70676ms |
+| 02-adr-header-scan.mjs | WARN | WARN | 390ms |
+| 04-downweight-check.mjs | PASS | PASS | 495ms |
+| 05-matrix-check.mjs | PASS | PASS | 618ms |
+| 09-stale-check.mjs | PASS | 15 checks | 740ms |
+| 14-skeleton-check.mjs | PASS | PASS | 466ms |
+| 15-slice-check.mjs | PASS | PASS | 460ms |
+| 16-render-split-check.mjs | WARN | TOTAL: 16 pass / 0 | 443ms |
+| 18-failure-demo.mjs | PASS | PASS | 378ms |
+
+汇总: PASS=7 WARN=6 FAIL=0 / 13
