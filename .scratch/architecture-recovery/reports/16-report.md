@@ -69,3 +69,10 @@
 - `docs/adr/0006-shared-skeleton-scale-slice.md`、`docs/adr/0007-ten-demo-paths.md`、`CONTEXT.md`
 - `reports/14-skeleton-fields.json`（上游骨架契约）、`reports/15-slice-boundaries.json`（上游切片契约）
 - 本票产出：`reports/16-render-split.json`、`reports/16-render-split.schema.json`、`reports/16-render-split-check.mjs`、`reports/16-report.md`
+
+## 8. 版本控制处置（per WORKFLOW §4.2.1）
+
+- **已提交**：本票 4 个新产物提交至独立分支 `16-rendering-split`（commit `ryr`）——`16-render-split.json`、`16-render-split.schema.json`、`16-render-split-check.mjs`、`16-report.md`。
+- **未提交（commit-surface disposition）**：`decision-ledger.md`（A-016 行）与 `WORKFLOW.md`（§4 lessons 追加行）。原因：本票改动与其他 agent 的未提交改动落在**同一 diff hunk** 内 —— ledger hunk `sq:77` 同时包含 A-014 / A-015 行的他人改动，WORKFLOW hunk `pyw:8` 同时包含 W3 lessons 行的他人改动。GitButler 无法按 ID 拆分同一 hunk，按 hunk 提交会把他人工作并入本票分支，违反「不动他人工作」约束。
+- **内容均已落盘**：ledger A-016 状态 = `done`；WORKFLOW §4 已追加 W4 #16 lessons 行。待主脑统一收口时提交。与 W3 #15 / #09 的 commit-surface disposition 同型。
+- **越权提交检查**：本票新增文件全部落在 `.scratch/architecture-recovery/reports/`，未触动 jiahao / anysearch-cli / env-manager 及其他 agent 分支。
