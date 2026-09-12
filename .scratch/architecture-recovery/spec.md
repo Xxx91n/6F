@@ -282,3 +282,18 @@
 - 工程实现边界已变更：ADR-0002 superseded by ADR-0010 → ADR-0011（单仓 + engine/ 子目录）；ledger D-014 revised / D-015 current。
 - 待通读 Agent Plugins 1.0.0 规范全文后定稿 plugin.json / mcp.json 字段级 schema。
 - 双 manifest 生成脚本无直接先例，属自研范围。
+
+## R3 — 验证协议（来源 D-016 ~ D-018，2026-09-12 grill 轮 3）
+
+> 本段为指针段：决策全文以 docs/adr/0012、docs/adr/0013 与 decision-ledger D-016 ~ D-018 为准；执行计划见 spec-phase-tasks.md R3-01 ~ R3-07。
+
+### R3-01 — 建设主干：端到端价值验证闭环（ADR-0012）
+四阶段串行：阶段 0（push+CI 实跑 / fact table schema v0 含 correlation key / 确定性采集器不接 LLM）→ 阶段 1（6F 自身 Macro-B happy path，S2+S1 起手，产出首份带引文+Receipt 真报告，覆盖一条失败路径）→ 阶段 2（实测锚回流扫 16 缺口）→ 阶段 3（铺开+分发收尾）。性质为实现级 tracer bullet，非产品级 MVP 切片。
+
+### R3-02 — 首报验收：三层闸门 + 预声明判据（ADR-0013）
+A 形式达标（骨架+引文+Receipt）→ B 内容非平凡（预声明 kill criterion：2 正对照 + 3 真判据 + 1 负对照；真判据未命中=合法实验数据）→ C 信任裁决（三档裁定、依据预入库防 HARKing、锚定 B 产物、回写账本）。三级措辞：前置管线健康闸 / 主前提证伪闸 / 反向红条。
+
+### R3 Coverage（对账）
+- D-016 → R3-01 + ADR-0012 + 计划表 R3 全段 + CONTEXT（Value Validation Loop）；
+- D-017 → R3-02 + ADR-0013 + 计划表 R3-04/05 + CONTEXT（Acceptance Gate / Kill Criterion）；
+- D-018 → R3-02 + ADR-0013 + 计划表 R3-04 + CONTEXT（Positive Control）。

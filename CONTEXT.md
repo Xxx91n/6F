@@ -3,6 +3,7 @@
 > 本仓库是 **spec-level 完整规划**产物（per ADR-0001 ~ ADR-0007），覆盖 5 scale 工程内容审计。
 > grill 决策层（2026-09-11 完成）已封口 7 条决策：5 scale 全覆盖 + 拒绝 MVP 切片 + 边界不含商业 + 战略 quadrant 5 维 S1-S5 + 集成架构 Hub-of-Facts with Federated Adjudication + 报告模板共享骨架 + scale 切片 + 演示 10 路径（5 scale × 关键+失败）。
 > 第二轮 grill（2026-09-12 完成）已封口 D-008 ~ D-013：目标用户四类全集 + 场景并集与单一默认模式（C-agent 内嵌 Macro-B 开箱）+ 分发形态 Agent Plugin 五层盒子双 manifest + 输入面本地默认/远程 URL 配置可达；对应 ADR-0008 / ADR-0009。
+> 轮 3 grill（2026-09-12 完成）已封口 D-016 ~ D-018：建设主干 = 端到端价值验证闭环先行（阶段 0 使能件 → 阶段 1 于 6F 产出首份带引文+裁决回执真报告 → 阶段 2 缺口回流 → 阶段 3 铺开+分发；ADR-0012）+ 首报三层验收闸门 A→B→C 与预声明判据 2 正对照 + 3 真判据 + 1 负对照（ADR-0013）。
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -177,3 +178,19 @@ _Avoid_: certificate（暗示证书体系）、签名（只覆盖密码学一段
 **Repo Intake（输入面）**:
 被审计仓库到达产品的形式裁决——本地路径默认 + 远程 URL 配置可达（clone 至隔离缓存、全深度、禁远程配置执行、凭据复用本地 git 凭据链）；clone 只走 CLI 入口（repo add / 配置文件），kernel MCP 查询面保持只读；浅 clone 显式拒绝并提示。
 _Avoid_: 导入（暗示格式转换）、加载（暗示运行时挂载）
+
+**Value Validation Loop（端到端价值验证闭环）**:
+本产品的建设主干（ADR-0012）——在真实仓库上跑通「采集→fact→叙事→裁决→报告」全链并产出第一份带引文与裁决回执的真报告，以证伪或证实产品前提；四阶段串行（使能件→首报→缺口回流→铺开+分发）。
+_Avoid_: MVP（D-002/ADR-0002 链禁用）、demo 路径（属 D-007 演示层）、tracer bullet（借喻不作正式词）
+
+**Acceptance Gate（三层验收闸门）**:
+首报验收协议（ADR-0013）——A 形式达标（骨架+引文+Receipt，smoke 层）→ B 内容非平凡（预声明 kill criterion）→ C 信任裁决（三档裁定回写账本）三层串行；每层回答不同问题（管线通了吗/产出值得读吗/敢据此行动吗）。
+_Avoid_: 验收标准（无分层语义）、UAT（缺预声明判据纪律）、质量门（暗示单层一票否决）
+
+**Kill Criterion（预声明判据）**:
+B 层判据的组织纪律——跑被测仓之前以确定性规则写下判据并 commit 入库（预注册），含可操作定义+显式阈值+命中方向+未中语义；真判据未命中=「前提未被支持」的合法实验数据，不是失败。
+_Avoid_: 通过标准（反向语义）、退出门（缺入库纪律）、阈值（只是其组成要素）
+
+**Positive Control（正对照）**:
+B 层判据构造的已知答案样本（2 条，与真判据共享 detector 路径）——只证明管线能响应，不计入价值判定；未中=管线故障（实验无效）；配对负对照（1 条预期 0 命中）守特异性。
+_Avoid_: 自检样本（缺对照语义）、基准用例（暗示计入价值判定）、canary（暗示线上探测）
