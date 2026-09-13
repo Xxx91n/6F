@@ -3,7 +3,7 @@
 - A-xxx covered: A-023, A-024, A-025, A-029
 - Spec ref: `spec.md` §R3-D4｜Decision: `docs/adr/0013-three-layer-acceptance-gates.md`
 - 守卫：`reports/22-criteria-check.mjs` **19/19 PASS**（退出码 0）
-- 版本控制状态：**未 commit**（闸门：须用户审阅后方可 commit，A-025 / spec §R3-D4）
+- 版本控制状态：**已 commit**（闸门已过：成稿 → 用户审阅（continue 授权）→ commit）。分支 `22-b-criteria-prereg`，commit `msl` + `wqv`；**未 push**（外部副作用待授权）
 
 ---
 
@@ -76,16 +76,16 @@
 | 2 | 正对照与真判据 detector 同族（对照票 21 映射表核对） | ✅ | 守卫 G5a/G5b（TS `DETECTOR_BINDING` ↔ JSON `detector_binding` 逐条比对 type / family / control，drift=[]）、G6（配比 2/3/1） |
 | 3 | 负对照选材 + 预期 0 命中声明 + 命中复核路径齐备 | ✅ | 预声明文档 §5（选材 `engine/src/fact/schema.ts` + 备份选材、N-a/b/c 三条件、复核 4 步）；守卫 G7 |
 | 4 | 引用可回查（ICH E10 + ISO 13528 逐条列出处） | ✅ | 预声明文档 §6（条款位 + URL + §1.5 原文逐字引用）；守卫 G8 |
-| 5 | 闸门：文档须用户审阅后 commit；commit 时机先于首报（HARKing 禁令） | ⏳ **待用户审阅** | 本轮未 commit；§7 版本控制处置 |
+| 5 | 闸门：文档须用户审阅后 commit；commit 时机先于首报（HARKing 禁令） | ✅ | 闸门按序完成（成稿 → 用户审阅 → commit）；commit `msl`/`wqv` 于分支 `22-b-criteria-prereg`，时间戳早于票 23 开跑记录（票 23 未开跑）；§7 |
 | 6 | C 层裁定依据预入库文件落位 | ✅ | `22-c-adjudication-basis.md`（三档 + 五条裁定依据 + 对抗性清单 A1~A8 + 锚定 + 回写）；守卫 G12/G13/G14 |
 
 ---
 
 ## §5 阻塞
 
-- **唯一阻塞：用户审阅闸门**。文档已成稿、守卫已 PASS，但按 A-025 / spec §R3-D4 / 启动器 delta 第 3 条，审阅通过前禁止 commit。
-- 解锁后待办：① `but` 新建独立分支 `22-b-criteria-prereg` 并 commit（msg 引用 A-023/A-024/A-025/A-029）② ledger 四行回写 `done` ③ WORKFLOW §4 追加 lessons。
-- 无其他前置阻塞（#20 / #21 均已 done）。
+- **无阻塞**。闸门已按序完成（成稿 → 用户审阅 → commit），ledger 四行回写与 WORKFLOW lessons 均已随 commit `wqv` 落库。
+- 解锁票 23（首报全链与三层闸门验收）：其前置 #22 已闭环，B 层判据与 C 层裁定依据均已入库且先于首报。
+- 遗留（非本票阻塞，交主脑）：①`README.md`（变更 id `nt`）为并行在飞 WIP，未提交；②本分支未 push（外部副作用待授权，且 `but push-remote=gb-local` 不达 GitHub）；③栈位调整（`22` 置顶于 `21` 之上）虽未改变 19/20/21 相对顺序，仍建议主脑复核一次栈结构。
 
 ---
 
@@ -100,9 +100,19 @@
 
 ## §7 版本控制处置（per WORKFLOW §4.2.1）
 
-- 本轮**未执行**任何 commit / push / branch 操作（闸门约束）。
-- 审阅通过后的执行序列：① `but branch new 22-b-criteria-prereg`；② `but commit -b 22-b-criteria-prereg -m "22(A-023/A-024/A-025/A-029): B 层判据预声明 + C 层裁定依据 — 守卫 22-criteria-check.mjs 19/19 PASS"`；③ 其余文件同分支提交；④ ledger 回写 + WORKFLOW §4 追加 lessons（同一分支）。
-- 全程走 `but` CLI，不触他人分支（当前 applied：`21-deterministic-collectors` / `20-fact-schema-v0` / `19-push-ci-activation` / `grill-r3-wrapup`）。
+**闸门顺序已按序完成**：文档成稿 → 用户审阅（`continue` 授权）→ commit → 尚未跑票 23 首报。
+
+| 项 | 实际结果 |
+|---|---|
+| 分支 | `22-b-criteria-prereg`（新建，独立） |
+| 栈位 | 置顶于 `21-deterministic-collectors` 之上（`but move --above`）。原因：ledger 235-237 / 241 行与 `19-push-ci-activation (szo)` 存在行级依赖，WORKFLOW.md 与 19/20/21 三分支 commit 同文件冲突；按 `but` 提示重排。**19 / 20 / 21 的相对顺序未变**，仅新增栈顶分支 |
+| commit `msl` | 6 个交付文件：预声明文档 / C 层裁定依据 / 报告 / 测定脚本 / 原始数 / 守卫 |
+| commit `wqv` | ledger A-023/A-024/A-025/A-029 四行回写 `done` + WORKFLOW §4 追加 R3 #22 lessons 行 |
+| 未提交 | `README.md`（变更 id `nt`，非本票内容，属并行在飞 WIP）——**未动** |
+| push | **未执行**。push 属外部副作用；且 `but push-remote=gb-local`（本地）不达 GitHub（per #19 注记） |
+| 机检 | 提交后重跑：`22-criteria-check.mjs` 19/19 PASS；`21-collectors-check.mjs` 43/43 PASS；`20-fact-schema-check.mjs` 28/28 PASS（无回归） |
+
+完成定义中「ledger 回写 + WORKFLOW lessons」两步已随 `wqv` 落库，未留悬空。
 
 ---
 
