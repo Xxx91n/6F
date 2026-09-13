@@ -75,7 +75,7 @@
 ### §3.3 A 闸 / C 闸
 
 - **A 闸**：章顺序 `C1 执行摘要 → C2 四象限与裁决 → C3 证据 → C4 行动建议` 锁定，happy 与 failure 序列逐项相等、每章非空；11 条证据全部 `evidence_id + source + locator` 可解析且**逐字回查 0 失配**；引文→结论支持关系 **11/11 supports**；Receipt `RCP-9d20125ad0976c86`（chain_hash 64 hex，228 事实）。
-- **Receipt 加固（按调研 §2.1 / §6.2，A 层实现，不改 B/C 判据）**：单 commit 锚不足——commit sha 本身可塑（arXiv:2607.02820），故补三件：① `tree_anchor = HEAD^{tree} = 6f405cfc2ce5…`（内容寻址主体，守卫 R1 断言与当前 HEAD tree 相等）；② `content_digest{algo: sha256, canonicalization: json_utf8_entries_then_citation_checks}`（显式算法与规范化规则，守卫 R2）；③ `gate_ref{prereg_commit: 7395495, criteria_path, basis_path, criterion_ids}`（守卫 R3 用 `git merge-base --is-ancestor` 机器证明**预声明闸门拓扑先于首报锚**，即「经过闸门而非事后生成」）。降级产物保留同一 tree 锚并置 `degraded=true`（守卫 R4）。
+- **Receipt 加固（按调研 §2.1 / §6.2，A 层实现，不改 B/C 判据）**：单 commit 锚不足——commit sha 本身可塑（arXiv:2607.02820），故补三件：① `tree_anchor = HEAD^{tree} = 6f405cfc2ce5…`（内容寻址主体，守卫 R1 断言其为可解析的真实 tree 对象、commit 锚为真实 commit 对象）；② `content_digest{algo: sha256, canonicalization: json_utf8_entries_then_citation_checks}`（显式算法与规范化规则，守卫 R2）；③ `gate_ref{prereg_commit: 7395495, criteria_path, basis_path, criterion_ids}`（守卫 R3 用 `git merge-base --is-ancestor` 机器证明**预声明闸门拓扑先于首报锚**，即「经过闸门而非事后生成」）。降级产物保留同一 tree 锚并置 `degraded=true`（守卫 R4）。
 - **C 闸**：6 条裁定逐条锚定（basis_refs B1/B2/B4 + anchored_fact_ids + anchored_evidence_ids），无无锚条目；综合裁定按规则推导 = **unsupported**（TC-2 RED 主导）；`human.status = pending`，**C 裁定原文 + 时间戳仍由用户产出**。
 
 ### §3.4 守卫
@@ -133,6 +133,7 @@ node .scratch/architecture-recovery/reports/23-first-report-check.mjs
 3. 原生依赖缺包时的降级必须形态不变 + 守卫覆盖，不得静默跳过链路步骤。
 4. carrier（atomcode）与 ctx 双通道都可能在单窗口内失效，启动器应预设三级降级顺序并显式留痕。
 5. Receipt 只锚 commit sha 不足以自称「不可伪造」——commit sha 可塑，必须同时锚 `HEAD^{tree}` 并用 `gate_ref` + `merge-base --is-ancestor` 机器证明「闸门先于被裁定对象」。
+6. 断言「锚等于当前 HEAD」是把不变量写错了：产物锚定的是**生成时刻**，提交后必然失配，会把正确的实现判成假 FAIL。锚类断言应写「可解析为真实对象」（`git cat-file -t`）+ 拓扑关系，而非与易变引用做相等比较。（本票首次收口即踩到，R1 首版误报。）
 
 ---
 

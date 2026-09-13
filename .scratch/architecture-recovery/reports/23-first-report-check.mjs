@@ -130,11 +130,13 @@ check('C6', carFail.degraded_mode === true && mdFail.indexOf(G.UNVERIFIED_MARK) 
 
 // ---------- Receipt 加固断言（调研报告 §2.1 / §6.2：单 commit 锚不足） ----------
 const rc = carHappy.receipt;
-let treeNow = '';
-try {
-  treeNow = execFileSync('git', ['rev-parse', 'HEAD^{tree}'], { cwd: REPO, encoding: 'utf8' }).trim();
-} catch (e) { treeNow = ''; }
-check('R1', typeof rc.tree_anchor === 'string' && rc.tree_anchor.length === 40 && rc.tree_anchor === treeNow, 'tree 锚存在且等于当前 HEAD^{tree}：' + rc.tree_anchor.slice(0, 12));
+// 注：产物是对「生成时刻」锚定的，故断言「锚可解析为真实对象」而非「等于当前 HEAD」——
+// 后者在提交后必然失效，会把正确的不变量写成假 FAIL（本票首次收口即踩到）。
+function gitType(rev) {
+  try { return execFileSync('git', ['cat-file', '-t', rev], { cwd: REPO, encoding: 'utf8' }).trim(); }
+  catch (e) { return ''; }
+}
+check('R1', typeof rc.tree_anchor === 'string' && rc.tree_anchor.length === 40 && gitType(rc.tree_anchor) === 'tree' && gitType(rc.commit_anchor) === 'commit', '双锚可解析：tree ' + rc.tree_anchor.slice(0, 12) + ' 为真实 tree 对象，commit ' + rc.commit_anchor.slice(0, 7) + ' 为真实 commit 对象');
 check('R2', rc.content_digest && rc.content_digest.algo === 'sha256' && rc.content_digest.value.length === 64 && rc.content_digest.canonicalization === G.CONTENT_DIGEST_CANONICALIZATION, '内容摘要显式声明算法与规范化规则（' + rc.content_digest.canonicalization + '）');
 const gr = rc.gate_ref;
 let preregAncestor = false;
