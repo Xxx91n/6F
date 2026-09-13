@@ -288,3 +288,11 @@
 - 调研召回偏差记录：调研④所称「D-00X 复用 Receipt Gate / agent-completion-gate」无账本出处（全仓 grep 无 agent-completion-gate 字样；Receipt Gate 仅 Micro-A 数据源词条）——不采纳为事实；其合并措辞与 A-026 自研双锚 Receipt 交付一致。
 - 派生待决：Q2 根 README 五段式蓝图；运行时解析策略（容器捆绑 vs 二进制发现，前置 = 读 Agent Plugins 1.0.0 plugin schema 原文）；上游清单表含「已接入/规划中」状态列（已接入：DuckDB/git；规划中：CodeLore、OpenSSF Scorecard、repomix/gitingest——以账本/spec 为准）。
 - 实施落点：阶段 2/3（A-028/A-030，票 #24/#25）；grill 定稿前不落盘 README、不动源码。
+
+| D-021 | Q2：根 README 组合件结构 = 调研五段式蓝图（新建仓根 README.md）？ | 采纳 A（2026-09-14，原话：「采纳A+ [$readme-crafter-skill]」） | 仓根新建 README.md，五段式：①一句话定位（证据采集大部分来自上游，裁决/schema/回执是我们的）；②三层盒子图（对应五层插件）+ 上游清单表（组件名｜形态｜引入方式｜锁定策略｜状态）；③Runtime View Mermaid 数据流（仓库输入→采集器→事实表→裁决→回执→报告，每箭头标注谁产出/谁消费/以什么契约）；④所有权表（Backstage 式：是我们的 vs 借来的）；⑤契约声明（上游经适配器进事实表，raw 语义不出适配层；上游换实现，事实表 schema 不动）。裁量四点：位置=仓根新建；定位=薄地图（架构细节外链 docs/，构建命令留 engine/README.md 不重复）；上游清单表带已接入/规划中状态列（已接入：DuckDB、git；规划中：CodeLore、OpenSSF Scorecard、repomix/gitingest）；落盘时机=本轮 grill 定稿后的整理环节一次写入。写作工具 = readme-crafter-skill（SKILL.md 已全文读入） | 上游清单表不得虚报进度（规划中不得写成已接入）；不暗示已发布（npm 包/插件上架未发生，A-030 deferred）；禁止发明社会证明与装饰性徽章（license=UNLICENSED 不放 license 徽章）；语言中文（与仓内文档一致）；grill 定稿前不动盘 | current |
+
+### D-021 后续影响（开放跟踪）
+- readme-crafter-skill 兼容性核对（2026-09-14）：与五段式零冲突——skill 定位「README=front page 不是全文档」对应薄地图裁量；「Monorepo: root README as navigation hub」正对 6F 形态；Mermaid 原生渲染支撑段③；evidence model（unverified 不写）支撑状态列如实标注。skill 分类落位：项目类型=Monorepo Hub / Agent or AI Tool，分发姿态=Source-first，受众=Evaluator+Power User 为主（AI Agent 次要），气质=Developer Utility；skill Phase 3 interview 已由 grill Q1/Q2 等价完成，Phase 4 plan 已由五段式拍板等价完成。
+- 写入执行清单（定稿后整理环节）：skill Phase 1 SCAN（事实采集，仓根现状+engine 元数据+CI）→ Phase 5 GENERATE（按五段式逐段，命令/路径对实物核验）→ Phase 6 VERIFY（quality-checklist 11 项 + repo-integrity hard-compare）→ 产出 3-5 条后续建议清单（如 CI 徽章、hero 图）。
+- 6F 特殊纪律：license=UNLICENSED（engine/package.json）→ 不放 license 徽章；发布态未发生 → 不暗示可安装；CI 徽章（engine-ci.yml 实跑在案）作建议不作默认。
+- 定稿后配套（按 domain-modeling 惯例）：D-020 具 ADR 三条件（难逆/无上下文会困惑/真实取舍）→ 起草 ADR-0014；D-021 属文档结构不立 ADR；CONTEXT.md intro 追加轮 4 一行。
