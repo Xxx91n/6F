@@ -296,3 +296,29 @@
 - 写入执行清单（定稿后整理环节）：skill Phase 1 SCAN（事实采集，仓根现状+engine 元数据+CI）→ Phase 5 GENERATE（按五段式逐段，命令/路径对实物核验）→ Phase 6 VERIFY（quality-checklist 11 项 + repo-integrity hard-compare）→ 产出 3-5 条后续建议清单（如 CI 徽章、hero 图）。
 - 6F 特殊纪律：license=UNLICENSED（engine/package.json）→ 不放 license 徽章；发布态未发生 → 不暗示可安装；CI 徽章（engine-ci.yml 实跑在案）作建议不作默认。
 - 定稿后配套（按 domain-modeling 惯例）：D-020 具 ADR 三条件（难逆/无上下文会困惑/真实取舍）→ 起草 ADR-0014；D-021 属文档结构不立 ADR；CONTEXT.md intro 追加轮 4 一行。
+
+## 轮 4 收口对账（2026-09-14）
+
+> 数据源纪律：本节由账本自身枚举生成（17 条 current）；去向列引用的文件均经实物核验存在（ADR-0001~0013、spec.md ## Implementation Decisions 与 R2-01~05 节、spec-phase-tasks.md 任务 1~18 / R2 / R3 表、根 README.md、docs/adr/0014、handoffs/next-round.md）。
+
+| D-xxx | 状态 | 去向（spec 条目 / 计划表条目号 / 整理产物） |
+|---|---|---|
+| D-001 | current | spec 条目：ADR-0001 + CONTEXT.md「Macro Audit / Micro Audit / Scale」词条；判据细节 → spec.md Decision 4.5 + 计划表任务 1~5 |
+| D-003 | current | spec 条目：ADR-0003（规划边界 = 产品本体 + 使用方法，商业层排除） |
+| D-004 | current | spec 条目：ADR-0004 + spec.md Decision 4.1~4.6；计划表条目：任务 1~6 |
+| D-005 | current | spec 条目：ADR-0005 + spec.md Decision 5.1~5.7；计划表条目：任务 7~13；阶段 0 部分已实现（R3-02，A-021） |
+| D-006 | current | spec 条目：ADR-0006；计划表条目：任务 14~16 |
+| D-007 | current | spec 条目：ADR-0007；计划表条目：任务 17~18；Macro-B happy+failure path 已由 R3-05 首报覆盖（A-026） |
+| D-009 | current | 计划表条目：R2-01 → spec.md「R2-01 目标用户四类全集」（已封口） |
+| D-010 | current | 计划表条目：R2-02 → spec.md「R2-02 使用场景并集 + mode 枚举」（明注覆盖 D-010） |
+| D-011 | current | 计划表条目：R2-03 → spec.md「R2-03 默认模式开箱路径契约」+ CONTEXT.md「Default Mode」词条 |
+| D-012 | current | 计划表条目：R2-04 → spec.md「R2-04 Agent Plugin 契约群」+ spec 条目 ADR-0008 + CONTEXT.md「Agent Plugin / Receipt」词条 |
+| D-013 | current | 计划表条目：R2-05 → spec.md「R2-05 输入面契约」+ spec 条目 ADR-0009 + CONTEXT.md「Repo Intake」词条 |
+| D-015 | current | spec 条目：ADR-0011（单仓 + 子目录 + but 分支）+ 实体落地 engine/ |
+| D-016 | current | spec 条目：ADR-0012；计划表条目：R3-01~03/05（已闭环，A-019~A-027 implemented）+ R3-06/R3-07 = 票 #24/#25（backlog，A-028/A-030 deferred） |
+| D-017 | current | spec 条目：ADR-0013；计划表条目：R3-04/R3-05（已实现：预注册文档 + 首报 A→B→C，C 裁定 supported） |
+| D-018 | current | spec 条目：ADR-0013；计划表条目：R3-04（22-criteria-pre-registration.md，2+3+1 判据入库，A-023~A-025） |
+| D-020 | current | spec 条目：docs/adr/0014（本轮起草落盘）；实施落点 = 阶段 2/3 → 票 #24/#25（backlog） |
+| D-021 | current | 本轮整理产物：根 README.md（五段式，readme-crafter-skill 流程）+ handoffs/next-round.md（下轮任务书） |
+
+**无去向记录清单：空** —— 17/17 current 全部有去向。非 current 处理：D-002/D-008/D-014 = revised（原记录保留；D-014 由 D-015 承载、D-008 内容由 R2-01~05 承接）；D-019 = closed（拍板采纳派生 D-020）。

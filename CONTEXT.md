@@ -4,12 +4,12 @@
 > grill 决策层（2026-09-11 完成）已封口 7 条决策：5 scale 全覆盖 + 拒绝 MVP 切片 + 边界不含商业 + 战略 quadrant 5 维 S1-S5 + 集成架构 Hub-of-Facts with Federated Adjudication + 报告模板共享骨架 + scale 切片 + 演示 10 路径（5 scale × 关键+失败）。
 > 第二轮 grill（2026-09-12 完成）已封口 D-008 ~ D-013：目标用户四类全集 + 场景并集与单一默认模式（C-agent 内嵌 Macro-B 开箱）+ 分发形态 Agent Plugin 五层盒子双 manifest + 输入面本地默认/远程 URL 配置可达；对应 ADR-0008 / ADR-0009。
 > 轮 3 grill（2026-09-12 完成）已封口 D-016 ~ D-018：建设主干 = 端到端价值验证闭环先行（阶段 0 使能件 → 阶段 1 于 6F 产出首份带引文+裁决回执真报告 → 阶段 2 缺口回流 → 阶段 3 铺开+分发；ADR-0012）+ 首报三层验收闸门 A→B→C 与预声明判据 2 正对照 + 3 真判据 + 1 负对照（ADR-0013）。
+> 轮 4 grill（2026-09-14 完成）已封口 D-020 ~ D-021：上游组件引入方式 = 适配器双轨制 + vendor 逃生舱（ADR-0014；上游经适配器进事实表、raw 语义不出适配层）+ 根 README 组合件五段式（一句话定位 / 三层盒子图+上游清单表 / Runtime View / 所有权表 / 契约声明；readme-crafter-skill 流程落盘）。
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
 ## Language
 
-## Language
 
 **Audit**:
 对工程产物（代码/历史/供应链/战略）做带证据引文与可驳回裁决的结构化判定；其输出必须可追溯到具体文件、commit 或度量值。
