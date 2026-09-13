@@ -273,9 +273,18 @@
 - 阶段 1 执行序更新：先起草 B 层判据预声明文档（三级措辞 + 2+3+1 判据表）→ 用户审阅 → commit 入库 → 再跑 6F；atomcode 可提供草案（resume 3a3d4bf5-3d4f-4ac4-9d83-b69aea3bbfba）。
 - 出处：atomcode R3-Q3 深调研（15 次三引擎查询 / 13 篇全文核验 / 9 域名），落盘 .scratch/macro-audit/reports/R3-Q3-atomcode-research.md。
 
-| D-019 | 轮 4 Q1：下一阶段主干议题与节奏？（A 上游组合件策略为主干+根 README 组合件结构阐述 / B 只补 README 可见性 / C 复议 ADR-0012 节奏） | 更加偏向于继续按照之前心智模型的计划走，但 Q1 整个提交 atomcode 深度调研（原话全文见规范化需求①，2026-09-13） | ① 原回答原文：「按照你这么说的话，那我更加偏向于继续按照之前心智模型的计划走，但是还是将当前问题 Q1 整个提交 atomcode 深度调研，调研时必须回顾：decision-ledger 中全部 current 记录、docs/adr 与 CONTEXT.md 现有条目、工业界成熟落地的心智模型（重点），给出推荐与理由。若调研结论与账本中任何 current 决策冲突：禁止静默改向——把对应 D-xxx 标记为 revised（保留原记录），生成新的 D-xxx 记录呈报给我，等我拍板后才继续下探。」② 主干议题 = 上游组合件策略（上游引入方式 + 护城河/黏合剂边界 + 根 README 组合件结构阐述为其自然产物）；③ ADR-0012 节奏不复议——按既有四阶段计划走，组合件接入对应阶段 2/3（A-028/A-030，票 #24/#25）；④ 调研回顾范围 = 两本账本全部 current 记录 + docs/adr 13 篇 + CONTEXT.md 46 词条 + 工业界成熟落地心智模型（重点），输出推荐与理由 | 冲突协议：调研结论与任何 current 决策冲突时禁止静默改向——对应 D-xxx 标 revised（保留原记录）、生成新 D-xxx 呈报、等用户拍板后才继续下探；grill 期间不动源码；push 前必停 | current（倾向已确认；atomcode 调研中，最终拍板待回报） |
+| D-019 | 轮 4 Q1：下一阶段主干议题与节奏？（A 上游组合件策略为主干+根 README 组合件结构阐述 / B 只补 README 可见性 / C 复议 ADR-0012 节奏） | 更加偏向于继续按照之前心智模型的计划走，但 Q1 整个提交 atomcode 深度调研（原话全文见规范化需求①，2026-09-13） | ① 原回答原文：「按照你这么说的话，那我更加偏向于继续按照之前心智模型的计划走，但是还是将当前问题 Q1 整个提交 atomcode 深度调研，调研时必须回顾：decision-ledger 中全部 current 记录、docs/adr 与 CONTEXT.md 现有条目、工业界成熟落地的心智模型（重点），给出推荐与理由。若调研结论与账本中任何 current 决策冲突：禁止静默改向——把对应 D-xxx 标记为 revised（保留原记录），生成新的 D-xxx 记录呈报给我，等我拍板后才继续下探。」② 主干议题 = 上游组合件策略（上游引入方式 + 护城河/黏合剂边界 + 根 README 组合件结构阐述为其自然产物）；③ ADR-0012 节奏不复议——按既有四阶段计划走，组合件接入对应阶段 2/3（A-028/A-030，票 #24/#25）；④ 调研回顾范围 = 两本账本全部 current 记录 + docs/adr 13 篇 + CONTEXT.md 46 词条 + 工业界成熟落地心智模型（重点），输出推荐与理由 | 冲突协议：调研结论与任何 current 决策冲突时禁止静默改向——对应 D-xxx 标 revised（保留原记录）、生成新 D-xxx 呈报、等用户拍板后才继续下探；grill 期间不动源码；push 前必停 | current（倾向已确认；atomcode 调研中，最终拍板待回报）**→ closed（2026-09-14 用户拍板「采纳」，派生 D-020）** |
 
 ### D-019 后续影响（开放跟踪）
 - 调研落盘：.scratch/macro-audit/reports/R4-Q1-atomcode-research.md（atomcode 单问串行，timeout 600000，-p 只放问题本体）。
 - 冲突候选清单（调研回报后逐条核对，命中即走 revised 协议）：D-012/ADR-0008（分发五层盒子）、D-016/ADR-0012（四阶段节奏）、ADR-0005（HoF-FA）、ADR-0009（输入面 clone-to-local）、D-015/ADR-0011（单仓子目录）、A-021/A-022（fact schema v0 与确定性采集器实现决策）。
 - 最终拍板前不基于调研结论下探新问题；拍板后在本块追加拍板结果或派生 D-020。
+- 2026-09-14 拍板结果：**采纳**（派生 D-020，D-019 闭环）。
+
+| D-020 | D-020 拍板：上游组件引入方式 = 双轨制 + 逃生舱？（基于 atomcode R4-Q1 深调研呈报，报告落盘 reports/R4-Q1-atomcode-research.md） | 采纳（2026-09-14，原话：「采纳」） | 上游引入方式定版双轨制 + 逃生舱：①主线 = 适配器 + 外部 CLI/库，逐上游锁定版本 + golden 输出契约测试——进程/容器边界为天然防腐层（工业先例：super-linter 容器捆绑、hashicorp/go-plugin subprocess+RPC、Terraform plugin protocol 版本化契约）；②库形态上游走包管理器 + lockfile hash pinning，不为统一强推全部 CLI 化（kusari 三档 pinning 判据 branch/tag/hash）；③vendor 源码进仓仅两种情况逃生：具体上游需离线/气隙分发、或上游废弃且无替代，启用时必须带 UPSTREAM 清单 + patches/ 目录纪律。README 组合件阐述范本 = arc42 三视图一页化 + Backstage 所有权分割 + super-linter 上游清单表（README 蓝图另立 Q2 拍板） | 禁止 vendor 活跃迭代的大依赖树上游（一手数据：vendored C 库中位年龄 3 年+、SCA 扫描失明、SBOM 无法出具）；适配层禁放业务规则（Microsoft ACL 判据）；上游 raw 语义不出适配层；本条为阶段 2/3 补位决策，不修订 D-012/D-016/ADR-0005 | current |
+
+### D-020 后续影响（开放跟踪）
+- 冲突核对结论（2026-09-13）：零冲突、零 revised——与 D-012/D-015/D-016/D-017/D-018、ADR-0005/0008/0009/0011/0012/0013、A-021/A-022 全部一致；ACL 判据强化 ADR-0005（事实表 schema = 唯一允许上游语义落地的边界）。
+- 调研召回偏差记录：调研④所称「D-00X 复用 Receipt Gate / agent-completion-gate」无账本出处（全仓 grep 无 agent-completion-gate 字样；Receipt Gate 仅 Micro-A 数据源词条）——不采纳为事实；其合并措辞与 A-026 自研双锚 Receipt 交付一致。
+- 派生待决：Q2 根 README 五段式蓝图；运行时解析策略（容器捆绑 vs 二进制发现，前置 = 读 Agent Plugins 1.0.0 plugin schema 原文）；上游清单表含「已接入/规划中」状态列（已接入：DuckDB/git；规划中：CodeLore、OpenSSF Scorecard、repomix/gitingest——以账本/spec 为准）。
+- 实施落点：阶段 2/3（A-028/A-030，票 #24/#25）；grill 定稿前不落盘 README、不动源码。
