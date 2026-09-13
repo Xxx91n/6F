@@ -162,3 +162,10 @@ node .scratch/architecture-recovery/reports/23-first-report-check.mjs
 | `engine/src/fact/schema.ts` | audit_fact 16 列契约 + assertAppendOnly |
 | `reports/23-first-report.mjs` / `23-first-report-check.mjs` | 执行脚本 / 守卫 |
 | `reports/23-atomcode-research.md` | 调研报告 |
+
+---
+
+## 追记（2026-09-13）：C 层人裁定已回写
+
+- 用户裁定原文（逐字）：**supported 。**｜时间戳：2026-09-13T10:49:04.195Z
+- 已落盘 decision-ledger.md「C 层人裁定落盘」节（含与规则推导 unsupported 的张力记录，per B5 人裁定为最终档位）；gates.json 槽位以账本回写为准，未改写预注册文件。
