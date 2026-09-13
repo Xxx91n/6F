@@ -21,6 +21,6 @@
 - None（闸门：push 远端与时机须用户明示授权）
 
 ## 关键参考
-- docs/adr/0012-*.md；reports/R3-Q1-atomcode-research.md §4（阶段 0）
+- docs/adr/0012-*.md；.scratch/macro-audit/reports/R3-Q1-atomcode-research.md §4（阶段 0）
 - 守卫脚本模式沿用上轮：reports/19-*.mjs 守卫 + 退出码 0 + 显式 PASS/FAIL（本机只跑轻量 node 断言；构建/测试一律 CI）
 - 上轮同号报告（如有）在 reports/ 目录；macro-audit 决策背景见 .scratch/macro-audit/decision-ledger.md

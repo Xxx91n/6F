@@ -21,6 +21,6 @@
 - #24
 
 ## 关键参考
-- docs/adr/0011-*.md；.scratch/architecture-recovery/BACKLOG.md；handoffs/next-round.md T6
+- docs/adr/0011-*.md；.scratch/architecture-recovery/BACKLOG.md；.scratch/macro-audit/handoffs/next-round.md（最新轮常驻任务书）
 - 守卫脚本模式沿用上轮：reports/25-*.mjs 守卫 + 退出码 0 + 显式 PASS/FAIL（本机只跑轻量 node 断言；构建/测试一律 CI）
 - 上轮同号报告（如有）在 reports/ 目录；macro-audit 决策背景见 .scratch/macro-audit/decision-ledger.md

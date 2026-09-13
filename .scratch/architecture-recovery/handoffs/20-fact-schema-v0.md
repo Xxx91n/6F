@@ -21,6 +21,6 @@
 - None (can start immediately)
 
 ## 关键参考
-- docs/adr/0005-*.md；decision-ledger.md A-007/A-008/A-010（上轮决议）；reports/R3-Q1-atomcode-research.md §4
+- docs/adr/0005-*.md；decision-ledger.md A-007/A-008/A-010（上轮决议）；.scratch/macro-audit/reports/R3-Q1-atomcode-research.md §4
 - 守卫脚本模式沿用上轮：reports/20-*.mjs 守卫 + 退出码 0 + 显式 PASS/FAIL（本机只跑轻量 node 断言；构建/测试一律 CI）
 - 上轮同号报告（如有）在 reports/ 目录；macro-audit 决策背景见 .scratch/macro-audit/decision-ledger.md

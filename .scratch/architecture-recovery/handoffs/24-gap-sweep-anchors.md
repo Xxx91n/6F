@@ -21,7 +21,7 @@
 - #23
 
 ## 关键参考
-- reports/R3-Q1-atomcode-research.md §7（仓根 .scratch/macro-audit/reports/ 下）
-- reports/R3-Q3-atomcode-research.md §7（同上目录）
+- .scratch/macro-audit/reports/R3-Q1-atomcode-research.md §7（仓根 .scratch/macro-audit/reports/ 下）
+- .scratch/macro-audit/reports/R3-Q3-atomcode-research.md §7（同上目录）
 - 守卫脚本模式沿用上轮：reports/24-*.mjs 守卫 + 退出码 0 + 显式 PASS/FAIL（本机只跑轻量 node 断言；构建/测试一律 CI）
 - 上轮同号报告（如有）在 reports/ 目录；macro-audit 决策背景见 .scratch/macro-audit/decision-ledger.md
