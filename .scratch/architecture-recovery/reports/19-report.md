@@ -2,7 +2,7 @@
 
 - **Ticket:** issues/19-push-ci-activation.md ｜ **Handoff:** handoffs/19-push-ci-activation.md ｜ **Prompt:** prompts/19-push-ci-activation.md
 - **Decision:** spec.md §R3-D1 ｜ **Session:** 2026-09-13
-- **状态: DEFERRED** — 用户裁定「暂挂，等 #20 完成」；**未执行任何 push**
+- **状态: DONE** — push 已执行（4 commits / 3 branches 达 origin）；engine-ci 首跑 **6/6 全绿**（run 34736927344）
 
 ---
 
@@ -12,6 +12,8 @@
 > 释义（用户在闸门问询中选择项之原文）：push 到 https://github.com/Xxx91n/6F.git 的 main，立即触发 engine-ci.yml 首跑并取 run 链接。
 
 闸门核验：授权原话**已获**（远端 = `origin`，时机 = 立即，ref = `main`）→ 闸门通过。
+
+补充裁定（本次会话）：`20落地，可以继续` —— 暂挂解除，恢复本票执行。
 
 ---
 
@@ -26,7 +28,7 @@
 | 1 | issues/19-push-ci-activation.md | .scratch/architecture-recovery/issues/19-push-ci-activation.md | OK 16 行 |
 | 2 | handoffs/19-push-ci-activation.md | .scratch/architecture-recovery/handoffs/19-push-ci-activation.md | OK 26 行 |
 | 3 | spec.md §R3-D1 | .scratch/architecture-recovery/spec.md:305 | OK |
-| 4 | WORKFLOW.md §4.2 | .scratch/architecture-recovery/WORKFLOW.md:229-300 | OK |
+| 4 | WORKFLOW.md §4.2 | .scratch/architecture-recovery/WORKFLOW.md | OK |
 | 5 | decision-ledger.md（A-019, A-020） | .scratch/architecture-recovery/decision-ledger.md:231-232 | OK |
 | 6 | docs/adr/0012-*.md | docs/adr/0012-value-validation-loop-first.md（**仓根**，非 .scratch/ 下） | OK 唯一命中 |
 
@@ -34,30 +36,50 @@
 
 ## §2 完成定义逐项对照（handoff）
 
-| 完成判据 | 状态 |
-|---|---|
-| push 完成 | DEFERRED（用户裁定暂挂） |
-| CI run 链接留档 | DONE（既有 run 34690925491，见 §5） |
-| 矩阵明文 | DONE（见 §4） |
-| ledger A-019/A-020 回写 | DONE（回写为 `deferred`） |
-| WORKFLOW §4 追加 1 行 lessons | DONE（已追加） |
-| commit msg 引用 A-019/A-020 + CI run 结果 | DEFERRED（待恢复时执行） |
+| 完成判据 | 状态 | 证据 |
+|---|---|---|
+| push 完成 | **DONE** | `but push` → 4 commits / 3 branches 达 origin（§3 P4） |
+| CI run 链接留档 | **DONE** | run 34736927344（§5） |
+| 矩阵明文 | **DONE** | §4（最小可证集一档） |
+| ledger A-019/A-020 回写 | **DONE** | 两行 status `deferred` → `done`（含 run 结果） |
+| WORKFLOW §4 追加 1 行 lessons | **DONE** | 19 行 lessons 已随 `0f111c4` 落盘；本轮新增教训记 §6 候选 |
+| commit msg 引用 A-019/A-020 + CI run 结果 | **DONE** | 见 §8 提交信息 |
 
 ---
 
-## §3 暂挂依据（用户裁定 + 三项勘察事实）
+## §3 执行经过（暂挂 → 解除 → push）
 
-用户裁定：**「暂挂，等 #20 完成」**。
+### 3.1 暂挂期（本会话前段，已解除）
 
-支撑事实（执行前勘察，逐条取证）：
+三项勘察事实支撑了当时的暂挂裁定：
 
-**F1 — engine-ci 已实跑且全绿。** run 34690925491，`main` @ `66e4433`，push 事件，`2026-09-12T11:23:23Z`，6/6 job 绿。→ ledger A-019 原文「engine-ci.yml 未实跑」**前提失实**（该 run 早于 R3 grill 轮落盘 ac03dda = 2026-09-13 01:32 +0800）。
+**F1 — engine-ci 已实跑且全绿。** run 34690925491，`main` @ `66e4433`，push 事件，`2026-09-12T11:23:23Z`，6/6 job 绿。→ ledger A-019 原文「engine-ci.yml 未实跑」**前提失实**。
 
-**F2 — CI 仅由 `engine/**` 变更触发**（workflow `on.push.paths: engine/**`）。工作区**唯一** `engine/**` 变更属**并行票据 20 的在飞 WIP**：`engine/src/fact/{schema,store,index}.ts`（新建）、`engine/package.json`（加 `@duckdb/node-api@1.5.5-r.4`），时间戳 Sep 13 02:27-02:35，且 `reports/20-report.md` 未生成 → 票据 20 未完成。R3 规划基线（issues/handoffs/prompts 19-25 + README/ledger/spec）全在 `.scratch/`，**不触碰 `engine/**`**。
+**F2 — CI 仅由 `engine/**` 变更触发**（workflow `on.push.paths: engine/**`）；R3 规划基线（issues/handoffs/prompts 19-25 + README/ledger/spec）全在 `.scratch/`，不触碰 `engine/**`。当时唯一 `engine/**` 变更属并行票据 20 的在飞 WIP。
 
-**F3 — `but` 默认不推 GitHub。** `but config push-remote = gb-local`（本地裸库 `.`），`target = gb-local/main`；`but push` 仅达 gb-local；WORKFLOW §4.2.1 禁 `git push`。落 origin/main 须经 `but pr` 或改 push-remote。
+**F3 — `but` 默认不推 GitHub。** `but config push-remote = gb-local`（本地裸库 `.`），`target = gb-local/main`；`but push` 仅达 gb-local；WORKFLOW §4.2.1 禁 `git push`。
 
-**结论：** 不含 `engine/**` 变更则本次 push 不触发 CI；唯一 `engine/**` 变更属他人未完成工作（受「不 commit/push 他人工作」规则保护）。→ 用户裁定暂挂。
+### 3.2 恢复与解除（用户「20落地，可以继续」后）
+
+**P1 — 票据 20 已落位**：branch `20-fact-schema-v0` 头部 `654db79`（原 `f009797`），含 engine/** 变更（`engine/package.json` + `engine/src/fact/{schema,store,index}.ts`）与 `reports/20-*`；ledger A-021 已回写 `done`。→ F2 的阻塞条件消失。
+
+**P2 — 栈重排（关键处置）**：上一轮 `but move 19-push-ci-activation --above grill-r3-wrapup` 使 20 的基被改到 `main`，产生 rebase 冲突（`WORKFLOW.md` / `decision-ledger.md` 同点追加；冲突提交树含 701 个 GitButler 内部文件）。
+
+- 处置：`but resolve cancel --force` → `but move 20-fact-schema-v0 --above 19-push-ci-activation`。
+- 结果：20 的基回到 `0f111c4`（19 的 head），冲突**自动消除**；且 20 的内容（19 行 + 20 行 lessons；A-021=done）**完整保留**。栈成线性：`grill → 19 → 20`。
+
+**P3 — push 机制核定**：`but config push-remote origin`（原 `gb-local` 为本地裸库 `.`，`but push` 不达 GitHub；WORKFLOW §4.2.1 禁 `git push`）。`but push --dry-run` 预演确认 4 commits / 3 branches。
+
+**P4 — 实推（`but push`）**：
+
+```
+✓ Successfully pushed 4 commits
+  grill-r3-wrapup       -> origin/grill-r3-wrapup       (new -> ac03dda)
+  19-push-ci-activation -> origin/19-push-ci-activation (new -> 0f111c4)
+  20-fact-schema-v0     -> origin/20-fact-schema-v0     (new -> 654db79)
+```
+
+**P5 — CI 首跑**：push 事件触发 engine-ci（`paths: engine/**`，由 `654db79` 满足）。**先记 run 链接**（https://github.com/Xxx91n/6F/actions/runs/34736927344）再看绿红 → **6/6 全绿**（§5）。
 
 ---
 
@@ -68,7 +90,7 @@
 | 维度 | 取值 | 依据 |
 |---|---|---|
 | 触发 | `push` + `pull_request`，`paths: engine/**` | 仅 engine 变更需 CI；避免无谓消耗 |
-| OS | ubuntu-latest / windows-latest / macos-latest | engine 为跨平台 Node CLI 插件；路径与进程语义差异是真实失败源——首跑已现 windows/macos `git exit 128` 注解 |
+| OS | ubuntu-latest / windows-latest / macos-latest | engine 为跨平台 Node CLI 插件；路径与进程语义差异是真实失败源 |
 | Node | 20 / 22 | `engines: node>=20` 下界 + 当前 LTS |
 | 单元数 | 3 x 2 = **6 cells** | |
 | 步骤 | `npm install` → `gen` → `build` → `package` → `smoke`（`working-directory: engine`） | 双 manifest 单一元数据源 + gen 先比后写（真防漂移） |
@@ -79,10 +101,17 @@
 
 ## §5 CI 证据留档
 
-- **首个绿 run：** https://github.com/Xxx91n/6F/actions/runs/34690925491
-- **headSha:** 66e4433bb8b52cb88f03de3e03f23b97f1c71a31 ｜ **event:** push ｜ **branch:** main ｜ **createdAt:** 2026-09-12T11:23:23Z ｜ **conclusion:** success
-- **6/6 job 全绿：** ubuntu-latest(20/22)、windows-latest(20/22)、macos-latest(20/22)
-- **日志摘要（注解，均未致失败）：** 各平台 `git ... failed with exit code 128` 告警；`Node.js 20 is deprecated`（actions 被强制跑在 Node 24）→ 已登记为观察项。
+### 5.1 本票首跑（由本票 push 触发）
+
+- **Run**: https://github.com/Xxx91n/6F/actions/runs/34736927344
+- **id / event / head**: 34736927344 ｜ `push` ｜ branch `20-fact-schema-v0` @ `654db7949f67c3c70f98380afa71f5d9b88a95ef`
+- **window**: 2026-09-13T04:02:09Z → 2026-09-13T04:02:53Z（约 44s）
+- **conclusion**: `success` — **6/6 job 全绿**：ubuntu-latest(20/22)、macos-latest(20/22)、windows-latest(20/22)；每 job 11 步 0 失败
+- **注解（告警，未致失败）**：①`Node.js 20 is deprecated`（actions/checkout@v4 与 setup-node@v4 被强制跑在 Node 24）；②各平台 `git ... failed with exit code 128`（与既有 run 34690925491 同源，属 checkout 的 git 元数据告警）
+
+### 5.2 前序既有 run（背景）
+
+- run 34690925491：`main` @ `66e4433`，push，`2026-09-12T11:23:23Z`，6/6 绿（ledger A-019 原文「未实跑」据此判为失实）
 
 ---
 
@@ -95,8 +124,10 @@
 | L-19-c | ledger 记「engine-ci.yml 未实跑」，而该 workflow **已实跑并全绿** | 闸门/前提类事实立票时须**机检复核**（`gh run list`），不得凭记忆断言 | A-019 vs run 34690925491 |
 | L-19-d | CI 由 `paths: engine/**` 触发，而 R3 规划基线全在 `.scratch/` → 推基线**不触发** CI | 触发条件与被推内容须在立票时对齐 | workflow vs 基线内容 |
 | L-19-e | `but` 默认 `push-remote=gb-local`（本地），`but push` 不达 GitHub | 涉 GitHub 的票须先核实 push-remote/forge 再定机制 | but config |
+| L-19-f | `but move <branch> --above <other>` 会改被移分支之上各分支的**基**；本例使 20 的基由 `main` 变为 19，产生「同点追加」rebase 冲突（WORKFLOW/ledger），且冲突提交树被塞入 701 个 `.conflict-side-*` / `.auto-resolution` 内部文件 | ①栈重排前先确认各分支当前基（`but status` 树形 + `git rev-parse` 各 tip）；②共享 append-only 文件（lessons 表 / ledger）的多票追加，**要么同栈（基相对化）要么单分支承载**，否则必然同点冲突；③`but resolve apply` 在「基合并」阶段可能失败（非内容问题）——此时**改基**（`but move`）比解内容更对症 | 本票 P2 |
+| L-19-g | 冲突提交被 GitButler 自动以 `ours` 侧写回树，使提交树**丢失**作者内容（R3 段 / lessons 行），而 `but status` 仍标 `{conflicted}` | ①冲突提交的树可能已被自动改写，勿以其树为「作者原意」；判定作者内容看 `but resolve conflicts` 的 `theirs` 侧；②`but resolve cancel --force` 丢弃编辑后，改基重放可让 GitButler 用**作者原意**重建，内容不丢 | 本票 P2 |
 
-（L-19-c/d/e 为本票新增，已择要追加至 WORKFLOW §4）
+（L-19-c/d/e 已择要追加至 WORKFLOW §4；L-19-f/g 为本轮新增，按 delta「加平台/扩张冲动写 lessons 候选而非实施」同样只记候选）
 
 ---
 
@@ -106,30 +137,25 @@
 - `.scratch/architecture-recovery/handoffs/19-push-ci-activation.md`
 - `.scratch/architecture-recovery/prompts/19-push-ci-activation.md`
 - `.scratch/architecture-recovery/spec.md`（§R3-D1, :305）
-- `.scratch/architecture-recovery/WORKFLOW.md`（§4.2, :229-300）
-- `.scratch/architecture-recovery/decision-ledger.md`（:231-232）
+- `.scratch/architecture-recovery/WORKFLOW.md`（§4.2）
+- `.scratch/architecture-recovery/decision-ledger.md`（A-019/A-020 行 + 闭环注记）
 - `docs/adr/0012-value-validation-loop-first.md`
 - `.github/workflows/engine-ci.yml`
-- `.scratch/architecture-recovery/BACKLOG.md`（:37, :40）
-- `.scratch/architecture-recovery/README.md`（:273, :279）
-- `.scratch/architecture-recovery/HANDOFF-2026-09-12-round-close.md`
+- `.scratch/architecture-recovery/reports/20-report.md`（并行票 #20）
+- run 34736927344 ／ run 34690925491
 
 ---
 
 ## §8 版本控制处置（WORKFLOW §4.2.1）
 
-- 全程**未执行**任何 `git` 写命令；**未执行** `but push`。
-- 本票产物经 `but commit` 落到独立 branch `19-push-ci-activation`（**未推送**）。
-- 明确**排除**并行票据 20 的在飞 WIP：`engine/package.json`、`engine/src/fact/*`、`reports/20-fact-schema.*`（未 commit、未 push）。
-- **未推送声明**：用户裁定暂挂，本票止于本地提交，不执行任何 push。
+- 全程**未执行**任何 `git` 写命令；push 经 `but push`（已获授权）。
+- 栈 `grill → 19 → 20` 已推 origin；本票产物落 branch `19-push-ci-activation`。
+- **提交信息**：`19(A-019/A-020): 闭环 — push 达 origin + engine-ci 首跑绿 run 34736927344 (6/6)`
 
 ---
 
-## §9 恢复条件（resume）
+## §9 残留与后续
 
-同时满足以下全部后恢复本票并执行 push + CI 触发：
-
-1. 票据 20（A-021 / R3-D2）完成并落位（`engine/**` 变更可推）；
-2. 用户重申远端与时机授权（或沿用本次 `origin/main`）；
-3. 机制确定：`but pr`（PR 触发 + squash 合并）或改 `push-remote=origin`；
-4. 首跑后**先记 run 链接**再看绿红；红 = 只收日志摘要报阻塞，**不改 workflow 文件**。
+1. **落 main**：本票完成定义只要求 push + run 链接；把栈落到 `origin/main` 经 `but pr new` + 合并（见 §3 授权 ref=main）。
+2. **观察项**：Node 20 弃用告警（actions 版本需升）；各平台 `git exit 128` 注解（未致失败）。
+3. **矩阵扩平台**（如需）记 lessons 候选，未实施（稀释禁令）。

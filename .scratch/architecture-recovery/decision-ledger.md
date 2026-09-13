@@ -228,8 +228,8 @@
 
 | ID | 问题描述原文 | 规范化需求 | 显式约束 | 来源决策 | 状态 |
 |---|---|---|---|---|---|
-| A-019 | 阶段 0 任务「push + CI 实跑（远端与时机须用户授权）」——当前仓无 push 动作、engine-ci.yml 未实跑（「否则 C 的所有验证跑在未 push 分支上，GitButler 分支隔离形同虚设」） | push 到用户指定远端并触发 engine-ci.yml 实跑，取得首个绿/红 CI 证据 | push 属外部副作用：远端与时机必须用户明示；未授权不得推 | D-016 | deferred |
-| A-020 | engine-ci.yml 的平台/触发矩阵范围未在 R3 决策中明文（「CI 实跑」是唯一可并行项，但矩阵未定义） | CI 矩阵平台范围明文化（最小可证集）并随首跑验证 | 不扩矩阵范围（稀释禁令）；矩阵变更须记录进报告 | D-016 | deferred |
+| A-019 | 阶段 0 任务「push + CI 实跑（远端与时机须用户授权）」——当前仓无 push 动作、engine-ci.yml 未实跑（「否则 C 的所有验证跑在未 push 分支上，GitButler 分支隔离形同虚设」） | push 到用户指定远端并触发 engine-ci.yml 实跑，取得首个绿/红 CI 证据 | push 属外部副作用：远端与时机必须用户明示；未授权不得推 | D-016 | done — 票 #19 闭环（2026-09-13）：R3 栈（grill ac03dda → 19 0f111c4 → 20 654db79）经 `but config push-remote origin` + `but push` 推达 origin（4 commits / 3 branches）；engine-ci 首跑 **绿** run 34736927344（6/6 job，head 20-fact-schema-v0@654db79，2026-09-13T04:02:09Z→04:02:53Z） |
+| A-020 | engine-ci.yml 的平台/触发矩阵范围未在 R3 决策中明文（「CI 实跑」是唯一可并行项，但矩阵未定义） | CI 矩阵平台范围明文化（最小可证集）并随首跑验证 | 不扩矩阵范围（稀释禁令）；矩阵变更须记录进报告 | D-016 | done — 票 #19 闭环：矩阵「最小可证集」一档（3 OS × Node 20/22 = 6 cells）随首跑 run 34736927344 验证 6/6 绿；未扩平台（稀释禁令） |
 | A-021 | 「最小 DuckDB fact table schema v0：事件只追加 + correlation key 字段…（正是 D-005 缺口 #10 的前置落地）」——v0 字段级清单与 DuckDB-TS 绑定选型未定（上轮 A-007/008/010 已给策略决议：SWMR/版本号/correlation key） | schema v0 字段清单（含 correlation key 前置字段）+ DuckDB-in-node 绑定选型落文并实现 | 沿用 A-007 单写多读、A-008 版本演进、A-010 correlation key 决议，不重开；只追加不改写（事件单向） | D-016 | current |
 | A-022 | 「确定性采集器（git log / docs/adr 结构扫描；不接 LLM）」——采集器具体清单与判据绑定路径未定（「正对照 2 条须与真判据共享 detector 路径（同一族确定性采集器）」） | 采集器清单（S2 ADR 结构扫描 + S1 定位素材 + git log）落文并实现，输出形状绑定 schema v0 | 不接 LLM；正对照与真判据必须同族 detector；输出只追加写 fact table | D-016/D-018 | current |
 | A-023 | 「真判据 3 条的具体阈值（90 天/10%/30% 等示例数值）需用户或团队校准后写入预声明文档——atomcode 只给措辞框架不给数值（数值本就该由跑前测定决定）」 | 3 条真判据（候选：S2a 事后补写占比 / S2b 五件套完整度 / S1 定位关键词覆盖率）阈值在跑 6F 前测定并写入预声明文档 | 阈值跑前写死、跑后禁调（ISO 13528 纪律）；判据确定性、不接 LLM | D-018 | current |
@@ -243,3 +243,4 @@
 
 > **A-019 / A-020 deferred 注记（2026-09-13）**：闸门授权已获（用户原话「origin/main 立即执行」）。勘察后原「engine-ci.yml 未实跑」表述失实——该 workflow 实已实跑并全绿（run 34690925491 / main@66e4433 / 2026-09-12T11:23:23Z / 6-6 job）；CI 仅由 paths engine/** 触发，而 R3 规划基线全在 .scratch/，故推基线不触发 CI；唯一 engine/** 变更属并行票据 20 在飞 WIP；but push-remote=gb-local 亦不达 GitHub。用户裁定「暂挂，等 #20 完成」。恢复条件见 reports/19-report.md §9。
 
+> **A-019 / A-020 闭环注记（2026-09-13）**：暂挂解除（用户「20落地，可以继续」）。执行链：①栈重排——20 由「独立（基 main）」改栈于 19 之上（`but move 20-fact-schema-v0 --above 19-push-ci-activation`），消除 `but move 19` 引入的 rebase 冲突（表现为 WORKFLOW.md / decision-ledger.md 同点追加）；②`but config push-remote origin`（原 gb-local 为本地裸库，不达 GitHub）；③`but push` 推 4 commits / 3 branches（grill-r3-wrapup ac03dda / 19-push-ci-activation 0f111c4 / 20-fact-schema-v0 654db79）；④engine-ci 首跑 run 34736927344 **全绿 6/6**（ubuntu/macos/windows × Node 20/22，2026-09-13T04:02:09Z→04:02:53Z）。过程教训见 reports/19-report.md §6（L-19-f/g）。
