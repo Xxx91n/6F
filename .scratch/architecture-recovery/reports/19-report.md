@@ -39,7 +39,7 @@
 | 完成判据 | 状态 | 证据 |
 |---|---|---|
 | push 完成 | **DONE** | `but push` → 4 commits / 3 branches 达 origin（§3 P4） |
-| CI run 链接留档 | **DONE** | run 34736927344（§5） |
+| CI run 链接留档 | **DONE** | run 34736927344 ／ 34737204262（§5） |
 | 矩阵明文 | **DONE** | §4（最小可证集一档） |
 | ledger A-019/A-020 回写 | **DONE** | 两行 status `deferred` → `done`（含 run 结果） |
 | WORKFLOW §4 追加 1 行 lessons | **DONE** | 19 行 lessons 已随 `0f111c4` 落盘；本轮新增教训记 §6 候选 |
@@ -113,6 +113,14 @@
 
 - run 34690925491：`main` @ `66e4433`，push，`2026-09-12T11:23:23Z`，6/6 绿（ledger A-019 原文「未实跑」据此判为失实）
 
+### 5.3 闭环 push 后复跑（本票终态）
+
+- **Run**: https://github.com/Xxx91n/6F/actions/runs/34737204262
+- **id / event / head**: 34737204262 ｜ `push` ｜ branch `20-fact-schema-v0` @ `98324d2d9d7731e2cac614a9a7f9cd966fb7d897`
+- **window**: 2026-09-13T04:08:50Z → 2026-09-13T04:09:46Z（约 56s）
+- **conclusion**: `success` — **6/6 job 全绿**（ubuntu-latest / macos-latest / windows-latest × Node 20/22）
+- **意义**：ledger A-019/A-020 回写 `done` + 报告终态提交（`mvp`）随栈重排后经 `but push` 达 origin，复跑同样 6/6 绿 → 闭环提交未引入回归。
+
 ---
 
 ## §6 lessons 候选
@@ -142,7 +150,7 @@
 - `docs/adr/0012-value-validation-loop-first.md`
 - `.github/workflows/engine-ci.yml`
 - `.scratch/architecture-recovery/reports/20-report.md`（并行票 #20）
-- run 34736927344 ／ run 34690925491
+- run 34736927344 ／ run 34737204262 ／ run 34690925491
 
 ---
 
@@ -150,7 +158,9 @@
 
 - 全程**未执行**任何 `git` 写命令；push 经 `but push`（已获授权）。
 - 栈 `grill → 19 → 20` 已推 origin；本票产物落 branch `19-push-ci-activation`。
-- **提交信息**：`19(A-019/A-020): 闭环 — push 达 origin + engine-ci 首跑绿 run 34736927344 (6/6)`
+- **提交信息**（实际，commit `mvp` @ `19-push-ci-activation`）：`19(A-019/A-020): 闭环 — push 达 origin（4 commits / 3 branches）+ engine-ci 首跑绿 run 34736927344（6/6）；ledger A-019/A-020 回写 done；报告终态`
+- **本票终态 push**：`19-push-ci-activation 0f111c4 → 4624acd`、`20-fact-schema-v0 654db79 → 98324d2`；栈 `grill → 19 → 20` 线性，20 的 `engine/**` 与 `reports/20-*` 无损保留
+- **栈重排与冲突解**：`but move mvp -b 19-push-ci-activation` 后 `mvp` 与 20-tip 各遇 1 处 ledger 三方冲突；按语义解（A-019/A-020 取 19 侧 `done`、A-021 取 20 侧 `done`），`but resolve apply` 逐条应用，零内容丢失
 
 ---
 
