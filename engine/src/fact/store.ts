@@ -1,0 +1,63 @@
+// DuckDB fact store — 绑定：@duckdb/node-api（唯一选型，锁版本 1.5.5-r.4）
+// 连接拓扑：唯一写者（READ_WRITE）+ 任意读者（READ_ONLY），承接 A-007 单写多读 SWMR。
+// 本模块是 engine 对外唯一写入口：只暴露 appendFact / queryFacts，不暴露裸 SQL 写接口。
+// 本机不安装原生绑定、不构建；构建与测试一律走 CI（prompt 专属 delta 第 3 条）。
+import { DuckDBInstance, DuckDBConnection } from '@duckdb/node-api';
+import type { DuckDBValue } from '@duckdb/node-api';
+import { AUDIT_FACT_DDL, SCHEMA_REGISTRY_DDL, AUDIT_FACT_FIELDS, assertAppendOnly, SCHEMA_VERSION_V0, type FactField } from './schema.js';
+
+export interface FactEvent {
+  fact_id: string;
+  trace_id: string;
+  baggage_id: string;
+  scale: string;
+  quadrant: string;
+  dimension: string | null;
+  collector_id: string;
+  repo_ref: string;
+  subject_ref: string;
+  evidence_ref: string;
+  metric: string;
+  value_json: string;
+  observed_at: string;
+}
+
+const WRITE_COLUMNS: readonly string[] = AUDIT_FACT_FIELDS
+  .filter(function (f) { return f.name !== 'fact_seq' && f.name !== 'ingested_at'; })
+  .map(function (f) { return f.name; });
+
+const INSERT_SQL: string =
+  'INSERT INTO audit_fact (' + WRITE_COLUMNS.join(', ') + ', ingested_at) VALUES (' +
+  WRITE_COLUMNS.map(function () { return '?'; }).join(', ') + ', current_timestamp)';
+
+export async function openWriter(dbPath: string): Promise<DuckDBConnection> {
+  const instance = await DuckDBInstance.create(dbPath, { access_mode: 'READ_WRITE' });
+  const connection = await DuckDBConnection.create(instance);
+  await connection.run(SCHEMA_REGISTRY_DDL);
+  await connection.run(AUDIT_FACT_DDL);
+  return connection;
+}
+
+export async function openReader(dbPath: string): Promise<DuckDBConnection> {
+  const instance = await DuckDBInstance.create(dbPath, { access_mode: 'READ_ONLY' });
+  return await DuckDBConnection.create(instance);
+}
+
+export async function appendFact(connection: DuckDBConnection, event: FactEvent): Promise<void> {
+  assertAppendOnly(INSERT_SQL);
+  const row = WRITE_COLUMNS.map(function (c) {
+    if (c === 'schema_version') { return SCHEMA_VERSION_V0; }
+    const v = (event as unknown as Record<string, unknown>)[c];
+    return v === undefined ? null : v;
+  }) as unknown as DuckDBValue[];
+  await connection.run(INSERT_SQL, row);
+}
+
+export async function queryFacts(connection: DuckDBConnection, sql: string) {
+  assertAppendOnly(sql);
+  return await connection.run(sql);
+}
+
+export function factFieldNames(): readonly string[] {
+  return AUDIT_FACT_FIELDS.map(function (f: FactField) { return f.name; });
+}
