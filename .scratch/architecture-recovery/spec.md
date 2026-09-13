@@ -297,3 +297,32 @@ A 形式达标（骨架+引文+Receipt）→ B 内容非平凡（预声明 kill 
 - D-016 → R3-01 + ADR-0012 + 计划表 R3 全段 + CONTEXT（Value Validation Loop）；
 - D-017 → R3-02 + ADR-0013 + 计划表 R3-04/05 + CONTEXT（Acceptance Gate / Kill Criterion）；
 - D-018 → R3-02 + ADR-0013 + 计划表 R3-04 + CONTEXT（Positive Control）。
+
+### Implementation Decisions（R3 执行轮，来源 A-019 ~ A-030，2026-09-12）
+
+> 对账闸：A-019 ~ A-030 每条至少被本节一个 R3-Dn 覆盖；无去向记录清单非空时禁止立票（当前：空）。
+
+**R3-D1 push 与 CI 实跑激活**（覆盖 A-019, A-020｜计划 R3-01｜issue 19）
+push 到用户指定远端并触发 engine-ci.yml 首跑，取得首个 CI 绿/红证据；CI 矩阵平台范围明文为最小可证集并随首跑验证。闸门：远端与时机须用户明示授权；未授权不推。
+
+**R3-D2 fact table schema v0**（覆盖 A-021｜计划 R3-02｜issue 20）
+DuckDB fact table schema v0：字段级清单含 correlation key 前置字段；事件只追加、版本号演进；沿用上轮 A-007（SWMR）/A-008（版本演进）/A-010（correlation key）决议不重开。
+
+**R3-D3 确定性采集器**（覆盖 A-022｜计划 R3-03｜issue 21）
+采集器清单 = S2 ADR 结构扫描 + S1 定位素材 + git log，输出形状绑定 R3-D2 schema；不接 LLM；正对照与真判据共享同族 detector 路径。
+
+**R3-D4 B 层判据预声明文档**（覆盖 A-023, A-024, A-025, A-029｜计划 R3-04｜issue 22）
+三级 kill criterion 措辞 + 2 正对照 + 3 真判据（阈值跑前测定写死）+ 1 负对照（选材+复核路径）+ 引用策略（ICH E10 + ISO 13528 权威锚）；文档落位 commit 先于首报（HARKing 禁令）；须用户审阅后 commit。
+
+**R3-D5 首报全链与三层闸门验收**（覆盖 A-026, A-027｜计划 R3-05｜issue 23）
+6F 全链首跑（采集→fact→叙事→裁决→报告）：首报格式 md 主产物 + 可回查引文 + Receipt 印记 + 引文→结论支持关系校验；C 层判据显式覆盖 agent 可消费性（结构化裁决块/可解析引文锚）；同路径覆盖一条失败路径（降级 + ⚠ unverified）。
+
+**R3-D6 缺口回流实测锚清扫**（覆盖 A-028｜计划 R3-06｜issue 24）
+用首报实测锚补 CodeScene/GitClear 定向调研与 B 层迁移有效性多仓复核；定向调研只作校准输入不阻塞首报。
+
+**R3-D7 铺开与分发收尾**（覆盖 A-030｜计划 R3-07｜issue 25）
+分发收尾前置清单清点（BACKLOG B1/B2/B3 立票、plugin 上架条件、演示资产范围）逐项待用户拍板；B4.1 已被 D-015 取代不立项。
+
+#### R3 对账（2026-09-12）
+
+- A-019 ~ A-030 共 12 条 → R3-D1:2 / R3-D2:1 / R3-D3:1 / R3-D4:4 / R3-D5:2 / R3-D6:1 / R3-D7:1 = 12 覆盖，无去向记录清单 = 空。

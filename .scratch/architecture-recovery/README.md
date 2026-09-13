@@ -266,3 +266,45 @@ W3 完成后，原 W4 阻塞全部解除：
 - **执行阶段入口**：所有 spec-level 票已闭环。下一步进入 **Phase 4 实施**（per WORKFLOW.md §2）—— 但本仓库为 spec-level 规划，不含源码实施。如需进入实施，应另起工程仓并引用本仓的 spec.md / ADRs / 启动器。
 - **branch 收口**：建议用户在 GitButler workspace 提交时给 W1/W2 同样分配 `sc [...]` / `re [...]` 形态的 branch，匹配 W3/W4 规范。
 - **A-006 重启触发**：deferred 状态的 A-006 等待 AI 代码生成主流化；建议设 calendar reminder 或在 D-007 演示脚本中加 `is-ai-code-mainstream?` 探测。
+
+## 并行波次表（R3 执行轮 — 任务书 T1~T6，2026-09-12 续接；从 issue Blocked by 推导，不新造顺序）
+
+- **总票数**：7（#19 ~ #25）｜ **总波次**：6 ｜ 摩擦点 A-019 ~ A-030（12 条，见 decision-ledger.md R3 执行轮段）
+- **闸门**：#19 的 push 需用户明示授权（远端 + 时机）；#22 的预声明文档需用户审阅后才能 commit；#23 开跑前三查（#19 CI 证据 / #22 预声明入库 / 裁定依据预入库）。
+
+### R3-Wave 1 — 2 张票（可并行派子窗口）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 19 | push 与 CI 实跑激活 | A-019, A-020 | [issues/19-push-ci-activation.md](issues/19-push-ci-activation.md) | [handoffs/19-push-ci-activation.md](handoffs/19-push-ci-activation.md) | [prompts/19-push-ci-activation.md](prompts/19-push-ci-activation.md) | None |
+| 20 | fact table schema v0 | A-021 | [issues/20-fact-schema-v0.md](issues/20-fact-schema-v0.md) | [handoffs/20-fact-schema-v0.md](handoffs/20-fact-schema-v0.md) | [prompts/20-fact-schema-v0.md](prompts/20-fact-schema-v0.md) | None |
+
+### R3-Wave 2 — 1 张票（可并行派子窗口）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 21 | 确定性采集器 | A-022 | [issues/21-deterministic-collectors.md](issues/21-deterministic-collectors.md) | [handoffs/21-deterministic-collectors.md](handoffs/21-deterministic-collectors.md) | [prompts/21-deterministic-collectors.md](prompts/21-deterministic-collectors.md) | #20 |
+
+### R3-Wave 3 — 1 张票（可并行派子窗口）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 22 | B 层判据预声明文档 | A-023, A-024, A-025, A-029 | [issues/22-b-criteria-prereg.md](issues/22-b-criteria-prereg.md) | [handoffs/22-b-criteria-prereg.md](handoffs/22-b-criteria-prereg.md) | [prompts/22-b-criteria-prereg.md](prompts/22-b-criteria-prereg.md) | #20, #21 |
+
+### R3-Wave 4 — 1 张票（可并行派子窗口）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 23 | 首报全链与三层闸门验收 | A-026, A-027 | [issues/23-first-report-e2e.md](issues/23-first-report-e2e.md) | [handoffs/23-first-report-e2e.md](handoffs/23-first-report-e2e.md) | [prompts/23-first-report-e2e.md](prompts/23-first-report-e2e.md) | #19, #22 |
+
+### R3-Wave 5 — 1 张票（可并行派子窗口）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 24 | 缺口回流实测锚清扫 | A-028 | [issues/24-gap-sweep-anchors.md](issues/24-gap-sweep-anchors.md) | [handoffs/24-gap-sweep-anchors.md](handoffs/24-gap-sweep-anchors.md) | [prompts/24-gap-sweep-anchors.md](prompts/24-gap-sweep-anchors.md) | #23 |
+
+### R3-Wave 6 — 1 张票（可并行派子窗口）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 25 | 铺开与分发收尾 | A-030 | [issues/25-rollout-distribution.md](issues/25-rollout-distribution.md) | [handoffs/25-rollout-distribution.md](handoffs/25-rollout-distribution.md) | [prompts/25-rollout-distribution.md](prompts/25-rollout-distribution.md) | #24 |
