@@ -1,0 +1,44 @@
+PASS N1 :: netTokens=[]
+PASS N2 :: llmTokens=[]
+PASS N3 :: nondeterministicCalls=[]
+PASS N4 :: processTokens=[]
+PASS N5 :: fsTokens=[]
+PASS N6 :: nonNullThresholds=0
+PASS S1 :: facts=39 badKeySets=0
+PASS S2 :: collectorProducedCols=13
+PASS S3 :: scale=Macro-B
+PASS S4 :: quadrant=strategic
+PASS S5 :: badDimension=0
+PASS S6 :: factIdSample=45eaf130-3f7a-89e8-a0c4-b4e84decdf43
+PASS S7 :: correlationBad=0
+PASS S8 :: valueJsonInvalid=0
+PASS S9 :: injectedClockMismatch=0
+PASS S10 :: collectorIds=adr-structure@v1,positioning@v1,gitlog@v1
+PASS S11 :: lengthOrNullViolations=0
+PASS S12 :: tracePropagation=0123456789abcdef0123456789abcdef
+PASS C1 :: completeFive={"present":5,"of":5,"ratio":1,"missing":[]}
+PASS C2 :: partialMissing={"present":2,"of":5,"ratio":0.4,"missing":["Date","Decision","Consequences"]}
+PASS C3 :: supersede={"present":true,"matches":1,"line":19}
+PASS C4 :: partialSupersede={"present":false,"matches":0,"line":0}
+PASS C5 :: decisionDate={"date":"2026-09-12"}
+PASS C6 :: partialDate={"date":null}
+PASS C7 :: coverage={"keywords":8,"hit":4,"ratio":0.5,"missed":["audit","macro","审计","收敛"]}
+PASS C8 :: drift={"first_missed_keyword":"audit","anchor":"audit"}
+PASS C9 :: firstCommit={"path":"docs/adr/0013-fixture-complete.md","sha":"aaa111","date":"2026-08-01"}
+PASS C10 :: commitCount={"path":"docs/adr/0013-fixture-complete.md","count":2}
+PASS C11 :: partialFirstCommit={"path":"docs/adr/0014-fixture-partial.md","sha":"ccc333","date":"2026-08-05"}
+PASS C12 :: adrLagDays={"path":"docs/adr/0013-fixture-complete.md","adr_date":"2026-09-12","first_commit_date":"2026-08-01","delta_days":42}
+PASS C13 :: authorMatrix={"path":"docs/adr/0013-fixture-complete.md","authors":["alice","bob"],"top_author":"alice","top_share":0.5}
+PASS C14 :: deterministicRerunIdentical=true
+PASS C15 :: baggageStablePerRunAndVariesByRunId
+PASS C16 :: familiesNonEmpty=22/10/7
+PASS D1 :: positive=2 true=3 negative=1
+PASS D2 :: trueCriteriaWithoutSameFamilyControl=[]
+PASS D3 :: unknownFamilies=[]
+PASS D4 :: familiesCoveredByPositiveControls=adr-structure,positioning,gitlog
+PASS D5 :: mapVsCodeDrift=[]
+PASS D6 :: thresholdsDeferredToTicket22
+PASS A1 :: appendOnlyRejected=6/6
+PASS A2 :: sqlRewriteTokensInCollectors=[]
+PASS A3 :: exports=15 mutating=[]
+GUARD-PASS 43/43
