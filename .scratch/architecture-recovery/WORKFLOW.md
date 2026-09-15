@@ -261,6 +261,11 @@ Phase 之间到达 boundary 时，按本仓库偏好顺序选：
 5. 每票通用调研要求只在 handoff 写一次，启动器只引用
 6. 「## 收尾」段首必须含 ❗ 黑体硬要求块（措辞逐字 = .scratch/macro-audit/decision-ledger.md D-029；新票启动器生成时模板纪律继承）
 
+### 4.2.7 票据调度与拆分（per D-040）
+1. 开工闸门 = DoR（依赖闭合即可拉）；波次仅作协调/验收装置（整批 demo/评审/回顾），不作统一开工门
+2. 拆票判据：完成定义无法用同组可测条件陈述、或部分被非工作项外部事件门控 → 拆
+3. 被外部闸门阻塞的票不排程、不入波次、不占 WIP，backlog 标 blocked-by 闸门名
+
 | 2026-09-11 | 起草本 WORKFLOW.md，初始化偏离点清单与 6 Phase | 首次把 ask-matt 主流程落到本仓库 | 用户拍板 10 条偏离点 + 6 Phase 结构 | ask-matt SKILL.md §Main Flow + §On-ramps |
 | 2026-09-11 | skill 冲突声明字面与用户原话不一致
 | 2026-09-11 | architecture-recovery 流程首次落地：把 macro-audit spec-phase-tasks.md 18 项作为架构报告，按对账闸 + to-spec + to-tickets + handoff + 启动器 6 阶段产出 18 张票 + 18 份 handoff + 18 份 prompt + README 波次表 | 流程跑通：spec 覆盖闸 18/18 pass，启动器全部 ≤60 行（实际 15-16 行）、0 违禁词、0 重复条款；并行波次 4 波由 issue Blocked by 推导 | 把启动器硬规则集中到 WORKFLOW §4.2 让启动器只引用不重复；handoff 模板中通用调研要求只写一次；docs/adr/*.md 用通配符引用避免路径漂移 | 偏离点 D-4/D-7 + 用户 /goal 第 5 条 |——文件写成"以 skill 本体为准"，用户原话是"以 skill 为准" | 校验脚本 has-skill-wins: false 暴露 | 改为精确匹配用户原话"以 skill 为准"；教训：声明类文字必须字面 1:1 对齐用户指定措辞，不要"语义相近即可" | D-8 + 用户要求 #2 |

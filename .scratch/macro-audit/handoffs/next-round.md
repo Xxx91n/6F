@@ -1,27 +1,31 @@
-# 常驻任务书 — 轮 7（R5 执行轮：阶段 3 铺开 = 扩面 → Macro-C → Micro-A → Micro-B → Macro-A）
+# 常驻任务书 — 轮 8（R5/R6 执行轮：阶段 3 铺开 = 扩面 → Macro-C → Micro-A → Micro-B → Macro-A）
 
-> 生成：2026-09-15 grill 轮 6 收口整理环节。上一轮结果与权威文件指针见 .scratch/macro-audit/decision-ledger.md「轮 6 收口对账」节与 .scratch/architecture-recovery/handoffs/closeout-2026-09-15.md（R4 收口，仍有效）。
-> 唯一事实源：docs/adr/0001~0017 + CONTEXT.md（54 词）+ 两本账本（.scratch/macro-audit/decision-ledger.md D-001~D-036 / .scratch/architecture-recovery/decision-ledger.md A-001~A-048）+ spec-phase-tasks.md（含 R5 节）+ .scratch/architecture-recovery/BACKLOG.md（阶段 3 票据包 #32~#43）。开工前先读这些，不许凭记忆。
+> 生成：2026-09-15 grill 轮 7 收口整理环节。上一轮结果与权威文件指针见 .scratch/macro-audit/decision-ledger.md「轮 7 收口对账」节。
+> 唯一事实源：docs/adr/0001~0018 + CONTEXT.md（56 词）+ 两本账本（.scratch/macro-audit/decision-ledger.md D-001~D-041 / .scratch/architecture-recovery/decision-ledger.md A-001~A-048）+ spec-phase-tasks.md（含 R5/R6 节）+ .scratch/architecture-recovery/BACKLOG.md（票据包 #32~#45）+ docs/versioning.md。开工前先读这些，不许凭记忆。
 > 阶段 3 串行骨架（D-034）：扩面 → Macro-C → Micro-A → Micro-B → Macro-A；横切项挂触发器，非前置门禁。
+> 开工纪律（D-040 锐化）：开工闸门 = DoR（依赖闭合即可拉）；波次仅作协调/验收装置。
 > 上架动作未授权（D-026/D-027 用户闸门）；preview 标注诚实是决策本体（ADR-0017）。
 
 ## 任务（每项声明覆盖 D-xxx）
 
-> **轮 7 执行进度（2026-09-15 窗口 1）**：T0/T1/T2 已闭环——账本 A-037~A-048 登记（注：任务书原文「A-031 起」系过期口径，R4 已占用，按账本实物续 A-037）+ spec.md §R5-D1~12 + 12 三件套 + README 波次表 W12~W15（commit `vrm`@r5-t0-ticket-pack）；#33 守卫 `33-check.mjs` PASS 8/8 exit 0（commit `wns`@33-gate-watch-guard）首跑报警 ALARM 4（**P2 数值化承诺双结题到期未拍 / B3.3 CHANGELOG 开工门已触发 / D4 演示入口开工门已触发**——按值守规则待用户拍板）/WARN 2/BOUND 2；#34 plugin.json 已合 Agent Plugins 1.0.0（ajv valid，守卫 34-check.mjs PASS 11/11，commit `txk`@34-plugin-json-compliance）。**下一可开工 = #35（W12 余票，阶段 3 阻塞链关键路径）**；#36/#37/#41 待 #35 闭环后解锁。三栈均未 push（用户闸门）。
+> **轮 7 执行进度（2026-09-15）**：T0/T1/T2 已闭环（A-037~A-048 登记 + 33-check.mjs 8/8 + 34-check.mjs 11/11；commits vrm/wns/txk）。守卫首跑 ALARM 4 已全部拍板清零（P2→D-037 / B3.3→D-039 / D4→D-038，registry 三项 status=decided）。**下一可开工 = #35（关键路径）＋ #44/#45/#41a（DoR 已闭合，filler 就绪即做）**；#41b 不入波次（blocked-by 用户闸门+listing-submission）。三栈均未 push（用户闸门）。
 
-
-- **T0 立票（先行，串行门）✅ DONE 2026-09-15**：按 $to-spec / $to-tickets 把 BACKLOG #32~#43 / spec-phase-tasks R5-01~12 展开为 architecture-recovery 账本 A-031 起 + issues/handoffs/prompts（NN-slug ≤60 行硬规则 + 「## 收尾」段首黑体硬要求块 per WORKFLOW §4.2.6-6）+ README 波次表排程。次序 = #33 最优先 → #34/#35 并行首票 → #36/#37 → #38 → 其余随层序。**覆盖：D-029、D-030、D-031、D-032、D-033、D-034、D-035、D-036。**
-- **T1 T7 挂门机检化（#33/R5-02，阶段 3 最优先）✅ DONE 2026-09-15**：guard 脚本统一扫描全部挂门项三字段（最迟拍板时点 / 触发事件 / 复审时点）到期报警——覆盖 25-checklist 挂门行、账本两字段登记项、CodeLore 暂缓面集复审时点、多写者三触发器（Macro-B 进 CI 定时回归 / Macro-C 共用同一 DuckDB / Macro-A 启动）。**覆盖：D-026、D-034、D-024。**
-- **T2 plugin.json 合规（#34/R5-03）✅ DONE 2026-09-15**：engine/plugin.json 对齐 Agent Plugins 1.0.0——补 $schema const、收敛 schemaVersion/skills/mcp 范围、extensions 改反向域名对象图；AJV 校验入 guard 族。上架硬前置。**覆盖：D-036、D-012 余款。**
-- **T3 CodeLore 扩面首批（#35/R5-04）**：演化主干 12 面（revisions/abs-churn/entity-churn/author-churn/hotspot-velocity/code-age/stale-code/architecture-trend/health-trend/lead-time/release-cadence/messages）＋ S3 族 6 面（god-classes/architecture-metrics/dependency-cycles/modularity-violations/instability/architecture-roles）＋ S5 族 12 面（ownership/entity-ownership/bus-factor/main-dev 三件套/knowledge-islands/communication/coordination-needs/team-composition/marginal-owner-risk/pair-programming），逐面 golden 契约测试（ADR-0014：适配层禁业务规则、raw 语义不出适配层）。面名以 `codelore analyze --help` 实物枚举为准。**覆盖：D-035、D-034。**
-- **T4 LLM 面独立票（#36/R5-05）**：explain 族 env 门控（CODELORE_LLM_*）＋成本验收面；S4 ADR 假设抽取前置；不混入 T3。**覆盖：D-035。**
-- **T5 试点面可用性审计（#37/R5-06）**：三试点仓实测脚本——env-manager/anysearch-cli/jiahao 的 PR 人/机比、ADR supersede 链完整度、托管面有无；产出层×仓 capacity 矩阵。**覆盖：D-033。**
-- **T6 Macro-C preview（#38/R5-07，第二能力层）**：anysearch-cli 为校准语料（56 ADR＋supersede 链）；报告强制披露「单仓校准（anysearch-cli）」结构性限制；完成定义含该层 happy+failure 演示双件（D-032 DoD 准入件）。**覆盖：D-034、D-032、D-033。**
-- **T7 Macro-B 三仓 one-shot＋回归（#39/R5-08）**：Macro-B 对 env-manager/anysearch-cli/jiahao 各跑一次 one-shot 泛化验证；jiahao 持续回归接入 CI——接入即触发多写者 self-probe 实测封口（D-034④a，衔接 T1）。**覆盖：D-033、D-034、D-024。**
-- **T8 非自有仓泛化验证（#40/R5-09）**：≥1 非自有公开仓经 URL opt-in（D-013 首实用户）跑通 Macro-B；Macro-B GA 前置条件。**覆盖：D-033、D-013。**
-- **T9 分发收尾（#41/R5-10）**：① examples/first-report/ 复制四件＋披露 README（6F 自审真实产物声明＋生成 commit＋日期＋重生成命令）；② README/marketplace 首段能力边界＋「capability 1 of 5 · preview」标注＋0.x 语义＋changelog；③ listing 资产（未上架层「Not yet in preview」披露块＋roadmap 链接）；④ Agent Plugins preview 字段查证＋竞品占位扫描（前置子任务）；⑤ 凭据申请（D-026③ 阶段 3 开工门已触发）。**上架动作本身停用户闸门。覆盖：D-030、D-031、D-032、D-026、D-027。**
-- **T10 上游队列值守（#42/R5-11）**：Scorecard/repomix 探针按层需求拉动不插队；CodeLore sqlite/parquet dump 对照评估（采纳须另立 ADR）；Macro-B preview 供应链象限维持「⚠ 数据未接」披露。**覆盖：D-023、D-034、D-035。**
-- **T11 样例 golden CI（#43/R5-12）**：CI 重渲染 fixture 并 diff，不一致即 fail，更新走 PR 审查；禁自动重生成直通 main。与 T1 同批立项。**覆盖：D-030。**
+- **T0 立票（先行，串行门）✅ DONE 2026-09-15**：R5 票据包展开完成。**覆盖：D-029~D-036。**
+- **T1 挂门机检化（#33/R5-02）✅ DONE 2026-09-15**：guard 8/8，首跑 ALARM 4 已消化。**覆盖：D-026、D-034、D-024。**
+- **T2 plugin.json 合规（#34/R5-03）✅ DONE 2026-09-15**：Agent Plugins 1.0.0 对齐＋AJV 入 guard。**覆盖：D-036、D-012 余款。**
+- **T3 CodeLore 扩面首批（#35/R5-04）**：演化主干 12 面＋S3 族 6 面＋S5 族 12 面≈30 面，逐面 golden 契约测试（ADR-0014）。**关键路径，Macro-C preview 前置。覆盖：D-035、D-034。**
+- **T4 版本与上游锁定制度化（#44/R6-01，新票 P0）**：① engine/upstream-lock.yaml 种子行（codelore active exact-version＋--version 契约／scorecard+repomix planned／sqlite-dump evaluating）；② README §3 上游表状态列绑锁表为机读权威；③ 守卫族——版本断言 job（实际 --version==锁表）＋锁表新鲜度＋三处 preview 标注同源＋编年指针校验（引用 ADR 存在且非 superseded/里程碑单调/双账互指），advisory→enforce 两段式；④ docs/versioning.md 已成文（本环节），本票按文落实物。**覆盖：D-037、D-039。**
+- **T5 演示入口（#45/R6-02，新票）**：fixture 生成器＋fixtures/definitions 三场景（happy-path/degraded-supply/degraded-incomplete）＋fixtures/golden/＋demo --scenario 命令（临时目录生成、跑完即弃）＋CASRAI 式机器可读披露块（与 D-037② 报告头字段同一契约面，禁止两处手抄）。demo 走同一 Repo Intake 本地路径（D-013）。**#43 前置；阶段 3 早期。覆盖：D-038。**
+- **T6 分发收尾·仓内文档面（#41a/R6-03，filler 优先级）**：① examples/first-report/ 复制四件＋披露 README；② README 能力边界＋preview 标注＋0.x 语义＋「Try on a real repository」节（opt-in 公共小仓链接＋「外部内容随上游变化」标注）；③ 仓根 CHANGELOG.md 编年首条落盘（M-xxx 键，区间写时从实物读出）；DoD 护栏=边界文案以冻结决策为唯一事实源，扩面变更走文案 update 子项。**就绪即做不占关键路径；受 #44 指针守卫覆盖。覆盖：D-030、D-031、D-032、D-038、D-039、D-040。**
+- **T7 挂门守卫扩展（#33 扩展子项/R6-05）**：registry watch 三态 schema 齐备化（manual_watch 五要素：标记/责任人/复审时点/验证方法/确认留痕）＋守卫扫 manual_watch「复审逾期 or 确认记录缺失」＋逾期转 risk_accepted 候选报警＋每次运行输出 event_bound/total 覆盖率＋确认动作留痕（判据版本/判定人/理由/时间戳）。**覆盖：D-041。**
+- **T8 LLM 面独立票（#36/R5-05）**：explain 族 env 门控＋成本验收面。**覆盖：D-035。**
+- **T9 试点面可用性审计（#37/R5-06）**：三仓实测脚本→层×仓 capacity 矩阵。**覆盖：D-033。**
+- **T10 Macro-C preview（#38/R5-07）**：anysearch-cli 校准＋强制披露＋happy+failure 双件 DoD。**覆盖：D-034、D-032、D-033。**
+- **T11 Macro-B 三仓 one-shot＋jiahao 回归（#39/R5-08）**：接入 CI 即触发 mw-regression-ci 事件（D-034④a）。**覆盖：D-033、D-034、D-024。**
+- **T12 非自有仓泛化验证（#40/R5-09）**：≥1 非自有公开仓 URL opt-in——落地即触发 first-external-repo 事件（registry 新增位，解 desk-task2/15 盯梢）。**覆盖：D-033、D-013。**
+- **T13 上游队列值守（#42/R5-11）**：Scorecard/repomix 探针拉动；sqlite dump 对照评估（采纳另立 ADR）。**覆盖：D-023、D-034、D-035。**
+- **T14 样例 golden CI（#43/R5-12）**：CI 重渲染 fixture diff；消费 #45 definitions（前置 #45 落盘）。**覆盖：D-030。**
+- **T15 分发收尾·上架面（#41b/R6-04）**：listing 资产＋marketplace 字段查证（preview 字段＋版本元数据 schema 缺口＋竞品扫描）＋凭据申请。**blocked-by 用户闸门明示＋listing-submission；不排程不入波次不占 WIP。覆盖：D-031、D-037、D-026、D-027。**
 
 ## 纪律规则（不可协商）
 
@@ -31,16 +35,17 @@
 4. 【冲突协议】调研结论与 current 决策冲突 → 禁止静默改向：对应 D-xxx 标 revised（保留原记录）+ 新 D-xxx 呈报等拍板。
 5. 【VCS】$but 全程；push/land/上架属用户闸门；本轮例外只在用户明示时。构建/测试一律 CI，本机仅轻量 node 断言（守卫脚本模式：reports/NN-check.mjs + exit 0 + PASS/FAIL）。
 6. 【原子性】票产物落 reports/、守卫随票；账本行状态由执行窗口写、收口窗口复核核实。
-7. 【preview 诚实】降级披露机制（⚠ unverified / ⚠ 数据未接 / capability N of 5）为对外承诺载体；禁止为撑首发补齐未验证 scale 的展示面（ADR-0017）。
-8. 【触发器纪律】挂门项既不作铺开期前置门禁，亦不无限拖——触发即实测封口（Trigger-gated Closure）。
+7. 【preview 诚实】降级披露机制（⚠ unverified / ⚠ 数据未接 / capability N of 5 / synthetic fixture）为对外承诺载体；禁止为撑首发补齐未验证 scale 的展示面（ADR-0017）。
+8. 【触发器纪律】挂门项既不作铺开期前置门禁，亦不无限拖——触发即实测封口（Trigger-gated Closure）；manual_watch 逾期转 risk_accepted 候选（D-041）。
+9. 【锁定纪律】上游版本一律经 upstream-lock.yaml 登记，禁 range/浮动 tag，更新走手动窗口＋golden 回归（D-037）。
 
 ## Suggested skills
 
 - $but —— 版本控制（立分支/commit；land+push 需用户明示）
-- $to-spec / $to-tickets —— T0 立票链
+- $to-spec / $to-tickets —— 新票（#44/#45/#41a/#33-ext）立票链
 - $implement —— 票执行（drives tdd at pre-agreed seams，收口 code-review）
-- $atomcode-research —— 票内调研（串行单发、-p 只放问题、timeout 600000、锚点留证；配额中断走 resume anchoring 不杀进程）
+- $atomcode-research —— 票内调研（串行单发、-p 只放问题、timeout 600000）
 - $domain-modeling —— 新术语/ADR 锐化（CONTEXT.md 只放词汇，实现决策进 docs/adr/）
 - $grill-with-docs —— 若票执行暴露与 current 决策冲突需重新下探时
-- $readme-crafter-skill —— T9 上游清单/披露页写作
-- $handoff / $neat-freak —— 轮 7 收口归档与知识治理
+- $readme-crafter-skill —— #41a README/编年/披露页写作
+- $handoff / $neat-freak —— 轮 8 收口归档与知识治理

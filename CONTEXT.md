@@ -6,6 +6,7 @@
 > 轮 3 grill（2026-09-12 完成）已封口 D-016 ~ D-018：建设主干 = 端到端价值验证闭环先行（阶段 0 使能件 → 阶段 1 于 6F 产出首份带引文+裁决回执真报告 → 阶段 2 缺口回流 → 阶段 3 铺开+分发；ADR-0012）+ 首报三层验收闸门 A→B→C 与预声明判据 2 正对照 + 3 真判据 + 1 负对照（ADR-0013）。
 > 轮 4 grill（2026-09-14 完成）已封口 D-020 ~ D-021：上游组件引入方式 = 适配器双轨制 + vendor 逃生舱（ADR-0014；上游经适配器进事实表、raw 语义不出适配层）+ 根 README 组合件五段式（一句话定位 / 三层盒子图+上游清单表 / Runtime View / 所有权表 / 契约声明；readme-crafter-skill 流程落盘）。
 > 轮 5 grill（2026-09-15 完成）已封口 D-022 ~ D-028：建设节奏维持 VVL 主干、阶段 2 拆 2a 冻结校准 → 2b CodeLore 单上游探针 + 阶段 1.5 量测审计先行（D-023/D-025；ADR-0015，三问决策树 desk/上游探针/自证探针 D-024）+ TC-2 RED 处置 = OOS 顺序双轨 + 勘误式双读数（D-025）+ #25 前置清单最小拍板与 LRM 挂门绑定（D-026）+ 分发渠道方向 = 纯 Agent Plugins 生态（D-027；ADR-0016）。
+> 轮 6/7 grill（2026-09-15 完成）已封口 D-029 ~ D-041：preview 分级发布模型（ADR-0017）＋阶段 3 拍板包与铺开次序＋版本与编年制度化（ADR-0018）＋#41 拆仓内/上架两片＋挂门值守三态化。
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -227,3 +228,11 @@ _Avoid_: 自审当泛化（确认偏差）、试点成功=跑通（应为反复�
 **Pilot-surface Audit（试点面审计）**:
 试点仓承接能力层角色前的实测核查——核查其数据面是否真能服务被指派层（PR 人/机比、supersede 链完整度、托管面有无）；角色绑定能力层而非仓（capacity / ground-truth 可得性 / 泛化增量三问）。
 _Avoid_: 按仓体量指派试点（体量非判据）、假设性指派（未实测即绑定）
+
+**Demo Fixture（演示夹具）**:
+由仓内生成器脚本按确定性定义生成的合成 git 仓——demo 入口与 golden 回归的同一输入资产；必须携带合成披露戳，不得冒充真实仓库审计产物；外部样例仓仅文档 opt-in、不可 golden 预期。
+_Avoid_: 样例仓进分发体（上游演化漂移击穿可复现）、隐藏合成来源（披露失守）
+
+**Watch Tri-state（值守三态）**:
+挂门项登记表的值守状态机——event_bound（触发事件已绑、守卫机检）/ manual_watch（真·条件式判据，显式五要素：标记+责任人+复审时点+验证方法+确认留痕）/ risk_accepted（复审逾期仍未绑上时升级，须记接受人+理由+到期日）；人工盯梢是补偿控制而非缺口关闭，覆盖率 event_bound/total 须显式输出。
+_Avoid_: 隐性人工盯（prose 复审非控制）、把谓词做成通用规则引擎

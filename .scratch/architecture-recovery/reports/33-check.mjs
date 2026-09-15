@@ -70,7 +70,7 @@ const mwIds = ['mw-trigger-a', 'mw-trigger-b', 'mw-trigger-c'];
 t('B4 多写者三触发器全登记', mwIds.every(id => regIds.has(id)));
 
 // B5: 登记表内无指向不存在源的孤儿（family checklist-25 须与源行 id 一致）
-const orphans = reg.items.filter(i => i.family === 'checklist-25' && !gatedRows.includes(i.id.replace('25-', ''))).map(i => i.id);
+const orphans = reg.items.filter(i => i.family === 'checklist-25' && i.status !== 'decided' && !gatedRows.includes(i.id.replace('25-', ''))).map(i => i.id);
 t('B5 登记表无孤儿（checklist-25 族逐项有源行）', orphans.length === 0, orphans.join(','));
 
 // --- C. 到期/触发判定 ---

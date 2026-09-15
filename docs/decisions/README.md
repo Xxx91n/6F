@@ -1,9 +1,10 @@
 # 决策摘要索引（Implemented Decisions Digest）
+| ADR-0018 | 版本与编年制度化（0.x＋锁表＋报告契约／双层 CHANGELOG） | 2026-09-15 | D-037/D-039 |
 
 > 本目录由本轮 architecture-recovery 流程收口时从 `.scratch/architecture-recovery/decision-ledger.md` 抽出 17 条 implemented 决策 + 1 条 deferred。
 > 完整原始账本保留在 `.scratch/architecture-recovery/decision-ledger.md`（随 .scratch 一并归档）。
 
-## 17 implemented 决策摘要
+## 18 implemented 决策摘要
 
 | ID | 标题（一行）| 关键交付物 | 守卫 |
 |---|---|---|---|
