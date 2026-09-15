@@ -1,0 +1,735 @@
+{
+  "schema_version": "1.1.0",
+  "report_id": "MA-23-6F-FIRST-REPORT-degraded",
+  "scale": "Macro-B",
+  "subject_ref": "6F@fc00d458e215cc9a7a26af81626dec8712622821",
+  "generated_at": "2026-09-13T14:31:09+08:00",
+  "correlation_key": {
+    "trace_id": "6cb1035d33437cf94e987c26b0e77b5b",
+    "baggage_id": "8b8feb7ab1958bbb7a9b090d6248c599"
+  },
+  "receipt": {
+    "receipt_id": "RCP-1f603ed7b3032f0a",
+    "chain_hash": "1f603ed7b3032f0af92e05a4152def6212fad75de26e41f6675f57363beb675e",
+    "issued_at": "2026-09-13T14:31:09+08:00",
+    "commit_anchor": "fc00d458e215cc9a7a26af81626dec8712622821",
+    "tree_anchor": "6f405cfc2ce51ea395dc66d282d86b77631f7db7",
+    "content_digest": {
+      "algo": "sha256",
+      "value": "abbdbb901a374b7b9df11a5ea5ef79e6117504c3b3a05de36cf76c8bb9aa81d8",
+      "canonicalization": "json_utf8_entries_then_citation_checks"
+    },
+    "gate_ref": {
+      "prereg_commit": "7395495",
+      "criteria_path": ".scratch/architecture-recovery/reports/22-criteria-pre-registration.md",
+      "basis_path": ".scratch/architecture-recovery/reports/22-c-adjudication-basis.md",
+      "criterion_ids": [
+        "PC-1",
+        "PC-2",
+        "TC-1",
+        "TC-2",
+        "TC-3",
+        "NC-1"
+      ]
+    },
+    "fact_count": 0,
+    "adjudication_count": 6,
+    "degraded": true,
+    "mark": "RECEIPT RCP-1f603ed7b3032f0a chain=1f603ed7b3032f0af92e05a4152def62 content=abbdbb901a374b7b facts=0 adjudications=6 issued_at=2026-09-13T14:31:09+08:00 commit=fc00d458e215cc9a7a26af81626dec8712622821 tree=6f405cfc2ce5 ⚠ unverified"
+  },
+  "overall_verdict": "insufficient",
+  "confidence": 0,
+  "degraded_mode": true,
+  "degraded_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+  "stale": {
+    "marker": "unknown",
+    "sla_seconds": 5,
+    "lag_seconds": 0,
+    "read_model_version": "1.1.0",
+    "fact_watermark_version": "1"
+  },
+  "skeleton": [
+    {
+      "id": "C1",
+      "ordinal": 1,
+      "name": "执行摘要",
+      "required_fields": [
+        "report_id",
+        "schema_version",
+        "scale",
+        "subject_ref",
+        "generated_at",
+        "correlation_key",
+        "overall_verdict",
+        "confidence",
+        "headline",
+        "top_findings",
+        "degraded_mode",
+        "stale_data_marker",
+        "staleness_sla_seconds",
+        "read_model_lag_seconds",
+        "read_model_version",
+        "fact_watermark_version"
+      ]
+    },
+    {
+      "id": "C2",
+      "ordinal": 2,
+      "name": "四象限与裁决",
+      "required_fields": [
+        "quadrants",
+        "quadrant",
+        "applicability",
+        "verdict",
+        "score",
+        "confidence",
+        "dimensions",
+        "slice_fields",
+        "verdict_gate.protocol_version",
+        "verdict_gate.decision",
+        "verdict_gate.evidence_threshold_met",
+        "verdict_gate.decided_at",
+        "verdict_gate.override_reason",
+        "verdict_gate.audit_ref",
+        "conflict_markers"
+      ]
+    },
+    {
+      "id": "C3",
+      "ordinal": 3,
+      "name": "证据",
+      "required_fields": [
+        "evidence_items",
+        "evidence_id",
+        "source",
+        "locator",
+        "claim",
+        "grounded",
+        "collected_at",
+        "reproduce_cmd",
+        "reproduce_absent_reason"
+      ]
+    },
+    {
+      "id": "C4",
+      "ordinal": 4,
+      "name": "行动建议",
+      "required_fields": [
+        "recommendations",
+        "rec_id",
+        "priority",
+        "action",
+        "rationale",
+        "expected_impact",
+        "effort",
+        "verdict_gate_stamp",
+        "evidence_refs",
+        "degraded_note"
+      ]
+    }
+  ],
+  "fact_ids": [],
+  "adjudication": {
+    "protocol_version": "ADR-0013-C/v1",
+    "decided_at": "2026-09-13T14:31:09+08:00",
+    "overall": "insufficient",
+    "entries": [
+      {
+        "criterion_id": "PC-1",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "降级：FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest"
+      },
+      {
+        "criterion_id": "PC-2",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "降级：FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest"
+      },
+      {
+        "criterion_id": "TC-1",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "降级：FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest"
+      },
+      {
+        "criterion_id": "TC-2",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "降级：FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest"
+      },
+      {
+        "criterion_id": "TC-3",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "降级：FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest"
+      },
+      {
+        "criterion_id": "NC-1",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "降级：FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest"
+      }
+    ],
+    "human": {
+      "status": "pending",
+      "adjudicator": "user",
+      "text": null,
+      "decided_at": null
+    },
+    "citation_checks": [
+      {
+        "claim_id": "CL-001",
+        "evidence_id": "EV-006",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "mean_ratio_4",
+          "0.2462"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-002",
+        "evidence_id": "EV-007",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "judgeable_n",
+          "2"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-003",
+        "evidence_id": "EV-008",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "lowest_ratio_4",
+          "0.6000"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-004",
+        "evidence_id": "EV-001",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "0.2462"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-005",
+        "evidence_id": "EV-002",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "INCONCLUSIVE",
+          "可判定数"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-006",
+        "evidence_id": "EV-003",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "AMBER",
+          "0.6000"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-007",
+        "evidence_id": "EV-004",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "阶段 1 = Macro-B"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-008",
+        "evidence_id": "EV-005",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "A→B→C"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-009",
+        "evidence_id": "EV-009",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "five_piece_present",
+          "0"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-010",
+        "evidence_id": "EV-010",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "golden_supersede_hit_s",
+          "true"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-011",
+        "evidence_id": "EV-011",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "delta_days_s",
+          "255"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      }
+    ]
+  },
+  "citation_checks": [
+    {
+      "claim_id": "CL-001",
+      "evidence_id": "EV-006",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "mean_ratio_4",
+        "0.2462"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-002",
+      "evidence_id": "EV-007",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "judgeable_n",
+        "2"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-003",
+      "evidence_id": "EV-008",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "lowest_ratio_4",
+        "0.6000"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-004",
+      "evidence_id": "EV-001",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "0.2462"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-005",
+      "evidence_id": "EV-002",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "INCONCLUSIVE",
+        "可判定数"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-006",
+      "evidence_id": "EV-003",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "AMBER",
+        "0.6000"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-007",
+      "evidence_id": "EV-004",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "阶段 1 = Macro-B"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-008",
+      "evidence_id": "EV-005",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "A→B→C"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-009",
+      "evidence_id": "EV-009",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "five_piece_present",
+        "0"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-010",
+      "evidence_id": "EV-010",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "golden_supersede_hit_s",
+        "true"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-011",
+      "evidence_id": "EV-011",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "delta_days_s",
+        "255"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "EV-001",
+      "source": ".scratch/architecture-recovery/reports/22-criteria-pre-registration.md",
+      "locator": "L100",
+      "claim": "预声明（跑前写死）：TC-2 mean_ratio = 0.2462，判 RED",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-002",
+      "source": ".scratch/architecture-recovery/reports/22-criteria-pre-registration.md",
+      "locator": "L67",
+      "claim": "预声明：TC-1 可判定数 2 < 门槛 5，判 INCONCLUSIVE",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-003",
+      "source": ".scratch/architecture-recovery/reports/22-criteria-pre-registration.md",
+      "locator": "L126",
+      "claim": "预声明：TC-3 最低 ratio = 0.6000，判 AMBER",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-004",
+      "source": "docs/adr/0012-value-validation-loop-first.md",
+      "locator": "L14",
+      "claim": "ADR-0012：阶段 1 = 6F 自身 Macro-B happy path 出首报",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-005",
+      "source": "docs/adr/0013-three-layer-acceptance-gates.md",
+      "locator": "L14",
+      "claim": "ADR-0013：首报验收 = A→B→C 三层串行闸门",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-006",
+      "source": ".scratch/architecture-recovery/reports/23-measurements.json",
+      "locator": "L19",
+      "claim": "本次实测：TC-2 mean_ratio（4 位小数）",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-007",
+      "source": ".scratch/architecture-recovery/reports/23-measurements.json",
+      "locator": "L7",
+      "claim": "本次实测：TC-1 可判定数",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-008",
+      "source": ".scratch/architecture-recovery/reports/23-measurements.json",
+      "locator": "L77",
+      "claim": "本次实测：TC-3 最低覆盖率（4 位小数）",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-009",
+      "source": ".scratch/architecture-recovery/reports/23-measurements.json",
+      "locator": "L88",
+      "claim": "本次实测：NC-1 负对照选材五件套命中数（预期 0）",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-010",
+      "source": ".scratch/architecture-recovery/reports/23-measurements.json",
+      "locator": "L99",
+      "claim": "本次实测：PC-1 正对照 golden ADR 的 supersede 链命中",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-011",
+      "source": ".scratch/architecture-recovery/reports/23-measurements.json",
+      "locator": "L106",
+      "claim": "本次实测：PC-2 正对照事后补写 ADR 的 delta_days",
+      "grounded": false,
+      "collected_at": "2026-09-13T14:31:09+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    }
+  ],
+  "quadrants": [
+    {
+      "quadrant": "strategy",
+      "applicability": "native",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [
+        "S1",
+        "S2"
+      ],
+      "slice_fields": {
+        "s1_keyword_coverage_ratio": 0.6,
+        "s2_five_piece_mean_ratio": 0.2462
+      },
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "override_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+        "audit_ref": ".scratch/architecture-recovery/reports/22-c-adjudication-basis.md"
+      },
+      "conflict_markers": [
+        "degraded"
+      ]
+    },
+    {
+      "quadrant": "structure",
+      "applicability": "not_applicable",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [],
+      "slice_fields": {},
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "override_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+        "audit_ref": ".scratch/architecture-recovery/reports/22-c-adjudication-basis.md"
+      },
+      "conflict_markers": [
+        "out-of-scope-R3-01",
+        "degraded"
+      ]
+    },
+    {
+      "quadrant": "behavior",
+      "applicability": "not_applicable",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [],
+      "slice_fields": {},
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "override_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+        "audit_ref": ".scratch/architecture-recovery/reports/22-c-adjudication-basis.md"
+      },
+      "conflict_markers": [
+        "out-of-scope-R3-01",
+        "degraded"
+      ]
+    },
+    {
+      "quadrant": "supply_chain",
+      "applicability": "not_applicable",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [],
+      "slice_fields": {},
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "override_reason": "FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest",
+        "audit_ref": ".scratch/architecture-recovery/reports/22-c-adjudication-basis.md"
+      },
+      "conflict_markers": [
+        "out-of-scope-R3-01",
+        "degraded"
+      ]
+    }
+  ],
+  "recommendations": [
+    {
+      "rec_id": "R-23-1",
+      "priority": "P0",
+      "action": "为 docs/adr 全集 13 份补 Status/Date YAML 头，使 S2 事后补写判据可执行",
+      "rationale": "TC-1 可判定数 2 < 门槛 5，根因是 11/13 ADR 无 Date 头（缺失率 84.62%）",
+      "expected_impact": "TC-1 由 INCONCLUSIVE 转为可判定，S2 阈值获得 assay sensitivity",
+      "effort": "S",
+      "verdict_gate_stamp": "insufficient ⚠ unverified",
+      "evidence_refs": [
+        "EV-002",
+        "EV-006",
+        "EV-007"
+      ],
+      "degraded_note": "降级产出：FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest ⚠ unverified"
+    },
+    {
+      "rec_id": "R-23-2",
+      "priority": "P1",
+      "action": "把 ADR 中文结构标记口径登记为 v2 追加（新开账本条目 + v1 留档），不在首报后静默重判",
+      "rationale": "adr-structure@v1 只识别英文标记，6F 的 ADR-0001~0007 以 H1 + 自由正文书写；这是口径事实不是误报，改口径属改向",
+      "expected_impact": "消除 TC-2 RED 的口径歧义，保留 v1 结果可比性",
+      "effort": "M",
+      "verdict_gate_stamp": "insufficient ⚠ unverified",
+      "evidence_refs": [
+        "EV-001",
+        "EV-006"
+      ],
+      "degraded_note": "降级产出：FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest ⚠ unverified"
+    },
+    {
+      "rec_id": "R-23-3",
+      "priority": "P2",
+      "action": "把 23-first-report.json 侧车作为 Agent Plugin 的裁决块契约候选，落 R3-D7 分发前置清单",
+      "rationale": "A-027 要求裁决块结构化、引文锚可解析；侧车已含 verdict 枚举 + evidence_id/source/locator 三元组",
+      "expected_impact": "下游 agent 可直接消费裁决而不必解析 md",
+      "effort": "S",
+      "verdict_gate_stamp": "insufficient ⚠ unverified",
+      "evidence_refs": [
+        "EV-005"
+      ],
+      "degraded_note": "降级产出：FP-2 Macro-B failure：docs/adr 采集域返回空事实（采集缺口，data doesn't show），主前提不可裁定并发 GapRequest ⚠ unverified"
+    }
+  ],
+  "machine_contract": {
+    "citation_anchor_format": "evidence_id + source + locator（三者齐备即为可解析引文锚）",
+    "verdict_enum": [
+      "supported",
+      "unsupported",
+      "insufficient"
+    ],
+    "human_adjudication_status": "pending"
+  }
+}

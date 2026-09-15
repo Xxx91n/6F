@@ -3,7 +3,23 @@
 面向 git 记录健全仓库的工程内容审计产品：**证据采集大部分来自上游组合件，裁决协议、事实表 schema、验收闸门与可核验回执是本项目自研的护城河与黏合剂**。5 档审计粒度（Macro-A 跨仓战略 / Macro-B 仓库级四象限 / Macro-C 演化考古 / Micro-A PR diff / Micro-B file level）共享同一事实底座与裁决层，差异在触发器与报告切片。
 
 > [!NOTE]
-> 当前状态（2026-09-15）：walking skeleton 已落地并通过 CI 硬验收（双 manifest 生成 / 编译 / 打包 / smoke 测活 / selftest）。**阶段 2/3（上游组合件接入与分发收尾）尚未开始**——下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
+> 当前状态（2026-09-16）：**preview 形态（能力边界见下节矩阵）**——Macro-B / Macro-C 两层经实跑校准、报告头与披露块按 preview 口径标注；Micro-A / Micro-B / Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。发布未发生——本页为源码自举说明，不存在可安装 listing（ADR-0016 渠道决策＋上架用户闸门）。下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
+
+## 能力边界（preview 标注）
+
+发布节奏 = **Preview 分级发布**（ADR-0017）：**build-scope ≠ release-sequence**——5 档审计粒度为全规划（ADR-0001 standing），各层独立走 preview→GA 漏斗，preview 形态不构成 MVP 切片。
+
+| scale | 状态 |
+|---|---|
+| Macro-B 仓库级四象限 | **capability 1 of 5 · preview**（自审首报样例见 [examples/first-report/](examples/first-report/)） |
+| Macro-C 演化考古 | **capability 2 of 5 · preview**（单仓校准披露口径） |
+| Micro-A PR diff | Not yet in preview |
+| Micro-B file level | Not yet in preview |
+| Macro-A 跨仓战略 | Not yet in preview |
+
+preview 标注诚实是决策本体非装饰（ADR-0017）：报告头/侧车 `preview_disclosure` 披露块（capability 标注＋校准范围＋结构性限制＋not_in_preview 清单）与上表为同一语义源；降级产出带 `⚠ unverified` 印记，未接证据域带「⚠ 数据未接」标注，合成 fixture 带「synthetic」印记且不冒充真实审计。
+
+**0.x 语义**：版本号 0.x 单调递增、号不复用；minor = 契约变更、patch = 修复、不回退发旧线补丁；1.0 退出条件 = 报告 schema 冻结＋已接上游适配器全过确定性验收（非日历触发）。口径全文见 [docs/versioning.md](docs/versioning.md)；产品版本变更以 [engine/CHANGELOG.md](engine/CHANGELOG.md) 为准，仓级里程碑/决策编年见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 组合件架构（三层）
 
@@ -72,8 +88,29 @@ flowchart LR
 | [CONTEXT.md](CONTEXT.md) | 术语表（54 词，领域唯一语言） |
 | [docs/adr/](docs/adr/) | 架构决策记录 ADR-0001 ~ ADR-0018 |
 | [engine/](engine/) | 内核 CLI + Agent Plugin 五层盒子（构建 / 命令细节见 [engine/README.md](engine/README.md)） |
-| .scratch/macro-audit/ | 决策账本（D-001~D-036）+ spec 阶段任务 + 调研报告 |
-| .scratch/architecture-recovery/ | 执行轮账本（A-001~A-048）+ 票据 / 守卫 / 首报产物 |
+| [examples/first-report/](examples/first-report/) | 发布样例资产：6F 自审 Macro-B 首报四件（happy + failure 双对，披露制） |
+| [CHANGELOG.md](CHANGELOG.md) | 仓级里程碑/决策编年（指针制；产品版本账以 engine/CHANGELOG.md 为准） |
+| .scratch/macro-audit/ | 决策账本（D-001~D-041）+ spec 阶段任务 + 调研报告 |
+| .scratch/architecture-recovery/ | 执行轮账本（A-001~A-053）+ 票据 / 守卫 / 首报产物 |
+
+## 演示与样例
+
+- **确定性演示**（零外部依赖、跑完即弃）：`node dist/cli.js demo`——fixture 生成器合成临时 git 仓走 Macro-B 全链；三场景 `node dist/cli.js demo --list`（happy-path / degraded-supply / degraded-incomplete）。合成 fixture 带 synthetic 披露印记，**不冒充真实审计**。
+- **真实首报样例**：[examples/first-report/](examples/first-report/)——6F 仓自审 Macro-B 实跑产物四件（happy + failure 双对），披露生成 commit / 日期 / 重生成命令与冻结时点属性。
+
+## Try on a real repository
+
+外部仓经 URL opt-in 接入（D-013 本地优先＋URL opt-in）：clone 至隔离缓存（sha256 键）＋全深度校验＋浅 clone 显式拒绝＋禁远程配置执行＋凭据复用本地 git 凭据链。
+
+```bash
+cd engine && npm install && npm run build
+node dist/cli.js repo add https://github.com/open-gsd/gsd-core.git   # opt-in 公开仓
+node dist/cli.js repo add /path/to/local/repo                        # 本地路径（同一 Intake 本地腿）
+```
+
+- opt-in 公共仓示例：[open-gsd/gsd-core](https://github.com/open-gsd/gsd-core)（本仓已实测接入：2026-09-16 Macro-B one-shot 1424 facts，裁定 unsupported 如实落数——TC-2 归因为 ADR dash+加粗形态漏认，detector 覆盖缺口如实登记）。
+- **⚠ 外部内容随上游变化**：外部仓内容/结构随其上游演化，审计读数不可 golden 预期——示例仅说明接入路径，不构成对特定裁定结果的承诺。
+- 当前 `repo add` 交付 = intake 接入面；对外部仓的完整审计管线现以仓内脚本形态执行（实跑记录见执行账 A-044/A-045），打包内一等命令面未冻结——不虚构 `audit` 子命令。
 
 ## 快速验证（源码自举，需 Node ≥ 20）
 

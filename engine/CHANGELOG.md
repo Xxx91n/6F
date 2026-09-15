@@ -3,7 +3,7 @@
 All notable changes to this project are documented here.
 Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
 
-> 仓级里程碑/决策编年见仓根 `CHANGELOG.md`（里程碑编年，本账为产品版本账唯一权威；仓根 CHANGELOG 实体待 #41a 落盘——指针先行登记于 D-039②）。
+> 仓级里程碑/决策编年见仓根 `CHANGELOG.md`（里程碑编年指针制，本账为产品版本账唯一权威；仓根实体已于 #41a 落盘——D-039② 指针闭环）。
 
 ## [0.1.0] - 2026-09-12
 ### Added

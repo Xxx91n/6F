@@ -55,7 +55,7 @@
 | #38 | Macro-C preview：anysearch-cli 校准＋报告强制披露单仓校准限制＋happy+failure 演示双件 DoD | D-034 / D-032 / D-033 | #35/#36/#37 | 第二能力层 |
 | #39 | Macro-B 三仓 one-shot＋jiahao 持续回归接入 CI | D-033 / D-034 | 回归接入 CI = 多写者触发器 (a) 激活点 | 激活即实测封口任务 7 |
 | #40 | 非自有公开仓泛化验证 ≥1（URL opt-in 首实用户） | D-033 / D-013 | Macro-B GA 前置 | |
-| #41a | 分发收尾·仓内文档面：examples/first-report/ 复制四件＋披露 README／README 能力边界＋preview 标注＋「Try on a real repository」节／仓根编年首条落地 | D-030 / D-031 / D-032 / D-038 / D-039 / D-040 | 就绪即做（filler）；DoD 含「边界文案以冻结决策为唯一事实源」护栏 | 拆自 #41（D-040） |
+| #41a | 分发收尾·仓内文档面：examples/first-report/ 复制四件＋披露 README／README 能力边界＋preview 标注＋「Try on a real repository」节／仓根编年首条落地 | D-030 / D-031 / D-032 / D-038 / D-039 / D-040 | 就绪即做（filler）；DoD 含「边界文案以冻结决策为唯一事实源」护栏 | 拆自 #41（D-040）✅ 2026-09-16 已闭环（A-051）：四件+披露 README／边界矩阵 capability 1-2 of 5 preview+三层 Not yet+0.x+Try 节／仓根 CHANGELOG M-001+engine 指针闭环（W4 悬空清零）；41a-check PASS；上架动作未执行（用户闸门） |
 | #41b | 分发收尾·上架面：listing 资产／marketplace 字段查证（preview 标注字段＋版本元数据 schema＋竞品扫描）／凭据申请 | D-031 / D-037 / D-026 / D-027 | **blocked-by：用户闸门明示＋listing-submission 事件**——不排程不入波次不占 WIP | 拆自 #41（D-040）；上架动作停用户闸门 |
 | #42 | 上游队列：Scorecard/repomix 探针＋CodeLore sqlite dump 对照评估 | D-023 / D-034 / D-035 | 层需求拉动，不插队 | dump 采纳须另立 ADR；Macro-B preview 供应链象限维持「⚠ 数据未接」 |
 | #43 | 样例 golden CI：CI 重渲染 fixture 并 diff，更新走 PR 审查 | D-030 | 阶段 3 候选，与 #33 同批立项 | 禁自动重生成直通 main |
