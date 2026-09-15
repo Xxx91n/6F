@@ -364,5 +364,6 @@ W3 完成后，原 W4 阻塞全部解除：
 ## R4 Frontier（重算 2026-09-15 立票后）
 
 - **W7 完成（2026-09-15）**：#26 阶段 1.5 量测审计 → 26-check.mjs PASS 18/18（真值 mean 0.4923；v1 实跑复现 0.2462 逐格 65/65）；真值表+delta 模板+AC 登记落 reports/26-*。
-- **W8 进行中（2026-09-15）**：#27 判据 v2 → 27-check.mjs PASS 15/15（v2=0.5846 RED，65/65 ALL-AGREE，v1 留档复现）；#28 ADR 治理卫生并行执行中。
+- **W8 完成（2026-09-15）**：#27 判据 v2 → 27-check.mjs PASS 15/15（v2=0.5846 RED，65/65 ALL-AGREE，v1 留档复现）；#28 ADR 治理卫生 → 28-check.mjs PASS 113/113（real-gap 33 格清零 + 0014 四节补记）。
+- 下一波可开工 = **W9：#29 C 层 disposition 补记**（Blocked by #26/#27/#28 ✓ 已解除）。启动器：`prompts/29-c-disposition-reopen.md`。
 - 值守项（非票）：T7 #25 拍板状态列核对——触发事件已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次（绑定表 = reports/R5-Q5-atomcode-research.md §3）。
