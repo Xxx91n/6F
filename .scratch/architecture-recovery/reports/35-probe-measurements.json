@@ -1,0 +1,140 @@
+{
+  "probe_id": "R6-35-CODELORE-BATCH1",
+  "generated_at": "2026-09-15T17:23:55.726Z",
+  "resolution": {
+    "strategy": "binary-discovery",
+    "binary": "codelore",
+    "version": "0.28.0",
+    "pinned": true,
+    "error": null
+  },
+  "facets_contracted": 30,
+  "facet_errors": [],
+  "per_facet": {
+    "revisions": {
+      "rows": 11,
+      "cols": 2
+    },
+    "abs-churn": {
+      "rows": 4,
+      "cols": 4
+    },
+    "entity-churn": {
+      "rows": 11,
+      "cols": 4
+    },
+    "author-churn": {
+      "rows": 1,
+      "cols": 4
+    },
+    "hotspot-velocity": {
+      "rows": 11,
+      "cols": 6
+    },
+    "code-age": {
+      "rows": 11,
+      "cols": 4
+    },
+    "stale-code": {
+      "rows": 0,
+      "cols": 0
+    },
+    "architecture-trend": {
+      "rows": 12,
+      "cols": 6
+    },
+    "health-trend": {
+      "rows": 12,
+      "cols": 9
+    },
+    "lead-time": {
+      "rows": 110,
+      "cols": 6
+    },
+    "release-cadence": {
+      "rows": 0,
+      "cols": 0
+    },
+    "messages": {
+      "rows": 162,
+      "cols": 2
+    },
+    "god-classes": {
+      "rows": 0,
+      "cols": 0
+    },
+    "architecture-metrics": {
+      "rows": 18,
+      "cols": 2
+    },
+    "dependency-cycles": {
+      "rows": 0,
+      "cols": 0
+    },
+    "modularity-violations": {
+      "rows": 3,
+      "cols": 5
+    },
+    "instability": {
+      "rows": 48,
+      "cols": 4
+    },
+    "architecture-roles": {
+      "rows": 48,
+      "cols": 7
+    },
+    "ownership": {
+      "rows": 11,
+      "cols": 4
+    },
+    "entity-ownership": {
+      "rows": 363,
+      "cols": 4
+    },
+    "bus-factor": {
+      "rows": 6,
+      "cols": 6
+    },
+    "main-dev": {
+      "rows": 11,
+      "cols": 5
+    },
+    "main-dev-by-revs": {
+      "rows": 11,
+      "cols": 5
+    },
+    "main-dev-by-deletions": {
+      "rows": 11,
+      "cols": 5
+    },
+    "knowledge-islands": {
+      "rows": 0,
+      "cols": 0
+    },
+    "communication": {
+      "rows": 0,
+      "cols": 0
+    },
+    "coordination-needs": {
+      "rows": 363,
+      "cols": 8
+    },
+    "team-composition": {
+      "rows": 3,
+      "cols": 8
+    },
+    "marginal-owner-risk": {
+      "rows": 0,
+      "cols": 0
+    },
+    "pair-programming": {
+      "rows": 0,
+      "cols": 0
+    }
+  },
+  "provenance": {
+    "commit_pin": "5264059e833c6b3b6d91a97bc2a725ce50f73db9",
+    "spec_version": "spec.md sha256 27775764c3208ce1",
+    "facts_fingerprint": "f9f06e55edc4fe5596e4ec3299d7f7b9f3770760b3d220adc768e8654e534433"
+  }
+}

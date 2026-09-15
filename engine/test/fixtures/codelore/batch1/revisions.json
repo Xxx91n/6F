@@ -1,0 +1,46 @@
+[
+  {
+    "entity": ".scratch/architecture-recovery/decision-ledger.md",
+    "n_revs": 30
+  },
+  {
+    "entity": ".scratch/architecture-recovery/WORKFLOW.md",
+    "n_revs": 20
+  },
+  {
+    "entity": ".scratch/architecture-recovery/README.md",
+    "n_revs": 16
+  },
+  {
+    "entity": ".scratch/macro-audit/decision-ledger.md",
+    "n_revs": 11
+  },
+  {
+    "entity": ".scratch/architecture-recovery/spec.md",
+    "n_revs": 10
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/next-round.md",
+    "n_revs": 8
+  },
+  {
+    "entity": ".scratch/macro-audit/spec-phase-tasks.md",
+    "n_revs": 7
+  },
+  {
+    "entity": "CONTEXT.md",
+    "n_revs": 7
+  },
+  {
+    "entity": "README.md",
+    "n_revs": 7
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/25-rollout-checklist.md",
+    "n_revs": 6
+  },
+  {
+    "entity": "engine/package.json",
+    "n_revs": 6
+  }
+]

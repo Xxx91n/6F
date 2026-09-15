@@ -1,0 +1,641 @@
+{
+  "codelore_version": "0.28.0",
+  "pinned_version": "0.28.0",
+  "captured_at": "2026-09-15T17:23:55.683Z",
+  "repo": "D:\\Aworker\\6F",
+  "capture_commit": "5264059e833c6b3b6d91a97bc2a725ce50f73db9",
+  "note": "golden cassette 录制清单——columns/row_count/sha256 由裸 JSON.parse 与 csv 表头独立计量（不经适配器解析器）；空结果面列契约走 csv-header 第二通道",
+  "facets": {
+    "revisions": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "file": "revisions.json",
+      "row_count": 11,
+      "columns": [
+        "entity",
+        "n_revs"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "3117690f72460608e2bdd5c99adc2c1330a5474014721a0341987aa778a2a7a2",
+      "bytes": 871,
+      "spot": {
+        "key": "entity",
+        "value": ".scratch/architecture-recovery/decision-ledger.md"
+      }
+    },
+    "abs-churn": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "file": "abs-churn.json",
+      "row_count": 4,
+      "columns": [
+        "date",
+        "added",
+        "deleted",
+        "commits"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "689199518cd340da492f89b707ad755f044c4f0dd303f27ae4d141abc6598cb7",
+      "bytes": 373,
+      "spot": {
+        "key": "date",
+        "value": "2026-09-11"
+      }
+    },
+    "entity-churn": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "file": "entity-churn.json",
+      "row_count": 11,
+      "columns": [
+        "path",
+        "added",
+        "deleted",
+        "commits"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "ffd6c70b1ee7d8a89b1dd418170b2bf34c5528537b03f2802dfaa058a20b1489",
+      "bytes": 1261,
+      "spot": {
+        "key": "path",
+        "value": ".scratch/macro-audit/decision-ledger.md"
+      }
+    },
+    "author-churn": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "file": "author-churn.json",
+      "row_count": 1,
+      "columns": [
+        "author",
+        "added",
+        "deleted",
+        "commits"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "b8493a262ba02c4247e9278f7fbce1e77eb013f2c769a7f24d1ec790ee0c6c08",
+      "bytes": 104,
+      "spot": {
+        "key": "author",
+        "value": "iz0ms@Euiop1.oi"
+      }
+    },
+    "hotspot-velocity": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "file": "hotspot-velocity.json",
+      "row_count": 11,
+      "columns": [
+        "path",
+        "revs_recent",
+        "revs_baseline",
+        "recent_per_week",
+        "baseline_per_week",
+        "acceleration"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "b2d154afc9fc29e74c3eb0c3a41a79601390ce80766bd4305cd4eddedd401190",
+      "bytes": 2317,
+      "spot": {
+        "key": "path",
+        "value": ".scratch/architecture-recovery/decision-ledger.md"
+      }
+    },
+    "code-age": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [
+        "--age-time-now",
+        "2026-09-15"
+      ],
+      "file": "code-age.json",
+      "row_count": 11,
+      "columns": [
+        "path",
+        "age_months",
+        "age_days",
+        "last_modified"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "7a3a34283a8a97e1e9204c8088504e160629476b5a4b8af2837326e5709e122f",
+      "bytes": 1482,
+      "spot": {
+        "key": "path",
+        "value": ".scratch/architecture-recovery/README.md"
+      }
+    },
+    "stale-code": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "file": "stale-code.json",
+      "row_count": 0,
+      "columns": [
+        "path",
+        "last_touched",
+        "months_since_touched",
+        "max_cognitive"
+      ],
+      "columns_source": "csv-header",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "spot": null,
+      "csv_file": "stale-code.csv",
+      "csv_sha256": "5a198ed13808160989fbbf6fe06e8b16a03b0d5c9fa884bc5c5570c8db0d2323",
+      "csv_header_sha256": "dc342bcb8c56e1efcdb8bc6f27ad17fd876f0a2e7e371859bbdad732e41a6de1"
+    },
+    "architecture-trend": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "file": "architecture-trend.json",
+      "row_count": 12,
+      "columns": [
+        "date",
+        "rev",
+        "files",
+        "propagation_cost",
+        "cycle_count",
+        "largest_cycle"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "6ef4fbd9ed6b80d20a3341341a990d561c0dd56d9534ebc9fa9bfb0c01e96659",
+      "bytes": 1941,
+      "spot": {
+        "key": "date",
+        "value": "2026-09-11"
+      }
+    },
+    "health-trend": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "file": "health-trend.json",
+      "row_count": 12,
+      "columns": [
+        "date",
+        "rev",
+        "files",
+        "arch_health",
+        "code_health",
+        "combined_health",
+        "arch_band",
+        "code_band",
+        "combined_band"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "e3690a24501e3734f98b55625ea03100dd26d73f3375ec704aabd24010884753",
+      "bytes": 3051,
+      "spot": {
+        "key": "date",
+        "value": "2026-09-11"
+      }
+    },
+    "lead-time": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "file": "lead-time.json",
+      "row_count": 110,
+      "columns": [
+        "rev",
+        "canonical_author",
+        "author_date",
+        "committer_date",
+        "lead_time_seconds",
+        "lead_time_days"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "e1bf8079a12cc2ebf6a96c481a448d8977aefa10d0479c78f731fed765ee785e",
+      "bytes": 28415,
+      "spot": {
+        "key": "rev",
+        "value": "9ac25ac82634f059a4a6bc4b2c7544c6cc7b65b9"
+      }
+    },
+    "release-cadence": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "file": "release-cadence.json",
+      "row_count": 0,
+      "columns": [
+        "tag",
+        "date",
+        "days-since-prev",
+        "trend"
+      ],
+      "columns_source": "csv-header",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "spot": null,
+      "csv_file": "release-cadence.csv",
+      "csv_sha256": "24cd72d92c8ef6d2a05e03fb4dc0dd9a5e781902b67aba9bd8f3ab664468268e",
+      "csv_header_sha256": "88719566d3203934fe6e5f439bb70b02e16509128680eae3b71250c4804e52bb"
+    },
+    "messages": {
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [
+        "-e",
+        "(?i)(fix|feat|docs)"
+      ],
+      "file": "messages.json",
+      "row_count": 162,
+      "columns": [
+        "entity",
+        "matches"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "7967f21ac23cbd98c502ee40cc75630300fd17025e8697cf2ae26ef8b6881d5d",
+      "bytes": 15670,
+      "spot": {
+        "key": "entity",
+        "value": ".scratch/architecture-recovery/decision-ledger.md"
+      }
+    },
+    "god-classes": {
+      "group": "s3",
+      "format": "json",
+      "extra_args": [],
+      "file": "god-classes.json",
+      "row_count": 0,
+      "columns": [
+        "path",
+        "cognitive",
+        "fan_in",
+        "fan_out",
+        "god_score"
+      ],
+      "columns_source": "csv-header",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "spot": null,
+      "csv_file": "god-classes.csv",
+      "csv_sha256": "0d29a2a44a9e4cefcf1772e0677388224ca284cde18458806ac0627adaeb0a4f",
+      "csv_header_sha256": "1f448cde3679173198f041ccbf0b4e527c4911a7a1c4da9992ffa0db7fd0b867"
+    },
+    "architecture-metrics": {
+      "group": "s3",
+      "format": "json",
+      "extra_args": [],
+      "file": "architecture-metrics.json",
+      "row_count": 18,
+      "columns": [
+        "metric",
+        "value"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "837b9bb8a96346da99aa7bc9ff020aeeb82bca8bfa8693afec0e6f6967ebde4c",
+      "bytes": 1267,
+      "spot": {
+        "key": "metric",
+        "value": "propagation_cost"
+      }
+    },
+    "dependency-cycles": {
+      "group": "s3",
+      "format": "json",
+      "extra_args": [],
+      "file": "dependency-cycles.json",
+      "row_count": 0,
+      "columns": [
+        "cycle_id",
+        "size",
+        "path"
+      ],
+      "columns_source": "csv-header",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "spot": null,
+      "csv_file": "dependency-cycles.csv",
+      "csv_sha256": "a62b884ffadcdec0ac79ba6f3992a96dfe22421e7dc0af766cdfce0ecd12ae7b",
+      "csv_header_sha256": "a69989a5197a5432e0a8f27b3a4c923da9cc29f5b46bce5ceed6b7a9e31dae95"
+    },
+    "modularity-violations": {
+      "group": "s3",
+      "format": "json",
+      "extra_args": [],
+      "file": "modularity-violations.json",
+      "row_count": 3,
+      "columns": [
+        "entity_a",
+        "entity_b",
+        "shared",
+        "degree",
+        "fisher_p"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "8eb40c3478b31e3e75f2a05a1e949ad5315bd4f8df7044f0a3f39b9b4e46a917",
+      "bytes": 676,
+      "spot": {
+        "key": "entity_a",
+        "value": ".scratch/architecture-recovery/WORKFLOW.md"
+      }
+    },
+    "instability": {
+      "group": "s3",
+      "format": "json",
+      "extra_args": [],
+      "file": "instability.json",
+      "row_count": 48,
+      "columns": [
+        "path",
+        "ca",
+        "ce",
+        "instability"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "333851cce20d4ec0860c865925a63149eaa42010db0b13814ea135924c12e08b",
+      "bytes": 5836,
+      "spot": {
+        "key": "path",
+        "value": "engine/src/manifest.ts"
+      }
+    },
+    "architecture-roles": {
+      "group": "s3",
+      "format": "json",
+      "extra_args": [],
+      "file": "architecture-roles.json",
+      "row_count": 48,
+      "columns": [
+        "path",
+        "role",
+        "vfi",
+        "vfo",
+        "in_cycle",
+        "level",
+        "reach_pct"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "85eac1707c62ec2a28d8b554ceabcc5c218ff42ecfb94fd0413a2f3f22cbea79",
+      "bytes": 9424,
+      "spot": {
+        "key": "path",
+        "value": "engine/src/manifest.ts"
+      }
+    },
+    "ownership": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "ownership.json",
+      "row_count": 11,
+      "columns": [
+        "path",
+        "main_author",
+        "total_revs",
+        "fractal_value"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "92fca4886cb8578e966ef2cacec6f17c355da850a3f620bc8d3b60997925d323",
+      "bytes": 1597,
+      "spot": {
+        "key": "path",
+        "value": ".scratch/architecture-recovery/README.md"
+      }
+    },
+    "entity-ownership": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "entity-ownership.json",
+      "row_count": 363,
+      "columns": [
+        "entity",
+        "author",
+        "added",
+        "deleted"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "c9bad5ca92273f19e0325bf830101c366ce42e1e6ca7159a423592aff7fb2e32",
+      "bytes": 54112,
+      "spot": {
+        "key": "entity",
+        "value": ".code-tmp/02-repos.json"
+      }
+    },
+    "bus-factor": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "bus-factor.json",
+      "row_count": 6,
+      "columns": [
+        "module",
+        "total_commits",
+        "bus_factor",
+        "top_contributor",
+        "top_contributor_share",
+        "model"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "c92016f9c7bf43a8cf171ead39ab1c42b43617cc04602cbbe02cf7f51b518e1a",
+      "bytes": 1072,
+      "spot": {
+        "key": "module",
+        "value": ".scratch"
+      }
+    },
+    "main-dev": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "main-dev.json",
+      "row_count": 11,
+      "columns": [
+        "entity",
+        "main_dev",
+        "metric",
+        "total",
+        "ownership"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "3cf3bf4b77085406c1452a730c0e272065d007aa6f8237efdba225bc8e68bdea",
+      "bytes": 1709,
+      "spot": {
+        "key": "entity",
+        "value": ".scratch/architecture-recovery/README.md"
+      }
+    },
+    "main-dev-by-revs": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "main-dev-by-revs.json",
+      "row_count": 11,
+      "columns": [
+        "entity",
+        "main_dev",
+        "metric",
+        "total",
+        "ownership"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "f319da696c050004074379383c4dbaf64ce2637c63c983766f8279c1b17f133e",
+      "bytes": 1679,
+      "spot": {
+        "key": "entity",
+        "value": ".scratch/architecture-recovery/README.md"
+      }
+    },
+    "main-dev-by-deletions": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "main-dev-by-deletions.json",
+      "row_count": 11,
+      "columns": [
+        "entity",
+        "main_dev",
+        "metric",
+        "total",
+        "ownership"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "f18631dde48634ebd94112a8760c74f4e0c2646a240e9db2593ea69b0560baaa",
+      "bytes": 1683,
+      "spot": {
+        "key": "entity",
+        "value": ".scratch/architecture-recovery/README.md"
+      }
+    },
+    "knowledge-islands": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "knowledge-islands.json",
+      "row_count": 0,
+      "columns": [
+        "entity",
+        "main_author",
+        "ownership_pct",
+        "days_since_main_active",
+        "last_main_author_commit",
+        "n_substantial_others",
+        "total_loc"
+      ],
+      "columns_source": "csv-header",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "spot": null,
+      "csv_file": "knowledge-islands.csv",
+      "csv_sha256": "77ccc2d1513e46a2a77dacbeb9c2a7c4d186016ef4b95e14ae6689143319a5ed",
+      "csv_header_sha256": "a1d2b73a151ca2d322c9730cdd982a762c9fea0bec7bbb6899c5936ee351b346"
+    },
+    "communication": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "communication.json",
+      "row_count": 0,
+      "columns": [
+        "author-a",
+        "author-b",
+        "shared",
+        "average",
+        "strength"
+      ],
+      "columns_source": "csv-header",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "spot": null,
+      "csv_file": "communication.csv",
+      "csv_sha256": "9e2b67bb58888b4ad5271ff4a5a2779e0e9c3aef9c2b90e9424459f3729829e6",
+      "csv_header_sha256": "e24e0f5d214f09655d813d1be587716636b1088ada4d557117fe3f0a9ebe6f53"
+    },
+    "coordination-needs": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "coordination-needs.json",
+      "row_count": 363,
+      "columns": [
+        "path",
+        "authors",
+        "fragmentation",
+        "interleave",
+        "cochange_entropy",
+        "tier",
+        "health_band",
+        "total_commits"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "2e40c2d8b2f86c266872bc5e4dff8f093cc8cee40a6c68f926b94dbad2422154",
+      "bytes": 95196,
+      "spot": {
+        "key": "path",
+        "value": ".code-tmp/02-repos.json"
+      }
+    },
+    "team-composition": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "team-composition.json",
+      "row_count": 3,
+      "columns": [
+        "author",
+        "tenure_days",
+        "bucket",
+        "veteran_breadth_ok",
+        "active",
+        "commits",
+        "files_touched",
+        "onboarding_weeks"
+      ],
+      "columns_source": "json-row0",
+      "sha256": "7638d480084059d94c2e5df03931103045bf85370014c3d28cfff869d158bf63",
+      "bytes": 692,
+      "spot": {
+        "key": "author",
+        "value": "iz0ms@Euiop1.oi"
+      }
+    },
+    "marginal-owner-risk": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "marginal-owner-risk.json",
+      "row_count": 0,
+      "columns": [
+        "path",
+        "band",
+        "top-active-share",
+        "risk"
+      ],
+      "columns_source": "csv-header",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "spot": null,
+      "csv_file": "marginal-owner-risk.csv",
+      "csv_sha256": "16aed8bbb2e68d54e76227619588b52dc8909435b2d3e52fc6865c8d81d077a9",
+      "csv_header_sha256": "0ea70646e2a04f6550187e361f521d996b66d39d58227009337ba63a403ab723"
+    },
+    "pair-programming": {
+      "group": "s5",
+      "format": "json",
+      "extra_args": [],
+      "file": "pair-programming.json",
+      "row_count": 0,
+      "columns": [
+        "author_a",
+        "author_b",
+        "pair_commits"
+      ],
+      "columns_source": "csv-header",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2,
+      "spot": null,
+      "csv_file": "pair-programming.csv",
+      "csv_sha256": "744d343b5531a1335236c420b75c295e7b3d39f7899604c3fb73b6cc4a723679",
+      "csv_header_sha256": "36693e5ffa12bcf36ffb5c31b0a6f573c484d290d29b49825f2cc0d9bbc1fdcb"
+    }
+  }
+}

@@ -1,0 +1,372 @@
+{
+  "generated_at": "2026-09-15T16:48:27.591Z",
+  "codelore_version": "0.28.0",
+  "enum_count": 57,
+  "enum": [
+    "hotspots",
+    "hotspot-velocity",
+    "coupling",
+    "ownership",
+    "code-age",
+    "abs-churn",
+    "author-churn",
+    "entity-churn",
+    "communication",
+    "code-health",
+    "summary",
+    "revisions",
+    "authors",
+    "clones",
+    "clone-coupling",
+    "soc",
+    "messages",
+    "main-dev",
+    "main-dev-by-revs",
+    "main-dev-by-deletions",
+    "entity-effort",
+    "entity-ownership",
+    "top-committers",
+    "knowledge-islands",
+    "centrality",
+    "communities",
+    "god-classes",
+    "architecture-violations",
+    "dependency-cycles",
+    "architecture-roles",
+    "instability",
+    "architecture-metrics",
+    "architecture-trend",
+    "health-trend",
+    "cycle-origins",
+    "modularity-violations",
+    "unstable-interface",
+    "crossing",
+    "stale-code",
+    "pair-programming",
+    "lead-time",
+    "bus-factor",
+    "delivery-friction",
+    "delivery-metrics",
+    "refactoring-targets",
+    "effort-exposure",
+    "code-familiarity",
+    "team-composition",
+    "coordination-needs",
+    "marginal-owner-risk",
+    "release-cadence",
+    "function-xray",
+    "function-hotspots",
+    "function-coupling",
+    "finding-hotspot-overlap",
+    "cycle-health",
+    "defect-validation"
+  ],
+  "batch1": {
+    "groups": [
+      {
+        "group": "evolution",
+        "count": 12
+      },
+      {
+        "group": "s3",
+        "count": 6
+      },
+      {
+        "group": "s5",
+        "count": 12
+      }
+    ],
+    "total_spec": 30,
+    "matched": 30,
+    "diffs": [],
+    "rows": [
+      {
+        "group": "evolution",
+        "spec_name": "revisions",
+        "actual": "revisions",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "abs-churn",
+        "actual": "abs-churn",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "entity-churn",
+        "actual": "entity-churn",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "author-churn",
+        "actual": "author-churn",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "hotspot-velocity",
+        "actual": "hotspot-velocity",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "code-age",
+        "actual": "code-age",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "stale-code",
+        "actual": "stale-code",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "architecture-trend",
+        "actual": "architecture-trend",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "health-trend",
+        "actual": "health-trend",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "lead-time",
+        "actual": "lead-time",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "release-cadence",
+        "actual": "release-cadence",
+        "match": true
+      },
+      {
+        "group": "evolution",
+        "spec_name": "messages",
+        "actual": "messages",
+        "match": true
+      },
+      {
+        "group": "s3",
+        "spec_name": "god-classes",
+        "actual": "god-classes",
+        "match": true
+      },
+      {
+        "group": "s3",
+        "spec_name": "architecture-metrics",
+        "actual": "architecture-metrics",
+        "match": true
+      },
+      {
+        "group": "s3",
+        "spec_name": "dependency-cycles",
+        "actual": "dependency-cycles",
+        "match": true
+      },
+      {
+        "group": "s3",
+        "spec_name": "modularity-violations",
+        "actual": "modularity-violations",
+        "match": true
+      },
+      {
+        "group": "s3",
+        "spec_name": "instability",
+        "actual": "instability",
+        "match": true
+      },
+      {
+        "group": "s3",
+        "spec_name": "architecture-roles",
+        "actual": "architecture-roles",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "ownership",
+        "actual": "ownership",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "entity-ownership",
+        "actual": "entity-ownership",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "bus-factor",
+        "actual": "bus-factor",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "main-dev",
+        "actual": "main-dev",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "main-dev-by-revs",
+        "actual": "main-dev-by-revs",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "main-dev-by-deletions",
+        "actual": "main-dev-by-deletions",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "knowledge-islands",
+        "actual": "knowledge-islands",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "communication",
+        "actual": "communication",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "coordination-needs",
+        "actual": "coordination-needs",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "team-composition",
+        "actual": "team-composition",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "marginal-owner-risk",
+        "actual": "marginal-owner-risk",
+        "match": true
+      },
+      {
+        "group": "s5",
+        "spec_name": "pair-programming",
+        "actual": "pair-programming",
+        "match": true
+      }
+    ]
+  },
+  "deferred_set": {
+    "spec_approx": "~20",
+    "registered": 22,
+    "missing_from_enum": [],
+    "rows": [
+      {
+        "spec_name": "function-xray",
+        "actual": "function-xray"
+      },
+      {
+        "spec_name": "function-hotspots",
+        "actual": "function-hotspots"
+      },
+      {
+        "spec_name": "function-coupling",
+        "actual": "function-coupling"
+      },
+      {
+        "spec_name": "clones",
+        "actual": "clones"
+      },
+      {
+        "spec_name": "clone-coupling",
+        "actual": "clone-coupling"
+      },
+      {
+        "spec_name": "coupling",
+        "actual": "coupling"
+      },
+      {
+        "spec_name": "hotspots",
+        "actual": "hotspots"
+      },
+      {
+        "spec_name": "code-health",
+        "actual": "code-health"
+      },
+      {
+        "spec_name": "centrality",
+        "actual": "centrality"
+      },
+      {
+        "spec_name": "communities",
+        "actual": "communities"
+      },
+      {
+        "spec_name": "soc",
+        "actual": "soc"
+      },
+      {
+        "spec_name": "effort-exposure",
+        "actual": "effort-exposure"
+      },
+      {
+        "spec_name": "code-familiarity",
+        "actual": "code-familiarity"
+      },
+      {
+        "spec_name": "delivery-friction",
+        "actual": "delivery-friction"
+      },
+      {
+        "spec_name": "delivery-metrics",
+        "actual": "delivery-metrics"
+      },
+      {
+        "spec_name": "cycle-origins",
+        "actual": "cycle-origins"
+      },
+      {
+        "spec_name": "cycle-health",
+        "actual": "cycle-health"
+      },
+      {
+        "spec_name": "unstable-interface",
+        "actual": "unstable-interface"
+      },
+      {
+        "spec_name": "refactoring-targets",
+        "actual": "refactoring-targets"
+      },
+      {
+        "spec_name": "authors",
+        "actual": "authors"
+      },
+      {
+        "spec_name": "top-committers",
+        "actual": "top-committers"
+      },
+      {
+        "spec_name": "crossing",
+        "actual": "crossing"
+      }
+    ]
+  },
+  "batch1_vs_deferred_overlap": [],
+  "deferred_shorthand_map": {
+    "function-*": "function-xray/function-hotspots/function-coupling（枚举展开 3 面）",
+    "metrics": "delivery-metrics（D-035④ “delivery-friction/metrics” 速写）"
+  },
+  "unregistered_residual": [
+    "entity-effort",
+    "architecture-violations",
+    "finding-hotspot-overlap",
+    "defect-validation"
+  ],
+  "unregistered_residual_note": "57 枚举中 4 面既非首批（30）亦非 D-035④ 暂缓面集登记名（20 速写→22 枚举），且不在已契约面（summary/explain）。按「不静默登记」纪律：本票如实登记于此，是否纳入暂缓面集 manual_watch 由收口窗口裁决（若纳入需先补 D-035④ 账本原文，否则 33-check B3 会 FAIL）。"
+}

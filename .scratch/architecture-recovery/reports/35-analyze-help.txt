@@ -1,0 +1,174 @@
+Run an analysis and emit results
+
+Usage: codelore analyze [OPTIONS]
+
+Options:
+  -a, --analysis <ANALYSIS>
+          Analysis to run. An unknown value is rejected at parse time with the supported list and a did-you-mean suggestion
+          
+          [default: revisions]
+          [possible values: hotspots, hotspot-velocity, coupling, ownership, code-age, abs-churn, author-churn, entity-churn, communication, code-health, summary, revisions, authors, clones, clone-coupling, soc, messages, main-dev, main-dev-by-revs, main-dev-by-deletions, entity-effort, entity-ownership, top-committers, knowledge-islands, centrality, communities, god-classes, architecture-violations, dependency-cycles, architecture-roles, instability, architecture-metrics, architecture-trend, health-trend, cycle-origins, modularity-violations, unstable-interface, crossing, stale-code, pair-programming, lead-time, bus-factor, delivery-friction, delivery-metrics, refactoring-targets, effort-exposure, code-familiarity, team-composition, coordination-needs, marginal-owner-risk, release-cadence, function-xray, function-hotspots, function-coupling, finding-hotspot-overlap, cycle-health, defect-validation]
+
+  -r, --repo <REPO>
+          Path to the git repo (default: cwd)
+          
+          [default: .]
+
+  -f, --format <FORMAT>
+          Output format (see the possible-values list below for the full set). Most analyses emit csv/json/markdown. ndjson: hotspots, code-health, coupling, lead-time. sarif: hotspots, clones, clone-coupling. gha: hotspots. html: hotspots, code-health, knowledge-islands, clone-coupling, summary, revisions, authors, top-committers. parquet: hotspots, revisions, summary; requires --output. sqlite: full fact-store dump; requires --output. spa: interactive dashboard; --output optional (defaults to .codelore/spa.html). step-summary: GFM summary for `$GITHUB_STEP_SUMMARY`; streams to stdout
+          
+          [default: csv]
+          [possible values: csv, json, ndjson, sarif, markdown, gha, html, parquet, sqlite, spa, step-summary]
+
+  -o, --output <OUTPUT>
+          Write output to file instead of stdout
+
+      --min-revs <MIN_REVS>
+          Minimum revisions per entity (code-maat parity)
+          
+          [default: 5]
+
+      --rows <ROWS>
+          Limit output to N rows
+
+      --complexity-sample <COMPLEXITY_SAMPLE>
+          Complexity sampling strategy. Only `head` (metrics computed at HEAD) is currently implemented; it is the default and the sole accepted value
+          
+          [default: head]
+          [possible values: head]
+
+  -g, --group-file <GROUP_FILE>
+          Architectural grouping file (one `<lhs> => <group>` mapping per line, code-maat parity). Plain-text and regex rules are both accepted; `fancy-regex` powers the engine so lookaround is supported. Paths are rewritten at ingest before coupling/hotspot/code-health aggregation, so groups appear as first-class entities throughout the analysis pipeline
+
+  -p, --team-map-file <TEAM_MAP_FILE>
+          Optional CSV `author,team` mapping that aliases author identities to logical teams in every author-bearing analysis (`authors`, `author-churn`, `entity-ownership`, `main-dev`, `communication`, etc.). Mirrors code-maat's `-p / --team-map-file` flag; applied after mailmap normalization and bot filtering, so the resolved canonical identity is what gets aliased. If this flag is NOT passed, `CodeLore` auto-discovers `<repo>/.codelore-teams` and loads it transparently. Unmatched authors pass through unchanged
+
+      --exclude <EXCLUDE>
+          Path patterns to exclude from analyses (repeatable). `.gitignore`, `.git/info/exclude`, and `.codeloreignore` in the repo root are auto-respected by default — vendored deps (`node_modules`, `target`, `dist`), lockfiles, locales, etc. don't show up in hotspots unless `--include-ignored` is passed
+
+      --include-ignored
+          Analyse files normally excluded by `.gitignore` / `.codeloreignore`. Default behaviour is to respect them so vendored deps, build outputs, and lockfiles don't dominate hotspots. Use this flag when analysing a vendored fork or when the lockfile IS the engineering signal you care about
+
+      --no-cache
+          Skip the persistent fact-store cache and always run a fresh in-memory ingest. Useful when you suspect a stale cache or want reproducible timing
+
+      --cache-dir <CACHE_DIR>
+          Override the XDG cache root for the persistent fact-store. Defaults to `$XDG_CACHE_HOME/codelore` (or the OS equivalent). Useful in CI environments that want per-job caches on a shared runner
+
+      --temp-dir <TEMP_DIR>
+          Override the `DuckDB` spill directory used once a query's memory usage exceeds the internal ceiling (see docs/advanced-usage.md). Must already exist and be writable. Defaults to a subdirectory of the cache root, or the system temp directory when there is no cache root in play (e.g. `--no-cache`)
+
+  -v, --verbose
+          Verbose logging
+
+      --explain
+          Print the `DuckDB` optimizer plan for the analysis's underlying SQL to stderr before running the query. Useful for debugging performance ("which join was the dominator?") or for verifying that an index is being used. Supported for `hotspots`
+
+      --no-banner
+          Suppress the pre-flight banner (the box printed to stderr at the start of every analyze run showing version, repo, branch, analysis name, and pre-flight status). The banner is also auto-suppressed when stderr is not a TTY (e.g. when piping into `tee` or redirecting to a file). When a pre-flight CHECK fails the failure banner still prints — error feedback is too important to swallow
+
+      --no-canonical-lineage
+          Disable rename-aware aggregation. By default, a file's pre-rename history is merged onto its current canonical path so renamed files don't show split revision counts. Set this flag to fall back to code-maat's literal-path behaviour. Implied by `--code-maat-compat`
+
+      --min-shared-revs <MIN_SHARED_REVS>
+          Minimum shared revisions for a coupling pair (code-maat parity). Pairs below this floor are dropped before the Fisher gate runs
+          
+          [default: 5]
+
+      --min-coupling <MIN_COUPLING_PCT>
+          Minimum coupling degree (0-100%) for a pair to surface in `coupling`. Code-maat parity; complements --min-shared-revs
+          
+          [default: 30]
+
+      --max-coupling <MAX_COUPLING_PCT>
+          Maximum coupling degree (0-100%) ceiling. Useful for narrowing the report to non-perfectly-coupled pairs (degree=100 means every commit modifies both files, often a sign of file split rather than a real signal)
+          
+          [default: 100]
+
+      --max-changeset-size <MAX_CHANGESET_SIZE>
+          Drop commits touching more than N files from coupling/soc analyses. Filters refactor sweeps that create spurious coupling noise. Code-maat default is 30
+          
+          [default: 30]
+
+      --age-time-now <AGE_TIME_NOW>
+          Reference "now" for code-age analysis. Format: YYYY-MM-DD. Default: today UTC. Useful for reproducing a historic report or holding CI output stable across days
+
+      --after <AFTER>
+          Only include commits authored on or after this date. Format: YYYY-MM-DD. Applied at repo-walk time so the filter survives across every analysis. Mirrors `git log --after`
+
+      --before <BEFORE>
+          Only include commits authored on or before this date. Format: YYYY-MM-DD. Applied at repo-walk time. Mirrors `git log --before`
+
+      --include-merges
+          Include merge commits in coupling / churn / ownership analyses. Off by default (matches code-maat semantics: merges duplicate authorship and inflate co-change pairs). Set to opt back in
+
+  -e, --expression-to-match <MESSAGE_REGEX>
+          Commit-message regex for the `messages` analysis. Required when `--analysis messages` is run; ignored otherwise. RE2-flavor (per `DuckDB` `regexp_matches`); use `(?i)` for case-insensitive matching
+
+      --min-soc <MIN_SOC>
+          Minimum `SoC` value for `soc` to surface a row. Modern replacement for code-maat's overloaded use of `--min-revs` in that one analysis. Default: drop solo commits (1)
+
+      --code-maat-compat
+          Migration helper: flip internal defaults back to legacy code-maat behavior. When set: - `main-dev-by-revs` emits the lying `added`/`total-added` CSV headers (instead of the honest `revisions`/`total-revisions`) - `soc` falls back to `--min-revs` for its threshold (code-maat's semantically-overloaded use) instead of the dedicated `--min-soc` - `--strict-grouping` defaults to true (code-maat's always-strict behavior) instead of `CodeLore`'s safer non-strict default
+          
+          Use only when dashboards downstream parse code-maat CSV verbatim. The modern surface is the recommendation; this flag is the safety net for users in migration who can't update their parsers yet.
+
+      --fdr-correction
+          Apply a Benjamini-Hochberg false-discovery-rate correction to the Fisher co-change gate instead of the per-pair significance test. Controls the family-wise false-discovery rate across all tested coupling pairs; stricter than the per-pair gate. Off by default
+
+      --strict-grouping
+          Strict-grouping mode: paths that don't match any rule in the `--group-file` are DROPPED from analysis output (code-maat's behavior). Default: false — unmapped paths keep their raw names rather than being dropped without notice. `--code-maat-compat` implies `--strict-grouping`
+
+      --time-bucket <TIME_BUCKET>
+          Time-bucket aggregation for coupling-family analyses (`coupling`, `clone-coupling`, `soc`). When set, commits within the same `date_trunc(<unit>, commit.date)` bucket count as a single "logical commit" for pair-counting purposes. Useful when teams land related changes across multiple small commits in the same day/week instead of one rollup commit.
+          
+          Modern replacement for code-maat's sliding-window `--temporal-period` hack. Backed by `DuckDB`'s `date_trunc()` — clean non-overlapping buckets, no commit-duplication artifact.
+          
+          Default: no bucketing (raw commit grain).
+          
+          [possible values: day, week, month]
+
+      --departed-threshold-days <DEPARTED_THRESHOLD_DAYS>
+          An author is considered "departed" if their most recent commit anywhere in the repo is older than this many days at the anchor moment (used by `knowledge-islands` analysis).
+          
+          Default: 90 days (industry retention/sabbatical empirical threshold; engineers who leave permanently usually stop committing within 60 days, 90 avoids flagging extended-leave contributors).
+          
+          Lower for fast-moving startups (30-45); raise for academia / OSS maintainer codebases (180+).
+          
+          [default: 90]
+
+      --window-days <WINDOW_DAYS>
+          Trailing window in days for activity-scoped analyses (anchored to the repo's last commit). Valid range: 1–3650. Default: 90
+          
+          [default: 90]
+
+      --knowledge-model <KNOWLEDGE_MODEL>
+          Knowledge model for `bus-factor`. `commits` (default): Filatov 2010 greedy coverage of ≥80% of commits per module. `doe`: Cury & Avelino SBES'24 truck-factor procedure — greedy removal of the author with the most expert files until >50% of files lack an expert
+          
+          [default: commits]
+          [possible values: commits, doe]
+
+      --rework-window-days <REWORK_WINDOW_DAYS>
+          Hunk-overlap window for rework detection in `delivery-metrics`. Hunk pairs on the same path where the second commit's author-date falls within this many days of the first are counted as rework. Valid range: 1–365. Default: 21
+          
+          [default: 21]
+
+      --release-tag-glob <RELEASE_TAG_GLOB>
+          Glob pattern for filtering release tags in `release-cadence`. Only tags whose short name matches this glob are included. Must be non-empty. Default: `v*`
+          
+          [default: v*]
+
+      --target <TARGET>
+          Target file path (repo-relative) for analyses that operate on a single file. Required by `function-xray` and `function-coupling`; ignored by all other analyses
+
+      --calibration <CALIBRATION>
+          Corpus-calibration artifact for the `code-health` corpus-percentile lens. Overrides the embedded world corpus with a hand-built or org-specific artifact (build one with `codelore calibrate`). When omitted, the embedded artifact is used if present; otherwise the corpus lens is absent and a one-time notice is printed
+
+      --defect-calibration <DEFECT_CALIBRATION>
+          Own-repo defect-calibration artifact (build one with `codelore calibrate-defects`). Its smell weights replace the built-in code-health defaults for this run. Hard error if the artifact was mined from a different repository — see --allow-foreign-calibration
+
+      --allow-foreign-calibration
+          Apply a defect-calibration artifact mined from a different repository (forks, moved checkouts): skips the repo-identity guard
+
+  -h, --help
+          Print help (see a summary with '-h')

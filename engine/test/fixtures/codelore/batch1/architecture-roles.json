@@ -1,0 +1,434 @@
+[
+  {
+    "path": "engine/src/manifest.ts",
+    "role": "shared",
+    "vfi": 4,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 2,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": "engine/src/fact/schema.ts",
+    "role": "shared",
+    "vfi": 3,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 2,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": "engine/src/selftest.ts",
+    "role": "shared",
+    "vfi": 3,
+    "vfo": 2,
+    "in_cycle": false,
+    "level": 1,
+    "reach_pct": 4.166666666666667
+  },
+  {
+    "path": "engine/src/collect/collectors.ts",
+    "role": "shared",
+    "vfi": 2,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 1,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": "engine/src/fact/store.ts",
+    "role": "shared",
+    "vfi": 2,
+    "vfo": 2,
+    "in_cycle": false,
+    "level": 1,
+    "reach_pct": 4.166666666666667
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-align.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-extract.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-spotcheck.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/02-adr-fallback.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/02-adr-header-scan.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/04-downweight-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/05-matrix-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/09-stale-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/14-skeleton-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/15-slice-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/16-render-split-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/18-failure-demo.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/20-fact-schema-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/21-collectors-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/22-criteria-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/22-threshold-probe.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-first-report-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-first-report.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/24-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/25-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/26-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/27-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/27-rerun.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/28-apply.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/28-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/29-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/30-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/31-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/31-codelore-probe.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/32-t0-verify.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/32-t0-verify2.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/33-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/34-check.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": "engine/scripts/gen-manifests.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": "engine/src/cli.ts",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 3,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 6.25
+  },
+  {
+    "path": "engine/src/fact/index.ts",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 3,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 6.25
+  },
+  {
+    "path": "engine/src/index.ts",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 3,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 6.25
+  },
+  {
+    "path": "engine/src/report/generate.ts",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": "engine/src/upstream/codelore.ts",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 2,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 4.166666666666667
+  },
+  {
+    "path": "engine/test/codelore-adapter.test.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": "engine/test/collectors.test.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  },
+  {
+    "path": "engine/test/smoke.test.mjs",
+    "role": "shared",
+    "vfi": 1,
+    "vfo": 1,
+    "in_cycle": false,
+    "level": 0,
+    "reach_pct": 2.0833333333333335
+  }
+]

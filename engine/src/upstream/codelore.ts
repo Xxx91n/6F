@@ -37,6 +37,17 @@ export function resolveCodelore(binary: string): CodeloreResolution {
   return { strategy: 'binary-discovery', binary: bin, version: version, pinned: version === CODELORE_PINNED_VERSION, error: version ? null : 'version-parse-failed' };
 }
 
+function pushResolutionFact(out: CollectedFact[], ctx: CollectContext, res: CodeloreResolution): void {
+  out.push(makeFact(ctx, CODELORE_DESCRIPTOR, 'codelore', 'codelore', 'upstream.resolution', {
+    strategy: res.strategy,
+    binary: res.binary,
+    version: res.version,
+    pinned_version: CODELORE_PINNED_VERSION,
+    pinned: res.pinned,
+    error: res.error
+  }));
+}
+
 export interface ExplainDossier {
   sections: Record<string, Record<string, string>>;
 }
@@ -84,14 +95,7 @@ export function collectCodeloreFacts(input: CodeloreProbeInput, ctx: CollectCont
   const out: CollectedFact[] = [];
   const bin = input.binary || 'codelore';
   const res = resolveCodelore(bin);
-  out.push(makeFact(ctx, CODELORE_DESCRIPTOR, 'codelore', 'codelore', 'upstream.resolution', {
-    strategy: res.strategy,
-    binary: res.binary,
-    version: res.version,
-    pinned_version: CODELORE_PINNED_VERSION,
-    pinned: res.pinned,
-    error: res.error
-  }));
+  pushResolutionFact(out, ctx, res);
   if (res.error || !res.pinned) { return out; }
 
   const sum = runText(bin, ['analyze', '--analysis', 'summary', '--format', 'json', '--repo', input.repoRoot], input.repoRoot);
@@ -123,6 +127,142 @@ export function collectCodeloreFacts(input: CodeloreProbeInput, ctx: CollectCont
       path: p,
       sections: Object.keys(d.sections),
       dossier: d.sections
+    }));
+  }
+  return out;
+}
+
+// ---------- 首批契约面（#35 / A-040 / D-035①）：逐面 golden 契约 ----------
+// 面集 = 演化主干 12 + S3 族 6 + S5 族 12；面名以 `codelore analyze --help` 实物枚举对账（reports/35-facet-reconciliation.json）。
+// LLM 面（explain 族 env 门控）不混入，归 #36 独立票；暂缓面集 ~20 面挂 registry manual_watch（D-035④）。
+// 本层仍只做「进程调用 + 原始输出解析」：冻结 argv 属契约钉死（可观察输出即契约），任何判据/评级语义不进本层。
+
+export type CodeloreFacetGroup = 'evolution' | 's3' | 's5';
+
+export interface CodeloreFacetSpec {
+  analysis: string;
+  group: CodeloreFacetGroup;
+  extraArgs: readonly string[];
+}
+
+// code-age 冻结参考时钟（--age-time-now）使重放可复现；messages 冻结检索表达式（契约 = argv 全体）。
+export const CODELORE_BATCH1_FACETS: readonly CodeloreFacetSpec[] = [
+  { analysis: 'revisions', group: 'evolution', extraArgs: [] },
+  { analysis: 'abs-churn', group: 'evolution', extraArgs: [] },
+  { analysis: 'entity-churn', group: 'evolution', extraArgs: [] },
+  { analysis: 'author-churn', group: 'evolution', extraArgs: [] },
+  { analysis: 'hotspot-velocity', group: 'evolution', extraArgs: [] },
+  { analysis: 'code-age', group: 'evolution', extraArgs: ['--age-time-now', '2026-09-15'] },
+  { analysis: 'stale-code', group: 'evolution', extraArgs: [] },
+  { analysis: 'architecture-trend', group: 'evolution', extraArgs: [] },
+  { analysis: 'health-trend', group: 'evolution', extraArgs: [] },
+  { analysis: 'lead-time', group: 'evolution', extraArgs: [] },
+  { analysis: 'release-cadence', group: 'evolution', extraArgs: [] },
+  { analysis: 'messages', group: 'evolution', extraArgs: ['-e', '(?i)(fix|feat|docs)'] },
+  { analysis: 'god-classes', group: 's3', extraArgs: [] },
+  { analysis: 'architecture-metrics', group: 's3', extraArgs: [] },
+  { analysis: 'dependency-cycles', group: 's3', extraArgs: [] },
+  { analysis: 'modularity-violations', group: 's3', extraArgs: [] },
+  { analysis: 'instability', group: 's3', extraArgs: [] },
+  { analysis: 'architecture-roles', group: 's3', extraArgs: [] },
+  { analysis: 'ownership', group: 's5', extraArgs: [] },
+  { analysis: 'entity-ownership', group: 's5', extraArgs: [] },
+  { analysis: 'bus-factor', group: 's5', extraArgs: [] },
+  { analysis: 'main-dev', group: 's5', extraArgs: [] },
+  { analysis: 'main-dev-by-revs', group: 's5', extraArgs: [] },
+  { analysis: 'main-dev-by-deletions', group: 's5', extraArgs: [] },
+  { analysis: 'knowledge-islands', group: 's5', extraArgs: [] },
+  { analysis: 'communication', group: 's5', extraArgs: [] },
+  { analysis: 'coordination-needs', group: 's5', extraArgs: [] },
+  { analysis: 'team-composition', group: 's5', extraArgs: [] },
+  { analysis: 'marginal-owner-risk', group: 's5', extraArgs: [] },
+  { analysis: 'pair-programming', group: 's5', extraArgs: [] }
+];
+
+export interface CodeloreAnalysisRun {
+  ok: boolean;
+  status: number | null;
+  stdout: string;
+  stderrTail: string;
+}
+
+export function runCodeloreAnalysis(binary: string, spec: CodeloreFacetSpec, repoRoot: string): CodeloreAnalysisRun {
+  const r = runText(binary, ['analyze', '--analysis', spec.analysis, '--format', 'json', '--repo', repoRoot].concat(spec.extraArgs as string[]), repoRoot);
+  return { ok: r.ok, status: r.status, stdout: r.stdout, stderrTail: r.stderr.slice(-400) };
+}
+
+export type CodeloreRow = Record<string, unknown>;
+
+// analyze --format json 的确定性输出 = 对象行数组；形状漂移（非数组/非对象行）直接抛错，不出假阳性。
+export function parseJsonRows(text: string): CodeloreRow[] {
+  const arr = JSON.parse(text);
+  if (!Array.isArray(arr)) { throw new Error('analysis output is not an array'); }
+  for (const row of arr) {
+    if (row === null || typeof row !== 'object' || Array.isArray(row)) {
+      throw new Error('analysis row shape drift: expected plain object row');
+    }
+  }
+  return arr as CodeloreRow[];
+}
+
+export function facetColumns(rows: readonly CodeloreRow[]): string[] {
+  return rows.length > 0 ? Object.keys(rows[0] as Record<string, unknown>) : [];
+}
+
+export type CodeloreAnalysisRunner = (binary: string, spec: CodeloreFacetSpec, repoRoot: string) => CodeloreAnalysisRun;
+export type CodeloreResolver = (binary: string) => CodeloreResolution;
+
+export interface CodeloreFacetsInput {
+  repoRoot: string;
+  facets?: readonly CodeloreFacetSpec[];
+  binary?: string;
+  runner?: CodeloreAnalysisRunner;
+  resolver?: CodeloreResolver;
+}
+
+// 逐面采集：每面一条 codelore.facet_rows 事实（列清单 + 行数 + 结构化行原样传出）；
+// 失败面降级为 codelore.facet_error / codelore.facet_parse_error，不中断其余面。
+export function collectCodeloreFacets(input: CodeloreFacetsInput, ctx: CollectContext): CollectedFact[] {
+  const out: CollectedFact[] = [];
+  const bin = input.binary || 'codelore';
+  const resolve = input.resolver || resolveCodelore;
+  const runner = input.runner || runCodeloreAnalysis;
+  const res = resolve(bin);
+  pushResolutionFact(out, ctx, res);
+  if (res.error || !res.pinned) { return out; }
+
+  const facets = input.facets || CODELORE_BATCH1_FACETS;
+  for (const spec of facets) {
+    const evidence = 'codelore analyze --analysis ' + spec.analysis + ' --format json' + (spec.extraArgs.length > 0 ? ' ' + spec.extraArgs.join(' ') : '');
+    const run = runner(bin, spec, input.repoRoot);
+    if (!run.ok) {
+      out.push(makeFact(ctx, CODELORE_DESCRIPTOR, spec.analysis, evidence, 'codelore.facet_error', {
+        analysis: spec.analysis,
+        group: spec.group,
+        status: run.status,
+        stderr_tail: run.stderrTail
+      }));
+      continue;
+    }
+    let rows: CodeloreRow[];
+    try {
+      rows = parseJsonRows(run.stdout);
+    } catch (e) {
+      out.push(makeFact(ctx, CODELORE_DESCRIPTOR, spec.analysis, evidence, 'codelore.facet_parse_error', {
+        analysis: spec.analysis,
+        group: spec.group,
+        message: String((e as Error).message)
+      }));
+      continue;
+    }
+    out.push(makeFact(ctx, CODELORE_DESCRIPTOR, spec.analysis, evidence, 'codelore.facet_rows', {
+      analysis: spec.analysis,
+      group: spec.group,
+      format: 'json',
+      extra_args: spec.extraArgs,
+      columns: facetColumns(rows),
+      row_count: rows.length,
+      rows: rows
     }));
   }
   return out;

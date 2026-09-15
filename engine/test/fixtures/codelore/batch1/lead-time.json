@@ -1,0 +1,882 @@
+[
+  {
+    "rev": "9ac25ac82634f059a4a6bc4b2c7544c6cc7b65b9",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:09:50",
+    "committer_date": "2026-09-12 02:43:25",
+    "lead_time_seconds": 38015,
+    "lead_time_days": 0.4399884259259259
+  },
+  {
+    "rev": "dd96b0899da018562c37db85521732cd2325fc85",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:13:41",
+    "committer_date": "2026-09-12 02:43:24",
+    "lead_time_seconds": 37783,
+    "lead_time_days": 0.43730324074074073
+  },
+  {
+    "rev": "07fe4dbe851c6a4d9110aa7336ccd7ae230019a0",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:14:21",
+    "committer_date": "2026-09-12 02:43:25",
+    "lead_time_seconds": 37744,
+    "lead_time_days": 0.4368518518518518
+  },
+  {
+    "rev": "b6318bcc67f3604da3300dc34ef459dc952cd940",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:14:35",
+    "committer_date": "2026-09-12 02:43:24",
+    "lead_time_seconds": 37729,
+    "lead_time_days": 0.43667824074074074
+  },
+  {
+    "rev": "fbfd883f704816c3aea2a0f40787f946d3653b8d",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:14:35",
+    "committer_date": "2026-09-12 02:43:24",
+    "lead_time_seconds": 37729,
+    "lead_time_days": 0.43667824074074074
+  },
+  {
+    "rev": "dd760357fe9c115b42d486c1bbe88758a0402a62",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:15:00",
+    "committer_date": "2026-09-12 02:43:24",
+    "lead_time_seconds": 37704,
+    "lead_time_days": 0.4363888888888889
+  },
+  {
+    "rev": "16bbcbe8134ccf4eee48f47ec6b523d06e116b0e",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:15:20",
+    "committer_date": "2026-09-12 02:43:24",
+    "lead_time_seconds": 37684,
+    "lead_time_days": 0.4361574074074074
+  },
+  {
+    "rev": "0e5b2514686919afb636e460195c44cd5e395005",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:35:33",
+    "committer_date": "2026-09-12 02:43:12",
+    "lead_time_seconds": 36459,
+    "lead_time_days": 0.4219791666666667
+  },
+  {
+    "rev": "aace087d66b4ed47720543c8322f32509a0d8331",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:40:56",
+    "committer_date": "2026-09-12 02:43:25",
+    "lead_time_seconds": 36149,
+    "lead_time_days": 0.4183912037037037
+  },
+  {
+    "rev": "0132d832856a199da852bbb601d98f8d5665d365",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:41:15",
+    "committer_date": "2026-09-12 02:43:24",
+    "lead_time_seconds": 36129,
+    "lead_time_days": 0.4181597222222222
+  },
+  {
+    "rev": "3d831750a47ec987d975e873200b7c6c52667c24",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:41:16",
+    "committer_date": "2026-09-12 02:43:24",
+    "lead_time_seconds": 36128,
+    "lead_time_days": 0.41814814814814816
+  },
+  {
+    "rev": "90518550c28fc92843d3bd7bb63791f62e7efa47",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:43:17",
+    "committer_date": "2026-09-12 02:43:26",
+    "lead_time_seconds": 36009,
+    "lead_time_days": 0.4167708333333333
+  },
+  {
+    "rev": "d5d4b21fecd5260bce77e5a9415c0cc1e106f6ce",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 17:28:37",
+    "committer_date": "2026-09-12 02:43:27",
+    "lead_time_seconds": 33290,
+    "lead_time_days": 0.3853009259259259
+  },
+  {
+    "rev": "c226a6fb8947f48634499e0aad0ef92a4972e069",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 17:30:00",
+    "committer_date": "2026-09-12 02:43:27",
+    "lead_time_seconds": 33207,
+    "lead_time_days": 0.3843402777777778
+  },
+  {
+    "rev": "518b6c910ed09faf0c78af18b3a8e2168f7d841c",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 17:32:22",
+    "committer_date": "2026-09-12 02:43:27",
+    "lead_time_seconds": 33065,
+    "lead_time_days": 0.3826967592592593
+  },
+  {
+    "rev": "0c1190705f8fbe743d9e481bc7ed5657c3483ca0",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 17:35:53",
+    "committer_date": "2026-09-12 02:43:27",
+    "lead_time_seconds": 32854,
+    "lead_time_days": 0.38025462962962964
+  },
+  {
+    "rev": "ae3d43c2237c9b1f87b766d6838b8d4adb4b804e",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 17:36:03",
+    "committer_date": "2026-09-12 02:43:27",
+    "lead_time_seconds": 32844,
+    "lead_time_days": 0.3801388888888889
+  },
+  {
+    "rev": "d35d7a5740031ab9c88fb3719807e0ea1616f028",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 17:36:40",
+    "committer_date": "2026-09-12 02:43:27",
+    "lead_time_seconds": 32807,
+    "lead_time_days": 0.37971064814814814
+  },
+  {
+    "rev": "b96a03932f93ada32ea1264fd98b11cf8fb14857",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 15:56:51",
+    "committer_date": "2026-09-13 19:42:22",
+    "lead_time_seconds": 13531,
+    "lead_time_days": 0.1566087962962963
+  },
+  {
+    "rev": "4a53379051125643b6cca042b18ac2d06544fcc0",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 12:27:47",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 13382,
+    "lead_time_days": 0.15488425925925925
+  },
+  {
+    "rev": "dd5aff259b12d8b79ebee46f4143fe22da4f957c",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 12:34:22",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 12987,
+    "lead_time_days": 0.1503125
+  },
+  {
+    "rev": "65083561226697dfb731e98e1f8f0f5e9c7aa1fc",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 16:10:20",
+    "committer_date": "2026-09-13 19:42:22",
+    "lead_time_seconds": 12722,
+    "lead_time_days": 0.14724537037037036
+  },
+  {
+    "rev": "35250c36d5ee65ded251d1a57bfbb706f5d89109",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 16:18:47",
+    "committer_date": "2026-09-13 19:42:22",
+    "lead_time_seconds": 12215,
+    "lead_time_days": 0.1413773148148148
+  },
+  {
+    "rev": "742d4f7a245476a670867a2e6fd992d9ea7fe095",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 16:29:06",
+    "committer_date": "2026-09-13 19:42:22",
+    "lead_time_seconds": 11596,
+    "lead_time_days": 0.13421296296296295
+  },
+  {
+    "rev": "19871d952dca28de71477d7f417c1c637df3a984",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 13:09:58",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 10851,
+    "lead_time_days": 0.1255902777777778
+  },
+  {
+    "rev": "011dbf5b8aadc9a7682f2aeb5ed1c7947a0c61c4",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 16:49:28",
+    "committer_date": "2026-09-13 19:42:22",
+    "lead_time_seconds": 10374,
+    "lead_time_days": 0.12006944444444445
+  },
+  {
+    "rev": "36b289ba8abec0a12d1e6927704be648fbcd91cd",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 16:50:25",
+    "committer_date": "2026-09-13 19:42:22",
+    "lead_time_seconds": 10317,
+    "lead_time_days": 0.11940972222222222
+  },
+  {
+    "rev": "2cb04b48374a3601a798d1dfc47089e2861ee11e",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 13:28:44",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 9725,
+    "lead_time_days": 0.11255787037037036
+  },
+  {
+    "rev": "9731032b961e3cda9ac9712d2c6037063778e132",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 13:29:06",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 9703,
+    "lead_time_days": 0.11230324074074075
+  },
+  {
+    "rev": "9b8ab4cdc4cff2f1937a8e9da99e8d08ec66b13d",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 13:46:19",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 8670,
+    "lead_time_days": 0.10034722222222223
+  },
+  {
+    "rev": "84f571a6d25f69f326c9706ed9f1fb8dd9fde772",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 11:39:34",
+    "committer_date": "2026-09-15 13:57:16",
+    "lead_time_seconds": 8262,
+    "lead_time_days": 0.095625
+  },
+  {
+    "rev": "3285af458710bd0190ade364a469d47247addd96",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 13:59:17",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 7892,
+    "lead_time_days": 0.09134259259259259
+  },
+  {
+    "rev": "b950dc7c14e71cac6e8fbb013f36322c04cb97bc",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 09:30:21",
+    "committer_date": "2026-09-12 11:21:00",
+    "lead_time_seconds": 6639,
+    "lead_time_days": 0.07684027777777777
+  },
+  {
+    "rev": "a41ac9d948e271697231c2a73815c7af37aab2d3",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 17:52:19",
+    "committer_date": "2026-09-13 19:42:22",
+    "lead_time_seconds": 6603,
+    "lead_time_days": 0.07642361111111111
+  },
+  {
+    "rev": "1d5253bfcf46091947b73241cc7732743ef732c0",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 14:23:05",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 6464,
+    "lead_time_days": 0.07481481481481482
+  },
+  {
+    "rev": "158cbc3439a3f0badf1b79c637bc1975fed3ee4c",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 14:23:43",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 6426,
+    "lead_time_days": 0.074375
+  },
+  {
+    "rev": "47af0ea1ffbcb082dd1ce709934e72b3ee0ec8c8",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 14:24:41",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 6368,
+    "lead_time_days": 0.0737037037037037
+  },
+  {
+    "rev": "3f5976242c833646e58fe675e5a7c098cc951b3a",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 14:30:41",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 6008,
+    "lead_time_days": 0.06953703703703704
+  },
+  {
+    "rev": "772fbc42d9c0f3a07171254c51c57e313b851a82",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 14:30:42",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 6007,
+    "lead_time_days": 0.06952546296296297
+  },
+  {
+    "rev": "9df1cce4687610684bbeb84afcad824aa3ddc13e",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 01:05:21",
+    "committer_date": "2026-09-12 02:43:28",
+    "lead_time_seconds": 5887,
+    "lead_time_days": 0.06813657407407407
+  },
+  {
+    "rev": "afd2b2f2e9a8feeef097757e00a47f3d62811fb6",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 01:06:09",
+    "committer_date": "2026-09-12 02:43:28",
+    "lead_time_seconds": 5839,
+    "lead_time_days": 0.06758101851851851
+  },
+  {
+    "rev": "93fb9b2ccf18ba00426150bc087b6a6c072d0cb3",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 12:23:46",
+    "committer_date": "2026-09-15 13:57:16",
+    "lead_time_seconds": 5610,
+    "lead_time_days": 0.06493055555555556
+  },
+  {
+    "rev": "ea3b8e69ed0ef4d47e2cecc688765891d0db7022",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 12:24:23",
+    "committer_date": "2026-09-15 13:57:16",
+    "lead_time_seconds": 5573,
+    "lead_time_days": 0.06450231481481482
+  },
+  {
+    "rev": "63534acda94a331bd9fdd09cdc2373035fcd5036",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 14:56:24",
+    "committer_date": "2026-09-11 16:10:49",
+    "lead_time_seconds": 4465,
+    "lead_time_days": 0.05167824074074074
+  },
+  {
+    "rev": "66e4433bb8b52cb88f03de3e03f23b97f1c71a31",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 10:14:02",
+    "committer_date": "2026-09-12 11:21:07",
+    "lead_time_seconds": 4025,
+    "lead_time_days": 0.04658564814814815
+  },
+  {
+    "rev": "c52128a527a3d1a782719c7e1d8253175f2b1c99",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 18:35:18",
+    "committer_date": "2026-09-13 19:42:22",
+    "lead_time_seconds": 4024,
+    "lead_time_days": 0.04657407407407407
+  },
+  {
+    "rev": "f43991c7d6f15337cb1380d1f63192d76462913b",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 13:02:38",
+    "committer_date": "2026-09-15 13:57:44",
+    "lead_time_seconds": 3306,
+    "lead_time_days": 0.03826388888888889
+  },
+  {
+    "rev": "f9980d14d40de06d3acdbc34aa0e9bec16afc357",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 10:38:47",
+    "committer_date": "2026-09-12 11:21:00",
+    "lead_time_seconds": 2533,
+    "lead_time_days": 0.02931712962962963
+  },
+  {
+    "rev": "a4f1dd2b5547eb7c25a7e0dad37e5c09fc319216",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 10:39:02",
+    "committer_date": "2026-09-12 11:21:00",
+    "lead_time_seconds": 2518,
+    "lead_time_days": 0.02914351851851852
+  },
+  {
+    "rev": "5c7d1118d41b363869d7ef79d2550f3a05f36a0e",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 03:25:58",
+    "committer_date": "2026-09-13 03:52:15",
+    "lead_time_seconds": 1577,
+    "lead_time_days": 0.018252314814814815
+  },
+  {
+    "rev": "98324d2d9d7731e2cac614a9a7f9cd966fb7d897",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 03:46:07",
+    "committer_date": "2026-09-13 04:08:08",
+    "lead_time_seconds": 1321,
+    "lead_time_days": 0.015289351851851853
+  },
+  {
+    "rev": "899276f0fddfd041a93759084e3230980e2c82a6",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 19:24:56",
+    "committer_date": "2026-09-13 19:42:22",
+    "lead_time_seconds": 1046,
+    "lead_time_days": 0.012106481481481482
+  },
+  {
+    "rev": "066c0bc7941ee6c7e054115afb1578c2386134ac",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 05:52:28",
+    "committer_date": "2026-09-15 06:01:21",
+    "lead_time_seconds": 533,
+    "lead_time_days": 0.006168981481481482
+  },
+  {
+    "rev": "5264059e833c6b3b6d91a97bc2a725ce50f73db9",
+    "canonical_author": "gitbutler@gitbutler.com",
+    "author_date": "2026-09-15 16:11:45",
+    "committer_date": "2026-09-15 16:20:34",
+    "lead_time_seconds": 529,
+    "lead_time_days": 0.006122685185185185
+  },
+  {
+    "rev": "2be5059c01ccd815d6001bc985f8d0f41adf1372",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 08:52:58",
+    "committer_date": "2026-09-12 08:55:30",
+    "lead_time_seconds": 152,
+    "lead_time_days": 0.0017592592592592592
+  },
+  {
+    "rev": "498727951dd8d668625dea0d0dd00ed80d5dab0a",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 13:54:51",
+    "committer_date": "2026-09-15 13:57:16",
+    "lead_time_seconds": 145,
+    "lead_time_days": 0.0016782407407407408
+  },
+  {
+    "rev": "8be9db51adac791616de49f60bdb0bc5e0121dfc",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 19:40:00",
+    "committer_date": "2026-09-13 19:42:22",
+    "lead_time_seconds": 142,
+    "lead_time_days": 0.0016435185185185185
+  },
+  {
+    "rev": "73954956a13fcb42014afecaaf68129ae653e8d5",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 06:27:52",
+    "committer_date": "2026-09-13 06:29:07",
+    "lead_time_seconds": 75,
+    "lead_time_days": 0.0008680555555555555
+  },
+  {
+    "rev": "4624acd7190d46e8ee970cedd9f86c9451157d0c",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 04:07:21",
+    "committer_date": "2026-09-13 04:07:56",
+    "lead_time_seconds": 35,
+    "lead_time_days": 0.0004050925925925926
+  },
+  {
+    "rev": "e39468c9c53d32694f2ef9153b79eae018ea6b44",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 09:30:37",
+    "committer_date": "2026-09-13 09:30:45",
+    "lead_time_seconds": 8,
+    "lead_time_days": 0.00009259259259259259
+  },
+  {
+    "rev": "0f111c4b5738392de50b468c93c2816f390a471c",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 03:52:15",
+    "committer_date": "2026-09-13 03:52:15",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "137c2a11dad411c346fc4b8beffc104abca09613",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 11:33:07",
+    "committer_date": "2026-09-12 11:33:07",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "1a8bbdfac01f7ed3ace07e16fc140d38e97534a7",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 09:16:40",
+    "committer_date": "2026-09-12 09:16:40",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "1acf03da2acf613c3a6bbbd847b754d191e37eba",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 10:39:51",
+    "committer_date": "2026-09-12 10:39:51",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "1de58708df4b7c302c197c8bc642886a04942d63",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 07:39:35",
+    "committer_date": "2026-09-15 07:39:35",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "200b344ded9573c372ffa4a56baf35ecc433dd98",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 06:31:09",
+    "committer_date": "2026-09-13 06:31:09",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "2a1e5025d55f41ef6e49071c7905f80094d3680c",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 09:30:52",
+    "committer_date": "2026-09-13 09:30:52",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "2d4df6b9bb2007eaad150e636cf5a6b8c99bdeae",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 09:31:49",
+    "committer_date": "2026-09-13 09:31:49",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "2e2520c41bf6720044381fa7470a1e475b2f5fab",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 12:23:32",
+    "committer_date": "2026-09-11 12:23:32",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "332751d555a919195ff7a767761872e1ed3aef1f",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 13:54:37",
+    "committer_date": "2026-09-15 13:54:37",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "3586f2e55d3060974c5d217cbfdaca0db0b81c76",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 06:10:37",
+    "committer_date": "2026-09-15 06:10:37",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "3a049d45133e7ba96152397f659068e9efbf663b",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 03:53:09",
+    "committer_date": "2026-09-12 03:53:09",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "3fa5348df0ca2a87c4b69f1bcf7997aa80086b2e",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 19:21:23",
+    "committer_date": "2026-09-13 19:21:23",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "3fb510eb8de449ecb30e4418c71b274d7cf64734",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 12:23:32",
+    "committer_date": "2026-09-11 12:23:32",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "55dc34ec2fc0b791cde0e5b3217742d0f43a966d",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 09:31:57",
+    "committer_date": "2026-09-13 09:31:57",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "639a2c7205826568eb24d9a6709e0fd16957b1f5",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:37:28",
+    "committer_date": "2026-09-11 16:37:28",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "6ab4b32aaf34be233f143923f7b6fc15397a5462",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 18:23:10",
+    "committer_date": "2026-09-13 18:23:10",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "6cdcd3115e49d4a9d725549288bf7948448efd67",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 08:46:45",
+    "committer_date": "2026-09-15 08:46:45",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "798fa355a85c91bd0847754348c0ada9ed3c35a1",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 07:58:00",
+    "committer_date": "2026-09-15 07:58:00",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "7d7e4d38420c08900c327eed0f9532893ec76e1b",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 06:29:23",
+    "committer_date": "2026-09-13 06:29:23",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "7e03ffd24337be05bf3da22563dd573a8eae10fa",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 07:40:18",
+    "committer_date": "2026-09-15 07:40:18",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "83793ccb66c6647ebdcb93b6472ca741132392e4",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 11:20:42",
+    "committer_date": "2026-09-12 11:20:42",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "880fcc6a73c8227e41a49262eae4895d067cc918",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 09:30:22",
+    "committer_date": "2026-09-12 09:30:22",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "8f132a23395c28c0efc4395c5ef43747c49fa681",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 12:21:08",
+    "committer_date": "2026-09-15 12:21:08",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "92abf061e9d1e678be1673edba5e5f7223a5ec6b",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 12:16:03",
+    "committer_date": "2026-09-15 12:16:03",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "9a42d224c40d41ea8f345a6c516eeff785bd8a96",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 05:14:10",
+    "committer_date": "2026-09-15 05:14:10",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "9d1742c4c7942edc4162430ad5c6bb1df44238e0",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 09:31:09",
+    "committer_date": "2026-09-12 09:31:09",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "a02bbfd2df3bff5e8e01d79bc1fff7cb3b09b035",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 04:14:32",
+    "committer_date": "2026-09-12 04:14:32",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "a705bac1171b1697950e1b06e068879ac7f8d653",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 16:11:45",
+    "committer_date": "2026-09-15 16:11:45",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "ac03dda8cc2ea498fa06b07c0e068642125c55a7",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 17:32:42",
+    "committer_date": "2026-09-12 17:32:42",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "b18fc81c2e84a75dfb750453124329924371c752",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 05:33:51",
+    "committer_date": "2026-09-15 05:33:51",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "bfc945c3c1c60edfcc9a5c49b435e56ac054ebf0",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 05:46:11",
+    "committer_date": "2026-09-13 05:46:11",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "c4ccc65c45ed4fc1541921bdd8440c0206358663",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 06:42:37",
+    "committer_date": "2026-09-15 06:42:37",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "c666aeaa1bd5269309846a94b87bc1f4e34fc7c3",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 16:36:54",
+    "committer_date": "2026-09-11 16:36:54",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "c9bd0ce591d11a478972721f20efee6aa3b8541e",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 10:38:48",
+    "committer_date": "2026-09-12 10:38:48",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "ce4c4383bcf5d389215cd7582d4dcde718802575",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 06:10:36",
+    "committer_date": "2026-09-15 06:10:36",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "ced451b43d01938aee70a2e8b8d620fbdb18dbd9",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 11:08:08",
+    "committer_date": "2026-09-13 11:08:08",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "d626152927a32efb9cd87b500223147a4f014dcf",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 06:39:49",
+    "committer_date": "2026-09-15 06:39:49",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "d9318ba4f75db458e91207b5ba8ed78d76ec2bfa",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 07:40:17",
+    "committer_date": "2026-09-15 07:40:17",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "da009fc582269b80f65b1f2ae6032359135edf8e",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 04:36:22",
+    "committer_date": "2026-09-15 04:36:22",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "e6c916ebf6d280022bda16da02c2f2e4660de3c1",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-13 04:11:16",
+    "committer_date": "2026-09-13 04:11:16",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "e72f47cb79e5c00f1bff0ca810460d7833a09138",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 14:01:35",
+    "committer_date": "2026-09-15 14:01:35",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "e856b56b6a54227a806a33a366af3834fa4719a8",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 12:09:55",
+    "committer_date": "2026-09-15 12:09:55",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "ee18d2e13e2b5a2fff0143a468da126dd6e6ea09",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 06:15:45",
+    "committer_date": "2026-09-15 06:15:45",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "f1fb12f3fa9e1d802cba3d95f3a92080849f49e3",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 06:12:21",
+    "committer_date": "2026-09-15 06:12:21",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "f6ddd385f9548a269eb95f499631f05294f7d67e",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 09:16:11",
+    "committer_date": "2026-09-12 09:16:11",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "f91e03e8f17284abddaff379021578a095180618",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 16:20:34",
+    "committer_date": "2026-09-15 16:20:34",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "f951682b2b4912e8baf1e271c8fefd605fc41e30",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-11 12:01:16",
+    "committer_date": "2026-09-11 12:01:16",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "fb0fb8d106a2b281fac1bf93a704f5188d2ae541",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-15 06:01:21",
+    "committer_date": "2026-09-15 06:01:21",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  },
+  {
+    "rev": "ff39ff20a0697761e7d304bf826da071fda485d0",
+    "canonical_author": "iz0ms@Euiop1.oi",
+    "author_date": "2026-09-12 08:55:30",
+    "committer_date": "2026-09-12 08:55:30",
+    "lead_time_seconds": 0,
+    "lead_time_days": 0.0
+  }
+]

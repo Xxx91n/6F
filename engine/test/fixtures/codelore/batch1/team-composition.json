@@ -1,0 +1,32 @@
+[
+  {
+    "author": "iz0ms@Euiop1.oi",
+    "tenure_days": 4,
+    "bucket": "onboarded",
+    "veteran_breadth_ok": true,
+    "active": true,
+    "commits": 109,
+    "files_touched": 363,
+    "onboarding_weeks": null
+  },
+  {
+    "author": "gitbutler@gitbutler.com",
+    "tenure_days": 0,
+    "bucket": "onboarded",
+    "veteran_breadth_ok": false,
+    "active": true,
+    "commits": 1,
+    "files_touched": 0,
+    "onboarding_weeks": null
+  },
+  {
+    "author": "__summary__",
+    "tenure_days": 0,
+    "bucket": "onboarded=100.0% experienced=0.0% veteran=0.0%",
+    "veteran_breadth_ok": false,
+    "active": false,
+    "commits": 0,
+    "files_touched": 0,
+    "onboarding_weeks": null
+  }
+]

@@ -11,7 +11,7 @@ None（与 #34 并行首票）
 
 **Status:** ready-for-agent
 
-- [ ] `codelore analyze --help` 实物枚举存档（reports/35-*）；首批面集与任务书面名逐一对账（差异如实登记、不静默改名）
-- [ ] 逐面适配器输出 + golden cassette + 契约测试（沿用 #31 binary-discovery + pin 0.28.0 模式）
-- [ ] 暂缓面集（~20 面）「满足判据＋复审时点」两字段登记核对（衔接 #33 guard 输入③）
-- [ ] 守卫 reports/35-*.mjs PASS + engine CI 绿（适配层零业务规则词断言沿用 #31 G5 先例）
+- [x] `codelore analyze --help` 实物枚举存档（reports/35-*）；首批面集与任务书面名逐一对账（差异如实登记、不静默改名）
+- [x] 逐面适配器输出 + golden cassette + 契约测试（沿用 #31 binary-discovery + pin 0.28.0 模式）
+- [x] 暂缓面集（~20 面）「满足判据＋复审时点」两字段登记核对（衔接 #33 guard 输入③）
+- [x] 守卫 reports/35-*.mjs PASS + engine CI 绿（适配层零业务规则词断言沿用 #31 G5 先例）

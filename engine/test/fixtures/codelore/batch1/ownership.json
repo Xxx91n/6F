@@ -1,0 +1,68 @@
+[
+  {
+    "path": ".scratch/architecture-recovery/README.md",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 16,
+    "fractal_value": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/WORKFLOW.md",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 20,
+    "fractal_value": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/decision-ledger.md",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 30,
+    "fractal_value": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/25-rollout-checklist.md",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 6,
+    "fractal_value": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/spec.md",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 10,
+    "fractal_value": 0.0
+  },
+  {
+    "path": ".scratch/macro-audit/decision-ledger.md",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 11,
+    "fractal_value": 0.0
+  },
+  {
+    "path": ".scratch/macro-audit/handoffs/next-round.md",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 8,
+    "fractal_value": 0.0
+  },
+  {
+    "path": ".scratch/macro-audit/spec-phase-tasks.md",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 7,
+    "fractal_value": 0.0
+  },
+  {
+    "path": "CONTEXT.md",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 7,
+    "fractal_value": 0.0
+  },
+  {
+    "path": "README.md",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 7,
+    "fractal_value": 0.0
+  },
+  {
+    "path": "engine/package.json",
+    "main_author": "iz0ms@Euiop1.oi",
+    "total_revs": 6,
+    "fractal_value": 0.0
+  }
+]

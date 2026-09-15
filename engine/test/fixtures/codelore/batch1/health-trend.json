@@ -1,0 +1,134 @@
+[
+  {
+    "date": "2026-09-11",
+    "rev": "f951682b2b49",
+    "files": 0,
+    "arch_health": 100.0,
+    "code_health": 100.0,
+    "combined_health": 100.0,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-11",
+    "rev": "3285af458710",
+    "files": 1,
+    "arch_health": 50.0,
+    "code_health": 100.0,
+    "combined_health": 75.0,
+    "arch_band": "yellow",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-11",
+    "rev": "fbfd883f7048",
+    "files": 4,
+    "arch_health": 87.5,
+    "code_health": 100.0,
+    "combined_health": 93.75,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-11",
+    "rev": "90518550c28f",
+    "files": 10,
+    "arch_health": 95.0,
+    "code_health": 100.0,
+    "combined_health": 97.5,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-12",
+    "rev": "a02bbfd2df3b",
+    "files": 13,
+    "arch_health": 96.15384615384616,
+    "code_health": 100.0,
+    "combined_health": 98.07692307692308,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-12",
+    "rev": "c9bd0ce591d1",
+    "files": 19,
+    "arch_health": 97.36842105263158,
+    "code_health": 100.0,
+    "combined_health": 98.68421052631578,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-13",
+    "rev": "e6c916ebf6d2",
+    "files": 23,
+    "arch_health": 97.06994328922495,
+    "code_health": 100.0,
+    "combined_health": 98.53497164461248,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-13",
+    "rev": "b96a03932f93",
+    "files": 30,
+    "arch_health": 97.88888888888889,
+    "code_health": 100.0,
+    "combined_health": 98.94444444444444,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-13",
+    "rev": "899276f0fddf",
+    "files": 32,
+    "arch_health": 98.046875,
+    "code_health": 100.0,
+    "combined_health": 99.0234375,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-15",
+    "rev": "ee18d2e13e2b",
+    "files": 40,
+    "arch_health": 98.5,
+    "code_health": 100.0,
+    "combined_health": 99.25,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-15",
+    "rev": "92abf061e9d1",
+    "files": 45,
+    "arch_health": 98.66666666666667,
+    "code_health": 100.0,
+    "combined_health": 99.33333333333334,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  },
+  {
+    "date": "2026-09-15",
+    "rev": "f91e03e8f172",
+    "files": 48,
+    "arch_health": 98.76302083333334,
+    "code_health": 100.0,
+    "combined_health": 99.38151041666667,
+    "arch_band": "green",
+    "code_band": "green",
+    "combined_band": "green"
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "path": ".scratch/macro-audit/decision-ledger.md",
+    "added": 457,
+    "deleted": 4,
+    "commits": 11
+  },
+  {
+    "path": ".scratch/architecture-recovery/README.md",
+    "added": 436,
+    "deleted": 16,
+    "commits": 16
+  },
+  {
+    "path": ".scratch/architecture-recovery/spec.md",
+    "added": 429,
+    "deleted": 6,
+    "commits": 10
+  },
+  {
+    "path": ".scratch/architecture-recovery/decision-ledger.md",
+    "added": 368,
+    "deleted": 53,
+    "commits": 30
+  },
+  {
+    "path": ".scratch/architecture-recovery/WORKFLOW.md",
+    "added": 329,
+    "deleted": 3,
+    "commits": 20
+  },
+  {
+    "path": "CONTEXT.md",
+    "added": 239,
+    "deleted": 1,
+    "commits": 7
+  },
+  {
+    "path": ".scratch/macro-audit/handoffs/next-round.md",
+    "added": 215,
+    "deleted": 164,
+    "commits": 8
+  },
+  {
+    "path": ".scratch/macro-audit/spec-phase-tasks.md",
+    "added": 149,
+    "deleted": 10,
+    "commits": 7
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/25-rollout-checklist.md",
+    "added": 124,
+    "deleted": 38,
+    "commits": 6
+  },
+  {
+    "path": "README.md",
+    "added": 99,
+    "deleted": 12,
+    "commits": 7
+  },
+  {
+    "path": "engine/package.json",
+    "added": 49,
+    "deleted": 8,
+    "commits": 6
+  }
+]
