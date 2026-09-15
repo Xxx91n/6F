@@ -11,6 +11,7 @@
   "files": [
     "dist",
     "fixtures",
+    "upstream-lock.yaml",
     "plugin.json",
     "mcp.json",
     "manifest.meta.json",

@@ -1,0 +1,74 @@
+# upstream-lock.yaml — 上游版本锁定表（机读权威 / single source of truth）
+# 制度来源：D-037（轮 7 Q1 拍板）＋ ADR-0018 §D-1 ＋ docs/versioning.md §3；票 #44 / A-049 落盘
+#
+# 字段契约（D-037③ 逐字）：id / kind / version / pin_type(exact-version|commit-sha|digest) /
+#   contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review
+#
+# 锁定纪律（docs/versioning.md §3-4 同源）：
+#   - 本表为唯一机读权威——README §3 上游清单表是人读形态，状态列与本表 status 同源
+#     （已接入=active / 规划中=planned / 评估中=evaluating；retired 行不在 README 表）。
+#   - 锁定表先于依赖存在：未在本表登记的上游禁止接入；planned 行登记目标契约。
+#   - retired 行不删：旧报告 provenance 锚须可反查（报告头锁定表快照 hash 见 versioning.md §2）。
+#   - 禁 range / 浮动 tag / latest：version 一律 exact pin；planned/evaluating 行 version=null
+#     待接入窗口定版（接入前必须先定 pin_type+version 并补 golden 契约）。
+#   - 更新走手动窗口（每 release 前一次）＋全量 golden 回归护航；禁 Renovate 式自动升级
+#     （detector 版本变化 = 审计口径变更，D-037④）。
+#   - next_review = 手动窗口到期日（每 release 前或 ≤30 天先到者）；逾期由
+#     .scratch/architecture-recovery/reports/44-check.mjs 新鲜度断言报警（advisory 段）。
+lock_version: 1
+upstreams:
+  - id: codelore
+    kind: external-cli
+    version: "0.28.0"
+    pin_type: exact-version
+    contract: "binary-discovery：PATH 解析 codelore 二进制＋`codelore --version` 输出必须恰等于 pin 值；不等即拒跑降级、不静默换版本（版本断言=44-check.mjs B 组实跑三方同值：binary↔本表↔CODELORE_PINNED_VERSION）"
+    status: active
+    adapter: "engine/src/upstream/codelore.ts（CODELORE_ADAPTER_ID=codelore-adapter@v1，CODELORE_PINNED_VERSION 常量同源）"
+    last_reviewed: 2026-09-16
+    next_review: 2026-10-16
+  - id: duckdb-node-api
+    kind: node-lib
+    version: "1.5.5-r.4"
+    pin_type: exact-version
+    contract: "package.json dependencies 精确值（无 ^/~ 前缀）＋package-lock.json hash 锁定；事实表底座组件，非 upstream/ 适配层对象"
+    status: active
+    adapter: "engine/src/fact/store.ts（audit_fact 事实表写路径基座）"
+    last_reviewed: 2026-09-16
+    next_review: 2026-10-16
+  - id: git-cli
+    kind: external-cli
+    version: null
+    pin_type: null
+    contract: "随宿主环境不 pin 版本（README §3/D-020 双轨制）——契约面=冻结 argv＋输出形状解析断言＋golden 契约测试；版本漂移经契约测试检出而非版本 pin"
+    status: active
+    adapter: "engine/src/collect/＋engine/src/intake/（git 子进程调用面）"
+    last_reviewed: 2026-09-16
+    next_review: 2026-10-16
+  - id: openssf-scorecard
+    kind: go-lib-or-cli
+    version: null
+    pin_type: null
+    contract: "供应链健康评分（README §3 行）。接入形态未定：库→依赖引用走 lockfile hash pinning／CLI→适配器 exact pin。接入前须先定 pin_type+version 并补 golden 契约；禁 range/浮动 tag。拉动票=#42 上游队列"
+    status: planned
+    adapter: null
+    last_reviewed: 2026-09-16
+    next_review: 2026-10-16
+  - id: repomix-gitingest
+    kind: cli-or-pip
+    version: null
+    pin_type: null
+    contract: "仓库内容打包摘要（README §3 行，repomix/gitingest 二选一或并用）。接入形态=适配器＋外部 CLI。接入前须先定 pin（exact-version 或 digest）＋golden 契约测试。拉动票=#42 上游队列"
+    status: planned
+    adapter: null
+    last_reviewed: 2026-09-16
+    next_review: 2026-10-16
+  - id: codelore-sqlite-dump
+    kind: data-export
+    version: null
+    pin_type: null
+    contract: "CodeLore sqlite dump 对照评估（#42 上游队列拉动）。采纳须另立 ADR 并先定 pin（exact-version 或 digest）；评估期禁止接入事实链/verdict 输入面"
+    status: evaluating
+    adapter: null
+    risk_note: "dump 格式随 codelore 版本漂移——若采纳将成为审计口径输入面；评估产物仅作对照不进入 verdict 输入；采纳前置=ADR 拍板＋pin 落定＋golden 回归"
+    last_reviewed: 2026-09-16
+    next_review: 2026-10-16
