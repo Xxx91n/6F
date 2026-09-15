@@ -1410,7 +1410,8 @@
         "unresolved_refs": [],
         "missing_backrefs": [],
         "statuses_superseded": []
-      }
+      },
+      "drift_note": "快照时点 251@9e827607；2026-09-16 复测漂移 +1=#39 workflow commit 84077da（jiahao 仓接入 CI 的产物提交）——活仓前移属语义非失真"
     }
   }
 }

@@ -37,14 +37,14 @@
 | ├ Amends/References/defer 引用边 | 0 | 3（含 defer-0026） | 66（含 defer-0024→docs/deferred-registry.json） |
 | └ 断链 / 缺回链（supersede 族） | 0 / 0 | 0 / 0 | 0 / 0 |
 | **托管面** | GitHub remote（同步 0/0）+ 9 workflows + PR 模板 + dependabot.yml + ISSUE_TEMPLATE + CONTRIBUTING + CODE_OF_CONDUCT + ci pull_request 触发 | GitHub remote（同步 0/0）+ 6 workflows（ci.yml 带 pull_request 触发）——**无** PR 模板/dependabot/CODEOWNERS | GitHub remote（origin 同步 0/0，另有 gb-local GitButler 本机伪 remote）+ ci.yml（pull_request 触发 + fetch-depth:0）——**6 个人类 PR 已落地** |
-| git 健康 | 非 shallow，496 commits，5 tags | 非 shallow，314 commits，2 tags | 非 shallow，251 commits，1 tag |
+| git 健康 | 非 shallow，496 commits，5 tags | 非 shallow，314 commits，2 tags | 非 shallow，251→252 commits（+1=#39 workflow commit 84077da，复测漂移如实记），1 tag |
 
 ### 4.2 层 × 仓 capacity 矩阵（行=能力层，列=三仓；格内=实测判定+证据锚）
 
 | 层 \ 仓 | env-manager | anysearch-cli | jiahao |
 |---|---|---|---|
 | **Micro-A**（PR 级 diff 审计；capacity 硬约束=须托管 PR 面） | ✅ **合格且唯一带非人类 PR 边缘形态**：10 PR（人6/bot1/机器生成3）+ 9 在飞 bot 分支；锚：`0f70ec56`(dependabot #55)、`f5423020`(#64)、`.github/dependabot.yml`、`.github/workflows/dependabot-auto-merge.yml` | ❌ **不合格（下限）**：0 PR（本地历史零 GitHub-committer 事件）；锚：37-pilot-measurements.json `pr_ratio.github_pr_total=0` | ✅ **实测合格（与 desk 判定相反）**：6 个人类 PR + ci.yml pull_request 触发；锚：`28c253e`(#7)、`c35c23f`(#1)、`.github/workflows/ci.yml` |
-| **Micro-B**（文件级，本地 git 即可） | ✅ 合格：git 健全非 shallow（496 commits） | ✅ 合格（314 commits） | ✅ 合格（251 commits） |
+| **Micro-B**（文件级，本地 git 即可） | ✅ 合格：git 健全非 shallow（496 commits） | ✅ 合格（314 commits） | ✅ 合格（251→252 commits，复测漂移同上） |
 | **Macro-B**（仓级四象限 one-shot/回归） | ✅ 合格（git+CI+托管全有） | ✅ 合格（git 健全+CI） | ✅ 合格（git+CI+托管全有）——D-033 拟定的 Macro-B 回归仓，实测前提成立 |
 | **Macro-C**（演化考古；核心素材=ADR 深度+supersede 链） | △ **弱（下限）**：14 ADR 但 supersede 边=0——链完整度无从可测（无取代事件）；锚：37-probe `supersede_chain.edge_count=0` | ✅ **合格（D-033 指派成立）**：65 ADR + whole-ADR supersede 1 + item 级 2，断链 0、回链 0 缺；锚：`docs/adr/0058` status 行、`docs/adr/0060` D1 | ✅ **合格且引用网最密**：69 ADR + 68 结构化引用边（Amends 17/References 48/defer 1），item 级 supersede 2 全回链；锚：`docs/adr/0039` 锚点段、`docs/deferred-registry.json`（defer-0024 解析） |
 | **Macro-A**（跨仓组合；需 ≥2 仓） | 三仓并跑 capacity 满足（D-033 拟「天然最后」不变） | 同 | 同 |

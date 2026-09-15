@@ -146,7 +146,7 @@ t('I3 jiahao 分支 commit 变更面仅 .github/workflows/macro-b-regression.yml
 
 // --- J. 引擎纪律 + 测试链不回归（本票零 engine 源码改动） ---
 const pkg = JSON.parse(fs.readFileSync(join(ENG, 'package.json'), 'utf8'));
-t('J1 smoke 链在位（6 测试文件入链）', (pkg.scripts.smoke.match(/node test\//g) || []).length === 6, '');
+t('J1 smoke 链在位（>=6 测试文件入链；现值随 #36/#40/#45 合法增长）', (pkg.scripts.smoke.match(/node test/g) || []).length >= 6, (pkg.scripts.smoke.match(/node test/g) || []).length + ' files');
 const pv = spawnSync('node', [join(ENG, 'test', 'report-preview.test.mjs')], { encoding: 'utf8' });
 t('J2 preview 契约测试实跑全绿（引擎未回归）', pv.status === 0 && /REPORT-PREVIEW-TEST-OK (\d+)\/\1/.test(pv.stdout || ''), (pv.stdout || '').trim().split('\n').pop());
 const col = spawnSync('node', [join(ENG, 'test', 'collectors.test.mjs')], { encoding: 'utf8' });
