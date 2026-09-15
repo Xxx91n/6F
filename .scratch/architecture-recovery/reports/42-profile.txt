@@ -1,0 +1,18 @@
+# CodeLore profile
+
+**Version**: 0.28.0
+**Schema**: schema_v8 (`facts/schema_v1.sql`)
+**Analyses**: 57 registered
+**Output formats**: csv | json | ndjson | sarif | markdown | gha | html | parquet | sqlite | spa | step-summary
+**Pinned third-party**:
+  - gix 0.86.0
+  - DuckDB 1.10505.0
+  - tree-sitter 0.25.x (Rust/Python/Java/JS/TS/TSX/C++)
+
+**Cache root**:
+  C:\Users\Administrator\AppData\Local/codelore/
+**Cache size**: 500.6 MiB / 2.0 GiB cap (5 fact stores kept per repository, oldest evicted first)
+
+**SPA feature**: ENABLED
+
+_For per-analysis SQL + citations, run `codelore explain <topic>`._

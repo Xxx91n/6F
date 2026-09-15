@@ -518,6 +518,22 @@
         "mcp explain_file"
       ],
       "source": "36-llm-faces-reconciliation.json（#36 A-041：MCP 传输形态出 spawnSync 适配层范围，登记防静默丢失）"
+    },
+    {
+      "id": "upstream-probes-scorecard-repomix",
+      "family": "upstream-queue",
+      "title": "Scorecard/repomix 探针——层需求拉动接入不插队（#42 / D-034③）",
+      "deadline_event": null,
+      "deadline": "满足判据：某层 preview 报告需要供应链评分（OpenSSF Scorecard）或仓库打包摘要（repomix/gitingest）数据面时启动接入票；接入前须先定 pin_type+version 并补 golden 契约（engine/upstream-lock.yaml 行 openssf-scorecard/repomix-gitingest = planned，锁定先于依赖）",
+      "trigger_event": null,
+      "trigger": "层需求拉动：Micro-A/Micro-B/Macro-A 任一 preview 需要供应链象限数据或打包摘要面——当前无层刚需（Macro-B/Macro-C preview 供应链象限维持 ⚠ 数据未接 披露制，D-034③ 禁插队补齐）",
+      "review_at": "各层 preview 前置审计（与 codelore-deferred-faces 同节律——Micro-A preview 前置先行清点）",
+      "status": "pending",
+      "watch": "manual_watch",
+      "owner": "上游队列值守（#42→后续层 preview 票承接）",
+      "verify_method": "层 preview 开工审计清点：该层报告需求面是否含供应链象限/打包摘要数据——含则本项判据满足转 triggered-bound 并立接入票（含 pin_type+version+golden 契约三前置）",
+      "source": "macro-audit decision-ledger D-034③（探针按层需求队列接入不插队）+ engine/upstream-lock.yaml（两行 planned）+ desk-task5 同源关联",
+      "confirmations": []
     }
   ]
 }

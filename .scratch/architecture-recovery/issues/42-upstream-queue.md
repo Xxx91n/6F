@@ -9,10 +9,10 @@
 **Blocked by:**
 #35（dump 对照评估需首批契约面落位作对照基线）；Scorecard/repomix 探针 = 层需求触发器拉动
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] dump 对照评估落文（字段覆盖度 / 语义翻译面厚度 / golden 可测性三轴对比逐面契约路径）
-- [ ] dump 采纳与否的呈报（采纳须另立 ADR——适配层语义翻译面变厚，D-035③）
-- [ ] Scorecard/repomix 探针登记保持「层需求拉动」状态（含触发条件字段，衔接 #33 guard）
-- [ ] Macro-B preview 报告供应链象限「⚠ 数据未接」披露在位核查
-- [ ] 守卫 reports/42-*.mjs PASS
+- [x] dump 对照评估落文（字段覆盖度 / 语义翻译面厚度 / golden 可测性三轴对比逐面契约路径）→ reports/42-dump-comparison.md
+- [x] dump 采纳与否的呈报（采纳须另立 ADR——适配层语义翻译面变厚，D-035③）→ 呈报=维持逐面契约不采纳；锁表 evaluating 不翻
+- [x] Scorecard/repomix 探针登记保持「层需求拉动」状态（含触发条件字段，衔接 #33 guard）→ registry upstream-probes-scorecard-repomix pending+manual_watch
+- [x] Macro-B preview 报告供应链象限「⚠ 数据未接」披露在位核查 → 42-check E1-E5（39×3＋38×2 实物断言）
+- [x] 守卫 reports/42-*.mjs PASS → 42-check.mjs PASS 43/43 exit 0

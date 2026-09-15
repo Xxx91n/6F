@@ -1,0 +1,97 @@
+{
+  "binary": "codelore",
+  "probed_at": "2026-09-15T23:15:47.535Z",
+  "commands": [
+    {
+      "argv": "--version",
+      "exit": 0,
+      "stdout_bytes": 16,
+      "stderr_bytes": 0,
+      "error": null
+    },
+    {
+      "argv": "--help",
+      "exit": 0,
+      "stdout_bytes": 3675,
+      "stderr_bytes": 0,
+      "error": null
+    },
+    {
+      "argv": "analyze --help",
+      "exit": 0,
+      "stdout_bytes": 13088,
+      "stderr_bytes": 0,
+      "error": null
+    },
+    {
+      "argv": "docs",
+      "exit": 0,
+      "stdout_bytes": 2703,
+      "stderr_bytes": 0,
+      "error": null
+    },
+    {
+      "argv": "schema",
+      "exit": 0,
+      "stdout_bytes": 1201,
+      "stderr_bytes": 0,
+      "error": null
+    },
+    {
+      "argv": "profile",
+      "exit": 0,
+      "stdout_bytes": 601,
+      "stderr_bytes": 0,
+      "error": null
+    }
+  ],
+  "version": "codelore 0.28.0",
+  "top_commands": [
+    "analyze",
+    "diff",
+    "completions",
+    "explain",
+    "schema",
+    "profile",
+    "docs",
+    "check",
+    "gate",
+    "mcp",
+    "ingest-sarif",
+    "calibrate",
+    "calibrate-defects",
+    "help"
+  ],
+  "analyze_format_line": "Output format (see the possible-values list below for the full set). Most analyses emit csv/json/markdown. ndjson: hotspots, code-health, coupling, lead-time. sarif: hotspots, clones, clone-coupling. gha: hotspots. html: hotspots, code-health, knowledge-islands, clone-coupling, summary, revisions, authors, top-committers. parquet: hotspots, revisions, summary; requires --output. sqlite: full fact-store dump; requires --output. spa: interactive dashboard; --output optional (defaults to .codelore/spa.html). step-summary: GFM summary for `$GITHUB_STEP_SUMMARY`; streams to stdout",
+  "analyze_format_values": [
+    "csv",
+    "json",
+    "ndjson",
+    "sarif",
+    "markdown",
+    "gha",
+    "html",
+    "parquet",
+    "sqlite",
+    "spa",
+    "step-summary"
+  ],
+  "analysis_enum_count": 57,
+  "docs_format_defs": [
+    "- `csv` — code-maat-compatible flat tables",
+    "- `json` — stable JSON shape per row type",
+    "- `ndjson` — newline-delimited JSON — one row per line for stream consumers (LSP, `jq -c`, CI pipelines)",
+    "- `sarif` — SARIF 2.1.0 — surfaces in GitHub Code Scanning",
+    "- `parquet` — columnar bulk export for analytical pipelines",
+    "- `sqlite` — full DuckDB fact-store dump"
+  ],
+  "docs_provenance_note": "Every file output is paired with a `.provenance.json` sidecar capturing the run's full `Options` shape. SQLite outputs embed the equivalent inside the `provenance` table.",
+  "docs_analysis_count": 57,
+  "schema_row_types": 57,
+  "schema_envelope_note": "Note: today's emitter ships the row-type catalogue and a minimal envelope. The full JSON Schema documents populate the `items` shape once `schemars` derive is applied to every analyses/* row type.",
+  "profile_schema": "Schema: schema_v8 (`facts/schema_v1.sql`)",
+  "profile_duckdb": "- DuckDB 1.10505.0",
+  "profile_cache": "**Cache size**: 500.6 MiB / 2.0 GiB cap (5 fact stores kept per repository, oldest evicted first)",
+  "profile_formats": "**Output formats**: csv | json | ndjson | sarif | markdown | gha | html | parquet | sqlite | spa | step-summary",
+  "format_line_drift_vs_35": "none"
+}
