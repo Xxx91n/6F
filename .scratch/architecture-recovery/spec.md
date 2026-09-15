@@ -371,3 +371,53 @@ T1~T3 结题后按 CAPA reopen 惯例补记 disposition：architecture-recovery 
 
 - A-031 ~ A-036 共 6 条 → R4-D1~D6 各覆盖 1 条 = 6 覆盖，无去向记录清单 = 空。
 - 波次序列化（per 任务书）：#26 → (#27 ∥ #28) → #29 → #30 → #31；唯一并行对 = #27/#28 且验收互不引用为完成条件。
+
+## R5 — 阶段 3 铺开（来源 D-029 ~ D-036，2026-09-15 grill 轮 6）
+
+> 本段为指针段：决策全文以 docs/adr/0017 与 macro-audit decision-ledger D-029 ~ D-036 为准；执行计划见 spec-phase-tasks.md 第六轮 R5-01 ~ R5-12 与 BACKLOG.md 阶段 3 票据包 #32~#43。
+> 阶段 3 串行骨架（D-034）：扩面 → Macro-C → Micro-A → Micro-B → Macro-A；横切项挂触发器、非前置门禁。上架动作未授权（D-026/D-027 用户闸门）；preview 标注诚实是决策本体（ADR-0017）。
+
+### Implementation Decisions（R5 执行轮，来源 A-037 ~ A-048，2026-09-15）
+
+> 对账闸：A-037 ~ A-048 每条至少被本节一个 R5-Dn 覆盖；无去向记录清单非空时禁止立票（当前：空）。
+
+**R5-D1 B1.2 落地（31 份 prompts 黑体块）**（覆盖 A-037｜计划 R5-01｜issue 32）
+31 份 prompts/NN-*.md「## 收尾」段首黑体强提示块，措辞逐字 = D-029；范围 = 现存 31 份全量；handoffs 不加；未来新票由 WORKFLOW §4.2.6-6 模板纪律继承。已于轮 6 整理环节执行完毕。
+
+**R5-D2 T7 挂门机检化 guard**（覆盖 A-038｜计划 R5-02｜issue 33）
+统一 guard 扫描全部挂门项三字段（最迟拍板时点 / 触发事件 / 复审时点）到期报警；输入四族 = 25-checklist 挂门行 + 账本两字段登记项 + CodeLore 暂缓面集复审时点 + 多写者三触发器；值守规则 = 触发未拍 1 工作日升级 / 硬到期重组改绑一次 / 再到期升级用户。
+
+**R5-D3 plugin.json 合规修复**（覆盖 A-039｜计划 R5-03｜issue 34）
+engine/plugin.json 对齐 Agent Plugins 1.0.0：$schema const、schemaVersion/skills/mcp 范围收敛、extensions 改反向域名对象图；修元数据源（manifest.meta.json / gen-manifests.mjs）而非仅改产物；ajv 一次性校验留证 + 常驻守卫零依赖结构断言。上架硬前置链第一环。
+
+**R5-D4 CodeLore 扩面首批 ≈30 面**（覆盖 A-040｜计划 R5-04｜issue 35）
+演化主干 12 面＋S3 族 6 面＋S5 族 12 面，逐面 golden 契约测试（ADR-0014：适配层禁业务规则、raw 语义不出适配层）；面名以 `codelore analyze --help` 实物枚举为准；Macro-C preview 前置。
+
+**R5-D5 CodeLore LLM 面独立票**（覆盖 A-041｜计划 R5-05｜issue 36）
+explain 族 env 门控（CODELORE_LLM_*）＋成本验收面；S4 ADR 假设抽取前置；独立验收不混入 #35。
+
+**R5-D6 试点面可用性审计**（覆盖 A-042｜计划 R5-06｜issue 37）
+env-manager / anysearch-cli / jiahao 三仓只读实测：PR 人/机比、supersede 链完整度、托管面有无；产出 层×仓 capacity 矩阵（Pilot-surface Audit 三问）。
+
+**R5-D7 Macro-C preview（第二能力层）**（覆盖 A-043｜计划 R5-07｜issue 38）
+anysearch-cli 为校准语料（56 ADR＋supersede 链）；报告强制披露「单仓校准（anysearch-cli）」结构性限制；完成定义含该层 happy+failure 演示双件（D-032 DoD 准入件）。
+
+**R5-D8 Macro-B 三仓 one-shot＋jiahao 回归**（覆盖 A-044｜计划 R5-08｜issue 39）
+Macro-B 对三试点仓各跑一次 one-shot 泛化验证；jiahao 持续回归接入 CI——接入即触发多写者 self-probe 实测封口（D-034④a，衔接 #33）。
+
+**R5-D9 非自有仓泛化验证**（覆盖 A-045｜计划 R5-09｜issue 40）
+≥1 非自有公开仓经 URL opt-in（D-013 首实用户）跑通 Macro-B；Macro-B GA 前置条件。
+
+**R5-D10 分发收尾**（覆盖 A-046｜计划 R5-10｜issue 41）
+五子项：examples/first-report/ 复制四件＋披露 README／README·marketplace preview 标注＋0.x 语义＋changelog／listing 资产（未上架层「Not yet in preview」披露块）／Agent Plugins preview 字段查证＋竞品占位扫描（前置子任务）／凭据申请（D-026③ 已触发）。上架动作停用户闸门。
+
+**R5-D11 上游队列值守**（覆盖 A-047｜计划 R5-11｜issue 42）
+Scorecard/repomix 探针按层需求拉动不插队；CodeLore sqlite/parquet dump 对照评估（采纳须另立 ADR）；Macro-B preview 供应链象限维持「⚠ 数据未接」披露。
+
+**R5-D12 样例 golden CI**（覆盖 A-048｜计划 R5-12｜issue 43）
+CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更新走 PR 审查；禁自动重生成直通 main；与 #33 同批立项、执行在 #41 样例落位后。
+
+#### R5 对账（2026-09-15）
+
+- A-037 ~ A-048 共 12 条 → R5-D1~D12 各覆盖 1 条 = 12 覆盖，无去向记录清单 = 空。
+- 波次序列化（per 任务书/D-036）：#33 最优先 → #34/#35 并行首票 → #36/#37/#41 → #38/#39/#43 → #40；#42 触发器拉动不占波次；#32 已于轮 6 整理环节闭环。

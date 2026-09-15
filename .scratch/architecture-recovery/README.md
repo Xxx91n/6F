@@ -10,12 +10,12 @@
 architecture-recovery/
 ├── README.md (本文件)
 ├── WORKFLOW.md (从巡检到收口的完整流程)
-├── decision-ledger.md (A-001 ~ A-018，18 项摩擦点登记)
+├── decision-ledger.md (A-001 ~ A-048，48 项摩擦点登记)
 ├── spec.md (实施决策，每条覆盖 A-xxx)
-├── issues/   (18 张票，每张含 Blocked by 字段)
-├── handoffs/ (18 份，每份含 A-xxx 覆盖 + 通用调研要求)
-├── prompts/  (18 份启动器，每份 ≤60 行，无违禁词)
-└── reports/  (空目录 — 启动器收尾写入 reports/NN-report.md)
+├── issues/   (43 张票，每张含 Blocked by 字段)
+├── handoffs/ (43 份，每份含 A-xxx 覆盖 + 通用调研要求)
+├── prompts/  (43 份启动器，每份 ≤60 行，无违禁词；## 收尾段首黑体硬要求块)
+└── reports/  (守卫脚本 + 票报告 — 启动器收尾写入 reports/NN-report.md)
 ```
 
 ## 覆盖率对账闸（已完成）
@@ -369,3 +369,52 @@ W3 完成后，原 W4 阻塞全部解除：
 - **W10 完成（2026-09-15）**：#30 阶段 2a 冻结校准 → 30-check.mjs PASS 9/9（13 项清单、置信域逐项、占位两字段×10）。
 - **W11 完成（2026-09-15）**：#31 阶段 2b CodeLore 探针 → 31-check.mjs PASS 14/14（binary-discovery+pin 0.28.0、golden 契约 7/7、漂移报告、P1 预核对发现 plugin.json 不合 1.0.0）。R4 全链结题。
 - 值守项（非票）：T7 #25 拍板状态列核对——触发事件已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次（绑定表 = reports/R5-Q5-atomcode-research.md §3）。
+
+
+## 并行波次表（R5 执行轮 — 轮 7 任务书 T0~T11，2026-09-15 续接；从 issue Blocked by 推导，不新造顺序）
+
+- **总票数**：12（#32 ~ #43）｜ **总波次**：4（全局编号 W12 ~ W15）+ 触发器拉动项｜ 摩擦点 A-037 ~ A-048（12 条，见 decision-ledger.md R5 执行轮登记节）
+- **已闭环**：#32（B1.2 落地）轮 6 整理环节执行完毕（commit mqn，r6-closeout-docs），不占波次。
+- **闸门**：上架动作属用户闸门（D-026/D-027）——#41 产物止于「上架就绪面」；#42 按层需求拉动不插队；#43 与 #33 同批立项、执行在 #41 样例落位后。
+
+### W12 — 3 张票（可并行派子窗口；#33 阶段 3 最优先）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 33 | T7 挂门机检化 guard | A-038 | [issues/33-gate-watch-guard.md](issues/33-gate-watch-guard.md) | [handoffs/33-gate-watch-guard.md](handoffs/33-gate-watch-guard.md) | [prompts/33-gate-watch-guard.md](prompts/33-gate-watch-guard.md) | None |
+| 34 | plugin.json 合规（Agent Plugins 1.0.0） | A-039 | [issues/34-plugin-json-compliance.md](issues/34-plugin-json-compliance.md) | [handoffs/34-plugin-json-compliance.md](handoffs/34-plugin-json-compliance.md) | [prompts/34-plugin-json-compliance.md](prompts/34-plugin-json-compliance.md) | None |
+| 35 | CodeLore 扩面首批 ≈30 面 | A-040 | [issues/35-codelore-expansion-batch1.md](issues/35-codelore-expansion-batch1.md) | [handoffs/35-codelore-expansion-batch1.md](handoffs/35-codelore-expansion-batch1.md) | [prompts/35-codelore-expansion-batch1.md](prompts/35-codelore-expansion-batch1.md) | None |
+
+### W13 — 3 张票（可并行派子窗口）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 36 | CodeLore LLM 面独立票 | A-041 | [issues/36-codelore-llm-faces.md](issues/36-codelore-llm-faces.md) | [handoffs/36-codelore-llm-faces.md](handoffs/36-codelore-llm-faces.md) | [prompts/36-codelore-llm-faces.md](prompts/36-codelore-llm-faces.md) | #34, #35 |
+| 37 | 试点面可用性审计 | A-042 | [issues/37-pilot-surface-audit.md](issues/37-pilot-surface-audit.md) | [handoffs/37-pilot-surface-audit.md](handoffs/37-pilot-surface-audit.md) | [prompts/37-pilot-surface-audit.md](prompts/37-pilot-surface-audit.md) | #34, #35 |
+| 41 | 分发收尾 | A-046 | [issues/41-distribution-closeout.md](issues/41-distribution-closeout.md) | [handoffs/41-distribution-closeout.md](handoffs/41-distribution-closeout.md) | [prompts/41-distribution-closeout.md](prompts/41-distribution-closeout.md) | #34 |
+
+### W14 — 3 张票（可并行派子窗口）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 38 | Macro-C preview | A-043 | [issues/38-macro-c-preview.md](issues/38-macro-c-preview.md) | [handoffs/38-macro-c-preview.md](handoffs/38-macro-c-preview.md) | [prompts/38-macro-c-preview.md](prompts/38-macro-c-preview.md) | #35, #36, #37 |
+| 39 | Macro-B 三仓 one-shot＋jiahao 回归 | A-044 | [issues/39-macro-b-three-repo.md](issues/39-macro-b-three-repo.md) | [handoffs/39-macro-b-three-repo.md](handoffs/39-macro-b-three-repo.md) | [prompts/39-macro-b-three-repo.md](prompts/39-macro-b-three-repo.md) | #37 |
+| 43 | 样例 golden CI | A-048 | [issues/43-sample-golden-ci.md](issues/43-sample-golden-ci.md) | [handoffs/43-sample-golden-ci.md](handoffs/43-sample-golden-ci.md) | [prompts/43-sample-golden-ci.md](prompts/43-sample-golden-ci.md) | #41 |
+
+### W15 — 1 张票（串行）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 40 | 非自有仓泛化验证 ≥1 | A-045 | [issues/40-external-repo-generalization.md](issues/40-external-repo-generalization.md) | [handoffs/40-external-repo-generalization.md](handoffs/40-external-repo-generalization.md) | [prompts/40-external-repo-generalization.md](prompts/40-external-repo-generalization.md) | #39 |
+
+### 触发器拉动项（不占波次）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 42 | 上游队列值守 | A-047 | [issues/42-upstream-queue.md](issues/42-upstream-queue.md) | [handoffs/42-upstream-queue.md](handoffs/42-upstream-queue.md) | [prompts/42-upstream-queue.md](prompts/42-upstream-queue.md) | #35（dump 对照）；Scorecard/repomix 探针随层需求拉动 |
+
+## R5 Frontier（重算 2026-09-15 立票后）
+
+- **W12 可开工**：#33（阶段 3 最优先）/ #34 / #35 三票无阻塞，可并行派子窗口；#32 已闭环。
+- 后续解锁：W12 完成 → W13（#36/#37/#41）；#37 完成 → #39 解锁；#35~#37 完成 → #38 解锁；#41 完成 → #43 解锁；#39 完成 → #40 解锁。
+- 用户闸门：#41 上架动作 / push / land 需用户明示；#42 探针待层需求触发。
