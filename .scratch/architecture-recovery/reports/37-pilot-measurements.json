@@ -1,0 +1,1416 @@
+{
+  "generated_at": "2026-09-15T19:14:26.783Z",
+  "probe": "37-probe.mjs",
+  "readonly_git_cmds": [
+    "remote -v",
+    "log",
+    "shortlog",
+    "branch -r",
+    "rev-list",
+    "rev-parse",
+    "tag"
+  ],
+  "repos": {
+    "env-manager": {
+      "repo": "env-manager",
+      "root": "D:/Aworker/env-manager",
+      "errors": [],
+      "shallow": "false",
+      "commit_count": 496,
+      "head": "9eb8f24be508750f299e920d816ba9079771a3f1",
+      "tags": [
+        "v0.10.0",
+        "v0.10.1",
+        "v0.12.0",
+        "v0.12.1",
+        "v0.9.30"
+      ],
+      "remotes": [
+        {
+          "name": "origin",
+          "url": "git@github-Xxx91n:Xxx91n/env-manager.git",
+          "kind": "(fetch)"
+        },
+        {
+          "name": "origin",
+          "url": "git@github-Xxx91n:Xxx91n/env-manager.git",
+          "kind": "(push)"
+        }
+      ],
+      "github_remote": {
+        "name": "origin",
+        "url": "git@github-Xxx91n:Xxx91n/env-manager.git",
+        "kind": "(fetch)"
+      },
+      "remote_branches": [
+        "origin/HEAD -> origin/main",
+        "origin/dependabot/cargo/frontend/src-tauri/cargo-minor-patch-1066b64238",
+        "origin/dependabot/github_actions/actions-minor-patch-87a5f515a8",
+        "origin/dependabot/github_actions/dependabot/fetch-metadata-3.1.0",
+        "origin/dependabot/github_actions/qte77/gha-github-mirror-action-3c8bd03d1c17576cb085090320fe01149a663158",
+        "origin/dependabot/npm_and_yarn/frontend/npm-minor-patch-2550454375",
+        "origin/dependabot/npm_and_yarn/frontend/vitest-5.0.0",
+        "origin/dependabot/npm_and_yarn/frontend/vitest/coverage-v8-5.0.0",
+        "origin/dependabot/npm_and_yarn/frontend/vitest/ui-5.0.0",
+        "origin/main",
+        "origin/release-please--branches--main"
+      ],
+      "dependabot_remote_branches": [
+        "origin/dependabot/cargo/frontend/src-tauri/cargo-minor-patch-1066b64238",
+        "origin/dependabot/github_actions/actions-minor-patch-87a5f515a8",
+        "origin/dependabot/github_actions/dependabot/fetch-metadata-3.1.0",
+        "origin/dependabot/github_actions/qte77/gha-github-mirror-action-3c8bd03d1c17576cb085090320fe01149a663158",
+        "origin/dependabot/npm_and_yarn/frontend/npm-minor-patch-2550454375",
+        "origin/dependabot/npm_and_yarn/frontend/vitest-5.0.0",
+        "origin/dependabot/npm_and_yarn/frontend/vitest/coverage-v8-5.0.0",
+        "origin/dependabot/npm_and_yarn/frontend/vitest/ui-5.0.0"
+      ],
+      "release_please_remote_branches": [
+        "origin/release-please--branches--main"
+      ],
+      "main_origin_sync": "0\t0",
+      "workflows": [
+        "actionlint.yml",
+        "build.yml",
+        "dependabot-auto-merge.yml",
+        "dependency-review.yml",
+        "fuzz.yml",
+        "mirror.yml",
+        "release-please.yml",
+        "semantic-pull-request.yml",
+        "wix-watchdog.yml"
+      ],
+      "hosting_files": {
+        ".github/PULL_REQUEST_TEMPLATE.md": true,
+        ".github/dependabot.yml": true,
+        ".github/CODEOWNERS": false,
+        ".github/FUNDING.yml": false,
+        ".github/CONTRIBUTING.md": true,
+        ".github/CODE_OF_CONDUCT.md": true,
+        "CODEOWNERS": false,
+        "CONTRIBUTING.md": false,
+        ".github/ISSUE_TEMPLATE": true
+      },
+      "ci_pull_request_trigger": true,
+      "pr_evidence": {
+        "merge_commit_prs": [
+          {
+            "pr": "64",
+            "sha": "f5423020",
+            "author": "Xxx91n",
+            "date": "2026-09-15",
+            "subject": "Merge pull request #64 from Xxx91n/release-please--branches--main",
+            "klass": "machine-generated (release-please)"
+          }
+        ],
+        "squash_prs": [
+          {
+            "pr": "55",
+            "sha": "0f70ec56",
+            "author": "dependabot[bot]",
+            "date": "2026-09-15",
+            "subject": "chore(deps): bump the cargo-minor-patch group across 1 directory with 2 updates (#55)",
+            "klass": "bot-authored"
+          },
+          {
+            "pr": "50",
+            "sha": "57162dc1",
+            "author": "Xxx91n",
+            "date": "2026-09-06",
+            "subject": "chore(main): release 0.10.1 (#50)",
+            "klass": "machine-generated (release-please)"
+          },
+          {
+            "pr": "51",
+            "sha": "92764cb1",
+            "author": "Xxx91n",
+            "date": "2026-09-06",
+            "subject": "fix(release): add workflow_dispatch trigger to release-please for manual re-runs (ticket 3",
+            "klass": "human-authored"
+          },
+          {
+            "pr": "49",
+            "sha": "a8f2dd2a",
+            "author": "Xxx91n",
+            "date": "2026-09-05",
+            "subject": "fix(ci): repin attest-build-provenance to v4.2.2 (ticket 30 drill finding) (#49)",
+            "klass": "human-authored"
+          },
+          {
+            "pr": "48",
+            "sha": "4cfe6e2d",
+            "author": "Xxx91n",
+            "date": "2026-09-05",
+            "subject": "chore(main): release 0.10.0 (#48)",
+            "klass": "machine-generated (release-please)"
+          },
+          {
+            "pr": "47",
+            "sha": "c03c252e",
+            "author": "Xxx91n",
+            "date": "2026-09-05",
+            "subject": "fix(release): align hard-boundaries v0.7.14 statement with release-please single track (ti",
+            "klass": "human-authored"
+          },
+          {
+            "pr": "46",
+            "sha": "8bf77659",
+            "author": "Xxx91n",
+            "date": "2026-09-05",
+            "subject": "ci(release): single-track release-please with PAT-triggered tag CI (ticket 30) (#46)",
+            "klass": "human-authored"
+          },
+          {
+            "pr": "32",
+            "sha": "28a0ed9e",
+            "author": "Xxx91n",
+            "date": "2026-08-29",
+            "subject": "ci: add PR title conventional-commit validation to protect release-please version discipli",
+            "klass": "human-authored"
+          },
+          {
+            "pr": "30",
+            "sha": "23b879f4",
+            "author": "Xxx91n",
+            "date": "2026-08-29",
+            "subject": "docs(security): record VEX Not Affected disposition for 11 dismissed Dependabot advisories",
+            "klass": "human-authored"
+          }
+        ],
+        "other_github_web_commits": [
+          {
+            "sha": "4d601a66",
+            "author": "github-actions[bot]",
+            "date": "2026-09-14",
+            "subject": "chore(main): release 0.12.1"
+          },
+          {
+            "sha": "2259ec8a",
+            "author": "dependabot[bot]",
+            "date": "2026-09-10",
+            "subject": "chore(deps): bump qte77/gha-github-mirror-action"
+          },
+          {
+            "sha": "ae275c95",
+            "author": "dependabot[bot]",
+            "date": "2026-09-10",
+            "subject": "chore(deps-dev): bump @vitest/coverage-v8 in /frontend"
+          },
+          {
+            "sha": "5a39e145",
+            "author": "dependabot[bot]",
+            "date": "2026-09-10",
+            "subject": "chore(deps): bump dependabot/fetch-metadata from 2.3.0 to 3.1.0"
+          },
+          {
+            "sha": "d8711f9f",
+            "author": "dependabot[bot]",
+            "date": "2026-09-10",
+            "subject": "chore(deps-dev): bump @vitest/ui from 4.1.11 to 5.0.0 in /frontend"
+          },
+          {
+            "sha": "0f871b9f",
+            "author": "dependabot[bot]",
+            "date": "2026-09-10",
+            "subject": "chore(deps): bump the actions-minor-patch group with 2 updates"
+          },
+          {
+            "sha": "18dff4d0",
+            "author": "dependabot[bot]",
+            "date": "2026-09-10",
+            "subject": "chore(deps-dev): bump vitest from 4.1.11 to 5.0.0 in /frontend"
+          },
+          {
+            "sha": "6a27009e",
+            "author": "dependabot[bot]",
+            "date": "2026-09-10",
+            "subject": "chore(deps): bump the npm-minor-patch group in /frontend with 4 updates"
+          },
+          {
+            "sha": "107e9f37",
+            "author": "dependabot[bot]",
+            "date": "2026-09-10",
+            "subject": "chore(deps): bump the cargo-minor-patch group"
+          },
+          {
+            "sha": "7aca5f7a",
+            "author": "Xxx91n",
+            "date": "2026-09-07",
+            "subject": "Merge arch/rollback-ticket-30: revert ticket 30 (user option 2)"
+          }
+        ]
+      },
+      "pr_ratio": {
+        "github_pr_total": 10,
+        "human_authored": 6,
+        "bot_authored": 1,
+        "machine_generated": 3,
+        "open_bot_pr_branches": 9,
+        "note": "github_pr_total = merge-commit PR + squash(#N) PR（committer=GitHub 才计入）；bot/machine-generated 为非人类 PR 边缘形态单列"
+      },
+      "authors": [
+        {
+          "commits": 469,
+          "name": "Env Manager Bot",
+          "email": "dev@env-manager.local",
+          "bot": true
+        },
+        {
+          "commits": 10,
+          "name": "Xxx91n",
+          "email": "jinxi2410@gmail.com",
+          "bot": false
+        },
+        {
+          "commits": 10,
+          "name": "env-manager-bot",
+          "email": "bot@env-manager.local",
+          "bot": true
+        },
+        {
+          "commits": 3,
+          "name": "codex",
+          "email": "codex@local",
+          "bot": true
+        },
+        {
+          "commits": 1,
+          "name": "Codex",
+          "email": "codex@local",
+          "bot": true
+        },
+        {
+          "commits": 1,
+          "name": "GitButler",
+          "email": "gitbutler@gitbutler.com",
+          "bot": true
+        },
+        {
+          "commits": 1,
+          "name": "dependabot[bot]",
+          "email": "49699333+dependabot[bot]@users.noreply.github.com",
+          "bot": true
+        },
+        {
+          "commits": 1,
+          "name": "github-actions[bot]",
+          "email": "41898282+github-actions[bot]@users.noreply.github.com",
+          "bot": true
+        }
+      ],
+      "author_split": {
+        "human_identities": [
+          "Xxx91n(10)"
+        ],
+        "machine_identities": [
+          "Env Manager Bot(469)",
+          "env-manager-bot(10)",
+          "codex(3)",
+          "Codex(1)",
+          "GitButler(1)",
+          "dependabot[bot](1)",
+          "github-actions[bot](1)"
+        ],
+        "human_commits": 10,
+        "machine_commits": 486
+      },
+      "local_merge_commits": 7,
+      "adr_dir": "docs/adr",
+      "adr": {
+        "dir": "docs/adr",
+        "count": 14,
+        "files": [
+          "docs/adr/0001-secret-architecture-revision.md",
+          "docs/adr/0002-service-watchdog-heartbeat.md",
+          "docs/adr/0003-version-single-source-changelog.md",
+          "docs/adr/0004-github-release-readiness-two-phase.md",
+          "docs/adr/0005-sensitive-data-redaction.md",
+          "docs/adr/0006-gui-z-index-layering.md",
+          "docs/adr/0007-form-control-color-scheme-override.md",
+          "docs/adr/0008-public-release-and-mirror.md",
+          "docs/adr/0009-stay-on-tauri-bundled-wix-v3.md",
+          "docs/adr/0010-msi-hygiene-guid-pinning-eol-test-pyramid.md",
+          "docs/adr/0011-msi-ui-wixui-installdir-desktop-shortcut.md",
+          "docs/adr/0012-msi-uninstall-shortcut-logs-localappdata.md",
+          "docs/adr/0013-resvg-js-for-svg-rendering.md",
+          "docs/adr/0014-no-txr-txf-compensatory-writes.md"
+        ]
+      },
+      "deferred_registry_present": false,
+      "supersede_chain": {
+        "edges": [],
+        "edge_count": 0,
+        "whole_adr_supersessions": 0,
+        "item_level_supersessions": 0,
+        "amends_edges": 0,
+        "references_edges": 0,
+        "defer_ref_edges": 0,
+        "explicit_non_supersedes": 0,
+        "self_quote_artifacts": 0,
+        "unresolved_refs": [],
+        "missing_backrefs": [],
+        "statuses_superseded": []
+      }
+    },
+    "anysearch-cli": {
+      "repo": "anysearch-cli",
+      "root": "D:/Aworker/anysearch-cli",
+      "errors": [],
+      "shallow": "false",
+      "commit_count": 314,
+      "head": "8314a3c92b4c6f15332e08f3d225cf96675241e3",
+      "tags": [
+        "v0.0.3",
+        "v0.1.0-rc.0"
+      ],
+      "remotes": [
+        {
+          "name": "origin",
+          "url": "https://github.com/Xxx91n/anysearch-cli.git",
+          "kind": "(fetch)"
+        },
+        {
+          "name": "origin",
+          "url": "https://github.com/Xxx91n/anysearch-cli.git",
+          "kind": "(push)"
+        }
+      ],
+      "github_remote": {
+        "name": "origin",
+        "url": "https://github.com/Xxx91n/anysearch-cli.git",
+        "kind": "(fetch)"
+      },
+      "remote_branches": [
+        "origin/HEAD -> origin/main",
+        "origin/main"
+      ],
+      "dependabot_remote_branches": [],
+      "release_please_remote_branches": [],
+      "main_origin_sync": "0\t0",
+      "workflows": [
+        "ci.yml",
+        "conformance.yml",
+        "native-smoke.yml",
+        "release.yml",
+        "ship-gate.yml",
+        "tau-python.yml"
+      ],
+      "hosting_files": {
+        ".github/PULL_REQUEST_TEMPLATE.md": false,
+        ".github/dependabot.yml": false,
+        ".github/CODEOWNERS": false,
+        ".github/FUNDING.yml": false,
+        ".github/CONTRIBUTING.md": false,
+        ".github/CODE_OF_CONDUCT.md": false,
+        "CODEOWNERS": false,
+        "CONTRIBUTING.md": false,
+        ".github/ISSUE_TEMPLATE": false
+      },
+      "ci_pull_request_trigger": true,
+      "pr_evidence": {
+        "merge_commit_prs": [],
+        "squash_prs": [],
+        "other_github_web_commits": []
+      },
+      "pr_ratio": {
+        "github_pr_total": 0,
+        "human_authored": 0,
+        "bot_authored": 0,
+        "machine_generated": 0,
+        "open_bot_pr_branches": 0,
+        "note": "github_pr_total = merge-commit PR + squash(#N) PR（committer=GitHub 才计入）；bot/machine-generated 为非人类 PR 边缘形态单列"
+      },
+      "authors": [
+        {
+          "commits": 308,
+          "name": "Euiop1",
+          "email": "iz0ms@Euiop1.oi",
+          "bot": false
+        },
+        {
+          "commits": 4,
+          "name": "TonPro",
+          "email": "hello@tonpro.fu",
+          "bot": false
+        },
+        {
+          "commits": 1,
+          "name": "GitButler",
+          "email": "gitbutler@gitbutler.com",
+          "bot": true
+        },
+        {
+          "commits": 1,
+          "name": "anysearch-release-bot",
+          "email": "release-bot@users.noreply.github.com",
+          "bot": true
+        }
+      ],
+      "author_split": {
+        "human_identities": [
+          "Euiop1(308)",
+          "TonPro(4)"
+        ],
+        "machine_identities": [
+          "GitButler(1)",
+          "anysearch-release-bot(1)"
+        ],
+        "human_commits": 312,
+        "machine_commits": 2
+      },
+      "local_merge_commits": 1,
+      "adr_dir": "docs/adr",
+      "adr": {
+        "dir": "docs/adr",
+        "count": 65,
+        "files": [
+          "docs/adr/0001-typescript-pi-skeleton.md",
+          "docs/adr/0002-domain-authority-cc-persona-toml.md",
+          "docs/adr/0003-code-mode-soft-depends-context-mode-and-codegraph.md",
+          "docs/adr/0004-kernel-split-seam-architecture.md",
+          "docs/adr/0005-architecture-grill-round-2.md",
+          "docs/adr/0006-architecture-grill-round-3-seam-wiring.md",
+          "docs/adr/0007-architecture-grill-round-4-pi-agent-core-integration.md",
+          "docs/adr/0008-architecture-grill-round-5-mcp-phase2-design.md",
+          "docs/adr/0009-architecture-grill-round-6-phase3-plugin-design.md",
+          "docs/adr/0010-architecture-grill-round-7-post-phase3-evolution.md",
+          "docs/adr/0011-architecture-grill-round-8-sessionstart-progressive-disclosure.md",
+          "docs/adr/0012-architecture-grill-round-9-l0l1-memory-pipeline-per-platform.md",
+          "docs/adr/0013-architecture-grill-round-10-reuse-compress-noop-adjudication.md",
+          "docs/adr/0014-architecture-grill-round-11-sufficiency-gate-deepening.md",
+          "docs/adr/0015-architecture-grill-round-12-memory-pipeline-extraction.md",
+          "docs/adr/0016-architecture-grill-round-13-temporal-decoupling-pure-function.md",
+          "docs/adr/0017-architecture-grill-round-14-production-pipeline-mcp-dual-era.md",
+          "docs/adr/0018-architecture-grill-round-15-mcp-sdk-v2-migration.md",
+          "docs/adr/0019-architecture-grill-round-16-typebox-bridge-operationalization.md",
+          "docs/adr/0020-architecture-grill-round-17-release-readiness-ship-gate.md",
+          "docs/adr/0021-architecture-grill-round-18-memorypipeline-deepen-threshold-injection-ship-evidence.md",
+          "docs/adr/0022-architecture-grill-round-19-consumer-answer-mode-exposure.md",
+          "docs/adr/0023-architecture-grill-round-20-memory-retrieval-deepening.md",
+          "docs/adr/0024-architecture-grill-round-21-t0-memory-md-durable-preference-layer.md",
+          "docs/adr/0025-architecture-grill-round-22-native-smoke-ci-and-pref-review.md",
+          "docs/adr/0026-architecture-grill-round-23-pnpm-version-pinning-v11-pmonfail-error.md",
+          "docs/adr/0027-architecture-grill-round-24-memory-eval-harness.md",
+          "docs/adr/0028-architecture-grill-round-25-eval-hardening-secret-guard-and-parity.md",
+          "docs/adr/0029-architecture-grill-round-26-judge-calibration-eval-budget-guard.md",
+          "docs/adr/0030-architecture-grill-round-27-memory-lifecycle-fused-freshness-factor.md",
+          "docs/adr/0031-architecture-grill-round-28-entity-link-layer.md",
+          "docs/adr/0032-architecture-grill-round-29-entity-merge-execution.md",
+          "docs/adr/0033-architecture-grill-round-30-vector-semantic-arm.md",
+          "docs/adr/0034-architecture-grill-round-31-answer-attribution-layer.md",
+          "docs/adr/0035-architecture-grill-round-32-entity-relation-layer-kg-lite.md",
+          "docs/adr/0036-architecture-grill-round-33-relation-arm-gain-observation.md",
+          "docs/adr/0037-architecture-grill-round-34-consolidation-and-forgetting.md",
+          "docs/adr/0038-architecture-grill-round-35-relation-gate-promotion-holdout-dual-track.md",
+          "docs/adr/0039-architecture-grill-round-36-tau-observation-layer.md",
+          "docs/adr/0040-architecture-grill-round-37-access-events-tamper-evidence.md",
+          "docs/adr/0041-architecture-grill-round-38-gate-verification-object-layering.md",
+          "docs/adr/0042-architecture-grill-round-39-observational-data-feeding.md",
+          "docs/adr/0043-architecture-grill-round-40-consumed-synthetic-switch-governance.md",
+          "docs/adr/0044-architecture-grill-round-41-adr0043-audit-remediation.md",
+          "docs/adr/0045-architecture-grill-round-42-multi-arm-rrf-fusion-governance.md",
+          "docs/adr/0046-architecture-grill-round-43-multi-arm-rrf-fusion-gain-observation.md",
+          "docs/adr/0047-architecture-grill-round-44-emergency-ship-override-lifecycle.md",
+          "docs/adr/0048-architecture-grill-round-45-local-eval-gate-calibration-contract.md",
+          "docs/adr/0049-architecture-grill-round-46-calibration-revision-lifecycle.md",
+          "docs/adr/0050-architecture-grill-round-47-fused-score-calibration-threshold-propagation.md",
+          "docs/adr/0051-architecture-grill-round-48-attribution-calibration-runtime-injection-segment-audit.md",
+          "docs/adr/0052-architecture-grill-round-49-observability-closed-loop-context-engineering.md",
+          "docs/adr/0053-architecture-grill-round-50-content-trust-boundary-indirect-prompt-injection-defense.md",
+          "docs/adr/0054-architecture-grill-round-51-adr0053-behavioral-loop-closure.md",
+          "docs/adr/0055-architecture-grill-round-52-authorization-policy-single-source.md",
+          "docs/adr/0056-architecture-grill-round-56-session-id-propagation-protocol.md",
+          "docs/adr/0057-architecture-grill-round-57-test-truthfulness-ci-credibility.md",
+          "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
+          "docs/adr/0059-architecture-grill-round-58-ci-shipgate-full-green-closure-multiticket.md",
+          "docs/adr/0060-architecture-grill-round-59-archive-truthfulness-closure.md",
+          "docs/adr/0061-architecture-grill-round-60-product-vertical-domain-closure.md",
+          "docs/adr/0062-architecture-grill-round-61-out-of-domain-abstain-closure-readme.md",
+          "docs/adr/0063-architecture-grill-round-62-real-usability-closure.md",
+          "docs/adr/0064-architecture-grill-round-63-npm-001-go-no-go-release-adjudication.md",
+          "docs/adr/0065-architecture-grill-round-64-quarantine-ttl-adjudication-assertion-granularity.md"
+        ]
+      },
+      "deferred_registry_present": true,
+      "supersede_chain": {
+        "edges": [
+          {
+            "from": "0041",
+            "to": "0040",
+            "kind": "explicit-non-supersede",
+            "evidence": "docs/adr/0041-architecture-grill-round-38-gate-verification-object-layering.md:3",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0058",
+            "to": "0060",
+            "kind": "whole-adr-status",
+            "evidence": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md status-line",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0058",
+            "to": "0034",
+            "kind": "amends",
+            "evidence": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md:5",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0058",
+            "to": "0057",
+            "kind": "amends",
+            "evidence": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md:5",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0058",
+            "to": "defer-0026",
+            "kind": "defer-ref",
+            "evidence": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md:5",
+            "resolved": true,
+            "back_reference": null
+          },
+          {
+            "from": "0059",
+            "to": "0060",
+            "kind": "item-level-inline",
+            "evidence": "docs/adr/0059-architecture-grill-round-58-ci-shipgate-full-green-closure-multiticket.md:69",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0060",
+            "to": "0060",
+            "kind": "self-quote-artifact",
+            "evidence": "docs/adr/0060-architecture-grill-round-59-archive-truthfulness-closure.md:24",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0063",
+            "to": "0033",
+            "kind": "item-level-inline",
+            "evidence": "docs/adr/0063-architecture-grill-round-62-real-usability-closure.md:32",
+            "resolved": true,
+            "back_reference": true
+          }
+        ],
+        "edge_count": 8,
+        "whole_adr_supersessions": 1,
+        "item_level_supersessions": 2,
+        "amends_edges": 2,
+        "references_edges": 0,
+        "defer_ref_edges": 1,
+        "explicit_non_supersedes": 1,
+        "self_quote_artifacts": 1,
+        "unresolved_refs": [],
+        "missing_backrefs": [],
+        "statuses_superseded": [
+          "0058"
+        ]
+      }
+    },
+    "jiahao": {
+      "repo": "jiahao",
+      "root": "D:/Aworker/jiahao",
+      "errors": [],
+      "shallow": "false",
+      "commit_count": 251,
+      "head": "9e8276075d201bb81c7b84317557dfb42cc4154c",
+      "tags": [
+        "adjudicated/devin-corpus-v2"
+      ],
+      "remotes": [
+        {
+          "name": "gb-local",
+          "url": "D:\\Aworker\\jiahao",
+          "kind": "(fetch)"
+        },
+        {
+          "name": "gb-local",
+          "url": "D:\\Aworker\\jiahao",
+          "kind": "(push)"
+        },
+        {
+          "name": "origin",
+          "url": "https://github.com/Xxx91n/jiahao.git",
+          "kind": "(fetch)"
+        },
+        {
+          "name": "origin",
+          "url": "https://github.com/Xxx91n/jiahao.git",
+          "kind": "(push)"
+        }
+      ],
+      "github_remote": {
+        "name": "origin",
+        "url": "https://github.com/Xxx91n/jiahao.git",
+        "kind": "(fetch)"
+      },
+      "remote_branches": [
+        "gb-local/HEAD -> gb-local/main",
+        "gb-local/gitbutler/target",
+        "gb-local/gitbutler/workspace",
+        "gb-local/grill-t7-v2-docs",
+        "gb-local/grill-t8-capa",
+        "gb-local/grill-t8-docs",
+        "gb-local/main",
+        "origin/HEAD -> origin/main",
+        "origin/main"
+      ],
+      "dependabot_remote_branches": [],
+      "release_please_remote_branches": [],
+      "main_origin_sync": "0\t0",
+      "workflows": [
+        "ci.yml"
+      ],
+      "hosting_files": {
+        ".github/PULL_REQUEST_TEMPLATE.md": false,
+        ".github/dependabot.yml": false,
+        ".github/CODEOWNERS": false,
+        ".github/FUNDING.yml": false,
+        ".github/CONTRIBUTING.md": false,
+        ".github/CODE_OF_CONDUCT.md": false,
+        "CODEOWNERS": false,
+        "CONTRIBUTING.md": false,
+        ".github/ISSUE_TEMPLATE": false
+      },
+      "ci_pull_request_trigger": true,
+      "pr_evidence": {
+        "merge_commit_prs": [
+          {
+            "pr": "7",
+            "sha": "28c253e6",
+            "author": "Xxx91n",
+            "date": "2026-09-14",
+            "subject": "Merge pull request #7 from Xxx91n/grill-t6-t1-round",
+            "klass": "human-authored"
+          },
+          {
+            "pr": "5",
+            "sha": "808c2cd3",
+            "author": "Xxx91n",
+            "date": "2026-09-12",
+            "subject": "Merge pull request #5 from Xxx91n/adr0059-impl",
+            "klass": "human-authored"
+          },
+          {
+            "pr": "2",
+            "sha": "d6386fcd",
+            "author": "Xxx91n",
+            "date": "2026-09-10",
+            "subject": "Merge pull request #2 from Xxx91n/codex/adr0044-defer-id-fix",
+            "klass": "human-authored"
+          },
+          {
+            "pr": "1",
+            "sha": "c35c23f1",
+            "author": "Xxx91n",
+            "date": "2026-09-10",
+            "subject": "Merge pull request #1 from Xxx91n/codex/adr0055-impl",
+            "klass": "human-authored"
+          }
+        ],
+        "squash_prs": [
+          {
+            "pr": "4",
+            "sha": "e6381339",
+            "author": "Xxx91n",
+            "date": "2026-09-11",
+            "subject": "test(adr-0055): make stale-upstream flake deterministic (HEAD~1, not HEAD which equals ori",
+            "klass": "human-authored"
+          },
+          {
+            "pr": "3",
+            "sha": "b0a8a0a7",
+            "author": "Xxx91n",
+            "date": "2026-09-11",
+            "subject": "fix(git): ignore test-artifacts/ (ADR-0057 JUnit evidence output dir) (#3)",
+            "klass": "human-authored"
+          }
+        ],
+        "other_github_web_commits": []
+      },
+      "pr_ratio": {
+        "github_pr_total": 6,
+        "human_authored": 6,
+        "bot_authored": 0,
+        "machine_generated": 0,
+        "open_bot_pr_branches": 0,
+        "note": "github_pr_total = merge-commit PR + squash(#N) PR（committer=GitHub 才计入）；bot/machine-generated 为非人类 PR 边缘形态单列"
+      },
+      "authors": [
+        {
+          "commits": 244,
+          "name": "Euiop1",
+          "email": "iz0ms@Euiop1.oi",
+          "bot": false
+        },
+        {
+          "commits": 6,
+          "name": "Xxx91n",
+          "email": "jinxi2410@gmail.com",
+          "bot": false
+        },
+        {
+          "commits": 1,
+          "name": "GitButler",
+          "email": "gitbutler@gitbutler.com",
+          "bot": true
+        }
+      ],
+      "author_split": {
+        "human_identities": [
+          "Euiop1(244)",
+          "Xxx91n(6)"
+        ],
+        "machine_identities": [
+          "GitButler(1)"
+        ],
+        "human_commits": 250,
+        "machine_commits": 1
+      },
+      "local_merge_commits": 12,
+      "adr_dir": "docs/adr",
+      "adr": {
+        "dir": "docs/adr",
+        "count": 69,
+        "files": [
+          "docs/adr/0001-prompt-as-mental-model-for-second-party-agents.md",
+          "docs/adr/0002-jiahao-iron-laws-design.md",
+          "docs/adr/0003-hook-architecture-design.md",
+          "docs/adr/0004-verification-gate-ladder.md",
+          "docs/adr/0005-skill-distribution-adapter-pattern.md",
+          "docs/adr/0006-architecture-deepening.md",
+          "docs/adr/0007-hash-chain-tamper-evidence.md",
+          "docs/adr/0008-confidence-calibration.md",
+          "docs/adr/0009-mcp-adapter.md",
+          "docs/adr/0010-dual-profile-role-tagged-distribution.md",
+          "docs/adr/0011-deployment-discipline-install-ux-drift-automation.md",
+          "docs/adr/0012-detector-verdict-persistence-hook-idempotency.md",
+          "docs/adr/0013-cross-turn-hash-chain.md",
+          "docs/adr/0014-wordlist-migration-structural-signals.md",
+          "docs/adr/0015-benchmark-adoption-citation-calibration.md",
+          "docs/adr/0016-evidencelog-gateladder-split-shared-core.md",
+          "docs/adr/0017-escalate-verdict-human-adjudication.md",
+          "docs/adr/0018-calibration-flywheel-kappa.md",
+          "docs/adr/0019-detector-v2-suppression-judge-seam.md",
+          "docs/adr/0020-multi-page-enumeration-exhaustion-pairing.md",
+          "docs/adr/0021-request-side-anchor-signals.md",
+          "docs/adr/0022-detector-hardening-censoring-degradation.md",
+          "docs/adr/0023-timeout-sentinel-reconciliation-degradation-evolution.md",
+          "docs/adr/0024-sentinel-ownership-lock-reconcile-hardening-session-sweep.md",
+          "docs/adr/0025-judge-form-convergence-corpus-telemetry.md",
+          "docs/adr/0026-segmented-evidence-log-rotation.md",
+          "docs/adr/0027-bench-gate-pre-registered-threshold-enforcement.md",
+          "docs/adr/0028-multi-host-l0-golden-conformance-host-contracts.md",
+          "docs/adr/0029-verifier-effectiveness-behavioral-probe-gate.md",
+          "docs/adr/0030-corpus-growth-interval-gate-reverification-runbook.md",
+          "docs/adr/0031-wiring-assertions-judge-bias-gate-tiers-isolation-provenance-debt-pack.md",
+          "docs/adr/0032-generator-surface-rules-deepening-gsr-coverage-lifecycle.md",
+          "docs/adr/0033-deferred-unfreeze-registry-pending-evaluation-expiry-forces-action.md",
+          "docs/adr/0034-gate-registry-single-entrypoint-orchestration.md",
+          "docs/adr/0035-deferred-registry-cadence-checkin-verifiedby-honesty-corrections.md",
+          "docs/adr/0036-anti-gaming-audit-corpus-migration-freshness-gate-defaults.md",
+          "docs/adr/0037-metamorphic-relations-third-corpus-family-staged-hybrid.md",
+          "docs/adr/0038-npm-runtime-artifact-surface-corpus-distribution-boundary.md",
+          "docs/adr/0039-tarball-runtime-surface-narrowing-docs-adr-archive-channel.md",
+          "docs/adr/0040-gate-runtime-capability-declaration-three-state-exit-honest-unverifiable.md",
+          "docs/adr/0041-exit-semantics-unification-structured-stderr-prefixes-lane-integration.md",
+          "docs/adr/0042-config-load-warning-rule-code-contract-locking.md",
+          "docs/adr/0043-fact-source-derived-artifact-discipline-prefix-vocabulary.md",
+          "docs/adr/0044-claim-directed-falsification-mechanical-falsifiability-core-rule.md",
+          "docs/adr/0045-stochastic-deterministic-boundary-evidence-path-verification.md",
+          "docs/adr/0046-instrument-drift-recalibration.md",
+          "docs/adr/0047-impact-tiered-instrument-change-control.md",
+          "docs/adr/0048-metrological-ledger-record-tier-content-anchor-commit-discipline.md",
+          "docs/adr/0049-decision-rule-anchor-and-metrological-ledger-completion.md",
+          "docs/adr/0050-append-only-hardening-external-head-anchor-and-genesis-anchoring.md",
+          "docs/adr/0051-closed-persistence-capability-class.md",
+          "docs/adr/0052-witness-unavailable-failure-state.md",
+          "docs/adr/0053-periodic-re-anchoring-and-anchor-freshness.md",
+          "docs/adr/0054-anchor-freshness-verification-and-re-anchoring-activation.md",
+          "docs/adr/0055-work-baseline-anchoring-and-seal-verification-performance.md",
+          "docs/adr/0056-test-corpus-tiering-and-clean-clone-integrity.md",
+          "docs/adr/0057-test-skip-honesty-and-suite-count-assertion.md",
+          "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
+          "docs/adr/0059-external-critique-dialectic-closure-distribution-honesty-and-governance-posture.md",
+          "docs/adr/0060-judge-conformity-sampling-power-indeterminate-state-and-conditional-certification.md",
+          "docs/adr/0061-pre-registered-gate-amendment-closure-surface-narrowed-judge-identity-and-output-tethered-convergence.md",
+          "docs/adr/0062-pre-registered-tarball-cap-amendment-policy-before-value-trend-anchor.md",
+          "docs/adr/0063-surface-narrowed-judge-identity-anchor-semantic-digest-rejected.md",
+          "docs/adr/0064-t6-product-round-pre-registration-mde-gates-and-governance-trend-anchor.md",
+          "docs/adr/0065-t6-confirmatory-round-adjudication-port-surface-devin-corpus-and-claim-honesty.md",
+          "docs/adr/0066-tarball-cap-trend-anchor-amendment-t6-product-port-surface.md",
+          "docs/adr/0067-devin-corpus-v1-oot-falsification-adjudication.md",
+          "docs/adr/0068-devin-corpus-v2-dual-axis-adjudication-collection-protocol-claim-slot-v3-binding.md",
+          "docs/adr/0069-capa-claim-evidence-pairer-artifact-freeze-adjudication-anchor-readiness-positioning.md"
+        ]
+      },
+      "deferred_registry_present": true,
+      "supersede_chain": {
+        "edges": [
+          {
+            "from": "0035",
+            "to": "0033",
+            "kind": "amends",
+            "evidence": "docs/adr/0035-deferred-registry-cadence-checkin-verifiedby-honesty-corrections.md:6",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0038",
+            "to": "0036",
+            "kind": "amends",
+            "evidence": "docs/adr/0038-npm-runtime-artifact-surface-corpus-distribution-boundary.md:7",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0039",
+            "to": "0062",
+            "kind": "item-level-inline",
+            "evidence": "docs/adr/0039-tarball-runtime-surface-narrowing-docs-adr-archive-channel.md:16",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0039",
+            "to": "0066",
+            "kind": "item-level-inline",
+            "evidence": "docs/adr/0039-tarball-runtime-surface-narrowing-docs-adr-archive-channel.md:19",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0039",
+            "to": "0038",
+            "kind": "amends",
+            "evidence": "docs/adr/0039-tarball-runtime-surface-narrowing-docs-adr-archive-channel.md:6",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0040",
+            "to": "0023",
+            "kind": "references",
+            "evidence": "docs/adr/0040-gate-runtime-capability-declaration-three-state-exit-honest-unverifiable.md:14",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0040",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0040-gate-runtime-capability-declaration-three-state-exit-honest-unverifiable.md:14",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0041",
+            "to": "0040",
+            "kind": "amends",
+            "evidence": "docs/adr/0041-exit-semantics-unification-structured-stderr-prefixes-lane-integration.md:6",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0041",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0041-exit-semantics-unification-structured-stderr-prefixes-lane-integration.md:14",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0041",
+            "to": "0028",
+            "kind": "references",
+            "evidence": "docs/adr/0041-exit-semantics-unification-structured-stderr-prefixes-lane-integration.md:14",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0042",
+            "to": "0041",
+            "kind": "amends",
+            "evidence": "docs/adr/0042-config-load-warning-rule-code-contract-locking.md:6",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0042",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0042-config-load-warning-rule-code-contract-locking.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0042",
+            "to": "0031",
+            "kind": "references",
+            "evidence": "docs/adr/0042-config-load-warning-rule-code-contract-locking.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0043",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0043-fact-source-derived-artifact-discipline-prefix-vocabulary.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0043",
+            "to": "0028",
+            "kind": "references",
+            "evidence": "docs/adr/0043-fact-source-derived-artifact-discipline-prefix-vocabulary.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0044",
+            "to": "0007",
+            "kind": "references",
+            "evidence": "docs/adr/0044-claim-directed-falsification-mechanical-falsifiability-core-rule.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0044",
+            "to": "0013",
+            "kind": "references",
+            "evidence": "docs/adr/0044-claim-directed-falsification-mechanical-falsifiability-core-rule.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0045",
+            "to": "0001",
+            "kind": "references",
+            "evidence": "docs/adr/0045-stochastic-deterministic-boundary-evidence-path-verification.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0045",
+            "to": "0004",
+            "kind": "references",
+            "evidence": "docs/adr/0045-stochastic-deterministic-boundary-evidence-path-verification.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0046",
+            "to": "0018",
+            "kind": "references",
+            "evidence": "docs/adr/0046-instrument-drift-recalibration.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0046",
+            "to": "0025",
+            "kind": "references",
+            "evidence": "docs/adr/0046-instrument-drift-recalibration.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0046",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0046-instrument-drift-recalibration.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0046",
+            "to": "0029",
+            "kind": "references",
+            "evidence": "docs/adr/0046-instrument-drift-recalibration.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0047",
+            "to": "0018",
+            "kind": "references",
+            "evidence": "docs/adr/0047-impact-tiered-instrument-change-control.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0047",
+            "to": "0025",
+            "kind": "references",
+            "evidence": "docs/adr/0047-impact-tiered-instrument-change-control.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0047",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0047-impact-tiered-instrument-change-control.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0047",
+            "to": "0029",
+            "kind": "references",
+            "evidence": "docs/adr/0047-impact-tiered-instrument-change-control.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0047",
+            "to": "0030",
+            "kind": "references",
+            "evidence": "docs/adr/0047-impact-tiered-instrument-change-control.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0048",
+            "to": "0013",
+            "kind": "references",
+            "evidence": "docs/adr/0048-metrological-ledger-record-tier-content-anchor-commit-discipline.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0048",
+            "to": "0017",
+            "kind": "references",
+            "evidence": "docs/adr/0048-metrological-ledger-record-tier-content-anchor-commit-discipline.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0048",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0048-metrological-ledger-record-tier-content-anchor-commit-discipline.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0049",
+            "to": "0013",
+            "kind": "references",
+            "evidence": "docs/adr/0049-decision-rule-anchor-and-metrological-ledger-completion.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0049",
+            "to": "0017",
+            "kind": "references",
+            "evidence": "docs/adr/0049-decision-rule-anchor-and-metrological-ledger-completion.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0049",
+            "to": "0022",
+            "kind": "references",
+            "evidence": "docs/adr/0049-decision-rule-anchor-and-metrological-ledger-completion.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0050",
+            "to": "0007",
+            "kind": "references",
+            "evidence": "docs/adr/0050-append-only-hardening-external-head-anchor-and-genesis-anchoring.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0050",
+            "to": "0013",
+            "kind": "references",
+            "evidence": "docs/adr/0050-append-only-hardening-external-head-anchor-and-genesis-anchoring.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0054",
+            "to": "0036",
+            "kind": "references",
+            "evidence": "docs/adr/0054-anchor-freshness-verification-and-re-anchoring-activation.md:7",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0054",
+            "to": "0041",
+            "kind": "references",
+            "evidence": "docs/adr/0054-anchor-freshness-verification-and-re-anchoring-activation.md:7",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0055",
+            "to": "0053",
+            "kind": "amends",
+            "evidence": "docs/adr/0055-work-baseline-anchoring-and-seal-verification-performance.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0055",
+            "to": "0054",
+            "kind": "amends",
+            "evidence": "docs/adr/0055-work-baseline-anchoring-and-seal-verification-performance.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0056",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0056-test-corpus-tiering-and-clean-clone-integrity.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0057",
+            "to": "0023",
+            "kind": "references",
+            "evidence": "docs/adr/0057-test-skip-honesty-and-suite-count-assertion.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0057",
+            "to": "0034",
+            "kind": "references",
+            "evidence": "docs/adr/0057-test-skip-honesty-and-suite-count-assertion.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0058",
+            "to": "0034",
+            "kind": "amends",
+            "evidence": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md:5",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0058",
+            "to": "0057",
+            "kind": "amends",
+            "evidence": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md:5",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0058",
+            "to": "defer-0026",
+            "kind": "defer-ref",
+            "evidence": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md:5",
+            "resolved": true,
+            "back_reference": null
+          },
+          {
+            "from": "0060",
+            "to": "0049",
+            "kind": "amends",
+            "evidence": "docs/adr/0060-judge-conformity-sampling-power-indeterminate-state-and-conditional-certification.md:5",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0060",
+            "to": "0047",
+            "kind": "amends",
+            "evidence": "docs/adr/0060-judge-conformity-sampling-power-indeterminate-state-and-conditional-certification.md:5",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0061",
+            "to": "0039",
+            "kind": "amends",
+            "evidence": "docs/adr/0061-pre-registered-gate-amendment-closure-surface-narrowed-judge-identity-and-output-tethered-convergence.md:5",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0061",
+            "to": "0059",
+            "kind": "amends",
+            "evidence": "docs/adr/0061-pre-registered-gate-amendment-closure-surface-narrowed-judge-identity-and-output-tethered-convergence.md:5",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0062",
+            "to": "0039",
+            "kind": "amends",
+            "evidence": "docs/adr/0062-pre-registered-tarball-cap-amendment-policy-before-value-trend-anchor.md:6",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0062",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0062-pre-registered-tarball-cap-amendment-policy-before-value-trend-anchor.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0062",
+            "to": "0047",
+            "kind": "references",
+            "evidence": "docs/adr/0062-pre-registered-tarball-cap-amendment-policy-before-value-trend-anchor.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0063",
+            "to": "0061",
+            "kind": "amends",
+            "evidence": "docs/adr/0063-surface-narrowed-judge-identity-anchor-semantic-digest-rejected.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0063",
+            "to": "0046",
+            "kind": "references",
+            "evidence": "docs/adr/0063-surface-narrowed-judge-identity-anchor-semantic-digest-rejected.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0063",
+            "to": "0047",
+            "kind": "references",
+            "evidence": "docs/adr/0063-surface-narrowed-judge-identity-anchor-semantic-digest-rejected.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0064",
+            "to": "0059",
+            "kind": "amends",
+            "evidence": "docs/adr/0064-t6-product-round-pre-registration-mde-gates-and-governance-trend-anchor.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0064",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0064-t6-product-round-pre-registration-mde-gates-and-governance-trend-anchor.md:9",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0064",
+            "to": "0030",
+            "kind": "references",
+            "evidence": "docs/adr/0064-t6-product-round-pre-registration-mde-gates-and-governance-trend-anchor.md:9",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0065",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0065-t6-confirmatory-round-adjudication-port-surface-devin-corpus-and-claim-honesty.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0065",
+            "to": "0038",
+            "kind": "references",
+            "evidence": "docs/adr/0065-t6-confirmatory-round-adjudication-port-surface-devin-corpus-and-claim-honesty.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0066",
+            "to": "0039",
+            "kind": "amends",
+            "evidence": "docs/adr/0066-tarball-cap-trend-anchor-amendment-t6-product-port-surface.md:6",
+            "resolved": true,
+            "back_reference": true
+          },
+          {
+            "from": "0066",
+            "to": "0062",
+            "kind": "references",
+            "evidence": "docs/adr/0066-tarball-cap-trend-anchor-amendment-t6-product-port-surface.md:8",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0067",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0067-devin-corpus-v1-oot-falsification-adjudication.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0067",
+            "to": "0030",
+            "kind": "references",
+            "evidence": "docs/adr/0067-devin-corpus-v1-oot-falsification-adjudication.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0068",
+            "to": "0027",
+            "kind": "references",
+            "evidence": "docs/adr/0068-devin-corpus-v2-dual-axis-adjudication-collection-protocol-claim-slot-v3-binding.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0068",
+            "to": "0030",
+            "kind": "references",
+            "evidence": "docs/adr/0068-devin-corpus-v2-dual-axis-adjudication-collection-protocol-claim-slot-v3-binding.md:6",
+            "resolved": true,
+            "back_reference": false
+          },
+          {
+            "from": "0069",
+            "to": "0068",
+            "kind": "references",
+            "evidence": "docs/adr/0069-capa-claim-evidence-pairer-artifact-freeze-adjudication-anchor-readiness-positioning.md:6",
+            "resolved": true,
+            "back_reference": false
+          }
+        ],
+        "edge_count": 68,
+        "whole_adr_supersessions": 0,
+        "item_level_supersessions": 2,
+        "amends_edges": 17,
+        "references_edges": 48,
+        "defer_ref_edges": 1,
+        "explicit_non_supersedes": 0,
+        "self_quote_artifacts": 0,
+        "unresolved_refs": [],
+        "missing_backrefs": [],
+        "statuses_superseded": []
+      }
+    }
+  }
+}
