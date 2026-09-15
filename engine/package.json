@@ -24,7 +24,7 @@
     "gen": "node scripts/gen-manifests.mjs",
     "build": "tsc -p tsconfig.json",
     "package": "npm pack --dry-run",
-    "smoke": "node test/smoke.test.mjs && node test/collectors.test.mjs && node test/codelore-adapter.test.mjs && node test/codelore-batch1.test.mjs && node test/codelore-llm.test.mjs && node test/report-preview.test.mjs",
+    "smoke": "node test/smoke.test.mjs && node test/collectors.test.mjs && node test/codelore-adapter.test.mjs && node test/codelore-batch1.test.mjs && node test/codelore-llm.test.mjs && node test/report-preview.test.mjs && node test/intake.test.mjs",
     "test": "npm run gen && npm run build && npm run smoke",
     "selftest": "node dist/cli.js selftest"
   },

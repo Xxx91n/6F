@@ -1,0 +1,31 @@
+{
+  "ticket": 40,
+  "a_xxx": "A-045",
+  "selected_at": "2026-09-16",
+  "selected": {
+    "repo": "gsd-core",
+    "url": "https://github.com/open-gsd/gsd-core.git",
+    "html_url": "https://github.com/open-gsd/gsd-core",
+    "default_branch": "next",
+    "head_sha_at_selection": "0d6bf19bf137af3b5ed248c01645c8356bac40b8",
+    "size_hint": "~71MB（GitHub API size 字段）",
+    "language_hint": "JavaScript/TypeScript 项目（package.json + tsconfig + eslint 在位）",
+    "adr_dir": "docs/adr/",
+    "adr_files": 96,
+    "adr_matching_pattern": 92
+  },
+  "rationale": [
+    "非自有仓：owner=open-gsd（公开组织），非 6F 同主——与 env-manager/anysearch-cli/jiahao 三试点仓无所有权关联，满足 D-033「≥1 非自有公开仓」",
+    "真实软件项目：非样例/教学仓——有 package.json、tsconfig、eslint 配置、tests/、CI 语义目录（agents/commands/skills）",
+    "ADR 语料健全：docs/adr/ 96 个 .md（92 个匹配 NNN-*.md 命名），远超 TC-1 min_n=5 下限",
+    "历史深度：5887 commits——gitlog 采集面与 TC-1 滞后判据可判定",
+    "意图文档在位：CONTEXT.md + README.md → TC-3 定位覆盖率可判定",
+    "格式多样性价值：gsd-core ADR 头部采用「- **Field:**」dash+加粗混排形态（与三试点仓 dash/裸行形态不同）——对 v2 回退链构成真实泛化压力测试",
+    "活跃维护：head commit 2026-09-15（观测当日），非归档/僵尸仓"
+  ],
+  "rejected_candidates": [
+    { "repo": "adr/madr", "reason": "docs/adr API 探测 404——MADR 模板仓 ADR 语料路径不符预期，不入选" }
+  ],
+  "discovery_path": "GitHub API repos/open-gsd/gsd-core + contents/docs/adr + raw ADR 抽样（0001-dispatch-policy-module.md）",
+  "non_mutation_note": "目标仓仅以 git clone 读路径接入；本票对其零写动作"
+}

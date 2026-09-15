@@ -1,0 +1,189 @@
+{
+  "ticket": 40,
+  "a_xxx": "A-045",
+  "generated_at": "2026-09-15T20:29:58.569Z",
+  "scale": "Macro-B",
+  "probe_internal": "reports/39-macro-b-one-shot.mjs（三仓基线，#39 / A-044）",
+  "probe_external": "reports/40-macro-b-one-shot.mjs（外部仓，=39 同构复用，管线/判据/阈值零改动）",
+  "intake_path": "engine/dist/cli.js repo add <url> --cache reports/40-clone-cache（URL opt-in → 隔离缓存 → 全深度 → 浅拒 → 禁远程配置执行 → 本地管线）",
+  "dogfooding_boundary": "env-manager/anysearch-cli/jiahao 三仓与产品同主——dogfooding = generative not evaluative（D-033），其数据仅作校准基线，不构成泛化证据；gsd-core 为首条独立泛化证据",
+  "targets": [
+    {
+      "repo": "env-manager",
+      "kind": "internal-dogfooding",
+      "url_optin": false,
+      "head_sha": "9eb8f24be508750f299e920d816ba9079771a3f1",
+      "commit_count": 496,
+      "adr_count": 14,
+      "intent_docs": [
+        "CONTEXT.md",
+        "README.md",
+        "AGENTS.md"
+      ],
+      "fact_count": 276,
+      "tc1": {
+        "verdict": "NOT_RED",
+        "judgeable_n": 14,
+        "ratio_4": "0.0000"
+      },
+      "tc2": {
+        "verdict": "NOT_RED",
+        "mean_ratio_4": "0.7571",
+        "missing_ratio_4": {
+          "Status": 0.2857,
+          "Date": 0,
+          "Context": 0.2143,
+          "Decision": 0.4286,
+          "Consequences": 0.2857
+        },
+        "cond_a": false,
+        "cond_b": false
+      },
+      "tc3": {
+        "verdict": "GREEN",
+        "lowest_ratio_4": "0.8500"
+      },
+      "nc1": {
+        "pass": true,
+        "path": "package.json"
+      },
+      "overall": "supported",
+      "receipt": "RCP-b1106d4112171be9"
+    },
+    {
+      "repo": "anysearch-cli",
+      "kind": "internal-dogfooding",
+      "url_optin": false,
+      "head_sha": "8314a3c92b4c6f15332e08f3d225cf96675241e3",
+      "commit_count": 314,
+      "adr_count": 65,
+      "intent_docs": [
+        "CONTEXT.md",
+        "README.md",
+        "AGENTS.md"
+      ],
+      "fact_count": 1041,
+      "tc1": {
+        "verdict": "NOT_RED",
+        "judgeable_n": 65,
+        "ratio_4": "0.0000"
+      },
+      "tc2": {
+        "verdict": "RED",
+        "mean_ratio_4": "0.6462",
+        "missing_ratio_4": {
+          "Status": 0.7385,
+          "Date": 0,
+          "Context": 0.3538,
+          "Decision": 0.3846,
+          "Consequences": 0.2923
+        },
+        "cond_a": false,
+        "cond_b": true
+      },
+      "tc3": {
+        "verdict": "GREEN",
+        "lowest_ratio_4": "0.8500"
+      },
+      "nc1": {
+        "pass": true,
+        "path": "package.json"
+      },
+      "overall": "unsupported",
+      "receipt": "RCP-b87bc53eb457a9fc"
+    },
+    {
+      "repo": "jiahao",
+      "kind": "internal-dogfooding",
+      "url_optin": false,
+      "head_sha": "9e8276075d201bb81c7b84317557dfb42cc4154c",
+      "commit_count": 251,
+      "adr_count": 69,
+      "intent_docs": [
+        "CONTEXT.md",
+        "README.md",
+        "AGENTS.md"
+      ],
+      "fact_count": 1101,
+      "tc1": {
+        "verdict": "NOT_RED",
+        "judgeable_n": 69,
+        "ratio_4": "0.0145"
+      },
+      "tc2": {
+        "verdict": "NOT_RED",
+        "mean_ratio_4": "0.9449",
+        "missing_ratio_4": {
+          "Status": 0.2609,
+          "Date": 0,
+          "Context": 0,
+          "Decision": 0,
+          "Consequences": 0.0145
+        },
+        "cond_a": false,
+        "cond_b": false
+      },
+      "tc3": {
+        "verdict": "GREEN",
+        "lowest_ratio_4": "0.8500"
+      },
+      "nc1": {
+        "pass": true,
+        "path": "package.json"
+      },
+      "overall": "supported",
+      "receipt": "RCP-4d1b294f6e2b0a07"
+    },
+    {
+      "repo": "gsd-core",
+      "kind": "external-url-optin",
+      "url_optin": true,
+      "url": "https://github.com/open-gsd/gsd-core.git",
+      "head_sha": "0d6bf19bf137af3b5ed248c01645c8356bac40b8",
+      "commit_count": 5887,
+      "adr_count": 92,
+      "intent_docs": [
+        "CONTEXT.md",
+        "README.md"
+      ],
+      "fact_count": 1424,
+      "tc1": {
+        "verdict": "NOT_RED",
+        "judgeable_n": 92,
+        "ratio_4": "0.0000"
+      },
+      "tc2": {
+        "verdict": "RED",
+        "mean_ratio_4": "0.7478",
+        "missing_ratio_4": {
+          "Status": 0.9783,
+          "Date": 0,
+          "Context": 0.163,
+          "Decision": 0.0761,
+          "Consequences": 0.0435
+        },
+        "cond_a": false,
+        "cond_b": true
+      },
+      "tc3": {
+        "verdict": "GREEN",
+        "lowest_ratio_4": "0.8000"
+      },
+      "nc1": {
+        "pass": true,
+        "path": "package.json"
+      },
+      "overall": "unsupported",
+      "receipt": "RCP-d4f119c5a2cac629"
+    }
+  ],
+  "observations": [
+    "事实量：外部仓 1424 条（92 ADR / 5887 commits），位于基线区间（276~1101）之上——管线在更大语料面上不失真",
+    "TC-1：外部仓 judgeable_n=92 ≥ min_n=5（基线 2/13/33）——TC-1 可判定且 NOT_RED（事后补写占比 0.0000）；desk-task2 满足判据达成",
+    "TC-2：外部仓 RED，但驱动面不同——mean_ratio_4=0.7478 高于基线 anysearch-cli（0.7385 缺失率背景）；cond_a=false，cond_b 由 Status 缺失率 0.9783 触发；而 Context/Decision/Consequences 缺失率仅 0.163/0.076/0.044——RED 主成分为 v2 回退链未覆盖「- **Field:**」dash+加粗头部形态导致的 Status 漏认（可归属原因候选），非五件套真实缺失",
+    "TC-3：外部仓 GREEN（最低 0.8000，CONTEXT.md 1.0000 / README.md 0.8000）——定位采集面对外部意图文档直接可用",
+    "PC-1/PC-2/NC-1 正/负对照在外部仓全部 PASS——管线健康与特异性在外部输入下保持",
+    "综合裁定 unsupported（TC-2 RED 传播）——与 anysearch-cli 同为 unsupported 但归因不同：anysearch-cli 为 Status 头真实缺失率 0.7385，gsd-core 为 dash+加粗形态漏认——跨仓对照揭示「同一 RED 不同可归属原因」须入 lessons"
+  ],
+  "fallback_leg_note": "v2 四腿（dash→inline→inline-iso→git）：gsd-core Status 行形态「- **Status:** Accepted」先被 dash 正则挡下（^-\\s*field:）再被 inline 拒绝（行首非字段名），四腿均漏认——v2 冻结于 27-prereg，缺口如实记录待 v3 腿预注册"
+}

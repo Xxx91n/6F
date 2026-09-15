@@ -1,0 +1,88 @@
+{
+  "repo": "gsd-core",
+  "root": "D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\40-clone-cache\\repos\\f0b1eba9471ef4de",
+  "observed_at": "2026-09-15T15:53:42-04:00",
+  "head_sha": "0d6bf19bf137af3b5ed248c01645c8356bac40b8",
+  "tree_sha": "9a285b05f65aee24740a8d7a3a39dbfa30f6d9c1",
+  "commit_count": 5887,
+  "adr_count": 92,
+  "intent_docs": [
+    "CONTEXT.md",
+    "README.md"
+  ],
+  "fact_count": 1424,
+  "tc1": {
+    "judgeable_n": 92,
+    "backfill_n": 0,
+    "ratio_4": "0.0000",
+    "verdict": "NOT_RED",
+    "threshold": {
+      "lag_days": 90,
+      "ratio_red": 0.2,
+      "min_n": 5
+    }
+  },
+  "tc2": {
+    "total": 92,
+    "mean_ratio_4": "0.7478",
+    "missing_counts": {
+      "Status": 90,
+      "Date": 0,
+      "Context": 15,
+      "Decision": 7,
+      "Consequences": 4
+    },
+    "missing_ratio_4": {
+      "Status": 0.9783,
+      "Date": 0,
+      "Context": 0.163,
+      "Decision": 0.0761,
+      "Consequences": 0.0435
+    },
+    "cond_a": false,
+    "cond_b": true,
+    "verdict": "RED",
+    "threshold": {
+      "mean_red": 0.6,
+      "field_missing_red": 0.5
+    }
+  },
+  "tc3": {
+    "per_source": [
+      {
+        "path": "CONTEXT.md",
+        "hit": 20,
+        "keywords": 20,
+        "ratio_4": "1.0000"
+      },
+      {
+        "path": "README.md",
+        "hit": 16,
+        "keywords": 20,
+        "ratio_4": "0.8000"
+      }
+    ],
+    "lowest_path": "README.md",
+    "lowest_ratio_4": "0.8000",
+    "verdict": "GREEN",
+    "threshold": {
+      "red": 0.5,
+      "green": 0.7,
+      "top_n": 20
+    }
+  },
+  "nc1": {
+    "path": "package.json",
+    "fact_count": 11,
+    "five_piece_present": 0,
+    "supersede_present": false,
+    "pass": true
+  },
+  "pc1": {
+    "pass": true
+  },
+  "pc2": {
+    "pass": true,
+    "delta_days": 255
+  }
+}

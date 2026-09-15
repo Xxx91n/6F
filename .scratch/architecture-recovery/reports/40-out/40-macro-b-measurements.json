@@ -1,0 +1,49 @@
+{
+  "probe": "40-macro-b-one-shot.mjs",
+  "generated_at": "2026-09-15T20:27:43.544Z",
+  "ticket": 40,
+  "a_xxx": "A-045",
+  "scale": "Macro-B",
+  "targets": [
+    {
+      "repo": "gsd-core",
+      "head_sha": "0d6bf19bf137af3b5ed248c01645c8356bac40b8",
+      "head_date": "2026-09-15T15:53:42-04:00",
+      "commit_count": 5887,
+      "adr_count": 92,
+      "fact_count": 1424,
+      "intent_docs": [
+        "CONTEXT.md",
+        "README.md"
+      ],
+      "verdicts": {
+        "pc1": true,
+        "pc2": true,
+        "tc1": "NOT_RED",
+        "tc2": "RED",
+        "tc3": "GREEN",
+        "nc1": true,
+        "overall": "unsupported"
+      },
+      "receipt": "RCP-d4f119c5a2cac629",
+      "outputs": {
+        "md": "40-macro-b-gsd-core.md",
+        "sidecar": "40-macro-b-gsd-core.json",
+        "facts": "40-macro-b-gsd-core-facts.jsonl",
+        "measurements": "40-macro-b-gsd-core-measurements.json"
+      }
+    }
+  ],
+  "shared_duckdb": {
+    "file": "40-audit-facts.duckdb",
+    "appended": 1424,
+    "dedup_dropped": 0,
+    "db_by_scale": {
+      "Macro-B": 1424
+    },
+    "db_by_repo": {
+      "gsd-core@0d6bf19bf137af3b5ed248c01645c8356bac40b8": 1424
+    },
+    "note": "外部仓 Macro-B 事实同一 audit_fact 表、同一 appendFact 写路径（单写者串行追加）；与 #39 三仓基线同路径，供泛化对照"
+  }
+}

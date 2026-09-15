@@ -9,9 +9,9 @@
 **Blocked by:**
 #39（三仓 one-shot 先跑通，泛化口径才有对照基线）
 
-**Status:** ready-for-agent
+**Status:** done（2026-09-16 实跑完成——open-gsd/gsd-core 经 URL opt-in 接入，Macro-B unsupported 如实落数，RCP-d4f119c5a2cac629）
 
-- [ ] 目标公开仓选定 + 选定理由落文（规模/ADR 健全度/语言栈适配）
-- [ ] URL opt-in 全路径实跑（clone 隔离缓存 + 全深度校验 + Macro-B 报告产出）
-- [ ] 泛化证据回写（与三仓 one-shot 结果对照；差异如实写）
-- [ ] 守卫 reports/40-*.mjs PASS
+- [x] 目标公开仓选定 + 选定理由落文（规模/ADR 健全度/语言栈适配）→ `reports/40-target-selection.json`（gsd-core：非自有/真实 JS 项目/92 ADR/5887 commits/dash+加粗形态多样性；madr 淘汰留痕）
+- [x] URL opt-in 全路径实跑（clone 隔离缓存 + 全深度校验 + Macro-B 报告产出）→ engine `repo add`（intake.ts + cli.ts + intake.test.mjs 31 断言）→ `reports/40-intake-receipt.json` + `40-clone-cache/repos/f0b1eba9471ef4de` → `reports/40-out/40-macro-b-gsd-core.*`
+- [x] 泛化证据回写（与三仓 one-shot 结果对照；差异如实写）→ `reports/40-external-comparison.json` + `reports/40-report.md` §4.2（unsupported；TC-2 RED 归因=Status dash+加粗形态漏认 vs anysearch-cli 真缺失，如实区分）
+- [x] 守卫 reports/40-*.mjs PASS → `reports/40-check.mjs`（见 40-report §6 断言清单）
