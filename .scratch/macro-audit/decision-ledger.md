@@ -1,5 +1,35 @@
 # Decision Ledger — macro-audit
 
+| D-023 | Q2（轮5）：阶段 2 缺口回流中是否应接入上游组合件？调研推荐路径？ | **采纳γ路径——阶段2拆分=2a冻结校准→2b CodeLore单上游探针**。2a：在首报frozen数据（仅git CLI+DuckDB）上纯spec/文档校准16项缺口中不依赖新上游的部分，标记须上游probe才能闭合的缺口。2b：接入CodeLore一条薄垂直切片（适配器→fact→重跑首报同仓→同一spec版本diff），用diff归因数据源漂移。序列化保证单变量控制。 | 阶段2内部拆分为2a+2b两子步骤，严格序列化；2a冻结校准用现有两条上游数据、不碰代码；2b只接一个上游（CodeLore，覆盖任务1/3/10三项高优缺口），通过适配器+fact+重跑+同spec diff保证单变量归因；Scorecard/repomix仍推到阶段3（strangler fig逐项接入，避免大爆炸）。 | 2a完成前不得启动2b（序列化纪律）；2b必须带provenance锚定（commit pin+spec版本+data fingerprint）；2b适配器必须遵守D-020防腐层纪律（禁放业务规则）；不因2b接入CodeLore而在阶段2追加接入Scorecard或repomix（一条上游探针就够了）；冲突协议：D-022标revised，原记录保留，本记录（D-023）为current取代。 | current |
+| D-024 | Q3（轮5）：2a 冻结校准范围如何划分？争议任务 7 如何归类？ | 采纳 γ 路径调研裁定（原话「ok」，2026-09-15；基于 atomcode R5-Q3 深调研，报告 reports/R5-Q3-atomcode-research.md） | 2a 冻结校准范围 = 三问决策树：Q1 未知变量是外部工具输出的形态/语义/规模（无法从 spec 文本或自有数据推导）→ 上游探针轮；Q2 未知变量是自家系统在负载/争用下的行为 → 自证探针（self-probe），属铺开阶段实测、不是上游探针；Q3 未知变量可由 spec 内部契约+冻结首报数据推导 → Desk calibration。经调研核验：三「必等上游」项判定成立（CodeLore explain_file 受 CODELORE_LLM_ 环境门控、Scorecard --format=probe 44 probe 字段形状须实跑固化、repomix --token-count-tree 跨仓差异巨大）；10 项 desk 可校准清单成立。争议任务 7（事实表并发写入策略）裁定 = 按域拆分（非整项 desk 亦非整项推迟）：单写者维度用 228 条冻结实测出 desk 草案并标注置信域；多写者维度登记为自证探针项、铺开阶段实测后封口；原登记前置「CodeLore DuckDB schema 复审」判定为类别错放（缺 Q2 行为证据、给的是 Q1 契约证据），标 stale 并记录纠偏理由。本条新增 self-probe 类目补全 D-023 的 desk/上游二分法，不改 D-023。 | desk 草案必须标注置信域，禁止把单写者实测证据外推到多写者域（DoD 验证域原则 + Iceberg single-writer 生产先例）；所有保留「待 probe」占位的缺口登记时须带「满足判据 + 复审时点」两字段（PMI 失效前置惯例，否则退化为无人复审的死锁项）；2b 仍只接 CodeLore，Scorecard/repomix 探针在阶段 3；本条与 A-007 SWMR 决议无冲突（多写者实测本就是 A-007 明示的 Phase 4 遗留，本条仅正式登记为 self-probe 项）；model-based estimate 只在实测验证过的域内可接受，数据不足时补测或显式降级为「模型估计待实测确认」、禁静默外推 | current |
+| D-025 | Q4（轮5）：TC-2 RED（首报真发现 mean_ratio 0.2462 / Status/Date 缺失率 84.62%）处置方向？ | 采纳（2026-09-15，原话「采纳」；基于 atomcode R5-Q4 深调研 FDA OOS 框架呈报，报告 reports/R5-Q4-atomcode-research.md，resume 锚点 dd6c7fec-efce-4c24-8867-eec2ad179053） | 处置 = (c) 顺序双轨 + (d) 勘误式双读数留档 合成，权威框架 = FDA OOS 两阶段调查规程（Barr 判例/2006 指南）。执行序：① 阶段 1.5 = 14 份 ADR 人工真值表（量测审计，**先于任何 v2 实现**——真值表同时是 v2 验收 golden set 与原 RED invalidate 的 assignable-cause 证据；AIAG MSA 惯例：测量系统分析先于用测量数据做过程决策）；② 两条修复线预注册互不为条件——判据 v2 追加（接线 A-002 回退链入 detector，v1 留档，验收 = 与人工真值表一致率）∥ ADR 治理卫生票（验收 = 人工/v2 读数中真实缺失清零），互为引用、互不为完成条件；③ 发布规范 = 勘误式双读数：原 RED 不撤回不覆盖（dated measurement），v2 修正读数以勘误/并列形态发布 + 逐份 delta 表量化量测误差；RED→绿唯一合法通道 = 成对动作「原读数记 invalid（附逐份可归属原因）+ 修正读数成为 reportable value」；④ C 层「信任并行动」裁定的 disposition 按 CAPA reopen 惯例待 Phase 1（量测审计）补毕后再落——不推翻人裁定本身，只补前置调查。 | 伦理判据对称适用：「规则是否先于结果存在且有独立出处」——回退链先于 RED 交付 ⇒ v2 = 修 bug；RED 后发明指标 = HARKing；对偶地未确认量测效度前补齐 ADR 头迁就 detector = teaching to the test（(a) 路径禁区）；delta 中被确认的真实缺失部分不得因任何 detector 改动而消失；重测次数与判定规则事先写死（禁 testing into compliance）；不改写已落盘的 C 裁定原文与时间戳、不改写任何预注册文件（不可变纪律）；TC-2 v1 阈值 0.60 不动，本条只修构件解析；「事后写判据」本身是审计发现项——两线互不条件语句须以预注册措辞入库 | current |
+| D-026 | Q5（轮5）：#25 前置清单 25 行拍板范围裁定；例外 2（P5 方向现在拍）与 D-012 商业层条款的冲突处置？ | 采纳（2026-09-15，原话「采纳」＝(A)+绑定表+例外 1+例外 2 冲突处置走甲；基于 atomcode R5-Q5 深调研，报告 reports/R5-Q5-atomcode-research.md，resume 锚点 5ed818fd-2d60-46f8-8396-df6a278f2a6f） | 拍板范围 = (A) 最小拍板 + 2 行现在拍例外 + 全 25 行强制绑定「最迟拍板时点 + 触发事件」决策日志（绑定表见报告 §3，整理环节写入 25-rollout-checklist 拍板状态列）。① 本轮闭合：④组失实行 3 行（B2.2 e-branch-1 不存在 / B3.1 根 README 已闭合 / B5-4 origin 已配置）+ B5-1 栈序+push（R3 收口已按授权执行 8be9db5）——关闭动作走 Fowler superseded 语义三步：改状态不改内容 + 双向指针 + 一行失实理由，禁删除或静默划掉；② 例外 1：B1.1 现在拍（处置范围 = 14 份全量、分支命名沿用票 NN-slug 既有先例，W3/W4 sc/re 形态已示范）——它是 2a 校准的 ground-truth 输入、25 行中唯一晚拍阻塞下游开工项；③ 例外 2 = D-012 边界锐化：市场**方向判定**（Agent Plugins 生态 vs 通用市场 vs 兼摄）= 本仓阶段 3 前置一扇门项（publisher ID 创建后不可改 + 凭据/审核长铅垂期把 LRM 前移，方向层按 70% 置信规则先行）；**商业条款**（定价/开源协议/竞品对比）仍属仓外按 D-003 排除不变；凭据申请在阶段 3 开工门启动；④ P6/D2 禁止单方面提前拍：按 set-based design 登记候选判据集不收窄，阶段 2 双结题（2a diff 合入 + 2b 探针结题）数据收窄；⑤ 防退化兜底入规：每行触发事件后 1 个工作日内必须拍板；事件迟迟不来以「最迟拍板时点」为硬到期日、到期重组改绑一次、再到期升级用户——禁静默滞留（LRM 超期 = 决策由默认做出）。 | 全量拍 (B) 与部分纪律拍 (C) 被调研否决（可逆项提前拍产物被阶段 2 过时化、只制造重做）；未绑触发事件的推迟不成立（退化为债）；P5 方向拍板 ≠ 上架动作授权（上架/推送仍属用户闸门 per D-012 余款）；④组关闭不改写 #25 报告正文只更新状态列；D-012 除末句外全部条款继续有效、由 D-026 承继（登记先于锐化，#25 已将 P5 划入本仓闸门、D-016 阶段 3 明含分发收尾，本轮仅消除登记先后的条款歧义） | current |
+| D-027 | Q6（轮5）：P5 市场方向本体选哪个？（D-026 例外 2 的实质拍板，一扇门） | 推荐 (1)（2026-09-15，用户选定「推荐 (1)」） | P5 市场方向 = **纯 Agent Plugins 生态**：主渠道 = Agent Plugins 1.0.0 标准下 marketplace.json 指向 GitHub 仓的自助上架形态 + Claude Code 原生 .claude-plugin 双 manifest 并行（均系 D-012 既定形态），内核 CLI 随仓分发（Source-first per D-021）；npm / VS Code/OpenVSX / JetBrains 等通用市场**现在不进入、不占位、不注册**——四壳能力（GitHub Action / 自用 CLI / 报告生成器）不因此作废，只是其分发渠道上架作为两扇门类追加决策挂到阶段 2 双结题之后按 D-026 绑定表另拍。 | 不注册任何通用市场 publisher 身份/命名空间（避免未核验细节下的一扇门固化）；上架动作本身仍属用户闸门（D-012 余款 + D-026：方向拍板 ≠ 上架授权）；若日后追加通用市场需先补该市场不可逆细节与铅垂期定向调研（R5-Q5 报告 §6 缺口 3 的闭合前置）；README 上游清单/状态列不得因本条虚报可安装（发布未发生，A-030 口径不变） | current |
+| D-028 | Q7（轮5）：16-rendering-split 未合并分支如何处置？（R3 收口 backlog ①，收口时因 merge-base NOT-MERGED 依安全纪律保留） | (a) 复核后删除（2026-09-15，用户选定「(a) 复核后删除（推荐）」） | 实物证明：branch tip 与 main 上 16-* 四件 blob 逐字节一致（16-render-split-check.mjs=1d79f4b9 / 16-render-split.json=36305040 / 16-render-split.schema.json=f43fe7e4 / 16-report.md=3e65706e），两笔 A-016 commit（1fff488/81961c2）零 engine 触面、commit message 信息已在报告正文与收口记录保真——分支内容已被完整并入，仅 commit 对象与 ref 残留。处置 = 整理环节执行：① 亲跑 node 16-render-split-check.mjs 复核（预期 16/16 PASS exit 0，轻量断言无构建产物）；② 满足则 $but 删除 gb-local/16-rendering-split 残留引用（unapply/delete）；③ 四 blob 等价证明清单登记进本轮收口记录。 | 守卫复核 FAIL 即中止删除并升级呈报（证据链断裂不许按原计划动手）；删除动作限本分支（不波及其他 unapplied 项）；R3 收口当时的 NOT-MERGED→保留判定不追认为错误（当时只有 commit 层证据，内容层等价证明是本轮新增）；整理环节前不动手（grill 期间不动仓） | current |
+
+### D-027 后续影响（开放跟踪）
+- 联动：#25 清单 P5 行拍板状态更新（整理环节）= 「方向已拍：纯 Agent Plugins 生态（D-027）；凭据申请挂阶段 3 开工门」；根 README 快速验证段维持「源码自举」口径无需改（方向与现状一致）。
+- 阶段 3 上架票届时范围收窄为：Agent Plugins 生态自助上架 + 双 manifest 提交物（P1 预核对 baseline 衔接）；通用市场渠道如需追加另立票。
+
+
+
+### D-026 后续影响（开放跟踪）
+- **整理环节执行清单**：① .scratch/architecture-recovery/reports/25-rollout-checklist.md 拍板状态列更新：B2.2/B3.1/B5-4/B5-1 → closed-superseded（各附一行失实/在案理由 + 双向指针）；B1.1 → decided-now（范围+命名已定）；其余行「待用户拍板」改「挂门：<最迟时点>｜触发：<事件>」；② 绑定表全 25 行入本账本决策日志区（报告 §3 转录）；③ 非 VS Code 市场不可逆细节（JetBrains/OpenVSX/npm-OSSRH）未核——若 P5 方向拍向通用市场需补一轮定向调研（报告 §6 缺口 3）。
+- **调研者行数偏差如实登记**：R5-Q5 只见 20 具名行、按组规则套门；#25 原件 25 行含 B4.1（取代不立项维持）与 B1.3/B5-3（A-006 维持 deferred）——本仓按原件补挂已在报告 §3 完成，组规则无冲突。
+- **backlog expiry 置信度注记**：触发-到期-升级三段机制属 ADR 状态机 + 社区惯例（Pereira 3-6 月保质期）拼装，无单一权威标准（报告 §6 缺口 2），中置信采用。
+- **派生待决**：P5 方向本体（选哪个市场）= Q6，属实质选择非时机问题，单独下探。
+- 出处：atomcode R5-Q5 深调研（第一轮 600s 超时→探测存活→轮询至自然退出→终稿未入索引→`-c` 续跑纯输出恢复一次成功，全程未杀进程未换题重开；searches 9 / full reads 6 / 五角度 / 三引擎；锚点 5ed818fd-2d60-46f8-8396-df6a278f2a6f）。
+
+
+
+### D-025 后续影响（开放跟踪）
+- **派生立票清单（to-tickets 阶段编号）**：T-A 阶段 1.5 量测审计票（14 份 ADR 人工真值表 + 逐份 delta 表模板，先于一切 v2 代码）；T-B 判据 v2 票（adr-structure detector 接线 A-002 回退链，验收 = 真值表一致率，冻结数据重跑出并列读数）；T-C ADR 治理卫生票（真实缺失清零，验收独立于 T-B）；三者完成后 C 层 disposition 补记（reopen 闭合）。既有阶段 2 票（2a/2b per D-023/D-024）排其后。
+- **先例登记**：阶段 1.5 是本产品「量测效度先行」纪律的首个实例；工业锚 = FDA OOS / TheAuditor（FP 回流规则改进、源码零改动）/ Aker Build（dated measurement 不改写、双读数并列）/ Codacy Verity（dated rule 独立沉淀）。
+- **CONTEXT.md 新词候选（grill 退出时评估）**：「勘误式双读数（Dual Reporting）」——方法修订前后读数并列披露、差值即量测误差量化，_Avoid_: 重测覆盖（暗示废除旧读数）、数据迁移；「可归因原因（assignable cause）」——OOS 术语，原读数得以记 invalid 的唯一凭证，_Avoid_: 误报原因（无留档语义）。
+- **冲突核对结论（2026-09-15）**：零冲突零 revised——D-017（裁定由人做，本条只补 disposition 前置）/ D-018（阈值不动，只修构件解析，同构 A-023 v2 追加机制）/ D-023+D-024（阶段 1.5 为其前置插入项，方向一致）/ A-026（首报不撤回，双读数与 Receipt 锚定同构）均保持 current。
+- 出处：atomcode R5-Q4 深调研（searches 13 / 三引擎 / full reads 6 / 五角度；Lakens 403 以摘要替代、CLSI 未取原文如实登记），首轮 5h 配额中断 → 等重置后 --resume 单变量续跑一次成功（W5 锚点纪律第三次闭合）。
+
+
 > 防丢账本：本会话 grill 流程中所有被用户确认的实质性结论，每条当场落盘。
 > 规则：grill 中不写源码、不改目标；本文件是唯一允许持续写入的项目文件（直到 grill 结束）。
 > 进入下一题前必须确认账本已写到最新。
@@ -176,7 +206,7 @@
 - 术语候选：Default Mode（默认模式）将成为 CONTEXT.md 新词，待 grill 退出时随本轮术语批量更新；
 - spec 任务预告：模式枚举（mode 配置项）取值集合 + 默认值 + 配置切换面，需在 spec 阶段展开为外部接口输入面的一部分；
 - 风险登记：默认体验绑死「agent 会话内发起」——若某分发宿主不支持 plugin 形态，该宿主上默认模式不可达（宿主支持矩阵属实现期调研，spec 层只声明前提）。
-| D-012 | 分发/交付形态：A Agent Plugin 五层盒子 / B 纯 skill 包 / C 独立完整 CLI / D SaaS？ | 接受（atomcode 调研推荐 A 附三修正，呈报后批准） | 分发形态 = Agent Plugin 五层盒子（Agent Plugins 1.0.0 标准）：plugin.json + skills/ 方法论壳（SKILL.md + 战略 rubric references）+ mcp.json（kernel MCP 只读证据查询面，stdio 指向 DuckDB 事实表）+ 反向域名扩展目录（hooks 触发/呈现面）+ 随分发核心确定性 CLI（编排证据管线 + 联邦裁决 + 产出报告；同一二进制四外壳：插件内嵌 / GitHub Action / 自用 CLI / 报告生成器）。三修正：①双 manifest——标准 plugin.json 与 Claude Code 原生 .claude-plugin/plugin.json 并行发布，构建脚本从单一元数据源生成防漂移（Anthropic 不在 Agent Plugins TSC 名单，Claude Code 对标准仅部分兼容，issue #88906）；②hooks 只做触发/呈现（PostToolUse/Stop 呈现 receipt、注入证据就绪上下文），裁决一律环境外执行（内核 CLI / CI gate），hooks 永不作裁决执行点（190 项 hook 失效 + issue #21460 + SoundGate 三源实证）；③skill 壳只读隔离——rubric 与证据读取放壳内，判定/写库/出报告只能内核 CLI 执行，skill 仅允许调只读 MCP 查询面（Skill-Inject 实证注入攻击 80% 成功率）；随分发附 provenance 纪律（license + CHANGELOG + 签名收据）。 | 「零配置」精确语义 = 一次 install 命令 + 首次 MCP 工具授权（非零交互）——D-011 保持 current，本条承载其精确化；禁止把裁决逻辑放进 hook；禁止 skill 壳持有写权限或执行管线；禁止只发单 manifest（Claude Code 默认用户群会丢失）；SaaS 形态继续排除（D-003）；插件市场上架选择属商业层，按 D-003 另行决策 | current |
+| D-012 | 分发/交付形态：A Agent Plugin 五层盒子 / B 纯 skill 包 / C 独立完整 CLI / D SaaS？ | 接受（atomcode 调研推荐 A 附三修正，呈报后批准） | 分发形态 = Agent Plugin 五层盒子（Agent Plugins 1.0.0 标准）：plugin.json + skills/ 方法论壳（SKILL.md + 战略 rubric references）+ mcp.json（kernel MCP 只读证据查询面，stdio 指向 DuckDB 事实表）+ 反向域名扩展目录（hooks 触发/呈现面）+ 随分发核心确定性 CLI（编排证据管线 + 联邦裁决 + 产出报告；同一二进制四外壳：插件内嵌 / GitHub Action / 自用 CLI / 报告生成器）。三修正：①双 manifest——标准 plugin.json 与 Claude Code 原生 .claude-plugin/plugin.json 并行发布，构建脚本从单一元数据源生成防漂移（Anthropic 不在 Agent Plugins TSC 名单，Claude Code 对标准仅部分兼容，issue #88906）；②hooks 只做触发/呈现（PostToolUse/Stop 呈现 receipt、注入证据就绪上下文），裁决一律环境外执行（内核 CLI / CI gate），hooks 永不作裁决执行点（190 项 hook 失效 + issue #21460 + SoundGate 三源实证）；③skill 壳只读隔离——rubric 与证据读取放壳内，判定/写库/出报告只能内核 CLI 执行，skill 仅允许调只读 MCP 查询面（Skill-Inject 实证注入攻击 80% 成功率）；随分发附 provenance 纪律（license + CHANGELOG + 签名收据）。 | 「零配置」精确语义 = 一次 install 命令 + 首次 MCP 工具授权（非零交互）——D-011 保持 current，本条承载其精确化；禁止把裁决逻辑放进 hook；禁止 skill 壳持有写权限或执行管线；禁止只发单 manifest（Claude Code 默认用户群会丢失）；SaaS 形态继续排除（D-003）；插件市场上架选择属商业层，按 D-003 另行决策 | revised（2026-09-15 仅末句「插件市场上架选择属商业层按 D-003 另行决策」被 D-026 边界锐化；五层盒子/双 manifest/hooks 只触发不裁决/skill 壳只读隔离/provenance 纪律及其余全部条款仍有效，由 D-026 承继） |
 
 ### D-012 后续影响（开放跟踪）
 - ADR 候选：D-012 满足三判据（难反转——工程围绕盒子形态展开；无上下文会困惑——为什么不是纯 CLI/纯 skill；真实取舍——四候选显式对比），grill 退出时写 ADR-0008「分发形态 = Agent Plugin 五层盒子（双 manifest）」；
@@ -297,6 +327,12 @@
 - 6F 特殊纪律：license=UNLICENSED（engine/package.json）→ 不放 license 徽章；发布态未发生 → 不暗示可安装；CI 徽章（engine-ci.yml 实跑在案）作建议不作默认。
 - 定稿后配套（按 domain-modeling 惯例）：D-020 具 ADR 三条件（难逆/无上下文会困惑/真实取舍）→ 起草 ADR-0014；D-021 属文档结构不立 ADR；CONTEXT.md intro 追加轮 4 一行。
 
+### D-024 后续影响（开放跟踪）
+- **整理环节执行清单（定稿后写入 spec-phase-tasks.md，grill 期间不动该文件）**：① 任务 7 前置「CodeLore DuckDB schema 复审」改注为 ~~stale~~ + 纠偏理由（类别错放：Q2 行为证据 ≠ Q1 契约证据）+ 新前置（单写者域 = 首报 228 条冻结实测，2a 可出带置信域草案；多写者域 = self-probe 项，复审时点 = 阶段 3 铺开多采集器后）；② 任务 1/3 前置改注「探针时点 = 2b（CodeLore）」；③ 任务 5 内部 S3/S4/S5 行注「占位待探针（探针时点 = 2b / 阶段 3）」；④ 所有保留待-probe 占位的缺口登记补两字段：满足判据 + 复审时点。
+- **CONTEXT.md 新词候选（grill 退出时评估）**：「自证探针（self-probe）」——自家系统在负载/争用下行为的实测校准类目，与上游探针（外部工具形态/语义/规模）和 desk calibration（契约+冻结数据推导）三分类互斥完备。_Avoid_: 基准测试（暗示性能测试而非缺口校准）、自测（暗示单元级）。
+- 冲突核对结论（2026-09-15）：零冲突零 revised——D-023 的 desk/上游二分法被本条补全为三分类（self-probe 显式命名），方向一致不推翻；A-007 SWMR 决议不受影响（多写者实测本就是其明示遗留）。
+- 出处：atomcode R5-Q3 深调研（8+ 检索 / 三引擎 / 8 篇原文 / 8+ 域名 / 五角度；PMI 源 403 经 pmessentials 交叉），落盘 .scratch/macro-audit/reports/R5-Q3-atomcode-research.md（resume 锚点未捕获，全文可经 ctx_search 检索词找回）。
+
 ## 轮 4 收口对账（2026-09-14）
 
 > 数据源纪律：本节由账本自身枚举生成（17 条 current）；去向列引用的文件均经实物核验存在（ADR-0001~0013、spec.md ## Implementation Decisions 与 R2-01~05 节、spec-phase-tasks.md 任务 1~18 / R2 / R3 表、根 README.md、docs/adr/0014、handoffs/next-round.md）。
@@ -322,3 +358,30 @@
 | D-021 | current | 本轮整理产物：根 README.md（五段式，readme-crafter-skill 流程）+ handoffs/next-round.md（下轮任务书） |
 
 **无去向记录清单：空** —— 17/17 current 全部有去向。非 current 处理：D-002/D-008/D-014 = revised（原记录保留；D-014 由 D-015 承载、D-008 内容由 R2-01~05 承接）；D-019 = closed（拍板采纳派生 D-020）。
+
+
+| D-022 | Q1（轮5）：源码推进的阻塞面是什么？阶段2/3按什么节奏推进？ | **A — 维持 VVL 既定节奏**：先拍板 #25 checklist，然后按 R3-06→R3-07 串行推进（先缺口回流，再铺开）。不跳过阶段 2 直接铺开到阶段 3（那会回到 D-002 禁 MVP 切片的老路）。 | 阶段 2/3 继续遵循 ADR-0012 四阶段串行模型：阶段 2（R3-06 缺口回流）必须在阶段 3（R3-07 铺开+分发）之前完成；#25 checklist 中待拍板项构成阶段 2 启动闸门，需用户逐项裁定后再立票开工。 | 禁止跳过阶段 2 直接铺开其余 scale（违反 D-002 禁 MVP 切片精神）；禁止在缺口未回流前接入新上游组合件（先看清全貌再动手）；阶段 2 开工前须用户拍板 #25 checklist 中至少 B1/B3/B4 类立票项的范围与优先级。 | revised |
+
+## 轮 5 收口对账（2026-09-15）
+
+> 数据源纪律：本节由账本自身枚举生成（程序化：28 条 = 22 current / 5 revised / 1 closed）；去向列引用的文件均经实物核验存在（本轮整理环节新产物：docs/adr/0015、0016；spec-phase-tasks.md 第五轮 R4 节；25-rollout-checklist.md 拍板状态列；CONTEXT.md 轮 5 intro + 4 新词 46→50；README.md 数字同步；reports/R5-Q3/Q4/Q5-atomcode-research.md）。
+> 轮 4 收口对账表（17 行）仍有效，本轮只覆盖 D-022 起的增量与 D-012 状态变更；旧行去向不重复。
+
+| D-xxx | 状态 | 去向（spec 条目 / 计划表条目号 / 整理产物） |
+|---|---|---|
+| D-022 | revised | 原「禁止缺口未回流前接上游」被 D-023 序列化控制取代（原记录保留） |
+| D-023 | current | spec 条目：docs/adr/0015 §Decision-2；计划表条目：spec-phase-tasks.md R4 节（R4-01~05） |
+| D-024 | current | spec 条目：docs/adr/0015 §Decision-1；计划表条目：任务 1/3/5/7 注记纠偏（任务 7 前置标 stale、按域拆分）；CONTEXT.md「Self-probe（自证探针）」 |
+| D-025 | current | spec 条目：docs/adr/0015 §Decision-3；计划表条目：R4-01（量测审计）/ R4-02（v2）/ R4-03（治理）+ C 层 disposition 补记项；CONTEXT.md「Dual Reporting」/「Assignable Cause」 |
+| D-026 | current | 整理产物：25-rollout-checklist.md 拍板状态列 24 行 + §8 注记（superseded 三步关闭 B2.2/B3.1/B5-4 + closed B5-1）；绑定表权威文本 = reports/R5-Q5-atomcode-research.md §3；CONTEXT.md「LRM Binding」 |
+| D-027 | current | spec 条目：docs/adr/0016；25-rollout-checklist.md P5 行「方向已拍」；README 上游清单/发布口径不变 |
+| D-028 | current | **本轮整理环节已执行完毕**：16 守卫亲跑 16/16 PASS（exit 0，soft-warn 1 = spec.md「布局」属设计层）→ git update-ref -d 删 gb-local/16-rendering-split 残留 ref（but branch delete 对 remote 类无机制，循 R3 收口先例例外）→ 等价证明：四件 blob 逐字节一致（check=1d79f4b9 / json=36305040 / schema=f43fe7e4 / report=3e65706e）+ 1fff488 与 main 树差空；三 main（main/origin/main/gb-local/main）均 8be9db5，but branch list 清零 |
+| D-012 | revised | 仅末句商业条款被 D-026 锐化（去向：ADR-0016 渠道方向 + D-027）；五层盒子余款去向不变（ADR-0008 / spec R2-04 / CONTEXT 词条，见轮 4 对账表） |
+
+**无去向记录清单：空** —— 22/22 current 全部有去向（16 条沿轮 4 表 + 6 条本表；revised/closed 按原记录保留规则处理）。
+
+### 轮 5 整理环节执行记录（2026-09-15）
+
+- 对账闸通过 → 依次落盘：spec-phase-tasks.md（5 行注记 + R4 节）→ 25-rollout-checklist.md（24 行状态列 + §8 注记）→ ADR-0015/0016 → CONTEXT.md（intro + 4 词 = 50）→ README.md（4 处数字）→ D-028 清理执行 → 本节 → handoffs/next-round.md。
+- 全部写入经 node.js（默认执行环境），每文件写后回读验证（无 BOM / 关键片段存在断言）；未触 engine/**，无构建产物。
+- 冲突协议全程零静默改向：本轮 2 次 revised（D-022、D-012）均先呈报后落盘、原记录保留。

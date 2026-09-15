@@ -3,7 +3,7 @@
 面向 git 记录健全仓库的工程内容审计产品：**证据采集大部分来自上游组合件，裁决协议、事实表 schema、验收闸门与可核验回执是本项目自研的护城河与黏合剂**。5 档审计粒度（Macro-A 跨仓战略 / Macro-B 仓库级四象限 / Macro-C 演化考古 / Micro-A PR diff / Micro-B file level）共享同一事实底座与裁决层，差异在触发器与报告切片。
 
 > [!NOTE]
-> 当前状态（2026-09-14）：walking skeleton 已落地并通过 CI 硬验收（双 manifest 生成 / 编译 / 打包 / smoke 测活 / selftest）。**阶段 2/3（上游组合件接入与分发收尾）尚未开始**——下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
+> 当前状态（2026-09-15）：walking skeleton 已落地并通过 CI 硬验收（双 manifest 生成 / 编译 / 打包 / smoke 测活 / selftest）。**阶段 2/3（上游组合件接入与分发收尾）尚未开始**——下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
 
 ## 组合件架构（三层）
 
@@ -21,7 +21,7 @@ flowchart TB
     end
     subgraph EVID["证据层 · 上游组合件"]
         GIT["git CLI"]
-        CL["CodeLore（规划中）"]
+        CL["CodeLore（已接入·探针切片）"]
         SC["OpenSSF Scorecard（规划中）"]
         RP["repomix / gitingest（规划中）"]
     end
@@ -57,7 +57,7 @@ flowchart LR
 | 归属 | 组件 |
 |---|---|
 | **我们的（护城河）** | 联邦裁决协议（verdict-gate）· DuckDB 事实表 schema（只追加 + 跨 scale 关联键）· 三层验收闸门（A 形式 / B 预声明判据 / C 人裁定）· Receipt 回执（双锚）· 预声明判据纪律（2 正对照 + 3 真判据 + 1 负对照） |
-| **借来的（上游）** | DuckDB 引擎本体 · git CLI · CodeLore（规划中）· OpenSSF Scorecard（规划中）· repomix / gitingest（规划中） |
+| **借来的（上游）** | DuckDB 引擎本体 · git CLI · CodeLore（已接入·探针切片）· OpenSSF Scorecard（规划中）· repomix / gitingest（规划中） |
 
 ## 契约声明
 
@@ -69,10 +69,10 @@ flowchart LR
 
 | 路径 | 内容 |
 |---|---|
-| [CONTEXT.md](CONTEXT.md) | 术语表（46 词，领域唯一语言） |
-| [docs/adr/](docs/adr/) | 架构决策记录 ADR-0001 ~ ADR-0014 |
+| [CONTEXT.md](CONTEXT.md) | 术语表（50 词，领域唯一语言） |
+| [docs/adr/](docs/adr/) | 架构决策记录 ADR-0001 ~ ADR-0016 |
 | [engine/](engine/) | 内核 CLI + Agent Plugin 五层盒子（构建 / 命令细节见 [engine/README.md](engine/README.md)） |
-| .scratch/macro-audit/ | 决策账本（D-001~D-021）+ spec 阶段任务 + 调研报告 |
+| .scratch/macro-audit/ | 决策账本（D-001~D-028）+ spec 阶段任务 + 调研报告 |
 | .scratch/architecture-recovery/ | 执行轮账本（A-001~A-030）+ 票据 / 守卫 / 首报产物 |
 
 ## 快速验证（源码自举，需 Node ≥ 20）
