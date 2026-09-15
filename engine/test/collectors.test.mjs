@@ -62,6 +62,11 @@ check('F6 v1 unchanged (bare Status missed)', JSON.parse(v1Status.value_json).pr
 r = run(['# T', '', '- ledger D-014（revised）'].join('\n'), null);
 check('F7 unlabeled ledger mention absent', r['h:Ledger'].present === false);
 
+// F8 inline-iso 腿 = head-60 全部匹配取最早排序（27-prereg §1 腿 C：matches.sort()[0] 语义，
+// 非行序首个）——后行更早日期须命中更早值
+r = run(['# T', '', 'written 2026-09-15 during review', 'original decision 2026-09-10 recorded'].join('\n'), null);
+check('F8 inline-iso earliest-sorted (not first-line)', r['h:Date'].present === true && r['h:Date'].leg === 'inline-iso' && r.date.date === '2026-09-10' && r.date.leg === 'inline-iso');
+
 let ok = true;
 for (const x of results) { console.log((x[1] ? 'PASS ' : 'FAIL ') + x[0] + (x[2] ? ' :: ' + x[2] : '')); if (!x[1]) { ok = false; } }
 console.log(ok ? ('COLLECTORS-TEST-OK ' + results.length + '/' + results.length) : 'COLLECTORS-TEST-FAIL');

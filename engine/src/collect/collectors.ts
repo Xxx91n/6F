@@ -285,11 +285,14 @@ function legInlineField(lines: readonly string[], name: string): LegHit | null {
 
 function legInlineIsoDate(lines: readonly string[]): LegHit | null {
   const head = lines.slice(0, 60);
+  const re = new RegExp(ISO_DATE_V2.source, 'g');
+  let best: { value: string; line: number } | null = null;
   for (let i = 0; i < head.length; i++) {
-    const m = head[i].match(ISO_DATE_V2);
-    if (m) { return { value: m[0], line: i + 1, leg: 'inline-iso' }; }
+    for (const m of head[i].matchAll(re)) {
+      if (!best || m[0] < best.value) { best = { value: m[0], line: i + 1 }; }
+    }
   }
-  return null;
+  return best ? { value: best.value, line: best.line, leg: 'inline-iso' } : null;
 }
 
 function resolveHeaderFieldV2(lines: readonly string[], dashHeaders: Record<string, HeaderHit>, name: string, doc: AdrDocumentV2): LegHit | null {
