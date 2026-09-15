@@ -1,0 +1,79 @@
+{
+  "probe_id": "R4-05-CODELORE-PROBE",
+  "generated_at": "2026-09-15T06:36:43.600Z",
+  "runtime_resolution": {
+    "decision": "binary-discovery",
+    "rationale": "codelore = 单一自包含 Rust 二进制已驻 PATH；容器捆绑在探针期零隔离增益且增分发重量；MCP stdio 面留作未来通道",
+    "resolution": {
+      "strategy": "binary-discovery",
+      "binary": "codelore",
+      "version": "0.28.0",
+      "pinned": true,
+      "error": null
+    }
+  },
+  "upstream_facts_count": 8,
+  "upstream_metrics": [
+    "upstream.resolution",
+    "codelore.summary_metric",
+    "codelore.summary_metric",
+    "codelore.summary_metric",
+    "codelore.summary_metric",
+    "codelore.file_dossier",
+    "codelore.file_dossier",
+    "codelore.file_dossier"
+  ],
+  "diff": {
+    "frozen_set": {
+      "n": 13,
+      "commit": "fc00d458",
+      "tc2_v1_mean": "0.2462",
+      "tc2_v1_verdict": "RED",
+      "missing": {
+        "Status": 0.8462,
+        "Date": 0.8462,
+        "Context": 0.6923,
+        "Decision": 0.6923,
+        "Consequences": 0.6923
+      }
+    },
+    "current_tree": {
+      "n": 16,
+      "files": [
+        "0001-five-scale-scope.md",
+        "0002-no-mvp-slice.md",
+        "0003-boundary-product-and-usage.md",
+        "0004-strategic-quadrant-five-dims.md",
+        "0005-hub-of-facts-with-federated-adjudication.md",
+        "0006-shared-skeleton-scale-slice.md",
+        "0007-ten-demo-paths.md",
+        "0008-agent-plugin-five-layer-box.md",
+        "0009-intake-local-first-url-optin.md",
+        "0010-spec-repo-and-engineering-repo-split.md",
+        "0011-single-repo-subdir-but-branches.md",
+        "0012-value-validation-loop-first.md",
+        "0013-three-layer-acceptance-gates.md",
+        "0014-upstream-integration-dual-track.md",
+        "0015-serial-calibration-measurement-validity-first.md",
+        "0016-distribution-channel-agent-plugins-only.md"
+      ],
+      "tc2_v1_mean": 0.8,
+      "tc2_v1_verdict": "RED",
+      "tc2_v2_mean": 1,
+      "tc2_v2_verdict": "not-RED",
+      "missing_v2": {
+        "Status": 0,
+        "Date": 0,
+        "Context": 0,
+        "Decision": 0,
+        "Consequences": 0
+      }
+    },
+    "delta_v2_vs_frozen_v1": 0.7538
+  },
+  "provenance": {
+    "commit_pin": "9076149f77705b777aeab318b10992001d290a6e",
+    "spec_version": "SCHEMA_VERSION_V0 + spec.md sha256 82708d340b6a27d6",
+    "data_fingerprint": "bfa5b8714ce4351aa4bee564912f67bdd36eac00779ed142e6da2206c0db7199"
+  }
+}

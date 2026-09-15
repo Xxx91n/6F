@@ -367,5 +367,5 @@ W3 完成后，原 W4 阻塞全部解除：
 - **W8 完成（2026-09-15）**：#27 判据 v2 → 27-check.mjs PASS 15/15（v2=0.5846 RED，65/65 ALL-AGREE，v1 留档复现）；#28 ADR 治理卫生 → 28-check.mjs PASS 113/113（real-gap 33 格清零 + 0014 四节补记）。
 - **W9 完成（2026-09-15）**：#29 C 层 disposition 补记 → 29-check.mjs PASS 13/13（原裁定逐字保留 + 勘误式双读数并列：v1 0.2462 RED 归因部分 invalid / v2 0.5846 RED = reportable value）。
 - **W10 完成（2026-09-15）**：#30 阶段 2a 冻结校准 → 30-check.mjs PASS 9/9（13 项清单、置信域逐项、占位两字段×10）。
-- 下一波可开工 = **W11：#31 阶段 2b CodeLore 探针**（Blocked by R4-04 结题 ✓ 已解除）。启动器：`prompts/31-codelore-probe.md`。
+- **W11 完成（2026-09-15）**：#31 阶段 2b CodeLore 探针 → 31-check.mjs PASS 14/14（binary-discovery+pin 0.28.0、golden 契约 7/7、漂移报告、P1 预核对发现 plugin.json 不合 1.0.0）。R4 全链结题。
 - 值守项（非票）：T7 #25 拍板状态列核对——触发事件已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次（绑定表 = reports/R5-Q5-atomcode-research.md §3）。

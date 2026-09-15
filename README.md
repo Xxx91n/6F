@@ -35,7 +35,7 @@ flowchart TB
 |---|---|---|---|---|---|
 | DuckDB（@duckdb/node-api） | 事实表底座 | Node 库 | 运行时依赖引用 | package-lock 精确锁定 | 已接入 |
 | git CLI | 仓库考古 / 确定性采集 | 外部 CLI | 适配器 + 外部 CLI | 随宿主环境；输出解析为契约 | 已接入 |
-| CodeLore | 代码考古 / 证据层 | CLI | 适配器 + 外部 CLI | 锁版本 + golden 契约测试 | 规划中 |
+| CodeLore | 代码考古 / 证据层 | CLI | 适配器 + 外部 CLI | exact pin 0.28.0 + golden 契约测试 | 已接入（探针切片：explain/summary 只读面） |
 | OpenSSF Scorecard | 供应链健康评分 | Go 库 / CLI | 库→依赖引用；CLI→适配器 | hash pinning / 锁版本 | 规划中 |
 | repomix / gitingest | 仓库内容打包摘要 | CLI / pip 包 | 适配器 + 外部 CLI | 锁版本 + golden 契约测试 | 规划中 |
 
