@@ -257,6 +257,18 @@
 | 规则推导（参照） | unsupported（TC-2 RED 主导，per 22-c-adjudication-basis B2） |
 | 张力记录 | 人裁定 supported 与规则推导 unsupported 不一致——per B5「裁定仍由人做」，人裁定为最终档位；与预注册依据 B2 的字面偏离如实记录于此，不改写任何预注册文件 |
 
+### disposition 补记（2026-09-15，票 #29 / A-034，CAPA reopen）
+
+> reopen 惯例：本节为原裁定（上表，2026-09-13 落盘）的追加处置记录——原文与时间戳不改写；reopen 事由 = R4 量测效度审计（#26 真值表 / #27 判据 v2 / #28 治理卫生）补交前置调查。
+
+**成对动作**（per D-025 勘误式双读数）：
+- 原读数保留不撤：TC-2 v1 = 0.2462 RED（dated measurement，detector adr-structure@v1，6F@fc00d458 批次，observed 2026-09-13T14:31:09+08:00）——其中 Status/Date 字段缺失归因经 #26 逐格分解判定为**量测误差**（AC-26-1 解析器仅认 dash 前缀 ×11 格、AC-26-2 A-002 回退链未接线 ×5 格），该部分字段归因标 invalid；
+- 修正读数成为 reportable value：TC-2 v2 = 0.5846 RED（adr-structure@v2，同冻结集单次重跑，golden set 对照 65/65 ALL-AGREE）——真实缺失收窄为 Context/Decision/Consequences 三节 ×9 份（missing_ratio 各 0.6923），该 33 格已由 #28 在当前工作树清零（冻结集读数仍按冻结口径发布）。
+
+**disposition**：人裁定 supported 维持不变（CAPA reopen 性质 = 补做前置调查，不推翻人裁定）；规则推导参照值经修正读数复核仍落在 unsupported（RED 方向成立：cond_a 0.5846<0.60、cond_b 三节 0.6923>0.50），原张力记录结论维持——但张力现明确落在**真实缺失**上而非量测伪影，归因表述以本节为准。
+
+证据链：reports/26-truth-table.json（真值 + 逐格 delta + AC-26-1~5 登记）→ reports/27-dual-readings.json（v1/v2 并列读数）→ reports/28-check.mjs（治理清零 113/113）；账本锚 = A-031/A-032/A-033 done。
+
 ## R3 收口结算（2026-09-14，整轮收口）
 
 - **结算口径**：A-001~A-030 共 30 条 → **implemented ×29 / deferred ×1（A-006）/ stale ×0**。
@@ -277,6 +289,6 @@
 | A-031 | R4-01 阶段 1.5 量测审计：「14 份 ADR 人工真值表 + 逐份 delta 表模板（区分 detector 漏认 vs 真实缺失；产物 = R4-02 验收 golden set + 原 RED 的 invalid 逐份可归属原因；先于一切 v2 代码，纯文档零构建）」 | 14 份 ADR（首报冻结时点 docs/adr/ 全集）逐份人工读数表 + 逐份 delta 表模板落文；每份标五件套字段读数与 Nygard 内联格式识别 | 先于一切 v2 代码（AIAG MSA：测量系统分析先于用数据做过程决策）；纯文档零构建；真值表同时是 golden set 与 assignable-cause 证据 | D-025 | done → implemented（2026-09-15） |
 | A-032 | R4-02 判据 v2 追加：「adr-structure detector 接线 A-002 回退链（v1 留档；验收 = 与人工真值表一致率；冻结数据重跑 → 并列读数 + 勘误披露，重测次数与判定规则事先写死）」 | adr-structure detector 接线 A-002 回退链（YAML 头 → 内联 Nygard → git 首提交）；冻结首报数据重跑出并列读数 + 逐份 delta 勘误 | v1 代码与 v1 阈值 0.60 留档禁改；验收 = 与真值表一致率；重测次数与判定规则事先写死（禁 testing into compliance）；构建/测试走 CI | D-025 | done → implemented（2026-09-15） |
 | A-033 | R4-03 ADR 治理卫生票：「6F 真实五件套缺失清零（验收 = R4-01 人工读数中真实缺失项清零；与 R4-02 互为引用、互不为完成条件）」 | 6F 自身 ADR 五件套真实缺失清零（准入范围仅以 R4-01 真实缺失分解为准）；补记注明勘误性质 | 验收独立于 R4-02——两票互为引用、互不为完成条件；不得因 detector 改动而令真实缺失消失（D-025 伦理判据） | D-025 | done → implemented（2026-09-15） |
-| A-034 | T4 C 层 disposition 补记：「T1~T3 结题后按 reopen 惯例补记 disposition（architecture-recovery 账本 C 裁定节追加，不改写原文与时间戳）；勘误式双读数发布（原 RED 不撤回 + 成对动作说明）」 | 账本 C 裁定节追加 disposition 段落（CAPA reopen：补前置调查不推翻人裁定）；勘误式双读数发布物落文 | 不改写已入库 C 裁定原文与时间戳（不可变纪律）；原 RED 不撤回不覆盖；成对动作 = 原读数记 invalid + 修正读数成为 reportable value | D-025 / D-017 | current |
+| A-034 | T4 C 层 disposition 补记：「T1~T3 结题后按 reopen 惯例补记 disposition（architecture-recovery 账本 C 裁定节追加，不改写原文与时间戳）；勘误式双读数发布（原 RED 不撤回 + 成对动作说明）」 | 账本 C 裁定节追加 disposition 段落（CAPA reopen：补前置调查不推翻人裁定）；勘误式双读数发布物落文 | 不改写已入库 C 裁定原文与时间戳（不可变纪律）；原 RED 不撤回不覆盖；成对动作 = 原读数记 invalid + 修正读数成为 reportable value | D-025 / D-017 | done → implemented（2026-09-15） |
 | A-035 | R4-04 阶段 2a 冻结校准：「10 项 desk 清单（任务 2/4/8/9/10/11/12/13/14/15/16 + 任务 5 已锚行 + 任务 7 单写者域草案）；草案全部标注置信域（单写者证据禁外推多写者）；待探针占位带『满足判据+复审时点』」 | 冻结首报数据上 10 项 desk 校准草案落文；每项标置信域；待探针占位按两字段纪律登记 | 不改冻结数据、不接新上游；单写者域证据禁外推多写者域；前置 = R4-02 入库 | D-023 / D-024 | current |
 | A-036 | R4-05 阶段 2b CodeLore 单上游探针：「前置 = 运行时解析策略判定（容器捆绑 vs 二进制发现）+ 读 Agent Plugins 1.0.0 plugin schema 原文（P1 预核对 baseline 顺手做）；适配器 + 锁版本 + golden 契约测试；重跑 6F 首报同仓 + 同 spec 版本 diff；provenance 锚定」 | CodeLore 薄垂直切片（适配器 → fact → 重跑首报 diff）；锁版本 + golden 契约测试；产物 = 数据源漂移报告 + 任务 1/3 实测锚 + README 上游清单 CodeLore 行状态更新 | 适配层禁业务规则（ADR-0014 微软 ACL 判据）；唯一新增上游 = CodeLore（Scorecard/repomix 推阶段 3）；provenance = commit pin + spec 版本 + data fingerprint；前置 = R4-04 结题（序列化纪律） | D-023 / D-024 / D-020 派生 | current |
