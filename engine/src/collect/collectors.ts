@@ -237,6 +237,149 @@ export function adrDates(input: AdrStructureInput): Record<string, string> {
   return out;
 }
 
+// ---------- §2b 族一 v2：adr-structure 回退链（A-002 接线；v1 留档禁改） ----------
+// 规则冻结于 reports/27-prereg.md（先于重跑入库）：字段腿 A dash → B 内联 Nygard；
+// Date 追加 C head-60 ISO → D git 首提交（外部注入）；节腿 A ## 标题 → B 行首裸标签。
+
+export const ADR_STRUCTURE_V2_ID = 'adr-structure@v2';
+
+export interface AdrDocumentV2 extends AdrDocument {
+  first_commit_date: string | null;
+}
+
+export interface AdrStructureV2Input {
+  documents: readonly AdrDocumentV2[];
+}
+
+export const ADR_STRUCTURE_V2_DESCRIPTOR: CollectorDescriptor = {
+  id: ADR_STRUCTURE_V2_ID,
+  family: ADR_STRUCTURE_FAMILY,
+  dimension: 'S2',
+  quadrant: 'strategic'
+};
+
+export type AdrLeg = 'dash' | 'inline' | 'inline-iso' | 'git';
+
+interface LegHit {
+  value: string;
+  line: number;
+  leg: AdrLeg;
+}
+
+const ISO_DATE_V2 = /\b(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\b/;
+
+function legInlineField(lines: readonly string[], name: string): LegHit | null {
+  const dashRe = new RegExp('^[-*]\\s*' + name + '\\s*[:：]', 'i');
+  const re = new RegExp('^(?:\\*\\*)?' + name + '(?:\\*\\*)?\\s*[:：]\\s*(.*)$', 'i');
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i].trim();
+    if (raw.indexOf('#') === 0 || dashRe.test(raw)) { continue; }
+    const m = raw.match(re);
+    if (m) {
+      const value = (m[1] || '').trim().replace(/\*\*$/, '').trim();
+      return { value: value, line: i + 1, leg: 'inline' };
+    }
+  }
+  return null;
+}
+
+function legInlineIsoDate(lines: readonly string[]): LegHit | null {
+  const head = lines.slice(0, 60);
+  for (let i = 0; i < head.length; i++) {
+    const m = head[i].match(ISO_DATE_V2);
+    if (m) { return { value: m[0], line: i + 1, leg: 'inline-iso' }; }
+  }
+  return null;
+}
+
+function resolveHeaderFieldV2(lines: readonly string[], dashHeaders: Record<string, HeaderHit>, name: string, doc: AdrDocumentV2): LegHit | null {
+  const dh = dashHeaders[name];
+  if (dh) { return { value: dh.value, line: dh.line, leg: 'dash' }; }
+  const ih = legInlineField(lines, name);
+  if (ih) { return ih; }
+  if (name === 'Date') {
+    const iso = legInlineIsoDate(lines);
+    if (iso) { return iso; }
+    if (doc.first_commit_date) { return { value: doc.first_commit_date.slice(0, 10), line: 0, leg: 'git' }; }
+  }
+  return null;
+}
+
+const SECTION_LABEL_V2: Record<string, readonly string[]> = {
+  Context: ['Context'],
+  Decision: ['Decision'],
+  Consequences: ['Consequences'],
+  Options: ['Considered Options', 'Options']
+};
+
+function legBareSection(lines: readonly string[], name: string): { line: number } | null {
+  const alts = SECTION_LABEL_V2[name] || [name];
+  const re = new RegExp('^(?:[-*>]\\s*)?(?:\\*\\*)?(' + alts.join('|') + ')(?:\\*\\*)?\\s*[:：]', 'i');
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i].trim();
+    if (raw.indexOf('#') === 0) { continue; }
+    if (re.test(raw)) { return { line: i + 1 }; }
+  }
+  return null;
+}
+
+export function collectAdrStructureV2(input: AdrStructureV2Input, ctx: CollectContext): CollectedFact[] {
+  const out: CollectedFact[] = [];
+  for (const doc of input.documents) {
+    const lines = linesOf(doc.text);
+    const dashHeaders = parseHeaderFields(lines);
+    const v1Sections = parseSections(lines);
+    const hdrLegs: Record<string, LegHit | null> = {};
+    const secLegs: Record<string, { line: number; leg: AdrLeg } | null> = {};
+    for (const field of ADR_HEADER_FIELDS) {
+      const hit = resolveHeaderFieldV2(lines, dashHeaders, field, doc);
+      hdrLegs[field] = hit;
+      out.push(makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, doc.path, evidenceFor(doc.path, !!hit, hit ? hit.line : 0), 'adr.header_field_present', {
+        field: field,
+        present: !!hit,
+        line: hit ? hit.line : 0,
+        leg: hit ? hit.leg : null
+      }));
+    }
+    for (const section of ADR_SECTIONS) {
+      const v1h = v1Sections[section];
+      const bare = legBareSection(lines, section);
+      const hit = v1h ? { line: v1h.line, leg: 'dash' as AdrLeg } : (bare ? { line: bare.line, leg: 'inline' as AdrLeg } : null);
+      secLegs[section] = hit;
+      out.push(makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, doc.path, evidenceFor(doc.path, !!hit, hit ? hit.line : 0), 'adr.section_present', {
+        section: section,
+        present: !!hit,
+        line: hit ? hit.line : 0,
+        leg: hit ? hit.leg : null
+      }));
+    }
+    const missing: string[] = [];
+    let presentCount = 0;
+    for (const item of ADR_FIVE_PIECE) {
+      const has = item === 'Status' || item === 'Date' ? !!hdrLegs[item] : !!secLegs[item];
+      if (has) { presentCount++; } else { missing.push(item); }
+    }
+    out.push(makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, doc.path, doc.path, 'adr.five_piece_completeness', {
+      present: presentCount,
+      of: ADR_FIVE_PIECE.length,
+      ratio: presentCount / ADR_FIVE_PIECE.length,
+      missing: missing
+    }));
+    const sup = findSupersede(lines);
+    out.push(makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, doc.path, evidenceFor(doc.path, sup.present, sup.line), 'adr.supersede_link_present', {
+      present: sup.present,
+      matches: sup.matches,
+      line: sup.line
+    }));
+    const dateHit = hdrLegs['Date'];
+    out.push(makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, doc.path, evidenceFor(doc.path, !!dateHit, dateHit ? dateHit.line : 0), 'adr.decision_date', {
+      date: dateHit ? dateHit.value : null,
+      leg: dateHit ? dateHit.leg : null
+    }));
+  }
+  return out;
+}
+
 // ---------- §3 族二：positioning（S1 定位素材） ----------
 
 export const POSITIONING_ID = 'positioning@v1';
