@@ -1,45 +1,35 @@
-# Handoff: 轮 4 定稿收口 → 下轮入口（2026-09-14）
+# 常驻任务书 — 轮 6（R4 执行轮：量测效度先行 → 序列化校准）
 
-> 类型：grill 轮 4 整理收口 handoff（供下轮子 Agent 常驻恢复上下文）。生成者：首脑会话（整理环节）。
-> 本文件不重复其他工件内容，只给指针；唯一决策数据源 = [decision-ledger.md](../decision-ledger.md)（D-001~D-021 + 轮 4 收口对账节）。
+> 生成：2026-09-15 grill 轮 5 收口整理环节。上一轮结果与权威文件指针见 .scratch/macro-audit/decision-ledger.md「轮 5 收口对账」节与 .scratch/architecture-recovery/handoffs/closeout-2026-09-14.md（R3 收口，仍有效）。
+> 唯一事实源：docs/adr/0001~0016 + CONTEXT.md（50 词）+ 两本账本（D-001~D-028 / A-001~A-030）+ spec-phase-tasks.md（含 R4 节）。开工前先读这些，不许凭记忆。
 
-## 本轮结果（5 句）
+## 任务（每项声明覆盖 D-xxx）
 
-1. 轮 4 grill 封口 3 条：D-019（Q1 调研委托，已 closed）、D-020（上游引入 = 适配器双轨制 + vendor 逃生舱，ADR-0014）、D-021（根 README 组合件五段式，readme-crafter-skill 流程落盘）。
-2. atomcode R4-Q1 深调研（reports/R4-Q1-atomcode-research.md）：双轨制推荐，13 来源，与全部 current 决策零冲突零 revised；一处调研召回偏差（agent-completion-gate 无账本出处）已如实记录。
-3. 收口对账：17 条 current 全部有去向（无去向清单空），对账表在账本「轮 4 收口对账（2026-09-14）」节。
-4. 整理产物：根 README.md（五段式：定位/盒子图+上游清单/Runtime View/所有权表/契约声明）、docs/adr/0014、CONTEXT.md（轮 4 intro 行 + Language 节去重）。
-5. 版本控制：分支 grill-r4（commits nwx/mlr/prm/mrn/mqw + handoff commit），未 push——push 与落 main 等用户明确指令。
+- **T0 立票（先行，串行门）**：按 $to-spec / $to-tickets 把 spec-phase-tasks.md R4-01~05 展开为 architecture-recovery 账本 A-031 起 + issues/handoffs/prompts（NN-slug ≤60 行硬规则）+ README 波次表 W7+ 排程；波次 = R4-01 → （R4-02 ∥ R4-03）→ R4-04 → R4-05 严格序列化（并行仅 T2/T3 且验收互不引用为完成条件）。**覆盖：D-023、D-024、D-025。**
+- **T1 阶段 1.5 量测审计（R4-01）**：14 份 ADR（docs/adr/ 全集）人工真值表 + 逐份 delta 表模板；区分 detector 漏认（内联 Nygard 格式）vs 真实缺失；产物是 R4-02 验收 golden set + 原 TC-2 RED 记 invalid 的逐份可归属原因；纯文档零构建。**覆盖：D-025（+D-024 两字段登记纪律）。**
+- **T2 判据 v2（R4-02）**：adr-structure detector 接线 A-002 回退链（YAML→内联→git 首提交）；v1 留档禁改；验收 = 与人工真值表一致率；对冻结首报数据重跑 → 并列读数 + 勘误披露（重测次数与判定规则事先写死，禁 testing into compliance）；构建/测试走 CI。**覆盖：D-025。**
+- **T3 ADR 治理卫生票（R4-03）**：6F 真实五件套缺失清零（以 T1 人工读数的真实缺失分解为准入范围）；验收独立于 T2——两票互为引用、互不为完成条件。**覆盖：D-025。**
+- **T4 C 层 disposition 补记**：T1~T3 结题后按 reopen 惯例补记 disposition（architecture-recovery 账本 C 裁定节追加，不改写原文与时间戳）；勘误式双读数发布（原 RED 不撤回 + 成对动作说明）。**覆盖：D-025、D-017。**
+- **T5 阶段 2a 冻结校准（R4-04）**：10 项 desk 清单（任务 2/4/8/9/10/11/12/13/14/15/16 + 任务 5 已锚行 + 任务 7 单写者域草案）；草案全部标注置信域（单写者证据禁外推多写者）；待探针占位带「满足判据+复审时点」。**覆盖：D-023、D-024。**
+- **T6 阶段 2b CodeLore 单上游探针（R4-05）**：前置 = 运行时解析策略判定（容器捆绑 vs 二进制发现，D-020 派生待决）+ 读 Agent Plugins 1.0.0 plugin schema 原文（P1 预核对 baseline 顺手做）；适配器 + 锁版本 + golden 契约测试（ADR-0014 纪律：适配层禁业务规则）；重跑 6F 首报同仓 + 同 spec 版本 diff；provenance 锚定（commit pin + spec 版本 + data fingerprint）；产物 = 数据源漂移报告 + 任务 1/3 实测锚 + README 上游清单 CodeLore 行状态更新（$readme-crafter-skill，不虚报）。**覆盖：D-023、D-024、D-020。**
+- **T7 #25 挂门值守（贯穿每轮收口）**：核对 25-rollout-checklist.md 拍板状态列——触发事件已发生而未拍的行，1 个工作日内升级用户拍板；到期未触发的行按硬到期日重组改绑一次。**覆盖：D-026、D-027。**
 
-## 下轮任务（每项声明覆盖的 D-xxx）
+## 纪律规则（不可协商）
 
-- **T1（覆盖 D-020）阶段 2 组合件接入立票**：运行时解析策略下探（容器捆绑 vs 二进制发现；前置 = 读 Agent Plugins 1.0.0 plugin schema 原文，见调研信息缺口 2）+ 上游逐项锁定与 golden 输出契约测试定版；与票 #24/#25（A-028/A-030，deferred）衔接。
-- **T2（覆盖 D-021）README 维护**：readme-crafter-skill Phase 6 建议清单按需采纳（CI 徽章 / hero 图 / 首报截图）；上游清单表状态列随阶段 2 进展更新（规划中 → 已接入），更新时须同步账本。
-- **T3（覆盖 D-016 残余）R3-06/R3-07 立票**：缺口回流（票 #24，A-028）与铺开+分发收尾（票 #25，A-030，含 BACKLOG B1/B2/B3 立票建议）——启动器已在 .scratch/architecture-recovery/prompts/，开工须用户逐项拍板。
-- **T4（用户闸门，非任务）**：grill-r4 push / 落 main 授权；TC-2 RED 处置方向（修 ADR Date 头 vs 判据 v2）；C 裁定张力复核（可选）。
-
-## 权威文件（只信这些）
-
-- 决策账本：.scratch/macro-audit/decision-ledger.md（含轮 4 收口对账节）
-- 本轮调研：.scratch/macro-audit/reports/R4-Q1-atomcode-research.md（续问锚点 resume 88169c0d-64ef-4e42-a157-2b7761206e52）
-- 决策记录：docs/adr/0001 ~ 0014；术语表：CONTEXT.md（46 词）
-- 计划表：.scratch/macro-audit/spec-phase-tasks.md（R1 任务 1~18 / R2-01~05 / R3-01~07）；执行轮状态：.scratch/architecture-recovery/README.md
-- 对外门面：根 README.md（组合件五段式）
-
-
-## 纪律规则（常驻，沿袭上一份任务书）
-
-1. 【数据源纪律】整理/写作的唯一数据源是 decision-ledger.md；账本里没有的结论必须列出并停下问用户，不许写进文档。
-2. 【冲突协议】调研/新证据与任何 current D 冲突时：禁止静默改向——原 D 标 revised（保留原记录），新 D 呈报，用户拍板后才继续。
-3. 【执行环境】ctx 激活；ctx_batch_execute shell=bash；文件写入一律 node.js（防嵌套断连），写后验字节/BOM/特征片段。
-4. 【CI-only】本机禁止一切构建/编译/打包/测试运行（用户 2026-09-04 命令）；测试证据只认 CI run/artifact。
-5. 【版本控制】but 分支隔离；commit 可自主（防丢失），push / 合并 / 删史一律等用户明确指令。
-6. 【grill 纪律】若重开 grill：一次一题、调研充分后提问、退出前报账本条目数 + 覆盖率自评并问「是否可以定稿」。
+1. 【防丢】每个用户确认的实质结论当场追加 decision-ledger.md；任何压缩/compact/handoff 前先确认账本已落盘到最新。
+2. 【数据源】整理的唯一数据源 = 账本；认为存在但账本没有的结论 → 列出并停下问，不许直接写进文档。
+3. 【对账闸】整理环节 = 枚举 current → 逐条去向 → 无去向清单非空即停。
+4. 【冲突协议】调研结论与 current 决策冲突 → 禁止静默改向：对应 D-xxx 标 revised（保留原记录）+ 新 D-xxx 呈报等拍板。
+5. 【VCS】$but 全程；push/land 属用户闸门；本轮例外只在用户明示时。构建/测试一律 CI，本机仅轻量 node 断言（守卫脚本模式：reports/NN-check.mjs + exit 0 + PASS/FAIL）。
+6. 【原子性】票产物落 reports/、守卫随票；账本行状态由执行窗口写、收口窗口复核核实。
 
 ## Suggested skills
 
-- $but —— 版本控制（commit / land / push；push 前必停）
-- $readme-crafter-skill —— README 迭代与 Phase 6 复核（references/quality-checklist.md 11 项）
-- $atomcode-research —— 运行时解析策略 / plugin schema 定向调研（串行，-p 只放问题，timeout 600000）
-- $grill-with-docs / $grilling —— 新决策下探（防丢规则 + 冲突协议照旧）
-- $handoff / $neat-freak —— 下一轮收口
+- $but —— 版本控制（立分支/commit/收口时 land+push 需用户明示）
+- $to-spec / $to-tickets —— T0 立票链
+- $implement —— 票执行（drives tdd at pre-agreed seams，收口 code-review）
+- $atomcode-research —— T6 运行时解析策略调研（串行、-p 只放问题、timeout 600000、锚点留证；配额中断走 resume anchoring 不杀进程）
+- $readme-crafter-skill —— T6 后上游清单状态列更新
+- $domain-modeling —— 新术语/ADR 锐化（CONTEXT.md 只放词汇，实现决策进 docs/adr/）
+- $grill-with-docs —— 若 T6 前置调研与 D-020/D-023 冲突需重新下探时
+- $handoff / $neat-freak —— 轮 6 收口归档与知识治理
