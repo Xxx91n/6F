@@ -1,0 +1,59 @@
+{
+  "ticket": "36 / R5-05 / A-041 / D-035②",
+  "codelore_version": "0.28.0",
+  "enum_basis": "实物枚举存档：36-top-help.txt / 36-explain-help.txt / 36-explain-topics.txt / 36-diff-help.txt + 二进制字符串（reports/36-probe.mjs 门控关态产出）",
+  "analyze_enum_explain_family": {
+    "count": 0,
+    "note": "35-analyze-help.txt possible-values 57 面中 explain-* 面数 = 0——「explain 族」不是 analyze 枚举成员；LLM 面以独立子命令旗标/MCP 工具形态存在。如实登记，不以记忆补面名。"
+  },
+  "explain_topics": {
+    "count": 46,
+    "note": "裸 `codelore explain` 实物枚举（36-explain-topics.txt）——主题面为确定性公式/引文/SQL 查询，--llm 对 topic 无效（help 原文：No effect when the argument names a topic），非 LLM 面。"
+  },
+  "llm_faces": [
+    {
+      "face": "explain-file",
+      "argv": "codelore explain <path> --llm [--llm-refresh] --repo <repo>",
+      "surface": "CLI 子命令旗标",
+      "output": "INI 文件 dossier + '## LLM narrative (advisory)' 段 + 'advisory <model>, grounded | contains uncited claims: …' stamp 行；narrative 走 sidecar enrichment 缓存（--llm-refresh 强制重生成）",
+      "gate_off_observed": "exit 4 + stderr 'error: configure an LLM endpoint — set CODELORE_LLM_MODEL … or ANTHROPIC_API_KEY …'；确定性 dossier 仍出 stdout（36-explain-llm-unconfigured.* 实测）",
+      "disposition": "contracted（本票）"
+    },
+    {
+      "face": "diff",
+      "argv": "codelore diff <base>..<head> --format markdown --llm [--llm-refresh] --repo <repo>",
+      "surface": "CLI 子命令旗标",
+      "output": "diff 文本/markdown + 'LLM narrative (advisory)' 段 + stamp 行；--llm 仅 text/markdown 生效，json/sarif 忽略；叙事失败仅 stderr warning 不改 exit code（help 原文）",
+      "disposition": "contracted（本票；range 由调用方供给，缺省 llm_gated param-missing:diff-range）"
+    },
+    {
+      "face": "mcp explain_file",
+      "argv": "codelore mcp（stdio server）→ explain_file 工具",
+      "surface": "MCP 工具字段面",
+      "output": "fact_sheet 恒在；LLM 已配置 → narrative + model + grounded 引文核查；未配置 → narrative_error 字段；调用永不因 LLM 不可用而失败（二进制字符串原文）",
+      "disposition": "deferred——传输形态出本适配层（spawnSync 一次性进程调用）范围；登记 33-gate-registry manual_watch 项 codelore-llm-mcp-face"
+    }
+  ],
+  "env_contract": {
+    "family": "CODELORE_LLM_*",
+    "source": "0.28.0 --help 原文 + 二进制字符串实证（unknown CODELORE_LLM_PROVIDER / requires a model / ANTHROPIC_API_KEY is not set）",
+    "vars": {
+      "CODELORE_LLM_PROVIDER": "提供方选择，取值 'anthropic'|'openai-compat'；缺省 = 未显式指定时 ANTHROPIC_API_KEY 在→anthropic，否则 openai-compat（local-first）；未知值 → 上游硬错 unknown CODELORE_LLM_PROVIDER",
+      "CODELORE_LLM_BASE_URL": "openai-compat 端点；缺省 http://localhost:11434/v1（ollama local-first）",
+      "CODELORE_LLM_API_KEY": "openai-compat 凭据；本地 runner 可空",
+      "CODELORE_LLM_MODEL": "模型名；openai-compat 必填（缺 → 上游 exit 4 错误）",
+      "ANTHROPIC_API_KEY": "anthropic 凭据（该变量名属上游契约族）；provider=anthropic 必填"
+    },
+    "gate_rule": "configured = provider 可解析 且 该 provider 必填变量非空；缺省行为 = 未配置即门控关",
+    "secrecy": "env 值永不进 fact——fact 只落变量名（missing_env 名单），适配层不读值内容语义"
+  },
+  "cost_contract": {
+    "metering_fields": "llm_cost fact：calls_attempted / calls_succeeded / calls_failed / calls_capped / narrative_chars_total / est_token_units_total / est_basis",
+    "token_estimate_slot": "est_token_units = ceil(chars/4)——上游不暴露 token 计数（如实登记），chars/4 为估算位非真值；真值接入待上游暴露或本地 tokenizer",
+    "cap_fields": "call_cap（生效上限）/ cap_source（input|env|default）/ calls_capped（被拦截数）",
+    "cap_env": "MACRO_AUDIT_CODELORE_LLM_MAX_CALLS（本适配器自有命名空间，不占上游 CODELORE_LLM_* 族）；缺省 20（CODELORE_LLM_DEFAULT_CALL_CAP）",
+    "over_cap_path": "到达上限后剩余面 → codelore.llm_gated(reason=call-cap-reached) 显式降级披露，不静默跳过",
+    "per_call_fields": "llm_narrative fact：model / grounded / uncited_claims / stamp（原文）/ narrative（原文）/ narrative_chars / base_chars / est_token_units"
+  },
+  "degradation_disclosure": "门控关 = 每请求面一条 codelore.llm_gated（reason=gate-missing-env|gate-unknown-provider|param-missing:diff-range|call-cap-reached）+ llm_gate 门控判定 fact + llm_cost 汇总——显式降级披露（Failure Semantics），不静默失败、不抛异常中断采集"
+}

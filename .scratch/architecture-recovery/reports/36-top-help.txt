@@ -1,0 +1,25 @@
+CodeLore — Behavioral Code Analyzer
+
+Usage: codelore [OPTIONS] <COMMAND>
+
+Commands:
+  analyze            Run an analysis and emit results
+  diff               Run analyses at two revisions and emit the delta
+  completions        Emit shell-completion script to stdout. Supported shells: bash | zsh | fish | powershell | elvish. Pipe to your shell's completion directory
+  explain            Print the formula + citation + SQL for any metric or analysis CodeLore exposes. Makes the auditable-formulas brand promise tactile on the CLI side
+  schema             Emit JSON Schema 2020-12 for any CodeLore output row type. Integrates with downstream tools (Stoplight, Spectral, Postman, OpenAPI registries)
+  profile            Print operational telemetry — version, schema, registered analyses, output formats, pinned dependencies, and cache size against its caps. The "what's CodeLore doing under the hood?" subcommand
+  docs               Emit a markdown documentation dump covering every supported analysis, formula, and citation. The seed of the planned full static-HTML doc site
+  check              Run quality-gate validation against `.codelore-thresholds.toml` at the repo root. Exit 0 on pass, non-zero on any violation. Writes `result=pass|fail` to `$GITHUB_OUTPUT` when the env var is set, for direct GitHub Actions step-output integration
+  gate               Gate the current working tree against `.codelore-thresholds.toml` before committing: projects what the uncommitted edits do to code health and the import graph vs HEAD, and evaluates the working-tree `[diff]` gates against the projection. Exit 0 on pass, 1 on any violation — the same exit contract as `check`
+  mcp                Start a Model Context Protocol (MCP) server over stdio. Exposes CodeLore analyses as MCP tools for use by AI assistants and agent frameworks. Read-only — no network, no account, no telemetry. Warm-cache calls are cheap; first call on a cold cache pays the ingest cost
+  ingest-sarif       Ingest one or more SARIF 2.1.0 files produced by external scanners (Semgrep, Clippy, CodeQL, etc.) into the per-repo external-findings sidecar store. Re-ingesting the same file is idempotent — findings are replaced per engine so the stored count is always the current scanner run, never an accumulation of duplicates
+  calibrate          Build a corpus-calibration artifact from a manifest of pinned repos. Each repo is ingested at its pinned SHA, its per-function raw metrics pooled per language, and the pooled distributions reduced to quantile breakpoints. The artifact powers the corpus-relative percentile lens (`--calibration`). Use `--merge` to fold the build into an existing artifact (e.g. your org's repos into the world corpus)
+  calibrate-defects  Mine a repository's own fix-commit history (AG-SZZ), validate whether `code-health` predicted where the mined defects landed, and — when the evidence clears an honesty floor — tune the eight smell weights to this repository. Writes a `defects.calib.json` artifact consumed by `--defect-calibration` on `analyze`/`check`
+  help               Print this message or the help of the given subcommand(s)
+
+Options:
+  -v, --verbose    Verbose logging
+      --no-banner  Suppress the pre-flight banner (the box printed to stderr at the start of every analyze run showing version, repo, branch, analysis name, and pre-flight status). The banner is also auto-suppressed when stderr is not a TTY (e.g. when piping into `tee` or redirecting to a file). When a pre-flight CHECK fails the failure banner still prints — error feedback is too important to swallow
+  -h, --help       Print help
+  -V, --version    Print version

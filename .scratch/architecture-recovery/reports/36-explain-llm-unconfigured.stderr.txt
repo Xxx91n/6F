@@ -1,0 +1,1 @@
+error: configure an LLM endpoint — set CODELORE_LLM_MODEL for a local OpenAI-compatible runner (e.g. a model from `ollama list`), or ANTHROPIC_API_KEY for Anthropic; see the CODELORE_LLM_* variables in the docs: analysis error: OpenAI-compatible provider requires a model — set CODELORE_LLM_MODEL (e.g. from `ollama list`)

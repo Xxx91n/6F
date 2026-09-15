@@ -1,0 +1,92 @@
+Run analyses at two revisions and emit the delta
+
+Usage: codelore diff [OPTIONS] <RANGE>
+
+Arguments:
+  <RANGE>
+          Rev range: `<base>..<head>` or `<base>...<head>`. Three-dot uses the merge-base of `<base>` and `<head>` as the actual base SHA
+
+Options:
+  -r, --repo <REPO>
+          Path to the git repo (default: cwd)
+          
+          [default: .]
+
+  -a, --analysis <ANALYSIS>
+          Analysis to diff. `all` runs hotspots + coupling-absences + clones
+          
+          [default: hotspots]
+          [possible values: hotspots, coupling, clones, all]
+
+      --top-n <TOP_N>
+          Hotspot rank threshold. A file is a "rank-entrant" if it appears in the head's top-N hotspots but not the base's
+          
+          [default: 10]
+
+      --score-threshold <SCORE_THRESHOLD>
+          Minimum hotspot-score delta (head - base) to report a "score-increased" finding
+          
+          [default: 0.05]
+
+      --base-cache <BASE_CACHE>
+          Path to a JSON file caching the BASE-rev analysis. If the file exists, the base analysis is loaded from it instead of recomputed. If absent, the freshly-computed base analysis is written there so the next PR run on the same base SHA hits the cache
+
+  -f, --format <FORMAT>
+          Output format. `text` is human-friendly terminal output; `markdown` is designed for `$GITHUB_STEP_SUMMARY`
+          
+          [default: text]
+          [possible values: text, json, sarif, markdown]
+
+  -o, --output <OUTPUT>
+          Write output to file instead of stdout
+
+      --fail-on <FAIL_ON>
+          Exit non-zero when condition met. Values: `none`, `rank-entrant`, `score-increase`, `any`
+
+          Possible values:
+          - none:           Never exit non-zero (advisory mode)
+          - rank-entrant:   Exit non-zero when a file newly enters the top-N hotspots
+          - score-increase: Exit non-zero when an existing hotspot's score increases ≥ threshold
+          - any:            Exit non-zero on ANY finding (rank entrant + score increase + new clone family + coupling absence)
+          
+          [default: none]
+
+      --min-revs <MIN_REVS>
+          Minimum revisions per entity for the underlying hotspot analyses
+          
+          [default: 5]
+
+      --exclude <EXCLUDE>
+          Path patterns to exclude (repeatable). Same semantics as `analyze --exclude`
+
+      --absence-min-shared <ABSENCE_MIN_SHARED>
+          Minimum historical shared revisions for a coupling pair to count as a candidate for an absent-change warning. Pairs below this threshold have too-noisy a historical signal to act on. Default 5 (research brief mitigation 3); raise to 10+ for very large repos where weak pairs accumulate
+          
+          [default: 5]
+
+      --absence-fisher-p <ABSENCE_FISHER_P>
+          Fisher exact p-value gate for coupling absences. Pairs with p ≥ this value are not statistically significant; we don't warn about their absences. Default 0.05 (conventional significance threshold); 0.01 for stricter signal
+          
+          [default: 0.05]
+
+      --thresholds-file <THRESHOLDS_FILE>
+          Optional path to a thresholds file (default name `.codelore-thresholds.toml`). When set, the file's `[diff]` section is evaluated against this run's deltas:
+          
+          - `delta_code_health_min` — minimum allowed `head_median − base_median` code-health delta. Negative values mean "drop tolerated up to this magnitude". - `new_hotspot_max` — maximum allowed count of rank-entrant hotspots (files that enter top-N at head but were not in top-N at base).
+          
+          Violations are surfaced on the output and force a non-zero exit (overriding `--fail-on=none`).
+
+      --llm
+          Append an advisory, LLM-generated PR narrative to the diff, grounded in a deterministic fact sheet of the run's deltas and stamped with a citation-check verdict. Advisory only: the narrative never changes the deterministic findings, the gate verdict, or the exit code, and any failure to produce it is a stderr warning, not an error. Rendered for `text` and `markdown` output only; ignored for `json`/`sarif`. Requires an LLM endpoint configured through the `CODELORE_LLM_*` environment (local-first by default)
+
+  -v, --verbose
+          Verbose logging
+
+      --llm-refresh
+          Regenerate the LLM narrative even when a cached one exists, replacing the sidecar cache entry. Only meaningful together with `--llm`
+
+      --no-banner
+          Suppress the pre-flight banner (the box printed to stderr at the start of every analyze run showing version, repo, branch, analysis name, and pre-flight status). The banner is also auto-suppressed when stderr is not a TTY (e.g. when piping into `tee` or redirecting to a file). When a pre-flight CHECK fails the failure banner still prints — error feedback is too important to swallow
+
+  -h, --help
+          Print help (see a summary with '-h')

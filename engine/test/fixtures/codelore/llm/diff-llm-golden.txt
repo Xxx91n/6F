@@ -1,0 +1,10 @@
+# Diff: HEAD~3..HEAD
+
+## code-health delta
+median: 80.1 -> 82.4
+rank-entrants: none
+
+## LLM narrative (advisory)
+This change moved code-health up: the median rose from 80.1 to 82.4.
+
+advisory fixture-model-0, grounded

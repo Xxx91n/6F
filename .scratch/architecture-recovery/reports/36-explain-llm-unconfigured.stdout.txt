@@ -1,0 +1,29 @@
+fact sheet for engine/src/cli.ts
+
+[code-health]
+  score = 88.434343
+  band = green
+  structural_risk = 0.211111
+  percentile = 0.333333
+  corpus_percentile = 0.972
+  corpus_percentile_ci = 0.971647–0.972348
+  cognitive = 7
+
+[biomarkers]
+  complex-method = 0.444444
+  god-class = 0
+  large-method = 0.222222
+  dry = 0
+  shotgun-surgery = 0
+  deep-nesting = 0.555556
+  many-args = 0
+  complex-conditional = 0.444444
+
+[hotspots]
+  rank = 362
+  hotspot_score = 0
+
+[ownership]
+  main_author = iz0ms@Euiop1.oi
+  total_revs = 1
+  fractal_value = 0

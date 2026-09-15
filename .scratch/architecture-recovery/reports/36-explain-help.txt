@@ -1,0 +1,26 @@
+Print the formula + citation + SQL for any metric or analysis CodeLore exposes. Makes the auditable-formulas brand promise tactile on the CLI side
+
+Usage: codelore explain [OPTIONS] [TOPIC]
+
+Arguments:
+  [TOPIC]  Name of the metric or analysis to explain, or a path to a tracked source file. A known topic prints its formula and citations; an existing file path (resolved under `--repo`) prints that file's deterministic evidence dossier. Pass without an argument to list every supported topic
+
+Options:
+      --repo <REPO>
+          Path to the git repo used to resolve a file-path argument and load its facts (default: cwd). Ignored when the argument names a known topic [default: .]
+      --llm
+          Append an advisory, LLM-generated narrative to a file dossier, grounded in the fact sheet and stamped with a citation-check verdict. Requires an LLM endpoint configured through the `CODELORE_LLM_*` environment (local-first by default). No effect when the argument names a topic
+      --llm-refresh
+          Regenerate the LLM narrative even when a cached one exists, replacing the sidecar cache entry. Only meaningful together with `--llm`
+      --cache-dir <CACHE_DIR>
+          Override the XDG cache root for the persistent fact-store and the advisory narrative sidecar. Defaults to `$XDG_CACHE_HOME/codelore` (or the OS equivalent)
+      --defect-calibration <DEFECT_CALIBRATION>
+          Own-repo defect-calibration artifact (build one with `codelore calibrate-defects`). Adds a `defect-evidence` section to the file dossier. Hard error if the artifact was mined from a different repository — see --allow-foreign-calibration. Ignored when the argument names a known topic
+      --allow-foreign-calibration
+          Apply a defect-calibration artifact mined from a different repository (forks, moved checkouts): skips the repo-identity guard
+  -v, --verbose
+          Verbose logging
+      --no-banner
+          Suppress the pre-flight banner (the box printed to stderr at the start of every analyze run showing version, repo, branch, analysis name, and pre-flight status). The banner is also auto-suppressed when stderr is not a TTY (e.g. when piping into `tee` or redirecting to a file). When a pre-flight CHECK fails the failure banner still prints — error feedback is too important to swallow
+  -h, --help
+          Print help
