@@ -13,7 +13,7 @@ architecture-recovery/
 ├── decision-ledger.md (A-001 ~ A-048，48 项摩擦点登记)
 ├── spec.md (实施决策，每条覆盖 A-xxx)
 ├── issues/   (43 张票，每张含 Blocked by 字段)
-├── handoffs/ (43 份，每份含 A-xxx 覆盖 + 通用调研要求)
+├── handoffs/ (43 份，每份含 A-xxx 覆盖 + 通用调研要求；#32 补立案档豁免调研段)
 ├── prompts/  (43 份启动器，每份 ≤60 行，无违禁词；## 收尾段首黑体硬要求块)
 └── reports/  (守卫脚本 + 票报告 — 启动器收尾写入 reports/NN-report.md)
 ```
@@ -238,7 +238,7 @@ W3 完成后，原 W4 阻塞全部解除：
 
 **全局结论**：
 - 决策层 7 条（ADR-0001~0007）落地 ✓
-- 规格层 18 条 Implementation Decision 全部覆盖 A-001~A-018 ✓
+- 规格层 Implementation Decision 覆盖：18 条覆盖 A-001~A-018 + R5-D1~12 覆盖 A-037~A-048 ✓
 - 集成层 Hub-of-Facts with Federated Adjudication 形状已封口 ✓
 - 报告层 共享骨架 + scale 切片 已封口 ✓
 - 演示层 10 路径（5 scale × happy+failure）已封口 ✓
@@ -368,7 +368,7 @@ W3 完成后，原 W4 阻塞全部解除：
 - **W9 完成（2026-09-15）**：#29 C 层 disposition 补记 → 29-check.mjs PASS 13/13（原裁定逐字保留 + 勘误式双读数并列：v1 0.2462 RED 归因部分 invalid / v2 0.5846 RED = reportable value）。
 - **W10 完成（2026-09-15）**：#30 阶段 2a 冻结校准 → 30-check.mjs PASS 9/9（13 项清单、置信域逐项、占位两字段×10）。
 - **W11 完成（2026-09-15）**：#31 阶段 2b CodeLore 探针 → 31-check.mjs PASS 14/14（binary-discovery+pin 0.28.0、golden 契约 7/7、漂移报告、P1 预核对发现 plugin.json 不合 1.0.0）。R4 全链结题。
-- 值守项（非票）：T7 #25 拍板状态列核对——触发事件已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次（绑定表 = reports/R5-Q5-atomcode-research.md §3）。
+- 值守项（非票）：T7 #25 拍板状态列核对——触发事件已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次（绑定表 = ../macro-audit/reports/R5-Q5-atomcode-research.md §3）。
 
 
 ## 并行波次表（R5 执行轮 — 轮 7 任务书 T0~T11，2026-09-15 续接；从 issue Blocked by 推导，不新造顺序）

@@ -55,11 +55,15 @@ t('B2 两字段占位项全登记（' + probeItems.length + ' 项）', probeMiss
 // B3: CodeLore 暂缓面集——每面名在 D-035④ 账本原文中可回查
 const faceItem = reg.items.find(i => i.id === 'codelore-deferred-faces');
 const d35 = macroLedger.split('\n').find(l => l.includes('D-035')) || '';
-const missingFaces = (faceItem.faces || []).filter(f => {
-  const stem = f.replace('*', '');
-  return !d35.includes(stem);
-});
-t('B3 暂缓面集 ' + faceItem.faces.length + ' 面可回查 D-035④ 原文', missingFaces.length === 0, missingFaces.join(','));
+if (!faceItem) {
+  t('B3 暂缓面集可回查 D-035④ 原文', false, 'registry item codelore-deferred-faces missing');
+} else {
+  const missingFaces = (faceItem.faces || []).filter(f => {
+    const stem = f.replace('*', '');
+    return !d35.includes(stem);
+  });
+  t('B3 暂缓面集 ' + faceItem.faces.length + ' 面可回查 D-035④ 原文', missingFaces.length === 0, missingFaces.join(','));
+}
 
 // B4: 多写者三触发器在位
 const mwIds = ['mw-trigger-a', 'mw-trigger-b', 'mw-trigger-c'];
@@ -82,7 +86,7 @@ for (const it of reg.items) {
 console.log('--- 值守快照 ---');
 alarms.forEach(a => console.log('ALARM ' + a));
 warns.forEach(w => console.log('WARN  ' + w));
-const bound = reg.items.filter(i => i.status === 'triggered-bound');
+const bound = reg.items.filter(i => i.bound_to);
 bound.forEach(b => console.log('BOUND ' + b.id + ' → ' + (b.bound_to || '')));
 console.log('---');
 console.log('登记 ' + reg.items.length + ' 项 / 事件 ' + Object.keys(reg.events).length + ' 个 / ALARM ' + alarms.length + ' / WARN ' + warns.length);

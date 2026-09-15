@@ -19,6 +19,10 @@
 
 无。
 
+## 调研依据（复用声明）
+
+不合规清单复用 reports/31-upstream-drift.md §4（P1 预核对）+ Agent Plugins 1.0.0 plugin schema 官方原文（实物副本 reports/34-plugin.schema.json，draft 2020-12，ajv 校验留证）；双 manifest 先例 = D-012/ADR-0008；本票为合规执行票，未另跑 atomcode；无新冲突。
+
 ## lessons 候选
 
 - gen 首跑报 DRIFT 是迁移语义（旧产物≠新产物时记 DRIFT 并改写）——二次跑才应全 CLEAN；守卫断言用「重跑幂等」而非「首跑 GEN-OK」。

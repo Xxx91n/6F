@@ -24,6 +24,6 @@
 - 无（阶段 3 最优先，横切兜底）
 
 ## 关键参考
-- reports/25-rollout-checklist.md（挂门行全集）；reports/R5-Q5-atomcode-research.md §3（绑定表权威文本）
+- reports/25-rollout-checklist.md（挂门行全集）；../macro-audit/reports/R5-Q5-atomcode-research.md §3（绑定表权威文本）
 - spec-phase-tasks.md（任务 5/7 注记 + 暂缓面集注记）；docs/adr/0015（D-024 三问决策树）/ 0017（preview 模型）
 - CONTEXT.md「LRM Binding / Trigger-gated Closure / Self-probe」词条

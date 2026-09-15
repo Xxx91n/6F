@@ -17,7 +17,7 @@
 | ALARM | 25-B3.3 | 触发「阶段 3 开工门评审」已发生（R5 票据包立案 = 开工门）——CHANGELOG 口径待拍（最迟 阶段 3 首发 tag 前） |
 | ALARM | 25-D4 | 触发「阶段 3 开工门」已发生——演示入口（内置样例项目）待拍（最迟 阶段 3 铺开前） |
 | WARN | 25-B2.1 / 25-D4 | 「阶段 3 铺开」进行中——最迟时点临近 |
-| BOUND | 25-P1 → #34+#41；25-P5 → #41⑤ | 已触发但已绑定票 |
+| BOUND | 25-P1 → #34+#41；25-P5 → #41⑤ | 25-P1 = 绑定未触发（bound_to #34+#41，trigger listing-submission 未发生）；25-P5 = 已触发已绑定（trigger stage3-kickoff-gate 已发生） |
 
 ## 实现说明
 
@@ -27,6 +27,10 @@
 ## 阻塞
 
 无。
+
+## 调研依据（复用声明）
+
+本票调研复用轮 7 grill 既有成果——绑定表权威文本 ../macro-audit/reports/R5-Q5-atomcode-research.md §3（已含 Stage-Gate/LRM/backlog-expiry 类比）；另照 docs/adr/0015、0017 与 CONTEXT.md 词条（LRM Binding/Trigger-gated Closure/Self-probe）；设计面已在 R5-Q5 拍定，本票为机检化执行，未另跑 atomcode；与 current 决策无新冲突。
 
 ## lessons 候选
 
