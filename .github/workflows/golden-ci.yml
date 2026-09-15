@@ -1,0 +1,93 @@
+name: golden-ci
+# 样例 golden 守卫（#43 / A-048 / spec.md §R5-D12 / D-030③ 样例防失真机制）
+#
+# 纪律（snapshot 纪律 = Jest/Vitest 同型：golden 入版本库＋code review）：
+#   - 本 job 只做「重渲染 + 逐字节 diff」，不一致即 fail（非零退出 + 差异摘要入日志）。
+#   - golden/样例更新只走 PR 审查：由人重渲染后随 PR 提交；本 workflow 不含任何
+#     commit / push / 自动回写步骤——diff 红了由人修，CI 绝不自动重生成直通 main。
+#
+# 平台裁定：单平台 ubuntu-latest + Node 24（不挂 3 平台矩阵）——
+#   重渲染确定性是逐字节级契约而非平台行为：#45 已验证 demo fixture 全 env pin
+#   （author/committer/date 钉死）跨环境同 SHA；examples 腿输入全部钉在冻结 commit
+#   的对象上；仓根 .gitattributes 全仓 eol=lf 消除行尾平台差。矩阵重复跑同一确定性
+#   计算不产生新信号，故挂单平台，若未来发现平台相关漂移须如实登记再加矩阵。
+on:
+  push:
+    paths:
+      - "engine/**"
+      - "examples/first-report/**"
+      - ".scratch/architecture-recovery/reports/23-frozen-fc00d458.bundle"
+      - ".scratch/architecture-recovery/reports/23-frozen-readme-overlay.md"
+      - ".github/workflows/golden-ci.yml"
+  pull_request:
+    paths:
+      - "engine/**"
+      - "examples/first-report/**"
+      - ".scratch/architecture-recovery/reports/23-frozen-fc00d458.bundle"
+      - ".scratch/architecture-recovery/reports/23-frozen-readme-overlay.md"
+      - ".github/workflows/golden-ci.yml"
+permissions:
+  contents: read
+jobs:
+  golden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # bundle 前置对象 200b344 位于历史深处；git diff 需要基线
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24 # 与 golden 生成环境同主版本；重生成脚本直 import engine/src/*.ts 依赖免 flag 类型剥离（22.18+/23.6+/24）
+
+      # ---------- Leg 1：engine/fixtures/golden 重渲染 + 逐字节 diff ----------
+      - name: re-render engine fixtures/golden
+        working-directory: engine
+        run: |
+          npm ci
+          npm run gen
+          npm run build
+          node scripts/gen-demo-golden.mjs
+      - name: diff engine golden (byte-level, fail on drift)
+        run: |
+          drift="$(git status --porcelain -- engine/fixtures/golden)"
+          if [ -n "$drift" ]; then
+            echo "::error::engine/fixtures/golden 重渲染产物与入库 golden 不一致——golden 更新走 PR 审查（D-030③），CI 不回写"
+            echo "$drift"
+            git diff -- engine/fixtures/golden | head -200
+            exit 1
+          fi
+          echo "engine golden: byte-identical"
+
+      # ---------- Leg 2：examples/first-report 重渲染 + 逐字节 diff ----------
+      # 重生成命令（examples/first-report/README.md 所录，逐字）：
+      #   node .scratch/architecture-recovery/reports/23-first-report.mjs
+      # 脚本审计 HEAD，须在工作树处于生成 commit fc00d458 的状态下运行方可复现。
+      # fc00d458 是 GitButler workspace 快照（不在任何 pushed ref 上），经仓内 bundle
+      # 23-frozen-fc00d458.bundle 传输（前置对象 200b344 在 main 历史中）。
+      # 其树外还需生成时点未入库的三件（随 e39468c 入库）：
+      #   23-first-report.mjs / engine/src/report/generate.ts / .scratch README
+      # 其中原脏 README 已失——23-frozen-readme-overlay.md 为等签名重构
+      # （经 23-facts.jsonl 逐 keyword intent_count 复原 top-20 签名，实测四件逐字节一致）。
+      - name: materialize frozen worktree (fc00d458 via in-repo bundle)
+        run: |
+          git bundle unbundle .scratch/architecture-recovery/reports/23-frozen-fc00d458.bundle
+          git worktree add .frozen-first-report fc00d458e215cc9a7a26af81626dec8712622821
+          mkdir -p .frozen-first-report/engine/src/report
+          git show e39468c9c53d32694f2ef9153b79eae018ea6b44:engine/src/report/generate.ts > .frozen-first-report/engine/src/report/generate.ts
+          git show e39468c9c53d32694f2ef9153b79eae018ea6b44:.scratch/architecture-recovery/reports/23-first-report.mjs > .frozen-first-report/.scratch/architecture-recovery/reports/23-first-report.mjs
+          cp .scratch/architecture-recovery/reports/23-frozen-readme-overlay.md .frozen-first-report/.scratch/architecture-recovery/README.md
+      - name: re-render examples/first-report (verbatim README command)
+        working-directory: .frozen-first-report
+        run: node .scratch/architecture-recovery/reports/23-first-report.mjs
+      - name: diff examples golden (byte-level, fail on drift)
+        run: |
+          ok=1
+          for f in 23-first-report.md 23-first-report.json 23-first-report-failure.md 23-first-report-failure.json; do
+            if ! cmp -s "examples/first-report/$f" ".frozen-first-report/.scratch/architecture-recovery/reports/$f"; then
+              echo "::error::examples/first-report/$f 与冻结时点重渲染产物不一致——样例更新走 PR 审查（D-030③），CI 不回写"
+              diff -u "examples/first-report/$f" ".frozen-first-report/.scratch/architecture-recovery/reports/$f" | head -80
+              ok=0
+            fi
+          done
+          [ "$ok" = "1" ] || exit 1
+          echo "examples golden: byte-identical"

@@ -25,3 +25,9 @@
 - **unsupported 裁定口径**：TC-2 判红（ADR Status/Date 缺失率 84.62% > 预声明阈值 0.50）为判据口径下的合法裁定，非管线故障；正/负对照全 PASS 证明管线活性。
 - **契约时点差**：四件生成于 2026-09-13，早于 `preview_disclosure` 披露块契约（ADR-0017 / D-037②，2026-09-16 首实现）——侧车 JSON 无 `preview_disclosure` 字段属时点事实，非缺失缺陷；演示级披露块实物见 `engine demo` 合成 fixture 产物。
 - **溯源链**：原件保留于 `.scratch/architecture-recovery/reports/`（复制非移动）；CI 重渲染 fixture 并 diff 的 golden 校验为 #43 登记票（禁自动重生成直通 main）。
+
+## CI golden 校验与更新纪律（#43 / A-048 / D-030③）
+
+- **校验机制**：`.github/workflows/golden-ci.yml` 的 `golden` job 在 CI 物化冻结工作树后**逐字**执行上方重生成命令，将产出与本目录四件**逐字节 diff**，不一致即 fail（非零退出 + 差异摘要入 job 日志）。物化路径：仓内 `23-frozen-fc00d458.bundle` 传输冻结 commit（GitButler 快照，不在 pushed ref 上）→ `git worktree` → 按生成时点状态补 `23-first-report.mjs`/`engine/src/report/generate.ts`（e39468c 入库版）与 `.scratch` README 等签名 overlay（`23-frozen-readme-overlay.md`，原脏文件未入库已失，top-20 关键词签名经 `23-facts.jsonl` 逐词计数复原）。
+- **更新只走 PR 审查**：本目录四件与 `engine/fixtures/golden/` 的更新一律由人重渲染后随 PR 提交审查；**CI 不含 commit/push/自动回写步骤**，diff 红了由人修，禁自动重生成直通 main（Jest/Vitest snapshot 纪律：入版本库＋code review）。
+- **正确更新路径**：在工作树切至生成 commit 的状态下运行重生成命令、核对读数变化有依据（判据/输入变化须在 PR 描述中说明）、同步替换本目录四件与 `.scratch` 原件，再开 PR。engine golden 对应 `cd engine && npm run demo:golden`（definitions 变更同规矩走 PR）。
