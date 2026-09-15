@@ -1,7 +1,7 @@
 # 常驻任务书 — 轮 7（R5 执行轮：阶段 3 铺开 = 扩面 → Macro-C → Micro-A → Micro-B → Macro-A）
 
 > 生成：2026-09-15 grill 轮 6 收口整理环节。上一轮结果与权威文件指针见 .scratch/macro-audit/decision-ledger.md「轮 6 收口对账」节与 .scratch/architecture-recovery/handoffs/closeout-2026-09-15.md（R4 收口，仍有效）。
-> 唯一事实源：docs/adr/0001~0017 + CONTEXT.md（54 词）+ 两本账本（.scratch/macro-audit/decision-ledger.md D-001~D-036 / .scratch/architecture-recovery/decision-ledger.md A-001~A-030）+ spec-phase-tasks.md（含 R5 节）+ .scratch/architecture-recovery/BACKLOG.md（阶段 3 票据包 #32~#43）。开工前先读这些，不许凭记忆。
+> 唯一事实源：docs/adr/0001~0017 + CONTEXT.md（54 词）+ 两本账本（.scratch/macro-audit/decision-ledger.md D-001~D-036 / .scratch/architecture-recovery/decision-ledger.md A-001~A-048）+ spec-phase-tasks.md（含 R5 节）+ .scratch/architecture-recovery/BACKLOG.md（阶段 3 票据包 #32~#43）。开工前先读这些，不许凭记忆。
 > 阶段 3 串行骨架（D-034）：扩面 → Macro-C → Micro-A → Micro-B → Macro-A；横切项挂触发器，非前置门禁。
 > 上架动作未授权（D-026/D-027 用户闸门）；preview 标注诚实是决策本体（ADR-0017）。
 
