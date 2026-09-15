@@ -5,7 +5,10 @@
     "created": "2026-09-15",
     "purpose": "全挂门项机读登记表——三字段（最迟拍板时点/触发事件/复审时点）统一索引，由 33-check.mjs 扫描到期报警",
     "binding_table": "../macro-audit/reports/R5-Q5-atomcode-research.md §3",
-    "watch_rule": "触发已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次；再到期升级用户（D-026⑤）"
+    "watch_rule": "触发已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次；再到期升级用户（D-026⑤）",
+    "extended": "A-053（2026-09-16）#33-ext：manual_watch 五要素齐备化（owner/review_event/verify_method 补齐＋confirmations 字段归一）＋micro-a-preview-prep 事件登记＋守卫 fail-closed 事件引用/event_bound 覆盖率/risk_accepted 候选名单扩展——round8-35-audit W6 补洞",
+    "watch_schema": "watch 三态：event_bound（默认——须 trigger_event 或 deadline_event 至少一锚）/ manual_watch（五要素：标记=watch 字段值本身＋责任人 owner＋复审时点 review_at prose＋review_event 机读锚＋验证方法 verify_method＋确认留痕 confirmations[]）/ risk_accepted（三要素：acceptor＋reason＋expires_at——翻转权属人工裁决，守卫仅输出 RISK-ACCEPTED-CANDIDATE 候选名单不自动改 status）",
+    "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签"
   },
   "events": {
     "stage2-double-closeout": {
@@ -61,6 +64,10 @@
     },
     "macro-a-start": {
       "occurred": false
+    },
+    "micro-a-preview-prep": {
+      "occurred": false,
+      "evidence": "Micro-A preview 前置审计窗口（层序 D-034：扩面→Macro-C→Micro-A→Micro-B→Macro-A——Macro-C 已闭环，Micro-A 为下一层 preview）；manual_watch 复审时点机读锚（A-053 登记，occurred 由 Micro-A preview 票开工审计时翻转）"
     }
   },
   "items": [
@@ -261,7 +268,10 @@
       "status": "pending",
       "source": "reports/30-desk-calibration.json items[task=4].probe",
       "watch": "manual_watch",
-      "confirmations": []
+      "confirmations": [],
+      "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=4].probe——阶段 3 收口窗口清点承接）",
+      "review_event": "stage3-close",
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=4].probe.satisfaction 判据清点（工业界小团队分布数据可得性）"
     },
     {
       "id": "desk-task5",
@@ -312,7 +322,10 @@
       "status": "pending",
       "source": "reports/30-desk-calibration.json items[task=9].probe",
       "watch": "manual_watch",
-      "confirmations": []
+      "confirmations": [],
+      "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=9].probe——阶段 3 收口窗口清点承接）",
+      "review_event": "stage3-close",
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=9].probe.satisfaction 判据清点（调度/增量形态引入信号）"
     },
     {
       "id": "desk-task10",
@@ -339,7 +352,10 @@
       "status": "pending",
       "source": "reports/30-desk-calibration.json items[task=11].probe",
       "watch": "manual_watch",
-      "confirmations": []
+      "confirmations": [],
+      "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=11].probe——阶段 3 收口窗口清点承接）",
+      "review_event": "stage3-close",
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=11].probe.satisfaction 判据清点（语言栈变更信号——非登记事件，复审机读锚取 stage3-close，prose 复审时点保留「/ 语言栈变更时」提前触发语义）"
     },
     {
       "id": "desk-task13",
@@ -424,7 +440,10 @@
       ],
       "source": "macro-audit decision-ledger D-035④",
       "watch": "manual_watch",
-      "confirmations": []
+      "confirmations": [],
+      "owner": "收口窗口指派（登记位：macro-audit decision-ledger D-035④ 暂缓面集——层 preview 票承接）",
+      "review_event": "micro-a-preview-prep",
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋层 preview 开工审计清点（该层契约面清单 vs faces[] 交集——有拉动即 golden 契约补齐转 bound）"
     },
     {
       "id": "mw-trigger-a",
@@ -500,7 +519,13 @@
         "finding-hotspot-overlap",
         "defect-validation"
       ],
-      "source": "35-facet-reconciliation.json unregistered_residual（#35 审计 W1）"
+      "source": "35-facet-reconciliation.json unregistered_residual（#35 审计 W1）",
+      "owner": "收口窗口指派（登记位：35-facet-reconciliation.json unregistered_residual——去向裁决落 D-xxx 原文）",
+      "review_event": [
+        "micro-a-preview-prep",
+        "stage3-close"
+      ],
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋收口窗口清点 faces[] 4 面去向（登记入暂缓面集/划归后续批次/显式弃用）并落 D-xxx 原文"
     },
     {
       "id": "codelore-llm-mcp-face",
@@ -517,7 +542,10 @@
       "faces": [
         "mcp explain_file"
       ],
-      "source": "36-llm-faces-reconciliation.json（#36 A-041：MCP 传输形态出 spawnSync 适配层范围，登记防静默丢失）"
+      "source": "36-llm-faces-reconciliation.json（#36 A-041：MCP 传输形态出 spawnSync 适配层范围，登记防静默丢失）",
+      "owner": "收口窗口指派（登记位：36-llm-faces-reconciliation.json——Micro-A preview 票承接）",
+      "review_event": "micro-a-preview-prep",
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋Micro-A preview 前置清点（CONTEXT.md Micro-A 数据源含 CodeLore diff --llm——MCP 同族面契约补齐，golden 两形态+env 门控复用 #36 契约）"
     },
     {
       "id": "upstream-probes-scorecard-repomix",
@@ -533,7 +561,8 @@
       "owner": "上游队列值守（#42→后续层 preview 票承接）",
       "verify_method": "层 preview 开工审计清点：该层报告需求面是否含供应链象限/打包摘要数据——含则本项判据满足转 triggered-bound 并立接入票（含 pin_type+version+golden 契约三前置）",
       "source": "macro-audit decision-ledger D-034③（探针按层需求队列接入不插队）+ engine/upstream-lock.yaml（两行 planned）+ desk-task5 同源关联",
-      "confirmations": []
+      "confirmations": [],
+      "review_event": "micro-a-preview-prep"
     }
   ]
 }

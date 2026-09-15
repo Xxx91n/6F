@@ -47,7 +47,7 @@
 | 票号 | 标题 | 来源 D-xxx | 挂门/前置 | 备注 |
 |---|---|---|---|---|
 | #32 | B1.2 落地：31 份 prompts「## 收尾」段首黑体硬要求块 | D-029 | 无 | 已于轮 6 整理环节执行完毕 |
-| #33 | T7 挂门机检化 guard：扫全部挂门项「最迟时点/触发事件/复审时点」到期报警 | D-026 / D-034④ / D-024 | 阶段 3 最优先 | 横切兜底；输入含三触发器与暂缓面集复审时点。✅ W1 已落地（33-check.mjs 8/8）。**扩展子项（D-041）**：registry watch 三态（event_bound/manual_watch/risk_accepted）五要素齐备化＋守卫扫 manual_watch「复审逾期 or 确认缺失」＋逾期转 risk_accepted 候选＋event_bound/total 覆盖率输出＋decided 状态枚举登记 |
+| #33 | T7 挂门机检化 guard：扫全部挂门项「最迟时点/触发事件/复审时点」到期报警 | D-026 / D-034④ / D-024 | 阶段 3 最优先 | 横切兜底；输入含三触发器与暂缓面集复审时点。✅ W1 已落地（33-check.mjs 8/8）。**扩展子项（D-041）**：registry watch 三态（event_bound/manual_watch/risk_accepted）五要素齐备化＋守卫扫 manual_watch「复审逾期 or 确认缺失」＋逾期转 risk_accepted 候选＋event_bound/total 覆盖率输出＋decided 状态枚举登记。✅ 2026-09-16 已闭环（A-053）：manual_watch 7 项五要素 3/5→5/5＋micro-a-preview-prep 事件＋33-check 并入扩展（D 组 fail-closed 堵 W6＋E 组 manual_watch 扫描＋COVERAGE 23/30）PASS 16/16＋红证两态＋npm test 不回归 |
 | #34 | plugin.json 对齐 Agent Plugins 1.0.0（$schema const / schemaVersion / skills·mcp·extensions 形态）＋ AJV 校验入 guard | D-036 / D-012 余款 | 上架硬前置链 | 独立小票（明示修正 handoff 并入分发收尾票原建议） |
 | #35 | CodeLore 契约面扩开首批 ≈30 面（演化主干 12＋S3 族 6＋S5 族 12），逐面 golden 契约测试 | D-035 / D-034 | Macro-C preview 前置 | ADR-0014 纪律：适配层禁业务规则 |
 | #36 | CodeLore LLM 面（explain 族）env 门控＋成本验收 | D-035 | S4 ADR 假设抽取前置 | 独立验收，不混入 #35 |
