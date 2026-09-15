@@ -1,0 +1,82 @@
+{
+  "scenario": "degraded-supply",
+  "kind": "fixture-definition",
+  "schema_version": "1.0.0",
+  "synthetic": true,
+  "description": "降级变体一：语料健康（6 份完整 ADR）但供应链象限证据域确定性不可用——D-034③④ 供应链未接的演示化实现，failure.trigger 确定性触发降级产出 ⚠ unverified",
+  "generator": "fixture-generator@1.0.0",
+  "repo": {
+    "name": "fixture-degraded-supply",
+    "default_branch": "main",
+    "steps": [
+      {
+        "type": "commit",
+        "date": "2026-01-05T09:00:00+00:00",
+        "message": "init: macro audit fixture context skeleton",
+        "files": [
+          { "path": "CONTEXT.md", "content": "# Fixture Context\n\nmacro audit fixture for collector evidence facts. verdict receipt anchors provenance; skeleton chapters hold golden disclosure. determinism keeps quadrant audit honest.\n" },
+          { "path": "README.md", "content": "# fixture-degraded-supply\n\nmacro audit fixture. collector evidence facts; verdict receipt provenance.\n\n> synthetic fixture — not an audit of any real repository.\n" },
+          { "path": "package.json", "content": "{\n  \"name\": \"fixture-degraded-supply\",\n  \"version\": \"0.1.0\",\n  \"private\": true\n}\n" },
+          { "path": "src/app.ts", "content": "export function main(): string {\n  return 'synthetic fixture supply';\n}\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-01-19T09:30:00+00:00",
+        "message": "adr 001: verdict gate anchors receipt",
+        "files": [
+          { "path": "docs/adr/001-supply-signal-intake.md", "content": "# ADR-0001: supply signal intake\n\n- Status: accepted\n- Date: 2026-01-19\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for supply intake.\n\n## Decision\n\nsynthetic fixture decision on intake wiring.\n\n## Consequences\n\nsynthetic fixture consequences recorded for audit.\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-02-02T10:00:00+00:00",
+        "message": "adr 002: evidence facts collector wiring",
+        "files": [
+          { "path": "docs/adr/002-vendor-signal-scope.md", "content": "# ADR-0002: vendor signal scope\n\n- Status: accepted\n- Date: 2026-02-02\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for vendor scope.\n\n## Decision\n\nsynthetic fixture decision on vendor scope.\n\n## Consequences\n\nsynthetic fixture consequences recorded for audit.\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-02-16T10:00:00+00:00",
+        "message": "adr 003: provenance disclosure chapters",
+        "files": [
+          { "path": "docs/adr/003-chain-attestation-form.md", "content": "# ADR-0003: chain attestation form\n\n- Status: accepted\n- Date: 2026-02-16\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for attestation.\n\n## Decision\n\nsynthetic fixture decision on attestation form.\n\n## Consequences\n\nsynthetic fixture consequences recorded for audit.\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-03-02T10:00:00+00:00",
+        "message": "adr 004: determinism keeps quadrant honest",
+        "files": [
+          { "path": "docs/adr/004-dependency-signal-gap.md", "content": "# ADR-0004: dependency signal gap\n\n- Status: accepted\n- Date: 2026-03-02\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for signal gap.\n\n## Decision\n\nsynthetic fixture decision on gap handling.\n\n## Consequences\n\nsynthetic fixture consequences recorded for audit.\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-03-16T10:00:00+00:00",
+        "message": "adr 005: golden audit trail",
+        "files": [
+          { "path": "docs/adr/005-registry-signal-queue.md", "content": "# ADR-0005: registry signal queue\n\n- Status: accepted\n- Date: 2026-03-16\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for signal queue.\n\n## Decision\n\nsynthetic fixture decision on queue order.\n\n## Consequences\n\nsynthetic fixture consequences recorded for audit.\n" }
+        ]
+      },
+      { "type": "branch", "name": "feature/supply-notes" },
+      {
+        "type": "commit",
+        "branch": "feature/supply-notes",
+        "date": "2026-03-30T10:00:00+00:00",
+        "message": "adr 006: hold fixture line on supply branch",
+        "files": [
+          { "path": "docs/adr/006-unverified-supply-mark.md", "content": "# ADR-0006: unverified supply mark\n\n- Status: accepted\n- Date: 2026-03-30\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for supply mark.\n\n## Decision\n\nsynthetic fixture decision on unverified mark.\n\n## Consequences\n\nsynthetic fixture consequences; this supersedes ADR-0005.\n" }
+        ]
+      },
+      { "type": "merge", "branch": "feature/supply-notes", "into": "main", "date": "2026-04-06T10:00:00+00:00", "message": "merge: feature/supply-notes into main" },
+      { "type": "tag", "name": "v0.1.0" }
+    ]
+  },
+  "failure": {
+    "trigger": "supply-chain-not-connected",
+    "reason": "FP-45-1 供应链数据未接（D-034③④ 演示化实现）：supply-chain 象限证据域不可用（Scorecard/repomix 未接入不插队）→ 主前提不可裁定，发起 GapRequest 降级产出"
+  },
+  "expect": { "overall_verdict": "insufficient", "degraded_mode": true, "degraded_reason_marker": "供应链" }
+}

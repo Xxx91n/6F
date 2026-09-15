@@ -1,0 +1,87 @@
+{
+  "scenario": "happy-path",
+  "kind": "fixture-definition",
+  "schema_version": "1.0.0",
+  "synthetic": true,
+  "description": "健康基线：6 份五件套完整 ADR（决策日=首提交日 lag=0）+ CONTEXT.md/README.md 定位覆盖全命中 + 多分支 merge/tag —— 预期 supported（synthetic fixture，not an audit of any real repository）",
+  "generator": "fixture-generator@1.0.0",
+  "repo": {
+    "name": "fixture-happy-path",
+    "default_branch": "main",
+    "steps": [
+      {
+        "type": "commit",
+        "date": "2026-01-05T09:00:00+00:00",
+        "message": "init: macro audit fixture context skeleton",
+        "files": [
+          { "path": "CONTEXT.md", "content": "# Fixture Context\n\nmacro audit fixture for collector evidence facts. verdict receipt anchors provenance; skeleton chapters hold golden disclosure. determinism keeps quadrant audit honest.\n" },
+          { "path": "README.md", "content": "# fixture-happy-path\n\nmacro audit fixture. collector evidence facts; verdict receipt provenance.\n\n> synthetic fixture — not an audit of any real repository.\n" },
+          { "path": "package.json", "content": "{\n  \"name\": \"fixture-happy-path\",\n  \"version\": \"0.1.0\",\n  \"private\": true\n}\n" },
+          { "path": "src/app.ts", "content": "export function main(): string {\n  return 'synthetic fixture';\n}\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-01-19T09:30:00+00:00",
+        "message": "adr 001: verdict gate anchors receipt",
+        "files": [
+          { "path": "docs/adr/001-evidence-first-verdict-gate.md", "content": "# ADR-0001: evidence-first verdict gate\n\n- Status: accepted\n- Date: 2026-01-19\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for verdict gate.\n\n## Decision\n\nsynthetic fixture decision on evidence-first gate.\n\n## Consequences\n\nsynthetic fixture consequences recorded for audit.\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-02-02T10:00:00+00:00",
+        "message": "adr 002: evidence facts collector wiring",
+        "files": [
+          { "path": "docs/adr/002-deterministic-collectors.md", "content": "# ADR-0002: deterministic collectors\n\n- Status: accepted\n- Date: 2026-02-02\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for collectors.\n\n## Decision\n\nsynthetic fixture decision on deterministic collectors.\n\n## Consequences\n\nsynthetic fixture consequences recorded for audit.\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-02-16T10:00:00+00:00",
+        "message": "adr 003: provenance disclosure chapters",
+        "files": [
+          { "path": "docs/adr/003-report-skeleton-chapters.md", "content": "# ADR-0003: report skeleton chapters\n\n- Status: accepted\n- Date: 2026-02-16\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for skeleton.\n\n## Decision\n\nsynthetic fixture decision on report chapters.\n\n## Consequences\n\nsynthetic fixture consequences recorded for audit.\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-03-02T10:00:00+00:00",
+        "message": "adr 004: determinism keeps quadrant honest",
+        "files": [
+          { "path": "docs/adr/004-provenance-receipt.md", "content": "# ADR-0004: provenance receipt\n\n- Status: accepted\n- Date: 2026-03-02\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for provenance.\n\n## Decision\n\nsynthetic fixture decision on receipt anchors.\n\n## Consequences\n\nsynthetic fixture consequences recorded for audit.\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-03-16T10:00:00+00:00",
+        "message": "adr 005: golden audit trail",
+        "files": [
+          { "path": "docs/adr/005-quadrant-slices.md", "content": "# ADR-0005: quadrant slices\n\n- Status: accepted\n- Date: 2026-03-16\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for quadrants.\n\n## Decision\n\nsynthetic fixture decision on quadrant slices.\n\n## Consequences\n\nsynthetic fixture consequences recorded for audit.\n" }
+        ]
+      },
+      { "type": "branch", "name": "feature/adr-hygiene" },
+      {
+        "type": "commit",
+        "branch": "feature/adr-hygiene",
+        "date": "2026-03-30T10:00:00+00:00",
+        "message": "adr 006: hold fixture line on hygiene branch",
+        "files": [
+          { "path": "docs/adr/006-golden-disclosure-honesty.md", "content": "# ADR-0006: golden disclosure honesty\n\n- Status: accepted\n- Date: 2026-03-30\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context for disclosure.\n\n## Decision\n\nsynthetic fixture decision on golden honesty.\n\n## Consequences\n\nsynthetic fixture consequences; this supersedes ADR-0005.\n" }
+        ]
+      },
+      { "type": "merge", "branch": "feature/adr-hygiene", "into": "main", "date": "2026-04-06T10:00:00+00:00", "message": "merge: feature/adr-hygiene into main" },
+      { "type": "tag", "name": "v0.1.0" },
+      {
+        "type": "commit",
+        "date": "2026-04-13T10:00:00+00:00",
+        "message": "chore: collector determinism notes",
+        "files": [
+          { "path": "docs/notes.md", "content": "# Notes\n\nsynthetic fixture notes; hold evidence line.\n" }
+        ]
+      }
+    ]
+  },
+  "failure": null,
+  "expect": { "overall_verdict": "supported", "degraded_mode": false }
+}

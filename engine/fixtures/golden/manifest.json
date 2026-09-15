@@ -1,0 +1,47 @@
+{
+  "kind": "fixture-golden-manifest",
+  "schema_version": "1.0.0",
+  "generator": "fixture-generator@1.0.0",
+  "note": "demo --scenario 产物逐字节确定性（pin author/committer/date）；更新走 PR 审查（D-030③）",
+  "scenarios": {
+    "happy-path": {
+      "verdict": "supported",
+      "degraded_mode": false,
+      "receipt_id": "RCP-a4d4cb30d97c4e1b",
+      "head_sha": "4f9b0b567d3dd47be141c10f867bbbac877c1f94",
+      "fact_count": 129,
+      "sha256": {
+        "report.md": "b435dd6f6a50a6859ba987b99547ca96e3616369b8518754b9f24b127885e77d",
+        "report.json": "0df8330e1b64304e1bfd055b33b8cf1fd7bf47ecd1795a43b0caa3f2f646b7d7",
+        "demo-measurements.json": "09d5b820aede586b9989c850788213d2fa68975e89f80cf773aa80621b832bda",
+        "demo-facts.jsonl": "77672b8406b2f7edbf75a1cb88c877a3d1bb11f27381de5fc01e316686bb79b3"
+      }
+    },
+    "degraded-supply": {
+      "verdict": "insufficient",
+      "degraded_mode": true,
+      "receipt_id": "RCP-adaba908c55807e8",
+      "head_sha": "8fc753eddd6dbe22b43818c704fda26096e7189c",
+      "fact_count": 129,
+      "sha256": {
+        "report.md": "1d8152cc21d2b35a304da2b72e7f29f43f2d54402f60ce2bb0475cc9ffdcbe22",
+        "report.json": "d8b597bb4e8f756bc67daf712120ccd2479f50bb4bec078bc37a3e02877f23bb",
+        "demo-measurements.json": "fc7345281fd95e1789a6c07fb82603fb47752bddeaf438b3f5ef413c6f3b3aa9",
+        "demo-facts.jsonl": "dddb41381ae717324f385d7b4d1cfd4a41ea4f1cb2a4345cee931234e592fb5c"
+      }
+    },
+    "degraded-incomplete": {
+      "verdict": "insufficient",
+      "degraded_mode": true,
+      "receipt_id": "RCP-c745119974a0dc86",
+      "head_sha": "d757d4cd3046ac0d6251b5c3f0e5cb8884647012",
+      "fact_count": 30,
+      "sha256": {
+        "report.md": "1ec0dd40f40f4d12c9e99b1946fb48e9f6973901b2622c6c3f25d18556451e35",
+        "report.json": "7d52034d7a9a4dd8bb80a82dd834bf1f220a7dbfd38fcb254d32ad8e8cb0c935",
+        "demo-measurements.json": "56486a1903620ca4b5e783f739faf2a8b79888d6daba049b3f4d1dbccdb57e49",
+        "demo-facts.jsonl": "f3c936a2ed7c2c50ae71c3dfdf6969b1a961b2299798d23aaec5dc531e27fd2a"
+      }
+    }
+  }
+}

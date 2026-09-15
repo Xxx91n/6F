@@ -1,0 +1,732 @@
+{
+  "schema_version": "1.1.0",
+  "report_id": "MA-45-DEMO-HAPPYPATH",
+  "scale": "Macro-B",
+  "subject_ref": "fixture-happy-path@4f9b0b567d3d",
+  "generated_at": "2026-04-13T10:00:00Z",
+  "correlation_key": {
+    "trace_id": "b2e96bc3a87b0f64213e96c72480cd25",
+    "baggage_id": "d3ad072f4037955c7d88b84112e35d98"
+  },
+  "receipt": {
+    "receipt_id": "RCP-a4d4cb30d97c4e1b",
+    "chain_hash": "a4d4cb30d97c4e1b16b697989e12b726be3648b68b61ebc1b0321971daf0ae14",
+    "issued_at": "2026-04-13T10:00:00Z",
+    "commit_anchor": "4f9b0b567d3dd47be141c10f867bbbac877c1f94",
+    "tree_anchor": "d0fb585754c7f84a85bb88d41fc26063cc903aac",
+    "content_digest": {
+      "algo": "sha256",
+      "value": "5ded3793fce6e68943ec6437d4d9d3872a4525356205f5f0c4a3f721e8c0b6f7",
+      "canonicalization": "json_utf8_entries_then_citation_checks"
+    },
+    "gate_ref": {
+      "prereg_commit": "45-demo-criteria",
+      "criteria_path": "reports/22-criteria-pre-registration.md",
+      "basis_path": "reports/22-c-adjudication-basis.md",
+      "criterion_ids": [
+        "PC-1",
+        "PC-2",
+        "TC-1",
+        "TC-2",
+        "TC-3",
+        "NC-1"
+      ]
+    },
+    "fact_count": 129,
+    "adjudication_count": 6,
+    "degraded": false,
+    "mark": "RECEIPT RCP-a4d4cb30d97c4e1b chain=a4d4cb30d97c4e1b16b697989e12b726 content=5ded3793fce6e689 facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7"
+  },
+  "overall_verdict": "supported",
+  "confidence": 0.6,
+  "degraded_mode": false,
+  "degraded_reason": null,
+  "stale": {
+    "marker": "fresh",
+    "sla_seconds": 5,
+    "lag_seconds": 0,
+    "read_model_version": "1.1.0",
+    "fact_watermark_version": "1"
+  },
+  "skeleton": [
+    {
+      "id": "C1",
+      "ordinal": 1,
+      "name": "执行摘要",
+      "required_fields": [
+        "report_id",
+        "schema_version",
+        "scale",
+        "subject_ref",
+        "generated_at",
+        "correlation_key",
+        "overall_verdict",
+        "confidence",
+        "headline",
+        "top_findings",
+        "degraded_mode",
+        "stale_data_marker",
+        "staleness_sla_seconds",
+        "read_model_lag_seconds",
+        "read_model_version",
+        "fact_watermark_version"
+      ]
+    },
+    {
+      "id": "C2",
+      "ordinal": 2,
+      "name": "四象限与裁决",
+      "required_fields": [
+        "quadrants",
+        "quadrant",
+        "applicability",
+        "verdict",
+        "score",
+        "confidence",
+        "dimensions",
+        "slice_fields",
+        "verdict_gate.protocol_version",
+        "verdict_gate.decision",
+        "verdict_gate.evidence_threshold_met",
+        "verdict_gate.decided_at",
+        "verdict_gate.override_reason",
+        "verdict_gate.audit_ref",
+        "conflict_markers"
+      ]
+    },
+    {
+      "id": "C3",
+      "ordinal": 3,
+      "name": "证据",
+      "required_fields": [
+        "evidence_items",
+        "evidence_id",
+        "source",
+        "locator",
+        "claim",
+        "grounded",
+        "collected_at",
+        "reproduce_cmd",
+        "reproduce_absent_reason"
+      ]
+    },
+    {
+      "id": "C4",
+      "ordinal": 4,
+      "name": "行动建议",
+      "required_fields": [
+        "recommendations",
+        "rec_id",
+        "priority",
+        "action",
+        "rationale",
+        "expected_impact",
+        "effort",
+        "verdict_gate_stamp",
+        "evidence_refs",
+        "degraded_note"
+      ]
+    }
+  ],
+  "fact_ids": [
+    "d3bf9007-ebd3-9a6e-8e20-99462a320811",
+    "ad49f3e1-c9c7-ccd5-0e85-efd108a15b7b",
+    "02c09427-1dc6-cf91-c746-3c38210ac304",
+    "62b79c68-f339-d81e-3a12-12fbc5d219d1",
+    "5525a611-a8c0-2846-905a-60e91523b2e8",
+    "d7b1be5f-c2c2-ee85-3031-26bdbed04897",
+    "9e216cb6-f00a-1498-ff61-1e01878d032c",
+    "16c60f2f-d1a2-a681-59a7-04db6886ca1b",
+    "2f3e1423-0a59-1a58-78e3-5ef5b54a17f3",
+    "451f9128-b3bf-354d-2129-f09d1effb845",
+    "d66987c9-442b-376a-257d-028f9c0553b3",
+    "756d05ce-0e3b-7242-ff00-aff9c0297836",
+    "347892d1-e8a0-0e92-e6be-001c54f04cd0",
+    "15191f9f-93bc-1be0-c227-56e581ef3781",
+    "2235a3cc-8784-2d31-942f-4cde2e46d8cb",
+    "26f5de62-ba77-37f8-82ba-8fc37dac83d1",
+    "38b46ba8-6ea4-a23a-ff25-69016fd6cf7c",
+    "0282c864-3345-1014-6150-5287bb410302",
+    "4799d4ae-5613-dde8-52dc-78ac67c5b592",
+    "f5f7ba88-4611-5110-1f8b-42ad20d887e6",
+    "0ddfeeac-4501-c10b-314f-496dcd61ab26",
+    "fc889712-29f8-4e18-f3cf-6eed389cdc60",
+    "7c82a79c-b437-c207-107b-7112ba094b16",
+    "d2e35b16-c12b-4bf8-0dc7-7c5e21489f7d",
+    "862f0670-c186-9b73-d610-e8bfe6a76194",
+    "1865908c-37b0-4d8f-5c1a-0a7a7b31f31c",
+    "b41384b3-b234-a640-fa03-6a50093001cc",
+    "d4a7a0e2-d6a7-5c5d-dd31-66599e7ca6c7",
+    "630e8320-4f28-0772-dcd4-647ab304ac03",
+    "56c59c60-e50f-7dda-5cc0-63b9973251bd",
+    "424f6403-3a0a-5e49-5e81-987c11d3692b",
+    "770a2808-18c3-3efb-8092-c176869fcbe5",
+    "37437def-4b27-610d-0808-e1742a57690a",
+    "d1f8cea3-b72b-9557-789f-203136f82d17",
+    "72662e02-5a5e-2e16-1196-4419efda4144",
+    "f12ee318-3c6c-98e5-a0d6-e7d8078abba8",
+    "8f36869c-e9e5-07bb-dc2c-cdc55606862c",
+    "23ce3f1e-a144-44a8-2ee3-cbd2e7d04441",
+    "8e7ea0e4-c076-3221-5b3d-4ff7da838f2f",
+    "c1fab9de-dddd-dc3d-e498-178ff392d4ea",
+    "af1d1abd-0495-efd0-33dd-22ea2eba0e80",
+    "36a85fc2-fe3a-ce75-87d5-a1602128ed54",
+    "435c37cb-8883-409c-f9f5-cc80dd13d6b0",
+    "49ac61ed-2536-1b96-0446-51594b7f22a2",
+    "ae097bf5-b30f-2ef0-e081-22df6f6491b2",
+    "3334af96-9305-236a-a1fc-0d5695174c88",
+    "89f20500-6667-6428-8ac3-dd50bb97f7d6",
+    "a800cd1b-a688-d895-cb51-a7baa5ccbeec",
+    "8616a346-e53e-5805-37d4-3044a74c4773",
+    "53f87d04-bae6-9dcb-f699-38054b12be53",
+    "e09f22ab-5e78-1dde-140b-79363bc60b10",
+    "818dd9d2-7d2d-0234-03d4-6674e130579e",
+    "de1e0e72-52d2-20f8-5f15-26b65d8a022c",
+    "fcfbd265-e3a3-1efb-3660-76cbd266e214",
+    "a1028ef5-2405-d4d7-c1ae-4407a1ee7601",
+    "66a13314-95f2-e89b-fa17-6ef41db300c1",
+    "fc538e10-351b-dbdb-49b0-e72f74471d2a",
+    "b5917985-34df-590f-ee73-f6fb850bfb24",
+    "1512563a-3834-5e68-e02a-e74fe9e19a3a",
+    "f584907a-273c-c73e-9f27-8b4f58b12e6d",
+    "f45167af-5dfa-26bc-2451-d407db3d3d18",
+    "e09721e8-fe85-3fc9-af54-eaadf92aedc7",
+    "d6534231-ab7e-f7ef-ac76-58257590f1f2",
+    "d5b76320-61b6-aec9-c2ea-b9ccb740a574",
+    "8597caa8-24b0-7ec5-969e-c737c32c4b07",
+    "7172f56e-d033-2dd8-e3c8-8f264f5a8a02",
+    "b517c3a3-029c-09e0-7dd3-3bc7ea5a27c0",
+    "0415d0d5-3662-3145-4caf-33515461eae5",
+    "89039f92-8882-5441-7af0-ab89a65021f9",
+    "e91c16ce-94d7-8711-938a-beda2add6aed",
+    "5c1abc29-3416-c2a6-bbd8-0fccbe7611c1",
+    "616395e8-477d-c5b4-cdce-5f5cb67499e2",
+    "4a60d01e-0f78-0924-5059-69612363977b",
+    "42f57056-04cf-6f03-53f6-cca0e0e53a0d",
+    "a7e3c329-6c45-c86c-4eba-f072e3f9403a",
+    "54fe4741-1487-27f4-c215-86f0a94238a9",
+    "db2fcc13-3477-bd16-4561-2987380b6e75",
+    "b8954856-dea2-fbfa-5951-03f7835b4626",
+    "d8ab0250-45dd-2613-10fd-4209fcd09268",
+    "5c678797-42cf-600a-0369-e0c3ee19e5ba",
+    "fa47aacf-335f-af95-e46b-06ee12022435",
+    "0fa7d0aa-0b95-1d76-bf18-d377ac4cae02",
+    "f1141833-b72e-acec-3c0c-75fd9f6b98e1",
+    "2145bb6b-0f57-a58e-b1c5-758dbd199a84",
+    "dda14402-f863-b3f5-38fb-2e4999420318",
+    "359fa72b-33fd-374e-64f3-1079330f2064",
+    "160b082a-fab5-7a81-7790-76e61dd144cb",
+    "8cdf60db-b5c8-256c-c97d-336c0fbadc61",
+    "0b74d663-e5a0-97b1-4d2e-a4a6ddcb9555",
+    "951988c1-e618-1574-7d80-aecf5ed8301a",
+    "260431ef-56c9-784a-30dd-f82ec9ee0f4a",
+    "25bcd45b-769b-2dce-360b-5dcc331522b0",
+    "d56b2862-a34e-49fe-580b-ba79dc9cf1de",
+    "a97146fa-c5a7-9198-e19e-46470602f5a3",
+    "9a5db2f1-20f6-0469-eeb3-b9c652111874",
+    "3e694734-d5a9-d81a-a461-35a7e7fe0b75",
+    "9158efe2-e9ae-cd5b-430e-a2571ed2c7fb",
+    "aed54eff-45fb-a27c-ad97-f6d3bde46c1f",
+    "0156772c-6b98-abe9-a83c-4cc6c087ad9e",
+    "131bc4f6-55de-a3f5-6ad9-4ec55df5afd3",
+    "ff685cdc-9d49-9745-7c30-0974b934e0f2",
+    "9f8a8b93-b15c-68e4-ace2-a558afa9023d",
+    "641304cb-5ca3-77d9-4da9-53c13aef2c72",
+    "a1fdea10-d5a0-4a94-4342-9648ae0ebd9a",
+    "1f9fe71e-afca-9c59-8812-84fbc96a61de",
+    "f4d656ff-099f-f5ee-4ae1-61038c4ed95a",
+    "e28ab8a1-af1e-eaa5-5128-cc2813d13c19",
+    "952989e8-3c11-86b8-edfe-607329780881",
+    "81f543a2-4401-d144-1319-5093689be2dd",
+    "455021f0-6ce3-6bfe-e3f2-16fe8da67c7c",
+    "f971db21-47cd-8a3f-8ae4-4b40d6343784",
+    "10f13a80-f427-be6d-1cf6-7a204215dfa4",
+    "8d3bffd9-3b07-ba0f-0ae9-868bab1255c5",
+    "238fc5d8-31c2-08b1-b66b-bbdde52ae501",
+    "e3e84308-9629-9237-95a9-3f82d5c391bc",
+    "c78f186a-f9ea-443e-0236-5d3747e27bce",
+    "e3cbfd2d-508b-e9cb-0027-715bae67f0d9",
+    "1dfaac2b-dd91-b912-7a07-25c2c1d06ffd",
+    "94853266-96be-b64e-496d-7e47b0ae4c0e",
+    "6ca9e89a-a691-93eb-b26b-427bb2290356",
+    "fa605008-36a4-dace-ebd8-73eb613f95f3",
+    "c5537d68-b294-fa69-d40f-628910f82e1e",
+    "5c10ad7e-6fde-a8a3-df8d-1c7c1650536f",
+    "4e7e69ac-efb7-7384-01a5-b8ce0803b4a6",
+    "91893ec2-403c-ee60-040c-70e5ff99fe00",
+    "149e3108-de72-fa15-8bdd-252f65987540",
+    "0605cf8d-9bdb-a93c-46f0-7b2f009d7707",
+    "426344ad-2185-61ec-9f1c-f71c93c5c18c",
+    "2f7fb36b-444d-57ae-35b0-fd98f3b58d30"
+  ],
+  "adjudication": {
+    "protocol_version": "ADR-0013-C/v1",
+    "decided_at": "2026-04-13T10:00:00Z",
+    "overall": "supported",
+    "entries": [
+      {
+        "criterion_id": "PC-1",
+        "band": "supported",
+        "basis_refs": [
+          "B1"
+        ],
+        "anchored_fact_ids": [
+          "b9d01b37-6ce9-2eca-1f68-759a38c1732e",
+          "46590b37-7354-4523-eb17-57cf3afbb42d"
+        ],
+        "anchored_evidence_ids": [
+          "EV-45-HAPPYPATH-01"
+        ],
+        "decided_at": "2026-04-13T10:00:00Z",
+        "rationale": "adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（合成 run 内管线活性正对照）"
+      },
+      {
+        "criterion_id": "PC-2",
+        "band": "supported",
+        "basis_refs": [
+          "B1"
+        ],
+        "anchored_fact_ids": [
+          "d8fd293d-ac3b-bcbb-198c-be4fb44fface"
+        ],
+        "anchored_evidence_ids": [
+          "EV-45-HAPPYPATH-01"
+        ],
+        "decided_at": "2026-04-13T10:00:00Z",
+        "rationale": "gitlog 族检出事后补写 delta_days = 255"
+      },
+      {
+        "criterion_id": "TC-1",
+        "band": "supported",
+        "basis_refs": [
+          "B2"
+        ],
+        "anchored_fact_ids": [
+          "81f543a2-4401-d144-1319-5093689be2dd",
+          "8d3bffd9-3b07-ba0f-0ae9-868bab1255c5",
+          "e3cbfd2d-508b-e9cb-0027-715bae67f0d9",
+          "fa605008-36a4-dace-ebd8-73eb613f95f3",
+          "91893ec2-403c-ee60-040c-70e5ff99fe00",
+          "2f7fb36b-444d-57ae-35b0-fd98f3b58d30"
+        ],
+        "anchored_evidence_ids": [
+          "EV-45-HAPPYPATH-02"
+        ],
+        "decided_at": "2026-04-13T10:00:00Z",
+        "rationale": "happy-path ADR 事后补写：可判定数 6（门槛 5），>90d 占比 0.0000，判 NOT_RED"
+      },
+      {
+        "criterion_id": "TC-2",
+        "band": "supported",
+        "basis_refs": [
+          "B2"
+        ],
+        "anchored_fact_ids": [
+          "2f3e1423-0a59-1a58-78e3-5ef5b54a17f3",
+          "f5f7ba88-4611-5110-1f8b-42ad20d887e6",
+          "424f6403-3a0a-5e49-5e81-987c11d3692b",
+          "36a85fc2-fe3a-ce75-87d5-a1602128ed54",
+          "de1e0e72-52d2-20f8-5f15-26b65d8a022c",
+          "d5b76320-61b6-aec9-c2ea-b9ccb740a574"
+        ],
+        "anchored_evidence_ids": [
+          "EV-45-HAPPYPATH-03"
+        ],
+        "decided_at": "2026-04-13T10:00:00Z",
+        "rationale": "happy-path ADR 五件套：mean_ratio 1.0000（门槛 0.6），字段缺失率超线=false，判 NOT_RED"
+      },
+      {
+        "criterion_id": "TC-3",
+        "band": "supported",
+        "basis_refs": [
+          "B2"
+        ],
+        "anchored_fact_ids": [
+          "160b082a-fab5-7a81-7790-76e61dd144cb",
+          "a1fdea10-d5a0-4a94-4342-9648ae0ebd9a"
+        ],
+        "anchored_evidence_ids": [
+          "EV-45-HAPPYPATH-04"
+        ],
+        "decided_at": "2026-04-13T10:00:00Z",
+        "rationale": "happy-path 定位覆盖：意图面 2 件最低 ratio 0.6000（README.md），判 AMBER"
+      },
+      {
+        "criterion_id": "NC-1",
+        "band": "supported",
+        "basis_refs": [
+          "B4"
+        ],
+        "anchored_fact_ids": [
+          "7a2fb2bd-4beb-5e9a-7e69-8f9cc6bd27cc"
+        ],
+        "anchored_evidence_ids": [
+          "EV-45-HAPPYPATH-05"
+        ],
+        "decided_at": "2026-04-13T10:00:00Z",
+        "rationale": "负对照选材 package.json 五件套 0 命中、supersede 0 命中（特异性成立）"
+      }
+    ],
+    "human": {
+      "status": "pending",
+      "adjudicator": "user",
+      "text": null,
+      "decided_at": null
+    },
+    "citation_checks": [
+      {
+        "claim_id": "CL-45-HAPPYPATH-01",
+        "evidence_id": "EV-45-HAPPYPATH-01",
+        "support": "supports",
+        "matched_tokens": [
+          "fact_count"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-45-HAPPYPATH-02",
+        "evidence_id": "EV-45-HAPPYPATH-02",
+        "support": "supports",
+        "matched_tokens": [
+          "verdict"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-45-HAPPYPATH-03",
+        "evidence_id": "EV-45-HAPPYPATH-03",
+        "support": "supports",
+        "matched_tokens": [
+          "mean_ratio_4"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-45-HAPPYPATH-04",
+        "evidence_id": "EV-45-HAPPYPATH-04",
+        "support": "supports",
+        "matched_tokens": [
+          "lowest_ratio_4"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-45-HAPPYPATH-05",
+        "evidence_id": "EV-45-HAPPYPATH-05",
+        "support": "supports",
+        "matched_tokens": [
+          "five_piece_present"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-45-HAPPYPATH-06",
+        "evidence_id": "EV-45-HAPPYPATH-07",
+        "support": "supports",
+        "matched_tokens": [
+          "synthetic",
+          "true"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      }
+    ]
+  },
+  "citation_checks": [
+    {
+      "claim_id": "CL-45-HAPPYPATH-01",
+      "evidence_id": "EV-45-HAPPYPATH-01",
+      "support": "supports",
+      "matched_tokens": [
+        "fact_count"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    },
+    {
+      "claim_id": "CL-45-HAPPYPATH-02",
+      "evidence_id": "EV-45-HAPPYPATH-02",
+      "support": "supports",
+      "matched_tokens": [
+        "verdict"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    },
+    {
+      "claim_id": "CL-45-HAPPYPATH-03",
+      "evidence_id": "EV-45-HAPPYPATH-03",
+      "support": "supports",
+      "matched_tokens": [
+        "mean_ratio_4"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    },
+    {
+      "claim_id": "CL-45-HAPPYPATH-04",
+      "evidence_id": "EV-45-HAPPYPATH-04",
+      "support": "supports",
+      "matched_tokens": [
+        "lowest_ratio_4"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    },
+    {
+      "claim_id": "CL-45-HAPPYPATH-05",
+      "evidence_id": "EV-45-HAPPYPATH-05",
+      "support": "supports",
+      "matched_tokens": [
+        "five_piece_present"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    },
+    {
+      "claim_id": "CL-45-HAPPYPATH-06",
+      "evidence_id": "EV-45-HAPPYPATH-07",
+      "support": "supports",
+      "matched_tokens": [
+        "synthetic",
+        "true"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "EV-45-HAPPYPATH-01",
+      "source": "demo-measurements.json",
+      "locator": "L22",
+      "claim": "本次实测：happy-path 合成 fixture 采集事实数",
+      "grounded": true,
+      "collected_at": "2026-04-13T10:00:00Z",
+      "reproduce_cmd": "macro-audit demo --scenario happy-path",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"fact_count\": 129,"
+    },
+    {
+      "evidence_id": "EV-45-HAPPYPATH-02",
+      "source": "demo-measurements.json",
+      "locator": "L35",
+      "claim": "本次实测：TC-1 ADR 事后补写判据裁定（NOT_RED）",
+      "grounded": true,
+      "collected_at": "2026-04-13T10:00:00Z",
+      "reproduce_cmd": "macro-audit demo --scenario happy-path",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"verdict\": \"NOT_RED\","
+    },
+    {
+      "evidence_id": "EV-45-HAPPYPATH-03",
+      "source": "demo-measurements.json",
+      "locator": "L44",
+      "claim": "本次实测：TC-2 五件套完整度 mean_ratio",
+      "grounded": true,
+      "collected_at": "2026-04-13T10:00:00Z",
+      "reproduce_cmd": "macro-audit demo --scenario happy-path",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"mean_ratio_4\": \"1.0000\","
+    },
+    {
+      "evidence_id": "EV-45-HAPPYPATH-04",
+      "source": "demo-measurements.json",
+      "locator": "L83",
+      "claim": "本次实测：TC-3 定位覆盖率最低值",
+      "grounded": true,
+      "collected_at": "2026-04-13T10:00:00Z",
+      "reproduce_cmd": "macro-audit demo --scenario happy-path",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"lowest_ratio_4\": \"0.6000\","
+    },
+    {
+      "evidence_id": "EV-45-HAPPYPATH-05",
+      "source": "demo-measurements.json",
+      "locator": "L94",
+      "claim": "本次实测：NC-1 负对照选材五件套命中数（预期 0）",
+      "grounded": true,
+      "collected_at": "2026-04-13T10:00:00Z",
+      "reproduce_cmd": "macro-audit demo --scenario happy-path",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"five_piece_present\": 0,"
+    },
+    {
+      "evidence_id": "EV-45-HAPPYPATH-06",
+      "source": "docs/adr/001-evidence-first-verdict-gate.md",
+      "locator": "L1",
+      "claim": "happy-path 合成 ADR 语料锚：docs/adr/001-evidence-first-verdict-gate.md 实物存在（语料 6 份，synthetic fixture）",
+      "grounded": true,
+      "collected_at": "2026-04-13T10:00:00Z",
+      "reproduce_cmd": "git -C <fixture-repo> show HEAD:docs/adr/001-evidence-first-verdict-gate.md",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "# ADR-0001: evidence-first verdict gate"
+    },
+    {
+      "evidence_id": "EV-45-HAPPYPATH-07",
+      "source": "demo-measurements.json",
+      "locator": "L3",
+      "claim": "合成印记：本报告全部语料为 synthetic fixture 生成仓，not an audit of any real repository",
+      "grounded": true,
+      "collected_at": "2026-04-13T10:00:00Z",
+      "reproduce_cmd": "macro-audit demo --scenario happy-path",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"synthetic\": true,"
+    }
+  ],
+  "quadrants": [
+    {
+      "quadrant": "strategy",
+      "applicability": "native",
+      "verdict": "supported",
+      "score": null,
+      "confidence": 0.6,
+      "dimensions": [
+        "S1",
+        "S2"
+      ],
+      "slice_fields": {
+        "s1_keyword_coverage_ratio": 0.6,
+        "s2_five_piece_mean_ratio": 1,
+        "adr_count": 6,
+        "lag_judgeable_n": 6,
+        "intent_docs": 2
+      },
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "supported",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-04-13T10:00:00Z",
+        "override_reason": null,
+        "audit_ref": "engine/src/demo/demo.ts"
+      },
+      "conflict_markers": [
+        "synthetic-fixture"
+      ]
+    },
+    {
+      "quadrant": "structure",
+      "applicability": "not_applicable",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [],
+      "slice_fields": {},
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-04-13T10:00:00Z",
+        "override_reason": "Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23/#39 同口径）",
+        "audit_ref": "engine/src/demo/demo.ts"
+      },
+      "conflict_markers": [
+        "out-of-scope-stage1"
+      ]
+    },
+    {
+      "quadrant": "behavior",
+      "applicability": "not_applicable",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [],
+      "slice_fields": {},
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-04-13T10:00:00Z",
+        "override_reason": "Macro-B 已上架采集面仅 strategy（S1+S2）——behavior 无采集器",
+        "audit_ref": "engine/src/demo/demo.ts"
+      },
+      "conflict_markers": [
+        "out-of-scope-stage1"
+      ]
+    },
+    {
+      "quadrant": "supply_chain",
+      "applicability": "not_applicable",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [],
+      "slice_fields": {},
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-04-13T10:00:00Z",
+        "override_reason": "⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）",
+        "audit_ref": "engine/src/demo/demo.ts"
+      },
+      "conflict_markers": [
+        "data-not-connected"
+      ]
+    }
+  ],
+  "recommendations": [
+    {
+      "rec_id": "R-45-HAPPYPATH-1",
+      "priority": "P1",
+      "action": "对真实目标仓跑同一链路：`macro-audit repo add <path|url>` 接入后按 Macro-B 口径裁决——本报告为合成 fixture 演示，not an audit of any real repository",
+      "rationale": "D-038 硬契约：合成数据不冒充真实审计结论；本演示只证管线形态与披露面",
+      "expected_impact": "获得真实审计结论而非演示数据",
+      "effort": "S",
+      "verdict_gate_stamp": "ADR-0013-C/v1 / supported",
+      "evidence_refs": [
+        "EV-45-HAPPYPATH-07"
+      ],
+      "degraded_note": null
+    },
+    {
+      "rec_id": "R-45-HAPPYPATH-2",
+      "priority": "P3",
+      "action": "供应链象限维持「⚠ 数据未接」：Scorecard/repomix 按层需求队列接入不插队（D-034③④）",
+      "rationale": "preview 诚实形态保持——supply-chain: ⚠ unverified 为披露块常驻印记",
+      "expected_impact": "披露诚实性保持",
+      "effort": "S",
+      "verdict_gate_stamp": "ADR-0013-C/v1 / supported",
+      "evidence_refs": [
+        "EV-45-HAPPYPATH-01"
+      ],
+      "degraded_note": null
+    }
+  ],
+  "preview_disclosure": {
+    "capability_label": "capability 1 of 5 · preview",
+    "calibration_scope": "fixture: synthetic (generated by fixture-generator@1.0.0)",
+    "structural_limitations": [
+      "not an audit of any real repository——合成 fixture 仓演示产物，所有裁定不构成真实审计结论（D-038 硬契约：合成数据不冒充真实审计）",
+      "supply-chain: ⚠ unverified——Scorecard/repomix 未接入，供应链象限证据缺失（D-034③④ 演示化维持）",
+      "structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）",
+      "确定性 fixture：同 scenario 重跑产物逐字节一致（pin author/committer/date）；临时目录生成跑完即弃不污染仓内状态"
+    ],
+    "not_in_preview": [
+      "Micro-A",
+      "Micro-B",
+      "Macro-A"
+    ]
+  },
+  "machine_contract": {
+    "citation_anchor_format": "evidence_id + source + locator（三者齐备即为可解析引文锚）",
+    "verdict_enum": [
+      "supported",
+      "unsupported",
+      "insufficient"
+    ],
+    "human_adjudication_status": "pending"
+  }
+}

@@ -60,4 +60,4 @@
 | #42 | 上游队列：Scorecard/repomix 探针＋CodeLore sqlite dump 对照评估 | D-023 / D-034 / D-035 | 层需求拉动，不插队 | dump 采纳须另立 ADR；Macro-B preview 供应链象限维持「⚠ 数据未接」 |
 | #43 | 样例 golden CI：CI 重渲染 fixture 并 diff，更新走 PR 审查 | D-030 | 阶段 3 候选，与 #33 同批立项 | 禁自动重生成直通 main |
 | #44 | 版本与上游锁定制度化：engine/upstream-lock.yaml 种子行＋docs/versioning.md 衔接＋README §3 上游表状态列绑锁表为机读权威＋守卫族（版本断言/锁表新鲜度/三处标注同源/编年指针校验，advisory→enforce 两段式） | D-037 / D-039 | 阶段 3 早期 | 禁 range/浮动 tag；更新走手动窗口＋golden 回归护航 |
-| #45 | 演示入口：fixture 生成器＋definitions 三场景（happy-path/degraded-supply/degraded-incomplete）＋golden/＋demo --scenario 命令＋CASRAI 式披露块 | D-038 | 阶段 3 早期（D4 deadline 实到）；#43 前置 | 合成数据不冒充真实审计；demo 走同一 Repo Intake 本地路径 |
+| #45 | 演示入口：fixture 生成器＋definitions 三场景（happy-path/degraded-supply/degraded-incomplete）＋golden/＋demo --scenario 命令＋CASRAI 式披露块 | D-038 | 阶段 3 早期（D4 deadline 实到）；#43 前置 | ✅ 2026-09-16 已闭环（A-050）：生成器/definitions×3/golden×3/demo 命令/披露块四印记全落盘，demo.test 38/38 入 smoke，45-check PASS；合成数据不冒充真实审计；demo 走同一 Repo Intake 本地路径 |
