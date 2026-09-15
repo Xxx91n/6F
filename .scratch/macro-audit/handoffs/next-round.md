@@ -7,9 +7,12 @@
 
 ## 任务（每项声明覆盖 D-xxx）
 
-- **T0 立票（先行，串行门）**：按 $to-spec / $to-tickets 把 BACKLOG #32~#43 / spec-phase-tasks R5-01~12 展开为 architecture-recovery 账本 A-031 起 + issues/handoffs/prompts（NN-slug ≤60 行硬规则 + 「## 收尾」段首黑体硬要求块 per WORKFLOW §4.2.6-6）+ README 波次表排程。次序 = #33 最优先 → #34/#35 并行首票 → #36/#37 → #38 → 其余随层序。**覆盖：D-029、D-030、D-031、D-032、D-033、D-034、D-035、D-036。**
-- **T1 T7 挂门机检化（#33/R5-02，阶段 3 最优先）**：guard 脚本统一扫描全部挂门项三字段（最迟拍板时点 / 触发事件 / 复审时点）到期报警——覆盖 25-checklist 挂门行、账本两字段登记项、CodeLore 暂缓面集复审时点、多写者三触发器（Macro-B 进 CI 定时回归 / Macro-C 共用同一 DuckDB / Macro-A 启动）。**覆盖：D-026、D-034、D-024。**
-- **T2 plugin.json 合规（#34/R5-03）**：engine/plugin.json 对齐 Agent Plugins 1.0.0——补 $schema const、收敛 schemaVersion/skills/mcp 范围、extensions 改反向域名对象图；AJV 校验入 guard 族。上架硬前置。**覆盖：D-036、D-012 余款。**
+> **轮 7 执行进度（2026-09-15 窗口 1）**：T0/T1/T2 已闭环——账本 A-037~A-048 登记（注：任务书原文「A-031 起」系过期口径，R4 已占用，按账本实物续 A-037）+ spec.md §R5-D1~12 + 12 三件套 + README 波次表 W12~W15（commit `vrm`@r5-t0-ticket-pack）；#33 守卫 `33-check.mjs` PASS 8/8 exit 0（commit `wns`@33-gate-watch-guard）首跑报警 ALARM 4（**P2 数值化承诺双结题到期未拍 / B3.3 CHANGELOG 开工门已触发 / D4 演示入口开工门已触发**——按值守规则待用户拍板）/WARN 2/BOUND 2；#34 plugin.json 已合 Agent Plugins 1.0.0（ajv valid，守卫 34-check.mjs PASS 11/11，commit `txk`@34-plugin-json-compliance）。**下一可开工 = #35（W12 余票，阶段 3 阻塞链关键路径）**；#36/#37/#41 待 #35 闭环后解锁。三栈均未 push（用户闸门）。
+
+
+- **T0 立票（先行，串行门）✅ DONE 2026-09-15**：按 $to-spec / $to-tickets 把 BACKLOG #32~#43 / spec-phase-tasks R5-01~12 展开为 architecture-recovery 账本 A-031 起 + issues/handoffs/prompts（NN-slug ≤60 行硬规则 + 「## 收尾」段首黑体硬要求块 per WORKFLOW §4.2.6-6）+ README 波次表排程。次序 = #33 最优先 → #34/#35 并行首票 → #36/#37 → #38 → 其余随层序。**覆盖：D-029、D-030、D-031、D-032、D-033、D-034、D-035、D-036。**
+- **T1 T7 挂门机检化（#33/R5-02，阶段 3 最优先）✅ DONE 2026-09-15**：guard 脚本统一扫描全部挂门项三字段（最迟拍板时点 / 触发事件 / 复审时点）到期报警——覆盖 25-checklist 挂门行、账本两字段登记项、CodeLore 暂缓面集复审时点、多写者三触发器（Macro-B 进 CI 定时回归 / Macro-C 共用同一 DuckDB / Macro-A 启动）。**覆盖：D-026、D-034、D-024。**
+- **T2 plugin.json 合规（#34/R5-03）✅ DONE 2026-09-15**：engine/plugin.json 对齐 Agent Plugins 1.0.0——补 $schema const、收敛 schemaVersion/skills/mcp 范围、extensions 改反向域名对象图；AJV 校验入 guard 族。上架硬前置。**覆盖：D-036、D-012 余款。**
 - **T3 CodeLore 扩面首批（#35/R5-04）**：演化主干 12 面（revisions/abs-churn/entity-churn/author-churn/hotspot-velocity/code-age/stale-code/architecture-trend/health-trend/lead-time/release-cadence/messages）＋ S3 族 6 面（god-classes/architecture-metrics/dependency-cycles/modularity-violations/instability/architecture-roles）＋ S5 族 12 面（ownership/entity-ownership/bus-factor/main-dev 三件套/knowledge-islands/communication/coordination-needs/team-composition/marginal-owner-risk/pair-programming），逐面 golden 契约测试（ADR-0014：适配层禁业务规则、raw 语义不出适配层）。面名以 `codelore analyze --help` 实物枚举为准。**覆盖：D-035、D-034。**
 - **T4 LLM 面独立票（#36/R5-05）**：explain 族 env 门控（CODELORE_LLM_*）＋成本验收面；S4 ADR 假设抽取前置；不混入 T3。**覆盖：D-035。**
 - **T5 试点面可用性审计（#37/R5-06）**：三试点仓实测脚本——env-manager/anysearch-cli/jiahao 的 PR 人/机比、ADR supersede 链完整度、托管面有无；产出层×仓 capacity 矩阵。**覆盖：D-033。**
