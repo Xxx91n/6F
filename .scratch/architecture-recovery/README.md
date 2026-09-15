@@ -363,5 +363,6 @@ W3 完成后，原 W4 阻塞全部解除：
 
 ## R4 Frontier（重算 2026-09-15 立票后）
 
-- 下一波可开工 = **W7：#26 阶段 1.5 量测审计**（Blocked by None ✓）。启动器：`prompts/26-adr-measurement-audit.md`。
+- **W7 完成（2026-09-15）**：#26 阶段 1.5 量测审计 → 26-check.mjs PASS 18/18（真值 mean 0.4923；v1 实跑复现 0.2462 逐格 65/65）；真值表+delta 模板+AC 登记落 reports/26-*。
+- 下一波可开工 = **W8：#27 ∥ #28**（Blocked by #26 ✓ 已解除）。启动器：`prompts/27-criteria-v2-fallback-chain.md` 与 `prompts/28-adr-hygiene-sweep.md`；两票验收互不为完成条件。
 - 值守项（非票）：T7 #25 拍板状态列核对——触发事件已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次（绑定表 = reports/R5-Q5-atomcode-research.md §3）。

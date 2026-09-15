@@ -274,7 +274,7 @@
 
 | ID | 问题描述原文 | 规范化需求 | 显式约束 | 来源决策 | 状态 |
 |---|---|---|---|---|---|
-| A-031 | R4-01 阶段 1.5 量测审计：「14 份 ADR 人工真值表 + 逐份 delta 表模板（区分 detector 漏认 vs 真实缺失；产物 = R4-02 验收 golden set + 原 RED 的 invalid 逐份可归属原因；先于一切 v2 代码，纯文档零构建）」 | 14 份 ADR（首报冻结时点 docs/adr/ 全集）逐份人工读数表 + 逐份 delta 表模板落文；每份标五件套字段读数与 Nygard 内联格式识别 | 先于一切 v2 代码（AIAG MSA：测量系统分析先于用数据做过程决策）；纯文档零构建；真值表同时是 golden set 与 assignable-cause 证据 | D-025 | current |
+| A-031 | R4-01 阶段 1.5 量测审计：「14 份 ADR 人工真值表 + 逐份 delta 表模板（区分 detector 漏认 vs 真实缺失；产物 = R4-02 验收 golden set + 原 RED 的 invalid 逐份可归属原因；先于一切 v2 代码，纯文档零构建）」 | 14 份 ADR（首报冻结时点 docs/adr/ 全集）逐份人工读数表 + 逐份 delta 表模板落文；每份标五件套字段读数与 Nygard 内联格式识别 | 先于一切 v2 代码（AIAG MSA：测量系统分析先于用数据做过程决策）；纯文档零构建；真值表同时是 golden set 与 assignable-cause 证据 | D-025 | done → implemented（2026-09-15） |
 | A-032 | R4-02 判据 v2 追加：「adr-structure detector 接线 A-002 回退链（v1 留档；验收 = 与人工真值表一致率；冻结数据重跑 → 并列读数 + 勘误披露，重测次数与判定规则事先写死）」 | adr-structure detector 接线 A-002 回退链（YAML 头 → 内联 Nygard → git 首提交）；冻结首报数据重跑出并列读数 + 逐份 delta 勘误 | v1 代码与 v1 阈值 0.60 留档禁改；验收 = 与真值表一致率；重测次数与判定规则事先写死（禁 testing into compliance）；构建/测试走 CI | D-025 | current |
 | A-033 | R4-03 ADR 治理卫生票：「6F 真实五件套缺失清零（验收 = R4-01 人工读数中真实缺失项清零；与 R4-02 互为引用、互不为完成条件）」 | 6F 自身 ADR 五件套真实缺失清零（准入范围仅以 R4-01 真实缺失分解为准）；补记注明勘误性质 | 验收独立于 R4-02——两票互为引用、互不为完成条件；不得因 detector 改动而令真实缺失消失（D-025 伦理判据） | D-025 | current |
 | A-034 | T4 C 层 disposition 补记：「T1~T3 结题后按 reopen 惯例补记 disposition（architecture-recovery 账本 C 裁定节追加，不改写原文与时间戳）；勘误式双读数发布（原 RED 不撤回 + 成对动作说明）」 | 账本 C 裁定节追加 disposition 段落（CAPA reopen：补前置调查不推翻人裁定）；勘误式双读数发布物落文 | 不改写已入库 C 裁定原文与时间戳（不可变纪律）；原 RED 不撤回不覆盖；成对动作 = 原读数记 invalid + 修正读数成为 reportable value | D-025 / D-017 | current |

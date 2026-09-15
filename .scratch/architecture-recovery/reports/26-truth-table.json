@@ -1,0 +1,1211 @@
+{
+  "meta": {
+    "generated_at": "2026-09-15",
+    "frozen_sha": "fc00d458e215cc9a7a26af81626dec8712622821",
+    "frozen_observed_at": "2026-09-13T14:31:09+08:00",
+    "corpus_n": 14,
+    "frozen_n": 13,
+    "detector": "adr-structure@v1",
+    "counting_rule": "truth_present = 五件套元素以任何带标签形态落字（F-dash / F-bare / F-bold / F-sect）或 ISO 日期可内联恢复（I-inline，含 Status 括号内嵌与决策理由散文内研究日期——后者标 date_semantics 注记）；纯散文承载（I-prose）与无标签缺失（M）计 truth absent。"
+  },
+  "assignable_causes": [
+    {
+      "id": "AC-26-1",
+      "kind": "measurement-error",
+      "cause": "adr-structure@v1 头部字段解析器仅接受 `- ` dash 前缀（collectors.ts parseHeaderFields L142 正则），Nygard 裸行 `Status:` 与 bold `**Status:**` 形态未识别",
+      "evidence": "engine/src/collect/collectors.ts L137-148；逐份 L5/L3 行号见本表 fields",
+      "affects": "Status ×11（0001~0011 全部 v1-miss 中真值均存在）"
+    },
+    {
+      "id": "AC-26-2",
+      "kind": "measurement-error",
+      "cause": "A-002 交付的回退链（inline ISO date head-60 → git 首提交）从未接入 detector（ADR-0015 Context 明文记录）",
+      "evidence": "reports/02-adr-fallback.mjs（extractInlineDate/gitFirstCommit）；docs/adr/0015 Context",
+      "affects": "Date ×5（0002/0008/0009/0010/0011 内联可恢复）"
+    },
+    {
+      "id": "AC-26-3",
+      "kind": "real-gap",
+      "cause": "Date 文档层真实缺失（全文无任何日期文本）——git 首提交腿可外部供给但文档未携带",
+      "evidence": "逐份 Date=M；git_first_commit 列",
+      "affects": "Date ×6（0001/0003~0007）；转 #28 治理范围"
+    },
+    {
+      "id": "AC-26-4",
+      "kind": "real-gap",
+      "cause": "Context/Decision/Consequences `## ` 节结构真实缺失（信息以散文/决策理由段承载，无标记节）",
+      "evidence": "逐份三节 M；prose 承载注记",
+      "affects": "三节 ×9 文件 = 27 cells（0001~0009）；转 #28 治理范围"
+    },
+    {
+      "id": "AC-26-5",
+      "kind": "measurement-error",
+      "cause": "0014（冻结后新增）Consequences/Options 以裸行标签（全角/半角冒号）承载——若纳入扫描面 v1 将漏认；提前登记供 v2 规则评审",
+      "evidence": "docs/adr/0014 L11",
+      "affects": "post-freeze 行"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/adr/0001-five-scale-scope.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T11:53:09+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bare",
+          "line": 5,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Context": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Decision": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Consequences": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 1,
+        "ratio": 0.2,
+        "missing": [
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      },
+      "v1_five": {
+        "present": 0,
+        "ratio": 0,
+        "missing": [
+          "Status",
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0002-no-mvp-slice.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T11:53:09+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bare",
+          "line": 5,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": true,
+          "form": "I-inline",
+          "line": 5,
+          "value": "2026-09-12",
+          "v1_present": false,
+          "delta_class": "detector-miss-inline"
+        },
+        "Context": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Decision": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Consequences": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 2,
+        "ratio": 0.4,
+        "missing": [
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      },
+      "v1_five": {
+        "present": 0,
+        "ratio": 0,
+        "missing": [
+          "Status",
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0003-boundary-product-and-usage.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T11:53:09+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bare",
+          "line": 5,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Context": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Decision": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Consequences": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 1,
+        "ratio": 0.2,
+        "missing": [
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      },
+      "v1_five": {
+        "present": 0,
+        "ratio": 0,
+        "missing": [
+          "Status",
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0004-strategic-quadrant-five-dims.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T11:53:09+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bare",
+          "line": 5,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Context": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Decision": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Consequences": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 1,
+        "ratio": 0.2,
+        "missing": [
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      },
+      "v1_five": {
+        "present": 0,
+        "ratio": 0,
+        "missing": [
+          "Status",
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0005-hub-of-facts-with-federated-adjudication.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T11:53:09+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bare",
+          "line": 5,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Context": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Decision": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Consequences": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 1,
+        "ratio": 0.2,
+        "missing": [
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      },
+      "v1_five": {
+        "present": 0,
+        "ratio": 0,
+        "missing": [
+          "Status",
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0006-shared-skeleton-scale-slice.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T11:53:09+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bare",
+          "line": 5,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Context": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Decision": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Consequences": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 1,
+        "ratio": 0.2,
+        "missing": [
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      },
+      "v1_five": {
+        "present": 0,
+        "ratio": 0,
+        "missing": [
+          "Status",
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0007-ten-demo-paths.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T11:53:09+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bare",
+          "line": 5,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Context": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Decision": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Consequences": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 1,
+        "ratio": 0.2,
+        "missing": [
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      },
+      "v1_five": {
+        "present": 0,
+        "ratio": 0,
+        "missing": [
+          "Status",
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0008-agent-plugin-five-layer-box.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T18:38:48+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bare",
+          "line": 5,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": true,
+          "form": "I-inline",
+          "line": 3,
+          "value": "2026-09-12",
+          "v1_present": false,
+          "delta_class": "detector-miss-inline"
+        },
+        "Context": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Decision": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Consequences": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 2,
+        "ratio": 0.4,
+        "missing": [
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      },
+      "v1_five": {
+        "present": 0,
+        "ratio": 0,
+        "missing": [
+          "Status",
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0009-intake-local-first-url-optin.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T18:38:48+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bare",
+          "line": 5,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": true,
+          "form": "I-inline",
+          "line": 3,
+          "value": "2026-09-12",
+          "v1_present": false,
+          "delta_class": "detector-miss-inline"
+        },
+        "Context": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Decision": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        },
+        "Consequences": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "real-gap"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 2,
+        "ratio": 0.4,
+        "missing": [
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      },
+      "v1_five": {
+        "present": 0,
+        "ratio": 0,
+        "missing": [
+          "Status",
+          "Date",
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0010-spec-repo-and-engineering-repo-split.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T17:16:11+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bold",
+          "line": 3,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": true,
+          "form": "I-inline",
+          "line": 3,
+          "value": "2026-09-12",
+          "v1_present": false,
+          "delta_class": "detector-miss-inline"
+        },
+        "Context": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 5,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Decision": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 10,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Consequences": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 18,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 5,
+        "ratio": 1,
+        "missing": []
+      },
+      "v1_five": {
+        "present": 3,
+        "ratio": 0.6,
+        "missing": [
+          "Status",
+          "Date"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0011-single-repo-subdir-but-branches.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-12T17:30:22+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-bold",
+          "line": 3,
+          "value": null,
+          "v1_present": false,
+          "delta_class": "detector-miss-form"
+        },
+        "Date": {
+          "truth_present": true,
+          "form": "I-inline",
+          "line": 3,
+          "value": "2026-09-12",
+          "v1_present": false,
+          "delta_class": "detector-miss-inline"
+        },
+        "Context": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 5,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Decision": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 10,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Consequences": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 17,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": false
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 5,
+        "ratio": 1,
+        "missing": []
+      },
+      "v1_five": {
+        "present": 3,
+        "ratio": 0.6,
+        "missing": [
+          "Status",
+          "Date"
+        ]
+      }
+    },
+    {
+      "path": "docs/adr/0012-value-validation-loop-first.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-13T01:32:42+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-dash",
+          "line": 3,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Date": {
+          "truth_present": true,
+          "form": "F-dash",
+          "line": 4,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Context": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 8,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Decision": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 12,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Consequences": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 16,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": "F-dash",
+          "line": 5,
+          "v1": true
+        },
+        "Ledger": {
+          "form": "F-dash",
+          "line": 6,
+          "v1": true
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 5,
+        "ratio": 1,
+        "missing": []
+      },
+      "v1_five": {
+        "present": 5,
+        "ratio": 1,
+        "missing": []
+      }
+    },
+    {
+      "path": "docs/adr/0013-three-layer-acceptance-gates.md",
+      "frozen": true,
+      "git_first_commit": "2026-09-13T01:32:42+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-dash",
+          "line": 3,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Date": {
+          "truth_present": true,
+          "form": "F-dash",
+          "line": 4,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Context": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 8,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Decision": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 12,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        },
+        "Consequences": {
+          "truth_present": true,
+          "form": "F-sect",
+          "line": 16,
+          "value": null,
+          "v1_present": true,
+          "delta_class": "consistent"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": "F-dash",
+          "line": 5,
+          "v1": true
+        },
+        "Ledger": {
+          "form": "F-dash",
+          "line": 6,
+          "v1": true
+        },
+        "Options": {
+          "form": null,
+          "line": null,
+          "v1": false
+        }
+      },
+      "truth_five": {
+        "present": 5,
+        "ratio": 1,
+        "missing": []
+      },
+      "v1_five": {
+        "present": 5,
+        "ratio": 1,
+        "missing": []
+      }
+    },
+    {
+      "path": "docs/adr/0014-upstream-integration-dual-track.md",
+      "frozen": false,
+      "git_first_commit": "2026-09-14T00:49:28+08:00",
+      "fields": {
+        "Status": {
+          "truth_present": true,
+          "form": "F-dash",
+          "line": 3,
+          "value": null,
+          "v1_present": null,
+          "delta_class": "post-freeze"
+        },
+        "Date": {
+          "truth_present": true,
+          "form": "F-dash",
+          "line": 4,
+          "value": null,
+          "v1_present": null,
+          "delta_class": "post-freeze"
+        },
+        "Context": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": null,
+          "delta_class": "post-freeze"
+        },
+        "Decision": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": null,
+          "delta_class": "post-freeze"
+        },
+        "Consequences": {
+          "truth_present": false,
+          "form": null,
+          "line": null,
+          "value": null,
+          "v1_present": null,
+          "delta_class": "post-freeze"
+        }
+      },
+      "aux_fields": {
+        "Deciders": {
+          "form": "F-dash",
+          "line": 5,
+          "v1": null
+        },
+        "Ledger": {
+          "form": null,
+          "line": null,
+          "v1": null
+        },
+        "Options": {
+          "form": "I-line",
+          "line": 11,
+          "v1": null
+        }
+      },
+      "truth_five": {
+        "present": 2,
+        "ratio": 0.4,
+        "missing": [
+          "Context",
+          "Decision",
+          "Consequences"
+        ]
+      },
+      "v1_five": null
+    }
+  ],
+  "aggregates": {
+    "v1": {
+      "mean_ratio": 0.2462,
+      "missing_counts": {
+        "Status": 11,
+        "Date": 11,
+        "Context": 9,
+        "Decision": 9,
+        "Consequences": 9
+      },
+      "verdict": "RED"
+    },
+    "truth": {
+      "mean_ratio": 0.4923,
+      "missing_counts": {
+        "Status": 0,
+        "Date": 6,
+        "Context": 9,
+        "Decision": 9,
+        "Consequences": 9
+      }
+    }
+  }
+}
