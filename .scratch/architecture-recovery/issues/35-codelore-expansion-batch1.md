@@ -9,7 +9,7 @@
 **Blocked by:**
 None（与 #34 并行首票）
 
-**Status:** ready-for-agent
+**Status:** done — 35-check PASS 21/21（返修后 22/22）＋ npm test 全绿（2026-09-15 闭环，2026-09-16 审计返修）
 
 - [x] `codelore analyze --help` 实物枚举存档（reports/35-*）；首批面集与任务书面名逐一对账（差异如实登记、不静默改名）
 - [x] 逐面适配器输出 + golden cassette + 契约测试（沿用 #31 binary-discovery + pin 0.28.0 模式）

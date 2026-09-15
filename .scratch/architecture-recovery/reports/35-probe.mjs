@@ -71,7 +71,7 @@ const manifest = {
   captured_at: new Date().toISOString(),
   repo: REPO,
   capture_commit: git('rev-parse HEAD'),
-  note: 'golden cassette 录制清单——columns/row_count/sha256 由裸 JSON.parse 与 csv 表头独立计量（不经适配器解析器）；空结果面列契约走 csv-header 第二通道',
+  note: 'golden cassette 录制清单——columns/row_count/sha256 由裸 JSON.parse 与 csv 表头独立计量（不经适配器解析器）；空结果面列契约走 csv-header 第二通道；repo/capture_commit 为录制时点 provenance（机器路径+HEAD sha）；重跑 probe 按当时仓库活历史重写全部 cassette（录制副作用，非只读校验）',
   facets: facets
 };
 writeFileSync(join(FX, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8');

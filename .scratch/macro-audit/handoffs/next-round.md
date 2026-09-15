@@ -8,12 +8,12 @@
 
 ## 任务（每项声明覆盖 D-xxx）
 
-> **轮 7 执行进度（2026-09-15）**：T0/T1/T2 已闭环（A-037~A-048 登记 + 33-check.mjs 8/8 + 34-check.mjs 11/11；commits vrm/wns/txk）。守卫首跑 ALARM 4 已全部拍板清零（P2→D-037 / B3.3→D-039 / D4→D-038，registry 三项 status=decided）。**下一可开工 = #35（关键路径）＋ #44/#45/#41a（DoR 已闭合，filler 就绪即做）**；#41b 不入波次（blocked-by 用户闸门+listing-submission）。三栈均未 push（用户闸门）。
+> **轮 8 执行进度（2026-09-16）**：T0/T1/T2/T3 已闭环（A-037~A-048 登记 + 33-check.mjs 8/8 + 34-check.mjs 11/11 + 35-check.mjs 22/22；commits vrm/wns/txk + r8 栈 lro/tyt）。守卫首跑 ALARM 4 已全部拍板清零（P2→D-037 / B3.3→D-039 / D4→D-038，registry 三项 status=decided）。#35 经独立审计 20/20 成立、文书级返修已落地（残余 4 面裁决挂 registry manual_watch 项 codelore-residual-faces）。**下一可开工 = #36（LLM 面 env 门控，关键路径）＋ #37（试点面审计）＋ #44/#45/#41a（filler 就绪即做）**；#41b 不入波次（blocked-by 用户闸门+listing-submission）。栈均未 push（用户闸门）。
 
 - **T0 立票（先行，串行门）✅ DONE 2026-09-15**：R5 票据包展开完成。**覆盖：D-029~D-036。**
 - **T1 挂门机检化（#33/R5-02）✅ DONE 2026-09-15**：guard 8/8，首跑 ALARM 4 已消化。**覆盖：D-026、D-034、D-024。**
 - **T2 plugin.json 合规（#34/R5-03）✅ DONE 2026-09-15**：Agent Plugins 1.0.0 对齐＋AJV 入 guard。**覆盖：D-036、D-012 余款。**
-- **T3 CodeLore 扩面首批（#35/R5-04）**：演化主干 12 面＋S3 族 6 面＋S5 族 12 面≈30 面，逐面 golden 契约测试（ADR-0014）。**关键路径，Macro-C preview 前置。覆盖：D-035、D-034。**
+- **T3 CodeLore 扩面首批（#35/R5-04）✅ DONE 2026-09-15（审计返修落地 2026-09-16）**：演化主干 12 面＋S3 族 6 面＋S5 族 12 面≈30 面，逐面 golden 契约测试（ADR-0014）。**关键路径，Macro-C preview 前置。覆盖：D-035、D-034。**
 - **T4 版本与上游锁定制度化（#44/R6-01，新票 P0）**：① engine/upstream-lock.yaml 种子行（codelore active exact-version＋--version 契约／scorecard+repomix planned／sqlite-dump evaluating）；② README §3 上游表状态列绑锁表为机读权威；③ 守卫族——版本断言 job（实际 --version==锁表）＋锁表新鲜度＋三处 preview 标注同源＋编年指针校验（引用 ADR 存在且非 superseded/里程碑单调/双账互指），advisory→enforce 两段式；④ docs/versioning.md 已成文（本环节），本票按文落实物。**覆盖：D-037、D-039。**
 - **T5 演示入口（#45/R6-02，新票）**：fixture 生成器＋fixtures/definitions 三场景（happy-path/degraded-supply/degraded-incomplete）＋fixtures/golden/＋demo --scenario 命令（临时目录生成、跑完即弃）＋CASRAI 式机器可读披露块（与 D-037② 报告头字段同一契约面，禁止两处手抄）。demo 走同一 Repo Intake 本地路径（D-013）。**#43 前置；阶段 3 早期。覆盖：D-038。**
 - **T6 分发收尾·仓内文档面（#41a/R6-03，filler 优先级）**：① examples/first-report/ 复制四件＋披露 README；② README 能力边界＋preview 标注＋0.x 语义＋「Try on a real repository」节（opt-in 公共小仓链接＋「外部内容随上游变化」标注）；③ 仓根 CHANGELOG.md 编年首条落盘（M-xxx 键，区间写时从实物读出）；DoD 护栏=边界文案以冻结决策为唯一事实源，扩面变更走文案 update 子项。**就绪即做不占关键路径；受 #44 指针守卫覆盖。覆盖：D-030、D-031、D-032、D-038、D-039、D-040。**

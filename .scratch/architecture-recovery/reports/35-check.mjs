@@ -16,14 +16,32 @@ let pass = 0, fail = 0;
 const t = (name, ok, extra = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : fail++; };
 
 // --- A. 实物枚举存档 + 首批对账 ---
+const reg = JSON.parse(fs.readFileSync(join(here, '33-gate-registry.json'), 'utf8'));
 const help = fs.readFileSync(join(here, '35-analyze-help.txt'), 'utf8');
 const recon = JSON.parse(fs.readFileSync(join(here, '35-facet-reconciliation.json'), 'utf8'));
 t('A1 analyze --help 存档含 possible values', /possible values:/.test(help), 'bytes=' + Buffer.byteLength(help));
 t('A2 实物枚举 >=56 面', recon.enum_count >= 56, 'enum=' + recon.enum_count);
 t('A3 首批 30 面名 100% 命中实物枚举、零差异', recon.batch1.matched === 30 && recon.batch1.total_spec === 30 && recon.batch1.diffs.length === 0, 'matched=' + recon.batch1.matched + '/' + recon.batch1.total_spec);
-const EXPECTED_RESIDUAL = ['architecture-violations', 'defect-validation', 'entity-effort', 'finding-hotspot-overlap'];
-const actualResidual = (recon.unregistered_residual || []).slice().sort();
-t('A4 残余 4 面显式登记（未纳入暂缓面集，留收口裁决）', JSON.stringify(actualResidual) === JSON.stringify(EXPECTED_RESIDUAL.slice().sort()), actualResidual.join(','));
+// 残余面裁决跟踪（审计 W1 修法）：不写死名单——断言「每枚枚举残余面带跟踪位」：
+// residual = enum − 首批30 − 暂缓面集展开 − 已契约 summary；每枚须 ∈ recon.unregistered_residual ∪ registry faces（deferred 或 residual 裁决项）。
+const batch1Set = new Set(recon.batch1.rows.map((r) => r.spec_name));
+const defExpanded = new Set();
+for (const r of recon.deferred_set.rows) {
+  if (r.spec_name === 'function-*') recon.enum.filter((e) => e.startsWith('function-')).forEach((e) => defExpanded.add(e));
+  else if (r.spec_name === 'metrics') defExpanded.add('delivery-metrics');
+  else defExpanded.add(r.spec_name);
+}
+defExpanded.add('summary');
+const residualFaces = recon.enum.filter((e) => !batch1Set.has(e) && !defExpanded.has(e));
+const trackedFaces = new Set(recon.unregistered_residual || []);
+for (const it of reg.items) for (const f of (it.faces || [])) {
+  if (f === 'function-*') recon.enum.filter((e) => e.startsWith('function-')).forEach((e) => trackedFaces.add(e));
+  else if (f === 'metrics') trackedFaces.add('delivery-metrics');
+  else trackedFaces.add(f);
+}
+const untracked = residualFaces.filter((f) => !trackedFaces.has(f));
+t('A4 枚举残余面全带跟踪位（recon.unregistered_residual ∪ registry faces）', untracked.length === 0, 'residual=' + residualFaces.join(','));
+t('A5 残余面跟踪项在 registry（去向裁决 manual_watch）', reg.items.some((i) => i.id === 'codelore-residual-faces' && i.watch === 'manual_watch' && residualFaces.every((f) => (i.faces || []).includes(f))), '');
 
 // --- B. 逐面 golden cassette + manifest 一致 ---
 const manifest = JSON.parse(fs.readFileSync(join(FX, 'manifest.json'), 'utf8'));
@@ -55,7 +73,6 @@ const dist = fs.readFileSync(join(ROOT, 'engine', 'dist', 'upstream', 'codelore.
 t('C4 dist 编译产物含首批面出口', dist.includes('CODELORE_BATCH1_FACETS') && dist.includes('collectCodeloreFacets'), '');
 
 // --- D. 暂缓面集两字段登记核对（衔接 #33 guard 输入③） ---
-const reg = JSON.parse(fs.readFileSync(join(here, '33-gate-registry.json'), 'utf8'));
 const faceItem = reg.items.find((i) => i.id === 'codelore-deferred-faces');
 t('D1 暂缓面集 registry 项在位', !!faceItem, '');
 if (faceItem) {

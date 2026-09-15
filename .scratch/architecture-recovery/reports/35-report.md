@@ -61,3 +61,23 @@
 1. **空结果面列契约要双通道**：`--format json` 空数组无表头，列契约须走 `--format csv` 第二通道录制 `.csv` cassette 并断言 sha256（评审发现的原方案漏测点，已修）。
 2. **字符串手术的自反陷阱**：用 `String.replace` 抽出「与被抽块内容相同的辅助函数」时，替换会命中辅助函数自身造成自递归——先替换调用点、后插入辅助函数体。
 3. **code-age/messages 冻结 argv 进契约表**：`--age-time-now` / `-e` 是契约一部分（argv 全体即契约），放 `extraArgs` 字段由 manifest/test 共同钉死——这是「冻结不确定性在边界」的落地形态。
+
+---
+
+## ⑧ 审计返修（2026-09-16，round8-35-audit.md 打回——文书级，非业务代码）
+
+独立审计 20/20 声明成立、无硬违规，但呈报 W1~W7 后打回小修。返修逐项：
+
+| 审计项 | 修法 | 证据 |
+|---|---|---|
+| W1 残余 4 面裁决无跟踪 + A4 固化期望态 | registry 增 `codelore-residual-faces` manual_watch 项（faces=4，deadline=收口裁决落 D-xxx，review_at=下个收口窗口/最迟 Micro preview 前置审计）；35-check A4 改动态断言「残余面 ∈ recon.unregistered_residual ∪ registry faces」＋新增 A5 跟踪项在位 | `node reports/35-check.mjs` → PASS 22/22；`33-check.mjs` → PASS 8/8（登记 28 项） |
+| W2 AR README 波次表失同步 | 总票数 12→15（+#41a/#41b 拆分 +#44/#45）、W12 标已闭环、W13 #41→#41a、#43 前置 #41→#45、新增 Filler/不排程两节、Frontier 重算 | 文件实物 diff；32-t0-verify 关键词断言仍 99/99 |
+| W3 issues/35 Status + 任务书失同步 | Status→done（引 22/22）；next-round.md 进度块翻轮 8（T0~T3 闭环、下一可开工=#36/#37/#41a+#44/#45）、T3 行加 ✅ DONE | 三处实物回读 |
+| W4 CHANGELOG 悬空指针 | engine/CHANGELOG.md:6 指针加注「仓根 CHANGELOG 实体待 #41a 落盘（D-039② 先行登记）」 | 实物回读 |
+| W7 decisions README 孤儿行＋映射表止 0007 | ADR-0018 孤儿行并入引言块引用；覆盖映射表补 ADR-0008~0018 共 11 行（A-xxx 列只写账本直引可证者，无直引标 —） | 实物回读 |
+| 可选项·codelore.ts evidence 双表达 | evidence 与 runner 共派生自 `codeloreAnalysisArgs(spec, repoRoot)` 单一构建器（含 --repo + extraArgs） | tsc 0 错；npm test BATCH1 41/41 |
+| 可选项·manifest provenance 注记 | manifest.json note 与 35-probe.mjs 同步加注：repo/capture_commit=录制时点 provenance；probe 为录制器有写副作用非只读校验 | 两处 note 逐字一致 |
+
+**返修后全量重跑**（审计 §5 同套）：npm test = GEN-OK + tsc 0 错 + SMOKE 6/6 + COLLECTORS 14/14 + ADAPTER 7/7 + BATCH1 41/41；npm run package = macro-audit-0.1.0.tgz 31 files；cli selftest ok=true 5/5；守卫 35-check 22/22 · 33-check 8/8 · 34-check 11/11 · 32-t0-verify 99/99 · verify2 12/12；gen 二次 GEN-OK 幂等；ajv 属一次性校验（本地未装，驻守卫=34-check 零依赖结构断言，审计窗已亲跑留证）。**35-probe.mjs 未重跑**（录制副作用——按当时活历史重写 cassette，审计已实测并 discard 还原）。
+
+**未修项（如实登记）**：审计 P-V1（pvy commit 消息无 A/D 引用）属轮 7 既成事实不追改；33-check fail-open 事件引用维持原状——已排 T7/#33-ext 窗口，本返修不越单；W5 probe 副作用以 manifest/probe 注记消解（防下个审计窗误踩）；W6 CONTEXT.md 举证缺位、facetColumns row0 限定为微弱化项，登记不阻塞。

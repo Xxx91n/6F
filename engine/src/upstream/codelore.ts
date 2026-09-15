@@ -186,8 +186,13 @@ export interface CodeloreAnalysisRun {
   stderrTail: string;
 }
 
+// 同一 argv 构建器供运行与 evidence 共用——防两处表达漂移（审计 W7 判定项）。
+export function codeloreAnalysisArgs(spec: CodeloreFacetSpec, repoRoot: string): string[] {
+  return ['analyze', '--analysis', spec.analysis, '--format', 'json', '--repo', repoRoot].concat(spec.extraArgs as string[]);
+}
+
 export function runCodeloreAnalysis(binary: string, spec: CodeloreFacetSpec, repoRoot: string): CodeloreAnalysisRun {
-  const r = runText(binary, ['analyze', '--analysis', spec.analysis, '--format', 'json', '--repo', repoRoot].concat(spec.extraArgs as string[]), repoRoot);
+  const r = runText(binary, codeloreAnalysisArgs(spec, repoRoot), repoRoot);
   return { ok: r.ok, status: r.status, stdout: r.stdout, stderrTail: r.stderr.slice(-400) };
 }
 
@@ -233,7 +238,7 @@ export function collectCodeloreFacets(input: CodeloreFacetsInput, ctx: CollectCo
 
   const facets = input.facets || CODELORE_BATCH1_FACETS;
   for (const spec of facets) {
-    const evidence = 'codelore analyze --analysis ' + spec.analysis + ' --format json' + (spec.extraArgs.length > 0 ? ' ' + spec.extraArgs.join(' ') : '');
+    const evidence = 'codelore ' + codeloreAnalysisArgs(spec, input.repoRoot).join(' ');
     const run = runner(bin, spec, input.repoRoot);
     if (!run.ok) {
       out.push(makeFact(ctx, CODELORE_DESCRIPTOR, spec.analysis, evidence, 'codelore.facet_error', {

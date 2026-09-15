@@ -373,11 +373,11 @@ W3 完成后，原 W4 阻塞全部解除：
 
 ## 并行波次表（R5 执行轮 — 轮 7 任务书 T0~T11，2026-09-15 续接；从 issue Blocked by 推导，不新造顺序）
 
-- **总票数**：12（#32 ~ #43）｜ **总波次**：4（全局编号 W12 ~ W15）+ 触发器拉动项｜ 摩擦点 A-037 ~ A-048（12 条，见 decision-ledger.md R5 执行轮登记节）
-- **已闭环**：#32（B1.2 落地）轮 6 整理环节执行完毕（commit mqn，r6-closeout-docs），不占波次。
-- **闸门**：上架动作属用户闸门（D-026/D-027）——#41 产物止于「上架就绪面」；#42 按层需求拉动不插队；#43 与 #33 同批立项、执行在 #41 样例落位后。
+- **总票数**：15（#32~#43 原包 + #41 拆分为 #41a/#41b + #44/#45 新立；#33 扩展子项不独立编号）｜ **总波次**：4（全局编号 W12 ~ W15）+ filler 项（#44/#45/#41a，就绪即做不占关键路径）+ 触发器拉动项｜ 摩擦点 A-037 ~ A-048（12 条，见 decision-ledger.md R5 执行轮登记节）
+- **已闭环**：#32（B1.2 落地，轮 6）＋ #33（33-check 8/8，wns）＋ #34（34-check 11/11，txk）＋ #35（35-check 22/22，r8 栈 lro/tyt）；轮 7/8 三栈均未 push（用户闸门）。
+- **闸门**：上架动作属用户闸门（D-026/D-027）——#41a/#41b 产物止于「上架就绪面」，#41b 不排程（blocked-by 用户闸门＋listing-submission）；#42 按层需求拉动不插队；#43 消费 #45 definitions、执行在 #45 落盘后（D-038⑤）。
 
-### W12 — 3 张票（可并行派子窗口；#33 阶段 3 最优先）
+### W12 — 3 张票（✅ 已闭环 2026-09-15：#33 8/8 · #34 11/11 · #35 22/22）
 
 | # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
 |---|---|---|---|---|---|---|
@@ -391,7 +391,7 @@ W3 完成后，原 W4 阻塞全部解除：
 |---|---|---|---|---|---|---|
 | 36 | CodeLore LLM 面独立票 | A-041 | [issues/36-codelore-llm-faces.md](issues/36-codelore-llm-faces.md) | [handoffs/36-codelore-llm-faces.md](handoffs/36-codelore-llm-faces.md) | [prompts/36-codelore-llm-faces.md](prompts/36-codelore-llm-faces.md) | #34, #35 |
 | 37 | 试点面可用性审计 | A-042 | [issues/37-pilot-surface-audit.md](issues/37-pilot-surface-audit.md) | [handoffs/37-pilot-surface-audit.md](handoffs/37-pilot-surface-audit.md) | [prompts/37-pilot-surface-audit.md](prompts/37-pilot-surface-audit.md) | #34, #35 |
-| 41 | 分发收尾 | A-046 | [issues/41-distribution-closeout.md](issues/41-distribution-closeout.md) | [handoffs/41-distribution-closeout.md](handoffs/41-distribution-closeout.md) | [prompts/41-distribution-closeout.md](prompts/41-distribution-closeout.md) | #34 |
+| 41a | 分发收尾·仓内文档面（filler，就绪即做；拆分自 #41——#41b 上架面 blocked-by 用户闸门不排程） | A-051 | [issues/41a-distribution-docs.md](issues/41a-distribution-docs.md) | [handoffs/41a-distribution-docs.md](handoffs/41a-distribution-docs.md) | [prompts/41a-distribution-docs.md](prompts/41a-distribution-docs.md) | #34 |
 
 ### W14 — 3 张票（可并行派子窗口）
 
@@ -399,7 +399,7 @@ W3 完成后，原 W4 阻塞全部解除：
 |---|---|---|---|---|---|---|
 | 38 | Macro-C preview | A-043 | [issues/38-macro-c-preview.md](issues/38-macro-c-preview.md) | [handoffs/38-macro-c-preview.md](handoffs/38-macro-c-preview.md) | [prompts/38-macro-c-preview.md](prompts/38-macro-c-preview.md) | #35, #36, #37 |
 | 39 | Macro-B 三仓 one-shot＋jiahao 回归 | A-044 | [issues/39-macro-b-three-repo.md](issues/39-macro-b-three-repo.md) | [handoffs/39-macro-b-three-repo.md](handoffs/39-macro-b-three-repo.md) | [prompts/39-macro-b-three-repo.md](prompts/39-macro-b-three-repo.md) | #37 |
-| 43 | 样例 golden CI | A-048 | [issues/43-sample-golden-ci.md](issues/43-sample-golden-ci.md) | [handoffs/43-sample-golden-ci.md](handoffs/43-sample-golden-ci.md) | [prompts/43-sample-golden-ci.md](prompts/43-sample-golden-ci.md) | #41 |
+| 43 | 样例 golden CI | A-048 | [issues/43-sample-golden-ci.md](issues/43-sample-golden-ci.md) | [handoffs/43-sample-golden-ci.md](handoffs/43-sample-golden-ci.md) | [prompts/43-sample-golden-ci.md](prompts/43-sample-golden-ci.md) | #45 |
 
 ### W15 — 1 张票（串行）
 
@@ -413,8 +413,24 @@ W3 完成后，原 W4 阻塞全部解除：
 |---|---|---|---|---|---|---|
 | 42 | 上游队列值守 | A-047 | [issues/42-upstream-queue.md](issues/42-upstream-queue.md) | [handoffs/42-upstream-queue.md](handoffs/42-upstream-queue.md) | [prompts/42-upstream-queue.md](prompts/42-upstream-queue.md) | #35（dump 对照）；Scorecard/repomix 探针随层需求拉动 |
 
-## R5 Frontier（重算 2026-09-15 立票后）
+### Filler 项（DoR 闭合即做，不占关键路径；票据登记于 BACKLOG.md，issue 三件套随开工落）
 
-- **W12 可开工**：#33（阶段 3 最优先）/ #34 / #35 三票无阻塞，可并行派子窗口；#32 已闭环。
-- 后续解锁：W12 完成 → W13（#36/#37/#41）；#37 完成 → #39 解锁；#35~#37 完成 → #38 解锁；#41 完成 → #43 解锁；#39 完成 → #40 解锁。
-- 用户闸门：#41 上架动作 / push / land 需用户明示；#42 探针待层需求触发。
+| # | 标题 | 覆盖 | 备注 |
+|---|---|---|---|
+| 44 | 版本与上游锁定制度化（upstream-lock.yaml 种子行＋守卫族 advisory→enforce） | D-037/D-039 | P0；受 35 枚举契约供给 |
+| 45 | 演示入口（fixture 生成器＋三场景 definitions＋golden＋demo --scenario） | D-038 | #43 前置 |
+| 41a | 分发收尾·仓内文档面（examples 四件＋README 边界＋仓根编年首条） | D-030/31/32/38/39/40 | 受 #44 指针守卫覆盖 |
+| 33-ext | 挂门守卫扩展（manual_watch 五要素齐备化） | D-041 | #33 扩展子项，不独立编号 |
+
+### 不排程项
+
+| # | 标题 | 阻塞 |
+|---|---|---|
+| 41b | 分发收尾·上架面 | 用户闸门明示＋listing-submission 事件 |
+
+## R5 Frontier（重算 2026-09-16，R5/R6 排程票全闭环）
+
+- **排程票全闭环（2026-09-16）**：#33（33-check 8/8→33-ext 扩展后 16/16）· #34 11/11 · #35 22/22 · #36 20/20 · #37 40/40 · #38 36/36 · #39 38/38 · #40 57/57 · #41a 39/39 · #42 43/43 · #43 28/28 · #44 56/56 · #45 51/51；全部栈未 push（用户闸门）。
+- **不排程**：#41b 上架面（blocked-by 用户闸门明示＋listing-submission 事件）。
+- **下一待决＝收口窗口包**：mw-trigger-a/b 触发已发生待拍（ALARM 值守中）· desk-task15（判据属 Micro-A 层）· codelore-residual-faces 残余 4 面裁决（manual_watch）· jiahao CI 首跑核验；Scorecard/repomix 探针待层需求拉动。
+- 用户闸门：#41b 上架动作 / push / land / 凭据申请需用户明示。

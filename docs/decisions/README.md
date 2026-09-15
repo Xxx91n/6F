@@ -1,8 +1,10 @@
 # 决策摘要索引（Implemented Decisions Digest）
-| ADR-0018 | 版本与编年制度化（0.x＋锁表＋报告契约／双层 CHANGELOG） | 2026-09-15 | D-037/D-039 |
+
 
 > 本目录由本轮 architecture-recovery 流程收口时从 `.scratch/architecture-recovery/decision-ledger.md` 抽出 17 条 implemented 决策 + 1 条 deferred。
 > 完整原始账本保留在 `.scratch/architecture-recovery/decision-ledger.md`（随 .scratch 一并归档）。
+>
+> 后续追加：**ADR-0018** 版本与编年制度化（0.x＋锁表＋报告契约／双层 CHANGELOG）｜2026-09-15｜D-037/D-039（锁表实体归 #44）。
 
 ## 18 implemented 决策摘要
 
@@ -39,3 +41,14 @@
 | 集成架构 = Hub-of-Facts | ADR-0005 | A-007/8/9/10/11/12/13 |
 | 报告模板 = 共享骨架 | ADR-0006 | A-014/15/16 |
 | 演示场景 = 10 路径 | ADR-0007 | A-017/18 |
+| 五层盒子（Agent Plugin 形态） | ADR-0008 | A-039（#34 plugin.json 合规） |
+| 本地优先＋URL opt-in intake | ADR-0009 | A-045（#40 泛化验证路径） |
+| spec 仓/工程仓分离 | ADR-0010 | —（组织边界，账本行未直引） |
+| 单仓 subdir + but 分支 | ADR-0011 | —（VCS 纪律载体） |
+| 价值验证循环先行 | ADR-0012 | A-037（R5 票据包立案语境） |
+| 三层验收闸 | ADR-0013 | —（验收协议骨架） |
+| 上游双轨适配＋vendor 逃生舱 | ADR-0014 | A-036/A-040（#31/#35 CodeLore） |
+| 序列化校准（量测效度先行） | ADR-0015 | A-035/A-036（阶段 2a/2b） |
+| 分发通道 = Agent Plugins only | ADR-0016 | A-046（#41a/#41b） |
+| Preview 发布模型（诚实披露） | ADR-0017 | A-043（#38 强制披露） |
+| 版本与编年制度化 | ADR-0018 | —（锁表归 #44；编年归 #41a） |
