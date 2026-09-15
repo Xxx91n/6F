@@ -8,7 +8,7 @@
 
 ## 任务（每项声明覆盖 D-xxx）
 
-> **轮 8 执行进度（2026-09-16）**：T0/T1/T2/T3/T8/T9/T10 已闭环（A-037~A-048 登记 + 33-check 8/8 + 34-check 11/11 + 35-check 22/22 + 36-check 20/20 + 37-check 40/40 + 38-check 36/36；commits vrm/wns/txk + r8 栈 lro/tyt + r9 栈 ytz/kuy）。守卫首跑 ALARM 4 已全部拍板清零（P2→D-037 / B3.3→D-039 / D4→D-038，registry 三项 status=decided）。#35 经独立审计 20/20 成立、文书级返修已落地（残余 4 面裁决挂 registry manual_watch 项 codelore-residual-faces）。**#38 Macro-C preview 已闭环（第二能力层）：anysearch-cli 全链实跑 1012 facts、披露块双件、共享事实库触发 mw-trigger-b（多写者 self-probe 实测封口进入值守通道，ALARM 已登记）**。**下一可开工 = #39（Macro-B 三仓 one-shot＋jiahao 回归——mw-trigger-a 激活点）＋ #44/#45/#41a（filler 就绪即做）**；#41b 不入波次（blocked-by 用户闸门+listing-submission）。栈均未 push（用户闸门）。
+> **轮 8 执行进度（2026-09-16）**：T0/T1/T2/T3/T8/T9/T10/T11 已闭环（A-037~A-048 登记 + 33-check 8/8 + 34-check 11/11 + 35-check 22/22 + 36-check 20/20 + 37-check 40/40 + 38-check 36/36 + 39-check 全绿；commits vrm/wns/txk + r8 栈 lro/tyt + r9 栈 ytz/kuy/szk + jiahao 侧 zqm）。守卫首跑 ALARM 4 已全部拍板清零（P2→D-037 / B3.3→D-039 / D4→D-038，registry 三项 status=decided）。#35 经独立审计 20/20 成立、文书级返修已落地（残余 4 面裁决挂 registry manual_watch 项 codelore-residual-faces）。**#38 Macro-C preview 已闭环（第二能力层）：anysearch-cli 全链实跑 1012 facts、披露块双件、共享事实库触发 mw-trigger-b；#39 Macro-B 三仓 one-shot＋jiahao 回归已闭环：三仓裁定 supported/unsupported/supported 如实落数、jiahao workflow 接入 CI 触发 mw-trigger-a（多写者 self-probe 实测封口执行毕——并行写者锁互斥 SWMR 维持，desk-task7→triggered-bound；mw-trigger-a/b 双 ALARM 值守中）**。**下一可开工 = #40（非自有公开仓泛化验证——first-external-repo 事件位）＋ #44/#45/#41a（filler 就绪即做）**；#41b 不入波次（blocked-by 用户闸门+listing-submission）。栈均未 push（用户闸门）。
 
 - **T0 立票（先行，串行门）✅ DONE 2026-09-15**：R5 票据包展开完成。**覆盖：D-029~D-036。**
 - **T1 挂门机检化（#33/R5-02）✅ DONE 2026-09-15**：guard 8/8，首跑 ALARM 4 已消化。**覆盖：D-026、D-034、D-024。**
@@ -21,7 +21,7 @@
 - **T8 LLM 面独立票（#36/R5-05）✅ DONE 2026-09-16**：explain 族 env 门控＋成本验收面——实物枚举修正（analyze 枚举 explain-*=0；LLM 面=explain --llm/diff --llm/mcp explain_file），env 五变量契约+门控判读+llm_cost 计量+超限降级；契约测试 25/25 两形态；36-check.mjs PASS 20/20。**覆盖：D-035。**
 - **T9 试点面可用性审计（#37/R5-06）✅ DONE 2026-09-16**：三仓实测脚本→层×仓 capacity 矩阵（37-check 40/40；D-033 对照 2 一致 2 出入呈报）。**覆盖：D-033。**
 - **T10 Macro-C preview（#38/R5-07）✅ DONE 2026-09-16**：anysearch-cli 校准全链实跑（codelore 30/30+ADR 65+supersede 8 边↔37 一致+llm_gated 降级披露）＋preview_disclosure 披露块双件（happy+failure）＋共享事实库（Macro-B 228+Macro-C 1012 → mw-trigger-b 触发登记）；38-check 36/36。**覆盖：D-034、D-032、D-033。**
-- **T11 Macro-B 三仓 one-shot＋jiahao 回归（#39/R5-08）**：接入 CI 即触发 mw-regression-ci 事件（D-034④a）。**覆盖：D-033、D-034、D-024。**
+- **T11 Macro-B 三仓 one-shot＋jiahao 回归（#39/R5-08）✅ DONE 2026-09-16**：三仓 one-shot 全链实跑（env-manager 276f supported / anysearch-cli 1041f **unsupported**·TC-2 Status 缺失率超线如实落数 / jiahao 1101f supported，receipt×3）+ 共享库 2418 行；jiahao workflow 接入 CI（schedule+workflow_dispatch，已上架层限定）→ mw-regression-ci occurred + mw-trigger-a trigger-fired（ALARM 值守）；self-probe 实测封口（并行写者锁互斥/SWMR 维持）desk-task7→triggered-bound；39-check PASS。**覆盖：D-033、D-034、D-024。**
 - **T12 非自有仓泛化验证（#40/R5-09）**：≥1 非自有公开仓 URL opt-in——落地即触发 first-external-repo 事件（registry 新增位，解 desk-task2/15 盯梢）。**覆盖：D-033、D-013。**
 - **T13 上游队列值守（#42/R5-11）**：Scorecard/repomix 探针拉动；sqlite dump 对照评估（采纳另立 ADR）。**覆盖：D-023、D-034、D-035。**
 - **T14 样例 golden CI（#43/R5-12）**：CI 重渲染 fixture diff；消费 #45 definitions（前置 #45 落盘）。**覆盖：D-030。**

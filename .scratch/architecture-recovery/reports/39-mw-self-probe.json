@@ -1,0 +1,118 @@
+{
+  "probe": "39-mw-self-probe.mjs",
+  "generated_at": "2026-09-15T19:54:49.606Z",
+  "ticket": 39,
+  "criterion": "30-desk-calibration.json task7 probe.satisfaction：多写者并发写入实测（多采集器并行写同一 fact 表）无丢行/乱序/冲突",
+  "db": "39-mw-probe.duckdb",
+  "phases": {
+    "A_same_process": {
+      "mode": "dual",
+      "w1": "open",
+      "w2": "denied",
+      "w2_error": "IO Error: Cannot open file \"D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-mw-probe.duckdb\": 另一个程序正在使用此文件，进程无法访问。 | File is already open in  | D:\\nodejs\\node.exe (PID 7328)",
+      "append_ok": 30,
+      "append_fail": 0,
+      "append_errors": [],
+      "reader_during_write": "denied",
+      "reader_error": "IO Error: Cannot open file \"D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-mw-probe.duckdb\": 另一个程序正在使用此文件，进程无法访问。 | File is already open in  | D:\\nodejs\\node.exe (PID 7328)",
+      "reopen_after_conn_close": "denied",
+      "reopen_error": "IO Error: Cannot open file \"D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-mw-probe.duckdb\": 另一个程序正在使用此文件，进程无法访问。 | File is already open in  | D:\\nodejs\\node.exe (PID 7328)"
+    },
+    "B1_multi_process_parallel": {
+      "spawned": 4,
+      "per_writer": [
+        {
+          "exit": 0,
+          "ok": 15,
+          "fail": 0,
+          "error": null,
+          "outcome": "wrote_15"
+        },
+        {
+          "exit": 3,
+          "ok": null,
+          "fail": null,
+          "error": "IO Error: Cannot open file \"D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-mw-probe.duckdb\": 另一个程序正在使用此文件，进程无法访问。 | ",
+          "outcome": "lock_denied"
+        },
+        {
+          "exit": 3,
+          "ok": null,
+          "fail": null,
+          "error": "IO Error: Cannot open file \"D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-mw-probe.duckdb\": 另一个程序正在使用此文件，进程无法访问。 | File is already open in  | D:\\nodejs\\node.exe (PID 8024) | D:\\nodejs\\node.exe (PID 1448) | D:\\nodejs\\node.exe (PID 6236)",
+          "outcome": "lock_denied"
+        },
+        {
+          "exit": 3,
+          "ok": null,
+          "fail": null,
+          "error": "IO Error: Cannot open file \"D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-mw-probe.duckdb\": 另一个程序正在使用此文件，进程无法访问。 | ",
+          "outcome": "lock_denied"
+        }
+      ],
+      "winners": 1,
+      "lock_denied": 3,
+      "other_errors": 0
+    },
+    "B2_multi_process_sequential": {
+      "spawned": 2,
+      "per_writer": [
+        {
+          "exit": 0,
+          "ok": 10,
+          "fail": 0,
+          "error": null,
+          "outcome": "wrote_10"
+        },
+        {
+          "exit": 0,
+          "ok": 10,
+          "fail": 0,
+          "error": null,
+          "outcome": "wrote_10"
+        }
+      ],
+      "winners": 2
+    },
+    "C_during_holder_lock": {
+      "holder_ms": 15000,
+      "reader": {
+        "exit": 3,
+        "outcome": "denied",
+        "error": "IO Error: Cannot open file \"D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-mw-probe.duckdb\": 另一个程序正在使用此文件，进程无法访问。 | File is already open in  | D:\\nodejs\\node.exe (PID 22124) | D:\\nodejs\\node.exe (PID 21732)"
+      },
+      "writer": {
+        "exit": 3,
+        "outcome": "lock_denied",
+        "error": "IO Error: Cannot open file \"D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-mw-probe.duckdb\": 另一个程序正在使用此文件，进程无法访问。 | File is already open in  | D:\\nodejs\\node.exe (PID 22124) | D:\\nodejs\\node.exe (PID 21584)"
+      }
+    }
+  },
+  "final_readback": {
+    "mode": "reader",
+    "rows_total": 66,
+    "per_writer": {
+      "mw-probe@B1-w0": 15,
+      "mw-probe@B2-w0": 10,
+      "mw-probe@B2-w1": 10,
+      "mw-probe@dual": 30,
+      "mw-probe@holder": 1
+    },
+    "duplicate_fact_ids": 0
+  },
+  "verdict": {
+    "same_process_second_writer": "denied（同进程第二 openWriter 即锁拒）",
+    "same_process_append": "30/30 ok",
+    "reader_during_write": "denied",
+    "reopen_after_conn_close": "denied",
+    "multi_process_parallel": "1 写者胜出 / 3 lock_denied / 0 其他",
+    "multi_process_sequential": "2/2 串行追加成立",
+    "reader_while_holder_locks": "denied",
+    "writer_while_holder_locks": "lock_denied",
+    "final_rows": 66,
+    "expected_rows": 66,
+    "rows_match": true,
+    "duplicate_fact_ids": 0,
+    "closure_reading": "实测读数：多写者域 = DuckDB 单文件锁 fail-fast 互斥——同进程第二 openWriter 即拒、跨进程并行写者仅 1 胜余者 lock_denied（无丢行无撕裂无重复 fact_id）、跨进程串行追加成立、持锁期读者亦拒；conn.closeSync 不放锁（instance 持有至进程退出，实测 reopen denied 佐证）。结论：多采集器并行直写同一 fact 表不满足判据——并发策略维持 SWMR 单写者序列化门面（store.ts 唯一写入口），跨进程回归/扩面须走串行追加或显式交接"
+  }
+}

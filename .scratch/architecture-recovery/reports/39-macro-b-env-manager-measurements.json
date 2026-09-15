@@ -1,0 +1,95 @@
+{
+  "repo": "env-manager",
+  "root": "D:/Aworker/env-manager",
+  "observed_at": "2026-09-15T01:58:42+08:00",
+  "head_sha": "9eb8f24be508750f299e920d816ba9079771a3f1",
+  "tree_sha": "9e0d831f23c151a190d7f0a65b49b066dc3ee438",
+  "commit_count": 496,
+  "adr_count": 14,
+  "intent_docs": [
+    "CONTEXT.md",
+    "README.md",
+    "AGENTS.md"
+  ],
+  "fact_count": 276,
+  "tc1": {
+    "judgeable_n": 14,
+    "backfill_n": 0,
+    "ratio_4": "0.0000",
+    "verdict": "NOT_RED",
+    "threshold": {
+      "lag_days": 90,
+      "ratio_red": 0.2,
+      "min_n": 5
+    }
+  },
+  "tc2": {
+    "total": 14,
+    "mean_ratio_4": "0.7571",
+    "missing_counts": {
+      "Status": 4,
+      "Date": 0,
+      "Context": 3,
+      "Decision": 6,
+      "Consequences": 4
+    },
+    "missing_ratio_4": {
+      "Status": 0.2857,
+      "Date": 0,
+      "Context": 0.2143,
+      "Decision": 0.4286,
+      "Consequences": 0.2857
+    },
+    "cond_a": false,
+    "cond_b": false,
+    "verdict": "NOT_RED",
+    "threshold": {
+      "mean_red": 0.6,
+      "field_missing_red": 0.5
+    }
+  },
+  "tc3": {
+    "per_source": [
+      {
+        "path": "CONTEXT.md",
+        "hit": 19,
+        "keywords": 20,
+        "ratio_4": "0.9500"
+      },
+      {
+        "path": "README.md",
+        "hit": 17,
+        "keywords": 20,
+        "ratio_4": "0.8500"
+      },
+      {
+        "path": "AGENTS.md",
+        "hit": 20,
+        "keywords": 20,
+        "ratio_4": "1.0000"
+      }
+    ],
+    "lowest_path": "README.md",
+    "lowest_ratio_4": "0.8500",
+    "verdict": "GREEN",
+    "threshold": {
+      "red": 0.5,
+      "green": 0.7,
+      "top_n": 20
+    }
+  },
+  "nc1": {
+    "path": "package.json",
+    "fact_count": 11,
+    "five_piece_present": 0,
+    "supersede_present": false,
+    "pass": true
+  },
+  "pc1": {
+    "pass": true
+  },
+  "pc2": {
+    "pass": true,
+    "delta_days": 255
+  }
+}

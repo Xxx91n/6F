@@ -49,8 +49,9 @@
             "evidence": "#40 落点：首个非 6F 目标仓经 URL opt-in 接入（D-013/D-033）"
         },
         "mw-regression-ci": {
-            "occurred": false,
-            "evidence": "#39 落点"
+            "occurred": true,
+            "date": "2026-09-16",
+            "evidence": "#39 落点：jiahao 仓 .github/workflows/macro-b-regression.yml（schedule 周一 03:17 UTC 定时回归 + workflow_dispatch；已上架层限定只跑 Macro-B one-shot）——Macro-B 进 CI 定时回归成立（jiahao commit 84077dab / but zqm @ r9-39-macro-b-regression）"
         },
         "macro-c-shared-duckdb": {
             "occurred": true,
@@ -272,9 +273,20 @@
             "trigger_event": "stage3-rollout",
             "trigger": "铺开阶段多采集器实测",
             "review_at": "阶段 3 铺开多采集器后（self-probe）",
-            "status": "pending",
+            "status": "triggered-bound",
+            "bound_to": "self-probe 实测结果已落文（reports/39-mw-self-probe.json）→ 收口窗口裁决",
             "source": "reports/30-desk-calibration.json items[task=7].probe",
-            "watch": "event_bound"
+            "watch": "event_bound",
+            "confirmations": [
+                {
+                    "at": "2026-09-16",
+                    "by": "#39 多写者 self-probe 实测（触发器 a 激活即封口，D-034④a）",
+                    "criterion_version": "30-desk-calibration.json items[task=7].probe.satisfaction",
+                    "decision": "self-probe-executed",
+                    "reason": "实测封口读数：同进程第二 openWriter 即锁拒；conn.closeSync 不放锁（DuckDBInstance 持有至进程退出，reopen denied 佐证）；跨进程并行写者 1 胜 3 lock_denied（fail-fast 无撕裂写）；持锁期 reader/writer 皆拒；跨进程串行追加 2/2 成立；终读回 66/66 行零重复 fact_id。判据「多写者并发写入无丢行/乱序/冲突」读数 = 并行多写者被 DuckDB 单文件锁互斥化——并发策略维持 SWMR 单写者序列化门面（store.ts 唯一写入口），多采集器并行直写不满足判据；最终裁决权留收口窗口",
+                    "evidence": "reports/39-mw-self-probe.json（39-mw-self-probe.mjs + 39-mw-child.mjs 实跑产物；probe 库 39-mw-probe.duckdb）"
+                }
+            ]
         },
         {
             "id": "desk-task9",
@@ -402,7 +414,17 @@
             "trigger": "Macro-B 进 CI 定时回归（#39 落点）",
             "review_at": "激活即实测封口（self-probe）",
             "status": "pending",
-            "watch": "event_bound"
+            "watch": "event_bound",
+            "confirmations": [
+                {
+                    "at": "2026-09-16",
+                    "by": "#39 jiahao Macro-B 回归 CI 接入",
+                    "criterion_version": "D-034④ 触发器条款",
+                    "decision": "trigger-fired",
+                    "reason": "jiahao 仓新增 .github/workflows/macro-b-regression.yml：Macro-B（已上架层，capability 1 of 5 · preview）对本仓 schedule 定时回归（+workflow_dispatch；不接 push/PR——回归≠门禁）→ 触发器 (a) 激活，多写者域进入 self-probe 实测封口通道（本票已执行实测并落文）",
+                    "evidence": "jiahao .github/workflows/macro-b-regression.yml（jiahao commit 84077dab / but zqm @ r9-39-macro-b-regression）+ reports/39-mw-self-probe.json + reports/39-macro-b-measurements.json"
+                }
+            ]
         },
         {
             "id": "mw-trigger-b",

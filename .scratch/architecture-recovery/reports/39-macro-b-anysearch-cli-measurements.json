@@ -1,0 +1,95 @@
+{
+  "repo": "anysearch-cli",
+  "root": "D:/Aworker/anysearch-cli",
+  "observed_at": "2026-09-16T03:03:27+08:00",
+  "head_sha": "8314a3c92b4c6f15332e08f3d225cf96675241e3",
+  "tree_sha": "9a94be447b55ab99335300262a8d0d4802471816",
+  "commit_count": 314,
+  "adr_count": 65,
+  "intent_docs": [
+    "CONTEXT.md",
+    "README.md",
+    "AGENTS.md"
+  ],
+  "fact_count": 1041,
+  "tc1": {
+    "judgeable_n": 65,
+    "backfill_n": 0,
+    "ratio_4": "0.0000",
+    "verdict": "NOT_RED",
+    "threshold": {
+      "lag_days": 90,
+      "ratio_red": 0.2,
+      "min_n": 5
+    }
+  },
+  "tc2": {
+    "total": 65,
+    "mean_ratio_4": "0.6462",
+    "missing_counts": {
+      "Status": 48,
+      "Date": 0,
+      "Context": 23,
+      "Decision": 25,
+      "Consequences": 19
+    },
+    "missing_ratio_4": {
+      "Status": 0.7385,
+      "Date": 0,
+      "Context": 0.3538,
+      "Decision": 0.3846,
+      "Consequences": 0.2923
+    },
+    "cond_a": false,
+    "cond_b": true,
+    "verdict": "RED",
+    "threshold": {
+      "mean_red": 0.6,
+      "field_missing_red": 0.5
+    }
+  },
+  "tc3": {
+    "per_source": [
+      {
+        "path": "CONTEXT.md",
+        "hit": 18,
+        "keywords": 20,
+        "ratio_4": "0.9000"
+      },
+      {
+        "path": "README.md",
+        "hit": 20,
+        "keywords": 20,
+        "ratio_4": "1.0000"
+      },
+      {
+        "path": "AGENTS.md",
+        "hit": 17,
+        "keywords": 20,
+        "ratio_4": "0.8500"
+      }
+    ],
+    "lowest_path": "AGENTS.md",
+    "lowest_ratio_4": "0.8500",
+    "verdict": "GREEN",
+    "threshold": {
+      "red": 0.5,
+      "green": 0.7,
+      "top_n": 20
+    }
+  },
+  "nc1": {
+    "path": "package.json",
+    "fact_count": 11,
+    "five_piece_present": 0,
+    "supersede_present": false,
+    "pass": true
+  },
+  "pc1": {
+    "pass": true
+  },
+  "pc2": {
+    "pass": true,
+    "delta_days": 255
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "probe": "39-macro-b-one-shot.mjs",
+  "generated_at": "2026-09-15T19:52:22.091Z",
+  "ticket": 39,
+  "a_xxx": "A-044",
+  "scale": "Macro-B",
+  "targets": [
+    {
+      "repo": "env-manager",
+      "head_sha": "9eb8f24be508750f299e920d816ba9079771a3f1",
+      "head_date": "2026-09-15T01:58:42+08:00",
+      "commit_count": 496,
+      "adr_count": 14,
+      "fact_count": 276,
+      "intent_docs": [
+        "CONTEXT.md",
+        "README.md",
+        "AGENTS.md"
+      ],
+      "verdicts": {
+        "pc1": true,
+        "pc2": true,
+        "tc1": "NOT_RED",
+        "tc2": "NOT_RED",
+        "tc3": "GREEN",
+        "nc1": true,
+        "overall": "supported"
+      },
+      "receipt": "RCP-b1106d4112171be9",
+      "outputs": {
+        "md": "39-macro-b-env-manager.md",
+        "sidecar": "39-macro-b-env-manager.json",
+        "facts": "39-macro-b-env-manager-facts.jsonl",
+        "measurements": "39-macro-b-env-manager-measurements.json"
+      }
+    },
+    {
+      "repo": "anysearch-cli",
+      "head_sha": "8314a3c92b4c6f15332e08f3d225cf96675241e3",
+      "head_date": "2026-09-16T03:03:27+08:00",
+      "commit_count": 314,
+      "adr_count": 65,
+      "fact_count": 1041,
+      "intent_docs": [
+        "CONTEXT.md",
+        "README.md",
+        "AGENTS.md"
+      ],
+      "verdicts": {
+        "pc1": true,
+        "pc2": true,
+        "tc1": "NOT_RED",
+        "tc2": "RED",
+        "tc3": "GREEN",
+        "nc1": true,
+        "overall": "unsupported"
+      },
+      "receipt": "RCP-b87bc53eb457a9fc",
+      "outputs": {
+        "md": "39-macro-b-anysearch-cli.md",
+        "sidecar": "39-macro-b-anysearch-cli.json",
+        "facts": "39-macro-b-anysearch-cli-facts.jsonl",
+        "measurements": "39-macro-b-anysearch-cli-measurements.json"
+      }
+    },
+    {
+      "repo": "jiahao",
+      "head_sha": "9e8276075d201bb81c7b84317557dfb42cc4154c",
+      "head_date": "2026-09-16T02:48:53+08:00",
+      "commit_count": 251,
+      "adr_count": 69,
+      "fact_count": 1101,
+      "intent_docs": [
+        "CONTEXT.md",
+        "README.md",
+        "AGENTS.md"
+      ],
+      "verdicts": {
+        "pc1": true,
+        "pc2": true,
+        "tc1": "NOT_RED",
+        "tc2": "NOT_RED",
+        "tc3": "GREEN",
+        "nc1": true,
+        "overall": "supported"
+      },
+      "receipt": "RCP-4d1b294f6e2b0a07",
+      "outputs": {
+        "md": "39-macro-b-jiahao.md",
+        "sidecar": "39-macro-b-jiahao.json",
+        "facts": "39-macro-b-jiahao-facts.jsonl",
+        "measurements": "39-macro-b-jiahao-measurements.json"
+      }
+    }
+  ],
+  "shared_duckdb": {
+    "file": "39-audit-facts.duckdb",
+    "appended": 2418,
+    "dedup_dropped": 0,
+    "db_by_scale": {
+      "Macro-B": 2418
+    },
+    "db_by_repo": {
+      "anysearch-cli@8314a3c92b4c6f15332e08f3d225cf96675241e3": 1041,
+      "env-manager@9eb8f24be508750f299e920d816ba9079771a3f1": 276,
+      "jiahao@9e8276075d201bb81c7b84317557dfb42cc4154c": 1101
+    },
+    "note": "三仓 Macro-B 事实同一 audit_fact 表、同一 appendFact 写路径（单写者串行追加）；供 mw self-probe 与后续层对照"
+  }
+}

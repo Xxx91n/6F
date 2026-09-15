@@ -1,0 +1,892 @@
+{
+  "schema_version": "1.1.0",
+  "report_id": "MA-39-ENVMANAGER-MACRO-B-ONESHOT",
+  "scale": "Macro-B",
+  "subject_ref": "env-manager@9eb8f24be508",
+  "generated_at": "2026-09-15T01:58:42+08:00",
+  "correlation_key": {
+    "trace_id": "80f38f01a5e92893d48ee8ba27ecc939",
+    "baggage_id": "2b075a2c5829e4133cfa185eaea9b9e1"
+  },
+  "receipt": {
+    "receipt_id": "RCP-b1106d4112171be9",
+    "chain_hash": "b1106d4112171be9f2ef2fda319d76fcd43317897b8b0942243f8f3252c594da",
+    "issued_at": "2026-09-15T01:58:42+08:00",
+    "commit_anchor": "9eb8f24be508750f299e920d816ba9079771a3f1",
+    "tree_anchor": "9e0d831f23c151a190d7f0a65b49b066dc3ee438",
+    "content_digest": {
+      "algo": "sha256",
+      "value": "55a15ba0a85902507d1fc3f1c011d3da9b8b6ca42fc14c105549792c367d7253",
+      "canonicalization": "json_utf8_entries_then_citation_checks"
+    },
+    "gate_ref": {
+      "prereg_commit": "7395495",
+      "criteria_path": ".scratch/architecture-recovery/reports/22-criteria-pre-registration.md",
+      "basis_path": ".scratch/architecture-recovery/reports/22-c-adjudication-basis.md",
+      "criterion_ids": [
+        "PC-1",
+        "PC-2",
+        "TC-1",
+        "TC-2",
+        "TC-3",
+        "NC-1"
+      ]
+    },
+    "fact_count": 276,
+    "adjudication_count": 6,
+    "degraded": false,
+    "mark": "RECEIPT RCP-b1106d4112171be9 chain=b1106d4112171be9f2ef2fda319d76fc content=55a15ba0a8590250 facts=276 adjudications=6 issued_at=2026-09-15T01:58:42+08:00 commit=9eb8f24be508750f299e920d816ba9079771a3f1 tree=9e0d831f23c1"
+  },
+  "overall_verdict": "supported",
+  "confidence": 0.6,
+  "degraded_mode": false,
+  "degraded_reason": null,
+  "stale": {
+    "marker": "fresh",
+    "sla_seconds": 5,
+    "lag_seconds": 0,
+    "read_model_version": "1.1.0",
+    "fact_watermark_version": "1"
+  },
+  "skeleton": [
+    {
+      "id": "C1",
+      "ordinal": 1,
+      "name": "执行摘要",
+      "required_fields": [
+        "report_id",
+        "schema_version",
+        "scale",
+        "subject_ref",
+        "generated_at",
+        "correlation_key",
+        "overall_verdict",
+        "confidence",
+        "headline",
+        "top_findings",
+        "degraded_mode",
+        "stale_data_marker",
+        "staleness_sla_seconds",
+        "read_model_lag_seconds",
+        "read_model_version",
+        "fact_watermark_version"
+      ]
+    },
+    {
+      "id": "C2",
+      "ordinal": 2,
+      "name": "四象限与裁决",
+      "required_fields": [
+        "quadrants",
+        "quadrant",
+        "applicability",
+        "verdict",
+        "score",
+        "confidence",
+        "dimensions",
+        "slice_fields",
+        "verdict_gate.protocol_version",
+        "verdict_gate.decision",
+        "verdict_gate.evidence_threshold_met",
+        "verdict_gate.decided_at",
+        "verdict_gate.override_reason",
+        "verdict_gate.audit_ref",
+        "conflict_markers"
+      ]
+    },
+    {
+      "id": "C3",
+      "ordinal": 3,
+      "name": "证据",
+      "required_fields": [
+        "evidence_items",
+        "evidence_id",
+        "source",
+        "locator",
+        "claim",
+        "grounded",
+        "collected_at",
+        "reproduce_cmd",
+        "reproduce_absent_reason"
+      ]
+    },
+    {
+      "id": "C4",
+      "ordinal": 4,
+      "name": "行动建议",
+      "required_fields": [
+        "recommendations",
+        "rec_id",
+        "priority",
+        "action",
+        "rationale",
+        "expected_impact",
+        "effort",
+        "verdict_gate_stamp",
+        "evidence_refs",
+        "degraded_note"
+      ]
+    }
+  ],
+  "fact_ids": [
+    "d190a309-6ea3-3f03-7afd-cc26f26836e8",
+    "1f1f642b-2b19-f260-1cc1-6426d59dcebd",
+    "4dad8d19-ad65-07e5-2737-af8bb06d4048",
+    "610efdd3-1768-b5c2-d231-5a5a19dc60fe",
+    "60e75edc-4f35-2474-4259-cbd52f757994",
+    "d1c376e6-7e78-a609-c8e6-cf768f90eb10",
+    "1e7adf13-e776-1f38-535c-46abf6fe9c8e",
+    "d4b72b47-b2ce-1dad-ddfe-fcbf21b233fb",
+    "3bfad907-16bb-777c-6ba0-f7a995accf2b",
+    "37465455-76e1-d4ab-d835-6f3b222e7df4",
+    "ec9d9d2c-866d-6719-cfa1-24113e1ac356",
+    "e2744974-25fa-9f24-a40f-b67885895503",
+    "ffe09e11-235f-fb7b-3bf0-3fbc2eefd7d1",
+    "e7086fc3-7153-7a2e-6de1-2a094efd3dd7",
+    "e5556ed8-c35c-1bd6-eb4f-4b7ed1b1224f",
+    "71180bb2-fd03-2aa3-b0ee-9ec7ec92f754",
+    "5ff8ff87-57e1-0dad-7882-a423a2fb2091",
+    "2ef33be8-a23d-8650-f29b-d1a1c1e9303b",
+    "398544c1-2b9c-4803-25c5-95c8d3c92678",
+    "cdf70c6a-5efa-42d2-52df-340a5a73f90b",
+    "7ac9169a-e24c-8f71-7ce8-8c6abfe10f5b",
+    "cf42f0f1-0702-bd24-f010-546d79142f5e",
+    "a2621c0e-3c8c-2746-368f-ec74c4f10119",
+    "507f76f2-77cc-0d32-ac70-ed5a8feccef6",
+    "9591356d-ade4-ea79-2870-17948224d73d",
+    "ed20e16f-9c09-bbde-e575-6046916362fc",
+    "78a604b3-0f07-6bc4-8810-6e66caf0ceeb",
+    "378ac892-9c23-ad9d-6d63-4ad5fe0a020c",
+    "683fb32e-6585-6ea6-38ed-6722d8c3043b",
+    "f80d05e1-e221-79c6-7358-3786cb622cb4",
+    "b9a38962-0b8a-b397-100d-cea1dde5a74b",
+    "d02a0395-33cf-a233-84ec-79fb115b7ccb",
+    "a494d501-5d80-bcbf-b526-f4c4896e5970",
+    "0dc1327a-4601-0c17-f761-4e90f5dda032",
+    "e0a3d33c-1ac8-f753-85b7-82b76e7519a6",
+    "95778b22-3699-fdc1-e0e7-519d9406a0bf",
+    "f194b071-e420-8849-0a1d-3f8099f9a4c4",
+    "f2cd620f-b509-9bb1-8e0f-47b6816befbe",
+    "06e02751-d8c4-3fe1-2758-baf4d7d0718b",
+    "9d9f3dd4-dbde-14b3-0702-610379283e93",
+    "71233783-9220-16d5-85a8-42bd12250994",
+    "296942da-f5df-b8a4-0542-79e9613fbf01",
+    "f6b0bf6f-7bb0-1544-0eb2-1fa1a5d0691d",
+    "33e88f55-2d8d-ade5-a8d5-288eaf64baf7",
+    "84e897c2-ab11-198d-6ebf-8e9c273c507b",
+    "de94f4f7-0651-8980-d9f5-2ab0b3664282",
+    "2983a99e-561d-1f01-4fee-133c0f816dd5",
+    "0fc77342-1748-b9d6-0fdd-ce364bd8cdd6",
+    "2c05acc9-6202-089f-11be-b1c44adcde9c",
+    "5ff22ad2-7522-4bb6-a923-9ae7f9d62644",
+    "95a69559-6ffd-f55b-cf55-aa0fe167d415",
+    "58eeb3e6-88fb-98a2-66d6-036ed5ef10fc",
+    "63789d47-34a5-9eab-e3bb-6383d5872d25",
+    "01e8a43e-7b70-d536-6b80-bef79764c74c",
+    "e5f98a3a-dedb-6d4b-60aa-5bbc08d4ad03",
+    "616cc795-8d6b-3130-ab3a-f922b3b4f18c",
+    "1cea7747-42fc-3ff5-fbfc-013cf761b059",
+    "859eae56-fa50-0221-cee0-4e0cbd926e6c",
+    "2b00f593-a8f7-5de3-4a96-607031fb0cc0",
+    "617b64d5-df49-7eed-7bd4-18b5a1a7cc32",
+    "7b714b95-9247-690f-7369-c863a4691fb0",
+    "16b60222-244d-1a25-f299-0ac705a9b65c",
+    "6de192ff-6ad7-f3ed-a74e-78d34913084a",
+    "c75e43ff-7ef2-75f4-2542-23051f7a4984",
+    "674193a6-b06c-6a0f-1dc7-32a500711517",
+    "1919ae4a-c04f-c937-ae59-7bda019c1aa6",
+    "c5253e25-9993-d6fa-ab68-eae74bd943ce",
+    "7f2ba6ba-42e7-f866-04cd-6ea1dd530c48",
+    "df0ef93e-e0e7-971a-e840-129c20c98e9c",
+    "65d71bfd-0a05-aca8-e29d-e0f74a460e9d",
+    "09d0cd32-4627-c5a1-bd47-8dc83d85233d",
+    "e7b8764c-6a77-2a84-d2d1-4c6be522a4aa",
+    "59887e62-ca1a-76ce-b2ef-912c10e361f7",
+    "96834c5d-3eae-a017-f41b-b00c09054cca",
+    "b432e43f-a123-e1c6-b03b-a0da400b7cbf",
+    "928b4481-b0aa-1f32-dea4-add6901d4d65",
+    "f5cf24c6-8f62-c732-64fc-7108d63d0b9c",
+    "0976bf6b-4a49-977e-202b-7ac0cc4fd910",
+    "335df018-904b-81d6-d6df-18bc1c3ef6bc",
+    "197eb58e-b683-d54d-032b-909d3110986e",
+    "4fe7948d-0963-1b9c-bc34-a05ccdcee277",
+    "414ad9e8-a02f-ff48-a07a-0a66ae1a5beb",
+    "5aa9a2a7-fbbd-07c8-8ca1-0a044b84c0d2",
+    "9490051f-84ba-d0a8-2989-7484eb2d648e",
+    "ae55fa00-16dd-c62e-2713-7fee685bef93",
+    "b92d7c93-9e3b-bcc7-0c4c-eb526d551854",
+    "45c88b32-16dd-82f7-c6a9-70d363f684bb",
+    "8727369f-bbf2-acfd-fe0c-af32ad573175",
+    "67491cc6-9367-fe90-7b29-c12acf8367d9",
+    "c4614e26-d08e-20b0-7c5d-7e4ed25e8c42",
+    "8b806f03-640b-2fb5-8820-3f967265be10",
+    "bb36a69b-3057-666d-7adf-72574b3e3e33",
+    "d7b68762-52d7-c63f-2cec-d2bcc2c07524",
+    "5112790f-10e7-4227-eb6e-a4115fc1c5bf",
+    "e484867a-099a-147c-4348-af84a83d609a",
+    "cb348be8-c325-1a59-3ac8-866a4b73ce26",
+    "48e12705-6725-9d77-ce1e-d7546de0860e",
+    "d20f7fbd-8411-bec3-be62-f640027813ed",
+    "281ee0a9-06d3-a9e1-2a41-1d9126c51c1e",
+    "fff8356f-e8a8-3773-2385-9a2b087348f5",
+    "433ceb86-0b51-b8cb-3a2a-6cbfdc62d64f",
+    "fd6bfe12-d388-eb56-86c5-37cdcd6a3624",
+    "68155f60-726f-40be-8fc3-c55ed398697d",
+    "da80e279-6a94-0e27-fa4a-db84acba4c2c",
+    "27dd4f0e-53d5-0016-acea-b51653b335d1",
+    "80ac827d-7dc8-1eaa-0ebd-7748ace838b3",
+    "6345a172-b02e-d21e-1496-83d2fa4d6b08",
+    "fbc2d909-15eb-56dd-a064-c484e2488d72",
+    "061a1dbb-184e-1480-5e63-09fdebbae6f9",
+    "99608c81-f16e-4032-ecae-9652cc46a3f5",
+    "724aa9bf-cf10-66ab-58c7-932fbccbd141",
+    "5bc9be16-09f1-21e7-33bf-630251c6333b",
+    "ae3d34b4-62f6-4f06-99ee-6fa4080d51ab",
+    "ee0d958c-8a9e-b00b-ab02-495b45d83ab6",
+    "d7ef2cc4-4b8f-c4fa-6411-8697e2296b2d",
+    "3bf7bc4e-bb60-dffd-e2c3-d8d140b1a029",
+    "bf110d5d-c761-11f1-a1eb-d3a0b43a5adf",
+    "3ad44090-4602-3e2c-4667-866061674f1c",
+    "145ced00-3e57-5a46-d6e3-7190a281fad4",
+    "5b5882d6-563d-b3ca-ed05-f114b30cc45f",
+    "746dbaff-266a-25a4-4c0e-39225147b166",
+    "8612d1c2-31a5-7edc-b50d-5b5a4c091867",
+    "4348770d-e010-3348-ffc1-046a3a763a5d",
+    "ef5133d3-9208-8de7-3c4a-596b14064141",
+    "7ec94bdc-6de4-17d7-31b1-116553824de5",
+    "0318119c-c6c9-17e8-4065-226f80b3c9bd",
+    "743dd266-71bc-0598-bf06-8aceeadf449b",
+    "f92f6c44-3a5d-d7dd-5ac1-aeacd2622d6d",
+    "68533bec-1363-595c-762d-cdf78250a9c0",
+    "58356a45-7c3f-8fb4-c6fe-0ec03b0d4f08",
+    "32b403e6-2330-81af-a792-2b95f72387bd",
+    "b5ac8439-6d40-6bbf-5ca6-b0546caa3017",
+    "35dc0d11-fe29-b9b7-7bd9-eb784279ec43",
+    "da159216-a445-f454-c304-3404d4742585",
+    "a60ed780-0820-76ec-8a64-a5d0cbf8b525",
+    "7e1e05cb-e724-2095-4a11-f8968f035370",
+    "c1b387c4-f6e8-75a2-f940-db8df3f99ba7",
+    "54d95095-c846-32d0-325a-f6b707ac23d0",
+    "4b456efb-e1d3-ca52-c620-a0b13dbec507",
+    "8a32e14f-adc7-85fb-974d-88b6edcf92c5",
+    "6cb9aa9a-d2da-d06d-404a-81a57e09813e",
+    "2a302d5a-9551-9c99-1f6e-456212d0c40e",
+    "361c090e-17be-9087-2cc2-f1343c8679b5",
+    "69ec0846-e289-a41b-3b80-723c210ad153",
+    "7b85ed51-94b9-4239-3ba2-4ae09f5b6b1a",
+    "0d5160bc-e939-e336-396a-581d953fe431",
+    "918a8a10-0165-c858-8d37-41a2683e7ac4",
+    "f4ccea83-8f72-d3d8-250f-63b8a93eab9a",
+    "de477456-617d-433b-38f4-ffbc624f8a23",
+    "f4275f00-79fc-8663-9de0-cc70c76f5a03",
+    "d0f03d96-037f-79a0-7d1e-e5c898dbe3f6",
+    "b2706573-3d15-439b-c13b-232f94abc6d2",
+    "fc0b08ce-4585-72ae-d591-24aea08f5537",
+    "62cc3896-4c7f-dbab-0a6d-c1db71148176",
+    "517972ef-ad7d-48e9-640b-9a00281026b4",
+    "cf15a6e7-3607-c09e-1a6d-28a38364a7fd",
+    "deebe220-7fb8-86e7-0334-ee89d8aa997a",
+    "c28aa4f9-cce9-effa-c03c-96450ee28886",
+    "56ebfaa1-9e69-01ec-6f4f-0cfc7703cfb3",
+    "2fa453fd-7793-380e-ea5f-0125635e49b1",
+    "17c0021a-120f-48e7-0d4f-273e45215b5f",
+    "5b76d64e-910a-5ce2-b18f-bb148e6a580e",
+    "f25517c1-a73c-8660-ff12-9f37fa4e15f8",
+    "52f82bcb-ac1d-894e-f029-2e2f4898fd8e",
+    "44bf08cc-cf61-5739-a5de-e474426c2928",
+    "4f810823-a45f-bb41-af65-4f92c3178991",
+    "9c5eea05-317e-7e1f-1788-807a1fb9f25c",
+    "22b9fde1-7849-542e-14c7-c5e8230b2016",
+    "d8c0e591-3f79-6a1b-3a81-67414d53edf0",
+    "4c4be309-7fe3-a205-f493-e68d5b2704a6",
+    "e9e3dad0-5211-a315-6e72-5c93acd0683a",
+    "c3b5af83-9a68-c44e-c66d-41f4392a8239",
+    "2ad26e65-2f45-d7c0-fa68-34358ac64d73",
+    "2400cbb8-1220-10a4-a16d-b3d220d04428",
+    "51deebe1-5616-31c8-1d83-bdb8da804b2e",
+    "4c96c37d-ad81-513f-2ee9-3c162ff757a3",
+    "2ef46bbf-7a04-6cc2-c66c-12dff2ec1627",
+    "d7ff88ab-48a6-5823-5ab0-4e3fa36e0bc0",
+    "6756507f-129c-6757-6e34-22c07e601463",
+    "97f99594-b775-7475-d8c7-40bc17aec1ba",
+    "b00047a2-04bb-16db-69e0-35dbb360a1e1",
+    "cbdc443d-8565-e853-9810-8a9fd06768bc",
+    "f7a2cd39-9dad-31dd-c87c-46ce73a63bc3",
+    "d0fe793a-7a89-b48c-b943-3e8cd17def92",
+    "3cb5f604-c0a3-f780-ce90-e2a623239437",
+    "bbb11612-e4d0-e92d-c7ee-ae52ebc2171b",
+    "09996de8-f544-28eb-0ef9-59b005c36ddd",
+    "908b4248-a7f3-766e-068b-86bbb7eaa7db",
+    "9f770c59-898a-01c6-292a-44b154a5190c",
+    "d4f1dc89-c6e8-80b1-7428-c08371dc69e9",
+    "79b01f6f-0517-41bd-cbb2-d3f86016c6f7",
+    "274b4231-fbe7-f4a7-f9b6-aa3b11b742aa",
+    "df530949-7cb3-1c63-1758-2a10313e107f",
+    "b5ad1031-3541-f1bb-b2e9-3a3d72dee99d",
+    "109bd64e-cc4b-d2a6-7605-d272f89f8e2e",
+    "6270899d-e2c1-b22b-2eca-09b280e8a297",
+    "e7d44726-5696-b8fd-db47-6806ff61cdda",
+    "8fa837e4-608a-dce5-db9a-f748aea7d2c8",
+    "b30f94f8-f3fb-c57f-76a4-fe12b91efee0",
+    "83be5859-bada-3cd6-d614-5403799a8e83",
+    "48dab82f-5aff-ab4d-5854-8f0578c1afcf",
+    "a6161851-78fa-fb47-fafb-b2644c4976d7",
+    "66ffdf88-7a58-eef8-0ef9-32018ff4fb9e",
+    "0f27c7d4-72f4-6e9f-58b1-3bda1e99a7b3",
+    "9a5ebfe1-7666-6eec-39de-9ffb4a34f0ab",
+    "2c01cb01-da39-768e-a108-d4eb7e09eece",
+    "99b0ed67-c1d9-c1a9-553a-86a4fed0ffad",
+    "e0f30775-704c-bae1-4968-fa90909a2462",
+    "9b1041a6-bbb2-1e70-d28c-684ef58a1b7b",
+    "182c94e6-4a10-563b-2d69-11cd79b55c15",
+    "00248df4-b905-3d86-1642-659a4307f045",
+    "e0647cf7-1366-d7cf-9457-faca466a7814",
+    "4d1b755e-7189-0a2d-86ed-5af207cbf077",
+    "57abdc48-22dd-db5d-4fdc-97debf242e06",
+    "4dd5a589-6118-98b7-dc25-d3eacbe6aaf0",
+    "0bed1522-9645-37fd-5ff9-fab01ea05090",
+    "7b7070e0-51bc-7d5b-b4f5-d3e154026008",
+    "8e0930e8-f884-01db-7587-5d3d38b6a1a7",
+    "c773e106-21bf-74b9-189a-b290a1de2ffb",
+    "cca94791-89ac-f485-b192-188033c2c96d",
+    "d8d82353-aa9b-79a7-c5c0-6e334dfc6cbd",
+    "cc1d9d39-301c-518f-6f58-8701e4a9a6d5",
+    "0a9da859-f160-b689-16e0-f891fce270d0",
+    "7a4f37be-8753-60b1-f7e6-b39749b58824",
+    "fe29d102-0600-e69e-643f-1feba7ca7562",
+    "11153bfa-a819-9151-6193-e10407208523",
+    "67d81bc5-5bca-e742-4fca-43571dd12edb",
+    "414c3137-6073-652a-c533-23b81c31ae9c",
+    "0d6a0820-4ff0-8fa9-514c-94e035ae36ff",
+    "5736a48b-9559-76c1-4384-cebeb7db1460",
+    "01308d48-6382-c02d-ac5a-78f00c0fcaba",
+    "3fd1fb9c-287c-7dba-5330-2ebdcc00bf31",
+    "894f1417-7d50-8b1f-9bea-172a719a3026",
+    "5d2a9245-062e-5e71-c64a-665d98a70828",
+    "ced78e80-ff14-e93f-839c-5336ad059e04",
+    "65a7f5b2-c239-0569-2d83-7c6217db1d93",
+    "dba7dfeb-cdfe-e8ea-b47e-2af6929da96d",
+    "12d24180-7c2b-7cd3-2db3-6c4bcdb7cc04",
+    "3f74d581-8cec-85d4-7c17-0398eb71ef67",
+    "c550a14a-309e-b87a-bc03-c13b5cca3b71",
+    "e45860fd-cb76-7c6d-547c-56b4b27e658a",
+    "4dba2b82-2f5a-1532-242b-c3c21989cfaa",
+    "ff59f7b9-0417-fe87-5629-752d52fdfcc1",
+    "025af7a6-5ef8-9a26-2bfe-8a8b1aebb331",
+    "444862be-f989-58e3-65ca-14252657fe9a",
+    "31da69f3-734d-5cfc-b3cf-e59806784308",
+    "e955f65f-a0e6-bec9-7b61-82bd5d1a1dc1",
+    "9013a2e0-21ed-a145-d10e-1867cbe8eb8f",
+    "9aa34682-a0a1-db9c-182c-beeae4d2f356",
+    "8b07f052-2a53-534d-8e46-2b0dec9f0b15",
+    "f9f717f8-ce2e-2703-7107-6aeb92e1ce9c",
+    "8c1d0846-1410-ec62-5288-a59b7276d7b4",
+    "925ffd27-05a1-d2b1-107e-f41f17726b0b",
+    "808947a0-5f0b-5fc3-d3bc-7325337f33d1",
+    "d8439edc-3629-99c5-eadd-ff0f9e294a0e",
+    "851c1567-7817-8b3d-0c3f-9de8934c4f64",
+    "0a10cbe1-0b11-bbd6-175b-d28a8c2b539b",
+    "77f95741-6423-a447-2adc-22a89c9b0254",
+    "2ee483a7-835e-6dc8-4e2d-71ed0365199f",
+    "841050f2-7e64-b92b-b384-851f07fb90e0",
+    "303639c8-c1d2-ec3f-b09b-2b9d5c324bea",
+    "c8b15522-e592-51c7-0dda-a8c76ba6b832",
+    "c6ebb21b-3f3f-38ab-4fbf-9e38af2cd554",
+    "4ced4ce9-bcf0-a917-3e44-9b91379acd9b",
+    "be87eb6f-cf58-a169-ac79-d994bd477868",
+    "26c5be66-740d-376a-953d-8cb19f0ce2eb",
+    "d0f20e35-2d2f-7c10-fdb6-936192b476af",
+    "bd515e27-2f8f-a442-cc98-0dc156d399c7",
+    "9964f2db-c1c5-2988-6b01-8d99d5982af5",
+    "79ba4435-6c6e-69fa-6fd2-eef39ed450c4",
+    "45d38da3-1719-8fc8-73f3-c1ce8a21d5a7",
+    "03156ba4-ce35-e7df-ed71-f1782a14f3e2",
+    "05a33c7b-fb95-0196-926a-491c710f547b",
+    "4fdfb5a0-39bb-b359-ff12-572f92da10eb",
+    "f96caaf7-e0ee-fe74-7a24-568fc3ac844a",
+    "614c7366-29ee-de23-c005-50c952e129e2"
+  ],
+  "adjudication": {
+    "protocol_version": "ADR-0013-C/v1",
+    "decided_at": "2026-09-15T01:58:42+08:00",
+    "overall": "supported",
+    "entries": [
+      {
+        "criterion_id": "PC-1",
+        "band": "supported",
+        "basis_refs": [
+          "B1"
+        ],
+        "anchored_fact_ids": [
+          "58af74bd-8636-95a9-65f0-77de171bdddf",
+          "06310fb8-28a1-430d-4f34-62df17ad41f4"
+        ],
+        "anchored_evidence_ids": [
+          "EV-39-ENVMANAGER-01"
+        ],
+        "decided_at": "2026-09-15T01:58:42+08:00",
+        "rationale": "adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（env-manager run 内管线活性正对照）"
+      },
+      {
+        "criterion_id": "PC-2",
+        "band": "supported",
+        "basis_refs": [
+          "B1"
+        ],
+        "anchored_fact_ids": [
+          "2fa3686e-7178-9b6c-e289-5771d866da85"
+        ],
+        "anchored_evidence_ids": [
+          "EV-39-ENVMANAGER-01"
+        ],
+        "decided_at": "2026-09-15T01:58:42+08:00",
+        "rationale": "gitlog 族检出事后补写 delta_days = 255"
+      },
+      {
+        "criterion_id": "TC-1",
+        "band": "supported",
+        "basis_refs": [
+          "B2"
+        ],
+        "anchored_fact_ids": [
+          "7a4f37be-8753-60b1-f7e6-b39749b58824",
+          "414c3137-6073-652a-c533-23b81c31ae9c",
+          "3fd1fb9c-287c-7dba-5330-2ebdcc00bf31",
+          "65a7f5b2-c239-0569-2d83-7c6217db1d93",
+          "c550a14a-309e-b87a-bc03-c13b5cca3b71",
+          "025af7a6-5ef8-9a26-2bfe-8a8b1aebb331",
+          "9013a2e0-21ed-a145-d10e-1867cbe8eb8f",
+          "8c1d0846-1410-ec62-5288-a59b7276d7b4",
+          "851c1567-7817-8b3d-0c3f-9de8934c4f64",
+          "841050f2-7e64-b92b-b384-851f07fb90e0",
+          "4ced4ce9-bcf0-a917-3e44-9b91379acd9b",
+          "bd515e27-2f8f-a442-cc98-0dc156d399c7",
+          "03156ba4-ce35-e7df-ed71-f1782a14f3e2",
+          "614c7366-29ee-de23-c005-50c952e129e2"
+        ],
+        "anchored_evidence_ids": [
+          "EV-39-ENVMANAGER-02"
+        ],
+        "decided_at": "2026-09-15T01:58:42+08:00",
+        "rationale": "env-manager ADR 事后补写：可判定数 14（门槛 5），>90d 占比 0.0000，判 NOT_RED"
+      },
+      {
+        "criterion_id": "TC-2",
+        "band": "supported",
+        "basis_refs": [
+          "B2"
+        ],
+        "anchored_fact_ids": [
+          "3bfad907-16bb-777c-6ba0-f7a995accf2b",
+          "cdf70c6a-5efa-42d2-52df-340a5a73f90b",
+          "b9a38962-0b8a-b397-100d-cea1dde5a74b",
+          "296942da-f5df-b8a4-0542-79e9613fbf01",
+          "63789d47-34a5-9eab-e3bb-6383d5872d25",
+          "c75e43ff-7ef2-75f4-2542-23051f7a4984",
+          "b432e43f-a123-e1c6-b03b-a0da400b7cbf",
+          "b92d7c93-9e3b-bcc7-0c4c-eb526d551854",
+          "48e12705-6725-9d77-ce1e-d7546de0860e",
+          "fbc2d909-15eb-56dd-a064-c484e2488d72",
+          "145ced00-3e57-5a46-d6e3-7190a281fad4",
+          "58356a45-7c3f-8fb4-c6fe-0ec03b0d4f08",
+          "6cb9aa9a-d2da-d06d-404a-81a57e09813e",
+          "b2706573-3d15-439b-c13b-232f94abc6d2"
+        ],
+        "anchored_evidence_ids": [
+          "EV-39-ENVMANAGER-03"
+        ],
+        "decided_at": "2026-09-15T01:58:42+08:00",
+        "rationale": "env-manager ADR 五件套：mean_ratio 0.7571（门槛 0.6），字段缺失率超线=false，判 NOT_RED"
+      },
+      {
+        "criterion_id": "TC-3",
+        "band": "supported",
+        "basis_refs": [
+          "B2"
+        ],
+        "anchored_fact_ids": [
+          "51deebe1-5616-31c8-1d83-bdb8da804b2e",
+          "e7d44726-5696-b8fd-db47-6806ff61cdda",
+          "c773e106-21bf-74b9-189a-b290a1de2ffb"
+        ],
+        "anchored_evidence_ids": [
+          "EV-39-ENVMANAGER-04"
+        ],
+        "decided_at": "2026-09-15T01:58:42+08:00",
+        "rationale": "env-manager 定位覆盖：意图面 3 件最低 ratio 0.8500（README.md），判 GREEN"
+      },
+      {
+        "criterion_id": "NC-1",
+        "band": "supported",
+        "basis_refs": [
+          "B4"
+        ],
+        "anchored_fact_ids": [
+          "ab9d8259-a125-a34a-3211-2cc79697e001"
+        ],
+        "anchored_evidence_ids": [
+          "EV-39-ENVMANAGER-05"
+        ],
+        "decided_at": "2026-09-15T01:58:42+08:00",
+        "rationale": "负对照选材 env-manager/package.json 五件套 0 命中、supersede 0 命中（特异性成立）"
+      }
+    ],
+    "human": {
+      "status": "pending",
+      "adjudicator": "user",
+      "text": null,
+      "decided_at": null
+    },
+    "citation_checks": [
+      {
+        "claim_id": "CL-39-ENVMANAGER-01",
+        "evidence_id": "EV-39-ENVMANAGER-01",
+        "support": "supports",
+        "matched_tokens": [
+          "fact_count"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-39-ENVMANAGER-02",
+        "evidence_id": "EV-39-ENVMANAGER-02",
+        "support": "supports",
+        "matched_tokens": [
+          "verdict"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-39-ENVMANAGER-03",
+        "evidence_id": "EV-39-ENVMANAGER-03",
+        "support": "supports",
+        "matched_tokens": [
+          "mean_ratio_4"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-39-ENVMANAGER-04",
+        "evidence_id": "EV-39-ENVMANAGER-04",
+        "support": "supports",
+        "matched_tokens": [
+          "lowest_ratio_4"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-39-ENVMANAGER-05",
+        "evidence_id": "EV-39-ENVMANAGER-05",
+        "support": "supports",
+        "matched_tokens": [
+          "five_piece_present"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-39-ENVMANAGER-06",
+        "evidence_id": "EV-39-ENVMANAGER-07",
+        "support": "supports",
+        "matched_tokens": [
+          "Macro-B 已上架层立即对三仓各跑一次 one-shot"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      }
+    ]
+  },
+  "citation_checks": [
+    {
+      "claim_id": "CL-39-ENVMANAGER-01",
+      "evidence_id": "EV-39-ENVMANAGER-01",
+      "support": "supports",
+      "matched_tokens": [
+        "fact_count"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    },
+    {
+      "claim_id": "CL-39-ENVMANAGER-02",
+      "evidence_id": "EV-39-ENVMANAGER-02",
+      "support": "supports",
+      "matched_tokens": [
+        "verdict"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    },
+    {
+      "claim_id": "CL-39-ENVMANAGER-03",
+      "evidence_id": "EV-39-ENVMANAGER-03",
+      "support": "supports",
+      "matched_tokens": [
+        "mean_ratio_4"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    },
+    {
+      "claim_id": "CL-39-ENVMANAGER-04",
+      "evidence_id": "EV-39-ENVMANAGER-04",
+      "support": "supports",
+      "matched_tokens": [
+        "lowest_ratio_4"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    },
+    {
+      "claim_id": "CL-39-ENVMANAGER-05",
+      "evidence_id": "EV-39-ENVMANAGER-05",
+      "support": "supports",
+      "matched_tokens": [
+        "five_piece_present"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    },
+    {
+      "claim_id": "CL-39-ENVMANAGER-06",
+      "evidence_id": "EV-39-ENVMANAGER-07",
+      "support": "supports",
+      "matched_tokens": [
+        "Macro-B 已上架层立即对三仓各跑一次 one-shot"
+      ],
+      "missing_tokens": [],
+      "reason": "全部支撑锚在引文原文中逐字命中"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "EV-39-ENVMANAGER-01",
+      "source": "D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-macro-b-env-manager-measurements.json",
+      "locator": "L14",
+      "claim": "本次实测：env-manager Macro-B one-shot 采集事实数",
+      "grounded": true,
+      "collected_at": "2026-09-15T01:58:42+08:00",
+      "reproduce_cmd": "node .scratch/architecture-recovery/reports/39-macro-b-one-shot.mjs --repo env-manager --root D:/Aworker/env-manager",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"fact_count\": 276,"
+    },
+    {
+      "evidence_id": "EV-39-ENVMANAGER-02",
+      "source": "D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-macro-b-env-manager-measurements.json",
+      "locator": "L19",
+      "claim": "本次实测：env-manager TC-1 ADR 事后补写判据裁定（NOT_RED）",
+      "grounded": true,
+      "collected_at": "2026-09-15T01:58:42+08:00",
+      "reproduce_cmd": "node .scratch/architecture-recovery/reports/39-macro-b-one-shot.mjs --repo env-manager --root D:/Aworker/env-manager",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"verdict\": \"NOT_RED\","
+    },
+    {
+      "evidence_id": "EV-39-ENVMANAGER-03",
+      "source": "D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-macro-b-env-manager-measurements.json",
+      "locator": "L28",
+      "claim": "本次实测：env-manager TC-2 五件套完整度 mean_ratio",
+      "grounded": true,
+      "collected_at": "2026-09-15T01:58:42+08:00",
+      "reproduce_cmd": "node .scratch/architecture-recovery/reports/39-macro-b-one-shot.mjs --repo env-manager --root D:/Aworker/env-manager",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"mean_ratio_4\": \"0.7571\","
+    },
+    {
+      "evidence_id": "EV-39-ENVMANAGER-04",
+      "source": "D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-macro-b-env-manager-measurements.json",
+      "locator": "L73",
+      "claim": "本次实测：env-manager TC-3 定位覆盖率最低值",
+      "grounded": true,
+      "collected_at": "2026-09-15T01:58:42+08:00",
+      "reproduce_cmd": "node .scratch/architecture-recovery/reports/39-macro-b-one-shot.mjs --repo env-manager --root D:/Aworker/env-manager",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"lowest_ratio_4\": \"0.8500\","
+    },
+    {
+      "evidence_id": "EV-39-ENVMANAGER-05",
+      "source": "D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\39-macro-b-env-manager-measurements.json",
+      "locator": "L84",
+      "claim": "本次实测：env-manager NC-1 负对照选材五件套命中数（预期 0）",
+      "grounded": true,
+      "collected_at": "2026-09-15T01:58:42+08:00",
+      "reproduce_cmd": "node .scratch/architecture-recovery/reports/39-macro-b-one-shot.mjs --repo env-manager --root D:/Aworker/env-manager",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "\"five_piece_present\": 0,"
+    },
+    {
+      "evidence_id": "EV-39-ENVMANAGER-06",
+      "source": "docs/adr/0001-secret-architecture-revision.md",
+      "locator": "L1",
+      "claim": "env-manager ADR 语料锚：docs/adr/0001-secret-architecture-revision.md 实物存在（语料 14 份）",
+      "grounded": true,
+      "collected_at": "2026-09-15T01:58:42+08:00",
+      "reproduce_cmd": "git -C D:/Aworker/env-manager show HEAD:docs/adr/0001-secret-architecture-revision.md",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "# 0001: Secret Architecture Revision (v0.8.0 to v1.0.0)"
+    },
+    {
+      "evidence_id": "EV-39-ENVMANAGER-07",
+      "source": ".scratch/macro-audit/decision-ledger.md",
+      "locator": "L21",
+      "claim": "D-033②：Macro-B 已上架层对三仓各跑一次 one-shot 泛化验证；jiahao 挂持续回归",
+      "grounded": true,
+      "collected_at": "2026-09-15T01:58:42+08:00",
+      "reproduce_cmd": "git -C D:\\Aworker\\6F show HEAD:.scratch/macro-audit/decision-ledger.md",
+      "reproduce_absent_reason": null,
+      "required_tokens": [],
+      "excerpt": "| D-033 | Q5（轮7）：#25-B4.2 与 jiahao / anysearch-cli / env-manager 三试点仓对接的产品方向与优先级？ | OK（2026-09-15，原话「OK」＝采纳推荐全项；基于 atomcode 取证：6 searches/7 全文核验，角色框架高置信、多仓排序法中置信=a16z design-partner 框架迁移；缺口：各仓 PR 人/机比与 supersede 链完整度未实测） | 对接方向=试点仓角色绑定能力层而非仓：① 角色分配=anysearch-cli→Macro-C 校准语料（56 ADR＋supersede 链稀缺素材）／env-manager→Micro-A 唯一合格试点＋泛化验证（唯一托管 PR 面，含 dependabot/release-please 非人类 PR 边缘形态）／jiahao→Micro-B·Macro-B 回归＋下限测试（纯本地仓测「git 健全无托管」下限）／三仓并跑→Macro-A 泛化冒烟（需≥2仓天然最后）；② 时序=Macro-B 已上架层立即对三仓各跑一次 one-shot 泛化验证，jiahao 挂 Macro-B 持续回归（阶段3 CI 票），其余层试点随各 preview 漏斗；③ 前置票=试点面可用性审计脚本（PR 人/机比、supersede 链完整度实测）；④ 拆票=可用性审计→Macro-B 三仓 one-shot→各层试点→回归接入，不立大票 | 结构性限制入规：三仓同主属确认偏差面（dogfooding=generative not evaluative，OCLint 官方口径只给信心不证泛化），试点定位=校准＋冒烟；泛化验证必须引≥1 非自有公开仓（D-013 URL opt-in 首实用户），登记为 Macro-B GA 前置条件；持续回归仅限已上架层；试点成功度量=反复接受非跑通；PR 层试点不得指派无托管 PR 面的仓（capacity 硬约束）；冲突核查 26 条 current 无 revised；执行时点=grill 定稿后整理环节；整理环节更新 #25-checklist B4.2 行=decided-now | current |"
+    }
+  ],
+  "quadrants": [
+    {
+      "quadrant": "strategy",
+      "applicability": "native",
+      "verdict": "supported",
+      "score": null,
+      "confidence": 0.6,
+      "dimensions": [
+        "S1",
+        "S2"
+      ],
+      "slice_fields": {
+        "s1_keyword_coverage_ratio": 0.85,
+        "s2_five_piece_mean_ratio": 0.7571,
+        "adr_count": 14,
+        "lag_judgeable_n": 14,
+        "intent_docs": 3
+      },
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "supported",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-15T01:58:42+08:00",
+        "override_reason": null,
+        "audit_ref": "reports/39-macro-b-one-shot.mjs"
+      },
+      "conflict_markers": []
+    },
+    {
+      "quadrant": "structure",
+      "applicability": "not_applicable",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [],
+      "slice_fields": {},
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-15T01:58:42+08:00",
+        "override_reason": "Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23 首报同口径）",
+        "audit_ref": "reports/39-macro-b-one-shot.mjs"
+      },
+      "conflict_markers": [
+        "out-of-scope-stage1"
+      ]
+    },
+    {
+      "quadrant": "behavior",
+      "applicability": "not_applicable",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [],
+      "slice_fields": {},
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-15T01:58:42+08:00",
+        "override_reason": "Macro-B 已上架采集面仅 strategy（S1+S2）——behavior 无采集器",
+        "audit_ref": "reports/39-macro-b-one-shot.mjs"
+      },
+      "conflict_markers": [
+        "out-of-scope-stage1"
+      ]
+    },
+    {
+      "quadrant": "supply_chain",
+      "applicability": "not_applicable",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [],
+      "slice_fields": {},
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-15T01:58:42+08:00",
+        "override_reason": "⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）",
+        "audit_ref": "reports/39-macro-b-one-shot.mjs"
+      },
+      "conflict_markers": [
+        "data-not-connected"
+      ]
+    }
+  ],
+  "recommendations": [
+    {
+      "rec_id": "R-39-ENVMANAGER-1",
+      "priority": "P1",
+      "action": "引入 ≥1 非自有公开仓经 URL opt-in 跑 Macro-B（衔接 #40 / D-013）",
+      "rationale": "三试点仓同主属 dogfooding——generative not evaluative（D-033）；one-shot 裁定只作校准+冒烟，不构成泛化证据，GA 前置须外部仓",
+      "expected_impact": "泛化证据链闭环，Macro-B GA 准入条件达成",
+      "effort": "M",
+      "verdict_gate_stamp": "ADR-0013-C/v1 / supported",
+      "evidence_refs": [
+        "EV-39-ENVMANAGER-07"
+      ],
+      "degraded_note": null
+    },
+    {
+      "rec_id": "R-39-ENVMANAGER-2",
+      "priority": "P2",
+      "action": "jiahao 持续回归以 .github/workflows/macro-b-regression.yml 承载（schedule 定时回归 + workflow_dispatch），本仓其余两仓维持只读 one-shot",
+      "rationale": "D-033② 指派 jiahao 为 Macro-B 回归仓；接入动作 = 多写者触发器 (a) 激活点（D-034④a）",
+      "expected_impact": "已上架层获得定时回归面；触发器 (a) 激活进值守通道",
+      "effort": "S",
+      "verdict_gate_stamp": "ADR-0013-C/v1 / supported",
+      "evidence_refs": [
+        "EV-39-ENVMANAGER-07"
+      ],
+      "degraded_note": null
+    }
+  ],
+  "preview_disclosure": {
+    "capability_label": "capability 1 of 5 · preview",
+    "calibration_scope": "同主三试点仓 one-shot（env-manager / anysearch-cli / jiahao）",
+    "structural_limitations": [
+      "同主仓确认偏差：三试点仓与产品同主——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟，不构成泛化证据",
+      "泛化证据缺口：Macro-B GA 前置须 ≥1 非自有公开仓经 URL opt-in（#40 / D-013）",
+      "structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）；供应链象限 ⚠ 数据未接（D-034③）",
+      "one-shot 度量 = 反复接受非跑通：TC 三档裁定（supported/unsupported/insufficient）如实落数，不为跑通而跑通"
+    ],
+    "not_in_preview": [
+      "Micro-A",
+      "Micro-B",
+      "Macro-A"
+    ]
+  },
+  "machine_contract": {
+    "citation_anchor_format": "evidence_id + source + locator（三者齐备即为可解析引文锚）",
+    "verdict_enum": [
+      "supported",
+      "unsupported",
+      "insufficient"
+    ],
+    "human_adjudication_status": "pending"
+  }
+}
