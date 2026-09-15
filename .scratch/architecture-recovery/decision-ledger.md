@@ -266,3 +266,17 @@
 - **交叉核对**：reports ↔ README 状态表 7/7 一致（零矛盾）；三层一致性（CONTEXT.md / docs/adr 0001~0014 / 代码现状）0 findings。
 - **摘要沉淀**：docs/decisions/2026-09-14-r3-execution-closeout.md（A-028/A-030 + 7/7 闭环 + 收口证据）。
 - **归档**：本账本随 .scratch 目录归档；R3 执行轮（票 #19~#25，波次 W1~W6）至此收口。
+## R4 执行轮登记（2026-09-15，轮 6 任务书 T1~T6 → A-031 ~ A-036）
+
+> 来源：.scratch/macro-audit/handoffs/next-round.md（轮 6 常驻任务书）+ spec-phase-tasks.md 第五轮 R4 节 + docs/adr/0015 + macro-audit 账本 D-023~D-025（+D-017/D-020 派生）。
+> 编号续接 A-001~A-030（R3 已结算 implemented×29 / deferred×1）；本轮登记状态一律 current；票闭环后按既有模式回写 done/deferred + implemented 注记。
+> 波次序列化（per 任务书，严格执行）：#26 → (#27 ∥ #28) → #29 → #30 → #31；唯一并行对 = #27/#28 且验收互不引用为完成条件。
+
+| ID | 问题描述原文 | 规范化需求 | 显式约束 | 来源决策 | 状态 |
+|---|---|---|---|---|---|
+| A-031 | R4-01 阶段 1.5 量测审计：「14 份 ADR 人工真值表 + 逐份 delta 表模板（区分 detector 漏认 vs 真实缺失；产物 = R4-02 验收 golden set + 原 RED 的 invalid 逐份可归属原因；先于一切 v2 代码，纯文档零构建）」 | 14 份 ADR（首报冻结时点 docs/adr/ 全集）逐份人工读数表 + 逐份 delta 表模板落文；每份标五件套字段读数与 Nygard 内联格式识别 | 先于一切 v2 代码（AIAG MSA：测量系统分析先于用数据做过程决策）；纯文档零构建；真值表同时是 golden set 与 assignable-cause 证据 | D-025 | current |
+| A-032 | R4-02 判据 v2 追加：「adr-structure detector 接线 A-002 回退链（v1 留档；验收 = 与人工真值表一致率；冻结数据重跑 → 并列读数 + 勘误披露，重测次数与判定规则事先写死）」 | adr-structure detector 接线 A-002 回退链（YAML 头 → 内联 Nygard → git 首提交）；冻结首报数据重跑出并列读数 + 逐份 delta 勘误 | v1 代码与 v1 阈值 0.60 留档禁改；验收 = 与真值表一致率；重测次数与判定规则事先写死（禁 testing into compliance）；构建/测试走 CI | D-025 | current |
+| A-033 | R4-03 ADR 治理卫生票：「6F 真实五件套缺失清零（验收 = R4-01 人工读数中真实缺失项清零；与 R4-02 互为引用、互不为完成条件）」 | 6F 自身 ADR 五件套真实缺失清零（准入范围仅以 R4-01 真实缺失分解为准）；补记注明勘误性质 | 验收独立于 R4-02——两票互为引用、互不为完成条件；不得因 detector 改动而令真实缺失消失（D-025 伦理判据） | D-025 | current |
+| A-034 | T4 C 层 disposition 补记：「T1~T3 结题后按 reopen 惯例补记 disposition（architecture-recovery 账本 C 裁定节追加，不改写原文与时间戳）；勘误式双读数发布（原 RED 不撤回 + 成对动作说明）」 | 账本 C 裁定节追加 disposition 段落（CAPA reopen：补前置调查不推翻人裁定）；勘误式双读数发布物落文 | 不改写已入库 C 裁定原文与时间戳（不可变纪律）；原 RED 不撤回不覆盖；成对动作 = 原读数记 invalid + 修正读数成为 reportable value | D-025 / D-017 | current |
+| A-035 | R4-04 阶段 2a 冻结校准：「10 项 desk 清单（任务 2/4/8/9/10/11/12/13/14/15/16 + 任务 5 已锚行 + 任务 7 单写者域草案）；草案全部标注置信域（单写者证据禁外推多写者）；待探针占位带『满足判据+复审时点』」 | 冻结首报数据上 10 项 desk 校准草案落文；每项标置信域；待探针占位按两字段纪律登记 | 不改冻结数据、不接新上游；单写者域证据禁外推多写者域；前置 = R4-02 入库 | D-023 / D-024 | current |
+| A-036 | R4-05 阶段 2b CodeLore 单上游探针：「前置 = 运行时解析策略判定（容器捆绑 vs 二进制发现）+ 读 Agent Plugins 1.0.0 plugin schema 原文（P1 预核对 baseline 顺手做）；适配器 + 锁版本 + golden 契约测试；重跑 6F 首报同仓 + 同 spec 版本 diff；provenance 锚定」 | CodeLore 薄垂直切片（适配器 → fact → 重跑首报 diff）；锁版本 + golden 契约测试；产物 = 数据源漂移报告 + 任务 1/3 实测锚 + README 上游清单 CodeLore 行状态更新 | 适配层禁业务规则（ADR-0014 微软 ACL 判据）；唯一新增上游 = CodeLore（Scorecard/repomix 推阶段 3）；provenance = commit pin + spec 版本 + data fingerprint；前置 = R4-04 结题（序列化纪律） | D-023 / D-024 / D-020 派生 | current |

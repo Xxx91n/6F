@@ -326,3 +326,48 @@ DuckDB fact table schema v0：字段级清单含 correlation key 前置字段；
 #### R3 对账（2026-09-12）
 
 - A-019 ~ A-030 共 12 条 → R3-D1:2 / R3-D2:1 / R3-D3:1 / R3-D4:4 / R3-D5:2 / R3-D6:1 / R3-D7:1 = 12 覆盖，无去向记录清单 = 空。
+## R4 — 序列化校准（来源 D-022 ~ D-028，2026-09-15 grill 轮 5）
+
+> 本段为指针段：决策全文以 docs/adr/0015、docs/adr/0016 与 macro-audit decision-ledger D-022 ~ D-028 为准；执行计划见 spec-phase-tasks.md 第五轮 R4-01 ~ R4-05。
+
+### R4-01 — 阶段 1.5 量测审计（ADR-0015 §Decision-3，D-025）
+14 份 ADR 人工真值表 + 逐份 delta 表模板：区分 detector 漏认（内联 Nygard 格式）vs 真实缺失；产物 = R4-02 验收 golden set + 原 TC-2 RED 记 invalid 的逐份可归属原因（Assignable Cause）。先于一切 v2 代码；纯文档零构建。
+
+### R4-02 — 判据 v2 追加（ADR-0015 §Decision-3，D-025）
+adr-structure detector 接线 A-002 回退链（YAML 头 → 内联 Nygard → git 首提交）；v1 留档禁改；验收 = 与 R4-01 人工真值表一致率；对冻结首报数据重跑 → 并列读数 + 勘误披露（重测次数与判定规则事先写死，禁 testing into compliance）。
+
+### R4-03 — ADR 治理卫生票（ADR-0015 §Decision-3，D-025）
+6F 真实五件套缺失清零：准入范围 = R4-01 人工读数中真实缺失分解；验收独立于 R4-02——两票互为引用、互不为完成条件。
+
+### R4-04 — 阶段 2a 冻结校准（ADR-0015 §Decision-1/2，D-023/D-024）
+10 项 desk 清单（任务 2/4/8/9/10/11/12/13/14/15/16 + 任务 5 已锚行 + 任务 7 单写者域草案）；草案全部标注置信域（单写者证据禁外推多写者）；待探针占位带「满足判据 + 复审时点」两字段。
+
+### R4-05 — 阶段 2b CodeLore 单上游探针（ADR-0015 §Decision-2，D-023/D-024/D-020 派生）
+前置 = 运行时解析策略判定（容器捆绑 vs 二进制发现）+ 读 Agent Plugins 1.0.0 plugin schema 原文（P1 预核对 baseline 顺手做）；适配器 + 锁版本 + golden 契约测试（ADR-0014：适配层禁业务规则）；重跑 6F 首报同仓 + 同 spec 版本 diff；provenance 锚定（commit pin + spec 版本 + data fingerprint）；产物 = 数据源漂移报告 + 任务 1/3 实测锚 + README 上游清单 CodeLore 行状态更新（不虚报）。
+
+### Implementation Decisions（R4 执行轮，来源 A-031 ~ A-036，2026-09-15）
+
+> 对账闸：A-031 ~ A-036 每条至少被本节一个 R4-Dn 覆盖；无去向记录清单非空时禁止立票（当前：空）。
+
+**R4-D1 阶段 1.5 量测审计**（覆盖 A-031｜计划 R4-01｜issue 26）
+14 份 ADR 逐份人工真值表（五件套字段读数 + Nygard 内联格式识别）+ 逐份 delta 表模板（detector 漏认 vs 真实缺失分列）；产物即 R4-02 golden set 与 TC-2 RED invalid 判定的逐份可归属原因；纯文档零构建。
+
+**R4-D2 判据 v2 追加**（覆盖 A-032｜计划 R4-02｜issue 27）
+adr-structure detector 接线 A-002 回退链；v1 代码与 v1 阈值 0.60 留档禁改；验收 = 与真值表一致率（golden set 对照）；冻结首报数据重跑 → 并列读数 + 逐份 delta 表勘误披露；重测次数与判定规则事先写死。
+
+**R4-D3 ADR 治理卫生**（覆盖 A-033｜计划 R4-03｜issue 28）
+6F 自身 ADR 五件套真实缺失清零（范围仅以 R4-01 真实缺失分解为准）；与 R4-D2 互为引用、互不为完成条件；补写须注明勘误性质（量测审计驱动的治理补记）。
+
+**R4-D4 C 层 disposition 补记**（覆盖 A-034｜任务书 T4｜issue 29）
+T1~T3 结题后按 CAPA reopen 惯例补记 disposition：architecture-recovery 账本 C 裁定节追加（不改写原文与时间戳）；勘误式双读数发布（原 RED 不撤回 + 成对动作说明）。
+
+**R4-D5 阶段 2a 冻结校准**（覆盖 A-035｜计划 R4-04｜issue 30）
+冻结首报数据上的 10 项 desk 校准；草案带置信域标注；待探针占位两字段纪律（满足判据 + 复审时点）；不改冻结数据、不接新上游。
+
+**R4-D6 阶段 2b CodeLore 探针**（覆盖 A-036｜计划 R4-05｜issue 31）
+单上游薄垂直切片：适配器 → fact → 重跑首报同仓 + 同 spec 版本 diff；锁版本 + golden 契约测试；provenance 锚定三件套；产物 = 数据源漂移报告 + 任务 1/3 实测锚 + README 上游清单状态列更新。
+
+#### R4 对账（2026-09-15）
+
+- A-031 ~ A-036 共 6 条 → R4-D1~D6 各覆盖 1 条 = 6 覆盖，无去向记录清单 = 空。
+- 波次序列化（per 任务书）：#26 → (#27 ∥ #28) → #29 → #30 → #31；唯一并行对 = #27/#28 且验收互不引用为完成条件。
