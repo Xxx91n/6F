@@ -21,7 +21,7 @@ flowchart TB
     end
     subgraph EVID["证据层 · 上游组合件"]
         GIT["git CLI"]
-        CL["CodeLore（规划中）"]
+        CL["CodeLore（已接入·探针切片）"]
         SC["OpenSSF Scorecard（规划中）"]
         RP["repomix / gitingest（规划中）"]
     end
@@ -57,7 +57,7 @@ flowchart LR
 | 归属 | 组件 |
 |---|---|
 | **我们的（护城河）** | 联邦裁决协议（verdict-gate）· DuckDB 事实表 schema（只追加 + 跨 scale 关联键）· 三层验收闸门（A 形式 / B 预声明判据 / C 人裁定）· Receipt 回执（双锚）· 预声明判据纪律（2 正对照 + 3 真判据 + 1 负对照） |
-| **借来的（上游）** | DuckDB 引擎本体 · git CLI · CodeLore（规划中）· OpenSSF Scorecard（规划中）· repomix / gitingest（规划中） |
+| **借来的（上游）** | DuckDB 引擎本体 · git CLI · CodeLore（已接入·探针切片）· OpenSSF Scorecard（规划中）· repomix / gitingest（规划中） |
 
 ## 契约声明
 
