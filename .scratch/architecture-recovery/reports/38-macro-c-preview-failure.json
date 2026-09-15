@@ -1,0 +1,716 @@
+{
+  "schema_version": "1.1.0",
+  "report_id": "MA-38-ANYSEARCH-MACRO-C-PREVIEW-degraded",
+  "scale": "Macro-C",
+  "subject_ref": "anysearch-cli@8314a3c92b4c",
+  "generated_at": "2026-09-16T03:03:27+08:00",
+  "correlation_key": {
+    "trace_id": "54c76f7e01aeefe00547b7f727f9c453",
+    "baggage_id": "912174d36772d689bd07179a8f4fc874"
+  },
+  "receipt": {
+    "receipt_id": "RCP-3f36923d0363b57a",
+    "chain_hash": "3f36923d0363b57a4898e4a8529a9ffc706be07b6cd60e0830f11243ce332fd8",
+    "issued_at": "2026-09-16T03:03:27+08:00",
+    "commit_anchor": "8314a3c92b4c6f15332e08f3d225cf96675241e3",
+    "tree_anchor": "9a94be447b55ab99335300262a8d0d4802471816",
+    "content_digest": {
+      "algo": "sha256",
+      "value": "64e69b52615258f463fc0fb83c8adfe1d93a8134c743be5d98f04f0a12fd12d4",
+      "canonicalization": "json_utf8_entries_then_citation_checks"
+    },
+    "gate_ref": {
+      "prereg_commit": "38-script-const",
+      "criteria_path": "reports/38-macro-c-preview.mjs §8",
+      "basis_path": ".scratch/macro-audit/decision-ledger.md D-034",
+      "criterion_ids": [
+        "PC-MC-1",
+        "PC-MC-2",
+        "TC-MC-1",
+        "TC-MC-2",
+        "TC-MC-3",
+        "NC-MC-1"
+      ]
+    },
+    "fact_count": 0,
+    "adjudication_count": 6,
+    "degraded": true,
+    "mark": "RECEIPT RCP-3f36923d0363b57a chain=3f36923d0363b57a4898e4a8529a9ffc content=64e69b52615258f4 facts=0 adjudications=6 issued_at=2026-09-16T03:03:27+08:00 commit=8314a3c92b4c6f15332e08f3d225cf96675241e3 tree=9a94be447b55 ⚠ unverified"
+  },
+  "overall_verdict": "insufficient",
+  "confidence": 0,
+  "degraded_mode": true,
+  "degraded_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+  "stale": {
+    "marker": "unknown",
+    "sla_seconds": 5,
+    "lag_seconds": 0,
+    "read_model_version": "1.1.0",
+    "fact_watermark_version": "1"
+  },
+  "skeleton": [
+    {
+      "id": "C1",
+      "ordinal": 1,
+      "name": "执行摘要",
+      "required_fields": [
+        "report_id",
+        "schema_version",
+        "scale",
+        "subject_ref",
+        "generated_at",
+        "correlation_key",
+        "overall_verdict",
+        "confidence",
+        "headline",
+        "top_findings",
+        "degraded_mode",
+        "stale_data_marker",
+        "staleness_sla_seconds",
+        "read_model_lag_seconds",
+        "read_model_version",
+        "fact_watermark_version"
+      ]
+    },
+    {
+      "id": "C2",
+      "ordinal": 2,
+      "name": "四象限与裁决",
+      "required_fields": [
+        "quadrants",
+        "quadrant",
+        "applicability",
+        "verdict",
+        "score",
+        "confidence",
+        "dimensions",
+        "slice_fields",
+        "verdict_gate.protocol_version",
+        "verdict_gate.decision",
+        "verdict_gate.evidence_threshold_met",
+        "verdict_gate.decided_at",
+        "verdict_gate.override_reason",
+        "verdict_gate.audit_ref",
+        "conflict_markers"
+      ]
+    },
+    {
+      "id": "C3",
+      "ordinal": 3,
+      "name": "证据",
+      "required_fields": [
+        "evidence_items",
+        "evidence_id",
+        "source",
+        "locator",
+        "claim",
+        "grounded",
+        "collected_at",
+        "reproduce_cmd",
+        "reproduce_absent_reason"
+      ]
+    },
+    {
+      "id": "C4",
+      "ordinal": 4,
+      "name": "行动建议",
+      "required_fields": [
+        "recommendations",
+        "rec_id",
+        "priority",
+        "action",
+        "rationale",
+        "expected_impact",
+        "effort",
+        "verdict_gate_stamp",
+        "evidence_refs",
+        "degraded_note"
+      ]
+    }
+  ],
+  "fact_ids": [],
+  "adjudication": {
+    "protocol_version": "ADR-0013-C/v1",
+    "decided_at": "2026-09-16T03:03:27+08:00",
+    "overall": "insufficient",
+    "entries": [
+      {
+        "criterion_id": "PC-MC-1",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-16T03:03:27+08:00",
+        "rationale": "降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest"
+      },
+      {
+        "criterion_id": "PC-MC-2",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-16T03:03:27+08:00",
+        "rationale": "降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest"
+      },
+      {
+        "criterion_id": "TC-MC-1",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-16T03:03:27+08:00",
+        "rationale": "降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest"
+      },
+      {
+        "criterion_id": "TC-MC-2",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-16T03:03:27+08:00",
+        "rationale": "降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest"
+      },
+      {
+        "criterion_id": "TC-MC-3",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-16T03:03:27+08:00",
+        "rationale": "降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest"
+      },
+      {
+        "criterion_id": "NC-MC-1",
+        "band": "insufficient",
+        "basis_refs": [
+          "B1",
+          "B4"
+        ],
+        "anchored_fact_ids": [],
+        "anchored_evidence_ids": [],
+        "decided_at": "2026-09-16T03:03:27+08:00",
+        "rationale": "降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest"
+      }
+    ],
+    "human": {
+      "status": "pending",
+      "adjudicator": "user",
+      "text": null,
+      "decided_at": null
+    },
+    "citation_checks": [
+      {
+        "claim_id": "CL-38-01",
+        "evidence_id": "EV-38-01",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "edge_count",
+          "8"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-38-02",
+        "evidence_id": "EV-38-02",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "Superseded by ADR-0060"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-38-03",
+        "evidence_id": "EV-38-03",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "ADR-0058"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-38-04",
+        "evidence_id": "EV-38-04",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "configured",
+          "false"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-38-05",
+        "evidence_id": "EV-38-05",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "facet_rows",
+          "30"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-38-06",
+        "evidence_id": "EV-38-06",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "单仓校准（anysearch-cli）"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-38-07",
+        "evidence_id": "EV-38-07",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "macro_b_facts"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-38-08",
+        "evidence_id": "EV-38-08",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "lag_judgeable_n"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      },
+      {
+        "claim_id": "CL-38-09",
+        "evidence_id": "EV-38-09",
+        "support": "insufficient",
+        "matched_tokens": [],
+        "missing_tokens": [
+          "edge_count",
+          "8"
+        ],
+        "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+      }
+    ]
+  },
+  "citation_checks": [
+    {
+      "claim_id": "CL-38-01",
+      "evidence_id": "EV-38-01",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "edge_count",
+        "8"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-38-02",
+      "evidence_id": "EV-38-02",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "Superseded by ADR-0060"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-38-03",
+      "evidence_id": "EV-38-03",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "ADR-0058"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-38-04",
+      "evidence_id": "EV-38-04",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "configured",
+        "false"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-38-05",
+      "evidence_id": "EV-38-05",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "facet_rows",
+        "30"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-38-06",
+      "evidence_id": "EV-38-06",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "单仓校准（anysearch-cli）"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-38-07",
+      "evidence_id": "EV-38-07",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "macro_b_facts"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-38-08",
+      "evidence_id": "EV-38-08",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "lag_judgeable_n"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    },
+    {
+      "claim_id": "CL-38-09",
+      "evidence_id": "EV-38-09",
+      "support": "insufficient",
+      "matched_tokens": [],
+      "missing_tokens": [
+        "edge_count",
+        "8"
+      ],
+      "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "EV-38-01",
+      "source": ".scratch/architecture-recovery/reports/38-macro-c-measurements.json",
+      "locator": "L68",
+      "claim": "本次实测：supersede 引用网 8 边（whole 1 + item 2 + amends 2 + defer 1 + 纪律样本 2）",
+      "grounded": false,
+      "collected_at": "2026-09-16T03:03:27+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-38-02",
+      "source": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
+      "locator": "L3",
+      "claim": "anysearch-cli 演化考古稀缺素材：whole-ADR supersede 事件 0058→0060 实物存在",
+      "grounded": false,
+      "collected_at": "2026-09-16T03:03:27+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-38-03",
+      "source": "docs/adr/0060-architecture-grill-round-59-archive-truthfulness-closure.md",
+      "locator": "L11",
+      "claim": "回链实物：ADR-0060 提及 ADR-0058（supersede 回链闭合）",
+      "grounded": false,
+      "collected_at": "2026-09-16T03:03:27+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-38-04",
+      "source": ".scratch/architecture-recovery/reports/38-macro-c-measurements.json",
+      "locator": "L57",
+      "claim": "本次实测：LLM env 门控关（CODELORE_LLM_* 未配置）→ llm_gated 降级披露",
+      "grounded": false,
+      "collected_at": "2026-09-16T03:03:27+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-38-05",
+      "source": ".scratch/architecture-recovery/reports/38-macro-c-measurements.json",
+      "locator": "L19",
+      "claim": "本次实测：CodeLore 契约面 30/30 facet_rows（零 facet_error）",
+      "grounded": false,
+      "collected_at": "2026-09-16T03:03:27+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-38-06",
+      "source": ".scratch/macro-audit/decision-ledger.md",
+      "locator": "L22",
+      "claim": "D-034⑤：Macro-C preview 报告强制披露「单仓校准（anysearch-cli）」结构性限制",
+      "grounded": false,
+      "collected_at": "2026-09-16T03:03:27+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-38-07",
+      "source": ".scratch/architecture-recovery/reports/38-macro-c-measurements.json",
+      "locator": "L93",
+      "claim": "本次实测：共享事实库 38-audit-facts.duckdb 同库双 scale（Macro-B 回放 + Macro-C 追加）",
+      "grounded": false,
+      "collected_at": "2026-09-16T03:03:27+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-38-08",
+      "source": ".scratch/architecture-recovery/reports/38-macro-c-measurements.json",
+      "locator": "L15",
+      "claim": "本次实测：ADR 决策日 vs 首提交 lag 可判定数",
+      "grounded": false,
+      "collected_at": "2026-09-16T03:03:27+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    },
+    {
+      "evidence_id": "EV-38-09",
+      "source": ".scratch/architecture-recovery/reports/37-pilot-measurements.json",
+      "locator": "L602",
+      "claim": "对账：37-pilot 存档 anysearch-cli supersede 边 = 8（38 复测一致性基准）",
+      "grounded": false,
+      "collected_at": "2026-09-16T03:03:27+08:00",
+      "reproduce_cmd": "",
+      "reproduce_absent_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+      "required_tokens": [],
+      "excerpt": ""
+    }
+  ],
+  "quadrants": [
+    {
+      "quadrant": "strategy",
+      "applicability": "native",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [
+        "S2",
+        "S4"
+      ],
+      "slice_fields": {
+        "adr_count": 65,
+        "supersede_edges": 8,
+        "supersede_unresolved": 0,
+        "supersede_missing_backrefs": 0,
+        "lag_judgeable_n": 65,
+        "adr_date_resolvable": 65,
+        "llm_gate": "closed"
+      },
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-16T03:03:27+08:00",
+        "override_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+        "audit_ref": "reports/38-macro-c-preview.mjs"
+      },
+      "conflict_markers": [
+        "single-repo-calibration",
+        "degraded"
+      ]
+    },
+    {
+      "quadrant": "structure",
+      "applicability": "derived",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [
+        "S3"
+      ],
+      "slice_fields": {
+        "god_classes_rows": 7,
+        "architecture_metrics_rows": 18,
+        "dependency_cycles_rows": 0,
+        "modularity_violations_rows": 73,
+        "instability_rows": 269,
+        "architecture_roles_rows": 269
+      },
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-16T03:03:27+08:00",
+        "override_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+        "audit_ref": "reports/38-macro-c-preview.mjs"
+      },
+      "conflict_markers": [
+        "preview-derived-observation-only",
+        "degraded"
+      ]
+    },
+    {
+      "quadrant": "behavior",
+      "applicability": "derived",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [
+        "S5"
+      ],
+      "slice_fields": {
+        "revisions_rows": 83,
+        "abs_churn_rows": 29,
+        "entity_churn_rows": 83,
+        "hotspot_velocity_rows": 83,
+        "code_age_rows": 83,
+        "lead_time_rows": 313,
+        "release_cadence_rows": 3,
+        "ownership_rows": 83,
+        "bus_factor_rows": 10
+      },
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-16T03:03:27+08:00",
+        "override_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+        "audit_ref": "reports/38-macro-c-preview.mjs"
+      },
+      "conflict_markers": [
+        "preview-derived-observation-only",
+        "degraded"
+      ]
+    },
+    {
+      "quadrant": "supply_chain",
+      "applicability": "not_applicable",
+      "verdict": "insufficient",
+      "score": null,
+      "confidence": 0,
+      "dimensions": [],
+      "slice_fields": {},
+      "verdict_gate": {
+        "protocol_version": "ADR-0013-C/v1",
+        "decision": "insufficient",
+        "evidence_threshold_met": false,
+        "decided_at": "2026-09-16T03:03:27+08:00",
+        "override_reason": "FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest",
+        "audit_ref": "reports/38-macro-c-preview.mjs"
+      },
+      "conflict_markers": [
+        "data-not-connected",
+        "degraded"
+      ]
+    }
+  ],
+  "recommendations": [
+    {
+      "rec_id": "R-38-1",
+      "priority": "P1",
+      "action": "配置 CODELORE_LLM_PROVIDER/MODEL（或 ANTHROPIC_API_KEY）激活 S4 假设失效检测面，复跑本 preview",
+      "rationale": "TC-MC-3 因 env 门控关判 insufficient——S4 演化方向深检是当前唯一未验证维度；上限走 MACRO_AUDIT_CODELORE_LLM_MAX_CALLS 计量",
+      "expected_impact": "TC-MC-3 由 insufficient 转可判定，overall 具升级通道",
+      "effort": "S",
+      "verdict_gate_stamp": "insufficient ⚠ unverified",
+      "evidence_refs": [
+        "EV-38-04"
+      ],
+      "degraded_note": "降级产出：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest ⚠ unverified"
+    },
+    {
+      "rec_id": "R-38-2",
+      "priority": "P1",
+      "action": "引入 ≥1 非自有公开仓经 URL opt-in 跑 Macro-C（衔接 #40 / D-013）",
+      "rationale": "单仓校准（anysearch-cli）属 dogfooding——generative not evaluative（D-033）；泛化证据是 GA 前置",
+      "expected_impact": "披露块结构性限制项①获得实证闭环",
+      "effort": "M",
+      "verdict_gate_stamp": "insufficient ⚠ unverified",
+      "evidence_refs": [
+        "EV-38-06"
+      ],
+      "degraded_note": "降级产出：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest ⚠ unverified"
+    },
+    {
+      "rec_id": "R-38-3",
+      "priority": "P1",
+      "action": "多写者 self-probe 实测封口（mw-trigger-b 已触发登记）",
+      "rationale": "本票已证共用同一 audit_fact DuckDB——多写者域并发策略由触发条款进入实测封口通道（D-034④b）",
+      "expected_impact": "任务 7 多写者域从挂门转实测",
+      "effort": "M",
+      "verdict_gate_stamp": "insufficient ⚠ unverified",
+      "evidence_refs": [
+        "EV-38-07"
+      ],
+      "degraded_note": "降级产出：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest ⚠ unverified"
+    },
+    {
+      "rec_id": "R-38-4",
+      "priority": "P3",
+      "action": "供应链象限维持「⚠ 数据未接」，Scorecard 探针按层需求队列接入（#42）",
+      "rationale": "D-034③ 降级披露制已立法——禁止为补齐象限插队上游",
+      "expected_impact": "preview 诚实形态保持",
+      "effort": "S",
+      "verdict_gate_stamp": "insufficient ⚠ unverified",
+      "evidence_refs": [
+        "EV-38-01"
+      ],
+      "degraded_note": "降级产出：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest ⚠ unverified"
+    }
+  ],
+  "preview_disclosure": {
+    "capability_label": "capability 2 of 5 · preview",
+    "calibration_scope": "单仓校准（anysearch-cli）",
+    "structural_limitations": [
+      "校准语料 = 单仓（anysearch-cli，65 ADR＋supersede 链稀缺素材），不构成泛化证据——dogfooding = generative not evaluative（D-033），GA 前置须 ≥1 非自有公开仓（#40 / D-013）",
+      "同主仓确认偏差面：试点仓与产品同主，本报告仅作校准＋冒烟依据",
+      "LLM 叙事面 env 门控关：S4 假设失效检测深检维度降级 ⚠ unverified（llm_gated 明示，不伪造不真调）",
+      "供应链象限 ⚠ 数据未接：Scorecard/repomix 未接不插队（D-034③）",
+      "structure/behavior 象限为衍生观测（无预声明阈值基线）——观测值如实落 slice_fields 不裁决"
+    ],
+    "not_in_preview": [
+      "Micro-A",
+      "Micro-B",
+      "Macro-A"
+    ]
+  },
+  "machine_contract": {
+    "citation_anchor_format": "evidence_id + source + locator（三者齐备即为可解析引文锚）",
+    "verdict_enum": [
+      "supported",
+      "unsupported",
+      "insufficient"
+    ],
+    "human_adjudication_status": "pending"
+  }
+}

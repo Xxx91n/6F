@@ -26,8 +26,12 @@ const WRITE_COLUMNS: readonly string[] = AUDIT_FACT_FIELDS
   .filter(function (f) { return f.name !== 'fact_seq' && f.name !== 'ingested_at'; })
   .map(function (f) { return f.name; });
 
+// fact_seq 由 store 赋值（序列）——audit_fact_seq 在 openWriter 建序；schema_registry FK 种子行同处幂等引导。
+const FACT_SEQ_NAME = 'audit_fact_seq';
+
 const INSERT_SQL: string =
-  'INSERT INTO audit_fact (' + WRITE_COLUMNS.join(', ') + ', ingested_at) VALUES (' +
+  'INSERT INTO audit_fact (fact_seq, ' + WRITE_COLUMNS.join(', ') + ', ingested_at) VALUES (nextval(' +
+  String.fromCharCode(39) + FACT_SEQ_NAME + String.fromCharCode(39) + '), ' +
   WRITE_COLUMNS.map(function () { return '?'; }).join(', ') + ', current_timestamp)';
 
 export async function openWriter(dbPath: string): Promise<DuckDBConnection> {
@@ -35,6 +39,8 @@ export async function openWriter(dbPath: string): Promise<DuckDBConnection> {
   const connection = await DuckDBConnection.create(instance);
   await connection.run(SCHEMA_REGISTRY_DDL);
   await connection.run(AUDIT_FACT_DDL);
+  await connection.run('CREATE SEQUENCE IF NOT EXISTS ' + FACT_SEQ_NAME + ' START 1');
+  await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 1, 'Registered', 'FULL', 'schema v0 append-only fact table' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 1)");
   return connection;
 }
 

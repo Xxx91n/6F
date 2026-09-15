@@ -19,10 +19,10 @@ export interface SkeletonChapter {
 }
 
 export const REPORT_SKELETON: readonly SkeletonChapter[] = [
-  { id: 'C1', ordinal: 1, name: '执行摘要', required_fields: ['report_id','schema_version','scale','subject_ref','generated_at','correlation_key','overall_verdict','confidence','headline','top_findings','degraded_mode','stale_data_marker','staleness_sla_seconds','read_model_lag_seconds','read_model_version','fact_watermark_version'] },
-  { id: 'C2', ordinal: 2, name: '四象限与裁决', required_fields: ['quadrants','quadrant','applicability','verdict','score','confidence','dimensions','slice_fields','verdict_gate.protocol_version','verdict_gate.decision','verdict_gate.evidence_threshold_met','verdict_gate.decided_at','verdict_gate.override_reason','verdict_gate.audit_ref','conflict_markers'] },
-  { id: 'C3', ordinal: 3, name: '证据', required_fields: ['evidence_items','evidence_id','source','locator','claim','grounded','collected_at','reproduce_cmd','reproduce_absent_reason'] },
-  { id: 'C4', ordinal: 4, name: '行动建议', required_fields: ['recommendations','rec_id','priority','action','rationale','expected_impact','effort','verdict_gate_stamp','evidence_refs','degraded_note'] }
+  { id: 'C1', ordinal: 1, name: '执行摘要', required_fields: ['report_id', 'schema_version', 'scale', 'subject_ref', 'generated_at', 'correlation_key', 'overall_verdict', 'confidence', 'headline', 'top_findings', 'degraded_mode', 'stale_data_marker', 'staleness_sla_seconds', 'read_model_lag_seconds', 'read_model_version', 'fact_watermark_version'] },
+  { id: 'C2', ordinal: 2, name: '四象限与裁决', required_fields: ['quadrants', 'quadrant', 'applicability', 'verdict', 'score', 'confidence', 'dimensions', 'slice_fields', 'verdict_gate.protocol_version', 'verdict_gate.decision', 'verdict_gate.evidence_threshold_met', 'verdict_gate.decided_at', 'verdict_gate.override_reason', 'verdict_gate.audit_ref', 'conflict_markers'] },
+  { id: 'C3', ordinal: 3, name: '证据', required_fields: ['evidence_items', 'evidence_id', 'source', 'locator', 'claim', 'grounded', 'collected_at', 'reproduce_cmd', 'reproduce_absent_reason'] },
+  { id: 'C4', ordinal: 4, name: '行动建议', required_fields: ['recommendations', 'rec_id', 'priority', 'action', 'rationale', 'expected_impact', 'effort', 'verdict_gate_stamp', 'evidence_refs', 'degraded_note'] }
 ];
 
 export const CHAPTER_COUNT = REPORT_SKELETON.length;
@@ -271,6 +271,15 @@ export interface ReportStale {
   fact_watermark_version: string;
 }
 
+// preview 披露块（ADR-0017：preview 标注诚实是决策本体；D-037② 报告头字段统一契约面——
+// 与 #45 演示披露块同一契约源，禁止两处手抄漂移）。可选字段：非 preview 报告为 null，骨架 1.1.0 不变。
+export interface PreviewDisclosure {
+  capability_label: string;
+  calibration_scope: string;
+  structural_limitations: readonly string[];
+  not_in_preview: readonly string[];
+}
+
 export interface ReportInput {
   report_id: string;
   schema_version?: string;
@@ -295,6 +304,7 @@ export interface ReportInput {
   gate_ref: GateRef;
   degraded: boolean;
   degraded_reason: string | null;
+  preview_disclosure?: PreviewDisclosure;
   human?: HumanAdjudication;
 }
 
@@ -319,6 +329,7 @@ export interface Report {
   recommendations: Recommendation[];
   adjudication: AdjudicationBlock;
   receipt: Receipt;
+  preview_disclosure: PreviewDisclosure | null;
 }
 
 export function buildReport(input: ReportInput): Report {
@@ -358,7 +369,8 @@ export function buildReport(input: ReportInput): Report {
     quadrants: input.quadrants.slice(),
     recommendations: input.recommendations.slice(),
     adjudication: adjudication,
-    receipt: receipt
+    receipt: receipt,
+    preview_disclosure: input.preview_disclosure ? input.preview_disclosure : null
   };
 }
 
@@ -371,6 +383,14 @@ export function renderMarkdown(r: Report): string {
   if (r.degraded_mode) {
     out.push('>');
     out.push('> 降级产出：' + (r.degraded_reason ? r.degraded_reason : '未声明') + ' ' + UNVERIFIED_MARK);
+  }
+  if (r.preview_disclosure) {
+    out.push('>');
+    out.push('> 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）');
+    out.push('> - capability: ' + r.preview_disclosure.capability_label);
+    out.push('> - calibration_scope: ' + r.preview_disclosure.calibration_scope);
+    out.push('> - structural_limitations: ' + r.preview_disclosure.structural_limitations.join('；'));
+    out.push('> - not_in_preview: ' + r.preview_disclosure.not_in_preview.join(' / '));
   }
   out.push('');
   for (const ch of REPORT_SKELETON) {
@@ -457,6 +477,7 @@ export interface Sidecar {
   evidence: EvidenceItem[];
   quadrants: QuadrantEntry[];
   recommendations: Recommendation[];
+  preview_disclosure: PreviewDisclosure | null;
   machine_contract: { citation_anchor_format: string; verdict_enum: string[]; human_adjudication_status: string };
 }
 
@@ -483,6 +504,7 @@ export function toSidecar(r: Report): Sidecar {
     evidence: r.evidence,
     quadrants: r.quadrants,
     recommendations: r.recommendations,
+    preview_disclosure: r.preview_disclosure,
     machine_contract: {
       citation_anchor_format: 'evidence_id + source + locator（三者齐备即为可解析引文锚）',
       verdict_enum: ['supported', 'unsupported', 'insufficient'],
@@ -588,7 +610,8 @@ export function degradeReport(r: Report, reason: string): Report {
       };
     }),
     adjudication: adjudication,
-    receipt: receipt
+    receipt: receipt,
+    preview_disclosure: r.preview_disclosure
   };
 }
 

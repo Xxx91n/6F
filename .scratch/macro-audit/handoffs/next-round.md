@@ -8,7 +8,7 @@
 
 ## 任务（每项声明覆盖 D-xxx）
 
-> **轮 8 执行进度（2026-09-16）**：T0/T1/T2/T3 已闭环（A-037~A-048 登记 + 33-check.mjs 8/8 + 34-check.mjs 11/11 + 35-check.mjs 22/22；commits vrm/wns/txk + r8 栈 lro/tyt）。守卫首跑 ALARM 4 已全部拍板清零（P2→D-037 / B3.3→D-039 / D4→D-038，registry 三项 status=decided）。#35 经独立审计 20/20 成立、文书级返修已落地（残余 4 面裁决挂 registry manual_watch 项 codelore-residual-faces）。**下一可开工 = #37（试点面审计）＋ #44/#45/#41a（filler 就绪即做）**；#36 已闭环（36-check 20/20，T8 ✅）；#41b 不入波次（blocked-by 用户闸门+listing-submission）。栈均未 push（用户闸门）。
+> **轮 8 执行进度（2026-09-16）**：T0/T1/T2/T3/T8/T9/T10 已闭环（A-037~A-048 登记 + 33-check 8/8 + 34-check 11/11 + 35-check 22/22 + 36-check 20/20 + 37-check 40/40 + 38-check 36/36；commits vrm/wns/txk + r8 栈 lro/tyt + r9 栈 ytz/kuy）。守卫首跑 ALARM 4 已全部拍板清零（P2→D-037 / B3.3→D-039 / D4→D-038，registry 三项 status=decided）。#35 经独立审计 20/20 成立、文书级返修已落地（残余 4 面裁决挂 registry manual_watch 项 codelore-residual-faces）。**#38 Macro-C preview 已闭环（第二能力层）：anysearch-cli 全链实跑 1012 facts、披露块双件、共享事实库触发 mw-trigger-b（多写者 self-probe 实测封口进入值守通道，ALARM 已登记）**。**下一可开工 = #39（Macro-B 三仓 one-shot＋jiahao 回归——mw-trigger-a 激活点）＋ #44/#45/#41a（filler 就绪即做）**；#41b 不入波次（blocked-by 用户闸门+listing-submission）。栈均未 push（用户闸门）。
 
 - **T0 立票（先行，串行门）✅ DONE 2026-09-15**：R5 票据包展开完成。**覆盖：D-029~D-036。**
 - **T1 挂门机检化（#33/R5-02）✅ DONE 2026-09-15**：guard 8/8，首跑 ALARM 4 已消化。**覆盖：D-026、D-034、D-024。**
@@ -19,8 +19,8 @@
 - **T6 分发收尾·仓内文档面（#41a/R6-03，filler 优先级）**：① examples/first-report/ 复制四件＋披露 README；② README 能力边界＋preview 标注＋0.x 语义＋「Try on a real repository」节（opt-in 公共小仓链接＋「外部内容随上游变化」标注）；③ 仓根 CHANGELOG.md 编年首条落盘（M-xxx 键，区间写时从实物读出）；DoD 护栏=边界文案以冻结决策为唯一事实源，扩面变更走文案 update 子项。**就绪即做不占关键路径；受 #44 指针守卫覆盖。覆盖：D-030、D-031、D-032、D-038、D-039、D-040。**
 - **T7 挂门守卫扩展（#33 扩展子项/R6-05）**：registry watch 三态 schema 齐备化（manual_watch 五要素：标记/责任人/复审时点/验证方法/确认留痕）＋守卫扫 manual_watch「复审逾期 or 确认记录缺失」＋逾期转 risk_accepted 候选报警＋每次运行输出 event_bound/total 覆盖率＋确认动作留痕（判据版本/判定人/理由/时间戳）。**覆盖：D-041。**
 - **T8 LLM 面独立票（#36/R5-05）✅ DONE 2026-09-16**：explain 族 env 门控＋成本验收面——实物枚举修正（analyze 枚举 explain-*=0；LLM 面=explain --llm/diff --llm/mcp explain_file），env 五变量契约+门控判读+llm_cost 计量+超限降级；契约测试 25/25 两形态；36-check.mjs PASS 20/20。**覆盖：D-035。**
-- **T9 试点面可用性审计（#37/R5-06）**：三仓实测脚本→层×仓 capacity 矩阵。**覆盖：D-033。**
-- **T10 Macro-C preview（#38/R5-07）**：anysearch-cli 校准＋强制披露＋happy+failure 双件 DoD。**覆盖：D-034、D-032、D-033。**
+- **T9 试点面可用性审计（#37/R5-06）✅ DONE 2026-09-16**：三仓实测脚本→层×仓 capacity 矩阵（37-check 40/40；D-033 对照 2 一致 2 出入呈报）。**覆盖：D-033。**
+- **T10 Macro-C preview（#38/R5-07）✅ DONE 2026-09-16**：anysearch-cli 校准全链实跑（codelore 30/30+ADR 65+supersede 8 边↔37 一致+llm_gated 降级披露）＋preview_disclosure 披露块双件（happy+failure）＋共享事实库（Macro-B 228+Macro-C 1012 → mw-trigger-b 触发登记）；38-check 36/36。**覆盖：D-034、D-032、D-033。**
 - **T11 Macro-B 三仓 one-shot＋jiahao 回归（#39/R5-08）**：接入 CI 即触发 mw-regression-ci 事件（D-034④a）。**覆盖：D-033、D-034、D-024。**
 - **T12 非自有仓泛化验证（#40/R5-09）**：≥1 非自有公开仓 URL opt-in——落地即触发 first-external-repo 事件（registry 新增位，解 desk-task2/15 盯梢）。**覆盖：D-033、D-013。**
 - **T13 上游队列值守（#42/R5-11）**：Scorecard/repomix 探针拉动；sqlite dump 对照评估（采纳另立 ADR）。**覆盖：D-023、D-034、D-035。**

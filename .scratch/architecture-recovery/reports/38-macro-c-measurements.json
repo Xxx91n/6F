@@ -1,0 +1,108 @@
+{
+  "observed_at": "2026-09-16T03:03:27+08:00",
+  "head_sha": "8314a3c92b4c6f15332e08f3d225cf96675241e3",
+  "tree_sha": "9a94be447b55ab99335300262a8d0d4802471816",
+  "commit_count": 314,
+  "adr_count": 65,
+  "adr_date_resolvable": 65,
+  "adr_leg_distribution": {
+    "miss": 176,
+    "inline-iso": 74,
+    "inline": 18,
+    "git": 40,
+    "dash": 17
+  },
+  "lag_judgeable_n": 65,
+  "lag_min_n_threshold": 30,
+  "codelore": {
+    "pinned": true,
+    "facet_rows": 30,
+    "facet_errors": [],
+    "per_facet_rows": {
+      "revisions": 83,
+      "abs-churn": 29,
+      "entity-churn": 83,
+      "author-churn": 3,
+      "hotspot-velocity": 83,
+      "code-age": 83,
+      "stale-code": 0,
+      "architecture-trend": 12,
+      "health-trend": 12,
+      "lead-time": 313,
+      "release-cadence": 3,
+      "messages": 454,
+      "god-classes": 7,
+      "architecture-metrics": 18,
+      "dependency-cycles": 0,
+      "modularity-violations": 73,
+      "instability": 269,
+      "architecture-roles": 269,
+      "ownership": 83,
+      "entity-ownership": 512,
+      "bus-factor": 10,
+      "main-dev": 83,
+      "main-dev-by-revs": 83,
+      "main-dev-by-deletions": 83,
+      "knowledge-islands": 0,
+      "communication": 1,
+      "coordination-needs": 496,
+      "team-composition": 4,
+      "marginal-owner-risk": 0,
+      "pair-programming": 0
+    }
+  },
+  "llm_gate": {
+    "env_family": "CODELORE_LLM_*",
+    "provider": "openai-compat",
+    "configured": false,
+    "missing_env": [
+      "CODELORE_LLM_MODEL"
+    ],
+    "reason": "missing-env",
+    "call_cap": 20,
+    "cap_source": "default"
+  },
+  "llm_gated_count": 3,
+  "llm_narrative_count": 0,
+  "supersede_chain": {
+    "edge_count": 8,
+    "whole_adr_supersessions": 1,
+    "item_level_supersessions": 2,
+    "amends_edges": 2,
+    "references_edges": 0,
+    "defer_ref_edges": 1,
+    "explicit_non_supersedes": 1,
+    "self_quote_artifacts": 1,
+    "unresolved_refs": [],
+    "missing_backrefs": []
+  },
+  "crosscheck_37": {
+    "adr_count_37": 65,
+    "adr_count_38": 65,
+    "adr_parity": true,
+    "edge_count_37": 8,
+    "edge_count_38": 8,
+    "edge_parity": true,
+    "unresolved_37": 0,
+    "unresolved_38": 0,
+    "missing_backrefs_37": 0,
+    "missing_backrefs_38": 0
+  },
+  "shared_duckdb": {
+    "file": "38-audit-facts.duckdb",
+    "macro_b_facts": 228,
+    "macro_c_facts": 1012,
+    "db_by_scale": {
+      "Macro-B": 228,
+      "Macro-C": 1012
+    },
+    "db_by_repo": {
+      "6F@fc00d458e215cc9a7a26af81626dec8712622821": 228,
+      "anysearch-cli@8314a3c92b4c6f15332e08f3d225cf96675241e3": 1012
+    },
+    "shared": true,
+    "note": "Macro-B 存档事实（23-facts.jsonl）回放 + Macro-C 新事实追加，同一 appendFact 写路径同一 audit_fact 表 → 共用同一 DuckDB（触发器 b 成立，登记 mw-trigger-b）"
+  },
+  "fact_count": 1012,
+  "dedup_dropped": 1
+}
