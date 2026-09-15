@@ -9,9 +9,9 @@ engine/plugin.json 对齐 Agent Plugins 1.0.0 官方 schema：补 $schema const�
 **Blocked by:**
 None（与 #35 并行首票）
 
-**Status:** ready-for-agent
+**Status:** done — 守卫 PASS 11/11 + ajv valid（2026-09-15）
 
-- [ ] plugin.json 不合规项逐条对消（$schema const / schemaVersion / skills / mcp / extensions 对象图）
-- [ ] 元数据源修复：gen 重跑产物仍 1.0.0 合规；.claude-plugin/plugin.json 与 mcp.json 不回归
-- [ ] reports/34-*.mjs 常驻守卫（零依赖结构断言）PASS ＋ ajv 一次性校验留证（命令与 schema 出处写入报告）
-- [ ] npm test / npm run package / cli selftest 不回归
+- [x] plugin.json 不合规项逐条对消（$schema const / schemaVersion / skills / mcp / extensions 对象图）
+- [x] 元数据源修复：gen 重跑产物仍 1.0.0 合规；.claude-plugin/plugin.json 与 mcp.json 不回归
+- [x] reports/34-*.mjs 常驻守卫（零依赖结构断言）PASS ＋ ajv 一次性校验留证（命令与 schema 出处写入报告）
+- [x] npm test / npm run package / cli selftest 不回归

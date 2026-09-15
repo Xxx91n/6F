@@ -7,8 +7,10 @@ const meta = JSON.parse(readFileSync(join(root, "manifest.meta.json"), "utf8"));
 
 function stable(o) { return JSON.stringify(o, null, 2); }
 
+const AP_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
+
 const targets = [
-  ["plugin.json", { schemaVersion: "1.0.0", name: meta.name, version: meta.version, description: meta.description, skills: meta.skills, mcp: "mcp.json", extensions: meta.extensions }],
+  ["plugin.json", { $schema: AP_SCHEMA, name: meta.name, version: meta.version, description: meta.description, license: meta.license, extensions: Object.fromEntries(meta.extensions.map(ns => [ns, { path: "extensions/" + ns }])) }],
   [join(".claude-plugin", "plugin.json"), { name: meta.claudePlugin.name, version: meta.claudePlugin.version, description: meta.description, skills: meta.skills, mcp: "mcp.json" }],
   ["mcp.json", { mcpServers: { "macro-audit-kernel": { transport: meta.mcp.transport, readOnly: meta.mcp.readOnly, command: "macro-audit", args: ["mcp"] } } }]
 ];
@@ -28,11 +30,15 @@ for (const t of targets) {
 
 const p1 = JSON.parse(readFileSync(join(root, "plugin.json"), "utf8"));
 const p2 = JSON.parse(readFileSync(join(root, ".claude-plugin", "plugin.json"), "utf8"));
+const AP_ALLOWED = ["$schema", "name", "version", "description", "author", "homepage", "repository", "license", "keywords", "extensions"];
 const checks = [
+  ["standard $schema==const", p1["$schema"] === AP_SCHEMA],
   ["standard name==meta", p1.name === meta.name],
   ["claude name==meta.claudePlugin.name", p2.name === meta.claudePlugin.name],
   ["versions aligned", p1.version === p2.version && p1.version === meta.version],
-  ["skills aligned", JSON.stringify(p1.skills) === JSON.stringify(p2.skills)]
+  ["standard plugin.json 无越界属性", Object.keys(p1).every(k => AP_ALLOWED.includes(k))],
+  ["extensions 为反向域名对象图", p1.extensions && typeof p1.extensions === "object" && !Array.isArray(p1.extensions) && Object.keys(p1.extensions).every(k => k.indexOf(".") > 0)],
+  ["skills 声明在 claude 侧", JSON.stringify(p2.skills) === JSON.stringify(meta.skills)]
 ];
 let ok = true;
 for (const c of checks) { console.log((c[1] ? "PASS " : "FAIL ") + c[0]); if (!c[1]) ok = false; }
