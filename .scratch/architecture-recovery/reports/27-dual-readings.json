@@ -1,0 +1,893 @@
+{
+  "meta": {
+    "generated_at": "2026-09-15T05:56:16.451Z",
+    "frozen_sha": "fc00d458e215cc9a7a26af81626dec8712622821",
+    "detector_v1": "adr-structure@v1",
+    "detector_v2": "adr-structure@v2",
+    "prereg": "reports/27-prereg.md",
+    "golden_set": "reports/26-truth-table.json",
+    "rerun_count": 1
+  },
+  "dual_readings": {
+    "v1_frozen": {
+      "n": 13,
+      "mean_ratio_4": "0.2462",
+      "missing_ratio_4": {
+        "Status": 0.8462,
+        "Date": 0.8462,
+        "Context": 0.6923,
+        "Decision": 0.6923,
+        "Consequences": 0.6923
+      },
+      "cond_a": true,
+      "cond_b": true,
+      "verdict": "RED"
+    },
+    "v2_rerun": {
+      "n": 13,
+      "mean_ratio_4": "0.5846",
+      "missing_ratio_4": {
+        "Status": 0,
+        "Date": 0,
+        "Context": 0.6923,
+        "Decision": 0.6923,
+        "Consequences": 0.6923
+      },
+      "cond_a": true,
+      "cond_b": true,
+      "verdict": "RED"
+    },
+    "truth_reference": {
+      "n": 13,
+      "mean_ratio_4": "0.4923",
+      "missing_ratio_4": {
+        "Status": 0,
+        "Date": 0.4615,
+        "Context": 0.6923,
+        "Decision": 0.6923,
+        "Consequences": 0.6923
+      }
+    }
+  },
+  "agreement": {
+    "cells_total": 65,
+    "cells_agree": 65,
+    "all_agree": true
+  },
+  "decision_dates": {
+    "0001-five-scale-scope.md": {
+      "date": "2026-09-12",
+      "leg": "git"
+    },
+    "0002-no-mvp-slice.md": {
+      "date": "2026-09-12",
+      "leg": "inline-iso"
+    },
+    "0003-boundary-product-and-usage.md": {
+      "date": "2026-09-12",
+      "leg": "git"
+    },
+    "0004-strategic-quadrant-five-dims.md": {
+      "date": "2026-09-12",
+      "leg": "git"
+    },
+    "0005-hub-of-facts-with-federated-adjudication.md": {
+      "date": "2026-09-12",
+      "leg": "git"
+    },
+    "0006-shared-skeleton-scale-slice.md": {
+      "date": "2026-09-12",
+      "leg": "git"
+    },
+    "0007-ten-demo-paths.md": {
+      "date": "2026-09-12",
+      "leg": "git"
+    },
+    "0008-agent-plugin-five-layer-box.md": {
+      "date": "2026-09-12",
+      "leg": "inline-iso"
+    },
+    "0009-intake-local-first-url-optin.md": {
+      "date": "2026-09-12",
+      "leg": "inline-iso"
+    },
+    "0010-spec-repo-and-engineering-repo-split.md": {
+      "date": "2026-09-12",
+      "leg": "inline-iso"
+    },
+    "0011-single-repo-subdir-but-branches.md": {
+      "date": "2026-09-12",
+      "leg": "inline-iso"
+    },
+    "0012-value-validation-loop-first.md": {
+      "date": "2026-09-12",
+      "leg": "dash"
+    },
+    "0013-three-layer-acceptance-gates.md": {
+      "date": "2026-09-12",
+      "leg": "dash"
+    }
+  },
+  "cells": [
+    {
+      "file": "0001-five-scale-scope.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bare",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0001-five-scale-scope.md",
+      "field": "Date",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": true,
+      "v2_leg": "git",
+      "expected": true,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0001-five-scale-scope.md",
+      "field": "Context",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0001-five-scale-scope.md",
+      "field": "Decision",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0001-five-scale-scope.md",
+      "field": "Consequences",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0002-no-mvp-slice.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bare",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0002-no-mvp-slice.md",
+      "field": "Date",
+      "truth": true,
+      "truth_form": "I-inline",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline-iso",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-inline"
+    },
+    {
+      "file": "0002-no-mvp-slice.md",
+      "field": "Context",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0002-no-mvp-slice.md",
+      "field": "Decision",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0002-no-mvp-slice.md",
+      "field": "Consequences",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0003-boundary-product-and-usage.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bare",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0003-boundary-product-and-usage.md",
+      "field": "Date",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": true,
+      "v2_leg": "git",
+      "expected": true,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0003-boundary-product-and-usage.md",
+      "field": "Context",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0003-boundary-product-and-usage.md",
+      "field": "Decision",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0003-boundary-product-and-usage.md",
+      "field": "Consequences",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0004-strategic-quadrant-five-dims.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bare",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0004-strategic-quadrant-five-dims.md",
+      "field": "Date",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": true,
+      "v2_leg": "git",
+      "expected": true,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0004-strategic-quadrant-five-dims.md",
+      "field": "Context",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0004-strategic-quadrant-five-dims.md",
+      "field": "Decision",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0004-strategic-quadrant-five-dims.md",
+      "field": "Consequences",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0005-hub-of-facts-with-federated-adjudication.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bare",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0005-hub-of-facts-with-federated-adjudication.md",
+      "field": "Date",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": true,
+      "v2_leg": "git",
+      "expected": true,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0005-hub-of-facts-with-federated-adjudication.md",
+      "field": "Context",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0005-hub-of-facts-with-federated-adjudication.md",
+      "field": "Decision",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0005-hub-of-facts-with-federated-adjudication.md",
+      "field": "Consequences",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0006-shared-skeleton-scale-slice.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bare",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0006-shared-skeleton-scale-slice.md",
+      "field": "Date",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": true,
+      "v2_leg": "git",
+      "expected": true,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0006-shared-skeleton-scale-slice.md",
+      "field": "Context",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0006-shared-skeleton-scale-slice.md",
+      "field": "Decision",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0006-shared-skeleton-scale-slice.md",
+      "field": "Consequences",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0007-ten-demo-paths.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bare",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0007-ten-demo-paths.md",
+      "field": "Date",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": true,
+      "v2_leg": "git",
+      "expected": true,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0007-ten-demo-paths.md",
+      "field": "Context",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0007-ten-demo-paths.md",
+      "field": "Decision",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0007-ten-demo-paths.md",
+      "field": "Consequences",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0008-agent-plugin-five-layer-box.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bare",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0008-agent-plugin-five-layer-box.md",
+      "field": "Date",
+      "truth": true,
+      "truth_form": "I-inline",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline-iso",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-inline"
+    },
+    {
+      "file": "0008-agent-plugin-five-layer-box.md",
+      "field": "Context",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0008-agent-plugin-five-layer-box.md",
+      "field": "Decision",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0008-agent-plugin-five-layer-box.md",
+      "field": "Consequences",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0009-intake-local-first-url-optin.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bare",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0009-intake-local-first-url-optin.md",
+      "field": "Date",
+      "truth": true,
+      "truth_form": "I-inline",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline-iso",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-inline"
+    },
+    {
+      "file": "0009-intake-local-first-url-optin.md",
+      "field": "Context",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0009-intake-local-first-url-optin.md",
+      "field": "Decision",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0009-intake-local-first-url-optin.md",
+      "field": "Consequences",
+      "truth": false,
+      "truth_form": null,
+      "v1": false,
+      "v2": false,
+      "v2_leg": "dash",
+      "expected": false,
+      "agree": true,
+      "delta_class": "real-gap"
+    },
+    {
+      "file": "0010-spec-repo-and-engineering-repo-split.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bold",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0010-spec-repo-and-engineering-repo-split.md",
+      "field": "Date",
+      "truth": true,
+      "truth_form": "I-inline",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline-iso",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-inline"
+    },
+    {
+      "file": "0010-spec-repo-and-engineering-repo-split.md",
+      "field": "Context",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0010-spec-repo-and-engineering-repo-split.md",
+      "field": "Decision",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0010-spec-repo-and-engineering-repo-split.md",
+      "field": "Consequences",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0011-single-repo-subdir-but-branches.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-bold",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-form"
+    },
+    {
+      "file": "0011-single-repo-subdir-but-branches.md",
+      "field": "Date",
+      "truth": true,
+      "truth_form": "I-inline",
+      "v1": false,
+      "v2": true,
+      "v2_leg": "inline-iso",
+      "expected": true,
+      "agree": true,
+      "delta_class": "detector-miss-inline"
+    },
+    {
+      "file": "0011-single-repo-subdir-but-branches.md",
+      "field": "Context",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0011-single-repo-subdir-but-branches.md",
+      "field": "Decision",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0011-single-repo-subdir-but-branches.md",
+      "field": "Consequences",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0012-value-validation-loop-first.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-dash",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0012-value-validation-loop-first.md",
+      "field": "Date",
+      "truth": true,
+      "truth_form": "F-dash",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0012-value-validation-loop-first.md",
+      "field": "Context",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0012-value-validation-loop-first.md",
+      "field": "Decision",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0012-value-validation-loop-first.md",
+      "field": "Consequences",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0013-three-layer-acceptance-gates.md",
+      "field": "Status",
+      "truth": true,
+      "truth_form": "F-dash",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0013-three-layer-acceptance-gates.md",
+      "field": "Date",
+      "truth": true,
+      "truth_form": "F-dash",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0013-three-layer-acceptance-gates.md",
+      "field": "Context",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0013-three-layer-acceptance-gates.md",
+      "field": "Decision",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    },
+    {
+      "file": "0013-three-layer-acceptance-gates.md",
+      "field": "Consequences",
+      "truth": true,
+      "truth_form": "F-sect",
+      "v1": true,
+      "v2": true,
+      "v2_leg": "dash",
+      "expected": true,
+      "agree": true,
+      "delta_class": "consistent"
+    }
+  ]
+}

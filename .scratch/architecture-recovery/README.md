@@ -324,3 +324,48 @@ W3 完成后，原 W4 阻塞全部解除：
 - **Frontier（重算 2026-09-14 W5 复核后）**：#19~#24 均闭环 → 下一波可开工 = **W6：#25 铺开与分发收尾**（Blocked by #24 ✓ 已解除）。启动器：`prompts/25-rollout-distribution.md`。**悬置项（不阻塞 #25 开工，但其内容须逐项拍板）**：push / 落 main 授权（现两未推栈：grill-r4、24-gap-sweep-anchors）；#25 前置清单逐项拍板（BACKLOG B1/B2/B3 立票、plugin 上架条件、演示资产范围）；TC-2 RED 处置方向（修 ADR Date 头 vs 判据 v2）；多仓复核实跑属阶段 2 执行票（A-028 复核计划 v1 已备）。**复核观察（弱化项，非缺陷）**：#24 调研未留 atomcode resume 锚点（R3-Q*/R4-Q1 先例均有）——下票恢复留档习惯。
 - **Frontier（重算 2026-09-14 W6 复核后）**：R3 执行轮 **7/7 票全部闭环**（#19~#25），**无待派执行票**。下一动作全部为用户闸门：① push / 落 main 授权（三未推栈：grill-r4、24-gap-sweep-anchors、25-rollout-distribution）；② #25 前置清单逐项拍板（BACKLOG B1.1~B4.2 立票、P1~P6 上架条件、D1~D5 演示资产——入口 reports/25-rollout-checklist.md §8）；③ TC-2 RED 处置方向（修 ADR Date 头 vs 判据 v2）；④ 阶段 2 立票（运行时解析策略 + 多仓复核实跑，承接 D-020/D-021 与 A-028 复核计划 v1）。**复核观察**：W5 弱化项（resume 锚点）已由 #25 闭合（research §0 执行通道留痕 + UUID）；行数口径：清单 25 行 = 24 动作行（全标待拍板）+ 1 行 B4.1（取代不立项）。
 - **待用户追认（不替用户追认）**：① 授权原文 ref=main，实推为 3 分支、main 落地未做（#19 §9 残留）；② 闸门授权原话（「origin/main 立即执行」「20落地，可以继续」）为子窗口交互，仓内无实物可独立验证；③ 栈重排冲突事故已自愈（0 冲突标记、内容完整性已验），lessons L-19-f/g 沉淀。
+## 并行波次表（R4 执行轮 — 轮 6 任务书 T1~T6，2026-09-15 续接；从 issue Blocked by 推导，不新造顺序）
+
+- **总票数**：6（#26 ~ #31）｜ **总波次**：5（全局编号 W7 ~ W11）｜ 摩擦点 A-031 ~ A-036（6 条，见 decision-ledger.md R4 执行轮登记节）
+- **序列化纪律**（per 任务书/ADR-0015）：唯一合法并行对 = #27 ∥ #28，且两票验收互不引用为完成条件；其余严格串行。
+- **闸门**：#27 重测预注册必须先于重跑 commit；#29 不得改写 C 裁定原文与时间戳；#31 的 atomcode 调研串行 + 续跑锚定。
+
+### W7 — 1 张票（串行门）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 26 | 阶段 1.5 量测审计（人工真值表） | A-031 | [issues/26-adr-measurement-audit.md](issues/26-adr-measurement-audit.md) | [handoffs/26-adr-measurement-audit.md](handoffs/26-adr-measurement-audit.md) | [prompts/26-adr-measurement-audit.md](prompts/26-adr-measurement-audit.md) | None |
+
+### W8 — 2 张票（唯一并行对，验收互不为条件）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 27 | 判据 v2 追加（回退链接线） | A-032 | [issues/27-criteria-v2-fallback-chain.md](issues/27-criteria-v2-fallback-chain.md) | [handoffs/27-criteria-v2-fallback-chain.md](handoffs/27-criteria-v2-fallback-chain.md) | [prompts/27-criteria-v2-fallback-chain.md](prompts/27-criteria-v2-fallback-chain.md) | #26 |
+| 28 | ADR 治理卫生票 | A-033 | [issues/28-adr-hygiene-sweep.md](issues/28-adr-hygiene-sweep.md) | [handoffs/28-adr-hygiene-sweep.md](handoffs/28-adr-hygiene-sweep.md) | [prompts/28-adr-hygiene-sweep.md](prompts/28-adr-hygiene-sweep.md) | #26 |
+
+### W9 — 1 张票（串行）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 29 | C 层 disposition 补记 + 双读数 | A-034 | [issues/29-c-disposition-reopen.md](issues/29-c-disposition-reopen.md) | [handoffs/29-c-disposition-reopen.md](handoffs/29-c-disposition-reopen.md) | [prompts/29-c-disposition-reopen.md](prompts/29-c-disposition-reopen.md) | #26, #27, #28 |
+
+### W10 — 1 张票（串行）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 30 | 阶段 2a 冻结校准（10 项 desk） | A-035 | [issues/30-frozen-calibration-desk.md](issues/30-frozen-calibration-desk.md) | [handoffs/30-frozen-calibration-desk.md](handoffs/30-frozen-calibration-desk.md) | [prompts/30-frozen-calibration-desk.md](prompts/30-frozen-calibration-desk.md) | #27, #28 |
+
+### W11 — 1 张票（串行）
+
+| # | 标题 | A-xxx 覆盖 | issue | handoff | prompt | 阻塞 |
+|---|---|---|---|---|---|---|
+| 31 | 阶段 2b CodeLore 单上游探针 | A-036 | [issues/31-codelore-probe.md](issues/31-codelore-probe.md) | [handoffs/31-codelore-probe.md](handoffs/31-codelore-probe.md) | [prompts/31-codelore-probe.md](prompts/31-codelore-probe.md) | #30 |
+
+## R4 Frontier（重算 2026-09-15 立票后）
+
+- **W7 完成（2026-09-15）**：#26 阶段 1.5 量测审计 → 26-check.mjs PASS 18/18（真值 mean 0.4923；v1 实跑复现 0.2462 逐格 65/65）；真值表+delta 模板+AC 登记落 reports/26-*。
+- **W8 完成（2026-09-15）**：#27 判据 v2 → 27-check.mjs PASS 15/15（v2=0.5846 RED，65/65 ALL-AGREE，v1 留档复现）；#28 ADR 治理卫生 → 28-check.mjs PASS 113/113（real-gap 33 格清零 + 0014 四节补记）。
+- **W9 完成（2026-09-15）**：#29 C 层 disposition 补记 → 29-check.mjs PASS 13/13（原裁定逐字保留 + 勘误式双读数并列：v1 0.2462 RED 归因部分 invalid / v2 0.5846 RED = reportable value）。
+- **W10 完成（2026-09-15）**：#30 阶段 2a 冻结校准 → 30-check.mjs PASS 9/9（13 项清单、置信域逐项、占位两字段×10）。
+- **W11 完成（2026-09-15）**：#31 阶段 2b CodeLore 探针 → 31-check.mjs PASS 14/14（binary-discovery+pin 0.28.0、golden 契约 7/7、漂移报告、P1 预核对发现 plugin.json 不合 1.0.0）。R4 全链结题。
+- 值守项（非票）：T7 #25 拍板状态列核对——触发事件已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次（绑定表 = reports/R5-Q5-atomcode-research.md §3）。

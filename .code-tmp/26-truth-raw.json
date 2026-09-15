@@ -1,0 +1,309 @@
+[
+ {
+  "name": "0001-five-scale-scope.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bare",
+   "line": 5
+  },
+  "Date": null,
+  "Deciders": null,
+  "Ledger": null,
+  "Context": null,
+  "Decision": null,
+  "Consequences": null,
+  "Options": null,
+  "gitFirst": "2026-09-12T11:53:09+08:00"
+ },
+ {
+  "name": "0002-no-mvp-slice.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bare",
+   "line": 5
+  },
+  "Date": {
+   "form": "I-inline",
+   "line": 5,
+   "value": "2026-09-12"
+  },
+  "Deciders": null,
+  "Ledger": null,
+  "Context": null,
+  "Decision": null,
+  "Consequences": null,
+  "Options": null,
+  "gitFirst": "2026-09-12T11:53:09+08:00"
+ },
+ {
+  "name": "0003-boundary-product-and-usage.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bare",
+   "line": 5
+  },
+  "Date": null,
+  "Deciders": null,
+  "Ledger": null,
+  "Context": null,
+  "Decision": null,
+  "Consequences": null,
+  "Options": null,
+  "gitFirst": "2026-09-12T11:53:09+08:00"
+ },
+ {
+  "name": "0004-strategic-quadrant-five-dims.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bare",
+   "line": 5
+  },
+  "Date": null,
+  "Deciders": null,
+  "Ledger": null,
+  "Context": null,
+  "Decision": null,
+  "Consequences": null,
+  "Options": null,
+  "gitFirst": "2026-09-12T11:53:09+08:00"
+ },
+ {
+  "name": "0005-hub-of-facts-with-federated-adjudication.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bare",
+   "line": 5
+  },
+  "Date": null,
+  "Deciders": null,
+  "Ledger": null,
+  "Context": null,
+  "Decision": null,
+  "Consequences": null,
+  "Options": null,
+  "gitFirst": "2026-09-12T11:53:09+08:00"
+ },
+ {
+  "name": "0006-shared-skeleton-scale-slice.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bare",
+   "line": 5
+  },
+  "Date": null,
+  "Deciders": null,
+  "Ledger": null,
+  "Context": null,
+  "Decision": null,
+  "Consequences": null,
+  "Options": null,
+  "gitFirst": "2026-09-12T11:53:09+08:00"
+ },
+ {
+  "name": "0007-ten-demo-paths.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bare",
+   "line": 5
+  },
+  "Date": null,
+  "Deciders": null,
+  "Ledger": null,
+  "Context": null,
+  "Decision": null,
+  "Consequences": null,
+  "Options": null,
+  "gitFirst": "2026-09-12T11:53:09+08:00"
+ },
+ {
+  "name": "0008-agent-plugin-five-layer-box.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bare",
+   "line": 5
+  },
+  "Date": {
+   "form": "I-inline",
+   "line": 3,
+   "value": "2026-09-12"
+  },
+  "Deciders": null,
+  "Ledger": null,
+  "Context": null,
+  "Decision": null,
+  "Consequences": null,
+  "Options": null,
+  "gitFirst": "2026-09-12T18:38:48+08:00"
+ },
+ {
+  "name": "0009-intake-local-first-url-optin.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bare",
+   "line": 5
+  },
+  "Date": {
+   "form": "I-inline",
+   "line": 3,
+   "value": "2026-09-12"
+  },
+  "Deciders": null,
+  "Ledger": null,
+  "Context": null,
+  "Decision": null,
+  "Consequences": null,
+  "Options": null,
+  "gitFirst": "2026-09-12T18:38:48+08:00"
+ },
+ {
+  "name": "0010-spec-repo-and-engineering-repo-split.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bold",
+   "line": 3
+  },
+  "Date": {
+   "form": "I-inline",
+   "line": 3,
+   "value": "2026-09-12"
+  },
+  "Deciders": null,
+  "Ledger": null,
+  "Context": {
+   "form": "F-sect",
+   "line": 5
+  },
+  "Decision": {
+   "form": "F-sect",
+   "line": 10
+  },
+  "Consequences": {
+   "form": "F-sect",
+   "line": 18
+  },
+  "Options": null,
+  "gitFirst": "2026-09-12T17:16:11+08:00"
+ },
+ {
+  "name": "0011-single-repo-subdir-but-branches.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-bold",
+   "line": 3
+  },
+  "Date": {
+   "form": "I-inline",
+   "line": 3,
+   "value": "2026-09-12"
+  },
+  "Deciders": null,
+  "Ledger": null,
+  "Context": {
+   "form": "F-sect",
+   "line": 5
+  },
+  "Decision": {
+   "form": "F-sect",
+   "line": 10
+  },
+  "Consequences": {
+   "form": "F-sect",
+   "line": 17
+  },
+  "Options": null,
+  "gitFirst": "2026-09-12T17:30:22+08:00"
+ },
+ {
+  "name": "0012-value-validation-loop-first.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-dash",
+   "line": 3
+  },
+  "Date": {
+   "form": "F-dash",
+   "line": 4
+  },
+  "Deciders": {
+   "form": "F-dash",
+   "line": 5
+  },
+  "Ledger": {
+   "form": "F-dash",
+   "line": 6
+  },
+  "Context": {
+   "form": "F-sect",
+   "line": 8
+  },
+  "Decision": {
+   "form": "F-sect",
+   "line": 12
+  },
+  "Consequences": {
+   "form": "F-sect",
+   "line": 16
+  },
+  "Options": null,
+  "gitFirst": "2026-09-13T01:32:42+08:00"
+ },
+ {
+  "name": "0013-three-layer-acceptance-gates.md",
+  "frozen": true,
+  "Status": {
+   "form": "F-dash",
+   "line": 3
+  },
+  "Date": {
+   "form": "F-dash",
+   "line": 4
+  },
+  "Deciders": {
+   "form": "F-dash",
+   "line": 5
+  },
+  "Ledger": {
+   "form": "F-dash",
+   "line": 6
+  },
+  "Context": {
+   "form": "F-sect",
+   "line": 8
+  },
+  "Decision": {
+   "form": "F-sect",
+   "line": 12
+  },
+  "Consequences": {
+   "form": "F-sect",
+   "line": 16
+  },
+  "Options": null,
+  "gitFirst": "2026-09-13T01:32:42+08:00"
+ },
+ {
+  "name": "0014-upstream-integration-dual-track.md",
+  "frozen": false,
+  "Status": {
+   "form": "F-dash",
+   "line": 3
+  },
+  "Date": {
+   "form": "F-dash",
+   "line": 4
+  },
+  "Deciders": {
+   "form": "F-dash",
+   "line": 5
+  },
+  "Ledger": null,
+  "Context": null,
+  "Decision": null,
+  "Consequences": null,
+  "Options": {
+   "form": "I-line",
+   "line": 11
+  },
+  "gitFirst": "2026-09-14T00:49:28+08:00"
+ }
+]
