@@ -211,3 +211,19 @@ _Avoid_: 误报原因（无留档凭证语义）、flaky（暗示随机性，不
 **LRM Binding（最迟拍板时点绑定）**:
 待拍板项的防退化纪律（last responsible moment，Poppendieck）——推迟决策必须同时登记「最迟拍板时点 + 触发事件」：触发后限期内必须拍；事件不来按硬到期日重组改绑一次，再到期升级决策人；超 LRM 的推迟不是推迟，是「决策由默认做出」。
 _Avoid_: TODO 提醒（无到期升级语义）、冻结（暗示永不解锁）
+
+**Release Preview（发布预览）**:
+产品的分级发布形态——「capability N of 5 · preview」标注 + 0.x 版本语义 + changelog 明示当前覆盖范围；preview 层必须自成完整价值单元（MMP 判据），未上架层只做文字披露 + roadmap 叙事、不交付预览性演示资产；build-scope（5 scale 全规划）与 release-sequence（分层暴露）为正交维度，preview 上架不构成 MVP 切片。
+_Avoid_: beta 滥用（无边框语义）、暗示全量能力、GA 姿态（未过逐层漏斗）
+
+**Trigger-gated Closure（触发器封口）**:
+基础设施/缺口项的闭合时机纪律——不显式前置、不无限拖延，而是登记一组显式触发事件（如多写者域：Macro-B 进 CI 定时回归 / Macro-C 共用同一 DuckDB / Macro-A 启动），任一触发即实测封口；既非铺开期前置门禁（infrastructure-last），亦非永不复审的死锁项。
+_Avoid_: 前置门禁化（阻塞已验证层）、无限延期（value lead time 恶化信号）
+
+**Generalization Gate（泛化闸门）**:
+能力层 GA 的准入条件——同主仓试点（校准＋冒烟）不构成泛化证据（dogfooding = generative not evaluative），必须引 ≥1 非自有公开仓完成真实泛化验证；输入路径 = Repo Intake 的 URL opt-in。
+_Avoid_: 自审当泛化（确认偏差）、试点成功=跑通（应为反复接受）
+
+**Pilot-surface Audit（试点面审计）**:
+试点仓承接能力层角色前的实测核查——核查其数据面是否真能服务被指派层（PR 人/机比、supersede 链完整度、托管面有无）；角色绑定能力层而非仓（capacity / ground-truth 可得性 / 泛化增量三问）。
+_Avoid_: 按仓体量指派试点（体量非判据）、假设性指派（未实测即绑定）

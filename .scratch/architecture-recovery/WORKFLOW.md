@@ -259,6 +259,7 @@ Phase 之间到达 boundary 时，按本仓库偏好顺序选：
 3. 禁止 worktree / git checkout / git branch 等字样
 4. 生成后逐份自检：无违禁词、无重复条款、所有路径可解析
 5. 每票通用调研要求只在 handoff 写一次，启动器只引用
+6. 「## 收尾」段首必须含 ❗ 黑体硬要求块（措辞逐字 = .scratch/macro-audit/decision-ledger.md D-029；新票启动器生成时模板纪律继承）
 
 | 2026-09-11 | 起草本 WORKFLOW.md，初始化偏离点清单与 6 Phase | 首次把 ask-matt 主流程落到本仓库 | 用户拍板 10 条偏离点 + 6 Phase 结构 | ask-matt SKILL.md §Main Flow + §On-ramps |
 | 2026-09-11 | skill 冲突声明字面与用户原话不一致

@@ -25,4 +25,7 @@
 窗口必须先复述本票的 Blocked by (None) + 必读清单中的全部路径，确认理解后方可动手。
 
 ## 收尾
+
+**❗ 收尾硬要求——以下动作缺任一项 = 本票未闭环（W2/W3 V2 重演防线）**：① 报告落盘 `reports/11-report.md`；② ledger 本票行状态回写 done/deferred；③ WORKFLOW §4 追加 lessons 行；④ commit message 引用守卫结果。
+
 完成定义见 handoff（与本票 ## 专属验收 段语义对齐）；版本控制遵循 WORKFLOW §4.2.1；通用调研要求遵循 handoff；报告写入 reports/11-report.md。

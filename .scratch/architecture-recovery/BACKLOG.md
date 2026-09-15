@@ -38,3 +38,23 @@
 - 仓根无 .gitignore —— `.scratch/` 等都被 git 追踪
 - A-006 评估未做实际扫描（仅 framework）
 - 仓无远端；push 需用户明确给 `push 到 <remote> <branch>` 指令
+
+## 阶段 3 票据包（2026-09-15 R6 grill 收口立案，来源 D-036；#43 为 D-030③ 登记候选票并入）
+
+> 次序：#32/#33 整理环节立即可做 → #34/#35 并行首票 → #36/#37 → #38 → 其余随层序（D-034 骨架：扩面→Macro-C→Micro-A→Micro-B→Macro-A）。
+> 上架动作未授权（D-026/D-027 用户闸门）；各票需求面在立票环节（to-spec/to-tickets）填实。
+
+| 票号 | 标题 | 来源 D-xxx | 挂门/前置 | 备注 |
+|---|---|---|---|---|
+| #32 | B1.2 落地：31 份 prompts「## 收尾」段首黑体硬要求块 | D-029 | 无 | 已于轮 6 整理环节执行完毕 |
+| #33 | T7 挂门机检化 guard：扫全部挂门项「最迟时点/触发事件/复审时点」到期报警 | D-026 / D-034④ / D-024 | 阶段 3 最优先 | 横切兜底；输入含三触发器与暂缓面集复审时点 |
+| #34 | plugin.json 对齐 Agent Plugins 1.0.0（$schema const / schemaVersion / skills·mcp·extensions 形态）＋ AJV 校验入 guard | D-036 / D-012 余款 | 上架硬前置链 | 独立小票（明示修正 handoff 并入分发收尾票原建议） |
+| #35 | CodeLore 契约面扩开首批 ≈30 面（演化主干 12＋S3 族 6＋S5 族 12），逐面 golden 契约测试 | D-035 / D-034 | Macro-C preview 前置 | ADR-0014 纪律：适配层禁业务规则 |
+| #36 | CodeLore LLM 面（explain 族）env 门控＋成本验收 | D-035 | S4 ADR 假设抽取前置 | 独立验收，不混入 #35 |
+| #37 | 试点面可用性审计：三仓 PR 人/机比＋supersede 链完整度实测脚本 | D-033 | Macro-C/Micro-A 试点前置 | |
+| #38 | Macro-C preview：anysearch-cli 校准＋报告强制披露单仓校准限制＋happy+failure 演示双件 DoD | D-034 / D-032 / D-033 | #35/#36/#37 | 第二能力层 |
+| #39 | Macro-B 三仓 one-shot＋jiahao 持续回归接入 CI | D-033 / D-034 | 回归接入 CI = 多写者触发器 (a) 激活点 | 激活即实测封口任务 7 |
+| #40 | 非自有公开仓泛化验证 ≥1（URL opt-in 首实用户） | D-033 / D-013 | Macro-B GA 前置 | |
+| #41 | 分发收尾：examples/first-report/ 复制＋披露 README／preview 标注·0.x 语义·changelog／listing 资产／preview 字段查证＋竞品扫描／凭据申请 | D-030 / D-031 / D-032 / D-026 | #34 前置；上架动作属用户闸门 | |
+| #42 | 上游队列：Scorecard/repomix 探针＋CodeLore sqlite dump 对照评估 | D-023 / D-034 / D-035 | 层需求拉动，不插队 | dump 采纳须另立 ADR；Macro-B preview 供应链象限维持「⚠ 数据未接」 |
+| #43 | 样例 golden CI：CI 重渲染 fixture 并 diff，更新走 PR 审查 | D-030 | 阶段 3 候选，与 #33 同批立项 | 禁自动重生成直通 main |

@@ -2,7 +2,7 @@
 
 > 来源：架构报告 = [.scratch/macro-audit/spec-phase-tasks.md](../macro-audit/spec-phase-tasks.md) 18 项
 > 决策 ledger：[decision-ledger.md](decision-ledger.md) (A-001 ~ A-018)
-> WORKFLOW 引用：[WORKFLOW.md](WORKFLOW.md) §4.2 通用规则 / ADR-0001 ~ ADR-0007
+> WORKFLOW 引用：[WORKFLOW.md](WORKFLOW.md) §4.2 通用规则 / ADR-0001 ~ ADR-0017
 
 ## Problem Statement
 
