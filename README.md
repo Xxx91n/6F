@@ -87,7 +87,7 @@ flowchart LR
 
 | 路径 | 内容 |
 |---|---|
-| [CONTEXT.md](CONTEXT.md) | 术语表（54 词，领域唯一语言） |
+| [CONTEXT.md](CONTEXT.md) | 术语表（56 词，领域唯一语言） |
 | [docs/adr/](docs/adr/) | 架构决策记录 ADR-0001 ~ ADR-0018 |
 | [engine/](engine/) | 内核 CLI + Agent Plugin 五层盒子（构建 / 命令细节见 [engine/README.md](engine/README.md)） |
 | [examples/first-report/](examples/first-report/) | 发布样例资产：6F 自审 Macro-B 首报四件（happy + failure 双对，披露制） |

@@ -49,12 +49,12 @@
 | #32 | B1.2 落地：31 份 prompts「## 收尾」段首黑体硬要求块 | D-029 | 无 | 已于轮 6 整理环节执行完毕 |
 | #33 | T7 挂门机检化 guard：扫全部挂门项「最迟时点/触发事件/复审时点」到期报警 | D-026 / D-034④ / D-024 | 阶段 3 最优先 | 横切兜底；输入含三触发器与暂缓面集复审时点。✅ W1 已落地（33-check.mjs 8/8）。**扩展子项（D-041）**：registry watch 三态（event_bound/manual_watch/risk_accepted）五要素齐备化＋守卫扫 manual_watch「复审逾期 or 确认缺失」＋逾期转 risk_accepted 候选＋event_bound/total 覆盖率输出＋decided 状态枚举登记。✅ 2026-09-16 已闭环（A-053）：manual_watch 7 项五要素 3/5→5/5＋micro-a-preview-prep 事件＋33-check 并入扩展（D 组 fail-closed 堵 W6＋E 组 manual_watch 扫描＋COVERAGE 23/30）PASS 16/16＋红证两态＋npm test 不回归 |
 | #34 | plugin.json 对齐 Agent Plugins 1.0.0（$schema const / schemaVersion / skills·mcp·extensions 形态）＋ AJV 校验入 guard | D-036 / D-012 余款 | 上架硬前置链 | 独立小票（明示修正 handoff 并入分发收尾票原建议） |
-| #35 | CodeLore 契约面扩开首批 ≈30 面（演化主干 12＋S3 族 6＋S5 族 12），逐面 golden 契约测试 | D-035 / D-034 | Macro-C preview 前置 | ADR-0014 纪律：适配层禁业务规则 |
-| #36 | CodeLore LLM 面（explain 族）env 门控＋成本验收 | D-035 | S4 ADR 假设抽取前置 | 独立验收，不混入 #35 |
-| #37 | 试点面可用性审计：三仓 PR 人/机比＋supersede 链完整度实测脚本 | D-033 | Macro-C/Micro-A 试点前置 | |
-| #38 | Macro-C preview：anysearch-cli 校准＋报告强制披露单仓校准限制＋happy+failure 演示双件 DoD | D-034 / D-032 / D-033 | #35/#36/#37 | 第二能力层 |
-| #39 | Macro-B 三仓 one-shot＋jiahao 持续回归接入 CI | D-033 / D-034 | 回归接入 CI = 多写者触发器 (a) 激活点 | 激活即实测封口任务 7 |
-| #40 | 非自有公开仓泛化验证 ≥1（URL opt-in 首实用户） | D-033 / D-013 | Macro-B GA 前置 | |
+| #35 | CodeLore 契约面扩开首批 ≈30 面（演化主干 12＋S3 族 6＋S5 族 12），逐面 golden 契约测试 | D-035 / D-034 | Macro-C preview 前置 | ADR-0014 纪律：适配层禁业务规则。✅ 2026-09-16 已闭环（A-040）：≈30 面逐面 golden 契约落地（演化主干 12＋S3 族 6＋S5 族 12）＋独立审计 20/20 成立＋文书返修闭合（残余 4 面挂 registry manual_watch codelore-residual-faces）；35-check PASS 22/22 |
+| #36 | CodeLore LLM 面（explain 族）env 门控＋成本验收 | D-035 | S4 ADR 假设抽取前置 | 独立验收，不混入 #35。✅ 2026-09-16 已闭环（A-041）：explain --llm／diff --llm／mcp explain_file env 五变量门控＋llm_cost 计量＋超限降级披露，契约测试 25/25 两形态；36-check PASS 20/20 |
+| #37 | 试点面可用性审计：三仓 PR 人/机比＋supersede 链完整度实测脚本 | D-033 | Macro-C/Micro-A 试点前置 | ✅ 2026-09-16 已闭环（A-042）：三仓只读实测＋层×仓 capacity 矩阵（jiahao 托管面出入呈报 D-033）；37-check PASS 40/40 |
+| #38 | Macro-C preview：anysearch-cli 校准＋报告强制披露单仓校准限制＋happy+failure 演示双件 DoD | D-034 / D-032 / D-033 | #35/#36/#37 | 第二能力层。✅ 2026-09-16 已闭环（A-043）：anysearch-cli 校准全链 1012 facts＋preview_disclosure 披露块双件＋共享事实库触发 mw-trigger-b；38-check PASS 36/36 |
+| #39 | Macro-B 三仓 one-shot＋jiahao 持续回归接入 CI | D-033 / D-034 | 回归接入 CI = 多写者触发器 (a) 激活点 | 激活即实测封口任务 7。✅ 2026-09-16 已闭环（A-044）：三仓 one-shot 裁定 supported／unsupported／supported 如实落数＋jiahao workflow 接入 CI（mw-trigger-a 触发值守）＋多写者 self-probe 实测封口 desk-task7→triggered-bound；39-check PASS 38/38 |
+| #40 | 非自有公开仓泛化验证 ≥1（URL opt-in 首实用户） | D-033 / D-013 | Macro-B GA 前置 | ✅ 2026-09-16 已闭环（A-045）：open-gsd/gsd-core URL opt-in 接入 Macro-B 1424 facts unsupported 如实落数（TC-2 双归因区分）＋engine intake 面落地（repo add 31 断言）＋first-external-repo→occurred；40-check PASS 57/57 |
 | #41a | 分发收尾·仓内文档面：examples/first-report/ 复制四件＋披露 README／README 能力边界＋preview 标注＋「Try on a real repository」节／仓根编年首条落地 | D-030 / D-031 / D-032 / D-038 / D-039 / D-040 | 就绪即做（filler）；DoD 含「边界文案以冻结决策为唯一事实源」护栏 | 拆自 #41（D-040）✅ 2026-09-16 已闭环（A-051）：四件+披露 README／边界矩阵 capability 1-2 of 5 preview+三层 Not yet+0.x+Try 节／仓根 CHANGELOG M-001+engine 指针闭环（W4 悬空清零）；41a-check PASS；上架动作未执行（用户闸门） |
 | #41b | 分发收尾·上架面：listing 资产／marketplace 字段查证（preview 标注字段＋版本元数据 schema＋竞品扫描）／凭据申请 | D-031 / D-037 / D-026 / D-027 | **blocked-by：用户闸门明示＋listing-submission 事件**——不排程不入波次不占 WIP | 拆自 #41（D-040）；上架动作停用户闸门 |
 | #42 | 上游队列：Scorecard/repomix 探针＋CodeLore sqlite dump 对照评估 | D-023 / D-034 / D-035 | 层需求拉动，不插队 | ✅ 2026-09-16 已闭环（A-047）：42-dump-comparison.md 三轴对照落文＋呈报=维持逐面契约不采纳（锁表 evaluating 不翻、采纳须另立 ADR）＋registry upstream-probes-scorecard-repomix pending+manual_watch 不插队＋供应链象限披露核查实物断言全中；42-check PASS 43/43 |
