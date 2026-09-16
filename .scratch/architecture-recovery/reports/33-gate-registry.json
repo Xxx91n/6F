@@ -67,8 +67,9 @@
       "occurred": false
     },
     "micro-a-preview-prep": {
-      "occurred": false,
-      "evidence": "Micro-A preview 前置审计窗口（层序 D-034：扩面→Macro-C→Micro-A→Micro-B→Macro-A——Macro-C 已闭环，Micro-A 为下一层 preview）；manual_watch 复审时点机读锚（A-053 登记，occurred 由 Micro-A preview 票开工审计时翻转）"
+      "occurred": true,
+      "date": "2026-09-16",
+      "evidence": "#48 落点：Micro-A preview 单票铺开——恰 4 条已 merged 票面写死实例（env-manager #64 release-please 机器生成/#55 dependabot[bot]/#51 人类 + jiahao #6 人类）经 github-rest-adapter@v1 实采集→Micro-A 报告双件×4＋goose-duck-agent 无托管面拒绝件；锚：reports/48-micro-a-measurements.json + 48-check.mjs"
     },
     "presentation-demand-signal": {
       "occurred": false,
@@ -406,7 +407,7 @@
       "trigger_event": "micro-a-preview-prep",
       "trigger": "Micro-A preview 前置/真实 PR 报告产出",
       "review_at": "Micro-A preview 前置窗口（micro-a-preview-prep occurred 时复审）",
-      "status": "pending",
+      "status": "decided",
       "source": "reports/30-desk-calibration.json items[task=15].probe",
       "watch": "event_bound",
       "confirmations": [
@@ -417,6 +418,14 @@
           "decision": "trigger-fired-criterion-unmet",
           "reason": "first-external-repo 已 occurred；但本项满足判据 =「≥1 条 Micro-A 真实 PR 报告产出且字段清单满足骨架交集」——Micro-A 为未上架层（capability 3 of 5，not_in_preview），#40 产出为 Macro-B 报告不构成本项判据 → 状态保持 pending，值守通道呈报待 Micro-A 上架后判定",
           "evidence": "reports/40-external-comparison.json + 30-desk-calibration.json items[task=15]"
+        },
+        {
+          "at": "2026-09-16",
+          "by": "#48 Micro-A preview 落地复核",
+          "criterion_version": "30-desk-calibration.json items[task=15].probe.satisfaction 原文",
+          "decision": "trigger-fired-criterion-met",
+          "reason": "micro-a-preview-prep occurred＝Micro-A preview 已落地：4 条真实 PR 报告双件产出（env-manager #64/#55/#51＋jiahao #6，恰 4 条已 merged 票面写死实例），subject_ref=PR 级（owner/repo#N）粒度切片，字段清单满足骨架交集（REPORT_SKELETON required_fields ∩ MICRO_A_SLICE_FIELDS 机械导出断言全过，golden+真跑双通道）——满足判据成立，desk-task15 判 decided",
+          "evidence": "reports/48-micro-a-*.md/.json 四件＋48-micro-a-measurements.json＋48-micro-a-golden-assertions.json"
         }
       ],
       "errata": "前身绑定 first-external-repo 于 2026-09-16 判定错配（判据=Micro-A 产出，#40 实产 Macro-B 报告）——fired 记录转审计痕迹不删（D-044：分层账本纪律，fired=不可变历史／绑定=可修正配置）"
@@ -458,7 +467,16 @@
       ],
       "source": "macro-audit decision-ledger D-035④＋D-045（3 面增补裁决）",
       "watch": "manual_watch",
-      "confirmations": [],
+      "confirmations": [
+        {
+          "at": "2026-09-16",
+          "by": "#48 前置清点",
+          "criterion_version": "micro-a-preview-prep occurred 复审",
+          "decision": "reviewed-stay-pending",
+          "reason": "Micro-A preview 判据=证据完整性/托管面资格闸/选择性——不拉 codelore 暂缓面集（行为象限接入归 #51 Macro-B 切片，非本票）；维持 pending",
+          "evidence": "reports/48-micro-a-criteria.md 判据集"
+        }
+      ],
       "owner": "收口窗口指派（登记位：macro-audit decision-ledger D-035④ 暂缓面集——层 preview 票承接）",
       "review_event": "micro-a-preview-prep",
       "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋层 preview 开工审计清点（该层契约面清单 vs faces[] 交集——有拉动即 golden 契约补齐转 bound）",
@@ -539,7 +557,16 @@
       "review_at": "下个收口窗口（最迟 Micro preview 前置审计时）",
       "status": "decided",
       "watch": "manual_watch",
-      "confirmations": [],
+      "confirmations": [
+        {
+          "at": "2026-09-16",
+          "by": "#48 前置清点",
+          "criterion_version": "micro-a-preview-prep occurred 复审",
+          "decision": "reaffirmed",
+          "reason": "micro-a-preview-prep 已 occurred；本项残余 4 面去向裁决仍归 stage3-close 收口窗口（本票不消费）——decided 状态维持",
+          "evidence": "无消费面：48-micro-a-preview.mjs 不触 codelore"
+        }
+      ],
       "faces": [
         "entity-effort",
         "architecture-violations",
@@ -573,7 +600,16 @@
       "review_at": "Micro-A preview 前置（CONTEXT.md Micro-A 数据源含 CodeLore diff --llm，MCP 同族面须先清点）",
       "status": "pending",
       "watch": "manual_watch",
-      "confirmations": [],
+      "confirmations": [
+        {
+          "at": "2026-09-16",
+          "by": "#48 前置清点",
+          "criterion_version": "micro-a-preview-prep occurred 复审",
+          "decision": "reviewed-stay-pending",
+          "reason": "Micro-A preview 数据面=GitHub REST 适配器（PR 枚举/元数据/diff）——MCP LLM 叙事面非本 preview 刚需（diff --llm 行级评审叙事归 #50 叙事双轨宿主 agent 面，D-053）；维持 pending 待对应拉动",
+          "evidence": "reports/48-micro-a-preview.mjs（pipeline 仅消费 github-rest-adapter@v1 事实面）"
+        }
+      ],
       "faces": [
         "mcp explain_file"
       ],
@@ -596,7 +632,16 @@
       "owner": "上游队列值守（#42→后续层 preview 票承接）",
       "verify_method": "层 preview 开工审计清点：该层报告需求面是否含供应链象限数据——含则本项判据满足转 triggered-bound 并立接入票（含 pin_type+version+golden 契约三前置）",
       "source": "macro-audit decision-ledger D-034③（探针按层需求队列接入不插队）+ engine/upstream-lock.yaml（scorecard=planned；repomix=retired D-056）+ desk-task5 同源关联",
-      "confirmations": [],
+      "confirmations": [
+        {
+          "at": "2026-09-16",
+          "by": "#48 前置清点",
+          "criterion_version": "micro-a-preview-prep occurred 复审",
+          "decision": "reviewed-stay-planned",
+          "reason": "Micro-A preview 供应链象限维持 not_applicable＋⚠数据未接 披露制（D-034③ 层需求拉动不插队；dependabot PR 供应链信号仅作事实落库不裁决）——无 Scorecard 刚需",
+          "evidence": "reports/48-micro-a-env-manager-pr55.json supply_chain 象限行"
+        }
+      ],
       "review_event": "micro-a-preview-prep"
     },
     {

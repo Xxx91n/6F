@@ -1,0 +1,155 @@
+{
+  "probe": "48-micro-a-preview.mjs",
+  "generated_at": "2026-09-16T22:42:33.409Z",
+  "ticket": 48,
+  "a_xxx": "A-056",
+  "scale": "Micro-A",
+  "gate_probes": [
+    {
+      "name": "anysearch-cli",
+      "merged_prs": 6,
+      "prs_listed": 7,
+      "eligible": true,
+      "strategy": "gh-token",
+      "degraded": false,
+      "calls": 1,
+      "stopped_reason": null
+    },
+    {
+      "name": "goose-duck-agent",
+      "merged_prs": 0,
+      "prs_listed": 0,
+      "eligible": false,
+      "strategy": "gh-token",
+      "degraded": false,
+      "calls": 1,
+      "stopped_reason": null
+    }
+  ],
+  "refusals": [
+    {
+      "refusal_for": "goose-duck-agent",
+      "overall": "unsupported",
+      "receipt": "RCP-b17d889c7191de37",
+      "outputs": {
+        "md": "48-micro-a-goose-duck-agent-refusal.md",
+        "sidecar": "48-micro-a-goose-duck-agent-refusal.json"
+      }
+    }
+  ],
+  "pilots": [
+    {
+      "repo": "env-manager",
+      "head_sha": "9eb8f24be508750f299e920d816ba9079771a3f1",
+      "merged_prs": 17,
+      "calls": 5,
+      "strategy": "gh-token",
+      "per_pr": [
+        {
+          "n": 64,
+          "form_expected": "machine-generated/release-please",
+          "form_actual": "machine-generated/release-please",
+          "form_match": true,
+          "merged": true,
+          "overall": "supported",
+          "receipt": "RCP-9fe227efa42945d8",
+          "diff_channel": "local-git",
+          "diff_artifact": "48-micro-a-env-manager-pr64.diff",
+          "diff_bytes": 1553,
+          "skeleton_ok": true,
+          "skeleton_missing": []
+        },
+        {
+          "n": 55,
+          "form_expected": "platform-declared-bot/dependabot",
+          "form_actual": "platform-declared-bot/dependabot",
+          "form_match": true,
+          "merged": true,
+          "overall": "supported",
+          "receipt": "RCP-e58cb53efc579955",
+          "diff_channel": "api",
+          "diff_artifact": "48-micro-a-env-manager-pr55.diff",
+          "diff_bytes": 1356,
+          "skeleton_ok": true,
+          "skeleton_missing": []
+        },
+        {
+          "n": 51,
+          "form_expected": "human",
+          "form_actual": "human",
+          "form_match": true,
+          "merged": true,
+          "overall": "supported",
+          "receipt": "RCP-b3f991707e3393c7",
+          "diff_channel": "local-git",
+          "diff_artifact": "48-micro-a-env-manager-pr51.diff",
+          "diff_bytes": 496,
+          "skeleton_ok": true,
+          "skeleton_missing": []
+        }
+      ],
+      "outputs": [
+        {
+          "md": "48-micro-a-env-manager-pr64.md",
+          "sidecar": "48-micro-a-env-manager-pr64.json",
+          "diff": "48-micro-a-env-manager-pr64.diff"
+        },
+        {
+          "md": "48-micro-a-env-manager-pr55.md",
+          "sidecar": "48-micro-a-env-manager-pr55.json",
+          "diff": "48-micro-a-env-manager-pr55.diff"
+        },
+        {
+          "md": "48-micro-a-env-manager-pr51.md",
+          "sidecar": "48-micro-a-env-manager-pr51.json",
+          "diff": "48-micro-a-env-manager-pr51.diff"
+        }
+      ]
+    },
+    {
+      "repo": "jiahao",
+      "head_sha": "a5b10d58ba7888fbbdf91c081bbb42767f136426",
+      "merged_prs": 7,
+      "calls": 2,
+      "strategy": "gh-token",
+      "per_pr": [
+        {
+          "n": 6,
+          "form_expected": "human",
+          "form_actual": "human",
+          "form_match": true,
+          "merged": true,
+          "overall": "supported",
+          "receipt": "RCP-967747d62c8f8b50",
+          "diff_channel": "local-git",
+          "diff_artifact": "48-micro-a-jiahao-pr6.diff",
+          "diff_bytes": 50628,
+          "skeleton_ok": true,
+          "skeleton_missing": []
+        }
+      ],
+      "outputs": [
+        {
+          "md": "48-micro-a-jiahao-pr6.md",
+          "sidecar": "48-micro-a-jiahao-pr6.json",
+          "diff": "48-micro-a-jiahao-pr6.diff"
+        }
+      ]
+    }
+  ],
+  "shared_duckdb": {
+    "file": "48-audit-facts.duckdb",
+    "appended": 101,
+    "dedup_dropped": 0,
+    "db_by_scale": {
+      "Micro-A": 101
+    },
+    "db_by_repo": {
+      "Xxx91n/anysearch-cli": 10,
+      "Xxx91n/env-manager": 75,
+      "Xxx91n/goose-duck-agent": 3,
+      "Xxx91n/jiahao": 13
+    },
+    "note": "Micro-A 事实（试点＋资格闸探针）同一 audit_fact 表同一 appendFact 写路径（单写者串行追加）"
+  }
+}

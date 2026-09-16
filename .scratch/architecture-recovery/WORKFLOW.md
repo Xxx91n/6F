@@ -226,6 +226,8 @@ Phase 之间到达 boundary 时，按本仓库偏好顺序选：
 
 | 日期 | 事由 | 影响 | 解决方案 | 引用 |
 |---|---|---|---|---|
+| 2026-09-16 | R9 #48 闭环：Micro-A preview 单票铺开——github-rest-adapter@v1 消费侧管道（PR 枚举+元数据+diff 双通道）→ 101 facts 入 48-audit-facts.duckdb（scale=Micro-A）→ 预声明判据 PC-1/TC-1~4/NC-1 → 报告双件×4 全 supported（env64 release-please 机器生成·env55 dependabot api 兜底·env51 人类·jia6 人类）＋goose-duck-agent 无托管面拒绝件 unsupported；golden cassette 回放 14/14；registry micro-a-preview-prep occurred 翻转＋desk-task15 判 decided；40-check F4/44-check E8 漂移对齐 | ① 判据文字面先于实跑锁死（criteria 文件先入库跑后禁调）——api 通道 diff 契约=NULL_STATS（适配器 apiDiff 不算 numstat），判据须编码通道条件语义（local-git→数值齐备/api→bytes>0+detail 注记）否则 api 兜底腿被误杀成 insufficient；② 票面前提漂移如实登记（anysearch-cli 票写时无托管面→实测 merged=6≥1）不硬套票面，failure 演示主体改取真负例 goose-duck-agent（merged=0）；③ 事件翻转连带绑定项全部复审留痕——review 不等于翻转，三项维持 pending＋一项 reaffirmed＋desk-task15 独判 decided | ① 托管面资格闸=枚举行 merged_at 字段即够（≥1 eligible，无需 detail 调用）；② 判据通道条件语义进 criteria 文档并注上游契约出处（apiDiff NULL_STATS 是设计非缺陷）；③ 前提漂移注记三处同源（拒绝件披露块＋日报＋账本） | D-049/D-047/D-033 + 报告 #48 |
+
 ## 4.2 通用规则引用（启动器 / 启动模板可引用 — 不复述全文）
 
 > 本节集中定义跨 Phase / 跨票通用的"会被启动器反复引用"规则。启动器（如 prompts/NN-slug.md）只能写"遵循 WORKFLOW §4.2.X"以引用，禁止复述本节任何条目。

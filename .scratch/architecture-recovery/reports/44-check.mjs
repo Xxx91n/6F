@@ -169,7 +169,7 @@ const macroC = JSON.parse(txt(join(HERE, '38-macro-c-preview-report.json')));
 t('E5 README「capability 1 of 5 · preview」== golden 实物 capability_label（Macro-B 文档↔产物同源）', goldenHappy.preview_disclosure.capability_label === 'capability 1 of 5 · preview');
 t('E6 README「capability 2 of 5 · preview」== #38 实物 capability_label（Macro-C 文档↔产物同源）', macroC.preview_disclosure.capability_label === 'capability 2 of 5 · preview');
 t('E7 examples README preview_disclosure 时点差如实注＋failure=degradeReport 演示性质', exReadme.indexOf('时点') >= 0 && exReadme.indexOf('degradeReport') >= 0 && exReadme.indexOf('preview_disclosure') >= 0);
-t('E8 三处均无 capability 3/4/5 of 5 越界承诺（边界诚实机检）', Object.keys(SRC3).every(k => SRC3[k].indexOf('capability 3 of 5') < 0 && SRC3[k].indexOf('capability 4 of 5') < 0 && SRC3[k].indexOf('capability 5 of 5') < 0));
+t('E8 越界承诺机检（README 仅允许 capability 3 of 5 · preview——#48 已上架；generate.ts/examples 仍禁 3/4/5）', SRC3['generate.ts'].indexOf('capability 3 of 5') < 0 && SRC3['generate.ts'].indexOf('capability 4 of 5') < 0 && SRC3['generate.ts'].indexOf('capability 5 of 5') < 0 && SRC3['examples/README'].indexOf('capability 3 of 5') < 0 && SRC3['examples/README'].indexOf('capability 4 of 5') < 0 && SRC3['examples/README'].indexOf('capability 5 of 5') < 0 && readme.indexOf('capability 4 of 5') < 0 && readme.indexOf('capability 5 of 5') < 0);
 
 // ---------- F. 编年指针校验（ENFORCE；D-039③：引用存在+superseded 如实计/里程碑单调/双账互指） ----------
 const clP = join(REPO, 'CHANGELOG.md');

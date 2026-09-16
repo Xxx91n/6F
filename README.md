@@ -3,7 +3,7 @@
 面向 git 记录健全仓库的工程内容审计产品：**证据采集大部分来自上游组合件，裁决协议、事实表 schema、验收闸门与可核验回执是本项目自研的护城河与黏合剂**。5 档审计粒度（Macro-A 跨仓战略 / Macro-B 仓库级四象限 / Macro-C 演化考古 / Micro-A PR diff / Micro-B file level）共享同一事实底座与裁决层，差异在触发器与报告切片。
 
 > [!NOTE]
-> 当前状态（2026-09-16）：**preview 形态（能力边界见下节矩阵）**——Macro-B / Macro-C 两层经实跑校准、报告头与披露块按 preview 口径标注；Micro-A / Micro-B / Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。发布未发生——本页为源码自举说明，不存在可安装 listing（ADR-0016 渠道决策＋上架用户闸门）。下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
+> 当前状态（2026-09-16）：**preview 形态（能力边界见下节矩阵）**——Macro-B / Macro-C 两层经实跑校准、报告头与披露块按 preview 口径标注；Micro-A 已 preview 上架（capability 3 of 5 · preview，同主试点仓校准口径）；Micro-B / Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。发布未发生——本页为源码自举说明，不存在可安装 listing（ADR-0016 渠道决策＋上架用户闸门）。下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
 
 ## 能力边界（preview 标注）
 
@@ -13,7 +13,7 @@
 |---|---|
 | Macro-B 仓库级四象限 | **capability 1 of 5 · preview**（自审首报样例见 [examples/first-report/](examples/first-report/)） |
 | Macro-C 演化考古 | **capability 2 of 5 · preview**（单仓校准披露口径） |
-| Micro-A PR diff | Not yet in preview |
+| Micro-A PR diff | **capability 3 of 5 · preview**（托管 API 适配器消费侧，同主试点仓 4-PR 校准口径） |
 | Micro-B file level | Not yet in preview |
 | Macro-A 跨仓战略 | Not yet in preview |
 

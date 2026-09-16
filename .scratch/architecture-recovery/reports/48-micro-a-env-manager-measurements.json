@@ -1,0 +1,58 @@
+{
+  "repo": "env-manager",
+  "owner": "Xxx91n",
+  "observed_at": "2026-09-16T22:42:33.409Z",
+  "head_sha": "9eb8f24be508750f299e920d816ba9079771a3f1",
+  "strategy": "gh-token",
+  "degraded": false,
+  "calls": 5,
+  "prs_listed": 62,
+  "merged_prs": 17,
+  "eligible": true,
+  "stopped_reason": null,
+  "fact_count": 75,
+  "per_pr": [
+    {
+      "n": 64,
+      "form_expected": "machine-generated/release-please",
+      "form_actual": "machine-generated/release-please",
+      "form_match": true,
+      "merged": true,
+      "overall": "supported",
+      "receipt": "RCP-9fe227efa42945d8",
+      "diff_channel": "local-git",
+      "diff_artifact": "48-micro-a-env-manager-pr64.diff",
+      "diff_bytes": 1553,
+      "skeleton_ok": true,
+      "skeleton_missing": []
+    },
+    {
+      "n": 55,
+      "form_expected": "platform-declared-bot/dependabot",
+      "form_actual": "platform-declared-bot/dependabot",
+      "form_match": true,
+      "merged": true,
+      "overall": "supported",
+      "receipt": "RCP-e58cb53efc579955",
+      "diff_channel": "api",
+      "diff_artifact": "48-micro-a-env-manager-pr55.diff",
+      "diff_bytes": 1356,
+      "skeleton_ok": true,
+      "skeleton_missing": []
+    },
+    {
+      "n": 51,
+      "form_expected": "human",
+      "form_actual": "human",
+      "form_match": true,
+      "merged": true,
+      "overall": "supported",
+      "receipt": "RCP-b3f991707e3393c7",
+      "diff_channel": "local-git",
+      "diff_artifact": "48-micro-a-env-manager-pr51.diff",
+      "diff_bytes": 496,
+      "skeleton_ok": true,
+      "skeleton_missing": []
+    }
+  ]
+}

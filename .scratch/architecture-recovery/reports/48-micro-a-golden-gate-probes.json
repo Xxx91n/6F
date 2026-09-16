@@ -1,0 +1,20 @@
+{
+  "probe": "48-micro-a-preview.mjs --golden gate",
+  "generated_at": "2026-09-16T22:56:21.912Z",
+  "criterion": "TC-4",
+  "probes": [
+    {
+      "name": "goose-duck-agent",
+      "merged_prs": 0,
+      "prs_listed": 0,
+      "eligible": false,
+      "cassette": "zero-pr-synthetic"
+    },
+    {
+      "name": "anysearch-cli",
+      "merged_prs": null,
+      "eligible": null,
+      "note": "golden 不探真仓——前提漂移核查归真跑通道"
+    }
+  ]
+}

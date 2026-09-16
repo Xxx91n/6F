@@ -1,0 +1,44 @@
+{
+  "repo": "env-manager",
+  "owner": "Xxx91n",
+  "observed_at": "2026-09-16T22:56:21.912Z",
+  "head_sha": null,
+  "strategy": "env-token",
+  "degraded": false,
+  "calls": 4,
+  "prs_listed": 62,
+  "merged_prs": 17,
+  "eligible": true,
+  "stopped_reason": null,
+  "fact_count": 71,
+  "per_pr": [
+    {
+      "n": 64,
+      "form_expected": "machine-generated/release-please",
+      "form_actual": "machine-generated/release-please",
+      "form_match": true,
+      "merged": true,
+      "overall": "supported",
+      "receipt": "RCP-c15b0e650dff3a34",
+      "diff_channel": "api",
+      "diff_artifact": "48-micro-a-golden-env-manager-pr64.diff",
+      "diff_bytes": 1549,
+      "skeleton_ok": true,
+      "skeleton_missing": []
+    },
+    {
+      "n": 51,
+      "form_expected": "human",
+      "form_actual": "human",
+      "form_match": true,
+      "merged": true,
+      "overall": "insufficient",
+      "receipt": "RCP-15ec4ae36ad12b14",
+      "diff_channel": null,
+      "diff_artifact": null,
+      "diff_bytes": 0,
+      "skeleton_ok": true,
+      "skeleton_missing": []
+    }
+  ]
+}
