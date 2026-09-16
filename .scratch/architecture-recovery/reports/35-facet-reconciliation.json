@@ -263,8 +263,8 @@
     ]
   },
   "deferred_set": {
-    "spec_approx": "~20",
-    "registered": 22,
+    "spec_approx": "~20+3（D-045 增补）",
+    "registered": 25,
     "missing_from_enum": [],
     "rows": [
       {
@@ -354,6 +354,21 @@
       {
         "spec_name": "crossing",
         "actual": "crossing"
+      },
+      {
+        "spec_name": "architecture-violations",
+        "actual": "architecture-violations",
+        "disposition_source": "D-045"
+      },
+      {
+        "spec_name": "defect-validation",
+        "actual": "defect-validation",
+        "disposition_source": "D-045"
+      },
+      {
+        "spec_name": "finding-hotspot-overlap",
+        "actual": "finding-hotspot-overlap",
+        "disposition_source": "D-045"
       }
     ]
   },
@@ -362,11 +377,16 @@
     "function-*": "function-xray/function-hotspots/function-coupling（枚举展开 3 面）",
     "metrics": "delivery-metrics（D-035④ “delivery-friction/metrics” 速写）"
   },
-  "unregistered_residual": [
-    "entity-effort",
-    "architecture-violations",
-    "finding-hotspot-overlap",
-    "defect-validation"
-  ],
-  "unregistered_residual_note": "57 枚举中 4 面既非首批（30）亦非 D-035④ 暂缓面集登记名（20 速写→22 枚举），且不在已契约面（summary/explain）。按「不静默登记」纪律：本票如实登记于此，是否纳入暂缓面集 manual_watch 由收口窗口裁决（若纳入需先补 D-035④ 账本原文，否则 33-check B3 会 FAIL）。"
+  "unregistered_residual": [],
+  "unregistered_residual_note": "已于 2026-09-16 D-045 裁决清零：1 后续批次＋3 入暂缓面集，零弃用；见 unregistered_residual_resolved",
+  "unregistered_residual_resolved": {
+    "at": "2026-09-16",
+    "by": "D-045 收口窗口裁决",
+    "dispositions": {
+      "entity-effort": "next-batch（随 S5 ownership 族契约化）",
+      "architecture-violations": "deferred-set（判据=.codelore-arch-rules.toml 存在；复审=Macro-B preview 结构象限拉动）",
+      "defect-validation": "deferred-set（判据=defects.calib.json 前置票＋SZZ 噪声披露引 Herbold 2022；复审=S4/ADR 假设抽取层拉动）",
+      "finding-hotspot-overlap": "deferred-set（判据=首个外部扫描上游接入；复审=#42 上游队列评估；激活触发 ADR-0014 适配器评估）"
+    }
+  }
 }

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "scanned_at": "2026-09-12T02:33:53.327Z",
+  "scanned_at": "2026-09-16T06:51:46.927Z",
   "scanner": "02-adr-header-scan.mjs",
   "detection_rules": {
     "date_keys": [
@@ -46,7 +46,7 @@
       "adr_files": [
         {
           "path": "docs/adr/0001-five-scale-scope.md",
-          "size_bytes": 379,
+          "size_bytes": 627,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -54,7 +54,7 @@
         },
         {
           "path": "docs/adr/0002-no-mvp-slice.md",
-          "size_bytes": 276,
+          "size_bytes": 480,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -62,7 +62,7 @@
         },
         {
           "path": "docs/adr/0003-boundary-product-and-usage.md",
-          "size_bytes": 296,
+          "size_bytes": 544,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -70,7 +70,7 @@
         },
         {
           "path": "docs/adr/0004-strategic-quadrant-five-dims.md",
-          "size_bytes": 470,
+          "size_bytes": 718,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -78,7 +78,7 @@
         },
         {
           "path": "docs/adr/0005-hub-of-facts-with-federated-adjudication.md",
-          "size_bytes": 642,
+          "size_bytes": 890,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -86,7 +86,7 @@
         },
         {
           "path": "docs/adr/0006-shared-skeleton-scale-slice.md",
-          "size_bytes": 409,
+          "size_bytes": 657,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -94,7 +94,103 @@
         },
         {
           "path": "docs/adr/0007-ten-demo-paths.md",
-          "size_bytes": 398,
+          "size_bytes": 646,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0008-agent-plugin-five-layer-box.md",
+          "size_bytes": 960,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0009-intake-local-first-url-optin.md",
+          "size_bytes": 1020,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0010-spec-repo-and-engineering-repo-split.md",
+          "size_bytes": 1491,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0011-single-repo-subdir-but-branches.md",
+          "size_bytes": 1009,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0012-value-validation-loop-first.md",
+          "size_bytes": 1005,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0013-three-layer-acceptance-gates.md",
+          "size_bytes": 1046,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0014-upstream-integration-dual-track.md",
+          "size_bytes": 1207,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0015-serial-calibration-measurement-validity-first.md",
+          "size_bytes": 1939,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0016-distribution-channel-agent-plugins-only.md",
+          "size_bytes": 1186,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0017-preview-release-model.md",
+          "size_bytes": 1453,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0018-versioning-and-chronicle-discipline.md",
+          "size_bytes": 1154,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0019-multiwriter-adjudication-swmr-facade.md",
+          "size_bytes": 1353,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -102,11 +198,11 @@
         }
       ],
       "counts": {
-        "total": 7,
+        "total": 19,
         "full_header": 0,
         "partial_header": 0,
         "metadata_only": 0,
-        "no_header": 7,
+        "no_header": 19,
         "unknown": 0
       }
     },
@@ -232,7 +328,7 @@
         },
         {
           "path": "docs/adr/0014-no-txr-txf-compensatory-writes.md",
-          "size_bytes": 5275,
+          "size_bytes": 5287,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -337,7 +433,7 @@
         },
         {
           "path": "docs/adr/0011-deployment-discipline-install-ux-drift-automation.md",
-          "size_bytes": 8282,
+          "size_bytes": 8443,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -521,7 +617,7 @@
         },
         {
           "path": "docs/adr/0034-gate-registry-single-entrypoint-orchestration.md",
-          "size_bytes": 11036,
+          "size_bytes": 11728,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -553,7 +649,7 @@
         },
         {
           "path": "docs/adr/0038-npm-runtime-artifact-surface-corpus-distribution-boundary.md",
-          "size_bytes": 6240,
+          "size_bytes": 6888,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -561,7 +657,7 @@
         },
         {
           "path": "docs/adr/0039-tarball-runtime-surface-narrowing-docs-adr-archive-channel.md",
-          "size_bytes": 7204,
+          "size_bytes": 11805,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -569,7 +665,7 @@
         },
         {
           "path": "docs/adr/0040-gate-runtime-capability-declaration-three-state-exit-honest-unverifiable.md",
-          "size_bytes": 11355,
+          "size_bytes": 11777,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -577,7 +673,7 @@
         },
         {
           "path": "docs/adr/0041-exit-semantics-unification-structured-stderr-prefixes-lane-integration.md",
-          "size_bytes": 13175,
+          "size_bytes": 14016,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -625,7 +721,7 @@
         },
         {
           "path": "docs/adr/0047-impact-tiered-instrument-change-control.md",
-          "size_bytes": 7208,
+          "size_bytes": 7333,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -641,7 +737,7 @@
         },
         {
           "path": "docs/adr/0049-decision-rule-anchor-and-metrological-ledger-completion.md",
-          "size_bytes": 8601,
+          "size_bytes": 8735,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -713,7 +809,95 @@
         },
         {
           "path": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
-          "size_bytes": 17813,
+          "size_bytes": 25411,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0059-external-critique-dialectic-closure-distribution-honesty-and-governance-posture.md",
+          "size_bytes": 10608,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0060-judge-conformity-sampling-power-indeterminate-state-and-conditional-certification.md",
+          "size_bytes": 9630,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0061-pre-registered-gate-amendment-closure-surface-narrowed-judge-identity-and-output-tethered-convergence.md",
+          "size_bytes": 11050,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0062-pre-registered-tarball-cap-amendment-policy-before-value-trend-anchor.md",
+          "size_bytes": 6267,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0063-surface-narrowed-judge-identity-anchor-semantic-digest-rejected.md",
+          "size_bytes": 7422,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0064-t6-product-round-pre-registration-mde-gates-and-governance-trend-anchor.md",
+          "size_bytes": 9367,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0065-t6-confirmatory-round-adjudication-port-surface-devin-corpus-and-claim-honesty.md",
+          "size_bytes": 8423,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0066-tarball-cap-trend-anchor-amendment-t6-product-port-surface.md",
+          "size_bytes": 6016,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0067-devin-corpus-v1-oot-falsification-adjudication.md",
+          "size_bytes": 8405,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0068-devin-corpus-v2-dual-axis-adjudication-collection-protocol-claim-slot-v3-binding.md",
+          "size_bytes": 14707,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0069-capa-claim-evidence-pairer-artifact-freeze-adjudication-anchor-readiness-positioning.md",
+          "size_bytes": 11274,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -721,11 +905,11 @@
         }
       ],
       "counts": {
-        "total": 58,
+        "total": 69,
         "full_header": 0,
         "partial_header": 0,
         "metadata_only": 0,
-        "no_header": 58,
+        "no_header": 69,
         "unknown": 0
       }
     },
@@ -770,7 +954,7 @@
         },
         {
           "path": "docs/adr/0005-architecture-grill-round-2.md",
-          "size_bytes": 6413,
+          "size_bytes": 6845,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -794,7 +978,7 @@
         },
         {
           "path": "docs/adr/0008-architecture-grill-round-5-mcp-phase2-design.md",
-          "size_bytes": 7031,
+          "size_bytes": 7035,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -970,7 +1154,7 @@
         },
         {
           "path": "docs/adr/0030-architecture-grill-round-27-memory-lifecycle-fused-freshness-factor.md",
-          "size_bytes": 9696,
+          "size_bytes": 9700,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -994,7 +1178,7 @@
         },
         {
           "path": "docs/adr/0033-architecture-grill-round-30-vector-semantic-arm.md",
-          "size_bytes": 5192,
+          "size_bytes": 6115,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -1146,7 +1330,7 @@
         },
         {
           "path": "docs/adr/0052-architecture-grill-round-49-observability-closed-loop-context-engineering.md",
-          "size_bytes": 7216,
+          "size_bytes": 7408,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -1186,7 +1370,7 @@
         },
         {
           "path": "docs/adr/0057-architecture-grill-round-57-test-truthfulness-ci-credibility.md",
-          "size_bytes": 8218,
+          "size_bytes": 18366,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -1194,7 +1378,63 @@
         },
         {
           "path": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
-          "size_bytes": 9446,
+          "size_bytes": 10866,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0059-architecture-grill-round-58-ci-shipgate-full-green-closure-multiticket.md",
+          "size_bytes": 9684,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0060-architecture-grill-round-59-archive-truthfulness-closure.md",
+          "size_bytes": 12881,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0061-architecture-grill-round-60-product-vertical-domain-closure.md",
+          "size_bytes": 6884,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0062-architecture-grill-round-61-out-of-domain-abstain-closure-readme.md",
+          "size_bytes": 7270,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0063-architecture-grill-round-62-real-usability-closure.md",
+          "size_bytes": 12715,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0064-architecture-grill-round-63-npm-001-go-no-go-release-adjudication.md",
+          "size_bytes": 8699,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0065-architecture-grill-round-64-quarantine-ttl-adjudication-assertion-granularity.md",
+          "size_bytes": 10608,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -1202,21 +1442,21 @@
         }
       ],
       "counts": {
-        "total": 58,
+        "total": 65,
         "full_header": 0,
         "partial_header": 0,
         "metadata_only": 0,
-        "no_header": 58,
+        "no_header": 65,
         "unknown": 0
       }
     }
   ],
   "aggregate": {
-    "total_adrs_scanned": 137,
+    "total_adrs_scanned": 167,
     "full_header": 1,
     "partial_header": 0,
     "metadata_only": 0,
-    "no_header": 136,
+    "no_header": 166,
     "unknown": 0
   }
 }

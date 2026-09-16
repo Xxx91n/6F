@@ -137,3 +137,16 @@ R5 开工顺序建议：R5-01/R5-02 整理期 → R5-03/R5-04 并行 → R5-05/R
 | R6-05 | 挂门守卫扩展（watch 三态）→ #33 扩展子项 | D-041 | P1 | 挂门兜底强化 | 无 |
 
 开工纪律锐化（D-040）：DoR（依赖闭合）=开工闸门；波次仅作协调/验收装置。报告契约面注记：D-037② 报告头字段（report_schema/stability/capabilities/superseded_by/provenance 锚锁表 hash）与 D-038③ 披露块合并为统一契约面，在报告 schema 票与 #45 DoD 各落一处、禁止两处手抄。
+
+## 第八轮（R7）— 来源 D-042 ~ D-047（2026-09-16 grill 轮 8：W14 收口窗口包）
+
+> W14 六项 frontier 全拍：#41b 授权至提交前／mw-a/b 判据意图读法闭环（SWMR 成文 → ADR-0019）／desk-task15 重绑＋勘误留痕／残余 4 面 1+3 分流／回归 CI 迁回 6F＋jiahao 单文件撤除／Micro-A 双试点＋第三槽。本表只做 D-xxx → 落点映射，票据内容在 BACKLOG.md。
+
+| 编号 | 任务 | D 来源 | 优先级 | 阻塞面 | 前置 |
+|---|---|---|---|---|---|
+| R7-01 | #41b 解锁至提交前一刻（BACKLOG 行已改写；listing-submission 收窄=提交动作） | D-042 | P1 | 上架资格面 | 凭据申请产出呈用户执行 |
+| R7-02 | 多写者域封口：registry mw-a/b＋desk-task7→decided、task7 判据写实化、ADR-0019 | D-043 | P0 | — | 已随整理环节落盘 |
+| R7-03 | desk-task15 重绑 micro-a-preview-prep＋勘误注记（fired 记录转审计痕迹不删） | D-044 | P0 | — | 已随整理环节落盘 |
+| R7-04 | 残余 4 面 disposition：3 面入暂缓面集（逐项判据＋复审时点）、entity-effort 归后续批次 | D-045 | P0 | — | 已随整理环节落盘；entity-effort 随 S5 ownership 族契约化票承接 |
+| R7-05 | 回归 CI 迁回 6F → #46（6F workflow 加回归 job＋jiahao 单文件撤除＋经典仓候选清单） | D-046 | P1 | mw-trigger-a 语义维持 | 6F/jiahao push 各需用户授权 |
+| R7-06 | Micro-A preview 试点集登记 {env-manager,jiahao}＋经典公开仓第三槽 | D-047 | P1 | Micro-A preview 开工 | 第三槽挂托管 API 适配器（D-034②） |

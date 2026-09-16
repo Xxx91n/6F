@@ -2,7 +2,7 @@
 
 > 来源：架构报告 = [.scratch/macro-audit/spec-phase-tasks.md](../macro-audit/spec-phase-tasks.md) 18 项
 > 决策 ledger：[decision-ledger.md](decision-ledger.md) (A-001 ~ A-048)
-> WORKFLOW 引用：[WORKFLOW.md](WORKFLOW.md) §4.2 通用规则 / ADR-0001 ~ ADR-0018
+> WORKFLOW 引用：[WORKFLOW.md](WORKFLOW.md) §4.2 通用规则 / ADR-0001 ~ ADR-0019
 
 ## Problem Statement
 
@@ -421,3 +421,14 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 
 - A-037 ~ A-048 共 12 条 → R5-D1~D12 各覆盖 1 条 = 12 覆盖，无去向记录清单 = 空。
 - 波次序列化（per 任务书/D-036）：#33 最优先 → #34/#35 并行首票 → #36/#37/#41 → #38/#39/#43 → #40；#42 触发器拉动不占波次；#32 已于轮 6 整理环节闭环。
+
+## R7 — W14 收口裁决包（来源 D-042 ~ D-047，2026-09-16 grill 轮 8）
+
+> 本段为指针段：决策全文以 docs/adr/0019 与 macro-audit decision-ledger D-042 ~ D-047 为准；执行计划见 spec-phase-tasks.md 第八轮 R7-01 ~ R7-06 与 BACKLOG.md #41b（解锁）/#46（回归 CI 迁回）。
+
+- #41b 上架面授权至提交前一刻（资产/查证/凭据申请随 DoR 开工，提交=用户闸门）；
+- 多写者域按判据意图读法闭环：SWMR 单写者门面成文、fail-fast 准入、L0→L3 升级阶梯（ADR-0019）；
+- desk-task15 触发器重绑 micro-a-preview-prep＋勘误留痕（分层账本：fired 记录不可变／绑定可修正）；
+- CodeLore 残余 4 面裁决清零：entity-effort→后续批次，architecture-violations/defect-validation/finding-hotspot-overlap→暂缓面集（逐项判据＋复审时点）；
+- Macro-B 回归 CI 迁回 6F 自有 CI（URL opt-in 公仓 clone，零 token），jiahao 仅留审计对象角色；
+- Micro-A preview 试点集 = {env-manager, jiahao}＋经典公开仓第三槽（挂托管 API 适配器前置）。

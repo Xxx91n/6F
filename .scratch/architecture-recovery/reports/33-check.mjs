@@ -61,15 +61,15 @@ t('B2 两字段占位项全登记（' + probeItems.length + ' 项）', probeMiss
 
 // B3: CodeLore 暂缓面集——每面名在 D-035④ 账本原文中可回查
 const faceItem = reg.items.find(i => i.id === 'codelore-deferred-faces');
-const d35 = macroLedger.split('\n').find(l => l.includes('D-035')) || '';
+const d35 = macroLedger.split('\n').filter(l => l.includes('D-035') || l.includes('D-045')).join('\n'); // B3 回查源=D-035④＋D-045（D-045 增补 3 面裁决；账本记录不改写故双源）
 if (!faceItem) {
-  t('B3 暂缓面集可回查 D-035④ 原文', false, 'registry item codelore-deferred-faces missing');
+  t('B3 暂缓面集可回查 D-035④∥D-045 原文', false, 'registry item codelore-deferred-faces missing');
 } else {
   const missingFaces = (faceItem.faces || []).filter(f => {
     const stem = f.replace('*', '');
     return !d35.includes(stem);
   });
-  t('B3 暂缓面集 ' + faceItem.faces.length + ' 面可回查 D-035④ 原文', missingFaces.length === 0, missingFaces.join(','));
+  t('B3 暂缓面集 ' + faceItem.faces.length + ' 面可回查 D-035④∥D-045 原文', missingFaces.length === 0, missingFaces.join(','));
 }
 
 // B4: 多写者三触发器在位

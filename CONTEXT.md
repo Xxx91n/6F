@@ -7,6 +7,7 @@
 > 轮 4 grill（2026-09-14 完成）已封口 D-020 ~ D-021：上游组件引入方式 = 适配器双轨制 + vendor 逃生舱（ADR-0014；上游经适配器进事实表、raw 语义不出适配层）+ 根 README 组合件五段式（一句话定位 / 三层盒子图+上游清单表 / Runtime View / 所有权表 / 契约声明；readme-crafter-skill 流程落盘）。
 > 轮 5 grill（2026-09-15 完成）已封口 D-022 ~ D-028：建设节奏维持 VVL 主干、阶段 2 拆 2a 冻结校准 → 2b CodeLore 单上游探针 + 阶段 1.5 量测审计先行（D-023/D-025；ADR-0015，三问决策树 desk/上游探针/自证探针 D-024）+ TC-2 RED 处置 = OOS 顺序双轨 + 勘误式双读数（D-025）+ #25 前置清单最小拍板与 LRM 挂门绑定（D-026）+ 分发渠道方向 = 纯 Agent Plugins 生态（D-027；ADR-0016）。
 > 轮 6/7 grill（2026-09-15 完成）已封口 D-029 ~ D-041：preview 分级发布模型（ADR-0017）＋阶段 3 拍板包与铺开次序＋版本与编年制度化（ADR-0018）＋#41 拆仓内/上架两片＋挂门值守三态化。
+> 轮 8 grill（2026-09-16 完成）已封口 D-042 ~ D-047：W14 收口窗口包六项全拍——#41b 授权至提交前＋多写者域意图读法闭环（ADR-0019，SWMR 门面成文）＋desk-task15 重绑勘误＋残余 4 面分流＋回归 CI 迁回 6F＋Micro-A 双试点＋第三槽。
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -236,3 +237,7 @@ _Avoid_: 样例仓进分发体（上游演化漂移击穿可复现）、隐藏�
 **Watch Tri-state（值守三态）**:
 挂门项登记表的值守状态机——event_bound（触发事件已绑、守卫机检）/ manual_watch（真·条件式判据，显式五要素：标记+责任人+复审时点+验证方法+确认留痕）/ risk_accepted（复审逾期仍未绑上时升级，须记接受人+理由+到期日）；人工盯梢是补偿控制而非缺口关闭，覆盖率 event_bound/total 须显式输出。
 _Avoid_: 隐性人工盯（prose 复审非控制）、把谓词做成通用规则引擎
+
+**SWMR Facade（单写者门面）**:
+并发写策略成文形态——引擎/存储层只准入单一写者，应用层把并行写请求收敛为串行追加；竞争失败方显式失败（fail-fast）优于隐式重试，完整性不变量（无丢行/乱序/冲突）由准入控制而非引擎层并发写保证；升级阶梯 L0 fail-fast→L1 写队列+单 owner→L2 分库→L3 服务端串行准入引擎，复审信号=锁等待入关键路径。
+_Avoid_: 引擎层并行写承诺（DuckDB 单文件非此设计目标）、判据按实现路径撰写（应守护结果属性）

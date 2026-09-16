@@ -41,7 +41,7 @@
 
 ## 阶段 3 票据包（2026-09-15 R6 grill 收口立案，来源 D-036；#43 为 D-030③ 登记候选票并入）
 
-> 次序（R7 更新，DoR 锐化 per D-040：开工闸门=依赖闭合即可拉，波次=协调/验收装置）：#32~#34 done → #35 关键路径 → #44/#45/#41a 就绪即做（filler 优先级不占关键路径）→ #36/#37 → #38 → 其余随层序；#41b 不入波次（blocked-by 用户闸门＋listing-submission）。
+> 次序（R7 更新，DoR 锐化 per D-040：开工闸门=依赖闭合即可拉，波次=协调/验收装置）：#32~#34 done → #35 关键路径 → #44/#45/#41a 就绪即做（filler 优先级不占关键路径）→ #36/#37 → #38 → 其余随层序；#41b 授权面就绪即做（D-042；提交点击=用户）。
 > 上架动作未授权（D-026/D-027 用户闸门）；各票需求面在立票环节（to-spec/to-tickets）填实。
 
 | 票号 | 标题 | 来源 D-xxx | 挂门/前置 | 备注 |
@@ -56,8 +56,11 @@
 | #39 | Macro-B 三仓 one-shot＋jiahao 持续回归接入 CI | D-033 / D-034 | 回归接入 CI = 多写者触发器 (a) 激活点 | 激活即实测封口任务 7。✅ 2026-09-16 已闭环（A-044）：三仓 one-shot 裁定 supported／unsupported／supported 如实落数＋jiahao workflow 接入 CI（mw-trigger-a 触发值守）＋多写者 self-probe 实测封口 desk-task7→triggered-bound；39-check PASS 38/38 |
 | #40 | 非自有公开仓泛化验证 ≥1（URL opt-in 首实用户） | D-033 / D-013 | Macro-B GA 前置 | ✅ 2026-09-16 已闭环（A-045）：open-gsd/gsd-core URL opt-in 接入 Macro-B 1424 facts unsupported 如实落数（TC-2 双归因区分）＋engine intake 面落地（repo add 31 断言）＋first-external-repo→occurred；40-check PASS 57/57 |
 | #41a | 分发收尾·仓内文档面：examples/first-report/ 复制四件＋披露 README／README 能力边界＋preview 标注＋「Try on a real repository」节／仓根编年首条落地 | D-030 / D-031 / D-032 / D-038 / D-039 / D-040 | 就绪即做（filler）；DoD 含「边界文案以冻结决策为唯一事实源」护栏 | 拆自 #41（D-040）✅ 2026-09-16 已闭环（A-051）：四件+披露 README／边界矩阵 capability 1-2 of 5 preview+三层 Not yet+0.x+Try 节／仓根 CHANGELOG M-001+engine 指针闭环（W4 悬空清零）；41a-check PASS；上架动作未执行（用户闸门） |
-| #41b | 分发收尾·上架面：listing 资产／marketplace 字段查证（preview 标注字段＋版本元数据 schema＋竞品扫描）／凭据申请 | D-031 / D-037 / D-026 / D-027 | **blocked-by：用户闸门明示＋listing-submission 事件**——不排程不入波次不占 WIP | 拆自 #41（D-040）；上架动作停用户闸门 |
+| #41b | 分发收尾·上架面：listing 资产／marketplace 字段查证（preview 标注字段＋版本元数据 schema＋竞品扫描）／凭据申请 | D-031 / D-037 / D-026 / D-027 | **授权至提交前一刻（D-042）**：listing 资产／marketplace 字段查证／凭据申请就绪即做；**提交动作=用户闸门**（listing-submission 收窄义=提交本体） | 拆自 #41（D-040）；上架动作停用户闸门 |
 | #42 | 上游队列：Scorecard/repomix 探针＋CodeLore sqlite dump 对照评估 | D-023 / D-034 / D-035 | 层需求拉动，不插队 | ✅ 2026-09-16 已闭环（A-047）：42-dump-comparison.md 三轴对照落文＋呈报=维持逐面契约不采纳（锁表 evaluating 不翻、采纳须另立 ADR）＋registry upstream-probes-scorecard-repomix pending+manual_watch 不插队＋供应链象限披露核查实物断言全中；42-check PASS 43/43 |
 | #43 | 样例 golden CI：CI 重渲染 fixture 并 diff，更新走 PR 审查 | D-030 | 阶段 3 候选，与 #33 同批立项 | ✅ 2026-09-16 已闭环（A-048）：golden-ci.yml 两腿重渲染+逐字节 diff（engine golden=gen-demo-golden.mjs+porcelain；examples=bundle 物化 fc00d458 worktree+e39468c overlay+等签名 README 重构，逐字 README 命令）；禁自动回写直通 main、更新只走 PR 审查明文；43-check PASS 28/28 |
 | #44 | 版本与上游锁定制度化：engine/upstream-lock.yaml 种子行＋docs/versioning.md 衔接＋README §3 上游表状态列绑锁表为机读权威＋守卫族（版本断言/锁表新鲜度/三处标注同源/编年指针校验，advisory→enforce 两段式） | D-037 / D-039 | 阶段 3 早期 | ✅ 2026-09-16 已闭环（A-049）：锁表六行种子（codelore active 0.28.0+--version 契约/duckdb+git-cli active/scorecard·repomix-gitingest planned/sqlite-dump evaluating+risk_note）＋README §3 唯一权威绑定＋engine CHANGELOG Unreleased 引 lock＋44-check PASS 56/56 两段式（ENFORCE 段已 enforce；ADVISORY=新鲜度逾期+binary 缺席）＋M-001 superseded 注记补全（0002/0010）；禁 range/浮动 tag；更新走手动窗口＋golden 回归护航 |
 | #45 | 演示入口：fixture 生成器＋definitions 三场景（happy-path/degraded-supply/degraded-incomplete）＋golden/＋demo --scenario 命令＋CASRAI 式披露块 | D-038 | 阶段 3 早期（D4 deadline 实到）；#43 前置 | ✅ 2026-09-16 已闭环（A-050）：生成器/definitions×3/golden×3/demo 命令/披露块四印记全落盘，demo.test 38/38 入 smoke，45-check PASS；合成数据不冒充真实审计；demo 走同一 Repo Intake 本地路径 |
+| #46 | 回归 CI 迁回 6F 自有 CI：6F workflow 加 macro-b 回归 job（URL opt-in clone 公开仓 → Macro-B one-shot → 工件留档；schedule+workflow_dispatch）＋ jiahao 仓 macro-b-regression.yml 单文件撤除（其余内容零触碰）＋经典公开仓候选清单呈报 | D-046 | 阶段 3 铺开窗口（承接 #39 回归腿的迁移） | mw-trigger-a 语义不变（「Macro-B 进 CI 定时回归」在 6F 侧成立）；公仓 clone 零 token；jiahao 仅作审计对象不承载我方资产；经典仓候选=语言族×git 健全度×规模短名单呈用户定；6F/jiahao push 各需用户点头 |
+
+> Micro-A preview 试点集（D-047）：{env-manager, jiahao}——env-manager 打机器 PR 边缘形态（dependabot/release-please）、jiahao 打全人基线；第三槽=经典公开仓 Micro-A 泛化点，挂托管平台 API 适配器前置（D-034② 新外部面）；PR 层试点禁无托管面仓（D-033 硬约束）。

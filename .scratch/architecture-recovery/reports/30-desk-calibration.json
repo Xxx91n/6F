@@ -49,8 +49,9 @@
       "draft": "单写者域草案：SWMR 即可——写者 = kernel CLI 单进程串行 append（只追加纪律由 assertAppendOnly 在降级路径已实跑 228 条 INSERT 校验）；读者 = 报告生成/审计查询只读。版本控制 = fact 行自带 schema_version 字段（SCHEMA_VERSION_V0）+ observed_at；演进规则见任务 8。多写者域登记 self-probe（R5-D024 纠偏已定）。",
       "confidence": "单写者域（228 条冻结实测 + 降级 JSONL 路径实证）；多写者域禁外推",
       "probe": {
-        "satisfaction": "多写者并发写入实测（多采集器并行写同一 fact 表）无丢行/乱序/冲突",
-        "review": "阶段 3 铺开多采集器后（self-probe）"
+        "satisfaction": "多写者并发发起写入时，完整性由引擎级文件锁准入保证：竞争失败方显式失败（fail-fast 零撕裂）、胜者串行追加、终读零重复行；不承诺引擎层并行写（D-043 意图读法闭环，实测锚=39-mw-self-probe.json）",
+        "review": "D-034 三触发器任一激活且「锁等待进入关键路径」实测信号→重开升级评估，从 L1 写队列（bounded queue＋单 owner 进程）起步（D-043）",
+        "satisfaction_note": "措辞于 2026-09-16 写实化改写（D-043）：判据守护结果属性非实现路径；原文「多写者并发写入无丢行/乱序/冲突」保留于 git 历史"
       }
     },
     {

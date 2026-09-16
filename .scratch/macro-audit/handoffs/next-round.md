@@ -1,31 +1,37 @@
-# 常驻任务书 — 轮 8（R5/R6 执行轮：阶段 3 铺开 = 扩面 → Macro-C → Micro-A → Micro-B → Macro-A）
+# next-round — 轮 9 常驻任务书（W14 收口后）
 
-> 生成：2026-09-15 grill 轮 7 收口整理环节。上一轮结果与权威文件指针见 .scratch/macro-audit/decision-ledger.md「轮 7 收口对账」节。
-> 唯一事实源：docs/adr/0001~0018 + CONTEXT.md（56 词）+ 两本账本（.scratch/macro-audit/decision-ledger.md D-001~D-041 / .scratch/architecture-recovery/decision-ledger.md A-001~A-053）+ spec-phase-tasks.md（含 R5/R6 节）+ .scratch/architecture-recovery/BACKLOG.md（票据包 #32~#45）+ docs/versioning.md。开工前先读这些，不许凭记忆。
-> 阶段 3 串行骨架（D-034）：扩面 → Macro-C → Micro-A → Micro-B → Macro-A；横切项挂触发器，非前置门禁。
-> 开工纪律（D-040 锐化）：开工闸门 = DoR（依赖闭合即可拉）；波次仅作协调/验收装置。
-> 上架动作未授权（D-026/D-027 用户闸门）；preview 标注诚实是决策本体（ADR-0017）。
+> 生成于 2026-09-16 轮 8 整理环节（handoff skill）。任何子 Agent 读本文件即可接续：先读本节口径→按 T 序执行→每项声明覆盖的 D-xxx 不得超出账本原文范围。
+> 唯一事实源 = .scratch/macro-audit/decision-ledger.md；执行账 = .scratch/architecture-recovery/decision-ledger.md（A 系列）；验收守卫 = .scratch/architecture-recovery/reports/NN-check.mjs（exit 0 才算过）。
 
-## 任务（每项声明覆盖 D-xxx）
+## 口径基线（读前必知）
 
-> **轮 8 执行进度（2026-09-16）**：T0~T14 已闭环（T15=#41b blocked-by 用户闸门不排程；A-037~A-053 登记 + 33-check 16/16 + 34-check 11/11 + 35-check 22/22 + 36-check 20/20 + 37-check 40/40 + 38-check 36/36 + 39-check 38/38 + 40-check 57/57 + 41a-check 39/39 + 42-check 43/43 + 43-check 28/28 + 44-check 56/56 + 45-check 51/51；commits vrm/wns/txk + r8 栈 lro/tyt + r9 栈 yvn/ytz/kuy/szk/oru/sps/unv/zkm/ppm/xsl/rmw/kvx/uxv/xqx + jiahao 侧 zqm）。守卫首跑 ALARM 4 已全部拍板清零（P2→D-037 / B3.3→D-039 / D4→D-038，registry 三项 status=decided）。#35 经独立审计 20/20 成立、文书级返修已落地（残余 4 面裁决挂 registry manual_watch 项 codelore-residual-faces）。**#38 Macro-C preview 已闭环（第二能力层）：anysearch-cli 全链实跑 1012 facts、披露块双件、共享事实库触发 mw-trigger-b；#39 Macro-B 三仓 one-shot＋jiahao 回归已闭环：三仓裁定 supported/unsupported/supported 如实落数、jiahao workflow 接入 CI 触发 mw-trigger-a（多写者 self-probe 实测封口执行毕——并行写者锁互斥 SWMR 维持，desk-task7→triggered-bound；mw-trigger-a/b 双 ALARM 值守中）**。**#40 非自有仓泛化验证已闭环（Macro-B GA 前置达成）：open-gsd/gsd-core 经 URL opt-in 接入实跑 Macro-B 1424 facts unsupported（TC-2 dash+加粗 Status 漏认归因），first-external-repo→occurred + desk-task2→triggered-bound + desk-task15→ALARM 值守；engine intake 面落地（repo add，31 断言）**。**#45 演示入口已闭环（R6 首票）：fixture-generator 确定性合成仓（pin author/date 逐字节 SHA/merge/多分支/tag）＋definitions 三场景＋golden 逐字节 diff（#43 消费面就位）＋cli demo [--scenario]（跑完即弃）＋CASRAI 披露块四印记复用 preview_disclosure 同一契约；demo.test 38/38 入 smoke、45-check PASS；A-050 done**。**#41a 分发收尾·仓内文档面已闭环（R6-03 filler）：examples/first-report/ 四件+披露 README（真实产物/commit/日期/重生成命令+冻结时点+failure 性质+preview_disclosure 时点差）／README 边界矩阵（capability 1-2 of 5 · preview＋三层 Not yet in preview）+0.x 语义+Try-on-real-repo 节／仓根 CHANGELOG M-001 编年首条（区间实物读出）+engine/CHANGELOG.md 指针闭环（W4 悬空清零）；41a-check PASS；A-051 done**。**#43 样例 golden CI 已闭环（R5-12 收官票）：golden-ci.yml 两腿重渲染+逐字节 diff 非零即 fail——engine golden 走 gen-demo-golden.mjs+porcelain 断言，examples/first-report 走仓内 bundle 物化 fc00d458 冻结 worktree（GitButler 快照不入 pushed ref 的新发现→薄包传输法）+e39468c overlay+等签名 README 重构（原脏文件失存→facts intent_count 反推签名）→逐字跑 README 重生成命令；禁自动回写明文（contents:read+零 commit/push/writeback+更新只走 PR 审查写进注释与 examples README）；单平台裁定理由在档；43-check PASS 28/28、本机正误两态实跑证据齐；A-048 done**。**#44 版本与上游锁定制度化已闭环（R6-01 P0 首发 tag 前置达成）：engine/upstream-lock.yaml 六行种子（codelore active exact-version 0.28.0＋--version 契约/duckdb-node-api+git-cli active/scorecard·repomix-gitingest planned/codelore-sqlite-dump evaluating＋risk_note）＋README §3 状态列唯一机读权威绑定＋engine/CHANGELOG Unreleased 引 lock＋upstream-lock.yaml 随 tgz；44-check PASS 56/56 两段式（ENFORCE=锁表结构/版本断言三方同值/README 绑定/三处 preview 标注同源/编年指针；ADVISORY=新鲜度逾期+binary 缺席 WARN 转 enforce 挂首发 tag 手动窗口）；首跑抓出 M-001 漏计 ADR-0010 superseded 已补全；npm test 全链绿+selftest 5/5；A-049 done**。**#42 上游队列值守已闭环（R5-11）：sqlite dump 三轴对照评估落文（42-dump-comparison.md）＋呈报=维持逐面契约不采纳为事实输入面（锁表 evaluating 不翻、采纳须另立 ADR）＋Scorecard/repomix 层需求拉动登记（registry upstream-probes-scorecard-repomix pending+manual_watch 不插队）＋供应链象限披露核查实物断言全中；42-check PASS 43/43；A-047 done**。**#33-ext 挂门守卫扩展已闭环（R6-05 收口）：manual_watch 7 项五要素 3/5→5/5＋micro-a-preview-prep 事件登记＋33-check 并入扩展 D7+E1 断言（fail-closed 堵 W6/逾期→risk_accepted 候选名单不自动翻转/COVERAGE 23/30）PASS 16/16＋npm test 全链绿；A-053 done**。T0~T14 除 T15（#41b 用户闸门 blocked）全部闭环；栈均未 push（用户闸门）。
+- 并发策略 = SWMR 单写者门面（ADR-0019）：判据守护结果属性非实现路径；fail-fast 准入=完整性成立的合法形态
+- 分层账本纪律（D-044）：fired 事件=不可变 append-only 历史；绑定=可修正配置；绑错=规则缺陷，修规则＋留 disposition/勘误
+- 暂缓面集现 25 枚举（D-035④ 22＋D-045 增 3）；B3 回查源=D-035∥D-045
+- 回归 CI 归属=6F 自有 CI（D-046）：jiahao 仅作审计对象；经典公开仓可入回归面
+- Micro-A preview 试点={env-manager,jiahao}＋第三槽（托管 API 适配器前置，D-047）
+- 上架面授权至提交前一刻（D-042）：凭据申请/字段查证/listing 资产可开工；**提交点击=用户**
 
-- **T0 立票（先行，串行门）✅ DONE 2026-09-15**：R5 票据包展开完成。**覆盖：D-029~D-036。**
-- **T1 挂门机检化（#33/R5-02）✅ DONE 2026-09-15**：guard 8/8，首跑 ALARM 4 已消化。**覆盖：D-026、D-034、D-024。**
-- **T2 plugin.json 合规（#34/R5-03）✅ DONE 2026-09-15**：Agent Plugins 1.0.0 对齐＋AJV 入 guard。**覆盖：D-036、D-012 余款。**
-- **T3 CodeLore 扩面首批（#35/R5-04）✅ DONE 2026-09-15（审计返修落地 2026-09-16）**：演化主干 12 面＋S3 族 6 面＋S5 族 12 面≈30 面，逐面 golden 契约测试（ADR-0014）。**关键路径，Macro-C preview 前置。覆盖：D-035、D-034。**
-- **T4 版本与上游锁定制度化（#44/R6-01，新票 P0）✅ DONE 2026-09-16**：锁表六行种子＋README §3 唯一权威绑定＋守卫族 44-check PASS 56/56（版本断言实跑 codelore --version 三方同值/锁表新鲜度/三处标注同源/编年指针——ENFORCE 段已 enforce、ADVISORY=新鲜度逾期+binary 缺席 WARN）；M-001 superseded 注记补全（0002/0010）。**覆盖：D-037、D-039。**（原文留档：① engine/upstream-lock.yaml 种子行（codelore active exact-version＋--version 契约／scorecard+repomix planned／sqlite-dump evaluating）；② README §3 上游表状态列绑锁表为机读权威；③ 守卫族——版本断言 job（实际 --version==锁表）＋锁表新鲜度＋三处 preview 标注同源＋编年指针校验（引用 ADR 存在且非 superseded/里程碑单调/双账互指），advisory→enforce 两段式；④ docs/versioning.md 已成文（本环节），本票按文落实物。**覆盖：D-037、D-039。**）
-- **T5 演示入口（#45/R6-02，新票）✅ DONE 2026-09-16**：fixture 生成器＋fixtures/definitions 三场景（happy-path/degraded-supply/degraded-incomplete）＋fixtures/golden/＋demo --scenario 命令（临时目录生成、跑完即弃）＋CASRAI 式机器可读披露块（与 D-037② 报告头字段同一契约面，禁止两处手抄）。demo 走同一 Repo Intake 本地路径（D-013）。**#43 前置已就位（definitions 落盘可消费）；覆盖：D-038。**
-- **T6 分发收尾·仓内文档面（#41a/R6-03，filler 优先级）✅ DONE 2026-09-16**：examples/first-report/ 四件+披露 README＋README 边界矩阵+0.x+Try-on-real-repo＋仓根 CHANGELOG M-001+engine 指针闭环；41a-check PASS；A-051 done。**覆盖：D-030、D-031、D-032、D-038、D-039、D-040。**（原文留档：① examples/first-report/ 复制四件＋披露 README；② README 能力边界＋preview 标注＋0.x 语义＋「Try on a real repository」节（opt-in 公共小仓链接＋「外部内容随上游变化」标注）；③ 仓根 CHANGELOG.md 编年首条落盘（M-xxx 键，区间写时从实物读出）；DoD 护栏=边界文案以冻结决策为唯一事实源，扩面变更走文案 update 子项。**就绪即做不占关键路径；受 #44 指针守卫覆盖。覆盖：D-030、D-031、D-032、D-038、D-039、D-040。**）
-- **T7 挂门守卫扩展（#33 扩展子项/R6-05）✅ DONE 2026-09-16**：registry watch 三态 schema 齐备化（manual_watch 7 项五要素 3/5→5/5：owner=收口窗口指派＋登记位/review_event 机读锚=stage3-close·micro-a-preview-prep 新事件·双锚/verify_method=守卫路径＋判据清点/confirmations 归一；meta 落文 watch_schema＋confirmation_schema 四必备字段）＋守卫并入 33-check.mjs（裁定：单一挂门守卫）——D 组 7 断言 fail-closed 堵 W6＋E 组扫 manual_watch「复审逾期→ALARM+RISK-ACCEPTED-CANDIDATE 候选不自动翻转/确认缺失→WARN」＋COVERAGE event_bound 23/30 每运行输出；红证两态实跑；PASS 16/16 exit 0＋npm test 全链绿不回归。**覆盖：D-041。**
-- **T8 LLM 面独立票（#36/R5-05）✅ DONE 2026-09-16**：explain 族 env 门控＋成本验收面——实物枚举修正（analyze 枚举 explain-*=0；LLM 面=explain --llm/diff --llm/mcp explain_file），env 五变量契约+门控判读+llm_cost 计量+超限降级；契约测试 25/25 两形态；36-check.mjs PASS 20/20。**覆盖：D-035。**
-- **T9 试点面可用性审计（#37/R5-06）✅ DONE 2026-09-16**：三仓实测脚本→层×仓 capacity 矩阵（37-check 40/40；D-033 对照 2 一致 2 出入呈报）。**覆盖：D-033。**
-- **T10 Macro-C preview（#38/R5-07）✅ DONE 2026-09-16**：anysearch-cli 校准全链实跑（codelore 30/30+ADR 65+supersede 8 边↔37 一致+llm_gated 降级披露）＋preview_disclosure 披露块双件（happy+failure）＋共享事实库（Macro-B 228+Macro-C 1012 → mw-trigger-b 触发登记）；38-check 36/36。**覆盖：D-034、D-032、D-033。**
-- **T11 Macro-B 三仓 one-shot＋jiahao 回归（#39/R5-08）✅ DONE 2026-09-16**：三仓 one-shot 全链实跑（env-manager 276f supported / anysearch-cli 1041f **unsupported**·TC-2 Status 缺失率超线如实落数 / jiahao 1101f supported，receipt×3）+ 共享库 2418 行；jiahao workflow 接入 CI（schedule+workflow_dispatch，已上架层限定）→ mw-regression-ci occurred + mw-trigger-a trigger-fired（ALARM 值守）；self-probe 实测封口（并行写者锁互斥/SWMR 维持）desk-task7→triggered-bound；39-check PASS。**覆盖：D-033、D-034、D-024。**
-- **T12 非自有仓泛化验证（#40/R5-09）✅ DONE 2026-09-16**：open-gsd/gsd-core（非自有/92 ADR/5887 commits/dash+加粗形态）经 engine `repo add` URL opt-in 接入——intake 模块落地（隔离缓存 sha256 键/全深度/浅拒 SHALLOW-CLONE-REJECTED/禁远程配置执行 hooksPath=noop+ext.allow=never/凭据复用本地链，intake.test 31 断言入 smoke）→ 40-macro-b-one-shot（=39 同构复用）1424 facts **unsupported**（TC-2 RED cond_b：Status dash+加粗漏认率 0.9783 vs anysearch-cli 真缺失——双归因如实区分，RCP-d4f119c5a2cac629）；first-external-repo→occurred；desk-task2→triggered-bound（judgeable=92≥5）；desk-task15 pending→ALARM（判据属 Micro-A 未上架层）；40-check PASS。**覆盖：D-033、D-013。**
-- **T13 上游队列值守（#42/R5-11）✅ DONE 2026-09-16**：42-probe.mjs 只读枚举 dump 面形态（sqlite=full fact-store dump 需 --output／parquet 仅 hotspots·revisions·summary 3 面／内部 schema_v8 不在 codelore schema 公开面／sqlite 内嵌 provenance 表／format 行↔#35 drift=none）→ 42-dump-comparison.md 三轴对照落文（轴①契约字段覆盖 0/30 层级错位 dump=ingest 原料 vs 契约=分析产出／轴②16 项上游语义须复刻入防腐层=结构性违反 ADR-0014／轴③golden 只能钉内部 schema_v8 非契约面）＋atomcode 调研五先例（K8s etcd/Terraform state/GitLab internal/GH Archive/CodeQL SARIF）；**呈报=维持逐面契约路径不采纳为事实输入面**（锁表 evaluating 不翻、呈报不代拍；采纳门=另立 ADR＋pin＋golden 回归不焊死；dump 合法域=诊断调研原料不进 verdict 输入）；registry 新增 upstream-probes-scorecard-repomix（pending＋manual_watch 五要素＋触发条件字段，层需求拉动不插队）33-check 8/8 无回归；供应链象限「⚠ 数据未接」披露核查 39×3＋38×2 实物断言全中；42-check PASS 43/43；engine 源码零改动 npm test 全链绿。**覆盖：D-023、D-034、D-035。**
-- **T14 样例 golden CI（#43/R5-12）✅ DONE 2026-09-16**：`.github/workflows/golden-ci.yml` golden job 两腿重渲染+逐字节 diff 非零即 fail（engine golden 经 `node scripts/gen-demo-golden.mjs`+porcelain 断言；examples/first-report 经仓内 `23-frozen-fc00d458.bundle` 物化 GitButler 快照 commit→worktree→e39468c overlay+等签名 README 重构→逐字跑 README 重生成命令）；更新只走 PR 审查、workflow 零 commit/push/回写（contents: read）；单平台 ubuntu+Node24 裁定理由在注释；43-check PASS 28/28；本机实跑四件逐字节一致（receipt↔披露值）+篡改红证检出。**覆盖：D-030。**
-- **T15 分发收尾·上架面（#41b/R6-04）**：listing 资产＋marketplace 字段查证（preview 字段＋版本元数据 schema 缺口＋竞品扫描）＋凭据申请。**blocked-by 用户闸门明示＋listing-submission；不排程不入波次不占 WIP。覆盖：D-031、D-037、D-026、D-027。**
+## 任务序列
+
+| T | 任务 | 覆盖 D-xxx | 交付面 | Suggested skills |
+|---|---|---|---|---|
+| T0 | 开工前置：读本任务书＋账本 R7 节＋ADR-0019；跑 33-check 确认值守面基线 | D-043~D-047 | 基线快照 | — |
+| T1 | **#46 回归 CI 迁回**：6F `.github/workflows/` 加 macro-b 回归 job（URL opt-in clone 公仓→one-shot→工件；schedule+workflow_dispatch） | D-046 | engine 仓库 workflow＋验证工件 | implement / tdd（契约断言） |
+| T2 | **#46 jiahao 撤除**：删 `D:\Aworker\jiahao\.github\workflows\macro-b-regression.yml` 单文件；前后 `git diff` 断言恰 1 文件删除 | D-046 | jiahao 仓单提交 | 无（最小外科） |
+| T3 | **#46 经典仓候选清单**：语言族×git 健全度×规模短名单（如 C/Python/Java 各一）呈用户定；选定后接入 T1 job 的 repo matrix | D-046 / D-013 | 候选呈报＋matrix 配置 | research（atomcode） |
+| T4 | **#41b 上架面开工**：listing 资产（截图/描述/图标）＋marketplace 字段查证（preview 标注字段/版本元数据 schema/竞品扫描）＋凭据申请材料包——提交动作停用户 | D-042 / D-031 / D-037 | 资产＋查证文档入仓；凭据材料呈用户 | atomcode-research（marketplace 查证） |
+| T5 | registry 复核：desk-task15 重绑后首复审窗=micro-a-preview-prep occurred 时拉起；manual_watch 7 项确认留痕随复审写入 | D-044 / D-041 | registry confirmations | — |
+| T6 | entity-effort 后续批次票：随 S5 ownership 族契约化窗口立案（判据＝该族拉动） | D-045 | BACKLOG 行（届时） | — |
+| T7 | Micro-A preview 前置包：试点集双仓 PR 面实测复核（env-manager 机器 PR 边缘形态／jiahao 全人基线）；第三槽等托管 API 适配器 | D-047 / D-034② | preview 前置审计记录 | codebase-design |
+| T8 | mw-trigger-c 值守维持：Macro-A 启动即复审；若届时设计仍单写者串行采集→本域永久封口呈报 | D-043 / D-034 | registry 状态翻转呈报 | — |
+| T9 | 暂缓面集 25 面值守：判据逐面挂住（新增 3 面判据见 33-gate-registry face_criteria）；复审时点=各层 preview 前置 | D-045 / D-035 | registry confirmations | — |
+| T10 | 提交动作（**用户专属**）：marketplace listing 最终提交点击；jiahao/6F 远端 push 授权确认 | D-026 / D-027 / D-042 | 用户操作 | — |
+
+## 轮 8 执行回执（保留行，验收账锚）
+
+- **T0~T14 ✅ DONE 2026-09-15/16**（R5/R6 票据包全闭环）：T0 立票／T1 #33 挂门机检化／T2 #34 plugin.json／T3 #35 CodeLore 30 面（含审计返修）／**T4 #44 版本与上游锁定制度化 ✅ DONE 2026-09-16**（锁表种子＋44-check 56/56；覆盖 D-037/D-039）／T5 #45 演示入口／T6 #41a 仓内文档面／T7 #33 扩展 watch 三态／T8 #36 LLM 面门控／T9 #37 试点审计／T10 #38 Macro-C preview／T11 #39 三仓 one-shot＋jiahao 回归（jiahao 侧 workflow 已按 D-046 列入 #46 撤除）／T12 #40 gsd-core 泛化验证／T13 #42 上游队列／T14 #43 golden CI
+- **T15 #41b**（上轮 blocked）：本轮 D-042 授权至提交前一刻→转入本任务书 T4
 
 ## 纪律规则（不可协商）
 
@@ -33,19 +39,4 @@
 2. 【数据源】整理的唯一数据源 = 账本；认为存在但账本没有的结论 → 列出并停下问，不许直接写进文档。
 3. 【对账闸】整理环节 = 枚举 current → 逐条去向 → 无去向清单非空即停。
 4. 【冲突协议】调研结论与 current 决策冲突 → 禁止静默改向：对应 D-xxx 标 revised（保留原记录）+ 新 D-xxx 呈报等拍板。
-5. 【VCS】$but 全程；push/land/上架属用户闸门；本轮例外只在用户明示时。构建/测试一律 CI，本机仅轻量 node 断言（守卫脚本模式：reports/NN-check.mjs + exit 0 + PASS/FAIL）。
-6. 【原子性】票产物落 reports/、守卫随票；账本行状态由执行窗口写、收口窗口复核核实。
-7. 【preview 诚实】降级披露机制（⚠ unverified / ⚠ 数据未接 / capability N of 5 / synthetic fixture）为对外承诺载体；禁止为撑首发补齐未验证 scale 的展示面（ADR-0017）。
-8. 【触发器纪律】挂门项既不作铺开期前置门禁，亦不无限拖——触发即实测封口（Trigger-gated Closure）；manual_watch 逾期转 risk_accepted 候选（D-041）。
-9. 【锁定纪律】上游版本一律经 upstream-lock.yaml 登记，禁 range/浮动 tag，更新走手动窗口＋golden 回归（D-037）。
-
-## Suggested skills
-
-- $but —— 版本控制（立分支/commit；land+push 需用户明示）
-- $to-spec / $to-tickets —— 新票（#44/#45/#41a/#33-ext）立票链
-- $implement —— 票执行（drives tdd at pre-agreed seams，收口 code-review）
-- $atomcode-research —— 票内调研（串行单发、-p 只放问题、timeout 600000）
-- $domain-modeling —— 新术语/ADR 锐化（CONTEXT.md 只放词汇，实现决策进 docs/adr/）
-- $grill-with-docs —— 若票执行暴露与 current 决策冲突需重新下探时
-- $readme-crafter-skill —— #41a README/编年/披露页写作
-- $handoff / $neat-freak —— 轮 8 收口归档与知识治理
+5. 【用户闸门】上架提交点击／远端 push（6F、jiahao 各需明示）／凭据实操 = 用户专属；agent 只备料。
