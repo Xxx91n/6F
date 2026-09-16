@@ -1,5 +1,9 @@
 // #39 守卫——Macro-B 三仓 one-shot：产物齐/证据锚/registry 翻转/jiahao CI 接入/self-probe 实测/被测仓零写入
 // 用法：node 39-check.mjs → 逐条 PASS/FAIL；exit 0 = 全 PASS，exit 1 = 有 FAIL
+// ERRATA 2026-09-16（D-046 回归 CI 迁回 6F 后）：本脚本为 #39 接入时点守卫，fired 记录属不可变历史（D-044 口径）。
+//   F1/F3「jiahao workflow 存在/链完整」已被 D-046 撤除决策 superseded——现行回归面守卫 = 46-check.mjs；
+//   F5/I3 失效另因 but 分支 r9-39-macro-b-regression 已并入 main 致 ref 消耗（非数据丢失，git log --all 可达）；
+//   E4 期望 mw-trigger-a 值守 ALARM 输出——D-043 已将该触发器翻 decided，ALARM 口径随之变化。
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';

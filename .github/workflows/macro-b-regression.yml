@@ -1,0 +1,145 @@
+name: macro-b-regression
+
+# #46 / D-046 / spec-phase-tasks R7-05 —— Macro-B 回归 CI 迁回 6F 自有 CI（承接 #39 jiahao 侧回归腿迁移）
+#
+# 链：resolve（定目标集）→ engine install/gen/build → clone 被测公开仓（URL opt-in 零 token；
+#   intake 隔离纪律 #40：core.hooksPath=noop + protocol.ext.allow=never + 全深度浅拒断言）
+#   → 39-macro-b-one-shot.mjs --repo <name> --root audited-repo --out macro-b-artifacts
+#   → 工件断言（receipt + sidecar + md + facts + duckdb；test -s 非零字节 + RCP 强断言）→ upload-artifact。
+#
+# 触发面：schedule（每周一 03:17 UTC，沿用 #39 节拍）+ workflow_dispatch（repo_url opt-in 或复跑默认集）。
+#   - 不接 push / pull_request：本面=定时审计回归而非 PR 门禁（同 D-034④a 口径）；
+#   - 已上架层限定：只跑 Macro-B one-shot，preview 层不混入（D-033 持续回归仅限已上架层）；
+#   - job 绿 = 管线跑通且工件齐备，非裁定绿——supported/unsupported/insufficient 三档如实落数（反复接受非跑通）；
+#   - mw-trigger-a 语义不变：「Macro-B 进 CI 定时回归」在 6F CI 形态同样成立（D-046④），D-043 裁决不受影响；
+#   - repo_url 仅 https:// 公开仓（D-013 输入面）；ssh/file/ext:: 等协议面拒入，clone 守 #40 intake 隔离；
+#   - matrix.repo.* 进 run 一律经 env 间接引用（$REPO_URL/$REPO_NAME），堵 $()/反引号穿 JSON 注入；
+#     clone 腿对 $REPO_URL 再跑 https-only 闸门（defense-in-depth，不信上游 resolve 输出）；
+#   - 默认回归集 = jiahao（撤 CI 后仍作审计对象不承载我方资产，D-046）；
+#     T3 经典公开仓候选经用户选定后追加进 resolve job 的 DEFAULT JSON（一仓一行）。
+on:
+  schedule:
+    - cron: '17 3 * * 1'   # 每周一 03:17 UTC —— 定时回归（D-034④a 触发面）
+  workflow_dispatch:
+    inputs:
+      repo_url:
+        description: '被测公开仓 clone URL（https opt-in；留空 = 跑默认回归集）'
+        required: false
+        default: ''
+        type: string
+      repo_name:
+        description: '被测仓短名（工件命名用；留空 = 从 URL 尾段推导）'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    name: resolve targets
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set.outputs.matrix }}
+    steps:
+      - id: set
+        env:
+          OPT_URL: ${{ inputs.repo_url }}
+          OPT_NAME: ${{ inputs.repo_name }}
+        run: |
+          set -euo pipefail
+          # 默认回归集（schedule / dispatch 留空时）：T3 经典公开仓候选经用户选定后追加 {name,url} 至此 JSON。
+          DEFAULT='{"repo":[{"name":"jiahao","url":"https://github.com/Xxx91n/jiahao.git"}]}'
+          if [ -z "$OPT_URL" ]; then
+            echo "matrix=$DEFAULT" >> "$GITHUB_OUTPUT"
+            echo "targets = default regression set: $DEFAULT"
+            exit 0
+          fi
+          # URL opt-in 单仓：仅 https:// 公开仓（禁 ssh/git/file/ext:: 等协议面）
+          case "$OPT_URL" in
+            https://*) ;;
+            *) echo "::error::repo_url 仅允许 https:// 公开仓 clone URL（got: $OPT_URL）"; exit 1 ;;
+          esac
+          name="$OPT_NAME"
+          [ -z "$name" ] && name="$(basename "$OPT_URL" .git)"
+          # 工件命名安全：短名归一 [a-z0-9._-]，去首尾分隔符
+          name="$(printf '%s' "$name" | tr 'A-Z' 'a-z' | sed 's/[^a-z0-9._-]/-/g' | sed 's/^[._-]*//;s/[._-]*$//')"
+          [ -z "$name" ] && { echo "::error::repo_name 为空且无法从 URL 推导"; exit 1; }
+          echo "matrix={\"repo\":[{\"name\":\"$name\",\"url\":\"$OPT_URL\"}]}" >> "$GITHUB_OUTPUT"
+          echo "targets = opt-in single: $name <- $OPT_URL"
+
+  macro-b:
+    name: macro-b / ${{ matrix.repo.name }}
+    needs: resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        repo: ${{ fromJSON(needs.resolve.outputs.matrix) }}
+    steps:
+      - name: checkout audit engine (self)
+        uses: actions/checkout@v4
+        with:
+          path: engine-repo
+          fetch-depth: 0          # one-shot 证据锚读 .scratch 仓内文件；全量对象与 #39 先例一致
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24   # 对齐 golden-ci 同仓 CI 惯例（engine engines>=20 无碍；engine-ci 矩阵另覆盖 20/22）
+          cache: npm
+          cache-dependency-path: engine-repo/engine/package-lock.json
+
+      - name: build engine
+        working-directory: engine-repo/engine
+        run: |
+          npm ci --ignore-scripts
+          npm run gen
+          npm run build
+
+      - name: clone audited repo (URL opt-in / intake isolation)
+        env:
+          REPO_URL: ${{ matrix.repo.url }}
+        run: |
+          set -euo pipefail
+          # defense-in-depth：不信上游 resolve 输出，clone 腿重跑 https-only 闸门
+          case "$REPO_URL" in
+            https://*) ;;
+            *) echo "::error::repo url 仅允许 https://（got: $REPO_URL）"; exit 1 ;;
+          esac
+          mkdir -p .clone-noop-hooks
+          git -c core.hooksPath="$GITHUB_WORKSPACE/.clone-noop-hooks" \
+              -c protocol.ext.allow=never \
+              clone "$REPO_URL" audited-repo
+          # 浅拒断言（engine/src/intake.ts SHALLOW-CLONE-REJECTED 同构：全深度才准入）
+          test "$(git -C audited-repo rev-parse --is-shallow-repository)" = "false"
+
+      - name: Macro-B one-shot regression
+        env:
+          REPO_NAME: ${{ matrix.repo.name }}
+        run: |
+          node engine-repo/.scratch/architecture-recovery/reports/39-macro-b-one-shot.mjs \
+            --repo "$REPO_NAME" \
+            --root "$GITHUB_WORKSPACE/audited-repo" \
+            --out "$GITHUB_WORKSPACE/macro-b-artifacts"
+
+      - name: verify report artifacts (receipt + sidecar + md + facts + duckdb present)
+        env:
+          REPO_NAME: ${{ matrix.repo.name }}
+        run: |
+          test -s "macro-b-artifacts/39-macro-b-$REPO_NAME.json"
+          grep -Eq '"receipt_id"[[:space:]]*:[[:space:]]*"RCP-[0-9a-f]{16}"' "macro-b-artifacts/39-macro-b-$REPO_NAME.json"
+          grep -q '"scale": "Macro-B"' "macro-b-artifacts/39-macro-b-$REPO_NAME.json"
+          test -s "macro-b-artifacts/39-macro-b-$REPO_NAME.md"
+          test -s "macro-b-artifacts/39-macro-b-$REPO_NAME-facts.jsonl"
+          test -s "macro-b-artifacts/39-macro-b-$REPO_NAME-measurements.json"
+          test -s "macro-b-artifacts/39-audit-facts.duckdb"
+          echo "macro-b regression artifacts verified (pipeline green; verdict recorded honestly in report)"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macro-b-${{ matrix.repo.name }}-${{ github.run_id }}
+          path: macro-b-artifacts/
+          if-no-files-found: warn

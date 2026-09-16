@@ -1,7 +1,7 @@
 // 39-macro-b-one-shot.mjs — Macro-B（已上架层）三仓 one-shot 泛化验证（#39 / A-044 / R5-08 / spec §R5-D8）
 // 用法：
 //   node 39-macro-b-one-shot.mjs                                      # 默认三仓全跑（D:/Aworker/{env-manager,anysearch-cli,jiahao}），产物落本目录
-//   node 39-macro-b-one-shot.mjs --repo jiahao --root <abs> --out <dir>  # 单仓形态（CI 回归用：jiahao .github/workflows/macro-b-regression.yml）
+//   node 39-macro-b-one-shot.mjs --repo jiahao --root <abs> --out <dir>  # 单仓形态（CI 回归用：6F .github/workflows/macro-b-regression.yml）
 // 链 = 采集（gitlog + adr-structure@v2 + positioning）→ fact（39-macro-b-<repo>-facts.jsonl + 共享 39-audit-facts.duckdb）
 //   → 裁决（PC-1/PC-2 正对照 + TC-1/2/3 真判据 + NC-1 负对照，阈值=22-criteria-pre-registration.md 预声明，跑后禁调）
 //   → 报告（buildReport + preview_disclosure「capability 1 of 5 · preview」）
@@ -299,7 +299,7 @@ async function runOneShot(target) {
   ];
   const recommendations = [
     { rec_id: 'R-39-' + R + '-1', priority: 'P1', action: '引入 ≥1 非自有公开仓经 URL opt-in 跑 Macro-B（衔接 #40 / D-013）', rationale: '三试点仓同主属 dogfooding——generative not evaluative（D-033）；one-shot 裁定只作校准+冒烟，不构成泛化证据，GA 前置须外部仓', expected_impact: '泛化证据链闭环，Macro-B GA 准入条件达成', effort: 'M', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-39-' + R + '-07'], degraded_note: null },
-    { rec_id: 'R-39-' + R + '-2', priority: 'P2', action: 'jiahao 持续回归以 .github/workflows/macro-b-regression.yml 承载（schedule 定时回归 + workflow_dispatch），本仓其余两仓维持只读 one-shot', rationale: 'D-033② 指派 jiahao 为 Macro-B 回归仓；接入动作 = 多写者触发器 (a) 激活点（D-034④a）', expected_impact: '已上架层获得定时回归面；触发器 (a) 激活进值守通道', effort: 'S', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-39-' + R + '-07'], degraded_note: null }
+    { rec_id: 'R-39-' + R + '-2', priority: 'P2', action: 'jiahao 持续回归由 6F 仓 .github/workflows/macro-b-regression.yml 承载（schedule 定时回归 + workflow_dispatch URL opt-in），jiahao 仅作审计对象不承载我方资产；本仓其余两仓维持只读 one-shot', rationale: 'D-033② 指派 jiahao 为 Macro-B 回归仓；D-046 回归 CI 迁回 6F 自有 CI；接入动作 = 多写者触发器 (a) 激活点（D-034④a）', expected_impact: '已上架层获得定时回归面；触发器 (a) 激活进值守通道', effort: 'S', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-39-' + R + '-07'], degraded_note: null }
   ];
   const HEADLINE = NAME + ' Macro-B one-shot（capability 1 of 5 · preview）：' + COMMIT_COUNT + ' commits / ADR ' + tc2Total + ' 份 / facts ' + realFacts.length + '——TC-1 ' + tc1Verdict + '（n=' + tc1Judgeable + '）、TC-2 ' + tc2Verdict + '（mean=' + meas.tc2.mean_ratio_4 + '）、TC-3 ' + tc3Verdict + '（' + meas.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '（反复接受非跑通：三档如实落数）。';
 
