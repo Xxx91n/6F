@@ -476,6 +476,14 @@
           "decision": "reviewed-stay-pending",
           "reason": "Micro-A preview 判据=证据完整性/托管面资格闸/选择性——不拉 codelore 暂缓面集（行为象限接入归 #51 Macro-B 切片，非本票）；维持 pending",
           "evidence": "reports/48-micro-a-criteria.md 判据集"
+        },
+        {
+          "at": "2026-09-16",
+          "by": "#51 落盘复核",
+          "criterion_version": "manual_watch 复核（面集增减如实登记）",
+          "decision": "partial-activation-noted",
+          "reason": "暂缓面集 3 面激活（hotspots/coupling/function-hotspots→CODELORE_BEHAVIOR_FACETS group=behavior，Macro-B behavior 切片消费）；function-coupling 新登记暂缓（--target 参数面形态）；其余暂缓面不动。非事件翻转——面集状态留痕。",
+          "evidence": "engine/src/upstream/codelore.ts CODELORE_BEHAVIOR_FACETS + reports/51-behavior-schema.json + 51-check.mjs"
         }
       ],
       "owner": "收口窗口指派（登记位：macro-audit decision-ledger D-035④ 暂缓面集——层 preview 票承接）",

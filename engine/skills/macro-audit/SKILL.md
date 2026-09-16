@@ -14,6 +14,7 @@ description: 宏观+微观工程内容审计。在 agent 工作流内触发 Macr
 
 ## 输出
 - 四象限叙事报告（共享骨架 + scale 切片）；行动建议章含 verdict-gate 印记（receipt）。
+- Macro-B 象限能力矩阵：strategy=active（S1+S2）· behavior=preview（codelore churn/hotspot/coupling 切片，#51）· structure=queued（与 S3 族双口径风险暂缓）· supply-chain=queued（Scorecard 不插队）。
 
 ## 叙事双轨（D-053）
 - 叙事生成=宿主 agent（概率面）；引文盖章=kernel `sealNarrative`（确定性面）；degraded 兜底=kernel 模板叙事（⚠ unverified，不冒充正式叙事）。

@@ -1,0 +1,35 @@
+{
+  "recorded_at": "2026-09-16T23:50:06.764Z",
+  "codelore_version": "0.28.0",
+  "faces": {
+    "hotspots": [
+      "path",
+      "revisions",
+      "cognitive",
+      "cognitive_health",
+      "hotspot_score",
+      "mi",
+      "mi_rank",
+      "ai_pct",
+      "hotspot_score_anchored"
+    ],
+    "coupling": [
+      "entity_a",
+      "entity_b",
+      "shared",
+      "revs_a",
+      "revs_b",
+      "average_revs",
+      "degree",
+      "fisher_p"
+    ],
+    "function-hotspots": [
+      "path",
+      "function",
+      "revs",
+      "cognitive",
+      "cognitive_health",
+      "function_hotspot_score"
+    ]
+  }
+}

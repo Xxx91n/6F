@@ -11,7 +11,7 @@
 
 | scale | 状态 |
 |---|---|
-| Macro-B 仓库级四象限 | **capability 1 of 5 · preview**（自审首报样例见 [examples/first-report/](examples/first-report/)） |
+| Macro-B 仓库级四象限 | **capability 1 of 5 · preview**（自审首报样例见 [examples/first-report/](examples/first-report/)）；象限面矩阵：**strategy: active**（S1+S2 采集面已上架）· **behavior: preview**（codelore churn/hotspot/coupling 切片，#51）· **structure: queued**（与 S3 族双口径风险暂缓，D-054）· **supply-chain: queued**（D-034③ Scorecard 不插队） |
 | Macro-C 演化考古 | **capability 2 of 5 · preview**（单仓校准披露口径） |
 | Micro-A PR diff | **capability 3 of 5 · preview**（托管 API 适配器消费侧，同主试点仓 4-PR 校准口径） |
 | Micro-B file level | Not yet in preview |

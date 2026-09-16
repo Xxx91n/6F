@@ -137,7 +137,7 @@ export function collectCodeloreFacts(input: CodeloreProbeInput, ctx: CollectCont
 // LLM 面（explain 族 env 门控）不混入，归 #36 独立票；暂缓面集 ~20 面挂 registry manual_watch（D-035④）。
 // 本层仍只做「进程调用 + 原始输出解析」：冻结 argv 属契约钉死（可观察输出即契约），任何判据/评级语义不进本层。
 
-export type CodeloreFacetGroup = 'evolution' | 's3' | 's5';
+export type CodeloreFacetGroup = 'evolution' | 's3' | 's5' | 'behavior';
 
 export interface CodeloreFacetSpec {
   analysis: string;
@@ -177,6 +177,22 @@ export const CODELORE_BATCH1_FACETS: readonly CodeloreFacetSpec[] = [
   { analysis: 'team-composition', group: 's5', extraArgs: [] },
   { analysis: 'marginal-owner-risk', group: 's5', extraArgs: [] },
   { analysis: 'pair-programming', group: 's5', extraArgs: [] }
+];
+
+// ---------- 行为面（#51 / A-058 / D-054）：Macro-B behavior 象限切片 ----------
+// churn/hotspot/change-coupling 三族的最小行为集（2026-09-16 实物跑 codelore analyze 确认 schema，
+// reports/51-behavior-schema.json 留痕）：
+//   hotspots          → {path, revisions, cognitive, cognitive_health, hotspot_score, mi, mi_rank, ai_pct, hotspot_score_anchored}
+//   coupling          → {entity_a, entity_b, shared, revs_a, revs_b, average_revs, degree, fisher_p}
+//   function-hotspots → {path, function(name@lines), revs, cognitive, cognitive_health, function_hotspot_score}
+// 暂缓面：function-coupling 需 --target <path> 参数（按实体逐个跑，非全仓扫描形）——登记为 deferred face；
+//   另有 clone-coupling/sarif 形态、effort-exposure/delivery-* 族归后续面集扩展票（registry codelore-deferred-faces 缓）。
+// quadrant 归位规则（D-054③）：fact.quadrant=collector 声明域（strategic/codelore 族 provenance），
+//   报告象限归属=切片决策——Macro-B behavior QuadrantEntry 消费本面集事实即归位，facts 不被改写。
+export const CODELORE_BEHAVIOR_FACETS: readonly CodeloreFacetSpec[] = [
+  { analysis: 'hotspots', group: 'behavior', extraArgs: [] },
+  { analysis: 'coupling', group: 'behavior', extraArgs: [] },
+  { analysis: 'function-hotspots', group: 'behavior', extraArgs: [] }
 ];
 
 export interface CodeloreAnalysisRun {
