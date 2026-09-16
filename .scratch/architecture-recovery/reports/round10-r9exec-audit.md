@@ -93,3 +93,50 @@ Fowler 基线：无可行动 smell（NN-check 族 helper 重复属本仓惯例�
 - atomcode 5.0.9 独立复核 T4（13 源、官方文档全文级）。
 - 未覆盖：GitHub Actions 未真跑（无 push 即无 CI 实跑面，静态核）；Agent Plugins 1.0.0 schema 未直接复核；jiahao push 责任方认定超仓库证据能力。
 - 本窗未改任何被审对象文件；本报告为唯一产出。
+
+---
+
+# 附：LOOP-2 复审（轮 10 返修窗口落地后，2026-09-16）
+
+> 复审对象 = 报告末节「轮 10 返修窗口」＋ amend 后 r9 栈（001fe00/2333e49/fe6bbd9）。返修 delta = `git diff fd3d628..fe6bbd9`（本审计提交之上）。方法同首轮：不信自述，验收亲跑＋delta 全文件逐读。
+
+## 结论：PASS（六项修复要求全闭合，无新增缺陷）
+
+## 重跑验收（亲跑，非引用）
+
+| 项 | 结果 |
+|---|---|
+| engine `npm test` | exit 0 全链绿（GEN-OK/tsc/SMOKE 6/6/COLLECTORS 14/14/ADAPTER 7/7/BATCH1 41/41/LLM 25/25/REPORT-PREVIEW 5/5/INTAKE 31/31/DEMO 38/38） |
+| `npm run package` | exit 0，tgz 54 件 76.6kB |
+| `node dist/cli.js selftest` | ok:true 5/5 |
+| `46-check.mjs` | **PASS 30/30** exit 0（新增 A15/A16/A17/D4 返修钉断言全落） |
+| `33-check.mjs` | PASS 16/16 exit 0，ALARM 0 / WARN 11 / COVERAGE 23/30 |
+| jiahao `2755bf35` | 仍恰 1 文件 D（.github/workflows/macro-b-regression.yml） |
+
+## §6 修复清单 → 实物复核
+
+| # | 要求 | 实物 | 判定 |
+|---|---|---|---|
+| 1 | npm ci 惯例 / env 间接引用 / test -s+RCP 强断言 / node 版本 | workflow 全量重读：`npm ci --ignore-scripts`（无裸 install）；node-version: 24 带分歧注释；clone/one-shot/verify 三步全 `$REPO_URL`/`$REPO_NAME` env 间接引用且 clone 腿重跑 https-only 闸门（defense-in-depth）；verify 六断言 `test -s` + `grep -Eq "receipt_id...RCP-[0-9a-f]{16}"` | ✅ |
+| 2 | one-shot 头注改 6F＋守卫钉 | L4 注释已指 `6F .github/workflows/...`；46-check D4 双断言钉住（正向 6F 引用在 ∧ 负向 jiahao 残留缺席） | ✅ |
+| 3 | 收口回写族 | A-054 落账本 R7 新段（done→implemented，证据锚齐含轮 10 返修注记）；BACKLOG #46 行补 ✅（46-check 30/30 注记）；WORKFLOW §4 追加 lessons 行且把 P-1 教训内化（「本地待 push 时点快照会失效→写可机检状态」）；46-* 三件套按 41a 模板补立（prompt 已含 npm ci/env 纪律检查点） | ✅ |
+| 4 | 术语/行文 | description.md 改正（五层盒子=Agent Plugins 分发包装层，审计层改称「五层审计能力」）；credential-checklist「凭据申请收敛为路径选择+表单点击+push 授权」＋B 路径人工审核属提交后流程注记 | ✅ |
+| 5 | 守卫自身强化 | 46-check D1 改 `/PASS (\d+)\/\1/` 同值判；A9 字面等强断言（RCP 格式+scale+文件名全钉） | ✅ |
+| 6 | handoff 勘误 | T2 行改记「已在 origin/main」+ push 项划线勘误；口径=记可机检事实不追认归因 | ✅ |
+
+## 残余观察（非阻塞，登记不阻断）
+
+- next-round.md T 表无逐条 ✅：该文件定位为前向常驻任务书，完成态权威锚已齐（A-054/BACKLOG/报告/三件套）；轮 9 回执节属下一整理环节产物，不在返修域。
+- P-1 归因：返修采「登记可机检事实、不追认归因」立场——文书与现实已一致化（报告轮10节/handoff/账本 A-054/三件套口径统一）；归因本身未认定，若需追查属用户另行动作。
+- 46-check E2 自指断言仍在（验证报告含 #46 节），现被 A-054 行与三件套外部锚补强，弱化解除。
+- 轮 9 历史节保留时点自述原文，勘误以轮 10 节＋handoff＋账本为准（指针式，可接受——历史节不改写属账本纪律同类）。
+
+## 复审范围与面
+
+- delta 全文件逐读毕：workflow/46-check.mjs/39-one-shot/两账本/BACKLOG/WORKFLOW/spec/30-desk-calibration/listing×2/46-* 三件套/next-round/39-check ERRATA 头注/33-check B3 双源扩写——engine 源码零改动，密钥扫描零命中（命中项全为「零 token」否定断言行文）。
+- 附带改动均属已申报语义：desk-calibration task7 satisfaction 按 D-043 写实化并留 satisfaction_note 原文指针；spec.md 追加 R7 指针段＋ADR 区间改 ~0019；33-check B3 回查源扩 D-035∥D-045（正确修法）；39-check ERRATA 头注降级时点守卫声明。
+- Standards 轴首轮 FAIL 项全部以规范面修复（npm ci/node 24/注释链序/术语）；Spec 轴无新增越界：delta 无未申报状态翻转、无 scope creep。
+
+## LOOP-2 结论陈词
+
+轮 9 执行窗口交付物 + 轮 10 返修合计满足任务书与全部 D-xxx 约束；首轮三项阻塞（惯例违规/收口断档/push 自述冲突）全部闭合。判定 **PASS**。交接见 `.scratch/macro-audit/handoffs/2026-09-16-r10-audit-pass-handoff.md`。
