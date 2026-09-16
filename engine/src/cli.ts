@@ -3,6 +3,7 @@ import { runSelftest } from './selftest.js';
 import { loadManifestMeta } from './manifest.js';
 import { repoAdd } from './intake/intake.js';
 import { runDemo, listScenarios } from './demo/demo.js';
+import { projectFacts } from './fact/projection.js';
 
 const cmd = process.argv[2] ?? '--help';
 
@@ -14,8 +15,22 @@ if (cmd === '--version' || cmd === '-v') {
   console.log(JSON.stringify(r));
   process.exit(r.ok ? 0 : 1);
 } else if (cmd === 'mcp') {
+  // MCP 查询面（D-053④）：read-only facts 投影 stub——宿主 agent 叙事面的唯一取数主路。
+  // 面收窄：固定 SELECT 形不接裸 SQL；openReader READ_ONLY 实例；projection 列=FactEvent 十三列。
   const m = loadManifestMeta();
-  console.log(JSON.stringify({ transport: m.mcp.transport, readOnly: m.mcp.readOnly, note: 'read-only query face (skeleton stub)' }));
+  const sub = process.argv[3];
+  if (sub === 'facts') {
+    const args = process.argv.slice(4);
+    const opt = (n: string) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
+    const db = opt('--db');
+    if (!db) { console.error('usage: macro-audit mcp facts --db <path> [--scale S] [--repo owner/repo] [--subject ref] [--limit n]'); process.exit(2); }
+    const lim = opt('--limit');
+    projectFacts(db, { scale: opt('--scale'), repo_ref: opt('--repo'), subject_ref: opt('--subject'), limit: lim ? Number(lim) : undefined })
+      .then(function (rows) { for (const r of rows) { console.log(JSON.stringify(r)); } })
+      .catch(function (e) { console.error(JSON.stringify({ error: 'MCP-FACTS-ERROR', message: String(e && (e as Error).message || e) })); process.exit(2); });
+  } else {
+    console.log(JSON.stringify({ transport: m.mcp.transport, readOnly: m.mcp.readOnly, ops: ['facts'], usage: 'macro-audit mcp facts --db <path> [--scale S] [--repo owner/repo] [--subject ref] [--limit n]', note: 'read-only facts projection stub (D-053④)' }));
+  }
 } else if (cmd === 'repo') {
   // Repo Intake（ADR-0009 / D-013）：repo add <path|owner/repo|url> [--cache <dir>]
   // clone 仅经 CLI/配置文件入口可达；kernel MCP 查询面保持只读。

@@ -76,8 +76,9 @@
       "note": "D-055 触发器：用户/宿主生态明确要求 hooks 呈现面实建"
     },
     "narrative-surface-landed": {
-      "occurred": false,
-      "note": "D-057② 复审锚：#50 闭环即叙事实物出现"
+      "occurred": true,
+      "date": "2026-09-16",
+      "evidence": "#50 落点：叙事实物出现——engine/src/report/narrative.ts（sealNarrative 三态/band 红线/model id）＋references 三件＋mcp facts 只读投影；narrative.test.mjs 25 断言"
     },
     "repomix-reopen-demand": {
       "occurred": false,
@@ -667,13 +668,23 @@
       "trigger_event": null,
       "trigger": "#50 叙事双轨票闭环、叙事实物出现后另立评测票",
       "review_at": "#50 闭环验收时同步评审本项",
-      "status": "pending",
+      "status": "triggered-bound",
       "watch": "manual_watch",
       "owner": "macro-audit 队列值守",
       "verify_method": "#50 闭环确认（BACKLOG 行 ✅＋NN-check PASS）→ 本项转 triggered-bound 并立评测票（叙事质量评测面：grounded stamp 准确率/κ 校准基线）",
       "review_event": "narrative-surface-landed",
-      "confirmations": [],
-      "source": "macro-audit decision-ledger D-057②（评测面登记暂缓面，先物后尺；内嵌 #50=自写自评失独立性、永不评=model id 死字段）"
+      "confirmations": [
+        {
+          "at": "2026-09-16",
+          "by": "#50 闭环验收",
+          "criterion_version": "registry verify_method 原文（#50 闭环确认→triggered-bound 并立评测票）",
+          "decision": "triggered-bound-ticket-filed",
+          "reason": "#50 闭环达成（叙事实物存在：narrative.test 25/25＋references 三件＋mcp facts 投影）——按 verify_method 转 triggered-bound；评测票立案=BACKLOG #52（评测面判据独立于本票，防自写自评）",
+          "evidence": "test/narrative.test.mjs + reports/50-check.mjs + BACKLOG #52"
+        }
+      ],
+      "source": "macro-audit decision-ledger D-057②（评测面登记暂缓面，先物后尺；内嵌 #50=自写自评失独立性、永不评=model id 死字段）",
+      "bound_to": "#52 评测票（叙事质量评测面：grounded stamp 准确率/κ 校准基线——先物后尺，被测对象=host-agent 叙事段）"
     },
     {
       "id": "repomix-reopen-trigger",

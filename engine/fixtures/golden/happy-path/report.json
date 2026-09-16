@@ -720,6 +720,7 @@
       "Macro-A"
     ]
   },
+  "narrative_sections": [],
   "machine_contract": {
     "citation_anchor_format": "evidence_id + source + locator（三者齐备即为可解析引文锚）",
     "verdict_enum": [
@@ -727,6 +728,7 @@
       "unsupported",
       "insufficient"
     ],
-    "human_adjudication_status": "pending"
+    "human_adjudication_status": "pending",
+    "narrative_seal_protocol": "ADR-0013-C/v1+narrative-seal/v1"
   }
 }
