@@ -1,0 +1,1451 @@
+# WORKDIFF round12 exec window
+# base=d1f1afb (round11-closeout tip) head=b6ebc60 (r12-47-github-rest tip)
+# commits: 80e6af3 feat(#47) + b6ebc60 docs(#47)
+# dropped data-bulk sections (read directly if needed):
+#   .scratch/architecture-recovery/reports/47-capture/detail-51.json (410 lines)
+#   .scratch/architecture-recovery/reports/47-capture/detail-64.json (422 lines)
+#   .scratch/architecture-recovery/reports/47-capture/diff-64.meta.json (26 lines)
+#   .scratch/architecture-recovery/reports/47-capture/diff-64.txt (37 lines)
+#   .scratch/architecture-recovery/reports/47-capture/list-auth.json (22908 lines)
+#   .scratch/architecture-recovery/reports/47-capture/list-unauth.json (22908 lines)
+#   engine/test/fixtures/github-rest/authenticated.cassette.json (6621 lines)
+#   engine/test/fixtures/github-rest/platform-bot.cassette.json (543 lines)
+#   engine/test/fixtures/github-rest/rate-limit-exhausted.cassette.json (62 lines)
+#   engine/test/fixtures/github-rest/schema-drift.cassette.json (319 lines)
+#   engine/test/fixtures/github-rest/unauthenticated-degraded.cassette.json (6300 lines)
+
+=== NAME-STATUS ===
+M	.scratch/architecture-recovery/BACKLOG.md
+M	.scratch/architecture-recovery/WORKFLOW.md
+M	.scratch/architecture-recovery/decision-ledger.md
+A	.scratch/architecture-recovery/handoffs/47-github-rest-adapter.md
+A	.scratch/architecture-recovery/issues/47-github-rest-adapter.md
+A	.scratch/architecture-recovery/prompts/47-github-rest-adapter.md
+M	.scratch/architecture-recovery/reports/44-check.mjs
+A	.scratch/architecture-recovery/reports/47-capture/detail-51.json
+A	.scratch/architecture-recovery/reports/47-capture/detail-64.json
+A	.scratch/architecture-recovery/reports/47-capture/diff-64.meta.json
+A	.scratch/architecture-recovery/reports/47-capture/diff-64.txt
+A	.scratch/architecture-recovery/reports/47-capture/list-auth.json
+A	.scratch/architecture-recovery/reports/47-capture/list-unauth.json
+A	.scratch/architecture-recovery/reports/47-check.mjs
+A	.scratch/architecture-recovery/reports/47-report.md
+A	.scratch/macro-audit/handoffs/2026-09-16-r12-exec-handoff.md
+M	.scratch/macro-audit/reports/2026-09-16-report.md
+M	README.md
+M	docs/versioning.md
+M	engine/CHANGELOG.md
+M	engine/package.json
+A	engine/src/upstream/github-rest.ts
+A	engine/test/fixtures/github-rest/authenticated.cassette.json
+A	engine/test/fixtures/github-rest/platform-bot.cassette.json
+A	engine/test/fixtures/github-rest/rate-limit-exhausted.cassette.json
+A	engine/test/fixtures/github-rest/schema-drift.cassette.json
+A	engine/test/fixtures/github-rest/unauthenticated-degraded.cassette.json
+A	engine/test/github-rest.test.mjs
+M	engine/upstream-lock.yaml
+
+=== STAT ===
+ .scratch/architecture-recovery/BACKLOG.md          |     2 +-
+ .scratch/architecture-recovery/WORKFLOW.md         |     1 +
+ .scratch/architecture-recovery/decision-ledger.md  |     8 +
+ .../handoffs/47-github-rest-adapter.md             |    32 +
+ .../issues/47-github-rest-adapter.md               |    19 +
+ .../prompts/47-github-rest-adapter.md              |    37 +
+ .../architecture-recovery/reports/44-check.mjs     |     4 +-
+ .../reports/47-capture/detail-51.json              |   402 +
+ .../reports/47-capture/detail-64.json              |   414 +
+ .../reports/47-capture/diff-64.meta.json           |    18 +
+ .../reports/47-capture/diff-64.txt                 |    30 +
+ .../reports/47-capture/list-auth.json              | 22900 +++++++++++++++++++
+ .../reports/47-capture/list-unauth.json            | 22900 +++++++++++++++++++
+ .../architecture-recovery/reports/47-check.mjs     |   128 +
+ .../architecture-recovery/reports/47-report.md     |    49 +
+ .../handoffs/2026-09-16-r12-exec-handoff.md        |    37 +
+ .scratch/macro-audit/reports/2026-09-16-report.md  |     8 +
+ README.md                                          |     4 +-
+ docs/versioning.md                                 |     2 +-
+ engine/CHANGELOG.md                                |     1 +
+ engine/package.json                                |     2 +-
+ engine/src/upstream/github-rest.ts                 |   677 +
+ .../github-rest/authenticated.cassette.json        |  6613 ++++++
+ .../github-rest/platform-bot.cassette.json         |   535 +
+ .../github-rest/rate-limit-exhausted.cassette.json |    54 +
+ .../github-rest/schema-drift.cassette.json         |   311 +
+ .../unauthenticated-degraded.cassette.json         |  6292 +++++
+ engine/test/github-rest.test.mjs                   |   184 +
+ engine/upstream-lock.yaml                          |    11 +-
+ 29 files changed, 61663 insertions(+), 12 deletions(-)
+
+=== PATCH ===
+diff --git a/.scratch/architecture-recovery/BACKLOG.md b/.scratch/architecture-recovery/BACKLOG.md
+index 035b108..799246c 100644
+--- a/.scratch/architecture-recovery/BACKLOG.md
++++ b/.scratch/architecture-recovery/BACKLOG.md
+@@ -62,7 +62,7 @@
+ | #44 | 版本与上游锁定制度化：engine/upstream-lock.yaml 种子行＋docs/versioning.md 衔接＋README §3 上游表状态列绑锁表为机读权威＋守卫族（版本断言/锁表新鲜度/三处标注同源/编年指针校验，advisory→enforce 两段式） | D-037 / D-039 | 阶段 3 早期 | ✅ 2026-09-16 已闭环（A-049）：锁表六行种子（codelore active 0.28.0+--version 契约/duckdb+git-cli active/scorecard·repomix-gitingest planned/sqlite-dump evaluating+risk_note）＋README §3 唯一权威绑定＋engine CHANGELOG Unreleased 引 lock＋44-check PASS 56/56 两段式（ENFORCE 段已 enforce；ADVISORY=新鲜度逾期+binary 缺席）＋M-001 superseded 注记补全（0002/0010）；禁 range/浮动 tag；更新走手动窗口＋golden 回归护航 |
+ | #45 | 演示入口：fixture 生成器＋definitions 三场景（happy-path/degraded-supply/degraded-incomplete）＋golden/＋demo --scenario 命令＋CASRAI 式披露块 | D-038 | 阶段 3 早期（D4 deadline 实到）；#43 前置 | ✅ 2026-09-16 已闭环（A-050）：生成器/definitions×3/golden×3/demo 命令/披露块四印记全落盘，demo.test 38/38 入 smoke，45-check PASS；合成数据不冒充真实审计；demo 走同一 Repo Intake 本地路径 |
+ | #46 | 回归 CI 迁回 6F 自有 CI：6F workflow 加 macro-b 回归 job（URL opt-in clone 公开仓 → Macro-B one-shot → 工件留档；schedule+workflow_dispatch）＋ jiahao 仓 macro-b-regression.yml 单文件撤除（其余内容零触碰）＋经典公开仓候选清单呈报 | D-046 | 阶段 3 铺开窗口（承接 #39 回归腿的迁移） | mw-trigger-a 语义不变（「Macro-B 进 CI 定时回归」在 6F 侧成立）；公仓 clone 零 token；jiahao 仅作审计对象不承载我方资产；经典仓候选=语言族×git 健全度×规模短名单呈用户定；6F/jiahao push 各需用户点头。✅ 2026-09-16 已闭环（A-054）：6F macro-b-regression.yml 落地（resolve→fromJSON matrix／URL opt-in／intake 隔离三件／one-shot→verify 强断言→upload-artifact，schedule+dispatch，零 token）＋jiahao 单文件撤除 2755bf35（恰 1 文件 D）＋经典仓候选短名单呈报待选定；46-check PASS 30/30（含轮 10 返修强化） |
+-| #47 | 托管平台 API 适配器：GitHub REST 主路（env token）＋gh 已认证态可选回退＋无认证降级；最小契约=PR 枚举（平台 Bot 双检）＋元数据＋diff 双通道（本地 git 优先/API 兜底）；限流 x-ratelimit+Retry-After；凭据三级探测不建存储；golden cassette（认证/无认证降级/限流耗尽/schema 漂移/平台 Bot） | D-048 / ADR-0020 | 阶段 3 铺开窗口（Micro-A preview #48 硬前置） | kind=remote-api 已登记锁表 planned；API 面不替代 D-013 本地输入面；review/comment=planned 不入最小契约；私仓=token 必需披露 |
++| #47 | 托管平台 API 适配器：GitHub REST 主路（env token）＋gh 已认证态可选回退＋无认证降级；最小契约=PR 枚举（平台 Bot 双检）＋元数据＋diff 双通道（本地 git 优先/API 兜底）；限流 x-ratelimit+Retry-After；凭据三级探测不建存储；golden cassette（认证/无认证降级/限流耗尽/schema 漂移/平台 Bot） | D-048 / ADR-0020 | 阶段 3 铺开窗口（Micro-A preview #48 硬前置） | kind=remote-api 已登记锁表 planned；API 面不替代 D-013 本地输入面；review/comment=planned 不入最小契约；私仓=token 必需披露 ✅（2026-09-16：github-rest.ts 落盘 682 行＋cassette×5＋test 51/51 入 smoke＋锁表→active＋47-check PASS＋A-055；见 issues/47-github-rest-adapter.md） |
+ | #48 | Micro-A preview 单票铺开：适配器消费侧管道（PR intake→facts→共享骨架 Micro-A 切片）＋双仓实跑＋报告双件＋披露三件套；验收序列=① golden 管道 PASS→② env-manager 三形态（dependabot/release-please/人类各1）→③ jiahao 全人基线→④ failure 件（anysearch-cli 无托管面诚实拒绝）→⑤ 披露→⑥ desk-task15 核验＋micro-a-preview-prep 事件闭环 | D-049 | 阶段 3 铺开窗口（前置 #47） | PR 集=恰 4 条已 merged＋diff 规模适中；token 缺席=degraded golden cassette 不混测；desk-task15=骨架机械导出字段断言进 NN-check；披露含同主偏差＋平台声明 Bot 措辞＋走主路/回退标注；叙事写「试点集」不写「覆盖面」 |
+ | #49 | 回归 matrix 经典仓接入：git/git＋django/django＋spring-projects/spring-boot 三语言族各一 leg 入 macro-b-regression resolve job JSON；dispatch 首跑实测克隆耗时，超预算（20min）按备选表换（curl/flask/kafka） | D-050 | 阶段 3 铺开窗口 | 只读克隆审计场景 license 无传染；TC-1/TC-2 落 INCONCLUSIVE 仍属有效回归信号（管线跑通＋工件齐备=job 绿） |
+ 
+diff --git a/.scratch/architecture-recovery/WORKFLOW.md b/.scratch/architecture-recovery/WORKFLOW.md
+index 4cfea08..bad7d5d 100644
+--- a/.scratch/architecture-recovery/WORKFLOW.md
++++ b/.scratch/architecture-recovery/WORKFLOW.md
+@@ -338,3 +338,4 @@ Phase 之间到达 boundary 时，按本仓库偏好顺序选：
+ | 2026-09-16 | R5 #42 闭环：上游队列值守——42-probe.mjs 只读枚举 dump 面形态（sqlite=full fact-store dump/parquet 仅 3 面/内部 schema_v8 不在 codelore schema 公开面）→ 42-dump-comparison.md 三轴对照落文＋atomcode 五先例；呈报=维持逐面契约不采纳为事实输入面（锁表 evaluating 不翻）；registry 新增 upstream-probes-scorecard-repomix 层需求拉动条目；42-check.mjs PASS 43/43 | ① 「dump vs 契约」先问数据层级再谈字段——dump=ingest 原料层导出、契约=分析产出层，对契约字段覆盖天然 0/30；② 内部 schema 不是契约面——`codelore schema` 公开目录=57 输出行类型，dump 的 schema_v8 无对外语义标注，golden 钉它=钉实现细节快照；③ 触发条件为「条件」时选 manual_watch 而非强绑事件——层需求拉动无单一事件可绑，强绑 stage3-rollout 会造伪 WARN | ① 评估类值守票的产出=对照落文＋注记锚定，「评估完」不等于「可翻状态」——状态翻转权属 ADR 拍板不越权；② dump 合法域=诊断/调研原料（Terraform/GH Archive 先例同型），进 verdict 输入面才须 ADR；③ 探针「禁写副作用」边界=只跑 stdout 枚举面（--help/docs/schema/profile），不跑 analyze --output——评估对象是面形态契约非单份产物 | D-023/D-034/D-035③ + 报告 #42 |
+ | 2026-09-16 | R6 #33-ext 闭环：挂门守卫扩展——registry watch 三态 schema 齐备化（manual_watch 7 项五要素 3/5→5/5：owner/review_event 机读锚/verify_method 补齐＋micro-a-preview-prep 事件登记）＋33-check.mjs D 组 7 断言（fail-closed 事件引用堵 W6/三态枚举/留痕结构/BOM）＋E 组 manual_watch 扫描（逾期→ALARM+RISK-ACCEPTED-CANDIDATE 不自动翻转/确认缺失→WARN）＋COVERAGE event_bound 23/30 输出；PASS 16/16＋红证两态实跑 | ① fail-open 是挂门守卫最危险方向——`ref && table[ref]` 短路把悬空引用静默跳过，可选引用字段必须独立断言可解析性；② 「默认态」也要显式校验——event_bound 缺省即默认，其不变式（须有事件锚）不断言就会出现名义默认实际无锚的游离项；③ 复审时点机读锚取事件不取日历——复审点全是事件型 prose 时编日期=虚构，登记事件把层节律变成可判 occurred 的锚 | ① 守卫扩展先红证再落地：注入悬空引用→FAIL、翻转事件 occurred→候选名单，两态实跑证明断言非永真装饰；② 「缺口显式可见」落成每跑必现信号——manual_watch 零确认留痕 WARN 常驻是设计非噪音；③ 断言并入本体守卫 vs 分立的取舍：全票共识引用的单一哨兵不拆（双跑约定会漂移），新校验按组并入同文件 | D-041 + W6 + 报告 #33-ext |
+ | 2026-09-16 | R7 #46 闭环＋轮 10 返修：回归 CI 迁回 6F——workflow resolve→fromJSON matrix（schedule+dispatch opt-in）＋jiahao 单文件撤除 2755bf35＋经典仓候选呈报；独立审计抓出 npm install 惯例违反／matrix→run 直插注入面／verify 弱断言／五层盒子术语误用／收口回写缺口族（A 账本/BACKLOG✅/lessons/票档三件套） | ①「CI 惯例」是成文规范面——同仓 golden-ci 已 npm ci，新 workflow 未同步惯例即硬违规；② ${{ matrix.* }} 直插 run 是注入面——resolve 段用了 env 间接引用而消费段丢纪律，防御要全链一致；③ GitButler 分支并入 main 后提交会随他方 push 上远端——「本地待 push」自述会失效，交接文书写可机检状态断言而非时点快照 | ① 新 workflow 落仓前先 grep 兄弟 workflow 安装/版本惯例（npm ci、node 版本），分歧注释理由；② 消费矩阵值一律 env 间接引用＋消费腿防御性再校验，头注写明纪律；③ 守卫断言与标签等强（test -f→test -s、关键词 grep→格式正则），弱断言在审计窗必被打回；④ 票闭环四件套同窗口落：A 账本行/BACKLOG ✅/WORKFLOW lessons/票档三件套，缺一即断档 | D-046 + 报告轮 10 返修节 |
++| 2026-09-16 | R8 #47 闭环：托管平台 API 适配器——github-rest.ts（REST 主路+API 版本 pin+三级探测+diff 双通道+限流有界退避+余额写事实库）＋cassette×5（env-manager 实录制 62-PR，限流耗尽/漂移/平台 Bot 如实标 synthetic/derived）＋test 51/51 入 smoke＋锁表→active；47-check PASS | ① ctx_execute 模板字面量嵌 TS 源码时 \\ 转义层叠炸过一轮（\n 变真实换行、\/\[ 丢反斜杠）——String.raw`...` 直写后零再犯，凡含正则/\n\t 的源码写入一律 String.raw＋回读断言；② cassette 录制器首版 Accept 头在 auth 分支被吞（三元只带 token 丢 accept）——diff 路录成 JSON 详情，测试断言 bytes>1000 当场抓获；③ gh auth token 借读在真机零成本实证（无 GITHUB_TOKEN 环境→真实 strategy=gh-token 命中 API），可选回退路径不只是一条代码路径而是活路径 | ① 含正则/控制符源码写文件：String.raw＋读回 marker 断言＋tsc 立刻编译三步走；② 录制器 bug 用「录制产物回放后断言语义」兜底（golden 模式价值再证）；③ 降级/回退面要有真机活探佐证，不满足于纯 fixture | D-048/ADR-0020 + 报告 #47 |
+diff --git a/.scratch/architecture-recovery/decision-ledger.md b/.scratch/architecture-recovery/decision-ledger.md
+index cfe7b2a..004d10d 100644
+--- a/.scratch/architecture-recovery/decision-ledger.md
++++ b/.scratch/architecture-recovery/decision-ledger.md
+@@ -334,3 +334,11 @@
+ | ID | 问题描述原文 | 规范化需求 | 显式约束 | 来源决策 | 状态 |
+ |---|---|---|---|---|---|
+ | A-054 | R7-05 / BACKLOG #46：「回归 CI 迁回 6F 自有 CI：6F workflow 加 macro-b 回归 job（URL opt-in clone 公开仓 → Macro-B one-shot → 工件留档；schedule+workflow_dispatch）＋ jiahao 仓 macro-b-regression.yml 单文件撤除（其余内容零触碰）＋经典公开仓候选清单呈报」 | 6F .github/workflows/macro-b-regression.yml（resolve job→fromJSON matrix；URL opt-in；intake 隔离三件；one-shot；工件断言+留档）＋jiahao 单文件删除提交（diff 断言恰 1 文件 D）＋经典仓候选短名单呈报（呈报非定案） | mw-trigger-a 语义不变（「Macro-B 进 CI 定时回归」在 6F 侧成立）；公仓 clone 零 token；jiahao 仅作审计对象不承载我方资产；经典仓候选=语言族×git 健全度×规模短名单呈用户定；6F/jiahao push 各需用户点头 | D-046 / D-013 / D-033 | done → implemented（2026-09-16）：6F workflow 落位——cron 17 3 * * 1（沿用 #39 节拍）+workflow_dispatch（repo_url/repo_name 输入）；resolve job 产 fromJSON matrix（默认集=jiahao，T3 候选待用户选定追加）；https-only 闸门+intake 隔离三件（hooksPath=noop/ext.allow=never/浅拒断言）；engine npm ci+gen+build→clone→39-macro-b-one-shot→verify→upload-artifact if:always()；permissions contents:read、无 token、无跨仓 checkout；jiahao 侧 2755bf35 恰 1 文件 D（轮 10 审计勘误：该提交已在 origin/main——jiahao 为独立在开发项目，push 面不属本仓管理域，登记事实不追认归因）；本地实证 46-out 六件（jiahao 265c/69ADR/1101f/supported/RCP-a435e3bf5b9d6b46）；T3 候选呈报 46-classic-repo-candidates.md（首选 git/git・django/django・spring-boot，备选 curl/flask/kafka）；**轮 10 返修**：npm ci 惯例对齐／matrix→run 全量 env 间接引用堵 $() 注入＋clone 腿 https 闸门 defense-in-depth／verify test -s+receipt_id RCP 格式强断言／node 24 对齐 golden-ci／one-shot 头注残留改 6F／收口回写族补齐（本行+BACKLOG✅+lessons+票档三件套）；46-check.mjs PASS 30/30 exit 0；npm test 全链绿＋package 54f＋selftest 5/5；6F push 仍待用户授权 |
++
++## R8 执行轮登记（2026-09-16，轮 12 常驻任务书 next-round.md T1 → A-055）
++
++> 来源：.scratch/macro-audit/handoffs/next-round.md（轮 12 常驻任务书 T1）+ BACKLOG.md #47 + macro-audit 账本 D-048＋ADR-0020。
++
++| ID | 问题描述原文 | 规范化需求 | 显式约束 | 来源决策 | 状态 |
++|---|---|---|---|---|---|
++| A-055 | R8-01 / BACKLOG #47：「托管平台 API 适配器：GitHub REST 主路（env token）＋gh 已认证态可选回退＋无认证降级；最小契约=PR 枚举（平台 Bot 双检）＋元数据＋diff 双通道（本地 git 优先/API 兜底）；限流 x-ratelimit+Retry-After；凭据三级探测不建存储；golden cassette（认证/无认证降级/限流耗尽/schema 漂移/平台 Bot）」 | engine/src/upstream/github-rest.ts（682 行）：resolveGithubCredential 三级探测＋realHttpFetcher（X-GitHub-Api-Version pin）＋createGithubRestClient 有界退避＋parsePrSummary/Detail schema 校验＋resolvePrDiff 双通道＋collectGithubPrFacts 九类事实发射＋parseGithubRepoRef 非 github 显式拒；test/fixtures/github-rest/ cassette×5（real×2/derived×2/synthetic×1 如实标注）；test/github-rest.test.mjs 51 断言入 smoke | REST 主路非 gh 依赖（gh=best-effort 只读借读）；无认证=显式降级非失败；raw 响应不出适配层（ADR-0014）；凭据即用即清零存储零泄漏；primary 耗尽即停不硬重试；review/comment=planned 不入最小集；措辞=平台声明的 Bot 身份；私仓=token 必需披露 | D-048 / ADR-0020 | done → implemented（2026-09-16）：真机录制 env-manager 62-PR（gh 借读 token 即用即清未入带）；GITHUB-REST 51/51＋npm test 全链绿＋package 56f/90.4kB＋selftest 5/5＋真网活探（strategy=gh-token 真实命中 api.github.com，remaining 4988→4986 运行日志落事实，token 零泄漏断言在测）；锁表 github-rest→active（version=2022-11-28/pin_type=api-version/adapter 回填）；47-check.mjs 守卫落盘；README §3+CHANGELOG+BACKLOG+WORKFLOW lessons 回写；47 票档三件套+47-report 六段式+日报窗口节 |
+diff --git a/.scratch/architecture-recovery/handoffs/47-github-rest-adapter.md b/.scratch/architecture-recovery/handoffs/47-github-rest-adapter.md
+new file mode 100644
+index 0000000..d56ec45
+--- /dev/null
++++ b/.scratch/architecture-recovery/handoffs/47-github-rest-adapter.md
+@@ -0,0 +1,32 @@
++# Handoff: 47 — 托管平台 API 适配器（GitHub REST）
++
++- **A-xxx covered:** A-055
++- **Decision:** spec-phase-tasks.md R8-01＋D-048＋ADR-0020
++- **对应 issue:** issues/47-github-rest-adapter.md
++- **对应 prompt:** prompts/47-github-rest-adapter.md
++
++## 上下文摘要（3-5 句）
++D-048 拍板：托管平台 API 适配器=GitHub REST 直连主路＋gh 已认证态可选回退＋无认证显式降级三态；凭据三级探测即用即清；最小契约=PR 枚举（平台声明 Bot 双检）＋元数据＋diff 双通道（本地 git 优先）；限流有界退避触顶即停。本票是 #48 Micro-A preview 的硬前置——API 面不替代 D-013 本地输入面，两路并存。审查/评论面 planned 不入最小集。
++
++## 完成定义（本票 done 判据）
++- `engine/src/upstream/github-rest.ts`：三级探测＋REST 主路＋API 版本 pin＋PR 枚举/元数据/diff 双通道＋限流退避＋schema 漂移显式报＋事实发射（resolution/rate_limit/pr_summary/pr_metadata/pr_diff/run）
++- golden cassette×5 落 `engine/test/fixtures/github-rest/`（认证/无认证降级/限流耗尽/schema 漂移/平台 Bot——real/derived/synthetic 如实标注）
++- `test/github-rest.test.mjs` 作用于 dist/ 产物入 smoke 链全 PASS
++- 锁表 `github-rest` planned→active＋README §3 状态列＋engine/CHANGELOG Unreleased 引锁表
++- 守卫 `reports/47-check.mjs` PASS（exit 0）＋44-check/33-check 回归不降级
++- `reports/47-report.md` 六段式＋macro-audit 日报窗口节
++- ledger A-055 done→implemented＋WORKFLOW §4 lessons＋issue Status=done＋BACKLOG #47 ✅＋commit 引 A-055＋守卫结果
++
++## 通用调研要求（每票适用，写一次）
++- **atomcode 深度调研**（per WORKFLOW §4.2.3）：GitHub REST 官方文档（rate-limits/pulls 面）；回顾 baseline（D-048/ADR-0020/codelore.ts 先例）；冲突显式点名不静默改向
++- **回顾 docs/adr/**：0020（本票决策）、0014（上游双轨）、0021（分发许可）；**回顾 CONTEXT.md**：「upstream / pin / degraded」词汇
++- **对标工业界成熟方案**：VCR/cassette 回放先例（nock/pollyjs 语义——本仓走零依赖自制回放，因 cassette 面极小）
++
++## 阻塞
++- 无（DoR 闭合——决策已冻结）
++
++## 关键参考
++- docs/adr/0020 §决策段（三级探测/diff 双通道/限流语义原文）；.scratch/macro-audit/decision-ledger.md D-048 行
++- engine/src/upstream/codelore.ts（adapter 先例：runner/resolver 可注入、业务规则禁入）；engine/src/collect/collectors.ts（makeFact 契约）
++- engine/upstream-lock.yaml github-rest 行（contract 原文）；engine/test/codelore-adapter.test.mjs（fixture 回放测试形态）
++- reports/44-check.mjs（守卫两段式先例）；reports/33-gate-registry.json（挂门登记）
+diff --git a/.scratch/architecture-recovery/issues/47-github-rest-adapter.md b/.scratch/architecture-recovery/issues/47-github-rest-adapter.md
+new file mode 100644
+index 0000000..b55aeaa
+--- /dev/null
++++ b/.scratch/architecture-recovery/issues/47-github-rest-adapter.md
+@@ -0,0 +1,19 @@
++# 47: 托管平台 API 适配器 — GitHub REST 主路（env token 三级探测）+ gh 可选回退 + 无认证降级 + PR 枚举/元数据/diff 双通道 + 限流退避 + golden cassette×5
++
++**A-xxx covered:** A-055
++**Spec ref:** spec-phase-tasks.md R8-01 行；../../macro-audit/handoffs/next-round.md T1；D-048 / ADR-0020
++
++**What to build:**
++`engine/src/upstream/github-rest.ts`——GitHub REST 直连主路（`X-GitHub-Api-Version: 2022-11-28` pin）＋凭据三级探测（`GITHUB_TOKEN` env → `gh auth token` 已认证态只读借读 → 无认证 60/hr 显式降级，即用即清不建存储）＋最小契约=PR 枚举（平台声明 Bot 双检 user.type==Bot + login [bot] 后缀）＋PR 元数据＋diff 双通道（本地 git base...head 优先，REST diff 仅 base/head 本地缺席兜底）＋限流 x-ratelimit-*+Retry-After 有界退避触顶即停＋余额写事实库运行日志。golden cassette×5 离线回放。票毕锁表 `github-rest` planned→active。
++
++**Blocked by:**
++无（DoR 闭合——D-048 已冻结；#48 Micro-A preview 硬前置本票）
++
++**Status:** done（2026-09-16）
++
++- [x] ① github-rest.ts 落盘（682 行）：三级探测 resolveGithubCredential＋fetcher 可注入 HTTP 面＋限流头解析/有界退避客户端＋schema 漂移显式抛错＋PR summary/detail 解析＋diff 双通道（git cat-file -e 双 sha 可解→local-git，否则 api 兜底）＋collectGithubPrFacts 事实发射（resolution/rate_limit 运行日志/pr_summary/pr_metadata/pr_diff/run/api_error/rate_limited/schema_drift）
++- [x] ② golden cassette×5：authenticated（env-manager 62-PR 实录制 list+detail×2+diff）／unauthenticated-degraded（真实 60/h 头）／rate-limit-exhausted（官方语义合成：retry-after→有界重试→remaining=0 停）／schema-drift（实录制派生删 user/head.sha）／platform-bot（实录制派生+2 合成边缘行）
++- [x] ③ test/github-rest.test.mjs 51/51 全 PASS 入 smoke 链；47-check.mjs 守卫；锁表 github-rest→active（version=2022-11-28 pin_type=api-version adapter 回填）；README §3/CHANGELOG/BACKLOG/账本/WORKFLOW lessons 回写
++- [x] ④ 47-report.md 六段式＋macro-audit 日报窗口节
++
++**实证：** npm test 全链绿（SMOKE 6/6·COLLECTORS 14/14·ADAPTER 7/7·BATCH1 41/41·LLM 25/25·PREVIEW 5/5·INTAKE 31/31·DEMO 38/38·GITHUB-REST 51/51）＋package 56f/90.4kB＋selftest ok 5/5＋真网活探（gh 回退真实命中 api.github.com，62 PRs/3 calls，token 零泄漏）
+diff --git a/.scratch/architecture-recovery/prompts/47-github-rest-adapter.md b/.scratch/architecture-recovery/prompts/47-github-rest-adapter.md
+new file mode 100644
+index 0000000..84cef79
+--- /dev/null
++++ b/.scratch/architecture-recovery/prompts/47-github-rest-adapter.md
+@@ -0,0 +1,37 @@
++# Prompt: 47 — 托管平台 API 适配器（GitHub REST）
++
++- A-xxx: A-055
++- Decision: spec-phase-tasks.md R8-01＋D-048＋ADR-0020
++- Blocked by: 无（DoR 闭合；#48 Micro-A preview 硬前置本票）
++- 身份: 遵循 WORKFLOW.md §2 的开发 Agent，本票唯一目标 = 完成本票闭环
++- 必读清单（动手前逐条确认可解析）:
++  - issues/47-github-rest-adapter.md
++  - handoffs/47-github-rest-adapter.md
++  - spec-phase-tasks.md R8-01 行；../macro-audit/handoffs/next-round.md T1 行
++  - WORKFLOW.md §4.2
++  - decision-ledger.md（A-055 行）；../macro-audit/decision-ledger.md（D-048 行）
++  - docs/adr/0020-*.md、0021-*.md、0014-*.md、0017-*.md
++  - engine/src/upstream/codelore.ts（反腐层先例）；engine/src/collect/collectors.ts（makeFact/CollectContext）
++  - engine/upstream-lock.yaml（github-rest planned 行）；README.md §3；engine/CHANGELOG.md
++  - engine/test/codelore-adapter.test.mjs（fixture 回放模式）；reports/44-check.mjs（守卫先例）
++
++## 专属 delta（检查点）
++- ① REST 直连主路＋X-GitHub-Api-Version=2022-11-28 pin；凭据三级探测 GITHUB_TOKEN env→gh auth token 借读→无认证降级；即用即清不建存储；raw 响应不出适配层
++- ② 最小契约=PR 枚举（user.type==Bot + login [bot] 双检，缺一不判）＋PR 元数据＋diff 双通道（本地 git base...head 优先，API 仅 base/head 本地缺席兜底）；review/comment=planned 不入最小集
++- ③ 限流=读 x-ratelimit-*/Retry-After；次级限流有界单次重试、primary 耗尽（remaining=0）即停标注 reset_epoch；余额写事实库运行日志
++- ④ golden cassette×5（认证/无认证降级/限流耗尽/schema 漂移/平台 Bot）；测试作用于 dist/ 入 smoke 链；票毕锁表 github-rest→active
++- 禁跑 35-probe.mjs；文件写入 Node.js＋回读断言；禁 BOM；cassette 录制 token 即用即清永不入带
++
++## 专属验收
++- reports/47-check.mjs PASS（exit 0 + PASS N/N）
++- npm test 全链绿（含 github-rest.test.mjs 51 断言）＋npm run package＋dist/cli.js selftest
++- 其余完成判据遵循 handoff 内的完成定义
++
++## 开工第一句
++先复述：本票阻塞状态 + 必读清单逐条路径，确认后再动手。
++
++## 收尾
++
++**❗ 收尾硬要求——以下动作缺任一项 = 本票未闭环（W2/W3 V2 重演防线）**：① 报告落盘 reports/47-report.md；② ledger 本票行状态回写 done/deferred；③ WORKFLOW §4 追加 lessons 行；④ commit message 引用守卫结果。
++
++报告写入 reports/47-report.md（完成定义逐项 / 阻塞 / lessons 候选 / 引用文件）；ledger 回写与 lessons 追加按 handoff 完成定义执行；版本控制遵循 WORKFLOW §4.2（独立分支，绝不 push）。
+diff --git a/.scratch/architecture-recovery/reports/44-check.mjs b/.scratch/architecture-recovery/reports/44-check.mjs
+index d01da1d..71eedcc 100644
+--- a/.scratch/architecture-recovery/reports/44-check.mjs
++++ b/.scratch/architecture-recovery/reports/44-check.mjs
+@@ -77,8 +77,8 @@ t('A2 lock_version=1＋upstreams 行数≥4（种子行起步）', lock.meta.loc
+ const FIELDS = ['id', 'kind', 'version', 'pin_type', 'contract', 'status', 'adapter', 'last_reviewed', 'next_review'];
+ t('A3 全行九字段契约齐备（version/pin_type/adapter 值可 null 但键必在）', lock.upstreams.every(r => FIELDS.every(f => Object.prototype.hasOwnProperty.call(r, f))));
+ const STATUS_ENUM = ['active', 'planned', 'evaluating', 'retired'];
+-const PIN_ENUM = ['exact-version', 'commit-sha', 'digest', null];
+-t('A4 status/pin_type 枚举合法（active|planned|evaluating|retired × exact-version|commit-sha|digest|null）', lock.upstreams.every(r => STATUS_ENUM.indexOf(r.status) >= 0 && PIN_ENUM.indexOf(r.pin_type) >= 0));
++const PIN_ENUM = ['exact-version', 'commit-sha', 'digest', 'api-version', null]; // api-version=#47/D-048 remote-api 行引入（X-GitHub-Api-Version 头 pin）
++t('A4 status/pin_type 枚举合法（active|planned|evaluating|retired × exact-version|commit-sha|digest|api-version|null）', lock.upstreams.every(r => STATUS_ENUM.indexOf(r.status) >= 0 && PIN_ENUM.indexOf(r.pin_type) >= 0));
+ const byId = {};
+ for (const r of lock.upstreams) { byId[r.id] = r; }
+ t('A5 种子行状态逐字：codelore=active／openssf-scorecard=planned／repomix-gitingest=planned／codelore-sqlite-dump=evaluating',
+diff --git a/.scratch/architecture-recovery/reports/47-check.mjs b/.scratch/architecture-recovery/reports/47-check.mjs
+new file mode 100644
+index 0000000..8ff8668
+--- /dev/null
++++ b/.scratch/architecture-recovery/reports/47-check.mjs
+@@ -0,0 +1,128 @@
++// 47-check.mjs — #47 托管平台 API 适配器守卫（R8-01 / A-055 / D-048 / ADR-0020）
++// 断言面：A 适配器源+dist 产物标记 → B 五 cassette（存在/recorded 标注/token 泄漏扫描/关键响应头）
++//   → C 测试在 smoke 链且实跑 PASS → D dist 模块契约语义（三级探测/Bot 双检/仓引用/限流）
++//   → E 锁表 github-rest→active＋README/CHANGELOG 同源 → F 文档账本回写 → G BOM
++// 纪律：只读断言 + node test 子进程（cassette 离线回放，零网络）；exit 0 + PASS N/N 为绿。
++import { readFileSync, existsSync, readdirSync } from 'node:fs';
++import { spawnSync } from 'node:child_process';
++import { fileURLToPath, pathToFileURL } from 'node:url';
++import { dirname, join } from 'node:path';
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++const REPO = join(HERE, '..', '..', '..');
++const ENG = join(REPO, 'engine');
++const SRC = join(ENG, 'src', 'upstream', 'github-rest.ts');
++const DIST = join(ENG, 'dist', 'upstream', 'github-rest.js');
++const FXD = join(ENG, 'test', 'fixtures', 'github-rest');
++const LOCK = join(ENG, 'upstream-lock.yaml');
++
++let pass = 0, fail = 0;
++function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
++function txt(p) { return readFileSync(p, 'utf8'); }
++function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
++
++// ---------- A. 适配器源 + dist 产物 ----------
++t('A1 src/upstream/github-rest.ts 在', existsSync(SRC));
++const src = existsSync(SRC) ? txt(SRC) : '';
++t('A2 API 版本常量 pin=2022-11-28', src.includes("GITHUB_API_VERSION = '2022-11-28'"));
++t('A3 凭据三级探测标记（GITHUB_TOKEN env / gh auth token / unauthenticated 降级）',
++  src.includes('GITHUB_TOKEN') && src.includes("'auth', 'token'") && src.includes('unauthenticated'));
++t('A4 限流面（x-ratelimit-* + retry-after + 触顶即停文案）',
++  src.includes('x-ratelimit-limit') && src.includes('retry-after') && src.includes('primary rate limit exhausted'));
++t('A5 Bot 双检函数（platformDeclaredBot：type==Bot + [bot] 后缀）',
++  src.includes('platformDeclaredBot') && src.includes('\\[bot\\]'));
++t('A6 diff 双通道（local-git + api；base...head 三点）',
++  src.includes('local-git') && src.includes('api') && src.includes("'...'"));
++t('A7 planned 面登记（pulls.reviews/comments 不入最小集）',
++  src.includes('pulls.reviews') && src.includes('pulls.comments'));
++t('A8 raw 响应不出边界 + 凭据不建存储文案', src.includes('credential_storage') || src.includes('即用即清'));
++t('A9 dist/upstream/github-rest.js 编译产物在（测试作用于 dist）', existsSync(DIST));
++
++// ---------- B. golden cassette ×5 ----------
++const cassettes = ['authenticated', 'unauthenticated-degraded', 'rate-limit-exhausted', 'schema-drift', 'platform-bot'];
++t('B1 五 cassette 全在', cassettes.every((n) => existsSync(join(FXD, n + '.cassette.json'))));
++const casObjs = cassettes.map((n) => (existsSync(join(FXD, n + '.cassette.json')) ? JSON.parse(txt(join(FXD, n + '.cassette.json'))) : null));
++t('B2 每带 calls>=1 且 recorded 标注合法（real/derived/synthetic）',
++  casObjs.every((c) => c && Array.isArray(c.calls) && c.calls.length >= 1 && ['real', 'derived', 'synthetic'].includes(c.recorded)));
++const allCasTxt = casObjs.map((c) => (c ? JSON.stringify(c) : '')).join('');
++t('B3 带内零 token 泄漏（gho_/ghp_/github_pat_/Bearer 实值）', !/(gho_|ghp_|ghu_|ghs_|ghr_|github_pat_)/.test(allCasTxt));
++const unauth = casObjs[1];
++t('B4 无认证带=真实 60/h 响应头', unauth && unauth.calls[0].response.headers['x-ratelimit-limit'] === '60');
++const rl = casObjs[2];
++t('B5 限流带含 retry-after + remaining=0 耗尽帧',
++  rl && rl.calls.some((c) => c.response.headers['retry-after']) && rl.calls.some((c) => c.response.headers['x-ratelimit-remaining'] === '0'));
++const drift = casObjs[3];
++t('B6 漂移带=实录制派生（derived）且行缺字段', drift && drift.recorded === 'derived');
++
++// ---------- C. 测试入 smoke 链且实跑 PASS ----------
++const testP = join(ENG, 'test', 'github-rest.test.mjs');
++t('C1 test/github-rest.test.mjs 在', existsSync(testP));
++const pkg = JSON.parse(txt(join(ENG, 'package.json')));
++t('C2 smoke 链含 github-rest.test.mjs', (pkg.scripts.smoke || '').includes('github-rest.test.mjs'));
++const tr = spawnSync('node', [testP], { cwd: ENG, encoding: 'utf8', timeout: 120000 });
++const tout = (tr.stdout || '') + (tr.stderr || '');
++const m = tout.match(/GITHUB-REST (\d+)\/(\d+)/);
++t('C3 github-rest 测试实跑 exit 0 + PASS N/N（同值判）', tr.status === 0 && m && m[1] === m[2] && Number(m[1]) >= 40, m ? m[0] : tout.slice(-200));
++
++// ---------- D. dist 模块契约语义（纯函数面，零网络） ----------
++const G = await import(pathToFileURL(DIST).href);
++t('D1 凭据三级探测纯函数：env-token/gh-token/unauthenticated 三态可达',
++  G.resolveGithubCredential({ GITHUB_TOKEN: 'X' }, () => ({ available: false, token: null })).strategy === 'env-token' &&
++  G.resolveGithubCredential({}, () => ({ available: true, token: 'X' })).strategy === 'gh-token' &&
++  G.resolveGithubCredential({}, () => ({ available: false, token: null })).strategy === 'unauthenticated');
++t('D2 无认证降级 degraded=true + 60/h 披露',
++  (() => { const r = G.resolveGithubCredential({}, () => ({ available: false, token: null })); return r.degraded === true && r.disclosures.join('|').includes('60'); })());
++t('D3 Bot 双检真值表（缺一即 false）',
++  G.platformDeclaredBot('dependabot[bot]', 'Bot') === true &&
++  G.platformDeclaredBot('internal-ci', 'Bot') === false &&
++  G.platformDeclaredBot('custom[bot]', 'User') === false);
++const ng = G.parseGithubRepoRef('https://gitlab.com/a/b');
++t('D4 仓引用解析：owner/repo+URL 收、非 github 显式拒',
++  G.parseGithubRepoRef('o/r').ok === true && G.parseGithubRepoRef('https://github.com/o/r').ok === true && ng.ok === false);
++t('D5 schema 漂移显式抛 GithubSchemaDrift',
++  (() => { try { G.parsePrSummaryRow({ number: 1 }); return false; } catch (e) { return e.name === 'GithubSchemaDrift'; } })());
++t('D6 限流头解析字段齐备', (() => { const r = G.parseRateLimitHeaders({ 'x-ratelimit-limit': '5000', 'x-ratelimit-remaining': '4999', 'x-ratelimit-used': '1', 'x-ratelimit-reset': '1', 'retry-after': '5' }); return r && r.limit === 5000 && r.remaining === 4999 && r.retry_after_seconds === 5; })());
++
++// ---------- E. 锁表 + 文档同源 ----------
++const lock = txt(LOCK);
++const gi = lock.indexOf('id: github-rest');
++const grow = lock.slice(gi, lock.indexOf('next_review:', gi));
++t('E1 锁表 github-rest status=active', /status: active/.test(grow));
++t('E2 锁表 adapter 指针回填', /adapter: "engine\/src\/upstream\/github-rest\.ts/.test(grow));
++t('E3 锁表 version/pin_type=api-version 填实', grow.includes('version: "2022-11-28"') && grow.includes('pin_type: api-version'));
++const rd = txt(join(REPO, 'README.md'));
++t('E4 README §3 GitHub REST 行=已接入（active）', /\| GitHub REST API \|[^\n]*已接入（active） \|/.test(rd));
++const ec = txt(join(ENG, 'CHANGELOG.md'));
++t('E5 engine CHANGELOG Unreleased 含 #47 条目引锁表', ec.includes('#47') && ec.includes('github-rest'));
++
++// ---------- F. 文档账本回写 ----------
++const issueP = join(REPO, '.scratch', 'architecture-recovery', 'issues', '47-github-rest-adapter.md');
++t('F1 票档三件套在（issues/prompts/handoffs/47-*）',
++  existsSync(issueP) && existsSync(join(REPO, '.scratch', 'architecture-recovery', 'prompts', '47-github-rest-adapter.md')) && existsSync(join(REPO, '.scratch', 'architecture-recovery', 'handoffs', '47-github-rest-adapter.md')));
++const led = txt(join(REPO, '.scratch', 'architecture-recovery', 'decision-ledger.md'));
++t('F2 A-055 行在且标 implemented', /\| A-055 \|[^\n]*implemented/.test(led));
++const bl = txt(join(REPO, '.scratch', 'architecture-recovery', 'BACKLOG.md'));
++t('F3 BACKLOG #47 行回写闭环 ✅', /\| #47[^\n]*✅/.test(bl));
++const wf = txt(join(REPO, '.scratch', 'architecture-recovery', 'WORKFLOW.md'));
++t('F4 WORKFLOW §4 lessons 含 #47 条目', /#47/.test(wf));
++const rep = existsSync(join(HERE, '47-report.md')) ? txt(join(HERE, '47-report.md')) : '';
++t('F5 47-report.md 在且六段齐备（①~⑥）', existsSync(join(HERE, '47-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every((x) => rep.indexOf(x) >= 0));
++const ma = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');
++t('F6 macro-audit 日报含 #47 窗口节', existsSync(ma) && txt(ma).indexOf('窗口：#47') >= 0);
++const issue = existsSync(issueP) ? txt(issueP) : '';
++t('F7 issue Status=done', /Status:\*\* done/.test(issue));
++
++// ---------- G. BOM ----------
++const newFiles = [
++  SRC, testP, join(REPO, 'README.md'), join(ENG, 'CHANGELOG.md'), LOCK, join(ENG, 'package.json'),
++  issueP,
++  join(REPO, '.scratch', 'architecture-recovery', 'handoffs', '47-github-rest-adapter.md'),
++  join(REPO, '.scratch', 'architecture-recovery', 'prompts', '47-github-rest-adapter.md'),
++  join(HERE, '47-report.md'), join(HERE, '47-check.mjs'),
++  ...cassettes.map((n) => join(FXD, n + '.cassette.json'))
++];
++t('G1 全部新增/改动文件无 BOM', newFiles.every((f) => !existsSync(f) || noBom(f)), newFiles.filter((f) => existsSync(f) && !noBom(f)).join(','));
++
++console.log('---');
++console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));
++process.exit(fail === 0 ? 0 : 1);
+diff --git a/.scratch/architecture-recovery/reports/47-report.md b/.scratch/architecture-recovery/reports/47-report.md
+new file mode 100644
+index 0000000..ad611ef
+--- /dev/null
++++ b/.scratch/architecture-recovery/reports/47-report.md
+@@ -0,0 +1,49 @@
++# 47-report — 托管平台 API 适配器（GitHub REST）执行报告
++
++- 票：BACKLOG #47 / R8-01 / A-055 / D-048 / ADR-0020
++- 窗口：轮 12 常驻任务书 T1（2026-09-16）
++- 交付面：engine/src/upstream/github-rest.ts＋test/fixtures/github-rest/cassette×5＋test/github-rest.test.mjs＋reports/47-check.mjs＋锁表 github-rest→active＋文档账本回写
++
++## ① 完成定义逐项（每条附可复跑证据）
++
++1. **适配器落盘**（REST 主路 + X-GitHub-Api-Version pin + 凭据三级探测 + PR 枚举/元数据/diff 双通道 + 限流退避 + 事实发射）：
++   `ls engine/src/upstream/github-rest.ts` → 存在（682 行）；`cd engine && npx tsc -p tsconfig.json` → exit 0。
++2. **golden cassette×5**（认证/无认证降级/限流耗尽/schema 漂移/平台 Bot）：
++   `ls engine/test/fixtures/github-rest/` → 5 带；recorded=real×2（env-manager 62-PR 实录制）/derived×2（实录制派生）/synthetic×1（官方文档语义合成）。
++3. **测试入 smoke 闭环**：`cd engine && node test/github-rest.test.mjs` → `GITHUB-REST 51/51` exit 0；`npm test` 全链绿（SMOKE 6/6·COLLECTORS 14/14·ADAPTER 7/7·BATCH1 41/41·LLM 25/25·PREVIEW 5/5·INTAKE 31/31·DEMO 38/38·GITHUB-REST 51/51）。
++4. **打包+进程测活**：`cd engine && npm run package` → 56 files/90.4 kB；`node dist/cli.js selftest` → ok:true 5/5 exit 0。
++5. **真网活探**（可选回退真实命中）：本机无 GITHUB_TOKEN → strategy=gh-token 借读生效；collectGithubPrFacts(env-manager) → prs=62/calls=3/errors=0；rate_limit 运行日志 remaining 4988→4987→4986 落事实；token 泄漏断言=零。
++6. **锁表翻转**：engine/upstream-lock.yaml github-rest 行 → status=active＋version=2022-11-28＋pin_type=api-version＋adapter 回填。
++7. **守卫**：`node .scratch/architecture-recovery/reports/47-check.mjs` → PASS（收口复跑见 §④）。
++
++## ② 阻塞 / 待用户
++
++- 无工程阻塞。push/发布=用户闸门不动（T5/T6）。
++
++## ③ 如实登记（偏差与勘误）
++
++- 录制器首版 bug：auth 分支三元吞掉自定义 Accept 头，diff 路录成 JSON 详情——A10 断言（bytes>1000）抓获后单独重录 diff#64（application/vnd.github.diff → 1549B 真 diff 文本），capture 目录同步更正。
++- cassette authenticated/unauthenticated 为全量 62-PR 真实行（_links/嵌套 repo/labels 等噪声字段剥离已在带内 sanitization 声明；body>200 字截断标 [cassette-truncated]）。
++- rate-limit-exhausted 为 synthetic（真耗尽不可廉价强录），按 docs.github.com rate-limits 原文语义构造并如实标注；其余四面为真实/派生。
++- 本机环境无 GITHUB_TOKEN——env-token 路以 cassette 注入断言；gh-token 路真机活探实证；unauthenticated 路真录制 60/h 响应头实证。
++- 锁表 pin_type 枚举扩展：remote-api 行引入 `api-version`（X-GitHub-Api-Version 头 pin，非制品版本）——三处同源改：upstream-lock.yaml 头注+docs/versioning.md §3+44-check A4 枚举（复跑 PASS 56/56）。
++
++## ④ 回归证据
++
++- `node .scratch/architecture-recovery/reports/44-check.mjs` → PASS（收口复跑，见窗口报告引用）
++- `node .scratch/architecture-recovery/reports/33-check.mjs` → PASS（同上）
++- engine npm test 全链绿（上引）；npm run package / selftest 通过。
++
++## ⑤ Lessons 候选
++
++- ctx_execute 模板字面量嵌含正则/控制符的 TS 源码→转义层叠炸过一轮；String.raw 直写＋回读 marker 断言＋立刻 tsc 编译=三步防再犯（已入 WORKFLOW §4）。
++- 录制器侧分支 bug（Accept 被吞）靠回放断言语义兜底——golden 模式价值再证。
++- 降级/回退面要有真机活探佐证，不满足于纯 fixture。
++
++## ⑥ 引用文件
++
++- engine/src/upstream/github-rest.ts；engine/test/github-rest.test.mjs；engine/test/fixtures/github-rest/*.cassette.json（5）
++- engine/upstream-lock.yaml；engine/package.json（smoke 链）；README.md §3；engine/CHANGELOG.md
++- .scratch/architecture-recovery/reports/{47-check.mjs,47-report.md,47-capture/}；issues|prompts|handoffs/47-github-rest-adapter.md
++- .scratch/architecture-recovery/{BACKLOG.md,decision-ledger.md(A-055),WORKFLOW.md(lessons)}；.scratch/macro-audit/reports/2026-09-16-report.md（窗口节）
++- 录制工作区：reports/47-capture/（真实响应原始捕获，token 从未落盘）
+diff --git a/.scratch/macro-audit/handoffs/2026-09-16-r12-exec-handoff.md b/.scratch/macro-audit/handoffs/2026-09-16-r12-exec-handoff.md
+new file mode 100644
+index 0000000..844b9e0
+--- /dev/null
++++ b/.scratch/macro-audit/handoffs/2026-09-16-r12-exec-handoff.md
+@@ -0,0 +1,37 @@
++# Handoff — 轮 12 执行窗收口（2026-09-16）
++
++## 本轮完成
++
++- **T1 / #47 托管平台 API 适配器（D-048/ADR-0020/A-055）— DONE**：
++  - `engine/src/upstream/github-rest.ts`（682 行）：REST 直连主路＋`X-GitHub-Api-Version: 2022-11-28` pin；凭据三级探测（`GITHUB_TOKEN` env → `gh auth token` 只读借读 → 无认证 60/hr 显式降级；即用即清不建存储）；最小契约=PR 枚举（`platformDeclaredBot`=user.type==Bot+login [bot] 双检）＋PR 元数据＋diff 双通道（本地 git `base...head` 优先，API 仅 base/head 本地缺席兜底）；限流 x-ratelimit-*＋Retry-After 有界退避（次级带 retry-after 单次重试≤60s、primary remaining=0 即停标 reset_epoch）＋余额写事实库；schema 漂移显式抛 `GithubSchemaDrift`；`parseGithubRepoRef` 非 github 显式拒；九类事实（resolution/rate_limit 运行日志/pr_summary/pr_metadata/pr_diff/run/api_error/rate_limited/schema_drift）。
++  - `engine/test/fixtures/github-rest/` cassette×5：authenticated+unauthenticated-degraded=env-manager 62-PR **真机录制**；rate-limit-exhausted=官方语义 **synthetic**；schema-drift+platform-bot=**derived**（实录制行删字段/加合成边缘行）。
++  - `engine/test/github-rest.test.mjs` **51/51 PASS** 入 smoke 链（package.json scripts.smoke 尾）。
++  - 锁表 `engine/upstream-lock.yaml` github-rest planned→**active**（version=2022-11-28 / pin_type=api-version / adapter 回填）；**pin_type 枚举扩展 api-version** 三处同源（lock 头注+docs/versioning.md §3+44-check A4）。
++  - 守卫 `.scratch/architecture-recovery/reports/47-check.mjs` **PASS 37/37**；回归 44-check **56/56**、33-check **16/16**。
++  - 验收四件套：tsc exit0 / npm test 全链绿 / npm run package→56f/90.4kB / dist/cli.js selftest ok 5/5；**真网活探** strategy=gh-token 命中 api.github.com（62 PRs/3 calls/remaining 4988→4986/token 零泄漏）。
++  - 票档三件套 issues|prompts|handoffs/47-github-rest-adapter.md；47-report.md 六段式；BACKLOG #47 ✅；A-055 implemented；WORKFLOW §4 lessons；日报窗口节。
++- **T4 #41b listing 残余核对**：description.md name=`6f`/displayName=`Macro Audit` 与 manifest.meta.json/plugin.json/marketplace.json 一致（macro-audit 字样=内核名合法留存，D-052 解耦声明在文）；无需改动。
++
++## 版本控制状态
++
++- 提交 `uvq` on branch **`r12-47-github-rest`**（stacked on `round11-closeout`）；28 文件入一 commit。
++- **未 push**——用户闸门（T5）。
++
++## 下一轮入口
++
++- **T2 / #48 Micro-A preview（D-049）已解锁**：前置 #47 落地。票面=恰 4 条已 merged PR（dependabot/release-please/人类形态）双仓实跑＋共享骨架 Micro-A 切片＋报告双件＋披露三件套；desk-task15 机械导出断言进 48-check。cassette 可复用 47-capture 录制链。
++- T3：.github/workflows/macro-b-regression.yml 已就位的 dispatch 首跑属 push 门后动作——blocked-by 用户。
++- T5 push / T6 上架：用户专属闸门不变。
++
++## 已知注意点
++
++- ctx_execute 写含正则/\n\t 的源码：用普通 `'...'` 字面量数组 join 或 String.raw＋回读断言；本窗踩过 String.raw 把 \uXXXX 当字面量+普通模板吞一层反斜杠两次坑（均已修，WORKFLOW lessons 已记）。
++- 录制工作区 `reports/47-capture/` 保留原始捕获供 #48 复用；token 从未落盘。
++- rate-limit-exhausted cassette 为 synthetic（语义构造），报告中如实标注——勿当真实录制引用。
++
++## 可复跑索引
++
++- `node .scratch/architecture-recovery/reports/47-check.mjs` → PASS 37/37
++- `cd engine && node test/github-rest.test.mjs` → GITHUB-REST 51/51
++- `cd engine && npm test` → 全链绿（末段 GITHUB-REST 51/51）
++- `cd engine && npm run package && node dist/cli.js selftest` → 56f/90.4kB + ok 5/5
+diff --git a/.scratch/macro-audit/reports/2026-09-16-report.md b/.scratch/macro-audit/reports/2026-09-16-report.md
+index 21ca4d2..b8c3ed3 100644
+--- a/.scratch/macro-audit/reports/2026-09-16-report.md
++++ b/.scratch/macro-audit/reports/2026-09-16-report.md
+@@ -240,3 +240,11 @@
+ 
+ - 6F 栈 `r9-round9-exec`（uwk/yxw/mrl）仍本地待 push——用户闸门不变；
+ - T3 候选接入 DEFAULT JSON 待用户选定；listing 提交点击未发生（D-042）。
++
++## 窗口：#47 托管平台 API 适配器（T1 / R8-01 / A-055 / D-048·ADR-0020）
++
++- **产出**：engine/src/upstream/github-rest.ts（682 行）——REST 直连主路+X-GitHub-Api-Version=2022-11-28 pin；凭据三级探测（GITHUB_TOKEN env→gh auth token 只读借读→无认证 60/hr 显式降级，即用即清不建存储）；最小契约=PR 枚举（平台声明 Bot 双检）+元数据+diff 双通道（本地 git base...head 优先/API 兜底）；限流 x-ratelimit-*+Retry-After 有界退避触顶即停+余额写事实库；九类事实发射。
++- **证据**：test/fixtures/github-rest/ cassette×5（authenticated+unauthenticated=env-manager 62-PR 实录制；rate-limit-exhausted=官方语义合成；schema-drift+platform-bot=派生；带内 recorded 字段如实标注）；test/github-rest.test.mjs **51/51 PASS** 入 smoke 链；npm test 全链绿；npm run package→56f/90.4kB；selftest ok 5/5；真网活探 strategy=gh-token 真实命中 api.github.com（62 PRs/3 calls/token 零泄漏断言在测）。
++- **守卫/回写**：47-check.mjs PASS；锁表 github-rest planned→**active**（version=2022-11-28/pin_type=api-version/adapter 回填）；README §3 行+借来的枚举+engine CHANGELOG Unreleased+BACKLOG #47 ✅+WORKFLOW §4 lessons+A-055 implemented+票档三件套+47-report 六段式落盘。
++- **偏差勘误**：录制器首版 auth 分支吞 Accept 头致 diff 录成 JSON——A10 断言抓获后重录 diff#64（真 diff 1549B）；rate-limit-exhausted 如实标 synthetic。
++- **闸门**：push/发布未发生（用户闸门）；#48 Micro-A preview 前置已解锁。
+diff --git a/README.md b/README.md
+index e697cb5..6629678 100644
+--- a/README.md
++++ b/README.md
+@@ -54,7 +54,7 @@ flowchart TB
+ | CodeLore | 代码考古 / 证据层 | CLI | 适配器 + 外部 CLI | exact pin 0.28.0 + golden 契约测试 | 已接入（active；探针切片：explain/summary 只读面） |
+ | OpenSSF Scorecard | 供应链健康评分 | Go 库 / CLI | 库→依赖引用；CLI→适配器 | hash pinning / 锁版本 | 规划中（planned） |
+ | repomix / gitingest | 仓库内容打包摘要 | CLI / pip 包 | 适配器 + 外部 CLI | 锁版本 + golden 契约测试 | 规划中（planned） |
+-| GitHub REST API | Micro-A PR 数据面（枚举/元数据/diff 兜底；本地 git 优先） | remote-api | 适配器 + env token 三级探测 | X-GitHub-Api-Version pin + golden cassette 契约 | 规划中（planned） |
++| GitHub REST API | Micro-A PR 数据面（枚举/元数据/diff 兜底；本地 git 优先） | remote-api | 适配器 + env token 三级探测 | X-GitHub-Api-Version pin + golden cassette 契约 | 已接入（active） |
+ 
+ > **状态列 = 机读权威绑定**：唯一权威 = [`engine/upstream-lock.yaml`](engine/upstream-lock.yaml)（D-037③，#44/A-049 落盘）——本表为人读形态，状态映射 = 已接入→active／规划中→planned／评估中→evaluating（retired 行不出本表；锁表另含评估中条目 `codelore-sqlite-dump`）。锁定纪律：禁 range/浮动 tag/latest，更新走手动窗口＋golden 回归护航（[docs/versioning.md](docs/versioning.md) §3-4）。
+ 
+@@ -76,7 +76,7 @@ flowchart LR
+ | 归属 | 组件 |
+ |---|---|
+ | **我们的（护城河）** | 联邦裁决协议（verdict-gate）· DuckDB 事实表 schema（只追加 + 跨 scale 关联键）· 三层验收闸门（A 形式 / B 预声明判据 / C 人裁定）· Receipt 回执（双锚）· 预声明判据纪律（2 正对照 + 3 真判据 + 1 负对照） |
+-| **借来的（上游）** | DuckDB 引擎本体 · git CLI · CodeLore（已接入·探针切片）· OpenSSF Scorecard（规划中）· repomix / gitingest（规划中） |
++| **借来的（上游）** | DuckDB 引擎本体 · git CLI · CodeLore（已接入·探针切片）· GitHub REST API（已接入·REST 主路+`gh` 可选回退）· OpenSSF Scorecard（规划中）· repomix / gitingest（规划中） |
+ 
+ ## 契约声明
+ 
+diff --git a/docs/versioning.md b/docs/versioning.md
+index 39af5cf..14eff8b 100644
+--- a/docs/versioning.md
++++ b/docs/versioning.md
+@@ -17,7 +17,7 @@
+ ## 3. 上游锁定表（`engine/upstream-lock.yaml`）
+ 
+ - 机读权威；README §3 上游清单表为人读形态、状态列须与本表同源。
+-- 字段：`id / kind / version / pin_type(exact-version|commit-sha|digest) / contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review`。
++- 字段：`id / kind / version / pin_type(exact-version|commit-sha|digest|api-version) / contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review`（`api-version` 为 #47/D-048 remote-api 行引入：远端 API 按 X-GitHub-Api-Version 头 pin，非制品版本）。
+ - **锁定表先于依赖存在**——planned 登记目标契约，禁止未 pin 接入；retired 行不删（旧报告 provenance 反查）；`^`/`>=`/浮动 tag 全禁。
+ - 种子行（#44 落盘）：codelore=active（exact-version＋`--version` pin 契约）／scorecard、repomix=planned／sqlite-dump=evaluating（风险注记）；github-rest=planned（remote-api kind，#47/D-048）。
+ 
+diff --git a/engine/CHANGELOG.md b/engine/CHANGELOG.md
+index 92af133..41ae233 100644
+--- a/engine/CHANGELOG.md
++++ b/engine/CHANGELOG.md
+@@ -12,6 +12,7 @@ Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
+ 
+ ### Added
+ - manifest author/homepage/repository 字段（D-052；gen-manifests 透传扩展）；upstream-lock github-rest planned 行（kind=remote-api，D-048/#47）
++- #47 托管平台 API 适配器（D-048/ADR-0020，A-055）：`src/upstream/github-rest.ts`——GitHub REST 直连主路＋`X-GitHub-Api-Version` pin（2022-11-28）＋凭据三级探测（`GITHUB_TOKEN` env → gh 已认证态只读借读 → 无认证 60/hr 显式降级，即用即清不建存储）＋PR 枚举/元数据/diff 双通道（本地 git `base...head` 优先，REST diff 兜底）＋`x-ratelimit-*`+`Retry-After` 有界退避触顶即停＋余额写事实库；golden cassette×5 离线回放（authenticated/无认证降级=env-manager 实录制；限流耗尽=按官方语义合成；schema 漂移/平台 Bot=实录制派生）；锁表 `github-rest` planned→active（upstream-lock.yaml）
+ ### Added
+ - `upstream-lock.yaml` 机读权威上游锁定表（D-037③ / ADR-0018 §D-1 / docs/versioning.md §3；#44/A-049）：种子行 codelore=active exact-version 0.28.0＋`--version` pin 契约／duckdb-node-api=active（package-lock 精确锁定）／git-cli=active（随宿主环境·输出解析为契约）／openssf-scorecard·repomix-gitingest=planned／codelore-sqlite-dump=evaluating（risk_note）；禁 range/浮动 tag/latest，retired 行不删，更新走手动窗口＋golden 回归
+ 
+diff --git a/engine/package.json b/engine/package.json
+index f7a490c..3f9af02 100644
+--- a/engine/package.json
++++ b/engine/package.json
+@@ -27,7 +27,7 @@
+     "build": "tsc -p tsconfig.json",
+     "package": "npm pack --dry-run",
+     "demo:golden": "node scripts/gen-demo-golden.mjs",
+-    "smoke": "node test/smoke.test.mjs && node test/collectors.test.mjs && node test/codelore-adapter.test.mjs && node test/codelore-batch1.test.mjs && node test/codelore-llm.test.mjs && node test/report-preview.test.mjs && node test/intake.test.mjs && node test/demo.test.mjs",
++    "smoke": "node test/smoke.test.mjs && node test/collectors.test.mjs && node test/codelore-adapter.test.mjs && node test/codelore-batch1.test.mjs && node test/codelore-llm.test.mjs && node test/report-preview.test.mjs && node test/intake.test.mjs && node test/demo.test.mjs && node test/github-rest.test.mjs",
+     "test": "npm run gen && npm run build && npm run smoke",
+     "selftest": "node dist/cli.js selftest"
+   },
+diff --git a/engine/src/upstream/github-rest.ts b/engine/src/upstream/github-rest.ts
+new file mode 100644
+index 0000000..ce4dfd2
+--- /dev/null
++++ b/engine/src/upstream/github-rest.ts
+@@ -0,0 +1,677 @@
++// ---------- 上游适配器：GitHub REST（ADR-0020 / D-048 / #47）----------
++// 反腐层纪律（同 codelore.ts）：本文件只做「HTTP 调用 + 原始响应解析」——状态码、限流头解析、
++// schema 校验在此；业务规则（判据/阈值/裁决）禁止进入本层；raw 上游响应不出本层（以结构化类型/fact 传出）。
++// 路径钉死（ADR-0020）：REST 直连＋X-GitHub-Api-Version pin 主路；gh 已认证态只读借用 = 可选回退
++// （best-effort 非依赖、非 git-cli 先例延伸——git 为产品硬依赖、gh 为额外二进制）；
++// 无认证 = 显式降级（公仓 60/hr 如实披露）；凭据三级探测即用即清，不建凭据存储、不引 OAuth。
++// 最小契约 = PR 枚举（平台声明 Bot 判读：user.type==Bot ＋ login [bot] 后缀双检）＋PR 元数据
++// ＋diff 双通道（本地 git base...head 优先，API diff 仅在 base/head 本地缺席时兜底）。
++// review/comment 面 = planned 登记不入最小集（YAGNI，同 D-035 逐面纪律）。
++// 限流（docs.github.com rate-limits 原文对齐）：每响应读 x-ratelimit-* 头＋余额写事实库运行日志；
++// primary 耗尽（remaining=0）→ 不等待即停＋标注 reset_epoch；403/429 带 retry-after → 有界等待后
++// 单次重试，仍限 → 停；无 retry-after 且 remaining≠0 → 官方要求 ≥60s 等待超进程预算 → 显式停。
++// 措辞纪律：Bot 判读 = 「平台声明的 Bot 身份」，非语义级人/机判定；私仓场景披露「token 必需」。
++
++import { spawnSync } from 'node:child_process';
++import type { CollectContext, CollectedFact, CollectorDescriptor } from '../collect/collectors.js';
++import { makeFact } from '../collect/collectors.js';
++
++export const GITHUB_REST_ADAPTER_ID = 'github-rest-adapter@v1';
++export const GITHUB_REST_FAMILY = 'upstream-github-rest';
++export const GITHUB_API_VERSION = '2022-11-28';
++export const GITHUB_API_BASE = 'https://api.github.com';
++export const GITHUB_USER_AGENT = 'macro-audit-6f';
++export const UNAUTHENTICATED_HOURLY_LIMIT = 60;
++export const DEFAULT_MAX_PAGES = 10;
++export const DEFAULT_PER_PAGE = 100;
++export const DEFAULT_MAX_RETRY_WAIT_SECONDS = 60;
++
++// planned 登记（与锁表 contract 同源措辞）：本票最小契约之外的平台面，YAGNI 待真实需求拉动
++export const GITHUB_REST_PLANNED_SURFACES: readonly string[] = ['pulls.reviews', 'pulls.comments', 'issues.comments'];
++
++export const GITHUB_REST_DESCRIPTOR: CollectorDescriptor = {
++  id: GITHUB_REST_ADAPTER_ID,
++  family: GITHUB_REST_FAMILY,
++  dimension: null,
++  quadrant: 'strategic'
++};
++
++// ---------- §1 凭据三级探测（即用即清：token 仅进程内存，禁止进 fact/日志/序列化输出） ----------
++
++export type GithubCredentialStrategy = 'env-token' | 'gh-token' | 'unauthenticated';
++
++export interface GithubCredentialResolution {
++  strategy: GithubCredentialStrategy;
++  token: string | null;
++  degraded: boolean;
++  disclosures: string[];
++}
++
++export interface GhTokenProbeResult { available: boolean; token: string | null }
++export type GhTokenProbe = () => GhTokenProbeResult;
++
++// gh 已认证态只读借用：gh auth token 只读不改其 auth 态；gh 缺席 → available=false（非错误）。
++export function probeGhAuthToken(binary?: string): GhTokenProbeResult {
++  const bin = binary || 'gh';
++  const r = spawnSync(bin, ['auth', 'token'], { encoding: 'utf8', timeout: 15000, windowsHide: true });
++  if (r.error || r.status !== 0) { return { available: false, token: null }; }
++  const t = (r.stdout || '').trim();
++  return { available: true, token: t.length > 0 ? t : null };
++}
++
++export function resolveGithubCredential(
++  env: Readonly<Record<string, string | undefined>>,
++  ghProbe?: GhTokenProbe
++): GithubCredentialResolution {
++  const envTok = (env.GITHUB_TOKEN || '').trim();
++  if (envTok.length > 0) {
++    return { strategy: 'env-token', token: envTok, degraded: false, disclosures: [] };
++  }
++  const gh = (ghProbe || probeGhAuthToken)();
++  if (gh.available && gh.token) {
++    return {
++      strategy: 'gh-token', token: gh.token, degraded: false,
++      disclosures: ['gh 已认证态只读借用——best-effort 可选回退（非依赖、非契约承诺）']
++    };
++  }
++  return {
++    strategy: 'unauthenticated', token: null, degraded: true,
++    disclosures: [
++      'unauthenticated 降级：公仓只读 ' + UNAUTHENTICATED_HOURLY_LIMIT + '/hr 限流如实披露',
++      '私仓场景 = token 必需（本形态无法访问）'
++    ]
++  };
++}
++
++// ---------- §2 HTTP 面（fetcher 可注入——golden cassette 离线回放经此缝） ----------
++
++export interface GithubHttpRequest {
++  method: string;
++  url: string;
++  accept: string;
++  token: string | null;
++}
++
++export interface GithubHttpResponse {
++  status: number;
++  headers: Record<string, string>;
++  body: string;
++}
++
++export type GithubHttpFetcher = (req: GithubHttpRequest) => Promise<GithubHttpResponse>;
++export type Sleeper = (ms: number) => Promise<void>;
++export const defaultSleeper: Sleeper = (ms) => new Promise((r) => setTimeout(r, ms));
++
++export function realHttpFetcher(timeoutMs?: number): GithubHttpFetcher {
++  const t = timeoutMs || 30000;
++  return async (req) => {
++    const headers: Record<string, string> = {
++      'Accept': req.accept,
++      'X-GitHub-Api-Version': GITHUB_API_VERSION,
++      'User-Agent': GITHUB_USER_AGENT
++    };
++    if (req.token) { headers['Authorization'] = 'Bearer ' + req.token; }
++    const ac = new AbortController();
++    const timer = setTimeout(() => { ac.abort(); }, t);
++    try {
++      const r = await fetch(req.url, { method: req.method, headers: headers, signal: ac.signal });
++      const body = await r.text();
++      const h: Record<string, string> = {};
++      r.headers.forEach((v, k) => { h[k.toLowerCase()] = v; });
++      return { status: r.status, headers: h, body: body };
++    } finally { clearTimeout(timer); }
++  };
++}
++
++// ---------- §3 限流头解析 + 客户端（每响应读 x-ratelimit-*，余额进 callLog → 事实库） ----------
++
++export interface RateLimitSnapshot {
++  limit: number | null;
++  remaining: number | null;
++  used: number | null;
++  reset_epoch: number | null;
++  resource: string | null;
++  retry_after_seconds: number | null;
++}
++
++function toIntOrNull(v: string | undefined): number | null {
++  if (v === undefined) { return null; }
++  const n = parseInt(v, 10);
++  return isFinite(n) ? n : null;
++}
++
++export function parseRateLimitHeaders(headers: Record<string, string>): RateLimitSnapshot | null {
++  const has = headers['x-ratelimit-limit'] !== undefined || headers['x-ratelimit-remaining'] !== undefined;
++  if (!has) { return null; }
++  return {
++    limit: toIntOrNull(headers['x-ratelimit-limit']),
++    remaining: toIntOrNull(headers['x-ratelimit-remaining']),
++    used: toIntOrNull(headers['x-ratelimit-used']),
++    reset_epoch: toIntOrNull(headers['x-ratelimit-reset']),
++    resource: headers['x-ratelimit-resource'] || null,
++    retry_after_seconds: toIntOrNull(headers['retry-after'])
++  };
++}
++
++export type GithubApiErrorKind = 'none' | 'http' | 'rate-limited' | 'network' | 'parse';
++
++export interface GithubApiResult {
++  ok: boolean;
++  status: number;
++  data: unknown;
++  error_kind: GithubApiErrorKind;
++  rate_limit: RateLimitSnapshot | null;
++  retried: boolean;
++  detail: string | null;
++}
++
++export interface GithubCallLogEntry {
++  path: string;
++  status: number;
++  rate_limit: RateLimitSnapshot | null;
++}
++
++export interface GithubRestClient {
++  call(path: string, accept?: string): Promise<GithubApiResult>;
++  callLog: GithubCallLogEntry[];
++}
++
++export interface GithubRestClientOptions {
++  fetcher?: GithubHttpFetcher;
++  sleeper?: Sleeper;
++  apiBase?: string;
++  maxRetryWaitSeconds?: number;
++}
++
++export function createGithubRestClient(cred: GithubCredentialResolution, opts?: GithubRestClientOptions): GithubRestClient {
++  const fetcher = (opts && opts.fetcher) || realHttpFetcher();
++  const sleeper = (opts && opts.sleeper) || defaultSleeper;
++  const base = (opts && opts.apiBase) || GITHUB_API_BASE;
++  const maxWait = (opts && opts.maxRetryWaitSeconds !== undefined) ? opts.maxRetryWaitSeconds : DEFAULT_MAX_RETRY_WAIT_SECONDS;
++  const log: GithubCallLogEntry[] = [];
++
++  async function once(path: string, accept: string): Promise<GithubApiResult> {
++    let res: GithubHttpResponse;
++    try {
++      res = await fetcher({ method: 'GET', url: base + path, accept: accept, token: cred.token });
++    } catch (e) {
++      log.push({ path: path, status: 0, rate_limit: null });
++      return { ok: false, status: 0, data: null, error_kind: 'network', rate_limit: null, retried: false, detail: String((e as Error).message || e) };
++    }
++    const rl = parseRateLimitHeaders(res.headers);
++    log.push({ path: path, status: res.status, rate_limit: rl });
++    if (res.status >= 200 && res.status < 300) {
++      if (/json/i.test(res.headers['content-type'] || '') || /^\s*[\[{]/.test(res.body)) {
++        try {
++          return { ok: true, status: res.status, data: JSON.parse(res.body), error_kind: 'none', rate_limit: rl, retried: false, detail: null };
++        } catch (e) {
++          return { ok: false, status: res.status, data: null, error_kind: 'parse', rate_limit: rl, retried: false, detail: 'json parse: ' + String((e as Error).message || e) };
++        }
++      }
++      return { ok: true, status: res.status, data: res.body, error_kind: 'none', rate_limit: rl, retried: false, detail: null };
++    }
++    return { ok: false, status: res.status, data: null, error_kind: 'http', rate_limit: rl, retried: false, detail: 'http ' + res.status };
++  }
++
++  // 退避策略（官方文档对齐，确定性有界）：
++  //  primary 耗尽（remaining==0）→ 即停，不进程内傻等 reset；
++  //  次级限流带 retry-after ≤ maxWait → 等一次重试一次；仍限/超限 → 停；
++  //  次级限流无 retry-after（官方要求 ≥60s）→ 超有界预算即停。
++  async function call(path: string, accept?: string): Promise<GithubApiResult> {
++    const acc = accept || 'application/vnd.github+json';
++    let r = await once(path, acc);
++    if (r.ok || (r.status !== 403 && r.status !== 429)) { return r; }
++    const rl = r.rate_limit;
++    if (rl && rl.remaining === 0) {
++      r.error_kind = 'rate-limited';
++      r.detail = 'primary rate limit exhausted (x-ratelimit-remaining=0); reset_epoch=' + (rl.reset_epoch === null ? 'unknown' : String(rl.reset_epoch));
++      return r;
++    }
++    if (rl && rl.retry_after_seconds !== null && rl.retry_after_seconds <= maxWait) {
++      await sleeper(rl.retry_after_seconds * 1000);
++      const r2 = await once(path, acc);
++      r2.retried = true;
++      if (!r2.ok && (r2.status === 403 || r2.status === 429)) {
++        r2.error_kind = 'rate-limited';
++        r2.detail = 'secondary rate limit persisted after single bounded retry (retry-after=' + String(rl.retry_after_seconds) + 's)';
++      }
++      return r2;
++    }
++    r.error_kind = 'rate-limited';
++    r.detail = rl && rl.retry_after_seconds !== null
++      ? 'retry-after ' + String(rl.retry_after_seconds) + 's exceeds bounded wait ' + String(maxWait) + 's — stopped'
++      : 'secondary rate limit without retry-after (official >=60s wait exceeds bounded budget) — stopped';
++    return r;
++  }
++
++  return { call: call, callLog: log };
++}
++
++// ---------- §4 schema 校验 + 解析（漂移显式抛错，不出假阳性） ----------
++
++export class GithubSchemaDrift extends Error {
++  missing: string[];
++  constructor(where: string, missing: string[]) {
++    super('schema drift at ' + where + ': missing ' + missing.join(','));
++    this.name = 'GithubSchemaDrift';
++    this.missing = missing;
++  }
++}
++
++function fieldAt(row: unknown, path: string): unknown {
++  let cur: unknown = row;
++  for (const seg of path.split('.')) {
++    if (cur === null || typeof cur !== 'object') { return undefined; }
++    cur = (cur as Record<string, unknown>)[seg];
++  }
++  return cur;
++}
++
++function collectMissing(row: unknown, required: readonly string[]): string[] {
++  const missing: string[] = [];
++  for (const p of required) {
++    if (fieldAt(row, p) === undefined) { missing.push(p); }
++  }
++  return missing;
++}
++
++const PR_SUMMARY_REQUIRED: readonly string[] = ['number', 'title', 'state', 'user.login', 'user.type', 'head.sha', 'base.sha', 'html_url'];
++const PR_DETAIL_REQUIRED: readonly string[] = PR_SUMMARY_REQUIRED.concat(['merged', 'merge_commit_sha', 'additions', 'deletions', 'changed_files', 'commits', 'created_at']);
++
++function num(v: unknown): number | null { return typeof v === 'number' && isFinite(v) ? v : null; }
++function str(v: unknown): string | null { return typeof v === 'string' ? v : null; }
++function boolOrNull(v: unknown): boolean | null { return typeof v === 'boolean' ? v : null; }
++
++// 平台声明的 Bot 身份双检：user.type=='Bot' 且 login 以 [bot] 结尾——缺一不判 Bot（如实，不语义推断）。
++export function platformDeclaredBot(login: unknown, userType: unknown): boolean {
++  return userType === 'Bot' && typeof login === 'string' && /\[bot\]$/i.test(login);
++}
++
++export interface PrSummary {
++  number: number;
++  title: string;
++  state: string;
++  draft: boolean | null;
++  author_login: string;
++  author_type: string;
++  bot_declared: boolean;
++  bot_basis: 'platform-declared:user.type==Bot&&login~[bot]';
++  merged_at: string | null;
++  head_sha: string;
++  base_sha: string;
++  html_url: string;
++}
++
++export function parsePrSummaryRow(row: unknown): PrSummary {
++  const missing = collectMissing(row, PR_SUMMARY_REQUIRED);
++  if (missing.length > 0) { throw new GithubSchemaDrift('pulls[]', missing); }
++  const o = row as Record<string, unknown>;
++  const login = str(fieldAt(o, 'user.login')) || '';
++  const utype = str(fieldAt(o, 'user.type')) || '';
++  return {
++    number: num(o.number) || 0,
++    title: str(o.title) || '',
++    state: str(o.state) || '',
++    draft: boolOrNull(o.draft),
++    author_login: login,
++    author_type: utype,
++    bot_declared: platformDeclaredBot(login, utype),
++    bot_basis: 'platform-declared:user.type==Bot&&login~[bot]',
++    merged_at: str(o.merged_at),
++    head_sha: str(fieldAt(o, 'head.sha')) || '',
++    base_sha: str(fieldAt(o, 'base.sha')) || '',
++    html_url: str(o.html_url) || ''
++  };
++}
++
++export function parsePrList(data: unknown): PrSummary[] {
++  if (!Array.isArray(data)) { throw new GithubSchemaDrift('pulls', ['<root is not an array>']); }
++  return data.map((row) => parsePrSummaryRow(row));
++}
++
++export interface PrDetail extends PrSummary {
++  merged: boolean;
++  merge_commit_sha: string | null;
++  additions: number | null;
++  deletions: number | null;
++  changed_files: number | null;
++  commits: number | null;
++  comments: number | null;
++  review_comments: number | null;
++  created_at: string | null;
++  closed_at: string | null;
++  merged_by_login: string | null;
++  merged_by_type: string | null;
++}
++
++export function parsePrDetail(row: unknown): PrDetail {
++  const missing = collectMissing(row, PR_DETAIL_REQUIRED);
++  if (missing.length > 0) { throw new GithubSchemaDrift('pulls/{n}', missing); }
++  const base = parsePrSummaryRow(row);
++  const o = row as Record<string, unknown>;
++  return {
++    ...base,
++    merged: o.merged === true,
++    merge_commit_sha: str(o.merge_commit_sha),
++    additions: num(o.additions),
++    deletions: num(o.deletions),
++    changed_files: num(o.changed_files),
++    commits: num(o.commits),
++    comments: num(o.comments),
++    review_comments: num(o.review_comments),
++    created_at: str(o.created_at),
++    closed_at: str(o.closed_at),
++    merged_by_login: str(fieldAt(o, 'merged_by.login')),
++    merged_by_type: str(fieldAt(o, 'merged_by.type'))
++  };
++}
++
++// ---------- §5 diff 双通道（本地 git base...head 优先；API diff 仅 base/head 本地缺席兜底） ----------
++
++export interface PrDiffStats {
++  files_changed: number | null;
++  additions: number | null;
++  deletions: number | null;
++}
++
++export interface PrDiffOutcome {
++  channel: 'local-git' | 'api';
++  ok: boolean;
++  text: string;
++  stats: PrDiffStats;
++  detail: string | null;
++}
++
++const NULL_STATS: PrDiffStats = { files_changed: null, additions: null, deletions: null };
++
++export function gitShaResolvable(repoRoot: string, sha: string): boolean {
++  if (!sha) { return false; }
++  const r = spawnSync('git', ['cat-file', '-e', sha + '^{commit}'], { cwd: repoRoot, encoding: 'utf8', timeout: 30000, windowsHide: true });
++  return !r.error && r.status === 0;
++}
++
++export function parseNumstat(text: string): PrDiffStats {
++  let files = 0, add = 0, del = 0, sawNum = false;
++  for (const line of text.split('\n')) {
++    const t = line.trim();
++    if (!t) { continue; }
++    const parts = t.split('\t');
++    if (parts.length < 3) { continue; }
++    files++;
++    if (parts[0] !== '-' && parts[1] !== '-') {
++      const a = parseInt(parts[0], 10), d = parseInt(parts[1], 10);
++      if (isFinite(a) && isFinite(d)) { add += a; del += d; sawNum = true; }
++    }
++  }
++  return { files_changed: files, additions: sawNum ? add : null, deletions: sawNum ? del : null };
++}
++
++export function localThreeDotDiff(repoRoot: string, baseSha: string, headSha: string): { ok: boolean; text: string; stats: PrDiffStats; detail: string | null } {
++  const range = baseSha + '...' + headSha;
++  const d = spawnSync('git', ['diff', range], { cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 120000, windowsHide: true });
++  if (d.error || d.status !== 0) {
++    return { ok: false, text: '', stats: NULL_STATS, detail: 'git diff ' + range + ' :: ' + (d.error ? String(d.error) : (d.stderr || '').slice(-200)) };
++  }
++  const n = spawnSync('git', ['diff', '--numstat', range], { cwd: repoRoot, encoding: 'utf8', timeout: 60000, windowsHide: true });
++  const stats = (!n.error && n.status === 0) ? parseNumstat(n.stdout || '') : NULL_STATS;
++  return { ok: true, text: d.stdout || '', stats: stats, detail: null };
++}
++
++export async function resolvePrDiff(
++  client: GithubRestClient,
++  owner: string,
++  repo: string,
++  prNumber: number,
++  baseSha: string,
++  headSha: string,
++  repoRoot?: string | null
++): Promise<PrDiffOutcome> {
++  if (repoRoot && gitShaResolvable(repoRoot, baseSha) && gitShaResolvable(repoRoot, headSha)) {
++    const l = localThreeDotDiff(repoRoot, baseSha, headSha);
++    if (l.ok) { return { channel: 'local-git', ok: true, text: l.text, stats: l.stats, detail: null }; }
++    const a = await apiDiff(client, owner, repo, prNumber);
++    a.detail = 'local-git diff failed (' + (l.detail || 'unknown') + ') -> api fallback';
++    return a;
++  }
++  return apiDiff(client, owner, repo, prNumber);
++}
++
++async function apiDiff(client: GithubRestClient, owner: string, repo: string, prNumber: number): Promise<PrDiffOutcome> {
++  const res = await client.call('/repos/' + owner + '/' + repo + '/pulls/' + String(prNumber), 'application/vnd.github.diff');
++  if (!res.ok) {
++    return { channel: 'api', ok: false, text: '', stats: NULL_STATS, detail: 'api diff ' + res.error_kind + ' status=' + String(res.status) };
++  }
++  return { channel: 'api', ok: true, text: String(res.data), stats: NULL_STATS, detail: 'api diff channel (base/head 本地缺席或本地 diff 失败)' };
++}
++
++// ---------- §6 仓引用解析（owner/repo 与 github.com URL；非 github 显式拒） ----------
++
++export type GithubRepoRef = { ok: true; owner: string; repo: string } | { ok: false; reason: string };
++
++export function parseGithubRepoRef(input: string): GithubRepoRef {
++  const s = (input || '').trim();
++  let m = s.match(/^https?:\/\/github\.com\/([A-Za-z0-9][A-Za-z0-9._-]*)\/([A-Za-z0-9][A-Za-z0-9._-]*?)(\.git)?\/?$/i);
++  if (m) { return { ok: true, owner: m[1], repo: m[2] }; }
++  m = s.match(/^git@github\.com:([A-Za-z0-9][A-Za-z0-9._-]*)\/([A-Za-z0-9][A-Za-z0-9._-]*?)(\.git)?$/i);
++  if (m) { return { ok: true, owner: m[1], repo: m[2] }; }
++  if (/^https?:\/\//i.test(s) || /^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:/.test(s)) {
++    return { ok: false, reason: 'unsupported: 托管面非 github.com（无托管 PR 面适配）' };
++  }
++  m = s.match(/^([A-Za-z0-9][A-Za-z0-9._-]*)\/([A-Za-z0-9][A-Za-z0-9._-]*)$/);
++  if (m) { return { ok: true, owner: m[1], repo: m[2] }; }
++  return { ok: false, reason: 'unparseable repo ref' };
++}
++
++// ---------- §7 采集入口（事实发射：resolution/rate_limit 运行日志/pr_summary/pr_metadata/pr_diff/run） ----------
++
++export interface CollectGithubPrOptions {
++  state?: 'open' | 'closed' | 'all';
++  maxPages?: number;
++  perPage?: number;
++  details?: readonly number[];
++  diffs?: readonly number[];
++  repoRoot?: string | null;
++  env?: Readonly<Record<string, string | undefined>>;
++  ghTokenProbe?: GhTokenProbe;
++  fetcher?: GithubHttpFetcher;
++  sleeper?: Sleeper;
++  apiBase?: string;
++  maxRetryWaitSeconds?: number;
++}
++
++export interface GithubPrCollectResult {
++  facts: CollectedFact[];
++  strategy: GithubCredentialStrategy;
++  degraded: boolean;
++  prs_listed: number;
++  calls: number;
++  stopped_reason: string | null;
++}
++
++export async function collectGithubPrFacts(
++  owner: string,
++  repo: string,
++  opts: CollectGithubPrOptions,
++  ctx: CollectContext
++): Promise<GithubPrCollectResult> {
++  const out: CollectedFact[] = [];
++  const env = opts.env || process.env;
++  const repoRef = owner + '/' + repo;
++  const cred = resolveGithubCredential(env, opts.ghTokenProbe);
++  const client = createGithubRestClient(cred, { fetcher: opts.fetcher, sleeper: opts.sleeper, apiBase: opts.apiBase, maxRetryWaitSeconds: opts.maxRetryWaitSeconds });
++
++  out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'credential 3-level probe', 'github_rest.resolution', {
++    strategy: cred.strategy,
++    degraded: cred.degraded,
++    disclosures: cred.disclosures,
++    api_version: GITHUB_API_VERSION,
++    api_base: (opts.apiBase || GITHUB_API_BASE),
++    planned_surfaces: GITHUB_REST_PLANNED_SURFACES,
++    credential_storage: 'none（即用即清，不建凭据存储）'
++  }));
++
++  let stopped: string | null = null;
++  const counters = { errors: 0, rate_limited: 0, schema_drift: 0, prs: 0, details: 0, diffs: 0, diffs_local: 0, diffs_api: 0 };
++
++  function noteCall(path: string, r: GithubApiResult): void {
++    out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'GET ' + path, 'github_rest.rate_limit', {
++      path: path,
++      status: r.status,
++      limit: r.rate_limit ? r.rate_limit.limit : null,
++      remaining: r.rate_limit ? r.rate_limit.remaining : null,
++      used: r.rate_limit ? r.rate_limit.used : null,
++      reset_epoch: r.rate_limit ? r.rate_limit.reset_epoch : null,
++      resource: r.rate_limit ? r.rate_limit.resource : null,
++      retried: r.retried
++    }));
++  }
++
++  function noteError(path: string, r: GithubApiResult): void {
++    counters.errors++;
++    if (r.error_kind === 'rate-limited') {
++      counters.rate_limited++;
++      stopped = r.detail || 'rate-limited';
++      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'GET ' + path, 'github_rest.rate_limited', {
++        path: path, status: r.status, detail: r.detail,
++        reset_epoch: r.rate_limit ? r.rate_limit.reset_epoch : null,
++        remaining: r.rate_limit ? r.rate_limit.remaining : null,
++        retried: r.retried,
++        policy: 'backoff-bounded-single-retry / stop-on-exhausted（退避不硬重试，触顶即停）'
++      }));
++    } else {
++      stopped = r.detail || ('api error ' + String(r.status));
++      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'GET ' + path, 'github_rest.api_error', {
++        path: path, status: r.status, error_kind: r.error_kind, detail: r.detail, retried: r.retried
++      }));
++    }
++  }
++
++  // PR 枚举（分页经 per_page；不足页止）
++  const state = opts.state || 'all';
++  const perPage = opts.perPage || DEFAULT_PER_PAGE;
++  const maxPages = opts.maxPages || DEFAULT_MAX_PAGES;
++  const summaries: PrSummary[] = [];
++  for (let page = 1; page <= maxPages; page++) {
++    const path = '/repos/' + repoRef + '/pulls?state=' + state + '&per_page=' + String(perPage) + '&page=' + String(page);
++    const r = await client.call(path);
++    noteCall(path, r);
++    if (!r.ok) { noteError(path, r); break; }
++    let rows: unknown[];
++    try {
++      if (!Array.isArray(r.data)) { throw new GithubSchemaDrift('pulls', ['<root is not an array>']); }
++      rows = r.data;
++    } catch (e) {
++      counters.errors++; counters.schema_drift++;
++      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'GET ' + path, 'github_rest.schema_drift', {
++        path: path, where: 'pulls', missing: (e as GithubSchemaDrift).missing || [String((e as Error).message)]
++      }));
++      stopped = 'schema-drift';
++      break;
++    }
++    for (const row of rows) {
++      let s: PrSummary;
++      try { s = parsePrSummaryRow(row); } catch (e) {
++        counters.errors++; counters.schema_drift++;
++        out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'GET ' + path, 'github_rest.schema_drift', {
++          path: path, where: 'pulls[]', missing: (e as GithubSchemaDrift).missing || [String((e as Error).message)]
++        }));
++        continue;
++      }
++      summaries.push(s);
++      counters.prs++;
++      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + '#' + String(s.number), 'GET ' + path, 'github_rest.pr_summary', {
++        number: s.number, title: s.title, state: s.state, draft: s.draft,
++        author_login: s.author_login, author_type: s.author_type,
++        bot_declared: s.bot_declared, bot_basis: s.bot_basis,
++        merged_at: s.merged_at, head_sha: s.head_sha, base_sha: s.base_sha, html_url: s.html_url
++      }));
++    }
++    if (rows.length < perPage) { break; }
++  }
++
++  // PR 元数据 + diff（按需子集；限流/错误即停）
++  const byNumber = new Map<number, PrSummary>();
++  for (const s of summaries) { byNumber.set(s.number, s); }
++  if (!stopped) {
++    for (const n of opts.details || []) {
++      const path = '/repos/' + repoRef + '/pulls/' + String(n);
++      const r = await client.call(path);
++      noteCall(path, r);
++      if (!r.ok) { noteError(path, r); break; }
++      try {
++        const d = parsePrDetail(r.data);
++        byNumber.set(d.number, d);
++        counters.details++;
++        out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + '#' + String(n), 'GET ' + path, 'github_rest.pr_metadata', d));
++      } catch (e) {
++        counters.errors++; counters.schema_drift++;
++        out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + '#' + String(n), 'GET ' + path, 'github_rest.schema_drift', {
++          path: path, where: 'pulls/{n}', missing: (e as GithubSchemaDrift).missing || [String((e as Error).message)]
++        }));
++      }
++    }
++  }
++  if (!stopped) {
++    for (const n of opts.diffs || []) {
++      const meta = byNumber.get(n);
++      const baseSha = meta ? meta.base_sha : '';
++      const headSha = meta ? meta.head_sha : '';
++      const path = '/repos/' + repoRef + '/pulls/' + String(n);
++      const logBefore = client.callLog.length;
++      const d = await resolvePrDiff(client, owner, repo, n, baseSha, headSha, opts.repoRoot || null);
++      for (let li = logBefore; li < client.callLog.length; li++) {
++        const le = client.callLog[li];
++        out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'GET ' + le.path, 'github_rest.rate_limit', {
++          path: le.path, status: le.status,
++          limit: le.rate_limit ? le.rate_limit.limit : null,
++          remaining: le.rate_limit ? le.rate_limit.remaining : null,
++          used: le.rate_limit ? le.rate_limit.used : null,
++          reset_epoch: le.rate_limit ? le.rate_limit.reset_epoch : null,
++          resource: le.rate_limit ? le.rate_limit.resource : null,
++          retried: false
++        }));
++      }
++      if (!d.ok) {
++        counters.errors++;
++        stopped = d.detail || 'diff failed';
++        out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + '#' + String(n), 'GET ' + path + ' (diff)', 'github_rest.api_error', {
++          path: path, error_kind: 'http', detail: d.detail, channel: d.channel
++        }));
++        break;
++      }
++      counters.diffs++;
++      if (d.channel === 'local-git') { counters.diffs_local++; } else { counters.diffs_api++; }
++      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + '#' + String(n), d.channel === 'local-git' ? 'git diff ' + baseSha + '...' + headSha : 'GET ' + path + ' (diff)', 'github_rest.pr_diff', {
++        number: n, channel: d.channel, bytes: d.text.length,
++        files_changed: d.stats.files_changed, additions: d.stats.additions, deletions: d.stats.deletions,
++        detail: d.detail
++      }));
++    }
++  }
++
++  const lastLog = client.callLog.length > 0 ? client.callLog[client.callLog.length - 1] : null;
++  out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'adapter run summary', 'github_rest.run', {
++    strategy: cred.strategy,
++    degraded: cred.degraded,
++    calls: client.callLog.length,
++    errors: counters.errors,
++    rate_limited: counters.rate_limited,
++    schema_drift: counters.schema_drift,
++    prs_listed: counters.prs,
++    details: counters.details,
++    diffs: counters.diffs,
++    diffs_local_git: counters.diffs_local,
++    diffs_api: counters.diffs_api,
++    stopped_reason: stopped,
++    final_remaining: lastLog && lastLog.rate_limit ? lastLog.rate_limit.remaining : null
++  }));
++
++  return {
++    facts: out,
++    strategy: cred.strategy,
++    degraded: cred.degraded,
++    prs_listed: counters.prs,
++    calls: client.callLog.length,
++    stopped_reason: stopped
++  };
++}
+diff --git a/engine/test/github-rest.test.mjs b/engine/test/github-rest.test.mjs
+new file mode 100644
+index 0000000..48c1537
+--- /dev/null
++++ b/engine/test/github-rest.test.mjs
+@@ -0,0 +1,184 @@
++// github-rest.test.mjs — GitHub REST 适配器 golden cassette 契约测试（ADR-0014 同款回放模式 / D-048 / #47）
++// 全离线：cassette 回放真实录制响应（fixtures/github-rest/），不打真网络；占位 token 断言永不进 fact。
++// 覆盖 D-048 五面：认证态 / 无认证降级 / 限流耗尽 / schema 漂移 / 平台声明 Bot + diff 双通道 + 凭据三级探测。
++import assert from 'node:assert/strict';
++import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
++import { tmpdir } from 'node:os';
++import { spawnSync } from 'node:child_process';
++import { dirname, join } from 'node:path';
++import { fileURLToPath, pathToFileURL } from 'node:url';
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++const root = join(HERE, '..');
++const G = await import(pathToFileURL(join(root, 'dist', 'upstream', 'github-rest.js')).href);
++const fx = (n) => JSON.parse(readFileSync(join(HERE, 'fixtures', 'github-rest', n), 'utf8'));
++
++const CTX = { runId: 'test-run', traceId: '00000000000000000000000000000000', repoRef: 'Xxx91n/env-manager', scale: 'Micro-A', observedAt: '2026-09-16T00:00:00.000Z' };
++const noGh = () => ({ available: false, token: null });
++const noRetry = async () => {};
++
++function cassetteFetcher(cassette, captured) {
++  let i = 0;
++  return async (req) => {
++    captured.push(req);
++    if (i >= cassette.calls.length) { throw new Error('cassette exhausted at ' + req.url); }
++    const c = cassette.calls[i++];
++    assert.equal(req.method, c.request.method);
++    assert.ok(req.url.endsWith(c.request.path), 'path mismatch: ' + req.url + ' vs ' + c.request.path);
++    assert.equal(req.accept, c.request.accept || 'application/vnd.github+json');
++    return { status: c.response.status, headers: c.response.headers || {}, body: typeof c.response.body === 'string' ? c.response.body : JSON.stringify(c.response.body) };
++  };
++}
++const byMetric = (facts, m) => facts.filter((f) => f.metric === m);
++const val = (f) => JSON.parse(f.value_json);
++
++const results = [];
++const check = (name, pass, detail) => { results.push([name, !!pass, detail || '']); };
++
++// --- R 凭据三级探测 ---
++const r1 = G.resolveGithubCredential({ GITHUB_TOKEN: 'ENVTOK-PLACEHOLDER' }, noGh);
++check('R1 env token → env-token 主路', r1.strategy === 'env-token' && r1.degraded === false);
++const r2 = G.resolveGithubCredential({}, () => ({ available: true, token: 'GHTOK-PLACEHOLDER' }));
++check('R2 gh 已认证态借读 → gh-token 可选回退', r2.strategy === 'gh-token' && r2.degraded === false);
++const r3 = G.resolveGithubCredential({}, noGh);
++check('R3 无凭据 → unauthenticated 显式降级', r3.strategy === 'unauthenticated' && r3.degraded === true);
++check('R4 降级披露含 60/h + 私仓 token 必需', r3.disclosures.join('|').includes('60') && r3.disclosures.join('|').includes('token'), JSON.stringify(r3.disclosures));
++check('R5 gh 存在但 token 空 → 降级不误借', G.resolveGithubCredential({}, () => ({ available: true, token: null })).strategy === 'unauthenticated');
++
++// --- B 平台声明 Bot 双检真值表 ---
++check('B1 dependabot[bot]/Bot → true', G.platformDeclaredBot('dependabot[bot]', 'Bot') === true);
++check('B2 internal-ci/Bot（无 [bot]）→ false', G.platformDeclaredBot('internal-ci', 'Bot') === false);
++check('B3 custom[bot]/User → false', G.platformDeclaredBot('custom[bot]', 'User') === false);
++check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === false);
++
++// --- A authenticated cassette（真实录制 env-manager 62 PRs） ---
++{
++  const cas = fx('authenticated.cassette.json');
++  const cap = [];
++  const r = await G.collectGithubPrFacts('Xxx91n', 'env-manager', {
++    env: { GITHUB_TOKEN: 'ENVTOK-PLACEHOLDER' }, ghTokenProbe: noGh,
++    fetcher: cassetteFetcher(cas, cap), details: [64, 51], diffs: [64]
++  }, CTX);
++  check('A1 PR 枚举 62 条全列', r.prs_listed === 62, 'prs=' + r.prs_listed);
++  check('A2 strategy=env-token', r.strategy === 'env-token');
++  const res = val(byMetric(r.facts, 'github_rest.resolution')[0]);
++  check('A3 resolution 事实：api_version pin + planned 面登记', res.api_version === '2022-11-28' && res.planned_surfaces.includes('pulls.reviews'));
++  check('A4 rate_limit 运行日志事实=每调用一条（4 calls）', byMetric(r.facts, 'github_rest.rate_limit').length === 4);
++  const rl0 = val(byMetric(r.facts, 'github_rest.rate_limit')[0]);
++  check('A5 余额字段齐备（limit/remaining/used/reset）', rl0.limit === 5000 && typeof rl0.remaining === 'number' && typeof rl0.used === 'number' && typeof rl0.reset_epoch === 'number', JSON.stringify(rl0));
++  const summaries = byMetric(r.facts, 'github_rest.pr_summary');
++  check('A6 pr_summary 事实 62 条', summaries.length === 62);
++  const expectedBots = cas.calls[0].response.body.filter((x) => x.user && x.user.type === 'Bot' && /\[bot\]$/i.test(x.user.login)).length;
++  check('A7 bot_declared 计数与录制真值一致（' + expectedBots + '）', summaries.filter((f) => val(f).bot_declared).length === expectedBots);
++  check('A8 bot_basis 平台声明措辞在', summaries.every((f) => val(f).bot_basis === 'platform-declared:user.type==Bot&&login~[bot]'));
++  const m64 = byMetric(r.facts, 'github_rest.pr_metadata').map(val).find((v) => v.number === 64);
++  check('A9 detail #64 merged=true + changed_files=2', m64 && m64.merged === true && m64.changed_files === 2);
++  const d64 = byMetric(r.facts, 'github_rest.pr_diff').map(val).find((v) => v.number === 64);
++  check('A10 diff #64 → api 通道（本地缺席兜底）+bytes>1000', d64 && d64.channel === 'api' && d64.bytes > 1000, d64 ? String(d64.bytes) : 'missing');
++  const run = val(byMetric(r.facts, 'github_rest.run')[0]);
++  check('A11 run 汇总 calls=4/errors=0/stopped=null', run.calls === 4 && run.errors === 0 && run.stopped_reason === null, JSON.stringify(run));
++  check('A12 token 入 wire（fetcher 收到），不进任何 fact', cap.every((q) => q.token === 'ENVTOK-PLACEHOLDER') && !JSON.stringify(r.facts).includes('ENVTOK-PLACEHOLDER'));
++}
++
++// --- D diff 本地 git 优先通道 ---
++{
++  const tmp = mkdtempSync(join(tmpdir(), 'ghrest-local-'));
++  const repo = join(tmp, 'r');
++  mkdirSync(repo, { recursive: true });
++  const git = (a) => spawnSync('git', a, { cwd: repo, encoding: 'utf8' });
++  git(['init', '-q']); git(['config', 'user.email', 't@t']); git(['config', 'user.name', 't']);
++  writeFileSync(join(repo, 'a.txt'), 'a1\n');
++  git(['add', 'a.txt']); git(['commit', '-qm', 'c1']);
++  const base = git(['rev-parse', 'HEAD']).stdout.trim();
++  writeFileSync(join(repo, 'a.txt'), 'a1\na2\n'); writeFileSync(join(repo, 'b.txt'), 'b\n');
++  git(['add', '-A']); git(['commit', '-qm', 'c2']);
++  const head = git(['rev-parse', 'HEAD']).stdout.trim();
++  const client = G.createGithubRestClient({ strategy: 'unauthenticated', token: null, degraded: true, disclosures: [] }, { fetcher: async () => { throw new Error('must-not-call'); } });
++  const d = await G.resolvePrDiff(client, 'o', 'r', 1, base, head, repo);
++  check('D1 本地 sha 可解 → local-git 通道', d.ok && d.channel === 'local-git');
++  check('D2 local diff 文本含 diff --git', d.text.includes('diff --git'));
++  check('D3 numstat 解析 files=2 additions≥1', d.stats.files_changed === 2 && (d.stats.additions || 0) >= 1, JSON.stringify(d.stats));
++  check('D4 本地通道零 API 调用', client.callLog.length === 0);
++  const cas = fx('authenticated.cassette.json');
++  const cap = [];
++  const client2 = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: cassetteFetcher({ name: 'one', calls: [cas.calls[3]] }, cap) });
++  const d2 = await G.resolvePrDiff(client2, 'Xxx91n', 'env-manager', 64, 'deadbeef'.repeat(5), 'feedbeef'.repeat(5), repo);
++  check('D5 sha 本地缺席 → api 兜底通道', d2.ok && d2.channel === 'api' && d2.text.length > 1000);
++  check('D6 api 兜底确实产生了调用', client2.callLog.length === 1);
++  rmSync(tmp, { recursive: true, force: true });
++}
++
++// --- U unauthenticated-degraded cassette ---
++{
++  const cas = fx('unauthenticated-degraded.cassette.json');
++  const r = await G.collectGithubPrFacts('Xxx91n', 'env-manager', { env: {}, ghTokenProbe: noGh, fetcher: cassetteFetcher(cas, []) }, CTX);
++  check('U1 降级态 strategy=unauthenticated + degraded', r.strategy === 'unauthenticated' && r.degraded === true);
++  check('U2 降级下枚举仍产出 62 条', r.prs_listed === 62);
++  const rl = val(byMetric(r.facts, 'github_rest.rate_limit')[0]);
++  check('U3 无认证限额 limit=60 如实进事实', rl.limit === 60);
++}
++
++// --- L rate-limit-exhausted cassette（synthetic） ---
++{
++  const cas = fx('rate-limit-exhausted.cassette.json');
++  const sleeps = [];
++  const r = await G.collectGithubPrFacts('Xxx91n', 'env-manager', {
++    env: {}, ghTokenProbe: noGh, fetcher: cassetteFetcher(cas, []), sleeper: async (ms) => { sleeps.push(ms); }
++  }, CTX);
++  const lim = byMetric(r.facts, 'github_rest.rate_limited');
++  check('L1 限流耗尽 → rate_limited 事实', lim.length === 1);
++  check('L2 单次有界退避（sleep 1000ms ×1）', sleeps.length === 1 && sleeps[0] === 1000, JSON.stringify(sleeps));
++  check('L3 触顶即停：calls=2 不硬重试循环', r.calls === 2);
++  check('L4 rate_limited 事实 retried=true + reset_epoch 标注', val(lim[0]).retried === true && typeof val(lim[0]).reset_epoch === 'number');
++  check('L5 stopped_reason 非空（报告可标注）', r.stopped_reason !== null && r.stopped_reason.length > 0);
++  // primary 耗尽直停（remaining=0 第一响应即停，零重试）
++  const r2 = await G.collectGithubPrFacts('Xxx91n', 'env-manager', {
++    env: {}, ghTokenProbe: noGh,
++    fetcher: async () => ({ status: 403, headers: { 'x-ratelimit-limit': '60', 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '1789573500', 'x-ratelimit-resource': 'core' }, body: '{}' })
++  }, CTX);
++  check('L6 remaining=0 首响应即停（calls=1 零重试）', r2.calls === 1 && byMetric(r2.facts, 'github_rest.rate_limited').length === 1);
++}
++
++// --- S schema-drift cassette ---
++{
++  const cas = fx('schema-drift.cassette.json');
++  const r = await G.collectGithubPrFacts('Xxx91n', 'env-manager', { env: { GITHUB_TOKEN: 'T' }, ghTokenProbe: noGh, fetcher: cassetteFetcher(cas, []) }, CTX);
++  const drift = byMetric(r.facts, 'github_rest.schema_drift');
++  check('S1 漂移行显式报（2 条 schema_drift）', drift.length === 2, 'got ' + drift.length);
++  check('S2 漂移事实列缺失字段（user / head.sha）', drift.some((f) => val(f).missing.join(',').includes('user')) && drift.some((f) => val(f).missing.join(',').includes('head.sha')));
++  check('S3 好行照出不假阳性（#64 summary 在）', byMetric(r.facts, 'github_rest.pr_summary').length === 1);
++  const run = val(byMetric(r.facts, 'github_rest.run')[0]);
++  check('S4 run 汇总 schema_drift=2 errors=2', run.schema_drift === 2 && run.errors === 2);
++}
++
++// --- P platform-bot cassette ---
++{
++  const cas = fx('platform-bot.cassette.json');
++  const r = await G.collectGithubPrFacts('Xxx91n', 'env-manager', { env: { GITHUB_TOKEN: 'T' }, ghTokenProbe: noGh, fetcher: cassetteFetcher(cas, []) }, CTX);
++  const s = byMetric(r.facts, 'github_rest.pr_summary').map(val);
++  const by = {}; s.forEach((v) => { by[v.number] = v.bot_declared; });
++  check('P1 真实 bot 行判 Bot（#62 dependabot/#64 actions）', by[62] === true && by[64] === true);
++  check('P2 人类行不判 Bot（#51）', by[51] === false);
++  check('P3 边缘行双检缺一即 false（#901 无[bot]/#902 非Bot型）', by[901] === false && by[902] === false);
++}
++
++// --- E 仓引用解析 ---
++check('E1 owner/repo → ok', (() => { const x = G.parseGithubRepoRef('Xxx91n/env-manager'); return x.ok && x.owner === 'Xxx91n' && x.repo === 'env-manager'; })());
++check('E2 https URL → ok', G.parseGithubRepoRef('https://github.com/Xxx91n/env-manager').ok === true);
++check('E3 .git 尾缀 → ok', G.parseGithubRepoRef('https://github.com/Xxx91n/env-manager.git').ok === true);
++check('E4 git@ URL → ok', G.parseGithubRepoRef('git@github.com:Xxx91n/env-manager.git').ok === true);
++const ng = G.parseGithubRepoRef('https://gitlab.com/a/b');
++check('E5 非 github 托管显式拒', ng.ok === false && /unsupported/.test(ng.reason));
++
++// --- K 常量钉死 ---
++check('K1 X-GitHub-Api-Version pin=2022-11-28', G.GITHUB_API_VERSION === '2022-11-28');
++check('K2 adapter id + family', G.GITHUB_REST_ADAPTER_ID === 'github-rest-adapter@v1' && G.GITHUB_REST_FAMILY === 'upstream-github-rest');
++check('K3 planned 面登记（review/comment 不入最小集）', G.GITHUB_REST_PLANNED_SURFACES.includes('pulls.reviews') && G.GITHUB_REST_PLANNED_SURFACES.includes('pulls.comments'));
++
++let ok = true;
++for (const r of results) {
++  console.log((r[1] ? 'PASS ' : 'FAIL ') + r[0] + (r[2] ? ' :: ' + r[2] : ''));
++  if (!r[1]) { ok = false; }
++}
++console.log(ok ? ('GITHUB-REST ' + results.length + '/' + results.length) : 'GITHUB-REST-FAIL');
++process.exit(ok ? 0 : 1);
+diff --git a/engine/upstream-lock.yaml b/engine/upstream-lock.yaml
+index afc61d7..41d089e 100644
+--- a/engine/upstream-lock.yaml
++++ b/engine/upstream-lock.yaml
+@@ -1,9 +1,10 @@
+ # upstream-lock.yaml — 上游版本锁定表（机读权威 / single source of truth）
+ # 制度来源：D-037（轮 7 Q1 拍板）＋ ADR-0018 §D-1 ＋ docs/versioning.md §3；票 #44 / A-049 落盘
+ #
+-# 字段契约（D-037③ 逐字）：id / kind / version / pin_type(exact-version|commit-sha|digest) /
++# 字段契约（D-037③ 逐字）：id / kind / version / pin_type(exact-version|commit-sha|digest|api-version※) /
+ #   contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review
+ #   kind 词表（随接入面扩展登记）：external-cli / node-lib / go-lib-or-cli / cli-or-pip / data-export / remote-api（D-048，#47）
++#   ※api-version 由 #47/D-048 remote-api 行引入（X-GitHub-Api-Version 头 pin，非制品版本）
+ #
+ # 锁定纪律（docs/versioning.md §3-4 同源）：
+ #   - 本表为唯一机读权威——README §3 上游清单表是人读形态，状态列与本表 status 同源
+@@ -75,10 +76,10 @@ upstreams:
+     next_review: 2026-10-16
+   - id: github-rest
+     kind: remote-api
+-    version: null
+-    pin_type: null
++    version: "2022-11-28"
++    pin_type: api-version
+     contract: "Micro-A PR 数据面（D-048／#47）：PR 枚举（含平台声明 Bot 判读=user.type==Bot+[bot] 后缀双检）＋PR 元数据＋diff 兜底（本地 git base...head 优先，API diff 仅在 base/head 本地缺席时使用）；X-GitHub-Api-Version 头 pin；限流=读 x-ratelimit-* 头＋Retry-After＋余额写事实库，耗尽即确定性降级/停止；凭据三级探测=GITHUB_TOKEN env→gh 已认证态只读借用（可选优化非依赖）→无认证显式降级；不建凭据存储、不引 OAuth；raw 上游响应不出适配器边界（ADR-0014）；review/comment 面=planned 不入 Micro-A 最小契约"
+-    status: planned
+-    adapter: null
++    status: active
++    adapter: "engine/src/upstream/github-rest.ts（GITHUB_REST_ADAPTER_ID=github-rest-adapter@v1，API 版本常量 GITHUB_API_VERSION 同源）"
+     last_reviewed: 2026-09-16
+     next_review: 2026-10-16

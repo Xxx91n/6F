@@ -3,7 +3,7 @@
 //   → C 测试在 smoke 链且实跑 PASS → D dist 模块契约语义（三级探测/Bot 双检/仓引用/限流）
 //   → E 锁表 github-rest→active＋README/CHANGELOG 同源 → F 文档账本回写 → G BOM
 // 纪律：只读断言 + node test 子进程（cassette 离线回放，零网络）；exit 0 + PASS N/N 为绿。
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -37,6 +37,10 @@ t('A7 planned 面登记（pulls.reviews/comments 不入最小集）',
   src.includes('pulls.reviews') && src.includes('pulls.comments'));
 t('A8 raw 响应不出边界 + 凭据不建存储文案', src.includes('credential_storage') || src.includes('即用即清'));
 t('A9 dist/upstream/github-rest.js 编译产物在（测试作用于 dist）', existsSync(DIST));
+t('A10 diff 兜底收窄至 spec（本地 diff 失败不再改道 API——无 -> api fallback 残留）',
+  !src.includes('-> api fallback') && src.includes("error_kind: 'local-diff'") && src.includes('api diff channel (base/head 本地缺席)'));
+t('A11 callLog 条目携带 retried/error_kind 真值 + 共用发射器 emitCallLog 三路径同源',
+  src.includes('retried: boolean;') && src.includes('error_kind: GithubApiErrorKind;') && src.includes('emitCallLog') && src.includes('logAttempt'));
 
 // ---------- B. golden cassette ×5 ----------
 const cassettes = ['authenticated', 'unauthenticated-degraded', 'rate-limit-exhausted', 'schema-drift', 'platform-bot'];
@@ -53,6 +57,8 @@ t('B5 限流带含 retry-after + remaining=0 耗尽帧',
   rl && rl.calls.some((c) => c.response.headers['retry-after']) && rl.calls.some((c) => c.response.headers['x-ratelimit-remaining'] === '0'));
 const drift = casObjs[3];
 t('B6 漂移带=实录制派生（derived）且行缺字段', drift && drift.recorded === 'derived');
+t('B7 无认证带 source 标注诚实（无 gh/借读/token 字样，含无认证自述）',
+  unauth && typeof unauth.source === 'string' && !/gh|借读|token/i.test(unauth.source) && /无认证|unauth/i.test(unauth.source));
 
 // ---------- C. 测试入 smoke 链且实跑 PASS ----------
 const testP = join(ENG, 'test', 'github-rest.test.mjs');

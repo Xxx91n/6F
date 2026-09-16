@@ -169,6 +169,8 @@ export interface GithubCallLogEntry {
   path: string;
   status: number;
   rate_limit: RateLimitSnapshot | null;
+  retried: boolean;
+  error_kind: GithubApiErrorKind;
 }
 
 export interface GithubRestClient {
@@ -195,11 +197,9 @@ export function createGithubRestClient(cred: GithubCredentialResolution, opts?: 
     try {
       res = await fetcher({ method: 'GET', url: base + path, accept: accept, token: cred.token });
     } catch (e) {
-      log.push({ path: path, status: 0, rate_limit: null });
       return { ok: false, status: 0, data: null, error_kind: 'network', rate_limit: null, retried: false, detail: String((e as Error).message || e) };
     }
     const rl = parseRateLimitHeaders(res.headers);
-    log.push({ path: path, status: res.status, rate_limit: rl });
     if (res.status >= 200 && res.status < 300) {
       if (/json/i.test(res.headers['content-type'] || '') || /^\s*[\[{]/.test(res.body)) {
         try {
@@ -217,9 +217,16 @@ export function createGithubRestClient(cred: GithubCredentialResolution, opts?: 
   //  primary 耗尽（remaining==0）→ 即停，不进程内傻等 reset；
   //  次级限流带 retry-after ≤ maxWait → 等一次重试一次；仍限/超限 → 停；
   //  次级限流无 retry-after（官方要求 ≥60s）→ 超有界预算即停。
+  // 403/429 在裁决时刻即归类 rate-limited——callLog 记的是「该响应被判什么」而非传输层表象
+  function logAttempt(path: string, r: GithubApiResult, retried: boolean): void {
+    const kind = (r.status === 403 || r.status === 429) ? 'rate-limited' : r.error_kind;
+    log.push({ path: path, status: r.status, rate_limit: r.rate_limit, retried: retried, error_kind: kind });
+  }
+
   async function call(path: string, accept?: string): Promise<GithubApiResult> {
     const acc = accept || 'application/vnd.github+json';
     let r = await once(path, acc);
+    logAttempt(path, r, false);
     if (r.ok || (r.status !== 403 && r.status !== 429)) { return r; }
     const rl = r.rate_limit;
     if (rl && rl.remaining === 0) {
@@ -231,6 +238,7 @@ export function createGithubRestClient(cred: GithubCredentialResolution, opts?: 
       await sleeper(rl.retry_after_seconds * 1000);
       const r2 = await once(path, acc);
       r2.retried = true;
+      logAttempt(path, r2, true);
       if (!r2.ok && (r2.status === 403 || r2.status === 429)) {
         r2.error_kind = 'rate-limited';
         r2.detail = 'secondary rate limit persisted after single bounded retry (retry-after=' + String(rl.retry_after_seconds) + 's)';
@@ -324,11 +332,6 @@ export function parsePrSummaryRow(row: unknown): PrSummary {
   };
 }
 
-export function parsePrList(data: unknown): PrSummary[] {
-  if (!Array.isArray(data)) { throw new GithubSchemaDrift('pulls', ['<root is not an array>']); }
-  return data.map((row) => parsePrSummaryRow(row));
-}
-
 export interface PrDetail extends PrSummary {
   merged: boolean;
   merge_commit_sha: string | null;
@@ -380,6 +383,7 @@ export interface PrDiffOutcome {
   text: string;
   stats: PrDiffStats;
   detail: string | null;
+  error_kind: GithubApiErrorKind | 'local-diff' | null;
 }
 
 const NULL_STATS: PrDiffStats = { files_changed: null, additions: null, deletions: null };
@@ -428,10 +432,9 @@ export async function resolvePrDiff(
 ): Promise<PrDiffOutcome> {
   if (repoRoot && gitShaResolvable(repoRoot, baseSha) && gitShaResolvable(repoRoot, headSha)) {
     const l = localThreeDotDiff(repoRoot, baseSha, headSha);
-    if (l.ok) { return { channel: 'local-git', ok: true, text: l.text, stats: l.stats, detail: null }; }
-    const a = await apiDiff(client, owner, repo, prNumber);
-    a.detail = 'local-git diff failed (' + (l.detail || 'unknown') + ') -> api fallback';
-    return a;
+    if (l.ok) { return { channel: 'local-git', ok: true, text: l.text, stats: l.stats, detail: null, error_kind: null }; }
+    // spec 收窄（D-048）：API diff 仅在 base/head 本地缺席时兜底；本地可解但 diff 失败=如实降级不静默改道
+    return { channel: 'local-git', ok: false, text: '', stats: NULL_STATS, detail: 'local-git diff failed: ' + (l.detail || 'unknown'), error_kind: 'local-diff' };
   }
   return apiDiff(client, owner, repo, prNumber);
 }
@@ -439,9 +442,9 @@ export async function resolvePrDiff(
 async function apiDiff(client: GithubRestClient, owner: string, repo: string, prNumber: number): Promise<PrDiffOutcome> {
   const res = await client.call('/repos/' + owner + '/' + repo + '/pulls/' + String(prNumber), 'application/vnd.github.diff');
   if (!res.ok) {
-    return { channel: 'api', ok: false, text: '', stats: NULL_STATS, detail: 'api diff ' + res.error_kind + ' status=' + String(res.status) };
+    return { channel: 'api', ok: false, text: '', stats: NULL_STATS, detail: 'api diff ' + res.error_kind + ' status=' + String(res.status), error_kind: res.error_kind };
   }
-  return { channel: 'api', ok: true, text: String(res.data), stats: NULL_STATS, detail: 'api diff channel (base/head 本地缺席或本地 diff 失败)' };
+  return { channel: 'api', ok: true, text: String(res.data), stats: NULL_STATS, detail: 'api diff channel (base/head 本地缺席)', error_kind: null };
 }
 
 // ---------- §6 仓引用解析（owner/repo 与 github.com URL；非 github 显式拒） ----------
@@ -513,17 +516,22 @@ export async function collectGithubPrFacts(
   let stopped: string | null = null;
   const counters = { errors: 0, rate_limited: 0, schema_drift: 0, prs: 0, details: 0, diffs: 0, diffs_local: 0, diffs_api: 0 };
 
-  function noteCall(path: string, r: GithubApiResult): void {
-    out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'GET ' + path, 'github_rest.rate_limit', {
-      path: path,
-      status: r.status,
-      limit: r.rate_limit ? r.rate_limit.limit : null,
-      remaining: r.rate_limit ? r.rate_limit.remaining : null,
-      used: r.rate_limit ? r.rate_limit.used : null,
-      reset_epoch: r.rate_limit ? r.rate_limit.reset_epoch : null,
-      resource: r.rate_limit ? r.rate_limit.resource : null,
-      retried: r.retried
-    }));
+  // 共用发射器：rate_limit 运行日志事实按 callLog 每次尝试真值发射（list/detail/diff 三路径同源）
+  function emitCallLog(fromIdx: number): void {
+    for (let li = fromIdx; li < client.callLog.length; li++) {
+      const le = client.callLog[li];
+      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'GET ' + le.path, 'github_rest.rate_limit', {
+        path: le.path,
+        status: le.status,
+        limit: le.rate_limit ? le.rate_limit.limit : null,
+        remaining: le.rate_limit ? le.rate_limit.remaining : null,
+        used: le.rate_limit ? le.rate_limit.used : null,
+        reset_epoch: le.rate_limit ? le.rate_limit.reset_epoch : null,
+        resource: le.rate_limit ? le.rate_limit.resource : null,
+        retried: le.retried,
+        error_kind: le.error_kind
+      }));
+    }
   }
 
   function noteError(path: string, r: GithubApiResult): void {
@@ -553,8 +561,9 @@ export async function collectGithubPrFacts(
   const summaries: PrSummary[] = [];
   for (let page = 1; page <= maxPages; page++) {
     const path = '/repos/' + repoRef + '/pulls?state=' + state + '&per_page=' + String(perPage) + '&page=' + String(page);
+    const logBefore = client.callLog.length;
     const r = await client.call(path);
-    noteCall(path, r);
+    emitCallLog(logBefore);
     if (!r.ok) { noteError(path, r); break; }
     let rows: unknown[];
     try {
@@ -595,8 +604,9 @@ export async function collectGithubPrFacts(
   if (!stopped) {
     for (const n of opts.details || []) {
       const path = '/repos/' + repoRef + '/pulls/' + String(n);
+      const logBefore = client.callLog.length;
       const r = await client.call(path);
-      noteCall(path, r);
+      emitCallLog(logBefore);
       if (!r.ok) { noteError(path, r); break; }
       try {
         const d = parsePrDetail(r.data);
@@ -619,24 +629,26 @@ export async function collectGithubPrFacts(
       const path = '/repos/' + repoRef + '/pulls/' + String(n);
       const logBefore = client.callLog.length;
       const d = await resolvePrDiff(client, owner, repo, n, baseSha, headSha, opts.repoRoot || null);
-      for (let li = logBefore; li < client.callLog.length; li++) {
-        const le = client.callLog[li];
-        out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, 'GET ' + le.path, 'github_rest.rate_limit', {
-          path: le.path, status: le.status,
-          limit: le.rate_limit ? le.rate_limit.limit : null,
-          remaining: le.rate_limit ? le.rate_limit.remaining : null,
-          used: le.rate_limit ? le.rate_limit.used : null,
-          reset_epoch: le.rate_limit ? le.rate_limit.reset_epoch : null,
-          resource: le.rate_limit ? le.rate_limit.resource : null,
-          retried: false
-        }));
-      }
+      emitCallLog(logBefore);
       if (!d.ok) {
         counters.errors++;
         stopped = d.detail || 'diff failed';
-        out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + '#' + String(n), 'GET ' + path + ' (diff)', 'github_rest.api_error', {
-          path: path, error_kind: 'http', detail: d.detail, channel: d.channel
-        }));
+        if (d.error_kind === 'rate-limited') {
+          counters.rate_limited++;
+          const lastE = client.callLog[client.callLog.length - 1];
+          out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + '#' + String(n), 'GET ' + path + ' (diff)', 'github_rest.rate_limited', {
+            path: path, status: lastE ? lastE.status : 0, detail: d.detail,
+            reset_epoch: lastE && lastE.rate_limit ? lastE.rate_limit.reset_epoch : null,
+            remaining: lastE && lastE.rate_limit ? lastE.rate_limit.remaining : null,
+            retried: lastE ? lastE.retried : false,
+            channel: d.channel,
+            policy: 'backoff-bounded-single-retry / stop-on-exhausted（退避不硬重试，触顶即停）'
+          }));
+        } else {
+          out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + '#' + String(n), 'GET ' + path + ' (diff)', 'github_rest.api_error', {
+            path: path, error_kind: d.error_kind || 'http', detail: d.detail, channel: d.channel
+          }));
+        }
         break;
       }
       counters.diffs++;

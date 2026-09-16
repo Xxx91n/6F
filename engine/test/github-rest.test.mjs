@@ -15,7 +15,6 @@ const fx = (n) => JSON.parse(readFileSync(join(HERE, 'fixtures', 'github-rest', 
 
 const CTX = { runId: 'test-run', traceId: '00000000000000000000000000000000', repoRef: 'Xxx91n/env-manager', scale: 'Micro-A', observedAt: '2026-09-16T00:00:00.000Z' };
 const noGh = () => ({ available: false, token: null });
-const noRetry = async () => {};
 
 function cassetteFetcher(cassette, captured) {
   let i = 0;
@@ -105,6 +104,14 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const d2 = await G.resolvePrDiff(client2, 'Xxx91n', 'env-manager', 64, 'deadbeef'.repeat(5), 'feedbeef'.repeat(5), repo);
   check('D5 sha 本地缺席 → api 兜底通道', d2.ok && d2.channel === 'api' && d2.text.length > 1000);
   check('D6 api 兜底确实产生了调用', client2.callLog.length === 1);
+  // spec 收窄：sha 双解但本地 diff 失败（orphan 分支无 merge-base）→ 如实降级，不静默改道 API
+  git(['checkout', '-q', '--orphan', 'orph']);
+  git(['reset', '-q']); writeFileSync(join(repo, 'o.txt'), 'o\n');
+  git(['add', 'o.txt']); git(['commit', '-qm', 'oc']);
+  const orphanSha = git(['rev-parse', 'HEAD']).stdout.trim();
+  const client3 = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: async () => { throw new Error('must-not-call'); } });
+  const d3 = await G.resolvePrDiff(client3, 'o', 'r', 9, base, orphanSha, repo);
+  check('D7 本地可解但 diff 失败 → local-git 降级不兜底 API', d3.ok === false && d3.channel === 'local-git' && d3.error_kind === 'local-diff' && client3.callLog.length === 0, JSON.stringify(d3).slice(0, 200));
   rmSync(tmp, { recursive: true, force: true });
 }
 
@@ -137,6 +144,23 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
     fetcher: async () => ({ status: 403, headers: { 'x-ratelimit-limit': '60', 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '1789573500', 'x-ratelimit-resource': 'core' }, body: '{}' })
   }, CTX);
   check('L6 remaining=0 首响应即停（calls=1 零重试）', r2.calls === 1 && byMetric(r2.facts, 'github_rest.rate_limited').length === 1);
+  // diff 路径限流 → rate_limited 事实（非 api_error）；rate_limit 日志携带 error_kind/retried 真值
+  const casA = fx('authenticated.cassette.json');
+  const row64 = casA.calls[0].response.body.find((x) => x.number === 64);
+  const cap3 = [];
+  const r3 = await G.collectGithubPrFacts('Xxx91n', 'env-manager', {
+    env: {}, ghTokenProbe: noGh,
+    fetcher: cassetteFetcher({ name: 'diff-limited', calls: [
+      { request: { method: 'GET', path: '/repos/Xxx91n/env-manager/pulls?state=all&per_page=100&page=1', accept: 'application/vnd.github+json' }, response: { status: 200, headers: casA.calls[0].response.headers, body: [row64] } },
+      { request: { method: 'GET', path: '/repos/Xxx91n/env-manager/pulls/64', accept: 'application/vnd.github.diff' }, response: { status: 403, headers: { 'x-ratelimit-limit': '60', 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '1789573500', 'x-ratelimit-resource': 'core' }, body: '{}' } }
+    ] }, cap3),
+    diffs: [64]
+  }, CTX);
+  const limD = byMetric(r3.facts, 'github_rest.rate_limited');
+  check('L7 diff 限流归类 rate_limited（非 api_error）', limD.length === 1 && byMetric(r3.facts, 'github_rest.api_error').length === 0);
+  check('L8 diff 限流事实带 channel=api + retried 真值', val(limD[0]).channel === 'api' && val(limD[0]).retried === false);
+  const rlFacts = byMetric(r3.facts, 'github_rest.rate_limit').map(val);
+  check('L9 rate_limit 日志 error_kind 真值（次次响应 rate-limited）', rlFacts.length === 2 && rlFacts[1].error_kind === 'rate-limited' && rlFacts[0].error_kind === 'none');
 }
 
 // --- S schema-drift cassette ---
