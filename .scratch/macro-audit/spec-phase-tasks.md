@@ -159,3 +159,16 @@ R5 开工顺序建议：R5-01/R5-02 整理期 → R5-03/R5-04 并行 → R5-05/R
 | R8-02 | #48 Micro-A preview 单票铺开（6 步验收序列＋4 PR 最小充分集＋anysearch-cli 诚实拒绝 failure 件＋NN-check 字段断言） | D-049 | P0 | 前置 #47；desk-task15＋micro-a-preview-prep 事件随闭环 |
 | R8-03 | #49 回归 matrix 三仓接入＋dispatch 首跑 20min 预算观察 | D-050 | P1 | 超预算按备选表换（curl/flask/kafka） |
 | R8-04 | #41b 分发面：A+C 双轨＋Apache-2.0＋名 6f/市场 xxx91n＋author 值（整理环节已落盘） | D-051 / D-052 | P1 | 残余=push 授权＋用户侧 add＋B 轨未授权 |
+
+## 第十三轮（R9）— 来源 D-053 ~ D-058（2026-09-17 grill 轮 13：原预设对照清算包）
+
+> 六题全拍（atomcode 深调研×4，全零 revised）：叙事双轨＋rubric 立案、behavior 象限接入、hooks 层④收窄勘误、repomix 退役、原预设余项×4 核销、Kernel/Agent 职责边界词条。本表只做 D-xxx → 落点映射，票据内容在 BACKLOG.md。
+
+| 编号 | 任务 | D 来源 | 优先级 | 阻塞面 | 前置 |
+|---|---|---|---|---|---|
+| R9-01 | #50 叙事双轨＋rubric 三件＋MCP facts 投影出 stub＋citation 失败明细＋degraded 兜底 | D-053 / D-057④ | P0 | 护城河物化面（R2-Q7 #4/#5 闭环随票） | 无硬前置；补查程序段随 strategy-questions.md 落 |
+| R9-02 | #51 Macro-B behavior 象限（churn/hotspot/coupling 逐面 golden＋能力矩阵收窄＋D-035 勘误） | D-054 | P1 | 宣称收窄同票绑定 | 立票前先实物跑 codelore analyze 确认 schema |
+| R9-03 | hooks 层④勘误＋registry 触发器＋hooks README 声明位行 | D-055 | P0 | — | 已随本整理环节落盘 |
+| R9-04 | repomix-gitingest retired＋锁表注记＋registry 探针改绑＋重开触发器 | D-056 | P0 | — | 已随本整理环节落盘 |
+| R9-05 | 余项×4：issue 销项（账本即销项）／评测面 manual_watch／BOM#6 封口（账本即封口）／补查归 agent（入 #50 票面） | D-057 | P0 | — | ①③ 已落账；②registry 已登记；④随 R9-01 |
+| R9-06 | CONTEXT Kernel/Agent 职责边界词条 | D-058 | P0 | — | 已随本整理环节落盘 |

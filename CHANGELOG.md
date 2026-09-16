@@ -27,3 +27,11 @@
 - a_range: A-001 ~ A-054（architecture-recovery 账本实物区间，写时实物读出）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第十一轮 Grill＋收口对账（D-048~D-052）／.scratch/architecture-recovery/decision-ledger.md
 - impact: 分发面法律/命名/市场三件就位（Apache-2.0＋6f@xxx91n＋marketplace.json）；Micro-A 硬前置票就位；矩阵扩展选定待执行窗接入；残余用户闸门=push 授权＋marketplace add＋B 轨未授权
+
+## [M-004] - 2026-09-17
+
+- milestone: grill 轮 13（原预设对照清算包）收口——六题全拍（atomcode 深调研×4 零 revised）：叙事双轨＋rubric 三件立案 #50（D-053）＋Macro-B behavior 象限接入立案 #51（D-054）＋hooks 层④收窄为可选呈现面/声明位（D-055，ADR-0008 勘误）＋repomix-gitingest 退役（D-056，锁表首个 retired 行）＋原预设余项×4 核销（D-057：issue 销项/评测面 manual_watch/BOM#6 封口/补查归 agent）＋Kernel/Agent 职责边界词条收编（D-058）
+- adr_range: ADR-0001 ~ ADR-0021（docs/adr/ 实物 21 件；ADR-0008/0015 各获勘误补记——决策本体不改写）
+- a_range: 无新增（沿 M-003 区间 A-001 ~ A-054）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第十三轮 Grill（D-053~D-058）／.scratch/architecture-recovery/decision-ledger.md
+- impact: 原预设 BOM 全核销（repomix 退役/anysearch-cli kernel 封口/issue 外联销项）；registry +2 触发器（hooks-presentation-face event_bound／narrative-eval-surface manual_watch）；残余用户闸门=push 授权＋marketplace add

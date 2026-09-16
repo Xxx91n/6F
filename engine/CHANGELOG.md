@@ -8,6 +8,7 @@ Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
 ## [Unreleased]
 
 ### Changed
+- upstream-lock repomix-gitingest planned→retired（D-056：宿主 agent 恒在抽空打包用途；retired 行留档＋重开触发器 registry repomix-reopen-trigger）
 - 插件对外名 macro-audit → `6f`（D-052；双 manifest 由 manifest.meta.json 单源再生成）；license UNLICENSED → Apache-2.0（D-051/ADR-0021，LICENSE 换文）
 
 ### Added

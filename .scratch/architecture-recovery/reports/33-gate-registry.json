@@ -1,591 +1,648 @@
 {
- "meta": {
-  "ticket": 33,
-  "a_xxx": "A-038",
-  "created": "2026-09-15",
-  "purpose": "全挂门项机读登记表——三字段（最迟拍板时点/触发事件/复审时点）统一索引，由 33-check.mjs 扫描到期报警",
-  "binding_table": "../macro-audit/reports/R5-Q5-atomcode-research.md §3",
-  "watch_rule": "触发已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次；再到期升级用户（D-026⑤）",
-  "extended": "A-053（2026-09-16）#33-ext：manual_watch 五要素齐备化（owner/review_event/verify_method 补齐＋confirmations 字段归一）＋micro-a-preview-prep 事件登记＋守卫 fail-closed 事件引用/event_bound 覆盖率/risk_accepted 候选名单扩展——round8-35-audit W6 补洞",
-  "watch_schema": "watch 三态：event_bound（默认——须 trigger_event 或 deadline_event 至少一锚）/ manual_watch（五要素：标记=watch 字段值本身＋责任人 owner＋复审时点 review_at prose＋review_event 机读锚＋验证方法 verify_method＋确认留痕 confirmations[]）/ risk_accepted（三要素：acceptor＋reason＋expires_at——翻转权属人工裁决，守卫仅输出 RISK-ACCEPTED-CANDIDATE 候选名单不自动改 status）",
-  "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签"
- },
- "events": {
-  "stage2-double-closeout": {
-   "occurred": true,
-   "date": "2026-09-15",
-   "evidence": "#30 2a + #31 2b 双结题（ledger A-035/A-036 done）"
+  "meta": {
+    "ticket": 33,
+    "a_xxx": "A-038",
+    "created": "2026-09-15",
+    "purpose": "全挂门项机读登记表——三字段（最迟拍板时点/触发事件/复审时点）统一索引，由 33-check.mjs 扫描到期报警",
+    "binding_table": "../macro-audit/reports/R5-Q5-atomcode-research.md §3",
+    "watch_rule": "触发已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次；再到期升级用户（D-026⑤）",
+    "extended": "A-053（2026-09-16）#33-ext：manual_watch 五要素齐备化（owner/review_event/verify_method 补齐＋confirmations 字段归一）＋micro-a-preview-prep 事件登记＋守卫 fail-closed 事件引用/event_bound 覆盖率/risk_accepted 候选名单扩展——round8-35-audit W6 补洞",
+    "watch_schema": "watch 三态：event_bound（默认——须 trigger_event 或 deadline_event 至少一锚）/ manual_watch（五要素：标记=watch 字段值本身＋责任人 owner＋复审时点 review_at prose＋review_event 机读锚＋验证方法 verify_method＋确认留痕 confirmations[]）/ risk_accepted（三要素：acceptor＋reason＋expires_at——翻转权属人工裁决，守卫仅输出 RISK-ACCEPTED-CANDIDATE 候选名单不自动改 status）",
+    "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签"
   },
-  "stage3-kickoff-gate": {
-   "occurred": true,
-   "date": "2026-09-15",
-   "evidence": "R5 票据包立案 #32~#43（commit vrm, r5-t0-ticket-pack）"
-  },
-  "stage3-rollout": {
-   "occurred": false,
-   "in_progress": true,
-   "evidence": "R5 执行轮进行中（#35+ 扩面票执行即铺开）"
-  },
-  "listing-submission": {
-   "occurred": false,
-   "note": "D-042 收窄：本事件=「提交动作」本体（用户点击）；listing 资产/字段查证/凭据申请已授权随 DoR 开工（#41b）"
-  },
-  "listing-material-freeze": {
-   "occurred": false
-  },
-  "stage3-close": {
-   "occurred": false
-  },
-  "stage3-first-tag": {
-   "occurred": false
-  },
-  "first-sample-release": {
-   "occurred": false
-  },
-  "external-collaborator-or-ci-noise": {
-   "occurred": false
-  },
-  "ai-codegen-mainstream": {
-   "occurred": false
-  },
-  "first-external-repo": {
-   "occurred": true,
-   "date": "2026-09-16",
-   "evidence": "#40 落点：open-gsd/gsd-core 经 URL opt-in 接入（engine repo add → 40-clone-cache/repos/f0b1eba9471ef4de，全深度 5887 commits 浅拒通过）→ Macro-B one-shot unsupported（RCP-d4f119c5a2cac629）——D-013 首实用户 / D-033 GA 前置达成。锚：reports/40-intake-receipt.json + 40-out/40-macro-b-gsd-core.* + 40-external-comparison.json"
-  },
-  "mw-regression-ci": {
-   "occurred": true,
-   "date": "2026-09-16",
-   "evidence": "#39 落点：jiahao 仓 .github/workflows/macro-b-regression.yml（schedule 周一 03:17 UTC 定时回归 + workflow_dispatch；已上架层限定只跑 Macro-B one-shot）——Macro-B 进 CI 定时回归成立（jiahao commit 84077dab / but zqm @ r9-39-macro-b-regression）"
-  },
-  "macro-c-shared-duckdb": {
-   "occurred": true,
-   "date": "2026-09-16",
-   "evidence": "#38 落点核查：共用成立——38-audit-facts.duckdb 同一 audit_fact 表内 Macro-B 228 条（23-facts 回放）+ Macro-C 1012 条，同一 appendFact 写路径；38-check.mjs E 组证据"
-  },
-  "macro-a-start": {
-   "occurred": false
-  },
-  "micro-a-preview-prep": {
-   "occurred": false,
-   "evidence": "Micro-A preview 前置审计窗口（层序 D-034：扩面→Macro-C→Micro-A→Micro-B→Macro-A——Macro-C 已闭环，Micro-A 为下一层 preview）；manual_watch 复审时点机读锚（A-053 登记，occurred 由 Micro-A preview 票开工审计时翻转）"
-  }
- },
- "items": [
-  {
-   "id": "25-B1.3",
-   "family": "checklist-25",
-   "title": "A-006 重启触发器接入 D-007 演示脚本",
-   "deadline_event": "ai-codegen-mainstream",
-   "deadline": "维持 deferred（A-006 触发矩阵 T1-T8 未越线）",
-   "trigger_event": "ai-codegen-mainstream",
-   "trigger": "AI 代码生成主流化触发矩阵 T1-T8 越线",
-   "review_at": "触发越线",
-   "status": "deferred",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-B5-3",
-   "family": "checklist-25",
-   "title": "A-006 评估仅 framework 未实际扫描",
-   "deadline_event": "ai-codegen-mainstream",
-   "deadline": "随 B1.3 维持 deferred",
-   "trigger_event": "ai-codegen-mainstream",
-   "trigger": "同 B1.3（A-006 触发矩阵）",
-   "review_at": "触发越线",
-   "status": "deferred",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-B2.1",
-   "family": "checklist-25",
-   "title": ".scratch/ 跟踪策略定版（.gitignore 与否）",
-   "deadline_event": "stage3-rollout",
-   "deadline": "阶段 3 铺开前",
-   "trigger_event": "external-collaborator-or-ci-noise",
-   "trigger": "首个外部协作者加入 / CI 污染面扩大",
-   "review_at": "准一扇门（提前拍无收益）",
-   "status": "pending",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-B3.2",
-   "family": "checklist-25",
-   "title": "docs/adr/ 链接到 docs/decisions/ 索引补全",
-   "deadline_event": "listing-material-freeze",
-   "deadline": "listing 材料冻结时",
-   "trigger_event": "stage3-close",
-   "trigger": "阶段 3 收尾（与 P3/P4 同门）",
-   "review_at": "listing 材料冻结",
-   "status": "pending",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-B3.3",
-   "family": "checklist-25",
-   "title": "仓根 CHANGELOG.md 口径（14 ADR + A-001~A-048 + 执行轮）",
-   "deadline_event": "stage3-first-tag",
-   "deadline": "阶段 3 首发 tag 前",
-   "trigger_event": "stage3-kickoff-gate",
-   "trigger": "阶段 3 开工门评审",
-   "review_at": "阶段 3 开工门",
-   "status": "decided",
-   "decision": "D-039",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-P1",
-   "family": "checklist-25",
-   "title": "五层盒子实体齐备且合规（plugin schema 逐字段正式核对）",
-   "deadline_event": "listing-submission",
-   "deadline": "上架提交前",
-   "trigger_event": "listing-submission",
-   "trigger": "上架材料开工（预核对已存 baseline=#31 P1）",
-   "review_at": "上架提交前",
-   "status": "pending",
-   "bound_to": "#34（合规修复）+#41b（上架面）",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-P2",
-   "family": "checklist-25",
-   "title": "版本与上游锁定制度化",
-   "deadline_event": "stage2-double-closeout",
-   "deadline": "数值化承诺最迟 阶段 2 双结题",
-   "trigger_event": "stage2-double-closeout",
-   "trigger": "2a+2b 双结题",
-   "review_at": "阶段 2 双结题",
-   "status": "decided",
-   "decision": "D-037",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-P3",
-   "family": "checklist-25",
-   "title": "审核材料（样例报告+演示入口+5 步走查）",
-   "deadline_event": "listing-submission",
-   "deadline": "上架提交前",
-   "trigger_event": "listing-submission",
-   "trigger": "上架提交动作启动",
-   "review_at": "上架提交前",
-   "status": "pending",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-P4",
-   "family": "checklist-25",
-   "title": "listing 最小集（图标/截图/描述/支持链接）",
-   "deadline_event": "listing-submission",
-   "deadline": "listing 提交前（功能冻结后）",
-   "trigger_event": "listing-submission",
-   "trigger": "功能冻结后截图须拍真实 UI",
-   "review_at": "listing 提交前",
-   "status": "pending",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-P5",
-   "family": "checklist-25",
-   "title": "发布通道与凭据（Agent Plugins 方向已拍 D-027；凭据申请）",
-   "deadline_event": "stage3-kickoff-gate",
-   "deadline": "凭据申请最迟 阶段 3 开工门启动",
-   "trigger_event": "stage3-kickoff-gate",
-   "trigger": "阶段 3 开工门",
-   "review_at": "阶段 3 开工门",
-   "status": "triggered-bound",
-   "bound_to": "#41b⑤",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-D3",
-   "family": "checklist-25",
-   "title": "listing 图形资产（图标/截图/hero/promo tile）",
-   "deadline_event": "listing-submission",
-   "deadline": "同 P4 一并挂门",
-   "trigger_event": "listing-submission",
-   "trigger": "同 P4",
-   "review_at": "listing 提交前",
-   "status": "pending",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-D4",
-   "family": "checklist-25",
-   "title": "演示入口（内置样例项目/demo 数据面）",
-   "deadline_event": "stage3-rollout",
-   "deadline": "阶段 3 铺开前",
-   "trigger_event": "stage3-kickoff-gate",
-   "trigger": "阶段 3 开工门",
-   "review_at": "阶段 3 铺开前",
-   "status": "decided",
-   "decision": "D-038",
-   "watch": "event_bound"
-  },
-  {
-   "id": "25-D5",
-   "family": "checklist-25",
-   "title": "样例资产版本跟随纪律",
-   "deadline_event": "first-sample-release",
-   "deadline": "首个含样例发布前（与 CHANGELOG 同门）",
-   "trigger_event": "stage3-first-tag",
-   "trigger": "阶段 3 首发 tag",
-   "review_at": "首个含样例发布前",
-   "status": "pending",
-   "watch": "event_bound"
-  },
-  {
-   "id": "desk-task2",
-   "family": "ledger-two-field",
-   "title": "任务2 S2 ADR 质量判据待探针占位",
-   "deadline_event": null,
-   "deadline": "满足判据：≥1 外部目标仓 ADR 集跑 TC-1 达 judgeable≥min_n(5)",
-   "trigger_event": "first-external-repo",
-   "trigger": "首个非 6F 目标仓接入",
-   "review_at": "阶段 3 铺开（首个非 6F 目标仓接入时）",
-   "status": "triggered-bound",
-   "source": "reports/30-desk-calibration.json items[task=2].probe",
-   "watch": "event_bound",
-   "bound_to": "判据满足：gsd-core TC-1 judgeable_n=92 ≥ min_n=5（30-desk-calibration task2.satisfaction 原文判据）",
-   "confirmations": [
-    {
-     "at": "2026-09-16",
-     "by": "#40 外部仓 one-shot 实跑",
-     "criterion_version": "30-desk-calibration.json items[task=2].probe.satisfaction 原文",
-     "decision": "trigger-fired-criterion-met",
-     "reason": "首个非 6F 目标仓 open-gsd/gsd-core 经 URL opt-in 接入并跑 Macro-B：TC-1 judgeable_n=92 ≥ min_n(5)，外部仓 ADR 集 TC-1 可判定 → 探针占位满足判据达成，转 triggered-bound",
-     "evidence": "reports/40-out/40-macro-b-gsd-core-measurements.json tc1.judgeable_n=92 + reports/40-intake-receipt.json + reports/40-external-comparison.json"
+  "events": {
+    "stage2-double-closeout": {
+      "occurred": true,
+      "date": "2026-09-15",
+      "evidence": "#30 2a + #31 2b 双结题（ledger A-035/A-036 done）"
+    },
+    "stage3-kickoff-gate": {
+      "occurred": true,
+      "date": "2026-09-15",
+      "evidence": "R5 票据包立案 #32~#43（commit vrm, r5-t0-ticket-pack）"
+    },
+    "stage3-rollout": {
+      "occurred": false,
+      "in_progress": true,
+      "evidence": "R5 执行轮进行中（#35+ 扩面票执行即铺开）"
+    },
+    "listing-submission": {
+      "occurred": false,
+      "note": "D-042 收窄：本事件=「提交动作」本体（用户点击）；listing 资产/字段查证/凭据申请已授权随 DoR 开工（#41b）"
+    },
+    "listing-material-freeze": {
+      "occurred": false
+    },
+    "stage3-close": {
+      "occurred": false
+    },
+    "stage3-first-tag": {
+      "occurred": false
+    },
+    "first-sample-release": {
+      "occurred": false
+    },
+    "external-collaborator-or-ci-noise": {
+      "occurred": false
+    },
+    "ai-codegen-mainstream": {
+      "occurred": false
+    },
+    "first-external-repo": {
+      "occurred": true,
+      "date": "2026-09-16",
+      "evidence": "#40 落点：open-gsd/gsd-core 经 URL opt-in 接入（engine repo add → 40-clone-cache/repos/f0b1eba9471ef4de，全深度 5887 commits 浅拒通过）→ Macro-B one-shot unsupported（RCP-d4f119c5a2cac629）——D-013 首实用户 / D-033 GA 前置达成。锚：reports/40-intake-receipt.json + 40-out/40-macro-b-gsd-core.* + 40-external-comparison.json"
+    },
+    "mw-regression-ci": {
+      "occurred": true,
+      "date": "2026-09-16",
+      "evidence": "#39 落点：jiahao 仓 .github/workflows/macro-b-regression.yml（schedule 周一 03:17 UTC 定时回归 + workflow_dispatch；已上架层限定只跑 Macro-B one-shot）——Macro-B 进 CI 定时回归成立（jiahao commit 84077dab / but zqm @ r9-39-macro-b-regression）"
+    },
+    "macro-c-shared-duckdb": {
+      "occurred": true,
+      "date": "2026-09-16",
+      "evidence": "#38 落点核查：共用成立——38-audit-facts.duckdb 同一 audit_fact 表内 Macro-B 228 条（23-facts 回放）+ Macro-C 1012 条，同一 appendFact 写路径；38-check.mjs E 组证据"
+    },
+    "macro-a-start": {
+      "occurred": false
+    },
+    "micro-a-preview-prep": {
+      "occurred": false,
+      "evidence": "Micro-A preview 前置审计窗口（层序 D-034：扩面→Macro-C→Micro-A→Micro-B→Macro-A——Macro-C 已闭环，Micro-A 为下一层 preview）；manual_watch 复审时点机读锚（A-053 登记，occurred 由 Micro-A preview 票开工审计时翻转）"
+    },
+    "presentation-demand-signal": {
+      "occurred": false,
+      "note": "D-055 触发器：用户/宿主生态明确要求 hooks 呈现面实建"
+    },
+    "narrative-surface-landed": {
+      "occurred": false,
+      "note": "D-057② 复审锚：#50 闭环即叙事实物出现"
+    },
+    "repomix-reopen-demand": {
+      "occurred": false,
+      "note": "D-056 触发器：审计证据导出包/Macro-A 跨仓打包实证需求出现"
     }
-   ]
   },
-  {
-   "id": "desk-task4",
-   "family": "ledger-two-field",
-   "title": "任务4 待探针占位",
-   "deadline_event": null,
-   "deadline": "满足判据见 30-desk-calibration.json",
-   "trigger_event": null,
-   "trigger": "工业界小团队分布数据可得",
-   "review_at": "阶段 3",
-   "status": "pending",
-   "source": "reports/30-desk-calibration.json items[task=4].probe",
-   "watch": "manual_watch",
-   "confirmations": [],
-   "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=4].probe——阶段 3 收口窗口清点承接）",
-   "review_event": "stage3-close",
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=4].probe.satisfaction 判据清点（工业界小团队分布数据可得性）"
-  },
-  {
-   "id": "desk-task5",
-   "family": "ledger-two-field",
-   "title": "任务5 S3/S4/S5 行占位待探针",
-   "deadline_event": null,
-   "deadline": "满足判据见 30-desk-calibration.json",
-   "trigger_event": "stage3-rollout",
-   "trigger": "CodeLore 探针（2b 已跑）/Scorecard·repomix（阶段 3）",
-   "review_at": "2b（CodeLore 相关）/阶段 3（Scorecard、repomix 相关）",
-   "status": "pending",
-   "source": "reports/30-desk-calibration.json items[task=5].probe",
-   "watch": "event_bound"
-  },
-  {
-   "id": "desk-task7",
-   "family": "ledger-two-field",
-   "title": "任务7 多写者域并发策略（self-probe）",
-   "deadline_event": null,
-   "deadline": "满足判据见 30-desk-calibration.json",
-   "trigger_event": "stage3-rollout",
-   "trigger": "铺开阶段多采集器实测",
-   "review_at": "阶段 3 铺开多采集器后（self-probe）",
-   "status": "decided",
-   "bound_to": "判据意图读法满足（措辞写实化见 30-desk-calibration task7）：并行写者被文件锁互斥化 fail-fast 准入=完整性不变量成立；复审=D-034 三触发器任一激活且锁等待入关键路径→L1 写队列起步",
-   "source": "reports/30-desk-calibration.json items[task=7].probe",
-   "watch": "event_bound",
-   "confirmations": [
+  "items": [
     {
-     "at": "2026-09-16",
-     "by": "#39 多写者 self-probe 实测（触发器 a 激活即封口，D-034④a）",
-     "criterion_version": "30-desk-calibration.json items[task=7].probe.satisfaction",
-     "decision": "self-probe-executed",
-     "reason": "实测封口读数：同进程第二 openWriter 即锁拒；conn.closeSync 不放锁（DuckDBInstance 持有至进程退出，reopen denied 佐证）；跨进程并行写者 1 胜 3 lock_denied（fail-fast 无撕裂写）；持锁期 reader/writer 皆拒；跨进程串行追加 2/2 成立；终读回 66/66 行零重复 fact_id。判据「多写者并发写入无丢行/乱序/冲突」读数 = 并行多写者被 DuckDB 单文件锁互斥化——并发策略维持 SWMR 单写者序列化门面（store.ts 唯一写入口），多采集器并行直写不满足判据；最终裁决权留收口窗口",
-     "evidence": "reports/39-mw-self-probe.json（39-mw-self-probe.mjs + 39-mw-child.mjs 实跑产物；probe 库 39-mw-probe.duckdb）"
-    }
-   ],
-   "decision": "D-043"
-  },
-  {
-   "id": "desk-task9",
-   "family": "ledger-two-field",
-   "title": "任务9 待探针占位",
-   "deadline_event": null,
-   "deadline": "满足判据见 30-desk-calibration.json",
-   "trigger_event": null,
-   "trigger": "调度/增量形态引入",
-   "review_at": "阶段 3",
-   "status": "pending",
-   "source": "reports/30-desk-calibration.json items[task=9].probe",
-   "watch": "manual_watch",
-   "confirmations": [],
-   "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=9].probe——阶段 3 收口窗口清点承接）",
-   "review_event": "stage3-close",
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=9].probe.satisfaction 判据清点（调度/增量形态引入信号）"
-  },
-  {
-   "id": "desk-task10",
-   "family": "ledger-two-field",
-   "title": "任务10 待探针占位",
-   "deadline_event": null,
-   "deadline": "满足判据见 30-desk-calibration.json",
-   "trigger_event": "stage3-rollout",
-   "trigger": "多采集器/多 scale 接入",
-   "review_at": "阶段 3",
-   "status": "pending",
-   "source": "reports/30-desk-calibration.json items[task=10].probe",
-   "watch": "event_bound"
-  },
-  {
-   "id": "desk-task11",
-   "family": "ledger-two-field",
-   "title": "任务11 待探针占位",
-   "deadline_event": null,
-   "deadline": "满足判据见 30-desk-calibration.json",
-   "trigger_event": null,
-   "trigger": "语言栈变更",
-   "review_at": "阶段 3 / 语言栈变更时",
-   "status": "pending",
-   "source": "reports/30-desk-calibration.json items[task=11].probe",
-   "watch": "manual_watch",
-   "confirmations": [],
-   "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=11].probe——阶段 3 收口窗口清点承接）",
-   "review_event": "stage3-close",
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=11].probe.satisfaction 判据清点（语言栈变更信号——非登记事件，复审机读锚取 stage3-close，prose 复审时点保留「/ 语言栈变更时」提前触发语义）"
-  },
-  {
-   "id": "desk-task13",
-   "family": "ledger-two-field",
-   "title": "任务13 待探针占位",
-   "deadline_event": null,
-   "deadline": "满足判据见 30-desk-calibration.json",
-   "trigger_event": "stage3-rollout",
-   "trigger": "阶段 3",
-   "review_at": "阶段 3",
-   "status": "pending",
-   "source": "reports/30-desk-calibration.json items[task=13].probe",
-   "watch": "event_bound"
-  },
-  {
-   "id": "desk-task14",
-   "family": "ledger-two-field",
-   "title": "任务14 待探针占位",
-   "deadline_event": null,
-   "deadline": "满足判据见 30-desk-calibration.json",
-   "trigger_event": "stage3-rollout",
-   "trigger": "多 scale 铺开",
-   "review_at": "阶段 3 多 scale 铺开时",
-   "status": "pending",
-   "source": "reports/30-desk-calibration.json items[task=14].probe",
-   "watch": "event_bound"
-  },
-  {
-   "id": "desk-task15",
-   "family": "ledger-two-field",
-   "title": "任务15 待探针占位",
-   "deadline_event": null,
-   "deadline": "满足判据见 30-desk-calibration.json",
-   "trigger_event": "micro-a-preview-prep",
-   "trigger": "Micro-A preview 前置/真实 PR 报告产出",
-   "review_at": "Micro-A preview 前置窗口（micro-a-preview-prep occurred 时复审）",
-   "status": "pending",
-   "source": "reports/30-desk-calibration.json items[task=15].probe",
-   "watch": "event_bound",
-   "confirmations": [
+      "id": "25-B1.3",
+      "family": "checklist-25",
+      "title": "A-006 重启触发器接入 D-007 演示脚本",
+      "deadline_event": "ai-codegen-mainstream",
+      "deadline": "维持 deferred（A-006 触发矩阵 T1-T8 未越线）",
+      "trigger_event": "ai-codegen-mainstream",
+      "trigger": "AI 代码生成主流化触发矩阵 T1-T8 越线",
+      "review_at": "触发越线",
+      "status": "deferred",
+      "watch": "event_bound"
+    },
     {
-     "at": "2026-09-16",
-     "by": "#40 外部仓 one-shot 落点核查",
-     "criterion_version": "30-desk-calibration.json items[task=15].probe.satisfaction 原文",
-     "decision": "trigger-fired-criterion-unmet",
-     "reason": "first-external-repo 已 occurred；但本项满足判据 =「≥1 条 Micro-A 真实 PR 报告产出且字段清单满足骨架交集」——Micro-A 为未上架层（capability 3 of 5，not_in_preview），#40 产出为 Macro-B 报告不构成本项判据 → 状态保持 pending，值守通道呈报待 Micro-A 上架后判定",
-     "evidence": "reports/40-external-comparison.json + 30-desk-calibration.json items[task=15]"
-    }
-   ],
-   "errata": "前身绑定 first-external-repo 于 2026-09-16 判定错配（判据=Micro-A 产出，#40 实产 Macro-B 报告）——fired 记录转审计痕迹不删（D-044：分层账本纪律，fired=不可变历史／绑定=可修正配置）"
-  },
-  {
-   "id": "codelore-deferred-faces",
-   "family": "codelore-deferred",
-   "title": "CodeLore 暂缓面集 23 速写名（≈25 枚举，Micro 层/备用）",
-   "deadline_event": null,
-   "deadline": "满足判据：各层 preview 拉动该面时 golden 契约补齐",
-   "trigger_event": null,
-   "trigger": "各层 preview 里程碑拉动",
-   "review_at": "各层 preview 前置（Micro-A/Micro-B preview 前）",
-   "status": "pending",
-   "faces": [
-    "function-*",
-    "clones",
-    "clone-coupling",
-    "coupling",
-    "hotspots",
-    "code-health",
-    "centrality",
-    "communities",
-    "soc",
-    "effort-exposure",
-    "code-familiarity",
-    "delivery-friction",
-    "metrics",
-    "cycle-origins",
-    "cycle-health",
-    "unstable-interface",
-    "refactoring-targets",
-    "authors",
-    "top-committers",
-    "crossing",
-    "architecture-violations",
-    "defect-validation",
-    "finding-hotspot-overlap"
-   ],
-   "source": "macro-audit decision-ledger D-035④＋D-045（3 面增补裁决）",
-   "watch": "manual_watch",
-   "confirmations": [],
-   "owner": "收口窗口指派（登记位：macro-audit decision-ledger D-035④ 暂缓面集——层 preview 票承接）",
-   "review_event": "micro-a-preview-prep",
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋层 preview 开工审计清点（该层契约面清单 vs faces[] 交集——有拉动即 golden 契约补齐转 bound）",
-   "face_criteria": {
-    "architecture-violations": "满足判据=目标仓存在 .codelore-arch-rules.toml（或我方起草规则集）；复审=Macro-B preview 结构象限拉动时",
-    "defect-validation": "满足判据=defects.calib.json 前置工件票＋SZZ 噪声披露（Herbold 2022：bug-fix 标签约半数为真）；复审=S4/ADR 假设抽取层拉动时",
-    "finding-hotspot-overlap": "满足判据=首个外部扫描上游接入（ADR-0014 适配器评估前置）；复审=#42 上游队列评估时点"
-   }
-  },
-  {
-   "id": "mw-trigger-a",
-   "family": "multi-writer",
-   "title": "多写者触发器 a：Macro-B 进 CI 定时回归",
-   "deadline_event": null,
-   "deadline": "无（事件驱动项，无日历最迟时点）",
-   "trigger_event": "mw-regression-ci",
-   "trigger": "Macro-B 进 CI 定时回归（#39 落点）",
-   "review_at": "激活即实测封口（self-probe）",
-   "status": "decided",
-   "watch": "event_bound",
-   "confirmations": [
+      "id": "25-B5-3",
+      "family": "checklist-25",
+      "title": "A-006 评估仅 framework 未实际扫描",
+      "deadline_event": "ai-codegen-mainstream",
+      "deadline": "随 B1.3 维持 deferred",
+      "trigger_event": "ai-codegen-mainstream",
+      "trigger": "同 B1.3（A-006 触发矩阵）",
+      "review_at": "触发越线",
+      "status": "deferred",
+      "watch": "event_bound"
+    },
     {
-     "at": "2026-09-16",
-     "by": "#39 jiahao Macro-B 回归 CI 接入",
-     "criterion_version": "D-034④ 触发器条款",
-     "decision": "trigger-fired",
-     "reason": "jiahao 仓新增 .github/workflows/macro-b-regression.yml：Macro-B（已上架层，capability 1 of 5 · preview）对本仓 schedule 定时回归（+workflow_dispatch；不接 push/PR——回归≠门禁）→ 触发器 (a) 激活，多写者域进入 self-probe 实测封口通道（本票已执行实测并落文）",
-     "evidence": "jiahao .github/workflows/macro-b-regression.yml（jiahao commit 84077dab / but zqm @ r9-39-macro-b-regression）+ reports/39-mw-self-probe.json + reports/39-macro-b-measurements.json"
-    }
-   ],
-   "decision": "D-043",
-   "bound_to": "D-043 意图读法闭环：完整性由引擎级文件锁准入保证（fail-fast 零撕裂/胜者串行追加/终读零重复）——SWMR 单写者门面成文，升级阶梯 L0→L3 挂复审语义"
-  },
-  {
-   "id": "mw-trigger-b",
-   "family": "multi-writer",
-   "title": "多写者触发器 b：Macro-C preview 共用同一 DuckDB",
-   "deadline_event": null,
-   "deadline": "无（事件驱动项，无日历最迟时点）",
-   "trigger_event": "macro-c-shared-duckdb",
-   "trigger": "Macro-C 共用 DuckDB（#38 落点核查）",
-   "review_at": "激活即实测封口",
-   "status": "decided",
-   "watch": "event_bound",
-   "confirmations": [
+      "id": "25-B2.1",
+      "family": "checklist-25",
+      "title": ".scratch/ 跟踪策略定版（.gitignore 与否）",
+      "deadline_event": "stage3-rollout",
+      "deadline": "阶段 3 铺开前",
+      "trigger_event": "external-collaborator-or-ci-noise",
+      "trigger": "首个外部协作者加入 / CI 污染面扩大",
+      "review_at": "准一扇门（提前拍无收益）",
+      "status": "pending",
+      "watch": "event_bound"
+    },
     {
-     "at": "2026-09-16",
-     "by": "#38 Macro-C preview 落点核查",
-     "criterion_version": "D-034④ 触发器条款",
-     "decision": "trigger-fired",
-     "reason": "Macro-C preview 与 Macro-B 共用同一 audit_fact DuckDB（reports/38-audit-facts.duckdb）：Macro-B 存档事实经 appendFact 回放 228 条 + Macro-C 新事实追加 1012 条，同库双 scale 成立 → 多写者域进入 self-probe 实测封口通道（触发已发生未拍 → 值守升级路径）",
-     "evidence": "reports/38-macro-c-measurements.json shared_duckdb 节 + 38-check.mjs E 组"
+      "id": "25-B3.2",
+      "family": "checklist-25",
+      "title": "docs/adr/ 链接到 docs/decisions/ 索引补全",
+      "deadline_event": "listing-material-freeze",
+      "deadline": "listing 材料冻结时",
+      "trigger_event": "stage3-close",
+      "trigger": "阶段 3 收尾（与 P3/P4 同门）",
+      "review_at": "listing 材料冻结",
+      "status": "pending",
+      "watch": "event_bound"
+    },
+    {
+      "id": "25-B3.3",
+      "family": "checklist-25",
+      "title": "仓根 CHANGELOG.md 口径（14 ADR + A-001~A-048 + 执行轮）",
+      "deadline_event": "stage3-first-tag",
+      "deadline": "阶段 3 首发 tag 前",
+      "trigger_event": "stage3-kickoff-gate",
+      "trigger": "阶段 3 开工门评审",
+      "review_at": "阶段 3 开工门",
+      "status": "decided",
+      "decision": "D-039",
+      "watch": "event_bound"
+    },
+    {
+      "id": "25-P1",
+      "family": "checklist-25",
+      "title": "五层盒子实体齐备且合规（plugin schema 逐字段正式核对）",
+      "deadline_event": "listing-submission",
+      "deadline": "上架提交前",
+      "trigger_event": "listing-submission",
+      "trigger": "上架材料开工（预核对已存 baseline=#31 P1）",
+      "review_at": "上架提交前",
+      "status": "pending",
+      "bound_to": "#34（合规修复）+#41b（上架面）",
+      "watch": "event_bound"
+    },
+    {
+      "id": "25-P2",
+      "family": "checklist-25",
+      "title": "版本与上游锁定制度化",
+      "deadline_event": "stage2-double-closeout",
+      "deadline": "数值化承诺最迟 阶段 2 双结题",
+      "trigger_event": "stage2-double-closeout",
+      "trigger": "2a+2b 双结题",
+      "review_at": "阶段 2 双结题",
+      "status": "decided",
+      "decision": "D-037",
+      "watch": "event_bound"
+    },
+    {
+      "id": "25-P3",
+      "family": "checklist-25",
+      "title": "审核材料（样例报告+演示入口+5 步走查）",
+      "deadline_event": "listing-submission",
+      "deadline": "上架提交前",
+      "trigger_event": "listing-submission",
+      "trigger": "上架提交动作启动",
+      "review_at": "上架提交前",
+      "status": "pending",
+      "watch": "event_bound"
+    },
+    {
+      "id": "25-P4",
+      "family": "checklist-25",
+      "title": "listing 最小集（图标/截图/描述/支持链接）",
+      "deadline_event": "listing-submission",
+      "deadline": "listing 提交前（功能冻结后）",
+      "trigger_event": "listing-submission",
+      "trigger": "功能冻结后截图须拍真实 UI",
+      "review_at": "listing 提交前",
+      "status": "pending",
+      "watch": "event_bound"
+    },
+    {
+      "id": "25-P5",
+      "family": "checklist-25",
+      "title": "发布通道与凭据（Agent Plugins 方向已拍 D-027；凭据申请）",
+      "deadline_event": "stage3-kickoff-gate",
+      "deadline": "凭据申请最迟 阶段 3 开工门启动",
+      "trigger_event": "stage3-kickoff-gate",
+      "trigger": "阶段 3 开工门",
+      "review_at": "阶段 3 开工门",
+      "status": "triggered-bound",
+      "bound_to": "#41b⑤",
+      "watch": "event_bound"
+    },
+    {
+      "id": "25-D3",
+      "family": "checklist-25",
+      "title": "listing 图形资产（图标/截图/hero/promo tile）",
+      "deadline_event": "listing-submission",
+      "deadline": "同 P4 一并挂门",
+      "trigger_event": "listing-submission",
+      "trigger": "同 P4",
+      "review_at": "listing 提交前",
+      "status": "pending",
+      "watch": "event_bound"
+    },
+    {
+      "id": "25-D4",
+      "family": "checklist-25",
+      "title": "演示入口（内置样例项目/demo 数据面）",
+      "deadline_event": "stage3-rollout",
+      "deadline": "阶段 3 铺开前",
+      "trigger_event": "stage3-kickoff-gate",
+      "trigger": "阶段 3 开工门",
+      "review_at": "阶段 3 铺开前",
+      "status": "decided",
+      "decision": "D-038",
+      "watch": "event_bound"
+    },
+    {
+      "id": "25-D5",
+      "family": "checklist-25",
+      "title": "样例资产版本跟随纪律",
+      "deadline_event": "first-sample-release",
+      "deadline": "首个含样例发布前（与 CHANGELOG 同门）",
+      "trigger_event": "stage3-first-tag",
+      "trigger": "阶段 3 首发 tag",
+      "review_at": "首个含样例发布前",
+      "status": "pending",
+      "watch": "event_bound"
+    },
+    {
+      "id": "desk-task2",
+      "family": "ledger-two-field",
+      "title": "任务2 S2 ADR 质量判据待探针占位",
+      "deadline_event": null,
+      "deadline": "满足判据：≥1 外部目标仓 ADR 集跑 TC-1 达 judgeable≥min_n(5)",
+      "trigger_event": "first-external-repo",
+      "trigger": "首个非 6F 目标仓接入",
+      "review_at": "阶段 3 铺开（首个非 6F 目标仓接入时）",
+      "status": "triggered-bound",
+      "source": "reports/30-desk-calibration.json items[task=2].probe",
+      "watch": "event_bound",
+      "bound_to": "判据满足：gsd-core TC-1 judgeable_n=92 ≥ min_n=5（30-desk-calibration task2.satisfaction 原文判据）",
+      "confirmations": [
+        {
+          "at": "2026-09-16",
+          "by": "#40 外部仓 one-shot 实跑",
+          "criterion_version": "30-desk-calibration.json items[task=2].probe.satisfaction 原文",
+          "decision": "trigger-fired-criterion-met",
+          "reason": "首个非 6F 目标仓 open-gsd/gsd-core 经 URL opt-in 接入并跑 Macro-B：TC-1 judgeable_n=92 ≥ min_n(5)，外部仓 ADR 集 TC-1 可判定 → 探针占位满足判据达成，转 triggered-bound",
+          "evidence": "reports/40-out/40-macro-b-gsd-core-measurements.json tc1.judgeable_n=92 + reports/40-intake-receipt.json + reports/40-external-comparison.json"
+        }
+      ]
+    },
+    {
+      "id": "desk-task4",
+      "family": "ledger-two-field",
+      "title": "任务4 待探针占位",
+      "deadline_event": null,
+      "deadline": "满足判据见 30-desk-calibration.json",
+      "trigger_event": null,
+      "trigger": "工业界小团队分布数据可得",
+      "review_at": "阶段 3",
+      "status": "pending",
+      "source": "reports/30-desk-calibration.json items[task=4].probe",
+      "watch": "manual_watch",
+      "confirmations": [],
+      "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=4].probe——阶段 3 收口窗口清点承接）",
+      "review_event": "stage3-close",
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=4].probe.satisfaction 判据清点（工业界小团队分布数据可得性）"
+    },
+    {
+      "id": "desk-task5",
+      "family": "ledger-two-field",
+      "title": "任务5 S3/S4/S5 行占位待探针",
+      "deadline_event": null,
+      "deadline": "满足判据见 30-desk-calibration.json",
+      "trigger_event": "stage3-rollout",
+      "trigger": "CodeLore 探针（2b 已跑）/Scorecard·repomix（阶段 3）",
+      "review_at": "2b（CodeLore 相关）/阶段 3（Scorecard、repomix 相关）",
+      "status": "pending",
+      "source": "reports/30-desk-calibration.json items[task=5].probe",
+      "watch": "event_bound"
+    },
+    {
+      "id": "desk-task7",
+      "family": "ledger-two-field",
+      "title": "任务7 多写者域并发策略（self-probe）",
+      "deadline_event": null,
+      "deadline": "满足判据见 30-desk-calibration.json",
+      "trigger_event": "stage3-rollout",
+      "trigger": "铺开阶段多采集器实测",
+      "review_at": "阶段 3 铺开多采集器后（self-probe）",
+      "status": "decided",
+      "bound_to": "判据意图读法满足（措辞写实化见 30-desk-calibration task7）：并行写者被文件锁互斥化 fail-fast 准入=完整性不变量成立；复审=D-034 三触发器任一激活且锁等待入关键路径→L1 写队列起步",
+      "source": "reports/30-desk-calibration.json items[task=7].probe",
+      "watch": "event_bound",
+      "confirmations": [
+        {
+          "at": "2026-09-16",
+          "by": "#39 多写者 self-probe 实测（触发器 a 激活即封口，D-034④a）",
+          "criterion_version": "30-desk-calibration.json items[task=7].probe.satisfaction",
+          "decision": "self-probe-executed",
+          "reason": "实测封口读数：同进程第二 openWriter 即锁拒；conn.closeSync 不放锁（DuckDBInstance 持有至进程退出，reopen denied 佐证）；跨进程并行写者 1 胜 3 lock_denied（fail-fast 无撕裂写）；持锁期 reader/writer 皆拒；跨进程串行追加 2/2 成立；终读回 66/66 行零重复 fact_id。判据「多写者并发写入无丢行/乱序/冲突」读数 = 并行多写者被 DuckDB 单文件锁互斥化——并发策略维持 SWMR 单写者序列化门面（store.ts 唯一写入口），多采集器并行直写不满足判据；最终裁决权留收口窗口",
+          "evidence": "reports/39-mw-self-probe.json（39-mw-self-probe.mjs + 39-mw-child.mjs 实跑产物；probe 库 39-mw-probe.duckdb）"
+        }
+      ],
+      "decision": "D-043"
+    },
+    {
+      "id": "desk-task9",
+      "family": "ledger-two-field",
+      "title": "任务9 待探针占位",
+      "deadline_event": null,
+      "deadline": "满足判据见 30-desk-calibration.json",
+      "trigger_event": null,
+      "trigger": "调度/增量形态引入",
+      "review_at": "阶段 3",
+      "status": "pending",
+      "source": "reports/30-desk-calibration.json items[task=9].probe",
+      "watch": "manual_watch",
+      "confirmations": [],
+      "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=9].probe——阶段 3 收口窗口清点承接）",
+      "review_event": "stage3-close",
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=9].probe.satisfaction 判据清点（调度/增量形态引入信号）"
+    },
+    {
+      "id": "desk-task10",
+      "family": "ledger-two-field",
+      "title": "任务10 待探针占位",
+      "deadline_event": null,
+      "deadline": "满足判据见 30-desk-calibration.json",
+      "trigger_event": "stage3-rollout",
+      "trigger": "多采集器/多 scale 接入",
+      "review_at": "阶段 3",
+      "status": "pending",
+      "source": "reports/30-desk-calibration.json items[task=10].probe",
+      "watch": "event_bound"
+    },
+    {
+      "id": "desk-task11",
+      "family": "ledger-two-field",
+      "title": "任务11 待探针占位",
+      "deadline_event": null,
+      "deadline": "满足判据见 30-desk-calibration.json",
+      "trigger_event": null,
+      "trigger": "语言栈变更",
+      "review_at": "阶段 3 / 语言栈变更时",
+      "status": "pending",
+      "source": "reports/30-desk-calibration.json items[task=11].probe",
+      "watch": "manual_watch",
+      "confirmations": [],
+      "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=11].probe——阶段 3 收口窗口清点承接）",
+      "review_event": "stage3-close",
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=11].probe.satisfaction 判据清点（语言栈变更信号——非登记事件，复审机读锚取 stage3-close，prose 复审时点保留「/ 语言栈变更时」提前触发语义）"
+    },
+    {
+      "id": "desk-task13",
+      "family": "ledger-two-field",
+      "title": "任务13 待探针占位",
+      "deadline_event": null,
+      "deadline": "满足判据见 30-desk-calibration.json",
+      "trigger_event": "stage3-rollout",
+      "trigger": "阶段 3",
+      "review_at": "阶段 3",
+      "status": "pending",
+      "source": "reports/30-desk-calibration.json items[task=13].probe",
+      "watch": "event_bound"
+    },
+    {
+      "id": "desk-task14",
+      "family": "ledger-two-field",
+      "title": "任务14 待探针占位",
+      "deadline_event": null,
+      "deadline": "满足判据见 30-desk-calibration.json",
+      "trigger_event": "stage3-rollout",
+      "trigger": "多 scale 铺开",
+      "review_at": "阶段 3 多 scale 铺开时",
+      "status": "pending",
+      "source": "reports/30-desk-calibration.json items[task=14].probe",
+      "watch": "event_bound"
+    },
+    {
+      "id": "desk-task15",
+      "family": "ledger-two-field",
+      "title": "任务15 待探针占位",
+      "deadline_event": null,
+      "deadline": "满足判据见 30-desk-calibration.json",
+      "trigger_event": "micro-a-preview-prep",
+      "trigger": "Micro-A preview 前置/真实 PR 报告产出",
+      "review_at": "Micro-A preview 前置窗口（micro-a-preview-prep occurred 时复审）",
+      "status": "pending",
+      "source": "reports/30-desk-calibration.json items[task=15].probe",
+      "watch": "event_bound",
+      "confirmations": [
+        {
+          "at": "2026-09-16",
+          "by": "#40 外部仓 one-shot 落点核查",
+          "criterion_version": "30-desk-calibration.json items[task=15].probe.satisfaction 原文",
+          "decision": "trigger-fired-criterion-unmet",
+          "reason": "first-external-repo 已 occurred；但本项满足判据 =「≥1 条 Micro-A 真实 PR 报告产出且字段清单满足骨架交集」——Micro-A 为未上架层（capability 3 of 5，not_in_preview），#40 产出为 Macro-B 报告不构成本项判据 → 状态保持 pending，值守通道呈报待 Micro-A 上架后判定",
+          "evidence": "reports/40-external-comparison.json + 30-desk-calibration.json items[task=15]"
+        }
+      ],
+      "errata": "前身绑定 first-external-repo 于 2026-09-16 判定错配（判据=Micro-A 产出，#40 实产 Macro-B 报告）——fired 记录转审计痕迹不删（D-044：分层账本纪律，fired=不可变历史／绑定=可修正配置）"
+    },
+    {
+      "id": "codelore-deferred-faces",
+      "family": "codelore-deferred",
+      "title": "CodeLore 暂缓面集 23 速写名（≈25 枚举，Micro 层/备用）",
+      "deadline_event": null,
+      "deadline": "满足判据：各层 preview 拉动该面时 golden 契约补齐",
+      "trigger_event": null,
+      "trigger": "各层 preview 里程碑拉动",
+      "review_at": "各层 preview 前置（Micro-A/Micro-B preview 前）",
+      "status": "pending",
+      "faces": [
+        "function-*",
+        "clones",
+        "clone-coupling",
+        "coupling",
+        "hotspots",
+        "code-health",
+        "centrality",
+        "communities",
+        "soc",
+        "effort-exposure",
+        "code-familiarity",
+        "delivery-friction",
+        "metrics",
+        "cycle-origins",
+        "cycle-health",
+        "unstable-interface",
+        "refactoring-targets",
+        "authors",
+        "top-committers",
+        "crossing",
+        "architecture-violations",
+        "defect-validation",
+        "finding-hotspot-overlap"
+      ],
+      "source": "macro-audit decision-ledger D-035④＋D-045（3 面增补裁决）",
+      "watch": "manual_watch",
+      "confirmations": [],
+      "owner": "收口窗口指派（登记位：macro-audit decision-ledger D-035④ 暂缓面集——层 preview 票承接）",
+      "review_event": "micro-a-preview-prep",
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋层 preview 开工审计清点（该层契约面清单 vs faces[] 交集——有拉动即 golden 契约补齐转 bound）",
+      "face_criteria": {
+        "architecture-violations": "满足判据=目标仓存在 .codelore-arch-rules.toml（或我方起草规则集）；复审=Macro-B preview 结构象限拉动时",
+        "defect-validation": "满足判据=defects.calib.json 前置工件票＋SZZ 噪声披露（Herbold 2022：bug-fix 标签约半数为真）；复审=S4/ADR 假设抽取层拉动时",
+        "finding-hotspot-overlap": "满足判据=首个外部扫描上游接入（ADR-0014 适配器评估前置）；复审=#42 上游队列评估时点"
+      }
+    },
+    {
+      "id": "mw-trigger-a",
+      "family": "multi-writer",
+      "title": "多写者触发器 a：Macro-B 进 CI 定时回归",
+      "deadline_event": null,
+      "deadline": "无（事件驱动项，无日历最迟时点）",
+      "trigger_event": "mw-regression-ci",
+      "trigger": "Macro-B 进 CI 定时回归（#39 落点）",
+      "review_at": "激活即实测封口（self-probe）",
+      "status": "decided",
+      "watch": "event_bound",
+      "confirmations": [
+        {
+          "at": "2026-09-16",
+          "by": "#39 jiahao Macro-B 回归 CI 接入",
+          "criterion_version": "D-034④ 触发器条款",
+          "decision": "trigger-fired",
+          "reason": "jiahao 仓新增 .github/workflows/macro-b-regression.yml：Macro-B（已上架层，capability 1 of 5 · preview）对本仓 schedule 定时回归（+workflow_dispatch；不接 push/PR——回归≠门禁）→ 触发器 (a) 激活，多写者域进入 self-probe 实测封口通道（本票已执行实测并落文）",
+          "evidence": "jiahao .github/workflows/macro-b-regression.yml（jiahao commit 84077dab / but zqm @ r9-39-macro-b-regression）+ reports/39-mw-self-probe.json + reports/39-macro-b-measurements.json"
+        }
+      ],
+      "decision": "D-043",
+      "bound_to": "D-043 意图读法闭环：完整性由引擎级文件锁准入保证（fail-fast 零撕裂/胜者串行追加/终读零重复）——SWMR 单写者门面成文，升级阶梯 L0→L3 挂复审语义"
+    },
+    {
+      "id": "mw-trigger-b",
+      "family": "multi-writer",
+      "title": "多写者触发器 b：Macro-C preview 共用同一 DuckDB",
+      "deadline_event": null,
+      "deadline": "无（事件驱动项，无日历最迟时点）",
+      "trigger_event": "macro-c-shared-duckdb",
+      "trigger": "Macro-C 共用 DuckDB（#38 落点核查）",
+      "review_at": "激活即实测封口",
+      "status": "decided",
+      "watch": "event_bound",
+      "confirmations": [
+        {
+          "at": "2026-09-16",
+          "by": "#38 Macro-C preview 落点核查",
+          "criterion_version": "D-034④ 触发器条款",
+          "decision": "trigger-fired",
+          "reason": "Macro-C preview 与 Macro-B 共用同一 audit_fact DuckDB（reports/38-audit-facts.duckdb）：Macro-B 存档事实经 appendFact 回放 228 条 + Macro-C 新事实追加 1012 条，同库双 scale 成立 → 多写者域进入 self-probe 实测封口通道（触发已发生未拍 → 值守升级路径）",
+          "evidence": "reports/38-macro-c-measurements.json shared_duckdb 节 + 38-check.mjs E 组"
+        }
+      ],
+      "decision": "D-043",
+      "bound_to": "D-043 意图读法闭环：完整性由引擎级文件锁准入保证（fail-fast 零撕裂/胜者串行追加/终读零重复）——SWMR 单写者门面成文，升级阶梯 L0→L3 挂复审语义"
+    },
+    {
+      "id": "mw-trigger-c",
+      "family": "multi-writer",
+      "title": "多写者触发器 c：Macro-A 启动",
+      "deadline_event": null,
+      "deadline": "无（事件驱动项，无日历最迟时点）",
+      "trigger_event": "macro-a-start",
+      "trigger": "Macro-A 启动",
+      "review_at": "激活即实测封口＋D-043② 复审语义锚（Macro-A 启动且锁等待入关键路径→L1 写队列评估起步）",
+      "status": "pending",
+      "watch": "event_bound"
+    },
+    {
+      "id": "codelore-residual-faces",
+      "family": "codelore-deferred",
+      "title": "CodeLore 枚举残余 4 面去向裁决（#35 审计 W1）",
+      "deadline_event": "stage3-close",
+      "deadline": "满足判据：收口窗口裁决去向（登记入暂缓面集/划归后续批次/显式弃用）并落 D-xxx 原文",
+      "trigger_event": "stage3-close",
+      "trigger": "阶段 3 收口窗口（或任一层 preview 前置审计先行拉动）",
+      "review_at": "下个收口窗口（最迟 Micro preview 前置审计时）",
+      "status": "decided",
+      "watch": "manual_watch",
+      "confirmations": [],
+      "faces": [
+        "entity-effort",
+        "architecture-violations",
+        "finding-hotspot-overlap",
+        "defect-validation"
+      ],
+      "source": "35-facet-reconciliation.json unregistered_residual（#35 审计 W1）",
+      "owner": "收口窗口指派（登记位：35-facet-reconciliation.json unregistered_residual——去向裁决落 D-xxx 原文）",
+      "review_event": [
+        "micro-a-preview-prep",
+        "stage3-close"
+      ],
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋收口窗口清点 faces[] 4 面去向（登记入暂缓面集/划归后续批次/显式弃用）并落 D-xxx 原文",
+      "decision": "D-045",
+      "dispositions": {
+        "entity-effort": "后续批次（随 S5 ownership 族一并契约化；纯 git 零外部输入）",
+        "architecture-violations": "暂缓面集（判据=目标仓存在 .codelore-arch-rules.toml 或我方起草规则集；复审=Macro-B preview 结构象限拉动时）",
+        "defect-validation": "暂缓面集（判据=defects.calib.json 前置票＋SZZ 噪声披露引 Herbold 2022；复审=S4/ADR 假设抽取层需缺陷-健康关联证据时）",
+        "finding-hotspot-overlap": "暂缓面集（判据=首个外部扫描上游接入；复审=#42 上游队列评估时点；激活触发 ADR-0014 适配器评估）"
+      },
+      "bound_to": "逐面 disposition 已落 D-045：1 后续批次＋3 暂缓面集、零弃用；登记面同步=deferred-faces 22→25 枚举"
+    },
+    {
+      "id": "codelore-llm-mcp-face",
+      "family": "codelore-deferred",
+      "title": "CodeLore MCP explain_file LLM 叙事面（#36 枚举登记）",
+      "deadline_event": null,
+      "deadline": "满足判据：层 preview 需要 MCP 传输 LLM 叙事面时契约补齐（golden 两形态 + env 门控复用本票契约）",
+      "trigger_event": null,
+      "trigger": "各层 preview 里程碑拉动（与 codelore-deferred-faces 同节律）",
+      "review_at": "Micro-A preview 前置（CONTEXT.md Micro-A 数据源含 CodeLore diff --llm，MCP 同族面须先清点）",
+      "status": "pending",
+      "watch": "manual_watch",
+      "confirmations": [],
+      "faces": [
+        "mcp explain_file"
+      ],
+      "source": "36-llm-faces-reconciliation.json（#36 A-041：MCP 传输形态出 spawnSync 适配层范围，登记防静默丢失）",
+      "owner": "收口窗口指派（登记位：36-llm-faces-reconciliation.json——Micro-A preview 票承接）",
+      "review_event": "micro-a-preview-prep",
+      "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋Micro-A preview 前置清点（CONTEXT.md Micro-A 数据源含 CodeLore diff --llm——MCP 同族面契约补齐，golden 两形态+env 门控复用 #36 契约）"
+    },
+    {
+      "id": "upstream-probes-scorecard-repomix",
+      "family": "upstream-queue",
+      "title": "Scorecard 探针——层需求拉动接入不插队（#42 / D-034③）；repomix 半项已于 D-056 退役销项",
+      "deadline_event": null,
+      "deadline": "满足判据：某层 preview 报告需要供应链评分（OpenSSF Scorecard）数据面时启动接入票；接入前须先定 pin_type+version 并补 golden 契约（engine/upstream-lock.yaml 行 openssf-scorecard=planned，锁定先于依赖）。repomix-gitingest 行=retired（D-056），重开走 repomix-reopen-trigger 项",
+      "trigger_event": null,
+      "trigger": "层需求拉动：Micro-A/Micro-B/Macro-A 任一 preview 需要供应链象限数据——当前无层刚需（Macro-B/Macro-C preview 供应链象限维持 ⚠ 数据未接 披露制，D-034③ 禁插队补齐）。repomix 面已退役（D-056：宿主 agent 恒在抽空打包用途）",
+      "review_at": "各层 preview 前置审计（与 codelore-deferred-faces 同节律——Micro-A preview 前置先行清点）",
+      "status": "pending",
+      "watch": "manual_watch",
+      "owner": "上游队列值守（#42→后续层 preview 票承接）",
+      "verify_method": "层 preview 开工审计清点：该层报告需求面是否含供应链象限数据——含则本项判据满足转 triggered-bound 并立接入票（含 pin_type+version+golden 契约三前置）",
+      "source": "macro-audit decision-ledger D-034③（探针按层需求队列接入不插队）+ engine/upstream-lock.yaml（scorecard=planned；repomix=retired D-056）+ desk-task5 同源关联",
+      "confirmations": [],
+      "review_event": "micro-a-preview-prep"
+    },
+    {
+      "id": "hooks-presentation-face",
+      "family": "extension-face",
+      "title": "hooks 呈现面实建触发器（D-055：层④=可选呈现面/声明位，现无实物）",
+      "deadline_event": null,
+      "deadline": "无硬到期——纯条件激活项",
+      "trigger_event": "presentation-demand-signal",
+      "trigger": "真实呈现需求信号出现（用户或宿主生态明确要求 receipt/证据就绪态的宿主内呈现面）",
+      "review_at": "需求信号出现时即时评审；平时不排程",
+      "status": "pending",
+      "watch": "event_bound",
+      "source": "macro-audit decision-ledger D-055（hooks 层=可选呈现面/规范合法声明位）＋engine/extensions/com.macroaudit.hooks/README.md 声明位注记",
+      "activation_action": "实建最小 Stop/PostToolUse 呈现面（候选 b 形态）：按目标宿主命名空间落位（Claude=插件根 hooks/hooks.json；VS Code/Copilot=com.github.copilot/hooks/hooks.json）——com.macroaudit.* 自造命名空间在任何宿主侧 inert，不得复用为交付位；hooks 永不作裁决执行点"
+    },
+    {
+      "id": "narrative-eval-surface",
+      "family": "quality-eval",
+      "title": "叙事质量评测面（grounded stamp 准确率/κ 校准）——先物后尺，#50 落地后另立票",
+      "deadline_event": null,
+      "deadline": "无硬到期——被评测对象（宿主 agent 叙事段）于 #50 落地后方存在",
+      "trigger_event": null,
+      "trigger": "#50 叙事双轨票闭环、叙事实物出现后另立评测票",
+      "review_at": "#50 闭环验收时同步评审本项",
+      "status": "pending",
+      "watch": "manual_watch",
+      "owner": "macro-audit 队列值守",
+      "verify_method": "#50 闭环确认（BACKLOG 行 ✅＋NN-check PASS）→ 本项转 triggered-bound 并立评测票（叙事质量评测面：grounded stamp 准确率/κ 校准基线）",
+      "review_event": "narrative-surface-landed",
+      "confirmations": [],
+      "source": "macro-audit decision-ledger D-057②（评测面登记暂缓面，先物后尺；内嵌 #50=自写自评失独立性、永不评=model id 死字段）"
+    },
+    {
+      "id": "repomix-reopen-trigger",
+      "family": "upstream-queue",
+      "title": "repomix-gitingest 重开触发器（D-056：retired 行留档，重开=另立需求票重评估）",
+      "deadline_event": null,
+      "deadline": "无硬到期——纯条件激活项",
+      "trigger_event": "repomix-reopen-demand",
+      "trigger": "「审计证据导出包」独立需求面出现，或 Macro-A 跨仓打包实证场景出现（D-056⑥）",
+      "review_at": "需求信号出现时即时评审；平时不排程",
+      "status": "pending",
+      "watch": "event_bound",
+      "source": "macro-audit decision-ledger D-056（repomix 退役＋重开触发器登记）＋engine/upstream-lock.yaml repomix-gitingest retired 行",
+      "activation_action": "另立需求票重评估接入：接入仍须先定 pin（exact-version 或 digest）＋golden 契约（ADR-0014/锁表纪律不改）"
     }
-   ],
-   "decision": "D-043",
-   "bound_to": "D-043 意图读法闭环：完整性由引擎级文件锁准入保证（fail-fast 零撕裂/胜者串行追加/终读零重复）——SWMR 单写者门面成文，升级阶梯 L0→L3 挂复审语义"
-  },
-  {
-   "id": "mw-trigger-c",
-   "family": "multi-writer",
-   "title": "多写者触发器 c：Macro-A 启动",
-   "deadline_event": null,
-   "deadline": "无（事件驱动项，无日历最迟时点）",
-   "trigger_event": "macro-a-start",
-   "trigger": "Macro-A 启动",
-   "review_at": "激活即实测封口＋D-043② 复审语义锚（Macro-A 启动且锁等待入关键路径→L1 写队列评估起步）",
-   "status": "pending",
-   "watch": "event_bound"
-  },
-  {
-   "id": "codelore-residual-faces",
-   "family": "codelore-deferred",
-   "title": "CodeLore 枚举残余 4 面去向裁决（#35 审计 W1）",
-   "deadline_event": "stage3-close",
-   "deadline": "满足判据：收口窗口裁决去向（登记入暂缓面集/划归后续批次/显式弃用）并落 D-xxx 原文",
-   "trigger_event": "stage3-close",
-   "trigger": "阶段 3 收口窗口（或任一层 preview 前置审计先行拉动）",
-   "review_at": "下个收口窗口（最迟 Micro preview 前置审计时）",
-   "status": "decided",
-   "watch": "manual_watch",
-   "confirmations": [],
-   "faces": [
-    "entity-effort",
-    "architecture-violations",
-    "finding-hotspot-overlap",
-    "defect-validation"
-   ],
-   "source": "35-facet-reconciliation.json unregistered_residual（#35 审计 W1）",
-   "owner": "收口窗口指派（登记位：35-facet-reconciliation.json unregistered_residual——去向裁决落 D-xxx 原文）",
-   "review_event": [
-    "micro-a-preview-prep",
-    "stage3-close"
-   ],
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋收口窗口清点 faces[] 4 面去向（登记入暂缓面集/划归后续批次/显式弃用）并落 D-xxx 原文",
-   "decision": "D-045",
-   "dispositions": {
-    "entity-effort": "后续批次（随 S5 ownership 族一并契约化；纯 git 零外部输入）",
-    "architecture-violations": "暂缓面集（判据=目标仓存在 .codelore-arch-rules.toml 或我方起草规则集；复审=Macro-B preview 结构象限拉动时）",
-    "defect-validation": "暂缓面集（判据=defects.calib.json 前置票＋SZZ 噪声披露引 Herbold 2022；复审=S4/ADR 假设抽取层需缺陷-健康关联证据时）",
-    "finding-hotspot-overlap": "暂缓面集（判据=首个外部扫描上游接入；复审=#42 上游队列评估时点；激活触发 ADR-0014 适配器评估）"
-   },
-   "bound_to": "逐面 disposition 已落 D-045：1 后续批次＋3 暂缓面集、零弃用；登记面同步=deferred-faces 22→25 枚举"
-  },
-  {
-   "id": "codelore-llm-mcp-face",
-   "family": "codelore-deferred",
-   "title": "CodeLore MCP explain_file LLM 叙事面（#36 枚举登记）",
-   "deadline_event": null,
-   "deadline": "满足判据：层 preview 需要 MCP 传输 LLM 叙事面时契约补齐（golden 两形态 + env 门控复用本票契约）",
-   "trigger_event": null,
-   "trigger": "各层 preview 里程碑拉动（与 codelore-deferred-faces 同节律）",
-   "review_at": "Micro-A preview 前置（CONTEXT.md Micro-A 数据源含 CodeLore diff --llm，MCP 同族面须先清点）",
-   "status": "pending",
-   "watch": "manual_watch",
-   "confirmations": [],
-   "faces": [
-    "mcp explain_file"
-   ],
-   "source": "36-llm-faces-reconciliation.json（#36 A-041：MCP 传输形态出 spawnSync 适配层范围，登记防静默丢失）",
-   "owner": "收口窗口指派（登记位：36-llm-faces-reconciliation.json——Micro-A preview 票承接）",
-   "review_event": "micro-a-preview-prep",
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋Micro-A preview 前置清点（CONTEXT.md Micro-A 数据源含 CodeLore diff --llm——MCP 同族面契约补齐，golden 两形态+env 门控复用 #36 契约）"
-  },
-  {
-   "id": "upstream-probes-scorecard-repomix",
-   "family": "upstream-queue",
-   "title": "Scorecard/repomix 探针——层需求拉动接入不插队（#42 / D-034③）",
-   "deadline_event": null,
-   "deadline": "满足判据：某层 preview 报告需要供应链评分（OpenSSF Scorecard）或仓库打包摘要（repomix/gitingest）数据面时启动接入票；接入前须先定 pin_type+version 并补 golden 契约（engine/upstream-lock.yaml 行 openssf-scorecard/repomix-gitingest = planned，锁定先于依赖）",
-   "trigger_event": null,
-   "trigger": "层需求拉动：Micro-A/Micro-B/Macro-A 任一 preview 需要供应链象限数据或打包摘要面——当前无层刚需（Macro-B/Macro-C preview 供应链象限维持 ⚠ 数据未接 披露制，D-034③ 禁插队补齐）",
-   "review_at": "各层 preview 前置审计（与 codelore-deferred-faces 同节律——Micro-A preview 前置先行清点）",
-   "status": "pending",
-   "watch": "manual_watch",
-   "owner": "上游队列值守（#42→后续层 preview 票承接）",
-   "verify_method": "层 preview 开工审计清点：该层报告需求面是否含供应链象限/打包摘要数据——含则本项判据满足转 triggered-bound 并立接入票（含 pin_type+version+golden 契约三前置）",
-   "source": "macro-audit decision-ledger D-034③（探针按层需求队列接入不插队）+ engine/upstream-lock.yaml（两行 planned）+ desk-task5 同源关联",
-   "confirmations": [],
-   "review_event": "micro-a-preview-prep"
-  }
- ]
+  ]
 }

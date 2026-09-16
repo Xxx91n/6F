@@ -77,7 +77,7 @@ t('C2 dump 行 contract 注记指向 42-dump-comparison.md＋结论（维持逐�
 t('C3 dump 行 contract 保留 pin 前置＋另立 ADR 注记', (dumpRow.contract || '').indexOf('pin') >= 0 && (dumpRow.contract || '').indexOf('ADR') >= 0);
 t('C4 dump 行 risk_note 含首轮评估结论（三轴裁定摘要）', (dumpRow.risk_note || '').indexOf('首轮评估') >= 0 && (dumpRow.risk_note || '').indexOf('ADR-0014') >= 0);
 t('C5 dump 行 adapter=null（未接入事实链）', dumpRow.adapter === 'null');
-t('C6 scorecard/repomix 两行仍 planned＋adapter=null（不插队未接入）', byId['openssf-scorecard'] && byId['openssf-scorecard'].status === 'planned' && byId['openssf-scorecard'].adapter === 'null' && byId['repomix-gitingest'] && byId['repomix-gitingest'].status === 'planned' && byId['repomix-gitingest'].adapter === 'null');
+t('C6 scorecard 行仍 planned＋adapter=null；repomix-gitingest=retired（D-056 退役销项）', byId['openssf-scorecard'] && byId['openssf-scorecard'].status === 'planned' && byId['openssf-scorecard'].adapter === 'null' && byId['repomix-gitingest'] && byId['repomix-gitingest'].status === 'retired');
 
 // ---------- D. registry Scorecard/repomix 层需求拉动条目 ----------
 const reg = JSON.parse(txt(join(HERE, '33-gate-registry.json')));
@@ -109,7 +109,7 @@ t('F3 A-047 账本行 done → implemented（2026-09-16）', /A-047[^\n]*done �
 const wf = txt(join(AR, 'WORKFLOW.md'));
 t('F4 WORKFLOW §4 lessons 含 #42 条目', /#42/.test(wf) && /dump|上游队列/.test(wf));
 const nr = txt(join(REPO, '.scratch', 'macro-audit', 'handoffs', 'next-round.md'));
-t('F5 next-round T13 行 ✅ DONE 且含 #42', /T13[^\n]*✅ DONE/.test(nr) && nr.indexOf('#42') >= 0);
+t('F5 next-round 不含未闭环 #42 行（#42 已闭环——闭环凭证归 F6 BACKLOG 行）', !(nr.split('\n').some(l=>/^\| T\d+/.test(l)&&l.indexOf('#42')>=0&&l.indexOf('✅')<0)));
 const bl = txt(join(AR, 'BACKLOG.md'));
 t('F6 BACKLOG #42 行回写闭环', /\| #42[^\n]*✅/.test(bl));
 const rep = existsSync(join(HERE, '42-report.md')) ? txt(join(HERE, '42-report.md')) : '';
