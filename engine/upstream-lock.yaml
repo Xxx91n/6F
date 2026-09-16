@@ -1,9 +1,10 @@
 # upstream-lock.yaml — 上游版本锁定表（机读权威 / single source of truth）
 # 制度来源：D-037（轮 7 Q1 拍板）＋ ADR-0018 §D-1 ＋ docs/versioning.md §3；票 #44 / A-049 落盘
 #
-# 字段契约（D-037③ 逐字）：id / kind / version / pin_type(exact-version|commit-sha|digest) /
+# 字段契约（D-037③ 逐字）：id / kind / version / pin_type(exact-version|commit-sha|digest|api-version※) /
 #   contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review
 #   kind 词表（随接入面扩展登记）：external-cli / node-lib / go-lib-or-cli / cli-or-pip / data-export / remote-api（D-048，#47）
+#   ※api-version 由 #47/D-048 remote-api 行引入（X-GitHub-Api-Version 头 pin，非制品版本）
 #
 # 锁定纪律（docs/versioning.md §3-4 同源）：
 #   - 本表为唯一机读权威——README §3 上游清单表是人读形态，状态列与本表 status 同源
@@ -75,10 +76,10 @@ upstreams:
     next_review: 2026-10-16
   - id: github-rest
     kind: remote-api
-    version: null
-    pin_type: null
+    version: "2022-11-28"
+    pin_type: api-version
     contract: "Micro-A PR 数据面（D-048／#47）：PR 枚举（含平台声明 Bot 判读=user.type==Bot+[bot] 后缀双检）＋PR 元数据＋diff 兜底（本地 git base...head 优先，API diff 仅在 base/head 本地缺席时使用）；X-GitHub-Api-Version 头 pin；限流=读 x-ratelimit-* 头＋Retry-After＋余额写事实库，耗尽即确定性降级/停止；凭据三级探测=GITHUB_TOKEN env→gh 已认证态只读借用（可选优化非依赖）→无认证显式降级；不建凭据存储、不引 OAuth；raw 上游响应不出适配器边界（ADR-0014）；review/comment 面=planned 不入 Micro-A 最小契约"
-    status: planned
-    adapter: null
+    status: active
+    adapter: "engine/src/upstream/github-rest.ts（GITHUB_REST_ADAPTER_ID=github-rest-adapter@v1，API 版本常量 GITHUB_API_VERSION 同源）"
     last_reviewed: 2026-09-16
     next_review: 2026-10-16

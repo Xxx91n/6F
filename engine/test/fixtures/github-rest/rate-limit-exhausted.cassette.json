@@ -1,0 +1,54 @@
+{
+ "name": "rate-limit-exhausted",
+ "recorded": "synthetic",
+ "recorded_at": "2026-09-16",
+ "source": "按 docs.github.com rate-limits 文档语义合成：次级限流(retry-after)→有界重试→primary 耗尽(remaining=0)→停",
+ "notes": "call1: 403+retry-after=1+remaining=53（次级限流带退避指引）；call2: 403+remaining=0（primary 耗尽→触顶即停，标注 reset_epoch）",
+ "calls": [
+  {
+   "request": {
+    "method": "GET",
+    "path": "/repos/Xxx91n/env-manager/pulls?state=all&per_page=100&page=1",
+    "accept": "application/vnd.github+json"
+   },
+   "response": {
+    "status": 403,
+    "headers": {
+     "x-ratelimit-limit": "60",
+     "x-ratelimit-remaining": "53",
+     "x-ratelimit-used": "7",
+     "x-ratelimit-reset": "1789569000",
+     "x-ratelimit-resource": "core",
+     "retry-after": "1",
+     "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+     "message": "You have exceeded a secondary rate limit. Please wait a few minutes before you try again.",
+     "documentation_url": "https://docs.github.com/free-pro-team@latest/rest/overview/rate-limits-for-the-rest-api#about-secondary-rate-limits"
+    }
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "path": "/repos/Xxx91n/env-manager/pulls?state=all&per_page=100&page=1",
+    "accept": "application/vnd.github+json"
+   },
+   "response": {
+    "status": 403,
+    "headers": {
+     "x-ratelimit-limit": "60",
+     "x-ratelimit-remaining": "0",
+     "x-ratelimit-used": "60",
+     "x-ratelimit-reset": "1789573500",
+     "x-ratelimit-resource": "core",
+     "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+     "message": "API rate limit exceeded for 203.0.113.7. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)",
+     "documentation_url": "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
+    }
+   }
+  }
+ ]
+}

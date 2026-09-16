@@ -77,8 +77,8 @@ t('A2 lock_version=1＋upstreams 行数≥4（种子行起步）', lock.meta.loc
 const FIELDS = ['id', 'kind', 'version', 'pin_type', 'contract', 'status', 'adapter', 'last_reviewed', 'next_review'];
 t('A3 全行九字段契约齐备（version/pin_type/adapter 值可 null 但键必在）', lock.upstreams.every(r => FIELDS.every(f => Object.prototype.hasOwnProperty.call(r, f))));
 const STATUS_ENUM = ['active', 'planned', 'evaluating', 'retired'];
-const PIN_ENUM = ['exact-version', 'commit-sha', 'digest', null];
-t('A4 status/pin_type 枚举合法（active|planned|evaluating|retired × exact-version|commit-sha|digest|null）', lock.upstreams.every(r => STATUS_ENUM.indexOf(r.status) >= 0 && PIN_ENUM.indexOf(r.pin_type) >= 0));
+const PIN_ENUM = ['exact-version', 'commit-sha', 'digest', 'api-version', null]; // api-version=#47/D-048 remote-api 行引入（X-GitHub-Api-Version 头 pin）
+t('A4 status/pin_type 枚举合法（active|planned|evaluating|retired × exact-version|commit-sha|digest|api-version|null）', lock.upstreams.every(r => STATUS_ENUM.indexOf(r.status) >= 0 && PIN_ENUM.indexOf(r.pin_type) >= 0));
 const byId = {};
 for (const r of lock.upstreams) { byId[r.id] = r; }
 t('A5 种子行状态逐字：codelore=active／openssf-scorecard=planned／repomix-gitingest=planned／codelore-sqlite-dump=evaluating',

@@ -17,7 +17,7 @@
 ## 3. 上游锁定表（`engine/upstream-lock.yaml`）
 
 - 机读权威；README §3 上游清单表为人读形态、状态列须与本表同源。
-- 字段：`id / kind / version / pin_type(exact-version|commit-sha|digest) / contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review`。
+- 字段：`id / kind / version / pin_type(exact-version|commit-sha|digest|api-version) / contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review`（`api-version` 为 #47/D-048 remote-api 行引入：远端 API 按 X-GitHub-Api-Version 头 pin，非制品版本）。
 - **锁定表先于依赖存在**——planned 登记目标契约，禁止未 pin 接入；retired 行不删（旧报告 provenance 反查）；`^`/`>=`/浮动 tag 全禁。
 - 种子行（#44 落盘）：codelore=active（exact-version＋`--version` pin 契约）／scorecard、repomix=planned／sqlite-dump=evaluating（风险注记）；github-rest=planned（remote-api kind，#47/D-048）。
 

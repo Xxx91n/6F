@@ -1,0 +1,18 @@
+{
+ "request": {
+  "method": "GET",
+  "path": "/repos/Xxx91n/env-manager/pulls/64",
+  "accept": "application/vnd.github.diff"
+ },
+ "response": {
+  "status": 200,
+  "headers": {
+   "x-ratelimit-limit": "5000",
+   "x-ratelimit-remaining": "4990",
+   "x-ratelimit-used": "10",
+   "x-ratelimit-reset": "1789567464",
+   "x-ratelimit-resource": "core",
+   "content-type": "application/vnd.github.diff; charset=utf-8"
+  }
+ }
+}
