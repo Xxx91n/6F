@@ -9,16 +9,16 @@
 | 路径 | 动作面 | 用户侧操作 | 审核 |
 |---|---|---|---|
 | A 自有市场（Claude Code） | 仓内加 `.claude-plugin/marketplace.json` + push | push 授权＋`/plugin marketplace add Xxx91n/6F` | 无 |
-| B 官方外部目录 | A 完成后填表单 | `clau.de/plugin-directory-submission` 表单提交（人工审核） | 有（质量+安全四项） |
-| C Agent Plugins 生态 | plugin.json 过 validator + push 公开仓 | push 授权 | 无（爬虫自动收录） |
+| B 官方外部目录 ⛔ 未授权（D-051） | A 完成后填表单 | `clau.de/plugin-directory-submission` 表单提交（人工审核） | 有（质量+安全四项） |
+| C Agent Plugins 生态 ✅ 拍板（D-051） | plugin.json 过 validator + push 公开仓 | push 授权 | 无（爬虫自动收录） |
 
 ## B. 需用户提供的字段值（表单/owner 用）
 
-- [ ] `author.name` / `owner.name`（发布者署名）
-- [ ] `author.email` / `owner.email`（联系邮箱——可选但官方目录审核看联系可达性）
-- [ ] `author.url` / `owner.url`（可选）
-- [ ] **license 拍板**：现 UNLICENSED——上架前须选定 SPDX（MIT/Apache-2.0 等）
-- [ ] marketplace `name`（若走路径 A：避开 17 个官方保留名；建议 `xxx91n-plugins` 类自有名）
+- [x] `author.name` / `owner.name` = **Xxx91n**（D-052）
+- [x] `author.email` / `owner.email` = **xxx91n@duck.com**（D-052）
+- [x] `author.url` / `owner.url` = **https://github.com/Xxx91n**（D-052；repository/homepage=https://github.com/Xxx91n/6F）
+- [x] **license 拍板 = Apache-2.0**（D-051/ADR-0021；engine/LICENSE 已换文＋manifest/package.json 同步）
+- [x] marketplace `name` = **xxx91n**；plugin `name` = **6f**（D-052；安装引用=6f@xxx91n；.claude-plugin/marketplace.json 已建）
 
 ## C. 用户专属动作清单（agent 不代触）
 

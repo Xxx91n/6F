@@ -4,7 +4,7 @@
 
 ## name
 
-`macro-audit`（kebab-case，≤64 字符，两生态命名规则均合规）
+`6f`（kebab-case，≤64 字符，两生态命名规则均合规；对外产品名=D-052 拍板，内核 CLI/bin 名仍为 macro-audit——插件名与内核名解耦）
 
 ## displayName
 
@@ -16,7 +16,7 @@
 
 ## description（长，listing 正文）
 
-macro-audit 是工程内容审计内核 CLI + Agent Plugin（Agent Plugins 1.0.0 五层盒子分发形态：plugin.json＋skills＋mcp.json＋扩展目录＋内核 CLI）；规划五层审计能力：Macro-A/B、Micro-A/B、Macro-C。
+6f 是工程内容审计插件（内核 CLI 名 macro-audit）+ Agent Plugin（Agent Plugins 1.0.0 五层盒子分发形态：plugin.json＋skills＋mcp.json＋扩展目录＋内核 CLI）；规划五层审计能力：Macro-A/B、Micro-A/B、Macro-C。
 
 当前 preview 能力边界：
 
@@ -48,7 +48,7 @@ macro-audit 是工程内容审计内核 CLI + Agent Plugin（Agent Plugins 1.0.0
 
 - repository: `https://github.com/Xxx91n/6F`
 - homepage: 同 repository（无独立站点）
-- author.name/email/url：**待用户填**（凭据材料包 §B）
+- author.name=Xxx91n / email=xxx91n@duck.com / url=https://github.com/Xxx91n（D-052 已定）；repository/homepage=https://github.com/Xxx91n/6F
 
 ## 截图/图标
 

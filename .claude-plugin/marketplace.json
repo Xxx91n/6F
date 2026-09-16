@@ -1,0 +1,24 @@
+{
+  "name": "xxx91n",
+  "owner": {
+    "name": "Xxx91n",
+    "email": "xxx91n@duck.com",
+    "url": "https://github.com/Xxx91n"
+  },
+  "plugins": [
+    {
+      "name": "6f",
+      "source": "./engine",
+      "description": "宏观+微观工程内容审计（Agent Plugin；5 scale：Macro-A/B・Macro-C・Micro-A/B；Hub-of-Facts + 联邦裁定。preview 阶段：capability 2 of 5）",
+      "version": "0.1.0",
+      "author": {
+        "name": "Xxx91n",
+        "email": "xxx91n@duck.com",
+        "url": "https://github.com/Xxx91n"
+      },
+      "homepage": "https://github.com/Xxx91n/6F",
+      "license": "Apache-2.0",
+      "strict": true
+    }
+  ]
+}

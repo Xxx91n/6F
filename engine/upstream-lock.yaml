@@ -3,6 +3,7 @@
 #
 # 字段契约（D-037③ 逐字）：id / kind / version / pin_type(exact-version|commit-sha|digest) /
 #   contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review
+#   kind 词表（随接入面扩展登记）：external-cli / node-lib / go-lib-or-cli / cli-or-pip / data-export / remote-api（D-048，#47）
 #
 # 锁定纪律（docs/versioning.md §3-4 同源）：
 #   - 本表为唯一机读权威——README §3 上游清单表是人读形态，状态列与本表 status 同源
@@ -70,5 +71,14 @@ upstreams:
     status: evaluating
     adapter: null
     risk_note: "dump 格式随 codelore 版本漂移——若采纳将成为审计口径输入面；首轮评估（42-dump-comparison.md）三轴裁定：契约字段覆盖 0/30 层级错位／语义翻译面爆炸须复刻上游分析引擎（结构性违反 ADR-0014）／golden 只能钉内部 schema_v8 非契约面；dump 合法域=诊断调研原料不进 verdict 输入；采纳前置=ADR 拍板＋pin 落定＋golden 回归"
+    last_reviewed: 2026-09-16
+    next_review: 2026-10-16
+  - id: github-rest
+    kind: remote-api
+    version: null
+    pin_type: null
+    contract: "Micro-A PR 数据面（D-048／#47）：PR 枚举（含平台声明 Bot 判读=user.type==Bot+[bot] 后缀双检）＋PR 元数据＋diff 兜底（本地 git base...head 优先，API diff 仅在 base/head 本地缺席时使用）；X-GitHub-Api-Version 头 pin；限流=读 x-ratelimit-* 头＋Retry-After＋余额写事实库，耗尽即确定性降级/停止；凭据三级探测=GITHUB_TOKEN env→gh 已认证态只读借用（可选优化非依赖）→无认证显式降级；不建凭据存储、不引 OAuth；raw 上游响应不出适配器边界（ADR-0014）；review/comment 面=planned 不入 Micro-A 最小契约"
+    status: planned
+    adapter: null
     last_reviewed: 2026-09-16
     next_review: 2026-10-16

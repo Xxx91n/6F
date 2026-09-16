@@ -150,3 +150,12 @@ R5 开工顺序建议：R5-01/R5-02 整理期 → R5-03/R5-04 并行 → R5-05/R
 | R7-04 | 残余 4 面 disposition：3 面入暂缓面集（逐项判据＋复审时点）、entity-effort 归后续批次 | D-045 | P0 | — | 已随整理环节落盘；entity-effort 随 S5 ownership 族契约化票承接 |
 | R7-05 | 回归 CI 迁回 6F → #46（6F workflow 加回归 job＋jiahao 单文件撤除＋经典仓候选清单） | D-046 | P1 | mw-trigger-a 语义维持 | 6F/jiahao push 各需用户授权 |
 | R7-06 | Micro-A preview 试点集登记 {env-manager,jiahao}＋经典公开仓第三槽 | D-047 | P1 | Micro-A preview 开工 | 第三槽挂托管 API 适配器（D-034②） |
+
+## 第十一轮（R8）— 来源 D-048 ~ D-052（2026-09-16 grill 轮 11：W15 窗口包）
+
+| 编号 | 任务 | 决策来源 | 优先级 | 备注 |
+|---|---|---|---|---|
+| R8-01 | #47 托管平台 API 适配器立案：REST 主路＋gh 可选回退＋凭据三级探测＋限流语义＋锁表 remote-api 登记＋ADR-0020 | D-048 | P0 | Micro-A/D-047 第三槽共同硬前置；golden cassette 契约测试随票 |
+| R8-02 | #48 Micro-A preview 单票铺开（6 步验收序列＋4 PR 最小充分集＋anysearch-cli 诚实拒绝 failure 件＋NN-check 字段断言） | D-049 | P0 | 前置 #47；desk-task15＋micro-a-preview-prep 事件随闭环 |
+| R8-03 | #49 回归 matrix 三仓接入＋dispatch 首跑 20min 预算观察 | D-050 | P1 | 超预算按备选表换（curl/flask/kafka） |
+| R8-04 | #41b 分发面：A+C 双轨＋Apache-2.0＋名 6f/市场 xxx91n＋author 值（整理环节已落盘） | D-051 / D-052 | P1 | 残余=push 授权＋用户侧 add＋B 轨未授权 |

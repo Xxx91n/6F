@@ -1,7 +1,15 @@
 {
-  "name": "macro-audit",
+  "name": "6f",
   "version": "0.1.0",
   "description": "宏观+微观工程内容审计（Agent Plugin 五层盒子）",
+  "author": {
+    "name": "Xxx91n",
+    "email": "xxx91n@duck.com",
+    "url": "https://github.com/Xxx91n"
+  },
+  "homepage": "https://github.com/Xxx91n/6F",
+  "repository": "https://github.com/Xxx91n/6F",
+  "license": "Apache-2.0",
   "skills": [
     "macro-audit"
   ],

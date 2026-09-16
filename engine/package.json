@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "macro-audit kernel CLI + Agent Plugin (walking skeleton)",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "bin": {
     "macro-audit": "dist/cli.js"
   },

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "scanned_at": "2026-09-16T06:51:46.927Z",
+  "scanned_at": "2026-09-16T12:27:50.809Z",
   "scanner": "02-adr-header-scan.mjs",
   "detection_rules": {
     "date_keys": [
@@ -195,14 +195,30 @@
           "classification": "no_header",
           "header_date": null,
           "header_keys": []
+        },
+        {
+          "path": "docs/adr/0020-hosted-platform-api-adapter.md",
+          "size_bytes": 1479,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0021-outbound-license-apache-2-no-copyleft-vendoring.md",
+          "size_bytes": 1162,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
         }
       ],
       "counts": {
-        "total": 19,
+        "total": 21,
         "full_header": 0,
         "partial_header": 0,
         "metadata_only": 0,
-        "no_header": 19,
+        "no_header": 21,
         "unknown": 0
       }
     },
@@ -657,7 +673,7 @@
         },
         {
           "path": "docs/adr/0039-tarball-runtime-surface-narrowing-docs-adr-archive-channel.md",
-          "size_bytes": 11805,
+          "size_bytes": 12005,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -665,7 +681,7 @@
         },
         {
           "path": "docs/adr/0040-gate-runtime-capability-declaration-three-state-exit-honest-unverifiable.md",
-          "size_bytes": 11777,
+          "size_bytes": 12117,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -902,14 +918,30 @@
           "classification": "no_header",
           "header_date": null,
           "header_keys": []
+        },
+        {
+          "path": "docs/adr/0070-hook-side-conviction-lane-pairer-shadow-wiring-promotion-gate.md",
+          "size_bytes": 14061,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0071-tarball-cap-trend-anchor-amendment-t10-conviction-lane-surface.md",
+          "size_bytes": 3238,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
         }
       ],
       "counts": {
-        "total": 69,
+        "total": 71,
         "full_header": 0,
         "partial_header": 0,
         "metadata_only": 0,
-        "no_header": 69,
+        "no_header": 71,
         "unknown": 0
       }
     },
@@ -1439,24 +1471,32 @@
           "classification": "no_header",
           "header_date": null,
           "header_keys": []
+        },
+        {
+          "path": "docs/adr/0066-architecture-grill-round-65-real-host-deployment-codebuddy-hooks-contract.md",
+          "size_bytes": 9281,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
         }
       ],
       "counts": {
-        "total": 65,
+        "total": 66,
         "full_header": 0,
         "partial_header": 0,
         "metadata_only": 0,
-        "no_header": 65,
+        "no_header": 66,
         "unknown": 0
       }
     }
   ],
   "aggregate": {
-    "total_adrs_scanned": 167,
+    "total_adrs_scanned": 172,
     "full_header": 1,
     "partial_header": 0,
     "metadata_only": 0,
-    "no_header": 166,
+    "no_header": 171,
     "unknown": 0
   }
 }
