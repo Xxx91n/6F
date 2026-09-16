@@ -1,0 +1,6 @@
+# 审计守卫本地产物（run-local artifacts，不入库）
+# 40-clone-cache = 40-check 外部仓 clone 隔离缓存（40-check D 段对其发只读 git 子命令，目录本身保留）
+.scratch/architecture-recovery/reports/40-clone-cache/
+# duckdb 写句柄残留——守卫一律 openReader 后不再产出；.tmp 为防御位
+*.duckdb.wal
+*.duckdb.tmp

@@ -9,7 +9,7 @@
 **Blocked by:**
 #34（plugin.json 合规 = 上架硬前置链第一环）
 
-**Status:** ready-for-agent
+**Status:** split（2026-09-16）——#41a 仓内文档面 done（A-051）／#41b 上架面 blocked-by 用户闸门不排程（A-052 保 current）
 
 - [ ] ①~⑤ 五子项逐项落位（③④ 为前置子任务先行：preview 字段查证＋竞品扫描 → listing 资产）
 - [ ] README/marketplace 引用只指向 examples/first-report/ 公共路径（不链 .scratch）
