@@ -1,6 +1,10 @@
 {
   "schema_version": "1.1.0",
   "report_id": "MA-45-DEMO-DEGRADEDSUPPLY-degraded",
+  "stability": "preview",
+  "capabilities": [
+    "macro-b"
+  ],
   "scale": "Macro-B",
   "subject_ref": "fixture-degraded-supply@8fc753eddd6d",
   "generated_at": "2026-04-06T10:00:00Z",

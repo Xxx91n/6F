@@ -16,6 +16,16 @@
 - npm run smoke    # 启动并测活（进程存活 + 最小 e2e）
 - npm test         # gen + build + smoke
 
+## CLI 命令面
+- `macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]` —— 一等审计命令（#53/D-060）：Macro-B 实仓审计。链 = repoAdd 输入裁决（ADR-0009 三段式）→ `src/audit/macro-b.ts` 共享管线（策略面 + codelore 行为面，与 demo 同消费）→ 骨架报告 + facts.duckdb。
+  - `--scale` 缺省 `Macro-B`（唯一已上架）；未实装层不假装——结构化 `SCALE-NOT-IMPLEMENTED` + exit 2。
+  - 省略 `--out`：报告 md 走 stdout；`--json` 改走 sidecar JSON；`--out <dir>` 双写（`report.md`/`report.json`/`audit-facts.jsonl`/`audit-measurements.json`/`facts.duckdb`）后 stdout 打印回执 JSON。
+  - `--refresh`：intake URL 缓存显式刷新 opt-in（#55/D-059⑦；不自动 pull）；快照时点/缓存命中披露落 measurements.intake + 报告披露块。
+- `macro-audit repo add <path|owner/repo|url> [--cache <dir>] [--refresh]` —— repo 输入裁决（本地路径 | owner/repo 本地优先 | URL opt-in 隔离 clone；远程配置执行恒定 disabled、浅仓拒绝、hooks noop、protocol.ext.allow=never）。
+- `macro-audit demo [scenario] [--out <dir>] [--json] [--keep]` —— 合成 fixture 演示跑通（三场景 golden 字节锁）。
+- `macro-audit mcp [--db <facts.duckdb>]` / `mcp facts --db <path>` —— MCP stdio 只读 facts 投影面（db 寻址：arguments.db → server --db → MACRO_AUDIT_FACTS_DB env，全缺→结构化错误）。
+- `macro-audit selftest` / `--version` / `--help`。
+
 ## 验收
 编译通过 / 打包通过 / 启动并测活；每平台 test 闭环 = 仓根 .github/workflows/engine-ci.yml（paths: engine/**），需 push 后以 CI run 结果为准。
 

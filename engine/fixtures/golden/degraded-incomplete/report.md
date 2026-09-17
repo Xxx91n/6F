@@ -2,6 +2,7 @@
 > RECEIPT RCP-c745119974a0dc86 chain=c745119974a0dc865f94e59a747db51a content=8f17cdde6a61b076 facts=0 adjudications=6 issued_at=2026-03-02T10:00:00Z commit=d757d4cd3046ac0d6251b5c3f0e5cb8884647012 tree=40cd22aae62f ⚠ unverified
 >
 > 骨架 1.1.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-03-02T10:00:00Z
+> - stability: preview · capabilities: macro-b
 >
 > 降级产出：FP-45-2 采集域证据不完整：docs/adr 语料仅 2 份且字段残缺、意图面文档缺失 → 主前提不可裁定，发起 GapRequest 降级产出 ⚠ unverified
 >

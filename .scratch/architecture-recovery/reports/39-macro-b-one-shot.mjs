@@ -1,5 +1,6 @@
 // 39-macro-b-one-shot.mjs — Macro-B（已上架层）三仓 one-shot 泛化验证（#39 / A-044 / R5-08 / spec §R5-D8）
 // 用法：
+// [轮16/#53-D-060⑤] 本脚本已转 audit 一等命令（macro-audit audit）的回归对照物——非命令面主入口；audit 产物字段⊆本脚本产物字段，漂移即报警（53-check 断言）。
 //   node 39-macro-b-one-shot.mjs                                      # 默认三仓全跑（D:/Aworker/{env-manager,anysearch-cli,jiahao}），产物落本目录
 //   node 39-macro-b-one-shot.mjs --repo jiahao --root <abs> --out <dir>  # 单仓形态（CI 回归用：6F .github/workflows/macro-b-regression.yml）
 // 链 = 采集（gitlog + adr-structure@v2 + positioning）→ fact（39-macro-b-<repo>-facts.jsonl + 共享 39-audit-facts.duckdb）

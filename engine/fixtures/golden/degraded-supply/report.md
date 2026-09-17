@@ -2,6 +2,7 @@
 > RECEIPT RCP-adaba908c55807e8 chain=adaba908c55807e8d9f4b0f84f1f49c0 content=bdd6a77389b34dd1 facts=0 adjudications=6 issued_at=2026-04-06T10:00:00Z commit=8fc753eddd6dbe22b43818c704fda26096e7189c tree=74ad5d090a81 ⚠ unverified
 >
 > 骨架 1.1.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-04-06T10:00:00Z
+> - stability: preview · capabilities: macro-b
 >
 > 降级产出：FP-45-1 供应链数据未接（D-034③④ 演示化实现）：supply-chain 象限证据域不可用（Scorecard/repomix 未接入不插队）→ 主前提不可裁定，发起 GapRequest 降级产出 ⚠ unverified
 >

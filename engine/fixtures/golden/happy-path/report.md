@@ -2,6 +2,7 @@
 > RECEIPT RCP-a4d4cb30d97c4e1b chain=a4d4cb30d97c4e1b16b697989e12b726 content=5ded3793fce6e689 facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7
 >
 > 骨架 1.1.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-04-13T10:00:00Z
+> - stability: preview · capabilities: macro-b
 >
 > 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）
 > - capability: capability 1 of 5 · preview

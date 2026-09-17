@@ -231,6 +231,8 @@ export interface PreviewDisclosure {
 export interface ReportInput {
   report_id: string;
   schema_version?: string;
+  stability?: 'preview' | 'ga';              // 报告头契约（#53/D-060⑦）：preview=capability 1 of 5 阶段如实标注
+  capabilities?: readonly string[];          // 已上架能力面枚举（如 ['macro-b']）；preview 期只列实装
   scale: string;
   subject_ref: string;
   generated_at: string;
@@ -260,6 +262,8 @@ export interface ReportInput {
 export interface Report {
   report_id: string;
   schema_version: string;
+  stability: 'preview' | 'ga' | null;
+  capabilities: string[];
   scale: string;
   subject_ref: string;
   generated_at: string;
@@ -308,6 +312,8 @@ export function buildReport(input: ReportInput): Report {
   return {
     report_id: input.report_id,
     schema_version: input.schema_version ? input.schema_version : REPORT_SKELETON_VERSION,
+    stability: input.stability !== undefined ? input.stability : null,
+    capabilities: input.capabilities ? input.capabilities.slice() : [],
     scale: input.scale,
     subject_ref: input.subject_ref,
     generated_at: input.generated_at,
@@ -337,6 +343,9 @@ export function renderMarkdown(r: Report): string {
   out.push('> ' + r.receipt.mark);
   out.push('>');
   out.push('> 骨架 ' + r.schema_version + '（章顺序锁定，ADR-0006）· 裁定协议 ' + r.adjudication.protocol_version + ' · 生成于 ' + r.generated_at);
+  if (r.stability !== null || r.capabilities.length > 0) {
+    out.push('> - stability: ' + (r.stability !== null ? r.stability : 'unspecified') + (r.capabilities.length > 0 ? ' · capabilities: ' + r.capabilities.join(', ') : ''));
+  }
   if (r.degraded_mode) {
     out.push('>');
     out.push('> 降级产出：' + (r.degraded_reason ? r.degraded_reason : '未声明') + ' ' + UNVERIFIED_MARK);
@@ -429,6 +438,8 @@ export function renderMarkdown(r: Report): string {
 export interface Sidecar {
   schema_version: string;
   report_id: string;
+  stability: 'preview' | 'ga' | null;   // 报告头契约（#53/D-060⑦）
+  capabilities: string[];              // 已上架能力面枚举
   scale: string;
   subject_ref: string;
   generated_at: string;
@@ -455,6 +466,8 @@ export function toSidecar(r: Report): Sidecar {
   return {
     schema_version: r.schema_version,
     report_id: r.report_id,
+    stability: r.stability,
+    capabilities: r.capabilities.slice(),
     scale: r.scale,
     subject_ref: r.subject_ref,
     generated_at: r.generated_at,
@@ -534,6 +547,8 @@ export function degradeReport(r: Report, reason: string): Report {
   const out: Report = {
     report_id: r.report_id + '-degraded',
     schema_version: r.schema_version,
+    stability: r.stability,
+    capabilities: r.capabilities.slice(),
     scale: r.scale,
     subject_ref: r.subject_ref,
     generated_at: r.generated_at,

@@ -15,54 +15,22 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPositioning, deriveBaggageId, sha256Hex, ADR_FIVE_PIECE } from '../collect/collectors.js';
-import type { CollectContext, CollectedFact } from '../collect/collectors.js';
+import { deriveBaggageId } from '../collect/collectors.js';
+import type { CollectedFact } from '../collect/collectors.js';
 import { buildReport, degradeReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, UNVERIFIED_MARK, REPORT_SKELETON_VERSION } from '../report/generate.js';
 import type { PreviewDisclosure, ReportInput, EvidenceItem, ClaimAnchor, QuadrantEntry, Recommendation, AdjudicationEntry } from '../report/generate.js';
 import { repoAdd } from '../intake/intake.js';
 import { generateFixtureRepo, FIXTURE_GENERATOR_ID } from './fixture-generator.js';
 import type { FixtureDefinition } from './fixture-generator.js';
+import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, TC3_TOPN, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, MACRO_B_STOPWORDS } from '../audit/macro-b.js';
 
 export const DEMO_SCENARIOS: readonly string[] = ['happy-path', 'degraded-supply', 'degraded-incomplete'];
 const NL = String.fromCharCode(10);
 const DEFINITIONS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'fixtures', 'definitions');
-
-// ---------- 预声明阈值（与 reports/22-criteria-pre-registration.md 逐字同源，跑后禁调） ----------
-const TC1_LAG_DAYS = 90;
-const TC1_RATIO_RED = 0.20;
-const TC1_MIN_N = 5;
-const TC2_MEAN_RED = 0.60;
-const TC2_FIELD_MISSING_RED = 0.50;
-const TC3_RED = 0.50;
-const TC3_GREEN = 0.70;
-const TC3_TOPN = 20;
-// stopwords 与 22-threshold-raw.json#tc3_s1_coverage.stopwords 同源快照（fixture 管线自含，不读 .scratch）
-const DEMO_STOPWORDS: readonly string[] = ['the', 'and', 'for', 'with', 'that', 'this', 'from', 'into', 'per', 'via', 'not', 'all', 'any', 'are', 'was', 'were', 'has', 'have', 'had', 'its', 'but', 'can', 'may', 'our', 'out', 'over', 'under', 'when', 'which', 'will', 'would', 'should', 'must', 'such', 'than', 'then', 'they', 'them', 'their', 'there', 'here', 'each', 'both', 'same', 'more', 'most', 'some', 'only', 'also', 'been', 'being', 'does', 'did', 'done', '的', '了', '是', '在', '和', '与', '及', '或', '为', '以', '对', '从', '到', '被', '把', '给', '让', '使', '等', '就', '都', '也', '还', '很', '更', '最', '要', '会', '能', '可', '将', '已', '未', '无', '非', '个', '中', '上', '下', '之', '其', '此', '该', '由', '而', '但', '则', '若', '如', '于', '所', '有', '这', '那', '不', '一', '二', '三', '的的', '了的', '是在', '和的', '与的', '为的', '对的', '中的', '上的', '下的', '之中', '一个', '这个', '那个', '我们', '他们', '可以', '因为', '所以', '但是', '如果', '通过', '进行', '以及', '并且', '从而', '因此', '其中', '对应', '相关', '分别', '同时', '之后', '之前', '以内', '以上', '以下'];
+// stopwords 与 22-threshold-raw.json#tc3_s1_coverage.stopwords 同源快照——本体在 audit/macro-b.ts（#53 共享面），本文件只留别名
+const DEMO_STOPWORDS = MACRO_B_STOPWORDS;
 const INTENT_CANDIDATES: readonly string[] = ['CONTEXT.md', 'README.md', 'AGENTS.md'];
 const NC1_CANDIDATES: readonly string[] = ['package.json', 'README.md', 'Cargo.toml'];
-
-// ---------- 正/负对照夹具（与 39-macro-b-one-shot.mjs 同构；管线健康闸与被测仓无关） ----------
-const GOLDEN_ADR = [
-  '# ADR-9999: PC-1 golden fixture',
-  '',
-  '- Status: accepted',
-  '- Date: 2026-09-13',
-  '- Deciders: fixture',
-  '- Ledger: D-000',
-  '',
-  '## Context',
-  '',
-  'fixture context.',
-  '',
-  '## Decision',
-  '',
-  'fixture decision.',
-  '',
-  '## Consequences',
-  '',
-  'fixture consequences; this supersedes ADR-0000.'
-].join(NL);
-const POS_DECL = 'macro audit positioning convergence determinism traceability provenance fact table skeleton slice quadrant scale verdict gate receipt citation anchor';
 
 // ---------- CASRAI 式披露块（D-038③ 四印记逐字；复用 preview_disclosure 同一字段契约——统一契约面禁两处手抄） ----------
 export function demoDisclosure(): PreviewDisclosure {
@@ -130,6 +98,8 @@ export interface DemoResult {
 function git(root: string, args: readonly string[]): string {
   return execFileSync('git', ['-C', root].concat(args as string[]), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
 }
+// #53/D-060④：demo 链本体已提炼至 audit/macro-b.ts（probeMacroBRepo/collectMacroB/evaluateMacroB），
+// 本文件只留 fixture 生成 + 场景装配（披露块/裁决条目/报告输入的 scenario 语义面）。
 
 function pickExcerpt(absOrRelPath: string, tokens: readonly string[] | null, base: string | null): { line: number; text: string } {
   const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
@@ -156,114 +126,51 @@ export function runDemo(opts: DemoOptions): DemoResult {
 
     // ---------- §2 Repo Intake 本地腿（D-013：同一输入面，不设新入口） ----------
     const intake = repoAdd(repoDir);
-    const HEAD_SHA = intake.head_sha;
-    const HEAD_DATE = git(repoDir, ['log', '-1', '--format=%cI']);
-    const TREE_SHA = git(repoDir, ['rev-parse', 'HEAD^{tree}']);
-    const COMMIT_COUNT = Number(git(repoDir, ['rev-list', '--count', 'HEAD']));
-    const ctx: CollectContext = {
-      runId: 'r45-' + scenario + '-' + HEAD_SHA.slice(0, 7),
-      traceId: sha256Hex(def.repo.name + '|' + HEAD_SHA + '|' + HEAD_DATE).slice(0, 32),
-      repoRef: def.repo.name + '@' + HEAD_SHA,
-      scale: 'Macro-B',
-      observedAt: HEAD_DATE
-    };
 
-    // ---------- §3 采集：gitlog（PROBE-INVARIANT 先断言） ----------
-    const rawLog = git(repoDir, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
-    const commits: { sha: string; author: string; date: string; paths: string[] }[] = [];
-    let cur: { sha: string; author: string; date: string; paths: string[] } | null = null;
-    for (const line of rawLog.split(NL)) {
-      const t = line.trim();
-      if (t.indexOf('__R__') === 0) {
-        const parts = t.slice(5).split('|');
-        cur = { sha: parts[0], author: parts[1], date: parts[2], paths: [] };
-        commits.push(cur);
-      } else if (cur && t.length > 0) {
-        cur.paths.push(t);
-      }
-    }
-    if (commits.length !== COMMIT_COUNT) { throw new Error('PROBE-INVARIANT-FAIL[' + scenario + ']: parsed ' + commits.length + ' != git rev-list ' + COMMIT_COUNT); }
+    // ---------- §3-§7 链本体=共享管线（#53/D-060④：probe→collect→evaluate 全链与 audit 同消费） ----------
+    const probes = probeMacroBRepo(repoDir, intake.head_sha);
+    const ctx = macroBContext('r45-' + scenario, def.repo.name, probes.headSha, probes.headDate);
+    const col = collectMacroB(repoDir, {
+      intentCandidates: INTENT_CANDIDATES, nc1Candidates: NC1_CANDIDATES, stopwords: DEMO_STOPWORDS, topN: TC3_TOPN,
+      codelore: 'off',   // demo 恒定不接 codelore——合成仓逐字节确定性不容环境相关上游（D-038）
+      fixtureTag: '45', pc2Sha: 'pc2fixture0000000000000000000000000000045'
+    }, ctx, probes);
+    const ev = evaluateMacroB(col);
 
-    // ---------- §4 采集：ADR 语料（adr-structure@v2 回退链） ----------
-    const adrDir = join(repoDir, 'docs', 'adr');
-    const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
-    const firstCommitOf = function (p: string): string | null {
-      let best: string | null = null;
-      for (const c of commits) { if (c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) { best = c.date; } }
-      return best;
-    };
-    const adrDocs = adrFiles.map(function (f) {
-      const rel = 'docs/adr/' + f;
-      return { path: rel, text: readFileSync(join(adrDir, f), 'utf8'), first_commit_date: firstCommitOf(rel) };
-    });
-    const adrPaths = adrDocs.map(function (d) { return d.path; });
-    const adrFacts = collectAdrStructureV2({ documents: adrDocs }, ctx);
-    const adrDateMap: Record<string, string> = {};
-    for (const f of adrFacts) {
-      if (f.metric === 'adr.decision_date') {
-        const v = JSON.parse(f.value_json);
-        if (v.date) { adrDateMap[f.subject_ref] = v.date.slice(0, 10); }
-      }
-    }
-    const gitFacts = collectGitlog({ commits: commits, paths: adrPaths, adrDates: adrDateMap }, ctx);
-
-    // ---------- §5 采集：positioning（意图面=仓根三件套；交付面=git subjects） ----------
-    const intentDocs: { path: string; text: string }[] = [];
-    for (const cand of INTENT_CANDIDATES) {
-      const p = join(repoDir, cand);
-      if (existsSync(p)) { intentDocs.push({ path: cand, text: readFileSync(p, 'utf8') }); }
-    }
-    const subjects = git(repoDir, ['log', '--pretty=format:%s']).split(NL);
-    const deliveryDocs = [{ path: 'git log subjects @ ' + HEAD_SHA.slice(0, 7), text: subjects.join(NL) }];
-    const posFacts = intentDocs.length > 0
-      ? collectPositioning({ intentDocs: intentDocs, deliveryDocs: deliveryDocs, topN: TC3_TOPN, stopwords: DEMO_STOPWORDS }, ctx)
-      : [];
-    const realFacts: CollectedFact[] = adrFacts.concat(posFacts, gitFacts);
-
-    // ---------- §6 正/负对照（管线健康闸；夹具与被测仓无关） ----------
-    const pc1AdrFacts = collectAdrStructure({ documents: [{ path: 'fixtures/45-pc1-golden-adr.md', text: GOLDEN_ADR }] }, ctx);
-    const pc1PosFacts = collectPositioning({ intentDocs: [{ path: 'fixtures/45-pc1-positioning.md', text: POS_DECL }], deliveryDocs: [{ path: 'fixtures/45-pc1-delivery.md', text: POS_DECL }], topN: TC3_TOPN, stopwords: DEMO_STOPWORDS }, ctx);
-    const pc1Five = pc1AdrFacts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
-    const pc1Sup = pc1AdrFacts.find(function (f) { return f.metric === 'adr.supersede_link_present'; });
-    const pc1 = { pass: pc1AdrFacts.length > 0 && pc1PosFacts.length > 0 && !!pc1Five && JSON.parse(pc1Five.value_json).present === 5 && !!pc1Sup && JSON.parse(pc1Sup.value_json).present === true };
-    const PC2_PATH = 'fixtures/45-pc2-lag-adr.md';
-    const pc2Commits = [{ sha: 'pc2fixture0000000000000000000000000000045', author: 'fixture', date: '2026-01-01T00:00:00+00:00', paths: [PC2_PATH] }];
-    const pc2AdrDates: Record<string, string> = {}; pc2AdrDates[PC2_PATH] = '2026-09-13';
-    const pc2Facts = collectGitlog({ commits: pc2Commits, paths: [PC2_PATH], adrDates: pc2AdrDates }, ctx);
-    const pc2Lag = pc2Facts.filter(function (f) { return f.metric === 'git.adr_lag_days'; });
-    const pc2 = { pass: pc2Lag.length > 0 && JSON.parse(pc2Lag[0].value_json).delta_days > 0, delta_days: pc2Lag.length > 0 ? JSON.parse(pc2Lag[0].value_json).delta_days : null };
-    let nc1Path: string | null = null;
-    for (const cand of NC1_CANDIDATES) { if (existsSync(join(repoDir, cand))) { nc1Path = cand; break; } }
-    if (!nc1Path) { throw new Error('NC1-CANDIDATE-MISS[' + scenario + ']'); }
-    const nc1Facts = collectAdrStructure({ documents: [{ path: nc1Path, text: readFileSync(join(repoDir, nc1Path), 'utf8') }] }, ctx);
-    const nc1Five = nc1Facts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
-    const nc1Sup = nc1Facts.find(function (f) { return f.metric === 'adr.supersede_link_present'; });
-    const nc1 = { path: nc1Path, fact_count: nc1Facts.length, five_piece_present: nc1Five ? JSON.parse(nc1Five.value_json).present : -1, supersede_present: nc1Sup ? JSON.parse(nc1Sup.value_json).present : null, pass: false };
-    nc1.pass = nc1.fact_count > 0 && nc1.five_piece_present === 0 && nc1.supersede_present === false;
-
-    // ---------- §7 真判据 TC-1/TC-2/TC-3（预声明阈值实测） ----------
-    const lagValues = gitFacts.filter(function (f) { return f.metric === 'git.adr_lag_days'; }).map(function (f) { return JSON.parse(f.value_json); });
-    const tc1Judgeable = lagValues.length;
-    const tc1Backfill = lagValues.filter(function (v) { return v.delta_days > TC1_LAG_DAYS; }).length;
-    const tc1Ratio = tc1Judgeable === 0 ? 0 : tc1Backfill / tc1Judgeable;
-    const tc1Verdict = tc1Judgeable < TC1_MIN_N ? 'INCONCLUSIVE' : (tc1Ratio > TC1_RATIO_RED ? 'RED' : 'NOT_RED');
-    const fiveValues = adrFacts.filter(function (f) { return f.metric === 'adr.five_piece_completeness'; }).map(function (f) { return JSON.parse(f.value_json); });
-    const tc2Total = fiveValues.length;
-    const tc2Mean = tc2Total === 0 ? 0 : fiveValues.reduce(function (s, v) { return s + v.ratio; }, 0) / tc2Total;
-    const tc2Missing: Record<string, number> = {};
-    for (const k of ADR_FIVE_PIECE) { tc2Missing[k] = 0; }
-    for (const v of fiveValues) { for (const k of v.missing) { tc2Missing[k] = tc2Missing[k] + 1; } }
-    const tc2MissingRatio: Record<string, number> = {};
-    for (const k of Object.keys(tc2Missing)) { tc2MissingRatio[k] = tc2Total === 0 ? 0 : tc2Missing[k] / tc2Total; }
-    const tc2CondA = tc2Mean < TC2_MEAN_RED;
-    let tc2CondB = false;
-    for (const k of Object.keys(tc2MissingRatio)) { if (tc2MissingRatio[k] > TC2_FIELD_MISSING_RED) { tc2CondB = true; } }
-    const tc2Verdict = (tc2CondA || tc2CondB) ? 'RED' : 'NOT_RED';
-    const covFacts = posFacts.filter(function (f) { return f.metric === 'positioning.keyword_coverage'; }).map(function (f) { return { subject: f.subject_ref, value: JSON.parse(f.value_json), fact_id: f.fact_id }; });
-    let tc3Lowest: { subject: string; value: { ratio: number; hit: number; keywords: number }; fact_id: string } | null = null;
-    for (const c of covFacts) { if (tc3Lowest === null || c.value.ratio < tc3Lowest.value.ratio) { tc3Lowest = c; } }
-    const tc3Ratio = tc3Lowest ? tc3Lowest.value.ratio : 0;
-    const tc3Verdict = intentDocs.length === 0 ? 'INCONCLUSIVE' : (tc3Ratio < TC3_RED ? 'RED' : (tc3Ratio < TC3_GREEN ? 'AMBER' : 'GREEN'));
+    // 下游装配别名（measurements/裁决条目/报告输入引用的语义面变量，与原内联同值）
+    const HEAD_SHA = probes.headSha;
+    const HEAD_DATE = probes.headDate;
+    const TREE_SHA = probes.treeSha;
+    const COMMIT_COUNT = probes.commitCount;
+    const adrFiles = col.adrFiles;
+    const intentDocs = col.intentDocs;
+    const adrFacts = col.adrFacts;
+    const gitFacts = col.gitFacts;
+    const posFacts = col.posFacts;
+    const realFacts: CollectedFact[] = col.realFacts;
+    const pc1 = col.pc1;
+    const pc2 = col.pc2;
+    const nc1 = col.nc1;
+    const pc1AdrFacts = col.pc1AdrFacts;
+    const pc1PosFacts = col.pc1PosFacts;
+    const pc2Lag = col.pc2Lag;
+    const nc1Facts = col.nc1Facts;
+    const tc1Judgeable = ev.tc1.judgeable_n;
+    const tc1Backfill = ev.tc1.backfill_n;
+    const tc1Ratio = ev.tc1.ratio;
+    const tc1Verdict = ev.tc1.verdict;
+    const tc2Total = ev.tc2.total;
+    const tc2Mean = ev.tc2.mean_ratio;
+    const tc2Missing = ev.tc2.missing_counts;
+    const tc2MissingRatio = ev.tc2.missing_ratio;
+    const tc2CondA = ev.tc2.cond_a;
+    const tc2CondB = ev.tc2.cond_b;
+    const tc2Verdict = ev.tc2.verdict;
+    const covFacts = ev.covFacts;
+    const tc3Ratio = ev.tc3.lowest_ratio;
+    const tc3Verdict = ev.tc3.verdict;
+    const tc3Lowest = ev.tc3.lowest_path === null ? null : ev.covFacts.find(function (c) { return c.subject === ev.tc3.lowest_path; }) || null;
+    const nc1Path = col.nc1Path;
 
     // ---------- §8 实测数落盘（工件内禁绝对路径——golden 逐字节稳定） ----------
     const measurements = {
@@ -325,12 +232,7 @@ export function runDemo(opts: DemoOptions): DemoResult {
       { claim_id: 'CL-45-' + R + '-06', evidence_id: 'EV-45-' + R + '-07', required_tokens: ['synthetic', 'true'] }
     ];
 
-    // ---------- §10 裁决条目（判据 id 与 39 同族；band 三档如实） ----------
-    function tcBand(v: string): 'supported' | 'unsupported' | 'insufficient' {
-      if (v === 'INCONCLUSIVE') { return 'insufficient'; }
-      if (v === 'RED') { return 'unsupported'; }
-      return 'supported';
-    }
+    // ---------- §10 裁决条目（判据 id 与 39 同族；band 三档如实；tcBand 由共享管线导入） ----------
     const GATE_REF = {
       prereg_commit: '45-demo-criteria',
       criteria_path: 'reports/22-criteria-pre-registration.md',
@@ -366,6 +268,8 @@ export function runDemo(opts: DemoOptions): DemoResult {
 
     const reportInput: ReportInput = {
       report_id: 'MA-45-DEMO-' + R,
+      stability: 'preview',
+      capabilities: ['macro-b'],
       scale: 'Macro-B',
       subject_ref: def.repo.name + '@' + HEAD_SHA.slice(0, 12),
       generated_at: HEAD_DATE,

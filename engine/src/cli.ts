@@ -3,8 +3,9 @@ import { runSelftest } from './selftest.js';
 import { loadManifestMeta } from './manifest.js';
 import { repoAdd } from './intake/intake.js';
 import { runDemo, listScenarios } from './demo/demo.js';
+import { runAudit, isAuditScaleError } from './audit/audit.js';
 import { projectFacts } from './fact/projection.js';
-import { serveMcpStdio } from './mcp-server.js';
+import { serveMcpStdio, setMcpServerConfig } from './mcp-server.js';
 
 const cmd = process.argv[2] ?? '--help';
 
@@ -60,24 +61,74 @@ if (cmd === '--version' || cmd === '-v') {
     process.exit(2);
   }
 } else if (cmd === 'repo') {
-  // Repo Intake（ADR-0009 / D-013）：repo add <path|owner/repo|url> [--cache <dir>]
+  // Repo Intake（ADR-0009 / D-013）：repo add <path|owner/repo|url> [--cache <dir>] [--refresh]
   // clone 仅经 CLI/配置文件入口可达；kernel MCP 查询面保持只读。
+  // --refresh=显式刷新 opt-in（#55/D-059⑦）：仅 url 面缓存命中时 fetch --prune＋复位 origin/HEAD；绝不自动 pull。
   const sub = process.argv[3];
   if (sub !== 'add' || !process.argv[4]) {
-    console.error('usage: macro-audit repo add <path|owner/repo|url> [--cache <dir>]');
+    console.error('usage: macro-audit repo add <path|owner/repo|url> [--cache <dir>] [--refresh]');
     process.exit(2);
   }
   const input = process.argv[4];
   const ci = process.argv.indexOf('--cache');
   const cacheRoot = ci > 0 ? process.argv[ci + 1] : undefined;
+  const refresh = process.argv.indexOf('--refresh') > 0;
   try {
-    const r = repoAdd(input, { cacheRoot: cacheRoot });
+    const r = repoAdd(input, { cacheRoot: cacheRoot, refresh: refresh });
     console.log(JSON.stringify(r));
   } catch (e) {
     const err = e as { code?: string; message?: string };
     console.error(JSON.stringify({ error: err.code || 'INTAKE-ERROR', message: err.message || String(e) }));
     process.exit(2);
   }
+} else if (cmd === 'audit') {
+  // audit 一等命令（#53/D-060）：audit <path|owner/repo|url> [--scale S] [--out <dir>] [--json] [--refresh]
+  // 链=repoAdd 输入裁决 → audit/macro-b.ts 共享管线（与 demo 同消费）→ facts.duckdb＋骨架报告。
+  // 省略 --out 时报告 md 走 stdout；--out 双写后 stdout 打印回执 JSON（demo 回执契约字段集）。
+  // --scale 缺省 Macro-B；未实装层不假装——SCALE-NOT-IMPLEMENTED 结构化拒绝 exit 2。
+  const args = process.argv.slice(3);
+  let input: string | undefined;
+  let scale: string | undefined;
+  let outDir: string | undefined;
+  let asJson = false;
+  let refresh = false;
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '--scale') { scale = args[++i]; }
+    else if (a === '--out') { outDir = args[++i]; }
+    else if (a === '--json') { asJson = true; }
+    else if (a === '--refresh') { refresh = true; }
+    else if (a.indexOf('--') === 0) { console.error('AUDIT-ARGS: unknown flag ' + a); process.exit(2); }
+    else if (!input) { input = a; }
+    else { console.error('AUDIT-ARGS: unexpected extra positional ' + a); process.exit(2); }
+  }
+  if (!input) { console.error('usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]'); process.exit(2); }
+  runAudit({ input: input, scale: scale, outDir: outDir, json: asJson, refresh: refresh })
+    .then(function (r) {
+      if (r.out_dir) {
+        console.log(JSON.stringify({
+          report_id: r.report_id, receipt_id: r.receipt_id, scale: r.scale,
+          stability: r.stability, capabilities: r.capabilities,
+          overall_verdict: r.overall_verdict, degraded_mode: r.degraded_mode,
+          head_sha: r.head_sha, tree_sha: r.tree_sha, commit_count: r.commit_count,
+          adr_count: r.adr_count, fact_count: r.fact_count, repo_name: r.repo_name,
+          intake: { kind: r.intake_kind, snapshot_fetched_at: r.snapshot_fetched_at, cache_hit: r.cache_hit, refreshed: r.refreshed },
+          codelore: r.codelore, out_dir: r.out_dir, artifacts: r.artifacts
+        }));
+      } else {
+        process.stdout.write(asJson ? r.sidecar_json : r.report_markdown);
+      }
+      process.exit(0);
+    })
+    .catch(function (e) {
+      if (isAuditScaleError(e)) {
+        console.error(JSON.stringify({ error: e.code, message: e.message, implemented: e.implemented, requested: e.requested, layer_order: e.layer_order }));
+        process.exit(2);
+      }
+      const err = e as { code?: string; message?: string };
+      console.error(JSON.stringify({ error: err.code || 'AUDIT-ERROR', message: err.message || String(e) }));
+      process.exit(2);
+    });
 } else if (cmd === 'demo') {
   // 演示入口（D-038 / A-050）：demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]
   // 临时目录生成确定性合成 git 仓 → Repo Intake 本地腿 → Macro-B 管线 → 报告（CASRAI 披露块）。
@@ -120,5 +171,5 @@ if (cmd === '--version' || cmd === '-v') {
   }
 } else {
   console.log('macro-audit kernel CLI (walking skeleton)');
-  console.log('usage: macro-audit <--version|selftest|mcp|repo add <path|owner/repo|url> [--cache <dir>]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>');
+  console.log('usage: macro-audit <--version|selftest|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>');
 }

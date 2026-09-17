@@ -1,5 +1,6 @@
 // 40-macro-b-one-shot.mjs — Macro-B（已上架层）外部公开仓 URL opt-in 泛化验证（#40 / A-045 / R5-09 / spec §R5-D9）
 // 复用说明：本文件 = 40-macro-b-one-shot.mjs 同构复用——采集/裁决/报告管线与预声明阈值零改动；
+// [轮16/#53-D-060⑤] 本脚本已转 audit 一等命令（macro-audit audit）的回归对照物——非命令面主入口；audit 产物字段⊆本脚本产物字段，漂移即报警（53-check 断言）。
 //   差异仅：默认目标=外部仓 clone 缓存、产物命名 40-*、披露块 calibration_scope=外部仓、条目 id 前缀 40-。
 // 用法：
 //   node 40-macro-b-one-shot.mjs                                          # 默认外部仓（open-gsd/gsd-core @ 40-clone-cache）
