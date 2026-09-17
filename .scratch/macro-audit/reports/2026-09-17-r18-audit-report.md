@@ -103,3 +103,33 @@
 
 - R18-Q1 候选：骨架契约版本纪律执行面——「升版触发点」规则是否需守卫钉（14-check 加版本↔字段 diff 联动断言）？
 - R18-Q2 候选：presence-level 语境剥离 cue 表语义分层——假想/比较语境与否定语境是否应分表分 flag kind（'negated:' vs 'hypothetical:'/'comparative:'），名实对齐判据如何定？
+
+
+## §9 复审章（返工包 rxt/xwk 复跑——2026-09-17 二跑，审计窗口）
+
+> 基点扩展：07f5226→HEAD（含 r18-rework 栈 rxt d65cfbb 代码面 / xwk 244e482 行政面；38 文件 +535/−337；未 push）。.code-tmp/r18-audit/* 为审计窗 scratch 未并入。
+
+### 打回项复核
+
+| 项 | 复核结果 | 结论 |
+|---|---|---|
+| G1 56-check F2 空转 | 71-72 行 nb 全 `join(HERE/REPO,…)`＋existsSync 前置（缺文件=FAIL）；审计亲注 BOM 红证：FAIL F2 `bom:…heldout-eval.mjs`→exit 1（22/23），字节级还原后 PASS 23/23——守卫真触发实证 | ✅ 闭环 |
+| G2 骨架契约未升版 | REPORT_SKELETON_VERSION='1.2.0'＋14-skeleton-fields.json schema_version 同步 1.2.0＋audit.test J2 钉 1.2.0＋09-stale-check 改「proposal applied@1.1.0 且 current≥proposal」语义钉（历史提案记录不改写）＋48/38/39/40 四脚本改 G.REPORT_SKELETON_VERSION 常量引用（防下次升版再断）＋golden 三场景+48 工件重基线；A-067 账本注记明记「0.y.z 零兼容税只覆盖包 semver 轴，骨架契约轴按 C9 升版」 | ✅ 闭环 |
+| G3 F10 清点不完整 | 38-check.mjs:47/48/49/52 四处 metric(...)[0] 转 length>0 守卫＋detail null-safe；38-check FAIL 面 34/36→35/36 收窄（仅 E3 陈旧类残留；H4 因外部仓转净转绿）无新增 | ✅ 闭环 |
+
+### 顺带项复核
+
+- O2 cue 表名实对齐：假想/示例词拆 `EN_NON_ASSERT_CUES` 独立表（15 词），flag kind 三段 `negated`/`non-asserted`/`verdict-label`，模块头 flag 词表文档化；剥离机制恒等仅标签改名（held-out 48/48、52a FP=0 κ=0.711 复测不变——实测 56/52a-check 均绿）| ✅
+- O5 披露强化：held-out corpus disclosure 补「标注者即本票实施者同日完成，非独立双标，独立性强度以此披露为限」| ✅
+- P1/P2/P3 文书勘误：round18-report §返工包节＋exec-handoff/BACKLOG 回执时点限定（T1=e0ab…→终态=b545e0e9f2b0e5e8）；F10 枚举扩为产出面逐条＋守卫侧 4 位；「14 套件」→「15 测试件」 | ✅
+- 过程合规：本审计报告被 xwk 行政提交原样留档（diff 零删行）——审计工件完整性保持；未 push；scratch 未并入 | ✅
+
+### 复跑矩阵（复审亲跑，同 §1 套）
+
+gen GEN-OK｜tsc exit 0｜npm test 15 件全绿（audit 26/26·demo 38/38 O2·citation 29）｜56/52a/53/33/14/48/51/42/44/46/54/55/09-stale 全 exit 0｜38=35/36（仅 E3 陈旧类）｜39=30/38（陈旧类）｜40=1/57（陈旧类）｜23 env-FAIL 不变｜npm pack 71 件 129.5kB｜selftest ok=true 5/5｜env-manager audit exit 0 RCP-b545e0e9f2b0e5e8（复跑逐字节一致；O2 flag 改名未触 env-manager 语料，digest 不变属正当）
+
+### 终裁
+
+**审计通过**。T1(#57)＋T2(#56)＋返工包（G1-G3＋O2/O5＋P1-P3）全链闭环，重跑同套验收全绿。
+
+残余观察项（判断级，不阻断）：守卫式 `(x.length>0?[x[0].fact_id]:[])` 重复 6+ 处（standalone 惯例部分豁免）；citation.ts:358 死条件；closers Map 值未读；enCuesIn/substrCuesIn 签名不对称＋checkAllCitations 每 claim 重剥离（可 memo）；citation.test.mjs assert 风格偏离屋 t() 惯例；52a-eval-results.json 原地覆写（基线靠 git 史）；R10 头括注陈旧；WORKFLOW §4 未 append 本轮教训。建议随下一维护票顺带清或登记观察位。
