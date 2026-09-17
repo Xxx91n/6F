@@ -70,7 +70,7 @@
 - human_adjudication: pending（裁定仍由人做，见 B5）
 #### 叙事段（宿主 agent 生成/kernel 盖章；叙事面不携带裁决 band——红线 D-053/ADR-0013）
 - [kernel-template-fallback] author=kernel-template model_id=(none) stamp=sealed grounded=0/0
-  - text: 本段为 kernel 模板叙事（degraded 兜底位 ⚠ unverified）：四象限覆盖 strategy·structure·behavior·supply_chain，逐维裁定见 C2 结构化裁决块（本段不重复断言任何判定）；证据与引文支持关系见 C3；降级原因：未声明。正式叙事归宿主 agent 经 MCP facts 只读投影取数后生成——模板叙事不替代之。
+  - text: 本段为 kernel 模板叙事（degraded 兜底位 ⚠ unverified）：四象限覆盖 strategy·structure·behavior·supply_chain，逐维裁定见 C2 结构化裁决块（本段不重复断言任何判定）；证据与引文支持关系见 C3；降级原因：FP-45-2 采集域证据不完整：docs/adr 语料仅 2 份且字段残缺、意图面文档缺失 → 主前提不可裁定，发起 GapRequest 降级产出。正式叙事归宿主 agent 经 MCP facts 只读投影取数后生成——模板叙事不替代之。
 
 ## C3 证据
 

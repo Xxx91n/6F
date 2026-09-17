@@ -5,13 +5,19 @@
 // 纯逻辑约束：输入一律注入；不读 fs、不起子进程、不发网络请求、不接 LLM（D-016）。
 
 import { createHash } from 'node:crypto';
-import { sealNarrativeSections, renderTemplateNarrative } from './narrative.js';
+import { sealNarrativeSections, renderTemplateNarrative, NARRATIVE_SEAL_PROTOCOL } from './narrative.js';
 import type { NarrativeSection, SealedNarrative } from './narrative.js';
+import { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations } from './citation.js';
+import type { EvidenceItem, ClaimAnchor, CitationCheck, SupportRelation } from './citation.js';
+
+// 引文核验面已抽入叶子模块 citation.ts（C1：破 generate↔narrative 运行期循环 import）；
+// 此处 re-export 保持既有 import 路径 'generate.js' 不破。
+export { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations };
+export type { EvidenceItem, ClaimAnchor, CitationCheck, SupportRelation };
 
 export const REPORT_SKELETON_VERSION = '1.1.0';
 export const REPORT_SKELETON_SOURCE = 'reports/14-skeleton-fields.json#skeleton';
 export const ADJUDICATION_PROTOCOL_VERSION = 'ADR-0013-C/v1';
-export const UNVERIFIED_MARK = '⚠ unverified';
 
 export interface SkeletonChapter {
   id: string;
@@ -49,67 +55,7 @@ export function skeletonOf(markdown: string): string[] {
   return out;
 }
 export type VerdictBand = 'supported' | 'unsupported' | 'insufficient';
-export type SupportRelation = 'supports' | 'insufficient' | 'contradicts';
 export type Applicability = 'native' | 'derived' | 'not_applicable';
-
-export interface EvidenceItem {
-  evidence_id: string;
-  source: string;
-  locator: string;
-  claim: string;
-  grounded: boolean;
-  collected_at: string;
-  reproduce_cmd: string;
-  reproduce_absent_reason: string | null;
-  required_tokens: readonly string[];
-  excerpt: string;
-}
-
-export interface ClaimAnchor {
-  claim_id: string;
-  evidence_id: string;
-  required_tokens: readonly string[];
-}
-
-export interface CitationCheck {
-  claim_id: string;
-  evidence_id: string;
-  support: SupportRelation;
-  matched_tokens: string[];
-  missing_tokens: string[];
-  reason: string;
-}
-
-export function checkCitationSupport(claim: ClaimAnchor, evidence: EvidenceItem): CitationCheck {
-  const matched: string[] = [];
-  const missing: string[] = [];
-  if (!evidence.grounded || evidence.excerpt.length === 0) {
-    return { claim_id: claim.claim_id, evidence_id: evidence.evidence_id, support: 'insufficient', matched_tokens: [], missing_tokens: claim.required_tokens.slice(), reason: '引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论' };
-  }
-  const hay = evidence.excerpt.toLowerCase();
-  for (const tok of claim.required_tokens) {
-    if (hay.indexOf(tok.toLowerCase()) >= 0) { matched.push(tok); } else { missing.push(tok); }
-  }
-  if (missing.length === 0) {
-    return { claim_id: claim.claim_id, evidence_id: evidence.evidence_id, support: 'supports', matched_tokens: matched, missing_tokens: [], reason: '全部支撑锚在引文原文中逐字命中' };
-  }
-  return { claim_id: claim.claim_id, evidence_id: evidence.evidence_id, support: 'insufficient', matched_tokens: matched, missing_tokens: missing, reason: '支撑锚未命中：' + missing.join(', ') };
-}
-
-export function checkAllCitations(claims: readonly ClaimAnchor[], evidence: readonly EvidenceItem[]): CitationCheck[] {
-  const index: Record<string, EvidenceItem> = {};
-  for (const e of evidence) { index[e.evidence_id] = e; }
-  const out: CitationCheck[] = [];
-  for (const c of claims) {
-    const e = index[c.evidence_id];
-    if (!e) {
-      out.push({ claim_id: c.claim_id, evidence_id: c.evidence_id, support: 'insufficient', matched_tokens: [], missing_tokens: c.required_tokens.slice(), reason: '引文锚不可解析（evidence_id 不存在）' });
-      continue;
-    }
-    out.push(checkCitationSupport(c, e));
-  }
-  return out;
-}
 
 export interface AdjudicationEntry {
   criterion_id: string;
@@ -337,8 +283,12 @@ export interface Report {
 }
 
 export function buildReport(input: ReportInput): Report {
-  // 叙事双轨（D-053）：宿主 agent 段逐段盖章；degraded 报告无叙事→kernel 模板兜底注入（永居降级位）
-  let narrativeInput = (input.narrative_sections || []).slice();
+  // 叙事双轨（D-053）：宿主 agent 段逐段盖章；degraded 报告无叙事→kernel 模板兜底注入（永居降级位，D-053① 通用兜底）
+  const narrativeInput = (input.narrative_sections || []).slice();
+  if (input.degraded && narrativeInput.length === 0) {
+    // degraded:true 直建路径同样拿模板兜底（A2 修复：兜底不再仅 degradeReport 可达）
+    narrativeInput.push(renderTemplateNarrative({ quadrants: input.quadrants.slice(), degraded_reason: input.degraded_reason }));
+  }
   const adjudication = adjudicate({
     entries: input.adjudication_entries,
     claims: input.claims,
@@ -530,7 +480,7 @@ export function toSidecar(r: Report): Sidecar {
       citation_anchor_format: 'evidence_id + source + locator（三者齐备即为可解析引文锚）',
       verdict_enum: ['supported', 'unsupported', 'insufficient'],
       human_adjudication_status: r.adjudication.human.status,
-      narrative_seal_protocol: 'ADR-0013-C/v1+narrative-seal/v1'
+      narrative_seal_protocol: NARRATIVE_SEAL_PROTOCOL
     }
   };
 }
@@ -581,7 +531,7 @@ export function degradeReport(r: Report, reason: string): Report {
     gate_ref: r.receipt.gate_ref,
     degraded: true
   });
-  return {
+  const out: Report = {
     report_id: r.report_id + '-degraded',
     schema_version: r.schema_version,
     scale: r.scale,
@@ -634,8 +584,16 @@ export function degradeReport(r: Report, reason: string): Report {
     adjudication: adjudication,
     receipt: receipt,
     preview_disclosure: r.preview_disclosure,
-    // degraded 兜底=kernel 模板叙事（D-053①：永居降级位，不冒充正式叙事）
-    narrative_sections: sealNarrativeSections([renderTemplateNarrative(r, r.adjudication.decided_at)], r.evidence, r.adjudication.decided_at)
+    narrative_sections: []
   };
+  // degraded 兜底=kernel 模板叙事（D-053①：永居降级位，不冒充正式叙事）。
+  // A1 修复：模板引用降级后对象 out（degraded_reason 已就位），不再读降级前对象输出「未声明」。
+  // C5 裁定：已盖章宿主叙事不静默丢弃——按降级后证据重盖章（引文多落 insufficient→sealed-with-gaps 如实留痕），
+  //          模板叙事追加在降级位；宿主段丢失=审计痕迹丢失，与双轨纪律相抵。
+  const hostKept: NarrativeSection[] = r.narrative_sections.map(function (s): NarrativeSection {
+    return { section_id: s.section_id, author: s.author, model_id: s.model_id, text: s.text, claims: s.claims.slice() };
+  });
+  out.narrative_sections = sealNarrativeSections(hostKept.concat([renderTemplateNarrative(out)]), out.evidence, out.adjudication.decided_at);
+  return out;
 }
 

@@ -26,8 +26,8 @@ t('B2 mw-trigger-c pending+bound macro-a-start 未发生', mc && mc.status === '
 // C. 暂缓面集同步 #51（D-045 邻接）
 const df = it('codelore-deferred-faces');
 t('C1 faces[] 移除已激活三面（hotspots/coupling/function-hotspots）', !['hotspots', 'coupling', 'function-hotspots'].some(f => df.faces.includes(f)));
-t('C2 faces[] 新登记 function-coupling 且有 face_criteria', df.faces.includes('function-coupling') && df.face_criteria && /target/.test(df.face_criteria['function-coupling'] || ''));
-t('C3 faces 计数与标题一致（22 面）', df.faces.length === 22 && df.title.includes('22'));
+t('C2 function-coupling 暂缓判据在 face_criteria（审计 C11：具名移出 faces[]，由 function-* 通配覆盖去歧义）', !df.faces.includes('function-coupling') && df.faces.includes('function-*') && df.face_criteria && /target/.test(df.face_criteria['function-coupling'] || ''));
+t('C3 faces 计数与标题一致（21 面，C11 去重后）', df.faces.length === 21 && df.title.includes('21'));
 
 // D. 复审逾期清零（复核完成）
 const mw = reg.items.filter(i => i.watch === 'manual_watch' && i.status !== 'decided');

@@ -4,6 +4,7 @@ import { loadManifestMeta } from './manifest.js';
 import { repoAdd } from './intake/intake.js';
 import { runDemo, listScenarios } from './demo/demo.js';
 import { projectFacts } from './fact/projection.js';
+import { serveMcpStdio } from './mcp-server.js';
 
 const cmd = process.argv[2] ?? '--help';
 
@@ -15,21 +16,41 @@ if (cmd === '--version' || cmd === '-v') {
   console.log(JSON.stringify(r));
   process.exit(r.ok ? 0 : 1);
 } else if (cmd === 'mcp') {
-  // MCP 查询面（D-053④）：read-only facts 投影 stub——宿主 agent 叙事面的唯一取数主路。
+  // MCP 查询面（D-053④）：read-only facts 投影——宿主 agent 叙事面的唯一取数主路。
   // 面收窄：固定 SELECT 形不接裸 SQL；openReader READ_ONLY 实例；projection 列=FactEvent 十三列。
-  const m = loadManifestMeta();
+  // 裸 `mcp` = JSON-RPC 2.0 stdio 服务（NDJSON 行帧，A3 返工：与 mcp.json 注册面名实相符）；
+  // `mcp facts` = 同投影的直连 CLI 形态（调试/守卫用，不经握手）。
   const sub = process.argv[3];
   if (sub === 'facts') {
     const args = process.argv.slice(4);
-    const opt = (n: string) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
-    const db = opt('--db');
-    if (!db) { console.error('usage: macro-audit mcp facts --db <path> [--scale S] [--repo owner/repo] [--subject ref] [--limit n]'); process.exit(2); }
-    const lim = opt('--limit');
-    projectFacts(db, { scale: opt('--scale'), repo_ref: opt('--repo'), subject_ref: opt('--subject'), limit: lim ? Number(lim) : undefined })
+    const known = ['--db', '--scale', '--repo', '--subject', '--limit'];
+    const opts: { [k: string]: string } = {};
+    for (let i = 0; i < args.length; i++) {
+      const a = args[i];
+      if (known.indexOf(a) < 0) { console.error('MCP-FACTS-ARGS: unknown flag ' + a); process.exit(2); }
+      const v = args[i + 1];
+      if (v === undefined || v.indexOf('--') === 0) { console.error('MCP-FACTS-ARGS: missing value for ' + a); process.exit(2); }
+      opts[a] = v;
+      i++;
+    }
+    if (!opts['--db']) { console.error('usage: macro-audit mcp facts --db <path> [--scale S] [--repo owner/repo] [--subject ref] [--limit n]'); process.exit(2); }
+    const limRaw = opts['--limit'];
+    const lim = limRaw === undefined ? undefined : Number(limRaw);
+    if (lim !== undefined && (!Number.isFinite(lim) || lim <= 0)) {
+      console.error(JSON.stringify({ error: 'MCP-FACTS-ARGS', message: '--limit must be a positive number' }));
+      process.exit(2);
+    }
+    projectFacts(opts['--db'], { scale: opts['--scale'], repo_ref: opts['--repo'], subject_ref: opts['--subject'], limit: lim })
       .then(function (rows) { for (const r of rows) { console.log(JSON.stringify(r)); } })
       .catch(function (e) { console.error(JSON.stringify({ error: 'MCP-FACTS-ERROR', message: String(e && (e as Error).message || e) })); process.exit(2); });
+  } else if (sub === undefined) {
+    serveMcpStdio(process.stdin, process.stdout).catch(function (e) {
+      console.error(JSON.stringify({ error: 'MCP-SERVE-ERROR', message: String(e && (e as Error).message || e) }));
+      process.exit(2);
+    });
   } else {
-    console.log(JSON.stringify({ transport: m.mcp.transport, readOnly: m.mcp.readOnly, ops: ['facts'], usage: 'macro-audit mcp facts --db <path> [--scale S] [--repo owner/repo] [--subject ref] [--limit n]', note: 'read-only facts projection stub (D-053④)' }));
+    console.error('usage: macro-audit mcp [facts --db <path> [--scale S] [--repo owner/repo] [--subject ref] [--limit n]]');
+    process.exit(2);
   }
 } else if (cmd === 'repo') {
   // Repo Intake（ADR-0009 / D-013）：repo add <path|owner/repo|url> [--cache <dir>]

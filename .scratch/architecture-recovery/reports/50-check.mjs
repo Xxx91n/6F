@@ -48,7 +48,7 @@ t('C2 固定 SELECT 形不接裸 SQL（参数绑定 ?）', pj.includes('scale = 
 t('C3 limit 封顶 500', pj.includes('500'));
 const cs = txt(CLI);
 t('C4 cli mcp facts 子命令路由', cs.includes('mcp') && cs.includes('facts') && cs.includes('--db'));
-t('C5 mcp descriptor ops=[facts] readOnly=true', cs.includes("ops: ['facts']"));
+t('C5 mcp 裸启动=JSON-RPC stdio 服务（A3 名实相符：serveMcpStdio 接线＋唯一 tool=facts）', cs.includes('serveMcpStdio') && existsSync(join(ENG, 'src', 'mcp-server.ts')) && txt(join(ENG, 'src', 'mcp-server.ts')).includes('tools/list') && txt(join(ENG, 'src', 'mcp-server.ts')).includes("'facts'"));
 
 // ---------- D. references 三件 + SKILL.md ----------
 const REFS = ['quadrant-rubric.md', 'strategy-questions.md', 'report-template.md'];
