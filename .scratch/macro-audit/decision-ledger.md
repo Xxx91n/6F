@@ -541,3 +541,14 @@
 | D-063 | ①L1：r14-audit-findings（SHA c06aa58833940c8f9858011d6028944f8187c6f7）**已于 PR #5 合入 main（12e2a49），先于本裁定发生**——裁定口径「审计件=冻结只读留档分支不合 main」自本轮起约束未来审计件分支；已合入内容留存不撤（撤除=改写已共享历史）；②L2：registry golden-verifier-dirty-on-rerun（manual_watch，≥3 次→立票，修法=守卫旗标化） |
 
 轮 15 全部 5 条增量皆有去向，无去向清单=空。
+
+## 第十六轮执行记录（2026-09-17，分支 r16-impl-t1-t3-t2）
+
+| 票 | 落盘 |
+|---|---|
+| #54 (D-059①) | commit wkp：normalizeGitIsoDate 归一化+严格形状断言（intake.ts）；%cI 消费点单源在 audit/macro-b.ts；39/40/48 对照脚本同口径；golden-ci 勘误＋upstream-lock enforce 位；gitcli-contract.test 11/11＋54-check 19/19 |
+| #55 (D-059④⑤⑥⑦) | commit usr：stripSqlLiterals（sql-literal 17/17）；MCP db 三源寻址＋MCP-FACTS-DB-UNRESOLVED（mcp-db-resolution 12/12，mcp.json env 经 manifest.meta.json 单一元数据源生成）；intake snapshot_fetched_at/cache_hit/refreshed＋.git 键归一＋refresh opt-in（intake 40/40）；contradicts 死枚举清除；55-check 17/17 |
+| #53 (D-060) | commit pwo：audit 一等命令八要素全项；audit/macro-b.ts 共享链（demo 重构同消费）；SCALE-NOT-IMPLEMENTED exit 2；--out 双通道五工件＋回执 JSON；报告头 stability/capabilities 机读面；39/40 转对照物＋golden parity 实测（audit 侧车字段⊆39 复跑产物）；audit.test 24/24＋53-check 22/22；README 同票 |
+| #52a (D-061) | commit 后随：合成语料 110 条（92 claim-evidence＋18 band，52a-gen-corpus.mjs 确定性生成＋sha256 指纹）；κ 三报=全集 0.455（<0.6 地板如实报＋findings 登记）／非对抗子集 0.970／intra-rater 1.000；band-leak 检出 12/12＋干净 FP 0/6；对抗 FP=13/FN=12 分型入 eval JSON；**#56 立修复票**（评测/修复分票纪律兑现）；52a-check 21/21 |
+
+如实登记：① cli.ts --refresh 旗标行与 audit 分发块同 diff hunk 相邻不可再分，随 #53 commit 落盘（#55 注记）；② mcp.json 为 gen-manifests 生成物，env 配置面落 manifest.meta.json 单一元数据源（首跑 gen 报 DRIFT 即教训）；③ 52a 双标=intra-rater 单人二轮口径（合成语料 inter-rater 天花板退化为构造确定性，限制披露随 eval JSON）；④ snapshot_fetched_at 取证源=FETCH_HEAD mtime 单源（clone/refresh/缓存命中三腿同值，双钟不漂）；⑤ cli.ts audit 分发块测试期误用 audit_fact_events 表名——事实表实为 audit_fact（store.ts 唯一权威），test 修正后 audit.test 24/24。

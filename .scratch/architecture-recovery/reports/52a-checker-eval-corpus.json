@@ -1,0 +1,2692 @@
+{
+  "corpus_id": "52a-checker-eval-v1",
+  "built": "construction",
+  "item_count": 92,
+  "band_item_count": 18,
+  "disclosure": {
+    "synthetic": true,
+    "note": "合成 claim-evidence 语料：gold=构造意图标签；双标子集 gold_b=同一标定者二轮独立标注（intra-rater 口径——非双人互标，inter-rater κ 天花板在合成本质上退化为构造确定性）；对抗面（E/F 类）故意按 presence≠support 构造，FP/FN 分型即预期失配面；本集只用于标定测量，checker 阈值改动不得参照本集标签（防调参泄漏纪律 D-061）",
+    "limitations": [
+      "合成 excerpt 非 wild slice",
+      "双人互标缺席（intra-rater 替代如实披露）",
+      "gold 为构造意图非判后共识"
+    ]
+  },
+  "items": [
+    {
+      "id": "52a-001",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-001",
+        "evidence_id": "EV-52a-001",
+        "required_tokens": [
+          "coverage",
+          "0.85"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-001",
+        "source": "synthetic://52a/52a-001",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-001",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "coverage ratio 0.85 measured on intent docs"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "全部命中（两锚 EN）"
+    },
+    {
+      "id": "52a-002",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-002",
+        "evidence_id": "EV-52a-002",
+        "required_tokens": [
+          "fact_count",
+          "129"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-002",
+        "source": "synthetic://52a/52a-002",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-002",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "fact_count = 129 collected this run"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "数值锚命中"
+    },
+    {
+      "id": "52a-003",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-003",
+        "evidence_id": "EV-52a-003",
+        "required_tokens": [
+          "gate",
+          "2026-04-10"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-003",
+        "source": "synthetic://52a/52a-003",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-003",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "verdict gate decided at 2026-04-10"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "日期锚命中"
+    },
+    {
+      "id": "52a-004",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-004",
+        "evidence_id": "EV-52a-004",
+        "required_tokens": [
+          "骨架",
+          "ADR-0006"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-004",
+        "source": "synthetic://52a/52a-004",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-004",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "骨架章序锁定 ADR-0006 裁定协议在"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "CJK+编号锚"
+    },
+    {
+      "id": "52a-005",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-005",
+        "evidence_id": "EV-52a-005",
+        "required_tokens": [
+          "receipt",
+          "stable",
+          "runs"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-005",
+        "source": "synthetic://52a/52a-005",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-005",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the receipt chain hash is stable across runs"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "三锚全中"
+    },
+    {
+      "id": "52a-006",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-006",
+        "evidence_id": "EV-52a-006",
+        "required_tokens": [
+          "append-only",
+          "immutability"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-006",
+        "source": "synthetic://52a/52a-006",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-006",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "append-only fact table enforces immutability"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "概念双锚"
+    },
+    {
+      "id": "52a-007",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-007",
+        "evidence_id": "EV-52a-007",
+        "required_tokens": [
+          "delta_days",
+          "255"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-007",
+        "source": "synthetic://52a/52a-007",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-007",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "delta_days = 255 检出事后补写"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "指标锚 CJK 语境"
+    },
+    {
+      "id": "52a-008",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-008",
+        "evidence_id": "EV-52a-008",
+        "required_tokens": [
+          "supersede",
+          "ADR-0000"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-008",
+        "source": "synthetic://52a/52a-008",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-008",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "supersede 链命中 ADR-0000 标记"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "链锚"
+    },
+    {
+      "id": "52a-009",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-009",
+        "evidence_id": "EV-52a-009",
+        "required_tokens": [
+          "mean_ratio",
+          "0.60",
+          "threshold"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-009",
+        "source": "synthetic://52a/52a-009",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-009",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "mean_ratio 0.60 threshold exceeded"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "三锚"
+    },
+    {
+      "id": "52a-010",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-010",
+        "evidence_id": "EV-52a-010",
+        "required_tokens": [
+          "remote",
+          "disabled"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-010",
+        "source": "synthetic://52a/52a-010",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-010",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "remote config execution disabled at clone"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "位锚"
+    },
+    {
+      "id": "52a-011",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-011",
+        "evidence_id": "EV-52a-011",
+        "required_tokens": [
+          "浅仓",
+          "rejected"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-011",
+        "source": "synthetic://52a/52a-011",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-011",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "浅仓拒绝 shallow clone rejected"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "中英混锚"
+    },
+    {
+      "id": "52a-012",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-012",
+        "evidence_id": "EV-52a-012",
+        "required_tokens": [
+          "snapshot_fetched_at",
+          "recorded"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-012",
+        "source": "synthetic://52a/52a-012",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-012",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "snapshot_fetched_at=2026-04-10T10:00:00Z recorded"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "披露锚"
+    },
+    {
+      "id": "52a-013",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-013",
+        "evidence_id": "EV-52a-013",
+        "required_tokens": [
+          "cache_hit",
+          "timestamp"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-013",
+        "source": "synthetic://52a/52a-013",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-013",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "cache_hit=true preserved snapshot timestamp"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "缓存锚"
+    },
+    {
+      "id": "52a-014",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-014",
+        "evidence_id": "EV-52a-014",
+        "required_tokens": [
+          "hooksPath",
+          "protocol.ext"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-014",
+        "source": "synthetic://52a/52a-014",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-014",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "hooksPath noop + protocol.ext.allow=never"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "双配置锚"
+    },
+    {
+      "id": "52a-015",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-015",
+        "evidence_id": "EV-52a-015",
+        "required_tokens": [
+          "kernel",
+          "facts",
+          "narrates"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-015",
+        "source": "synthetic://52a/52a-015",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-015",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "kernel emits facts; host agent narrates"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "分工锚"
+    },
+    {
+      "id": "52a-016",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-016",
+        "evidence_id": "EV-52a-016",
+        "required_tokens": [
+          "fixture",
+          "synthetic",
+          "deterministic"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-016",
+        "source": "synthetic://52a/52a-016",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-016",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the fixture repo is synthetic and deterministic"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "合成印记锚"
+    },
+    {
+      "id": "52a-017",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-017",
+        "evidence_id": "EV-52a-017",
+        "required_tokens": [
+          "golden",
+          "diff"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-017",
+        "source": "synthetic://52a/52a-017",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-017",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "golden bytes diff clean on rerender"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "golden 锚"
+    },
+    {
+      "id": "52a-018",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-018",
+        "evidence_id": "EV-52a-018",
+        "required_tokens": [
+          "stability",
+          "preview",
+          "capabilities"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-018",
+        "source": "synthetic://52a/52a-018",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-018",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "stability preview capabilities macro-b header"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "报告头锚"
+    },
+    {
+      "id": "52a-019",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-019",
+        "evidence_id": "EV-52a-019",
+        "required_tokens": [
+          "1.1.0",
+          "lag",
+          "0"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-019",
+        "source": "synthetic://52a/52a-019",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-019",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "read model version 1.1.0 lag 0 seconds"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "读模锚"
+    },
+    {
+      "id": "52a-020",
+      "category": "presence-supported",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-020",
+        "evidence_id": "EV-52a-020",
+        "required_tokens": [
+          "EV-45",
+          "line",
+          "7"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-020",
+        "source": "synthetic://52a/52a-020",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-020",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "evidence anchor EV-45 parses to line 7"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "引文锚"
+    },
+    {
+      "id": "52a-021",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-021",
+        "evidence_id": "EV-52a-021",
+        "required_tokens": [
+          "coverage",
+          "0.85"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-021",
+        "source": "synthetic://52a/52a-021",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-021",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "coverage ratio measured on intent docs"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "数值锚缺席"
+    },
+    {
+      "id": "52a-022",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-022",
+        "evidence_id": "EV-52a-022",
+        "required_tokens": [
+          "fact_count",
+          "129"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-022",
+        "source": "synthetic://52a/52a-022",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-022",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "fact_count collected this run"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "计数锚缺席"
+    },
+    {
+      "id": "52a-023",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-023",
+        "evidence_id": "EV-52a-023",
+        "required_tokens": [
+          "receipt",
+          "hash",
+          "runs"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-023",
+        "source": "synthetic://52a/52a-023",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-023",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the receipt chain is stable"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "两锚缺席"
+    },
+    {
+      "id": "52a-024",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-024",
+        "evidence_id": "EV-52a-024",
+        "required_tokens": [
+          "骨架",
+          "ADR-0006"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-024",
+        "source": "synthetic://52a/52a-024",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-024",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "骨架章序锁定 裁定协议在"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "编号锚缺席"
+    },
+    {
+      "id": "52a-025",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-025",
+        "evidence_id": "EV-52a-025",
+        "required_tokens": [
+          "append-only",
+          "immutability"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-025",
+        "source": "synthetic://52a/52a-025",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-025",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "append-only table enforces rules"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "概念锚缺席"
+    },
+    {
+      "id": "52a-026",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-026",
+        "evidence_id": "EV-52a-026",
+        "required_tokens": [
+          "delta_days",
+          "255"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-026",
+        "source": "synthetic://52a/52a-026",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-026",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "delta_days 检出补写"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "数值缺席"
+    },
+    {
+      "id": "52a-027",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-027",
+        "evidence_id": "EV-52a-027",
+        "required_tokens": [
+          "supersede",
+          "ADR-0000"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-027",
+        "source": "synthetic://52a/52a-027",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-027",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "supersede chain hit"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "编号缺席"
+    },
+    {
+      "id": "52a-028",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-028",
+        "evidence_id": "EV-52a-028",
+        "required_tokens": [
+          "mean_ratio",
+          "0.60"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-028",
+        "source": "synthetic://52a/52a-028",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-028",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "mean_ratio threshold exceeded"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "阈值缺席"
+    },
+    {
+      "id": "52a-029",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-029",
+        "evidence_id": "EV-52a-029",
+        "required_tokens": [
+          "remote",
+          "disabled"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-029",
+        "source": "synthetic://52a/52a-029",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-029",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "remote config execution"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "位锚缺席"
+    },
+    {
+      "id": "52a-030",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-030",
+        "evidence_id": "EV-52a-030",
+        "required_tokens": [
+          "浅仓",
+          "rejected"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-030",
+        "source": "synthetic://52a/52a-030",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-030",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "浅仓拒绝处理"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "EN 锚缺席"
+    },
+    {
+      "id": "52a-031",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-031",
+        "evidence_id": "EV-52a-031",
+        "required_tokens": [
+          "snapshot_fetched_at",
+          "recorded"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-031",
+        "source": "synthetic://52a/52a-031",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-031",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "snapshot recorded"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "长锚缺席"
+    },
+    {
+      "id": "52a-032",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-032",
+        "evidence_id": "EV-52a-032",
+        "required_tokens": [
+          "cache_hit",
+          "timestamp"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-032",
+        "source": "synthetic://52a/52a-032",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-032",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "cache preserved timestamp"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "命中锚缺席"
+    },
+    {
+      "id": "52a-033",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-033",
+        "evidence_id": "EV-52a-033",
+        "required_tokens": [
+          "hooksPath",
+          "protocol.ext"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-033",
+        "source": "synthetic://52a/52a-033",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-033",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "hooksPath noop"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "协议锚缺席"
+    },
+    {
+      "id": "52a-034",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-034",
+        "evidence_id": "EV-52a-034",
+        "required_tokens": [
+          "kernel",
+          "facts",
+          "narrates"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-034",
+        "source": "synthetic://52a/52a-034",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-034",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "kernel emits facts"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "尾锚缺席"
+    },
+    {
+      "id": "52a-035",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-035",
+        "evidence_id": "EV-52a-035",
+        "required_tokens": [
+          "fixture",
+          "synthetic"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-035",
+        "source": "synthetic://52a/52a-035",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-035",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "fixture repo is deterministic"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "合成锚缺席"
+    },
+    {
+      "id": "52a-036",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-036",
+        "evidence_id": "EV-52a-036",
+        "required_tokens": [
+          "golden",
+          "diff"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-036",
+        "source": "synthetic://52a/52a-036",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-036",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "golden rerender clean"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "diff 锚缺席"
+    },
+    {
+      "id": "52a-037",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-037",
+        "evidence_id": "EV-52a-037",
+        "required_tokens": [
+          "stability",
+          "capabilities"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-037",
+        "source": "synthetic://52a/52a-037",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-037",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "stability preview header"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "capabilities 锚缺席"
+    },
+    {
+      "id": "52a-038",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-038",
+        "evidence_id": "EV-52a-038",
+        "required_tokens": [
+          "1.1.0",
+          "lag"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-038",
+        "source": "synthetic://52a/52a-038",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-038",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "read model lag 0"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "版本锚缺席"
+    },
+    {
+      "id": "52a-039",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-039",
+        "evidence_id": "EV-52a-039",
+        "required_tokens": [
+          "EV-45",
+          "line"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-039",
+        "source": "synthetic://52a/52a-039",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-039",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "evidence anchor parses line"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "id 锚缺席"
+    },
+    {
+      "id": "52a-040",
+      "category": "presence-missing",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-040",
+        "evidence_id": "EV-52a-040",
+        "required_tokens": [
+          "receipt",
+          "chain"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-040",
+        "source": "synthetic://52a/52a-040",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-040",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "totally unrelated sentence"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "全锚缺席（无关引文）"
+    },
+    {
+      "id": "52a-041",
+      "category": "ungrounded",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-041",
+        "evidence_id": "EV-52a-041",
+        "required_tokens": [
+          "coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-041",
+        "source": "synthetic://52a/52a-041",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-041",
+        "grounded": false,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "coverage 0.85 0"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "grounded=false 锚在也被拒（有引文≠支撑）"
+    },
+    {
+      "id": "52a-042",
+      "category": "ungrounded",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-042",
+        "evidence_id": "EV-52a-042",
+        "required_tokens": [
+          "coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-042",
+        "source": "synthetic://52a/52a-042",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-042",
+        "grounded": false,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "coverage 0.85 1"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "grounded=false 锚在也被拒（有引文≠支撑）"
+    },
+    {
+      "id": "52a-043",
+      "category": "ungrounded",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-043",
+        "evidence_id": "EV-52a-043",
+        "required_tokens": [
+          "coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-043",
+        "source": "synthetic://52a/52a-043",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-043",
+        "grounded": false,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "coverage 0.85 2"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "grounded=false 锚在也被拒（有引文≠支撑）"
+    },
+    {
+      "id": "52a-044",
+      "category": "ungrounded",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-044",
+        "evidence_id": "EV-52a-044",
+        "required_tokens": [
+          "coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-044",
+        "source": "synthetic://52a/52a-044",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-044",
+        "grounded": false,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "coverage 0.85 3"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "grounded=false 锚在也被拒（有引文≠支撑）"
+    },
+    {
+      "id": "52a-045",
+      "category": "ungrounded",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-045",
+        "evidence_id": "EV-52a-045",
+        "required_tokens": [
+          "coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-045",
+        "source": "synthetic://52a/52a-045",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-045",
+        "grounded": false,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "coverage 0.85 4"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "grounded=false 锚在也被拒（有引文≠支撑）"
+    },
+    {
+      "id": "52a-046",
+      "category": "empty-excerpt",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-046",
+        "evidence_id": "EV-52a-046",
+        "required_tokens": [
+          "coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-046",
+        "source": "synthetic://52a/52a-046",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-046",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": ""
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "excerpt 空拒"
+    },
+    {
+      "id": "52a-047",
+      "category": "empty-excerpt",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-047",
+        "evidence_id": "EV-52a-047",
+        "required_tokens": [
+          "coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-047",
+        "source": "synthetic://52a/52a-047",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-047",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": ""
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "excerpt 空拒"
+    },
+    {
+      "id": "52a-048",
+      "category": "empty-excerpt",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-048",
+        "evidence_id": "EV-52a-048",
+        "required_tokens": [
+          "coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-048",
+        "source": "synthetic://52a/52a-048",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-048",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": ""
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "excerpt 空拒"
+    },
+    {
+      "id": "52a-049",
+      "category": "empty-excerpt",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-049",
+        "evidence_id": "EV-52a-049",
+        "required_tokens": [
+          "coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-049",
+        "source": "synthetic://52a/52a-049",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-049",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": ""
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "excerpt 空拒"
+    },
+    {
+      "id": "52a-050",
+      "category": "empty-excerpt",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-050",
+        "evidence_id": "EV-52a-050",
+        "required_tokens": [
+          "coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-050",
+        "source": "synthetic://52a/52a-050",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-050",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": ""
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "excerpt 空拒"
+    },
+    {
+      "id": "52a-051",
+      "category": "unresolvable-anchor",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-051",
+        "evidence_id": "EV-NOPE-52a-051",
+        "required_tokens": [
+          "receipt"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-051",
+        "source": "synthetic://52a/52a-051",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-051",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "receipt stable 0"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "evidence_id 不存在 → 锚不可解析拒"
+    },
+    {
+      "id": "52a-052",
+      "category": "unresolvable-anchor",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-052",
+        "evidence_id": "EV-NOPE-52a-052",
+        "required_tokens": [
+          "receipt"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-052",
+        "source": "synthetic://52a/52a-052",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-052",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "receipt stable 1"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "evidence_id 不存在 → 锚不可解析拒"
+    },
+    {
+      "id": "52a-053",
+      "category": "unresolvable-anchor",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-053",
+        "evidence_id": "EV-NOPE-52a-053",
+        "required_tokens": [
+          "receipt"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-053",
+        "source": "synthetic://52a/52a-053",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-053",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "receipt stable 2"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "evidence_id 不存在 → 锚不可解析拒"
+    },
+    {
+      "id": "52a-054",
+      "category": "unresolvable-anchor",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-054",
+        "evidence_id": "EV-NOPE-52a-054",
+        "required_tokens": [
+          "receipt"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-054",
+        "source": "synthetic://52a/52a-054",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-054",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "receipt stable 3"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "evidence_id 不存在 → 锚不可解析拒"
+    },
+    {
+      "id": "52a-055",
+      "category": "unresolvable-anchor",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-055",
+        "evidence_id": "EV-NOPE-52a-055",
+        "required_tokens": [
+          "receipt"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-055",
+        "source": "synthetic://52a/52a-055",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-055",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "receipt stable 4"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "evidence_id 不存在 → 锚不可解析拒"
+    },
+    {
+      "id": "52a-056",
+      "category": "unresolvable-anchor",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-056",
+        "evidence_id": "EV-NOPE-52a-056",
+        "required_tokens": [
+          "receipt"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-056",
+        "source": "synthetic://52a/52a-056",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-056",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "receipt stable 5"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "evidence_id 不存在 → 锚不可解析拒"
+    },
+    {
+      "id": "52a-057",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-057",
+        "evidence_id": "EV-52a-057",
+        "required_tokens": [
+          "s1_keyword_coverage_ratio"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-057",
+        "source": "synthetic://52a/52a-057",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-057",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "定位覆盖比值为 0.85，实测全绿"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "改写锚（字段名 vs 中文释义）"
+    },
+    {
+      "id": "52a-058",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-058",
+        "evidence_id": "EV-52a-058",
+        "required_tokens": [
+          "git.adr_lag_days"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-058",
+        "source": "synthetic://52a/52a-058",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-058",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the lag between commit and ADR date is large"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "同义改写（lag 语义在场）"
+    },
+    {
+      "id": "52a-059",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-059",
+        "evidence_id": "EV-52a-059",
+        "required_tokens": [
+          "adr.five_piece_completeness"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-059",
+        "source": "synthetic://52a/52a-059",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-059",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "five required ADR sections all present"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "改写（件名未字面出现）"
+    },
+    {
+      "id": "52a-060",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-060",
+        "evidence_id": "EV-52a-060",
+        "required_tokens": [
+          "cache_hit"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-060",
+        "source": "synthetic://52a/52a-060",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-060",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "远端新提交对当前快照不可见"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "中文释义在（cache_hit 字面缺席）"
+    },
+    {
+      "id": "52a-061",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-061",
+        "evidence_id": "EV-52a-061",
+        "required_tokens": [
+          "receipt_id"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-061",
+        "source": "synthetic://52a/52a-061",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-061",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the receipt identifier looks like RCP- followed by hex"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "形式描述在，字段名字面缺席"
+    },
+    {
+      "id": "52a-062",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-062",
+        "evidence_id": "EV-52a-062",
+        "required_tokens": [
+          "%cI"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-062",
+        "source": "synthetic://52a/52a-062",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-062",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "提交时间点以 ISO 8601 规范落盘"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "规范描述在，格式字面缺席"
+    },
+    {
+      "id": "52a-063",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-063",
+        "evidence_id": "EV-52a-063",
+        "required_tokens": [
+          "protocol.ext.allow"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-063",
+        "source": "synthetic://52a/52a-063",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-063",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "clones never execute remote hooks"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "语义在场（hooks 禁），字面锚缺席"
+    },
+    {
+      "id": "52a-064",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-064",
+        "evidence_id": "EV-52a-064",
+        "required_tokens": [
+          "supported"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-064",
+        "source": "synthetic://52a/52a-064",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-064",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "判定结果落在三档之一：支持/不支持/证据不足"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "枚举释义在"
+    },
+    {
+      "id": "52a-065",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-065",
+        "evidence_id": "EV-52a-065",
+        "required_tokens": [
+          "stability"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-065",
+        "source": "synthetic://52a/52a-065",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-065",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the report header marks this run as preview stage"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "概念锚缺席，语义在场"
+    },
+    {
+      "id": "52a-066",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-066",
+        "evidence_id": "EV-52a-066",
+        "required_tokens": [
+          "trace_id",
+          "baggage_id"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-066",
+        "source": "synthetic://52a/52a-066",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-066",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "每个事实都带追踪与回溯键"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "双字段释义在"
+    },
+    {
+      "id": "52a-067",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-067",
+        "evidence_id": "EV-52a-067",
+        "required_tokens": [
+          "adr.supersede_link_present"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-067",
+        "source": "synthetic://52a/52a-067",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-067",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "supersedes the earlier decision record"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "语义在，字段锚缺席"
+    },
+    {
+      "id": "52a-068",
+      "category": "adversarial-fn-paraphrase",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-068",
+        "evidence_id": "EV-52a-068",
+        "required_tokens": [
+          "pc1",
+          "pc2"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-068",
+        "source": "synthetic://52a/52a-068",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-068",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "流水线健康闸全部通过"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "正对照释义在，字面锚缺席"
+    },
+    {
+      "id": "52a-069",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-069",
+        "evidence_id": "EV-52a-069",
+        "required_tokens": [
+          "support",
+          "multi-language"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-069",
+        "source": "synthetic://52a/52a-069",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-069",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the repo does NOT support multi-language output"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "否定包裹（NOT ... 命中锚）"
+    },
+    {
+      "id": "52a-070",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-070",
+        "evidence_id": "EV-52a-070",
+        "required_tokens": [
+          "0.85",
+          "门槛"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-070",
+        "source": "synthetic://52a/52a-070",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-070",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "覆盖率未达 0.85 门槛"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "否定语境（未达含锚）"
+    },
+    {
+      "id": "52a-071",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-071",
+        "evidence_id": "EV-52a-071",
+        "required_tokens": [
+          "append-only"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-071",
+        "source": "synthetic://52a/52a-071",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-071",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the report claims \"append-only\" but this is unverified text"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "引语包裹（他人主张非事实）"
+    },
+    {
+      "id": "52a-072",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-072",
+        "evidence_id": "EV-52a-072",
+        "required_tokens": [
+          "determinism"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-072",
+        "source": "synthetic://52a/52a-072",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-072",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "determinism is absent: runs differ"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "否定语义（absent 锚同根）"
+    },
+    {
+      "id": "52a-073",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-073",
+        "evidence_id": "EV-52a-073",
+        "required_tokens": [
+          "支持浅仓"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-073",
+        "source": "synthetic://52a/52a-073",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-073",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "不支持浅仓——克隆深度必须全量"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "CJK 否定包裹（不支持含支持子串）"
+    },
+    {
+      "id": "52a-074",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-074",
+        "evidence_id": "EV-52a-074",
+        "required_tokens": [
+          "verdict:"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-074",
+        "source": "synthetic://52a/52a-074",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-074",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the spec mentions verdict: pending as a hypothetical"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "假设语境引语"
+    },
+    {
+      "id": "52a-075",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-075",
+        "evidence_id": "EV-52a-075",
+        "required_tokens": [
+          "five",
+          "completeness"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-075",
+        "source": "synthetic://52a/52a-075",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-075",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "lacking five-piece completeness entirely"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "否定（lacking 含锚）"
+    },
+    {
+      "id": "52a-076",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-076",
+        "evidence_id": "EV-52a-076",
+        "required_tokens": [
+          "unsupported"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-076",
+        "source": "synthetic://52a/52a-076",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-076",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "unsupported: the evidence contradicts the claim"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "陈述词为否定标签本身"
+    },
+    {
+      "id": "52a-077",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-077",
+        "evidence_id": "EV-52a-077",
+        "required_tokens": [
+          "hooks",
+          "disables"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-077",
+        "source": "synthetic://52a/52a-077",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-077",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the doc says hooks execute but our config disables them"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "对照句（他人说执行，我们禁）"
+    },
+    {
+      "id": "52a-078",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-078",
+        "evidence_id": "EV-52a-078",
+        "required_tokens": [
+          "snapshot",
+          "时点"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-078",
+        "source": "synthetic://52a/52a-078",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-078",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "不记录 snapshot 时点——存在披露缺口"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "否定包裹（不记录含记录面锚）"
+    },
+    {
+      "id": "52a-079",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-079",
+        "evidence_id": "EV-52a-079",
+        "required_tokens": [
+          "cache"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-079",
+        "source": "synthetic://52a/52a-079",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-079",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "cache-hit never occurs in this path"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "never 否定包裹"
+    },
+    {
+      "id": "52a-080",
+      "category": "adversarial-fp-negation",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-080",
+        "evidence_id": "EV-52a-080",
+        "required_tokens": [
+          "verdict_gate",
+          "new"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-080",
+        "source": "synthetic://52a/52a-080",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-080",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the old pipeline emitted verdict_gate but the new one does not"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "时间对照否定（新管线不含）"
+    },
+    {
+      "id": "52a-081",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-081",
+        "evidence_id": "EV-52a-081",
+        "required_tokens": [
+          "coverage",
+          "measured"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-081",
+        "source": "synthetic://52a/52a-081",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-081",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "COVERAGE Ratio 0.85 MEASURED"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "全大写命中（checker 小写化）"
+    },
+    {
+      "id": "52a-082",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-082",
+        "evidence_id": "EV-52a-082",
+        "required_tokens": [
+          "Coverage"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-082",
+        "source": "synthetic://52a/52a-082",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-082",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "Coverage at start-of-string position"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "边界位锚"
+    },
+    {
+      "id": "52a-083",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-083",
+        "evidence_id": "EV-52a-083",
+        "required_tokens": [
+          "determinism"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-083",
+        "source": "synthetic://52a/52a-083",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-083",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "token at end is determinism"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "句尾锚"
+    },
+    {
+      "id": "52a-084",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-084",
+        "evidence_id": "EV-52a-084",
+        "required_tokens": [
+          "receipt_id",
+          "RCP-abc123"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-084",
+        "source": "synthetic://52a/52a-084",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-084",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "the receipt_id field is RCP-abc123"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "组合锚命中"
+    },
+    {
+      "id": "52a-085",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-085",
+        "evidence_id": "EV-52a-085",
+        "required_tokens": [
+          "coverage",
+          "count"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-085",
+        "source": "synthetic://52a/52a-085",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-085",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "partial hit: has coverage but no count"
+      },
+      "gold": "insufficient",
+      "gold_b": "insufficient",
+      "note": "部分命中→insufficient"
+    },
+    {
+      "id": "52a-086",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-086",
+        "evidence_id": "EV-52a-086",
+        "required_tokens": [
+          "裁定协议"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-086",
+        "source": "synthetic://52a/52a-086",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-086",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "CJK 锚「裁定协议」在句中"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "CJK 引号包裹锚命中"
+    },
+    {
+      "id": "52a-087",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-087",
+        "evidence_id": "EV-52a-087",
+        "required_tokens": [
+          "coverage",
+          "覆盖"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-087",
+        "source": "synthetic://52a/52a-087",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-087",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "mixed 中英 coverage 覆盖 both present"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "双语锚双命中"
+    },
+    {
+      "id": "52a-088",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-088",
+        "evidence_id": "EV-52a-088",
+        "required_tokens": []
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-088",
+        "source": "synthetic://52a/52a-088",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-088",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "required_tokens empty list item"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "空锚集：全锚（无）命中→supports"
+    },
+    {
+      "id": "52a-089",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-089",
+        "evidence_id": "EV-52a-089",
+        "required_tokens": [
+          "supercalifragilisticexpialidocious-token-xyz"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-089",
+        "source": "synthetic://52a/52a-089",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-089",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "very long token supercalifragilisticexpialidocious-token-xyz present"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "超长锚命中"
+    },
+    {
+      "id": "52a-090",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-090",
+        "evidence_id": "EV-52a-090",
+        "required_tokens": [
+          "anchor"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-090",
+        "source": "synthetic://52a/52a-090",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-090",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "token appears twice: anchor and anchor again"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "重复锚"
+    },
+    {
+      "id": "52a-091",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-091",
+        "evidence_id": "EV-52a-091",
+        "required_tokens": [
+          "receipt"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-091",
+        "source": "synthetic://52a/52a-091",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-091",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "punct-attached token (receipt,) mid-sentence"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "标点附着锚命中"
+    },
+    {
+      "id": "52a-092",
+      "category": "boundary",
+      "in_subset": true,
+      "claim": {
+        "claim_id": "CL-52a-092",
+        "evidence_id": "EV-52a-092",
+        "required_tokens": [
+          "tab",
+          "newline-free"
+        ]
+      },
+      "evidence": {
+        "evidence_id": "EV-52a-092",
+        "source": "synthetic://52a/52a-092",
+        "locator": "L1",
+        "claim": "synthetic claim 52a-092",
+        "grounded": true,
+        "collected_at": "2026-04-10T10:00:00Z",
+        "reproduce_cmd": "node 52a-checker-eval.mjs",
+        "reproduce_absent_reason": null,
+        "required_tokens": [],
+        "excerpt": "tab\tand newline-free excerpt"
+      },
+      "gold": "supports",
+      "gold_b": "supports",
+      "note": "转义面锚"
+    }
+  ],
+  "band_items": [
+    {
+      "id": "B-01",
+      "pattern": "dimension-band-assignment",
+      "text": "S1: supported 该维度达标",
+      "gold": true,
+      "note": "维度 band 赋值句"
+    },
+    {
+      "id": "B-02",
+      "pattern": "verdict-field-en",
+      "text": "the verdict field shows supported",
+      "gold": true,
+      "note": "verdict 裸词（从严本意）"
+    },
+    {
+      "id": "B-03",
+      "pattern": "band-field-en",
+      "text": "band = insufficient per gate",
+      "gold": true,
+      "note": "band 赋值"
+    },
+    {
+      "id": "B-04",
+      "pattern": "verdict-word-assertion",
+      "text": "result: supported: yes it passed",
+      "gold": true,
+      "note": "判定词+冒号"
+    },
+    {
+      "id": "B-05",
+      "pattern": "cjk-verdict-assertion",
+      "text": "本段裁定为可信",
+      "gold": true,
+      "note": "中文裁定句式"
+    },
+    {
+      "id": "B-06",
+      "pattern": "quadrant-band-assertion",
+      "text": "象限裁定：绿",
+      "gold": true,
+      "note": "象限裁定句"
+    },
+    {
+      "id": "B-07",
+      "pattern": null,
+      "text": "the evidence cites receipt RCP-abc at line 3",
+      "gold": false,
+      "note": "干净对照（无红线词）"
+    },
+    {
+      "id": "B-08",
+      "pattern": null,
+      "text": "该段仅引证据锚不涉判定",
+      "gold": false,
+      "note": "CJK 干净对照"
+    },
+    {
+      "id": "B-09",
+      "pattern": "verdict-field-en",
+      "text": "VERDICT overall says supported",
+      "gold": true,
+      "note": "大写 verdict 命中（i flag）"
+    },
+    {
+      "id": "B-10",
+      "pattern": null,
+      "text": "verdictless narrative without judgment words",
+      "gold": false,
+      "note": "干净对照——verdictless 词根但 \bverdict\b 边界不命中？复核：verdictless 含 verdict 前缀→应命中",
+      "gold_b": true,
+      "note2": "二轮复核修正：\bverdict\b 前缀命中 verdictless——gold_b=true（intra-rater 分歧如实留）"
+    },
+    {
+      "id": "B-11",
+      "pattern": "verdict-word-assertion",
+      "text": "insufficient：证据缺口三处",
+      "gold": true,
+      "note": "CJK 冒号判定词"
+    },
+    {
+      "id": "B-12",
+      "pattern": null,
+      "text": "supported systems theory is a field of study",
+      "gold": false,
+      "gold_b": false,
+      "note": "supported 无冒号——非判定式，干净对照（二轮复核确认：无 verdict 词无判定句式）"
+    },
+    {
+      "id": "B-13",
+      "pattern": "cjk-verdict-assertion",
+      "text": "判红该仓",
+      "gold": true,
+      "note": "判红句"
+    },
+    {
+      "id": "B-14",
+      "pattern": "band-field-en",
+      "text": "band: supported",
+      "gold": true,
+      "note": "band 冒号"
+    },
+    {
+      "id": "B-15",
+      "pattern": "dimension-band-assignment",
+      "text": "S3 = red",
+      "gold": true,
+      "note": "等号赋值"
+    },
+    {
+      "id": "B-16",
+      "pattern": null,
+      "text": "narrative about anchoring and citations only",
+      "gold": false,
+      "note": "干净对照"
+    },
+    {
+      "id": "B-17",
+      "pattern": "verdict-field-en",
+      "text": "verdict_gate stamped",
+      "gold": true,
+      "note": "verdict_gate 裸词（从严）"
+    },
+    {
+      "id": "B-18",
+      "pattern": null,
+      "text": "该段引用 EV-1 证据行",
+      "gold": false,
+      "note": "干净对照"
+    }
+  ]
+}
