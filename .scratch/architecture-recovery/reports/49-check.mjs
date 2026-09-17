@@ -25,7 +25,7 @@ t('A2 四 leg 名字恰为 jiahao/git/django/spring-boot', JSON.stringify(names)
 const urls = def.repo.map(function (r) { return r.url; });
 t('A3 四 leg URL 全 https:// 公开仓', urls.every(function (u) { return /^https:\/\/github\.com\//.test(u); }));
 t('A4 三首选 URL 正确（git/git·django/django·spring-projects/spring-boot）', urls.includes('https://github.com/git/git.git') && urls.includes('https://github.com/django/django.git') && urls.includes('https://github.com/spring-projects/spring-boot.git'));
-t('A5 matrix 消费 resolve 输出（fromJSON needs.resolve）', /matrix:\s*\n\s*repo:\s*\$\{\{\s*fromJSON\(needs\.resolve\.outputs\.matrix\)\s*\}\}/.test(y));
+t('A5 matrix 消费 resolve 输出（fromJSON needs.resolve）', /matrix:\s*\$\{\{\s*fromJSON\(needs\.resolve\.outputs\.matrix\)\s*\}\}/.test(y));
 
 // ---------- B. 预算/备选纪律 ----------
 t('B1 备选表注释入 workflow（curl/flask/kafka）', y.includes('curl/curl') && y.includes('pallets/flask') && y.includes('apache/kafka'));

@@ -78,8 +78,7 @@ jobs:
     timeout-minutes: 20
     strategy:
       fail-fast: false
-      matrix:
-        repo: ${{ fromJSON(needs.resolve.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.resolve.outputs.matrix) }}
     steps:
       - name: checkout audit engine (self)
         uses: actions/checkout@v4
