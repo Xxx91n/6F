@@ -30,8 +30,8 @@
 | T2 | ~~**#56 checker 修复票**（P1）~~ ✅ 轮 18 已闭环（A-066）：citation.ts 六表剥离＋held-out 53 件＋52a 复测 FP→0 κ→0.711 | D-065 / D-064⑤ / D-059⑤ | citation.ts 增强＋held-out 分区＋复测报告＋NN-check | implement / tdd / domain-modeling |
 | T3 | **#52b 待命**：锚=host-narrative-corpus（audit 实跑或 pilot N≥50 段）——audit 已可实跑，宿主叙事语料出现即触发；跨族 judge＋wild slice＋收割 model id | D-061 / D-064④ | 触发即启 | — |
 | T4 | **#41b 残余面**：listing 资产核对留痕；B 轨不授权 | D-051 / D-052 / D-042 | 资产核对留痕 | — |
-| T5 | push 授权（**用户专属**）：r16-impl＋round15-closeout 栈推 origin——推了=marketplace.json 公开生效 | D-051 / D-052 | 用户点头＋push | gitbutler |
-| T6 | 用户侧动作（**用户专属**）：/plugin marketplace add Xxx91n/6F 验证路径 A（触发 first-external-install→runtime-doctor-trigger） | D-051 / D-052 / D-059③ | 用户操作 | — |
+| T5 | ~~push 授权（**用户专属**）~~ ✅ 2026-09-17/18 执行：`but land --whole-stack` 两连落地 origin/main（r18 栈 9 commit＋t6 修复 2 commit），工作分支全清；marketplace.json 公开生效 | D-051 / D-052 | 已落地 | gitbutler |
+| T6 | ~~用户侧动作（**用户专属**）：/plugin marketplace add Xxx91n/6F 验证路径 A~~ ✅ 2026-09-18 执行（A-068）：首装戳穿 manifest 契约缺陷→修复（skills 路径形＋.mcp.json 自动发现位）→远端 install 实证 Skills(1)+MCP(1)＋kernel CLI 全局上 PATH selftest 5/5；first-external-install 已发生，runtime-doctor-trigger 观察面已激活 | D-051 / D-052 / D-059③ | 已闭环 | — |
 | T7 | 值守面复核：registry 38 项清点——mw-trigger-c（DoR 已写实）／narrative-eval-surface（host-narrative-corpus 锚）／runtime-doctor-trigger／bundle-retirement-trigger／duckdb-binary-watch／golden-verifier-dirty-on-rerun／demo-cleanup-observe（新，顺带清）／hooks-presentation-face／repomix-reopen-trigger／upstream-probes／暂缓面集 | D-043 / D-045 / D-055 / D-056 / D-059③⑨ / D-061~D-064 | registry confirmations/状态翻转 | — |
 | T8 | D-025 勘误双读数纪律：实测/账本双口径并存呈报 | D-025 | 报告口径 | — |
 
