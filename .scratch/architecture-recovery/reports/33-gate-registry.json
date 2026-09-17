@@ -67,8 +67,22 @@
    "occurred": false
   },
   "micro-a-preview-prep": {
+   "occurred": true,
+   "date": "2026-09-16",
+   "evidence": "#48 落点：Micro-A preview 单票铺开——恰 4 条已 merged 票面写死实例（env-manager #64 release-please 机器生成/#55 dependabot[bot]/#51 人类 + jiahao #6 人类）经 github-rest-adapter@v1 实采集→Micro-A 报告双件×4＋goose-duck-agent 无托管面拒绝件；锚：reports/48-micro-a-measurements.json + 48-check.mjs"
+  },
+  "presentation-demand-signal": {
    "occurred": false,
-   "evidence": "Micro-A preview 前置审计窗口（层序 D-034：扩面→Macro-C→Micro-A→Micro-B→Macro-A——Macro-C 已闭环，Micro-A 为下一层 preview）；manual_watch 复审时点机读锚（A-053 登记，occurred 由 Micro-A preview 票开工审计时翻转）"
+   "note": "D-055 触发器：用户/宿主生态明确要求 hooks 呈现面实建"
+  },
+  "narrative-surface-landed": {
+   "occurred": true,
+   "date": "2026-09-16",
+   "evidence": "#50 落点：叙事实物出现——engine/src/report/narrative.ts（sealNarrative 三态/band 红线/model id）＋references 三件＋mcp facts 只读投影；narrative.test.mjs 25 断言"
+  },
+  "repomix-reopen-demand": {
+   "occurred": false,
+   "note": "D-056 触发器：审计证据导出包/Macro-A 跨仓打包实证需求出现"
   }
  },
  "items": [
@@ -394,7 +408,7 @@
    "trigger_event": "micro-a-preview-prep",
    "trigger": "Micro-A preview 前置/真实 PR 报告产出",
    "review_at": "Micro-A preview 前置窗口（micro-a-preview-prep occurred 时复审）",
-   "status": "pending",
+   "status": "decided",
    "source": "reports/30-desk-calibration.json items[task=15].probe",
    "watch": "event_bound",
    "confirmations": [
@@ -405,6 +419,14 @@
      "decision": "trigger-fired-criterion-unmet",
      "reason": "first-external-repo 已 occurred；但本项满足判据 =「≥1 条 Micro-A 真实 PR 报告产出且字段清单满足骨架交集」——Micro-A 为未上架层（capability 3 of 5，not_in_preview），#40 产出为 Macro-B 报告不构成本项判据 → 状态保持 pending，值守通道呈报待 Micro-A 上架后判定",
      "evidence": "reports/40-external-comparison.json + 30-desk-calibration.json items[task=15]"
+    },
+    {
+     "at": "2026-09-16",
+     "by": "#48 Micro-A preview 落地复核",
+     "criterion_version": "30-desk-calibration.json items[task=15].probe.satisfaction 原文",
+     "decision": "trigger-fired-criterion-met",
+     "reason": "micro-a-preview-prep occurred＝Micro-A preview 已落地：4 条真实 PR 报告双件产出（env-manager #64/#55/#51＋jiahao #6，恰 4 条已 merged 票面写死实例），subject_ref=PR 级（owner/repo#N）粒度切片，字段清单满足骨架交集（REPORT_SKELETON required_fields ∩ MICRO_A_SLICE_FIELDS 机械导出断言全过，golden+真跑双通道）——满足判据成立，desk-task15 判 decided",
+     "evidence": "reports/48-micro-a-*.md/.json 四件＋48-micro-a-measurements.json＋48-micro-a-golden-assertions.json"
     }
    ],
    "errata": "前身绑定 first-external-repo 于 2026-09-16 判定错配（判据=Micro-A 产出，#40 实产 Macro-B 报告）——fired 记录转审计痕迹不删（D-044：分层账本纪律，fired=不可变历史／绑定=可修正配置）"
@@ -412,7 +434,7 @@
   {
    "id": "codelore-deferred-faces",
    "family": "codelore-deferred",
-   "title": "CodeLore 暂缓面集 23 速写名（≈25 枚举，Micro 层/备用）",
+   "title": "CodeLore 暂缓面集 22 速写名（#51 激活 3 面后重计；Micro 层/备用）",
    "deadline_event": null,
    "deadline": "满足判据：各层 preview 拉动该面时 golden 契约补齐",
    "trigger_event": null,
@@ -423,8 +445,6 @@
     "function-*",
     "clones",
     "clone-coupling",
-    "coupling",
-    "hotspots",
     "code-health",
     "centrality",
     "communities",
@@ -442,18 +462,45 @@
     "crossing",
     "architecture-violations",
     "defect-validation",
-    "finding-hotspot-overlap"
+    "finding-hotspot-overlap",
+    "function-coupling"
    ],
    "source": "macro-audit decision-ledger D-035④＋D-045（3 面增补裁决）",
    "watch": "manual_watch",
-   "confirmations": [],
+   "confirmations": [
+    {
+     "at": "2026-09-16",
+     "by": "#48 前置清点",
+     "criterion_version": "micro-a-preview-prep occurred 复审",
+     "decision": "reviewed-stay-pending",
+     "reason": "Micro-A preview 判据=证据完整性/托管面资格闸/选择性——不拉 codelore 暂缓面集（行为象限接入归 #51 Macro-B 切片，非本票）；维持 pending",
+     "evidence": "reports/48-micro-a-criteria.md 判据集"
+    },
+    {
+     "at": "2026-09-16",
+     "by": "#51 落盘复核",
+     "criterion_version": "manual_watch 复核（面集增减如实登记）",
+     "decision": "partial-activation-noted",
+     "reason": "暂缓面集 3 面激活（hotspots/coupling/function-hotspots→CODELORE_BEHAVIOR_FACETS group=behavior，Macro-B behavior 切片消费）；function-coupling 新登记暂缓（--target 参数面形态）；其余暂缓面不动。非事件翻转——面集状态留痕。",
+     "evidence": "engine/src/upstream/codelore.ts CODELORE_BEHAVIOR_FACETS + reports/51-behavior-schema.json + 51-check.mjs"
+    },
+    {
+     "at": "2026-09-17",
+     "by": "T8 值守面复核",
+     "criterion_version": "manual_watch 复核（#51 激活面集同步登记）",
+     "decision": "faces-synced-stay-pending",
+     "reason": "#51 已激活 hotspots/coupling/function-hotspots→CODELORE_BEHAVIOR_FACETS（behavior 切片），faces[] 移除该 3 面并新登记 function-coupling（--target 参数面暂缓）；其余暂缓面不动。review_event 推进至 stage3-close（micro-a-preview-prep 锚点已消费两轮复核）",
+     "evidence": "engine/src/upstream/codelore.ts CODELORE_BEHAVIOR_FACETS＋reports/51-behavior-schema.json＋51-check.mjs＋t8-watch-review.md"
+    }
+   ],
    "owner": "收口窗口指派（登记位：macro-audit decision-ledger D-035④ 暂缓面集——层 preview 票承接）",
-   "review_event": "micro-a-preview-prep",
+   "review_event": "stage3-close",
    "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋层 preview 开工审计清点（该层契约面清单 vs faces[] 交集——有拉动即 golden 契约补齐转 bound）",
    "face_criteria": {
     "architecture-violations": "满足判据=目标仓存在 .codelore-arch-rules.toml（或我方起草规则集）；复审=Macro-B preview 结构象限拉动时",
     "defect-validation": "满足判据=defects.calib.json 前置工件票＋SZZ 噪声披露（Herbold 2022：bug-fix 标签约半数为真）；复审=S4/ADR 假设抽取层拉动时",
-    "finding-hotspot-overlap": "满足判据=首个外部扫描上游接入（ADR-0014 适配器评估前置）；复审=#42 上游队列评估时点"
+    "finding-hotspot-overlap": "满足判据=首个外部扫描上游接入（ADR-0014 适配器评估前置）；复审=#42 上游队列评估时点",
+    "function-coupling": "满足判据=层 preview 需 --target <path> 参数面（函数级耦合对指定文件）；复审=Micro-B/Macro-A preview 拉动时（#51 登记暂缓：upstream 需 --target 前置参数非当前管道形态）"
    }
   },
   {
@@ -527,7 +574,16 @@
    "review_at": "下个收口窗口（最迟 Micro preview 前置审计时）",
    "status": "decided",
    "watch": "manual_watch",
-   "confirmations": [],
+   "confirmations": [
+    {
+     "at": "2026-09-16",
+     "by": "#48 前置清点",
+     "criterion_version": "micro-a-preview-prep occurred 复审",
+     "decision": "reaffirmed",
+     "reason": "micro-a-preview-prep 已 occurred；本项残余 4 面去向裁决仍归 stage3-close 收口窗口（本票不消费）——decided 状态维持",
+     "evidence": "无消费面：48-micro-a-preview.mjs 不触 codelore"
+    }
+   ],
    "faces": [
     "entity-effort",
     "architecture-violations",
@@ -561,31 +617,128 @@
    "review_at": "Micro-A preview 前置（CONTEXT.md Micro-A 数据源含 CodeLore diff --llm，MCP 同族面须先清点）",
    "status": "pending",
    "watch": "manual_watch",
-   "confirmations": [],
+   "confirmations": [
+    {
+     "at": "2026-09-16",
+     "by": "#48 前置清点",
+     "criterion_version": "micro-a-preview-prep occurred 复审",
+     "decision": "reviewed-stay-pending",
+     "reason": "Micro-A preview 数据面=GitHub REST 适配器（PR 枚举/元数据/diff）——MCP LLM 叙事面非本 preview 刚需（diff --llm 行级评审叙事归 #50 叙事双轨宿主 agent 面，D-053）；维持 pending 待对应拉动",
+     "evidence": "reports/48-micro-a-preview.mjs（pipeline 仅消费 github-rest-adapter@v1 事实面）"
+    },
+    {
+     "at": "2026-09-17",
+     "by": "T8 值守面复核",
+     "criterion_version": "manual_watch 复核",
+     "decision": "reviewed-stay-pending",
+     "reason": "Micro-A preview 已闭环仍走 GitHub REST 面（#48）；diff --llm/MCP explain_file 叙事面无层刚需；维持 pending，下一复审锚=stage3-close（或 Micro-B/Macro-A preview 拉动先到者）",
+     "evidence": "reports/48-micro-a-preview.mjs 数据面=github-rest-adapter＋t8-watch-review.md"
+    }
+   ],
    "faces": [
     "mcp explain_file"
    ],
    "source": "36-llm-faces-reconciliation.json（#36 A-041：MCP 传输形态出 spawnSync 适配层范围，登记防静默丢失）",
    "owner": "收口窗口指派（登记位：36-llm-faces-reconciliation.json——Micro-A preview 票承接）",
-   "review_event": "micro-a-preview-prep",
+   "review_event": "stage3-close",
    "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋Micro-A preview 前置清点（CONTEXT.md Micro-A 数据源含 CodeLore diff --llm——MCP 同族面契约补齐，golden 两形态+env 门控复用 #36 契约）"
   },
   {
    "id": "upstream-probes-scorecard-repomix",
    "family": "upstream-queue",
-   "title": "Scorecard/repomix 探针——层需求拉动接入不插队（#42 / D-034③）",
+   "title": "Scorecard 探针——层需求拉动接入不插队（#42 / D-034③）；repomix 半项已于 D-056 退役销项",
    "deadline_event": null,
-   "deadline": "满足判据：某层 preview 报告需要供应链评分（OpenSSF Scorecard）或仓库打包摘要（repomix/gitingest）数据面时启动接入票；接入前须先定 pin_type+version 并补 golden 契约（engine/upstream-lock.yaml 行 openssf-scorecard/repomix-gitingest = planned，锁定先于依赖）",
+   "deadline": "满足判据：某层 preview 报告需要供应链评分（OpenSSF Scorecard）数据面时启动接入票；接入前须先定 pin_type+version 并补 golden 契约（engine/upstream-lock.yaml 行 openssf-scorecard=planned，锁定先于依赖）。repomix-gitingest 行=retired（D-056），重开走 repomix-reopen-trigger 项",
    "trigger_event": null,
-   "trigger": "层需求拉动：Micro-A/Micro-B/Macro-A 任一 preview 需要供应链象限数据或打包摘要面——当前无层刚需（Macro-B/Macro-C preview 供应链象限维持 ⚠ 数据未接 披露制，D-034③ 禁插队补齐）",
+   "trigger": "层需求拉动：Micro-A/Micro-B/Macro-A 任一 preview 需要供应链象限数据——当前无层刚需（Macro-B/Macro-C preview 供应链象限维持 ⚠ 数据未接 披露制，D-034③ 禁插队补齐）。repomix 面已退役（D-056：宿主 agent 恒在抽空打包用途）",
    "review_at": "各层 preview 前置审计（与 codelore-deferred-faces 同节律——Micro-A preview 前置先行清点）",
    "status": "pending",
    "watch": "manual_watch",
    "owner": "上游队列值守（#42→后续层 preview 票承接）",
-   "verify_method": "层 preview 开工审计清点：该层报告需求面是否含供应链象限/打包摘要数据——含则本项判据满足转 triggered-bound 并立接入票（含 pin_type+version+golden 契约三前置）",
-   "source": "macro-audit decision-ledger D-034③（探针按层需求队列接入不插队）+ engine/upstream-lock.yaml（两行 planned）+ desk-task5 同源关联",
-   "confirmations": [],
-   "review_event": "micro-a-preview-prep"
+   "verify_method": "层 preview 开工审计清点：该层报告需求面是否含供应链象限数据——含则本项判据满足转 triggered-bound 并立接入票（含 pin_type+version+golden 契约三前置）",
+   "source": "macro-audit decision-ledger D-034③（探针按层需求队列接入不插队）+ engine/upstream-lock.yaml（scorecard=planned；repomix=retired D-056）+ desk-task5 同源关联",
+   "confirmations": [
+    {
+     "at": "2026-09-16",
+     "by": "#48 前置清点",
+     "criterion_version": "micro-a-preview-prep occurred 复审",
+     "decision": "reviewed-stay-planned",
+     "reason": "Micro-A preview 供应链象限维持 not_applicable＋⚠数据未接 披露制（D-034③ 层需求拉动不插队；dependabot PR 供应链信号仅作事实落库不裁决）——无 Scorecard 刚需",
+     "evidence": "reports/48-micro-a-env-manager-pr55.json supply_chain 象限行"
+    },
+    {
+     "at": "2026-09-17",
+     "by": "T8 值守面复核",
+     "criterion_version": "manual_watch 复核",
+     "decision": "reviewed-stay-pending",
+     "reason": "Macro-B/Micro-A preview 均无供应链象限数据面刚需（Macro-B 维持 ⚠ 数据未接 披露制，D-034③）；scorecard=planned 不动、repomix=retired 不动（D-056）；下一复审锚=stage3-close",
+     "evidence": "README 能力矩阵 preview 口径＋engine/upstream-lock.yaml＋t8-watch-review.md"
+    }
+   ],
+   "review_event": "stage3-close"
+  },
+  {
+   "id": "hooks-presentation-face",
+   "family": "extension-face",
+   "title": "hooks 呈现面实建触发器（D-055：层④=可选呈现面/声明位，现无实物）",
+   "deadline_event": null,
+   "deadline": "无硬到期——纯条件激活项",
+   "trigger_event": "presentation-demand-signal",
+   "trigger": "真实呈现需求信号出现（用户或宿主生态明确要求 receipt/证据就绪态的宿主内呈现面）",
+   "review_at": "需求信号出现时即时评审；平时不排程",
+   "status": "pending",
+   "watch": "event_bound",
+   "source": "macro-audit decision-ledger D-055（hooks 层=可选呈现面/规范合法声明位）＋engine/extensions/com.macroaudit.hooks/README.md 声明位注记",
+   "activation_action": "实建最小 Stop/PostToolUse 呈现面（候选 b 形态）：按目标宿主命名空间落位（Claude=插件根 hooks/hooks.json；VS Code/Copilot=com.github.copilot/hooks/hooks.json）——com.macroaudit.* 自造命名空间在任何宿主侧 inert，不得复用为交付位；hooks 永不作裁决执行点"
+  },
+  {
+   "id": "narrative-eval-surface",
+   "family": "quality-eval",
+   "title": "叙事质量评测面（grounded stamp 准确率/κ 校准）——先物后尺，#50 落地后另立票",
+   "deadline_event": null,
+   "deadline": "无硬到期——被评测对象（宿主 agent 叙事段）于 #50 落地后方存在",
+   "trigger_event": null,
+   "trigger": "#50 叙事双轨票闭环、叙事实物出现后另立评测票",
+   "review_at": "#50 闭环验收时同步评审本项",
+   "status": "triggered-bound",
+   "watch": "manual_watch",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "#50 闭环确认（BACKLOG 行 ✅＋NN-check PASS）→ 本项转 triggered-bound 并立评测票（叙事质量评测面：grounded stamp 准确率/κ 校准基线）",
+   "review_event": "stage3-close",
+   "confirmations": [
+    {
+     "at": "2026-09-16",
+     "by": "#50 闭环验收",
+     "criterion_version": "registry verify_method 原文（#50 闭环确认→triggered-bound 并立评测票）",
+     "decision": "triggered-bound-ticket-filed",
+     "reason": "#50 闭环达成（叙事实物存在：narrative.test 25/25＋references 三件＋mcp facts 投影）——按 verify_method 转 triggered-bound；评测票立案=BACKLOG #52（评测面判据独立于本票，防自写自评）",
+     "evidence": "test/narrative.test.mjs + reports/50-check.mjs + BACKLOG #52"
+    },
+    {
+     "at": "2026-09-17",
+     "by": "T8 值守面复核",
+     "criterion_version": "manual_watch 复核",
+     "decision": "bound-confirmed-stay",
+     "reason": "#50 闭环已翻转本项→triggered-bound＋立案 #52（grounded stamp 准确率/κ 校准基线）；评测票未开工，状态维持 triggered-bound；复审锚推进至 stage3-close（#52 闭环验收同窗复核）",
+     "evidence": "BACKLOG #52 立案行＋50-report.md＋t8-watch-review.md"
+    }
+   ],
+   "source": "macro-audit decision-ledger D-057②（评测面登记暂缓面，先物后尺；内嵌 #50=自写自评失独立性、永不评=model id 死字段）",
+   "bound_to": "#52 评测票（叙事质量评测面：grounded stamp 准确率/κ 校准基线——先物后尺，被测对象=host-agent 叙事段）"
+  },
+  {
+   "id": "repomix-reopen-trigger",
+   "family": "upstream-queue",
+   "title": "repomix-gitingest 重开触发器（D-056：retired 行留档，重开=另立需求票重评估）",
+   "deadline_event": null,
+   "deadline": "无硬到期——纯条件激活项",
+   "trigger_event": "repomix-reopen-demand",
+   "trigger": "「审计证据导出包」独立需求面出现，或 Macro-A 跨仓打包实证场景出现（D-056⑥）",
+   "review_at": "需求信号出现时即时评审；平时不排程",
+   "status": "pending",
+   "watch": "event_bound",
+   "source": "macro-audit decision-ledger D-056（repomix 退役＋重开触发器登记）＋engine/upstream-lock.yaml repomix-gitingest retired 行",
+   "activation_action": "另立需求票重评估接入：接入仍须先定 pin（exact-version 或 digest）＋golden 契约（ADR-0014/锁表纪律不改）"
   }
  ]
 }

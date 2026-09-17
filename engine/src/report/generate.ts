@@ -5,6 +5,8 @@
 // 纯逻辑约束：输入一律注入；不读 fs、不起子进程、不发网络请求、不接 LLM（D-016）。
 
 import { createHash } from 'node:crypto';
+import { sealNarrativeSections, renderTemplateNarrative } from './narrative.js';
+import type { NarrativeSection, SealedNarrative } from './narrative.js';
 
 export const REPORT_SKELETON_VERSION = '1.1.0';
 export const REPORT_SKELETON_SOURCE = 'reports/14-skeleton-fields.json#skeleton';
@@ -306,6 +308,7 @@ export interface ReportInput {
   degraded_reason: string | null;
   preview_disclosure?: PreviewDisclosure;
   human?: HumanAdjudication;
+  narrative_sections?: readonly NarrativeSection[];
 }
 
 export interface Report {
@@ -330,9 +333,12 @@ export interface Report {
   adjudication: AdjudicationBlock;
   receipt: Receipt;
   preview_disclosure: PreviewDisclosure | null;
+  narrative_sections: SealedNarrative[];
 }
 
 export function buildReport(input: ReportInput): Report {
+  // 叙事双轨（D-053）：宿主 agent 段逐段盖章；degraded 报告无叙事→kernel 模板兜底注入（永居降级位）
+  let narrativeInput = (input.narrative_sections || []).slice();
   const adjudication = adjudicate({
     entries: input.adjudication_entries,
     claims: input.claims,
@@ -370,7 +376,8 @@ export function buildReport(input: ReportInput): Report {
     recommendations: input.recommendations.slice(),
     adjudication: adjudication,
     receipt: receipt,
-    preview_disclosure: input.preview_disclosure ? input.preview_disclosure : null
+    preview_disclosure: input.preview_disclosure ? input.preview_disclosure : null,
+    narrative_sections: sealNarrativeSections(narrativeInput, input.evidence, input.decided_at)
   };
 }
 
@@ -428,6 +435,18 @@ export function renderMarkdown(r: Report): string {
         out.push('- ' + e.criterion_id + ': ' + e.band + ' | basis=' + e.basis_refs.join('+') + ' | facts=' + (e.anchored_fact_ids.length === 0 ? '(none)' : e.anchored_fact_ids.join(',')) + ' | evidence=' + (e.anchored_evidence_ids.length === 0 ? '(none)' : e.anchored_evidence_ids.join(',')) + ' | ' + e.rationale);
       }
       out.push('- human_adjudication: ' + r.adjudication.human.status + '（裁定仍由人做，见 B5）');
+      if (r.narrative_sections.length > 0) {
+        out.push('#### 叙事段（宿主 agent 生成/kernel 盖章；叙事面不携带裁决 band——红线 D-053/ADR-0013）');
+        for (const ns of r.narrative_sections) {
+          const grounded = ns.seal.checks.filter(function (c) { return c.support === 'supports'; }).length;
+          out.push('- [' + ns.section_id + '] author=' + ns.author + ' model_id=' + (ns.model_id ? ns.model_id : '(none)') + ' stamp=' + ns.seal.stamp + ' grounded=' + grounded + '/' + ns.seal.checks.length);
+          out.push('  - text: ' + ns.text);
+          for (const ck of ns.seal.checks) {
+            out.push('  - ' + ck.claim_id + ' -> ' + ck.evidence_id + ': ' + ck.support + '（matched=' + ck.matched_tokens.join('|') + ' missing=' + ck.missing_tokens.join('|') + '）' + ck.reason);
+          }
+          if (ns.seal.band_violations.length > 0) { out.push('  - band_violations: ' + ns.seal.band_violations.join('；')); }
+        }
+      }
     } else if (ch.id === 'C3') {
       for (const e of r.evidence) {
         out.push('### ' + e.evidence_id + ' — ' + e.source + ' @ ' + e.locator);
@@ -478,7 +497,8 @@ export interface Sidecar {
   quadrants: QuadrantEntry[];
   recommendations: Recommendation[];
   preview_disclosure: PreviewDisclosure | null;
-  machine_contract: { citation_anchor_format: string; verdict_enum: string[]; human_adjudication_status: string };
+  narrative_sections: SealedNarrative[];
+  machine_contract: { citation_anchor_format: string; verdict_enum: string[]; human_adjudication_status: string; narrative_seal_protocol: string };
 }
 
 export function toSidecar(r: Report): Sidecar {
@@ -505,10 +525,12 @@ export function toSidecar(r: Report): Sidecar {
     quadrants: r.quadrants,
     recommendations: r.recommendations,
     preview_disclosure: r.preview_disclosure,
+    narrative_sections: r.narrative_sections,
     machine_contract: {
       citation_anchor_format: 'evidence_id + source + locator（三者齐备即为可解析引文锚）',
       verdict_enum: ['supported', 'unsupported', 'insufficient'],
-      human_adjudication_status: r.adjudication.human.status
+      human_adjudication_status: r.adjudication.human.status,
+      narrative_seal_protocol: 'ADR-0013-C/v1+narrative-seal/v1'
     }
   };
 }
@@ -611,7 +633,9 @@ export function degradeReport(r: Report, reason: string): Report {
     }),
     adjudication: adjudication,
     receipt: receipt,
-    preview_disclosure: r.preview_disclosure
+    preview_disclosure: r.preview_disclosure,
+    // degraded 兜底=kernel 模板叙事（D-053①：永居降级位，不冒充正式叙事）
+    narrative_sections: sealNarrativeSections([renderTemplateNarrative(r, r.adjudication.decided_at)], r.evidence, r.adjudication.decided_at)
   };
 }
 

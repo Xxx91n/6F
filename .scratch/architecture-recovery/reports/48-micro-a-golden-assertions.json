@@ -1,0 +1,83 @@
+{
+  "probe": "48-micro-a-preview.mjs --golden",
+  "generated_at": "2026-09-16T22:56:21.912Z",
+  "cassette": "authenticated（real 录制）＋拒绝腿 zero-pr-synthetic",
+  "all_pass": true,
+  "checks": [
+    {
+      "name": "golden pr64 四章骨架在",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden pr64 schema=1.1.0 + scale=Micro-A",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden pr64 receipt RCP- 格式",
+      "pass": true,
+      "detail": "RCP-c15b0e650dff3a34"
+    },
+    {
+      "name": "golden pr64 骨架交集∩切片字段机械断言",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden pr64 披露块四字段在",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden pr64 citation_checks 面在",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden pr51 四章骨架在",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden pr51 schema=1.1.0 + scale=Micro-A",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden pr51 receipt RCP- 格式",
+      "pass": true,
+      "detail": "RCP-15ec4ae36ad12b14"
+    },
+    {
+      "name": "golden pr51 骨架交集∩切片字段机械断言",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden pr51 披露块四字段在",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden pr51 citation_checks 面在",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden 拒绝件 overall=unsupported",
+      "pass": true,
+      "detail": "unsupported"
+    },
+    {
+      "name": "golden 拒绝件含「无托管 PR 面」＋前置条件语义",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "golden token 进 wire 但不入任何 fact",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

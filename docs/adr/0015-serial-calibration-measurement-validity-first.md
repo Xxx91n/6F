@@ -1,4 +1,5 @@
 # ADR-0015: 阶段 2 = 序列化校准（量测效度先行：R4-01 真值表 → v2∥治理 → 2a → 2b）
+> 勘误补记（D-056，2026-09-17）：「Scorecard/repomix 推到阶段 3 逐组件接入」中的 repomix-gitingest 已退役（planned→retired，锁表行留档；原用途被「宿主 agent 恒在」抽空）；Scorecard 维持 planned 按层需求拉动不插队。决策本体（串行校准/量测有效性优先）不改写。
 
 - Status: accepted
 - Date: 2026-09-15

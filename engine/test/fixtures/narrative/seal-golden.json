@@ -1,0 +1,38 @@
+{
+  "sealed_at": "2026-09-16T00:00:00.000Z",
+  "input": {
+    "section_id": "S2",
+    "author": "host-agent",
+    "model_id": "fixture-model/test@1.0.0",
+    "text": "证据显示本仓 ADR 结构齐备。",
+    "claims": [
+      {
+        "claim_id": "NC-1",
+        "evidence_id": "EV-G1",
+        "required_tokens": [
+          "Status",
+          "accepted"
+        ],
+        "text": "ADR 状态字段齐备"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "EV-G1",
+      "source": "docs/adr/0001.md",
+      "locator": "L3",
+      "claim": "ADR 状态齐备",
+      "grounded": true,
+      "collected_at": "2026-09-16T00:00:00Z",
+      "reproduce_cmd": "cat docs/adr/0001.md",
+      "reproduce_absent_reason": null,
+      "required_tokens": [
+        "Status",
+        "accepted"
+      ],
+      "excerpt": "Status: accepted\nDate: 2026-09-01"
+    }
+  ],
+  "expect_stamp": "sealed"
+}

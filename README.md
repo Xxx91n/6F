@@ -3,7 +3,7 @@
 面向 git 记录健全仓库的工程内容审计产品：**证据采集大部分来自上游组合件，裁决协议、事实表 schema、验收闸门与可核验回执是本项目自研的护城河与黏合剂**。5 档审计粒度（Macro-A 跨仓战略 / Macro-B 仓库级四象限 / Macro-C 演化考古 / Micro-A PR diff / Micro-B file level）共享同一事实底座与裁决层，差异在触发器与报告切片。
 
 > [!NOTE]
-> 当前状态（2026-09-16）：**preview 形态（能力边界见下节矩阵）**——Macro-B / Macro-C 两层经实跑校准、报告头与披露块按 preview 口径标注；Micro-A / Micro-B / Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。发布未发生——本页为源码自举说明，不存在可安装 listing（ADR-0016 渠道决策＋上架用户闸门）。下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
+> 当前状态（2026-09-16）：**preview 形态（能力边界见下节矩阵）**——Macro-B / Macro-C 两层经实跑校准、报告头与披露块按 preview 口径标注；Micro-A 已 preview 上架（capability 3 of 5 · preview，同主试点仓校准口径）；Micro-B / Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。发布未发生——本页为源码自举说明，不存在可安装 listing（ADR-0016 渠道决策＋上架用户闸门）。下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
 
 ## 能力边界（preview 标注）
 
@@ -11,9 +11,9 @@
 
 | scale | 状态 |
 |---|---|
-| Macro-B 仓库级四象限 | **capability 1 of 5 · preview**（自审首报样例见 [examples/first-report/](examples/first-report/)） |
+| Macro-B 仓库级四象限 | **capability 1 of 5 · preview**（自审首报样例见 [examples/first-report/](examples/first-report/)）；象限面矩阵：**strategy: active**（S1+S2 采集面已上架）· **behavior: preview**（codelore churn/hotspot/coupling 切片，#51）· **structure: queued**（与 S3 族双口径风险暂缓，D-054）· **supply-chain: queued**（D-034③ Scorecard 不插队） |
 | Macro-C 演化考古 | **capability 2 of 5 · preview**（单仓校准披露口径） |
-| Micro-A PR diff | Not yet in preview |
+| Micro-A PR diff | **capability 3 of 5 · preview**（托管 API 适配器消费侧，同主试点仓 4-PR 校准口径） |
 | Micro-B file level | Not yet in preview |
 | Macro-A 跨仓战略 | Not yet in preview |
 
@@ -39,7 +39,6 @@ flowchart TB
         GIT["git CLI"]
         CL["CodeLore（已接入·探针切片）"]
         SC["OpenSSF Scorecard（规划中）"]
-        RP["repomix / gitingest（规划中）"]
     end
     EVID -->|"经适配器写入 · raw 语义不出适配层"| CORE
     CORE -->|"四外壳消费"| DIST
@@ -53,7 +52,6 @@ flowchart TB
 | git CLI | 仓库考古 / 确定性采集 | 外部 CLI | 适配器 + 外部 CLI | 随宿主环境；输出解析为契约 | 已接入（active） |
 | CodeLore | 代码考古 / 证据层 | CLI | 适配器 + 外部 CLI | exact pin 0.28.0 + golden 契约测试 | 已接入（active；探针切片：explain/summary 只读面） |
 | OpenSSF Scorecard | 供应链健康评分 | Go 库 / CLI | 库→依赖引用；CLI→适配器 | hash pinning / 锁版本 | 规划中（planned） |
-| repomix / gitingest | 仓库内容打包摘要 | CLI / pip 包 | 适配器 + 外部 CLI | 锁版本 + golden 契约测试 | 规划中（planned） |
 | GitHub REST API | Micro-A PR 数据面（枚举/元数据/diff 兜底；本地 git 优先） | remote-api | 适配器 + env token 三级探测 | X-GitHub-Api-Version pin + golden cassette 契约 | 已接入（active） |
 
 > **状态列 = 机读权威绑定**：唯一权威 = [`engine/upstream-lock.yaml`](engine/upstream-lock.yaml)（D-037③，#44/A-049 落盘）——本表为人读形态，状态映射 = 已接入→active／规划中→planned／评估中→evaluating（retired 行不出本表；锁表另含评估中条目 `codelore-sqlite-dump`）。锁定纪律：禁 range/浮动 tag/latest，更新走手动窗口＋golden 回归护航（[docs/versioning.md](docs/versioning.md) §3-4）。
@@ -76,7 +74,7 @@ flowchart LR
 | 归属 | 组件 |
 |---|---|
 | **我们的（护城河）** | 联邦裁决协议（verdict-gate）· DuckDB 事实表 schema（只追加 + 跨 scale 关联键）· 三层验收闸门（A 形式 / B 预声明判据 / C 人裁定）· Receipt 回执（双锚）· 预声明判据纪律（2 正对照 + 3 真判据 + 1 负对照） |
-| **借来的（上游）** | DuckDB 引擎本体 · git CLI · CodeLore（已接入·探针切片）· GitHub REST API（已接入·REST 主路+`gh` 可选回退）· OpenSSF Scorecard（规划中）· repomix / gitingest（规划中） |
+| **借来的（上游）** | DuckDB 引擎本体 · git CLI · CodeLore（已接入·探针切片）· GitHub REST API（已接入·REST 主路+`gh` 可选回退）· OpenSSF Scorecard（规划中） |
 
 ## 契约声明
 

@@ -1,5 +1,6 @@
 # 分发形态 = Agent Plugin 五层盒子（双 manifest）
 > 勘误补记（量测审计驱动 2026-09-15，#28 / A-033）：结构标签与 Date 字段补记；决策内容未改写。
+> 勘误补记（D-055，2026-09-17）：层④ hooks 释义收窄为「可选呈现面/规范合法声明位」——宿主专属非可移植组件（Agent Plugins 1.0.0 v1 可移植组件恰=skills＋mcp.json；宿主命名空间惯例=VS Code/Copilot 读 com.github.copilot/hooks/hooks.json、Claude 读插件根 hooks/hooks.json，com.macroaudit.* 自造命名空间在一切宿主侧 inert）；现为声明位无 hook 实物，实建走 registry hooks-presentation-face 触发器（激活条件=真实呈现需求信号，激活动作=最小 Stop/PostToolUse 呈现面按目标宿主命名空间落位）。排歧：CONTEXT Micro-A「触发器为每次 push 或 hook」的 hook 指 git/CI 语义非本层。决策本体（五层盒子、hooks 永不作裁决执行点）不改写。
 
 ## Context
 

@@ -59,11 +59,12 @@ upstreams:
     kind: cli-or-pip
     version: null
     pin_type: null
-    contract: "仓库内容打包摘要（README §3 行，repomix/gitingest 二选一或并用）。接入形态=适配器＋外部 CLI。接入前须先定 pin（exact-version 或 digest）＋golden 契约测试。拉动票=#42 上游队列"
-    status: planned
+    contract: "（已退役 D-056）原用途=仓库内容打包摘要喂 LLM 叙事层——宿主 agent 恒在（ADR-0016）＋叙事面=宿主 agent 经 MCP 读 facts（D-053）抽空原用途；repomix 官方已 MCP 化按需查询、D-050 目标仓全超 ~10k 文件上限。repo 文件面由宿主 agent 原生访问承担，产品不提供 repo 文本打包面。属 D-045 判据「无价值」分支（消费前提结构性消失≠可算但暂缓面），非弃用从严破例。重开触发器=registry repomix-reopen-trigger"
+    status: retired
     adapter: null
-    last_reviewed: 2026-09-16
-    next_review: 2026-10-16
+    risk_note: "retired 行不删、provenance 可反查（D-037③/ADR-0018）；重开条件=审计证据导出包/Macro-A 跨仓打包实证需求出现→另立需求票重评估，接入仍须先定 pin＋golden 契约"
+    last_reviewed: 2026-09-17
+    next_review: 2027-09-17
   - id: codelore-sqlite-dump
     kind: data-export
     version: null

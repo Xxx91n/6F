@@ -9,6 +9,7 @@
 > 轮 6/7 grill（2026-09-15 完成）已封口 D-029 ~ D-041：preview 分级发布模型（ADR-0017）＋阶段 3 拍板包与铺开次序＋版本与编年制度化（ADR-0018）＋#41 拆仓内/上架两片＋挂门值守三态化。
 > 轮 8 grill（2026-09-16 完成）已封口 D-042 ~ D-047：W14 收口窗口包六项全拍——#41b 授权至提交前＋多写者域意图读法闭环（ADR-0019，SWMR 门面成文）＋desk-task15 重绑勘误＋残余 4 面分流＋回归 CI 迁回 6F＋Micro-A 双试点＋第三槽。
 > 轮 11 grill（2026-09-16 完成）已封口 D-048 ~ D-052：#47 托管 API 适配器（REST 主路＋gh 可选回退，ADR-0020）＋#48 Micro-A preview 单票＋#49 经典仓三选＋分发面 A+C 双轨/Apache-2.0（ADR-0021）/插件名 6f@市场 xxx91n；
+> 轮 13 grill（2026-09-17 完成）已封口 D-053 ~ D-058：原预设对照清算——叙事双轨＋rubric 三件＋MCP 出 stub（#50 立案）＋Macro-B behavior 象限接入（#51）＋hooks 层④收窄为可选呈现面/声明位（ADR-0008 勘误）＋repomix-gitingest 退役（锁表 retired＋重开触发器）＋原预设余项×4 核销＋Kernel/Agent 职责边界词条收编；
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -36,7 +37,7 @@ _Avoid_: tier（与商业订阅 tier 混淆）、level（与日志 level 混淆�
 _Avoid_: portfolio review（带财务意味，本产品不评财务）
 
 **Macro-B (Repo-Level 4-Quadrant Audit)**:
-单仓全景评审；触发器为周期/手动；数据源为 CodeLore + OpenSSF Scorecard + repomix；输出为四象限叙事报告（结构 / 行为 / 供应链 / 战略）。
+单仓全景评审；触发器为周期/手动；数据源为 CodeLore + OpenSSF Scorecard；输出为四象限叙事报告（结构 / 行为 / 供应链 / 战略）。
 _Avoid_: 全仓扫描（隐含自动触发）、仓库快照（与 Macro-C 混淆）
 
 **Macro-C (Evolution Archaeology Audit)**:
@@ -56,7 +57,7 @@ _Avoid_: lint 报告、code review（人类流程，非工具审计）
 _Avoid_: review（人流程）、approval（暗示终态通过）
 
 **Sufficiency Gate**:
-报告缺口检测器——当证据不足以支撑结论时，明确标记 `data doesn't show` 并发起 GapRequest 补查轮；禁止硬凑结论。
+报告缺口检测器——当证据不足以支撑结论时，明确标记 `data doesn't show` 并发起 GapRequest 补查轮（补查回路由宿主 agent 承担=编排面，kernel 只判 insufficient——D-057④）；禁止硬凑结论。
 _Avoid_: 自检（无补查轮）、质量门（暗示一票否决）
 
 **Trigger Sequence**:
@@ -172,7 +173,7 @@ _Avoid_: 错误报告（缺降级语义）、降级模式（缺演示产物维�
 _Avoid_: 默认配置（暗示配置文件细节）、新手模式（暗示能力分级）
 
 **Agent Plugin（本产品用法）**:
-产品的分发形态——Agent Plugins 1.0.0 标准的五层盒子：plugin.json + skills/ 方法论壳 + mcp.json 只读证据查询面 + 反向域名扩展目录（hooks 触发/呈现面）+ 随分发内核确定性 CLI；双 manifest（标准 + Claude Code 原生）并行发布；内核 CLI 同一二进制四外壳（插件内嵌 / GitHub Action / 自用 CLI / 报告生成器）。
+产品的分发形态——Agent Plugins 1.0.0 标准的五层盒子：plugin.json + skills/ 方法论壳 + mcp.json 只读证据查询面 + 反向域名扩展目录（hooks=可选呈现面/声明位，宿主专属非可移植，现无实物——D-055/ADR-0008 勘误）+ 随分发内核确定性 CLI；双 manifest（标准 + Claude Code 原生）并行发布；内核 CLI 同一二进制四外壳（插件内嵌 / GitHub Action / 自用 CLI / 报告生成器）。
 _Avoid_: 插件（太泛，含浏览器插件）、扩展（IDE 语义）
 
 **Receipt（裁决回执）**:
@@ -247,3 +248,6 @@ _Avoid_: 引擎层并行写承诺（DuckDB 单文件非此设计目标）、判�
 
 **Plugin/Marketplace 双层命名**：分发面两级名字——plugin name=插件列表/安装名（D-052=`6f`，双 manifest name 字段权威，strict:true 下 plugins[].name 须同值）；marketplace name=市场/货架名（D-052=`xxx91n`，仓根 .claude-plugin/marketplace.json）；安装引用形=<plugin>@<marketplace>=`6f@xxx91n`；内核 CLI/bin/包名 macro-audit 不变（插件名与内核名解耦）。
 
+**Kernel/Agent 职责边界（确定性核 / 概率性编排）**:
+本产品分工总则——确定性面归 kernel（事实采集、引文盖章、门禁检查：可重放、可测试、预定路径）；编排与概率性面归宿主 agent（叙事生成、补查回路、触发编排、呈现：模型驱动、路径不预定）。与 Anthropic workflow（predefined code paths）/agent（dynamic direction）区分同构。跨界争议按判例裁：hooks 层＝纯呈现面非裁决点（D-055）；repo 文件面归宿主 agent 原生访问、产品不提供打包上游（D-056）；gap→补查回路归 orchestrator 非 kernel（D-057④）。裁决 band 永不归 agent——band 归 C 层人裁定（ADR-0013/D-026 红线）。
+_Avoid_: 微内核（架构模式借喻）、裁判员/运动员（拟人不精确）、确定性内核 vs 概率外壳（非本仓语序）、AI 管线（丢失 kernel 盖章语义）

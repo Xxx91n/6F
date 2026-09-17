@@ -81,8 +81,8 @@ const PIN_ENUM = ['exact-version', 'commit-sha', 'digest', 'api-version', null];
 t('A4 status/pin_type 枚举合法（active|planned|evaluating|retired × exact-version|commit-sha|digest|api-version|null）', lock.upstreams.every(r => STATUS_ENUM.indexOf(r.status) >= 0 && PIN_ENUM.indexOf(r.pin_type) >= 0));
 const byId = {};
 for (const r of lock.upstreams) { byId[r.id] = r; }
-t('A5 种子行状态逐字：codelore=active／openssf-scorecard=planned／repomix-gitingest=planned／codelore-sqlite-dump=evaluating',
-  byId.codelore && byId.codelore.status === 'active' && byId['openssf-scorecard'] && byId['openssf-scorecard'].status === 'planned' && byId['repomix-gitingest'] && byId['repomix-gitingest'].status === 'planned' && byId['codelore-sqlite-dump'] && byId['codelore-sqlite-dump'].status === 'evaluating');
+t('A5 种子行状态逐字：codelore=active／openssf-scorecard=planned／repomix-gitingest=retired（D-056）／codelore-sqlite-dump=evaluating',
+  byId.codelore && byId.codelore.status === 'active' && byId['openssf-scorecard'] && byId['openssf-scorecard'].status === 'planned' && byId['repomix-gitingest'] && byId['repomix-gitingest'].status === 'retired' && byId['codelore-sqlite-dump'] && byId['codelore-sqlite-dump'].status === 'evaluating');
 t('A6 codelore 行 exact-version 0.28.0＋contract 含 --version pin 契约',
   byId.codelore && byId.codelore.version === '0.28.0' && byId.codelore.pin_type === 'exact-version' && (byId.codelore.contract || '').indexOf('--version') >= 0);
 const RANGE_RE = /(\^|~|>=|<=|>|<|\*|(?:^|[^.\d])x(?:\b|$)|latest|next\b|floating)/i;
@@ -139,7 +139,6 @@ const README_TO_LOCK = [
   ['git CLI', 'git-cli'],
   ['CodeLore', 'codelore'],
   ['OpenSSF Scorecard', 'openssf-scorecard'],
-  ['repomix / gitingest', 'repomix-gitingest']
 ];
 const STATUS_WORD = { '已接入': 'active', '规划中': 'planned', '评估中': 'evaluating' };
 let d3ok = true; const d3bad = [];
@@ -170,7 +169,7 @@ const macroC = JSON.parse(txt(join(HERE, '38-macro-c-preview-report.json')));
 t('E5 README「capability 1 of 5 · preview」== golden 实物 capability_label（Macro-B 文档↔产物同源）', goldenHappy.preview_disclosure.capability_label === 'capability 1 of 5 · preview');
 t('E6 README「capability 2 of 5 · preview」== #38 实物 capability_label（Macro-C 文档↔产物同源）', macroC.preview_disclosure.capability_label === 'capability 2 of 5 · preview');
 t('E7 examples README preview_disclosure 时点差如实注＋failure=degradeReport 演示性质', exReadme.indexOf('时点') >= 0 && exReadme.indexOf('degradeReport') >= 0 && exReadme.indexOf('preview_disclosure') >= 0);
-t('E8 三处均无 capability 3/4/5 of 5 越界承诺（边界诚实机检）', Object.keys(SRC3).every(k => SRC3[k].indexOf('capability 3 of 5') < 0 && SRC3[k].indexOf('capability 4 of 5') < 0 && SRC3[k].indexOf('capability 5 of 5') < 0));
+t('E8 越界承诺机检（README 仅允许 capability 3 of 5 · preview——#48 已上架；generate.ts/examples 仍禁 3/4/5）', SRC3['generate.ts'].indexOf('capability 3 of 5') < 0 && SRC3['generate.ts'].indexOf('capability 4 of 5') < 0 && SRC3['generate.ts'].indexOf('capability 5 of 5') < 0 && SRC3['examples/README'].indexOf('capability 3 of 5') < 0 && SRC3['examples/README'].indexOf('capability 4 of 5') < 0 && SRC3['examples/README'].indexOf('capability 5 of 5') < 0 && readme.indexOf('capability 4 of 5') < 0 && readme.indexOf('capability 5 of 5') < 0);
 
 // ---------- F. 编年指针校验（ENFORCE；D-039③：引用存在+superseded 如实计/里程碑单调/双账互指） ----------
 const clP = join(REPO, 'CHANGELOG.md');
@@ -222,7 +221,7 @@ t('G4 A-049 账本行 done → implemented（2026-09-16）', /A-049[^\n]*done �
 const wf = txt(join(REPO, '.scratch', 'architecture-recovery', 'WORKFLOW.md'));
 t('G5 WORKFLOW §4 lessons 含 #44 条目', /#44/.test(wf) && /upstream-lock|上游锁定/.test(wf));
 const nr = txt(join(REPO, '.scratch', 'macro-audit', 'handoffs', 'next-round.md'));
-t('G6 next-round T1/T2 行含当前 P0 票 #47/#48', /T1[^\n]*#47/.test(nr) && /T2[^\n]*#48/.test(nr));
+t('G6 next-round T1/T2 行含当前 P0 票 #48/#50（#47 已闭环 A-055）', /T1[^\n]*#48/.test(nr) && /T2[^\n]*#50/.test(nr));
 const bl = txt(join(REPO, '.scratch', 'architecture-recovery', 'BACKLOG.md'));
 t('G7 BACKLOG #44 行回写闭环', /\| #44[^\n]*✅/.test(bl));
 const rep = existsSync(join(HERE, '44-report.md')) ? txt(join(HERE, '44-report.md')) : '';

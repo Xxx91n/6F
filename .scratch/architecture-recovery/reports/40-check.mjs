@@ -113,7 +113,7 @@ t('F2 first-external-repo 证据锚含 40- 工件引用', (reg.events['first-ext
 const t2 = reg.items.find(i => i.id === 'desk-task2');
 t('F3 desk-task2 判据达成 → triggered-bound（judgeable=92≥5）', t2.status === 'triggered-bound' && (t2.bound_to || '').indexOf('judgeable') >= 0, t2.status);
 const t15 = reg.items.find(i => i.id === 'desk-task15');
-t('F4 desk-task15 保持 pending（判据属 Micro-A 未上架层→值守通道）', t15.status === 'pending' && (t15.confirmations || []).some(c => (c.decision || '') === 'trigger-fired-criterion-unmet'), t15.status);
+t('F4 desk-task15 判定链闭合（#40 时点 unmet 留痕→#48 落地 criterion-met 判 decided）', t15.status === 'decided' && (t15.confirmations || []).some(c => (c.decision || '') === 'trigger-fired-criterion-unmet') && (t15.confirmations || []).some(c => (c.decision || '') === 'trigger-fired-criterion-met' && /#48/.test(c.by || '')), t15.status);
 t('F5 desk-task15 确认记录含判据原文锚（30-desk-calibration task15）', (t15.confirmations || []).some(c => (c.criterion_version || '').indexOf('task=15') >= 0));
 
 // ---------- G. 文档与账本落文 ----------
