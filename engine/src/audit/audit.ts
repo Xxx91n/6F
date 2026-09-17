@@ -21,7 +21,7 @@ const NL = String.fromCharCode(10);
 
 // 已实现规模面（D-060③：--scale 缺省 Macro-B；其余层未实装 → 诚实拒绝 exit 2）
 export const AUDIT_SCALES_IMPLEMENTED: readonly string[] = ['Macro-B'];
-const SCALE_LAYER_ORDER = 'Micro-A→Micro-B→Macro-B→Macro-C→Macro-A（ADR-0017③ 层序）';
+const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（ADR-0017③ 层序，Macro-B 已上架 preview）';
 const SCALE_CANON: Record<string, string> = { 'microa': 'Micro-A', 'microb': 'Micro-B', 'macroa': 'Macro-A', 'macrob': 'Macro-B', 'macroc': 'Macro-C' };
 
 export interface AuditScaleError { code: 'SCALE-NOT-IMPLEMENTED'; message: string; implemented: readonly string[]; requested: string; layer_order: string }
@@ -198,7 +198,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     criterion_ids: bhvRan ? ['PC-1', 'PC-2', 'TC-1', 'TC-2', 'TC-3', 'NC-1', 'BHV-PC-1', 'BHV-TC-1', 'BHV-TC-2', 'BHV-NC-1'] : ['PC-1', 'PC-2', 'TC-1', 'TC-2', 'TC-3', 'NC-1']
   };
   const adjudicationEntries: AdjudicationEntry[] = [
-    { criterion_id: 'PC-1', band: col.pc1.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: [col.pc1AdrFacts[0].fact_id, col.pc1PosFacts[0].fact_id], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc1.pass ? 'adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（' + NAME + ' run 内管线活性正对照）' : '正对照未中，管线故障 P0' },
+    { criterion_id: 'PC-1', band: col.pc1.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: (col.pc1AdrFacts.length > 0 ? [col.pc1AdrFacts[0].fact_id] : []).concat(col.pc1PosFacts.length > 0 ? [col.pc1PosFacts[0].fact_id] : []), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc1.pass ? 'adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（' + NAME + ' run 内管线活性正对照）' : '正对照未中，管线故障 P0' },
     { criterion_id: 'PC-2', band: col.pc2.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: col.pc2Lag.length > 0 ? [col.pc2Lag[0].fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc2.pass ? 'gitlog 族检出事后补写 delta_days = ' + String(col.pc2.delta_days) : '正对照未中，管线故障 P0' },
     { criterion_id: 'TC-1', band: tcBand(ev.tc1.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.lagFactIds, anchored_evidence_ids: ['EV-AUDIT-' + R + '-02'], decided_at: probes.headDate, rationale: NAME + ' ADR 事后补写：可判定数 ' + ev.tc1.judgeable_n + '（门槛 ' + TC1_MIN_N + '），>90d 占比 ' + measurements.tc1.ratio_4 + '，判 ' + ev.tc1.verdict },
     { criterion_id: 'TC-2', band: tcBand(ev.tc2.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.fiveFactIds, anchored_evidence_ids: ['EV-AUDIT-' + R + '-03'], decided_at: probes.headDate, rationale: NAME + ' ADR 五件套：mean_ratio ' + measurements.tc2.mean_ratio_4 + '（门槛 ' + TC2_MEAN_RED + '），字段缺失率超线=' + ev.tc2.cond_b + '，判 ' + ev.tc2.verdict },

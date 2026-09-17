@@ -23,7 +23,7 @@
   - `--refresh`：intake URL 缓存显式刷新 opt-in（#55/D-059⑦；不自动 pull）；快照时点/缓存命中披露落 measurements.intake + 报告披露块。
 - `macro-audit repo add <path|owner/repo|url> [--cache <dir>] [--refresh]` —— repo 输入裁决（本地路径 | owner/repo 本地优先 | URL opt-in 隔离 clone；远程配置执行恒定 disabled、浅仓拒绝、hooks noop、protocol.ext.allow=never）。
 - `macro-audit demo [scenario] [--out <dir>] [--json] [--keep]` —— 合成 fixture 演示跑通（三场景 golden 字节锁）。
-- `macro-audit mcp [--db <facts.duckdb>]` / `mcp facts --db <path>` —— MCP stdio 只读 facts 投影面（db 寻址：arguments.db → server --db → MACRO_AUDIT_FACTS_DB env，全缺→结构化错误）。
+- `macro-audit mcp [--db <facts.duckdb>]` / `mcp facts [--db <path>]` —— MCP stdio 只读 facts 投影面（db 寻址=--db → MACRO_AUDIT_FACTS_DB env，与 MCP 服务端链一致：arguments.db → server --db → env；全缺→usage/结构化错误）。
 - `macro-audit selftest` / `--version` / `--help`。
 
 ## 验收

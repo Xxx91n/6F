@@ -2,7 +2,8 @@
 // 断言面：A=语料存在且版本化（sha 指纹一致＋分层齐全＋双标子集）；B=eval 结果契约（指标全项
 //   ＋预声明阈值＋bootstrap CI＋raw agreement 双报）；C=κ 基线三报（intra-rater=天花板替代≥0.6 断言，
 //   checker-vs-gold 如实报——对抗面构造预期压低，<floor 须 findings 登记另立修复票）；
-//   D=band-leak 检出率＋干净对照假阳；E=只测不修纪律（eval 不改 checker 行为）＋合成限制披露。
+//   D=band-leak 检出率＋干净对照假阳；E=只测不修纪律（eval 不改 checker 行为）＋合成限制披露；
+//   F=本票新增/改动文件无 BOM。
 // 纪律：本脚本跑 52a-checker-eval.mjs 重生成结果后断言（确定性——结果可复跑）；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -14,6 +15,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const NL = '\n';
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
+function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 
 const corpusPath = join(HERE, '52a-checker-eval-corpus.json');
 const corpusRaw = readFileSync(corpusPath, 'utf8');
@@ -58,6 +60,10 @@ t('E1 findings 如实落（对抗面 FP/FN 分型条数在）', res.findings.som
 t('E2 合成限制披露随结果走（limitations 三条在）', res.disclosure.synthetic === true && res.disclosure.limitations.length >= 3);
 const evalSrc = readFileSync(join(HERE, '52a-checker-eval.mjs'), 'utf8');
 t('E3 只测不修纪律：eval 脚本无 checker 源码写操作（不写 engine/src）', evalSrc.indexOf('writeFileSync') >= 0 && evalSrc.indexOf('engine/src') < 0 && evalSrc.indexOf('src/report') < 0);
+
+// ---------- F. BOM ----------
+const nbFiles = ['52a-gen-corpus.mjs', '52a-checker-eval.mjs', '52a-checker-eval-corpus.json', '52a-eval-results.json', '52a-check.mjs'].map(function (f) { return join(HERE, f); });
+t('F1 本票新增/改动文件无 BOM', nbFiles.every(function (f) { return !existsSync(f) || noBom(f); }), nbFiles.filter(function (f) { return existsSync(f) && !noBom(f); }).join(','));
 
 console.log('---');
 console.log((fail === 0 ? 'PASS' : 'FAIL') + ' ' + pass + '/' + (pass + fail));

@@ -6,6 +6,7 @@
 //   → E=golden parity：audit sidecar 字段路径 ⊆ 39 one-shot 复跑产物（39/40=回归对照物非主入口）
 //   → F=报告头 preview 披露（stability=preview + capabilities=[macro-b] 机读面）＋快照时点披露
 //   → G=audit 不携叙事职责（kernel 面 facts+骨架；叙事=宿主 MCP 读数）
+//   → H=本票新增/改动文件无 BOM（UTF-8 禁字节序标记）
 // 纪律：只读断言＋临时目录实跑（合成 git 仓，跑完即弃）；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -22,6 +23,7 @@ const NL = '\n';
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
 function txt(p) { return readFileSync(p, 'utf8'); }
+function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 
 // ---------- A. 签名面 ----------
 const cli = txt(join(ENG, 'src', 'cli.ts'));
@@ -34,9 +36,10 @@ t('A4 README 同票绑定：audit 签名 + SCALE-NOT-IMPLEMENTED + 双通道语�
 
 // ---------- B. --scale 诚实拒绝 ----------
 let r1 = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-A'], { encoding: 'utf8', cwd: ENG });
-let sj = null; try { sj = JSON.parse(r1.stderr); } catch (e) {}
+let sj = null; try { sj = JSON.parse(r1.stderr); } catch (e) { }
 t('B1 --scale Macro-A → exit 2 + error=SCALE-NOT-IMPLEMENTED', r1.status === 2 && !!sj && sj.error === 'SCALE-NOT-IMPLEMENTED', 'status=' + r1.status);
 t('B2 拒绝 JSON 载 implemented/requested/layer_order', !!sj && JSON.stringify(sj.implemented) === JSON.stringify(['Macro-B']) && sj.requested === 'Macro-A' && typeof sj.layer_order === 'string');
+t('B2b layer_order=ADR-0017③ 原文层序', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0 && sj.layer_order.indexOf('ADR-0017') >= 0, sj && sj.layer_order);
 let r1b = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-B'], { encoding: 'utf8', cwd: ENG });
 t('B3 --scale Macro-B 不误拒（进入实跑面）', r1b.status === 0, 'status=' + r1b.status + ' err=' + (r1b.stderr || '').slice(0, 120));
 
@@ -56,7 +59,7 @@ sh(['add', '-A']); sh(['commit', '-m', 'adr']);
 // ---------- C. --out 双通道 ----------
 const OUTA = join(tmp, 'audit-out');
 let r2 = spawnSync('node', [CLI, 'audit', TGT, '--out', OUTA], { encoding: 'utf8', timeout: 120000 });
-let rec = null; try { rec = JSON.parse(r2.stdout); } catch (e) {}
+let rec = null; try { rec = JSON.parse(r2.stdout); } catch (e) { }
 t('C1 audit --out exit 0 + stdout=回执 JSON', r2.status === 0 && !!rec && /^RCP-[0-9a-f]{16}$/.test(rec.receipt_id || ''), 'status=' + r2.status + ' err=' + (r2.stderr || '').slice(0, 160));
 const ART = ['report.md', 'report.json', 'audit-facts.jsonl', 'audit-measurements.json', 'facts.duckdb'];
 t('C2 五工件落盘齐备', ART.every(function (f) { return existsSync(join(OUTA, f)); }), ART.filter(function (f) { return !existsSync(join(OUTA, f)); }).join(','));
@@ -111,6 +114,10 @@ t('F3 快照时点披露进披露块（snapshot_fetched_at 载于限制条）', 
 // ---------- G. 不携叙事职责 ----------
 const sAu2 = existsSync(join(OUTA, 'report.json')) ? JSON.parse(txt(join(OUTA, 'report.json'))) : null;
 t('G1 narrative_sections 空或仅 kernel/host 兜底（audit 不携宿主叙事生成职责）', !!sAu2 && (sAu2.narrative_sections.length === 0 || sAu2.narrative_sections.every(function (s) { return s.author === 'kernel-template' || s.author === 'host'; })), 'n=' + (sAu2 ? sAu2.narrative_sections.length : 'n/a'));
+
+// ---------- H. BOM ----------
+const nbFiles = ['engine/src/audit/audit.ts', 'engine/src/audit/macro-b.ts', 'engine/test/audit.test.mjs'].map(function (f) { return join(REPO, f); });
+t('H1 本票新增/改动文件无 BOM', nbFiles.every(function (f) { return !existsSync(f) || noBom(f); }), nbFiles.filter(function (f) { return existsSync(f) && !noBom(f); }).join(','));
 
 rmSync(tmp, { recursive: true, force: true });
 console.log('---');

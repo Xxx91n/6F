@@ -38,6 +38,7 @@ let sj = null;
 try { sj = JSON.parse(r1.stderr); } catch (e) { }
 t('S3 拒绝载体=结构化 JSON error=SCALE-NOT-IMPLEMENTED', !!sj && sj.error === 'SCALE-NOT-IMPLEMENTED', r1.stderr.slice(0, 160));
 t('S4 implemented=[Macro-B]＋requested=Macro-C＋layer_order 在', !!sj && Array.isArray(sj.implemented) && sj.implemented[0] === 'Macro-B' && sj.requested === 'Macro-C' && typeof sj.layer_order === 'string');
+t('S5 layer_order=ADR-0017③ 原文层序（Macro-C→Micro-A→Micro-B→Macro-A 起首，Macro-B 已上架不入剩余漏斗）', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0, sj && sj.layer_order);
 
 // ---------- R 实跑面（--out 双通道） ----------
 let r2 = spawnSync('node', [CLI, 'audit', REPO, '--out', OUT], { encoding: 'utf8', timeout: 120000 });
@@ -90,6 +91,8 @@ t('N1 报告无宿主叙事段（narrative_sections 空或 sealed 模板兜底�
 // ---------- E 错误面 ----------
 let r5 = spawnSync('node', [CLI, 'audit', join(tmp, 'nonexistent-path-xyz')], { encoding: 'utf8' });
 t('E1 不存在路径 → 非 0 + 结构化错误 JSON', r5.status !== 0 && /error/.test(r5.stderr) && /INTAKE-|PATH-NOT-FOUND|AUDIT-ERROR/.test(r5.stderr), (r5.stderr || '').slice(0, 120));
+let r6 = spawnSync('node', [CLI, 'audit', REPO, '--scale', '--json'], { encoding: 'utf8' });
+t('E2 --scale 吞旗拒收：--scale --json → exit 2 + AUDIT-ARGS missing value', r6.status === 2 && r6.stderr.indexOf('AUDIT-ARGS') >= 0, 'status=' + r6.status + ' err=' + (r6.stderr || '').slice(0, 120));
 
 rmSync(tmp, { recursive: true, force: true });
 console.log('---');

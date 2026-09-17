@@ -5,6 +5,7 @@
 //   → C=intake 时点披露＋.git 归一＋refresh opt-in（字段契约＋实跑 URL 面缓存命中/刷新语义）
 //   → D=contradicts 死枚举清除（type 面消失 + 无消费方残留引用）
 //   → E=三测试接入 smoke 链
+//   → F=本票新增/改动文件无 BOM
 // 纪律：只读断言＋file:// 合成仓实跑 intake（离线等价 URL 面，零外网依赖）；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -20,6 +21,7 @@ const NL = '\n';
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
 function txt(p) { return readFileSync(p, 'utf8'); }
+function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 function run(f) { try { return execFileSync('node', [join(ENG, 'test', f)], { encoding: 'utf8' }); } catch (e) { return (e.stdout || '') + (e.stderr || ''); } }
 
 // ---------- A. SQL 剥字面量（D-059④） ----------
@@ -81,6 +83,10 @@ t('D2 src 代码面无 contradicts 消费残留（注释除外）', allSrc.index
 // ---------- E. 三测试接入 smoke 链 ----------
 const pkg = JSON.parse(txt(join(ENG, 'package.json')));
 t('E1 smoke 链接入三新测（gitcli-contract/sql-literal/mcp-db-resolution）+ audit.test', ['gitcli-contract', 'sql-literal', 'mcp-db-resolution', 'audit.test'].every(function (s) { return pkg.scripts.smoke.indexOf(s) >= 0; }));
+
+// ---------- F. BOM ----------
+const nbFiles = ['engine/src/fact/schema.ts', 'engine/src/mcp-server.ts', 'engine/src/intake/intake.ts', 'engine/src/report/citation.ts', 'engine/test/sql-literal.test.mjs', 'engine/test/mcp-db-resolution.test.mjs'].map(function (f) { return join(REPO, f); });
+t('F1 本票新增/改动文件无 BOM', nbFiles.every(function (f) { return !existsSync(f) || noBom(f); }), nbFiles.filter(function (f) { return existsSync(f) && !noBom(f); }).join(','));
 
 console.log('---');
 console.log((fail === 0 ? 'PASS' : 'FAIL') + ' ' + pass + '/' + (pass + fail));

@@ -5,7 +5,7 @@ import { repoAdd } from './intake/intake.js';
 import { runDemo, listScenarios } from './demo/demo.js';
 import { runAudit, isAuditScaleError } from './audit/audit.js';
 import { projectFacts } from './fact/projection.js';
-import { serveMcpStdio, setMcpServerConfig } from './mcp-server.js';
+import { serveMcpStdio, setMcpServerConfig, resolveFactsDb } from './mcp-server.js';
 
 const cmd = process.argv[2] ?? '--help';
 
@@ -34,7 +34,9 @@ if (cmd === '--version' || cmd === '-v') {
       opts[a] = v;
       i++;
     }
-    if (!opts['--db']) { console.error('usage: macro-audit mcp facts --db <path> [--scale S] [--repo owner/repo] [--subject ref] [--limit n]'); process.exit(2); }
+    // db 寻址与服务端同链（#55/D-059⑥）：--db argv → MACRO_AUDIT_FACTS_DB env → 仍缺则 usage exit 2
+    opts['--db'] = resolveFactsDb(opts['--db']) || '';
+    if (!opts['--db']) { console.error('usage: macro-audit mcp facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n]'); process.exit(2); }
     const limRaw = opts['--limit'];
     const lim = limRaw === undefined ? undefined : Number(limRaw);
     if (lim !== undefined && (!Number.isFinite(lim) || lim <= 0)) {
@@ -57,7 +59,7 @@ if (cmd === '--version' || cmd === '-v') {
       process.exit(2);
     });
   } else {
-    console.error('usage: macro-audit mcp [facts --db <path> [--scale S] [--repo owner/repo] [--subject ref] [--limit n]]');
+    console.error('usage: macro-audit mcp [facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n]]');
     process.exit(2);
   }
 } else if (cmd === 'repo') {
@@ -94,8 +96,8 @@ if (cmd === '--version' || cmd === '-v') {
   let refresh = false;
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
-    if (a === '--scale') { scale = args[++i]; }
-    else if (a === '--out') { outDir = args[++i]; }
+    if (a === '--scale') { const v = args[++i]; if (v === undefined || v.indexOf('--') === 0) { console.error('AUDIT-ARGS: missing value for --scale'); process.exit(2); } scale = v; }
+    else if (a === '--out') { const v = args[++i]; if (v === undefined || v.indexOf('--') === 0) { console.error('AUDIT-ARGS: missing value for --out'); process.exit(2); } outDir = v; }
     else if (a === '--json') { asJson = true; }
     else if (a === '--refresh') { refresh = true; }
     else if (a.indexOf('--') === 0) { console.error('AUDIT-ARGS: unknown flag ' + a); process.exit(2); }

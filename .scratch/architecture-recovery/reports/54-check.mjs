@@ -6,6 +6,7 @@
 //   → E=engine/test/gitcli-contract.test.mjs 实跑 exit 0（11/11）＋接入 smoke 链
 //   → F=golden 逐字节无漂：runDemo 重渲染 → 与入库 golden 逐字节 diff（本机 git 2.55 下归一化=恒等）
 //   → G=存活对照脚本（39/40/48）%cI 消费点同样走归一化（对照口径与引擎一致，冻结史证 23/22/01 不动）
+//   → H=本票新增/改动文件无 BOM
 // 纪律：只读断言（临时目录渲染属工件产出非仓内状态改写）；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -20,6 +21,7 @@ const ENG = join(REPO, 'engine');
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
 function txt(p) { return readFileSync(p, 'utf8'); }
+function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 
 // ---------- A. enforce 位在 intake.ts ----------
 const intake = txt(join(ENG, 'src', 'intake', 'intake.ts'));
@@ -79,6 +81,10 @@ for (const s of ['39-macro-b-one-shot.mjs', '40-macro-b-one-shot.mjs', '48-micro
   t('G-' + s + ' %cI 消费点走 normalizeGitIsoDate（与引擎同归一化，对照口径一致）', src.indexOf('normalizeGitIsoDate') >= 0 && src.indexOf('%cI') >= 0, 'normalize=' + (src.indexOf('normalizeGitIsoDate') >= 0));
 }
 t('G-冻结史证 23-first-report.mjs 不动（CI 物化自 e39468c 冻结 commit，改本件无意义且制造双源）', txt(join(HERE, '23-first-report.mjs')).indexOf('%cI') >= 0);
+
+// ---------- H. BOM ----------
+const nbFiles = ['engine/src/intake/intake.ts', 'engine/test/gitcli-contract.test.mjs'].map(function (f) { return join(REPO, f); });
+t('H1 本票新增/改动文件无 BOM', nbFiles.every(function (f) { return !existsSync(f) || noBom(f); }), nbFiles.filter(function (f) { return existsSync(f) && !noBom(f); }).join(','));
 
 console.log('---');
 console.log((fail === 0 ? 'PASS' : 'FAIL') + ' ' + pass + '/' + (pass + fail));
