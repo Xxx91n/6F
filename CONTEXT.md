@@ -61,7 +61,7 @@ _Avoid_: review（人流程）、approval（暗示终态通过）
 _Avoid_: 自检（无补查轮）、质量门（暗示一票否决）
 
 **Trigger Sequence**:
-触发器时序——单 scale 内"何时启动→何时采集→何时叙事→何时裁决→何时报告"的完整时间序列；不同 scale 共享同一套四阶段（采集/叙事/裁决/报告），但触发器不同。
+触发器时序——单 scale 内"何时启动→何时采集→何时叙事→何时裁决→何时报告"的完整时间序列；不同 scale 共享同一套四阶段（采集/叙事/裁决/报告），但触发器不同。 scale 级启动亦受判据约束：Macro-A 启动判据集登记于 registry mw-trigger-c.verify_method（前序层 preview 全上架＋跨仓关联键 ≥2 真实仓验证＋SWMR 启动实测封口＋能力矩阵同票收窄，D-062），判据未齐不算 macro-a-start 事件发生。
 _Avoid_: 工作流（太泛）、pipeline（暗示数据流而非时序）
 
 **Failure Semantics**:

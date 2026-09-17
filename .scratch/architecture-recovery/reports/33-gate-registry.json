@@ -85,6 +85,19 @@
   "repomix-reopen-demand": {
    "occurred": false,
    "note": "D-056 触发器：审计证据导出包/Macro-A 跨仓打包实证需求出现"
+  },
+  "host-narrative-corpus": {
+   "occurred": false
+  },
+  "first-external-install": {
+   "occurred": false
+  },
+  "macro-b-ga": {
+   "occurred": false
+  },
+  "golden-dirty-rerun": {
+   "occurred": false,
+   "count": 0
   }
  },
  "items": [
@@ -640,7 +653,8 @@
    "trigger": "Macro-A 启动",
    "review_at": "激活即实测封口＋D-043② 复审语义锚（Macro-A 启动且锁等待入关键路径→L1 写队列评估起步）",
    "status": "pending",
-   "watch": "event_bound"
+   "watch": "event_bound",
+   "verify_method": "Macro-A 启动判据集（D-062）：a.前序层 preview 全上架（Micro-A＋Micro-B preview 闭环，层序 Macro-C→Micro-A→Micro-B→Macro-A 末位不动）；b.跨仓关联键在 ≥2 真实仓 facts 上验证（D-028 correlation key；.scratch 调研产物不计入「真实仓」口径）；c.SWMR 多写者域 self-probe 随启动实测封口（本触发器本职=启动时门禁非前置）；d.能力矩阵 Macro-A 措辞同票收窄进启动票。四判据全满足才算 macro-a-start 事件发生"
   },
   {
    "id": "codelore-residual-faces",
@@ -773,14 +787,14 @@
   {
    "id": "narrative-eval-surface",
    "family": "quality-eval",
-   "title": "叙事质量评测面（grounded stamp 准确率/κ 校准）——先物后尺，#50 落地后另立票",
+   "title": "宿主叙事质量 eval（#52b）——锚改真实宿主叙事语料；checker 仪器标定已拆 #52a 即时执行不占本锚",
    "deadline_event": null,
    "deadline": "无硬到期——被评测对象（宿主 agent 叙事段）于 #50 落地后方存在",
-   "trigger_event": null,
-   "trigger": "#50 叙事双轨票闭环、叙事实物出现后另立评测票",
-   "review_at": "#50 闭环验收时同步评审本项",
-   "status": "triggered-bound",
-   "watch": "manual_watch",
+   "trigger_event": "host-narrative-corpus",
+   "trigger": "audit 首次实跑产出真实宿主叙事段（或 pilot 真实语料 N≥50 段）——D-061：合成语料评 agent 质量=自评变体禁行",
+   "review_at": "锚触发即启 #52b：wild slice 语料＋跨族 judge＋RAGAS align＋judge-human κ＋收割 model id",
+   "status": "pending",
+   "watch": "event_bound",
    "owner": "macro-audit 队列值守",
    "verify_method": "#50 闭环确认（BACKLOG 行 ✅＋NN-check PASS）→ 本项转 triggered-bound 并立评测票（叙事质量评测面：grounded stamp 准确率/κ 校准基线）",
    "review_event": "stage3-close",
@@ -800,6 +814,13 @@
      "decision": "bound-confirmed-stay",
      "reason": "#50 闭环已翻转本项→triggered-bound＋立案 #52（grounded stamp 准确率/κ 校准基线）；评测票未开工，状态维持 triggered-bound；复审锚推进至 stage3-close（#52 闭环验收同窗复核）",
      "evidence": "BACKLOG #52 立案行＋50-report.md＋t8-watch-review.md"
+    },
+    {
+     "at": "2026-09-17",
+     "by": "轮15 grill D-061",
+     "criterion_version": "D-061 拆票纪律",
+     "decision": "re-anchored",
+     "reason": "被测对象拆分：checker 标定拆 #52a 即时（不占本锚）；本项收窄为宿主叙事质量 eval，锚改 host-narrative-corpus（真实语料 N≥50 段）"
     }
    ],
    "source": "macro-audit decision-ledger D-057②（评测面登记暂缓面，先物后尺；内嵌 #50=自写自评失独立性、永不评=model id 死字段）",
@@ -818,6 +839,100 @@
    "watch": "event_bound",
    "source": "macro-audit decision-ledger D-056（repomix 退役＋重开触发器登记）＋engine/upstream-lock.yaml repomix-gitingest retired 行",
    "activation_action": "另立需求票重评估接入：接入仍须先定 pin（exact-version 或 digest）＋golden 契约（ADR-0014/锁表纪律不改）"
+  },
+  {
+   "id": "runtime-doctor-trigger",
+   "family": "distribution",
+   "title": "运行时 doctor 探测面（D-059③ 缓项）——selftest 仅 manifest 完整性对账，doctor 级探测（duckdb/git/上游可达性）待外部安装链路出现再建",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "first-external-install",
+   "trigger": "首个外部用户安装链路出现（marketplace 上架后真实安装/外部部署）",
+   "review_at": "触发即立 doctor 票（probe：duckdb 可开库/git 可用/上游连通）",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "外部安装链路存在的实物证据（安装报告/外部 issue）→ 立 doctor 探测票；此前 selftest 维持 manifest 对账本职不扩容",
+   "confirmations": [
+    {
+     "at": "2026-09-17",
+     "by": "轮15 grill D-059③",
+     "criterion_version": "D-059③",
+     "decision": "registered",
+     "reason": "锐评#3 缓项：selftest=分发物完整性合法，doctor 级运行时探测挂首个外部安装链路触发；#48 env-manager 已含其自身范围的运行时探测载体"
+    }
+   ]
+  },
+  {
+   "id": "bundle-retirement-trigger",
+   "family": "golden-artifact",
+   "title": "frozen bundle/overlay 退役触发器（D-059⑨）——历史锚定件有完整 provenance 暂留，GA 时 clean-commit baseline 替换",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "macro-b-ga",
+   "trigger": "Macro-B GA 时点（preview→GA 漏斗走完）",
+   "review_at": "GA 窗口评审：以 clean-commit baseline 替换 historical bundle 腿；替换前 bundle/overlay 维持（43-check 已闭环依赖）",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "Macro-B GA 达成→退役 bundle/overlay 腿＋43-check 断言同步替换为 clean-commit baseline 腿；不得提前拆（拆破 28/28 闭环）",
+   "confirmations": [
+    {
+     "at": "2026-09-17",
+     "by": "轮15 grill D-059⑨",
+     "criterion_version": "D-059⑨",
+     "decision": "registered",
+     "reason": "锐评#9 缓项双轨之一：bundle 有完整 provenance 非「圆谎」，挂 GA 替换触发器"
+    }
+   ]
+  },
+  {
+   "id": "duckdb-binary-watch",
+   "family": "golden-artifact",
+   "title": "checked-in DuckDB 二进制出仓值守（D-059⑨ 双轨之二）——二进制进仓反模式但当前守卫依赖，挂值守不清仓",
+   "deadline_event": null,
+   "deadline": "无（值守项）",
+   "trigger_event": null,
+   "trigger": "随 bundle-retirement-trigger 同窗口评审，或包体积分发压力出现时提前",
+   "review_at": "Macro-B GA 窗口（与 bundle 退役同评审）",
+   "status": "pending",
+   "watch": "manual_watch",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "GA 窗口清点 engine/test/fixtures 内 .duckdb 二进制——bundle 退役后二进制随清或转 artifact store；中间态不动（防破守卫）",
+   "confirmations": [
+    {
+     "at": "2026-09-17",
+     "by": "轮15 grill D-059⑨",
+     "criterion_version": "D-059⑨",
+     "decision": "registered",
+     "reason": "锐评#9 缓项双轨之二：duckdb 二进制挂清单值守非立即清除（守卫面依赖在案）"
+    }
+   ],
+   "review_event": "macro-b-ga"
+  },
+  {
+   "id": "golden-verifier-dirty-on-rerun",
+   "family": "golden-artifact",
+   "title": "golden 工件/verifier 耦合脏树观察项（D-063② L2）——守卫重跑重写 receipt/trace 锚致脏树",
+   "deadline_event": null,
+   "deadline": "无（观察项）",
+   "trigger_event": "golden-dirty-rerun",
+   "trigger": "守卫重跑致脏树复现 ≥3 次（或 Macro-B GA 先到者）→立票",
+   "review_at": "每次脏树复现即记 confirmations；第 3 次转 triggered-bound 立票",
+   "status": "pending",
+   "watch": "manual_watch",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "守卫重跑后 git status 脏面统计记 confirmations；升级立票时修法=NN-check 族加显式 --update/--write 旗标、默认只读比对（A-050 先比后写模式推广，一次性小修补非解耦工程）；当前处置=discard 归位",
+   "confirmations": [
+    {
+     "at": "2026-09-17",
+     "by": "轮15 grill D-063②",
+     "criterion_version": "D-063②",
+     "decision": "registered",
+     "reason": "L2 观察项登记：单次现象不立票（quarantine 阈值惯例）；五要素已填全；不并入 D-059⑨（触发器异构）"
+    }
+   ],
+   "review_event": "golden-dirty-rerun"
   }
  ]
 }
