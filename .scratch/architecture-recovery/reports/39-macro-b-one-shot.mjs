@@ -80,7 +80,7 @@ const GOLDEN_ADR = [
 ].join(NL);
 const POS_DECL = 'macro audit positioning convergence determinism traceability provenance fact table skeleton slice quadrant scale verdict gate receipt citation anchor';
 const INTENT_CANDIDATES = ['CONTEXT.md', 'README.md', 'AGENTS.md'];   // positioning 意图面：仓根三件套（存在才取）
-const NC1_CANDIDATES = ['package.json', 'README.md', 'Cargo.toml'];   // 负对照选材：非 ADR 文件，五件套预期 0 命中
+const NC1_CANDIDATES = ['package.json', 'README.md', 'README.adoc', 'README.rst', 'README', 'Cargo.toml', 'pom.xml', 'build.gradle', 'LICENSE', 'LICENSE.txt', 'pyproject.toml', 'go.mod', 'Makefile'];   // 负对照选材：非 ADR 文件，五件套预期 0 命中（#49 dispatch 实测：spring-boot 仓根仅 README.adoc/pom.xml——候选集需跨生态覆盖）
 
 function git(root, args) {
   return execFileSync('git', ['-C', root].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
