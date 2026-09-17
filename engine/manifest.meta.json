@@ -7,7 +7,10 @@
   ],
   "mcp": {
     "transport": "stdio",
-    "readOnly": true
+    "readOnly": true,
+    "env": {
+      "MACRO_AUDIT_FACTS_DB": ""
+    }
   },
   "extensions": [
     "com.macroaudit.hooks"

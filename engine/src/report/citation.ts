@@ -4,7 +4,9 @@
 
 export const UNVERIFIED_MARK = '⚠ unverified';
 
-export type SupportRelation = 'supports' | 'insufficient' | 'contradicts';
+// #55 / D-059⑤：'contradicts' 死枚举勘误清除（YAGNI——无任何返回分支产出该值；
+// presence→NLI→human-in-loop 叠加分级是设计界不拆，D-045「未实现≠语义冲突」登记勘误不立票）。
+export type SupportRelation = 'supports' | 'insufficient';
 
 export interface EvidenceItem {
   evidence_id: string;

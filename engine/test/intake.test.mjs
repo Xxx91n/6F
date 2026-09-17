@@ -85,6 +85,26 @@ check('U7 clone 产物 core.hooksPath 已置 noop（防 hook 执行）', hooksPa
 const extAllow = git(['config', '--local', '--get', 'protocol.ext.allow'], r3.resolved_root).stdout.trim();
 check('U8 clone 产物 protocol.ext.allow=never', extAllow === 'never', extAllow);
 
+// --- K URL 键归一（#55/D-059⑦）：.git 尾缀/尾 / 归一 → 同仓同槽防双缓存 ---
+check('K1 normalizeRepoUrlKey 去 .git 尾缀', I.normalizeRepoUrlKey('https://h/o/r.git') === 'https://h/o/r');
+check('K2 normalizeRepoUrlKey 去尾 / 与 .git 组合', I.normalizeRepoUrlKey('https://h/o/r.git/') === 'https://h/o/r');
+check('K3 异拼写同键：o/r 与 o/r.git 同 sha 缓存槽', I.sha256Short(I.normalizeRepoUrlKey('https://h/o/r')) === I.sha256Short(I.normalizeRepoUrlKey('https://h/o/r.git')));
+
+// --- F 快照时点披露（#55/D-059⑦）：缓存命中不 fetch 须如实披露时点 ---
+check('F1 本地腿 snapshot_fetched_at=null（无 fetch 概念）', r1.snapshot_fetched_at === null && r1.cache_hit === false && r1.refreshed === false);
+check('F2 新 clone snapshot_fetched_at=ISO 非空＋cache_hit=false', typeof r3.snapshot_fetched_at === 'string' && /Z$/.test(r3.snapshot_fetched_at) && r3.cache_hit === false);
+check('F3 缓存命中：cache_hit=true＋refreshed=false＋snapshot_fetched_at 保旧 clone 时点（远端新提交不可见如实披露）', r4.cache_hit === true && r4.refreshed === false && typeof r4.snapshot_fetched_at === 'string');
+
+// --- R refresh 显式 opt-in（#55/D-059⑦）：不自动 pull，仅旗标触发 fetch+复位 ---
+writeFileSync(join(src, 'b.txt'), 'b\n');
+git(['add', 'b.txt'], src); git(['commit', '-qm', 'second'], src);
+const srcSha2 = git(['rev-parse', 'HEAD'], src).stdout.trim();
+const r5 = I.repoAdd(url, { cwd: tmp, cacheRoot: cache, refresh: true });
+check('R1 refresh opt-in：refreshed=true＋head_sha 跟进远端新提交', r5.refreshed === true && r5.head_sha === srcSha2, r5.head_sha + ' vs ' + srcSha2);
+check('R2 refresh 后 snapshot_fetched_at≈now', Math.abs(Date.parse(r5.snapshot_fetched_at) - Date.now()) < 120000);
+const r6 = I.repoAdd(url, { cwd: tmp, cacheRoot: cache });
+check('R3 refresh 后再命中：cache_hit=true＋head_sha 保持新提交', r6.cache_hit === true && r6.head_sha === srcSha2 && r6.refreshed === false);
+
 rmSync(tmp, { recursive: true, force: true });
 
 let ok = true;

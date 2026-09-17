@@ -110,10 +110,17 @@ export function sha256Short(text: string): string {
   return createHash('sha256').update(text).digest('hex').slice(0, 16);
 }
 
+// ---- URL 键归一（#55 / D-059⑦）：'https://…/a/b' 与 'https://…/a/b.git' 指向同一远端——
+// 缓存键对归一化形态取 sha，去尾 '.git' 与尾 '/'，防同仓双缓存槽＋provenance sha 键漂移。
+export function normalizeRepoUrlKey(url: string): string {
+  return url.trim().replace(/\/+$/, '').replace(/\.git$/i, '');
+}
+
 export interface RepoAddOptions {
   cwd?: string;
   cacheRoot?: string;          // 默认 <cwd>/.macro-audit-cache
   cloneTimeoutMs?: number;     // 默认 10 分钟
+  refresh?: boolean;           // 显式刷新 opt-in（#55 / D-059⑦）：仅 url 面缓存命中时生效——fetch --prune＋reset 到 origin/HEAD；绝不自动 pull
 }
 
 export interface RepoAddResult {
@@ -128,6 +135,19 @@ export interface RepoAddResult {
   full_depth_verified: boolean;
   remote_config_execution: 'disabled'; // 禁远程配置执行记录位
   credentials: 'local-git-credential-chain'; // 凭据复用本地链，不新建凭据存储
+  // ---- 快照时点披露（#55 / D-059⑦）：审计证据须可判 staleness——
+  // url 面=最近一次成功 fetch/clone 的墙钟时点；local/owner-repo 面恒 null（无 fetch 概念）。
+  snapshot_fetched_at: string | null;
+  cache_hit: boolean;                  // url 面：true=复用既有缓存槽未重新 fetch（远端新提交不可见，除非 refresh）
+  refreshed: boolean;                  // url 面：true=本次经 refresh opt-in 显式拉取并复位到 origin/HEAD
+}
+
+// 缓存槽的最近 fetch 时点：优先 .git/FETCH_HEAD mtime（clone/fetch 均写），退 .git 目录 mtime，再退槽目录 mtime。
+function snapshotFetchedAt(dir: string): string | null {
+  for (const p of [join(dir, '.git', 'FETCH_HEAD'), join(dir, '.git'), dir]) {
+    try { return statSync(p).mtime.toISOString(); } catch (e) { /* try next */ }
+  }
+  return null;
 }
 
 export interface CloneResult {
@@ -135,16 +155,36 @@ export interface CloneResult {
   cloned: boolean;
   head_sha: string;
   shallow: false;
+  snapshot_fetched_at: string | null;  // 最近成功 fetch/clone 墙钟时点（缓存命中未刷新=旧时点）
+  refreshed: boolean;                  // 本次经显式 refresh 拉取
 }
 
-export function cloneToIsolatedCache(url: string, cacheRoot: string, timeoutMs = 600000): CloneResult {
-  const key = sha256Short(url);
+export function cloneToIsolatedCache(url: string, cacheRoot: string, timeoutMs = 600000, refresh = false): CloneResult {
+  const key = sha256Short(normalizeRepoUrlKey(url));
   const dir = join(cacheRoot, 'repos', key);
   if (existsSync(dir)) {
-    if (isGitRepo(dir, 30000) && remoteOriginUrl(dir, 30000) === url) {
+    if (isGitRepo(dir, 30000) && normalizeRepoUrlKey(remoteOriginUrl(dir, 30000)) === normalizeRepoUrlKey(url)) {
       const shallow = isShallowRepo(dir, 30000);
       if (shallow) { throw intakeError('SHALLOW-CLONE-REJECTED', 'cached clone is shallow: ' + dir); }
-      return { dir: dir, cloned: false, head_sha: headSha(dir, 30000), shallow: false };
+      if (!refresh) {
+        return { dir: dir, cloned: false, head_sha: headSha(dir, 30000), shallow: false, snapshot_fetched_at: snapshotFetchedAt(dir), refreshed: false };
+      }
+      // 显式刷新 opt-in（不自动 pull 保隔离纪律）：fetch --prune → 复位到 origin/HEAD。
+      const noopHooksRefresh = join(cacheRoot, 'noop-hooks');
+      gitOk(['-c', 'core.hooksPath=' + noopHooksRefresh, '-c', 'protocol.ext.allow=never', 'fetch', 'origin', '--prune'], dir, timeoutMs);
+      let remoteHead = git(['rev-parse', '--verify', 'origin/HEAD'], dir, 30000);
+      if (remoteHead.error || remoteHead.status !== 0 || !remoteHead.stdout) {
+        // 兜底：origin/HEAD symref 缺席（部分 file:// 克隆不建）→ 取 refs/remotes/origin/* 首支
+        const refs = git(['for-each-ref', '--format=%(refname:short)', 'refs/remotes/origin'], dir, 30000);
+        const first = (!refs.error && refs.status === 0) ? refs.stdout.split('\n').map(function (s) { return s.trim(); }).filter(function (s) { return s && s !== 'origin/HEAD'; })[0] : null;
+        remoteHead = first ? git(['rev-parse', '--verify', first], dir, 30000) : remoteHead;
+      }
+      if (remoteHead.error || remoteHead.status !== 0 || !remoteHead.stdout) {
+        throw intakeError('REFRESH-REMOTE-HEAD-UNRESOLVED', 'origin/HEAD 及 refs/remotes/origin/* 均不可解析：' + dir);
+      }
+      gitOk(['reset', '--hard', remoteHead.stdout], dir, timeoutMs);
+      // refresh 后时点=FETCH_HEAD 新 mtime（与 clone 腿同一取证源——单源一致，缓存命中读回同值）
+      return { dir: dir, cloned: false, head_sha: headSha(dir, 30000), shallow: false, snapshot_fetched_at: snapshotFetchedAt(dir) || new Date().toISOString(), refreshed: true };
     }
     throw intakeError('INTAKE-CACHE-COLLISION', 'cache slot occupied by foreign content: ' + dir);
   }
@@ -165,7 +205,8 @@ export function cloneToIsolatedCache(url: string, cacheRoot: string, timeoutMs =
   if (!isGitRepo(dir, 30000)) { throw intakeError('CLONE-FAILED', 'clone produced non-git dir: ' + dir); }
   const head = headSha(dir, 30000); // .git 完整性：HEAD 可解析
   if (isShallowRepo(dir, 30000)) { throw intakeError('SHALLOW-CLONE-REJECTED', 'clone is shallow (fetch-depth must be 0): ' + dir); }
-  return { dir: dir, cloned: true, head_sha: head, shallow: false };
+  // clone 时点=FETCH_HEAD mtime（clone 必写；与缓存命中腿同一取证源——同槽同值，双钟不漂）
+  return { dir: dir, cloned: true, head_sha: head, shallow: false, snapshot_fetched_at: snapshotFetchedAt(dir) || new Date().toISOString(), refreshed: false };
 }
 
 export function repoAdd(input: string, opts: RepoAddOptions = {}): RepoAddResult {
@@ -181,7 +222,7 @@ export function repoAdd(input: string, opts: RepoAddOptions = {}): RepoAddResult
 
   if (cls.kind === 'url') {
     const cacheRoot = resolve(cwd, opts.cacheRoot || '.macro-audit-cache');
-    const c = cloneToIsolatedCache(cls.original, cacheRoot, timeoutMs);
+    const c = cloneToIsolatedCache(cls.original, cacheRoot, timeoutMs, opts.refresh === true);
     return {
       ...base,
       resolved_root: c.dir,
@@ -190,7 +231,10 @@ export function repoAdd(input: string, opts: RepoAddOptions = {}): RepoAddResult
       cloned: c.cloned,
       head_sha: c.head_sha,
       shallow: false,
-      full_depth_verified: true
+      full_depth_verified: true,
+      snapshot_fetched_at: c.snapshot_fetched_at,
+      cache_hit: !c.cloned,
+      refreshed: c.refreshed
     };
   }
 
@@ -209,7 +253,7 @@ export function repoAdd(input: string, opts: RepoAddOptions = {}): RepoAddResult
   return finishLocal({ ...base, resolved_root: localPath }, timeoutMs);
 }
 
-function finishLocal(result: Omit<RepoAddResult, 'url' | 'cache_dir' | 'cloned' | 'head_sha' | 'shallow' | 'full_depth_verified'>, timeoutMs: number): RepoAddResult {
+function finishLocal(result: Omit<RepoAddResult, 'url' | 'cache_dir' | 'cloned' | 'head_sha' | 'shallow' | 'full_depth_verified' | 'snapshot_fetched_at' | 'cache_hit' | 'refreshed'>, timeoutMs: number): RepoAddResult {
   if (!isGitRepo(result.resolved_root, timeoutMs)) {
     throw intakeError('NOT-A-GIT-REPO', 'not a git repository: ' + result.resolved_root);
   }
@@ -223,6 +267,9 @@ function finishLocal(result: Omit<RepoAddResult, 'url' | 'cache_dir' | 'cloned' 
     cloned: false,
     head_sha: headSha(result.resolved_root, timeoutMs),
     shallow: false,
-    full_depth_verified: true
+    full_depth_verified: true,
+    snapshot_fetched_at: null,
+    cache_hit: false,
+    refreshed: false
   };
 }

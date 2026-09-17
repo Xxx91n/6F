@@ -72,8 +72,21 @@ export function normalizeSql(sql: string): string {
   return noBlock.split(String.fromCharCode(10)).join(' ').split(String.fromCharCode(9)).join(' ').split('  ').join(' ').trim().toUpperCase();
 }
 
+// ---- 字面量剥离（#55 / D-059④）：黑名单匹配前先剥 SQL 字面量——
+// '...'（'' 转义）、`"..."`（"" 转义，标识符引号）、`...`、$$…$$ / $tag$…$tag$ 美元引号串。
+// 误伤案例：SELECT * FROM t WHERE c='DELETE FROM x'——字面量内 UPDATE/DELETE 字样非改写意图。
+// 未闭合引号不匹配任何剥离式 → 原文残留字样照常被黑名单拦（不可解析=保守拒，方向正确）。
+// 拒「必须上 AST」强主张：OWASP 分级下字符串黑名单在非注入面合法（本守卫作用面=应用侧只追加门面）。
+export function stripSqlLiterals(sql: string): string {
+  return sql
+    .replace(/\$([A-Za-z_][A-Za-z0-9_]*)?\$[\s\S]*?\$\1?\$/g, ' ')
+    .replace(/'([^']|'')*'/g, ' ')
+    .replace(/"([^"]|"")*"/g, ' ')
+    .replace(/`[^`]*`/g, ' ');
+}
+
 export function classifyStatement(sql: string): StatementVerdict {
-  const s = normalizeSql(sql);
+  const s = normalizeSql(stripSqlLiterals(sql));
   if (s.length === 0) { return { allow: false, reason: 'empty statement' }; }
   for (const bad of REWRITE_BLACKLIST) {
     if (s.includes(bad)) { return { allow: false, reason: 'rewrite form rejected: ' + bad }; }

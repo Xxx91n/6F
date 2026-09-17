@@ -43,7 +43,14 @@ if (cmd === '--version' || cmd === '-v') {
     projectFacts(opts['--db'], { scale: opts['--scale'], repo_ref: opts['--repo'], subject_ref: opts['--subject'], limit: lim })
       .then(function (rows) { for (const r of rows) { console.log(JSON.stringify(r)); } })
       .catch(function (e) { console.error(JSON.stringify({ error: 'MCP-FACTS-ERROR', message: String(e && (e as Error).message || e) })); process.exit(2); });
-  } else if (sub === undefined) {
+  } else if (sub === undefined || sub === '--db') {
+    // `macro-audit mcp [--db <facts.duckdb>]`：--db=服务端寻址位（#55/D-059⑥，mcp.json args/env 配置面）。
+    let serverDb: string | undefined;
+    if (sub === '--db') {
+      serverDb = process.argv[4];
+      if (!serverDb || serverDb.indexOf('--') === 0) { console.error('usage: macro-audit mcp [--db <facts.duckdb>]'); process.exit(2); }
+    }
+    setMcpServerConfig({ db: serverDb });
     serveMcpStdio(process.stdin, process.stdout).catch(function (e) {
       console.error(JSON.stringify({ error: 'MCP-SERVE-ERROR', message: String(e && (e as Error).message || e) }));
       process.exit(2);

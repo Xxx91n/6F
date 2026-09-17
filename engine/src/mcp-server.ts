@@ -24,20 +24,29 @@ interface RpcResponse {
 
 const FACTS_TOOL = {
   name: 'facts',
-  description: 'read-only DuckDB facts projection (D-053④)：固定 SELECT 形，FactEvent 十三列，READ_ONLY 实例，limit≤500',
+  description: 'read-only DuckDB facts projection (D-053④)：固定 SELECT 形，FactEvent 十三列，READ_ONLY 实例，limit≤500。db 寻址收敛服务端解析（#55/D-059⑥）：arguments.db → server --db argv → MACRO_AUDIT_FACTS_DB env',
   inputSchema: {
     type: 'object',
     properties: {
-      db: { type: 'string', description: 'facts.duckdb 绝对路径' },
+      db: { type: 'string', description: 'facts.duckdb 绝对路径（可省——省则走服务端寻址链）' },
       scale: { type: 'string', enum: ['macro', 'micro'] },
       repo: { type: 'string', description: 'owner/repo 过滤' },
       subject: { type: 'string', description: 'subject_ref 过滤' },
       limit: { type: 'number', description: '行数上限（≤500）' }
     },
-    required: ['db'],
     additionalProperties: false
   }
 };
+
+// db 寻址收敛（#55 / D-059⑥）：宿主 agent 无法预知 facts.duckdb 绝对路径——
+// 解析序：arguments.db（调用方显式）→ server --db argv（mcp.json 注册面配置）→ MACRO_AUDIT_FACTS_DB env → MCP-FACTS-DB-UNRESOLVED。
+export interface McpServerConfig { db?: string }
+let serverConfig: McpServerConfig = {};
+export function setMcpServerConfig(c: McpServerConfig): void { serverConfig = c || {}; }
+export function resolveFactsDb(argDb: string | undefined): string | undefined {
+  const envDb = process.env.MACRO_AUDIT_FACTS_DB;
+  return argDb || (serverConfig.db && serverConfig.db.length > 0 ? serverConfig.db : undefined) || (envDb && envDb.length > 0 ? envDb : undefined);
+}
 
 function ok(id: string | number | null, result: unknown): RpcResponse {
   return { jsonrpc: '2.0', id: id === undefined ? null : id, result: result };
@@ -84,9 +93,9 @@ export async function handleRpcMessage(msg: RpcMessage): Promise<RpcResponse | n
       return fail(id, -32602, 'unknown tool: ' + String(p.name));
     }
     const a = (p.arguments || {}) as { [k: string]: unknown };
-    const db = asStr(a.db);
+    const db = resolveFactsDb(asStr(a.db));
     if (!db) {
-      return fail(id, -32602, 'facts requires arguments.db');
+      return fail(id, -32602, 'MCP-FACTS-DB-UNRESOLVED: facts db 寻址失败——arguments.db 未给且服务端无 --db argv/MACRO_AUDIT_FACTS_DB env 配置');
     }
     const lim = a.limit === undefined ? undefined : Number(a.limit);
     if (lim !== undefined && (!Number.isFinite(lim) || lim <= 0)) {
