@@ -1,0 +1,41 @@
+{
+  "generated": "2026-09-17",
+  "purpose": "#49 回归 matrix 三首选仓克隆预算实测（20min=1200s 预算，本机 Git Bash 全深度克隆）",
+  "method": "git clone --quiet <url>（本机网络/磁盘实测；CI runner 时长以 dispatch 实跑为准，本工件为预算预检证据）",
+  "budget_seconds": 1200,
+  "legs": {
+    "jiahao": {
+      "url": "https://github.com/Xxx91n/jiahao.git",
+      "status": "pre-existing-leg",
+      "note": "D-046 既有回归目标，本轮不重测"
+    },
+    "git": {
+      "url": "https://github.com/git/git.git",
+      "status": "measured",
+      "clone_seconds": 189,
+      "size_mb": 376,
+      "within_budget": true
+    },
+    "django": {
+      "url": "https://github.com/django/django.git",
+      "status": "measured",
+      "clone_seconds": 158,
+      "size_mb": 354,
+      "within_budget": true
+    },
+    "spring-boot": {
+      "url": "https://github.com/spring-projects/spring-boot.git",
+      "status": "measured",
+      "clone_seconds": 159,
+      "size_mb": 322,
+      "within_budget": true
+    }
+  },
+  "within_20min_budget": true,
+  "fallback_table": {
+    "c": "https://github.com/curl/curl.git",
+    "python": "https://github.com/pallets/flask.git",
+    "java": "https://github.com/apache/kafka.git"
+  },
+  "caveat": "本机实测不替代 CI dispatch 实跑；dispatch 需 push 授权（用户闸门 T6/T7）。若 CI 实跑超时按备选表替换。"
+}

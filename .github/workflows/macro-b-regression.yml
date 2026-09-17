@@ -49,8 +49,10 @@ jobs:
           OPT_NAME: ${{ inputs.repo_name }}
         run: |
           set -euo pipefail
-          # 默认回归集（schedule / dispatch 留空时）：T3 经典公开仓候选经用户选定后追加 {name,url} 至此 JSON。
-          DEFAULT='{"repo":[{"name":"jiahao","url":"https://github.com/Xxx91n/jiahao.git"}]}'
+          # 默认回归集（schedule / dispatch 留空时）：jiahao + T3 经典公开仓三首选（D-050/#49）——
+          #   C 族 git/git、Python 族 django/django、Java 族 spring-projects/spring-boot，一仓一行 matrix 各一 leg。
+          #   备选表（超 20min 预算换）：C 备 curl/curl、Python 备 pallets/flask、Java 备 apache/kafka。
+          DEFAULT='{"repo":[{"name":"jiahao","url":"https://github.com/Xxx91n/jiahao.git"},{"name":"git","url":"https://github.com/git/git.git"},{"name":"django","url":"https://github.com/django/django.git"},{"name":"spring-boot","url":"https://github.com/spring-projects/spring-boot.git"}]}'
           if [ -z "$OPT_URL" ]; then
             echo "matrix=$DEFAULT" >> "$GITHUB_OUTPUT"
             echo "targets = default regression set: $DEFAULT"
