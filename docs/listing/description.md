@@ -1,6 +1,6 @@
 # macro-audit —— listing 文案草稿（#41b / D-031 冻结口径）
 
-> 边界文案唯一事实源 = 仓根 README 能力矩阵（capability 1-2 of 5 preview；Micro-A/Micro-B/Macro-A = Not yet in preview）。本草稿不发明能力声明。
+> 边界文案唯一事实源 = 仓根 README 能力矩阵（capability 1-3 of 5 preview；Micro-B/Macro-A = Not yet in preview）。本草稿不发明能力声明。
 
 ## name
 
@@ -22,7 +22,8 @@
 
 - **Macro-B 仓库级四象限**（capability 1 of 5 · preview）：gitlog/ADR 结构/定位三族采集 → 事实表 → 预声明判据裁决 → 带回执的报告；
 - **Macro-C 演化考古**（capability 2 of 5 · preview）：单仓校准披露口径；
-- Micro-A / Micro-B / Macro-A = **Not yet in preview**（roadmap 叙事非可用承诺）。
+- **Micro-A PR diff**（capability 3 of 5 · preview）：托管 API 适配器消费侧（GitHub REST），同主试点仓 4-PR 校准口径；
+- Micro-B / Macro-A = **Not yet in preview**（roadmap 叙事非可用承诺）。
 
 设计原则：
 
@@ -42,7 +43,7 @@
 
 ## license
 
-`UNLICENSED`（现状；上架前需拍板 SPDX 值——⚠ 阻塞项，见 credential-checklist）
+`Apache-2.0`（D-051 拍板落定：engine/LICENSE 已换文＋manifest/package.json/marketplace.json 同步）
 
 ## homepage / repository / author
 
