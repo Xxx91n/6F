@@ -36,28 +36,28 @@
 - dimensions: S1, S2
 - slice_fields: {"s1_keyword_coverage_ratio":0,"s2_five_piece_mean_ratio":0.8,"adr_count":2,"lag_judgeable_n":2,"intent_docs":0}
 - conflict_markers: synthetic-fixture, degraded
-- verdict_gate: ADR-0013-C/v1 / insufficient / threshold_met=false / decided_at=2026-03-02T10:00:00Z / audit_ref=engine/src/demo/demo.ts
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-03-02T10:00:00Z / audit_ref=engine/src/demo/demo.ts
 
 ### structure（applicability=not_applicable）
 - verdict: insufficient · score: n/a · confidence: 0
 - dimensions: 
 - slice_fields: {}
 - conflict_markers: out-of-scope-stage1, degraded
-- verdict_gate: ADR-0013-C/v1 / insufficient / threshold_met=false / decided_at=2026-03-02T10:00:00Z / audit_ref=engine/src/demo/demo.ts
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-03-02T10:00:00Z / audit_ref=engine/src/demo/demo.ts
 
 ### behavior（applicability=not_applicable）
 - verdict: insufficient · score: n/a · confidence: 0
 - dimensions: 
 - slice_fields: {}
 - conflict_markers: out-of-scope-stage1, degraded
-- verdict_gate: ADR-0013-C/v1 / insufficient / threshold_met=false / decided_at=2026-03-02T10:00:00Z / audit_ref=engine/src/demo/demo.ts
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-03-02T10:00:00Z / audit_ref=engine/src/demo/demo.ts
 
 ### supply_chain（applicability=not_applicable）
 - verdict: insufficient · score: n/a · confidence: 0
 - dimensions: 
 - slice_fields: {}
 - conflict_markers: data-not-connected, degraded
-- verdict_gate: ADR-0013-C/v1 / insufficient / threshold_met=false / decided_at=2026-03-02T10:00:00Z / audit_ref=engine/src/demo/demo.ts
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-03-02T10:00:00Z / audit_ref=engine/src/demo/demo.ts
 
 #### 结构化裁决块（agent 可消费）
 - protocol_version: ADR-0013-C/v1

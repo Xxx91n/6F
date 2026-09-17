@@ -1,7 +1,7 @@
 // 53-check.mjs —— #53 `macro-audit audit` 一等命令守卫（D-060 八要素）
 // 断言面：A=签名面（cli.ts audit 分发 + usage 行 + README 同票绑定）
 //   → B=--scale 诚实拒绝（未实装层 exit 2 + SCALE-NOT-IMPLEMENTED 结构化 JSON，不假装）
-//   → C=--out 双通道实跑（五工件落盘 + stdout 回执 JSON 契约字段集）＋省略 --out 报告 md 走 stdout
+//   → C=--out 双通道实跑（五工件落盘 + stdout 回执 JSON 契约字段集）＋省略 --out 报告 md 走 stdout＋C4 verdict_gate 改名钉（F11/D-064①）
 //   → D=共享管线消费（audit.ts/demo.ts 同 import audit/macro-b.ts 链件）
 //   → E=golden parity：audit sidecar 字段路径 ⊆ 39 one-shot 复跑产物（39/40=回归对照物非主入口）
 //   → F=报告头 preview 披露（stability=preview + capabilities=[macro-b] 机读面）＋快照时点披露
@@ -65,6 +65,8 @@ const ART = ['report.md', 'report.json', 'audit-facts.jsonl', 'audit-measurement
 t('C2 五工件落盘齐备', ART.every(function (f) { return existsSync(join(OUTA, f)); }), ART.filter(function (f) { return !existsSync(join(OUTA, f)); }).join(','));
 let r3 = spawnSync('node', [CLI, 'audit', TGT], { encoding: 'utf8', timeout: 120000 });
 t('C3 省略 --out → stdout=报告 markdown（含 RECEIPT 行）', r3.status === 0 && r3.stdout.indexOf('# MA-AUDIT-') >= 0 && r3.stdout.indexOf('RECEIPT RCP-') >= 0, 'status=' + r3.status);
+const repJsonC4 = existsSync(join(OUTA, 'report.json')) ? JSON.parse(txt(join(OUTA, 'report.json'))) : null;
+t('C4 F11 改名生效：象限 verdict_gate 全载 evidence_flag 且旧名 evidence_threshold_met 零残留（含 skeleton.required_fields）', !!repJsonC4 && repJsonC4.quadrants.every(function (q) { return q.verdict_gate && typeof q.verdict_gate.evidence_flag === 'boolean' && !('evidence_threshold_met' in q.verdict_gate); }) && JSON.stringify(repJsonC4).indexOf('evidence_threshold_met') < 0);
 
 // ---------- D. 共享管线消费 ----------
 const demo = txt(join(ENG, 'src', 'demo', 'demo.ts'));

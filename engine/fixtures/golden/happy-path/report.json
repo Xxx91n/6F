@@ -91,7 +91,7 @@
         "slice_fields",
         "verdict_gate.protocol_version",
         "verdict_gate.decision",
-        "verdict_gate.evidence_threshold_met",
+        "verdict_gate.evidence_flag",
         "verdict_gate.decided_at",
         "verdict_gate.override_reason",
         "verdict_gate.audit_ref",
@@ -611,7 +611,7 @@
       "verdict_gate": {
         "protocol_version": "ADR-0013-C/v1",
         "decision": "supported",
-        "evidence_threshold_met": false,
+        "evidence_flag": false,
         "decided_at": "2026-04-13T10:00:00Z",
         "override_reason": null,
         "audit_ref": "engine/src/demo/demo.ts"
@@ -631,7 +631,7 @@
       "verdict_gate": {
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
-        "evidence_threshold_met": false,
+        "evidence_flag": false,
         "decided_at": "2026-04-13T10:00:00Z",
         "override_reason": "Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23/#39 同口径）",
         "audit_ref": "engine/src/demo/demo.ts"
@@ -651,7 +651,7 @@
       "verdict_gate": {
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
-        "evidence_threshold_met": false,
+        "evidence_flag": false,
         "decided_at": "2026-04-13T10:00:00Z",
         "override_reason": "Macro-B 已上架采集面仅 strategy（S1+S2）——behavior 无采集器",
         "audit_ref": "engine/src/demo/demo.ts"
@@ -671,7 +671,7 @@
       "verdict_gate": {
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
-        "evidence_threshold_met": false,
+        "evidence_flag": false,
         "decided_at": "2026-04-13T10:00:00Z",
         "override_reason": "⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）",
         "audit_ref": "engine/src/demo/demo.ts"

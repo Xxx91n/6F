@@ -28,7 +28,7 @@ export interface SkeletonChapter {
 
 export const REPORT_SKELETON: readonly SkeletonChapter[] = [
   { id: 'C1', ordinal: 1, name: '执行摘要', required_fields: ['report_id', 'schema_version', 'scale', 'subject_ref', 'generated_at', 'correlation_key', 'overall_verdict', 'confidence', 'headline', 'top_findings', 'degraded_mode', 'stale_data_marker', 'staleness_sla_seconds', 'read_model_lag_seconds', 'read_model_version', 'fact_watermark_version'] },
-  { id: 'C2', ordinal: 2, name: '四象限与裁决', required_fields: ['quadrants', 'quadrant', 'applicability', 'verdict', 'score', 'confidence', 'dimensions', 'slice_fields', 'verdict_gate.protocol_version', 'verdict_gate.decision', 'verdict_gate.evidence_threshold_met', 'verdict_gate.decided_at', 'verdict_gate.override_reason', 'verdict_gate.audit_ref', 'conflict_markers'] },
+  { id: 'C2', ordinal: 2, name: '四象限与裁决', required_fields: ['quadrants', 'quadrant', 'applicability', 'verdict', 'score', 'confidence', 'dimensions', 'slice_fields', 'verdict_gate.protocol_version', 'verdict_gate.decision', 'verdict_gate.evidence_flag', 'verdict_gate.decided_at', 'verdict_gate.override_reason', 'verdict_gate.audit_ref', 'conflict_markers'] },
   { id: 'C3', ordinal: 3, name: '证据', required_fields: ['evidence_items', 'evidence_id', 'source', 'locator', 'claim', 'grounded', 'collected_at', 'reproduce_cmd', 'reproduce_absent_reason'] },
   { id: 'C4', ordinal: 4, name: '行动建议', required_fields: ['recommendations', 'rec_id', 'priority', 'action', 'rationale', 'expected_impact', 'effort', 'verdict_gate_stamp', 'evidence_refs', 'degraded_note'] }
 ];
@@ -181,7 +181,7 @@ export function buildReceipt(args: { fact_ids: readonly string[]; adjudication: 
 export interface VerdictGate {
   protocol_version: string;
   decision: string;
-  evidence_threshold_met: boolean;
+  evidence_flag: boolean;
   decided_at: string;
   override_reason: string | null;
   audit_ref: string;
@@ -384,7 +384,7 @@ export function renderMarkdown(r: Report): string {
         out.push('- dimensions: ' + q.dimensions.join(', '));
         out.push('- slice_fields: ' + JSON.stringify(q.slice_fields));
         out.push('- conflict_markers: ' + (q.conflict_markers.length === 0 ? '(none)' : q.conflict_markers.join(', ')));
-        out.push('- verdict_gate: ' + q.verdict_gate.protocol_version + ' / ' + q.verdict_gate.decision + ' / threshold_met=' + q.verdict_gate.evidence_threshold_met + ' / decided_at=' + q.verdict_gate.decided_at + ' / audit_ref=' + q.verdict_gate.audit_ref);
+        out.push('- verdict_gate: ' + q.verdict_gate.protocol_version + ' / ' + q.verdict_gate.decision + ' / evidence_flag=' + q.verdict_gate.evidence_flag + ' / decided_at=' + q.verdict_gate.decided_at + ' / audit_ref=' + q.verdict_gate.audit_ref);
         out.push('');
       }
       out.push('#### 结构化裁决块（agent 可消费）');
@@ -575,7 +575,7 @@ export function degradeReport(r: Report, reason: string): Report {
         verdict_gate: {
           protocol_version: q.verdict_gate.protocol_version,
           decision: 'insufficient',
-          evidence_threshold_met: false,
+          evidence_flag: false,
           decided_at: q.verdict_gate.decided_at,
           override_reason: reason,
           audit_ref: q.verdict_gate.audit_ref

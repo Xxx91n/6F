@@ -91,7 +91,7 @@
         "slice_fields",
         "verdict_gate.protocol_version",
         "verdict_gate.decision",
-        "verdict_gate.evidence_threshold_met",
+        "verdict_gate.evidence_flag",
         "verdict_gate.decided_at",
         "verdict_gate.override_reason",
         "verdict_gate.audit_ref",
@@ -451,7 +451,7 @@
       "verdict_gate": {
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
-        "evidence_threshold_met": false,
+        "evidence_flag": false,
         "decided_at": "2026-03-02T10:00:00Z",
         "override_reason": "FP-45-2 采集域证据不完整：docs/adr 语料仅 2 份且字段残缺、意图面文档缺失 → 主前提不可裁定，发起 GapRequest 降级产出",
         "audit_ref": "engine/src/demo/demo.ts"
@@ -472,7 +472,7 @@
       "verdict_gate": {
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
-        "evidence_threshold_met": false,
+        "evidence_flag": false,
         "decided_at": "2026-03-02T10:00:00Z",
         "override_reason": "FP-45-2 采集域证据不完整：docs/adr 语料仅 2 份且字段残缺、意图面文档缺失 → 主前提不可裁定，发起 GapRequest 降级产出",
         "audit_ref": "engine/src/demo/demo.ts"
@@ -493,7 +493,7 @@
       "verdict_gate": {
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
-        "evidence_threshold_met": false,
+        "evidence_flag": false,
         "decided_at": "2026-03-02T10:00:00Z",
         "override_reason": "FP-45-2 采集域证据不完整：docs/adr 语料仅 2 份且字段残缺、意图面文档缺失 → 主前提不可裁定，发起 GapRequest 降级产出",
         "audit_ref": "engine/src/demo/demo.ts"
@@ -514,7 +514,7 @@
       "verdict_gate": {
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
-        "evidence_threshold_met": false,
+        "evidence_flag": false,
         "decided_at": "2026-03-02T10:00:00Z",
         "override_reason": "FP-45-2 采集域证据不完整：docs/adr 语料仅 2 份且字段残缺、意图面文档缺失 → 主前提不可裁定，发起 GapRequest 降级产出",
         "audit_ref": "engine/src/demo/demo.ts"

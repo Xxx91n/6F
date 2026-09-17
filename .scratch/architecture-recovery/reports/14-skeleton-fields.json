@@ -194,10 +194,10 @@
             "description": "裁决结果"
           },
           {
-            "name": "verdict_gate.evidence_threshold_met",
+            "name": "verdict_gate.evidence_flag",
             "type": "boolean",
             "required": true,
-            "description": "是否达到证据门槛"
+            "description": "裁决闸在证据维的标记位——非『达阈』断言；标记语义由产出面定义（strategy=TC-2 判红、behavior=PC-1 正对照命中、not_applicable=false）"
           },
           {
             "name": "verdict_gate.decided_at",

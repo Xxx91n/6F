@@ -85,11 +85,11 @@ const claims = evidence.map(function (e) { return { claim_id: 'C-' + e.evidence_
 // ---------- §5 象限切片 + 报告 ----------
 const hotTop = hRows.slice(0, 3).map(function (r) { return r.path + '(revs=' + r.revisions + ',score=' + Number(r.hotspot_score).toFixed(2) + ')'; });
 const behaviorBand = (pc1 && tc1 && tc2 && nc1) ? 'supported' : 'insufficient';
-const gate = { protocol_version: 'ADR-0013-C/v1', decision: 'insufficient', evidence_threshold_met: false, decided_at: decidedAt, override_reason: null, audit_ref: '51-behavior-criteria.md' };
+const gate = { protocol_version: 'ADR-0013-C/v1', decision: 'insufficient', evidence_flag: false, decided_at: decidedAt, override_reason: null, audit_ref: '51-behavior-criteria.md' };
 const quadrants = [
   { quadrant: 'behavior', applicability: 'native', verdict: behaviorBand, score: null, confidence: 0.6, dimensions: [],
     slice_fields: { faces: ['hotspots', 'coupling', 'function-hotspots'], face_row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, hotspot_top: hotTop, coupling_pairs: cRows.length, min_revs: TC1_MIN_N, sample_met: tc1, deferred_faces: DEFERRED, quadrant_assignment: 'slice-decision（facts 共享 quadrant=strategic/codelore 族 provenance 不改写；象限归属=报告切片决策 D-054③）' },
-    verdict_gate: { protocol_version: 'ADR-0013-C/v1', decision: behaviorBand, evidence_threshold_met: pc1, decided_at: decidedAt, override_reason: null, audit_ref: '51-behavior-criteria.md' },
+    verdict_gate: { protocol_version: 'ADR-0013-C/v1', decision: behaviorBand, evidence_flag: pc1, decided_at: decidedAt, override_reason: null, audit_ref: '51-behavior-criteria.md' },
     conflict_markers: [] },
   { quadrant: 'strategy', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {},
     verdict_gate: Object.assign({}, gate, { override_reason: '本票切片仅行为面；strategy 象限采集面已由 #39 上架（active 维持）' }), conflict_markers: [] },

@@ -15,7 +15,6 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { deriveBaggageId } from '../collect/collectors.js';
-import type { CollectedFact } from '../collect/collectors.js';
 import { buildReport, degradeReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, UNVERIFIED_MARK, REPORT_SKELETON_VERSION } from '../report/generate.js';
 import type { PreviewDisclosure, ReportInput, EvidenceItem, ClaimAnchor, QuadrantEntry, Recommendation, AdjudicationEntry } from '../report/generate.js';
 import { repoAdd } from '../intake/intake.js';
@@ -133,61 +132,26 @@ export function runDemo(opts: DemoOptions): DemoResult {
     }, ctx, probes);
     const ev = evaluateMacroB(col);
 
-    // 下游装配别名（measurements/裁决条目/报告输入引用的语义面变量，与原内联同值）
-    const HEAD_SHA = probes.headSha;
-    const HEAD_DATE = probes.headDate;
-    const TREE_SHA = probes.treeSha;
-    const COMMIT_COUNT = probes.commitCount;
-    const adrFiles = col.adrFiles;
-    const intentDocs = col.intentDocs;
-    const adrFacts = col.adrFacts;
-    const gitFacts = col.gitFacts;
-    const posFacts = col.posFacts;
-    const realFacts: CollectedFact[] = col.realFacts;
-    const pc1 = col.pc1;
-    const pc2 = col.pc2;
-    const nc1 = col.nc1;
-    const pc1AdrFacts = col.pc1AdrFacts;
-    const pc1PosFacts = col.pc1PosFacts;
-    const pc2Lag = col.pc2Lag;
-    const nc1Facts = col.nc1Facts;
-    const tc1Judgeable = ev.tc1.judgeable_n;
-    const tc1Backfill = ev.tc1.backfill_n;
-    const tc1Ratio = ev.tc1.ratio;
-    const tc1Verdict = ev.tc1.verdict;
-    const tc2Total = ev.tc2.total;
-    const tc2Mean = ev.tc2.mean_ratio;
-    const tc2Missing = ev.tc2.missing_counts;
-    const tc2MissingRatio = ev.tc2.missing_ratio;
-    const tc2CondA = ev.tc2.cond_a;
-    const tc2CondB = ev.tc2.cond_b;
-    const tc2Verdict = ev.tc2.verdict;
-    const covFacts = ev.covFacts;
-    const tc3Ratio = ev.tc3.lowest_ratio;
-    const tc3Verdict = ev.tc3.verdict;
-    const tc3Lowest = ev.tc3.lowest_path === null ? null : ev.covFacts.find(function (c) { return c.subject === ev.tc3.lowest_path; }) || null;
-    const nc1Path = col.nc1Path;
-
     // ---------- §8 实测数落盘（工件内禁绝对路径——golden 逐字节稳定） ----------
     const measurements = {
       scenario: scenario,
       synthetic: true,
       generator: FIXTURE_GENERATOR_ID,
-      observed_at: HEAD_DATE,
-      head_sha: HEAD_SHA,
-      tree_sha: TREE_SHA,
-      commit_count: COMMIT_COUNT,
+      observed_at: probes.headDate,
+      head_sha: probes.headSha,
+      tree_sha: probes.treeSha,
+      commit_count: probes.commitCount,
       merge_commits: gen.merge_commits,
       branches: gen.branches,
       tags: gen.tags,
-      adr_count: tc2Total,
-      intent_docs: intentDocs.map(function (d) { return d.path; }),
-      fact_count: realFacts.length,
+      adr_count: ev.tc2.total,
+      intent_docs: col.intentDocs.map(function (d) { return d.path; }),
+      fact_count: col.realFacts.length,
       intake: { kind: intake.kind, shallow: intake.shallow, full_depth_verified: intake.full_depth_verified, remote_config_execution: intake.remote_config_execution, credentials: intake.credentials, cloned: intake.cloned },
-      tc1: { judgeable_n: tc1Judgeable, backfill_n: tc1Backfill, ratio_4: tc1Ratio.toFixed(4), verdict: tc1Verdict, threshold: { lag_days: TC1_LAG_DAYS, ratio_red: TC1_RATIO_RED, min_n: TC1_MIN_N } },
-      tc2: { total: tc2Total, mean_ratio_4: tc2Mean.toFixed(4), missing_counts: tc2Missing, missing_ratio_4: Object.fromEntries(Object.keys(tc2MissingRatio).map(function (k) { return [k, Number(tc2MissingRatio[k].toFixed(4))]; })), cond_a: tc2CondA, cond_b: tc2CondB, verdict: tc2Verdict, threshold: { mean_red: TC2_MEAN_RED, field_missing_red: TC2_FIELD_MISSING_RED } },
-      tc3: { per_source: covFacts.map(function (c) { return { path: c.subject, hit: c.value.hit, keywords: c.value.keywords, ratio_4: c.value.ratio.toFixed(4) }; }), lowest_path: tc3Lowest ? tc3Lowest.subject : null, lowest_ratio_4: tc3Ratio.toFixed(4), verdict: tc3Verdict, threshold: { red: TC3_RED, green: TC3_GREEN, top_n: TC3_TOPN } },
-      nc1: nc1, pc1: pc1, pc2: pc2,
+      tc1: { judgeable_n: ev.tc1.judgeable_n, backfill_n: ev.tc1.backfill_n, ratio_4: ev.tc1.ratio.toFixed(4), verdict: ev.tc1.verdict, threshold: { lag_days: TC1_LAG_DAYS, ratio_red: TC1_RATIO_RED, min_n: TC1_MIN_N } },
+      tc2: { total: ev.tc2.total, mean_ratio_4: ev.tc2.mean_ratio.toFixed(4), missing_counts: ev.tc2.missing_counts, missing_ratio_4: Object.fromEntries(Object.keys(ev.tc2.missing_ratio).map(function (k) { return [k, Number(ev.tc2.missing_ratio[k].toFixed(4))]; })), cond_a: ev.tc2.cond_a, cond_b: ev.tc2.cond_b, verdict: ev.tc2.verdict, threshold: { mean_red: TC2_MEAN_RED, field_missing_red: TC2_FIELD_MISSING_RED } },
+      tc3: { per_source: ev.covFacts.map(function (c) { return { path: c.subject, hit: c.value.hit, keywords: c.value.keywords, ratio_4: c.value.ratio.toFixed(4) }; }), lowest_path: ev.tc3.lowest_path, lowest_ratio_4: ev.tc3.lowest_ratio.toFixed(4), verdict: ev.tc3.verdict, threshold: { red: TC3_RED, green: TC3_GREEN, top_n: TC3_TOPN } },
+      nc1: col.nc1, pc1: col.pc1, pc2: col.pc2,
       failure_trigger: def.failure ? def.failure.trigger : null,
       expect: def.expect
     };
@@ -199,23 +163,23 @@ export function runDemo(opts: DemoOptions): DemoResult {
     const MD_NAME = 'report.md';
     const JSON_NAME = 'report.json';
     writeFileSync(join(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL, 'utf8');
-    writeFileSync(join(outDir, FACTS_NAME), realFacts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
+    writeFileSync(join(outDir, FACTS_NAME), col.realFacts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
 
     // ---------- §9 证据 + 结论→引文锚（源一律相对名——工件零绝对路径） ----------
     const evidence: EvidenceItem[] = [];
     function addEvidence(id: string, source: string, tokens: readonly string[] | null, claim: string, reproCmd: string, base: string | null) {
       const ex = pickExcerpt(source, tokens, base);
-      evidence.push({ evidence_id: id, source: source, locator: 'L' + ex.line, claim: claim, grounded: true, collected_at: HEAD_DATE, reproduce_cmd: reproCmd, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
+      evidence.push({ evidence_id: id, source: source, locator: 'L' + ex.line, claim: claim, grounded: true, collected_at: probes.headDate, reproduce_cmd: reproCmd, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
     }
     const RUN_CMD = 'macro-audit demo --scenario ' + scenario;
     const R = scenario.toUpperCase().split('-').join('');
     addEvidence('EV-45-' + R + '-01', MEAS_NAME, ['"fact_count"'], '本次实测：' + scenario + ' 合成 fixture 采集事实数', RUN_CMD, outDir);
-    addEvidence('EV-45-' + R + '-02', MEAS_NAME, ['"verdict"'], '本次实测：TC-1 ADR 事后补写判据裁定（' + tc1Verdict + '）', RUN_CMD, outDir);
+    addEvidence('EV-45-' + R + '-02', MEAS_NAME, ['"verdict"'], '本次实测：TC-1 ADR 事后补写判据裁定（' + ev.tc1.verdict + '）', RUN_CMD, outDir);
     addEvidence('EV-45-' + R + '-03', MEAS_NAME, ['"mean_ratio_4"'], '本次实测：TC-2 五件套完整度 mean_ratio', RUN_CMD, outDir);
     addEvidence('EV-45-' + R + '-04', MEAS_NAME, ['"lowest_ratio_4"'], '本次实测：TC-3 定位覆盖率最低值', RUN_CMD, outDir);
     addEvidence('EV-45-' + R + '-05', MEAS_NAME, ['"five_piece_present"'], '本次实测：NC-1 负对照选材五件套命中数（预期 0）', RUN_CMD, outDir);
-    if (adrFiles.length > 0) {
-      addEvidence('EV-45-' + R + '-06', 'docs/adr/' + adrFiles[0], null, scenario + ' 合成 ADR 语料锚：docs/adr/' + adrFiles[0] + ' 实物存在（语料 ' + adrFiles.length + ' 份，synthetic fixture）', 'git -C <fixture-repo> show HEAD:docs/adr/' + adrFiles[0], repoDir);
+    if (col.adrFiles.length > 0) {
+      addEvidence('EV-45-' + R + '-06', 'docs/adr/' + col.adrFiles[0], null, scenario + ' 合成 ADR 语料锚：docs/adr/' + col.adrFiles[0] + ' 实物存在（语料 ' + col.adrFiles.length + ' 份，synthetic fixture）', 'git -C <fixture-repo> show HEAD:docs/adr/' + col.adrFiles[0], repoDir);
     }
     addEvidence('EV-45-' + R + '-07', MEAS_NAME, ['"synthetic": true'], '合成印记：本报告全部语料为 synthetic fixture 生成仓，not an audit of any real repository', RUN_CMD, outDir);
 
@@ -235,55 +199,55 @@ export function runDemo(opts: DemoOptions): DemoResult {
       basis_path: 'reports/22-c-adjudication-basis.md',
       criterion_ids: ['PC-1', 'PC-2', 'TC-1', 'TC-2', 'TC-3', 'NC-1']
     };
-    const tc1FactIds = gitFacts.filter(function (f) { return f.metric === 'git.adr_lag_days'; }).map(function (f) { return f.fact_id; });
-    const tc2FactIds = adrFacts.filter(function (f) { return f.metric === 'adr.five_piece_completeness'; }).map(function (f) { return f.fact_id; });
-    const tc3FactIds = covFacts.map(function (c) { return c.fact_id; });
+    const tc1FactIds = col.gitFacts.filter(function (f) { return f.metric === 'git.adr_lag_days'; }).map(function (f) { return f.fact_id; });
+    const tc2FactIds = col.adrFacts.filter(function (f) { return f.metric === 'adr.five_piece_completeness'; }).map(function (f) { return f.fact_id; });
+    const tc3FactIds = ev.covFacts.map(function (c) { return c.fact_id; });
     const adjudicationEntries: AdjudicationEntry[] = [
-      { criterion_id: 'PC-1', band: pc1.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: [pc1AdrFacts[0].fact_id, pc1PosFacts[0].fact_id], anchored_evidence_ids: ['EV-45-' + R + '-01'], decided_at: HEAD_DATE, rationale: pc1.pass ? 'adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（合成 run 内管线活性正对照）' : '正对照未中，管线故障 P0' },
-      { criterion_id: 'PC-2', band: pc2.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: pc2Lag.length > 0 ? [pc2Lag[0].fact_id] : [], anchored_evidence_ids: ['EV-45-' + R + '-01'], decided_at: HEAD_DATE, rationale: pc2.pass ? 'gitlog 族检出事后补写 delta_days = ' + String(pc2.delta_days) : '正对照未中，管线故障 P0' },
-      { criterion_id: 'TC-1', band: tcBand(tc1Verdict), basis_refs: ['B2'], anchored_fact_ids: tc1FactIds, anchored_evidence_ids: ['EV-45-' + R + '-02'], decided_at: HEAD_DATE, rationale: scenario + ' ADR 事后补写：可判定数 ' + tc1Judgeable + '（门槛 ' + TC1_MIN_N + '），>90d 占比 ' + measurements.tc1.ratio_4 + '，判 ' + tc1Verdict },
-      { criterion_id: 'TC-2', band: tcBand(tc2Verdict), basis_refs: ['B2'], anchored_fact_ids: tc2FactIds, anchored_evidence_ids: ['EV-45-' + R + '-03'], decided_at: HEAD_DATE, rationale: scenario + ' ADR 五件套：mean_ratio ' + measurements.tc2.mean_ratio_4 + '（门槛 ' + TC2_MEAN_RED + '），字段缺失率超线=' + tc2CondB + '，判 ' + tc2Verdict },
-      { criterion_id: 'TC-3', band: tcBand(tc3Verdict), basis_refs: ['B2'], anchored_fact_ids: tc3FactIds, anchored_evidence_ids: ['EV-45-' + R + '-04'], decided_at: HEAD_DATE, rationale: scenario + ' 定位覆盖：意图面 ' + intentDocs.length + ' 件最低 ratio ' + measurements.tc3.lowest_ratio_4 + '（' + String(measurements.tc3.lowest_path) + '），判 ' + tc3Verdict },
-      { criterion_id: 'NC-1', band: nc1.pass ? 'supported' : 'insufficient', basis_refs: ['B4'], anchored_fact_ids: nc1Facts.length > 0 ? [nc1Facts[0].fact_id] : [], anchored_evidence_ids: ['EV-45-' + R + '-05'], decided_at: HEAD_DATE, rationale: nc1.pass ? '负对照选材 ' + nc1Path + ' 五件套 0 命中、supersede 0 命中（特异性成立）' : '负对照命中，转复核路径' }
+      { criterion_id: 'PC-1', band: col.pc1.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: (col.pc1AdrFacts.length > 0 ? [col.pc1AdrFacts[0].fact_id] : []).concat(col.pc1PosFacts.length > 0 ? [col.pc1PosFacts[0].fact_id] : []), anchored_evidence_ids: ['EV-45-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc1.pass ? 'adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（合成 run 内管线活性正对照）' : '正对照未中，管线故障 P0' },
+      { criterion_id: 'PC-2', band: col.pc2.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: col.pc2Lag.length > 0 ? [col.pc2Lag[0].fact_id] : [], anchored_evidence_ids: ['EV-45-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc2.pass ? 'gitlog 族检出事后补写 delta_days = ' + String(col.pc2.delta_days) : '正对照未中，管线故障 P0' },
+      { criterion_id: 'TC-1', band: tcBand(ev.tc1.verdict), basis_refs: ['B2'], anchored_fact_ids: tc1FactIds, anchored_evidence_ids: ['EV-45-' + R + '-02'], decided_at: probes.headDate, rationale: scenario + ' ADR 事后补写：可判定数 ' + ev.tc1.judgeable_n + '（门槛 ' + TC1_MIN_N + '），>90d 占比 ' + measurements.tc1.ratio_4 + '，判 ' + ev.tc1.verdict },
+      { criterion_id: 'TC-2', band: tcBand(ev.tc2.verdict), basis_refs: ['B2'], anchored_fact_ids: tc2FactIds, anchored_evidence_ids: ['EV-45-' + R + '-03'], decided_at: probes.headDate, rationale: scenario + ' ADR 五件套：mean_ratio ' + measurements.tc2.mean_ratio_4 + '（门槛 ' + TC2_MEAN_RED + '），字段缺失率超线=' + ev.tc2.cond_b + '，判 ' + ev.tc2.verdict },
+      { criterion_id: 'TC-3', band: tcBand(ev.tc3.verdict), basis_refs: ['B2'], anchored_fact_ids: tc3FactIds, anchored_evidence_ids: ['EV-45-' + R + '-04'], decided_at: probes.headDate, rationale: scenario + ' 定位覆盖：意图面 ' + col.intentDocs.length + ' 件最低 ratio ' + measurements.tc3.lowest_ratio_4 + '（' + String(measurements.tc3.lowest_path) + '），判 ' + ev.tc3.verdict },
+      { criterion_id: 'NC-1', band: col.nc1.pass ? 'supported' : 'insufficient', basis_refs: ['B4'], anchored_fact_ids: col.nc1Facts.length > 0 ? [col.nc1Facts[0].fact_id] : [], anchored_evidence_ids: ['EV-45-' + R + '-05'], decided_at: probes.headDate, rationale: col.nc1.pass ? '负对照选材 ' + col.nc1Path + ' 五件套 0 命中、supersede 0 命中（特异性成立）' : '负对照命中，转复核路径' }
     ];
     const strategyBand = deriveOverallBand(adjudicationEntries);
 
     // ---------- §11 四象限 + 建议 + 报告装配（披露块=CASRAI 式统一契约面） ----------
     const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'engine/src/demo/demo.ts' };
     const quadrants: QuadrantEntry[] = [
-      { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: tc2Total, lag_judgeable_n: tc1Judgeable, intent_docs: intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_threshold_met: tc2Verdict === 'RED', decided_at: HEAD_DATE, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: ['synthetic-fixture'] },
-      { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_threshold_met: false, decided_at: HEAD_DATE, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23/#39 同口径）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
-      { quadrant: 'behavior', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_threshold_met: false, decided_at: HEAD_DATE, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——behavior 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
-      { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_threshold_met: false, decided_at: HEAD_DATE, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
+      { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === 'RED', decided_at: probes.headDate, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: ['synthetic-fixture'] },
+      { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: probes.headDate, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23/#39 同口径）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
+      { quadrant: 'behavior', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: probes.headDate, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——behavior 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
+      { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: probes.headDate, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
     ];
     const recommendations: Recommendation[] = [
       { rec_id: 'R-45-' + R + '-1', priority: 'P1', action: '对真实目标仓跑同一链路：`macro-audit repo add <path|url>` 接入后按 Macro-B 口径裁决——本报告为合成 fixture 演示，not an audit of any real repository', rationale: 'D-038 硬契约：合成数据不冒充真实审计结论；本演示只证管线形态与披露面', expected_impact: '获得真实审计结论而非演示数据', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-45-' + R + '-07'], degraded_note: null },
       { rec_id: 'R-45-' + R + '-2', priority: 'P3', action: '供应链象限维持「⚠ 数据未接」：Scorecard/repomix 按层需求队列接入不插队（D-034③④）', rationale: 'preview 诚实形态保持——supply-chain: ' + UNVERIFIED_MARK + ' 为披露块常驻印记', expected_impact: '披露诚实性保持', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-45-' + R + '-01'], degraded_note: null }
     ];
-    const HEADLINE = def.repo.name + ' demo（capability 1 of 5 · preview · synthetic fixture）：' + COMMIT_COUNT + ' commits / ADR ' + tc2Total + ' 份 / facts ' + realFacts.length + '——TC-1 ' + tc1Verdict + '（n=' + tc1Judgeable + '）、TC-2 ' + tc2Verdict + '（mean=' + measurements.tc2.mean_ratio_4 + '）、TC-3 ' + tc3Verdict + '（' + measurements.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '。not an audit of any real repository——合成语料不冒充真实审计（D-038）。';
+    const HEADLINE = def.repo.name + ' demo（capability 1 of 5 · preview · synthetic fixture）：' + probes.commitCount + ' commits / ADR ' + ev.tc2.total + ' 份 / facts ' + col.realFacts.length + '——TC-1 ' + ev.tc1.verdict + '（n=' + ev.tc1.judgeable_n + '）、TC-2 ' + ev.tc2.verdict + '（mean=' + measurements.tc2.mean_ratio_4 + '）、TC-3 ' + ev.tc3.verdict + '（' + measurements.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '。not an audit of any real repository——合成语料不冒充真实审计（D-038）。';
 
     const reportInput: ReportInput = {
       report_id: 'MA-45-DEMO-' + R,
       stability: 'preview',
       capabilities: ['macro-b'],
       scale: 'Macro-B',
-      subject_ref: def.repo.name + '@' + HEAD_SHA.slice(0, 12),
-      generated_at: HEAD_DATE,
+      subject_ref: def.repo.name + '@' + probes.headSha.slice(0, 12),
+      generated_at: probes.headDate,
       trace_id: ctx.traceId,
       baggage_id: deriveBaggageId(ctx, 'S2'),
       headline: HEADLINE,
       confidence: 0.6,
       stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: REPORT_SKELETON_VERSION, fact_watermark_version: '1' },
-      fact_ids: realFacts.map(function (f) { return f.fact_id; }),
+      fact_ids: col.realFacts.map(function (f) { return f.fact_id; }),
       top_findings: ['EV-45-' + R + '-01', 'EV-45-' + R + '-03', 'EV-45-' + R + '-04'],
       evidence: evidence,
       claims: claims,
       quadrants: quadrants,
       recommendations: recommendations,
       adjudication_entries: adjudicationEntries,
-      decided_at: HEAD_DATE,
-      commit_anchor: HEAD_SHA,
-      tree_anchor: TREE_SHA,
+      decided_at: probes.headDate,
+      commit_anchor: probes.headSha,
+      tree_anchor: probes.treeSha,
       gate_ref: GATE_REF,
       degraded: false,
       degraded_reason: null,
@@ -310,10 +274,10 @@ export function runDemo(opts: DemoOptions): DemoResult {
       degraded_mode: report.degraded_mode,
       degraded_reason: report.degraded_reason,
       receipt_id: report.receipt.receipt_id,
-      head_sha: HEAD_SHA,
-      commit_count: COMMIT_COUNT,
-      adr_count: tc2Total,
-      fact_count: realFacts.length,
+      head_sha: probes.headSha,
+      commit_count: probes.commitCount,
+      adr_count: ev.tc2.total,
+      fact_count: col.realFacts.length,
       intake_kind: intake.kind,
       temp_dir: opts.keepTemp ? workDir : null,
       temp_discarded: !opts.keepTemp,
