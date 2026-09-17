@@ -552,3 +552,17 @@
 | #52a (D-061) | commit 后随：合成语料 110 条（92 claim-evidence＋18 band，52a-gen-corpus.mjs 确定性生成＋sha256 指纹）；κ 三报=全集 0.455（<0.6 地板如实报＋findings 登记）／非对抗子集 0.970／intra-rater 1.000；band-leak 检出 12/12＋干净 FP 0/6；对抗 FP=13/FN=12 分型入 eval JSON；**#56 立修复票**（评测/修复分票纪律兑现）；52a-check 21/21 |
 
 如实登记：① cli.ts --refresh 旗标行与 audit 分发块同 diff hunk 相邻不可再分，随 #53 commit 落盘（#55 注记）；② mcp.json 为 gen-manifests 生成物，env 配置面落 manifest.meta.json 单一元数据源（首跑 gen 报 DRIFT 即教训）；③ 52a 双标=intra-rater 单人二轮口径（合成语料 inter-rater 天花板退化为构造确定性，限制披露随 eval JSON）；④ snapshot_fetched_at 取证源=FETCH_HEAD mtime 单源（clone/refresh/缓存命中三腿同值，双钟不漂）；⑤ cli.ts audit 分发块测试期误用 audit_fact_events 表名——事实表实为 audit_fact（store.ts 唯一权威），test 修正后 audit.test 24/24。
+## 第十七轮 Grill（2026-09-17）
+
+| D | 原问题 | 用户原回答 | 规范化需求 | 显式约束/负向需求 | 状态 |
+|---|---|---|---|---|---|
+| D-064 | Q1（轮17）：轮16审计 F1-F15 处置框架？（atomcode 深调研 R17-Q1：DevSquad spec-amendment/clig.dev/Speakeasy/semver.org/JRH 六源＋本地一手文书核验，置信高） | 采纳（2026-09-17，原话「采纳」＝采纳修正后推荐全项） | ① 修 6 单票：F1 层序串修回 ADR-0017③ 原文＋53-check B 面断言层序原文／F8 新四守卫补 noBom 扫描／F9 旗标值双横线前缀拒绝（结构化 USAGE 错误）／F10 pc1AdrFacts 空值守卫→结构化 insufficient（demo.ts:246 同型并修，Failure Semantics：崩溃=缺结构化语义第三态）／F11 evidence_threshold_met 改名优先于改判定式（名字表达错误概念；0.y.z 改名零兼容税）＋53-check C 面同步／F15 mcp facts 调试腿复用 resolveFactsDb 三源链；② 勘误 5 注记级：F2 D-060③「同源」收窄为公共字段命名词同源禁同义异名（沿 D-043 写实先例）／F3 D-060④「单一函数」勘误为函数组共享（golden parity 为实体防漂移机制）／F6 改 #56 票面对齐 D-059⑤（D-061 本体不动）／F7 D-060③ 补记五工件清单（D-048 枚举扩容先例）／F14 D-060① 签名补 --refresh 第五旗标（D-059⑦ 已裁定能力）；③ F12 已闭环（ADR-0009 头部勘误补记实物已在）；④ F4 注记承接（合成语料 human-human 天花板测量对象不存在，遗留 #52b 真实语料面）；⑤ F5 held-out 分区＋分离存管写入 #56 票面；⑥ F13 观察项（下次接触 demo.ts 的票顺带清） | 零 revised——全部票面改动落注记级勘误非决策改向；修复票重跑清单=53-check＋audit.test＋npm test＋33-check 基线；防勘误膨胀（本批为同日滞后集中清算非常态）；执行时点=整理环节立票＋注记 | current |
+| D-065 | Q2（轮17）：#56 checker 语义边界修复方向裁定？（atomcode 深调研 R17-Q2：NegEx/ConText/NegDetector/CiteEval/TIST 12 源，置信高） | 采纳（2026-09-17，原话「采纳」＝采纳修正后推荐=(a)③+①＋五处锐化） | ① **判定语义文档化命名**：citation 盖章面明文 supports=presence-level 字面锚在场（否定/引语语境剥离后），非语义蕴含——命名即判据（TIST 惯例：未命名 verifier 协议跨评测不可比）；② **否定语境剥离=确定性三表启发式**：pre-negation cues／post-negation cues／pseudo-negation 表（防误剥，ACL W13-5635 结构）＋CJK 独立词表（不/没/未/无/非，禁 port 英文表）＋预声明窗口参数；③ 引语包裹模式表自设计（无现成 gazetteer）；④ **fail-safe 默认**：检测不确定→保持原判定/宁 insufficient 勿误 supports（与 BAND 从严同向）；⑤ 测试纪律=held-out 分区建立（兑现 D-064⑤ F5）＋修复后 held-out 首跑复测＋禁参照 52a 语料标签调参；⑥ FN=12 语义缺口如实披露归 human-in-loop 级（D-053④ 明细义务面）；⑦ 输出空间维持 supports/insufficient 二态不加第三态（D-045 YAGNI 判例同） | NegEx/ConText=确定性算法先例（纯正则无句法语义依赖）完全落 D-058 kernel 边界；启发式=收敛性改进非完备解（嵌套/复杂句式残留如实披露）；纯收窄=把已知 defect 包装成宣称不支持；锚表无合法构建来源；NLI=概率模型违 D-058＋不可重放破盖章；执行时点=#56 票面修订后 implement | current |
+## 第十七轮收口对账（2026-09-17 整理环节）
+
+| D | 去向 |
+|---|---|
+| D-064 | BACKLOG #57 修复票（F1/F8/F9/F10/F11/F15 六子项，P0）＋#56 票面修订（F5 held-out 分区）＋#52b 行 F4 注记＋registry demo-cleanup-observe（F13）；**D-060 四处勘误注记**：②层序条款不变（F1 属实现违票面非票面错）／③「同源」收窄释义=公共字段命名词同源禁同义异名（沿 D-043 写实先例）＋补记 --out 五工件清单（report.md/report.json/facts.duckdb/audit-facts.jsonl/audit-measurements.json，D-048 枚举扩容先例）／④「单一管线函数」勘误为函数组共享（golden parity=实体防漂移机制，D-031 镜像不抽象）／①签名补 --refresh 第五旗标（D-059⑦ 已裁定能力，D-048 枚举扩容先例）；F12 ADR-0009④ 勘误补记实物核验已在闭环 |
+| D-065 | BACKLOG #56 行修订（方向=③+① 全要素：文档化命名/三表剥离/pseudo 表/CJK 词表/fail-safe/held-out 分区/FN 披露/二态不加第三态） |
+
+轮 17 全部 2 条增量皆有去向，无去向清单=空。
