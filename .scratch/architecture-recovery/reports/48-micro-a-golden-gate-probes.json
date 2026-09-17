@@ -1,6 +1,6 @@
 {
   "probe": "48-micro-a-preview.mjs --golden gate",
-  "generated_at": "2026-09-16T22:56:21.912Z",
+  "generated_at": "2026-09-17T02:48:51.199Z",
   "criterion": "TC-4",
   "probes": [
     {

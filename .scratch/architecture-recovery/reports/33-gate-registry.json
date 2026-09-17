@@ -513,7 +513,7 @@
   {
    "id": "codelore-deferred-faces",
    "family": "codelore-deferred",
-   "title": "CodeLore 暂缓面集 22 速写名（#51 激活 3 面后重计；Micro 层/备用）",
+   "title": "CodeLore 暂缓面集 21 速写名（#51 激活 3 面后重计；审计 C11 去歧义：function-coupling 由 function-* 通配覆盖，具名判据留在 face_criteria）",
    "deadline_event": null,
    "deadline": "满足判据：各层 preview 拉动该面时 golden 契约补齐",
    "trigger_event": null,
@@ -541,8 +541,7 @@
     "crossing",
     "architecture-violations",
     "defect-validation",
-    "finding-hotspot-overlap",
-    "function-coupling"
+    "finding-hotspot-overlap"
    ],
    "source": "macro-audit decision-ledger D-035④＋D-045（3 面增补裁决）",
    "watch": "manual_watch",
@@ -580,7 +579,8 @@
     "defect-validation": "满足判据=defects.calib.json 前置工件票＋SZZ 噪声披露（Herbold 2022：bug-fix 标签约半数为真）；复审=S4/ADR 假设抽取层拉动时",
     "finding-hotspot-overlap": "满足判据=首个外部扫描上游接入（ADR-0014 适配器评估前置）；复审=#42 上游队列评估时点",
     "function-coupling": "满足判据=层 preview 需 --target <path> 参数面（函数级耦合对指定文件）；复审=Micro-B/Macro-A preview 拉动时（#51 登记暂缓：upstream 需 --target 前置参数非当前管道形态）"
-   }
+   },
+   "face_criteria_note": "C11 裁定：faces[] 为暂缓面名集（function-* 通配覆盖含 function-coupling 在内的函数级面族）；face_criteria 键=具名暂缓判据登记位，不要求与 faces[] 一一对应。"
   },
   {
    "id": "mw-trigger-a",

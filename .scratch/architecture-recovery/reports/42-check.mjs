@@ -97,7 +97,7 @@ t('E1 五份 preview 报告均在位', allPrev.every(f => existsSync(join(HERE, 
 t('E2 Macro-B 三件披露块含「供应链象限 ⚠ 数据未接」（structural_limitations 行）', mbFiles.every(f => txt(join(HERE, f)).indexOf('供应链象限 ⚠ 数据未接') >= 0));
 t('E3 Macro-B 三件 supply_chain 象限=not_applicable＋conflict_markers=data-not-connected', mbFiles.every(f => { const s = txt(join(HERE, f)); return s.indexOf('supply_chain（applicability=not_applicable）') >= 0 && s.indexOf('data-not-connected') >= 0; }));
 t('E4 Macro-C 两件披露块含「供应链象限 ⚠ 数据未接」＋Scorecard/repomix 未接不插队（D-034③）', mcFiles.every(f => { const s = txt(join(HERE, f)); return s.indexOf('⚠ 数据未接') >= 0 && s.indexOf('不插队') >= 0; }));
-t('E5 generate.ts UNVERIFIED_MARK=「⚠ unverified」＋PreviewDisclosure 契约面在（披露语义源未漂移）', txt(join(ENG, 'src', 'report', 'generate.ts')).indexOf("UNVERIFIED_MARK = '⚠ unverified'") >= 0 && txt(join(ENG, 'src', 'report', 'generate.ts')).indexOf('PreviewDisclosure') >= 0);
+t('E5 UNVERIFIED_MARK=「⚠ unverified」单一语义源（citation.ts 定义＋generate.ts re-export，审计 C1 破环后载体迁移）＋PreviewDisclosure 契约面在', txt(join(ENG, 'src', 'report', 'citation.ts')).indexOf("UNVERIFIED_MARK = '⚠ unverified'") >= 0 && txt(join(ENG, 'src', 'report', 'generate.ts')).indexOf('export { UNVERIFIED_MARK') >= 0 && txt(join(ENG, 'src', 'report', 'generate.ts')).indexOf('PreviewDisclosure') >= 0);
 
 // ---------- F. 文档账本收口 ----------
 const issueP = join(AR, 'issues', '42-upstream-queue.md');
@@ -109,7 +109,7 @@ t('F3 A-047 账本行 done → implemented（2026-09-16）', /A-047[^\n]*done �
 const wf = txt(join(AR, 'WORKFLOW.md'));
 t('F4 WORKFLOW §4 lessons 含 #42 条目', /#42/.test(wf) && /dump|上游队列/.test(wf));
 const nr = txt(join(REPO, '.scratch', 'macro-audit', 'handoffs', 'next-round.md'));
-t('F5 next-round 不含未闭环 #42 行（#42 已闭环——闭环凭证归 F6 BACKLOG 行）', !(nr.split('\n').some(l=>/^\| T\d+/.test(l)&&l.indexOf('#42')>=0&&l.indexOf('✅')<0)));
+t('F5 next-round 不含未闭环 #42 行（#42 已闭环——闭环凭证归 F6 BACKLOG 行）', !(nr.split('\n').some(l => /^\| T\d+/.test(l) && l.indexOf('#42') >= 0 && l.indexOf('✅') < 0)));
 const bl = txt(join(AR, 'BACKLOG.md'));
 t('F6 BACKLOG #42 行回写闭环', /\| #42[^\n]*✅/.test(bl));
 const rep = existsSync(join(HERE, '42-report.md')) ? txt(join(HERE, '42-report.md')) : '';

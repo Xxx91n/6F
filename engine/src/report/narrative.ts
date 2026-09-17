@@ -6,8 +6,9 @@
 //   ④ model id 可溯：host-agent 叙事必记 model_id（D-053⑤，CodeLore stamp 同款纪律）。
 // 纯逻辑约束同 generate.ts：输入一律注入、无 fs/子进程/网络/LLM。
 
-import { checkAllCitations, UNVERIFIED_MARK } from './generate.js';
-import type { CitationCheck, EvidenceItem, Report } from './generate.js';
+import { checkAllCitations, UNVERIFIED_MARK } from './citation.js';
+import type { CitationCheck, EvidenceItem } from './citation.js';
+import type { Report } from './generate.js';
 
 export const NARRATIVE_SEAL_PROTOCOL = 'ADR-0013-C/v1+narrative-seal/v1';
 
@@ -53,6 +54,8 @@ export interface SealedNarrative {
 // ---- band 红线机检（D-053 红线：叙事段只带 citation 盖章、不得携带裁决 band）----
 // 命中即违规：维度 band 赋值（S1-S5 后接判定符）、裁决字段名（verdict/band/verdict_gate/overall_verdict）、
 // band 赋值句式、中文裁定句式。只扫叙事面，不影响裁决块本体。
+// 从严本意声明（C2 裁定项）：verdict-field-en 裸词 \bverdict\b 命中即拒是刻意从严——
+// 叙事段提及裁决字段名本身就是红线信号（叙事事前探口风/事后复述 band 均属违规形态），不放行。
 const BAND_PATTERNS: readonly { name: string; re: RegExp }[] = [
   { name: 'dimension-band-assignment', re: new RegExp('\\bS[1-5]\\s*[:=：＝]') },
   { name: 'verdict-field-en', re: new RegExp('\\b(verdict|verdict_gate|overall_verdict|verdict_band)\\b', 'i') },
@@ -107,7 +110,7 @@ export function sealNarrativeSections(sections: readonly NarrativeSection[], evi
 
 // ---- kernel 模板叙事兜底（D-053① degraded 位）----
 // 永居 degraded：只在 degraded 报告位可达；文本不做任何超出裁决块的断言，band 值一律指回 C2 裁决块。
-export function renderTemplateNarrative(r: Report, at: string): NarrativeSection {
+export function renderTemplateNarrative(r: Pick<Report, 'quadrants' | 'degraded_reason'>): NarrativeSection {
   const quads = r.quadrants.map(function (q) { return q.quadrant; }).join('·');
   const text = [
     '本段为 kernel 模板叙事（degraded 兜底位 ' + UNVERIFIED_MARK + '）：',

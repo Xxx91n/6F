@@ -37,14 +37,50 @@ t('R1 叙事段入报告＋md 渲染「#### 叙事段」＋盖章明细', () => 
 t('R2 侧车携带 narrative_sections＋narrative_seal_protocol', () => { const r = G.buildReport(base({ narrative_sections: [sec({})] })); const sc = JSON.parse(G.renderSidecar(r)); assert.equal(sc.narrative_sections.length, 1); assert.equal(sc.machine_contract.narrative_seal_protocol, 'ADR-0013-C/v1+narrative-seal/v1'); });
 t('R3 无叙事非降级 → narrative_sections 空', () => { const r = G.buildReport(base({})); assert.equal(r.narrative_sections.length, 0); });
 t('R4 band 违规段入报告如实载 band_violations（不静默丢）', () => { const r = G.buildReport(base({ narrative_sections: [sec({ text: 'S3 = unsupported' })] })); assert.equal(r.narrative_sections[0].seal.stamp, 'rejected'); const md = G.renderMarkdown(r); assert.ok(md.includes('band_violations')); });
+t('R5 degraded:true 直建路径拿模板兜底（A2 修复：D-053① 通用兜底位）', () => { const r = G.buildReport(base({ degraded: true, degraded_reason: 'fp-test' })); assert.equal(r.narrative_sections.length, 1); assert.equal(r.narrative_sections[0].author, 'kernel-template'); assert.ok(r.narrative_sections[0].text.includes('fp-test')); assert.equal(r.narrative_sections[0].seal.stamp, 'sealed'); });
+t('R6 degraded:true 但有宿主段 → 宿主段在、不注入模板（兜底只补空位）', () => { const r = G.buildReport(base({ degraded: true, degraded_reason: 'fp-test', narrative_sections: [sec({})] })); assert.equal(r.narrative_sections.length, 1); assert.equal(r.narrative_sections[0].author, 'host-agent'); });
 
 // ---------- D. degraded 模板兜底 ----------
 t('D1 degradeReport 自动注入 kernel-template 叙事段', () => { const r = G.buildReport(base({})); const d = G.degradeReport(r, 'test-x'); assert.equal(d.narrative_sections.length, 1); assert.equal(d.narrative_sections[0].author, 'kernel-template'); assert.equal(d.narrative_sections[0].model_id, null); });
 t('D2 模板叙事文本不含 band 断言（自扫零违规）＋带降级注记', () => { const r = G.buildReport(base({})); const d = G.degradeReport(r, 'test-x'); const ns = d.narrative_sections[0]; assert.equal(N.scanBandViolations(ns.text).length, 0); assert.ok(ns.text.includes('unverified')); assert.equal(ns.seal.stamp, 'sealed'); });
 t('D3 模板叙事 md 标 author=kernel-template', () => { const r = G.buildReport(base({})); const md = G.renderMarkdown(G.degradeReport(r, 'test-x')); assert.ok(md.includes('kernel-template')); });
+t('D4 模板叙事引用真实 degraded_reason（A1 修复：不得输出「未声明」与真值并存）', () => { const r = G.buildReport(base({})); const d = G.degradeReport(r, 'FP-45-2 样本不足'); const tpl = d.narrative_sections.find(function (s) { return s.author === 'kernel-template'; }); assert.ok(tpl); assert.ok(tpl.text.includes('FP-45-2 样本不足')); assert.ok(!tpl.text.includes('未声明')); });
+t('D5 已盖章宿主叙事降级后不丢弃——重盖章留痕（C5：引文失锚→gaps 如实呈现）', () => { const r = G.buildReport(base({ narrative_sections: [sec({})] })); assert.equal(r.narrative_sections[0].seal.stamp, 'sealed'); const d = G.degradeReport(r, 'test-x'); assert.equal(d.narrative_sections.length, 2); assert.equal(d.narrative_sections[0].author, 'host-agent'); assert.equal(d.narrative_sections[0].seal.stamp, 'sealed-with-gaps'); assert.equal(d.narrative_sections[1].author, 'kernel-template'); });
 
 // ---------- M. mcp facts 只读投影 e2e ----------
-t('M1 mcp 无参数 → descriptor（ops=[facts] 只读面）', () => { const r = spawnSync('node', [join(ROOT, 'dist', 'cli.js'), 'mcp'], { encoding: 'utf8' }); const d = JSON.parse(r.stdout); assert.equal(d.readOnly, true); assert.deepEqual(d.ops, ['facts']); });
+t('M1 mcp 裸启动=JSON-RPC 2.0 stdio 服务：initialize+initialized+tools/list 握手闭环（A3 名实相符）', () => {
+  const msgs = [{ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} }, { jsonrpc: '2.0', method: 'notifications/initialized' }, { jsonrpc: '2.0', id: 2, method: 'tools/list' }].map(JSON.stringify).join('\n') + '\n';
+  const r = spawnSync('node', [join(ROOT, 'dist', 'cli.js'), 'mcp'], { encoding: 'utf8', input: msgs });
+  assert.equal(r.status, 0, r.stderr);
+  const res = r.stdout.trim().split('\n').map(JSON.parse);
+  assert.equal(res.length, 2);
+  assert.equal(res[0].id, 1); assert.equal(res[0].result.serverInfo.name, 'macro-audit'); assert.ok(res[0].result.capabilities.tools);
+  assert.equal(res[1].id, 2); assert.deepEqual(res[1].result.tools.map(function (x) { return x.name; }), ['facts']);
+});
+t('M4 tools/call facts e2e：JSON-RPC 投影读出真实 fact', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'mcp-rpc-')); const db = join(dir, 'f.duckdb'); try {
+    const w = spawnSync('node', ['--input-type=module', '-e', `import { openWriter, appendFact } from ${JSON.stringify(pathToFileURL(join(ROOT, 'dist', 'fact', 'store.js')).href)}; const c = await openWriter(process.argv[1]); await appendFact(c, { fact_id: 'f-rpc', trace_id: '${'a'.padEnd(32, '0')}', baggage_id: '${'b'.padEnd(32, '1')}', scale: 'Micro-A', quadrant: 'strategic', dimension: null, collector_id: 'test', repo_ref: 'o/r', subject_ref: 'o/r#1', evidence_ref: 'e', metric: 'm', value_json: '{}', observed_at: '2026-09-16T00:00:00Z' }); c.closeSync();`, db], { encoding: 'utf8' });
+    assert.equal(w.status, 0, w.stderr);
+    const msgs = [{ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} }, { jsonrpc: '2.0', id: 9, method: 'tools/call', params: { name: 'facts', arguments: { db: db, scale: 'Micro-A' } } }].map(JSON.stringify).join('\n') + '\n';
+    const r = spawnSync('node', [join(ROOT, 'dist', 'cli.js'), 'mcp'], { encoding: 'utf8', input: msgs });
+    assert.equal(r.status, 0, r.stderr);
+    const res = r.stdout.trim().split('\n').map(JSON.parse);
+    const call = res.find(function (x) { return x.id === 9; });
+    assert.equal(call.result.isError, false);
+    const rows = call.result.content[0].text.trim().split('\n').map(JSON.parse);
+    assert.equal(rows.length, 1); assert.equal(rows[0].fact_id, 'f-rpc');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+t('M5 未知 method → JSON-RPC -32601；坏 JSON → -32700', () => {
+  const r = spawnSync('node', [join(ROOT, 'dist', 'cli.js'), 'mcp'], { encoding: 'utf8', input: '{bad json\n{"jsonrpc":"2.0","id":7,"method":"bogus/x"}\n' });
+  assert.equal(r.status, 0, r.stderr);
+  const res = r.stdout.trim().split('\n').map(JSON.parse);
+  assert.equal(res[0].error.code, -32700);
+  assert.equal(res[1].id, 7); assert.equal(res[1].error.code, -32601);
+});
+t('M6 mcp <bogus> → exit 2（C7：不再打描述符装死）', () => { const r = spawnSync('node', [join(ROOT, 'dist', 'cli.js'), 'mcp', 'bogus'], { encoding: 'utf8' }); assert.equal(r.status, 2); assert.ok(r.stderr.includes('usage')); });
+t('M7 facts --limit abc → 干净 exit 2 不报裸 DuckDB 错（C6 NaN 闸）', () => { const r = spawnSync('node', [join(ROOT, 'dist', 'cli.js'), 'mcp', 'facts', '--db', 'x', '--limit', 'abc'], { encoding: 'utf8' }); assert.equal(r.status, 2); assert.ok(r.stderr.includes('positive number')); });
+t('M8 facts 未知 flag → exit 2（C7：严格参数面）', () => { const r = spawnSync('node', [join(ROOT, 'dist', 'cli.js'), 'mcp', 'facts', '--db', 'x', '--bogus', 'y'], { encoding: 'utf8' }); assert.equal(r.status, 2); assert.ok(r.stderr.includes('unknown flag')); });
 t('M2 mcp facts e2e：子进程建库写 fact → CLI 投影读出', () => {
   const dir = mkdtempSync(join(tmpdir(), 'mcp-proj-')); const db = join(dir, 'f.duckdb'); try {
     const w = spawnSync('node', ['--input-type=module', '-e', `import { openWriter, appendFact } from ${JSON.stringify(pathToFileURL(join(ROOT, 'dist', 'fact', 'store.js')).href)}; const c = await openWriter(process.argv[1]); await appendFact(c, { fact_id: 'f-1', trace_id: '${'a'.padEnd(32, '0')}', baggage_id: '${'b'.padEnd(32, '1')}', scale: 'Micro-A', quadrant: 'strategic', dimension: null, collector_id: 'test', repo_ref: 'o/r', subject_ref: 'o/r#1', evidence_ref: 'e', metric: 'm', value_json: '{}', observed_at: '2026-09-16T00:00:00Z' }); c.closeSync();`, db], { encoding: 'utf8' });
@@ -67,6 +103,6 @@ t('S5 rubric 含 S1-S5 全维＋防注入防线＋补查程序段', () => { cons
 t('S6 report-template 含 band 红线明文＋三态 stamp', () => { const rt = readFileSync(join(SK, 'references', 'report-template.md'), 'utf8'); assert.ok(rt.includes('不得携带裁决 band'));['sealed', 'sealed-with-gaps', 'rejected'].forEach(s => assert.ok(rt.includes(s), s)); });
 
 // ---------- G. golden 快照 ----------
-t('G1 seal 输出与 golden 逐字段一致', () => { const g = JSON.parse(readFileSync(join(HERE, 'fixtures', 'narrative', 'seal-golden.json'), 'utf8')); const s = N.sealNarrative(g.input, g.evidence, g.sealed_at); assert.equal(s.seal.stamp, g.expect_stamp); assert.equal(s.seal.sealed_at, g.sealed_at); assert.equal(s.seal.checks.length, 1); assert.equal(s.seal.checks[0].support, 'supports'); });
+t('G1 seal 输出与 golden 四字段断言一致（stamp/sealed_at/checks 数/support——C8：名实相符）', () => { const g = JSON.parse(readFileSync(join(HERE, 'fixtures', 'narrative', 'seal-golden.json'), 'utf8')); const s = N.sealNarrative(g.input, g.evidence, g.sealed_at); assert.equal(s.seal.stamp, g.expect_stamp); assert.equal(s.seal.sealed_at, g.sealed_at); assert.equal(s.seal.checks.length, 1); assert.equal(s.seal.checks[0].support, 'supports'); });
 
 console.log('NARRATIVE-TEST-OK ' + n);
