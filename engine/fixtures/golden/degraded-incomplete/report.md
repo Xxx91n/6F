@@ -1,5 +1,5 @@
 # MA-45-DEMO-DEGRADEDINCOMPLETE-degraded — Macro-B 首报（fixture-degraded-incomplete@d757d4cd3046）
-> RECEIPT RCP-c745119974a0dc86 chain=c745119974a0dc865f94e59a747db51a content=8f17cdde6a61b076 facts=0 adjudications=6 issued_at=2026-03-02T10:00:00Z commit=d757d4cd3046ac0d6251b5c3f0e5cb8884647012 tree=40cd22aae62f ⚠ unverified
+> RECEIPT RCP-28239044184a9a0a chain=28239044184a9a0a39bef8d5d95e792d content=ab785392c011f22b facts=0 adjudications=6 issued_at=2026-03-02T10:00:00Z commit=d757d4cd3046ac0d6251b5c3f0e5cb8884647012 tree=40cd22aae62f ⚠ unverified
 >
 > 骨架 1.1.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-03-02T10:00:00Z
 > - stability: preview · capabilities: macro-b

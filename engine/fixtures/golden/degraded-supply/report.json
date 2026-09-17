@@ -13,14 +13,14 @@
     "baggage_id": "ed370a4fe378d50319aa87dc925b84e3"
   },
   "receipt": {
-    "receipt_id": "RCP-adaba908c55807e8",
-    "chain_hash": "adaba908c55807e8d9f4b0f84f1f49c0a58941989ffd5460104b20ca622789a7",
+    "receipt_id": "RCP-6b4d66b876997afb",
+    "chain_hash": "6b4d66b876997afb1c6420d148975646c2ac0bdb2451b4fb55c5095f0596e22f",
     "issued_at": "2026-04-06T10:00:00Z",
     "commit_anchor": "8fc753eddd6dbe22b43818c704fda26096e7189c",
     "tree_anchor": "74ad5d090a81fa1d08d27741b52ddd7b1472adb9",
     "content_digest": {
       "algo": "sha256",
-      "value": "bdd6a77389b34dd1cc471f3b9209c5624dfc9c1c725487a91c20cefc8aab0f00",
+      "value": "8ce0f852f385218e0d5e71af711bae62367c6061a64d216d640207cdcd843fa7",
       "canonicalization": "json_utf8_entries_then_citation_checks"
     },
     "gate_ref": {
@@ -39,7 +39,7 @@
     "fact_count": 0,
     "adjudication_count": 6,
     "degraded": true,
-    "mark": "RECEIPT RCP-adaba908c55807e8 chain=adaba908c55807e8d9f4b0f84f1f49c0 content=bdd6a77389b34dd1 facts=0 adjudications=6 issued_at=2026-04-06T10:00:00Z commit=8fc753eddd6dbe22b43818c704fda26096e7189c tree=74ad5d090a81 ⚠ unverified"
+    "mark": "RECEIPT RCP-6b4d66b876997afb chain=6b4d66b876997afb1c6420d148975646 content=8ce0f852f385218e facts=0 adjudications=6 issued_at=2026-04-06T10:00:00Z commit=8fc753eddd6dbe22b43818c704fda26096e7189c tree=74ad5d090a81 ⚠ unverified"
   },
   "overall_verdict": "insufficient",
   "confidence": 0,
@@ -226,6 +226,7 @@
         "missing_tokens": [
           "fact_count"
         ],
+        "context_flags": [],
         "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
       },
       {
@@ -236,6 +237,7 @@
         "missing_tokens": [
           "verdict"
         ],
+        "context_flags": [],
         "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
       },
       {
@@ -246,6 +248,7 @@
         "missing_tokens": [
           "mean_ratio_4"
         ],
+        "context_flags": [],
         "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
       },
       {
@@ -256,6 +259,7 @@
         "missing_tokens": [
           "lowest_ratio_4"
         ],
+        "context_flags": [],
         "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
       },
       {
@@ -266,6 +270,7 @@
         "missing_tokens": [
           "five_piece_present"
         ],
+        "context_flags": [],
         "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
       },
       {
@@ -277,6 +282,7 @@
           "synthetic",
           "true"
         ],
+        "context_flags": [],
         "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
       }
     ]
@@ -290,6 +296,7 @@
       "missing_tokens": [
         "fact_count"
       ],
+      "context_flags": [],
       "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
     },
     {
@@ -300,6 +307,7 @@
       "missing_tokens": [
         "verdict"
       ],
+      "context_flags": [],
       "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
     },
     {
@@ -310,6 +318,7 @@
       "missing_tokens": [
         "mean_ratio_4"
       ],
+      "context_flags": [],
       "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
     },
     {
@@ -320,6 +329,7 @@
       "missing_tokens": [
         "lowest_ratio_4"
       ],
+      "context_flags": [],
       "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
     },
     {
@@ -330,6 +340,7 @@
       "missing_tokens": [
         "five_piece_present"
       ],
+      "context_flags": [],
       "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
     },
     {
@@ -341,6 +352,7 @@
         "synthetic",
         "true"
       ],
+      "context_flags": [],
       "reason": "引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论"
     }
   ],

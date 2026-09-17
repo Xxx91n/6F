@@ -1,0 +1,1389 @@
+{
+ "corpus_id": "56-checker-heldout-v1",
+ "built": "2026-09-17",
+ "item_count": 53,
+ "disclosure": {
+  "synthetic": true,
+  "held_out": "本语料为 #56 修复后 held-out 首跑集——与 52a 标定语料分区存管；gold=人类语义层标签（fn-paraphrase/attachment-ambiguous 层如实承载 presence-level 判定与人类语义的错位，披露归 human-in-loop，非 checker 缺陷）",
+  "note": "票规：禁参照 52a 语料标签调参（D-064⑤/D-065）；held-out 只评一次首跑；intra-rater 口径=单人设计期标注"
+ },
+ "items": [
+  {
+   "id": "56-h001",
+   "category": "positive-clean",
+   "claim": {
+    "claim_id": "CL-56-h001",
+    "evidence_id": "EV-56-h001",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h001",
+    "source": "synthetic://56-heldout/56-h001",
+    "locator": "L1",
+    "claim": "heldout 56-h001",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "coverage ratio 0.85 measured across intent docs"
+   },
+   "gold": "supports",
+   "note": "双锚全命中"
+  },
+  {
+   "id": "56-h002",
+   "category": "positive-clean",
+   "claim": {
+    "claim_id": "CL-56-h002",
+    "evidence_id": "EV-56-h002",
+    "required_tokens": [
+     "TC-1",
+     "RED"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h002",
+    "source": "synthetic://56-heldout/56-h002",
+    "locator": "L1",
+    "claim": "heldout 56-h002",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "TC-1 verdict=RED judgeable_n=12"
+   },
+   "gold": "supports",
+   "note": "裁决字段字面"
+  },
+  {
+   "id": "56-h003",
+   "category": "positive-clean",
+   "claim": {
+    "claim_id": "CL-56-h003",
+    "evidence_id": "EV-56-h003",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h003",
+    "source": "synthetic://56-heldout/56-h003",
+    "locator": "L1",
+    "claim": "heldout 56-h003",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率 0.85 已达标（实测）"
+   },
+   "gold": "supports",
+   "note": "CJK 双锚"
+  },
+  {
+   "id": "56-h004",
+   "category": "positive-clean",
+   "claim": {
+    "claim_id": "CL-56-h004",
+    "evidence_id": "EV-56-h004",
+    "required_tokens": [
+     "fact_count",
+     "280"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h004",
+    "source": "synthetic://56-heldout/56-h004",
+    "locator": "L1",
+    "claim": "heldout 56-h004",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "fact_count=280 head_sha resolved"
+   },
+   "gold": "supports",
+   "note": "事实计数"
+  },
+  {
+   "id": "56-h005",
+   "category": "positive-clean",
+   "claim": {
+    "claim_id": "CL-56-h005",
+    "evidence_id": "EV-56-h005",
+    "required_tokens": [
+     "71",
+     "121.5kB"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h005",
+    "source": "synthetic://56-heldout/56-h005",
+    "locator": "L1",
+    "claim": "heldout 56-h005",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "bundle: 71 files 121.5kB packed"
+   },
+   "gold": "supports",
+   "note": "打包指标"
+  },
+  {
+   "id": "56-h006",
+   "category": "positive-clean",
+   "claim": {
+    "claim_id": "CL-56-h006",
+    "evidence_id": "EV-56-h006",
+    "required_tokens": [
+     "RCP-abc123"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h006",
+    "source": "synthetic://56-heldout/56-h006",
+    "locator": "L1",
+    "claim": "heldout 56-h006",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "receipt RCP-abc123 issued at gate"
+   },
+   "gold": "supports",
+   "note": "单锚回执"
+  },
+  {
+   "id": "56-h007",
+   "category": "positive-clean",
+   "claim": {
+    "claim_id": "CL-56-h007",
+    "evidence_id": "EV-56-h007",
+    "required_tokens": [
+     "s1_keyword_coverage",
+     "0.83"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h007",
+    "source": "synthetic://56-heldout/56-h007",
+    "locator": "L1",
+    "claim": "heldout 56-h007",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "s1_keyword_coverage=0.83 s2_adr_completeness=0.60"
+   },
+   "gold": "supports",
+   "note": "维度键值"
+  },
+  {
+   "id": "56-h008",
+   "category": "positive-clean",
+   "claim": {
+    "claim_id": "CL-56-h008",
+    "evidence_id": "EV-56-h008",
+    "required_tokens": [
+     "evidence_flag",
+     "true"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h008",
+    "source": "synthetic://56-heldout/56-h008",
+    "locator": "L1",
+    "claim": "heldout 56-h008",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "verdict gate evidence_flag=true decided_at logged"
+   },
+   "gold": "supports",
+   "note": "印记字段"
+  },
+  {
+   "id": "56-h009",
+   "category": "neg-pre-en",
+   "claim": {
+    "claim_id": "CL-56-h009",
+    "evidence_id": "EV-56-h009",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h009",
+    "source": "synthetic://56-heldout/56-h009",
+    "locator": "L1",
+    "claim": "heldout 56-h009",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "coverage ratio does not reach 0.85"
+   },
+   "gold": "insufficient",
+   "note": "does not 前置否定"
+  },
+  {
+   "id": "56-h010",
+   "category": "neg-pre-en",
+   "claim": {
+    "claim_id": "CL-56-h010",
+    "evidence_id": "EV-56-h010",
+    "required_tokens": [
+     "TC-2",
+     "RED"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h010",
+    "source": "synthetic://56-heldout/56-h010",
+    "locator": "L1",
+    "claim": "heldout 56-h010",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "TC-2 cannot be judged RED"
+   },
+   "gold": "insufficient",
+   "note": "cannot 前置否定"
+  },
+  {
+   "id": "56-h011",
+   "category": "neg-pre-en",
+   "claim": {
+    "claim_id": "CL-56-h011",
+    "evidence_id": "EV-56-h011",
+    "required_tokens": [
+     "fact_count",
+     "280"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h011",
+    "source": "synthetic://56-heldout/56-h011",
+    "locator": "L1",
+    "claim": "heldout 56-h011",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "no evidence that fact_count equals 280"
+   },
+   "gold": "insufficient",
+   "note": "no evidence 否定"
+  },
+  {
+   "id": "56-h012",
+   "category": "neg-pre-en",
+   "claim": {
+    "claim_id": "CL-56-h012",
+    "evidence_id": "EV-56-h012",
+    "required_tokens": [
+     "metric",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h012",
+    "source": "synthetic://56-heldout/56-h012",
+    "locator": "L1",
+    "claim": "heldout 56-h012",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "the metric never reached 0.85 threshold"
+   },
+   "gold": "insufficient",
+   "note": "never 否定"
+  },
+  {
+   "id": "56-h013",
+   "category": "neg-pre-en",
+   "claim": {
+    "claim_id": "CL-56-h013",
+    "evidence_id": "EV-56-h013",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h013",
+    "source": "synthetic://56-heldout/56-h013",
+    "locator": "L1",
+    "claim": "heldout 56-h013",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "coverage failed to hit 0.85 in this run"
+   },
+   "gold": "insufficient",
+   "note": "failed to 否定"
+  },
+  {
+   "id": "56-h014",
+   "category": "neg-pre-en",
+   "claim": {
+    "claim_id": "CL-56-h014",
+    "evidence_id": "EV-56-h014",
+    "required_tokens": [
+     "bundle",
+     "71"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h014",
+    "source": "synthetic://56-heldout/56-h014",
+    "locator": "L1",
+    "claim": "heldout 56-h014",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "bundle lacks 71 files entirely"
+   },
+   "gold": "insufficient",
+   "note": "lacks 否定"
+  },
+  {
+   "id": "56-h015",
+   "category": "neg-post-en",
+   "claim": {
+    "claim_id": "CL-56-h015",
+    "evidence_id": "EV-56-h015",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h015",
+    "source": "synthetic://56-heldout/56-h015",
+    "locator": "L1",
+    "claim": "heldout 56-h015",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "coverage 0.85 is incorrect"
+   },
+   "gold": "insufficient",
+   "note": "is incorrect 后置"
+  },
+  {
+   "id": "56-h016",
+   "category": "neg-post-en",
+   "claim": {
+    "claim_id": "CL-56-h016",
+    "evidence_id": "EV-56-h016",
+    "required_tokens": [
+     "fact_count",
+     "280"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h016",
+    "source": "synthetic://56-heldout/56-h016",
+    "locator": "L1",
+    "claim": "heldout 56-h016",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "fact_count 280 was denied"
+   },
+   "gold": "insufficient",
+   "note": "was denied 后置"
+  },
+  {
+   "id": "56-h017",
+   "category": "neg-post-en",
+   "claim": {
+    "claim_id": "CL-56-h017",
+    "evidence_id": "EV-56-h017",
+    "required_tokens": [
+     "figure",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h017",
+    "source": "synthetic://56-heldout/56-h017",
+    "locator": "L1",
+    "claim": "heldout 56-h017",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "the 0.85 figure remains unverified"
+   },
+   "gold": "insufficient",
+   "note": "unverified 后置"
+  },
+  {
+   "id": "56-h018",
+   "category": "neg-post-en",
+   "claim": {
+    "claim_id": "CL-56-h018",
+    "evidence_id": "EV-56-h018",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h018",
+    "source": "synthetic://56-heldout/56-h018",
+    "locator": "L1",
+    "claim": "heldout 56-h018",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "coverage 0.85 cannot be confirmed"
+   },
+   "gold": "insufficient",
+   "note": "cannot be confirmed 后置"
+  },
+  {
+   "id": "56-h019",
+   "category": "neg-post-en",
+   "claim": {
+    "claim_id": "CL-56-h019",
+    "evidence_id": "EV-56-h019",
+    "required_tokens": [
+     "reading",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h019",
+    "source": "synthetic://56-heldout/56-h019",
+    "locator": "L1",
+    "claim": "heldout 56-h019",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "reading 0.85 turned out false"
+   },
+   "gold": "insufficient",
+   "note": "false 后置"
+  },
+  {
+   "id": "56-h020",
+   "category": "pseudo-neg",
+   "claim": {
+    "claim_id": "CL-56-h020",
+    "evidence_id": "EV-56-h020",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h020",
+    "source": "synthetic://56-heldout/56-h020",
+    "locator": "L1",
+    "claim": "heldout 56-h020",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "coverage not only reached 0.85 but exceeded it"
+   },
+   "gold": "supports",
+   "note": "not only 伪否定"
+  },
+  {
+   "id": "56-h021",
+   "category": "pseudo-neg",
+   "claim": {
+    "claim_id": "CL-56-h021",
+    "evidence_id": "EV-56-h021",
+    "required_tokens": [
+     "metric",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h021",
+    "source": "synthetic://56-heldout/56-h021",
+    "locator": "L1",
+    "claim": "heldout 56-h021",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "no doubt the metric hit 0.85"
+   },
+   "gold": "supports",
+   "note": "no doubt 伪否定"
+  },
+  {
+   "id": "56-h022",
+   "category": "pseudo-neg",
+   "claim": {
+    "claim_id": "CL-56-h022",
+    "evidence_id": "EV-56-h022",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h022",
+    "source": "synthetic://56-heldout/56-h022",
+    "locator": "L1",
+    "claim": "heldout 56-h022",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "coverage 0.85 is not merely a claim"
+   },
+   "gold": "supports",
+   "note": "not merely 伪否定"
+  },
+  {
+   "id": "56-h023",
+   "category": "pseudo-neg",
+   "claim": {
+    "claim_id": "CL-56-h023",
+    "evidence_id": "EV-56-h023",
+    "required_tokens": [
+     "count",
+     "280"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h023",
+    "source": "synthetic://56-heldout/56-h023",
+    "locator": "L1",
+    "claim": "heldout 56-h023",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "the count is nothing but 280"
+   },
+   "gold": "supports",
+   "note": "nothing but 伪否定"
+  },
+  {
+   "id": "56-h024",
+   "category": "pseudo-neg",
+   "claim": {
+    "claim_id": "CL-56-h024",
+    "evidence_id": "EV-56-h024",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h024",
+    "source": "synthetic://56-heldout/56-h024",
+    "locator": "L1",
+    "claim": "heldout 56-h024",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "results: not just 0.85 coverage but full pass"
+   },
+   "gold": "supports",
+   "note": "not just 伪否定"
+  },
+  {
+   "id": "56-h025",
+   "category": "pseudo-neg",
+   "claim": {
+    "claim_id": "CL-56-h025",
+    "evidence_id": "EV-56-h025",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h025",
+    "source": "synthetic://56-heldout/56-h025",
+    "locator": "L1",
+    "claim": "heldout 56-h025",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "make no mistake: coverage hit 0.85"
+   },
+   "gold": "supports",
+   "note": "make no mistake 伪否定"
+  },
+  {
+   "id": "56-h026",
+   "category": "neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h026",
+    "evidence_id": "EV-56-h026",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h026",
+    "source": "synthetic://56-heldout/56-h026",
+    "locator": "L1",
+    "claim": "heldout 56-h026",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率不支持 0.85 的说法"
+   },
+   "gold": "insufficient",
+   "note": "不 前置"
+  },
+  {
+   "id": "56-h027",
+   "category": "neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h027",
+    "evidence_id": "EV-56-h027",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h027",
+    "source": "synthetic://56-heldout/56-h027",
+    "locator": "L1",
+    "claim": "heldout 56-h027",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率没有达到 0.85"
+   },
+   "gold": "insufficient",
+   "note": "没有 前置"
+  },
+  {
+   "id": "56-h028",
+   "category": "neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h028",
+    "evidence_id": "EV-56-h028",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h028",
+    "source": "synthetic://56-heldout/56-h028",
+    "locator": "L1",
+    "claim": "heldout 56-h028",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率未达到 0.85 阈值"
+   },
+   "gold": "insufficient",
+   "note": "未达到 前置"
+  },
+  {
+   "id": "56-h029",
+   "category": "neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h029",
+    "evidence_id": "EV-56-h029",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h029",
+    "source": "synthetic://56-heldout/56-h029",
+    "locator": "L1",
+    "claim": "heldout 56-h029",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "无法确认覆盖率为 0.85"
+   },
+   "gold": "insufficient",
+   "note": "无法 前置"
+  },
+  {
+   "id": "56-h030",
+   "category": "neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h030",
+    "evidence_id": "EV-56-h030",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h030",
+    "source": "synthetic://56-heldout/56-h030",
+    "locator": "L1",
+    "claim": "heldout 56-h030",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率 0.85 不成立"
+   },
+   "gold": "insufficient",
+   "note": "不成立 后置"
+  },
+  {
+   "id": "56-h031",
+   "category": "neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h031",
+    "evidence_id": "EV-56-h031",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h031",
+    "source": "synthetic://56-heldout/56-h031",
+    "locator": "L1",
+    "claim": "heldout 56-h031",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率 0.85 有误"
+   },
+   "gold": "insufficient",
+   "note": "有误 后置"
+  },
+  {
+   "id": "56-h032",
+   "category": "neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h032",
+    "evidence_id": "EV-56-h032",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h032",
+    "source": "synthetic://56-heldout/56-h032",
+    "locator": "L1",
+    "claim": "heldout 56-h032",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "否认覆盖率达 0.85"
+   },
+   "gold": "insufficient",
+   "note": "否认 前置"
+  },
+  {
+   "id": "56-h033",
+   "category": "neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h033",
+    "evidence_id": "EV-56-h033",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h033",
+    "source": "synthetic://56-heldout/56-h033",
+    "locator": "L1",
+    "claim": "heldout 56-h033",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率并非 0.85"
+   },
+   "gold": "insufficient",
+   "note": "并非 前置"
+  },
+  {
+   "id": "56-h034",
+   "category": "pseudo-neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h034",
+    "evidence_id": "EV-56-h034",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h034",
+    "source": "synthetic://56-heldout/56-h034",
+    "locator": "L1",
+    "claim": "heldout 56-h034",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率不得不说达到 0.85"
+   },
+   "gold": "supports",
+   "note": "不得不 双重否定"
+  },
+  {
+   "id": "56-h035",
+   "category": "pseudo-neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h035",
+    "evidence_id": "EV-56-h035",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h035",
+    "source": "synthetic://56-heldout/56-h035",
+    "locator": "L1",
+    "claim": "heldout 56-h035",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率非常稳定在 0.85"
+   },
+   "gold": "supports",
+   "note": "非常 词汇化非否定"
+  },
+  {
+   "id": "56-h036",
+   "category": "pseudo-neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h036",
+    "evidence_id": "EV-56-h036",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h036",
+    "source": "synthetic://56-heldout/56-h036",
+    "locator": "L1",
+    "claim": "heldout 56-h036",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率无疑达到 0.85"
+   },
+   "gold": "supports",
+   "note": "无疑 固定词形"
+  },
+  {
+   "id": "56-h037",
+   "category": "pseudo-neg-cjk",
+   "claim": {
+    "claim_id": "CL-56-h037",
+    "evidence_id": "EV-56-h037",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h037",
+    "source": "synthetic://56-heldout/56-h037",
+    "locator": "L1",
+    "claim": "heldout 56-h037",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率未必不达到 0.85"
+   },
+   "gold": "supports",
+   "note": "未必不 双重否定"
+  },
+  {
+   "id": "56-h038",
+   "category": "quoted-attributed",
+   "claim": {
+    "claim_id": "CL-56-h038",
+    "evidence_id": "EV-56-h038",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h038",
+    "source": "synthetic://56-heldout/56-h038",
+    "locator": "L1",
+    "claim": "heldout 56-h038",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "评审说：\"coverage reached 0.85 in our tests\""
+   },
+   "gold": "insufficient",
+   "note": "说+语句引语"
+  },
+  {
+   "id": "56-h039",
+   "category": "quoted-attributed",
+   "claim": {
+    "claim_id": "CL-56-h039",
+    "evidence_id": "EV-56-h039",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h039",
+    "source": "synthetic://56-heldout/56-h039",
+    "locator": "L1",
+    "claim": "heldout 56-h039",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "批评者指出：「覆盖率达 0.85，结论成立」"
+   },
+   "gold": "insufficient",
+   "note": "指出+CJK引语"
+  },
+  {
+   "id": "56-h040",
+   "category": "quoted-attributed",
+   "claim": {
+    "claim_id": "CL-56-h040",
+    "evidence_id": "EV-56-h040",
+    "required_tokens": [
+     "ratio",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h040",
+    "source": "synthetic://56-heldout/56-h040",
+    "locator": "L1",
+    "claim": "heldout 56-h040",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "报告说：\"the ratio hit 0.85 and passed all gates\""
+   },
+   "gold": "insufficient",
+   "note": "说+EN引语"
+  },
+  {
+   "id": "56-h041",
+   "category": "quoted-attributed",
+   "claim": {
+    "claim_id": "CL-56-h041",
+    "evidence_id": "EV-56-h041",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h041",
+    "source": "synthetic://56-heldout/56-h041",
+    "locator": "L1",
+    "claim": "heldout 56-h041",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "据称 coverage 已达 0.85（第三方口径）"
+   },
+   "gold": "insufficient",
+   "note": "据称 归属引导"
+  },
+  {
+   "id": "56-h042",
+   "category": "quoted-attributed",
+   "claim": {
+    "claim_id": "CL-56-h042",
+    "evidence_id": "EV-56-h042",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h042",
+    "source": "synthetic://56-heldout/56-h042",
+    "locator": "L1",
+    "claim": "heldout 56-h042",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "they claimed coverage was 0.85 yesterday"
+   },
+   "gold": "insufficient",
+   "note": "they claimed 归属"
+  },
+  {
+   "id": "56-h043",
+   "category": "term-quoted",
+   "claim": {
+    "claim_id": "CL-56-h043",
+    "evidence_id": "EV-56-h043",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h043",
+    "source": "synthetic://56-heldout/56-h043",
+    "locator": "L1",
+    "claim": "heldout 56-h043",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "the field \"coverage\" shows 0.85"
+   },
+   "gold": "supports",
+   "note": "术语直引号不剥"
+  },
+  {
+   "id": "56-h044",
+   "category": "term-quoted",
+   "claim": {
+    "claim_id": "CL-56-h044",
+    "evidence_id": "EV-56-h044",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h044",
+    "source": "synthetic://56-heldout/56-h044",
+    "locator": "L1",
+    "claim": "heldout 56-h044",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "「覆盖率」指标达 0.85"
+   },
+   "gold": "supports",
+   "note": "CJK 角引术语"
+  },
+  {
+   "id": "56-h045",
+   "category": "term-quoted",
+   "claim": {
+    "claim_id": "CL-56-h045",
+    "evidence_id": "EV-56-h045",
+    "required_tokens": [
+     "五件套",
+     "5"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h045",
+    "source": "synthetic://56-heldout/56-h045",
+    "locator": "L1",
+    "claim": "heldout 56-h045",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "字段『五件套』命中 5 项"
+   },
+   "gold": "supports",
+   "note": "双角引术语"
+  },
+  {
+   "id": "56-h046",
+   "category": "unbalanced-quote",
+   "claim": {
+    "claim_id": "CL-56-h046",
+    "evidence_id": "EV-56-h046",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h046",
+    "source": "synthetic://56-heldout/56-h046",
+    "locator": "L1",
+    "claim": "heldout 56-h046",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "coverage reached 0.85\" trailing stray"
+   },
+   "gold": "insufficient",
+   "note": "悬挂直双引号 fail-safe"
+  },
+  {
+   "id": "56-h047",
+   "category": "unbalanced-quote",
+   "claim": {
+    "claim_id": "CL-56-h047",
+    "evidence_id": "EV-56-h047",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h047",
+    "source": "synthetic://56-heldout/56-h047",
+    "locator": "L1",
+    "claim": "heldout 56-h047",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率 0.85 达标」残留闭号"
+   },
+   "gold": "insufficient",
+   "note": "悬挂 CJK 闭号 fail-safe"
+  },
+  {
+   "id": "56-h048",
+   "category": "fn-paraphrase-disclosed",
+   "claim": {
+    "claim_id": "CL-56-h048",
+    "evidence_id": "EV-56-h048",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h048",
+    "source": "synthetic://56-heldout/56-h048",
+    "locator": "L1",
+    "claim": "heldout 56-h048",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "the ratio reached eighty-five percent coverage"
+   },
+   "gold": "supports",
+   "note": "改写：0.85→eighty-five percent（语义在场字面缺席，披露归 human-in-loop）"
+  },
+  {
+   "id": "56-h049",
+   "category": "fn-paraphrase-disclosed",
+   "claim": {
+    "claim_id": "CL-56-h049",
+    "evidence_id": "EV-56-h049",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h049",
+    "source": "synthetic://56-heldout/56-h049",
+    "locator": "L1",
+    "claim": "heldout 56-h049",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖比例八成五已达标"
+   },
+   "gold": "supports",
+   "note": "改写：覆盖率→覆盖比例、0.85→八成五（同义语义在场，披露归 human-in-loop）"
+  },
+  {
+   "id": "56-h050",
+   "category": "fn-paraphrase-disclosed",
+   "claim": {
+    "claim_id": "CL-56-h050",
+    "evidence_id": "EV-56-h050",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h050",
+    "source": "synthetic://56-heldout/56-h050",
+    "locator": "L1",
+    "claim": "heldout 56-h050",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "intent docs scored high on the rubric"
+   },
+   "gold": "supports",
+   "note": "改写：语义在场字面锚全缺（披露归 human-in-loop）"
+  },
+  {
+   "id": "56-h051",
+   "category": "attachment-ambiguous-disclosed",
+   "claim": {
+    "claim_id": "CL-56-h051",
+    "evidence_id": "EV-56-h051",
+    "required_tokens": [
+     "覆盖率",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h051",
+    "source": "synthetic://56-heldout/56-h051",
+    "locator": "L1",
+    "claim": "heldout 56-h051",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "覆盖率无异常记录为 0.85"
+   },
+   "gold": "supports",
+   "note": "无 附着「异常」非覆盖率——窗内 cue 从严（披露归 human-in-loop）"
+  },
+  {
+   "id": "56-h052",
+   "category": "attachment-ambiguous-disclosed",
+   "claim": {
+    "claim_id": "CL-56-h052",
+    "evidence_id": "EV-56-h052",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h052",
+    "source": "synthetic://56-heldout/56-h052",
+    "locator": "L1",
+    "claim": "heldout 56-h052",
+    "grounded": true,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "no coverage issues; 0.85 confirmed"
+   },
+   "gold": "supports",
+   "note": "no 附着 issues——窗内 cue 从严（披露归 human-in-loop）"
+  },
+  {
+   "id": "56-h053",
+   "category": "ungrounded",
+   "claim": {
+    "claim_id": "CL-56-h053",
+    "evidence_id": "EV-56-h053",
+    "required_tokens": [
+     "coverage",
+     "0.85"
+    ]
+   },
+   "evidence": {
+    "evidence_id": "EV-56-h053",
+    "source": "synthetic://56-heldout/56-h053",
+    "locator": "L1",
+    "claim": "heldout 56-h053",
+    "grounded": false,
+    "collected_at": "2026-09-17T00:00:00Z",
+    "reproduce_cmd": "node 56-checker-heldout-eval.mjs",
+    "reproduce_absent_reason": null,
+    "required_tokens": [],
+    "excerpt": "coverage 0.85 quoted but not grounded"
+   },
+   "gold": "insufficient",
+   "note": "grounded=false 一票否决"
+  }
+ ]
+}

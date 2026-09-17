@@ -56,7 +56,9 @@ t('D2 band κ/raw agreement 双报在', typeof bl.kappa_checker_vs_gold === 'num
 t('D3 干净对照假阳率如实记（0 或有值皆可——verdictless 类词根误伤如实算 FP）', bl.clean_controls > 0 && typeof bl.clean_fp_rate === 'number', 'fp=' + bl.clean_false_positives + '/' + bl.clean_controls);
 
 // ---------- E. 纪律与披露 ----------
-t('E1 findings 如实落（对抗面 FP/FN 分型条数在）', res.findings.some(function (f) { return f.kind === 'fp-negation-context'; }) && res.findings.some(function (f) { return f.kind === 'fn-paraphrase'; }));
+const fpFinding = res.findings.find(function (f) { return f.kind === 'fp-negation-context'; });
+const fnFinding = res.findings.find(function (f) { return f.kind === 'fn-paraphrase'; });
+t('E1 findings 如实落（#56 修复后复测：FN 类披露维持＋FP 类改善方向钉 ≤r16 基线 13 或清零）', !!fnFinding && (!fpFinding || fpFinding.count <= 13) && !!res.post_repair && res.post_repair.ticket === '#56', 'fn=' + (fnFinding ? fnFinding.count : 'absent') + ' fp=' + (fpFinding ? fpFinding.count : 0));
 t('E2 合成限制披露随结果走（limitations 三条在）', res.disclosure.synthetic === true && res.disclosure.limitations.length >= 3);
 const evalSrc = readFileSync(join(HERE, '52a-checker-eval.mjs'), 'utf8');
 t('E3 只测不修纪律：eval 脚本无 checker 源码写操作（不写 engine/src）', evalSrc.indexOf('writeFileSync') >= 0 && evalSrc.indexOf('engine/src') < 0 && evalSrc.indexOf('src/report') < 0);

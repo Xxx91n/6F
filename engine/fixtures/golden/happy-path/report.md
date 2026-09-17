@@ -1,5 +1,5 @@
 # MA-45-DEMO-HAPPYPATH — Macro-B 首报（fixture-happy-path@4f9b0b567d3d）
-> RECEIPT RCP-a4d4cb30d97c4e1b chain=a4d4cb30d97c4e1b16b697989e12b726 content=5ded3793fce6e689 facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7
+> RECEIPT RCP-73e130018f0d155a chain=73e130018f0d155a27598c165fbd06f1 content=82c05995bc07193f facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7
 >
 > 骨架 1.1.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-04-13T10:00:00Z
 > - stability: preview · capabilities: macro-b
@@ -113,12 +113,12 @@
 - 引文原文: "synthetic": true,
 
 #### 引文→结论支持关系校验
-- CL-45-HAPPYPATH-01 -> EV-45-HAPPYPATH-01: supports（matched=fact_count missing=）全部支撑锚在引文原文中逐字命中
-- CL-45-HAPPYPATH-02 -> EV-45-HAPPYPATH-02: supports（matched=verdict missing=）全部支撑锚在引文原文中逐字命中
-- CL-45-HAPPYPATH-03 -> EV-45-HAPPYPATH-03: supports（matched=mean_ratio_4 missing=）全部支撑锚在引文原文中逐字命中
-- CL-45-HAPPYPATH-04 -> EV-45-HAPPYPATH-04: supports（matched=lowest_ratio_4 missing=）全部支撑锚在引文原文中逐字命中
-- CL-45-HAPPYPATH-05 -> EV-45-HAPPYPATH-05: supports（matched=five_piece_present missing=）全部支撑锚在引文原文中逐字命中
-- CL-45-HAPPYPATH-06 -> EV-45-HAPPYPATH-07: supports（matched=synthetic|true missing=）全部支撑锚在引文原文中逐字命中
+- CL-45-HAPPYPATH-01 -> EV-45-HAPPYPATH-01: supports（matched=fact_count missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）
+- CL-45-HAPPYPATH-02 -> EV-45-HAPPYPATH-02: supports（matched=verdict missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）
+- CL-45-HAPPYPATH-03 -> EV-45-HAPPYPATH-03: supports（matched=mean_ratio_4 missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）
+- CL-45-HAPPYPATH-04 -> EV-45-HAPPYPATH-04: supports（matched=lowest_ratio_4 missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）
+- CL-45-HAPPYPATH-05 -> EV-45-HAPPYPATH-05: supports（matched=five_piece_present missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）
+- CL-45-HAPPYPATH-06 -> EV-45-HAPPYPATH-07: supports（matched=synthetic|true missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）
 
 ## C4 行动建议
 

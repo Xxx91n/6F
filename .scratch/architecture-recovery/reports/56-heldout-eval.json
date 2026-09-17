@@ -1,0 +1,189 @@
+{
+ "eval_id": "56-heldout-eval-v1",
+ "run_at": "2026-09-17T11:50:53.494Z",
+ "corpus": {
+  "corpus_id": "56-checker-heldout-v1",
+  "sha256_16": "34637791d5c69487",
+  "item_count": 53
+ },
+ "predeclared": {
+  "note": "D-064⑤/D-065：held-out 分区存管＋修复后首跑复测＋禁参照 52a 标签调参；contract 层 100% 对齐、披露层全记 disclosed_fn、输出恒为二态",
+  "contract_floor": 1
+ },
+ "two_state_only": true,
+ "contract": {
+  "n": 48,
+  "pass": 48,
+  "rate": 1
+ },
+ "disclosed_fn": {
+  "n": 5,
+  "items": [
+   {
+    "id": "56-h048",
+    "note": "改写：0.85→eighty-five percent（语义在场字面缺席，披露归 human-in-loop）"
+   },
+   {
+    "id": "56-h049",
+    "note": "改写：覆盖率→覆盖比例、0.85→八成五（同义语义在场，披露归 human-in-loop）"
+   },
+   {
+    "id": "56-h050",
+    "note": "改写：语义在场字面锚全缺（披露归 human-in-loop）"
+   },
+   {
+    "id": "56-h051",
+    "note": "无 附着「异常」非覆盖率——窗内 cue 从严（披露归 human-in-loop）"
+   },
+   {
+    "id": "56-h052",
+    "note": "no 附着 issues——窗内 cue 从严（披露归 human-in-loop）"
+   }
+  ],
+  "disclosure": "presence-level 判定不修写语义在场者——语义召回缺口归 human-in-loop 复核（D-053④），kernel 禁 NLI/概率模型（D-058）"
+ },
+ "per_stratum": {
+  "positive-clean": {
+   "n": 8,
+   "correct": 8,
+   "disclosed": 0,
+   "ids": [
+    "56-h001",
+    "56-h002",
+    "56-h003",
+    "56-h004",
+    "56-h005",
+    "56-h006",
+    "56-h007",
+    "56-h008"
+   ]
+  },
+  "neg-pre-en": {
+   "n": 6,
+   "correct": 6,
+   "disclosed": 0,
+   "ids": [
+    "56-h009",
+    "56-h010",
+    "56-h011",
+    "56-h012",
+    "56-h013",
+    "56-h014"
+   ]
+  },
+  "neg-post-en": {
+   "n": 5,
+   "correct": 5,
+   "disclosed": 0,
+   "ids": [
+    "56-h015",
+    "56-h016",
+    "56-h017",
+    "56-h018",
+    "56-h019"
+   ]
+  },
+  "pseudo-neg": {
+   "n": 6,
+   "correct": 6,
+   "disclosed": 0,
+   "ids": [
+    "56-h020",
+    "56-h021",
+    "56-h022",
+    "56-h023",
+    "56-h024",
+    "56-h025"
+   ]
+  },
+  "neg-cjk": {
+   "n": 8,
+   "correct": 8,
+   "disclosed": 0,
+   "ids": [
+    "56-h026",
+    "56-h027",
+    "56-h028",
+    "56-h029",
+    "56-h030",
+    "56-h031",
+    "56-h032",
+    "56-h033"
+   ]
+  },
+  "pseudo-neg-cjk": {
+   "n": 4,
+   "correct": 4,
+   "disclosed": 0,
+   "ids": [
+    "56-h034",
+    "56-h035",
+    "56-h036",
+    "56-h037"
+   ]
+  },
+  "quoted-attributed": {
+   "n": 5,
+   "correct": 5,
+   "disclosed": 0,
+   "ids": [
+    "56-h038",
+    "56-h039",
+    "56-h040",
+    "56-h041",
+    "56-h042"
+   ]
+  },
+  "term-quoted": {
+   "n": 3,
+   "correct": 3,
+   "disclosed": 0,
+   "ids": [
+    "56-h043",
+    "56-h044",
+    "56-h045"
+   ]
+  },
+  "unbalanced-quote": {
+   "n": 2,
+   "correct": 2,
+   "disclosed": 0,
+   "ids": [
+    "56-h046",
+    "56-h047"
+   ]
+  },
+  "fn-paraphrase-disclosed": {
+   "n": 3,
+   "correct": 0,
+   "disclosed": 3,
+   "ids": [
+    "56-h048",
+    "56-h049",
+    "56-h050"
+   ]
+  },
+  "attachment-ambiguous-disclosed": {
+   "n": 2,
+   "correct": 0,
+   "disclosed": 2,
+   "ids": [
+    "56-h051",
+    "56-h052"
+   ]
+  },
+  "ungrounded": {
+   "n": 1,
+   "correct": 1,
+   "disclosed": 0,
+   "ids": [
+    "56-h053"
+   ]
+  }
+ },
+ "violations": [],
+ "context_flag_coverage": {
+  "items_with_flags": 32,
+  "total": 53
+ }
+}

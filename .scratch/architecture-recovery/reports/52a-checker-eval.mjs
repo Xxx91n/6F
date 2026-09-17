@@ -116,6 +116,7 @@ const results = {
   corpus: { id: corpus.corpus_id, sha256_16: corpusSha, items: corpus.items.length, band_items: corpus.band_items.length },
   instrument: { name: 'checkCitationSupport/scanBandViolations', version: 'engine@0.1.0', note: 'presence 判定机检——无语义层（NLI 未接），presence≠support 区分面即本集对抗分层' },
   predeclared: { kappa_floor: 0.6, note: 'D-061 预声明：checker-人 κ≥0.6 起；intra-rater κ=天花板替代位；κ<floor 或对抗面 FP/FN 高企=如实入 findings 另立修复票（评测票与修复票分离）' },
+  post_repair: { ticket: '#56', decision: 'D-065', note: '#56 修复后复测——checker 已接确定性语境剥离（三表否定窗＋引语/归属包裹＋fail-safe）；FP 类应改善，FN 类（改写/同义语义在场）按设计披露归 human-in-loop 维持' },
   presence: {
     overall: Object.assign({}, overall, metrics(overall)),
     per_category: perCategory,

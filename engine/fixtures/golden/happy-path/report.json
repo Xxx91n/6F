@@ -13,14 +13,14 @@
     "baggage_id": "d3ad072f4037955c7d88b84112e35d98"
   },
   "receipt": {
-    "receipt_id": "RCP-a4d4cb30d97c4e1b",
-    "chain_hash": "a4d4cb30d97c4e1b16b697989e12b726be3648b68b61ebc1b0321971daf0ae14",
+    "receipt_id": "RCP-73e130018f0d155a",
+    "chain_hash": "73e130018f0d155a27598c165fbd06f16649784b24b80732b9473e054cd6fc92",
     "issued_at": "2026-04-13T10:00:00Z",
     "commit_anchor": "4f9b0b567d3dd47be141c10f867bbbac877c1f94",
     "tree_anchor": "d0fb585754c7f84a85bb88d41fc26063cc903aac",
     "content_digest": {
       "algo": "sha256",
-      "value": "5ded3793fce6e68943ec6437d4d9d3872a4525356205f5f0c4a3f721e8c0b6f7",
+      "value": "82c05995bc07193fa269bd3d32964e9504f77b2ad1767ac0f86bdd41c828c278",
       "canonicalization": "json_utf8_entries_then_citation_checks"
     },
     "gate_ref": {
@@ -39,7 +39,7 @@
     "fact_count": 129,
     "adjudication_count": 6,
     "degraded": false,
-    "mark": "RECEIPT RCP-a4d4cb30d97c4e1b chain=a4d4cb30d97c4e1b16b697989e12b726 content=5ded3793fce6e689 facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7"
+    "mark": "RECEIPT RCP-73e130018f0d155a chain=73e130018f0d155a27598c165fbd06f1 content=82c05995bc07193f facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7"
   },
   "overall_verdict": "supported",
   "confidence": 0.6,
@@ -386,7 +386,8 @@
           "fact_count"
         ],
         "missing_tokens": [],
-        "reason": "全部支撑锚在引文原文中逐字命中"
+        "context_flags": [],
+        "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
       },
       {
         "claim_id": "CL-45-HAPPYPATH-02",
@@ -396,7 +397,8 @@
           "verdict"
         ],
         "missing_tokens": [],
-        "reason": "全部支撑锚在引文原文中逐字命中"
+        "context_flags": [],
+        "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
       },
       {
         "claim_id": "CL-45-HAPPYPATH-03",
@@ -406,7 +408,8 @@
           "mean_ratio_4"
         ],
         "missing_tokens": [],
-        "reason": "全部支撑锚在引文原文中逐字命中"
+        "context_flags": [],
+        "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
       },
       {
         "claim_id": "CL-45-HAPPYPATH-04",
@@ -416,7 +419,8 @@
           "lowest_ratio_4"
         ],
         "missing_tokens": [],
-        "reason": "全部支撑锚在引文原文中逐字命中"
+        "context_flags": [],
+        "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
       },
       {
         "claim_id": "CL-45-HAPPYPATH-05",
@@ -426,7 +430,8 @@
           "five_piece_present"
         ],
         "missing_tokens": [],
-        "reason": "全部支撑锚在引文原文中逐字命中"
+        "context_flags": [],
+        "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
       },
       {
         "claim_id": "CL-45-HAPPYPATH-06",
@@ -437,7 +442,8 @@
           "true"
         ],
         "missing_tokens": [],
-        "reason": "全部支撑锚在引文原文中逐字命中"
+        "context_flags": [],
+        "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
       }
     ]
   },
@@ -450,7 +456,8 @@
         "fact_count"
       ],
       "missing_tokens": [],
-      "reason": "全部支撑锚在引文原文中逐字命中"
+      "context_flags": [],
+      "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
     },
     {
       "claim_id": "CL-45-HAPPYPATH-02",
@@ -460,7 +467,8 @@
         "verdict"
       ],
       "missing_tokens": [],
-      "reason": "全部支撑锚在引文原文中逐字命中"
+      "context_flags": [],
+      "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
     },
     {
       "claim_id": "CL-45-HAPPYPATH-03",
@@ -470,7 +478,8 @@
         "mean_ratio_4"
       ],
       "missing_tokens": [],
-      "reason": "全部支撑锚在引文原文中逐字命中"
+      "context_flags": [],
+      "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
     },
     {
       "claim_id": "CL-45-HAPPYPATH-04",
@@ -480,7 +489,8 @@
         "lowest_ratio_4"
       ],
       "missing_tokens": [],
-      "reason": "全部支撑锚在引文原文中逐字命中"
+      "context_flags": [],
+      "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
     },
     {
       "claim_id": "CL-45-HAPPYPATH-05",
@@ -490,7 +500,8 @@
         "five_piece_present"
       ],
       "missing_tokens": [],
-      "reason": "全部支撑锚在引文原文中逐字命中"
+      "context_flags": [],
+      "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
     },
     {
       "claim_id": "CL-45-HAPPYPATH-06",
@@ -501,7 +512,8 @@
         "true"
       ],
       "missing_tokens": [],
-      "reason": "全部支撑锚在引文原文中逐字命中"
+      "context_flags": [],
+      "reason": "全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）"
     }
   ],
   "evidence": [
