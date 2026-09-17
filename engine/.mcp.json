@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "macro-audit-kernel": {
+      "type": "stdio",
+      "command": "macro-audit",
+      "args": [
+        "mcp"
+      ],
+      "env": {
+        "MACRO_AUDIT_FACTS_DB": ""
+      }
+    }
+  }
+}

@@ -11,8 +11,10 @@ const AP_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
 
 const targets = [
   ["plugin.json", { $schema: AP_SCHEMA, name: meta.name, version: meta.version, description: meta.description, author: meta.author, homepage: meta.homepage, repository: meta.repository, license: meta.license, extensions: Object.fromEntries(meta.extensions.map(ns => [ns, { path: "extensions/" + ns }])) }],
-  [join(".claude-plugin", "plugin.json"), { name: meta.claudePlugin.name, version: meta.claudePlugin.version, description: meta.description, author: meta.author, homepage: meta.homepage, repository: meta.repository, license: meta.license, skills: meta.skills.map(s => "./skills/" + s), mcpServers: "./mcp.json" }],
-  ["mcp.json", { mcpServers: { "macro-audit-kernel": { transport: meta.mcp.transport, readOnly: meta.mcp.readOnly, command: "macro-audit", args: ["mcp"], ...(meta.mcp.env ? { env: meta.mcp.env } : {}) } } }]
+  [join(".claude-plugin", "plugin.json"), { name: meta.claudePlugin.name, version: meta.claudePlugin.version, description: meta.description, author: meta.author, homepage: meta.homepage, repository: meta.repository, license: meta.license, skills: meta.skills.map(s => "./skills/" + s) }],
+  ["mcp.json", { mcpServers: { "macro-audit-kernel": { transport: meta.mcp.transport, readOnly: meta.mcp.readOnly, command: "macro-audit", args: ["mcp"], ...(meta.mcp.env ? { env: meta.mcp.env } : {}) } } }],
+  // Claude Code 插件根 .mcp.json 为标准自动发现位（标准 MCP 配置格式：type 非 transport，无 readOnly）
+  [".mcp.json", { mcpServers: { "macro-audit-kernel": { type: meta.mcp.transport, command: "macro-audit", args: ["mcp"], ...(meta.mcp.env ? { env: meta.mcp.env } : {}) } } }]
 ];
 
 let drift = 0;

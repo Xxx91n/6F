@@ -18,13 +18,14 @@ function json(p) { return JSON.parse(txt(p)); }
 const pj = json(join(REPO, 'engine', 'plugin.json'));
 const cc = json(join(REPO, 'engine', '.claude-plugin', 'plugin.json'));
 const mk = json(join(REPO, '.claude-plugin', 'marketplace.json'));
+const mcp = json(join(REPO, 'engine', '.mcp.json'));
 const pk = json(join(REPO, 'engine', 'package.json'));
 
 // ---------- A. D-052 字段值 ----------
 t('A1 engine/plugin.json name=6f', pj.name === '6f');
 t('A2 plugin.json author 三件 = D-052 值', pj.author && pj.author.name === 'Xxx91n' && pj.author.email === 'xxx91n@duck.com' && pj.author.url === 'https://github.com/Xxx91n');
 t('A3 plugin.json homepage/repository = Xxx91n/6F', pj.homepage === 'https://github.com/Xxx91n/6F' && pj.repository === 'https://github.com/Xxx91n/6F');
-t('A4 .claude-plugin/plugin.json name=6f + skills/mcpServers 声明', cc.name === '6f' && Array.isArray(cc.skills) && cc.skills.includes('./skills/macro-audit') && cc.mcpServers === './mcp.json');
+t('A4 .claude-plugin/plugin.json name=6f + skills 路径形＋.mcp.json 自动发现位', cc.name === '6f' && Array.isArray(cc.skills) && cc.skills.includes('./skills/macro-audit') && mcp.mcpServers && mcp.mcpServers['macro-audit-kernel'] && mcp.mcpServers['macro-audit-kernel'].command === 'macro-audit');
 t('A5 marketplace.json name=xxx91n + plugins[0].name=6f source=./engine strict', mk.name === 'xxx91n' && mk.plugins && mk.plugins[0] && mk.plugins[0].name === '6f' && mk.plugins[0].source === './engine' && mk.plugins[0].strict === true);
 t('A6 marketplace owner = D-052 值', mk.owner && mk.owner.name === 'Xxx91n' && mk.owner.email === 'xxx91n@duck.com');
 t('A7 插件名 6f 合法（2 字符小写字母数字首尾）', /^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(pj.name) && pj.name.length >= 2);
