@@ -50,4 +50,16 @@
 - `node .scratch/architecture-recovery/reports/49-check.mjs` → PASS（本窗口实测）
 - 克隆实测：`cd /tmp/r49-clone-test && git clone --quiet <url>` 计时输出 → git 189s/376MB、django 158s/354MB、spring-boot 159s/322MB
 - 工件：D:\Aworker\6F\.scratch\architecture-recovery\reports\49-clone-budget.json
+
+## ⑦ dispatch 实跑追记（2026-09-17，授权后）
+
+三次 dispatch（--ref r14-t9-dual-readings）：
+
+| run | 结果 | 说明 |
+|---|---|---|
+| 35168275692 | failure | 预存缺陷暴露：`matrix.repo: ${{ fromJSON(...) }}` 嵌套包装→macro-b job 未生成（#46 起潜伏，首跑实证）→ commit ukt 修复为 `matrix: ${{ fromJSON(...) }}` 直消费 |
+| 35168560100 | 3✅+1❌ | 四腿正确展开；spring-boot 腿 `NC1-CANDIDATE-MISS`（NC1 负对照候选集仅 package.json/README.md/Cargo.toml，spring-boot 仓根无命中）→ commit quw 扩至 13 候选跨生态 |
+| 35169293448 | ✅ 全绿 | clone 实测：jiahao 1s / django 15s / spring-boot 15s / git 20s；pipeline 2-6s；leg 总 21-38s ≪ 1200s；备选表未触发 |
+
+口径：job 绿=管线跑通+工件齐备，非裁定绿（本机 spring-boot 复跑 overall=unsupported 如实落数）。
 - 守卫：D:\Aworker\6F\.scratch\architecture-recovery\reports\49-check.mjs

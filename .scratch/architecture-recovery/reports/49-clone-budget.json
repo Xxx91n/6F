@@ -37,5 +37,40 @@
     "python": "https://github.com/pallets/flask.git",
     "java": "https://github.com/apache/kafka.git"
   },
-  "caveat": "本机实测不替代 CI dispatch 实跑；dispatch 需 push 授权（用户闸门 T6/T7）。若 CI 实跑超时按备选表替换。"
+  "caveat": "CI 实跑验证完成（run 35169293448 全绿）：GitHub runner 克隆远快于本机（数据中心网络）；备选表未触发。",
+  "ci_dispatch": {
+    "runs": [
+      {
+        "id": 35168275692,
+        "ref": "r14-t9-dual-readings",
+        "result": "failure",
+        "note": "matrix.repo 嵌套包装缺陷暴露：macro-b job 未生成（预存 #46 缺陷，dispatch 首跑实证）→ ukt 修复"
+      },
+      {
+        "id": 35168560100,
+        "ref": "r14-t9-dual-readings",
+        "result": "3success+1failure",
+        "note": "四腿展开成功；spring-boot 腿 NC1-CANDIDATE-MISS（负对照候选集过窄）→ quw 修复"
+      },
+      {
+        "id": 35169293448,
+        "ref": "r14-t9-dual-readings",
+        "result": "success",
+        "note": "四腿全绿；clone 实测 jiahao 1s/django 15s/spring-boot 15s/git 20s；pipeline 2-6s；leg 总时长 21-38s ≪ 1200s 预算"
+      }
+    ],
+    "clone_seconds_ci": {
+      "jiahao": 1,
+      "django": 15,
+      "spring-boot": 15,
+      "git": 20
+    },
+    "leg_seconds": {
+      "jiahao": 21,
+      "django": 31,
+      "spring-boot": 31,
+      "git": 38
+    },
+    "evidence": "gh api repos/Xxx91n/6F/actions/runs/35169293448/jobs"
+  }
 }
