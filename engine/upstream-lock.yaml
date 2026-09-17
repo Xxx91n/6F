@@ -41,7 +41,7 @@ upstreams:
     kind: external-cli
     version: null
     pin_type: null
-    contract: "随宿主环境不 pin 版本（README §3/D-020 双轨制）——契约面=冻结 argv＋输出形状解析断言＋golden 契约测试；版本漂移经契约测试检出而非版本 pin"
+    contract: "随宿主环境不 pin 版本（README §3/D-020 双轨制）——契约面=冻结 argv＋输出形状解析断言＋golden 契约测试；版本漂移经契约测试检出而非版本 pin。enforce 位=engine/src/intake/intake.ts normalizeGitIsoDate（%cI 归一化 +00:00→Z＋严格 ISO 形状断言 GITCLI-OUTPUT-CONTRACT，#54/D-059①：git<2.45 吐 +00:00、≥2.45 吐 Z 的版本拼写漂移在解析边界归一）；单测=engine/test/gitcli-contract.test.mjs"
     status: active
     adapter: "engine/src/collect/＋engine/src/intake/（git 子进程调用面）"
     last_reviewed: 2026-09-16

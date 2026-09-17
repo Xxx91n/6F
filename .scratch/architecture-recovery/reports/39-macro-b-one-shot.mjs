@@ -21,6 +21,7 @@ const C = await import(pathToFileURL(join(DIST, 'collect', 'collectors.js')).hre
 const G = await import(pathToFileURL(join(DIST, 'report', 'generate.js')).href);
 const S = await import(pathToFileURL(join(DIST, 'fact', 'schema.js')).href);
 const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
+const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同口径防跨版本漂移
 
 // ---------- §0 参数：默认三仓全跑；--repo/--root/--out = 单仓 CI 形态 ----------
 const DEFAULT_REPOS = [
@@ -104,7 +105,7 @@ async function runOneShot(target) {
   const NAME = target.repo;
   const ROOT = target.root;
   const HEAD_SHA = git(ROOT, ['rev-parse', 'HEAD']).trim();
-  const HEAD_DATE = git(ROOT, ['log', '-1', '--format=%cI']).trim();
+  const HEAD_DATE = I.normalizeGitIsoDate(git(ROOT, ['log', '-1', '--format=%cI']).trim());
   const TREE_SHA = git(ROOT, ['rev-parse', 'HEAD^{tree}']).trim();
   const COMMIT_COUNT = Number(git(ROOT, ['rev-list', '--count', 'HEAD']).trim());
   const ctx = {
@@ -123,7 +124,7 @@ async function runOneShot(target) {
     const t = line.trim();
     if (t.indexOf('__R__') === 0) {
       const parts = t.slice(5).split('|');
-      cur = { sha: parts[0], author: parts[1], date: parts[2], paths: [] };
+      cur = { sha: parts[0], author: parts[1], date: I.normalizeGitIsoDate(parts[2]), paths: [] };
       commits.push(cur);
     } else if (cur && t.length > 0) {
       cur.paths.push(t);

@@ -29,6 +29,7 @@ const G = await import(pathToFileURL(join(DIST, 'report', 'generate.js')).href);
 const S = await import(pathToFileURL(join(DIST, 'fact', 'schema.js')).href);
 const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
 const GH = await import(pathToFileURL(join(DIST, 'upstream', 'github-rest.js')).href);
+const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同口径
 
 // ---------- §0 Micro-A 切片字段契约（唯一事实源） ----------
 // NN-check 由本常量 ∩ dist REPORT_SKELETON.required_fields 机械导出断言集——禁手抄漂移（D-049⑤）。
@@ -160,7 +161,8 @@ export function skeletonIntersectionReport(sidecar, mdText) {
 // ---------- §4 采集（枚举＋元数据＋diff 双通道；事实=适配器唯一来源） ----------
 async function collectTarget(t, shared, diffsOverride) {
   const headSha = t.root ? tryGit(t.root, ['rev-parse', 'HEAD']) : null;
-  const headDate = t.root ? tryGit(t.root, ['log', '-1', '--format=%cI']) : null;
+  const headDateRaw = t.root ? tryGit(t.root, ['log', '-1', '--format=%cI']) : null;
+  const headDate = headDateRaw ? I.normalizeGitIsoDate(headDateRaw) : null;
   const ctx = {
     runId: 'r48-' + t.name + '-' + (headSha || 'na').slice(0, 7),
     traceId: C.sha256Hex(t.repo + '|' + (headSha || 'na') + '|' + RUN_AT).slice(0, 32),

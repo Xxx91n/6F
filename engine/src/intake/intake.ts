@@ -78,6 +78,19 @@ export function isGitRepo(dir: string, timeoutMs = 30000): boolean {
   return !r.error && r.status === 0;
 }
 
+// ---- git %cI 输出形状契约（#54 / D-059①；upstream-lock.yaml git-cli 行「输出解析为契约」enforce 位） ----
+// git <2.45 对 UTC 偏移提交吐 '+00:00'，≥2.45 吐 'Z'——同一 commit object 跨版本字面漂移，
+// 击穿 traceId→fact_id→receipt→report 逐字节确定性链。处置=解析边界归一化 '+00:00'→'Z'
+// （非 UTC 偏移如 +08:00 两版一致不动）＋严格形状断言：归一化后不符即拒，不静默放行。
+const GIT_ISO_STRICT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/;
+export function normalizeGitIsoDate(raw: string): string {
+  const s = (raw || '').trim().replace(/\+00:00$/, 'Z');
+  if (!GIT_ISO_STRICT_RE.test(s)) {
+    throw intakeError('GITCLI-OUTPUT-CONTRACT', 'git %cI output violates frozen shape (expect strict ISO-8601, Z or ±HH:MM zone): ' + JSON.stringify(raw));
+  }
+  return s;
+}
+
 export function isShallowRepo(dir: string, timeoutMs = 30000): boolean {
   const r = gitOk(['rev-parse', '--is-shallow-repository'], dir, timeoutMs);
   return r.stdout === 'true';

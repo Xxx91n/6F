@@ -11,6 +11,11 @@ name: golden-ci
 #   （author/committer/date 钉死）跨环境同 SHA；examples 腿输入全部钉在冻结 commit
 #   的对象上；仓根 .gitattributes 全仓 eol=lf 消除行尾平台差。矩阵重复跑同一确定性
 #   计算不产生新信号，故挂单平台，若未来发现平台相关漂移须如实登记再加矩阵。
+# 勘误（2026-09-17 / #54 / D-059①）：「非平台行为」声明过宽——git %cI 对 UTC 偏移提交
+#   的输出拼写在 git 2.45 版本边界漂移（<2.45 吐 +00:00，≥2.45 吐 Z），属工具版本漂移
+#   而非平台漂移，此前未纳入确定性论证。已处置：%cI 输出在解析边界归一化 +00:00→Z 并
+#   强断言 ISO 形状（engine/src/intake/intake.ts normalizeGitIsoDate，GITCLI-OUTPUT-CONTRACT）。
+#   单平台裁定维持——漂移源已归一化封口，矩阵仍不产生新信号。
 on:
   push:
     paths:
