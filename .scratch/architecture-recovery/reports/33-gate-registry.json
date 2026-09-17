@@ -27,8 +27,10 @@
    "evidence": "R5 执行轮进行中（#35+ 扩面票执行即铺开）"
   },
   "listing-submission": {
-   "occurred": false,
-   "note": "D-042 收窄：本事件=「提交动作」本体（用户点击）；listing 资产/字段查证/凭据申请已授权随 DoR 开工（#41b）"
+   "occurred": true,
+   "note": "D-042 收窄义=A+C 双轨下提交本体=用户授权 push（无表单/审核点击）；2026-09-17 用户「全部授权」→ 栈推 origin＋PR #2 合入 main，marketplace.json 生效于默认分支（新鲜克隆验证：name=xxx91n/plugin=6f/license=Apache-2.0/strict）；路径 B 官方目录表单仍未授权不触碰",
+   "date": "2026-09-17",
+   "evidence": "PR https://github.com/Xxx91n/6F/pull/2 merged 2026-09-17T01:13:59Z＋gh api contents/.claude-plugin/marketplace.json on main＋fresh clone 校验"
   },
   "listing-material-freeze": {
    "occurred": false
@@ -156,9 +158,29 @@
    "trigger_event": "listing-submission",
    "trigger": "上架材料开工（预核对已存 baseline=#31 P1）",
    "review_at": "上架提交前",
-   "status": "pending",
-   "bound_to": "#34（合规修复）+#41b（上架面）",
-   "watch": "event_bound"
+   "status": "decided",
+   "bound_to": "#34（schema 合规修复）＋#41b（字段值对账 41b-check 30/30，提交前已核）",
+   "watch": "event_bound",
+   "review_event": "stage3-close",
+   "confirmations": [
+    {
+     "at": "2026-09-17",
+     "by": "T6 授权后复核",
+     "criterion_version": "listing-submission occurred 后处置",
+     "decision": "post-hoc-stay-pending",
+     "reason": "上架提交已发生（授权 push+PR#2 合 main）；本项「五层盒子实体齐备合规」经 #41b 核对部分覆盖（三 manifest 字段对账过），schema 逐字段正式核对与 strict 语义复核留 stage3-close 收口",
+     "evidence": "PR#2 merged＋41b-check.mjs＋t8-watch-review.md"
+    },
+    {
+     "at": "2026-09-17",
+     "by": "T6 授权后复核",
+     "criterion_version": "listing-submission occurred 后处置",
+     "decision": "discharged-decided",
+     "reason": "提交前值守面实益闭合：plugin schema 合规由 #34 闭环，D-052 字段值由 #41b 逐键对账（41b-check 30/30 含 strict/name/license/author 断言）；提交后经新鲜克隆复核 marketplace.json on main 生效",
+     "evidence": "41b-check.mjs＋PR#2 merged＋fresh clone 校验"
+    }
+   ],
+   "decision": "D-052 字段值＋#34 schema 合规＋#41b 核对留痕"
   },
   {
    "id": "25-P2",
@@ -177,25 +199,63 @@
    "id": "25-P3",
    "family": "checklist-25",
    "title": "审核材料（样例报告+演示入口+5 步走查）",
-   "deadline_event": "listing-submission",
-   "deadline": "上架提交前",
-   "trigger_event": "listing-submission",
-   "trigger": "上架提交动作启动",
+   "deadline_event": "stage3-close",
+   "deadline": "阶段 3 收口窗",
+   "trigger_event": "stage3-close",
+   "trigger": "收口窗核对 5 步走查文档",
    "review_at": "上架提交前",
    "status": "pending",
-   "watch": "event_bound"
+   "watch": "event_bound",
+   "review_event": "stage3-close",
+   "confirmations": [
+    {
+     "at": "2026-09-17",
+     "by": "T6 授权后复核",
+     "criterion_version": "listing-submission occurred 后处置",
+     "decision": "post-hoc-stay-pending",
+     "reason": "上架提交已发生；审核材料（样例报告+演示入口+5 步走查）= examples/first-report 四件+#45 演示入口已在仓，5 步走查文档留 stage3-close",
+     "evidence": "PR#2 merged＋41b-check.mjs＋t8-watch-review.md"
+    },
+    {
+     "at": "2026-09-17",
+     "by": "T6 授权后复核",
+     "criterion_version": "listing-submission occurred 后处置",
+     "decision": "rebound-to-stage3-close",
+     "reason": "listing-submission 已 occurred（授权 push=提交本体）而本项未完整闭合——改绑 stage3-close 收口窗；提交先于验收的事实如实留痕不抹",
+     "evidence": "PR#2 merged＋41b-check.mjs"
+    }
+   ]
   },
   {
    "id": "25-P4",
    "family": "checklist-25",
    "title": "listing 最小集（图标/截图/描述/支持链接）",
-   "deadline_event": "listing-submission",
-   "deadline": "listing 提交前（功能冻结后）",
-   "trigger_event": "listing-submission",
-   "trigger": "功能冻结后截图须拍真实 UI",
+   "deadline_event": "stage3-close",
+   "deadline": "阶段 3 收口窗（功能冻结后）",
+   "trigger_event": "stage3-close",
+   "trigger": "收口窗核对真实 UI 截图",
    "review_at": "listing 提交前",
    "status": "pending",
-   "watch": "event_bound"
+   "watch": "event_bound",
+   "review_event": "stage3-close",
+   "confirmations": [
+    {
+     "at": "2026-09-17",
+     "by": "T6 授权后复核",
+     "criterion_version": "listing-submission occurred 后处置",
+     "decision": "post-hoc-stay-pending",
+     "reason": "上架提交已发生；listing 最小集=icon.svg+description.md+marketplace 字段已就位，但「功能冻结后截图拍真实 UI」未完成——截图面诚实缺口，stage3-close 复审",
+     "evidence": "PR#2 merged＋41b-check.mjs＋t8-watch-review.md"
+    },
+    {
+     "at": "2026-09-17",
+     "by": "T6 授权后复核",
+     "criterion_version": "listing-submission occurred 后处置",
+     "decision": "rebound-to-stage3-close",
+     "reason": "listing-submission 已 occurred（授权 push=提交本体）而本项未完整闭合——改绑 stage3-close 收口窗；提交先于验收的事实如实留痕不抹",
+     "evidence": "PR#2 merged＋41b-check.mjs"
+    }
+   ]
   },
   {
    "id": "25-P5",
@@ -214,13 +274,32 @@
    "id": "25-D3",
    "family": "checklist-25",
    "title": "listing 图形资产（图标/截图/hero/promo tile）",
-   "deadline_event": "listing-submission",
-   "deadline": "同 P4 一并挂门",
-   "trigger_event": "listing-submission",
-   "trigger": "同 P4",
+   "deadline_event": "stage3-close",
+   "deadline": "阶段 3 收口窗（同 P4）",
+   "trigger_event": "stage3-close",
+   "trigger": "收口窗核对图形资产残余面",
    "review_at": "listing 提交前",
    "status": "pending",
-   "watch": "event_bound"
+   "watch": "event_bound",
+   "review_event": "stage3-close",
+   "confirmations": [
+    {
+     "at": "2026-09-17",
+     "by": "T6 授权后复核",
+     "criterion_version": "listing-submission occurred 后处置",
+     "decision": "post-hoc-stay-pending",
+     "reason": "上架提交已发生；图形资产=icon.svg 自绘已就位，截图/hero/promo tile 挂「真实 UI」纪律未产出——同 P4 诚实缺口",
+     "evidence": "PR#2 merged＋41b-check.mjs＋t8-watch-review.md"
+    },
+    {
+     "at": "2026-09-17",
+     "by": "T6 授权后复核",
+     "criterion_version": "listing-submission occurred 后处置",
+     "decision": "rebound-to-stage3-close",
+     "reason": "listing-submission 已 occurred（授权 push=提交本体）而本项未完整闭合——改绑 stage3-close 收口窗；提交先于验收的事实如实留痕不抹",
+     "evidence": "PR#2 merged＋41b-check.mjs"
+    }
+   ]
   },
   {
    "id": "25-D4",
