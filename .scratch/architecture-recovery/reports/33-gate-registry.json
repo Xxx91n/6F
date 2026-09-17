@@ -951,7 +951,7 @@
    "trigger_event": null,
    "trigger": "下一张接触 demo.ts 的票开工时顺带清（不独立立项）",
    "review_at": "demo.ts 下一票面 review 时",
-   "status": "pending",
+   "status": "decided",
    "watch": "manual_watch",
    "owner": "macro-audit 队列值守",
    "verify_method": "任何票面 diff 触及 demo.ts 时清点 git() 调用位与 Middle Man 块是否清除；未触及不动",
@@ -963,6 +963,14 @@
      "criterion_version": "D-064⑥",
      "decision": "registered",
      "reason": "F13 缓项：注释自认留置非缺陷；现在删=污染 r16 已验收分支，挂顺带清观察项"
+    },
+    {
+     "at": "2026-09-17",
+     "by": "轮18 #57 T1",
+     "criterion_version": "D-064⑥",
+     "decision": "discharged-decided",
+     "reason": "触发面命中：本票触及 demo.ts——git() 死码已于 r16fix(f3354ea) 清除；~34 行 identity-alias Middle Man 块本票内联（demo.test O2 golden 逐字节复核输出恒等）；F10 空值守卫＋F11 evidence_flag 改名随票",
+     "evidence": "demo.ts §3-§7 直引 probes/col/ev 无 alias 层；npm test demo 38/38；53-check 25/25"
     }
    ]
   }
