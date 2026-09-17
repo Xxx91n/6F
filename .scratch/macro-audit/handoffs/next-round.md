@@ -9,6 +9,7 @@
 - **T2 #56 ✅**（分支 r18-fix-56：vyr 代码面／zzo 行政面）：citation.ts 重构——supports=presence-level 文档化＋六表否定剥离＋引语/归属/言语子句剥离＋fail-safe＋context_flags＋PRESENCE_LIMITS 披露；held-out 53 件首跑 contract 48/48＋disclosed_fn=5；52a 复测 FP 13→0／κ 0.455→0.711；56-check 23/23＋52a-check 22/22＋citation.test 29/29。
 - 报告：.scratch/architecture-recovery/reports/round18-report.md；两栈均未 push（T5 用户闸门）。
 - 遗留登记：23-first-report-check 源 .ts 动态 import .js specifier 环境性失败（非本票引入）；38/39/40-check 既有 FAIL 与轮 17 基线逐条一致不扩大。
+- **轮 18 审计返工 ✅**（r18-rework 分支／A-067）：r18-audit 打回小修 G1-G3 闭环——56-check F2 空转实检化＋骨架契约升版 1.2.0＋38-check 守卫侧裸取补；O2 flag 名实对齐＋O5 披露强化；文书勘误 P1-P3 落盘；复跑全绿（56-check 23/23 含 BOM 红证、npm test 15 件、48-check 45/45）。
 
 ## 口径基线（读前必知）
 

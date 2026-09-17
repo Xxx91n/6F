@@ -10,7 +10,7 @@
 | F1 层序串 | audit.ts layer_order 修回 ADR-0017③ 原文（Macro-C→Micro-A→Micro-B→Macro-A，Macro-B 已上架不回插） | 53-check B 面断言层序原文＋audit.test S5 |
 | F8 noBom | 52a/53/54/55-check 补 noBom 扫描面 | 各守卫 F 面 PASS |
 | F9 吞旗 | CLI 旗标值双横线前缀拒绝（--scale --json → exit 2 AUDIT-ARGS missing value 结构化） | audit.test E2 |
-| F10 空值 | pc1AdrFacts 等 [0] 裸取 5 处活代码守卫（audit.ts:201/demo.ts:242/38:299,304/39:285/40:287）→结构化 insufficient；23-first-report.mjs 冻结豁免（D-063） | audit/demo 测试＋38/39/40 守卫 |
+| F10 空值 | pc1AdrFacts 等 [0] 裸取同型守卫——活代码面：audit.ts:201,202,206／demo.ts:206,207,211／38-macro-c-preview.mjs:299,304／39-macro-b-one-shot.mjs:285,286,290／40-macro-b-one-shot.mjs:287,288,292（pc1/pc2Lag/nc1Facts 同型扩展）；守卫侧：38-check.mjs:47,48,49,52（r18 审计 G3 返工补）；23-first-report.mjs 冻结豁免（D-063） | audit/demo 测试＋38/39/40 守卫 |
 | F11 改名 | evidence_threshold_met→evidence_flag 全链 20 处（判定式零改动；骨架契约/渲染/audit/demo/5 活 .mjs/14-skeleton-fields.json/golden 三场景） | 53-check C4（新字段布尔＋旧字段零出现） |
 | F15 复用 | mcp facts 调试腿复用 resolveFactsDb 三源链 | mcp-db 12/12 |
 | F13 顺带 | demo.ts ~34 行 identity-alias Middle Man 内联＋CollectedFact 死引用清除（D-064⑥ 观察项） | demo O2 golden 逐字节恒等；registry→discharged-decided |
@@ -46,7 +46,7 @@
 | 件 | 结果 |
 |---|---|
 | npx tsc | TSC_OK |
-| npm test | 14 套件全绿：gen+tsc+smoke（audit 26/26·demo 38/38 O2 逐字节·narrative 34·citation 29/29 新增·github-rest 55/55·mcp-db 12/12·intake 40/40·sql-literal 17/17·gitcli 11/11·codelore 73·collectors 14·report-preview 5） |
+| npm test | 15 测试件全绿：gen+tsc+smoke（audit 26/26·demo 38/38 O2 逐字节·narrative 34·citation 29/29 新增·github-rest 55/55·mcp-db 12/12·intake 40/40·sql-literal 17/17·gitcli 11/11·codelore 73·collectors 14·report-preview 5） |
 | 56-check | 23/23 |
 | 52a-check | 22/22（E1 复测基线） |
 | 53-check | 25/25（C4 改名钉） |
@@ -56,7 +56,7 @@
 | 38/39/40-check | 既有环境性 FAIL 与轮17基线逐条一致（jiahao/anysearch-cli/next-round 记录面，不扩大修复） |
 | npm pack | 71 件 129.1kB（unpacked 599.3kB） |
 | cli selftest | ok=true 5/5 |
-| 真实仓测活 | audit /d/Aworker/env-manager --scale Macro-B --json exit 0（sidecar 输出） |
+| 真实仓测活 | audit /d/Aworker/env-manager --scale Macro-B --json exit 0（sidecar 输出）；回执时点：T1 时点（citation.ts 未改）RCP-e0ab92dca215a66d 与 r16 同值；T2 context_flags 进 digestInput 后终态 RCP-b545e0e9f2b0e5e8（两次连跑逐字节一致=确定性保持，属加法字段正当漂移） |
 
 ## 过程教训（机检修复环）
 
@@ -71,3 +71,20 @@
 - **cue 附着歧义**（52a-011 类）：窗内 cue 无法解目标附着（浅仓拒绝=拒绝为事件内容非锚否定）→从严 insufficient 披露，不硬解
 - **无引号第一人称归属**：「本报告称/our report states」类一手归属超出第三方引语表范围——残余 FP 披露面（presence-level 如实承载）
 - CJK '称/说' 伪言语豁免表为白名单词形（名称/简称/小说/不得不说…），未覆盖词形从严掩蔽（fail-safe 方向）
+
+## 轮 18 审计返工包（2026-09-17 r18-audit 打回小修 G1-G3＋过程呈报）
+
+> 审计裁决：打回小修 3 项（主体验收实质成立）。报告：.scratch/macro-audit/reports/2026-09-17-r18-audit-report.md
+
+| 项 | 缺陷 | 修复 | 复跑 |
+|---|---|---|---|
+| G1 | 56-check.mjs F2 vacuous noBom（4/6 裸相对名仓根调用下不存在→跳过） | nb 全改 join(HERE/REPO,…)＋existsSync 前置（缺文件=FAIL 非跳过） | 56-check 23/23；BOM 注入红证 FAIL F2（bom:…eval.mjs→22/23 exit 1），还原复绿 |
+| G2 | 骨架契约改名未升版（违 A-064 C9 升版触发点=字段改名） | REPORT_SKELETON_VERSION 1.1.0→1.2.0＋14-skeleton-fields.json schema_version 同步；09-stale-check 语义钉改「proposal applied@1.1.0 且 current≥proposed」（历史提案不改写）；48-micro-a-preview.mjs 断言/fixture 改 G.REPORT_SKELETON_VERSION 常量引用；audit.test J2 钉 1.2.0；golden 三场景重基线 | npm test 15 件全绿（audit 26/26）＋14/48/51-check 全 PASS＋09-stale-check 15/15 |
+| G3 | F10 同型清点漏守卫侧（38-check.mjs:47/48/49/52 四处 metric()[0] 裸取） | 四处转 length>0 守卫＋detail 字段 null-safe | 38-check FAIL 面收窄——E3 单项陈旧类残留（mw-trigger-b ALARM 登记后不再触发=环境性），H4 转绿；无本票新增 |
+| O2 | EN_PRE_NEG 混入假想/示例 cue（for example/hypothetical 等）→flags 输出 negated: 名不副实 | 拆 EN_NON_ASSERT_CUES 表（假想/示例/假设语境标记 15 词）＋flag kind 三段名实对齐：negated（否定窗）/ non-asserted（非断言语境）/ verdict-label（裁决标签位）；模块头 flag 词表文档化 | held-out 复跑 contract 48/48、disclosed_fn=5 不变；52a 复测 FP=0/κ=0.711 不变（剥离行为恒等仅 flag 名改） |
+| O5 | held-out gold 系实施者同日标注 | corpus disclosure.note 补「标注者即本票实施者同日完成，非独立双标，独立性强度以此披露为限」 | 56-heldout-eval.json sha 绑定重生成 |
+
+过程呈报勘误（P1-P3）：
+- P1 回执时点限定已补（本表验收行＋BACKLOG＋handoff）
+- P2 行号勘误：demo.ts:242→206；「38:」简写消歧=38-macro-c-preview.mjs（非 38-check.mjs）；F10 守卫位逐条枚举见 §F10 行
+- P3 npm test 计数勘误：14 套件→15 测试件（codelore 三件套并记）
