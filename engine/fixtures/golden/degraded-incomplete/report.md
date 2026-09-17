@@ -1,7 +1,7 @@
 # MA-45-DEMO-DEGRADEDINCOMPLETE-degraded — Macro-B 首报（fixture-degraded-incomplete@d757d4cd3046）
 > RECEIPT RCP-28239044184a9a0a chain=28239044184a9a0a39bef8d5d95e792d content=ab785392c011f22b facts=0 adjudications=6 issued_at=2026-03-02T10:00:00Z commit=d757d4cd3046ac0d6251b5c3f0e5cb8884647012 tree=40cd22aae62f ⚠ unverified
 >
-> 骨架 1.1.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-03-02T10:00:00Z
+> 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-03-02T10:00:00Z
 > - stability: preview · capabilities: macro-b
 >
 > 降级产出：FP-45-2 采集域证据不完整：docs/adr 语料仅 2 份且字段残缺、意图面文档缺失 → 主前提不可裁定，发起 GapRequest 降级产出 ⚠ unverified
@@ -15,7 +15,7 @@
 ## C1 执行摘要
 
 - report_id: MA-45-DEMO-DEGRADEDINCOMPLETE-degraded
-- schema_version: 1.1.0
+- schema_version: 1.2.0
 - scale: Macro-B
 - subject_ref: fixture-degraded-incomplete@d757d4cd3046
 - generated_at: 2026-03-02T10:00:00Z
@@ -25,7 +25,7 @@
 - headline: fixture-degraded-incomplete demo（capability 1 of 5 · preview · synthetic fixture）：3 commits / ADR 2 份 / facts 30——TC-1 INCONCLUSIVE（n=2）、TC-2 NOT_RED（mean=0.8000）、TC-3 INCONCLUSIVE（0.0000）→ 综合裁定 insufficient。not an audit of any real repository——合成语料不冒充真实审计（D-038）。
 - degraded_mode: true
 - stale_data_marker: unknown（SLA 5s / 实测延迟 0s）
-- read_model_version: 1.1.0 · fact_watermark_version: 1
+- read_model_version: 1.2.0 · fact_watermark_version: 1
 - top_findings: EV-45-DEGRADEDINCOMPLETE-01, EV-45-DEGRADEDINCOMPLETE-03, EV-45-DEGRADEDINCOMPLETE-04
 - fact_ids: 0 条（清单见侧车 JSON）
 

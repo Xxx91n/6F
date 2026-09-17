@@ -79,7 +79,7 @@ let r3 = spawnSync('node', [CLI, 'audit', REPO, '--json'], { encoding: 'utf8', t
 let js3 = null;
 try { js3 = JSON.parse(r3.stdout); } catch (e) { }
 t('J1 省略 --out + --json → stdout=sidecar JSON 可解析', r3.status === 0 && !!js3 && !!js3.report_id);
-t('J2 sidecar 头部三件套（stability/capabilities/schema_version）', !!js3 && js3.stability === 'preview' && JSON.stringify(js3.capabilities) === JSON.stringify(['macro-b']) && js3.schema_version === '1.1.0');
+t('J2 sidecar 头部三件套（stability/capabilities/schema_version）', !!js3 && js3.stability === 'preview' && JSON.stringify(js3.capabilities) === JSON.stringify(['macro-b']) && js3.schema_version === '1.2.0');
 
 // ---------- M 无 --out 默认报告面 ----------
 let r4 = spawnSync('node', [CLI, 'audit', REPO], { encoding: 'utf8', timeout: 120000 });

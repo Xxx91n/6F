@@ -44,13 +44,13 @@ t('C5 failure 骨架不分离（与 happy 同 C1-C4 形态）', ['## C1', '## C2
 const FIELDS = ['fact_id', 'trace_id', 'baggage_id', 'scale', 'quadrant', 'dimension', 'collector_id', 'repo_ref', 'subject_ref', 'evidence_ref', 'metric', 'value_json', 'observed_at'];
 t('D1 全部 fact 13 字段齐备 + scale=Macro-C + value_json 可解析', factLines.every((f) => FIELDS.every((k) => k in f) && f.scale === 'Macro-C' && (() => { try { JSON.parse(f.value_json); return true; } catch { return false; } })()), 'facts=' + factLines.length);
 const metric = (m) => factLines.filter((f) => f.metric === m);
-t('D2 codelore 契约面 30/30 facet_rows 零 error + resolution pinned', metric('codelore.facet_rows').length === 30 && metric('codelore.facet_error').length === 0 && metric('codelore.facet_parse_error').length === 0 && JSON.parse(metric('upstream.resolution')[0].value_json).pinned === true, 'rows=' + metric('codelore.facet_rows').length);
-const gateV = JSON.parse(metric('codelore.llm_gate')[0].value_json);
-const costV = JSON.parse(metric('codelore.llm_cost')[0].value_json);
-t('D3 llm_gate fact 在 + 门控关形态=llm_gated 降级披露（runner 零调用）/ 门控开=narrative 与成本计量自洽', gateV.configured === false ? (metric('codelore.llm_gated').length === 3 && costV.calls_attempted === 0) : (metric('codelore.llm_narrative').length === costV.calls_succeeded && metric('codelore.llm_error').length === costV.calls_failed && costV.calls_attempted === costV.calls_succeeded + costV.calls_failed), 'configured=' + gateV.configured + ' gated=' + metric('codelore.llm_gated').length + ' narrative=' + metric('codelore.llm_narrative').length);
+t('D2 codelore 契约面 30/30 facet_rows 零 error + resolution pinned', metric('codelore.facet_rows').length === 30 && metric('codelore.facet_error').length === 0 && metric('codelore.facet_parse_error').length === 0 && metric('upstream.resolution').length > 0 && JSON.parse(metric('upstream.resolution')[0].value_json).pinned === true, 'rows=' + metric('codelore.facet_rows').length);
+const gateV = metric('codelore.llm_gate').length > 0 ? JSON.parse(metric('codelore.llm_gate')[0].value_json) : null;
+const costV = metric('codelore.llm_cost').length > 0 ? JSON.parse(metric('codelore.llm_cost')[0].value_json) : null;
+t('D3 llm_gate fact 在 + 门控关形态=llm_gated 降级披露（runner 零调用）/ 门控开=narrative 与成本计量自洽', gateV !== null && costV !== null && (gateV.configured === false ? (metric('codelore.llm_gated').length === 3 && costV.calls_attempted === 0) : (metric('codelore.llm_narrative').length === costV.calls_succeeded && metric('codelore.llm_error').length === costV.calls_failed && costV.calls_attempted === costV.calls_succeeded + costV.calls_failed)), 'configured=' + (gateV ? gateV.configured : 'missing') + ' gated=' + metric('codelore.llm_gated').length + ' narrative=' + metric('codelore.llm_narrative').length);
 t('D4 ADR 语料 65 份全解析（decision_date 65 + first_commit 65 + lag 65）', metric('adr.decision_date').filter((f) => JSON.parse(f.value_json).date !== null).length === 65 && metric('git.first_commit').length === 65 && metric('git.adr_lag_days').length === 65, '');
-const chainV = JSON.parse(metric('adr.supersede_chain_summary')[0].value_json);
-t('D5 supersede 链摘要 fact：8 边 + 断链0 + 缺回链0', chainV.edge_count === 8 && chainV.unresolved_refs.length === 0 && chainV.missing_backrefs.length === 0, '');
+const chainV = metric('adr.supersede_chain_summary').length > 0 ? JSON.parse(metric('adr.supersede_chain_summary')[0].value_json) : null;
+t('D5 supersede 链摘要 fact：8 边 + 断链0 + 缺回链0', chainV !== null && chainV.edge_count === 8 && chainV.unresolved_refs.length === 0 && chainV.missing_backrefs.length === 0, '');
 t('D6 fact_id 去重留痕（双 resolution 合一）+ dedup_dropped=1', meas.dedup_dropped === 1, '');
 
 // --- E. 共享 DuckDB + 触发器 b 登记（衔接 #33 registry） ---

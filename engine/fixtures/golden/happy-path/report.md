@@ -1,7 +1,7 @@
 # MA-45-DEMO-HAPPYPATH — Macro-B 首报（fixture-happy-path@4f9b0b567d3d）
 > RECEIPT RCP-73e130018f0d155a chain=73e130018f0d155a27598c165fbd06f1 content=82c05995bc07193f facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7
 >
-> 骨架 1.1.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-04-13T10:00:00Z
+> 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-04-13T10:00:00Z
 > - stability: preview · capabilities: macro-b
 >
 > 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）
@@ -13,7 +13,7 @@
 ## C1 执行摘要
 
 - report_id: MA-45-DEMO-HAPPYPATH
-- schema_version: 1.1.0
+- schema_version: 1.2.0
 - scale: Macro-B
 - subject_ref: fixture-happy-path@4f9b0b567d3d
 - generated_at: 2026-04-13T10:00:00Z
@@ -23,7 +23,7 @@
 - headline: fixture-happy-path demo（capability 1 of 5 · preview · synthetic fixture）：9 commits / ADR 6 份 / facts 129——TC-1 NOT_RED（n=6）、TC-2 NOT_RED（mean=1.0000）、TC-3 AMBER（0.6000）→ 综合裁定 supported。not an audit of any real repository——合成语料不冒充真实审计（D-038）。
 - degraded_mode: false
 - stale_data_marker: fresh（SLA 5s / 实测延迟 0s）
-- read_model_version: 1.1.0 · fact_watermark_version: 1
+- read_model_version: 1.2.0 · fact_watermark_version: 1
 - top_findings: EV-45-HAPPYPATH-01, EV-45-HAPPYPATH-03, EV-45-HAPPYPATH-04
 - fact_ids: 129 条（清单见侧车 JSON）
 

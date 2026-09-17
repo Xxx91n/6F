@@ -68,8 +68,8 @@ t('E1 52a-eval 载 post_repair 注记（#56 修复后复测位）', !!e52.post_r
 // ---------- F. 纪律件 ----------
 const evalSrc = txt(join(HERE, '56-checker-heldout-eval.mjs'));
 t('F1 只测不调：eval 无 engine/src 写操作', evalSrc.indexOf('engine/src') < 0 && evalSrc.indexOf('writeFileSync') >= 0);
-const nb = ['56-checker-heldout-corpus.json', '56-checker-heldout-eval.mjs', '56-heldout-eval.json', '56-check.mjs', join(REPO, 'engine', 'test', 'citation.test.mjs'), join(REPO, 'engine', 'src', 'report', 'citation.ts')];
-t('F2 本票新增/改动文件无 BOM', nb.every(function (p) { return !existsSync(p) || noBom(p); }), nb.filter(function (p) { return existsSync(p) && !noBom(p); }).join(','));
+const nb = [join(HERE, '56-checker-heldout-corpus.json'), join(HERE, '56-checker-heldout-eval.mjs'), join(HERE, '56-heldout-eval.json'), join(HERE, '56-check.mjs'), join(REPO, 'engine', 'test', 'citation.test.mjs'), join(REPO, 'engine', 'src', 'report', 'citation.ts')];
+t('F2 本票新增/改动文件无 BOM（缺文件=FAIL 非跳过）', nb.every(function (p) { return existsSync(p) && noBom(p); }), nb.filter(function (p) { return !existsSync(p) || !noBom(p); }).map(function (p) { return (existsSync(p) ? 'bom' : 'missing') + ':' + p; }).join(','));
 
 console.log((f === 0 ? 'PASS' : 'FAIL') + ' ' + (n - f) + '/' + n);
 process.exit(f === 0 ? 0 : 1);

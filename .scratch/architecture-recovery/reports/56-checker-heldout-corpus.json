@@ -5,7 +5,7 @@
  "disclosure": {
   "synthetic": true,
   "held_out": "本语料为 #56 修复后 held-out 首跑集——与 52a 标定语料分区存管；gold=人类语义层标签（fn-paraphrase/attachment-ambiguous 层如实承载 presence-level 判定与人类语义的错位，披露归 human-in-loop，非 checker 缺陷）",
-  "note": "票规：禁参照 52a 语料标签调参（D-064⑤/D-065）；held-out 只评一次首跑；intra-rater 口径=单人设计期标注"
+  "note": "票规：禁参照 52a 语料标签调参（D-064⑤/D-065）；held-out 只评一次首跑；intra-rater 口径=单人设计期标注——标注者即本票实施者同日完成，非独立双标，独立性强度以此披露为限（r18 审计 O5）"
  },
  "items": [
   {

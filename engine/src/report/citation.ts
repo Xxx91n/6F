@@ -9,6 +9,10 @@
 //   不升级（FN 类如实披露，归 human-in-loop 复核，D-053④；kernel 内禁 NLI/概率模型，D-058）。
 //   fail-safe 从严：语境不确定的命中不计入 supports（宁 insufficient 勿误 supports）。
 //   输出空间维持二态 supports/insufficient，不加第三态（D-045 / D-065）。
+//   context_flags 词表（机读）：absent:<tok>（字面缺席）/ context-stripped:<tok>（剥离吞没）/
+//   negated:<tok>:<kind>@<pos>（否定窗 cue 命中）/ non-asserted:<tok>:<kind>@<pos>（假想·示例语境，
+//   非否定但非断言式主张——r18 审计 O2 名实对齐）/ verdict-label:<tok>:@<pos>（cue 词作裁决标签位）/
+//   <span-kind>@<pos>（引语/归属/言语/悬挂引号剥离区段）。
 
 export const UNVERIFIED_MARK = '⚠ unverified';
 
@@ -48,9 +52,10 @@ const EN_PRE_NEG_CUES: readonly string[] = [
   'unlikely', 'impossible', 'no evidence', 'unsupported', 'unproven', 'unverified',
   'unconfirmed', 'below', 'under', 'less than', 'fewer than', 'short of', 'at most',
   'up to', 'no more than', 'other than', 'contrary to', 'lacking',
-  'for example', 'e.g.', 'for instance', 'suppose', 'supposing', 'assuming',
-  'in theory', 'hypothetical', 'hypothetically', 'fictional', 'illustrative', 'if it were',
 ];
+
+/** non-asserted context cue 表（EN——假想/示例语境标记：非否定，但该处提及非断言式主张；
+    与否定 cue 同置剥离面（fail-safe），flag kind 单列 'non-asserted' 以名实对齐（r18 审计 O2） */
 
 /** post-negation cue 表（EN，命中点之后短窗） */
 const EN_POST_NEG_CUES: readonly string[] = [
@@ -60,8 +65,14 @@ const EN_POST_NEG_CUES: readonly string[] = [
   'absent', 'missing', 'unsupported', 'untrue', 'wrong', 'denied', 'refuted', 'rejected',
   'unverified', 'unconfirmed', 'unproven', 'questionable', 'dubious', 'insufficient',
   'inadequate', 'unreached', 'unmet', 'lacking', 'unreliable', 'disproven', 'disproved', 'negated',
+];
+
+/** non-asserted context cue 表（EN——假想/示例语境标记：非否定，但该处提及非断言式主张；
+    与否定 cue 同走剥离窗（fail-safe），flag kind 单列 'non-asserted' 名实对齐（r18 审计 O2） */
+const EN_NON_ASSERT_CUES: readonly string[] = [
   'for example', 'e.g.', 'for instance', 'as an example', 'as a hypothetical',
-  'hypothetical', 'hypothetically', 'fictional', 'illustrative', 'in theory',
+  'suppose', 'supposing', 'assuming', 'imagine', 'in theory', 'hypothetical',
+  'hypothetically', 'fictional', 'illustrative', 'if it were',
 ];
 
 /** pseudo-negation 豁免表（EN——形似否定实为肯定/修辞；cue 命中其覆盖区即作废） */
@@ -341,14 +352,14 @@ export function checkCitationSupport(claim: ClaimAnchor, evidence: EvidenceItem)
     const needle = tok.toLowerCase();
     let pos = hay.indexOf(needle);
     let clean = false;
-    const negCues: string[] = [];
+    const negCues: { klass: string; tag: string }[] = [];
     while (pos >= 0) {
       const hits = negationHits(hay, pos, pos + needle.length, pseudoSpans);
       // 裁决标签位：锚本身是否定 cue 且紧邻 ':'（unsupported: / 不成立: 等标签非内容）
       const labelLike = CUE_TOKEN_SET.has(needle) && hay[pos + needle.length] === ':';
       if (hits.length === 0 && !labelLike) { clean = true; break; }
-      if (labelLike) { negCues.push('verdict-label@' + pos); }
-      for (const h of hits) { negCues.push(h.kind + '@' + pos); }
+      if (labelLike) { negCues.push({ klass: 'verdict-label', tag: '@' + pos }); }
+      for (const h of hits) { negCues.push({ klass: (h.kind === 'pre-ctx' || h.kind === 'post-ctx') ? 'non-asserted' : 'negated', tag: h.kind + '@' + pos }); }
       pos = hay.indexOf(needle, pos + 1);
     }
     if (clean) { matched.push(tok); } else {
@@ -361,7 +372,7 @@ export function checkCitationSupport(claim: ClaimAnchor, evidence: EvidenceItem)
           flags.push('absent:' + tok);
         }
       } else {
-        for (const c of negCues) { flags.push('negated:' + tok + ':' + c); }
+        for (const c of negCues) { flags.push(c.klass + ':' + tok + ':' + c.tag); }
       }
     }
   }

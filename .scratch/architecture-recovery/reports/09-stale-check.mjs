@@ -111,9 +111,9 @@ ok('marker-enum', 'stale_data_marker enum identical in A-009 artifact and D-006 
 const ex = stale.extends;
 if (!ex || ex.artifact !== 'reports/14-skeleton-fields.json') bad('extends.artifact', 'must extend 14-skeleton-fields.json');
 if (ex.base_schema_version !== '1.0.0') bad('extends.base', 'base version must be 1.0.0');
-if (ex.proposed_schema_version !== skel.schema_version) bad('extends.proposed', 'proposed ' + ex.proposed_schema_version + ' must equal skeleton version ' + skel.schema_version);
+const _sv = (v) => v.split('.').map(Number); const _ge = (a, b) => { for (let i = 0; i < 3; i++) { if (a[i] !== b[i]) return a[i] > b[i]; } return true; }; if (ex.proposed_schema_version !== '1.1.0' || !_ge(_sv(skel.schema_version), _sv(ex.proposed_schema_version))) bad('extends.proposed', 'proposal applied at 1.1.0; current skeleton ' + skel.schema_version + ' must be >= proposal');
 if (ex.change_class !== 'ADDITION') bad('extends.class', 'change_class must be ADDITION');
-ok('versioned-extension', ex.base_schema_version + ' -> ' + ex.proposed_schema_version + ' (' + ex.change_class + ')');
+ok('versioned-extension', ex.base_schema_version + ' -> ' + ex.proposed_schema_version + ' (' + ex.change_class + '), applied; skeleton now ' + skel.schema_version);
 
 // ---------- 9. ADR-0006 skeleton invariant ----------
 const names = skel.skeleton.chapters.map(c => c.name).join(' -> ');

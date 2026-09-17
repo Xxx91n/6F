@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "title": "A-014 报告模板共享骨架 — 章顺序 + 字段必含清单 + 5 scale x 4 象限交集字段表",
   "decision_ref": "spec.md §Decision 6.1",
   "adr_ref": "docs/adr/0006-shared-skeleton-scale-slice.md",

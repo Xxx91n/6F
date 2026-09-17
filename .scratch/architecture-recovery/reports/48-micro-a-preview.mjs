@@ -1,7 +1,7 @@
 // 48-micro-a-preview.mjs — Micro-A preview：托管 API 适配器消费侧管道（#48 / A-056 / spec R8-02 / D-049）
 // 链 = PR intake（github-rest-adapter@v1：PR 枚举＋元数据＋diff 双通道）→ fact（JSONL＋48-audit-facts.duckdb，scale=Micro-A）
 //   → 裁决（48-micro-a-criteria.md 预声明判据 PC-1 / TC-1~4 / NC-1，跑后禁调）
-//   → 报告（buildReport 骨架 1.1.0 共享四章＋Micro-A 切片字段＋preview_disclosure「capability 3 of 5 · preview」）
+//   → 报告（buildReport 骨架 1.2.0 共享四章＋Micro-A 切片字段＋preview_disclosure「capability 3 of 5 · preview」）
 // 模式：default=真跑（凭据三级探测 env-token→gh-token→unauthenticated 如实降级）；
 //   --golden=cassette 离线回放（engine/test/fixtures/github-rest/authenticated.cassette.json；只锁字段骨架不锁内容值）；
 //   --repo <name> 单仓过滤（env-manager|jiahao|anysearch-cli|goose-duck-agent）。
@@ -329,7 +329,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
     baggage_id: C.deriveBaggageId(collected.ctx, null),
     headline: t.owner + '/' + t.repo + '#' + pin.n + ' Micro-A preview（capability 3 of 5）：form=' + formActual + ' diff_channel=' + (diff ? diff.channel : 'absent') + ' +' + String(diff ? diff.additions : 'n/a') + '/-' + String(diff ? diff.deletions : 'n/a') + ' f=' + String(diff ? diff.files_changed : 'n/a') + ' → ' + overall,
     confidence: 0.6,
-    stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: '1.1.0', fact_watermark_version: '1' },
+    stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: G.REPORT_SKELETON_VERSION, fact_watermark_version: '1' },
     fact_ids: [sumF, metaF, diffF].filter(Boolean).map(function (f) { return f.fact_id; }),
     top_findings: [EV(1), EV(2), EV(3)],
     evidence: evidence,
@@ -412,7 +412,7 @@ async function buildRefusalReport(gp, allGates, shared, opts) {
     baggage_id: C.deriveBaggageId(gp.ctx, null),
     headline: gp.name + ' Micro-A preview 拒绝件：托管枚举 merged PR=0——无托管 PR 面，intake 显式拒绝（unsupported；非管线故障，枚举真实发生）',
     confidence: 0.9,
-    stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: '1.1.0', fact_watermark_version: '1' },
+    stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: G.REPORT_SKELETON_VERSION, fact_watermark_version: '1' },
     fact_ids: gp.facts.map(function (f) { return f.fact_id; }),
     top_findings: ['EV-48-' + R + '-REF-01', 'EV-48-' + R + '-REF-02'],
     evidence: evidence,
@@ -518,7 +518,7 @@ async function goldenMain() {
     const sc = JSON.parse(readFileSync(join(OUTDIR, r.outputs.sidecar), 'utf8'));
     const md = readFileSync(join(OUTDIR, r.outputs.md), 'utf8');
     a('golden pr' + r.pr + ' 四章骨架在', ['## C1', '## C2', '## C3', '## C4'].every(function (h) { return md.indexOf(h) >= 0; }));
-    a('golden pr' + r.pr + ' schema=1.1.0 + scale=Micro-A', sc.schema_version === '1.1.0' && sc.scale === 'Micro-A');
+    a('golden pr' + r.pr + ' schema=REPORT_SKELETON_VERSION + scale=Micro-A', sc.schema_version === G.REPORT_SKELETON_VERSION && sc.scale === 'Micro-A');
     a('golden pr' + r.pr + ' receipt RCP- 格式', /^RCP-[0-9a-f]{16}$/.test(sc.receipt.receipt_id), sc.receipt.receipt_id);
     a('golden pr' + r.pr + ' 骨架交集∩切片字段机械断言', r.skeleton.ok, r.skeleton.missing.join(','));
     a('golden pr' + r.pr + ' 披露块四字段在', sc.preview_disclosure !== null && typeof sc.preview_disclosure.capability_label === 'string' && Array.isArray(sc.preview_disclosure.structural_limitations) && Array.isArray(sc.preview_disclosure.not_in_preview));

@@ -33,7 +33,7 @@ const baseInput = (extra) => ({
   baggage_id: 'b'.padEnd(32, '1'),
   headline: 'test headline',
   confidence: 0.5,
-  stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: '1.1.0', fact_watermark_version: '1' },
+  stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: '1.2.0', fact_watermark_version: '1' },
   fact_ids: [],
   top_findings: [],
   evidence: [],

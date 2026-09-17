@@ -1,7 +1,7 @@
 # MA-45-DEMO-DEGRADEDSUPPLY-degraded — Macro-B 首报（fixture-degraded-supply@8fc753eddd6d）
 > RECEIPT RCP-6b4d66b876997afb chain=6b4d66b876997afb1c6420d148975646 content=8ce0f852f385218e facts=0 adjudications=6 issued_at=2026-04-06T10:00:00Z commit=8fc753eddd6dbe22b43818c704fda26096e7189c tree=74ad5d090a81 ⚠ unverified
 >
-> 骨架 1.1.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-04-06T10:00:00Z
+> 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-04-06T10:00:00Z
 > - stability: preview · capabilities: macro-b
 >
 > 降级产出：FP-45-1 供应链数据未接（D-034③④ 演示化实现）：supply-chain 象限证据域不可用（Scorecard/repomix 未接入不插队）→ 主前提不可裁定，发起 GapRequest 降级产出 ⚠ unverified
@@ -15,7 +15,7 @@
 ## C1 执行摘要
 
 - report_id: MA-45-DEMO-DEGRADEDSUPPLY-degraded
-- schema_version: 1.1.0
+- schema_version: 1.2.0
 - scale: Macro-B
 - subject_ref: fixture-degraded-supply@8fc753eddd6d
 - generated_at: 2026-04-06T10:00:00Z
@@ -25,7 +25,7 @@
 - headline: fixture-degraded-supply demo（capability 1 of 5 · preview · synthetic fixture）：8 commits / ADR 6 份 / facts 129——TC-1 NOT_RED（n=6）、TC-2 NOT_RED（mean=1.0000）、TC-3 AMBER（0.6000）→ 综合裁定 supported。not an audit of any real repository——合成语料不冒充真实审计（D-038）。
 - degraded_mode: true
 - stale_data_marker: unknown（SLA 5s / 实测延迟 0s）
-- read_model_version: 1.1.0 · fact_watermark_version: 1
+- read_model_version: 1.2.0 · fact_watermark_version: 1
 - top_findings: EV-45-DEGRADEDSUPPLY-01, EV-45-DEGRADEDSUPPLY-03, EV-45-DEGRADEDSUPPLY-04
 - fact_ids: 0 条（清单见侧车 JSON）
 

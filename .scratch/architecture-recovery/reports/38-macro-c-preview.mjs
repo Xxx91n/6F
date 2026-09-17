@@ -332,7 +332,7 @@ const reportInput = {
   baggage_id: C.deriveBaggageId(ctx, 'S4'),
   headline: HEADLINE,
   confidence: 0.55,
-  stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: '1.1.0', fact_watermark_version: '1' },
+  stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: G.REPORT_SKELETON_VERSION, fact_watermark_version: '1' },
   fact_ids: allFacts.map(function (f) { return f.fact_id; }),
   top_findings: ['EV-38-01', 'EV-38-04', 'EV-38-05', 'EV-38-07'],
   evidence: evidence,

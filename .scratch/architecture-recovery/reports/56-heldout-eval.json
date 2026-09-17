@@ -1,9 +1,9 @@
 {
  "eval_id": "56-heldout-eval-v1",
- "run_at": "2026-09-17T11:50:53.494Z",
+ "run_at": "2026-09-17T15:34:56.035Z",
  "corpus": {
   "corpus_id": "56-checker-heldout-v1",
-  "sha256_16": "34637791d5c69487",
+  "sha256_16": "9f0cff4c8edfc2ac",
   "item_count": 53
  },
  "predeclared": {

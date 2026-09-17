@@ -316,7 +316,7 @@ async function runOneShot(target) {
     baggage_id: C.deriveBaggageId(ctx, 'S2'),
     headline: HEADLINE,
     confidence: 0.6,
-    stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: '1.1.0', fact_watermark_version: '1' },
+    stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: G.REPORT_SKELETON_VERSION, fact_watermark_version: '1' },
     fact_ids: realFacts.map(function (f) { return f.fact_id; }),
     top_findings: ['EV-40-' + R + '-01', 'EV-40-' + R + '-03', 'EV-40-' + R + '-04'],
     evidence: evidence,
