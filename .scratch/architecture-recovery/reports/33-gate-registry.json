@@ -90,7 +90,8 @@
    "occurred": false
   },
   "first-external-install": {
-   "occurred": false
+   "occurred": true,
+   "note": "A-068 T6 实证（2026-09-18）：claude plugin marketplace add Xxx91n/6F→install 6f@xxx91n 远端实证 Skills(1)+MCP(1)，kernel CLI 全局上 PATH selftest 5/5"
   },
   "macro-b-ga": {
    "occurred": false
@@ -101,6 +102,14 @@
   },
   "demo-ts-next-touch": {
    "occurred": false
+  },
+  "claude-validate-promotion": {
+   "occurred": false,
+   "note": "D-066⑥：claude plugin validate advisory 位跑满 2 个版本窗口且无 SKIP 污染→转 enforce 断言位"
+  },
+  "cue-table-second-consumer": {
+   "occurred": false,
+   "note": "D-069②：cue 表被第二消费者引用或需热更新→抽独立 JSON 文件+D-068 式版本断言"
   }
  },
  "items": [
@@ -853,7 +862,7 @@
    "trigger_event": "first-external-install",
    "trigger": "首个外部用户安装链路出现（marketplace 上架后真实安装/外部部署）",
    "review_at": "触发即立 doctor 票（probe：duckdb 可开库/git 可用/上游连通）",
-   "status": "pending",
+   "status": "triggered-bound",
    "watch": "event_bound",
    "owner": "macro-audit 队列值守",
    "verify_method": "外部安装链路存在的实物证据（安装报告/外部 issue）→ 立 doctor 探测票；此前 selftest 维持 manifest 对账本职不扩容",
@@ -865,8 +874,17 @@
      "decision": "registered",
      "reason": "锐评#3 缓项：selftest=分发物完整性合法，doctor 级运行时探测挂首个外部安装链路触发；#48 env-manager 已含其自身范围的运行时探测载体",
      "evidence": "decision-ledger.md D-059③（缓项裁定：selftest 维持本职、doctor 挂 first-external-install）＋#48 env-manager 运行时探测载体"
+    },
+    {
+     "at": "2026-09-18",
+     "by": "T6 市场安装 A-068 → BACKLOG #62",
+     "criterion_version": "D-059③",
+     "decision": "triggered-bound",
+     "reason": "first-external-install occurred：claude plugin marketplace add Xxx91n/6F→install 6f@xxx91n 远端实证 Skills(1)+MCP(1)＋selftest 5/5——doctor 探测票 #62 立案",
+     "evidence": "A-068（commit t6 两连＋land push origin/main 5493ff9）＋T6 closeout handoff"
     }
-   ]
+   ],
+   "bound_to": "#62"
   },
   {
    "id": "bundle-retirement-trigger",
@@ -971,6 +989,54 @@
      "decision": "discharged-decided",
      "reason": "触发面命中：本票触及 demo.ts——git() 死码已于 r16fix(f3354ea) 清除；~34 行 identity-alias Middle Man 块本票内联（demo.test O2 golden 逐字节复核输出恒等）；F10 空值守卫＋F11 evidence_flag 改名随票",
      "evidence": "demo.ts §3-§7 直引 probes/col/ev 无 alias 层；npm test demo 38/38；53-check 25/25"
+    }
+   ]
+  },
+  {
+   "id": "claude-validate-promotion-watch",
+   "family": "distribution",
+   "title": "claude plugin validate advisory→enforce 转段值守（D-066⑥）——advisory 满 2 版本窗口无 SKIP 污染即升 enforce",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "claude-validate-promotion",
+   "trigger": "advisory 位连续 2 个版本窗口全绿且无 cli-absent SKIP 污染",
+   "review_at": "每个版本窗口清点 advisory 输出：SKIP 出现→窗口计数归零重计",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "NN-check advisory 面输出留痕：窗口内 validate WARN/SKIP 计数；触发即把 advisory 断言翻 enforce 位＋本项 decided",
+   "confirmations": [
+    {
+     "at": "2026-09-18",
+     "by": "轮19 grill D-066",
+     "criterion_version": "D-066⑥",
+     "decision": "registered",
+     "reason": "真校验器两段式第二段：外部工具版本漂移不可钉 enforce，2 干净窗口后转段",
+     "evidence": "decision-ledger.md D-066＋R19-Q1 报告"
+    }
+   ]
+  },
+  {
+   "id": "cue-table-extraction-trigger",
+   "family": "quality-eval",
+   "title": "cue 表抽独立 JSON 触发器（D-069②）——第二消费者出现或需热更新→独立文件+D-068 式版本断言",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "cue-table-second-consumer",
+   "trigger": "citation.ts 外第二消费方引用 cue 表，或出现不改代码调词表的热更新需求",
+   "review_at": "每次 cue 表票面触及即复核消费方计数（当前=1：citation.ts）",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "grep 消费方引用面；触发即抽 engine 独立 JSON＋版本号＋D-068 式 baseline 断言，本项 decided",
+   "confirmations": [
+    {
+     "at": "2026-09-18",
+     "by": "轮19 grill D-069",
+     "criterion_version": "D-069②",
+     "decision": "registered",
+     "reason": "单消费者形态抽 JSON=纯开销＋失类型检查（hunspell 版本化=多消费者驱动先例）——挂触发器不预判",
+     "evidence": "decision-ledger.md D-069＋R19-Q4 报告"
     }
    ]
   }
