@@ -855,6 +855,23 @@ var EN_POST_NEG_CUES = [
   "disproved",
   "negated"
 ];
+var EN_NON_ASSERT_CUES = [
+  "for example",
+  "e.g.",
+  "for instance",
+  "as an example",
+  "as a hypothetical",
+  "suppose",
+  "supposing",
+  "assuming",
+  "imagine",
+  "in theory",
+  "hypothetical",
+  "hypothetically",
+  "fictional",
+  "illustrative",
+  "if it were"
+];
 var EN_PSEUDO_NEG = [
   "not only",
   "not just",
@@ -1001,6 +1018,39 @@ var CJK_PSEUDO_NEG = [
   "\u522B\u6837",
   "\u83AB\u540D\u5176\u5999"
 ];
+var CJK_NON_ASSERT_PRE_CUES = [
+  "\u4F8B\u5982",
+  "\u6BD4\u5982",
+  "\u8B6C\u5982",
+  "\u4E3E\u4F8B\u6765\u8BF4",
+  "\u6BD4\u5982\u8BF4",
+  "\u6253\u4E2A\u6BD4\u65B9",
+  "\u5047\u8BBE",
+  "\u5047\u5B9A",
+  "\u5047\u5982",
+  "\u5047\u82E5",
+  "\u5018\u82E5",
+  "\u5018\u4F7F",
+  "\u8BD5\u60F3",
+  "\u8BBE\u60F3",
+  "\u5047\u60F3",
+  "\u8BBE\u82E5"
+];
+var CJK_NON_ASSERT_POST_CUES = [
+  "\u7406\u8BBA\u4E0A",
+  "\u5728\u7406\u8BBA\u4E0A",
+  "\u539F\u5219\u4E0A",
+  "\u7EAF\u5C5E\u865A\u6784",
+  "\u4EC5\u4E3A\u793A\u4F8B",
+  "\u4EC5\u4F9B\u53C2\u8003"
+];
+var CJK_NON_ASSERT_PSEUDO = [
+  "\u5047\u8BF4",
+  "\u5047\u8BBE\u6027",
+  "\u96F6\u5047\u8BBE",
+  "\u5047\u8BBE\u68C0\u9A8C",
+  "\u5DE5\u4F5C\u5047\u8BBE"
+];
 var CUE_TOKEN_SET = new Set(EN_PRE_NEG_CUES.concat(EN_POST_NEG_CUES, CJK_PRE_NEG_CUES, CJK_POST_NEG_CUES));
 var QUOTE_PAIRS = [
   { open: "\u201C", close: "\u201D" },
@@ -1130,7 +1180,10 @@ var CJK_SPEECH_PSEUDO = [
   "\u4E0D\u80FD\u8BF4",
   "\u4E0D\u5FC5\u8BF4",
   "\u6CA1\u8BDD\u8BF4",
-  "\u65E0\u8BDD\u53EF\u8BF4"
+  "\u65E0\u8BDD\u53EF\u8BF4",
+  "\u5047\u8BF4",
+  "\u4E3E\u4F8B\u6765\u8BF4",
+  "\u6BD4\u5982\u8BF4"
 ];
 function isWordChar(ch) {
   return ch !== void 0 && /[A-Za-z0-9_]/.test(ch);
@@ -1278,14 +1331,15 @@ function stripContexts(excerpt) {
   }
   return { text: chars.join(""), spans };
 }
-function negationHits(maskedText, start, end, pseudoSpans) {
+function negationHits(maskedText, start, end, pseudoSpans, ctxPseudoSpans) {
   const hits = [];
-  const preWin = maskedText.slice(Math.max(0, start - NEG_WINDOW_PRE), start);
+  const preBase = Math.max(0, start - NEG_WINDOW_PRE);
+  const preWin = maskedText.slice(preBase, start);
   const postWin = maskedText.slice(end, Math.min(maskedText.length, end + NEG_WINDOW_POST));
   const enPre = enCuesIn(preWin, EN_PRE_NEG_CUES).map(function(s) {
-    return { start: Math.max(0, start - NEG_WINDOW_PRE) + s.start, end: Math.max(0, start - NEG_WINDOW_PRE) + s.end, kind: "pre-neg" };
+    return { start: preBase + s.start, end: preBase + s.end, kind: "pre-neg" };
   });
-  const cjkPre = substrCuesIn(preWin, CJK_PRE_NEG_CUES, Math.max(0, start - NEG_WINDOW_PRE)).map(function(s) {
+  const cjkPre = substrCuesIn(preWin, CJK_PRE_NEG_CUES, preBase).map(function(s) {
     return { start: s.start, end: s.end, kind: "pre-neg" };
   });
   const enPost = enCuesIn(postWin, EN_POST_NEG_CUES).map(function(s) {
@@ -1294,8 +1348,21 @@ function negationHits(maskedText, start, end, pseudoSpans) {
   const cjkPost = substrCuesIn(postWin, CJK_POST_NEG_CUES, end).map(function(s) {
     return { start: s.start, end: s.end, kind: "post-neg" };
   });
-  for (const h of enPre.concat(cjkPre, enPost, cjkPost)) {
-    if (intersects(h, pseudoSpans)) {
+  const enPreCtx = enCuesIn(preWin, EN_NON_ASSERT_CUES).map(function(s) {
+    return { start: preBase + s.start, end: preBase + s.end, kind: "pre-ctx" };
+  });
+  const cjkPreCtx = substrCuesIn(preWin, CJK_NON_ASSERT_PRE_CUES, preBase).map(function(s) {
+    return { start: s.start, end: s.end, kind: "pre-ctx" };
+  });
+  const enPostCtx = enCuesIn(postWin, EN_NON_ASSERT_CUES).map(function(s) {
+    return { start: end + s.start, end: end + s.end, kind: "post-ctx" };
+  });
+  const cjkPostCtx = substrCuesIn(postWin, CJK_NON_ASSERT_POST_CUES, end).map(function(s) {
+    return { start: s.start, end: s.end, kind: "post-ctx" };
+  });
+  for (const h of enPre.concat(cjkPre, enPost, cjkPost, enPreCtx, cjkPreCtx, enPostCtx, cjkPostCtx)) {
+    const isCtx = h.kind === "pre-ctx" || h.kind === "post-ctx";
+    if (intersects(h, pseudoSpans) || isCtx && intersects(h, ctxPseudoSpans)) {
       continue;
     }
     let j = h.start - 1;
@@ -1326,6 +1393,7 @@ function checkCitationSupport(claim, evidence) {
   const stripped = stripContexts(evidence.excerpt);
   const hay = stripped.text.toLowerCase();
   const pseudoSpans = pseudoSpansOf(hay);
+  const ctxPseudo = substrCuesIn(hay, CJK_NON_ASSERT_PSEUDO, 0);
   const matched = [];
   const missing = [];
   for (const tok of claim.required_tokens) {
@@ -1334,7 +1402,7 @@ function checkCitationSupport(claim, evidence) {
     let clean = false;
     const negCues = [];
     while (pos >= 0) {
-      const hits = negationHits(hay, pos, pos + needle.length, pseudoSpans);
+      const hits = negationHits(hay, pos, pos + needle.length, pseudoSpans, ctxPseudo);
       const labelLike = CUE_TOKEN_SET.has(needle) && hay[pos + needle.length] === ":";
       if (hits.length === 0 && !labelLike) {
         clean = true;

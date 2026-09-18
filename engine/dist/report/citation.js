@@ -30,7 +30,12 @@ export const NEG_WINDOW_POST = 40;
 export const ATTRIBUTION_TAIL = 80;
 /** 引语前置言语/归属 cue 回溯窗（字符）。 */
 export const SPEECH_LOOKBACK = 24;
-/** pre-negation cue 表（EN，词边界匹配；n't 特例只查右界） */
+// ---------- 词表治理（#61/D-069②「词表即判据」统一声明） ----------
+// 各 cue 表注释统一模板：本表增删改变 supports/insufficient 判定面——改表三件义务：
+//   ① 同 commit 记动机登记票面；② held-out 复跑＋52a golden parity 对照阈值不回调；
+//   ③ 禁参照 52a 语料标签调参（D-065 禁令延伸至 cue 表属加严非修订，本行显式登记）。
+// 「改表→同 commit 复跑」义务=本仓自设加严无工业逐 commit 先例（业界=release/pre-commit 粒度），先验纪律如实标。
+/** pre-negation cue 表（EN，词边界匹配；n't 特例只查右界）；词表即判据——本表增删改变 supports/insufficient 判定面 */
 const EN_PRE_NEG_CUES = [
     'not', 'no', 'never', "n't", 'cannot', 'do not', 'does not', 'did not',
     'is not', 'are not', 'was not', 'were not', 'has not', 'have not', 'had not',
@@ -44,8 +49,8 @@ const EN_PRE_NEG_CUES = [
     'up to', 'no more than', 'other than', 'contrary to', 'lacking',
 ];
 /** non-asserted context cue 表（EN——假想/示例语境标记：非否定，但该处提及非断言式主张；
-    与否定 cue 同置剥离面（fail-safe），flag kind 单列 'non-asserted' 以名实对齐（r18 审计 O2） */
-/** post-negation cue 表（EN，命中点之后短窗） */
+    与否定 cue 同置剥离面（fail-safe），flag kind 单列 'non-asserted' 以名实对齐（r18 审计 O2）；词表即判据——本表增删改变 supports/insufficient 判定面 */
+/** post-negation cue 表（EN，命中点之后短窗）；词表即判据——本表增删改变 supports/insufficient 判定面 */
 const EN_POST_NEG_CUES = [
     'not', "n't", 'never', 'cannot', 'could not', 'did not', 'does not', 'is not',
     'was not', 'were not', 'will not', 'would not', 'should not', 'must not', 'no longer',
@@ -61,7 +66,7 @@ const EN_NON_ASSERT_CUES = [
     'suppose', 'supposing', 'assuming', 'imagine', 'in theory', 'hypothetical',
     'hypothetically', 'fictional', 'illustrative', 'if it were',
 ];
-/** pseudo-negation 豁免表（EN——形似否定实为肯定/修辞；cue 命中其覆盖区即作废） */
+/** pseudo-negation 豁免表（EN——形似否定实为肯定/修辞；cue 命中其覆盖区即作废）；词表即判据——本表增删改变 supports/insufficient 判定面 */
 const EN_PSEUDO_NEG = [
     'not only', 'not just', 'not merely', 'not simply', 'no doubt', 'not necessarily',
     'not because', 'notwithstanding', 'cannot but', 'not to mention', 'make no mistake',
@@ -69,7 +74,7 @@ const EN_PSEUDO_NEG = [
     'nothing short of', 'no less than', 'not half bad', 'more often than not',
     'not impossible', 'not uncommon', 'not unheard', 'not without', 'cannot help',
 ];
-/** pre-negation cue 表（CJK 独立词表——不 port 英文表；子串匹配无词边界） */
+/** pre-negation cue 表（CJK 独立词表——不 port 英文表；子串匹配无词边界）；词表即判据——本表增删改变 supports/insufficient 判定面 */
 const CJK_PRE_NEG_CUES = [
     '不', '没', '未', '无', '非', '否', '别', '莫', '勿', '毋',
     '缺乏', '缺少', '缺失', '欠缺', '否认', '拒绝', '反对', '质疑',
@@ -77,27 +82,47 @@ const CJK_PRE_NEG_CUES = [
     '没有', '未有', '未能', '无法', '无从', '无效', '未见', '未达', '不足', '不够', '不达标',
     '鲜有', '罕见', '低于', '弱于', '不及', '达不到',
 ];
-/** post-negation cue 表（CJK） */
+/** post-negation cue 表（CJK）；词表即判据——本表增删改变 supports/insufficient 判定面 */
 const CJK_POST_NEG_CUES = [
     '不成立', '不正确', '不属实', '不实', '不存在', '未见', '未能', '无法', '无从',
     '不足', '不够', '未达', '不达标', '低于', '缺席', '缺失', '缺乏', '欠缺',
     '为假', '为误', '系误', '有误', '存疑', '可疑', '不可靠', '无效', '失真',
 ];
-/** pseudo-negation 豁免表（CJK——双重否定与固定词形非否定） */
+/** pseudo-negation 豁免表（CJK——双重否定与固定词形非否定）；词表即判据——本表增删改变 supports/insufficient 判定面 */
 const CJK_PSEUDO_NEG = [
     '不得不', '不能不', '不可不', '不无', '未必不', '并非不', '不是不', '不曾不', '未尝不', '未曾不',
     '非常', '非凡', '非同小可', '无可厚非', '非但', '莫非', '否则',
     '无缝', '无限', '无比', '无价', '无形', '无色', '无声', '无毒', '无害', '无副作用',
     '无缘无故', '无非', '无论', '无辜', '无私', '无畏', '无疑', '毫无疑问', '别人', '别处', '别的', '别样', '莫名其妙',
 ];
-/** 引语包裹模式表（自设计）——成对引号；剥离条件=归属 cue 前置或引文为语句形态 */
+/** non-asserted context cue 表（CJK——假想/示例语境标记：非否定，但该处提及非断言式主张；
+    与否定 cue 同走剥离窗（fail-safe），flag kind 单列 'non-asserted' 名实对齐。
+    #61/D-069① 同构补表（ConText hypothetical 独立 trigger 表先例——假想语境表=否定表对称兄弟）：
+    词表即判据——本表增删改变 supports/insufficient 判定面（改表三件义务见 EN_PRE_NEG_CUES 表头）；
+    ≥2 字词形禁单字（子串误吞灾难）；「严格来说」不收（限定语非假想语境）；
+    种子表一次先验声明，禁后续参照标签渐进调参 */
+const CJK_NON_ASSERT_PRE_CUES = [
+    '例如', '比如', '譬如', '举例来说', '比如说', '打个比方',
+    '假设', '假定', '假如', '假若', '倘若', '倘使', '试想', '设想', '假想', '设若',
+];
+/** non-asserted context cue 表（CJK post 短窗——命中点之后短窗假想/限定语境；
+    词表即判据——本表增删改变 supports/insufficient 判定面；「理论」不收「理论上」收（「理论物理」豁免） */
+const CJK_NON_ASSERT_POST_CUES = [
+    '理论上', '在理论上', '原则上', '纯属虚构', '仅为示例', '仅供参考',
+];
+/** non-assert pseudo 豁免表（CJK——科学语域「假设」=名词性 hypothesis 一词两用；
+    词表即判据——本表增删改变 supports/insufficient 判定面；逐词过单测为验收点（文献记载 FP/FN 主源） */
+const CJK_NON_ASSERT_PSEUDO = [
+    '假说', '假设性', '零假设', '假设检验', '工作假设',
+];
+/** 引语包裹模式表（自设计）——成对引号；剥离条件=归属 cue 前置或引文为语句形态；词表即判据——本表增删改变 supports/insufficient 判定面 */
 const CUE_TOKEN_SET = new Set(EN_PRE_NEG_CUES.concat(EN_POST_NEG_CUES, CJK_PRE_NEG_CUES, CJK_POST_NEG_CUES));
 const QUOTE_PAIRS = [
     { open: '“', close: '”' }, { open: '‘', close: '’' },
     { open: '「', close: '」' }, { open: '『', close: '』' },
     { open: '"', close: '"' },
 ];
-/** 归属引导语表（第三方主张——引导词至句读或 ATTRIBUTION_TAIL 掩蔽） */
+/** 归属引导语表（第三方主张——引导词至句读或 ATTRIBUTION_TAIL 掩蔽）；词表即判据——本表增删改变 supports/insufficient 判定面 */
 const ATTRIBUTION_LEADS = [
     '据称', '据说', '传说', '据悉', '有报道称', '有报告指出', '第三方称', '他人主张', '引用称', '引述称',
     '有文献称', '有资料称', '外界认为', '有评论称', '有网友称', '闻称',
@@ -118,11 +143,11 @@ const CJK_SPEECH_CUES = [
     '引述', '评论', '批评', '主张', '问道', '答曰', '曰',
     '提到', '提及', '暗示', '警告', '注明', '记载', '记录为', '描述为',
 ];
-/** 伪言语豁免表（CJK——含言语字但非言语行为的固定词形） */
+/** 伪言语豁免表（CJK——含言语字但非言语行为的固定词形）；词表即判据——本表增删改变 supports/insufficient 判定面 */
 const CJK_SPEECH_PSEUDO = [
     '名称', '简称', '对称', '俗称', '称呼', '称谓', '统称', '别称', '美称',
     '小说', '说教', '说笑', '说法', '图说', '难说',
-    '不得不说', '不能说', '不必说', '没话说', '无话可说',
+    '不得不说', '不能说', '不必说', '没话说', '无话可说', '假说', '举例来说', '比如说',
 ];
 function isWordChar(ch) {
     return ch !== undefined && /[A-Za-z0-9_]/.test(ch);
@@ -277,19 +302,28 @@ function stripContexts(excerpt) {
     return { text: chars.join(''), spans: spans };
 }
 /** 否定窗检测：命中点 [start,end) 的前窗查 pre-cues、后窗查 post-cues；命中伪否定覆盖区即豁免 */
-function negationHits(maskedText, start, end, pseudoSpans) {
+function negationHits(maskedText, start, end, pseudoSpans, ctxPseudoSpans) {
     const hits = [];
-    const preWin = maskedText.slice(Math.max(0, start - NEG_WINDOW_PRE), start);
+    const preBase = Math.max(0, start - NEG_WINDOW_PRE);
+    const preWin = maskedText.slice(preBase, start);
     const postWin = maskedText.slice(end, Math.min(maskedText.length, end + NEG_WINDOW_POST));
-    const enPre = enCuesIn(preWin, EN_PRE_NEG_CUES).map(function (s) { return { start: Math.max(0, start - NEG_WINDOW_PRE) + s.start, end: Math.max(0, start - NEG_WINDOW_PRE) + s.end, kind: 'pre-neg' }; });
-    const cjkPre = substrCuesIn(preWin, CJK_PRE_NEG_CUES, Math.max(0, start - NEG_WINDOW_PRE)).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-neg' }; });
+    const enPre = enCuesIn(preWin, EN_PRE_NEG_CUES).map(function (s) { return { start: preBase + s.start, end: preBase + s.end, kind: 'pre-neg' }; });
+    const cjkPre = substrCuesIn(preWin, CJK_PRE_NEG_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-neg' }; });
     const enPost = enCuesIn(postWin, EN_POST_NEG_CUES).map(function (s) { return { start: end + s.start, end: end + s.end, kind: 'post-neg' }; });
     const cjkPost = substrCuesIn(postWin, CJK_POST_NEG_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-neg' }; });
-    for (const h of enPre.concat(cjkPre, enPost, cjkPost)) {
-        if (intersects(h, pseudoSpans)) {
+    // #61/D-069① non-assert 语境窗接线（EN_NON_ASSERT_CUES 此前声明未接——本票接通；CJK 同构补表）：
+    //   剥离窗口与否定 cue 同参数；flag kind=pre-ctx/post-ctx → 既有映射产 non-asserted（零改动）；
+    //   伪表豁免各归各面（ctx 命中查 ctxPseudo，neg 命中查 pseudoSpans）；赋值豁免架构复用
+    const enPreCtx = enCuesIn(preWin, EN_NON_ASSERT_CUES).map(function (s) { return { start: preBase + s.start, end: preBase + s.end, kind: 'pre-ctx' }; });
+    const cjkPreCtx = substrCuesIn(preWin, CJK_NON_ASSERT_PRE_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-ctx' }; });
+    const enPostCtx = enCuesIn(postWin, EN_NON_ASSERT_CUES).map(function (s) { return { start: end + s.start, end: end + s.end, kind: 'post-ctx' }; });
+    const cjkPostCtx = substrCuesIn(postWin, CJK_NON_ASSERT_POST_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-ctx' }; });
+    for (const h of enPre.concat(cjkPre, enPost, cjkPost, enPreCtx, cjkPreCtx, enPostCtx, cjkPostCtx)) {
+        const isCtx = h.kind === 'pre-ctx' || h.kind === 'post-ctx';
+        if (intersects(h, pseudoSpans) || (isCtx && intersects(h, ctxPseudoSpans))) {
             continue;
         }
-        // 赋值豁免：cue 紧邻 '=' 右侧（allow=never / mode=false 等配置取值非主张否定）
+        // 赋值豁免：cue 紧邻 '=' 右侧（allow=never / mode=false 等配置取值非主张否定——ctx 命中同架构复用）
         let j = h.start - 1;
         while (j >= 0 && maskedText[j] === ' ') {
             j--;
@@ -315,6 +349,7 @@ export function checkCitationSupport(claim, evidence) {
     const stripped = stripContexts(evidence.excerpt);
     const hay = stripped.text.toLowerCase();
     const pseudoSpans = pseudoSpansOf(hay);
+    const ctxPseudo = substrCuesIn(hay, CJK_NON_ASSERT_PSEUDO, 0);
     const matched = [];
     const missing = [];
     for (const tok of claim.required_tokens) {
@@ -323,7 +358,7 @@ export function checkCitationSupport(claim, evidence) {
         let clean = false;
         const negCues = [];
         while (pos >= 0) {
-            const hits = negationHits(hay, pos, pos + needle.length, pseudoSpans);
+            const hits = negationHits(hay, pos, pos + needle.length, pseudoSpans, ctxPseudo);
             // 裁决标签位：锚本身是否定 cue 且紧邻 ':'（unsupported: / 不成立: 等标签非内容）
             const labelLike = CUE_TOKEN_SET.has(needle) && hay[pos + needle.length] === ':';
             if (hits.length === 0 && !labelLike) {

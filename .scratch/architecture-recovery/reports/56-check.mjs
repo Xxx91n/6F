@@ -71,5 +71,23 @@ t('F1 只测不调：eval 无 engine/src 写操作', evalSrc.indexOf('engine/src
 const nb = [join(HERE, '56-checker-heldout-corpus.json'), join(HERE, '56-checker-heldout-eval.mjs'), join(HERE, '56-heldout-eval.json'), join(HERE, '56-check.mjs'), join(REPO, 'engine', 'test', 'citation.test.mjs'), join(REPO, 'engine', 'src', 'report', 'citation.ts')];
 t('F2 本票新增/改动文件无 BOM（缺文件=FAIL 非跳过）', nb.every(function (p) { return existsSync(p) && noBom(p); }), nb.filter(function (p) { return !existsSync(p) || !noBom(p); }).map(function (p) { return (existsSync(p) ? 'bom' : 'missing') + ':' + p; }).join(','));
 
+
+// ---------- G. cue 表内容 hash WARN（#61/D-069②——内部判定面降一档防守卫通胀；hash 查变更非语义 diff） ----------
+const EXPECTED_CUE_TABLE_SHA16 = '0628234f798bc569'; // #61 判定 commit 基线（15 表字面量 sha256-16）
+const CUE_TABLE_NAMES = ['EN_PRE_NEG_CUES', 'EN_POST_NEG_CUES', 'EN_NON_ASSERT_CUES', 'EN_PSEUDO_NEG', 'CJK_PRE_NEG_CUES', 'CJK_POST_NEG_CUES', 'CJK_PSEUDO_NEG', 'CJK_NON_ASSERT_PRE_CUES', 'CJK_NON_ASSERT_POST_CUES', 'CJK_NON_ASSERT_PSEUDO', 'ATTRIBUTION_LEADS', 'EN_SPEECH_CUES', 'CJK_SPEECH_CUES', 'CJK_SPEECH_PSEUDO', 'QUOTE_PAIRS'];
+let cueBlob = ''; const cueMissing = [];
+for (const nm of CUE_TABLE_NAMES) {
+  const re = new RegExp('const ' + nm + ': readonly [^=]+= \\[([\\s\\S]*?)\\];');
+  const m = src.match(re);
+  if (m) { cueBlob += nm + '=' + m[1]; } else { cueMissing.push(nm); }
+}
+const cueSha = createHash('sha256').update(cueBlob).digest('hex').slice(0, 16);
+t('G1 cue 表抽取全（15 表字面量在）', cueMissing.length === 0, 'missing=' + cueMissing.join(','));
+if (cueMissing.length === 0 && cueSha !== EXPECTED_CUE_TABLE_SHA16) {
+  console.log('WARN G2 cue 表内容 hash 变更 ' + EXPECTED_CUE_TABLE_SHA16 + '→' + cueSha + '（词表即判据——确认改表三件义务：动机票面/held-out 复跑/阈值不回调，更新 EXPECTED 值）');
+} else if (cueMissing.length === 0) {
+  console.log('PASS-INFO G2 cue 表内容 hash 基线一致 ' + cueSha);
+}
+
 console.log((f === 0 ? 'PASS' : 'FAIL') + ' ' + (n - f) + '/' + n);
 process.exit(f === 0 ? 0 : 1);

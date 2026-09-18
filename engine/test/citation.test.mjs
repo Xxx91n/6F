@@ -65,4 +65,17 @@ t('I4 evidence_id 不可解析 → insufficient', () => { const r = C.checkAllCi
 t('J1 PRESENCE_LIMITS 语义边界披露四键全（supports 非语义蕴含）', () => { const L = C.PRESENCE_LIMITS; assert.ok(L.semantics.indexOf('presence-level') >= 0 && L.semantics.indexOf('非语义蕴含') >= 0); assert.deepEqual([...L.output_states], ['supports', 'insufficient']); assert.ok(L.fn_disclosure.indexOf('human-in-loop') >= 0); assert.ok(L.adversarial_fp_guard.length > 0); });
 t('J2 预声明窗口常量导出（NEG_WINDOW_PRE/POST 正值）', () => { assert.ok(C.NEG_WINDOW_PRE > 0 && C.NEG_WINDOW_POST > 0); });
 
+
+// ---------- K. CJK non-assert 语境窗（#61/D-069①——假想/示例语境非断言式主张，flag kind=non-asserted） ----------
+const hasNa = (r) => r.context_flags.some(function (f) { return f.indexOf('non-asserted') === 0; });
+t('K1 CJK pre 假想/示例 cue → insufficient＋non-asserted', () => { for (const c of ['假设覆盖率 0.85 已达标', '譬如覆盖率 0.85 已达标', '举例来说覆盖率 0.85 已达标', '设想覆盖率 0.85 已达标']) { const r = support(c, ['覆盖率', '0.85']); assert.equal(r.support, 'insufficient', c); assert.ok(hasNa(r), c + ' flags=' + r.context_flags); } });
+t('K2 CJK post 限定 cue → insufficient＋non-asserted', () => { for (const c of ['覆盖率 0.85 理论上成立', '覆盖率 0.85 原则上成立', '覆盖率 0.85 仅供参考']) { const r = support(c, ['覆盖率', '0.85']); assert.equal(r.support, 'insufficient', c); assert.ok(hasNa(r), c + ' flags=' + r.context_flags); } });
+t('K3 CJK non-assert 伪表逐词豁免 → supports（一词两用：假设=名词性 hypothesis）', () => { for (const c of ['零假设检验下覆盖率 0.85', '假设检验覆盖率 0.85 已达标', '工作假设覆盖率 0.85 已达标', '假设性覆盖率 0.85 已达标']) { assert.equal(support(c, ['覆盖率', '0.85']).support, 'supports', c); } });
+t('K4 「假说」speech 误吞豁免 → supports（CJK_SPEECH_PSEUDO 同族补收）', () => { assert.equal(support('假说覆盖率 0.85', ['覆盖率', '0.85']).support, 'supports'); });
+t('K5 「严格来说」不收（限定语非假想语境）→ 无 non-asserted flag', () => { const r = support('严格来说覆盖率 0.85 已达标', ['覆盖率', '0.85']); assert.ok(!hasNa(r), JSON.stringify(r.context_flags)); });
+t('K6 「理论」不收「理论上」收（理论物理豁免）→ supports', () => { assert.equal(support('理论物理覆盖率 0.85 已达标', ['覆盖率', '0.85']).support, 'supports'); });
+t('K7 EN non-assert 接线实证（此前声明未接）→ insufficient＋non-asserted', () => { const r = support('for example coverage 0.85 reached', ['coverage', '0.85']); assert.equal(r.support, 'insufficient'); assert.ok(hasNa(r), JSON.stringify(r.context_flags)); });
+t('K8 赋值豁免复用（cue 紧邻 = 右侧非主张）→ supports', () => { assert.equal(support('mode=假设 覆盖率 0.85 已达标', ['覆盖率', '0.85']).support, 'supports'); });
+t('K9 ≥2 字词形纪律：单字不吞（「设」不剥）→ supports', () => { assert.equal(support('设计覆盖率 0.85 已达标', ['覆盖率', '0.85']).support, 'supports'); });
+
 console.log('CITATION-TEST-OK ' + n);
