@@ -138,6 +138,59 @@ const app = {};
 for (const c of doc.cells) app[c.applicability] = (app[c.applicability] || 0) + 1;
 ok('applicability', JSON.stringify(app));
 
+
+// ---------- 9. #60/D-068 骨架契约升版机检（committed baseline＋三 FAIL 双向拦＋三方一致＋语义翻转边界行） ----------
+// D-068：committed baseline 胜 git-diff（shallow clone/workspace 史失真/base ref 缺失三败规避）；diff 纯集合运算确定性 enforce；
+// 豁免=baseline 更新本身（无独立豁免文件防 oasdiff --err-ignore 腐化）；FAIL 文案内嵌修复指引。
+const BASELINE = path.join(HERE, '14-skeleton-baseline.json');
+const baseline = JSON.parse(fs.readFileSync(BASELINE, 'utf8'));
+const GENMOD = await import('file://' + path.resolve(HERE, '..', '..', '..', 'engine', 'dist', 'report', 'generate.js').replace(/\\/g, '/'));
+const V_base = baseline.baseline_version, V_doc = doc.schema_version, V_code = GENMOD.REPORT_SKELETON_VERSION;
+// 当前结构投影（code REPORT_SKELETON=必现字段契约准线——值可空字段亦必现；required_fields 排序归一化集合比较）
+const curChapters = GENMOD.REPORT_SKELETON.map(function (c) { return { id: c.id, ordinal: c.ordinal, required_fields: c.required_fields.slice().sort() }; });
+const baseChapters = baseline.chapters.map(function (c) { return { id: c.id, ordinal: c.ordinal, required_fields: c.required_fields.slice().sort() }; });
+// diff 分类（A-064 C9 机械化：rename=删+增对不做启发式配对——JSON Schema 生态惯例；整章消失/ordinal 变→breaking；fail-safe=无法证明安全按 breaking 报）
+const removed = [], added = [], goneCh = [], ordCh = [];
+for (const bc of baseChapters) {
+  const cc = curChapters.find(function (x) { return x.id === bc.id; });
+  if (!cc) { goneCh.push(bc.id); continue; }
+  if (cc.ordinal !== bc.ordinal) ordCh.push(bc.id + ':' + bc.ordinal + '→' + cc.ordinal);
+  const bset = new Set(bc.required_fields), cset = new Set(cc.required_fields);
+  for (const f of bset) { if (!cset.has(f)) removed.push(bc.id + '.' + f); }
+  for (const f of cset) { if (!bset.has(f)) added.push(bc.id + '.' + f); }
+}
+for (const cc of curChapters) { if (!baseChapters.find(function (x) { return x.id === cc.id; })) added.push('chapter:' + cc.id); }
+const breaking = removed.length > 0 || goneCh.length > 0 || ordCh.length > 0;
+const fieldsChanged = breaking || added.length > 0;
+const versionChanged = V_doc !== V_base;
+// FAIL 1：breaking diff 且 version 未变 → 「改字段忘升版」
+if (breaking && !versionChanged) bad('skeleton.breaking-no-bump', 'breaking diff（removed=' + removed.join(',') + ' gone=' + goneCh.join(',') + ' ord=' + ordCh.join(',') + '）而 schema_version 未变——intentional breaking→同 commit 更新 baseline 并升 version');
+// FAIL 2：version 变且两侧皆空 → 「升版忘改字段」
+if (versionChanged && !fieldsChanged) bad('skeleton.bump-no-fields', 'version 升（' + V_base + '→' + V_doc + '）而结构零 diff——升版忘改字段');
+// FAIL 3：version 升且结构有 diff 但 baseline_version 未跟进 → 「升版忘换 baseline」（V_base 滞留=baseline 未重生成）
+if (versionChanged && fieldsChanged) bad('skeleton.baseline-stale', 'version 升（' + V_base + '→' + V_doc + '）且结构有 diff 但 baseline_version 未跟进——重生成 14-skeleton-baseline.json 使 V_base 与结构同进');
+// additive≠∅→免升（可选 WARN 建议升 minor）
+if (!versionChanged && added.length > 0 && !breaking) console.log('WARN    | skeleton.additive-free      | additive diff（' + added.join(',') + '）免升版——可选升 minor');
+// 三方一致断言：baseline_version==14-skeleton-fields.json schema_version==generate.ts REPORT_SKELETON_VERSION
+// （D-037② report_schema 核验=同轴已确认——generate.ts:319 schema_version 默认即 REPORT_SKELETON_VERSION，无第四轴防混轴注记必要）
+if (!(V_base === V_doc && V_doc === V_code)) bad('skeleton.version-trio', '三方版本不齐：baseline=' + V_base + ' fields.json=' + V_doc + ' code=' + V_code + '——三者必须同值');
+// doc↔code 结构层一致（子集规则：doc required:true 值必填 ⊆ code required 必现；code required ⊆ doc 字段名全册——
+//   值可空字段（required:false）允许在必现册，如 reproduce_absent_reason/degraded_note 必现可 null；反向漂移=契约缺损）
+const codeDrift = [];
+for (const dc of chs) {
+  const kc = curChapters.find(function (x) { return x.id === dc.id; });
+  const docNames = new Set(dc.fields.map(function (f) { return f.name; }));
+  const docReq = new Set(dc.fields.filter(function (f) { return f.required === true; }).map(function (f) { return f.name; }));
+  if (!kc) { codeDrift.push('missing:' + dc.id); continue; }
+  const kset = new Set(kc.required_fields);
+  for (const f of docReq) { if (!kset.has(f)) codeDrift.push(dc.id + '.' + f + ' doc-required-not-in-code'); }
+  for (const f of kset) { if (!docNames.has(f)) codeDrift.push(dc.id + '.' + f + ' code-required-undocumented'); }
+}
+for (const kc of curChapters) { if (!chs.find(function (x) { return x.id === kc.id; })) codeDrift.push('extra:' + kc.id); }
+if (codeDrift.length) bad('skeleton.code-drift', 'code REPORT_SKELETON 与 fields.json 子集规则漂移：' + codeDrift.join(', '));
+ok('skeleton-contract-gate', 'baseline/doc/code 三方结构一致＋三 FAIL 双向拦在（V=' + V_doc + '；removed=' + removed.length + ' added=' + added.length + '）');
+// 机检边界显式化（D-068⑤——语义翻转归审计人层纵深防御，固定打印）
+
 // ---------- report ----------
 console.log('--- 14-skeleton-check ---');
 for (const [s, n, d] of checks) console.log(s.padEnd(6), '|', n.padEnd(22), '|', d);
@@ -145,4 +198,5 @@ const sliceTotal = doc.cells.reduce((a,c)=>a+c.slice_fields.length,0);
 console.log('---');
 console.log('chapters:', chs.length, '| fields:', fieldTotal, '| cells:', doc.cells.length, '| slice fields:', sliceTotal);
 if (errors.length) { console.log('FAIL: ' + errors.length + ' error(s)'); process.exit(1); }
+console.log('semantic-flip not machine-checkable; human review per A-064 C9 still required');
 console.log('PASS: 4 chapters order-locked, ' + fieldTotal + ' fields typed/required/described, 20/20 cells, ' + sliceTotal + ' slice fields, ' + bound + ' xrefs to A-005, no placeholders');

@@ -1,0 +1,80 @@
+{
+  "baseline_version": "1.2.0",
+  "_meta": "#60/D-068① committed baseline——仅存结构数据（id/ordinal/required_fields 排序数组=必现字段契约，比较前归一化集合，不存描述/格式化文本=graphql-inspector ignoreDescriptionChanges 先例）；轴语义=code REPORT_SKELETON 必现面（值可空字段亦在册，如 reproduce_absent_reason/degraded_note 必现可 null）；豁免机制=baseline 更新本身（intentional breaking→同 commit 更新本文件并升 version）",
+  "chapters": [
+    {
+      "id": "C1",
+      "ordinal": 1,
+      "required_fields": [
+        "confidence",
+        "correlation_key",
+        "degraded_mode",
+        "fact_watermark_version",
+        "generated_at",
+        "headline",
+        "overall_verdict",
+        "read_model_lag_seconds",
+        "read_model_version",
+        "report_id",
+        "scale",
+        "schema_version",
+        "stale_data_marker",
+        "staleness_sla_seconds",
+        "subject_ref",
+        "top_findings"
+      ]
+    },
+    {
+      "id": "C2",
+      "ordinal": 2,
+      "required_fields": [
+        "applicability",
+        "confidence",
+        "conflict_markers",
+        "dimensions",
+        "quadrant",
+        "quadrants",
+        "score",
+        "slice_fields",
+        "verdict",
+        "verdict_gate.audit_ref",
+        "verdict_gate.decided_at",
+        "verdict_gate.decision",
+        "verdict_gate.evidence_flag",
+        "verdict_gate.override_reason",
+        "verdict_gate.protocol_version"
+      ]
+    },
+    {
+      "id": "C3",
+      "ordinal": 3,
+      "required_fields": [
+        "claim",
+        "collected_at",
+        "evidence_id",
+        "evidence_items",
+        "grounded",
+        "locator",
+        "reproduce_absent_reason",
+        "reproduce_cmd",
+        "source"
+      ]
+    },
+    {
+      "id": "C4",
+      "ordinal": 4,
+      "required_fields": [
+        "action",
+        "degraded_note",
+        "effort",
+        "evidence_refs",
+        "expected_impact",
+        "priority",
+        "rationale",
+        "rec_id",
+        "recommendations",
+        "verdict_gate_stamp"
+      ]
+    }
+  ]
+}
