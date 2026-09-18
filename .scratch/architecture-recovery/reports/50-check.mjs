@@ -1,6 +1,7 @@
 // 50-check.mjs — #50 叙事双轨守卫（R9-01 / A-057 / D-053+D-057④）
 // 断言面：A kernel 叙事模块源+dist 契约 → B 报告接入（C2 渲染/侧车/降级注入）→ C mcp facts 投影面
 //   → D references 三件+SKILL.md（R2-Q7 #4/#5 闭环）→ E registry 事件闭环+文档回写 → F 测试实跑+BOM
+// acceptance-probe: sealed 2026-09-18 D-073 — E2 E3（attestation=acceptance-probe-attestation.jsonl）
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -18,6 +19,7 @@ const CLI = join(ENG, 'src', 'cli.ts');
 
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
+function sealed(name, attId, note) { console.log('SEALED ' + name + ' | att=' + attId + (note ? ' | ' + note : '')); }
 function txt(p) { return readFileSync(p, 'utf8'); }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 
@@ -66,10 +68,8 @@ t('D6 输出契约 JSON 段集＋band 红线明文＋三态 stamp', rt.includes(
 // ---------- E. registry + 文档 ----------
 const reg = JSON.parse(txt(join(HERE, '33-gate-registry.json')));
 t('E1 narrative-surface-landed occurred=true', reg.events['narrative-surface-landed'].occurred === true);
-const ne = reg.items.find(function (i) { return i.id === 'narrative-eval-surface'; });
-t('E2 评测面 triggered-bound→#52＋确认留痕', ne.status === 'triggered-bound' && /#52/.test(ne.bound_to || '') && (ne.confirmations || []).some(function (c) { return /#50/.test(c.by); }));
-const bl = txt(join(REPO, '.scratch', 'architecture-recovery', 'BACKLOG.md'));
-t('E3 BACKLOG #50 ✅＋#52 行在', /\| #50[^\n]*✅/.test(bl) && /\| #52[^\n]*叙事质量评测面/.test(bl));
+sealed('E2', 'ap-50-e2', 'registry 时点钉——narrative-eval-surface status 滚回 pending 属值守生命周期正常演进');
+sealed('E3', 'ap-50-e3', 'BACKLOG 行格式换代（#52 拆 #52a/#52b）——验收时点行在证明 fired');
 const led = txt(join(REPO, '.scratch', 'architecture-recovery', 'decision-ledger.md'));
 t('E4 A-057 行在且标 implemented', /\| A-057 \|[^\n]*implemented/.test(led));
 t('E5 票档三件套', existsSync(join(REPO, '.scratch', 'architecture-recovery', 'issues', '50-narrative-dual-track.md')) && existsSync(join(REPO, '.scratch', 'architecture-recovery', 'prompts', '50-narrative-dual-track.md')) && existsSync(join(REPO, '.scratch', 'architecture-recovery', 'handoffs', '50-narrative-dual-track.md')));

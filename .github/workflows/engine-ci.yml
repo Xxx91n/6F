@@ -40,6 +40,8 @@ jobs:
       - name: claude plugin validate (advisory)
         shell: bash
         working-directory: engine
+        env:
+          MACRO_AUDIT_CI: '1'
         run: node scripts/validate-plugin.mjs
       # #64/D-072③ 自愈双腿：offline-sim（死 registry 三段回落断言）＋干净机 E2E smoke（真补拉→openWriter 读写）
       - name: duckdb self-heal offline-sim

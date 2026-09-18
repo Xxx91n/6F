@@ -1,5 +1,6 @@
 // #38 守卫——Macro-C preview：披露块在（缺=FAIL）/ happy+failure 双件形态 / 采集事实字段 / 报告引用一致 / 共享 DuckDB 触发器 b 证据
 // 用法：node 38-check.mjs → 逐条 PASS/FAIL；exit 0 = 全 PASS，exit 1 = 有 FAIL
+// acceptance-probe: sealed 2026-09-18 D-073 — E3 H4（attestation=acceptance-probe-attestation.jsonl；验收探针显式退役≠archived）
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -8,10 +9,10 @@ import { dirname, join } from 'node:path';
 const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(here, '..', '..', '..');
 const ENG = join(ROOT, 'engine');
-const AS = 'D:/Aworker/anysearch-cli';
 
 let pass = 0, fail = 0;
 const t = (name, ok, extra = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : fail++; };
+function sealed(name, attId, note) { console.log('SEALED ' + name + ' | att=' + attId + (note ? ' | ' + note : '')); }
 const read = (f) => fs.readFileSync(join(here, f), 'utf8');
 const noBom = (f) => { const b = fs.readFileSync(join(here, f)); return !(b.length >= 3 && b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); };
 
@@ -69,8 +70,7 @@ t('E1 共享事实库同库双 scale（Macro-B ' + mbCount + ' + Macro-C ' + fac
 const reg = JSON.parse(read('33-gate-registry.json'));
 const mwb = reg.items.find((i) => i.id === 'mw-trigger-b');
 t('E2 registry 触发器 b 登记：event occurred + confirmations trigger-fired', reg.events['macro-c-shared-duckdb'].occurred === true && !!mwb && Array.isArray(mwb.confirmations) && mwb.confirmations.some((c) => c.decision === 'trigger-fired'), '');
-const g33 = spawnSync('node', [join(here, '33-check.mjs')], { encoding: 'utf8' });
-t('E3 33-check 回归不破坏（exit 0；ALARM mw-trigger-b 为值守登记输出）', g33.status === 0 && (g33.stdout || '').includes('ALARM mw-trigger-b'), (g33.stdout || '').trim().split('\n').filter((l) => /ALARM|PASS|FAIL/.test(l)).slice(-3).join(' / '));
+sealed('E3', 'ap-38-e3', 'mw-trigger-b decided——值守 ALARM 口径变迁属验收时点探针使命完成；33-check 回归由基线电池直跑承接');
 
 // --- F. 报告引用一致（md↔侧车↔measurements↔37 存档） ---
 t('F1 report_id/scale/subject 三处一致', md.includes('MA-38-ANYSEARCH-MACRO-C-PREVIEW') && sc.report_id === 'MA-38-ANYSEARCH-MACRO-C-PREVIEW' && sc.scale === 'Macro-C' && sc.subject_ref === 'anysearch-cli@' + meas.head_sha.slice(0, 12) && md.includes('anysearch-cli@' + meas.head_sha.slice(0, 12)), '');
@@ -100,7 +100,7 @@ if (fs.existsSync(join(here, '38-report.md'))) {
   t('H2 报告含披露纪律 + 触发器 b + 双件 + 验收链引用', rep.includes('单仓校准（anysearch-cli）') && rep.includes('mw-trigger-b') && rep.includes('38-macro-c-measurements.json') && rep.includes('capability 2 of 5') && /38-macro-c-preview-failure/.test(rep), '');
   t('H3 报告含实测值引用（1012/228/65/8/30 命中）', ['1012', '228', '65', '8', '30'].every((v) => rep.includes(v)), '');
 }
-t('H4 被测仓零写入（anysearch-cli git status 干净）', (() => { const s = spawnSync('git', ['-C', AS, 'status', '--porcelain'], { encoding: 'utf8' }); return s.status === 0 && s.stdout.trim() === ''; })(), '');
+sealed('H4', 'ap-38-h4', 'env 腿（sibling 活仓探针）——活契约由 engine/test/audit-zero-write.test.mjs 承接挂 smoke 链');
 
 console.log('');
 console.log((fail === 0 ? 'PASS' : 'FAIL') + ' ' + pass + '/' + (pass + fail));

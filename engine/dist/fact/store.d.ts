@@ -14,6 +14,10 @@ export interface FactEvent {
     value_json: string;
     observed_at: string;
 }
+export declare function healDuckdbBinding(): {
+    ok: boolean;
+    detail: string;
+};
 export declare function openWriter(dbPath: string): Promise<DuckDBConnection>;
 export declare function openReader(dbPath: string): Promise<DuckDBConnection>;
 export declare function appendFact(connection: DuckDBConnection, event: FactEvent): Promise<void>;

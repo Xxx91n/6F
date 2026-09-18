@@ -27,9 +27,10 @@ if (!existsSync(pkg)) {
 } else {
   renameSync(pkg, parked);
   try {
-    const r = spawnSync('node', ['--input-type=module', '-e', child, tmpDb], { cwd: root, encoding: 'utf8', timeout: 300000 });
+    // D-075① 分层门控：spawnSync 管道=非 TTY 无人值守面——须 MACRO_AUDIT_SELFHEAL=1 opt-in 才允许补拉。
+    const r = spawnSync('node', ['--input-type=module', '-e', child, tmpDb], { cwd: root, encoding: 'utf8', timeout: 300000, env: { ...process.env, MACRO_AUDIT_SELFHEAL: '1' } });
     const out = (r.stdout || '') + (r.stderr || '');
-    t('自愈成功事件 DUCKDB-SELFHEAL result=success', /DUCKDB-SELFHEAL \{[^}]*"result":"success"/.test(out));
+    t('自愈成功事件 DUCKDB-SELFHEAL result=success trigger=opt-in', /DUCKDB-SELFHEAL \{[^}]*"result":"success"[^}]*"trigger":"opt-in"/.test(out) || /DUCKDB-SELFHEAL \{[^}]*"trigger":"opt-in"[^}]*"result":"success"/.test(out));
     t('openWriter 成功（HEALED）', out.includes('HEALED'), 'exit=' + r.status);
     t('补拉后包目录复在（@duckdb/node-bindings-' + sfx + '）', existsSync(pkg));
     if (r.status !== 0) t('子进程 exit=0', false, out.slice(-300));

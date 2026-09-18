@@ -41,7 +41,7 @@ marketplace 安装 = git clone 无构建步——可运行体 `dist/cli.js`（es
 
 **能力分级**（git-clone 不带 node_modules）：
 - 零依赖可用：`selftest` / `doctor`（运行时三腿探测：duckdb 可开库/git/上游连通——结构化 JSON 输出，探测失败非静默；#62/D-059③）/ `--version` / MCP 握手（initialize・tools/list）/ `repo add` / `demo --list`
-- 需 duckdb 原生绑定：`mcp facts` / `audit` / `demo` 实跑——**首次使用自动补拉（需网络 ~40MB）**：store.ts 自愈路径精确拉 `@duckdb/node-bindings-<platform>@1.5.5-r.4`（`npm install --no-save --omit=dev`＋完整性校验，每进程至多 1 次；#64/D-072）；补拉失败三段指引→手动 `npm install --omit=dev`→无网络时 facts/audit 不可用、其余命令不受影响；缺失时返回结构化 `DUCKDB-UNAVAILABLE` 而非进程崩溃（懒加载降级）。Default Mode「一次安装命令」语义收窄如实登记：零手动步但需网络。
+- 需 duckdb 原生绑定：`mcp facts` / `audit` / `demo` 实跑——**按面分层自愈**（#66/D-075 revised 承接 D-072）：**CLI 交互面**首次使用自动补拉（需网络 ~40MB，stderr 预告最长 240s 可 Ctrl-C 中断）——store.ts 精确拉 `@duckdb/node-bindings-<platform>@1.5.5-r.5`（`npm install --no-save --omit=dev`＋完整性校验，每进程至多 1 次）；**MCP/CI 无人值守面永不自动拉包**——缺失时返回结构化 `DUCKDB-UNAVAILABLE` 四段披露（缺失原因→修复路径→能力边界→opt-in）而非进程崩溃：修复=插件目录 `macro-audit doctor --fix`（自愈唯一显式主路）或 `npm install --omit=dev`；opt-in=设 `MACRO_AUDIT_SELFHEAL=1` 本进程启用自动补拉（代价：阻塞最长 240s，MCP 面即阻塞 JSON-RPC）。Default Mode 收窄如实登记：CLI 面「一次安装命令」语义不变；**MCP 面=install→doctor --fix（或 opt-in env）1~2 步——补偿机制在 MCP 面以披露替代自动**。
 - npm 渠道辨析：本仓 npm publish 渠道维持 deferred（D-067⑧ 不动）≠插件目录 `npm install` 依赖拉取（消费上游包非自发布）——两者勿混读。
 
 **Windows 已知 bug 链**：Claude Code 对 `${CLAUDE_PLUGIN_ROOT}` 的展开在 hook 面有 open issue（anthropics/claude-code#43380 / #65579）；MCP stdio exec-form 官方口径为纯字符串替换、理论免疫，但 Windows 真机以 `/mcp` 实测为准。失败引导：`claude --debug` 看 MCP init 日志；若 server 未 connected，先 `node dist/cli.js selftest` 区分「宿主未拉起」与「进程拉起即崩」。

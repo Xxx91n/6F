@@ -14,7 +14,7 @@ export const CODELORE_PINNED_VERSION = '0.28.0';
 export const CODELORE_DESCRIPTOR: CollectorDescriptor = {
   id: CODELORE_ADAPTER_ID,
   family: CODELORE_FAMILY,
-  dimension: null,
+  dimension: null, // 防腐层故意留白（ADR-0014）——维度映射见 docs/upstream-dimension-map.md（D-078）
   quadrant: 'strategic'
 };
 
@@ -133,7 +133,7 @@ export function collectCodeloreFacts(input: CodeloreProbeInput, ctx: CollectCont
 }
 
 // ---------- 首批契约面（#35 / A-040 / D-035①）：逐面 golden 契约 ----------
-// 面集 = 演化主干 12 + S3 族 6 + S5 族 12；面名以 `codelore analyze --help` 实物枚举对账（reports/35-facet-reconciliation.json）。
+// 面集 = 演化主干 12 + s3 族 6 + s5 族 12（族名=代码 group tag 拼写；维度归位映射见 docs/upstream-dimension-map.md）；面名以 `codelore analyze --help` 实物枚举对账（reports/35-facet-reconciliation.json）。
 // LLM 面（explain 族 env 门控）不混入，归 #36 独立票；暂缓面集 ~20 面挂 registry manual_watch（D-035④）。
 // 本层仍只做「进程调用 + 原始输出解析」：冻结 argv 属契约钉死（可观察输出即契约），任何判据/评级语义不进本层。
 

@@ -26,12 +26,15 @@ t('A2 版本三方同值（store.ts DUCKDB_PINNED_VERSION == package.json dep ==
   const lv = lock.match(/id: duckdb-node-api\n\s+kind: node-lib\n\s+version: "([^"]+)"/);
   return !!m && !!lv && m[1] === pkg.dependencies['@duckdb/node-api'] && lv[1] === m[1];
 })(), 'store/pkg/lock');
-t('A3 三段披露文案（自动补拉失败原因→手动 npm install --omit=dev→无网络 facts/audit 不可用其余不受影响）',
-  store.includes('自动补拉失败（') && store.includes('npm install --omit=dev') && store.includes('无网络') && store.includes('其余命令不受影响'));
+t('A3 四段披露文案（缺失原因→doctor --fix/npm install→能力边界→MACRO_AUDIT_SELFHEAL opt-in；D-075②）',
+  store.includes('doctor --fix') && store.includes('MACRO_AUDIT_SELFHEAL') && store.includes('npm install --omit=dev') && store.includes('其余命令不受影响'));
 t('A4 每进程至多 1 次（内存旗标防循环）', store.includes('already-attempted-once-per-process'));
-t('A5 win32-arm64 无官方包直接回落（NO_OFFICIAL_BINDINGS）', store.includes('NO_OFFICIAL_BINDINGS') && store.includes("'win32-arm64'"));
+t('A5 分层门控＋F4 死分支摘除（duckdbSurface 三面/isTTY/opt-in 在；NO_OFFICIAL_BINDINGS 已除——win32-arm64@r.5 实存接入）',
+  store.includes('duckdbSurface') && store.includes('isTTY') && store.includes('MACRO_AUDIT_SELFHEAL') && store.includes("'cli-interactive'") && !store.includes('NO_OFFICIAL_BINDINGS'));
 t('A6 完整性校验三件（.node 存在＋尺寸阈＋version 同值，失败删半成品）', store.includes(".endsWith('.node')") && store.includes('sizeOk') && store.includes('rmSync(pkgDir'));
 t('A7 musl 探测在位（ldd --version → -musl 后缀）', store.includes('musl') && store.includes("'ldd'"));
+t('A8 opt-in 可审计性＋F8 stderr 化（emitSelfHeal 事件含 trigger 字段区分 auto/opt-in/doctor-fix；全 stderr 单通道）',
+  store.includes('trigger') && store.includes("'opt-in'") && store.includes("'doctor-fix'") && store.includes('console.error') && !store.includes('console.log(line)'));
 
 // --- B. bundle external 验收＋结构化 stdout（D-072④⑧） ---
 t('B1 bundle 验收硬条件：@duckdb/node-api 动态导入在 bundle 内显式 external 可达',
@@ -44,7 +47,7 @@ t('C1 README 披露升口径（自动补拉＋需网络＋手动路径）', read
 t('C2 npm 渠道辨析票面（npm publish deferred ≠ 插件目录 npm install 依赖拉取）', readme.includes('npm publish') && readme.includes('依赖拉取'));
 t('C3 engine-ci 自愈双腿（offline-sim＋E2E smoke 步在）', ci.includes('self-heal offline') && ci.includes('self-heal E2E'));
 t('C4 upstream-lock duckdb-node-bindings 行（active/exact-version 三方同值第三腿）',
-  /id: duckdb-node-bindings\n\s+kind: node-lib\n\s+version: "1\.5\.5-r\.4"\n\s+pin_type: exact-version/.test(lock) && /id: duckdb-node-bindings[\s\S]*?status: active/.test(lock));
+  /id: duckdb-node-bindings\n\s+kind: node-lib\n\s+version: "1\.5\.5-r\.5"\n\s+pin_type: exact-version/.test(lock) && /id: duckdb-node-bindings[\s\S]*?status: active/.test(lock));
 
 console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));
 process.exit(fail === 0 ? 0 : 1);

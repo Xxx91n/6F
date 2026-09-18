@@ -8,4 +8,6 @@ export interface DoctorReport {
     legs: DoctorLeg[];
     overall: 'ok' | 'degraded' | 'fail';
 }
-export declare function runDoctor(): Promise<DoctorReport>;
+export declare function runDoctor(opts?: {
+    fix?: boolean;
+}): Promise<DoctorReport>;

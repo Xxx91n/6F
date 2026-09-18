@@ -27,7 +27,7 @@ export const GITHUB_REST_PLANNED_SURFACES = ['pulls.reviews', 'pulls.comments', 
 export const GITHUB_REST_DESCRIPTOR = {
     id: GITHUB_REST_ADAPTER_ID,
     family: GITHUB_REST_FAMILY,
-    dimension: null,
+    dimension: null, // 防腐层故意留白（ADR-0014）——维度映射见 docs/upstream-dimension-map.md（D-078）
     quadrant: 'strategic'
 };
 // gh 已认证态只读借用：gh auth token 只读不改其 auth 态；gh 缺席 → available=false（非错误）。

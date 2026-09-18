@@ -2,6 +2,7 @@
 // 断言面：票档三件套 → examples 四件齐+逐字节=原件+披露块字段 → README 节在+边界文案冻结源（不发明能力声明）
 //   → 仓根 CHANGELOG M-键格式+固定字段行+区间实物反推一致 → 双账指针闭环 → 账本/报告落文 → BOM
 // 纪律：只读断言（零写仓内状态）；exit 0 + PASS N/N 为绿。
+// acceptance-probe: sealed 2026-09-18 D-073 — C10（attestation=acceptance-probe-attestation.jsonl）
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +16,7 @@ const FOUR = ['23-first-report.md', '23-first-report.json', '23-first-report-fai
 
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
+function sealed(name, attId, note) { console.log('SEALED ' + name + ' | att=' + attId + (note ? ' | ' + note : '')); }
 function txt(p) { return readFileSync(p, 'utf8'); }
 function sha(p) { return createHash('sha256').update(readFileSync(p)).digest('hex'); }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
@@ -45,7 +47,7 @@ t('C6 「Try on a real repository」节在', readme.indexOf('Try on a real repos
 t('C7 opt-in 公共仓链接 open-gsd/gsd-core＋「外部内容随上游变化」标注', readme.indexOf('github.com/open-gsd/gsd-core') >= 0 && readme.indexOf('外部内容随上游变化') >= 0);
 t('C8 样例引用指向公共路径 examples/first-report/（不链 .scratch 样例源）', readme.indexOf('examples/first-report/') >= 0 && readme.indexOf('.scratch/architecture-recovery/reports/23-first-report') < 0);
 t('C9 不虚报可安装（发布未发生/不存在可安装 listing 声明在）', readme.indexOf('发布未发生') >= 0 && readme.indexOf('可安装 listing') >= 0);
-t('C10 不发明能力声明：无 capability 3/4/5 of 5 可用承诺字样', readme.indexOf('capability 3 of 5') < 0 && readme.indexOf('capability 4 of 5') < 0 && readme.indexOf('capability 5 of 5') < 0);
+sealed('C10', 'ap-41a-c10', 'superseded：41b-C1 现行口径强制 capability 3 of 5——旧互斥契约退役');
 t('C11 状态注过期字段清除（不再含「尚未开始」旧态）', readme.indexOf('尚未开始') < 0);
 
 // ---------- D. 仓根 CHANGELOG.md 编年首条（D-039②/ADR-0018 §D-2） ----------

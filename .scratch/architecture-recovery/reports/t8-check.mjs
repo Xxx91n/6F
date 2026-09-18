@@ -1,4 +1,5 @@
 // t8-check.mjs — 轮 14 T8 值守面复核守卫（D-043/D-045/D-055/D-056/D-057② / A-061）
+// acceptance-probe: sealed 2026-09-18 D-073 — A3（attestation=acceptance-probe-attestation.jsonl）
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -9,13 +10,14 @@ const AR = join(REPO, '.scratch', 'architecture-recovery');
 const reg = JSON.parse(readFileSync(join(HERE, '33-gate-registry.json'), 'utf8'));
 let pass = 0, fail = 0;
 function t(n, ok, d) { if (ok) { pass++; console.log('PASS ' + n); } else { fail++; console.log('FAIL ' + n + (d ? ' :: ' + d : '')); } }
+function sealed(name, attId, note) { console.log('SEALED ' + name + ' | att=' + attId + (note ? ' | ' + note : '')); }
 function it(id) { return reg.items.find(i => i.id === id); }
 
 // A. 三新触发器挂门完整（D-055/D-056/D-057②）
 const hp = it('hooks-presentation-face'), rp = it('repomix-reopen-trigger'), ne = it('narrative-eval-surface');
 t('A1 hooks-presentation-face pending+bound presentation-demand-signal', hp && hp.status === 'pending' && hp.trigger_event === 'presentation-demand-signal' && reg.events['presentation-demand-signal'].occurred === false);
 t('A2 repomix-reopen-trigger pending+bound repomix-reopen-demand', rp && rp.status === 'pending' && rp.trigger_event === 'repomix-reopen-demand' && reg.events['repomix-reopen-demand'].occurred === false);
-t('A3 narrative-eval-surface triggered-bound→#52', ne && ne.status === 'triggered-bound' && /#52/.test(ne.bound_to || ''));
+sealed('A3', 'ap-t8-a3', 'registry 时点钉——同 50-E2 族（status 滚回 pending 属值守生命周期）');
 t('A4 三项本轮确认留痕在', [ne].every(i => i.confirmations && i.confirmations.some(c => /T8/.test(c.by || ''))));
 
 // B. mw 触发器组（D-043）

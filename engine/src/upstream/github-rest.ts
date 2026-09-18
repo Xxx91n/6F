@@ -32,7 +32,7 @@ export const GITHUB_REST_PLANNED_SURFACES: readonly string[] = ['pulls.reviews',
 export const GITHUB_REST_DESCRIPTOR: CollectorDescriptor = {
   id: GITHUB_REST_ADAPTER_ID,
   family: GITHUB_REST_FAMILY,
-  dimension: null,
+  dimension: null, // 防腐层故意留白（ADR-0014）——维度映射见 docs/upstream-dimension-map.md（D-078）
   quadrant: 'strategic'
 };
 

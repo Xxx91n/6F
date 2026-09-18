@@ -99,6 +99,12 @@ t('A11 表头纪律注记齐备（唯一机读权威/先于依赖存在/retired 
 const pkg = JSON.parse(txt(join(ENG, 'package.json')));
 t('A12 duckdb-node-api 锁值 == package.json dependencies 精确值（锁表↔package 同源）', byId['duckdb-node-api'] && byId['duckdb-node-api'].version === pkg.dependencies['@duckdb/node-api'], 'lock=' + (byId['duckdb-node-api'] && byId['duckdb-node-api'].version) + ' pkg=' + pkg.dependencies['@duckdb/node-api']);
 t('A13 upstream-lock.yaml 入 package.json files（provenance 锚随 tgz，D-037②）', pkg.files.indexOf('upstream-lock.yaml') >= 0);
+// ---------- A14-A16 upstream→dimension 映射表面（#68/D-078⑥：防映射渗入防腐层） ----------
+const UP_FILES = [join(ENG, 'src', 'upstream', 'codelore.ts'), join(ENG, 'src', 'upstream', 'github-rest.ts')];
+t('A14 upstream 适配器文件无 S1-S5 字样（映射=业务语义禁入防腐层，ADR-0014/D-078⑥）', UP_FILES.every(f => !existsSync(f) || !/\bS[1-5]\b/.test(txt(f))), UP_FILES.filter(f => existsSync(f) && /\bS[1-5]\b/.test(txt(f))).join(','));
+t('A15 descriptor dimension:null 保留＋注释指针 upstream-dimension-map.md（两适配器逐件）', UP_FILES.every(f => txt(f).indexOf('dimension: null') >= 0 && txt(f).indexOf('upstream-dimension-map.md') >= 0), '');
+const DIMMAP = join(REPO, 'docs', 'upstream-dimension-map.md');
+t('A16 docs/upstream-dimension-map.md 在且骨架齐（准入条件列＋永久排除行＋双挂＋复审两字段）', existsSync(DIMMAP) && ['准入条件', '永久排除', 'S5 ↔ S4', 'last_reviewed', 'next_review', 'dimension: null'].every(k => txt(DIMMAP).indexOf(k) >= 0), '');
 
 // ---------- B. 版本断言（binary 可解析→ENFORCE；缺席→ADVISORY WARN） ----------
 const clSrc = txt(join(ENG, 'src', 'upstream', 'codelore.ts'));

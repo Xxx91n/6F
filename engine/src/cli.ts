@@ -21,7 +21,8 @@ if (cmd === '--version' || cmd === '-v') {
   // 运行时 doctor 探测（#62/D-059③ runtime-doctor-trigger 兑现）：三腿 probe 结构化输出——
   // duckdb 可开库（经自愈链）／git 可用／上游连通性；selftest 对账本职不扩容，doctor 独立探测面。
   // exit 1 仅 overall=fail（degraded=有文档化回落路径 exit 0）；输出=结构化 JSON 非静默。
-  const dr = await runDoctor();
+  // D-075③：doctor --fix=自愈唯一显式主路——duckdb 腿 DUCKDB-UNAVAILABLE 命中时显式补拉＋重开库验载。
+  const dr = await runDoctor({ fix: process.argv.indexOf('--fix') >= 0 });
   console.log(JSON.stringify(dr));
   process.exit(dr.overall === 'fail' ? 1 : 0);
 } else if (cmd === 'mcp') {
@@ -181,5 +182,5 @@ if (cmd === '--version' || cmd === '-v') {
   }
 } else {
   console.log('macro-audit kernel CLI (walking skeleton)');
-  console.log('usage: macro-audit <--version|selftest|doctor|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>');
+  console.log('usage: macro-audit <--version|selftest|doctor [--fix]|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>');
 }

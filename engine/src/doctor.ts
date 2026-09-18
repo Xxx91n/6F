@@ -9,7 +9,7 @@ import { rmSync } from 'node:fs';
 import { get } from 'node:https';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { openWriter } from './fact/store.js';
+import { openWriter, healDuckdbBinding } from './fact/store.js';
 
 export interface DoctorLeg {
   leg: 'duckdb' | 'git' | 'upstream';
@@ -29,7 +29,7 @@ function worst(legs: readonly DoctorLeg[]): DoctorReport['overall'] {
   return 'ok';
 }
 
-async function probeDuckdb(): Promise<DoctorLeg> {
+async function probeDuckdb(fix: boolean): Promise<DoctorLeg> {
   const db = join(tmpdir(), 'macro-audit-doctor-' + String(process.pid) + '.duckdb');
   try {
     const conn = await openWriter(db);
@@ -39,7 +39,22 @@ async function probeDuckdb(): Promise<DoctorLeg> {
   } catch (e) {
     const msg = String(e && (e as Error).message || e);
     if (msg.indexOf('DUCKDB-UNAVAILABLE') === 0) {
-      return { leg: 'duckdb', status: 'degraded', detail: 'DUCKDB-UNAVAILABLE 结构化回落（自愈已试一回；无网络时 facts/audit 不可用其余命令不受影响）' };
+      // D-075③：doctor --fix=自愈唯一显式主路——显式操作员同意，任何面均可执行；成功后重开库验载。
+      if (fix) {
+        const heal = healDuckdbBinding();
+        if (!heal.ok) {
+          return { leg: 'duckdb', status: 'degraded', detail: 'doctor --fix 自愈未竟：' + heal.detail.slice(0, 120) };
+        }
+        try {
+          const conn2 = await openWriter(db);
+          try { await conn2.run('SELECT 1'); } catch { /* best effort */ }
+          try { conn2.closeSync(); } catch { /* best effort */ }
+          return { leg: 'duckdb', status: 'ok', detail: 'doctor --fix 显式自愈成功——' + heal.detail };
+        } catch (e2) {
+          return { leg: 'duckdb', status: 'fail', detail: 'doctor --fix 装成功但加载失败：' + String(e2 && (e2 as Error).message || e2).slice(0, 120) };
+        }
+      }
+      return { leg: 'duckdb', status: 'degraded', detail: 'DUCKDB-UNAVAILABLE 结构化回落（分层面不自动补拉；修复=doctor --fix 显式主路；无网络时 facts/audit 不可用其余命令不受影响）' };
     }
     return { leg: 'duckdb', status: 'fail', detail: msg.slice(0, 160) };
   } finally {
@@ -53,12 +68,17 @@ function probeGit(): DoctorLeg {
   return { leg: 'git', status: 'fail', detail: 'git --version exit=' + String(r.status) + ' ' + String(r.error || r.stderr || '').replace(/\s+/g, ' ').slice(0, 120) };
 }
 
+// F7（D-075④）：registry 口径改 `npm config get registry` 探测回落 npmjs.org（esbuild PR#1621 同构）——
+// 镜像/私有 registry 环境下探测目标=真实拉包源，不再硬编码 npmjs.org。
 function probeUpstream(): Promise<DoctorLeg> {
+  const conf = process.platform === 'win32' ? spawnSync('cmd.exe', ['/d', '/s', '/c', 'npm', 'config', 'get', 'registry'], { encoding: 'utf8', timeout: 10000 }) : spawnSync('npm', ['config', 'get', 'registry'], { encoding: 'utf8', timeout: 10000 });
+  const configured = conf.status === 0 ? String(conf.stdout || '').trim() : '';
+  const reg = /^https?:\/\//.test(configured) ? configured : 'https://registry.npmjs.org/';
   return new Promise(function (resolve) {
     const t0 = Date.now();
-    const req = get('https://registry.npmjs.org/', { timeout: 5000, method: 'HEAD' }, function (res) {
+    const req = get(reg, { timeout: 5000, method: 'HEAD' }, function (res) {
       res.resume();
-      resolve({ leg: 'upstream', status: 'ok', detail: 'registry.npmjs.org ' + String(res.statusCode) + ' ' + String(Date.now() - t0) + 'ms' });
+      resolve({ leg: 'upstream', status: 'ok', detail: reg + ' ' + String(res.statusCode) + ' ' + String(Date.now() - t0) + 'ms' });
     });
     req.on('timeout', function () {
       req.destroy();
@@ -70,7 +90,7 @@ function probeUpstream(): Promise<DoctorLeg> {
   });
 }
 
-export async function runDoctor(): Promise<DoctorReport> {
-  const legs = [await probeDuckdb(), probeGit(), await probeUpstream()];
+export async function runDoctor(opts?: { fix?: boolean }): Promise<DoctorReport> {
+  const legs = [await probeDuckdb(!!(opts && opts.fix)), probeGit(), await probeUpstream()];
   return { doctor: '1.0.0', legs: legs, overall: worst(legs) };
 }

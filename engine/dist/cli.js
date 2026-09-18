@@ -153,9 +153,13 @@ var INSERT_SQL = "INSERT INTO audit_fact (fact_seq, " + WRITE_COLUMNS.join(", ")
   return "?";
 }).join(", ") + ", current_timestamp)";
 var duckdbModulePromise = null;
-var DUCKDB_PINNED_VERSION = "1.5.5-r.4";
-var NO_OFFICIAL_BINDINGS = /* @__PURE__ */ new Set(["win32-arm64"]);
+var DUCKDB_PINNED_VERSION = "1.5.5-r.5";
 var selfHealAttempted = false;
+function duckdbSurface() {
+  if (process.env.MACRO_AUDIT_MCP_STDIO === "1") return "mcp";
+  if (process.stdout.isTTY === true) return "cli-interactive";
+  return "ci-unattended";
+}
 function isMusl() {
   try {
     const r = spawnSync("ldd", ["--version"], { encoding: "utf8", timeout: 5e3 });
@@ -189,23 +193,19 @@ function engineRoot() {
   return dirname2(fileURLToPath2(import.meta.url));
 }
 function emitSelfHeal(ev) {
-  const line = "DUCKDB-SELFHEAL " + JSON.stringify(ev);
-  if (process.env.MACRO_AUDIT_MCP_STDIO === "1") console.error(line);
-  else console.log(line);
+  console.error("DUCKDB-SELFHEAL " + JSON.stringify(ev));
 }
 function selfHealDuckdb() {
   if (selfHealAttempted) return { ok: false, detail: "already-attempted-once-per-process" };
   selfHealAttempted = true;
   const suffix = platformPackageSuffix();
   if (!suffix) return { ok: false, detail: "unsupported-platform:" + process.platform + "-" + process.arch };
-  if (NO_OFFICIAL_BINDINGS.has(suffix)) return { ok: false, detail: "no-official-bindings:" + suffix };
   const root = engineRoot();
   const nodeApiPresent = existsSync(join2(root, "node_modules", "@duckdb", "node-api", "package.json"));
   const devCheckout = existsSync(join2(root, "package-lock.json"));
-  const npmShell = process.platform === "win32";
-  const npmCmd = "npm";
+  const npmSpec = process.platform === "win32" ? { cmd: "cmd.exe", pre: ["/d", "/s", "/c", "npm"] } : { cmd: "npm", pre: [] };
   const args = nodeApiPresent ? devCheckout ? ["install", "--no-save", "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION] : ["install", "--no-save", "--omit=dev", "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION] : devCheckout ? ["install"] : ["install", "--omit=dev"];
-  const r = spawnSync(npmCmd, args, { cwd: root, encoding: "utf8", timeout: 24e4, shell: npmShell });
+  const r = spawnSync(npmSpec.cmd, npmSpec.pre.concat(args), { cwd: root, encoding: "utf8", timeout: 24e4 });
   if (r.status !== 0) {
     return { ok: false, detail: "npm-exit-" + String(r.status) + ":" + String(r.stderr || r.error || "").replace(/\s+/g, " ").slice(0, 140) };
   }
@@ -234,23 +234,54 @@ function selfHealDuckdb() {
   }
   return { ok: true, detail: "installed @duckdb/node-bindings-" + suffix + "@" + ver };
 }
+function unavailableMessage(surface, healDetail, orig) {
+  const origMsg = String(orig && orig.message || orig).replace(/\s+/g, " ").slice(0, 120);
+  const reason = healDetail !== null ? "\u81EA\u52A8\u8865\u62C9\u5931\u8D25\uFF08" + healDetail + "\uFF09" : "\u539F\u751F\u7ED1\u5B9A\u7F3A\u5931\uFF08" + origMsg + "\uFF09";
+  return "DUCKDB-UNAVAILABLE: " + reason + "\uFF1B\u4FEE\u590D\u8DEF\u5F84=\u63D2\u4EF6\u76EE\u5F55\u6267\u884C `macro-audit doctor --fix`\uFF08\u81EA\u6108\u552F\u4E00\u663E\u5F0F\u4E3B\u8DEF\uFF09\u6216 `npm install --omit=dev`\uFF1B\u80FD\u529B\u8FB9\u754C=" + surface + " \u9762\u4E0D\u81EA\u52A8\u5B89\u88C5\uFF08\u907F\u514D\u65E0\u4EBA\u503C\u5B88/\u5BBF\u4E3B\u8FDB\u7A0B\u963B\u585E\uFF09\u2014\u2014\u65E0\u7F51\u7EDC\u65F6 facts/audit \u4E0D\u53EF\u7528\u3001\u5176\u4F59\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF1Bopt-in=\u8BBE MACRO_AUDIT_SELFHEAL=1 \u53EF\u4EE4\u672C\u8FDB\u7A0B\u81EA\u52A8\u8865\u62C9\uFF08MCP \u9762\u4F1A\u963B\u585E JSON-RPC \u6700\u957F 240s\uFF09";
+}
 function loadDuckdb() {
   if (!duckdbModulePromise) {
     duckdbModulePromise = import("@duckdb/node-api").catch(async function(e) {
-      const heal = selfHealDuckdb();
-      emitSelfHeal({ result: heal.ok ? "success" : "fallback", detail: heal.detail, platform: process.platform + "-" + process.arch });
-      if (heal.ok) {
-        try {
-          return createRequire(import.meta.url)("@duckdb/node-api");
-        } catch (e2) {
-          e = e2;
+      const surface = duckdbSurface();
+      const trigger = surface === "cli-interactive" ? "auto" : process.env.MACRO_AUDIT_SELFHEAL === "1" ? "opt-in" : null;
+      let healDetail = null;
+      if (trigger !== null) {
+        emitSelfHeal({ phase: "start", trigger, note: "DuckDB \u539F\u751F\u7ED1\u5B9A\u7F3A\u5931\u2014\u2014\u8865\u62C9\u7EA6 40MB \u6700\u957F 240s" + (trigger === "auto" ? "\uFF08Ctrl-C \u53EF\u4E2D\u65AD\uFF09" : "\uFF08opt-in \u751F\u6548\uFF0C\u963B\u585E\u672C\u8FDB\u7A0B\uFF09"), platform: process.platform + "-" + process.arch });
+        const heal = selfHealDuckdb();
+        healDetail = heal.detail;
+        if (heal.ok) {
+          try {
+            const mod = createRequire(import.meta.url)("@duckdb/node-api");
+            emitSelfHeal({ result: "success", trigger, detail: heal.detail, platform: process.platform + "-" + process.arch });
+            return mod;
+          } catch (e2) {
+            e = e2;
+            healDetail = heal.detail + "\uFF1BcreateRequire \u4ECD\u5931\u8D25";
+          }
         }
+        emitSelfHeal({ result: "fallback", trigger, detail: healDetail, platform: process.platform + "-" + process.arch });
       }
       duckdbModulePromise = null;
-      throw new Error("DUCKDB-UNAVAILABLE: \u81EA\u52A8\u8865\u62C9\u5931\u8D25\uFF08" + heal.detail + "\uFF09\uFF1B\u5728\u63D2\u4EF6\u76EE\u5F55\u624B\u52A8\u6267\u884C `npm install --omit=dev` \u6062\u590D facts/audit \u8BFB\u5199\u9762\uFF1B\u65E0\u7F51\u7EDC\u73AF\u5883\u4E0B facts/audit \u4E0D\u53EF\u7528\u3001\u5176\u4F59\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF08\u539F\u59CB\u89E3\u6790\u9519\u8BEF\uFF1A" + String(e && e.message || e) + "\uFF09");
+      throw new Error(unavailableMessage(surface, healDetail, e));
     });
   }
   return duckdbModulePromise;
+}
+function healDuckdbBinding() {
+  emitSelfHeal({ phase: "start", trigger: "doctor-fix", note: "doctor --fix \u663E\u5F0F\u81EA\u6108\u2014\u2014\u8865\u62C9\u7EA6 40MB \u6700\u957F 240s", platform: process.platform + "-" + process.arch });
+  const heal = selfHealDuckdb();
+  if (!heal.ok) {
+    emitSelfHeal({ result: "fallback", trigger: "doctor-fix", detail: heal.detail, platform: process.platform + "-" + process.arch });
+    return heal;
+  }
+  try {
+    createRequire(import.meta.url)("@duckdb/node-api");
+  } catch (e2) {
+    emitSelfHeal({ result: "fallback", trigger: "doctor-fix", detail: heal.detail + "\uFF1BcreateRequire \u4ECD\u5931\u8D25", platform: process.platform + "-" + process.arch });
+    return { ok: false, detail: heal.detail + "\uFF1BcreateRequire \u4ECD\u5931\u8D25" };
+  }
+  emitSelfHeal({ result: "success", trigger: "doctor-fix", detail: heal.detail, platform: process.platform + "-" + process.arch });
+  return heal;
 }
 async function openWriter(dbPath) {
   const { DuckDBInstance, DuckDBConnection } = await loadDuckdb();
@@ -293,7 +324,7 @@ function worst(legs) {
   }
   return "ok";
 }
-async function probeDuckdb() {
+async function probeDuckdb(fix) {
   const db = join3(tmpdir(), "macro-audit-doctor-" + String(process.pid) + ".duckdb");
   try {
     const conn = await openWriter(db);
@@ -309,7 +340,27 @@ async function probeDuckdb() {
   } catch (e) {
     const msg = String(e && e.message || e);
     if (msg.indexOf("DUCKDB-UNAVAILABLE") === 0) {
-      return { leg: "duckdb", status: "degraded", detail: "DUCKDB-UNAVAILABLE \u7ED3\u6784\u5316\u56DE\u843D\uFF08\u81EA\u6108\u5DF2\u8BD5\u4E00\u56DE\uFF1B\u65E0\u7F51\u7EDC\u65F6 facts/audit \u4E0D\u53EF\u7528\u5176\u4F59\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF09" };
+      if (fix) {
+        const heal = healDuckdbBinding();
+        if (!heal.ok) {
+          return { leg: "duckdb", status: "degraded", detail: "doctor --fix \u81EA\u6108\u672A\u7ADF\uFF1A" + heal.detail.slice(0, 120) };
+        }
+        try {
+          const conn2 = await openWriter(db);
+          try {
+            await conn2.run("SELECT 1");
+          } catch {
+          }
+          try {
+            conn2.closeSync();
+          } catch {
+          }
+          return { leg: "duckdb", status: "ok", detail: "doctor --fix \u663E\u5F0F\u81EA\u6108\u6210\u529F\u2014\u2014" + heal.detail };
+        } catch (e2) {
+          return { leg: "duckdb", status: "fail", detail: "doctor --fix \u88C5\u6210\u529F\u4F46\u52A0\u8F7D\u5931\u8D25\uFF1A" + String(e2 && e2.message || e2).slice(0, 120) };
+        }
+      }
+      return { leg: "duckdb", status: "degraded", detail: "DUCKDB-UNAVAILABLE \u7ED3\u6784\u5316\u56DE\u843D\uFF08\u5206\u5C42\u9762\u4E0D\u81EA\u52A8\u8865\u62C9\uFF1B\u4FEE\u590D=doctor --fix \u663E\u5F0F\u4E3B\u8DEF\uFF1B\u65E0\u7F51\u7EDC\u65F6 facts/audit \u4E0D\u53EF\u7528\u5176\u4F59\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF09" };
     }
     return { leg: "duckdb", status: "fail", detail: msg.slice(0, 160) };
   } finally {
@@ -327,11 +378,14 @@ function probeGit() {
   return { leg: "git", status: "fail", detail: "git --version exit=" + String(r.status) + " " + String(r.error || r.stderr || "").replace(/\s+/g, " ").slice(0, 120) };
 }
 function probeUpstream() {
+  const conf = process.platform === "win32" ? spawnSync2("cmd.exe", ["/d", "/s", "/c", "npm", "config", "get", "registry"], { encoding: "utf8", timeout: 1e4 }) : spawnSync2("npm", ["config", "get", "registry"], { encoding: "utf8", timeout: 1e4 });
+  const configured = conf.status === 0 ? String(conf.stdout || "").trim() : "";
+  const reg = /^https?:\/\//.test(configured) ? configured : "https://registry.npmjs.org/";
   return new Promise(function(resolve4) {
     const t0 = Date.now();
-    const req = get("https://registry.npmjs.org/", { timeout: 5e3, method: "HEAD" }, function(res) {
+    const req = get(reg, { timeout: 5e3, method: "HEAD" }, function(res) {
       res.resume();
-      resolve4({ leg: "upstream", status: "ok", detail: "registry.npmjs.org " + String(res.statusCode) + " " + String(Date.now() - t0) + "ms" });
+      resolve4({ leg: "upstream", status: "ok", detail: reg + " " + String(res.statusCode) + " " + String(Date.now() - t0) + "ms" });
     });
     req.on("timeout", function() {
       req.destroy();
@@ -342,8 +396,8 @@ function probeUpstream() {
     });
   });
 }
-async function runDoctor() {
-  const legs = [await probeDuckdb(), probeGit(), await probeUpstream()];
+async function runDoctor(opts) {
+  const legs = [await probeDuckdb(!!(opts && opts.fix)), probeGit(), await probeUpstream()];
   return { doctor: "1.0.0", legs, overall: worst(legs) };
 }
 
@@ -2345,6 +2399,7 @@ var CODELORE_DESCRIPTOR = {
   id: CODELORE_ADAPTER_ID,
   family: CODELORE_FAMILY,
   dimension: null,
+  // 防腐层故意留白（ADR-0014）——维度映射见 docs/upstream-dimension-map.md（D-078）
   quadrant: "strategic"
 };
 function resolveCodelore(binary) {
@@ -3496,7 +3551,7 @@ if (cmd === "--version" || cmd === "-v") {
   console.log(JSON.stringify(r));
   process.exit(r.ok ? 0 : 1);
 } else if (cmd === "doctor") {
-  const dr = await runDoctor();
+  const dr = await runDoctor({ fix: process.argv.indexOf("--fix") >= 0 });
   console.log(JSON.stringify(dr));
   process.exit(dr.overall === "fail" ? 1 : 0);
 } else if (cmd === "mcp") {
@@ -3703,5 +3758,5 @@ if (cmd === "--version" || cmd === "-v") {
   }
 } else {
   console.log("macro-audit kernel CLI (walking skeleton)");
-  console.log("usage: macro-audit <--version|selftest|doctor|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>");
+  console.log("usage: macro-audit <--version|selftest|doctor [--fix]|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>");
 }

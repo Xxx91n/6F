@@ -206,6 +206,61 @@ const TODAY33 = _td33.getFullYear() + '-' + String(_td33.getMonth() + 1).padStar
 const saOverdue = saEntries.filter(e => typeof e.expires_fallback === 'string' && e.expires_fallback < TODAY33).map(e => e.id);
 if (saOverdue.length) warns.push('stale-assertions 复审锚逾期未动（expires_fallback<' + TODAY33 + '）：' + saOverdue.join(',') + ' → risk_accepted 候选同构转人工裁决（D-041③ 同构）');
 
+// --- H. #65/D-073+D-074 sealed↔attestation 闭包（sealed 无 attestation 行=FAIL／entries+sealed 不重复／migrated_to 强制闭包） ---
+const attPath = join(here, 'acceptance-probe-attestation.jsonl');
+const attRows = [], attBad = [];
+if (fs.existsSync(attPath)) {
+  for (const line of fs.readFileSync(attPath, 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    try { attRows.push(JSON.parse(line)); } catch (e) { attBad.push('jsonl-parse:' + line.slice(0, 40)); }
+  }
+}
+// sealed() 调用点=守卫源码 sealed('<slug>')（与头部 acceptance-probe: sealed 标记行双锚机检，D-073⑧）
+const sealedSites = [];
+for (const f of fs.readdirSync(here).filter(f => /-check\.mjs$/.test(f))) {
+  const g = f.replace(/-check\.mjs$/, '');
+  const src = fs.readFileSync(join(here, f), 'utf8');
+  const headMarked = src.indexOf('acceptance-probe: sealed') >= 0;
+  for (const m of src.matchAll(/sealed\('([A-Z]+\d+[a-z]?)'/g)) sealedSites.push({ guard: g, slug: m[1], headMarked });
+}
+const attKeys = new Set(attRows.map(r => r.guard + ':' + r['assertion-slug']));
+const siteKeys = new Set(sealedSites.map(x => x.guard + ':' + x.slug));
+const sealedNoAtt = sealedSites.filter(x => !attKeys.has(x.guard + ':' + x.slug)).map(x => x.guard + ':' + x.slug);
+const attNoSite = attRows.filter(r => !siteKeys.has(r.guard + ':' + r['assertion-slug'])).map(r => r.id);
+t('G5 sealed↔attestation 双锚闭包（sealed() 调用点=' + sealedSites.length + ' ↔ attestation 行=' + attRows.length + '；sealed 无行/行无点=FAIL）',
+  fs.existsSync(attPath) && attBad.length === 0 && sealedNoAtt.length === 0 && attNoSite.length === 0,
+  sealedNoAtt.concat(attNoSite, attBad).join(','));
+const entryKeysG = new Set(saEntries.map(e => e.guard + ':' + e['assertion-slug']));
+const overlapG = [...attKeys].filter(k => entryKeysG.has(k));
+const resurrect = [];
+for (const x of sealedSites) {
+  const src = fs.readFileSync(join(here, x.guard + '-check.mjs'), 'utf8');
+  if (new RegExp("\\bt\\('" + x.slug + "\\s").test(src)) resurrect.push(x.guard + ':' + x.slug);
+}
+t('G6 entries∩sealed=∅（attestation ' + attKeys.size + ' 行 vs entries ' + saEntries.length + '）＋sealed 断言无 t() 残留（复活=XPASS 信号洞）', overlapG.length === 0 && resurrect.length === 0, overlapG.concat(resurrect).join(','));
+const noHead = sealedSites.filter(x => !x.headMarked).map(x => x.guard + ':' + x.slug);
+const ATT_REQ = ['id', 'guard', 'assertion-slug', 'fired_at', 'last_fired_commit', 'evidence', 'disposition', 'decision', 'migrated_to'];
+const attFieldMiss = attRows.filter(r => !ATT_REQ.every(k => k in r)).map(r => r.id);
+const attIdBad = attRows.filter(r => r.id !== 'ap-' + r.guard + '-' + String(r['assertion-slug']).toLowerCase()).map(r => r.id);
+const attEvMiss = attRows.filter(r => typeof r.evidence !== 'string' || !fs.existsSync(join(here, '..', '..', '..', r.evidence))).map(r => r.id);
+const NEEDS_MIG = new Set(['sealed-live-contract-migrated', 'sealed-superseded']);
+const attMigMiss = attRows.filter(r => NEEDS_MIG.has(r.disposition) && !r.migrated_to).map(r => r.id);
+const attMigBad = [];
+for (const r of attRows) {
+  if (!r.migrated_to) continue;
+  const mt = String(r.migrated_to);
+  const hi = mt.indexOf('#');
+  const file = hi >= 0 ? mt.slice(0, hi) : mt;
+  const anchor = hi >= 0 ? mt.slice(hi + 1) : '';
+  const cand = [join(here, file), join(here, '..', '..', '..', file)];
+  const target = cand.find(fp => fs.existsSync(fp));
+  if (!target) { attMigBad.push(r.id + ':target-missing:' + file); continue; }
+  if (anchor && fs.readFileSync(target, 'utf8').indexOf("'" + anchor + ' ') < 0) attMigBad.push(r.id + ':anchor-missing:' + anchor);
+}
+t('G7 attestation 行字段齐备＋id=ap-<guard>-<slug>＋evidence 可解析＋migrated_to 闭包（活契约/superseded 必填且目标含锚）＋sealed 守卫头标在',
+  attFieldMiss.length === 0 && attIdBad.length === 0 && attEvMiss.length === 0 && attMigMiss.length === 0 && attMigBad.length === 0 && noHead.length === 0,
+  attFieldMiss.concat(attIdBad, attEvMiss, attMigMiss, attMigBad, noHead).join(','));
+
 console.log('--- 值守快照 ---');
 alarms.forEach(a => console.log('ALARM ' + a));
 warns.forEach(w => console.log('WARN  ' + w));

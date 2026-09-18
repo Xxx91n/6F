@@ -104,6 +104,10 @@ if (_claudeVer) {
   w58('G19b claude --version（cli-absent——advisory 环境位，三方同值挂起非失败）', false, 'claude binary unresolved');
 }
 
+const vp58 = fs.readFileSync(join(ENGINE, 'scripts', 'validate-plugin.mjs'), 'utf8');
+t('G19c validate-plugin 环境分层面在（MACRO_AUDIT_CI 门控＋INFO 第三态＋receipts append-only＋mode=local-observation-only；D-077①②④）',
+  vp58.includes('MACRO_AUDIT_CI') && vp58.includes('INFO(claude-validate): cli-absent-expected') && vp58.includes('claude-validate-receipts.jsonl') && vp58.includes('local-observation-only'));
+
 // advisory 真校验器输出回显（probe 已于文件头执行——SKIP/WARN 计入 warn58；连续 SKIP 见顶部 ⚠ 升格提示）
 if (_vlines.some(l => l.indexOf('SKIP(claude-validate)') === 0 || l.indexOf('WARN ') === 0)) warn58++;
 _vlines.forEach(l => console.log('  ADV | ' + l));

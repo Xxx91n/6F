@@ -4,6 +4,7 @@
 //   F1/F3「jiahao workflow 存在/链完整」已被 D-046 撤除决策 superseded——现行回归面守卫 = 46-check.mjs；
 //   F5/I3 失效另因 but 分支 r9-39-macro-b-regression 已并入 main 致 ref 消耗（非数据丢失，git log --all 可达）；
 //   E4 期望 mw-trigger-a 值守 ALARM 输出——D-043 已将该触发器翻 decided，ALARM 口径随之变化。
+// acceptance-probe: sealed 2026-09-18 D-073 — E3 E4 F1 F3 F4 F5 I1 I2 I3（attestation=acceptance-probe-attestation.jsonl）
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -17,6 +18,7 @@ const NAMES = Object.keys(REPOS);
 
 let pass = 0, fail = 0;
 const t = (name, ok, extra = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : fail++; };
+function sealed(name, attId, note) { console.log('SEALED ' + name + ' | att=' + attId + (note ? ' | ' + note : '')); }
 const read = (f) => fs.readFileSync(join(here, f), 'utf8');
 const noBom = (f) => { const b = fs.readFileSync(join(here, f)); return !(b.length >= 3 && b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); };
 const git = (root, args) => { const s = spawnSync('git', ['-C', root].concat(args), { encoding: 'utf8' }); return s.status === 0 ? s.stdout.trim() : null; };
@@ -92,21 +94,18 @@ const mwa = reg.items.find((i) => i.id === 'mw-trigger-a');
 const dt7 = reg.items.find((i) => i.id === 'desk-task7');
 t('E1 registry 事件 mw-regression-ci occurred=true + 证据含 jiahao workflow', reg.events['mw-regression-ci'].occurred === true && /macro-b-regression\.yml/.test(reg.events['mw-regression-ci'].evidence || ''), '');
 t('E2 mw-trigger-a confirmations 追加 trigger-fired（D-034④a 激活登记）', !!mwa && Array.isArray(mwa.confirmations) && mwa.confirmations.some((c) => c.decision === 'trigger-fired' && /macro-b-regression/.test(c.evidence || '')), '');
-t('E3 desk-task7 状态翻转 triggered-bound + confirmations self-probe-executed', !!dt7 && dt7.status === 'triggered-bound' && /39-mw-self-probe/.test(dt7.bound_to || '') && Array.isArray(dt7.confirmations) && dt7.confirmations.some((c) => c.decision === 'self-probe-executed'), '');
-const g33 = spawnSync('node', [join(here, '33-check.mjs')], { encoding: 'utf8' });
-t('E4 33-check 回归不破坏（exit 0 + ALARM mw-trigger-a 值守登记输出）', g33.status === 0 && (g33.stdout || '').includes('ALARM mw-trigger-a'), (g33.stdout || '').trim().split('\n').filter((l) => /ALARM|PASS|FAIL/.test(l)).slice(-3).join(' / '));
+sealed('E3', 'ap-39-e3', 'desk-task7 decided——验收时点翻转+self-probe 封口证明使命完成');
+sealed('E4', 'ap-39-e4', 'mw-trigger-a decided（ERRATA 在案）——值守 ALARM 口径变迁；33-check 回归由基线电池直跑承接');
 
 // --- F. jiahao CI 接入（workflow 触发面 + 引擎链 + commit 在 jiahao 仓） ---
 const WF = join(REPOS.jiahao, '.github', 'workflows', 'macro-b-regression.yml');
 const wf = fs.existsSync(WF) ? fs.readFileSync(WF, 'utf8') : '';
 const onBlock = (wf.split(/\njobs:/)[0] || '');
-t('F1 jiahao workflow 存在 + 触发面 schedule(cron)+workflow_dispatch 写明', wf.includes('schedule:') && /cron:\s*'\d+ \d+ \* \* \d'/.test(wf) && wf.includes('workflow_dispatch'), '');
+sealed('F1', 'ap-39-f1', 'superseded-by-D-046：回归 CI 迁回 6F——承接=46-check A1');
 t('F2 触发面不含 push/pull_request（回归≠门禁）', !/^\s+(push|pull_request)\s*:/m.test(onBlock.split(/\non:/)[1] || ''), '');
-t('F3 回归链完整：checkout Xxx91n/6F + fetch-depth 0 + engine build + 39-macro-b-one-shot.mjs --repo jiahao', wf.includes('Xxx91n/6F') && wf.includes('fetch-depth: 0') && wf.includes('npm run build') && wf.includes('39-macro-b-one-shot.mjs') && wf.includes('--repo jiahao'), '');
-t('F4 已上架层限定 + 诚实语义注释在 workflow 内（preview 不混 / job 绿=管线绿）', wf.includes('已上架层') && wf.includes('preview'), '');
-const jhLog = git(REPOS.jiahao, ['log', '-1', '--format=%s', 'r9-39-macro-b-regression']);
-const jhStatus = git(REPOS.jiahao, ['status', '--porcelain']);
-t('F5 jiahao 仓 but commit 落地（r9-39-macro-b-regression 含 A-044）+ 工作树干净', !!jhLog && jhLog.includes('A-044') && jhStatus === '', 'log=' + (jhLog || 'n/a').slice(0, 60));
+sealed('F3', 'ap-39-f3', 'superseded-by-D-046——承接=46-check A8');
+sealed('F4', 'ap-39-f4', 'superseded-by-D-046——承接=46-check A14');
+sealed('F5', 'ap-39-f5', '验收时点 commit 落地证明 fired（ref 并入 main 消耗＋env 腿双因）');
 
 // --- G. self-probe 实测（真实并发面，非模拟） ---
 const A = probe.phases.A_same_process || {};
@@ -143,10 +142,9 @@ const wfMd = fs.readFileSync(join(ROOT, '.scratch', 'architecture-recovery', 'WO
 t('H7 WORKFLOW §4 lessons 追加本票行（#39/A-044）', /2026-09-16[^\n]*(#39|A-044)/.test(wfMd), '');
 
 // --- I. 被测仓写纪律（env-manager/anysearch-cli 零写入；jiahao 仅 workflow 变更已 commit） ---
-t('I1 env-manager 工作树零写入', git(REPOS['env-manager'], ['status', '--porcelain']) === '', '');
-t('I2 anysearch-cli 工作树零写入', git(REPOS['anysearch-cli'], ['status', '--porcelain']) === '', '');
-const jhFiles = git(REPOS.jiahao, ['show', '--pretty=format:', '--name-only', 'r9-39-macro-b-regression']);
-t('I3 jiahao 分支 commit 变更面仅 .github/workflows/macro-b-regression.yml', !!jhFiles && jhFiles === '.github/workflows/macro-b-regression.yml', jhFiles || '');
+sealed('I1', 'ap-39-i1', 'env 腿——活契约由 engine/test/audit-zero-write.test.mjs 承接挂 smoke 链');
+sealed('I2', 'ap-39-i2', 'env 腿——活契约由 engine/test/audit-zero-write.test.mjs 承接挂 smoke 链');
+sealed('I3', 'ap-39-i3', 'superseded-by-D-046：jiahao workflow 已撤——承接=46-check B1');
 
 // --- J. 引擎纪律 + 测试链不回归（本票零 engine 源码改动） ---
 const pkg = JSON.parse(fs.readFileSync(join(ENG, 'package.json'), 'utf8'));

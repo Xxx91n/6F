@@ -10,7 +10,7 @@ export const CODELORE_PINNED_VERSION = '0.28.0';
 export const CODELORE_DESCRIPTOR = {
     id: CODELORE_ADAPTER_ID,
     family: CODELORE_FAMILY,
-    dimension: null,
+    dimension: null, // 防腐层故意留白（ADR-0014）——维度映射见 docs/upstream-dimension-map.md（D-078）
     quadrant: 'strategic'
 };
 export function resolveCodelore(binary) {
