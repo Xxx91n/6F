@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "gen": "node scripts/gen-manifests.mjs",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/build-bundle.mjs",
     "package": "npm pack --dry-run",
     "demo:golden": "node scripts/gen-demo-golden.mjs",
     "smoke": "node test/smoke.test.mjs && node test/collectors.test.mjs && node test/codelore-adapter.test.mjs && node test/codelore-batch1.test.mjs && node test/codelore-llm.test.mjs && node test/report-preview.test.mjs && node test/intake.test.mjs && node test/gitcli-contract.test.mjs && node test/sql-literal.test.mjs && node test/mcp-db-resolution.test.mjs && node test/audit.test.mjs && node test/demo.test.mjs && node test/github-rest.test.mjs && node test/narrative.test.mjs && node test/citation.test.mjs",
@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.7.0",
+    "esbuild": "0.28.2",
     "typescript": "^5.6.2"
   }
 }

@@ -11,6 +11,7 @@ description: 宏观+微观工程内容审计。在 agent 工作流内触发 Macr
 
 ## 默认模式（per R2-03）
 - C 类用户在 agent 工作流内嵌触发 Macro-B；一次安装 + 首次 MCP 授权即可。
+- 运行前提（#59/D-067）：kernel 经插件 `.mcp.json` 以 `node` + `${CLAUDE_PLUGIN_ROOT}/dist/cli.js mcp` 拉起（Prerequisites=Node ≥20）；MCP 握手/selftest/repo add 零依赖可用，`mcp facts`/`audit`/`demo` 实跑需 duckdb 原生绑定——插件目录 `npm install --omit=dev` 后恢复（缺失时 `DUCKDB-UNAVAILABLE` 结构化降级非崩溃）。验收=`/mcp` 见 macro-audit-kernel connected；未连接先 `node dist/cli.js selftest` 再 `claude --debug` 看 MCP init（Windows `${CLAUDE_PLUGIN_ROOT}` hook 面 bug 链 #43380/#65579 在案，exec-form 理论免疫以真机为准）。
 
 ## 输出
 - 四象限叙事报告（共享骨架 + scale 切片）；行动建议章含 verdict-gate 印记（receipt）。

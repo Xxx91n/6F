@@ -26,6 +26,25 @@
 - `macro-audit mcp [--db <facts.duckdb>]` / `mcp facts [--db <path>]` —— MCP stdio 只读 facts 投影面（db 寻址=--db → MACRO_AUDIT_FACTS_DB env，与 MCP 服务端链一致：arguments.db → server --db → env；全缺→usage/结构化错误）。
 - `macro-audit selftest` / `--version` / `--help`。
 
+## 插件安装（Claude Code · git-clone 分发 · #59/D-067）
+
+**Prerequisites**：Node.js ≥ 20（`node --version` 自检）；Claude Code 2.x。
+
+```text
+/plugin marketplace add Xxx91n/6F
+/plugin install 6f@xxx91n
+```
+
+marketplace 安装 = git clone 无构建步——可运行体 `dist/cli.js`（esbuild 单文件 bundle）随源进仓（actions/javascript-action 先例；忘 rebuild 由 CI rebuild-diff 守卫拦截）。`.mcp.json` 以 `node` + `${CLAUDE_PLUGIN_ROOT}/dist/cli.js mcp` 启动 kernel MCP server——裸命令名+PATH 为官方排错表明示反模式（T6 事故），已禁。
+
+**验收**：`/mcp` 确认 `macro-audit-kernel` = connected；或在插件目录 `node dist/cli.js selftest`（5/5 即活）。
+
+**能力分级**（git-clone 不带 node_modules）：
+- 零依赖可用：`selftest` / `--version` / MCP 握手（initialize・tools/list）/ `repo add` / `demo --list`
+- 需 duckdb 原生绑定：`mcp facts` / `audit` / `demo` 实跑——插件目录 `npm install --omit=dev` 后恢复；缺失时返回结构化 `DUCKDB-UNAVAILABLE` 而非进程崩溃（store.ts 懒加载降级）。
+
+**Windows 已知 bug 链**：Claude Code 对 `${CLAUDE_PLUGIN_ROOT}` 的展开在 hook 面有 open issue（anthropics/claude-code#43380 / #65579）；MCP stdio exec-form 官方口径为纯字符串替换、理论免疫，但 Windows 真机以 `/mcp` 实测为准。失败引导：`claude --debug` 看 MCP init 日志；若 server 未 connected，先 `node dist/cli.js selftest` 区分「宿主未拉起」与「进程拉起即崩」。
+
 ## 验收
 编译通过 / 打包通过 / 启动并测活；每平台 test 闭环 = 仓根 .github/workflows/engine-ci.yml（paths: engine/**），需 push 后以 CI run 结果为准。
 

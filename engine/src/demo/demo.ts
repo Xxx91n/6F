@@ -13,7 +13,7 @@
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { metaPath } from '../manifest.js';
 import { deriveBaggageId } from '../collect/collectors.js';
 import { buildReport, degradeReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, UNVERIFIED_MARK, REPORT_SKELETON_VERSION } from '../report/generate.js';
 import type { PreviewDisclosure, ReportInput, EvidenceItem, ClaimAnchor, QuadrantEntry, Recommendation, AdjudicationEntry } from '../report/generate.js';
@@ -24,7 +24,9 @@ import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, 
 
 export const DEMO_SCENARIOS: readonly string[] = ['happy-path', 'degraded-supply', 'degraded-incomplete'];
 const NL = String.fromCharCode(10);
-const DEFINITIONS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'fixtures', 'definitions');
+// #59/D-067：fixtures 锚定引擎根（metaPath 的 dirname）而非本文件相对层级——
+// esbuild 单文件 bundle（dist/cli.js 与 dist/demo/*.js 层级不同）下两形态同构可达。
+const DEFINITIONS_DIR = join(dirname(metaPath()), 'fixtures', 'definitions');
 // stopwords 与 22-threshold-raw.json#tc3_s1_coverage.stopwords 同源快照——本体在 audit/macro-b.ts（#53 共享面），本文件只留别名
 const DEMO_STOPWORDS = MACRO_B_STOPWORDS;
 const INTENT_CANDIDATES: readonly string[] = ['CONTEXT.md', 'README.md', 'AGENTS.md'];

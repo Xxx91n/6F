@@ -84,3 +84,12 @@ upstreams:
     adapter: "engine/src/upstream/github-rest.ts（GITHUB_REST_ADAPTER_ID=github-rest-adapter@v1，API 版本常量 GITHUB_API_VERSION 同源）"
     last_reviewed: 2026-09-16
     next_review: 2026-10-16
+  - id: esbuild
+    kind: node-lib
+    version: "0.28.2"
+    pin_type: exact-version
+    contract: "构建工具链（#59/D-067 dist 单文件 bundle 生成器）：package.json devDependencies 精确值（无 ^/~ 前缀）＋package-lock.json hash 锁定；`npx esbuild --version` 输出须恰等于 pin 值；仅构建期使用、不进运行时依赖面（--packages=external 唯一运行时 dep=@duckdb/node-api 另行锁定）"
+    status: active
+    adapter: "engine/scripts/build-bundle.mjs（dist/cli.js 自包含 bundle 生成位）"
+    last_reviewed: 2026-09-18
+    next_review: 2026-10-18

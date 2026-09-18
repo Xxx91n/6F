@@ -3,7 +3,7 @@
 面向 git 记录健全仓库的工程内容审计产品：**证据采集大部分来自上游组合件，裁决协议、事实表 schema、验收闸门与可核验回执是本项目自研的护城河与黏合剂**。5 档审计粒度（Macro-A 跨仓战略 / Macro-B 仓库级四象限 / Macro-C 演化考古 / Micro-A PR diff / Micro-B file level）共享同一事实底座与裁决层，差异在触发器与报告切片。
 
 > [!NOTE]
-> 当前状态（2026-09-16）：**preview 形态（能力边界见下节矩阵）**——Macro-B / Macro-C 两层经实跑校准、报告头与披露块按 preview 口径标注；Micro-A 已 preview 上架（capability 3 of 5 · preview，同主试点仓校准口径）；Micro-B / Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。发布未发生——本页为源码自举说明，不存在可安装 listing（ADR-0016 渠道决策＋上架用户闸门）。下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
+> 当前状态（2026-09-16）：**preview 形态（能力边界见下节矩阵）**——Macro-B / Macro-C 两层经实跑校准、报告头与披露块按 preview 口径标注；Micro-A 已 preview 上架（capability 3 of 5 · preview，同主试点仓校准口径）；Micro-B / Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。「发布未发生·不存在可安装 listing」状态已由 marketplace 上架终结（`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`，安装/验收口径见 [engine/README.md](engine/README.md)；B 轨官方目录未提交、走用户闸门）。下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
 
 ## 能力边界（preview 标注）
 

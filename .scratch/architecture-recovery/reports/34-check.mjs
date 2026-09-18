@@ -26,7 +26,8 @@ t('G5 extensions 为对象图非数组', pj.extensions && typeof pj.extensions =
 t('G6 extensions 键为反向域名命名空间（含 . 小写）', Object.keys(pj.extensions).every(k => /^[a-z0-9]+(\.[a-z0-9-]+)+$/.test(k)), Object.keys(pj.extensions).join(','));
 t('G7 extensions 值为对象', Object.values(pj.extensions).every(v => v && typeof v === 'object' && !Array.isArray(v)));
 t('G8 已移除旧越界字段（schemaVersion/skills/mcp 不在标准 manifest）', !('schemaVersion' in pj) && !('skills' in pj) && !('mcp' in pj));
-t('G9 claude 侧 manifest 不回归（skills 路径形+.mcp.json 标准自动发现位）', Array.isArray(p2.skills) && p2.skills.every(s => typeof s === 'string' && s.startsWith('./skills/')) && m2.mcpServers && m2.mcpServers['macro-audit-kernel'] && m2.mcpServers['macro-audit-kernel'].command === 'macro-audit');
+const srv = m2.mcpServers && m2.mcpServers['macro-audit-kernel'];
+t('G9 claude 侧 manifest 不回归（skills 路径形+.mcp.json 自动发现位=node+${CLAUDE_PLUGIN_ROOT} 自包含）', Array.isArray(p2.skills) && p2.skills.every(s => typeof s === 'string' && s.startsWith('./skills/')) && srv && srv.command === 'node' && Array.isArray(srv.args) && srv.args[0] === '${CLAUDE_PLUGIN_ROOT}/dist/cli.js' && srv.args[1] === 'mcp');
 t('G10 版本三方一致', pj.version === p2.version && p2.version === meta.version);
 
 // G11: gen 重跑产物幂等——幂等断言故意实跑生成器，检出漂移即恢复三产物原件（守卫不在被检树留改写）
@@ -41,6 +42,13 @@ try {
   WATCH.forEach((f, i) => fs.writeFileSync(join(ENGINE, f), snapshots[i]));
   t('G11 gen 重跑幂等', false, String(e).slice(0, 120));
 }
+
+// G12~G14: #59/D-067 kernel 自包含分发面——command 禁裸名 PATH 反模式钉死＋dist 可运行体随源进仓
+t('G12 .mcp.json command 禁裸名（node 或含 ${CLAUDE_PLUGIN_ROOT}——官方排错表反模式钉死）', srv && (srv.command === 'node' || (typeof srv.command === 'string' && srv.command.indexOf('${CLAUDE_PLUGIN_ROOT}') >= 0)));
+const distCliPath = join(ENGINE, 'dist', 'cli.js');
+const distSrc = fs.existsSync(distCliPath) ? fs.readFileSync(distCliPath, 'utf8') : '';
+t('G13 dist/cli.js 在且自包含 bundle（无相对模块 import——git-clone 可运行体随源进仓）', distSrc.length > 0 && !/from\s+['"]\.{1,2}\/|require\(\s*['"]\.{1,2}\//.test(distSrc) && distSrc.charCodeAt(0) === 0x23);
+t('G14 engine/.gitignore 放开 dist/（dist 入库前置）', !/^dist\/?\s*$/m.test(fs.readFileSync(join(ENGINE, '.gitignore'), 'utf8')));
 
 console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));
 process.exit(fail === 0 ? 0 : 1);
