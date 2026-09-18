@@ -32,11 +32,326 @@ function runSelftest() {
   }), checks };
 }
 
+// src/doctor.ts
+import { spawnSync as spawnSync2 } from "node:child_process";
+import { rmSync as rmSync2 } from "node:fs";
+import { get } from "node:https";
+import { tmpdir } from "node:os";
+import { join as join3 } from "node:path";
+
+// src/fact/store.ts
+import { spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
+import { existsSync, readFileSync as readFileSync2, readdirSync, rmSync, statSync } from "node:fs";
+import { dirname as dirname2, join as join2 } from "node:path";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
+
+// src/fact/schema.ts
+var SCHEMA_VERSION_V0 = 1;
+var AUDIT_FACT_FIELDS = [
+  { name: "fact_seq", type: "UBIGINT", nullable: false, role: "identity", constraints: ["NOT NULL", "PRIMARY KEY"], inherits: "A-007" },
+  { name: "fact_id", type: "VARCHAR(36)", nullable: false, role: "identity", constraints: ["NOT NULL", "UNIQUE"], inherits: "ADR-0005" },
+  { name: "schema_version", type: "INTEGER", nullable: false, role: "governance", constraints: ["NOT NULL", "CHECK(schema_version >= 1)", "REFERENCES schema_registry(version)"], inherits: "A-008" },
+  { name: "trace_id", type: "CHAR(32)", nullable: false, role: "correlation", constraints: ["NOT NULL", "CHECK(regexp_matches(trace_id, '^[0-9a-f]{32}$'))"], inherits: "A-010" },
+  { name: "baggage_id", type: "CHAR(32)", nullable: false, role: "correlation", constraints: ["NOT NULL", "CHECK(regexp_matches(baggage_id, '^[0-9a-f]{32}$'))"], inherits: "A-010" },
+  { name: "scale", type: "VARCHAR(8)", nullable: false, role: "classification", constraints: ["NOT NULL", "CHECK(scale IN ('Macro-A','Macro-B','Macro-C','Micro-A','Micro-B'))"], inherits: "CONTEXT" },
+  { name: "quadrant", type: "VARCHAR(16)", nullable: false, role: "classification", constraints: ["NOT NULL", "CHECK(quadrant IN ('structure','behavior','supply-chain','strategic'))"], inherits: "CONTEXT" },
+  { name: "dimension", type: "VARCHAR(2)", nullable: true, role: "classification", constraints: ["NULL", "CHECK(dimension IS NULL OR dimension IN ('S1','S2','S3','S4','S5'))"], inherits: "CONTEXT" },
+  { name: "collector_id", type: "VARCHAR(64)", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "R3-D3" },
+  { name: "repo_ref", type: "VARCHAR(256)", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "CONTEXT" },
+  { name: "subject_ref", type: "VARCHAR(512)", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "ADR-0005" },
+  { name: "evidence_ref", type: "VARCHAR(512)", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "CONTEXT" },
+  { name: "metric", type: "VARCHAR(128)", nullable: false, role: "payload", constraints: ["NOT NULL"], inherits: "A-005" },
+  { name: "value_json", type: "VARCHAR", nullable: false, role: "payload", constraints: ["NOT NULL", "CHECK(json_valid(value_json))"], inherits: "A-005" },
+  { name: "observed_at", type: "TIMESTAMPTZ", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "R3-D3" },
+  { name: "ingested_at", type: "TIMESTAMPTZ", nullable: false, role: "provenance", constraints: ["NOT NULL", "DEFAULT current_timestamp"], inherits: "A-007" }
+];
+var SCHEMA_REGISTRY_FIELDS = [
+  { name: "version", type: "INTEGER", nullable: false, role: "identity", constraints: ["NOT NULL", "PRIMARY KEY", "CHECK(version >= 1)"], inherits: "A-008" },
+  { name: "change_event", type: "VARCHAR(16)", nullable: false, role: "governance", constraints: ["NOT NULL", "CHECK(change_event IN ('Registered','Rejected','Deprecated'))"], inherits: "A-008" },
+  { name: "compatibility", type: "VARCHAR(24)", nullable: false, role: "governance", constraints: ["NOT NULL", "CHECK(compatibility IN ('BACKWARD','FORWARD','FULL','BACKWARD_TRANSITIVE','FORWARD_TRANSITIVE','FULL_TRANSITIVE','NONE'))"], inherits: "A-008" },
+  { name: "description", type: "VARCHAR(512)", nullable: false, role: "payload", constraints: ["NOT NULL"], inherits: "A-008" },
+  { name: "registered_at", type: "TIMESTAMPTZ", nullable: false, role: "provenance", constraints: ["NOT NULL", "DEFAULT current_timestamp"], inherits: "A-008" }
+];
+var REWRITE_BLACKLIST = [
+  "UPDATE",
+  "DELETE",
+  "DROP",
+  "ALTER",
+  "TRUNCATE",
+  "INSERT OR REPLACE",
+  "ON CONFLICT DO UPDATE",
+  "MERGE INTO",
+  "COPY"
+];
+var STATEMENT_ALLOWLIST = [
+  "SELECT",
+  "INSERT INTO",
+  "CREATE TABLE",
+  "ATTACH",
+  "PRAGMA",
+  "DESCRIBE",
+  "WITH"
+];
+function normalizeSql(sql) {
+  const noLine = sql.split("--").map(function(s) {
+    return s.split(String.fromCharCode(10))[0];
+  }).join(" ");
+  const noBlock = noLine.split("/*").join(" ").split("*/").join(" ");
+  return noBlock.split(String.fromCharCode(10)).join(" ").split(String.fromCharCode(9)).join(" ").split("  ").join(" ").trim().toUpperCase();
+}
+function stripSqlLiterals(sql) {
+  return sql.replace(/\$([A-Za-z_][A-Za-z0-9_]*)?\$[\s\S]*?\$\1?\$/g, " ").replace(/'([^']|'')*'/g, " ").replace(/"([^"]|"")*"/g, " ").replace(/`[^`]*`/g, " ");
+}
+function classifyStatement(sql) {
+  const s = normalizeSql(stripSqlLiterals(sql));
+  if (s.length === 0) {
+    return { allow: false, reason: "empty statement" };
+  }
+  for (const bad of REWRITE_BLACKLIST) {
+    if (s.includes(bad)) {
+      return { allow: false, reason: "rewrite form rejected: " + bad };
+    }
+  }
+  for (const good of STATEMENT_ALLOWLIST) {
+    if (s.startsWith(good)) {
+      return { allow: true, reason: "allowlisted: " + good };
+    }
+  }
+  return { allow: false, reason: "default deny: not in allowlist" };
+}
+var AppendOnlyViolation = class extends Error {
+  constructor(sql, reason) {
+    super("append-only violation: " + reason + " :: " + sql.slice(0, 120));
+    this.name = "AppendOnlyViolation";
+  }
+};
+function assertAppendOnly(sql) {
+  const v = classifyStatement(sql);
+  if (!v.allow) {
+    throw new AppendOnlyViolation(sql, v.reason);
+  }
+}
+function buildCreateTableSql(table, fields) {
+  const cols = fields.map(function(f) {
+    return "  " + f.name + " " + f.type + " " + f.constraints.join(" ").trim();
+  });
+  const head = "CREATE TABLE IF NOT EXISTS " + table + " (";
+  return head + String.fromCharCode(10) + cols.join("," + String.fromCharCode(10)) + String.fromCharCode(10) + ");";
+}
+var AUDIT_FACT_DDL = buildCreateTableSql("audit_fact", AUDIT_FACT_FIELDS);
+var SCHEMA_REGISTRY_DDL = buildCreateTableSql("schema_registry", SCHEMA_REGISTRY_FIELDS);
+
+// src/fact/store.ts
+var WRITE_COLUMNS = AUDIT_FACT_FIELDS.filter(function(f) {
+  return f.name !== "fact_seq" && f.name !== "ingested_at";
+}).map(function(f) {
+  return f.name;
+});
+var FACT_SEQ_NAME = "audit_fact_seq";
+var INSERT_SQL = "INSERT INTO audit_fact (fact_seq, " + WRITE_COLUMNS.join(", ") + ", ingested_at) VALUES (nextval(" + String.fromCharCode(39) + FACT_SEQ_NAME + String.fromCharCode(39) + "), " + WRITE_COLUMNS.map(function() {
+  return "?";
+}).join(", ") + ", current_timestamp)";
+var duckdbModulePromise = null;
+var DUCKDB_PINNED_VERSION = "1.5.5-r.4";
+var NO_OFFICIAL_BINDINGS = /* @__PURE__ */ new Set(["win32-arm64"]);
+var selfHealAttempted = false;
+function isMusl() {
+  try {
+    const r = spawnSync("ldd", ["--version"], { encoding: "utf8", timeout: 5e3 });
+    return /musl/i.test((r.stdout || "") + (r.stderr || ""));
+  } catch {
+    return false;
+  }
+}
+function platformPackageSuffix() {
+  const p = process.platform;
+  const a = process.arch;
+  if (p === "win32" || p === "darwin") return p + "-" + a;
+  if (p === "linux") return "linux-" + a + (isMusl() ? "-musl" : "");
+  return null;
+}
+function engineRoot() {
+  let dir = dirname2(fileURLToPath2(import.meta.url));
+  for (let i = 0; i < 8; i++) {
+    const pj = join2(dir, "package.json");
+    if (existsSync(pj)) {
+      try {
+        const j = JSON.parse(readFileSync2(pj, "utf8"));
+        if (j && j.dependencies && j.dependencies["@duckdb/node-api"]) return dir;
+      } catch {
+      }
+    }
+    const up = dirname2(dir);
+    if (up === dir) break;
+    dir = up;
+  }
+  return dirname2(fileURLToPath2(import.meta.url));
+}
+function emitSelfHeal(ev) {
+  const line = "DUCKDB-SELFHEAL " + JSON.stringify(ev);
+  if (process.env.MACRO_AUDIT_MCP_STDIO === "1") console.error(line);
+  else console.log(line);
+}
+function selfHealDuckdb() {
+  if (selfHealAttempted) return { ok: false, detail: "already-attempted-once-per-process" };
+  selfHealAttempted = true;
+  const suffix = platformPackageSuffix();
+  if (!suffix) return { ok: false, detail: "unsupported-platform:" + process.platform + "-" + process.arch };
+  if (NO_OFFICIAL_BINDINGS.has(suffix)) return { ok: false, detail: "no-official-bindings:" + suffix };
+  const root = engineRoot();
+  const nodeApiPresent = existsSync(join2(root, "node_modules", "@duckdb", "node-api", "package.json"));
+  const devCheckout = existsSync(join2(root, "package-lock.json"));
+  const npmShell = process.platform === "win32";
+  const npmCmd = "npm";
+  const args = nodeApiPresent ? devCheckout ? ["install", "--no-save", "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION] : ["install", "--no-save", "--omit=dev", "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION] : devCheckout ? ["install"] : ["install", "--omit=dev"];
+  const r = spawnSync(npmCmd, args, { cwd: root, encoding: "utf8", timeout: 24e4, shell: npmShell });
+  if (r.status !== 0) {
+    return { ok: false, detail: "npm-exit-" + String(r.status) + ":" + String(r.stderr || r.error || "").replace(/\s+/g, " ").slice(0, 140) };
+  }
+  const pkgDir = join2(root, "node_modules", "@duckdb", "node-bindings-" + suffix);
+  let ver = null;
+  try {
+    ver = JSON.parse(readFileSync2(join2(pkgDir, "package.json"), "utf8")).version;
+  } catch {
+  }
+  let nodeCount = 0;
+  let sizeOk = false;
+  if (existsSync(pkgDir)) {
+    for (const f of readdirSync(pkgDir)) {
+      if (f.endsWith(".node")) {
+        nodeCount++;
+        if (statSync(join2(pkgDir, f)).size > 1024 * 1024) sizeOk = true;
+      }
+    }
+  }
+  if (!(ver === DUCKDB_PINNED_VERSION && nodeCount > 0 && sizeOk)) {
+    try {
+      rmSync(pkgDir, { recursive: true, force: true });
+    } catch {
+    }
+    return { ok: false, detail: "integrity-fail:ver=" + String(ver) + " node-files=" + nodeCount + " sizeOk=" + sizeOk };
+  }
+  return { ok: true, detail: "installed @duckdb/node-bindings-" + suffix + "@" + ver };
+}
+function loadDuckdb() {
+  if (!duckdbModulePromise) {
+    duckdbModulePromise = import("@duckdb/node-api").catch(async function(e) {
+      const heal = selfHealDuckdb();
+      emitSelfHeal({ result: heal.ok ? "success" : "fallback", detail: heal.detail, platform: process.platform + "-" + process.arch });
+      if (heal.ok) {
+        try {
+          return createRequire(import.meta.url)("@duckdb/node-api");
+        } catch (e2) {
+          e = e2;
+        }
+      }
+      duckdbModulePromise = null;
+      throw new Error("DUCKDB-UNAVAILABLE: \u81EA\u52A8\u8865\u62C9\u5931\u8D25\uFF08" + heal.detail + "\uFF09\uFF1B\u5728\u63D2\u4EF6\u76EE\u5F55\u624B\u52A8\u6267\u884C `npm install --omit=dev` \u6062\u590D facts/audit \u8BFB\u5199\u9762\uFF1B\u65E0\u7F51\u7EDC\u73AF\u5883\u4E0B facts/audit \u4E0D\u53EF\u7528\u3001\u5176\u4F59\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF08\u539F\u59CB\u89E3\u6790\u9519\u8BEF\uFF1A" + String(e && e.message || e) + "\uFF09");
+    });
+  }
+  return duckdbModulePromise;
+}
+async function openWriter(dbPath) {
+  const { DuckDBInstance, DuckDBConnection } = await loadDuckdb();
+  const instance = await DuckDBInstance.create(dbPath, { access_mode: "READ_WRITE" });
+  const connection = await DuckDBConnection.create(instance);
+  await connection.run(SCHEMA_REGISTRY_DDL);
+  await connection.run(AUDIT_FACT_DDL);
+  await connection.run("CREATE SEQUENCE IF NOT EXISTS " + FACT_SEQ_NAME + " START 1");
+  await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 1, 'Registered', 'FULL', 'schema v0 append-only fact table' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 1)");
+  return connection;
+}
+async function openReader(dbPath) {
+  const { DuckDBInstance, DuckDBConnection } = await loadDuckdb();
+  const instance = await DuckDBInstance.create(dbPath, { access_mode: "READ_ONLY" });
+  return await DuckDBConnection.create(instance);
+}
+async function appendFact(connection, event) {
+  assertAppendOnly(INSERT_SQL);
+  const row = WRITE_COLUMNS.map(function(c) {
+    if (c === "schema_version") {
+      return SCHEMA_VERSION_V0;
+    }
+    const v = event[c];
+    return v === void 0 ? null : v;
+  });
+  await connection.run(INSERT_SQL, row);
+}
+
+// src/doctor.ts
+function worst(legs) {
+  if (legs.some(function(l) {
+    return l.status === "fail";
+  })) {
+    return "fail";
+  }
+  if (legs.some(function(l) {
+    return l.status === "degraded";
+  })) {
+    return "degraded";
+  }
+  return "ok";
+}
+async function probeDuckdb() {
+  const db = join3(tmpdir(), "macro-audit-doctor-" + String(process.pid) + ".duckdb");
+  try {
+    const conn = await openWriter(db);
+    try {
+      await conn.run("SELECT 1");
+    } catch {
+    }
+    try {
+      conn.closeSync();
+    } catch {
+    }
+    return { leg: "duckdb", status: "ok", detail: "openWriter \u53EF\u5F00\u5E93\uFF08\u539F\u751F\u7ED1\u5B9A\u5728\u4F4D\uFF09" };
+  } catch (e) {
+    const msg = String(e && e.message || e);
+    if (msg.indexOf("DUCKDB-UNAVAILABLE") === 0) {
+      return { leg: "duckdb", status: "degraded", detail: "DUCKDB-UNAVAILABLE \u7ED3\u6784\u5316\u56DE\u843D\uFF08\u81EA\u6108\u5DF2\u8BD5\u4E00\u56DE\uFF1B\u65E0\u7F51\u7EDC\u65F6 facts/audit \u4E0D\u53EF\u7528\u5176\u4F59\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF09" };
+    }
+    return { leg: "duckdb", status: "fail", detail: msg.slice(0, 160) };
+  } finally {
+    try {
+      rmSync2(db, { force: true });
+    } catch {
+    }
+  }
+}
+function probeGit() {
+  const r = spawnSync2("git", ["--version"], { encoding: "utf8", timeout: 1e4 });
+  if (r.status === 0) {
+    return { leg: "git", status: "ok", detail: String(r.stdout || "").trim() };
+  }
+  return { leg: "git", status: "fail", detail: "git --version exit=" + String(r.status) + " " + String(r.error || r.stderr || "").replace(/\s+/g, " ").slice(0, 120) };
+}
+function probeUpstream() {
+  return new Promise(function(resolve4) {
+    const t0 = Date.now();
+    const req = get("https://registry.npmjs.org/", { timeout: 5e3, method: "HEAD" }, function(res) {
+      res.resume();
+      resolve4({ leg: "upstream", status: "ok", detail: "registry.npmjs.org " + String(res.statusCode) + " " + String(Date.now() - t0) + "ms" });
+    });
+    req.on("timeout", function() {
+      req.destroy();
+      resolve4({ leg: "upstream", status: "degraded", detail: "registry HEAD timeout 5s\uFF08\u79BB\u7EBF\u9762\uFF1A\u81EA\u6108/\u4E0A\u6E38\u62C9\u53D6\u4E0D\u53EF\u7528\uFF0C\u672C\u5730\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF09" });
+    });
+    req.on("error", function(e) {
+      resolve4({ leg: "upstream", status: "degraded", detail: "registry unreachable: " + String(e && e.message || e).slice(0, 120) });
+    });
+  });
+}
+async function runDoctor() {
+  const legs = [await probeDuckdb(), probeGit(), await probeUpstream()];
+  return { doctor: "1.0.0", legs, overall: worst(legs) };
+}
+
 // src/intake/intake.ts
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, statSync } from "node:fs";
-import { spawnSync } from "node:child_process";
-import { dirname as dirname2, isAbsolute, join as join2, resolve } from "node:path";
+import { existsSync as existsSync2, mkdirSync, statSync as statSync2 } from "node:fs";
+import { spawnSync as spawnSync3 } from "node:child_process";
+import { dirname as dirname3, isAbsolute, join as join4, resolve } from "node:path";
 var URL_SCHEMES = [
   /^https?:\/\//i,
   /^ssh:\/\//i,
@@ -74,7 +389,7 @@ function intakeError(code, message) {
   return e;
 }
 function git(args, cwd, timeoutMs) {
-  const r = spawnSync("git", args, { cwd, encoding: "utf8", timeout: timeoutMs, windowsHide: true });
+  const r = spawnSync3("git", args, { cwd, encoding: "utf8", timeout: timeoutMs, windowsHide: true });
   return { status: r.status, stdout: (r.stdout || "").trim(), stderr: (r.stderr || "").trim(), error: r.error };
 }
 function gitOk(args, cwd, timeoutMs) {
@@ -115,9 +430,9 @@ function normalizeRepoUrlKey(url) {
   return url.trim().replace(/\/+$/, "").replace(/\.git$/i, "");
 }
 function snapshotFetchedAt(dir) {
-  for (const p of [join2(dir, ".git", "FETCH_HEAD"), join2(dir, ".git"), dir]) {
+  for (const p of [join4(dir, ".git", "FETCH_HEAD"), join4(dir, ".git"), dir]) {
     try {
-      return statSync(p).mtime.toISOString();
+      return statSync2(p).mtime.toISOString();
     } catch (e) {
     }
   }
@@ -125,8 +440,8 @@ function snapshotFetchedAt(dir) {
 }
 function cloneToIsolatedCache(url, cacheRoot, timeoutMs = 6e5, refresh = false) {
   const key = sha256Short(normalizeRepoUrlKey(url));
-  const dir = join2(cacheRoot, "repos", key);
-  if (existsSync(dir)) {
+  const dir = join4(cacheRoot, "repos", key);
+  if (existsSync2(dir)) {
     if (isGitRepo(dir, 3e4) && normalizeRepoUrlKey(remoteOriginUrl(dir, 3e4)) === normalizeRepoUrlKey(url)) {
       const shallow = isShallowRepo(dir, 3e4);
       if (shallow) {
@@ -135,7 +450,7 @@ function cloneToIsolatedCache(url, cacheRoot, timeoutMs = 6e5, refresh = false) 
       if (!refresh) {
         return { dir, cloned: false, head_sha: headSha(dir, 3e4), shallow: false, snapshot_fetched_at: snapshotFetchedAt(dir), refreshed: false };
       }
-      const noopHooksRefresh = join2(cacheRoot, "noop-hooks");
+      const noopHooksRefresh = join4(cacheRoot, "noop-hooks");
       gitOk(["-c", "core.hooksPath=" + noopHooksRefresh, "-c", "protocol.ext.allow=never", "fetch", "origin", "--prune"], dir, timeoutMs);
       let remoteHead = git(["rev-parse", "--verify", "origin/HEAD"], dir, 3e4);
       if (remoteHead.error || remoteHead.status !== 0 || !remoteHead.stdout) {
@@ -155,8 +470,8 @@ function cloneToIsolatedCache(url, cacheRoot, timeoutMs = 6e5, refresh = false) 
     }
     throw intakeError("INTAKE-CACHE-COLLISION", "cache slot occupied by foreign content: " + dir);
   }
-  mkdirSync(dirname2(dir), { recursive: true });
-  const noopHooks = join2(cacheRoot, "noop-hooks");
+  mkdirSync(dirname3(dir), { recursive: true });
+  const noopHooks = join4(cacheRoot, "noop-hooks");
   mkdirSync(noopHooks, { recursive: true });
   const r = git([
     "clone",
@@ -210,13 +525,13 @@ function repoAdd(input, opts = {}) {
   }
   if (cls.kind === "owner-repo") {
     const localCandidate = resolve(cwd, cls.original);
-    if (existsSync(localCandidate) && statSync(localCandidate).isDirectory()) {
+    if (existsSync2(localCandidate) && statSync2(localCandidate).isDirectory()) {
       return finishLocal({ ...base, resolved_root: localCandidate }, timeoutMs);
     }
     throw intakeError("OWNER-REPO-UNRESOLVED", cls.original + " \u672C\u5730\u4F18\u5148\u6D88\u6B67\u5931\u8D25\u2014\u2014\u663E\u5F0F URL\uFF08https/git@\uFF09\u624D\u5141\u8BB8 clone");
   }
   const localPath = resolve(cwd, cls.original);
-  if (!existsSync(localPath) || !statSync(localPath).isDirectory()) {
+  if (!existsSync2(localPath) || !statSync2(localPath).isDirectory()) {
     throw intakeError("PATH-NOT-FOUND", "local path not found: " + localPath);
   }
   return finishLocal({ ...base, resolved_root: localPath }, timeoutMs);
@@ -243,9 +558,9 @@ function finishLocal(result, timeoutMs) {
 }
 
 // src/demo/demo.ts
-import { mkdtempSync, mkdirSync as mkdirSync3, writeFileSync as writeFileSync2, readFileSync as readFileSync3, existsSync as existsSync3, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname as dirname4, join as join5, resolve as resolve2 } from "node:path";
+import { mkdtempSync, mkdirSync as mkdirSync3, writeFileSync as writeFileSync2, readFileSync as readFileSync4, existsSync as existsSync4, rmSync as rmSync3 } from "node:fs";
+import { tmpdir as tmpdir2 } from "node:os";
+import { dirname as dirname5, join as join7, resolve as resolve2 } from "node:path";
 
 // src/collect/collectors.ts
 import { createHash as createHash2 } from "node:crypto";
@@ -1941,8 +2256,8 @@ function degradeReport(r, reason) {
 
 // src/demo/fixture-generator.ts
 import { mkdirSync as mkdirSync2, writeFileSync } from "node:fs";
-import { spawnSync as spawnSync2 } from "node:child_process";
-import { dirname as dirname3, join as join3 } from "node:path";
+import { spawnSync as spawnSync4 } from "node:child_process";
+import { dirname as dirname4, join as join5 } from "node:path";
 var FIXTURE_GENERATOR_VERSION = "1.0.0";
 var FIXTURE_GENERATOR_ID = "fixture-generator@" + FIXTURE_GENERATOR_VERSION;
 var FIXTURE_AUTHOR_NAME = "Fixture Bot";
@@ -1959,8 +2274,8 @@ function gitEnv(date) {
   return env;
 }
 function git2(args, cwd, date) {
-  const noopHooks = join3(cwd, ".git", "noop-hooks");
-  const r = spawnSync2("git", ["-c", "core.hooksPath=" + noopHooks].concat(args), { cwd, encoding: "utf8", env: gitEnv(date), windowsHide: true });
+  const noopHooks = join5(cwd, ".git", "noop-hooks");
+  const r = spawnSync4("git", ["-c", "core.hooksPath=" + noopHooks].concat(args), { cwd, encoding: "utf8", env: gitEnv(date), windowsHide: true });
   if (r.error || r.status !== 0) {
     throw new Error("FIXTURE-GIT-FAILED: git " + args.join(" ") + " :: " + (r.error ? String(r.error) : r.stderr || "exit " + r.status));
   }
@@ -1987,8 +2302,8 @@ function generateFixtureRepo(def, targetDir) {
         git2(["checkout", "-q", step.branch], targetDir, null);
       }
       for (const f of step.files) {
-        const p = join3(targetDir, f.path);
-        mkdirSync2(dirname3(p), { recursive: true });
+        const p = join5(targetDir, f.path);
+        mkdirSync2(dirname4(p), { recursive: true });
         writeFileSync(p, f.content, "utf8");
       }
       git2(["add", "-A"], targetDir, null);
@@ -2017,12 +2332,12 @@ function generateFixtureRepo(def, targetDir) {
 }
 
 // src/audit/macro-b.ts
-import { readFileSync as readFileSync2, readdirSync, existsSync as existsSync2 } from "node:fs";
-import { join as join4 } from "node:path";
+import { readFileSync as readFileSync3, readdirSync as readdirSync2, existsSync as existsSync3 } from "node:fs";
+import { join as join6 } from "node:path";
 import { execFileSync } from "node:child_process";
 
 // src/upstream/codelore.ts
-import { spawnSync as spawnSync3 } from "node:child_process";
+import { spawnSync as spawnSync5 } from "node:child_process";
 var CODELORE_ADAPTER_ID = "codelore-adapter@v1";
 var CODELORE_FAMILY = "upstream-codelore";
 var CODELORE_PINNED_VERSION = "0.28.0";
@@ -2034,7 +2349,7 @@ var CODELORE_DESCRIPTOR = {
 };
 function resolveCodelore(binary) {
   const bin = binary || "codelore";
-  const r = spawnSync3(bin, ["--version"], { encoding: "utf8" });
+  const r = spawnSync5(bin, ["--version"], { encoding: "utf8" });
   if (r.error || r.status !== 0) {
     return { strategy: "binary-discovery", binary: bin, version: null, pinned: false, error: String(r.error || "exit " + r.status) };
   }
@@ -2053,7 +2368,7 @@ function pushResolutionFact(out, ctx, res) {
   }));
 }
 function runText(binary, args, cwd) {
-  const r = spawnSync3(binary, args, { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync5(binary, args, { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   return { ok: !r.error && r.status === 0, stdout: r.stdout || "", stderr: r.stderr || "", status: r.status };
 }
 var CODELORE_BATCH1_FACETS = [
@@ -2221,8 +2536,8 @@ function probeMacroBRepo(repoRoot, headSha2) {
   return { headSha: headSha2, headDate, treeSha, commitCount, commits, subjects };
 }
 function collectMacroB(repoRoot, spec, ctx, probes) {
-  const adrDir = join4(repoRoot, "docs", "adr");
-  const adrFiles = existsSync2(adrDir) ? readdirSync(adrDir).filter(function(f) {
+  const adrDir = join6(repoRoot, "docs", "adr");
+  const adrFiles = existsSync3(adrDir) ? readdirSync2(adrDir).filter(function(f) {
     return /^\d{3,}.*\.md$/i.test(f);
   }).sort() : [];
   const firstCommitOf = function(p) {
@@ -2236,7 +2551,7 @@ function collectMacroB(repoRoot, spec, ctx, probes) {
   };
   const adrDocs = adrFiles.map(function(f) {
     const rel = "docs/adr/" + f;
-    return { path: rel, text: readFileSync2(join4(adrDir, f), "utf8"), first_commit_date: firstCommitOf(rel) };
+    return { path: rel, text: readFileSync3(join6(adrDir, f), "utf8"), first_commit_date: firstCommitOf(rel) };
   });
   const adrPaths = adrDocs.map(function(d) {
     return d.path;
@@ -2254,9 +2569,9 @@ function collectMacroB(repoRoot, spec, ctx, probes) {
   const gitFacts = collectGitlog({ commits: probes.commits, paths: adrPaths, adrDates: adrDateMap }, ctx);
   const intentDocs = [];
   for (const cand of spec.intentCandidates) {
-    const p = join4(repoRoot, cand);
-    if (existsSync2(p)) {
-      intentDocs.push({ path: cand, text: readFileSync2(p, "utf8") });
+    const p = join6(repoRoot, cand);
+    if (existsSync3(p)) {
+      intentDocs.push({ path: cand, text: readFileSync3(p, "utf8") });
     }
   }
   const deliveryDocs = [{ path: "git log subjects @ " + probes.headSha.slice(0, 7), text: probes.subjects.join(NL) }];
@@ -2293,7 +2608,7 @@ function collectMacroB(repoRoot, spec, ctx, probes) {
   const pc2 = { pass: pc2Lag.length > 0 && JSON.parse(pc2Lag[0].value_json).delta_days > 0, delta_days: pc2Lag.length > 0 ? JSON.parse(pc2Lag[0].value_json).delta_days : null };
   let nc1Path = null;
   for (const cand of spec.nc1Candidates) {
-    if (existsSync2(join4(repoRoot, cand))) {
+    if (existsSync3(join6(repoRoot, cand))) {
       nc1Path = cand;
       break;
     }
@@ -2301,7 +2616,7 @@ function collectMacroB(repoRoot, spec, ctx, probes) {
   if (!nc1Path) {
     throw new Error("NC1-CANDIDATE-MISS[" + repoRoot + "]");
   }
-  const nc1Facts = collectAdrStructure({ documents: [{ path: nc1Path, text: readFileSync2(join4(repoRoot, nc1Path), "utf8") }] }, ctx);
+  const nc1Facts = collectAdrStructure({ documents: [{ path: nc1Path, text: readFileSync3(join6(repoRoot, nc1Path), "utf8") }] }, ctx);
   const nc1Five = nc1Facts.find(function(f) {
     return f.metric === "adr.five_piece_completeness";
   });
@@ -2423,7 +2738,7 @@ function macroBContext(runIdLabel, ctxLabel, headSha2, headDate) {
 // src/demo/demo.ts
 var DEMO_SCENARIOS = ["happy-path", "degraded-supply", "degraded-incomplete"];
 var NL2 = String.fromCharCode(10);
-var DEFINITIONS_DIR = join5(dirname4(metaPath()), "fixtures", "definitions");
+var DEFINITIONS_DIR = join7(dirname5(metaPath()), "fixtures", "definitions");
 var DEMO_STOPWORDS = MACRO_B_STOPWORDS;
 var INTENT_CANDIDATES = ["CONTEXT.md", "README.md", "AGENTS.md"];
 var NC1_CANDIDATES = ["package.json", "README.md", "Cargo.toml"];
@@ -2452,18 +2767,18 @@ function loadDefinition(scenario) {
   if (DEMO_SCENARIOS.indexOf(scenario) < 0) {
     throw new Error("DEMO-SCENARIO-UNKNOWN: " + scenario + "\uFF08\u53EF\u9009\uFF1A" + DEMO_SCENARIOS.join(" / ") + "\uFF09");
   }
-  const p = join5(DEFINITIONS_DIR, scenario + ".json");
-  if (!existsSync3(p)) {
+  const p = join7(DEFINITIONS_DIR, scenario + ".json");
+  if (!existsSync4(p)) {
     throw new Error("DEMO-DEFINITION-MISSING: " + p);
   }
-  const def = JSON.parse(readFileSync3(p, "utf8"));
+  const def = JSON.parse(readFileSync4(p, "utf8"));
   if (def.scenario !== scenario) {
     throw new Error("DEMO-DEFINITION-MISMATCH: \u6587\u4EF6 " + scenario + ".json \u5185 scenario=" + def.scenario);
   }
   return def;
 }
 function pickExcerpt(absOrRelPath, tokens, base) {
-  const text = readFileSync3(base ? join5(base, absOrRelPath) : absOrRelPath, "utf8");
+  const text = readFileSync4(base ? join7(base, absOrRelPath) : absOrRelPath, "utf8");
   const lines = text.split(NL2);
   if (tokens === null) {
     return { line: 1, text: lines[0].trim() };
@@ -2484,9 +2799,9 @@ function pickExcerpt(absOrRelPath, tokens, base) {
 function runDemo(opts) {
   const scenario = opts.scenario || "happy-path";
   const def = loadDefinition(scenario);
-  const tempRoot = opts.tempRoot || tmpdir();
-  const workDir = mkdtempSync(join5(tempRoot, "macro-audit-demo-"));
-  const repoDir = join5(workDir, "repo");
+  const tempRoot = opts.tempRoot || tmpdir2();
+  const workDir = mkdtempSync(join7(tempRoot, "macro-audit-demo-"));
+  const repoDir = join7(workDir, "repo");
   try {
     let addEvidence2 = function(id, source, tokens, claim, reproCmd, base) {
       const ex = pickExcerpt(source, tokens, base);
@@ -2538,14 +2853,14 @@ function runDemo(opts) {
       failure_trigger: def.failure ? def.failure.trigger : null,
       expect: def.expect
     };
-    const outDir = opts.outDir ? resolve2(opts.outDir) : join5(workDir, "out");
+    const outDir = opts.outDir ? resolve2(opts.outDir) : join7(workDir, "out");
     mkdirSync3(outDir, { recursive: true });
     const MEAS_NAME = "demo-measurements.json";
     const FACTS_NAME = "demo-facts.jsonl";
     const MD_NAME = "report.md";
     const JSON_NAME = "report.json";
-    writeFileSync2(join5(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL2, "utf8");
-    writeFileSync2(join5(outDir, FACTS_NAME), col.realFacts.map(function(f) {
+    writeFileSync2(join7(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL2, "utf8");
+    writeFileSync2(join7(outDir, FACTS_NAME), col.realFacts.map(function(f) {
       return JSON.stringify(f);
     }).join(NL2) + NL2, "utf8");
     const evidence = [];
@@ -2644,9 +2959,9 @@ function runDemo(opts) {
     }
     const reportMd = renderMarkdown(report) + NL2;
     const sidecarJson = renderSidecar(report) + NL2;
-    writeFileSync2(join5(outDir, MD_NAME), reportMd, "utf8");
-    writeFileSync2(join5(outDir, JSON_NAME), sidecarJson, "utf8");
-    const artifacts = { report_md: join5(outDir, MD_NAME), report_json: join5(outDir, JSON_NAME), measurements: join5(outDir, MEAS_NAME), facts: join5(outDir, FACTS_NAME) };
+    writeFileSync2(join7(outDir, MD_NAME), reportMd, "utf8");
+    writeFileSync2(join7(outDir, JSON_NAME), sidecarJson, "utf8");
+    const artifacts = { report_md: join7(outDir, MD_NAME), report_json: join7(outDir, JSON_NAME), measurements: join7(outDir, MEAS_NAME), facts: join7(outDir, FACTS_NAME) };
     const result = {
       scenario,
       synthetic: true,
@@ -2670,257 +2985,15 @@ function runDemo(opts) {
     return result;
   } finally {
     if (!opts.keepTemp) {
-      rmSync(workDir, { recursive: true, force: true });
+      rmSync3(workDir, { recursive: true, force: true });
     }
   }
 }
 
 // src/audit/audit.ts
-import { mkdirSync as mkdirSync4, writeFileSync as writeFileSync3, existsSync as existsSync5, unlinkSync, readFileSync as readFileSync5, mkdtempSync as mkdtempSync2, rmSync as rmSync3 } from "node:fs";
-import { basename, join as join7, resolve as resolve3 } from "node:path";
-import { tmpdir as tmpdir2 } from "node:os";
-
-// src/fact/store.ts
-import { spawnSync as spawnSync4 } from "node:child_process";
-import { createRequire } from "node:module";
-import { existsSync as existsSync4, readFileSync as readFileSync4, readdirSync as readdirSync2, rmSync as rmSync2, statSync as statSync2 } from "node:fs";
-import { dirname as dirname5, join as join6 } from "node:path";
-import { fileURLToPath as fileURLToPath2 } from "node:url";
-
-// src/fact/schema.ts
-var SCHEMA_VERSION_V0 = 1;
-var AUDIT_FACT_FIELDS = [
-  { name: "fact_seq", type: "UBIGINT", nullable: false, role: "identity", constraints: ["NOT NULL", "PRIMARY KEY"], inherits: "A-007" },
-  { name: "fact_id", type: "VARCHAR(36)", nullable: false, role: "identity", constraints: ["NOT NULL", "UNIQUE"], inherits: "ADR-0005" },
-  { name: "schema_version", type: "INTEGER", nullable: false, role: "governance", constraints: ["NOT NULL", "CHECK(schema_version >= 1)", "REFERENCES schema_registry(version)"], inherits: "A-008" },
-  { name: "trace_id", type: "CHAR(32)", nullable: false, role: "correlation", constraints: ["NOT NULL", "CHECK(regexp_matches(trace_id, '^[0-9a-f]{32}$'))"], inherits: "A-010" },
-  { name: "baggage_id", type: "CHAR(32)", nullable: false, role: "correlation", constraints: ["NOT NULL", "CHECK(regexp_matches(baggage_id, '^[0-9a-f]{32}$'))"], inherits: "A-010" },
-  { name: "scale", type: "VARCHAR(8)", nullable: false, role: "classification", constraints: ["NOT NULL", "CHECK(scale IN ('Macro-A','Macro-B','Macro-C','Micro-A','Micro-B'))"], inherits: "CONTEXT" },
-  { name: "quadrant", type: "VARCHAR(16)", nullable: false, role: "classification", constraints: ["NOT NULL", "CHECK(quadrant IN ('structure','behavior','supply-chain','strategic'))"], inherits: "CONTEXT" },
-  { name: "dimension", type: "VARCHAR(2)", nullable: true, role: "classification", constraints: ["NULL", "CHECK(dimension IS NULL OR dimension IN ('S1','S2','S3','S4','S5'))"], inherits: "CONTEXT" },
-  { name: "collector_id", type: "VARCHAR(64)", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "R3-D3" },
-  { name: "repo_ref", type: "VARCHAR(256)", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "CONTEXT" },
-  { name: "subject_ref", type: "VARCHAR(512)", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "ADR-0005" },
-  { name: "evidence_ref", type: "VARCHAR(512)", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "CONTEXT" },
-  { name: "metric", type: "VARCHAR(128)", nullable: false, role: "payload", constraints: ["NOT NULL"], inherits: "A-005" },
-  { name: "value_json", type: "VARCHAR", nullable: false, role: "payload", constraints: ["NOT NULL", "CHECK(json_valid(value_json))"], inherits: "A-005" },
-  { name: "observed_at", type: "TIMESTAMPTZ", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "R3-D3" },
-  { name: "ingested_at", type: "TIMESTAMPTZ", nullable: false, role: "provenance", constraints: ["NOT NULL", "DEFAULT current_timestamp"], inherits: "A-007" }
-];
-var SCHEMA_REGISTRY_FIELDS = [
-  { name: "version", type: "INTEGER", nullable: false, role: "identity", constraints: ["NOT NULL", "PRIMARY KEY", "CHECK(version >= 1)"], inherits: "A-008" },
-  { name: "change_event", type: "VARCHAR(16)", nullable: false, role: "governance", constraints: ["NOT NULL", "CHECK(change_event IN ('Registered','Rejected','Deprecated'))"], inherits: "A-008" },
-  { name: "compatibility", type: "VARCHAR(24)", nullable: false, role: "governance", constraints: ["NOT NULL", "CHECK(compatibility IN ('BACKWARD','FORWARD','FULL','BACKWARD_TRANSITIVE','FORWARD_TRANSITIVE','FULL_TRANSITIVE','NONE'))"], inherits: "A-008" },
-  { name: "description", type: "VARCHAR(512)", nullable: false, role: "payload", constraints: ["NOT NULL"], inherits: "A-008" },
-  { name: "registered_at", type: "TIMESTAMPTZ", nullable: false, role: "provenance", constraints: ["NOT NULL", "DEFAULT current_timestamp"], inherits: "A-008" }
-];
-var REWRITE_BLACKLIST = [
-  "UPDATE",
-  "DELETE",
-  "DROP",
-  "ALTER",
-  "TRUNCATE",
-  "INSERT OR REPLACE",
-  "ON CONFLICT DO UPDATE",
-  "MERGE INTO",
-  "COPY"
-];
-var STATEMENT_ALLOWLIST = [
-  "SELECT",
-  "INSERT INTO",
-  "CREATE TABLE",
-  "ATTACH",
-  "PRAGMA",
-  "DESCRIBE",
-  "WITH"
-];
-function normalizeSql(sql) {
-  const noLine = sql.split("--").map(function(s) {
-    return s.split(String.fromCharCode(10))[0];
-  }).join(" ");
-  const noBlock = noLine.split("/*").join(" ").split("*/").join(" ");
-  return noBlock.split(String.fromCharCode(10)).join(" ").split(String.fromCharCode(9)).join(" ").split("  ").join(" ").trim().toUpperCase();
-}
-function stripSqlLiterals(sql) {
-  return sql.replace(/\$([A-Za-z_][A-Za-z0-9_]*)?\$[\s\S]*?\$\1?\$/g, " ").replace(/'([^']|'')*'/g, " ").replace(/"([^"]|"")*"/g, " ").replace(/`[^`]*`/g, " ");
-}
-function classifyStatement(sql) {
-  const s = normalizeSql(stripSqlLiterals(sql));
-  if (s.length === 0) {
-    return { allow: false, reason: "empty statement" };
-  }
-  for (const bad of REWRITE_BLACKLIST) {
-    if (s.includes(bad)) {
-      return { allow: false, reason: "rewrite form rejected: " + bad };
-    }
-  }
-  for (const good of STATEMENT_ALLOWLIST) {
-    if (s.startsWith(good)) {
-      return { allow: true, reason: "allowlisted: " + good };
-    }
-  }
-  return { allow: false, reason: "default deny: not in allowlist" };
-}
-var AppendOnlyViolation = class extends Error {
-  constructor(sql, reason) {
-    super("append-only violation: " + reason + " :: " + sql.slice(0, 120));
-    this.name = "AppendOnlyViolation";
-  }
-};
-function assertAppendOnly(sql) {
-  const v = classifyStatement(sql);
-  if (!v.allow) {
-    throw new AppendOnlyViolation(sql, v.reason);
-  }
-}
-function buildCreateTableSql(table, fields) {
-  const cols = fields.map(function(f) {
-    return "  " + f.name + " " + f.type + " " + f.constraints.join(" ").trim();
-  });
-  const head = "CREATE TABLE IF NOT EXISTS " + table + " (";
-  return head + String.fromCharCode(10) + cols.join("," + String.fromCharCode(10)) + String.fromCharCode(10) + ");";
-}
-var AUDIT_FACT_DDL = buildCreateTableSql("audit_fact", AUDIT_FACT_FIELDS);
-var SCHEMA_REGISTRY_DDL = buildCreateTableSql("schema_registry", SCHEMA_REGISTRY_FIELDS);
-
-// src/fact/store.ts
-var WRITE_COLUMNS = AUDIT_FACT_FIELDS.filter(function(f) {
-  return f.name !== "fact_seq" && f.name !== "ingested_at";
-}).map(function(f) {
-  return f.name;
-});
-var FACT_SEQ_NAME = "audit_fact_seq";
-var INSERT_SQL = "INSERT INTO audit_fact (fact_seq, " + WRITE_COLUMNS.join(", ") + ", ingested_at) VALUES (nextval(" + String.fromCharCode(39) + FACT_SEQ_NAME + String.fromCharCode(39) + "), " + WRITE_COLUMNS.map(function() {
-  return "?";
-}).join(", ") + ", current_timestamp)";
-var duckdbModulePromise = null;
-var DUCKDB_PINNED_VERSION = "1.5.5-r.4";
-var NO_OFFICIAL_BINDINGS = /* @__PURE__ */ new Set(["win32-arm64"]);
-var selfHealAttempted = false;
-function isMusl() {
-  try {
-    const r = spawnSync4("ldd", ["--version"], { encoding: "utf8", timeout: 5e3 });
-    return /musl/i.test((r.stdout || "") + (r.stderr || ""));
-  } catch {
-    return false;
-  }
-}
-function platformPackageSuffix() {
-  const p = process.platform;
-  const a = process.arch;
-  if (p === "win32" || p === "darwin") return p + "-" + a;
-  if (p === "linux") return "linux-" + a + (isMusl() ? "-musl" : "");
-  return null;
-}
-function engineRoot() {
-  let dir = dirname5(fileURLToPath2(import.meta.url));
-  for (let i = 0; i < 8; i++) {
-    const pj = join6(dir, "package.json");
-    if (existsSync4(pj)) {
-      try {
-        const j = JSON.parse(readFileSync4(pj, "utf8"));
-        if (j && j.dependencies && j.dependencies["@duckdb/node-api"]) return dir;
-      } catch {
-      }
-    }
-    const up = dirname5(dir);
-    if (up === dir) break;
-    dir = up;
-  }
-  return dirname5(fileURLToPath2(import.meta.url));
-}
-function emitSelfHeal(ev) {
-  const line = "DUCKDB-SELFHEAL " + JSON.stringify(ev);
-  if (process.env.MACRO_AUDIT_MCP_STDIO === "1") console.error(line);
-  else console.log(line);
-}
-function selfHealDuckdb() {
-  if (selfHealAttempted) return { ok: false, detail: "already-attempted-once-per-process" };
-  selfHealAttempted = true;
-  const suffix = platformPackageSuffix();
-  if (!suffix) return { ok: false, detail: "unsupported-platform:" + process.platform + "-" + process.arch };
-  if (NO_OFFICIAL_BINDINGS.has(suffix)) return { ok: false, detail: "no-official-bindings:" + suffix };
-  const root = engineRoot();
-  const nodeApiPresent = existsSync4(join6(root, "node_modules", "@duckdb", "node-api", "package.json"));
-  const devCheckout = existsSync4(join6(root, "package-lock.json"));
-  const npmShell = process.platform === "win32";
-  const npmCmd = "npm";
-  const args = nodeApiPresent ? devCheckout ? ["install", "--no-save", "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION] : ["install", "--no-save", "--omit=dev", "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION] : devCheckout ? ["install"] : ["install", "--omit=dev"];
-  const r = spawnSync4(npmCmd, args, { cwd: root, encoding: "utf8", timeout: 24e4, shell: npmShell });
-  if (r.status !== 0) {
-    return { ok: false, detail: "npm-exit-" + String(r.status) + ":" + String(r.stderr || r.error || "").replace(/\s+/g, " ").slice(0, 140) };
-  }
-  const pkgDir = join6(root, "node_modules", "@duckdb", "node-bindings-" + suffix);
-  let ver = null;
-  try {
-    ver = JSON.parse(readFileSync4(join6(pkgDir, "package.json"), "utf8")).version;
-  } catch {
-  }
-  let nodeCount = 0;
-  let sizeOk = false;
-  if (existsSync4(pkgDir)) {
-    for (const f of readdirSync2(pkgDir)) {
-      if (f.endsWith(".node")) {
-        nodeCount++;
-        if (statSync2(join6(pkgDir, f)).size > 1024 * 1024) sizeOk = true;
-      }
-    }
-  }
-  if (!(ver === DUCKDB_PINNED_VERSION && nodeCount > 0 && sizeOk)) {
-    try {
-      rmSync2(pkgDir, { recursive: true, force: true });
-    } catch {
-    }
-    return { ok: false, detail: "integrity-fail:ver=" + String(ver) + " node-files=" + nodeCount + " sizeOk=" + sizeOk };
-  }
-  return { ok: true, detail: "installed @duckdb/node-bindings-" + suffix + "@" + ver };
-}
-function loadDuckdb() {
-  if (!duckdbModulePromise) {
-    duckdbModulePromise = import("@duckdb/node-api").catch(async function(e) {
-      const heal = selfHealDuckdb();
-      emitSelfHeal({ result: heal.ok ? "success" : "fallback", detail: heal.detail, platform: process.platform + "-" + process.arch });
-      if (heal.ok) {
-        try {
-          return createRequire(import.meta.url)("@duckdb/node-api");
-        } catch (e2) {
-          e = e2;
-        }
-      }
-      duckdbModulePromise = null;
-      throw new Error("DUCKDB-UNAVAILABLE: \u81EA\u52A8\u8865\u62C9\u5931\u8D25\uFF08" + heal.detail + "\uFF09\uFF1B\u5728\u63D2\u4EF6\u76EE\u5F55\u624B\u52A8\u6267\u884C `npm install --omit=dev` \u6062\u590D facts/audit \u8BFB\u5199\u9762\uFF1B\u65E0\u7F51\u7EDC\u73AF\u5883\u4E0B facts/audit \u4E0D\u53EF\u7528\u3001\u5176\u4F59\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF08\u539F\u59CB\u89E3\u6790\u9519\u8BEF\uFF1A" + String(e && e.message || e) + "\uFF09");
-    });
-  }
-  return duckdbModulePromise;
-}
-async function openWriter(dbPath) {
-  const { DuckDBInstance, DuckDBConnection } = await loadDuckdb();
-  const instance = await DuckDBInstance.create(dbPath, { access_mode: "READ_WRITE" });
-  const connection = await DuckDBConnection.create(instance);
-  await connection.run(SCHEMA_REGISTRY_DDL);
-  await connection.run(AUDIT_FACT_DDL);
-  await connection.run("CREATE SEQUENCE IF NOT EXISTS " + FACT_SEQ_NAME + " START 1");
-  await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 1, 'Registered', 'FULL', 'schema v0 append-only fact table' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 1)");
-  return connection;
-}
-async function openReader(dbPath) {
-  const { DuckDBInstance, DuckDBConnection } = await loadDuckdb();
-  const instance = await DuckDBInstance.create(dbPath, { access_mode: "READ_ONLY" });
-  return await DuckDBConnection.create(instance);
-}
-async function appendFact(connection, event) {
-  assertAppendOnly(INSERT_SQL);
-  const row = WRITE_COLUMNS.map(function(c) {
-    if (c === "schema_version") {
-      return SCHEMA_VERSION_V0;
-    }
-    const v = event[c];
-    return v === void 0 ? null : v;
-  });
-  await connection.run(INSERT_SQL, row);
-}
-
-// src/audit/audit.ts
+import { mkdirSync as mkdirSync4, writeFileSync as writeFileSync3, existsSync as existsSync5, unlinkSync, readFileSync as readFileSync5, mkdtempSync as mkdtempSync2, rmSync as rmSync4 } from "node:fs";
+import { basename, join as join8, resolve as resolve3 } from "node:path";
+import { tmpdir as tmpdir3 } from "node:os";
 var NL3 = String.fromCharCode(10);
 var AUDIT_SCALES_IMPLEMENTED = ["Macro-B"];
 var SCALE_LAYER_ORDER = "Macro-C\u2192Micro-A\u2192Micro-B\u2192Macro-A\uFF08ADR-0017\u2462 \u5C42\u5E8F\uFF0CMacro-B \u5DF2\u4E0A\u67B6 preview\uFF09";
@@ -2959,7 +3032,7 @@ function auditRepoName(input, resolvedRoot) {
 var AUDIT_INTENT_CANDIDATES = ["CONTEXT.md", "README.md", "AGENTS.md"];
 var AUDIT_NC1_CANDIDATES = ["package.json", "README.md", "README.adoc", "README.rst", "README", "Cargo.toml", "pom.xml", "build.gradle", "LICENSE", "LICENSE.txt", "pyproject.toml", "go.mod", "Makefile"];
 function pickExcerpt2(absOrRelPath, tokens, base) {
-  const text = readFileSync5(base ? join7(base, absOrRelPath) : absOrRelPath, "utf8");
+  const text = readFileSync5(base ? join8(base, absOrRelPath) : absOrRelPath, "utf8");
   const lines = text.split(NL3);
   if (tokens === null) {
     return { line: 1, text: lines[0].trim() };
@@ -3025,7 +3098,7 @@ async function runAudit(opts) {
   const bhvNc1 = BHV_DEFERRED.length > 0;
   const behaviorBand = bhvRan ? bhvPc1 && bhvTc1 && bhvTc2 && bhvNc1 ? "supported" : "insufficient" : "insufficient";
   const persistOut = !!opts.outDir;
-  const outDir = opts.outDir ? resolve3(cwd, opts.outDir) : mkdtempSync2(join7(tmpdir2(), "macro-audit-run-"));
+  const outDir = opts.outDir ? resolve3(cwd, opts.outDir) : mkdtempSync2(join8(tmpdir3(), "macro-audit-run-"));
   mkdirSync4(outDir, { recursive: true });
   const MEAS_NAME = "audit-measurements.json";
   const FACTS_NAME = "audit-facts.jsonl";
@@ -3057,7 +3130,7 @@ async function runAudit(opts) {
     }), row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, facet_errors: facetErrs.length, criteria: { pc1: bhvPc1, tc1: bhvTc1, tc2: bhvTc2, nc1: bhvNc1 }, verdict: behaviorBand, codelore_version: col.codeloreResolution ? col.codeloreResolution.version : null } : { ran: false, reason: col.codeloreResolution ? "codelore binary \u672A\u89E3\u6790/\u4E0D pin\uFF08pinned=false\uFF09\u2014\u2014\u884C\u4E3A\u9762\u7F3A\u5E2D\u5982\u5B9E\u767B\u8BB0" : "codelore=off", deferred_faces: BHV_DEFERRED }
   };
   if (outDir) {
-    writeFileSync3(join7(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL3, "utf8");
+    writeFileSync3(join8(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL3, "utf8");
   }
   const evidence = [];
   const R = NAME.toUpperCase().split("-").join("").split("/").join("");
@@ -3176,12 +3249,12 @@ async function runAudit(opts) {
   const reportMd = renderMarkdown(report) + NL3;
   const sidecarJson = renderSidecar(report) + NL3;
   let artifacts = null;
-  writeFileSync3(join7(outDir, "report.md"), reportMd, "utf8");
-  writeFileSync3(join7(outDir, "report.json"), sidecarJson, "utf8");
-  writeFileSync3(join7(outDir, FACTS_NAME), col.realFacts.map(function(f) {
+  writeFileSync3(join8(outDir, "report.md"), reportMd, "utf8");
+  writeFileSync3(join8(outDir, "report.json"), sidecarJson, "utf8");
+  writeFileSync3(join8(outDir, FACTS_NAME), col.realFacts.map(function(f) {
     return JSON.stringify(f);
   }).join(NL3) + NL3, "utf8");
-  const dbPath = join7(outDir, "facts.duckdb");
+  const dbPath = join8(outDir, "facts.duckdb");
   if (existsSync5(dbPath)) {
     unlinkSync(dbPath);
   }
@@ -3198,10 +3271,10 @@ async function runAudit(opts) {
   }
   await writer.run("FORCE CHECKPOINT");
   writer.closeSync();
-  artifacts = persistOut ? { report_md: join7(outDir, "report.md"), report_json: join7(outDir, "report.json"), facts_jsonl: join7(outDir, FACTS_NAME), measurements: join7(outDir, MEAS_NAME), duckdb: dbPath } : null;
+  artifacts = persistOut ? { report_md: join8(outDir, "report.md"), report_json: join8(outDir, "report.json"), facts_jsonl: join8(outDir, FACTS_NAME), measurements: join8(outDir, MEAS_NAME), duckdb: dbPath } : null;
   const resultOutDir = persistOut ? outDir : null;
   if (!persistOut) {
-    rmSync3(outDir, { recursive: true, force: true });
+    rmSync4(outDir, { recursive: true, force: true });
   }
   return {
     report_id: report.report_id,
@@ -3422,6 +3495,10 @@ if (cmd === "--version" || cmd === "-v") {
   const r = runSelftest();
   console.log(JSON.stringify(r));
   process.exit(r.ok ? 0 : 1);
+} else if (cmd === "doctor") {
+  const dr = await runDoctor();
+  console.log(JSON.stringify(dr));
+  process.exit(dr.overall === "fail" ? 1 : 0);
 } else if (cmd === "mcp") {
   const sub = process.argv[3];
   if (sub === "facts") {
@@ -3626,5 +3703,5 @@ if (cmd === "--version" || cmd === "-v") {
   }
 } else {
   console.log("macro-audit kernel CLI (walking skeleton)");
-  console.log("usage: macro-audit <--version|selftest|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>");
+  console.log("usage: macro-audit <--version|selftest|doctor|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>");
 }

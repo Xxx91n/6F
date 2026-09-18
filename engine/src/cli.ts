@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { runSelftest } from './selftest.js';
+import { runDoctor } from './doctor.js';
 import { loadManifestMeta } from './manifest.js';
 import { repoAdd } from './intake/intake.js';
 import { runDemo, listScenarios } from './demo/demo.js';
@@ -16,6 +17,13 @@ if (cmd === '--version' || cmd === '-v') {
   const r = runSelftest();
   console.log(JSON.stringify(r));
   process.exit(r.ok ? 0 : 1);
+} else if (cmd === 'doctor') {
+  // 运行时 doctor 探测（#62/D-059③ runtime-doctor-trigger 兑现）：三腿 probe 结构化输出——
+  // duckdb 可开库（经自愈链）／git 可用／上游连通性；selftest 对账本职不扩容，doctor 独立探测面。
+  // exit 1 仅 overall=fail（degraded=有文档化回落路径 exit 0）；输出=结构化 JSON 非静默。
+  const dr = await runDoctor();
+  console.log(JSON.stringify(dr));
+  process.exit(dr.overall === 'fail' ? 1 : 0);
 } else if (cmd === 'mcp') {
   // MCP 查询面（D-053④）：read-only facts 投影——宿主 agent 叙事面的唯一取数主路。
   // 面收窄：固定 SELECT 形不接裸 SQL；openReader READ_ONLY 实例；projection 列=FactEvent 十三列。
@@ -173,5 +181,5 @@ if (cmd === '--version' || cmd === '-v') {
   }
 } else {
   console.log('macro-audit kernel CLI (walking skeleton)');
-  console.log('usage: macro-audit <--version|selftest|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>');
+  console.log('usage: macro-audit <--version|selftest|doctor|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>');
 }

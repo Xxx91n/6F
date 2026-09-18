@@ -40,7 +40,7 @@ marketplace 安装 = git clone 无构建步——可运行体 `dist/cli.js`（es
 **验收**：`/mcp` 确认 `macro-audit-kernel` = connected；或在插件目录 `node dist/cli.js selftest`（5/5 即活）。
 
 **能力分级**（git-clone 不带 node_modules）：
-- 零依赖可用：`selftest` / `--version` / MCP 握手（initialize・tools/list）/ `repo add` / `demo --list`
+- 零依赖可用：`selftest` / `doctor`（运行时三腿探测：duckdb 可开库/git/上游连通——结构化 JSON 输出，探测失败非静默；#62/D-059③）/ `--version` / MCP 握手（initialize・tools/list）/ `repo add` / `demo --list`
 - 需 duckdb 原生绑定：`mcp facts` / `audit` / `demo` 实跑——**首次使用自动补拉（需网络 ~40MB）**：store.ts 自愈路径精确拉 `@duckdb/node-bindings-<platform>@1.5.5-r.4`（`npm install --no-save --omit=dev`＋完整性校验，每进程至多 1 次；#64/D-072）；补拉失败三段指引→手动 `npm install --omit=dev`→无网络时 facts/audit 不可用、其余命令不受影响；缺失时返回结构化 `DUCKDB-UNAVAILABLE` 而非进程崩溃（懒加载降级）。Default Mode「一次安装命令」语义收窄如实登记：零手动步但需网络。
 - npm 渠道辨析：本仓 npm publish 渠道维持 deferred（D-067⑧ 不动）≠插件目录 `npm install` 依赖拉取（消费上游包非自发布）——两者勿混读。
 
