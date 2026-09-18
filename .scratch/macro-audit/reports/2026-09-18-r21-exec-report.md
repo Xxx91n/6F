@@ -76,3 +76,13 @@ selftest: 5/5
 - 票面：`.scratch/architecture-recovery/BACKLOG.md` #58/#60/#61/#62/#63/#64（均已闭环注记）
 - registry：`.scratch/architecture-recovery/reports/33-gate-registry.json`（44 项；runtime-doctor-trigger 已 decided）
 - 调研：`.scratch/macro-audit/reports/R21-Q1-atomcode-research.md`、`R21-Q2-atomcode-research.md`
+
+## 八、勘误批（轮22 T5，引 R21 审计 F1/F2/F3/F5/F6 发现项——原文读数保留，勘误成对落盘）
+
+- **F1 pack 读数**：§二 T1 行＋§四 `npm pack: 71 件` 为陈旧读数——审计实测 **73 件**（#62 doctor.* 入 dist 后未复测；A-070「71 件持平」注记可溯源根因）。
+- **F2 npm test 措辞**：§四「含 selfheal-offline 7」措辞失准——自愈两测试（duckdb-selfheal-offline/e2e）挂 engine-ci 独立腿，**不在** smoke 链；npm test 实链=gen+build+smoke 16 套件。
+- **F3 册外读数**：§三「38/39/40 族 11 条」审计复测时已漂移为 **13**（38×2/39×10/40×1）；+2=38:H4（anysearch-cli 环境漂移）＋39:H6（next-round 换代锚点新破，与已入册 45-H5 同型）。册外 13 件处置→轮22 #65 sealed 分拣闭环（acceptance-probe-attestation.jsonl 15 行在档）。
+- **F5 SKIP-STREAK CI 失明**：state.json 未跟踪致 CI 每轮复位——已闭环：D-077 采纳（MACRO_AUDIT_CI=1 环境分层＋INFO 第三披露态＋receipts.jsonl append-only＋promotion→manual_watch），validate-plugin.mjs 已分层落地。
+- **F6 #60 FAIL2 机检边界**：`versionChanged` 只拦 desync——baseline 同步升版＋零字段 diff 的「升版忘改字段」三 FAIL 全逃逸（单快照 diff 先天不可见历史）——系设计边界非实现缺陷，账本已注边界（D-068 勘误注记）。
+
+勘误时点=2026-09-18（轮22 T5 批量）；勘误依据=2026-09-18-r21-audit-report.md §五/§六。

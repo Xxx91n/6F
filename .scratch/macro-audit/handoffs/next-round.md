@@ -11,6 +11,16 @@
 - **registry 47 项/31 事件**：`xfail-second-track-trigger→triggered-bound bound_to=#65`（cap fired 条款内认定）；`claude-validate-promotion-watch→manual_watch`（receipts 证据人工翻转）；+3 事件（git-iso-contract-violated／sql-strip-escape-observed／dist-in-repo-superseded）+3 值守项。
 - **栈面**：round19/21-closeout＋r21 六分支栈全未 push（用户闸门）；`.code-tmp/{r18,r20,r21}-audit/`＋`锐评.md`＋`claude-validate-state.json` 未跟踪 scratch。
 
+## 轮 22 执行留痕（T0~T5 已闭环——本行后为新轮任务书面）
+
+- **T0 基线 ✅**：守卫基线 11/11 exit 0（33/34/38/41b/44/46/52a/53/54/55/56/64/14-skeleton/xfail-run）；册外 13 件现状登记（38×2/39×10/40×1）。
+- **T1 #65 ✅（A-076）**：sealed 第三态三件套——attestation jsonl 15 行＋五守卫 sealed()＋stale-assertions active 8 条＋G5/G6/G7 闭包＋audit-zero-write fixture 4/4 挂 smoke 第 17 件；SEALED:15／XFAIL:8 (cap 10) 顶显。
+- **T2 #66 ✅（A-077）**：duckdb 自愈按面分层——duckdbSurface 三面／四段披露／doctor --fix 主路／MACRO_AUDIT_SELFHEAL=1 opt-in／pin r.5＋win32-arm64 死分支摘除／F7 registry 探测／F8 stderr+success 移位；offline 13/13＋e2e 3/3＋64-check 15/15。
+- **T3 #67 ✅（A-078）**：SKIP-STREAK 环境分层——MACRO_AUDIT_CI=1（engine-ci 注入）／INFO 第三态／state.json local-observation-only／receipts.jsonl append-only／promotion manual_watch；三面实测＋34-check G19c。
+- **T4 #68 ✅（A-079）**：docs/upstream-dimension-map.md v0.1 五节（准入条件列＋永久排除＋双挂＋复审两字段）＋descriptor 指针×2＋44-check A14/A15/A16。
+- **T5 ✅（A-080）**：exec 报告 §八勘误批（pack 73／npm test 措辞／册外 13）＋账本 D-068 FAIL2 边界注记＋xfail-run dead store 摘除＋judgement 项票面登记。
+- **T6~T9 值守面**：#52b 待命（host-narrative-corpus）／#41b 残余 B 轨不授权／registry 47+ 项值守复核无翻转／D-025 双口径纪律延续。
+- **验收真值**：npm test 17 件全绿｜npm pack 73 件｜selftest 5/5｜audit 自仓 385 facts｜doctor 三腿 ok｜offline 13/13｜e2e 3/3｜守卫电池 11/11+xfail-run exit 0。
 ## 口径基线（读前必知）
 
 - **sealed vs archived 分界**（D-073）：sealed=验收探针使命完成的显式退役（attestation 固化留档＋移出执行集＋SEALED 顶显）；archived=失效但假装在管；D-071③「断言照跑」只适用活契约条目（账本划界注记在案）。封存必带承接义务——活契约腿 migrated_to 必填闭包或 rewrite-pending 兜底，防 XPASS 信号洞。

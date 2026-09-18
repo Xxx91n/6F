@@ -649,6 +649,7 @@ revised 链（本轮 1 条）：**D-072 → revised（由 D-075 承载）**—�
 
 - **D-071③ 划界注记**：③「断言照跑不 archived」适用于活契约条目；验收探针 sealed（D-073）为显式新例非 archived 变体——archived=失效但假装在管，sealed=完成且显式退役；env 活契约腿（D-074）以 fixture 测试承接挂 smoke 链，非停测。
 - **D-066③⑥ scoped 勘误注记**（D-077⑥）：③ SKIP 语义硬化条款在 cli-expected 面（本地）原样保留，新增限定「仅 cli-expected 面有效，CI=cli-absent-expected 面 SKIP→INFO 不计 WARN 不进 streak」；⑥ 「满 2 版本窗口无 SKIP 污染」判据原文保留，变化仅在证据载体（streak 计数器→本地 receipts.jsonl）与翻牌执行者（event_bound 自动→manual_watch 人工确认）——原 event_bound 触发器在 CI 面永 false（SKIP 恒真=永无无污染窗口）系机制设计时未识别的环境分层缺口非事后翻案，R21 审计 F5 实测在案。
+- **D-068 FAIL2 机检边界注记**（R21 审计 F6→轮22 T5）：`versionChanged=V_doc!==V_base` 只拦 baseline↔doc 失同步——baseline 与 doc 同步升版＋字段零 diff 的「升版忘改字段」组合三 FAIL 全逃逸，系单快照 diff 先天不可见历史的设计边界非实现缺陷；spec 字面全覆盖不可机检如实登记。
 
 D-076④ 登记纪律行（「维持非免检」声明＋批评→触发器映射＋锐评六项去向表）：
 
