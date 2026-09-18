@@ -158,8 +158,8 @@ function isClauseLike(s) {
     const cjkCount = (s.match(/[一-鿿]/g) || []).length;
     return words.length >= 3 || (words.length >= 2 && s.trim().length >= 12) || /[，。；：？！!?]/.test(s) || cjkCount >= 6;
 }
-/** EN cue 词边界扫描（n't 特例：左界必为词字符故只查右界） */
-function enCuesIn(text, cues) {
+/** EN cue 词边界扫描（n't 特例：左界必为词字符故只查右界）——#61 r18④ 签名对称化：offset 内联与 substrCuesIn 同形 */
+function enCuesIn(text, cues, offset) {
     const lower = text.toLowerCase();
     const out = [];
     for (const cue of cues) {
@@ -173,7 +173,7 @@ function enCuesIn(text, cues) {
             const right = i + cue.length < lower.length ? lower[i + cue.length] : ' ';
             const boundary = cue === "n't" ? !isWordChar(right) : (!isWordChar(left) && !isWordChar(right));
             if (boundary) {
-                out.push({ start: i, end: i + cue.length, kind: 'cue' });
+                out.push({ start: offset + i, end: offset + i + cue.length, kind: 'cue' });
             }
             i += cue.length;
         }
@@ -221,7 +221,7 @@ function stripContexts(excerpt) {
             }
             const inner = excerpt.slice(o + pair.open.length, c);
             const lookback = lower.slice(Math.max(0, o - SPEECH_LOOKBACK), o);
-            const hasSpeech = enCuesIn(lookback, EN_SPEECH_CUES).length > 0 || CJK_SPEECH_CUES.some(function (cue) { return lookback.indexOf(cue) >= 0; });
+            const hasSpeech = enCuesIn(lookback, EN_SPEECH_CUES, 0).length > 0 || CJK_SPEECH_CUES.some(function (cue) { return lookback.indexOf(cue) >= 0; });
             if (hasSpeech || isClauseLike(inner)) {
                 spans.push({ start: o, end: c + pair.close.length, kind: 'quoted' });
             }
@@ -250,7 +250,7 @@ function stripContexts(excerpt) {
     // 3) 言语子句剥离：speech cue → 最近句读/转折边界或 ATTRIBUTION_TAIL 先到者掩蔽
     //    （无引号归属："the doc says X but our config disables them"——says 其后子句归属第三方）
     const SPEECH_BOUNDARY = /[，,、。；;!！?？:：\n]|\b(but|however|though|although|whereas|while|yet)\b|但/;
-    const speechCues = enCuesIn(excerpt, EN_SPEECH_CUES).concat(substrCuesIn(excerpt, CJK_SPEECH_CUES, 0));
+    const speechCues = enCuesIn(excerpt, EN_SPEECH_CUES, 0).concat(substrCuesIn(excerpt, CJK_SPEECH_CUES, 0));
     const speechPseudo = substrCuesIn(excerpt, CJK_SPEECH_PSEUDO, 0);
     for (const sc of speechCues) {
         if (intersects(sc, spans) || intersects(sc, speechPseudo)) {
@@ -271,7 +271,7 @@ function stripContexts(excerpt) {
             masked[k] = true;
         }
     }
-    const closers = { '”': '“', '’': '‘', '」': '「', '』': '『' };
+    const closers = new Set(['”', '’', '」', '』']);
     for (let k = 0; k < excerpt.length; k++) {
         if (masked[k]) {
             continue;
@@ -287,7 +287,7 @@ function stripContexts(excerpt) {
             break;
         }
         // 悬挂闭号（”’」』）→ 掩蔽文首至此（fail-safe：其前文本可能是未配对的引语）；已配对位豁免
-        if (closers[ch] !== undefined && !paired[k]) {
+        if (closers.has(ch) && !paired[k]) {
             spans.push({ start: 0, end: k + 1, kind: 'unbalanced-quote' });
             break;
         }
@@ -307,16 +307,16 @@ function negationHits(maskedText, start, end, pseudoSpans, ctxPseudoSpans) {
     const preBase = Math.max(0, start - NEG_WINDOW_PRE);
     const preWin = maskedText.slice(preBase, start);
     const postWin = maskedText.slice(end, Math.min(maskedText.length, end + NEG_WINDOW_POST));
-    const enPre = enCuesIn(preWin, EN_PRE_NEG_CUES).map(function (s) { return { start: preBase + s.start, end: preBase + s.end, kind: 'pre-neg' }; });
+    const enPre = enCuesIn(preWin, EN_PRE_NEG_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-neg' }; });
     const cjkPre = substrCuesIn(preWin, CJK_PRE_NEG_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-neg' }; });
-    const enPost = enCuesIn(postWin, EN_POST_NEG_CUES).map(function (s) { return { start: end + s.start, end: end + s.end, kind: 'post-neg' }; });
+    const enPost = enCuesIn(postWin, EN_POST_NEG_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-neg' }; });
     const cjkPost = substrCuesIn(postWin, CJK_POST_NEG_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-neg' }; });
     // #61/D-069① non-assert 语境窗接线（EN_NON_ASSERT_CUES 此前声明未接——本票接通；CJK 同构补表）：
     //   剥离窗口与否定 cue 同参数；flag kind=pre-ctx/post-ctx → 既有映射产 non-asserted（零改动）；
     //   伪表豁免各归各面（ctx 命中查 ctxPseudo，neg 命中查 pseudoSpans）；赋值豁免架构复用
-    const enPreCtx = enCuesIn(preWin, EN_NON_ASSERT_CUES).map(function (s) { return { start: preBase + s.start, end: preBase + s.end, kind: 'pre-ctx' }; });
+    const enPreCtx = enCuesIn(preWin, EN_NON_ASSERT_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-ctx' }; });
     const cjkPreCtx = substrCuesIn(preWin, CJK_NON_ASSERT_PRE_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-ctx' }; });
-    const enPostCtx = enCuesIn(postWin, EN_NON_ASSERT_CUES).map(function (s) { return { start: end + s.start, end: end + s.end, kind: 'post-ctx' }; });
+    const enPostCtx = enCuesIn(postWin, EN_NON_ASSERT_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-ctx' }; });
     const cjkPostCtx = substrCuesIn(postWin, CJK_NON_ASSERT_POST_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-ctx' }; });
     for (const h of enPre.concat(cjkPre, enPost, cjkPost, enPreCtx, cjkPreCtx, enPostCtx, cjkPostCtx)) {
         const isCtx = h.kind === 'pre-ctx' || h.kind === 'post-ctx';
@@ -337,19 +337,28 @@ function negationHits(maskedText, start, end, pseudoSpans, ctxPseudoSpans) {
 }
 /** 伪否定覆盖区全表（一次全文扫描；EN 词边界、CJK 子串） */
 function pseudoSpansOf(maskedText) {
-    const en = enCuesIn(maskedText, EN_PSEUDO_NEG).map(function (s) { return { start: s.start, end: s.end, kind: 'pseudo' }; });
+    const en = enCuesIn(maskedText, EN_PSEUDO_NEG, 0).map(function (s) { return { start: s.start, end: s.end, kind: 'pseudo' }; });
     const cjk = substrCuesIn(maskedText, CJK_PSEUDO_NEG, 0).map(function (s) { return { start: s.start, end: s.end, kind: 'pseudo' }; });
     return en.concat(cjk);
 }
+/** #61 r18④ memo：stripContexts/pseudoSpansOf/ctxPseudo 为 evidence.excerpt 纯函数——按对象 WeakMap 缓存（多 claim 共享同 evidence 时免重算，GC 安全，输出等价） */
+const stripMemo = new WeakMap();
 export function checkCitationSupport(claim, evidence) {
     const flags = [];
     if (!evidence.grounded || evidence.excerpt.length === 0) {
         return { claim_id: claim.claim_id, evidence_id: evidence.evidence_id, support: 'insufficient', matched_tokens: [], missing_tokens: claim.required_tokens.slice(), context_flags: flags, reason: '引文未落地（grounded=false 或 excerpt 为空）——有引文不等于支撑结论' };
     }
-    const stripped = stripContexts(evidence.excerpt);
+    let cached = stripMemo.get(evidence);
+    if (!cached) {
+        const stripped = stripContexts(evidence.excerpt);
+        const hay0 = stripped.text.toLowerCase();
+        cached = { text: stripped.text, spans: stripped.spans, pseudo: pseudoSpansOf(hay0), ctxPseudo: substrCuesIn(hay0, CJK_NON_ASSERT_PSEUDO, 0) };
+        stripMemo.set(evidence, cached);
+    }
+    const stripped = { text: cached.text, spans: cached.spans };
     const hay = stripped.text.toLowerCase();
-    const pseudoSpans = pseudoSpansOf(hay);
-    const ctxPseudo = substrCuesIn(hay, CJK_NON_ASSERT_PSEUDO, 0);
+    const pseudoSpans = cached.pseudo;
+    const ctxPseudo = cached.ctxPseudo;
     const matched = [];
     const missing = [];
     for (const tok of claim.required_tokens) {
@@ -378,7 +387,7 @@ export function checkCitationSupport(claim, evidence) {
         }
         else {
             missing.push(tok);
-            if (pos === -1 && negCues.length === 0) {
+            if (negCues.length === 0) {
                 // 全文无存活命中：区分「剥离吞没」与「字面缺席」
                 if (hay.indexOf(needle) < 0 && evidence.excerpt.toLowerCase().indexOf(needle) >= 0) {
                     flags.push('context-stripped:' + tok);

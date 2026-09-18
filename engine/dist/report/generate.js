@@ -45,6 +45,10 @@ export function skeletonOf(markdown) {
     }
     return out;
 }
+/** #61 r18① 守卫式提炼：anchored_fact_ids 取首件（空集→空数组）——audit/demo 六处同款守卫式统一 */
+export function firstFactIds(list) {
+    return list.length > 0 ? [list[0].fact_id] : [];
+}
 export function deriveOverallBand(entries) {
     let red = false;
     let inconclusive = false;

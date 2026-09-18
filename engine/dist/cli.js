@@ -1195,7 +1195,7 @@ function isClauseLike(s) {
   const cjkCount = (s.match(/[一-鿿]/g) || []).length;
   return words.length >= 3 || words.length >= 2 && s.trim().length >= 12 || /[，。；：？！!?]/.test(s) || cjkCount >= 6;
 }
-function enCuesIn(text, cues) {
+function enCuesIn(text, cues, offset) {
   const lower = text.toLowerCase();
   const out = [];
   for (const cue of cues) {
@@ -1209,7 +1209,7 @@ function enCuesIn(text, cues) {
       const right = i + cue.length < lower.length ? lower[i + cue.length] : " ";
       const boundary = cue === "n't" ? !isWordChar(right) : !isWordChar(left) && !isWordChar(right);
       if (boundary) {
-        out.push({ start: i, end: i + cue.length, kind: "cue" });
+        out.push({ start: offset + i, end: offset + i + cue.length, kind: "cue" });
       }
       i += cue.length;
     }
@@ -1256,7 +1256,7 @@ function stripContexts(excerpt) {
       }
       const inner = excerpt.slice(o + pair.open.length, c);
       const lookback = lower.slice(Math.max(0, o - SPEECH_LOOKBACK), o);
-      const hasSpeech = enCuesIn(lookback, EN_SPEECH_CUES).length > 0 || CJK_SPEECH_CUES.some(function(cue) {
+      const hasSpeech = enCuesIn(lookback, EN_SPEECH_CUES, 0).length > 0 || CJK_SPEECH_CUES.some(function(cue) {
         return lookback.indexOf(cue) >= 0;
       });
       if (hasSpeech || isClauseLike(inner)) {
@@ -1284,7 +1284,7 @@ function stripContexts(excerpt) {
     }
   }
   const SPEECH_BOUNDARY = /[，,、。；;!！?？:：\n]|\b(but|however|though|although|whereas|while|yet)\b|但/;
-  const speechCues = enCuesIn(excerpt, EN_SPEECH_CUES).concat(substrCuesIn(excerpt, CJK_SPEECH_CUES, 0));
+  const speechCues = enCuesIn(excerpt, EN_SPEECH_CUES, 0).concat(substrCuesIn(excerpt, CJK_SPEECH_CUES, 0));
   const speechPseudo = substrCuesIn(excerpt, CJK_SPEECH_PSEUDO, 0);
   for (const sc of speechCues) {
     if (intersects(sc, spans) || intersects(sc, speechPseudo)) {
@@ -1304,7 +1304,7 @@ function stripContexts(excerpt) {
       masked[k] = true;
     }
   }
-  const closers = { "\u201D": "\u201C", "\u2019": "\u2018", "\u300D": "\u300C", "\u300F": "\u300E" };
+  const closers = /* @__PURE__ */ new Set(["\u201D", "\u2019", "\u300D", "\u300F"]);
   for (let k = 0; k < excerpt.length; k++) {
     if (masked[k]) {
       continue;
@@ -1318,7 +1318,7 @@ function stripContexts(excerpt) {
       spans.push({ start: 0, end: excerpt.length, kind: "unbalanced-quote" });
       break;
     }
-    if (closers[ch] !== void 0 && !paired[k]) {
+    if (closers.has(ch) && !paired[k]) {
       spans.push({ start: 0, end: k + 1, kind: "unbalanced-quote" });
       break;
     }
@@ -1336,26 +1336,26 @@ function negationHits(maskedText, start, end, pseudoSpans, ctxPseudoSpans) {
   const preBase = Math.max(0, start - NEG_WINDOW_PRE);
   const preWin = maskedText.slice(preBase, start);
   const postWin = maskedText.slice(end, Math.min(maskedText.length, end + NEG_WINDOW_POST));
-  const enPre = enCuesIn(preWin, EN_PRE_NEG_CUES).map(function(s) {
-    return { start: preBase + s.start, end: preBase + s.end, kind: "pre-neg" };
+  const enPre = enCuesIn(preWin, EN_PRE_NEG_CUES, preBase).map(function(s) {
+    return { start: s.start, end: s.end, kind: "pre-neg" };
   });
   const cjkPre = substrCuesIn(preWin, CJK_PRE_NEG_CUES, preBase).map(function(s) {
     return { start: s.start, end: s.end, kind: "pre-neg" };
   });
-  const enPost = enCuesIn(postWin, EN_POST_NEG_CUES).map(function(s) {
-    return { start: end + s.start, end: end + s.end, kind: "post-neg" };
+  const enPost = enCuesIn(postWin, EN_POST_NEG_CUES, end).map(function(s) {
+    return { start: s.start, end: s.end, kind: "post-neg" };
   });
   const cjkPost = substrCuesIn(postWin, CJK_POST_NEG_CUES, end).map(function(s) {
     return { start: s.start, end: s.end, kind: "post-neg" };
   });
-  const enPreCtx = enCuesIn(preWin, EN_NON_ASSERT_CUES).map(function(s) {
-    return { start: preBase + s.start, end: preBase + s.end, kind: "pre-ctx" };
+  const enPreCtx = enCuesIn(preWin, EN_NON_ASSERT_CUES, preBase).map(function(s) {
+    return { start: s.start, end: s.end, kind: "pre-ctx" };
   });
   const cjkPreCtx = substrCuesIn(preWin, CJK_NON_ASSERT_PRE_CUES, preBase).map(function(s) {
     return { start: s.start, end: s.end, kind: "pre-ctx" };
   });
-  const enPostCtx = enCuesIn(postWin, EN_NON_ASSERT_CUES).map(function(s) {
-    return { start: end + s.start, end: end + s.end, kind: "post-ctx" };
+  const enPostCtx = enCuesIn(postWin, EN_NON_ASSERT_CUES, end).map(function(s) {
+    return { start: s.start, end: s.end, kind: "post-ctx" };
   });
   const cjkPostCtx = substrCuesIn(postWin, CJK_NON_ASSERT_POST_CUES, end).map(function(s) {
     return { start: s.start, end: s.end, kind: "post-ctx" };
@@ -1377,7 +1377,7 @@ function negationHits(maskedText, start, end, pseudoSpans, ctxPseudoSpans) {
   return hits;
 }
 function pseudoSpansOf(maskedText) {
-  const en = enCuesIn(maskedText, EN_PSEUDO_NEG).map(function(s) {
+  const en = enCuesIn(maskedText, EN_PSEUDO_NEG, 0).map(function(s) {
     return { start: s.start, end: s.end, kind: "pseudo" };
   });
   const cjk = substrCuesIn(maskedText, CJK_PSEUDO_NEG, 0).map(function(s) {
@@ -1385,15 +1385,23 @@ function pseudoSpansOf(maskedText) {
   });
   return en.concat(cjk);
 }
+var stripMemo = /* @__PURE__ */ new WeakMap();
 function checkCitationSupport(claim, evidence) {
   const flags = [];
   if (!evidence.grounded || evidence.excerpt.length === 0) {
     return { claim_id: claim.claim_id, evidence_id: evidence.evidence_id, support: "insufficient", matched_tokens: [], missing_tokens: claim.required_tokens.slice(), context_flags: flags, reason: "\u5F15\u6587\u672A\u843D\u5730\uFF08grounded=false \u6216 excerpt \u4E3A\u7A7A\uFF09\u2014\u2014\u6709\u5F15\u6587\u4E0D\u7B49\u4E8E\u652F\u6491\u7ED3\u8BBA" };
   }
-  const stripped = stripContexts(evidence.excerpt);
+  let cached = stripMemo.get(evidence);
+  if (!cached) {
+    const stripped2 = stripContexts(evidence.excerpt);
+    const hay0 = stripped2.text.toLowerCase();
+    cached = { text: stripped2.text, spans: stripped2.spans, pseudo: pseudoSpansOf(hay0), ctxPseudo: substrCuesIn(hay0, CJK_NON_ASSERT_PSEUDO, 0) };
+    stripMemo.set(evidence, cached);
+  }
+  const stripped = { text: cached.text, spans: cached.spans };
   const hay = stripped.text.toLowerCase();
-  const pseudoSpans = pseudoSpansOf(hay);
-  const ctxPseudo = substrCuesIn(hay, CJK_NON_ASSERT_PSEUDO, 0);
+  const pseudoSpans = cached.pseudo;
+  const ctxPseudo = cached.ctxPseudo;
   const matched = [];
   const missing = [];
   for (const tok of claim.required_tokens) {
@@ -1420,7 +1428,7 @@ function checkCitationSupport(claim, evidence) {
       matched.push(tok);
     } else {
       missing.push(tok);
-      if (pos === -1 && negCues.length === 0) {
+      if (negCues.length === 0) {
         if (hay.indexOf(needle) < 0 && evidence.excerpt.toLowerCase().indexOf(needle) >= 0) {
           flags.push("context-stripped:" + tok);
         } else {
@@ -1554,6 +1562,9 @@ var REPORT_SKELETON = [
 var CHAPTER_COUNT = REPORT_SKELETON.length;
 function chapterHeading(ch) {
   return "## " + ch.id + " " + ch.name;
+}
+function firstFactIds(list) {
+  return list.length > 0 ? [list[0].fact_id] : [];
 }
 function deriveOverallBand(entries) {
   let red = false;
@@ -2577,12 +2588,12 @@ function runDemo(opts) {
       return c.fact_id;
     });
     const adjudicationEntries = [
-      { criterion_id: "PC-1", band: col.pc1.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: (col.pc1AdrFacts.length > 0 ? [col.pc1AdrFacts[0].fact_id] : []).concat(col.pc1PosFacts.length > 0 ? [col.pc1PosFacts[0].fact_id] : []), anchored_evidence_ids: ["EV-45-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc1.pass ? "adr-structure \u4E0E positioning \u4E24\u65CF\u5747\u4EA7\u51FA\u975E\u7A7A\u4E8B\u5B9E\uFF0Cgolden ADR \u4E94\u4EF6\u5957 5/5 \u4E14 supersede \u94FE\u547D\u4E2D\uFF08\u5408\u6210 run \u5185\u7BA1\u7EBF\u6D3B\u6027\u6B63\u5BF9\u7167\uFF09" : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
-      { criterion_id: "PC-2", band: col.pc2.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: col.pc2Lag.length > 0 ? [col.pc2Lag[0].fact_id] : [], anchored_evidence_ids: ["EV-45-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc2.pass ? "gitlog \u65CF\u68C0\u51FA\u4E8B\u540E\u8865\u5199 delta_days = " + String(col.pc2.delta_days) : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
+      { criterion_id: "PC-1", band: col.pc1.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ["EV-45-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc1.pass ? "adr-structure \u4E0E positioning \u4E24\u65CF\u5747\u4EA7\u51FA\u975E\u7A7A\u4E8B\u5B9E\uFF0Cgolden ADR \u4E94\u4EF6\u5957 5/5 \u4E14 supersede \u94FE\u547D\u4E2D\uFF08\u5408\u6210 run \u5185\u7BA1\u7EBF\u6D3B\u6027\u6B63\u5BF9\u7167\uFF09" : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
+      { criterion_id: "PC-2", band: col.pc2.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ["EV-45-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc2.pass ? "gitlog \u65CF\u68C0\u51FA\u4E8B\u540E\u8865\u5199 delta_days = " + String(col.pc2.delta_days) : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
       { criterion_id: "TC-1", band: tcBand(ev.tc1.verdict), basis_refs: ["B2"], anchored_fact_ids: tc1FactIds, anchored_evidence_ids: ["EV-45-" + R + "-02"], decided_at: probes.headDate, rationale: scenario + " ADR \u4E8B\u540E\u8865\u5199\uFF1A\u53EF\u5224\u5B9A\u6570 " + ev.tc1.judgeable_n + "\uFF08\u95E8\u69DB " + TC1_MIN_N + "\uFF09\uFF0C>90d \u5360\u6BD4 " + measurements.tc1.ratio_4 + "\uFF0C\u5224 " + ev.tc1.verdict },
       { criterion_id: "TC-2", band: tcBand(ev.tc2.verdict), basis_refs: ["B2"], anchored_fact_ids: tc2FactIds, anchored_evidence_ids: ["EV-45-" + R + "-03"], decided_at: probes.headDate, rationale: scenario + " ADR \u4E94\u4EF6\u5957\uFF1Amean_ratio " + measurements.tc2.mean_ratio_4 + "\uFF08\u95E8\u69DB " + TC2_MEAN_RED + "\uFF09\uFF0C\u5B57\u6BB5\u7F3A\u5931\u7387\u8D85\u7EBF=" + ev.tc2.cond_b + "\uFF0C\u5224 " + ev.tc2.verdict },
       { criterion_id: "TC-3", band: tcBand(ev.tc3.verdict), basis_refs: ["B2"], anchored_fact_ids: tc3FactIds, anchored_evidence_ids: ["EV-45-" + R + "-04"], decided_at: probes.headDate, rationale: scenario + " \u5B9A\u4F4D\u8986\u76D6\uFF1A\u610F\u56FE\u9762 " + col.intentDocs.length + " \u4EF6\u6700\u4F4E ratio " + measurements.tc3.lowest_ratio_4 + "\uFF08" + String(measurements.tc3.lowest_path) + "\uFF09\uFF0C\u5224 " + ev.tc3.verdict },
-      { criterion_id: "NC-1", band: col.nc1.pass ? "supported" : "insufficient", basis_refs: ["B4"], anchored_fact_ids: col.nc1Facts.length > 0 ? [col.nc1Facts[0].fact_id] : [], anchored_evidence_ids: ["EV-45-" + R + "-05"], decided_at: probes.headDate, rationale: col.nc1.pass ? "\u8D1F\u5BF9\u7167\u9009\u6750 " + col.nc1Path + " \u4E94\u4EF6\u5957 0 \u547D\u4E2D\u3001supersede 0 \u547D\u4E2D\uFF08\u7279\u5F02\u6027\u6210\u7ACB\uFF09" : "\u8D1F\u5BF9\u7167\u547D\u4E2D\uFF0C\u8F6C\u590D\u6838\u8DEF\u5F84" }
+      { criterion_id: "NC-1", band: col.nc1.pass ? "supported" : "insufficient", basis_refs: ["B4"], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ["EV-45-" + R + "-05"], decided_at: probes.headDate, rationale: col.nc1.pass ? "\u8D1F\u5BF9\u7167\u9009\u6750 " + col.nc1Path + " \u4E94\u4EF6\u5957 0 \u547D\u4E2D\u3001supersede 0 \u547D\u4E2D\uFF08\u7279\u5F02\u6027\u6210\u7ACB\uFF09" : "\u8D1F\u5BF9\u7167\u547D\u4E2D\uFF0C\u8F6C\u590D\u6838\u8DEF\u5F84" }
     ];
     const strategyBand = deriveOverallBand(adjudicationEntries);
     const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: "engine/src/demo/demo.ts" };
@@ -3080,14 +3091,14 @@ async function runAudit(opts) {
     criterion_ids: bhvRan ? ["PC-1", "PC-2", "TC-1", "TC-2", "TC-3", "NC-1", "BHV-PC-1", "BHV-TC-1", "BHV-TC-2", "BHV-NC-1"] : ["PC-1", "PC-2", "TC-1", "TC-2", "TC-3", "NC-1"]
   };
   const adjudicationEntries = [
-    { criterion_id: "PC-1", band: col.pc1.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: (col.pc1AdrFacts.length > 0 ? [col.pc1AdrFacts[0].fact_id] : []).concat(col.pc1PosFacts.length > 0 ? [col.pc1PosFacts[0].fact_id] : []), anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc1.pass ? "adr-structure \u4E0E positioning \u4E24\u65CF\u5747\u4EA7\u51FA\u975E\u7A7A\u4E8B\u5B9E\uFF0Cgolden ADR \u4E94\u4EF6\u5957 5/5 \u4E14 supersede \u94FE\u547D\u4E2D\uFF08" + NAME + " run \u5185\u7BA1\u7EBF\u6D3B\u6027\u6B63\u5BF9\u7167\uFF09" : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
-    { criterion_id: "PC-2", band: col.pc2.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: col.pc2Lag.length > 0 ? [col.pc2Lag[0].fact_id] : [], anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc2.pass ? "gitlog \u65CF\u68C0\u51FA\u4E8B\u540E\u8865\u5199 delta_days = " + String(col.pc2.delta_days) : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
+    { criterion_id: "PC-1", band: col.pc1.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc1.pass ? "adr-structure \u4E0E positioning \u4E24\u65CF\u5747\u4EA7\u51FA\u975E\u7A7A\u4E8B\u5B9E\uFF0Cgolden ADR \u4E94\u4EF6\u5957 5/5 \u4E14 supersede \u94FE\u547D\u4E2D\uFF08" + NAME + " run \u5185\u7BA1\u7EBF\u6D3B\u6027\u6B63\u5BF9\u7167\uFF09" : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
+    { criterion_id: "PC-2", band: col.pc2.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc2.pass ? "gitlog \u65CF\u68C0\u51FA\u4E8B\u540E\u8865\u5199 delta_days = " + String(col.pc2.delta_days) : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
     { criterion_id: "TC-1", band: tcBand(ev.tc1.verdict), basis_refs: ["B2"], anchored_fact_ids: ev.lagFactIds, anchored_evidence_ids: ["EV-AUDIT-" + R + "-02"], decided_at: probes.headDate, rationale: NAME + " ADR \u4E8B\u540E\u8865\u5199\uFF1A\u53EF\u5224\u5B9A\u6570 " + ev.tc1.judgeable_n + "\uFF08\u95E8\u69DB " + TC1_MIN_N + "\uFF09\uFF0C>90d \u5360\u6BD4 " + measurements.tc1.ratio_4 + "\uFF0C\u5224 " + ev.tc1.verdict },
     { criterion_id: "TC-2", band: tcBand(ev.tc2.verdict), basis_refs: ["B2"], anchored_fact_ids: ev.fiveFactIds, anchored_evidence_ids: ["EV-AUDIT-" + R + "-03"], decided_at: probes.headDate, rationale: NAME + " ADR \u4E94\u4EF6\u5957\uFF1Amean_ratio " + measurements.tc2.mean_ratio_4 + "\uFF08\u95E8\u69DB " + TC2_MEAN_RED + "\uFF09\uFF0C\u5B57\u6BB5\u7F3A\u5931\u7387\u8D85\u7EBF=" + ev.tc2.cond_b + "\uFF0C\u5224 " + ev.tc2.verdict },
     { criterion_id: "TC-3", band: tcBand(ev.tc3.verdict), basis_refs: ["B2"], anchored_fact_ids: ev.covFacts.map(function(c) {
       return c.fact_id;
     }), anchored_evidence_ids: ["EV-AUDIT-" + R + "-04"], decided_at: probes.headDate, rationale: NAME + " \u5B9A\u4F4D\u8986\u76D6\uFF1A\u610F\u56FE\u9762 " + col.intentDocs.length + " \u4EF6\u6700\u4F4E ratio " + measurements.tc3.lowest_ratio_4 + "\uFF08" + String(ev.tc3.lowest_path) + "\uFF09\uFF0C\u5224 " + ev.tc3.verdict },
-    { criterion_id: "NC-1", band: col.nc1.pass ? "supported" : "insufficient", basis_refs: ["B4"], anchored_fact_ids: col.nc1Facts.length > 0 ? [col.nc1Facts[0].fact_id] : [], anchored_evidence_ids: ["EV-AUDIT-" + R + "-05"], decided_at: probes.headDate, rationale: col.nc1.pass ? "\u8D1F\u5BF9\u7167\u9009\u6750 " + NAME + "/" + col.nc1.path + " \u4E94\u4EF6\u5957 0 \u547D\u4E2D\u3001supersede 0 \u547D\u4E2D\uFF08\u7279\u5F02\u6027\u6210\u7ACB\uFF09" : "\u8D1F\u5BF9\u7167\u547D\u4E2D\uFF0C\u8F6C\u590D\u6838\u8DEF\u5F84" }
+    { criterion_id: "NC-1", band: col.nc1.pass ? "supported" : "insufficient", basis_refs: ["B4"], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ["EV-AUDIT-" + R + "-05"], decided_at: probes.headDate, rationale: col.nc1.pass ? "\u8D1F\u5BF9\u7167\u9009\u6750 " + NAME + "/" + col.nc1.path + " \u4E94\u4EF6\u5957 0 \u547D\u4E2D\u3001supersede 0 \u547D\u4E2D\uFF08\u7279\u5F02\u6027\u6210\u7ACB\uFF09" : "\u8D1F\u5BF9\u7167\u547D\u4E2D\uFF0C\u8F6C\u590D\u6838\u8DEF\u5F84" }
   ];
   if (bhvRan) {
     adjudicationEntries.push(
