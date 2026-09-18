@@ -8,6 +8,7 @@ Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
 ## [Unreleased]
 
 ### Changed
+- #59 kernel 自包含分发（D-067/D-038/A-069）：插件根 `.mcp.json` 契约 bare `macro-audit`+PATH → `node`＋`args:["${CLAUDE_PLUGIN_ROOT}/dist/cli.js","mcp"]`（变量放 args 不放 command；gen-manifests 单源生成；`mcp.json` 兄弟文件保留 npm 消费者面 bare 不动）；`engine/dist/` 40 件随源进仓（`.gitignore` 放开 dist/；`dist/cli.js`=esbuild 0.28.2 单文件 bundle 153,604B，build=tsc+`scripts/build-bundle.mjs`）；`src/fact/store.ts` duckdb 改懒加载降级（git-clone 无 node_modules 时握手/selftest/repo-add 零依赖可用，facts/audit/demo 报 `DUCKDB-UNAVAILABLE` 结构化错非崩溃）；`src/demo/demo.ts` fixtures 锚 `metaPath()`（bundle/tsc 两形态同构）；engine-ci.yml rebuild-diff 守卫（`git status --porcelain -- dist/` 非空即红）＋`npm ci`＋`permissions: contents: read`＋paths 含自身；锁表新增 `esbuild` 行（kind=node-lib，active/exact-version 0.28.2——upstream-lock.yaml diff）
 - upstream-lock repomix-gitingest planned→retired（D-056：宿主 agent 恒在抽空打包用途；retired 行留档＋重开触发器 registry repomix-reopen-trigger）
 - 插件对外名 macro-audit → `6f`（D-052；双 manifest 由 manifest.meta.json 单源再生成）；license UNLICENSED → Apache-2.0（D-051/ADR-0021，LICENSE 换文）
 

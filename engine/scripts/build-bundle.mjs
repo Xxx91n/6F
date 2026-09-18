@@ -8,15 +8,19 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const result = buildSync({
-  entryPoints: [join(root, 'src', 'cli.ts')],
-  bundle: true,
-  platform: 'node',
-  format: 'esm',
-  packages: 'external',
-  target: 'node20',
-  outfile: join(root, 'dist', 'cli.js'),
-  logLevel: 'warning'
-});
-if (result.errors.length > 0) { console.error('BUNDLE-FAIL'); process.exit(1); }
+try {
+  buildSync({
+    entryPoints: [join(root, 'src', 'cli.ts')],
+    bundle: true,
+    platform: 'node',
+    format: 'esm',
+    packages: 'external',
+    target: 'node20',
+    outfile: join(root, 'dist', 'cli.js'),
+    logLevel: 'warning'
+  });
+} catch (e) {
+  console.error('BUNDLE-FAIL ' + (e && e.message ? e.message.split('\n')[0] : e));
+  process.exit(1);
+}
 console.log('BUNDLE-OK dist/cli.js');

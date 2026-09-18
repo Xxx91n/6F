@@ -3,9 +3,13 @@ on:
   push:
     paths:
       - "engine/**"
+      - ".github/workflows/engine-ci.yml"
   pull_request:
     paths:
       - "engine/**"
+      - ".github/workflows/engine-ci.yml"
+permissions:
+  contents: read
 jobs:
   test:
     strategy:
@@ -22,7 +26,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-      - run: npm install
+      - run: npm ci
       - run: npm run gen
       - run: npm run build
       - name: rebuild-diff guard (D-067 dist committed — src/dist drift fails)

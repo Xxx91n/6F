@@ -47,7 +47,7 @@ try {
 t('G12 .mcp.json command 禁裸名（node 或含 ${CLAUDE_PLUGIN_ROOT}——官方排错表反模式钉死）', srv && (srv.command === 'node' || (typeof srv.command === 'string' && srv.command.indexOf('${CLAUDE_PLUGIN_ROOT}') >= 0)));
 const distCliPath = join(ENGINE, 'dist', 'cli.js');
 const distSrc = fs.existsSync(distCliPath) ? fs.readFileSync(distCliPath, 'utf8') : '';
-t('G13 dist/cli.js 在且自包含 bundle（无相对模块 import——git-clone 可运行体随源进仓）', distSrc.length > 0 && !/from\s+['"]\.{1,2}\/|require\(\s*['"]\.{1,2}\//.test(distSrc) && distSrc.charCodeAt(0) === 0x23);
+t('G13 dist/cli.js 在且自包含 bundle（无相对模块 import——git-clone 可运行体随源进仓）', distSrc.length > 0 && !/from\s+['"]\.{1,2}\/|require\(\s*['"]\.{1,2}\//.test(distSrc) && distSrc.startsWith('#!'));
 t('G14 engine/.gitignore 放开 dist/（dist 入库前置）', !/^dist\/?\s*$/m.test(fs.readFileSync(join(ENGINE, '.gitignore'), 'utf8')));
 
 console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));

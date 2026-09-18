@@ -11,7 +11,7 @@
 
 ## 命令
 - npm run gen      # 生成双 manifest + 防漂移校验（先比后写）
-- npm run build    # tsc 编译
+- npm run build    # tsc 编译 + build-bundle（dist/cli.js=esbuild 单文件 bundle 覆写，dist 随源进仓 #59/D-067）
 - npm run package  # npm pack --dry-run
 - npm run smoke    # 启动并测活（进程存活 + 最小 e2e）
 - npm test         # gen + build + smoke
