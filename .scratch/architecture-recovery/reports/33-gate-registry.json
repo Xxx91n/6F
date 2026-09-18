@@ -291,6 +291,14 @@
      "decision": "rebound-to-stage3-close",
      "reason": "listing-submission 已 occurred（授权 push=提交本体）而本项未完整闭合——改绑 stage3-close 收口窗；提交先于验收的事实如实留痕不抹",
      "evidence": "PR#2 merged＋41b-check.mjs"
+    },
+    {
+     "at": "2026-09-18",
+     "by": "轮21 T8 #41b 残余面复核",
+     "criterion_version": "listing-submission 残余值守",
+     "decision": "reviewed-stay-pending",
+     "reason": "轮21 T8 资产核对留痕：.claude-plugin/marketplace.json plugins[0] 全键核对=零图形资产（无 icon/screenshots/hero/promo tile 字段亦无 assets/ 目录）；41b-check 33/33 对账面全绿；B 轨资产创作属用户授权面（不授权不动）→stay pending",
+     "evidence": "marketplace.json 键面 grep 实证＋41b-check 33/33＋ls engine 无 assets/ 目录"
     }
    ]
   },
@@ -335,6 +343,14 @@
      "decision": "rebound-to-stage3-close",
      "reason": "listing-submission 已 occurred（授权 push=提交本体）而本项未完整闭合——改绑 stage3-close 收口窗；提交先于验收的事实如实留痕不抹",
      "evidence": "PR#2 merged＋41b-check.mjs"
+    },
+    {
+     "at": "2026-09-18",
+     "by": "轮21 T8 #41b 残余面复核",
+     "criterion_version": "listing-submission 残余值守",
+     "decision": "reviewed-stay-pending",
+     "reason": "轮21 T8 资产核对留痕：.claude-plugin/marketplace.json plugins[0] 全键核对=零图形资产（无 icon/screenshots/hero/promo tile 字段亦无 assets/ 目录）；41b-check 33/33 对账面全绿；B 轨资产创作属用户授权面（不授权不动）→stay pending",
+     "evidence": "marketplace.json 键面 grep 实证＋41b-check 33/33＋ls engine 无 assets/ 目录"
     }
    ]
   },
@@ -874,7 +890,7 @@
    "trigger_event": "first-external-install",
    "trigger": "首个外部用户安装链路出现（marketplace 上架后真实安装/外部部署）",
    "review_at": "触发即立 doctor 票（probe：duckdb 可开库/git 可用/上游连通）",
-   "status": "triggered-bound",
+   "status": "decided",
    "watch": "event_bound",
    "owner": "macro-audit 队列值守",
    "verify_method": "外部安装链路存在的实物证据（安装报告/外部 issue）→ 立 doctor 探测票；此前 selftest 维持 manifest 对账本职不扩容",
@@ -894,6 +910,14 @@
      "decision": "triggered-bound",
      "reason": "first-external-install occurred：claude plugin marketplace add Xxx91n/6F→install 6f@xxx91n 远端实证 Skills(1)+MCP(1)＋selftest 5/5——doctor 探测票 #62 立案",
      "evidence": "A-068（commit t6 两连＋land push origin/main 5493ff9）＋T6 closeout handoff"
+    },
+    {
+     "at": "2026-09-18",
+     "by": "轮21 T6 BACKLOG #62 闭环",
+     "criterion_version": "D-059③",
+     "decision": "discharged-decided",
+     "reason": "first-external-install 绑定票 #62 已实装验收：doctor 子命令三腿 probe（duckdb 自愈链/git/registry HEAD）＋三态聚合＋结构化 JSON＋exit fail→1；selftest 对账本职不扩容分工钉死",
+     "evidence": "A-075＋commit kvw @ r21-62-runtime-doctor＋doctor.test 9/9＋node dist/cli.js doctor 实跑三腿全 ok"
     }
    ],
    "bound_to": "#62"
