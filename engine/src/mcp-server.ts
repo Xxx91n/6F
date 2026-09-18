@@ -3,6 +3,9 @@
 // 本模块实现 MCP over stdio（NDJSON 行帧）最小闭环：initialize / initialized / ping / tools/list / tools/call。
 // 面收窄不变：唯一暴露 tool=facts（D-053④ read-only DuckDB 投影），clone/写操作不经 MCP 可达。
 
+// #64/D-072⑧：MCP stdio 面 stdout 属 JSON-RPC 行帧——自愈结构化事件改落 stderr 避让协议通道
+process.env.MACRO_AUDIT_MCP_STDIO = '1';
+
 import { projectFacts } from './fact/projection.js';
 import { loadManifestMeta } from './manifest.js';
 

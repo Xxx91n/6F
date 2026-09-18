@@ -37,6 +37,15 @@ upstreams:
     adapter: "engine/src/fact/store.ts（audit_fact 事实表写路径基座）"
     last_reviewed: 2026-09-16
     next_review: 2026-10-16
+  - id: duckdb-node-bindings
+    kind: node-lib
+    version: "1.5.5-r.4"
+    pin_type: exact-version
+    contract: "@duckdb/node-bindings-<platform> 平台原生包——store.ts DUCKDB_PINNED_VERSION 自愈精确拉取目标版本（#64/D-072）：三方同值=本行/package.json @duckdb/node-api 依赖/store.ts 常量；完整性校验=.node 存在＋尺寸阈＋包内 version 同值；win32-arm64 按决策回落"
+    status: active
+    adapter: "engine/src/fact/store.ts（selfHealDuckdb 自愈补拉）"
+    last_reviewed: 2026-09-18
+    next_review: 2026-10-18
   - id: git-cli
     kind: external-cli
     version: null

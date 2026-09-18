@@ -41,7 +41,8 @@ marketplace 安装 = git clone 无构建步——可运行体 `dist/cli.js`（es
 
 **能力分级**（git-clone 不带 node_modules）：
 - 零依赖可用：`selftest` / `--version` / MCP 握手（initialize・tools/list）/ `repo add` / `demo --list`
-- 需 duckdb 原生绑定：`mcp facts` / `audit` / `demo` 实跑——插件目录 `npm install --omit=dev` 后恢复；缺失时返回结构化 `DUCKDB-UNAVAILABLE` 而非进程崩溃（store.ts 懒加载降级）。
+- 需 duckdb 原生绑定：`mcp facts` / `audit` / `demo` 实跑——**首次使用自动补拉（需网络 ~40MB）**：store.ts 自愈路径精确拉 `@duckdb/node-bindings-<platform>@1.5.5-r.4`（`npm install --no-save --omit=dev`＋完整性校验，每进程至多 1 次；#64/D-072）；补拉失败三段指引→手动 `npm install --omit=dev`→无网络时 facts/audit 不可用、其余命令不受影响；缺失时返回结构化 `DUCKDB-UNAVAILABLE` 而非进程崩溃（懒加载降级）。Default Mode「一次安装命令」语义收窄如实登记：零手动步但需网络。
+- npm 渠道辨析：本仓 npm publish 渠道维持 deferred（D-067⑧ 不动）≠插件目录 `npm install` 依赖拉取（消费上游包非自发布）——两者勿混读。
 
 **Windows 已知 bug 链**：Claude Code 对 `${CLAUDE_PLUGIN_ROOT}` 的展开在 hook 面有 open issue（anthropics/claude-code#43380 / #65579）；MCP stdio exec-form 官方口径为纯字符串替换、理论免疫，但 Windows 真机以 `/mcp` 实测为准。失败引导：`claude --debug` 看 MCP init 日志；若 server 未 connected，先 `node dist/cli.js selftest` 区分「宿主未拉起」与「进程拉起即崩」。
 

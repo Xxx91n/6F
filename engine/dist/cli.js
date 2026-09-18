@@ -2597,9 +2597,16 @@ function runDemo(opts) {
 }
 
 // src/audit/audit.ts
-import { mkdirSync as mkdirSync4, writeFileSync as writeFileSync3, existsSync as existsSync4, unlinkSync, readFileSync as readFileSync4, mkdtempSync as mkdtempSync2, rmSync as rmSync2 } from "node:fs";
-import { basename, join as join6, resolve as resolve3 } from "node:path";
+import { mkdirSync as mkdirSync4, writeFileSync as writeFileSync3, existsSync as existsSync5, unlinkSync, readFileSync as readFileSync5, mkdtempSync as mkdtempSync2, rmSync as rmSync3 } from "node:fs";
+import { basename, join as join7, resolve as resolve3 } from "node:path";
 import { tmpdir as tmpdir2 } from "node:os";
+
+// src/fact/store.ts
+import { spawnSync as spawnSync4 } from "node:child_process";
+import { createRequire } from "node:module";
+import { existsSync as existsSync4, readFileSync as readFileSync4, readdirSync as readdirSync2, rmSync as rmSync2, statSync as statSync2 } from "node:fs";
+import { dirname as dirname5, join as join6 } from "node:path";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
 
 // src/fact/schema.ts
 var SCHEMA_VERSION_V0 = 1;
@@ -2708,11 +2715,101 @@ var INSERT_SQL = "INSERT INTO audit_fact (fact_seq, " + WRITE_COLUMNS.join(", ")
   return "?";
 }).join(", ") + ", current_timestamp)";
 var duckdbModulePromise = null;
+var DUCKDB_PINNED_VERSION = "1.5.5-r.4";
+var NO_OFFICIAL_BINDINGS = /* @__PURE__ */ new Set(["win32-arm64"]);
+var selfHealAttempted = false;
+function isMusl() {
+  try {
+    const r = spawnSync4("ldd", ["--version"], { encoding: "utf8", timeout: 5e3 });
+    return /musl/i.test((r.stdout || "") + (r.stderr || ""));
+  } catch {
+    return false;
+  }
+}
+function platformPackageSuffix() {
+  const p = process.platform;
+  const a = process.arch;
+  if (p === "win32" || p === "darwin") return p + "-" + a;
+  if (p === "linux") return "linux-" + a + (isMusl() ? "-musl" : "");
+  return null;
+}
+function engineRoot() {
+  let dir = dirname5(fileURLToPath2(import.meta.url));
+  for (let i = 0; i < 8; i++) {
+    const pj = join6(dir, "package.json");
+    if (existsSync4(pj)) {
+      try {
+        const j = JSON.parse(readFileSync4(pj, "utf8"));
+        if (j && j.dependencies && j.dependencies["@duckdb/node-api"]) return dir;
+      } catch {
+      }
+    }
+    const up = dirname5(dir);
+    if (up === dir) break;
+    dir = up;
+  }
+  return dirname5(fileURLToPath2(import.meta.url));
+}
+function emitSelfHeal(ev) {
+  const line = "DUCKDB-SELFHEAL " + JSON.stringify(ev);
+  if (process.env.MACRO_AUDIT_MCP_STDIO === "1") console.error(line);
+  else console.log(line);
+}
+function selfHealDuckdb() {
+  if (selfHealAttempted) return { ok: false, detail: "already-attempted-once-per-process" };
+  selfHealAttempted = true;
+  const suffix = platformPackageSuffix();
+  if (!suffix) return { ok: false, detail: "unsupported-platform:" + process.platform + "-" + process.arch };
+  if (NO_OFFICIAL_BINDINGS.has(suffix)) return { ok: false, detail: "no-official-bindings:" + suffix };
+  const root = engineRoot();
+  const nodeApiPresent = existsSync4(join6(root, "node_modules", "@duckdb", "node-api", "package.json"));
+  const devCheckout = existsSync4(join6(root, "package-lock.json"));
+  const npmShell = process.platform === "win32";
+  const npmCmd = "npm";
+  const args = nodeApiPresent ? devCheckout ? ["install", "--no-save", "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION] : ["install", "--no-save", "--omit=dev", "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION] : devCheckout ? ["install"] : ["install", "--omit=dev"];
+  const r = spawnSync4(npmCmd, args, { cwd: root, encoding: "utf8", timeout: 24e4, shell: npmShell });
+  if (r.status !== 0) {
+    return { ok: false, detail: "npm-exit-" + String(r.status) + ":" + String(r.stderr || r.error || "").replace(/\s+/g, " ").slice(0, 140) };
+  }
+  const pkgDir = join6(root, "node_modules", "@duckdb", "node-bindings-" + suffix);
+  let ver = null;
+  try {
+    ver = JSON.parse(readFileSync4(join6(pkgDir, "package.json"), "utf8")).version;
+  } catch {
+  }
+  let nodeCount = 0;
+  let sizeOk = false;
+  if (existsSync4(pkgDir)) {
+    for (const f of readdirSync2(pkgDir)) {
+      if (f.endsWith(".node")) {
+        nodeCount++;
+        if (statSync2(join6(pkgDir, f)).size > 1024 * 1024) sizeOk = true;
+      }
+    }
+  }
+  if (!(ver === DUCKDB_PINNED_VERSION && nodeCount > 0 && sizeOk)) {
+    try {
+      rmSync2(pkgDir, { recursive: true, force: true });
+    } catch {
+    }
+    return { ok: false, detail: "integrity-fail:ver=" + String(ver) + " node-files=" + nodeCount + " sizeOk=" + sizeOk };
+  }
+  return { ok: true, detail: "installed @duckdb/node-bindings-" + suffix + "@" + ver };
+}
 function loadDuckdb() {
   if (!duckdbModulePromise) {
-    duckdbModulePromise = import("@duckdb/node-api").catch(function(e) {
+    duckdbModulePromise = import("@duckdb/node-api").catch(async function(e) {
+      const heal = selfHealDuckdb();
+      emitSelfHeal({ result: heal.ok ? "success" : "fallback", detail: heal.detail, platform: process.platform + "-" + process.arch });
+      if (heal.ok) {
+        try {
+          return createRequire(import.meta.url)("@duckdb/node-api");
+        } catch (e2) {
+          e = e2;
+        }
+      }
       duckdbModulePromise = null;
-      throw new Error("DUCKDB-UNAVAILABLE: @duckdb/node-api \u65E0\u6CD5\u89E3\u6790\u2014\u2014git-clone \u578B\u63D2\u4EF6\u5B89\u88C5\u4E0D\u5E26 node_modules\uFF1B\u5728\u63D2\u4EF6\u76EE\u5F55\u6267\u884C `npm install` \u540E facts/audit \u8BFB\u5199\u9762\u6062\u590D\uFF08" + String(e && e.message || e) + "\uFF09");
+      throw new Error("DUCKDB-UNAVAILABLE: \u81EA\u52A8\u8865\u62C9\u5931\u8D25\uFF08" + heal.detail + "\uFF09\uFF1B\u5728\u63D2\u4EF6\u76EE\u5F55\u624B\u52A8\u6267\u884C `npm install --omit=dev` \u6062\u590D facts/audit \u8BFB\u5199\u9762\uFF1B\u65E0\u7F51\u7EDC\u73AF\u5883\u4E0B facts/audit \u4E0D\u53EF\u7528\u3001\u5176\u4F59\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF08\u539F\u59CB\u89E3\u6790\u9519\u8BEF\uFF1A" + String(e && e.message || e) + "\uFF09");
     });
   }
   return duckdbModulePromise;
@@ -2783,7 +2880,7 @@ function auditRepoName(input, resolvedRoot) {
 var AUDIT_INTENT_CANDIDATES = ["CONTEXT.md", "README.md", "AGENTS.md"];
 var AUDIT_NC1_CANDIDATES = ["package.json", "README.md", "README.adoc", "README.rst", "README", "Cargo.toml", "pom.xml", "build.gradle", "LICENSE", "LICENSE.txt", "pyproject.toml", "go.mod", "Makefile"];
 function pickExcerpt2(absOrRelPath, tokens, base) {
-  const text = readFileSync4(base ? join6(base, absOrRelPath) : absOrRelPath, "utf8");
+  const text = readFileSync5(base ? join7(base, absOrRelPath) : absOrRelPath, "utf8");
   const lines = text.split(NL3);
   if (tokens === null) {
     return { line: 1, text: lines[0].trim() };
@@ -2849,7 +2946,7 @@ async function runAudit(opts) {
   const bhvNc1 = BHV_DEFERRED.length > 0;
   const behaviorBand = bhvRan ? bhvPc1 && bhvTc1 && bhvTc2 && bhvNc1 ? "supported" : "insufficient" : "insufficient";
   const persistOut = !!opts.outDir;
-  const outDir = opts.outDir ? resolve3(cwd, opts.outDir) : mkdtempSync2(join6(tmpdir2(), "macro-audit-run-"));
+  const outDir = opts.outDir ? resolve3(cwd, opts.outDir) : mkdtempSync2(join7(tmpdir2(), "macro-audit-run-"));
   mkdirSync4(outDir, { recursive: true });
   const MEAS_NAME = "audit-measurements.json";
   const FACTS_NAME = "audit-facts.jsonl";
@@ -2881,7 +2978,7 @@ async function runAudit(opts) {
     }), row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, facet_errors: facetErrs.length, criteria: { pc1: bhvPc1, tc1: bhvTc1, tc2: bhvTc2, nc1: bhvNc1 }, verdict: behaviorBand, codelore_version: col.codeloreResolution ? col.codeloreResolution.version : null } : { ran: false, reason: col.codeloreResolution ? "codelore binary \u672A\u89E3\u6790/\u4E0D pin\uFF08pinned=false\uFF09\u2014\u2014\u884C\u4E3A\u9762\u7F3A\u5E2D\u5982\u5B9E\u767B\u8BB0" : "codelore=off", deferred_faces: BHV_DEFERRED }
   };
   if (outDir) {
-    writeFileSync3(join6(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL3, "utf8");
+    writeFileSync3(join7(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL3, "utf8");
   }
   const evidence = [];
   const R = NAME.toUpperCase().split("-").join("").split("/").join("");
@@ -3000,16 +3097,16 @@ async function runAudit(opts) {
   const reportMd = renderMarkdown(report) + NL3;
   const sidecarJson = renderSidecar(report) + NL3;
   let artifacts = null;
-  writeFileSync3(join6(outDir, "report.md"), reportMd, "utf8");
-  writeFileSync3(join6(outDir, "report.json"), sidecarJson, "utf8");
-  writeFileSync3(join6(outDir, FACTS_NAME), col.realFacts.map(function(f) {
+  writeFileSync3(join7(outDir, "report.md"), reportMd, "utf8");
+  writeFileSync3(join7(outDir, "report.json"), sidecarJson, "utf8");
+  writeFileSync3(join7(outDir, FACTS_NAME), col.realFacts.map(function(f) {
     return JSON.stringify(f);
   }).join(NL3) + NL3, "utf8");
-  const dbPath = join6(outDir, "facts.duckdb");
-  if (existsSync4(dbPath)) {
+  const dbPath = join7(outDir, "facts.duckdb");
+  if (existsSync5(dbPath)) {
     unlinkSync(dbPath);
   }
-  if (existsSync4(dbPath + ".wal")) {
+  if (existsSync5(dbPath + ".wal")) {
     unlinkSync(dbPath + ".wal");
   }
   const writer = await openWriter(dbPath);
@@ -3022,10 +3119,10 @@ async function runAudit(opts) {
   }
   await writer.run("FORCE CHECKPOINT");
   writer.closeSync();
-  artifacts = persistOut ? { report_md: join6(outDir, "report.md"), report_json: join6(outDir, "report.json"), facts_jsonl: join6(outDir, FACTS_NAME), measurements: join6(outDir, MEAS_NAME), duckdb: dbPath } : null;
+  artifacts = persistOut ? { report_md: join7(outDir, "report.md"), report_json: join7(outDir, "report.json"), facts_jsonl: join7(outDir, FACTS_NAME), measurements: join7(outDir, MEAS_NAME), duckdb: dbPath } : null;
   const resultOutDir = persistOut ? outDir : null;
   if (!persistOut) {
-    rmSync2(outDir, { recursive: true, force: true });
+    rmSync3(outDir, { recursive: true, force: true });
   }
   return {
     report_id: report.report_id,
@@ -3099,6 +3196,7 @@ async function projectFacts(dbPath, filter) {
 }
 
 // src/mcp-server.ts
+process.env.MACRO_AUDIT_MCP_STDIO = "1";
 var MCP_PROTOCOL_VERSION = "2024-11-05";
 var FACTS_TOOL = {
   name: "facts",
