@@ -1,7 +1,8 @@
 // #34 常驻守卫 —— plugin.json Agent Plugins 1.0.0 结构断言（零依赖；ajv 一次性校验留证见 34-report.md）
 // 断言面：$schema const / required 字段 / additionalProperties 白名单 / name pattern / extensions 反向域名对象图 / gen 产物一致性
 import fs from 'node:fs';
-import { execSync } from 'node:child_process';
+import { execSync, spawnSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -12,6 +13,14 @@ const AP_ALLOWED_KEYS = Object.keys(JSON.parse(fs.readFileSync(join(here, '34-pl
 
 let pass = 0, fail = 0;
 const t = (name, ok, extra = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : fail++; };
+
+// #58/D-066 advisory probe（前置执行：连续 SKIP 升格顶显＋末尾 ADV 块复用结果；advisory 不红非 FAIL 面）
+const _cv = spawnSync('claude --version', { shell: true, encoding: 'utf8', timeout: 30000 });
+const _claudeVer = !_cv.error && _cv.status === 0 ? (_cv.stdout || '').trim().split(' ')[0] : null;
+const _vr = spawnSync(process.execPath, [join('scripts', 'validate-plugin.mjs')], { cwd: ENGINE, encoding: 'utf8', timeout: 150000 });
+const _vlines = ((_vr.stdout || '') + (_vr.stderr || '')).split('\n').filter(l => l.trim().length > 0);
+const _vstreakAlert = _vlines.some(l => l.indexOf('SKIP-STREAK-ALERT') >= 0);
+if (_vstreakAlert) console.log('⚠ SKIP-STREAK-ALERT: claude-validate 连续 cli-absent——advisory 面能见度归零（D-066③ 升格顶显）');
 
 const pj = JSON.parse(fs.readFileSync(join(ENGINE, 'plugin.json'), 'utf8'));
 const meta = JSON.parse(fs.readFileSync(join(ENGINE, 'manifest.meta.json'), 'utf8'));
@@ -31,7 +40,7 @@ t('G9 claude 侧 manifest 不回归（skills 路径形+.mcp.json 自动发现位
 t('G10 版本三方一致', pj.version === p2.version && p2.version === meta.version);
 
 // G11: gen 重跑产物幂等——幂等断言故意实跑生成器，检出漂移即恢复三产物原件（守卫不在被检树留改写）
-const WATCH = ['plugin.json', '.claude-plugin/plugin.json', 'mcp.json', '.mcp.json'];
+const WATCH = ['plugin.json', '.claude-plugin/plugin.json', '.mcp.json'];
 const snapshots = WATCH.map(f => fs.readFileSync(join(ENGINE, f)));
 try {
   execSync('node scripts/gen-manifests.mjs', { cwd: ENGINE, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -49,6 +58,57 @@ const distCliPath = join(ENGINE, 'dist', 'cli.js');
 const distSrc = fs.existsSync(distCliPath) ? fs.readFileSync(distCliPath, 'utf8') : '';
 t('G13 dist/cli.js 在且自包含 bundle（无相对模块 import——git-clone 可运行体随源进仓）', distSrc.length > 0 && !/from\s+['"]\.{1,2}\/|require\(\s*['"]\.{1,2}\//.test(distSrc) && distSrc.startsWith('#!'));
 t('G14 engine/.gitignore 放开 dist/（dist 入库前置）', !/^dist\/?\s*$/m.test(fs.readFileSync(join(ENGINE, '.gitignore'), 'utf8')));
+
+
+// ---------- #58 / D-066 manifest 契约链扩 ----------
+// shape 钉 enforce：skills ^\./ 裸名 fail／mcp 裸字段 fail／单一 .mcp.json＋无兄弟 mcp.json 同位遮蔽（cursor#252）；
+// unknown-field=WARN（SchemaStore 滞后容忍勿照搬 fatal）；advisory=`claude plugin validate --strict`（WARN 不红＋SKIP 硬化）
+let warn58 = 0;
+const w58 = (name, ok, extra) => { console.log((ok ? 'PASS ' : 'WARN ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : warn58++; };
+
+const SCHEMA58 = JSON.parse(fs.readFileSync(join(here, '58-claude-code-plugin-manifest.schema.json'), 'utf8'));
+const WL58 = Object.keys(SCHEMA58.properties || {}).concat(['$schema']);
+const ccKeys = Object.keys(p2);
+const ccUnknown = ccKeys.filter(k => WL58.indexOf(k) < 0);
+const skillPath = s => typeof s === 'string' && s.indexOf('./') === 0;
+
+t('G15 两份 plugin.json skills 值 ^\./ 路径形（裸名 fail——事故①钉死）',
+  (!('skills' in pj) || (Array.isArray(pj.skills) && pj.skills.every(skillPath)))
+  && Array.isArray(p2.skills) && p2.skills.every(skillPath),
+  'cc.skills=' + JSON.stringify(p2.skills));
+
+t('G16a SchemaStore 快照本体合法（title＋properties 非空——进仓快照，禁运行时拉取）',
+  !!SCHEMA58.title && Object.keys(SCHEMA58.properties || {}).length > 0, 'title=' + SCHEMA58.title);
+t('G16b claude manifest 无 mcp 裸字段（事故②钉死——FAIL）', ccKeys.indexOf('mcp') < 0, 'keys=' + ccKeys.join(','));
+w58('G16c claude manifest 顶层字段白名单＝SchemaStore props∪$schema（unknown-field=WARN 勿照搬 fatal）',
+  ccUnknown.length === 0, 'unknown=' + ccUnknown.join(','));
+
+t('G17 单一 .mcp.json 自动发现位＋无兄弟 mcp.json 同位遮蔽（cursor#252 教训/事故③根因——兄弟文件已退役）',
+  fs.existsSync(join(ENGINE, '.mcp.json')) && !fs.existsSync(join(ENGINE, 'mcp.json')));
+
+const LOCK58 = fs.readFileSync(join(ENGINE, 'upstream-lock.yaml'), 'utf8');
+const snapSha58 = crypto.createHash('sha256').update(fs.readFileSync(join(here, '58-claude-code-plugin-manifest.schema.json'))).digest('hex');
+t('G18 schemastore 快照入锁（digest==文件 sha256＋禁运行时拉取注记）',
+  LOCK58.indexOf('schemastore-claude-plugin-manifest') >= 0 && LOCK58.indexOf('sha256:' + snapSha58) >= 0 && LOCK58.indexOf('禁运行时拉取') >= 0);
+
+const CLAUDE_CLI_PINNED = '2.1.251';
+const cliRow58 = (LOCK58.split('- id: claude-cli')[1] || '').split('\n  - id:')[0];
+const cliVerM58 = cliRow58.match(/version:\s*"([^"]+)"/);
+t('G19a claude-cli 入锁表（status=active＋pin_type=exact-version＋源内 pin 锚）',
+  cliRow58.indexOf('status: active') >= 0 && cliRow58.indexOf('pin_type: exact-version') >= 0 && !!cliVerM58 && cliVerM58[1] === CLAUDE_CLI_PINNED,
+  'lock=' + (cliVerM58 && cliVerM58[1]) + ' pin=' + CLAUDE_CLI_PINNED);
+if (_claudeVer) {
+  t('G19b 三方同值：claude --version ' + _claudeVer + ' ↔ 锁表 ' + (cliVerM58 && cliVerM58[1]) + ' ↔ 源内 pin ' + CLAUDE_CLI_PINNED,
+    _claudeVer === (cliVerM58 && cliVerM58[1]) && _claudeVer === CLAUDE_CLI_PINNED);
+} else {
+  w58('G19b claude --version（cli-absent——advisory 环境位，三方同值挂起非失败）', false, 'claude binary unresolved');
+}
+
+// advisory 真校验器输出回显（probe 已于文件头执行——SKIP/WARN 计入 warn58；连续 SKIP 见顶部 ⚠ 升格提示）
+if (_vlines.some(l => l.indexOf('SKIP(claude-validate)') === 0 || l.indexOf('WARN ') === 0)) warn58++;
+_vlines.forEach(l => console.log('  ADV | ' + l));
+
+if (warn58 > 0) console.log('WARN ' + warn58 + '（advisory/unknown-field 面——WARN 计入但不进 PASS/FAIL 分母）');
 
 console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));
 process.exit(fail === 0 ? 0 : 1);

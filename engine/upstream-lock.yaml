@@ -93,3 +93,21 @@ upstreams:
     adapter: "engine/scripts/build-bundle.mjs（dist/cli.js 自包含 bundle 生成位）"
     last_reviewed: 2026-09-18
     next_review: 2026-10-18
+  - id: schemastore-claude-plugin-manifest
+    kind: data-export
+    version: "sha256:3f69938d71a47a72fa60050b2050dd620054708911defc1c1dcd7188dcb169f5"
+    pin_type: digest
+    contract: "SchemaStore claude-code-plugin-manifest.json 进仓快照（.scratch/architecture-recovery/reports/58-claude-code-plugin-manifest.schema.json）——claude 侧 manifest 顶层字段白名单∪$schema 的本地校验源；禁运行时拉取（快照即契约，更新=手动窗口重抓＋本行 digest 同步）；unknown-field=warning 勿照搬 fatal，mcp 裸字段=enforce FAIL"
+    status: active
+    adapter: ".scratch/architecture-recovery/reports/34-check.mjs G16/G18＋41b-check.mjs A9（快照消费位）"
+    last_reviewed: 2026-09-18
+    next_review: 2026-10-18
+  - id: claude-cli
+    kind: external-cli
+    version: "2.1.251"
+    pin_type: exact-version
+    contract: "真校验器 advisory 工具链（D-066②③⑤）：`claude --version` 输出首段须恰等于 pin 值（三方同值断言=binary↔本表↔34-check G19 CLAUDE_CLI_PINNED 常量）；`claude plugin validate engine --strict` advisory 位 WARN 不红；cli-absent→SKIP(claude-validate) 计入 WARN＋连续 SKIP 升格顶显；转 enforce 判据=registry claude-validate-promotion-watch（advisory 满 2 版本窗口无 SKIP 污染）"
+    status: active
+    adapter: "engine/scripts/validate-plugin.mjs（双触发消费位：CI event_bound＋npm run validate:plugin 手动窗口）＋34-check.mjs G19/advisory 段"
+    last_reviewed: 2026-09-18
+    next_review: 2026-10-18

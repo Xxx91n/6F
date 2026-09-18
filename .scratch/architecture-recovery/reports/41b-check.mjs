@@ -31,6 +31,18 @@ t('A5 marketplace.json name=xxx91n + plugins[0].name=6f source=./engine strict',
 t('A6 marketplace owner = D-052 值', mk.owner && mk.owner.name === 'Xxx91n' && mk.owner.email === 'xxx91n@duck.com');
 t('A7 插件名 6f 合法（2 字符小写字母数字首尾）', /^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(pj.name) && pj.name.length >= 2);
 
+
+// ---------- A+. #58/D-066 manifest 契约链扩（34-check G15~G17 同族断言） ----------
+const schema58 = json(join(HERE, '58-claude-code-plugin-manifest.schema.json'));
+const wl58 = Object.keys(schema58.properties || {}).concat(['$schema']);
+const ccKeys58 = Object.keys(cc);
+const ccUnk58 = ccKeys58.filter(function (k) { return wl58.indexOf(k) < 0; });
+const skillPath58 = function (s) { return typeof s === 'string' && s.indexOf('./') === 0; };
+t('A8 两份 plugin.json skills 值 ^\./ 路径形（裸名 fail）', (!('skills' in pj) || (Array.isArray(pj.skills) && pj.skills.every(skillPath58))) && Array.isArray(cc.skills) && cc.skills.every(skillPath58), 'cc.skills=' + JSON.stringify(cc.skills));
+t('A9 claude manifest 无 mcp 裸字段（事故②钉死 FAIL；白名单=SchemaStore props∪$schema）', ccKeys58.indexOf('mcp') < 0, 'unknown=' + ccUnk58.join(','));
+if (ccUnk58.filter(function (k) { return k !== 'mcp'; }).length > 0) { console.log('WARN A9w unknown-field（白名单外字段——勿照搬 fatal 口径，与 34-check G16c 同源）: ' + ccUnk58.join(',')); }
+t('A10 单一 .mcp.json 自动发现位＋无兄弟 mcp.json 同位遮蔽（cursor#252 教训）', existsSync(join(REPO, 'engine', '.mcp.json')) && !existsSync(join(REPO, 'engine', 'mcp.json')));
+
 // ---------- B. license=Apache-2.0 全链 ----------
 const lic = txt(join(REPO, 'engine', 'LICENSE'));
 t('B1 engine/LICENSE = Apache-2.0 全文（头/APPENDIX/尾）', lic.includes('Apache License') && lic.includes('Version 2.0, January 2004') && lic.includes('END OF TERMS AND CONDITIONS') && lic.includes('APPENDIX: How to apply the Apache License') && lic.trimEnd().endsWith('limitations under the License.'));

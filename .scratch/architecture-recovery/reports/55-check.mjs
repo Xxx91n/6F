@@ -32,9 +32,9 @@ let sqlT = run('sql-literal.test.mjs');
 t('A3 sql-literal 单测全绿（字面量内 DELETE/UPDATE/DROP 不误伤 + 真变异仍拒 + 未闭合保守拒）', /SQL-LITERAL (\d+)\/\1/.test(sqlT) && sqlT.indexOf('FAIL ') < 0, (sqlT || '').split(NL).slice(-1)[0]);
 
 // ---------- B. MCP db 寻址（D-059⑥） ----------
-const mcpJson = JSON.parse(txt(join(ENG, 'mcp.json')));
+const mcpJson = JSON.parse(txt(join(ENG, '.mcp.json')));
 const mcpSrv = mcpJson.mcpServers ? (mcpJson.mcpServers['macro-audit-kernel'] || mcpJson.mcpServers['macro-audit'] || Object.values(mcpJson.mcpServers)[0]) : null;
-t('B1 mcp.json env 面登记 MACRO_AUDIT_FACTS_DB', !!mcpSrv && !!mcpSrv.env && 'MACRO_AUDIT_FACTS_DB' in mcpSrv.env);
+t('B1 .mcp.json env 面登记 MACRO_AUDIT_FACTS_DB（D-066 单一自动发现位）', !!mcpSrv && !!mcpSrv.env && 'MACRO_AUDIT_FACTS_DB' in mcpSrv.env);
 const mcpSrc = txt(join(ENG, 'src', 'mcp-server.ts'));
 t('B2 寻址优先链：arguments.db → server --db → env → 结构化 UNRESOLVED', mcpSrc.indexOf('MACRO_AUDIT_FACTS_DB') >= 0 && mcpSrc.indexOf('MCP-FACTS-DB-UNRESOLVED') >= 0);
 let mcpT = run('mcp-db-resolution.test.mjs');

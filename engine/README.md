@@ -5,7 +5,7 @@
 ## 结构（Agent Plugin 五层盒子）
 - plugin.json（标准）/ .claude-plugin/plugin.json（Claude Code 原生）—— 由 manifest.meta.json 单一元数据源生成
 - skills/macro-audit/（方法论壳，只读）
-- mcp.json（kernel MCP 只读证据查询面，stdio）
+- .mcp.json（kernel MCP 只读证据查询面，stdio——Claude 自动发现位；单一 .mcp.json 口径见 D-066，禁兄弟 mcp.json 同位遮蔽）
 - extensions/com.macroaudit.hooks/（hooks 触发/呈现面）
 - src/cli.ts（内核 CLI；四外壳为规划目标，当前仅 CLI 外壳落地）
 
