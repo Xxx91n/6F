@@ -1,53 +1,53 @@
-# next-round — 轮 21 常驻任务书（轮 21 grill 收口＋R20 审计 T1/#59 通过后）
+# next-round — 轮 22 常驻任务书（轮 22 grill 收口＋R21 审计 PASS-with-findings 整理后）
 
-> 更新于 2026-09-18 轮 21 grill 收口（D-071/D-072 两决策落账）＋R20 审计 T1/#59 通过（A-069）。任何子 Agent 读本文件即可接续：先读口径基线→按 T 序执行→每项声明覆盖的 D-xxx 不得超出账本原文范围。
-> 唯一事实源 = .scratch/macro-audit/decision-ledger.md（D 系列 72 条：66 current／3 revised／3 承继链吸收）；执行账 = .scratch/architecture-recovery/decision-ledger.md（A 系列——A-069=R20 T1 票档）；验收守卫 = .scratch/architecture-recovery/reports/NN-check.mjs（exit 0 才算过）。
+> 更新于 2026-09-18 轮 22 grill 收口（D-073~D-078 六决策落账，D-072 revised 由 D-075 承载）。任何子 Agent 读本文件即可接续：先读口径基线→按 T 序执行→每项声明覆盖的 D-xxx 不得超出账本原文范围。
+> 唯一事实源 = .scratch/macro-audit/decision-ledger.md（D 系列 78 条：72 current／6 revised）；执行账 = .scratch/architecture-recovery/decision-ledger.md（A 系列——A-070~A-075=R21 六票档）；验收守卫 = .scratch/architecture-recovery/reports/NN-check.mjs（exit 0 才算过）。
 
-## 轮 20~21 留痕（已定，勿重复）
+## 轮 21~22 留痕（已定，勿重复）
 
-- **T1 #59 ✅**（A-069 / r20-59-kernel-selfcontained lvr→prs→ytx）：`.mcp.json`=node+`${CLAUDE_PLUGIN_ROOT}`＋dist 40 件入库（esbuild 单文件 bundle+tsc 树双形态）＋CI rebuild-diff＋README/SKILL 同票＋真机 `claude --plugin-dir` mcp Connected 实证；审计通过（R1~R8 打回小修全闭环）。
-- **轮 21 grill 两决策**（全 current 零 revised）：D-071 陈旧守卫换代=known-failures 清单制（首批 9 条 XFAIL 入单）／D-072 duckdb 自愈=精确拉单平台包＋披露地板。
-- **registry 状态**：44 项/28 事件——新增 `xfail-second-track-trigger`（manual_watch）＋`duckdb-vendored-review`/`duckdb-wasm-review`/`claude-hooks-bootstrap-review`（event_bound）；`first-external-install` 已 occurred＋`runtime-doctor-trigger`→#62 待执行。
-- **栈面**：round19-closeout(xql)→r20-59-kernel-selfcontained(lvr→prs→ytx) 未 push（用户闸门）；`.code-tmp/{r18,r20}-audit/` 未跟踪 scratch。
-- **待验证缺口**（随票验收）：30 守卫断言级 id 现状盘点（#63 前置）／平台包精确尺寸逐变体实测（#64 落地时）／CI 无凭据 validate（#58 顺带验证）。
+- **轮 21 六票全闭环 ✅**（A-070~A-075，分支栈 r21-58→63→64→61→60→62 全未 push）：#58 manifest 契约／#63 stale-assertions 清单制（10/10 cap 已满）／#64 duckdb 自愈实装／#61 cue 表／#60 骨架升版机检／#62 doctor 三腿。
+- **R21 独立审计=PASS-with-findings**：硬验收全绿（33:20/20｜34:22/22｜41b:33/33｜56:24/24｜64:14/14｜14-skeleton｜xfail-run XFAIL:10/10），9 项返工要求——F 项已分流至 #66（duckdb 四缺陷）／#67（SKIP-STREAK）／T5 文档面。
+- **轮 22 grill 六决策**（5 current＋1 revised 链）：D-073 册外 13 件分拣（sealed 第三态＋attestation 双锚）／D-074 env 腿双轴（fixture 承接）／D-075 自愈按面分层（CLI 自动／MCP+CI 披露+opt-in）／D-076 四奇观维持＋触发器挂账／D-077 SKIP-STREAK 环境分层＋人工晋升门／D-078 upstream→dimension 映射表设计先行。
+- **registry 47 项/31 事件**：`xfail-second-track-trigger→triggered-bound bound_to=#65`（cap fired 条款内认定）；`claude-validate-promotion-watch→manual_watch`（receipts 证据人工翻转）；+3 事件（git-iso-contract-violated／sql-strip-escape-observed／dist-in-repo-superseded）+3 值守项。
+- **栈面**：round19/21-closeout＋r21 六分支栈全未 push（用户闸门）；`.code-tmp/{r18,r20,r21}-audit/`＋`锐评.md`＋`claude-validate-state.json` 未跟踪 scratch。
 
 ## 口径基线（读前必知）
 
-- **陈旧守卫换代**（D-071）：清单=输出态分级层非豁免文件——断言照跑、快照照冻；strict=XPASS 一律红逼摘条目；真回归禁入清单（broken≠flaky）；复审锚=事件制 stage3-close＋日期兜底；第二轨快照化挂触发器不立大票；「FAIL 不扩大」人工比对由机制替代（账本勘误注记在案）。
-- **duckdb 自愈**（D-072）：命中点前置精确拉 `@duckdb/node-bindings-<platform>` 单包（--no-save/版本三方同值/每进程至多 1 次）；失败回落三段文案披露；npm publish 渠道≠插件目录依赖拉取——辨析写票面；bundle 验收硬条件=分发器 JS 可达或显式 external。
-- **守卫分层**（D-066）：shape 钉 enforce＋真校验器 advisory/event_bound＋SKIP 计入 WARN＋2 窗口转 enforce；#58 落地注意与 lvr/ytx 同文件（34/41b-check）落序——新契约断言 G9/G12~G14/A4 已在其上。
-- **cue 表纪律**（D-069）：词表=判据；CJK 独立设计≥2 字词形；「假设」配伪表；种子表一次先验声明；顺带清=独立 `[cleanup]` commit 判定 commit 零夹带（D-070）。
-- **kernel 边界**（D-058）：NLI/概率模型永不进 kernel；自愈逻辑全在 kernel CLI 内不越界。
-- **评测纪律**（D-061/D-065）：禁参照 52a 语料标签调参；golden 基线依赖 git 史。
-- **分发面**：插件名 6f/市场名 xxx91n/Apache-2.0/A+C 双轨；push=用户闸门；审计件分支=冻结只读。
+- **sealed vs archived 分界**（D-073）：sealed=验收探针使命完成的显式退役（attestation 固化留档＋移出执行集＋SEALED 顶显）；archived=失效但假装在管；D-071③「断言照跑」只适用活契约条目（账本划界注记在案）。封存必带承接义务——活契约腿 migrated_to 必填闭包或 rewrite-pending 兜底，防 XPASS 信号洞。
+- **测工具不测环境**（D-074）：env 敏感断言双轴——验收使命已 fired→sealed（attestation 记历史性真相）；工具不变量该守→fixture 测试（mkdtemp 受控环境内因果可归因）；I3 类决策漂移件标 superseded-by-D-046。
+- **自愈分层合法性判据=「谁在看屏幕」**（D-075）：CLI 交互面（非 MCP 且 isTTY）自动自愈保留＋stderr 预告可中断；MCP stdio/CI 非 TTY 面永不自动拉包→四段披露（缺失原因→doctor --fix→能力边界→MACRO_AUDIT_SELFHEAL=1 opt-in）；doctor --fix=唯一主路；D-072 revised 仅动触发面与时序，排除法理由与三复审触发器不动。
+- **立场批评受理边界三要素**（D-075④/D-076）：立场＋实证＋工业先例交叉齐备才 revised——缺一维持并转写为可证伪 event_bound 复审触发器（防安慰剂：判定口径二值禁程度副词）。
+- **预期缺席≠异常缺席**（D-077）：CI=cli-absent-expected 面 SKIP→INFO 第三披露态（neutral 非 WARN 非 streak）；本地面 SKIP-STREAK 收窄为「本地异常缺席」；promotion=人工读 receipts.jsonl 证据翻转（2 版本窗判据原文不动）；state.json=运行计数器不入仓 vs stale-assertions=声明式期望表入仓——受控状态文件边界划清。
+- **dimension:null=防腐层故意留白**（D-078）：映射=业务语义只能落裁决面/文档面（docs/upstream-dimension-map.md 版本化 PR 评审）；适配器不加 dimension_hints；ADR-0004 五维不动=facet enrichment 非扩维；映射行必带逐 dimension 准入条件列（LFX 式 bot 按维出入）；rate_limit=遥测永久排除。
+- **既有口径沿用**：守卫分层（D-066）／cue 表纪律（D-069）／kernel 边界（D-058）／评测纪律（D-061/D-065）／npm publish≠依赖拉取辨析／分发面（6f/xxx91n/Apache-2.0/A+C 双轨/push=用户闸门）。
 
 ## 任务序列
 
 | T | 任务 | 覆盖 D-xxx | 交付面 | Suggested skills |
 |---|---|---|---|---|
-| T0 | 开工前置：读本任务书＋账本第二十一轮节＋R21-Q1/Q2 调研报告＋r20-audit-pass-handoff；跑 33/42/44/46/52a/53/54/55-check 确认基线（含 5 守卫 9 条陈旧 FAIL 现状登记——#63 首批清单素材） | D-071 / D-072 | 基线快照 | — |
-| T1 | **#58 manifest 契约守卫链扩（P1）**：34/41b-check 三断言＋validate advisory 双触发＋SKIP 硬化＋schema 快照＋claude-cli/schemastore 入锁——注意与 lvr/ytx 同文件落序（新契约断言已在其上） | D-066 / D-037⑤ / D-041 | 守卫断言＋advisory 面＋schema 快照＋锁表 | implement / tdd |
-| T2 | **#63 陈旧守卫换代机制（P1）**：stale-assertions.json＋首批 9 条＋断言级 id＋三态输出＋33-check 元校验四断言——前置=30 守卫只读盘点 | D-071 | 清单文件＋协议改动＋元校验 | implement / tdd / domain-modeling |
-| T3 | **#64 duckdb 自愈补拉（P1）**：store.ts 自愈路径＋三段文案＋bundle external 验收＋CI E2E smoke＋离线断言＋README 升口径＋npm 辨析票面 | D-072 / D-067② | 自愈逻辑＋守卫＋文档 | implement / tdd |
-| T4 | **#61 cue 表分层＋顺带清（P1）**：判定 commit（CJK_NON_ASSERT＋伪表＋词表治理＋56-check hash WARN）＋`[cleanup]` 独立 commit（r18 残余①-⑤）＋held-out 复跑 | D-069 / D-070① / D-065 | citation.ts 两 commit＋56-check 扩 | implement / tdd / domain-modeling |
-| T5 | **#60 骨架升版机检（P1）**：14-skeleton-baseline.json＋14-check 三 FAIL＋三方一致＋语义翻转边界行 | D-068 / A-064 C9 | baseline 文件＋守卫断言 | implement / tdd |
-| T6 | **#62 doctor 探测票（P2）**：duckdb 可开库/git/上游连通三腿 probe＋结构化输出（消费 #64 自愈 stdout 格式——序在 #64 后） | D-059③ / D-072⑧ | doctor 子命令＋探测报告 | implement / tdd |
-| T7 | **#52b 待命**：锚=host-narrative-corpus | D-061 / D-064④ | 触发即启 | — |
-| T8 | **#41b 残余面**：listing 资产核对留痕；B 轨不授权 | D-051 / D-052 / D-042 | 资产核对留痕 | — |
-| T9 | 值守面复核：registry 44 项——xfail-second-track-trigger／duckdb 三复审触发器／claude-validate-promotion-watch／cue-table-extraction-trigger／runtime-doctor-trigger→#62／mw-trigger-c／narrative-eval-surface／bundle-retirement-trigger／duckdb-binary-watch／golden-verifier-dirty-on-rerun／hooks-presentation-face／repomix-reopen-trigger／upstream-probes／暂缓面集＋陈旧守卫 9 条归因清单核对（#63 首批素材已用） | D-041 / D-043 / D-045 / D-055 / D-056 / D-059③⑨ / D-061~D-072 | registry confirmations/状态翻转 | — |
-| T10 | D-025 勘误双读数纪律：实测/账本双口径并存呈报 | D-025 | 报告口径 | — |
+| T0 | 开工前置：读本任务书＋账本第二十二轮节＋R22-Q1~Q6 六份调研报告＋R21 审计 handoff；跑守卫基线（33/34/41b/44/46/52a/53/54/55/56/64/14-skeleton/xfail-run）确认全绿＋册外 13 件现状登记（#65 分拣素材） | D-073~D-078 | 基线快照 | — |
+| T1 | **#65 册外陈旧断言批量分拣（P1）**：13 件归因三向分拣＋acceptance-probe-attestation.jsonl＋sealed 第三态输出＋33-check G5 闭包＋audit-zero-write.test.mjs fixture（mkdtemp 玩具仓＋自检防 vacuous＋smoke 链）＋migrated_to 闭包＋D-071③ 注记执行＋attestation↔账本双向指针 | D-073 / D-074 / D-071③注 | attestation jsonl＋分拣标记＋fixture 测试＋G5 断言 | implement / tdd / domain-modeling |
+| T2 | **#66 duckdb 自愈分层修订（P1）**：面探测（MCP/isTTY/CI）＋CLI 面 stderr 预告＋MCP/CI 面四段披露＋doctor --fix 主路＋MACRO_AUDIT_SELFHEAL=1 opt-in＋F4 win32-arm64/F7 registry 探测/F8 emitSelfHeal 后移 三缺陷＋Default Mode 披露收窄＋README | D-075 / D-072(revised) / D-067⑧ | 分层自愈＋doctor --fix＋披露文案 | implement / tdd |
+| T3 | **#67 SKIP-STREAK 环境分层（P2）**：MACRO_AUDIT_CI 旗标＋INFO 第三披露态＋state.json mode 降格＋claude-validate-receipts.jsonl append-only＋41b 同型 SKIP 一并分层（追问默认=统一）＋mode 元断言裁量 | D-077 / D-066③⑥注 | 分层断言＋receipts 载体 | implement / tdd |
+| T4 | **#68 upstream-dimension-map 设计票（P2）**：docs/upstream-dimension-map.md 按 D-078③ 骨架成文＋准入条件列逐维写明＋NN-check「上游文件无 S1-S5 字样」断言＋descriptor 注释指针＋绑复审时点；接线票待本表合入后另立 | D-078 / D-020 / D-048 / D-035 | 映射表文档＋守卫断言 | domain-modeling / writing-for-agents |
+| T5 | **R21 审计返工文档面**：报告口径勘误（npm pack 73 件非 71／册外 13 件非 11／npm test 措辞收窄如实）＋#60 FAIL2 边界注记＋judgement 项登记 | R21 审计 §六 | 文档勘误批 | — |
+| T6 | **#52b 待命**：锚=host-narrative-corpus | D-061 / D-064④ | 触发即启 | — |
+| T7 | **#41b 残余面**：listing 资产核对留痕；B 轨不授权 | D-051 / D-052 / D-042 | 资产核对留痕 | — |
+| T8 | 值守面复核：registry 47 项——xfail-second-track-trigger(bound=#65)／claude-validate-promotion-watch(manual)／duckdb 三复审／D-076 四触发器（git-iso/sql-strip/dist-in-repo/cue-table 复用）／mw-trigger-c／narrative-eval-surface／bundle-retirement／duckdb-binary-watch／golden-verifier-dirty-on-rerun／upstream-probes／暂缓面集 | D-041 / D-043 / D-045 / D-055 / D-056 / D-059③⑨ / D-076 / D-077 | registry confirmations/状态翻转 | — |
+| T9 | D-025 勘误双读数纪律：实测/账本双口径并存呈报 | D-025 | 报告口径 | — |
 
 ## Suggested skills（本窗口）
 
-- `gitbutler`：一切版本控制写操作（不 push 除非用户明示；r20 栈与 round19/21-closeout 并行不互碰）；
-- `implement`＋`tdd`：T1~T6 代码票——预声明判据先行；
-- `domain-modeling`：T2 清单 schema/断言 id 命名域建模＋T4 cue 表语义边界；
-- `atomcode-research`：票内新方案面（断言 id 协议、自愈 fetch 细节）按 D-2 深调研；
+- `gitbutler`：一切版本控制写操作（不 push 除非用户明示；r21 栈与 closeout 分支并行不互碰）；
+- `implement`＋`tdd`：T1~T3 代码票——预声明判据先行，sealed/fixture/分层三机制各配负路测试；
+- `domain-modeling`：T1 sealed/attestation 语义域建模＋T4 映射表维度归属域建模；
+- `atomcode-research`：票内新方案面（attestation schema 细节、INFO 态命名）按 D-2 深调研；
+- `writing-for-agents`：T4 映射表文档面（裁决消费的版本化文档）；
 - `handoff`：次轮收尾同规程再生。
 
 ## 用户闸门残留
 
-- push 授权：round19-closeout/r20-59-kernel-selfcontained 栈＋本收口 commit 全停闸门；
-- D-067⑧ push 后真机 `/plugin install`→`/mcp` 重验＋CI rebuild-diff/npm ci 首跑实证随 push 闸门；
-- B 轨官方目录：未授权不触碰（D-042）。
-
+- push 授权：round19/21-closeout＋r21 六分支栈＋本收口 commit 全停闸门；
+- D-067⑧ push 后真机 `/plugin install`→`/mcp` 重验＋CI rebuild-diff/npm ci 首跑实证随闸门；
+- B 轨官方目录：未授权不触碰（D-042）；
+- 追问挂票面（随票裁）：#67 mode 元断言是否进 34-check／版本窗机检锚=CHANGELOG M 条目／#68 落点 vs quadrant-rubric 并面／Bot 占比 S5 vs S4 备选。
