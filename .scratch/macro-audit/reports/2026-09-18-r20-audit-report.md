@@ -91,3 +91,21 @@ npm test   # exit 0
 - 证据工件：`.code-tmp/r20-audit/mcp-probe.mjs`（MCP 握手探针）、`.code-tmp/r20-audit/plugin-sim/`（零 node_modules 仿真目录）。
 - 评审：Standards＋Spec 双轴平行子代理（$code-review skill 流程）；D-xxx 对照账本原文（D-067 line 572 区／A-069 R11 行）。
 - 版本控制面核查经 `but status`（r20-59-kernel-selfcontained=lvr+prs，叠于 round19-closeout xql，common base baeace8）。
+
+## 10. 终裁（返工 commit ytx 复验后，2026-09-18 本窗）
+
+**PASS**：§7 返工清单 R1~R8 逐项实物复核全落实——
+- R1：报告/handoff×3/A-069/WORKFLOW 四处「41 件」→40＋勘误注入文（勘误体例=改写＋留注，合冻结纪律）；
+- R2：handoff `loadDuckdb()` 与 store.ts:42 名实对齐；
+- R3：engine/CHANGELOG.md [Unreleased] ### Changed 首行 #59 全量条目并引 upstream-lock esbuild diff（D-037⑥ 兑现）；
+- R4：engine/README:14 → tsc+build-bundle 两步；
+- R5：engine-ci.yml `npm ci`（spec 字面＋兄弟惯例＋锁定语义三对齐）；
+- R6：`permissions: contents: read`＋push/PR paths 均含 workflow 自身；
+- R7：报告 §④ 新增第 5/6 条——勘误注＋43-D5/45-B5/50-E2E3/t8-A3 四件陈旧 FAIL 补注（移交 T8）；
+- R8：build-bundle.mjs 改 try/catch（BUNDLE-OK 实跑复现）；34-check G13 `startsWith("#!")` 复跑 PASS。
+
+**§8 重跑清单本窗全过**：gen GEN-OK（4 产物 CLEAN）／build BUNDLE-OK／package 71 件 167.5kB（+0.5kB=CHANGELOG 条目，合理）／selftest 5/5／porcelain dist 零输出／34=14/14、41b=30/30、44=56/56／41a 维持 4/39 同四项不扩大／npm test exit 0（15 套件全绿）。
+
+**残余登记（不阻断，移交收口/T8）**：`.scratch/architecture-recovery/BACKLOG.md` #59 行仍写「dist 41 件入库」——本审计 R1 清单漏列第五处，返工按单修毕后此残留未覆盖；一字勘误，随下次收口或 T8 值守一并修正。
+
+审计报告本体随 ytx 入库；本 §10 与 pass-handoff 随终裁落盘。
