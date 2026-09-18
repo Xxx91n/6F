@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "cap": 10,
+  "meta": {
+    "ticket": 63,
+    "decision": "D-071",
+    "created": "2026-09-18",
+    "semantics": "known-failures 清单制（pytest strict-xfail 心智模型）：断言照跑不 archived；status=PASS/FAIL/XFAIL/XPASS；未登记 FAIL 或任何 XPASS→非零；仅已登记 XFAIL→零＋顶显 XFAIL: n (cap 10)；strict=XPASS 一律红无 lenient 逃生门",
+    "premise_correction": "D-071 前提「9 条」=清单起草时点快照（next-round 换代前）；换代后 45-H5 新破→同守卫集内第 10 条入册恰满 cap；38/39/40（§3 已处置 11 件）留册外——>cap 即 D-071④ 批量处置压力",
+    "runner": "xfail-run.mjs"
+  },
+  "entries": [
+    {
+      "id": "xfail-41a-c10",
+      "guard": "41a",
+      "assertion-slug": "C10",
+      "attribution": "与 41b-C1 真互斥——41b 强制 README 含 capability 3 of 5（实物在），41a-C10 禁其出现；冻结后 #41b 落地所致（r20 §5 逐条核实归因成立）",
+      "failure_class": "rolling-surface",
+      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "superseded_by": "41b-check C1（capability 1-3 of 5 现行口径强制位）",
+      "added": "2026-09-18"
+    },
+    {
+      "id": "xfail-41a-d6",
+      "guard": "41a",
+      "assertion-slug": "D6",
+      "attribution": "a_range 字面钉随账本增长漂移——want=A-001~A-069，CHANGELOG 未随 A-068/D-070 进账在先、A-069 落账再扩（r20 §5 归因成立）",
+      "failure_class": "growth-surface",
+      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "superseded_by": "无直接后继——增长面修法=单调包含性断言（D-071⑨ 快照化触发器项）",
+      "added": "2026-09-18"
+    },
+    {
+      "id": "xfail-41a-d7",
+      "guard": "41a",
+      "assertion-slug": "D7",
+      "attribution": "ledger_pointer 冻结快照——d_max 字面钉随账本演进漂移（同 D6 增长族，r20 §5 归因成立）",
+      "failure_class": "growth-surface",
+      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "superseded_by": "无直接后继——增长面修法=单调包含性断言（D-071⑨ 快照化触发器项）",
+      "added": "2026-09-18"
+    },
+    {
+      "id": "xfail-41a-f4",
+      "guard": "41a",
+      "assertion-slug": "F4",
+      "attribution": "钉 next-round T6 行 ✅ DONE——任务书逐轮换代锚点过期（r20 §5 归因成立）",
+      "failure_class": "anchor-drift",
+      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "superseded_by": "next-round.md 现行轮次任务书（滚动文档锚——修法=锚点 hash＋时点，D-071⑨）",
+      "added": "2026-09-18"
+    },
+    {
+      "id": "xfail-43-d5",
+      "guard": "43",
+      "assertion-slug": "D5",
+      "attribution": "钉 next-round T14 ✅ DONE——任务书换代锚点过期（r20 §5 追加扫描归因成立）",
+      "failure_class": "anchor-drift",
+      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "superseded_by": "next-round.md 现行轮次任务书（滚动文档锚）",
+      "added": "2026-09-18"
+    },
+    {
+      "id": "xfail-45-b5",
+      "guard": "45",
+      "assertion-slug": "B5",
+      "attribution": "demo 不 import upstream 层——`codelore:` 字段名误吞子串扫描（baeace8 基线已含，检测面过宽误报非边界真破坏；r20 §5 归因成立）",
+      "failure_class": "rolling-surface",
+      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "superseded_by": "ADR-0014 边界现行判定面（子串扫描误吞——修法=结构化 import 断言）",
+      "added": "2026-09-18"
+    },
+    {
+      "id": "xfail-45-h5",
+      "guard": "45",
+      "assertion-slug": "H5",
+      "attribution": "next-round 含 #45 落点记录——轮 21 任务书重写锚点过期（t8-watch-review §3 归因；D-071 前提 9→10 清点勘误第 10 条）",
+      "failure_class": "anchor-drift",
+      "evidence": ".scratch/architecture-recovery/reports/t8-watch-review.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "superseded_by": "next-round.md 现行轮次任务书（滚动文档锚）",
+      "added": "2026-09-18"
+    },
+    {
+      "id": "xfail-50-e2",
+      "guard": "50",
+      "assertion-slug": "E2",
+      "attribution": "registry narrative-eval-surface status=triggered-bound 钉——status 已滚回 pending（D-061 轮15 所致，r20 §5 归因成立）",
+      "failure_class": "rolling-surface",
+      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "superseded_by": "registry narrative-eval-surface 现行状态（status/bound_to 滚动面——33-check 值守）",
+      "added": "2026-09-18"
+    },
+    {
+      "id": "xfail-50-e3",
+      "guard": "50",
+      "assertion-slug": "E3",
+      "attribution": "BACKLOG #50 ✅＋#52 行在钉——#52 已拆 #52a/#52b 行格式换代（D-061 轮15 所致，r20 §5 归因成立）",
+      "failure_class": "anchor-drift",
+      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "superseded_by": "BACKLOG 现行行格式（#52a/#52b 拆分后票面）",
+      "added": "2026-09-18"
+    },
+    {
+      "id": "xfail-t8-a3",
+      "guard": "t8",
+      "assertion-slug": "A3",
+      "attribution": "registry narrative-eval-surface triggered-bound→#52 钉——同 50-E2 族（status 滚回 pending，r20 §5 归因成立）",
+      "failure_class": "rolling-surface",
+      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "superseded_by": "registry narrative-eval-surface 现行状态（33-check 值守）",
+      "added": "2026-09-18"
+    }
+  ]
+}

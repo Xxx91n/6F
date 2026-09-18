@@ -177,6 +177,35 @@ for (const it of mwItems) {
 const mwExpected = mwItems.filter(i => i.status !== 'decided').length;
 t('E1 manual_watch 值守扫描全覆盖（pending/deferred/triggered-bound 入扫）', mwScanned === mwExpected, mwScanned + '/' + mwExpected);
 
+// --- G. #63/D-071 stale-assertions.json 元校验（直接 enforce——纯结构校验确定性，D-068⑥ 同构） ---
+// 悬空条目=FAIL／evidence 指针存在性=FAIL／条目数>cap=FAIL／复审锚逾期未动→WARN 报警（D-041 risk_accepted 候选同构）
+const saPath = join(here, 'stale-assertions.json');
+let sa = null;
+try { sa = JSON.parse(fs.readFileSync(saPath, 'utf8')); } catch (e) { sa = null; }
+t('G1 stale-assertions.json 在且 version/cap=10/entries≤cap（条目数>cap→FAIL 立票批量处置）',
+  !!sa && sa.version === 1 && sa.cap === 10 && Array.isArray(sa.entries) && sa.entries.length <= sa.cap,
+  sa ? 'entries=' + sa.entries.length + '/' + sa.cap : 'missing/parse-fail');
+const saEntries = sa && Array.isArray(sa.entries) ? sa.entries : [];
+const saFields = ['id', 'guard', 'assertion-slug', 'attribution', 'failure_class', 'evidence', 'review_anchor', 'expires_fallback', 'superseded_by', 'added'];
+const saFieldMiss = saEntries.filter(e => !saFields.every(f => f in e)).map(e => e.id);
+const saIdBad = saEntries.filter(e => e.id !== 'xfail-' + e.guard + '-' + String(e['assertion-slug'] || '').toLowerCase()).map(e => e.id);
+const saDup = saEntries.map(e => e.id).filter((v, i, a) => a.indexOf(v) !== i);
+t('G2 条目十字段齐备＋id=xfail-<guard>-<slug> 形＋无重复', saFieldMiss.length === 0 && saIdBad.length === 0 && saDup.length === 0, saFieldMiss.concat(saIdBad, saDup).join(','));
+const saDangling = [];
+for (const e of saEntries) {
+  const gp = join(here, e.guard + '-check.mjs');
+  if (!fs.existsSync(gp)) { saDangling.push(e.id + ':guard-missing'); continue; }
+  const src = fs.readFileSync(gp, 'utf8');
+  if (src.indexOf("'" + e['assertion-slug'] + ' ') < 0) saDangling.push(e.id + ':' + e['assertion-slug'] + ' 不在 ' + e.guard + ' 断言名集');
+}
+t('G3 无悬空条目（guard 文件在＋assertion-slug 命中守卫断言名集）', saDangling.length === 0, saDangling.join(','));
+const saEvMiss = saEntries.filter(e => typeof e.evidence !== 'string' || !fs.existsSync(join(here, '..', '..', '..', e.evidence))).map(e => e.id);
+t('G4 evidence 指针存在（逐条 evidence 路径可解析）', saEvMiss.length === 0, saEvMiss.join(','));
+const _td33 = new Date();
+const TODAY33 = _td33.getFullYear() + '-' + String(_td33.getMonth() + 1).padStart(2, '0') + '-' + String(_td33.getDate()).padStart(2, '0');
+const saOverdue = saEntries.filter(e => typeof e.expires_fallback === 'string' && e.expires_fallback < TODAY33).map(e => e.id);
+if (saOverdue.length) warns.push('stale-assertions 复审锚逾期未动（expires_fallback<' + TODAY33 + '）：' + saOverdue.join(',') + ' → risk_accepted 候选同构转人工裁决（D-041③ 同构）');
+
 console.log('--- 值守快照 ---');
 alarms.forEach(a => console.log('ALARM ' + a));
 warns.forEach(w => console.log('WARN  ' + w));
