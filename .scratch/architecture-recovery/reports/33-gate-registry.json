@@ -110,6 +110,18 @@
   "cue-table-second-consumer": {
    "occurred": false,
    "note": "D-069②：cue 表被第二消费者引用或需热更新→抽独立 JSON 文件+D-068 式版本断言"
+  },
+  "duckdb-vendored-presigned": {
+   "occurred": false,
+   "note": "D-072⑥(a) 复审触发：duckdb 官方出现预签名/预编译分发渠道，或平台包尺寸/数量恶化至自愈路径不可行→vendored bindings 重评"
+  },
+  "duckdb-wasm-persistence-fixed": {
+   "occurred": false,
+   "note": "D-072⑥(c) 复审触发：duckdb-wasm #2192 类持久化缺陷修复合入≥1 个稳定版＋本仓 append→重开 SWMR 实测通过→wasm 换绑重评"
+  },
+  "claude-hooks-windows-fixed": {
+   "occurred": false,
+   "note": "D-072⑥(b) 复审触发：上游 #43380/#16116/#420 修复落地＋D-055 hooks 真实需求信号出现→SessionStart bootstrap 重评"
   }
  },
  "items": [
@@ -1037,6 +1049,103 @@
      "decision": "registered",
      "reason": "单消费者形态抽 JSON=纯开销＋失类型检查（hunspell 版本化=多消费者驱动先例）——挂触发器不预判",
      "evidence": "decision-ledger.md D-069＋R19-Q4 报告"
+    }
+   ]
+  },
+  {
+   "id": "duckdb-vendored-review",
+   "family": "distribution",
+   "title": "vendored bindings 复审触发器（D-072⑥a）——官方预签名分发或平台包恶化出现时重评原生绑定入库",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "duckdb-vendored-presigned",
+   "trigger": "duckdb 官方出现预签名/预编译平台分发渠道，或自愈路径实测失败率/包尺寸恶化至不可行",
+   "review_at": "upstream-lock 评审窗口或自愈失败率超阈时",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "核验 duckdb 官方分发渠道面与平台包尺寸；触发→重裁 vendored 入库",
+   "confirmations": [
+    {
+     "at": "2026-09-18",
+     "by": "轮21 grill D-072",
+     "criterion_version": "D-072⑥",
+     "decision": "registered",
+     "reason": "duckdb 缺口三备选否决挂量化复审触发器",
+     "evidence": "decision-ledger.md D-072＋R21-Q2 报告"
+    }
+   ]
+  },
+  {
+   "id": "duckdb-wasm-review",
+   "family": "distribution",
+   "title": "duckdb-wasm 换绑复审触发器（D-072⑥c）——#2192 类持久化缺陷修复＋SWMR 实测通过后重评",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "duckdb-wasm-persistence-fixed",
+   "trigger": "#2192 类 OPFS 持久化静默失败修复合入≥1 稳定版，且本仓 append→重开 SWMR 实测通过",
+   "review_at": "duckdb-wasm release 面清点或「纯零网络安装」需求信号出现时",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "追踪 duckdb-wasm changelog/issue #2192 状态；触发→wasm 适配层成本重估",
+   "confirmations": [
+    {
+     "at": "2026-09-18",
+     "by": "轮21 grill D-072",
+     "criterion_version": "D-072⑥",
+     "decision": "registered",
+     "reason": "duckdb 缺口三备选否决挂量化复审触发器",
+     "evidence": "decision-ledger.md D-072＋R21-Q2 报告"
+    }
+   ]
+  },
+  {
+   "id": "claude-hooks-bootstrap-review",
+   "family": "distribution",
+   "title": "SessionStart bootstrap 复审触发器（D-072⑥b）——上游 hook bug 链修复＋D-055 信号出现时重评",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "claude-hooks-windows-fixed",
+   "trigger": "上游 #43380/#16116/#420 修复落地，且 hooks 面出现真实需求信号（D-055 触发器同族）",
+   "review_at": "Claude Code changelog/issue 面清点或 D-055 触发器激活时",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "追踪上游三 issue 状态；D-055 信任税裁定不随技术修复自动翻转——需信号+修复双条件",
+   "confirmations": [
+    {
+     "at": "2026-09-18",
+     "by": "轮21 grill D-072",
+     "criterion_version": "D-072⑥",
+     "decision": "registered",
+     "reason": "duckdb 缺口三备选否决挂量化复审触发器",
+     "evidence": "decision-ledger.md D-072＋R21-Q2 报告"
+    }
+   ]
+  },
+  {
+   "id": "xfail-second-track-trigger",
+   "family": "code-hygiene",
+   "title": "断言输入面快照化第二轨触发器（D-071⑨）——XFAIL 条目触 cap 或单条目连续 2 复审锚无变化→立快照化票",
+   "deadline_event": null,
+   "deadline": "无（值守项）",
+   "trigger_event": null,
+   "trigger": "stale-assertions.json 条目数触 cap=10，或单条目连续 2 个复审锚无变化",
+   "review_at": "stage3-close",
+   "status": "pending",
+   "watch": "manual_watch",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "每复审锚清点 stale-assertions.json 条目数与逐条变更史；触发即立票按三类病根修法（锚点 hash+时点／结构不变量／单调包含性）随触碰窗口推进，非一次性大改 30 守卫",
+   "review_event": "stage3-close",
+   "confirmations": [
+    {
+     "at": "2026-09-18",
+     "by": "轮21 grill D-071",
+     "criterion_version": "D-071⑨",
+     "decision": "registered",
+     "reason": "清单制是止血层非治本层——第二轨治本挂触发器不立大票",
+     "evidence": "decision-ledger.md D-071＋R21-Q1 报告 §4 第二轨"
     }
    ]
   }

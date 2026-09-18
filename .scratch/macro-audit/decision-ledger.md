@@ -591,3 +591,30 @@
 
 无去向记录清单：空。
 
+
+## 第二十一轮 Grill
+
+| ID | 原问题 | 我的回答原文 | 规范化需求 | 显式约束/负向需求 | 状态 |
+|---|---|---|---|---|---|
+| D-071 | Q1（轮21）：陈旧守卫生命周期治理——9 条陈旧断言 FAIL（5 守卫）常态化该立什么换代机制？（atomcode 深调研 R21-Q1：pytest strict-xfail/Chromium TestExpectations/TAP TODO/rustc known-bug/oneuptime quarantine 11 源含官方原文级，置信高） | 采纳（2026-09-18，原话「采纳」＝采纳修正后推荐=(a) 清单制主体＋(b) 字段并入＋(c) 降格载体＋第二轨挂触发器） | ① **known-failures 清单制**（pytest strict-xfail 心智模型——声明式期望态标注＋断言照跑，四方先例交叉一致）：`stale-assertions.json`（version/cap=10/entries：id=`xfail-<guard>-<slug>`＋guard＋assertion-slug＋attribution＋failure_class＋evidence 指针＋review_anchor 事件＋expires_fallback 日期＋superseded_by＋added）；② **三态输出协议**：NN-check 断言级稳定 id（前置条件——现仅整守卫 exit code）＋status PASS/FAIL/XFAIL/XPASS；exit 语义=未登记 FAIL 或任何 XPASS→非零、仅已登记 XFAIL→零但顶部常显 `XFAIL: n (cap 10)`（D-068⑤ 边界显式化同构）；**strict=XPASS 一律红逼摘条目无 lenient 逃生门**；③ **断言照跑不转 archived**（Chromium 文件头原文「禁 skip failing test 应加 expectation 照跑收集数据」；rustc known-bug 哨兵语义——不跑=丢 XPASS 自清信号）；④ **33-check 元校验直接 enforce**（纯结构校验确定性 100%，D-068⑥ 同构不走两段式）：悬空条目=FAIL／evidence 指针存在性／复审锚逾期未动→报警（D-041 逾期→risk_accepted 候选同构）／条目数>cap→FAIL 立票批量处置；⑤ **首批 9 条入清单**（归因引 t8-watch-review.md §3＋A-061）；⑥ **复审锚=事件制为主**（review_anchor: stage3-close 对齐 registry review_event 推进）＋expires_fallback 日期兜底防锚长期不到无限挂起；⑦ **清单条目=manual_watch 五要素机检化变体**（非 registry 第四态——XFAIL 是守卫输出态非值守态）；⑧ **真回归禁入清单**（Trunk 原则 broken≠flaky，破坏性漂移无入单资格）；⑨ **第二轨「断言输入面快照化」治本挂 manual_watch 触发器**（条目触 cap 或连续 2 复审锚无变化→立票）：三类病根三种修法——票拆分面→锚点加内容 hash＋时点（D-068 committed-baseline 同构）／滚动面→锁结构不变量非 T 序号／增长面→单调包含性非等值；不立大票改 30 守卫，随触碰窗口顺带（D-070 先例）；⑩ **D-055 勘误注记一行**（「FAIL 不扩大人工逐轮比对」→清单制机检替代，本体不改写成对落盘惯例）＋清单与 D-068⑦ 显式划界（baseline 更新=一次性豁免动作 vs XFAIL 条目=持续性受控声明，语义不同不冲突） | 零 revised；登记义务=D-055 勘误注记＋D-068⑦ 划界注记；缺口登记：30 个 NN-check 断言级 id 现状未盘点（落地前先只读盘点）；Chromium expiration 字段倾向「事件/工具制非日历制」中置信；执行时点=整理环节立案＋实施轮落地 | current |
+
+| D-072 | Q2（轮21）：duckdb 原生绑定残余缺口——插件装上但 facts/audit 跑不动的终态裁票？（atomcode 深调研 R21-Q2：DuckDB Neo optionalDependencies/better-sqlite3 prebuild-install/playwright/Claude hook bug 链/duckdb-wasm #2192 多源，置信高） | 采纳（2026-09-18，原话「采纳」＝采纳修正后推荐=(f) 组合全项） | ① **自愈主路径**（(e) 锐化版——DuckDB Neo 官方 esbuild 式 optionalDependencies 平台分包使「精确拉单平台包」为一等路径）：store.ts `loadDuckdb()` DUCKDB-UNAVAILABLE 命中点前置自愈——平台探测（process.platform+arch+detect-libc 判 musl）→`npm install --no-save --omit=dev @duckdb/node-bindings-<platform>@<锁定版>`（--no-save 不动 package.json/lock=插件目录只读语义最小化；win32-arm64 无官方包直接回落）→完整性校验（.node 存在＋尺寸阈＋包内 version===锁定版三方同值，失败删半成品目录回落）→**每进程至多 1 次**（内存旗标防循环）；若 node-api JS 面亦缺才退全量 `npm install --omit=dev`；② **(d) 披露地板**：DUCKDB-UNAVAILABLE 文案升级三段=「自动补拉失败（原因）→手动 `npm install --omit=dev`→无网络时 facts/audit 不可用其余不受影响」；③ **守卫**：CI rebuild-diff 链加「干净机自愈 E2E smoke」＋离线模拟（死 registry→断言回落非崩溃）＋版本常量三方同值断言（D-037⑥ 同族）；④ **bundle 验收硬条件**：@duckdb/node-bindings 分发器 JS 须在 bundle 内可达或显式 external（D-067② caveat 升格）；⑤ **披露**：README/D-067⑧ 文档升「首次使用自动补拉（需网络 ~40MB）；无网络见手动路径」＋Default Mode「一次安装命令」语义收窄如实登记（零手动步但需网络）；⑥ **三触发器挂复审**：(a) vendored=官方预签名分发或包尺寸恶化再评／(c) duckdb-wasm=#2192 类持久化缺陷修复合入≥1 稳定版＋本仓 append→重开 SWMR 实测通过再评／(b) SessionStart=上游 #43380/#16116/#420 修复落地＋D-055 hooks 真实需求信号再评；⑦ **npm 渠道辨析写票面防误读**：npm publish 渠道（deferred 不动）≠插件目录 npm install 依赖拉取（消费上游包不自发布）；⑧ 自愈成功/失败结构化落 stdout 供 runtime-doctor（#62）消费 | 零 revised——(b) 由 D-055 hooks 信任税＋Shai-Hulud 2026-05 劫持 SessionStart 先例双重否决；(c) 由 #2192 OPFS 静默丢数据实锤否决挂量化触发器；(a) 由 D-059⑨ 二进制值守＋8 变体仓重否决；缺口登记=平台包精确尺寸未逐变体实测（落地时核实）；执行时点=整理环节立案 | current |
+
+## 第二十一轮收口对账
+
+增量 2 条去向：
+
+| D | 去向 |
+|---|---|
+| D-071 | BACKLOG #63（P1：stale-assertions.json 清单＋首批 9 条＋NN-check 断言级 id/三态输出协议＋33-check 元校验四断言）＋registry `xfail-second-track-trigger` 项（manual_watch，复审锚=stage3-close）＋「FAIL 不扩大」勘误注记（本环节落，见下） |
+| D-072 | BACKLOG #64（P1：store.ts 自愈精确补拉＋三段文案＋bundle external 验收＋CI 干净机 E2E smoke＋离线断言＋npm 渠道辨析票面）＋registry 三复审触发器项（`duckdb-vendored-review`／`duckdb-wasm-review`／`claude-hooks-bootstrap-review`，event_bound＋三新事件） |
+
+连带落盘（非新决策）：BACKLOG #59「dist 41 件→40」审计 R1 一字勘误（git ls-files 实物=40）；D-067⑧ push 后真机 `/mcp` 重验＋CI rebuild-diff/npm ci 首跑实证=用户闸门残留（任务书闸门节）。
+
+**勘误注记（D-071⑩ 义务）**：「FAIL 不扩大」人工逐轮比对纪律（R14 lesson 衍生惯例，载于历轮审计重跑清单与 t8-watch-review.md §3 归因表）自 #63 落地起由 stale-assertions.json 清单制机检替代——冻结快照本体语义不改写；机制生效前的过渡窗人工比对维持有效。
+
+旧 64 条 current 去向在历轮收口对账节有案，无漂移。
+
+无去向记录清单：空。
+
+
