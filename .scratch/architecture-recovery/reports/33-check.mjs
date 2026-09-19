@@ -261,6 +261,22 @@ t('G7 attestation 行字段齐备＋id=ap-<guard>-<slug>＋evidence 可解析＋
   attFieldMiss.length === 0 && attIdBad.length === 0 && attEvMiss.length === 0 && attMigMiss.length === 0 && attMigBad.length === 0 && noHead.length === 0,
   attFieldMiss.concat(attIdBad, attEvMiss, attMigMiss, attMigBad, noHead).join(','));
 
+// --- H. D-081③ github-rest review 面激活事件一致性（registry 事件↔代码常量漂移守卫） ---
+{
+  const ghPath = join(AR, '..', '..', 'engine', 'src', 'upstream', 'github-rest.ts');
+  const ghSrc = fs.existsSync(ghPath) ? fs.readFileSync(ghPath, 'utf8') : '';
+  const plannedM = ghSrc.match(/GITHUB_REST_PLANNED_SURFACES[^=]*=\s*\[([\s\S]*?)\]/);
+  const reviewsPlanned = !!(plannedM && plannedM[1].indexOf('pulls.reviews') >= 0);
+  const evH = reg.events['github-rest-reviews-active'];
+  const itH = reg.items.find(i => i.id === 'github-rest-review-coverage-dimension');
+  t('H1 registry 事件 github-rest-reviews-active 在且值守项 github-rest-review-coverage-dimension event_bound 绑锚在',
+    !!(evH && itH && itH.watch === 'event_bound' && itH.trigger_event === 'github-rest-reviews-active'),
+    itH ? '' : 'item-missing');
+  t('H2 事件-常量一致（pulls.reviews 移出 PLANNED_SURFACES 而事件未翻=漂移 FAIL）',
+    evH ? (reviewsPlanned === !evH.occurred) : false,
+    'planned=' + reviewsPlanned + ' occurred=' + (evH ? evH.occurred : 'N/A'));
+}
+
 console.log('--- 值守快照 ---');
 alarms.forEach(a => console.log('ALARM ' + a));
 warns.forEach(w => console.log('WARN  ' + w));
