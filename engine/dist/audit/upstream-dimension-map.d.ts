@@ -26,7 +26,7 @@ export declare const GITHUB_REST_DIMENSION_MAP: readonly UpstreamMapRow[];
 export declare const UPSTREAM_DIMENSION_MAP: readonly UpstreamMapRow[];
 export interface UpstreamResolution {
     readonly dimension: UpstreamDimension | null;
-    readonly lane: UpstreamLane | 'S-dimension';
+    readonly lane: UpstreamLane | 'S-dimension' | 'unmapped';
     readonly admission: string;
     readonly admitted: boolean;
     readonly reason: string;

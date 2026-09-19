@@ -20,7 +20,7 @@
 | `github_rest.pr_metadata`（Bot 占比切片） | bot 参与密度 | S5（终裁，D-082） | **措辞锁「平台声明的 Bot 身份」**（user.type=="Bot"／login [bot] 后缀双检） | S4 备选已收：快照窗口占比是状态量非趋势量（演化归属仅限纵向派生 fact，§④ 快照判据）；若未来派生 bot 占比纵向趋势 fact（时间序列），其 S4 归属届时另裁 |
 | `github_rest.pr_metadata`（review 覆盖切片） | review 覆盖 | **pending(event_bound)**——候选对 S5 ↔ S4 **无偏好序**（D-081） | 挂起锚=registry `github-rest-review-coverage-dimension` | 触发=`pulls.reviews` 移出 `GITHUB_REST_PLANNED_SURFACES`（面激活、fact 实产）之日，接线票落地按采集数据裁定（D-078④）；面仍 planned（D-048/ADR-0020），YAGNI 不破 |
 | `github_rest.pr_diff` | diff 双通道 | Micro-A 消费 | 不直采 Macro-B | #48 Micro-A preview 硬前置=#47 消费侧 |
-| `github_rest.rate_limit`／`rate_limited`／`api_error`／`schema_drift`／`resolution`／`run` | 遥测/运行态面 | **永久排除**出 S 维 | —— | rate_limit 明示永久排除（D-078③）；同族遥测信号同处置，防噪声渗入裁决 |
+| `github_rest.rate_limit`／`rate_limited`／`api_error`／`schema_drift`／`resolution`／`run`／`preflight` | 遥测/运行态面 | **永久排除**出 S 维 | —— | rate_limit 明示永久排除（D-078③）；`preflight`=防御性超枚举（当前无生产者，排除向 fail-safe 预列——R23 审计勘误：BACKLOG #72 原文「六类」为票面口径，实现含本项共七类）；同族遥测信号同处置，防噪声渗入裁决 |
 
 ## ③ codelore 映射（adapter=`codelore-adapter@v1`）
 
@@ -29,7 +29,7 @@
 | 演化主干 12 | revisions / abs-churn / entity-churn / author-churn / hotspot-velocity / code-age / stale-code / architecture-trend / health-trend / lead-time / release-cadence / messages | S4 | 无准入 | 演化与交付节奏面 |
 | s3 族 6 | god-classes / architecture-metrics / dependency-cycles / modularity-violations / instability / architecture-roles | S3 | **#51 双口径风险：须成对 opposing 指标** | 结构面 |
 | s5 族 12 | ownership / entity-ownership / bus-factor / main-dev / main-dev-by-revs / main-dev-by-deletions / knowledge-islands / communication / coordination-needs / team-composition / marginal-owner-risk / pair-programming | S5 | 无准入 | 组织与知识分布面 |
-| explain 族 | （LLM 门控面，`env_family=CODELORE_LLM_*`） | S4 | env 门控不变（未设=不产面，非降级非缺失） | #36 独立票面 |
+| explain 族 9 | explain-repo / explain-brief / explain-adr / explain-query / explain-resolve / explain-execute / explain-dryrun / llm-narrative / capability-check（LLM 门控面，`env_family=CODELORE_LLM_*`） | S4 | env 门控不变（未设=不产面，非降级非缺失） | #36 独立票面 |
 | behavior 族 | hotspots / coupling / function-hotspots | ——（behavior 象限切片，非 S 维） | Macro-B behavior QuadrantEntry 消费归位 | D-054③：fact.quadrant=collector 声明域，象限归属=切片决策 |
 | 暂缓面集 | function-coupling / clone-coupling / sarif / effort-exposure / delivery-* 族 | ——（未采集不映射） | registry `codelore-deferred-faces` manual_watch 激活后再归位 | D-035④ |
 

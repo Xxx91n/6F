@@ -63,7 +63,7 @@ export function isCodeloreDeferredAnalysis(analysis) {
 export function resolveGithubRestSlice(slice, ctx) {
     const row = GITHUB_REST_DIMENSION_MAP.find(r => r.surface === slice);
     if (!row)
-        return { dimension: null, lane: 'excluded', admission: '', admitted: false, reason: 'not_mapped（未登记 slice）' };
+        return { dimension: null, lane: 'unmapped', admission: '', admitted: false, reason: 'not_mapped（未登记 slice——非永久排除非挂起，登记前不投影归位）' };
     if (slice === 'merge-lead-time' && ctx && ctx.is_bot_via_platform_identity === true) {
         return { dimension: null, lane: 'S-dimension', admission: row.admission, admitted: false, reason: '准入拒：平台声明 Bot 身份的 PR 不入 merge-lead-time（CHAOSS 纪律）' };
     }

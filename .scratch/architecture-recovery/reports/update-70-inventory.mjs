@@ -107,4 +107,13 @@ const out = {
 };
 const target = join(HERE, '63-assertion-inventory.json');
 fs.writeFileSync(target, JSON.stringify(out, null, 2) + '\n', 'utf8');
-console.log('63-assertion-inventory.json regenerated: ' + Object.keys(guards).length + ' guards, ' + Object.values(guards).reduce((s, x) => s + x.assertion_ids, 0) + ' emit sites');
+
+// --- assert-back（fail-closed——update-72-registry.mjs 同款三检；R23 审计 R2 修复） ---
+const back = JSON.parse(fs.readFileSync(target, 'utf8'));
+const hasBom = fs.readFileSync(target)[0] === 0xEF;
+const guardN = Object.keys(back.guards || {}).length;
+const sites = Object.values(back.guards || {}).reduce((s, x) => s + (x.assertion_ids || 0), 0);
+const wantSites = Object.values(guards).reduce((s, x) => s + x.assertion_ids, 0);
+const ok = !hasBom && back.ticket === 63 && back.decision === 'D-071' && guardN === Object.keys(guards).length && guardN > 0 && sites === wantSites;
+console.log('63-assertion-inventory.json regenerated: ' + guardN + ' guards, ' + sites + ' emit sites (BOM=' + hasBom + ')');
+if (!ok) { console.error('INVENTORY-ASSERT-FAIL'); process.exit(1); }

@@ -27,8 +27,14 @@ const txt = (p) => fs.readFileSync(p, 'utf8');
 
 // ---------- A. 常量块形制 ----------
 const mapSrc = fs.existsSync(MAP_SRC) ? txt(MAP_SRC) : '';
-t('A1 映射常量块在且版本 v1.0＋复审两字段（last_reviewed/next_review 同步表头）',
-  mapSrc.indexOf("UPSTREAM_DIMENSION_MAP_VERSION = 'v1.0'") >= 0 && mapSrc.indexOf("last_reviewed: '2026-09-19'") >= 0 && mapSrc.indexOf("next_review: '2026-10-19'") >= 0, '');
+const docA1 = fs.existsSync(DOC) ? txt(DOC) : '';
+const revM = (mapSrc.match(/last_reviewed:\s*'([^']+)'/) || [])[1];
+const nextM = (mapSrc.match(/next_review:\s*'([^']+)'/) || [])[1];
+const revD = (docA1.match(/last_reviewed (\d{4}-\d{2}-\d{2})/) || [])[1];
+const nextD = (docA1.match(/next_review (\d{4}-\d{2}-\d{2})/) || [])[1];
+t('A1 映射常量块在且版本 v1.0＋复审两字段与表头互等（last_reviewed/next_review 常量⇔doc 同步——不钉字面值，漂移失配即 FAIL，R23 审计 S2 修复）',
+  mapSrc.indexOf("UPSTREAM_DIMENSION_MAP_VERSION = 'v1.0'") >= 0 && !!revM && !!nextM && revM === revD && nextM === nextD,
+  'map=' + revM + '/' + nextM + ' doc=' + revD + '/' + nextD);
 t('A2 常量块无权重字段（D-084——映射行形制禁权重列，权重归 rubric/聚合面另立案）',
   !/\bweight\b|weight_coefficient/i.test(mapSrc), '');
 let M = null;
@@ -43,6 +49,7 @@ const CL_EVOLUTION = ['revisions', 'abs-churn', 'entity-churn', 'author-churn', 
 const CL_S3 = ['god-classes', 'architecture-metrics', 'dependency-cycles', 'modularity-violations', 'instability', 'architecture-roles'];
 const CL_S5 = ['ownership', 'entity-ownership', 'bus-factor', 'main-dev', 'main-dev-by-revs', 'main-dev-by-deletions', 'knowledge-islands', 'communication', 'coordination-needs', 'team-composition', 'marginal-owner-risk', 'pair-programming'];
 const CL_BEHAVIOR = ['hotspots', 'coupling', 'function-hotspots'];
+const CL_EXPLAIN = ['explain-repo', 'explain-brief', 'explain-adr', 'explain-query', 'explain-resolve', 'explain-execute', 'explain-dryrun', 'llm-narrative', 'capability-check'];
 const docEvo = docRows.find(l => l.indexOf('演化主干') >= 0) || '';
 const docS3 = docRows.find(l => l.indexOf('s3 族') >= 0) || '';
 const docS5 = docRows.find(l => l.indexOf('s5 族') >= 0) || '';
@@ -62,18 +69,20 @@ t('B3 表行「s5 族 12」枚举 ⇔ 常量 S5',
   docS5.indexOf('| S5 |') >= 0 && CL_S5.every(a => docS5.indexOf(a) >= 0) &&
   !!M && CL_S5.every(a => M.resolveCodeloreAnalysis(a).dimension === 'S5'),
   'doc-enum-miss=' + CL_S5.filter(a => docS5.indexOf(a) < 0).join(','));
-t('B4 表行「explain 族」⇔ 常量 S4＋env 门控准入（未设=不产面非降级非缺失）',
-  docExplain.indexOf('| S4 |') >= 0 && docExplain.indexOf('env 门控') >= 0 &&
-  !!M && M.CODELORE_EXPLAIN_SURFACES.every(a => { const r = M.resolveCodeloreAnalysis(a); return r.dimension === 'S4' && /env 门控/.test(r.admission); }), '');
+t('B4 表行「explain 族 9」枚举 ⇔ 常量 S4＋env 门控准入（成员级对账——未设=不产面非降级非缺失，R23 审计 Spec-P1 补盲）',
+  docExplain.indexOf('| S4 |') >= 0 && docExplain.indexOf('env 门控') >= 0 && CL_EXPLAIN.every(a => docExplain.indexOf(a) >= 0) &&
+  !!M && M.CODELORE_EXPLAIN_SURFACES.length === CL_EXPLAIN.length && M.CODELORE_EXPLAIN_SURFACES.every(a => { const r = M.resolveCodeloreAnalysis(a); return r.dimension === 'S4' && /env 门控/.test(r.admission); }),
+  'doc-enum-miss=' + CL_EXPLAIN.filter(a => docExplain.indexOf(a) < 0).join(','));
 t('B5 表行「behavior 族」⇔ 常量 QuadrantEntry 归位（不直归 S 维——D-054③）',
   docBehavior.indexOf('QuadrantEntry') >= 0 && CL_BEHAVIOR.every(a => docBehavior.indexOf(a) >= 0) &&
   !!M && CL_BEHAVIOR.every(a => { const r = M.resolveCodeloreAnalysis(a); return r.dimension === null && r.lane === 'Macro-B-QuadrantEntry'; }), '');
 t('B6 表行「暂缓面集」⇔ 常量 deferred 不映射（未激活不归位——D-035④）',
   docDeferred.indexOf('不映射') >= 0 && !!M && M.resolveCodeloreAnalysis('function-coupling').dimension === null && M.isCodeloreDeferredAnalysis('function-coupling') === true, '');
 // 常量→文档反向对账：常量 codelore 分析面全在文档枚举（防幽灵行）
-const docAll = docEvoList + docS3 + docS5 + docBehavior;
-const phantom = M ? M.CODELORE_DIMENSION_MAP.filter(r => r.surface_kind === 'analysis').filter(r => docAll.indexOf(r.surface) < 0).map(r => r.surface) : [];
-t('B7 常量 analysis 行全在文档枚举（无幽灵映射——反向对账）', phantom.length === 0, phantom.join(','));
+//   ——analysis 行＋explain 族 group 行均覆盖（deferred-faces 组行属 B6 registry 枚举面除外；R23 审计 Spec-P1 补盲）
+const docAll = docEvoList + docS3 + docS5 + docBehavior + docExplain;
+const phantom = M ? M.CODELORE_DIMENSION_MAP.filter(r => r.surface_kind === 'analysis' || (r.surface_kind === 'group' && r.surface !== 'deferred-faces')).filter(r => docAll.indexOf(r.surface) < 0).map(r => r.surface) : [];
+t('B7 常量 analysis＋explain group 行全在文档枚举（无幽灵映射——反向对账）', phantom.length === 0, phantom.join(','));
 
 // ---------- C. COLLECTOR 注册面 ----------
 const reg = M ? M.UPSTREAM_COLLECTOR_REGISTRY : [];

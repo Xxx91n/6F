@@ -42,6 +42,7 @@ t('A4 explain 族→S4 且准入=env 门控', () => {
     assert.equal(r.dimension, 'S4', a);
     assert.match(r.admission, /env 门控/, a);
   }
+  assert.equal(M.CODELORE_EXPLAIN_SURFACES.length, 9);
 });
 t('A5 behavior 族→Macro-B QuadrantEntry lane（不直归 S 维，D-054③）', () => {
   for (const a of M.CODELORE_BEHAVIOR_FACES) {
@@ -51,6 +52,7 @@ t('A5 behavior 族→Macro-B QuadrantEntry lane（不直归 S 维，D-054③）'
     assert.equal(r.admitted, false, a);
   }
   assert.deepEqual([...M.CODELORE_BEHAVIOR_FACES], CL.CODELORE_BEHAVIOR_FACETS.map(f => f.analysis));
+  assert.equal(M.CODELORE_BEHAVIOR_FACES.length, 3);
 });
 t('A6 deferred/未登记面→not_mapped（D-035④）', () => {
   assert.equal(M.isCodeloreDeferredAnalysis('function-coupling'), true);

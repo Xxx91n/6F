@@ -3105,7 +3105,7 @@ function resolveCodeloreAnalysis(analysis) {
 }
 function resolveGithubRestSlice(slice, ctx) {
   const row = GITHUB_REST_DIMENSION_MAP.find((r) => r.surface === slice);
-  if (!row) return { dimension: null, lane: "excluded", admission: "", admitted: false, reason: "not_mapped\uFF08\u672A\u767B\u8BB0 slice\uFF09" };
+  if (!row) return { dimension: null, lane: "unmapped", admission: "", admitted: false, reason: "not_mapped\uFF08\u672A\u767B\u8BB0 slice\u2014\u2014\u975E\u6C38\u4E45\u6392\u9664\u975E\u6302\u8D77\uFF0C\u767B\u8BB0\u524D\u4E0D\u6295\u5F71\u5F52\u4F4D\uFF09" };
   if (slice === "merge-lead-time" && ctx && ctx.is_bot_via_platform_identity === true) {
     return { dimension: null, lane: "S-dimension", admission: row.admission, admitted: false, reason: "\u51C6\u5165\u62D2\uFF1A\u5E73\u53F0\u58F0\u660E Bot \u8EAB\u4EFD\u7684 PR \u4E0D\u5165 merge-lead-time\uFF08CHAOSS \u7EAA\u5F8B\uFF09" };
   }

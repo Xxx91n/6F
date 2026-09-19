@@ -17,7 +17,7 @@
 //
 // last_reviewed=2026-09-19 next_review=2026-10-19（映射表复审纪律——同步 docs/upstream-dimension-map.md）
 
-import { CODELORE_DESCRIPTOR, CODELORE_BATCH1_FACETS, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
+import { CODELORE_DESCRIPTOR } from '../upstream/codelore.js';
 import { GITHUB_REST_DESCRIPTOR } from '../upstream/github-rest.js';
 import type { CollectorDescriptor, CollectedFact } from '../collect/collectors.js';
 
@@ -81,7 +81,7 @@ export const UPSTREAM_DIMENSION_MAP: readonly UpstreamMapRow[] = [...CODELORE_DI
 
 export interface UpstreamResolution {
   readonly dimension: UpstreamDimension | null;
-  readonly lane: UpstreamLane | 'S-dimension';
+  readonly lane: UpstreamLane | 'S-dimension' | 'unmapped';   // unmapped=未登记面（非永久排除非挂起——R23 审计 S5 标签澄清）
   readonly admission: string;
   readonly admitted: boolean;          // 准入判定后=true 才入维；false=显式 disclose 不产面
   readonly reason: string;
@@ -103,7 +103,7 @@ export function isCodeloreDeferredAnalysis(analysis: string): boolean {
 
 export function resolveGithubRestSlice(slice: string, ctx?: { is_bot_via_platform_identity?: boolean }): UpstreamResolution {
   const row = GITHUB_REST_DIMENSION_MAP.find(r => r.surface === slice);
-  if (!row) return { dimension: null, lane: 'excluded', admission: '', admitted: false, reason: 'not_mapped（未登记 slice）' };
+  if (!row) return { dimension: null, lane: 'unmapped', admission: '', admitted: false, reason: 'not_mapped（未登记 slice——非永久排除非挂起，登记前不投影归位）' };
   if (slice === 'merge-lead-time' && ctx && ctx.is_bot_via_platform_identity === true) {
     return { dimension: null, lane: 'S-dimension', admission: row.admission, admitted: false, reason: '准入拒：平台声明 Bot 身份的 PR 不入 merge-lead-time（CHAOSS 纪律）' };
   }
