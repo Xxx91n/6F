@@ -2,7 +2,7 @@
 
 ## Goal
 
-任务书 `D:\Aworker\6F\.scratch\macro-audit\handoffs\next-round.md` 轮 22 常驻任务书 T0~T9 依序执行：BACKLOG #65~#68 四票实装闭环＋T5 文档勘误批＋值守复核。本会话 T0~T5 全部落地，T6~T9 值守面无翻转。终报 `D:\Aworker\6F\.scratch\macro-audit\reports\2026-09-18-report.md`。
+任务书 `D:\Aworker\6F\.scratch\macro-audit\handoffs\next-round.md` 轮 22 常驻任务书 T0~T9 依序执行：BACKLOG #65~#68 四票实装闭环＋T5 文档勘误批＋值守复核。本会话 T0~T5 全部落地，T6~T9 值守面无翻转。终报 `D:\Aworker\6F\.scratch\macro-audit\reports\2026-09-18-r22-exec-report.md`（r22 审计 P1：同日撞名覆盖轮 20 报告——已循 -rNN- 后缀先例改名＋恢复原物）。
 
 ## Accomplished（本轮已落地，勿重做）
 

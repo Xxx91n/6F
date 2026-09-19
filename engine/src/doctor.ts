@@ -5,14 +5,14 @@
 // status：ok / degraded（有文档化回落路径，如离线时 facts/audit 不可用其余命令正常）/ fail（硬故障）。
 // selftest 维持 manifest 完整性对账本职不扩容（D-059③ doctor≠manifest 对账两类工具）——本模块为独立探测面。
 import { spawnSync } from 'node:child_process';
-import { rmSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { get } from 'node:https';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { openWriter, healDuckdbBinding } from './fact/store.js';
+import { openWriter, healDuckdbBinding, engineRoot, platformPackageSuffix } from './fact/store.js';
 
 export interface DoctorLeg {
-  leg: 'duckdb' | 'git' | 'upstream';
+  leg: 'duckdb' | 'bindings' | 'git' | 'upstream';
   status: 'ok' | 'degraded' | 'fail';
   detail: string;
 }
@@ -90,7 +90,24 @@ function probeUpstream(): Promise<DoctorLeg> {
   });
 }
 
+// #66④ doctor.bindings 检查项（r22 审计补缺腿）：绑定包磁盘在位＋版本可辨——独立于 duckdb 开库腿
+// （装成功≠载成功双面各报：bindings=装在盘事实，duckdb=载得动事实）。
+function probeBindings(): DoctorLeg {
+  const sfx = platformPackageSuffix();
+  if (sfx === null) return { leg: 'bindings', status: 'degraded', detail: '未知平台组合 ' + process.platform + '-' + process.arch + '——无官方绑定映射' };
+  const dir = join(engineRoot(), 'node_modules', '@duckdb', 'node-bindings-' + sfx);
+  if (!existsSync(dir)) {
+    return { leg: 'bindings', status: 'degraded', detail: '绑定包缺席 @duckdb/node-bindings-' + sfx + '——修复=doctor --fix 或 npm install --omit=dev' };
+  }
+  try {
+    const v = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).version;
+    return { leg: 'bindings', status: 'ok', detail: '@duckdb/node-bindings-' + sfx + '@' + String(v) + ' 在盘' };
+  } catch (e) {
+    return { leg: 'bindings', status: 'degraded', detail: '绑定目录在但 package.json 不可读——半成品面，doctor --fix 重装' };
+  }
+}
+
 export async function runDoctor(opts?: { fix?: boolean }): Promise<DoctorReport> {
-  const legs = [await probeDuckdb(!!(opts && opts.fix)), probeGit(), await probeUpstream()];
+  const legs = [await probeDuckdb(!!(opts && opts.fix)), probeBindings(), probeGit(), await probeUpstream()];
   return { doctor: '1.0.0', legs: legs, overall: worst(legs) };
 }

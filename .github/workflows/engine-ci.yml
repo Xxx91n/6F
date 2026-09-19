@@ -52,3 +52,8 @@ jobs:
         shell: bash
         working-directory: engine
         run: node test/duckdb-selfheal-e2e.test.mjs
+
+      - name: duckdb doctor --fix e2e
+        shell: bash
+        working-directory: engine
+        run: node test/doctor-fix.test.mjs

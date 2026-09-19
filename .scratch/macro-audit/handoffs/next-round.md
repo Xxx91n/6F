@@ -60,4 +60,4 @@
 - push 授权：round19/21-closeout＋r21 六分支栈＋本收口 commit 全停闸门；
 - D-067⑧ push 后真机 `/plugin install`→`/mcp` 重验＋CI rebuild-diff/npm ci 首跑实证随闸门；
 - B 轨官方目录：未授权不触碰（D-042）；
-- 追问挂票面（随票裁）：#67 mode 元断言是否进 34-check／版本窗机检锚=CHANGELOG M 条目／#68 落点 vs quadrant-rubric 并面／Bot 占比 S5 vs S4 备选。
+- 追问挂票面（随票裁）：#67 mode 元断言是否进 34-check／版本窗机检锚=CHANGELOG M 条目／#68 落点 vs quadrant-rubric 并面／Bot 占比 S5 vs S4 备选／**r22 审计 P2**：sealed 判据自「失效」扩「失效∨恒真不可证伪」候选面复核——39-F2 读已撤 jiahao workflow 恒真过属同 superseded 族漏网（分拣输入=FAIL 集故逃逸）。

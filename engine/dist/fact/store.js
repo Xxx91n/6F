@@ -48,7 +48,7 @@ function isMusl() {
         return false;
     }
 }
-function platformPackageSuffix() {
+export function platformPackageSuffix() {
     const p = process.platform;
     const a = process.arch;
     if (p === 'win32' || p === 'darwin')
@@ -57,7 +57,7 @@ function platformPackageSuffix() {
         return 'linux-' + a + (isMusl() ? '-musl' : '');
     return null;
 }
-function engineRoot() {
+export function engineRoot() {
     let dir = dirname(fileURLToPath(import.meta.url));
     for (let i = 0; i < 8; i++) {
         const pj = join(dir, 'package.json');
@@ -177,13 +177,18 @@ export function healDuckdbBinding() {
         emitSelfHeal({ result: 'fallback', trigger: 'doctor-fix', detail: heal.detail, platform: process.platform + '-' + process.arch });
         return heal;
     }
+    let mod;
     try {
-        createRequire(import.meta.url)('@duckdb/node-api');
+        mod = createRequire(import.meta.url)('@duckdb/node-api');
     }
     catch (e2) {
         emitSelfHeal({ result: 'fallback', trigger: 'doctor-fix', detail: heal.detail + '；createRequire 仍失败', platform: process.platform + '-' + process.arch });
         return { ok: false, detail: heal.detail + '；createRequire 仍失败' };
     }
+    // r22 审计 R1 修复：ESM 对失败 specifier 缓存 module record——同进程后续 import() 必回投原拒绝（A-072 实证）。
+    // 回填 duckdbModulePromise 为 createRequire 已验载实例：--fix 后同进程 openWriter→loadDuckdb 复用本实例，
+    // 不再走被污染的 import() 通道（--fix 是 MCP/CI 面唯一恢复路径，此回填即目标场景成立的前提）。
+    duckdbModulePromise = Promise.resolve(mod);
     emitSelfHeal({ result: 'success', trigger: 'doctor-fix', detail: heal.detail, platform: process.platform + '-' + process.arch });
     return heal;
 }

@@ -14,6 +14,8 @@ export interface FactEvent {
     value_json: string;
     observed_at: string;
 }
+export declare function platformPackageSuffix(): string | null;
+export declare function engineRoot(): string;
 export declare function healDuckdbBinding(): {
     ok: boolean;
     detail: string;

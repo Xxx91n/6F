@@ -34,7 +34,7 @@ function runSelftest() {
 
 // src/doctor.ts
 import { spawnSync as spawnSync2 } from "node:child_process";
-import { rmSync as rmSync2 } from "node:fs";
+import { existsSync as existsSync2, readFileSync as readFileSync3, rmSync as rmSync2 } from "node:fs";
 import { get } from "node:https";
 import { tmpdir } from "node:os";
 import { join as join3 } from "node:path";
@@ -274,12 +274,14 @@ function healDuckdbBinding() {
     emitSelfHeal({ result: "fallback", trigger: "doctor-fix", detail: heal.detail, platform: process.platform + "-" + process.arch });
     return heal;
   }
+  let mod;
   try {
-    createRequire(import.meta.url)("@duckdb/node-api");
+    mod = createRequire(import.meta.url)("@duckdb/node-api");
   } catch (e2) {
     emitSelfHeal({ result: "fallback", trigger: "doctor-fix", detail: heal.detail + "\uFF1BcreateRequire \u4ECD\u5931\u8D25", platform: process.platform + "-" + process.arch });
     return { ok: false, detail: heal.detail + "\uFF1BcreateRequire \u4ECD\u5931\u8D25" };
   }
+  duckdbModulePromise = Promise.resolve(mod);
   emitSelfHeal({ result: "success", trigger: "doctor-fix", detail: heal.detail, platform: process.platform + "-" + process.arch });
   return heal;
 }
@@ -396,14 +398,28 @@ function probeUpstream() {
     });
   });
 }
+function probeBindings() {
+  const sfx = platformPackageSuffix();
+  if (sfx === null) return { leg: "bindings", status: "degraded", detail: "\u672A\u77E5\u5E73\u53F0\u7EC4\u5408 " + process.platform + "-" + process.arch + "\u2014\u2014\u65E0\u5B98\u65B9\u7ED1\u5B9A\u6620\u5C04" };
+  const dir = join3(engineRoot(), "node_modules", "@duckdb", "node-bindings-" + sfx);
+  if (!existsSync2(dir)) {
+    return { leg: "bindings", status: "degraded", detail: "\u7ED1\u5B9A\u5305\u7F3A\u5E2D @duckdb/node-bindings-" + sfx + "\u2014\u2014\u4FEE\u590D=doctor --fix \u6216 npm install --omit=dev" };
+  }
+  try {
+    const v = JSON.parse(readFileSync3(join3(dir, "package.json"), "utf8")).version;
+    return { leg: "bindings", status: "ok", detail: "@duckdb/node-bindings-" + sfx + "@" + String(v) + " \u5728\u76D8" };
+  } catch (e) {
+    return { leg: "bindings", status: "degraded", detail: "\u7ED1\u5B9A\u76EE\u5F55\u5728\u4F46 package.json \u4E0D\u53EF\u8BFB\u2014\u2014\u534A\u6210\u54C1\u9762\uFF0Cdoctor --fix \u91CD\u88C5" };
+  }
+}
 async function runDoctor(opts) {
-  const legs = [await probeDuckdb(!!(opts && opts.fix)), probeGit(), await probeUpstream()];
+  const legs = [await probeDuckdb(!!(opts && opts.fix)), probeBindings(), probeGit(), await probeUpstream()];
   return { doctor: "1.0.0", legs, overall: worst(legs) };
 }
 
 // src/intake/intake.ts
 import { createHash } from "node:crypto";
-import { existsSync as existsSync2, mkdirSync, statSync as statSync2 } from "node:fs";
+import { existsSync as existsSync3, mkdirSync, statSync as statSync2 } from "node:fs";
 import { spawnSync as spawnSync3 } from "node:child_process";
 import { dirname as dirname3, isAbsolute, join as join4, resolve } from "node:path";
 var URL_SCHEMES = [
@@ -495,7 +511,7 @@ function snapshotFetchedAt(dir) {
 function cloneToIsolatedCache(url, cacheRoot, timeoutMs = 6e5, refresh = false) {
   const key = sha256Short(normalizeRepoUrlKey(url));
   const dir = join4(cacheRoot, "repos", key);
-  if (existsSync2(dir)) {
+  if (existsSync3(dir)) {
     if (isGitRepo(dir, 3e4) && normalizeRepoUrlKey(remoteOriginUrl(dir, 3e4)) === normalizeRepoUrlKey(url)) {
       const shallow = isShallowRepo(dir, 3e4);
       if (shallow) {
@@ -579,13 +595,13 @@ function repoAdd(input, opts = {}) {
   }
   if (cls.kind === "owner-repo") {
     const localCandidate = resolve(cwd, cls.original);
-    if (existsSync2(localCandidate) && statSync2(localCandidate).isDirectory()) {
+    if (existsSync3(localCandidate) && statSync2(localCandidate).isDirectory()) {
       return finishLocal({ ...base, resolved_root: localCandidate }, timeoutMs);
     }
     throw intakeError("OWNER-REPO-UNRESOLVED", cls.original + " \u672C\u5730\u4F18\u5148\u6D88\u6B67\u5931\u8D25\u2014\u2014\u663E\u5F0F URL\uFF08https/git@\uFF09\u624D\u5141\u8BB8 clone");
   }
   const localPath = resolve(cwd, cls.original);
-  if (!existsSync2(localPath) || !statSync2(localPath).isDirectory()) {
+  if (!existsSync3(localPath) || !statSync2(localPath).isDirectory()) {
     throw intakeError("PATH-NOT-FOUND", "local path not found: " + localPath);
   }
   return finishLocal({ ...base, resolved_root: localPath }, timeoutMs);
@@ -612,7 +628,7 @@ function finishLocal(result, timeoutMs) {
 }
 
 // src/demo/demo.ts
-import { mkdtempSync, mkdirSync as mkdirSync3, writeFileSync as writeFileSync2, readFileSync as readFileSync4, existsSync as existsSync4, rmSync as rmSync3 } from "node:fs";
+import { mkdtempSync, mkdirSync as mkdirSync3, writeFileSync as writeFileSync2, readFileSync as readFileSync5, existsSync as existsSync5, rmSync as rmSync3 } from "node:fs";
 import { tmpdir as tmpdir2 } from "node:os";
 import { dirname as dirname5, join as join7, resolve as resolve2 } from "node:path";
 
@@ -2386,7 +2402,7 @@ function generateFixtureRepo(def, targetDir) {
 }
 
 // src/audit/macro-b.ts
-import { readFileSync as readFileSync3, readdirSync as readdirSync2, existsSync as existsSync3 } from "node:fs";
+import { readFileSync as readFileSync4, readdirSync as readdirSync2, existsSync as existsSync4 } from "node:fs";
 import { join as join6 } from "node:path";
 import { execFileSync } from "node:child_process";
 
@@ -2592,7 +2608,7 @@ function probeMacroBRepo(repoRoot, headSha2) {
 }
 function collectMacroB(repoRoot, spec, ctx, probes) {
   const adrDir = join6(repoRoot, "docs", "adr");
-  const adrFiles = existsSync3(adrDir) ? readdirSync2(adrDir).filter(function(f) {
+  const adrFiles = existsSync4(adrDir) ? readdirSync2(adrDir).filter(function(f) {
     return /^\d{3,}.*\.md$/i.test(f);
   }).sort() : [];
   const firstCommitOf = function(p) {
@@ -2606,7 +2622,7 @@ function collectMacroB(repoRoot, spec, ctx, probes) {
   };
   const adrDocs = adrFiles.map(function(f) {
     const rel = "docs/adr/" + f;
-    return { path: rel, text: readFileSync3(join6(adrDir, f), "utf8"), first_commit_date: firstCommitOf(rel) };
+    return { path: rel, text: readFileSync4(join6(adrDir, f), "utf8"), first_commit_date: firstCommitOf(rel) };
   });
   const adrPaths = adrDocs.map(function(d) {
     return d.path;
@@ -2625,8 +2641,8 @@ function collectMacroB(repoRoot, spec, ctx, probes) {
   const intentDocs = [];
   for (const cand of spec.intentCandidates) {
     const p = join6(repoRoot, cand);
-    if (existsSync3(p)) {
-      intentDocs.push({ path: cand, text: readFileSync3(p, "utf8") });
+    if (existsSync4(p)) {
+      intentDocs.push({ path: cand, text: readFileSync4(p, "utf8") });
     }
   }
   const deliveryDocs = [{ path: "git log subjects @ " + probes.headSha.slice(0, 7), text: probes.subjects.join(NL) }];
@@ -2663,7 +2679,7 @@ function collectMacroB(repoRoot, spec, ctx, probes) {
   const pc2 = { pass: pc2Lag.length > 0 && JSON.parse(pc2Lag[0].value_json).delta_days > 0, delta_days: pc2Lag.length > 0 ? JSON.parse(pc2Lag[0].value_json).delta_days : null };
   let nc1Path = null;
   for (const cand of spec.nc1Candidates) {
-    if (existsSync3(join6(repoRoot, cand))) {
+    if (existsSync4(join6(repoRoot, cand))) {
       nc1Path = cand;
       break;
     }
@@ -2671,7 +2687,7 @@ function collectMacroB(repoRoot, spec, ctx, probes) {
   if (!nc1Path) {
     throw new Error("NC1-CANDIDATE-MISS[" + repoRoot + "]");
   }
-  const nc1Facts = collectAdrStructure({ documents: [{ path: nc1Path, text: readFileSync3(join6(repoRoot, nc1Path), "utf8") }] }, ctx);
+  const nc1Facts = collectAdrStructure({ documents: [{ path: nc1Path, text: readFileSync4(join6(repoRoot, nc1Path), "utf8") }] }, ctx);
   const nc1Five = nc1Facts.find(function(f) {
     return f.metric === "adr.five_piece_completeness";
   });
@@ -2823,17 +2839,17 @@ function loadDefinition(scenario) {
     throw new Error("DEMO-SCENARIO-UNKNOWN: " + scenario + "\uFF08\u53EF\u9009\uFF1A" + DEMO_SCENARIOS.join(" / ") + "\uFF09");
   }
   const p = join7(DEFINITIONS_DIR, scenario + ".json");
-  if (!existsSync4(p)) {
+  if (!existsSync5(p)) {
     throw new Error("DEMO-DEFINITION-MISSING: " + p);
   }
-  const def = JSON.parse(readFileSync4(p, "utf8"));
+  const def = JSON.parse(readFileSync5(p, "utf8"));
   if (def.scenario !== scenario) {
     throw new Error("DEMO-DEFINITION-MISMATCH: \u6587\u4EF6 " + scenario + ".json \u5185 scenario=" + def.scenario);
   }
   return def;
 }
 function pickExcerpt(absOrRelPath, tokens, base) {
-  const text = readFileSync4(base ? join7(base, absOrRelPath) : absOrRelPath, "utf8");
+  const text = readFileSync5(base ? join7(base, absOrRelPath) : absOrRelPath, "utf8");
   const lines = text.split(NL2);
   if (tokens === null) {
     return { line: 1, text: lines[0].trim() };
@@ -3046,7 +3062,7 @@ function runDemo(opts) {
 }
 
 // src/audit/audit.ts
-import { mkdirSync as mkdirSync4, writeFileSync as writeFileSync3, existsSync as existsSync5, unlinkSync, readFileSync as readFileSync5, mkdtempSync as mkdtempSync2, rmSync as rmSync4 } from "node:fs";
+import { mkdirSync as mkdirSync4, writeFileSync as writeFileSync3, existsSync as existsSync6, unlinkSync, readFileSync as readFileSync6, mkdtempSync as mkdtempSync2, rmSync as rmSync4 } from "node:fs";
 import { basename, join as join8, resolve as resolve3 } from "node:path";
 import { tmpdir as tmpdir3 } from "node:os";
 var NL3 = String.fromCharCode(10);
@@ -3087,7 +3103,7 @@ function auditRepoName(input, resolvedRoot) {
 var AUDIT_INTENT_CANDIDATES = ["CONTEXT.md", "README.md", "AGENTS.md"];
 var AUDIT_NC1_CANDIDATES = ["package.json", "README.md", "README.adoc", "README.rst", "README", "Cargo.toml", "pom.xml", "build.gradle", "LICENSE", "LICENSE.txt", "pyproject.toml", "go.mod", "Makefile"];
 function pickExcerpt2(absOrRelPath, tokens, base) {
-  const text = readFileSync5(base ? join8(base, absOrRelPath) : absOrRelPath, "utf8");
+  const text = readFileSync6(base ? join8(base, absOrRelPath) : absOrRelPath, "utf8");
   const lines = text.split(NL3);
   if (tokens === null) {
     return { line: 1, text: lines[0].trim() };
@@ -3310,10 +3326,10 @@ async function runAudit(opts) {
     return JSON.stringify(f);
   }).join(NL3) + NL3, "utf8");
   const dbPath = join8(outDir, "facts.duckdb");
-  if (existsSync5(dbPath)) {
+  if (existsSync6(dbPath)) {
     unlinkSync(dbPath);
   }
-  if (existsSync5(dbPath + ".wal")) {
+  if (existsSync6(dbPath + ".wal")) {
     unlinkSync(dbPath + ".wal");
   }
   const writer = await openWriter(dbPath);

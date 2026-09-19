@@ -1,5 +1,5 @@
 export interface DoctorLeg {
-    leg: 'duckdb' | 'git' | 'upstream';
+    leg: 'duckdb' | 'bindings' | 'git' | 'upstream';
     status: 'ok' | 'degraded' | 'fail';
     detail: string;
 }

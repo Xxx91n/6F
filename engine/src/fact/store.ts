@@ -74,7 +74,7 @@ function isMusl(): boolean {
   }
 }
 
-function platformPackageSuffix(): string | null {
+export function platformPackageSuffix(): string | null {
   const p = process.platform;
   const a = process.arch;
   if (p === 'win32' || p === 'darwin') return p + '-' + a;
@@ -82,7 +82,7 @@ function platformPackageSuffix(): string | null {
   return null;
 }
 
-function engineRoot(): string {
+export function engineRoot(): string {
   let dir = dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 8; i++) {
     const pj = join(dir, 'package.json');
@@ -188,10 +188,15 @@ export function healDuckdbBinding(): { ok: boolean; detail: string } {
   emitSelfHeal({ phase: 'start', trigger: 'doctor-fix', note: 'doctor --fix 显式自愈——补拉约 40MB 最长 240s', platform: process.platform + '-' + process.arch });
   const heal = selfHealDuckdb();
   if (!heal.ok) { emitSelfHeal({ result: 'fallback', trigger: 'doctor-fix', detail: heal.detail, platform: process.platform + '-' + process.arch }); return heal; }
-  try { createRequire(import.meta.url)('@duckdb/node-api'); } catch (e2) {
+  let mod: DuckDBModule;
+  try { mod = createRequire(import.meta.url)('@duckdb/node-api') as DuckDBModule; } catch (e2) {
     emitSelfHeal({ result: 'fallback', trigger: 'doctor-fix', detail: heal.detail + '；createRequire 仍失败', platform: process.platform + '-' + process.arch });
     return { ok: false, detail: heal.detail + '；createRequire 仍失败' };
   }
+  // r22 审计 R1 修复：ESM 对失败 specifier 缓存 module record——同进程后续 import() 必回投原拒绝（A-072 实证）。
+  // 回填 duckdbModulePromise 为 createRequire 已验载实例：--fix 后同进程 openWriter→loadDuckdb 复用本实例，
+  // 不再走被污染的 import() 通道（--fix 是 MCP/CI 面唯一恢复路径，此回填即目标场景成立的前提）。
+  duckdbModulePromise = Promise.resolve(mod);
   emitSelfHeal({ result: 'success', trigger: 'doctor-fix', detail: heal.detail, platform: process.platform + '-' + process.arch });
   return heal;
 }

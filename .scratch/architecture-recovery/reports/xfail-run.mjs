@@ -21,10 +21,10 @@ const attRows = existsSync(ATT) ? readFileSync(ATT, 'utf8').split('\n').filter(l
 const sealedSet = {};
 for (const r of attRows) { const g = r.guard; (sealedSet[g] = sealedSet[g] || new Set()).add(r['assertion-slug']); }
 const entryKeySet = new Set(entries.map(e => e.guard + ':' + e['assertion-slug']));
+const problems = [];
 const overlap0 = attRows.filter(r => entryKeySet.has(r.guard + ':' + r['assertion-slug'])).map(r => r.id);
 if (overlap0.length) problems.push('entries-sealed-overlap:' + overlap0.join(','));
 const perGuard = {};
-const problems = [];
 
 for (const g of guards) {
   const gp = join(HERE, g + '-check.mjs');
