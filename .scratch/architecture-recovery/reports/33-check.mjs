@@ -277,6 +277,38 @@ t('G7 attestation 行字段齐备＋id=ap-<guard>-<slug>＋evidence 可解析＋
     'planned=' + reviewsPlanned + ' occurred=' + (evH ? evH.occurred : 'N/A'));
 }
 
+// --- I. #70/D-079 vacuity-manifest.json 元校验（G 组 stale 册同构；dangling 语义按 disposition 分——deleted→slug 必缺席） ---
+const vmPath = join(here, 'vacuity-manifest.json');
+let vm = null;
+try { vm = JSON.parse(fs.readFileSync(vmPath, 'utf8')); } catch (e) { vm = null; }
+t('I1 vacuity-manifest.json 在且 version/cap=10/entries<=cap（恒真候选独立册——vs stale 扩枚举语义二分）',
+  !!vm && vm.version === 1 && vm.cap === 10 && Array.isArray(vm.entries) && vm.entries.length <= vm.cap,
+  vm ? 'entries=' + vm.entries.length + '/' + vm.cap : 'missing/parse-fail');
+const vmEntries = vm && Array.isArray(vm.entries) ? vm.entries : [];
+const VM_FIELDS = ['id', 'guard', 'assertion-slug', 'referent-path', 'detection_evidence', 'confidence', 'zero_fail_history', 'disposition', 'decision', 'evidence', 'review_anchor', 'expires_fallback', 'added'];
+const VM_DISP = ['candidate-certain', 'candidate-likely', 'vacuous-deleted', 'adjudicated-not-vacuous'];
+const VM_CONF = ['certain', 'likely'];
+const vmFieldMiss = vmEntries.filter(e => !VM_FIELDS.every(f => f in e)).map(e => e.id);
+const vmIdBad = vmEntries.filter(e => e.id !== 'vac-' + e.guard + '-' + String(e['assertion-slug'] || '').toLowerCase()).map(e => e.id);
+const vmDup = vmEntries.map(e => e.id).filter((v, i, a) => a.indexOf(v) !== i);
+const vmEnumBad = vmEntries.filter(e => !VM_DISP.includes(e.disposition) || !VM_CONF.includes(e.confidence)).map(e => e.id);
+t('I2 条目十三字段齐备＋id=vac-<guard>-<slug> 形＋无重复＋disposition/confidence 枚举合法', vmFieldMiss.length === 0 && vmIdBad.length === 0 && vmDup.length === 0 && vmEnumBad.length === 0, vmFieldMiss.concat(vmIdBad, vmDup, vmEnumBad).join(','));
+const vmDangling = [];
+for (const e of vmEntries) {
+  const gp = join(here, e.guard + '-check.mjs');
+  if (!fs.existsSync(gp)) { vmDangling.push(e.id + ':guard-missing'); continue; }
+  const src = fs.readFileSync(gp, 'utf8');
+  const hasSlug = src.indexOf("'" + e['assertion-slug'] + ' ') >= 0;
+  if (e.disposition === 'vacuous-deleted' && hasSlug) vmDangling.push(e.id + ':deleted-slug-复活');
+  if (e.disposition !== 'vacuous-deleted' && !hasSlug) vmDangling.push(e.id + ':' + e['assertion-slug'] + ' 不在 ' + e.guard + ' 断言名集');
+}
+t('I3 无悬空条目（vacuous-deleted→slug 必缺席；candidate-*→slug 必在位）', vmDangling.length === 0, vmDangling.join(','));
+const vmEvMiss = vmEntries.filter(e => typeof e.evidence !== 'string' || !fs.existsSync(join(here, '..', '..', '..', e.evidence))).map(e => e.id);
+t('I4 evidence 指针存在（逐条 evidence 路径可解析）', vmEvMiss.length === 0, vmEvMiss.join(','));
+const vmOverdue = vmEntries.filter(e => typeof e.expires_fallback === 'string' && e.expires_fallback < TODAY33).map(e => e.id);
+if (vmOverdue.length) warns.push('vacuity-manifest 复审锚逾期未动（expires_fallback<' + TODAY33 + '）：' + vmOverdue.join(',') + ' → risk_accepted 候选同构转人工裁决（D-041③ 同构）');
+
+
 console.log('--- 值守快照 ---');
 alarms.forEach(a => console.log('ALARM ' + a));
 warns.forEach(w => console.log('WARN  ' + w));

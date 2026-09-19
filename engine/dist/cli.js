@@ -3065,6 +3065,89 @@ function runDemo(opts) {
 import { mkdirSync as mkdirSync4, writeFileSync as writeFileSync3, existsSync as existsSync6, unlinkSync, readFileSync as readFileSync6, mkdtempSync as mkdtempSync2, rmSync as rmSync4 } from "node:fs";
 import { basename, join as join8, resolve as resolve3 } from "node:path";
 import { tmpdir as tmpdir3 } from "node:os";
+
+// src/upstream/github-rest.ts
+var PR_SUMMARY_REQUIRED = ["number", "title", "state", "user.login", "user.type", "head.sha", "base.sha", "html_url"];
+var PR_DETAIL_REQUIRED = PR_SUMMARY_REQUIRED.concat(["merged", "merge_commit_sha", "additions", "deletions", "changed_files", "commits", "created_at"]);
+
+// src/audit/upstream-dimension-map.ts
+var UPSTREAM_DIMENSION_MAP_VERSION = "v1.0";
+var UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: "2026-09-19", next_review: "2026-10-19" };
+var CL = (surface, kind, dimension, lane, admission, note) => ({ adapter: "codelore", surface, surface_kind: kind, dimension, lane, admission, note });
+var CODELORE_EVOLUTION_FACETS = ["revisions", "abs-churn", "entity-churn", "author-churn", "hotspot-velocity", "code-age", "stale-code", "architecture-trend", "health-trend", "lead-time", "release-cadence", "messages"];
+var CODELORE_S3_FACETS = ["god-classes", "architecture-metrics", "dependency-cycles", "modularity-violations", "instability", "architecture-roles"];
+var CODELORE_S5_FACETS = ["ownership", "entity-ownership", "bus-factor", "main-dev", "main-dev-by-revs", "main-dev-by-deletions", "knowledge-islands", "communication", "coordination-needs", "team-composition", "marginal-owner-risk", "pair-programming"];
+var CODELORE_EXPLAIN_SURFACES = ["explain-repo", "explain-brief", "explain-adr", "explain-query", "explain-resolve", "explain-execute", "explain-dryrun", "llm-narrative", "capability-check"];
+var CODELORE_BEHAVIOR_FACES = ["hotspots", "coupling", "function-hotspots"];
+var CODELORE_DIMENSION_MAP = [
+  ...CODELORE_EVOLUTION_FACETS.map((a) => CL(a, "analysis", "S4", "S-dimension", "\u65E0\u51C6\u5165", "\u6F14\u5316\u4E3B\u5E72\u9762\u2192S4 \u6F14\u5316\u65B9\u5411\uFF08D-078\u2462\uFF09")),
+  ...CODELORE_S3_FACETS.map((a) => CL(a, "analysis", "S3", "S-dimension", "\u987B\u6210\u5BF9 opposing \u51C6\u5165\uFF08#51 \u53CC\u53E3\u5F84\u98CE\u9669\u2014\u2014\u5355\u6307\u6807\u7981\u5B64\u7ACB\u5165\u7EF4\uFF09", "s3 \u65CF\u2192S3 \u95E8\u9762/\u7ED3\u6784\u9884\u7B97\uFF08D-078\u2462\uFF09")),
+  ...CODELORE_S5_FACETS.map((a) => CL(a, "analysis", "S5", "S-dimension", "\u65E0\u51C6\u5165", "s5 \u65CF\u2192S5 \u6240\u6709\u6743\u8FB9\u754C\u5339\u914D\uFF08D-078\u2462\uFF09")),
+  ...CODELORE_EXPLAIN_SURFACES.map((a) => CL(a, "group", "S4", "S-dimension", "env \u95E8\u63A7\uFF08MACRO_AUDIT_6F_CL_LLM_KEY \u672A\u8BBE=\u4E0D\u4EA7\u9762\u2014\u2014\u73AF\u5883\u7F3A\u2260\u65AD\u8A00\u8D25\uFF09", "explain \u65CF\u2192S4\uFF08D-078\u2462 env \u95E8\u63A7\u4E0D\u53D8\uFF09")),
+  ...CODELORE_BEHAVIOR_FACES.map((a) => CL(a, "analysis", null, "Macro-B-QuadrantEntry", "behavior \u65CF\u4E0D\u76F4\u5F52 S \u7EF4\u2014\u2014QuadrantEntry \u5F52\u4F4D D-054\u2462", "behavior \u65CF\u2192Macro-B \u884C\u4E3A\u8C61\u9650\u5207\u7247")),
+  CL("deferred-faces", "group", null, "deferred", "\u6682\u7F13\u9762\u96C6=registry codelore-deferred-faces \u679A\u4E3E\uFF0C\u672A\u6FC0\u6D3B\u4E0D\u6620\u5C04\uFF08D-035\u2463\uFF09", "deferred \u9762\u96C6\u663E\u5F0F\u4E0D\u6620\u5C04")
+];
+var GH = (surface, kind, dimension, lane, admission, note) => ({ adapter: "github-rest", surface, surface_kind: kind, dimension, lane, admission, note });
+var GITHUB_REST_EXCLUDED_FACT_TYPES = ["resolution", "rate_limit", "rate_limited", "api_error", "schema_drift", "run", "preflight"];
+var GITHUB_REST_DIMENSION_MAP = [
+  GH("pr_summary", "fact_type", "S4", "S-dimension", "\u65E0\u51C6\u5165", "PR \u5217\u8868\u6C47\u603B\u2192S4\uFF08D-078\u2462\uFF09"),
+  GH("merge-lead-time", "slice", "S4", "S-dimension", "\u4EC5\u4EBA\u7C7B PR\uFF08\u5E73\u53F0\u58F0\u660E Bot \u8EAB\u4EFD\u6392\u9664\u2014\u2014CHAOSS \u7EAA\u5F8B bot \u6309\u7C7B\u51FA\u5165\uFF09", "merge lead time\u2192S4"),
+  GH("bot-participation-density", "slice", "S5", "S-dimension", "\u5E73\u53F0\u58F0\u660E\u7684 Bot \u8EAB\u4EFD\uFF08user.type===Bot \u2227 login \u540E\u7F00 [bot] \u53CC\u6761\u4EF6\uFF09", "Bot \u53C2\u4E0E\u5BC6\u5EA6\u2192S5 \u63AA\u8F9E\u9501\u300C\u5E73\u53F0\u58F0\u660E\u7684 Bot \u8EAB\u4EFD\u300D\uFF08D-082\u2460\uFF09"),
+  GH("review-coverage", "slice", null, "pending-event_bound", "\u6302\u8D77\u2014\u2014pulls.reviews \u6FC0\u6D3B\u4E8B\u4EF6 github-rest-reviews-active \u672A\u53D1\u751F\uFF08D-081\u2462\uFF09", "review \u8986\u76D6 pending(event_bound: github-rest-reviews-active)\u2014\u2014S5\u2194S4 \u53CC\u6302\u5F85\u91C7\u540E\u88C1\u5B9A\u4E0D\u9884\u8BBE"),
+  GH("pr_diff", "fact_type", null, "Micro-A", "Micro-A lane \u6D88\u8D39\u4E0D\u76F4\u91C7 Macro-B\uFF08D-078\u2462\uFF09", "diff \u53CC\u901A\u9053\u2192Micro-A"),
+  ...GITHUB_REST_EXCLUDED_FACT_TYPES.map((f) => GH(f, "fact_type", null, "excluded", "\u6C38\u4E45\u6392\u9664\u2014\u2014\u9065\u6D4B/\u89E3\u6790/\u51B3\u8BAE\u9762\u9632\u6E17\u5165 S \u7EF4\u88C1\u51B3\uFF08D-078\u2462\uFF09", f + " \u6C38\u4E45\u6392\u9664\u51FA S \u7EF4"))
+];
+var UPSTREAM_DIMENSION_MAP = [...CODELORE_DIMENSION_MAP, ...GITHUB_REST_DIMENSION_MAP];
+function resolveCodeloreAnalysis(analysis) {
+  const row = CODELORE_DIMENSION_MAP.find((r) => r.surface === analysis);
+  if (!row) return { dimension: null, lane: "deferred", admission: "", admitted: false, reason: "not_mapped\uFF08deferred/\u672A\u767B\u8BB0\u9762\u96C6\u2014\u2014registry deferred-faces \u8BED\u4E49\uFF09" };
+  return { dimension: row.dimension, lane: row.lane, admission: row.admission, admitted: row.dimension !== null && row.lane === "S-dimension", reason: row.note };
+}
+function resolveGithubRestSlice(slice, ctx) {
+  const row = GITHUB_REST_DIMENSION_MAP.find((r) => r.surface === slice);
+  if (!row) return { dimension: null, lane: "excluded", admission: "", admitted: false, reason: "not_mapped\uFF08\u672A\u767B\u8BB0 slice\uFF09" };
+  if (slice === "merge-lead-time" && ctx && ctx.is_bot_via_platform_identity === true) {
+    return { dimension: null, lane: "S-dimension", admission: row.admission, admitted: false, reason: "\u51C6\u5165\u62D2\uFF1A\u5E73\u53F0\u58F0\u660E Bot \u8EAB\u4EFD\u7684 PR \u4E0D\u5165 merge-lead-time\uFF08CHAOSS \u7EAA\u5F8B\uFF09" };
+  }
+  if (row.lane === "pending-event_bound") return { dimension: null, lane: row.lane, admission: row.admission, admitted: false, reason: row.note };
+  return { dimension: row.dimension, lane: row.lane, admission: row.admission, admitted: row.dimension !== null && row.lane === "S-dimension", reason: row.note };
+}
+function projectUpstreamDimensions(facts) {
+  const mapped = [];
+  const unmapped = [];
+  for (const f of facts) {
+    const fam = f.metric.startsWith("codelore.") ? "upstream-codelore" : f.metric.startsWith("github_rest.") ? "upstream-github-rest" : null;
+    if (fam === null) continue;
+    let v = {};
+    try {
+      v = JSON.parse(f.value_json);
+    } catch {
+      v = {};
+    }
+    let res;
+    if (fam === "upstream-codelore") {
+      const analysis = String(v.analysis || f.subject_ref || f.metric.replace(/^codelore\./, ""));
+      res = resolveCodeloreAnalysis(analysis);
+    } else {
+      const ft = f.metric.replace(/^github_rest\./, "");
+      res = resolveGithubRestSlice(ft, { is_bot_via_platform_identity: v.bot_declared === true });
+    }
+    const entry = {
+      fact_id: f.fact_id,
+      family: fam,
+      metric: f.metric,
+      subject_ref: f.subject_ref,
+      dimension: res.dimension,
+      lane: res.lane,
+      admitted: res.admitted,
+      reason: res.reason
+    };
+    (res.dimension !== null ? mapped : unmapped).push(entry);
+  }
+  return { map_version: UPSTREAM_DIMENSION_MAP_VERSION, map_review: UPSTREAM_DIMENSION_MAP_REVIEW, mapped, unmapped };
+}
+
+// src/audit/audit.ts
 var NL3 = String.fromCharCode(10);
 var AUDIT_SCALES_IMPLEMENTED = ["Macro-B"];
 var SCALE_LAYER_ORDER = "Macro-C\u2192Micro-A\u2192Micro-B\u2192Macro-A\uFF08ADR-0017\u2462 \u5C42\u5E8F\uFF0CMacro-B \u5DF2\u4E0A\u67B6 preview\uFF09";
@@ -3196,6 +3279,7 @@ async function runAudit(opts) {
     nc1: col.nc1,
     pc1: col.pc1,
     pc2: col.pc2,
+    upstream_dimension_projection: projectUpstreamDimensions(col.realFacts),
     behavior: bhvRan ? { faces: facetFacts.map(function(f) {
       return JSON.parse(f.value_json).analysis;
     }), row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, facet_errors: facetErrs.length, criteria: { pc1: bhvPc1, tc1: bhvTc1, tc2: bhvTc2, nc1: bhvNc1 }, verdict: behaviorBand, codelore_version: col.codeloreResolution ? col.codeloreResolution.version : null } : { ran: false, reason: col.codeloreResolution ? "codelore binary \u672A\u89E3\u6790/\u4E0D pin\uFF08pinned=false\uFF09\u2014\u2014\u884C\u4E3A\u9762\u7F3A\u5E2D\u5982\u5B9E\u767B\u8BB0" : "codelore=off", deferred_faces: BHV_DEFERRED }

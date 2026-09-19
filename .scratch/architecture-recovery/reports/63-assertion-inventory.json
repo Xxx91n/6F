@@ -2,18 +2,16 @@
   "ticket": 63,
   "decision": "D-071",
   "created": "2026-09-18",
-  "note": "30+ NN-check 断言级 id 只读盘点（落地前置条件）：断言级稳定 id=断言名首词 token（A1/B5/G15 形），跨 t()/ok()/check()/w() 四签名族均在位——XFAIL 协议按 <guard>:<slug> 键可寻址",
+  "updated": "2026-09-19",
+  "updated_by": "update-70-inventory.mjs（#70/D-079 引用物缺席普查顺带偿 D-071 欠账）",
+  "note": "断言级稳定 id=断言名首词 token（A1/B5/G15 形），跨 t()/ok()/check()/w()/w58()/sealed() 六签名族均在位——XFAIL/VACUOUS 协议按 <guard>:<slug> 键可寻址。口径=emit 调用点（loop 族动态 slug 按调用点计一，sealed() 计入盘点不参评候选；检测经 stripComments+maskStrings 双轨，注释/字面量内伪调用不计）。",
   "guards": {
     "01-check": {
-      "assertion_ids": 5,
-      "call_styles": []
-    },
-    "01-spotcheck": {
       "assertion_ids": 0,
       "call_styles": []
     },
     "04-downweight-check": {
-      "assertion_ids": 2,
+      "assertion_ids": 29,
       "call_styles": [
         "ok()"
       ]
@@ -23,19 +21,19 @@
       "call_styles": []
     },
     "09-stale-check": {
-      "assertion_ids": 5,
+      "assertion_ids": 15,
       "call_styles": [
         "ok()"
       ]
     },
     "14-skeleton-check": {
-      "assertion_ids": 0,
+      "assertion_ids": 9,
       "call_styles": [
         "ok()"
       ]
     },
     "15-slice-check": {
-      "assertion_ids": 0,
+      "assertion_ids": 14,
       "call_styles": [
         "check()"
       ]
@@ -45,37 +43,37 @@
       "call_styles": []
     },
     "20-fact-schema-check": {
-      "assertion_ids": 0,
+      "assertion_ids": 28,
       "call_styles": [
         "check()"
       ]
     },
     "21-collectors-check": {
-      "assertion_ids": 0,
+      "assertion_ids": 44,
       "call_styles": [
         "check()"
       ]
     },
     "22-criteria-check": {
-      "assertion_ids": 0,
+      "assertion_ids": 18,
       "call_styles": [
         "check()"
       ]
     },
     "23-first-report-check": {
-      "assertion_ids": 0,
+      "assertion_ids": 32,
       "call_styles": [
         "check()"
       ]
     },
     "24-check": {
-      "assertion_ids": 0,
+      "assertion_ids": 17,
       "call_styles": [
         "check()"
       ]
     },
     "25-check": {
-      "assertion_ids": 0,
+      "assertion_ids": 22,
       "call_styles": [
         "check()"
       ]
@@ -93,7 +91,7 @@
       ]
     },
     "28-check": {
-      "assertion_ids": 0,
+      "assertion_ids": 19,
       "call_styles": [
         "check()"
       ]
@@ -117,16 +115,16 @@
       ]
     },
     "33-check": {
-      "assertion_ids": 20,
+      "assertion_ids": 30,
       "call_styles": [
         "t()"
       ]
     },
     "34-check": {
-      "assertion_ids": 22,
+      "assertion_ids": 25,
       "call_styles": [
         "t()",
-        "w()"
+        "w58()"
       ]
     },
     "35-check": {
@@ -142,151 +140,179 @@
       ]
     },
     "37-check": {
-      "assertion_ids": 13,
+      "assertion_ids": 22,
       "call_styles": [
         "t()"
       ]
     },
     "38-check": {
-      "assertion_ids": 36,
+      "assertion_ids": 37,
       "call_styles": [
+        "sealed()",
         "t()"
       ]
     },
     "39-check": {
-      "assertion_ids": 30,
+      "assertion_ids": 34,
       "call_styles": [
+        "sealed()",
         "t()"
       ]
     },
     "40-check": {
-      "assertion_ids": 57,
+      "assertion_ids": 53,
       "call_styles": [
         "t()"
       ]
     },
     "41a-check": {
-      "assertion_ids": 39,
+      "assertion_ids": 41,
       "call_styles": [
+        "sealed()",
         "t()"
       ]
     },
     "41b-check": {
-      "assertion_ids": 33,
+      "assertion_ids": 34,
       "call_styles": [
         "t()"
       ]
     },
     "42-check": {
-      "assertion_ids": 43,
+      "assertion_ids": 44,
       "call_styles": [
         "t()"
       ]
     },
     "43-check": {
-      "assertion_ids": 28,
+      "assertion_ids": 29,
       "call_styles": [
         "t()"
       ]
     },
     "44-check": {
-      "assertion_ids": 56,
+      "assertion_ids": 63,
       "call_styles": [
         "t()",
         "w()"
       ]
     },
     "45-check": {
-      "assertion_ids": 51,
+      "assertion_ids": 52,
       "call_styles": [
         "t()"
       ]
     },
     "46-check": {
-      "assertion_ids": 30,
+      "assertion_ids": 31,
       "call_styles": [
         "t()"
       ]
     },
     "47-check": {
-      "assertion_ids": 40,
+      "assertion_ids": 41,
       "call_styles": [
         "t()"
       ]
     },
     "48-check": {
-      "assertion_ids": 29,
+      "assertion_ids": 43,
       "call_styles": [
         "t()"
       ]
     },
     "49-check": {
-      "assertion_ids": 22,
-      "call_styles": [
-        "t()"
-      ]
-    },
-    "50-check": {
-      "assertion_ids": 37,
-      "call_styles": [
-        "t()"
-      ]
-    },
-    "51-check": {
-      "assertion_ids": 37,
-      "call_styles": [
-        "t()"
-      ]
-    },
-    "52a-check": {
-      "assertion_ids": 22,
-      "call_styles": [
-        "t()"
-      ]
-    },
-    "53-check": {
-      "assertion_ids": 25,
-      "call_styles": [
-        "t()"
-      ]
-    },
-    "54-check": {
-      "assertion_ids": 16,
-      "call_styles": [
-        "t()"
-      ]
-    },
-    "55-check": {
-      "assertion_ids": 18,
-      "call_styles": [
-        "t()"
-      ]
-    },
-    "56-check": {
       "assertion_ids": 23,
       "call_styles": [
         "t()"
       ]
     },
-    "r14fix-check": {
-      "assertion_ids": 24,
+    "50-check": {
+      "assertion_ids": 39,
       "call_styles": [
+        "sealed()",
+        "t()"
+      ]
+    },
+    "51-check": {
+      "assertion_ids": 39,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "52a-check": {
+      "assertion_ids": 23,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "53-check": {
+      "assertion_ids": 30,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "54-check": {
+      "assertion_ids": 19,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "55-check": {
+      "assertion_ids": 19,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "56-check": {
+      "assertion_ids": 25,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "64-check": {
+      "assertion_ids": 15,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "70-check": {
+      "assertion_ids": 13,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "71-check": {
+      "assertion_ids": 16,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "72-check": {
+      "assertion_ids": 16,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "r14fix-check": {
+      "assertion_ids": 25,
+      "call_styles": [
+        "ok()",
         "t()"
       ]
     },
     "t8-check": {
-      "assertion_ids": 17,
+      "assertion_ids": 18,
       "call_styles": [
+        "sealed()",
         "t()"
       ]
     },
     "t9-check": {
-      "assertion_ids": 17,
+      "assertion_ids": 18,
       "call_styles": [
         "t()"
       ]
     }
-  },
-  "total_guards": 48,
-  "total_assertion_ids": 906
+  }
 }

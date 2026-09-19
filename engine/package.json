@@ -27,7 +27,7 @@
     "build": "tsc -p tsconfig.json && node scripts/build-bundle.mjs",
     "package": "npm pack --dry-run",
     "demo:golden": "node scripts/gen-demo-golden.mjs",
-    "smoke": "node test/smoke.test.mjs && node test/collectors.test.mjs && node test/codelore-adapter.test.mjs && node test/codelore-batch1.test.mjs && node test/codelore-llm.test.mjs && node test/report-preview.test.mjs && node test/intake.test.mjs && node test/gitcli-contract.test.mjs && node test/sql-literal.test.mjs && node test/mcp-db-resolution.test.mjs && node test/audit.test.mjs && node test/demo.test.mjs && node test/github-rest.test.mjs && node test/narrative.test.mjs && node test/citation.test.mjs && node test/doctor.test.mjs && node test/audit-zero-write.test.mjs",
+    "smoke": "node test/smoke.test.mjs && node test/collectors.test.mjs && node test/codelore-adapter.test.mjs && node test/codelore-batch1.test.mjs && node test/codelore-llm.test.mjs && node test/report-preview.test.mjs && node test/intake.test.mjs && node test/gitcli-contract.test.mjs && node test/sql-literal.test.mjs && node test/mcp-db-resolution.test.mjs && node test/audit.test.mjs && node test/demo.test.mjs && node test/github-rest.test.mjs && node test/upstream-map.test.mjs && node test/narrative.test.mjs && node test/citation.test.mjs && node test/doctor.test.mjs && node test/audit-zero-write.test.mjs",
     "test": "npm run gen && npm run build && npm run smoke",
     "selftest": "node dist/cli.js selftest",
     "validate:plugin": "node scripts/validate-plugin.mjs"
