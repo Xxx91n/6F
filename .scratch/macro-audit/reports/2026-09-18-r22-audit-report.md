@@ -113,3 +113,42 @@
 - 审计产物：`D:\Aworker\6F\engine\.code-tmp\audit-r22-verify\`（audit 输出＋r22-src.diff）；本报告 `D:\Aworker\6F\.scratch\macro-audit\reports\2026-09-18-r22-audit-report.md`
 - 被审对象：`D:\Aworker\6F\.scratch\macro-audit\reports\2026-09-18-report.md`、`D:\Aworker\6F\.scratch\macro-audit\handoffs\next-round.md`、`D:\Aworker\6F\.scratch\architecture-recovery\BACKLOG.md`（#65~#68）、`D:\Aworker\6F\.scratch\architecture-recovery\decision-ledger.md`（R13 A-076~A-080）、`D:\Aworker\6F\.scratch\macro-audit\decision-ledger.md`（D-073~D-078）
 - 实现面：`engine/src/fact/store.ts`、`engine/src/doctor.ts`、`engine/src/cli.ts`、`engine/src/upstream/{github-rest,codelore}.ts`、`engine/scripts/validate-plugin.mjs`、`engine/test/{audit-zero-write,duckdb-selfheal-offline,duckdb-selfheal-e2e}.test.mjs`、`.scratch/architecture-recovery/reports/{xfail-run.mjs,stale-assertions.json,acceptance-probe-attestation.jsonl,33/34/38/39/41a/44/50/64/t8-check.mjs}`、`docs/upstream-dimension-map.md`、`.github/workflows/engine-ci.yml`
+
+---
+
+## 八、Loop-2 返工复核（2026-09-19 · 打回后同套验收全量重跑＋逐条实物抽查）
+
+返工固定点：`21b85f2`（r22-impl-ledger 栈顶，squ→osq→opy；16 文件聚焦，diff 抽查无范围蔓延）。**裁决：PASS——R1/R2/R3/P1/P3 全部闭合，实现侧零遗留缺陷；残留 4 项轻微观察如实呈报。**
+
+### 8.1 打回项逐条复核（声明 → 证据 → 结论）
+
+| 项 | 返工声明 | 审计亲验 | 结论 |
+|---|---|---|---|
+| R1 | healDuckdbBinding createRequire 验载后回填 `duckdbModulePromise`，绕开 ESM 失败 specifier 缓存 | store.ts diff 实读：`duckdbModulePromise = Promise.resolve(mod)`（mod=createRequire 已验载实例）——同进程 openWriter→loadDuckdb 复用本实例不再触 import() 污染通道，A-072 约束兑现；**审计复现面亲跑：park 绑定→`doctor --fix`→duckdb:ok＋overall:ok＋exit 0**（doctor-fix.test.mjs 6/6，子进程非 TTY=MCP/CI 目标面） | ✅ 闭合——原 fail 面转绿 |
+| R1 附带 | doctor.bindings 检查腿（#66④ 字面欠账补齐） | `probeBindings()`：sfx null→degraded／包缺席→degraded 指 --fix／在盘→ok 报版本；engineRoot/platformPackageSuffix 导出复用；doctor.test D2 系子集断言（every+some 非计数），四腿不破旧测；`engine-ci.yml` 挂「duckdb doctor --fix e2e」步（正确不入 smoke——挪 node_modules＋真拉包需网络，同 selfheal e2e 先例） | ✅ 闭合 |
+| R2 | `const problems = []` 上移过 overlap0 检查点 | diff 实读一行序调；xfail-run exit 0，`SEALED:15 / XFAIL:8 (cap 10)` 结构化输出完好 | ✅ 闭合 |
+| R3 | §七成对勘误（锚/sealed/active 三枚）＋A-076 账本注记 | r22-exec-report §七 三行勘误全在：`39:ecdc015→b1d71c6`、删「40:65e188e」、`38:H5→E3`、删 40:H2、`t8:H1→A3`、active-8 `t8:H3→45:B5`；A-ledger R13 节尾勘误注记在案（line 406）；原文读数保留 | ✅ 闭合 |
+| P1 | 报告改名 `-r22-exec-report`＋r20 原物自 41bf360 恢复 | 现文件 8534B vs `git show 41bf360:...` blob 8534B——**逐字节一致**（diff 空）；标题「轮 20 T1 / BACKLOG #59」在 | ✅ 闭合（byte-identical） |
+| P3 | package.json 尾换行 diff 消除 | `git diff HEAD` 空——worktree==committed 实锤 | ✅ 闭合（残影见 M2） |
+
+### 8.2 同套验收全量重跑（§一 原表逐项）
+
+- build `BUNDLE-OK` ✅｜pack **73 件** ✅｜selftest 5/5 ✅｜doctor **四腿全 ok**（duckdb/bindings/git/upstream）✅
+- audit 实测 `fact_count:385, adr:21, verdict:supported` exit 0 ✅（commit_count 206=204+2 返工/workspace，口径自洽）
+- smoke 17 件 exit 0 ✅（含 doctor.test **9/9**，legs=duckdb:ok,bindings:ok,git:ok,upstream:ok）
+- duckdb-selfheal-offline **13/13** ✅｜e2e **3/3** ✅｜**doctor-fix.test.mjs 6/6** ✅
+- 守卫电池 13/13（33:23 34:23 38:34 41b:33 44:59 46:30 52a:22 53:25 54:20 55:18 56:24 64:15）＋14-skeleton ✅
+- xfail-run exit 0：`SEALED:15 / XFAIL:8 (cap 10)` ✅
+- validate 三面：本地+cli→PASS／剥离→SKIP streak=1 WARN／CI+剥离→INFO cli-absent-expected ✅
+- A-081 落账 R13 ✅｜BACKLOG #69 闭环注记 ✅｜next-round.md P2 追问票面在案（line 63）✅
+
+### 8.3 残留观察（非阻断，如实呈报不追认）
+
+- **M1** 返工自述「r20 报告 6193B 核验」与实物 **8534B** 不符——恢复本身逐字节正确（git blob 41bf360=8534B），系返工叙事内字节数笔误，同枚举失真族的轻微残留。
+- **M2** `engine/package.json` worktree==HEAD 已实锤，但 GitButler index 留有带尾换行的 staged 版本（lane 残影）——下次 `but status` 会以 pending 浮出，建议返工窗顺手收编或明示留存。
+- **M3** `.code-tmp` 审计产物＋12 件金样脏树仍在工作树（registry `golden-verifier-dirty-on-rerun` 在册现象，非返工引入）。
+- **M4** P2（39-F2 恒真漏网）按票面转下轮：sealed 判据扩「失效∨恒真不可证伪」候选面复核——next-round.md line 63 追问已挂。
+
+### 8.4 最终裁决
+
+轮 22 全链（T1~T5 实现＋#69 返工）验收**闭环**：功能缺陷 R1 已修且审计复现面转绿、潜伏缺陷 R2 已消、文档面 R3/P1/P3 成对勘误闭环、值守面 P2 有票面着落、同套验收全量复跑全绿。**本审计窗最终裁决=PASS。** 下一 grill 方向见 `D:\Aworker\6F\.scratch\macro-audit\handoffs\2026-09-18-r22-audit-handoff.md`（P2 判据扩面＋upstream 接线票候选）。
