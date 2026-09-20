@@ -1,125 +1,156 @@
-# macro-audit — 宏观 + 微观工程内容审计
+<p align="center">
+  <img src="docs/assets/hero.svg" alt="macro-audit — macro + micro engineering-content audit" width="880"/>
+</p>
 
-面向 git 记录健全仓库的工程内容审计产品：**证据采集大部分来自上游组合件，裁决协议、事实表 schema、验收闸门与可核验回执是本项目自研的护城河与黏合剂**。5 档审计粒度（Macro-A 跨仓战略 / Macro-B 仓库级四象限 / Macro-C 演化考古 / Micro-A PR diff / Micro-B file level）共享同一事实底座与裁决层，差异在触发器与报告切片。
+# macro-audit
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-38bdf8" alt="License: Apache-2.0"/></a>
+  <img src="https://img.shields.io/badge/version-0.1.0-f59e0b" alt="Version: 0.1.0"/>
+  <img src="https://img.shields.io/badge/node-%E2%89%A520-38bdf8" alt="Node: &ge;20"/>
+  <a href="#install"><img src="https://img.shields.io/badge/marketplace-installable-f59e0b" alt="Marketplace: installable"/></a>
+</p>
+
+<p align="center"><a href="README.md">English</a> &middot; <a href="README.zh-CN.md">&#31616;&#20307;&#20013;&#25991;</a></p>
+
+Macro + micro engineering-content audit for git-healthy repositories — a **Claude Code Agent Plugin**. Evidence collection comes largely from upstream components; the adjudication protocol, fact-table schema, acceptance gates, and verifiable receipts are this project's self-built moat and glue. Five audit scales (Macro-A cross-repo strategy / Macro-B repo quadrant / Macro-C evolution archaeology / Micro-A PR diff / Micro-B file level) share one fact base and one adjudication layer — they differ in triggers and report slices.
 
 > [!NOTE]
-> 当前状态（2026-09-16）：**preview 形态（能力边界见下节矩阵）**——Macro-B / Macro-C 两层经实跑校准、报告头与披露块按 preview 口径标注；Micro-A 已 preview 上架（capability 3 of 5 · preview，同主试点仓校准口径）；Micro-B / Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。「发布未发生·不存在可安装 listing」状态已由 marketplace 上架终结（`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`，安装/验收口径见 [engine/README.md](engine/README.md)；B 轨官方目录未提交、走用户闸门）。下表标注「规划中」的上游尚未接入，请勿据本页认为产品已完成。
+> Status (2026-09-20): **preview** (capability boundaries in the matrix below). Macro-B / Macro-C / Micro-A are in preview; Micro-B / Macro-A are **Not yet in preview** — roadmap narrative, not a usable promise. The plugin is installable today via the marketplace (`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`; install & acceptance details in [engine/README.md](engine/README.md); the official-catalog track is unsubmitted and sits behind the owner's gate). The previous 「发布未发生·不存在可安装 listing」 state was ended by marketplace onboarding. Upstreams marked "planned" are not wired yet — do not read this page as a finished product. Product-facing surfaces (audit reports, listing copy) are primarily in Chinese; this file is the canonical English facade.
 
-## 能力边界（preview 标注）
+## Capability matrix
 
-发布节奏 = **Preview 分级发布**（ADR-0017）：**build-scope ≠ release-sequence**——5 档审计粒度为全规划（ADR-0001 standing），各层独立走 preview→GA 漏斗，preview 形态不构成 MVP 切片。
+Release cadence = **graded preview releases** (ADR-0017): **build-scope ≠ release-sequence** — five audit scales are the full plan (ADR-0001 standing), each layer moves through its own preview→GA funnel, and a preview form is not an MVP slice.
 
-| scale | 状态 |
+| scale | status |
 |---|---|
-| Macro-B 仓库级四象限 | **capability 1 of 5 · preview**（自审首报样例见 [examples/first-report/](examples/first-report/)）；象限面矩阵：**strategy: active**（S1+S2 采集面已上架）· **behavior: preview**（codelore churn/hotspot/coupling 切片，#51）· **structure: queued**（与 S3 族双口径风险暂缓，D-054）· **supply-chain: queued**（D-034③ Scorecard 不插队） |
-| Macro-C 演化考古 | **capability 2 of 5 · preview**（单仓校准披露口径） |
-| Micro-A PR diff | **capability 3 of 5 · preview**（托管 API 适配器消费侧，同主试点仓 4-PR 校准口径） |
+| Macro-B repo quadrant | **capability 1 of 5 · preview** (self-audit first report: [examples/first-report/](examples/first-report/)); quadrant slices: **strategy: active** (S1+S2 collectors live) · **behavior: preview** (codelore churn/hotspot/coupling slices, #51) · **structure: queued** (deferred on dual-caliber risk with the S3 family, D-054) · **supply-chain: queued** (D-034③ Scorecard does not skip the queue) |
+| Macro-C evolution archaeology | **capability 2 of 5 · preview** (single-repo calibration disclosure) |
+| Micro-A PR diff | **capability 3 of 5 · preview** (hosted-API adapter consumer side, same pilot-repo 4-PR calibration) |
 | Micro-B file level | Not yet in preview |
-| Macro-A 跨仓战略 | Not yet in preview |
+| Macro-A cross-repo strategy | Not yet in preview |
 
-preview 标注诚实是决策本体非装饰（ADR-0017）：报告头/侧车 `preview_disclosure` 披露块（capability 标注＋校准范围＋结构性限制＋not_in_preview 清单）与上表为同一语义源；降级产出带 `⚠ unverified` 印记，未接证据域带「⚠ 数据未接」标注，合成 fixture 带「synthetic」印记且不冒充真实审计。
+Honest preview labeling is a decision, not decoration (ADR-0017): report headers and sidecars carry a `preview_disclosure` block (capability tag + calibration scope + structural limits + not_in_preview list) sourced from the same semantics as the table above; degraded output carries a `⚠ unverified` mark, unwired evidence domains carry a "⚠ data not connected" note, and synthetic fixtures carry a `synthetic` mark — they never impersonate real audits.
 
-**0.x 语义**：版本号 0.x 单调递增、号不复用；minor = 契约变更、patch = 修复、不回退发旧线补丁；1.0 退出条件 = 报告 schema 冻结＋已接上游适配器全过确定性验收（非日历触发）。口径全文见 [docs/versioning.md](docs/versioning.md)；产品版本变更以 [engine/CHANGELOG.md](engine/CHANGELOG.md) 为准，仓级里程碑/决策编年见 [CHANGELOG.md](CHANGELOG.md)。
+**0.x semantics**: 0.x 单调递增、号不复用 (versions increase monotonically, never reused); minor = contract change, patch = fix, no patches backported to older lines. The 1.0 退出条件 (exit condition) = report schema frozen + every wired upstream adapter passing deterministic acceptance — not calendar-driven. Full policy in [docs/versioning.md](docs/versioning.md); product version history lives in [engine/CHANGELOG.md](engine/CHANGELOG.md), repo-level milestones/decision chronicle in [CHANGELOG.md](CHANGELOG.md).
 
-## 组合件架构（三层）
+## Install
 
-```mermaid
-flowchart TB
-    subgraph DIST["分发层 · Agent Plugin 五层盒子"]
-        CLI["内核 CLI（四外壳规划）"]
-        SK["skills/ 方法论壳（只读）"]
-        MCP["mcp.json 只读证据查询面"]
-    end
-    subgraph CORE["事实与裁决层 · 护城河（自研）"]
-        FACT[("DuckDB audit_fact<br/>只追加事实表")]
-        ADJ["联邦裁决协议 verdict-gate"]
-        RCP["Receipt 回执 + 三层验收闸门"]
-    end
-    subgraph EVID["证据层 · 上游组合件"]
-        GIT["git CLI"]
-        CL["CodeLore（已接入·探针切片）"]
-        SC["OpenSSF Scorecard（规划中）"]
-    end
-    EVID -->|"经适配器写入 · raw 语义不出适配层"| CORE
-    CORE -->|"四外壳消费"| DIST
+**Prerequisites**: Node.js ≥ 20 (`node --version` to check) and Claude Code 2.x.
+
+```text
+/plugin marketplace add Xxx91n/6F
+/plugin install 6f@xxx91n
 ```
 
-### 上游清单
+Marketplace install = git clone with no build step — the runnable `dist/cli.js` (esbuild single-file bundle) ships with source, and a CI rebuild-diff guard catches forgotten rebuilds. Acceptance: `/mcp` shows `macro-audit-kernel` = connected, or run `node dist/cli.js selftest` in the plugin directory (5/5 = alive). Capability tiers and the DuckDB layered self-heal story (CLI auto-fetch vs. MCP `doctor --fix`) are documented in [engine/README.md](engine/README.md).
 
-| 上游组件 | 角色 | 形态 | 引入方式（D-020 双轨制） | 锁定策略 | 状态 |
-|---|---|---|---|---|---|
-| DuckDB（@duckdb/node-api） | 事实表底座 | Node 库 | 运行时依赖引用 | package-lock 精确锁定 | 已接入（active） |
-| git CLI | 仓库考古 / 确定性采集 | 外部 CLI | 适配器 + 外部 CLI | 随宿主环境；输出解析为契约 | 已接入（active） |
-| CodeLore | 代码考古 / 证据层 | CLI | 适配器 + 外部 CLI | exact pin 0.28.0 + golden 契约测试 | 已接入（active；探针切片：explain/summary 只读面） |
-| OpenSSF Scorecard | 供应链健康评分 | Go 库 / CLI | 库→依赖引用；CLI→适配器 | hash pinning / 锁版本 | 规划中（planned） |
-| GitHub REST API | Micro-A PR 数据面（枚举/元数据/diff 兜底；本地 git 优先） | remote-api | 适配器 + env token 三级探测 | X-GitHub-Api-Version pin + golden cassette 契约 | 已接入（active） |
+## What a report looks like
 
-> **状态列 = 机读权威绑定**：唯一权威 = [`engine/upstream-lock.yaml`](engine/upstream-lock.yaml)（D-037③，#44/A-049 落盘）——本表为人读形态，状态映射 = 已接入→active／规划中→planned／评估中→evaluating（retired 行不出本表；锁表另含评估中条目 `codelore-sqlite-dump`）。锁定纪律：禁 range/浮动 tag/latest，更新走手动窗口＋golden 回归护航（[docs/versioning.md](docs/versioning.md) §3-4）。
+Excerpt from a real self-audit of this repository ([examples/first-report/23-first-report.md](examples/first-report/23-first-report.md)) — verdicts are reported, not rounded up:
 
-引入方式按 ADR-0014：适配器 + 外部 CLI/库为主线，库形态上游走包管理器 lockfile hash pinning，vendor 源码进仓仅在气隙分发或上游废弃两种情况逃生。逐上游绑定与契约测试在阶段 2 立票定版。
+```text
+# MA-23-6F-FIRST-REPORT — Macro-B first report (6F@fc00d458…)
+> RECEIPT RCP-9d20125ad0976c86  facts=228  adjudications=6
+> issued_at=2026-09-13T14:31:09+08:00  commit=fc00d458e215…  tree=6f405cfc2ce5
 
-## Runtime View（walking skeleton 当前数据流）
-
-```mermaid
-flowchart LR
-    A["被审计仓库<br/>本地路径默认<br/>远程 URL clone 至隔离缓存"] --> B["采集器 / 适配器<br/>确定性采集"]
-    B -->|"INSERT 渲染 · 只追加校验"| C[("audit_fact 事实表<br/>trace / baggage 关联键")]
-    C -->|"只读投影"| D["裁决<br/>verdict-gate"]
-    D -->|"判定 + 证据引用"| E["Receipt 回执<br/>双锚 tree_anchor + content_digest"]
-    E -->|"verdict-gate 印记"| F["报告产物<br/>引文可回查 + ⚠ unverified 标记"]
+- overall_verdict: unsupported        confidence: 0.75
+- headline: main premise falsified at TC-2 (mean_ratio 0.2462 < 0.60,
+  Status/Date missing 84.62%); TC-1 INCONCLUSIVE; TC-3 AMBER
 ```
 
-## 所有权边界
+## Quick verification
 
-| 归属 | 组件 |
-|---|---|
-| **我们的（护城河）** | 联邦裁决协议（verdict-gate）· DuckDB 事实表 schema（只追加 + 跨 scale 关联键）· 三层验收闸门（A 形式 / B 预声明判据 / C 人裁定）· Receipt 回执（双锚）· 预声明判据纪律（2 正对照 + 3 真判据 + 1 负对照） |
-| **借来的（上游）** | DuckDB 引擎本体 · git CLI · CodeLore（已接入·探针切片）· GitHub REST API（已接入·REST 主路+`gh` 可选回退）· OpenSSF Scorecard（规划中） |
-
-## 契约声明
-
-- 上游组件一律**经适配器**写入事实表；上游原始语义不出适配层（防腐层纪律：适配层禁放业务规则）。
-- 上游替换或升级**不得改动事实表 schema**——schema 不可变，演进只走版本号。
-- 上游逐项锁定版本并配 golden 输出契约测试；vendor 源码进仓仅在气隙分发或上游废弃时启用，且必须带 UPSTREAM 清单与 patches/ 纪律。
-
-## 仓库地图
-
-| 路径 | 内容 |
-|---|---|
-| [CONTEXT.md](CONTEXT.md) | 术语表（56 词，领域唯一语言） |
-| [docs/adr/](docs/adr/) | 架构决策记录 ADR-0001 ~ ADR-0019 |
-| [engine/](engine/) | 内核 CLI + Agent Plugin 五层盒子（构建 / 命令细节见 [engine/README.md](engine/README.md)） |
-| [examples/first-report/](examples/first-report/) | 发布样例资产：6F 自审 Macro-B 首报四件（happy + failure 双对，披露制） |
-| [CHANGELOG.md](CHANGELOG.md) | 仓级里程碑/决策编年（指针制；产品版本账以 engine/CHANGELOG.md 为准） |
-| .scratch/macro-audit/ | 决策账本（D-001~D-047）+ spec 阶段任务 + 调研报告 |
-| .scratch/architecture-recovery/ | 执行轮账本（A-001~A-053）+ 票据 / 守卫 / 首报产物 |
-
-## 演示与样例
-
-- **确定性演示**（零外部依赖、跑完即弃）：`node dist/cli.js demo`——fixture 生成器合成临时 git 仓走 Macro-B 全链；三场景 `node dist/cli.js demo --list`（happy-path / degraded-supply / degraded-incomplete）。合成 fixture 带 synthetic 披露印记，**不冒充真实审计**。
-- **真实首报样例**：[examples/first-report/](examples/first-report/)——6F 仓自审 Macro-B 实跑产物四件（happy + failure 双对），披露生成 commit / 日期 / 重生成命令与冻结时点属性。
-
-## Try on a real repository
-
-外部仓经 URL opt-in 接入（D-013 本地优先＋URL opt-in）：clone 至隔离缓存（sha256 键）＋全深度校验＋浅 clone 显式拒绝＋禁远程配置执行＋凭据复用本地 git 凭据链。
-
-```bash
-cd engine && npm install && npm run build
-node dist/cli.js repo add https://github.com/open-gsd/gsd-core.git   # opt-in 公开仓
-node dist/cli.js repo add /path/to/local/repo                        # 本地路径（同一 Intake 本地腿）
-```
-
-- opt-in 公共仓示例：[open-gsd/gsd-core](https://github.com/open-gsd/gsd-core)（本仓已实测接入：2026-09-16 Macro-B one-shot 1424 facts，裁定 unsupported 如实落数——TC-2 归因为 ADR dash+加粗形态漏认，detector 覆盖缺口如实登记）。
-- **⚠ 外部内容随上游变化**：外部仓内容/结构随其上游演化，审计读数不可 golden 预期——示例仅说明接入路径，不构成对特定裁定结果的承诺。
-- 当前 `repo add` 交付 = intake 接入面；对外部仓的完整审计管线现以仓内脚本形态执行（实跑记录见执行账 A-044/A-045），打包内一等命令面未冻结——不虚构 `audit` 子命令。
-
-## 快速验证（源码自举，需 Node ≥ 20）
+From source (Node ≥ 20):
 
 ```bash
 cd engine
 npm install
-npm test         # gen 双 manifest → tsc 编译 → smoke（启动并测活）
+npm test         # gen manifests → tsc build → smoke (launch & liveness)
 npm run selftest
 ```
 
-CI 闭环见 [.github/workflows/engine-ci.yml](.github/workflows/engine-ci.yml)（paths: engine/**）。
+CI loop: [.github/workflows/engine-ci.yml](.github/workflows/engine-ci.yml) (`paths: engine/**`).
+
+---
+
+## Architecture: three layers
+
+![Three-layer architecture: Agent Plugin box over facts & adjudication core over upstream evidence components](docs/assets/architecture.svg)
+
+The distribution layer (CLI, skills shell, MCP surface) consumes the self-built core — an append-only `audit_fact` DuckDB table, the `verdict-gate` federated adjudication protocol, and dual-anchored receipts. Evidence flows in only through adapters: upstream raw semantics never leaves the adapter layer.
+
+## Upstream components
+
+| upstream | role | form | integration (D-020 dual-track) | lock strategy | status |
+|---|---|---|---|---|---|
+| DuckDB（@duckdb/node-api） | fact-table base | Node library | runtime dependency | package-lock exact pin | 已接入（active） |
+| git CLI | repo archaeology / deterministic collection | external CLI | adapter + external CLI | host environment; output parsing is the contract | 已接入（active） |
+| CodeLore | code archaeology / evidence layer | CLI | adapter + external CLI | exact pin 0.28.0 + golden contract tests | 已接入（active; probe slices: explain/summary read-only surfaces） |
+| OpenSSF Scorecard | supply-chain health score | Go lib / CLI | lib→dependency; CLI→adapter | hash pinning / locked version | 规划中（planned） |
+| GitHub REST API | Micro-A PR data surface (enumeration/metadata/diff fallback; local git first) | remote-api | adapter + env token three-level probe | X-GitHub-Api-Version pin + golden cassette contract | 已接入（active） |
+
+> **Status column = 机读权威绑定 (machine-readable binding)**: 唯一权威 = [`engine/upstream-lock.yaml`](engine/upstream-lock.yaml)（D-037③）——本表为人读形态，状态映射 = 已接入→active／规划中→planned／评估中→evaluating（retired rows are omitted; the lock file also carries evaluating row `codelore-sqlite-dump`）. Lock discipline: 禁 range/浮动 tag/latest，更新走手动窗口＋golden 回归护航 ([docs/versioning.md](docs/versioning.md) §3-4).
+
+Integration follows ADR-0014: adapter + external CLI/library is the main line; library-form upstreams are pinned via package-manager lockfile hashes; vendoring source into the repo is an escape hatch reserved for air-gapped distribution or abandoned upstreams.
+
+## Runtime view
+
+```mermaid
+flowchart LR
+    A["Audited repository<br/>local path by default<br/>remote URL cloned to isolated cache"] --> B["Collectors / adapters<br/>deterministic collection"]
+    B -->|"INSERT rendering · append-only check"| C[("audit_fact fact table<br/>trace / baggage correlation keys")]
+    C -->|"read-only projection"| D["Adjudication<br/>verdict-gate"]
+    D -->|"verdict + evidence refs"| E["Receipt<br/>dual anchors tree_anchor + content_digest"]
+    E -->|"verdict-gate mark"| F["Report artifacts<br/>traceable citations + ⚠ unverified marks"]
+```
+
+## Ownership boundary
+
+| owner | component |
+|---|---|
+| **Ours (the moat)** | federated adjudication protocol (verdict-gate) · DuckDB fact-table schema (append-only + cross-scale correlation keys) · three-layer acceptance gates (A formal / B pre-declared criteria / C human ruling) · dual-anchored receipts · pre-declared criteria discipline (2 positive controls + 3 real criteria + 1 negative control) |
+| **Borrowed (upstream)** | DuckDB engine itself · git CLI · CodeLore (active, probe slices) · GitHub REST API (active, REST primary + `gh` optional fallback) · OpenSSF Scorecard (planned) |
+
+## Contracts
+
+- Upstream components write into the fact table **only through adapters**; upstream raw semantics never leaves the adapter layer (anti-corruption discipline: no business rules in adapters).
+- Replacing or upgrading an upstream **must not change the fact-table schema** — the schema is immutable; evolution goes through version numbers only.
+- Every upstream is version-pinned with golden output contract tests; vendored source enters the repo only for air-gapped distribution or abandoned upstreams, and must carry an UPSTREAM manifest and patches/ discipline.
+
+## Repository map
+
+| path | contents |
+|---|---|
+| [CONTEXT.md](CONTEXT.md) | glossary (domain language) |
+| [docs/adr/](docs/adr/) | architecture decision records ADR-0001 ~ ADR-0021 |
+| [engine/](engine/) | kernel CLI + Agent Plugin five-layer box (build / command details in [engine/README.md](engine/README.md)) |
+| [examples/first-report/](examples/first-report/) | release sample assets: 6F self-audit Macro-B first report, four files (happy + failure pair, disclosure regime) |
+| [CHANGELOG.md](CHANGELOG.md) | 仓级里程碑/决策编年 (repo-level milestone & decision chronicle; pointer-based; product version ledger = engine/CHANGELOG.md) |
+| .scratch/macro-audit/ | decision ledger D-series (`.scratch/macro-audit/decision-ledger.md`) + spec-phase tasks + research reports |
+| .scratch/architecture-recovery/ | execution-round ledger A-series (`.scratch/architecture-recovery/decision-ledger.md`) + tickets / guards / first-report artifacts |
+
+## Demo and examples
+
+- **Deterministic demo** (zero external dependencies, discard after run): `node dist/cli.js demo` — a fixture generator synthesizes a temporary git repo and runs the Macro-B chain end to end; three scenarios via `node dist/cli.js demo --list` (happy-path / degraded-supply / degraded-incomplete). Synthetic fixtures carry a `synthetic` disclosure mark — **they do not impersonate real audits**.
+- **Real first-report sample**: [examples/first-report/](examples/first-report/) — the 6F self-audit Macro-B run, four files (happy + failure pair), disclosing the generating commit, date, regeneration command, and freeze-point attributes.
+
+## Try on a real repository
+
+External repositories join via URL opt-in (D-013 local-first + URL opt-in): clone into an isolated cache (sha256 key) + full-depth verification + shallow clones rejected + remote-config execution disabled + local git credential chain reuse.
+
+```bash
+cd engine && npm install && npm run build
+node dist/cli.js repo add https://github.com/open-gsd/gsd-core.git   # opt-in public repo
+node dist/cli.js repo add /path/to/local/repo                        # local path (same intake leg)
+```
+
+- Opt-in public example: [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) (actually onboarded here: Macro-B one-shot on 2026-09-16 produced 1424 facts and an `unsupported` verdict faithfully recorded — TC-2 attributed to an ADR dash+bold form detector gap, registered as a coverage hole).
+- **⚠ 外部内容随上游变化 (external content drifts with upstream)**: external repo content/structure evolves with its upstream, so audit readings cannot be golden-expected — the example demonstrates the intake path, not a promised verdict.
+- Current `repo add` delivers the intake surface; the full audit pipeline for external repos currently runs as in-repo scripts (run records in the execution ledger A-044/A-045) and the packaged first-class command surface is not frozen — no fictional `audit` subcommand is claimed.
+
+## Honesty notes
+
+- **Badges show only what is true today**: license, version, Node floor, marketplace installability. The CI badge ships only after the workflow actually runs green on main (event-bound, not speculative); a motion GIF will be recorded against real UI after the listing-material freeze — neither is referenced before it exists.
+- **Preview means preview**: capability labels, ⚠ marks, and `synthetic` marks are load-bearing honesty signals, retained verbatim across both language versions.
+- **Two-layer facade**: the upper half of this file is the product facade; everything below the rule is the engineering layer (architecture, upstreams, runtime view, ownership, contracts, repo map) kept intact for evaluators verifying the goods.
