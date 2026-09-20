@@ -167,11 +167,11 @@ const NAME_P = /^(name|label|id|n|msg|slug|title|desc|l|key)$/i;
 
 // name 参数位=def 形参名匹配（ok(cond,label)→pos1；t(name,ok,extra)→pos0；check(id,cond)→pos0；ok(n,d)→pos0）
 function detectNamePos(lines) {
-  const namePos = { t: 0, sealed: 0, w: 0, w58: 0, check: 0, ok: 0 };
+  const namePos = { t: 0, sealed: 0, w: 0, w58: 0, check: 0, ok: 0, x: 0 };
   for (const l of lines) {
-    const d = l.match(/const\s+(ok|check|t|w|w58)\s*=\s*\(([^)]*)\)/);
+    const d = l.match(/const\s+(ok|check|t|w|w58|x)\s*=\s*\(([^)]*)\)/);
     if (d) { const ps = d[2].split(',').map(s => s.trim().split(/[\s=]/)[0]); const idx = ps.findIndex(p => NAME_P.test(p)); if (idx >= 0) namePos[d[1]] = idx; }
-    const d2 = l.match(/function\s+(ok|check|t|w|w58)\s*\(([^)]*)\)/);
+    const d2 = l.match(/function\s+(ok|check|t|w|w58|x)\s*\(([^)]*)\)/);
     if (d2) { const ps = d2[2].split(',').map(s => s.trim()); const idx = ps.findIndex(p => NAME_P.test(p)); if (idx >= 0) namePos[d2[1]] = idx; }
   }
   return namePos;
@@ -182,7 +182,7 @@ function extractAssertions(origLines, maskedLines, namePos) {
   const assertions = [];
   origLines.forEach((l, i) => {
     const ml = maskedLines[i] || '';
-    for (const mm of ml.matchAll(/\b(t|ok|check|w|w58|sealed)\s*\(/g)) {
+    for (const mm of ml.matchAll(/\b(t|ok|check|w|w58|sealed|x)\s*\(/g)) {
       const fn = mm[1];
       const pos = namePos[fn] || 0;
       const callWin = origLines.slice(i, i + 4).join(' ');
@@ -284,7 +284,7 @@ for (const f of guardFiles) {
   const g = f.replace(/-check\.mjs$/, '');
   const src = fs.readFileSync(join(HERE, f), 'utf8');
   const res = censusGuardSource(src, reg);
-  inventory[g] = { assertion_ids: res.assertions.length, call_styles: [...new Set(res.assertions.map(a => a.style + '()'))].sort() };
+  inventory[g] = { assertion_ids: new Set(res.assertions.map(a => a.slug)).size, call_styles: [...new Set(res.assertions.map(a => a.style + '()'))].sort() };
   if (g === '70') continue;
   for (const c of res.candidates) {
     const key = g + ':' + c.slug;

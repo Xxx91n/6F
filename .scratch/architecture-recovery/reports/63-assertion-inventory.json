@@ -4,14 +4,14 @@
   "created": "2026-09-18",
   "updated": "2026-09-19",
   "updated_by": "update-70-inventory.mjs（#70/D-079 引用物缺席普查顺带偿 D-071 欠账）",
-  "note": "断言级稳定 id=断言名首词 token（A1/B5/G15 形），跨 t()/ok()/check()/w()/w58()/sealed() 六签名族均在位——XFAIL/VACUOUS 协议按 <guard>:<slug> 键可寻址。口径=emit 调用点（loop 族动态 slug 按调用点计一，sealed() 计入盘点不参评候选；检测经 stripComments+maskStrings 双轨，注释/字面量内伪调用不计）。",
+  "note": "断言级稳定 id=断言名首词 token（A1/B5/G15 形），跨 t()/ok()/check()/w()/w58()/sealed()/x() 七签名族均在位——XFAIL/VACUOUS 协议按 <guard>:<slug> 键可寻址。assertion_ids=唯一 slug 数（同 slug 多发射路径按一计——73-check C2 t()/x() 双路实证，loop 族动态 slug 按调用点计一，sealed() 计入盘点不参评候选；检测经 stripComments+maskStrings 双轨，注释/字面量内伪调用不计）。",
   "guards": {
     "01-check": {
       "assertion_ids": 0,
       "call_styles": []
     },
     "04-downweight-check": {
-      "assertion_ids": 29,
+      "assertion_ids": 18,
       "call_styles": [
         "ok()"
       ]
@@ -61,7 +61,7 @@
       ]
     },
     "23-first-report-check": {
-      "assertion_ids": 32,
+      "assertion_ids": 31,
       "call_styles": [
         "check()"
       ]
@@ -79,25 +79,25 @@
       ]
     },
     "26-check": {
-      "assertion_ids": 18,
+      "assertion_ids": 17,
       "call_styles": [
         "ok()"
       ]
     },
     "27-check": {
-      "assertion_ids": 15,
+      "assertion_ids": 13,
       "call_styles": [
         "ok()"
       ]
     },
     "28-check": {
-      "assertion_ids": 19,
+      "assertion_ids": 3,
       "call_styles": [
         "check()"
       ]
     },
     "29-check": {
-      "assertion_ids": 11,
+      "assertion_ids": 9,
       "call_styles": [
         "ok()"
       ]
@@ -115,13 +115,13 @@
       ]
     },
     "33-check": {
-      "assertion_ids": 32,
+      "assertion_ids": 31,
       "call_styles": [
         "t()"
       ]
     },
     "34-check": {
-      "assertion_ids": 25,
+      "assertion_ids": 23,
       "call_styles": [
         "t()",
         "w58()"
@@ -191,10 +191,11 @@
       ]
     },
     "44-check": {
-      "assertion_ids": 63,
+      "assertion_ids": 60,
       "call_styles": [
         "t()",
-        "w()"
+        "w()",
+        "x()"
       ]
     },
     "45-check": {
@@ -247,7 +248,7 @@
       ]
     },
     "53-check": {
-      "assertion_ids": 30,
+      "assertion_ids": 26,
       "call_styles": [
         "t()"
       ]
@@ -297,7 +298,8 @@
     "73-check": {
       "assertion_ids": 14,
       "call_styles": [
-        "t()"
+        "t()",
+        "x()"
       ]
     },
     "r14fix-check": {

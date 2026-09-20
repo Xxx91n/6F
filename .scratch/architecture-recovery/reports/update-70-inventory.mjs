@@ -1,5 +1,5 @@
 // update-70-inventory.mjs — 断言级 id 盘点重生成器（#70/D-071 欠账偿还；63-assertion-inventory.json 刷新唯一路径）
-// 口径=emit 调用点（t()/ok()/check()/w()/w58()/sealed() 六签名族），slug=name 第一参第一 token；
+// 口径=emit 调用点（t()/ok()/check()/w()/w58()/sealed()/x() 七签名族），slug=name 第一参第一 token；
 // loop 族动态 slug（'B-'+n 形）按调用点计一。检测走 stripComments+maskStrings 双轨（注释/字面量内伪调用不计）。
 // 70-check E1 对账漂移时跑本脚本。抽取机芯与 70-check.mjs §1 同源（双份拷贝——守卫无 import 纪律不引模块）。
 import fs from 'node:fs';
@@ -57,11 +57,11 @@ function extractLiterals(text) {
 }
 
 function detectNamePos(lines) {
-  const namePos = { t: 0, sealed: 0, w: 0, w58: 0, check: 0, ok: 0 };
+  const namePos = { t: 0, sealed: 0, w: 0, w58: 0, check: 0, ok: 0, x: 0 };
   for (const l of lines) {
-    const d = l.match(/const\s+(ok|check|t|w|w58)\s*=\s*\(([^)]*)\)/);
+    const d = l.match(/const\s+(ok|check|t|w|w58|x)\s*=\s*\(([^)]*)\)/);
     if (d) { const ps = d[2].split(',').map(s => s.trim().split(/[\s=]/)[0]); const idx = ps.findIndex(p => NAME_P.test(p)); if (idx >= 0) namePos[d[1]] = idx; }
-    const d2 = l.match(/function\s+(ok|check|t|w|w58)\s*\(([^)]*)\)/);
+    const d2 = l.match(/function\s+(ok|check|t|w|w58|x)\s*\(([^)]*)\)/);
     if (d2) { const ps = d2[2].split(',').map(s => s.trim()); const idx = ps.findIndex(p => NAME_P.test(p)); if (idx >= 0) namePos[d2[1]] = idx; }
   }
   return namePos;
@@ -71,7 +71,7 @@ function extractAssertions(origLines, maskedLines, namePos) {
   const assertions = [];
   origLines.forEach((l, i) => {
     const ml = maskedLines[i] || '';
-    for (const mm of ml.matchAll(/\b(t|ok|check|w|w58|sealed)\s*\(/g)) {
+    for (const mm of ml.matchAll(/\b(t|ok|check|w|w58|sealed|x)\s*\(/g)) {
       const fn = mm[1];
       const pos = namePos[fn] || 0;
       const callWin = origLines.slice(i, i + 4).join(' ');
@@ -93,7 +93,7 @@ for (const f of fs.readdirSync(HERE).filter(f => /-check\.mjs$/.test(f)).sort())
   const lines = src.split('\n');
   const maskedLines = masked.split('\n');
   const a = extractAssertions(lines, maskedLines, detectNamePos(maskedLines));
-  guards[g] = { assertion_ids: a.length, call_styles: [...new Set(a.map(x => x.style + '()'))].sort() };
+  guards[g] = { assertion_ids: new Set(a.map(e => e.slug)).size, call_styles: [...new Set(a.map(e => e.style + '()'))].sort() };
 }
 
 const out = {
@@ -102,7 +102,7 @@ const out = {
   created: '2026-09-18',
   updated: '2026-09-19',
   updated_by: 'update-70-inventory.mjs（#70/D-079 引用物缺席普查顺带偿 D-071 欠账）',
-  note: '断言级稳定 id=断言名首词 token（A1/B5/G15 形），跨 t()/ok()/check()/w()/w58()/sealed() 六签名族均在位——XFAIL/VACUOUS 协议按 <guard>:<slug> 键可寻址。口径=emit 调用点（loop 族动态 slug 按调用点计一，sealed() 计入盘点不参评候选；检测经 stripComments+maskStrings 双轨，注释/字面量内伪调用不计）。',
+  note: '断言级稳定 id=断言名首词 token（A1/B5/G15 形），跨 t()/ok()/check()/w()/w58()/sealed()/x() 七签名族均在位——XFAIL/VACUOUS 协议按 <guard>:<slug> 键可寻址。assertion_ids=唯一 slug 数（同 slug 多发射路径按一计——73-check C2 t()/x() 双路实证，loop 族动态 slug 按调用点计一，sealed() 计入盘点不参评候选；检测经 stripComments+maskStrings 双轨，注释/字面量内伪调用不计）。',
   guards: guards
 };
 const target = join(HERE, '63-assertion-inventory.json');
