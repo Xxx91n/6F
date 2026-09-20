@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 220" width="880" height="220" role="img" aria-label="macro-audit — engineering-content audit">
+  <!-- hero derived from docs/listing/icon.svg: magnifier + audit grid + evidence anchors -->
+  <rect x="0" y="0" width="880" height="220" rx="24" fill="#0f172a"/>
+  <!-- audit grid lines (right side, motif echo) -->
+  <g stroke="#38bdf8" stroke-width="6" opacity="0.35">
+    <line x1="620" y1="60" x2="830" y2="60"/>
+    <line x1="620" y1="95" x2="830" y2="95"/>
+    <line x1="620" y1="130" x2="830" y2="130"/>
+    <line x1="620" y1="165" x2="760" y2="165"/>
+  </g>
+  <!-- evidence anchor dots -->
+  <circle cx="600" cy="60" r="7" fill="#f59e0b"/>
+  <circle cx="600" cy="112" r="7" fill="#f59e0b"/>
+  <circle cx="600" cy="165" r="7" fill="#f59e0b"/>
+  <!-- magnifier mark (scaled from icon.svg) -->
+  <g transform="translate(60,52)">
+    <circle cx="52" cy="52" r="46" fill="none" stroke="#e2e8f0" stroke-width="14"/>
+    <line x1="86" y1="86" x2="122" y2="122" stroke="#e2e8f0" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="52" cy="52" r="16" fill="#38bdf8"/>
+  </g>
+  <!-- wordmark -->
+  <text x="210" y="92" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="52" font-weight="700" fill="#e2e8f0">macro-audit</text>
+  <text x="212" y="136" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#38bdf8">macro + micro engineering-content audit</text>
+  <!-- evidence chips -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">
+    <rect x="212" y="158" width="150" height="30" rx="15" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="227" y="178" fill="#f59e0b">evidence anchors</text>
+    <rect x="374" y="158" width="158" height="30" rx="15" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="389" y="178" fill="#f59e0b">verifiable receipts</text>
+    <rect x="544" y="158" width="146" height="30" rx="15" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="559" y="178" fill="#f59e0b">three-way verdicts</text>
+  </g>
+</svg>

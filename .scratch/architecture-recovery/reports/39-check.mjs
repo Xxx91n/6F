@@ -98,11 +98,9 @@ sealed('E3', 'ap-39-e3', 'desk-task7 decided——验收时点翻转+self-probe 
 sealed('E4', 'ap-39-e4', 'mw-trigger-a decided（ERRATA 在案）——值守 ALARM 口径变迁；33-check 回归由基线电池直跑承接');
 
 // --- F. jiahao CI 接入（workflow 触发面 + 引擎链 + commit 在 jiahao 仓） ---
-const WF = join(REPOS.jiahao, '.github', 'workflows', 'macro-b-regression.yml');
-const wf = fs.existsSync(WF) ? fs.readFileSync(WF, 'utf8') : '';
-const onBlock = (wf.split(/\njobs:/)[0] || '');
+// vacuous-deleted 2026-09-19 D-079 — F2「触发面不含 push/pull_request（回归≠门禁）」：引用物 jiahao/.github/workflows/macro-b-regression.yml
+//   被 D-046 撤除后 wf='' 空输入谓词恒真（vacuous-true 恒真断言）——删除＋留痕=vacuity-manifest.json vac-39-f2（不走 sealed/XFAIL）
 sealed('F1', 'ap-39-f1', 'superseded-by-D-046：回归 CI 迁回 6F——承接=46-check A1');
-t('F2 触发面不含 push/pull_request（回归≠门禁）', !/^\s+(push|pull_request)\s*:/m.test(onBlock.split(/\non:/)[1] || ''), '');
 sealed('F3', 'ap-39-f3', 'superseded-by-D-046——承接=46-check A8');
 sealed('F4', 'ap-39-f4', 'superseded-by-D-046——承接=46-check A14');
 sealed('F5', 'ap-39-f5', '验收时点 commit 落地证明 fired（ref 并入 main 消耗＋env 腿双因）');

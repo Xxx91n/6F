@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "cap": 10,
+  "meta": {
+    "ticket": 70,
+    "decision": "D-079",
+    "created": "2026-09-19",
+    "semantics": "vacuous 恒真断言独立候选册（D-079）：二值口径 VACUOUS⇔断言引用物缺席∧执行历史零 FAIL 记录；恒真不可证伪=独立候选族非 FAIL 同义词，分拣输入面=FAIL∪恒真候选。disposition 枚举：candidate-certain（机械解析单引用物缺席）／candidate-likely（多引用物/部分可解析，人工裁决 45-H5 先例）／vacuous-deleted（删除＋留痕行，不走 sealed/XFAIL——sealed=fired 过装不下从未 fired，XFAIL 无 FAIL/XPASS 信号对恒真失效）／adjudicated-not-vacuous（裁为非恒真，suppress_census 抑制重复检出）。baseline 惯例只拦新增：存量一次性记录入册，册外新增候选由 70-check FAIL 拦截。",
+    "runner": "70-check.mjs",
+    "census": "引用物缺席普查 pass（#65 sibling-dependency grep 复用）：fs 消费位引用物（existsSync/readFileSync/read/txt/noBom/readdirSync/statSync/openReader 参数，join() 经文件级常量表解析）＋registry 引用物；豁免=sealed() 调用点＋!existsSync 否定存在断言＋git pathspec（'--' 后路径）；执行历史零 FAIL 机检代理=不在 stale-assertions∧不在 attestation∧候选守卫实跑该 slug 当前 emit PASS",
+    "anti_vacuity": "普查 pass 内置 D-018 正对照：注入已知缺席引用物合成断言验证探测器必产候选；负对照=在位引用物/否定存在/sealed 形态零误报"
+  },
+  "entries": [
+    {
+      "id": "vac-39-f2",
+      "guard": "39",
+      "assertion-slug": "F2",
+      "referent-path": "D:/Aworker/jiahao/.github/workflows/macro-b-regression.yml",
+      "detection_evidence": "census certain：fs.existsSync(WF)/fs.readFileSync(WF) 消费位引用物缺席（D-046 jiahao workflow 撤除），断言对空字符串谓词 !/push|pull_request/ 恒真 PASS——恒真 vacuous-true（R22 审计记录在案）",
+      "confidence": "certain",
+      "zero_fail_history": "PASS-only 自创建 2026-09-16；未入 stale-assertions 未入 attestation；基线电池 14/14 实跑 emit PASS",
+      "disposition": "vacuous-deleted",
+      "decision": "D-079",
+      "evidence": ".scratch/architecture-recovery/BACKLOG.md",
+      "review_anchor": "stage3-close",
+      "expires_fallback": "2026-12-31",
+      "added": "2026-09-19"
+    }
+  ]
+}

@@ -17,11 +17,18 @@ const guards = [...new Set(entries.map(e => e.guard))];
 // sealed 第三态（D-073③/#65）：acceptance-probe-attestation.jsonl = 验收探针显式退役双锚（append-only）；
 // sealed 断言移出执行集——守卫源以 sealed('<slug>') 发射 SEALED 行（非 PASS/FAIL），本层计数顶显并对 entries∩sealed 互斥机检。
 const ATT = join(HERE, 'acceptance-probe-attestation.jsonl');
-const attRows = existsSync(ATT) ? readFileSync(ATT, 'utf8').split('\n').filter(l => l.trim()).map(l => JSON.parse(l)) : [];
+// T5/R22 §C 顺带清：attestation 解析对称 33-check attBad 兜底——坏行进 problems 结构化 FAIL（不再裸 SyntaxError 丢诊断）
+const attBad = [];
+const attRows = existsSync(ATT)
+  ? readFileSync(ATT, 'utf8').split('\n').filter(l => l.trim()).map((l, i) => {
+    try { return JSON.parse(l); } catch (e) { attBad.push('attestation line ' + (i + 1) + ': ' + e.message); return null; }
+  }).filter(Boolean)
+  : [];
 const sealedSet = {};
 for (const r of attRows) { const g = r.guard; (sealedSet[g] = sealedSet[g] || new Set()).add(r['assertion-slug']); }
 const entryKeySet = new Set(entries.map(e => e.guard + ':' + e['assertion-slug']));
 const problems = [];
+for (const b of attBad) problems.push('attestation-parse: ' + b);
 const overlap0 = attRows.filter(r => entryKeySet.has(r.guard + ':' + r['assertion-slug'])).map(r => r.id);
 if (overlap0.length) problems.push('entries-sealed-overlap:' + overlap0.join(','));
 const perGuard = {};

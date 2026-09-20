@@ -150,10 +150,12 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const cap3 = [];
   const r3 = await G.collectGithubPrFacts('Xxx91n', 'env-manager', {
     env: {}, ghTokenProbe: noGh,
-    fetcher: cassetteFetcher({ name: 'diff-limited', calls: [
-      { request: { method: 'GET', path: '/repos/Xxx91n/env-manager/pulls?state=all&per_page=100&page=1', accept: 'application/vnd.github+json' }, response: { status: 200, headers: casA.calls[0].response.headers, body: [row64] } },
-      { request: { method: 'GET', path: '/repos/Xxx91n/env-manager/pulls/64', accept: 'application/vnd.github.diff' }, response: { status: 403, headers: { 'x-ratelimit-limit': '60', 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '1789573500', 'x-ratelimit-resource': 'core' }, body: '{}' } }
-    ] }, cap3),
+    fetcher: cassetteFetcher({
+      name: 'diff-limited', calls: [
+        { request: { method: 'GET', path: '/repos/Xxx91n/env-manager/pulls?state=all&per_page=100&page=1', accept: 'application/vnd.github+json' }, response: { status: 200, headers: casA.calls[0].response.headers, body: [row64] } },
+        { request: { method: 'GET', path: '/repos/Xxx91n/env-manager/pulls/64', accept: 'application/vnd.github.diff' }, response: { status: 403, headers: { 'x-ratelimit-limit': '60', 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': '1789573500', 'x-ratelimit-resource': 'core' }, body: '{}' } }
+      ]
+    }, cap3),
     diffs: [64]
   }, CTX);
   const limD = byMetric(r3.facts, 'github_rest.rate_limited');
@@ -198,6 +200,16 @@ check('E5 非 github 托管显式拒', ng.ok === false && /unsupported/.test(ng.
 check('K1 X-GitHub-Api-Version pin=2022-11-28', G.GITHUB_API_VERSION === '2022-11-28');
 check('K2 adapter id + family', G.GITHUB_REST_ADAPTER_ID === 'github-rest-adapter@v1' && G.GITHUB_REST_FAMILY === 'upstream-github-rest');
 check('K3 planned 面登记（review/comment 不入最小集）', G.GITHUB_REST_PLANNED_SURFACES.includes('pulls.reviews') && G.GITHUB_REST_PLANNED_SURFACES.includes('pulls.comments'));
+
+// --- L live opt-in 凭据腿（#72/D-080③：凭据缺席环境显式报告 SKIPPED 不算 PASS——防假绿） ---
+{
+  const probe = G.resolveGithubCredential(process.env, G.probeGhAuthToken);
+  if (probe.strategy === 'env-token' || probe.strategy === 'gh-token') {
+    check('L1 live 凭据解析（真 token 在位——opt-in 门实走；不打网络只验门）', (probe.token || '').length > 10);
+  } else {
+    console.log('SKIPPED L1 live 凭据腿——无 GITHUB_TOKEN 且 gh auth token 缺席（opt-in 缺位显式报告不算 PASS；strategy=' + probe.strategy + '）');
+  }
+}
 
 let ok = true;
 for (const r of results) {
