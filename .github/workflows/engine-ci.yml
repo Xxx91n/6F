@@ -31,7 +31,8 @@ jobs:
       - run: npm run build
       - name: rebuild-diff guard (D-067 dist committed — src/dist drift fails)
         shell: bash
-        run: test -z "$(git status --porcelain -- dist/)" || (echo "DIST-DRIFT: dist/ 与 src 失同步——本地 npm run build 后同 commit 提交 dist/"; git status --porcelain -- dist/; exit 1)
+        run: |
+          test -z "$(git status --porcelain -- dist/)" || (echo "DIST-DRIFT: dist/ 与 src 失同步——本地 npm run build 后同 commit 提交 dist/"; git status --porcelain -- dist/; exit 1)
       - run: npm run package
       - run: npm run smoke
       # #58/D-066 真校验器 advisory：`claude plugin validate --strict`（WARN 不红；cli-absent=SKIP 非失败）
