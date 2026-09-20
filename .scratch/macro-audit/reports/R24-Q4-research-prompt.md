@@ -1,0 +1,3 @@
+# R24-Q4 research prompt
+
+GitHub 公开仓双语文档同步机制调研。背景：仓库已裁双语双文件门面（README.md=English 主位全量 + README.zh-CN.md=中文全量平行结构），仓内有强守卫文化（自研 NN-check.mjs 断言脚本族：断言带 id、三态输出 PASS/FAIL/XFAIL、文档-代码对账守卫先例=「文档单源真值+派生常量+逐行对账」）。核心问题：双语 README 双写漂移面的工业界成熟处置心智模型是什么，本仓该选哪种同步纪律？候选四案：(a) 结构级机检守卫——CI/守卫脚本断言两文件节骨架互等（heading 锚点显式配对）、code block 集合相等（install 命令跨语言不变）、链接目标集相等、badge 集相等，译文质量留人评审；(b) 纯流程纪律——CONTRIBUTING 写「改 README 必双改」靠人肉评审；(c) 单源派生——一侧为源另一侧标 generated/may-lag；(d) 认栽标注——zh-CN 头注「以英文版为准」放任漂移。请调研工业界成熟落地的心智模型与工具链实践（大型开源项目多语 README 治理、i18n 文档翻译状态标记/掉队检测、CI link/structure 校验、translation-management 的 source-of-truth+status 模式），对四案给出推荐与理由，并指出各案失败模式；另请评估「可机检面（骨架/代码块/链接/badge）vs 不可机检面（译文质量）」的二分是否成立、有无第三类半机检面（如 front-matter 翻译版本戳/git 对锚）。

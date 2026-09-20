@@ -701,3 +701,37 @@ revised 链（本轮 0 条）：无——六轮调研全兼容既有 current 决
 旧 72 条 current 去向在历轮收口对账节有案，无漂移。
 
 无去向记录清单：空。
+
+## 第二十四轮 Grill
+
+| ID | 原问题 | 我的回答原文 | 规范化需求 | 显式约束/负向需求 | 状态 |
+|---|---|---|---|---|---|
+| D-085 | Q1（轮24）：GitHub 门面整改范围边界——本轮 grill 把「门面」裁到哪些面？实物侦察：repo=Xxx91n/6F PUBLIC、description 陈旧（architecture-recovery 18-tickets 阶段叙事残留）、topics=null、homepage 空；README.md 9951B/11 节/中文主体/0 badge/0 image/16 链接；仓根无 LICENSE（engine/LICENSE=Apache-2.0 已换文 ADR-0021）；.github 仅 3 workflow 无社区文件；docs/listing 已有 icon.svg＋D-031 冻结文案；全栈零 push 活面=main。 | A（2026-09-20，原话「A」＝采纳选项 (a) 全栈三面） | ① **三面全含**：面一=README 内容+视觉重构（readme-crafter 内容面＋beautify 视觉面双技能路由，各面内部结构/语言/视觉另题裁）；面二=仓内社区文件补齐（root LICENSE 落地 ADR-0021＋CONTRIBUTING/SECURITY/issue+PR 模板等待裁清单）；面三=GitHub 元数据（description/topics/homepage/social preview——gh 写公开仓属外部生产动作，逐项呈报授权后执行非顺手带过）；② **执行序**：门面物料全在仓内分支备好，元数据写操作=面三最后一步且逐次呈报；③ **生效边界登记**：门面改动落 but 分支≠上线——live face=main 分支，push/merge 仍走用户既有闸门，门面工作不改变该事实。 | ① repo-logo 重资产管线不入门（docs/listing/icon.svg 自绘已有可复用/派生）；② preview 诚实纪律延伸至门面——不得夸大能力矩阵、不得伪造 badge（CI badge 仅在对应 workflow 于 main 实跑绿后方可挂）；③ GitHub 元数据写操作禁止未经授权执行；④ grill 期间不动手修 README/源码——先裁后做。 | current |
+| D-086 | Q2（轮24）：README 定位——产品门面主位 vs 工程文档主位 vs 双层？现状=纯工程文档 11 节安装入口沉底；抵达路径=marketplace listing→仓页 README；preview 诚实矩阵=ADR-0017 决策本体非可砍装饰。 | C（2026-09-20，原话「C」＝采纳选项 (c) 双层门面） | ① **双层门面结构**：上半=产品门面层（pitch→badge→能力矩阵→安装→样例→快速验证），下半=工程文档层保留（三层架构/上游清单/Runtime View/所有权边界/契约声明/仓库地图）——**重排顺序＋门面化首屏，工程语义不删不稀释**；② **受众序**：安装者/试用者→评估者→工程读者；③ **能力矩阵居上半层内**——诚实矩阵前置本身即产品卖点非可下沉项。 | ① 工程节段不链走不删除（评估者验货证据在场）；② 安装与快速验证必须上移到门面层可见位置（现状沉底违安装者首触点语义）；③ 门面化≠加宣称——preview 标注/未接域 ⚠ 标记/synthetic 印记原样保留。 | current |
+| D-087 | Q3（轮24）：README 语言策略——纯中文 vs 双语 vs 英文主位？事实：产品语面中文（README 1552CJK/6254 字符、listing 文案中文、样例报告中文）；repo PUBLIC 发现面英文为主；双文件=双写双漂面。 | B（2026-09-20，原话「B」＝采纳选项 (b) 双语双文件，覆盖先验荐 (a) 中文主体+EN 摘要块） | ① **双语双文件**：README.md=English 主位全量门面＋README.zh-CN.md=中文全量版——两文件平行结构同覆盖面；② **GitHub 元数据随英文主位**：description/topics 用英文（与 README.md 主位一致）；③ **同步纪律挂下游题裁**：双写漂移面的处置机制（机检守卫/流程纪律/单源派生/认栽标注）是本决策的直接负债，紧随立案——未裁前双文件不落地。 | ① D-031 listing 冻结文案/marketplace.json 中文描述不因本决策改动（marketplace 面语面独立）；② EN README 不得过度承诺——凡产品语面实际为中文处（报告输出/文档）应如实标注不得伪装全英文产品；③ 双文件落地前同步机制必须先裁（防落地即漂移）。 | current |
+| D-088 | Q4（轮24）：双语 README 同步纪律——D-087 双文件决策的直接负债，双写漂移面怎么封？（atomcode 深调研 R24-Q4：工业模型=canonical→derived 非对称「English is canonical, translations are derived documents」／readme-i18n-sentinel 机检实物管 11 译文／Opendray 刻意 advisory-only 永不 exit 1「typo/link fix 不动译文是正当理由」／blume 无 owner 11 译文 17 天全灭＋ledger+hash 版本戳／MDN Tier1 社区 lead 制+锚点英文不译教训／taiwan-md P2.5 metadata-stale 分级；二分法修正为三分类，置信高 7 检索 7 全文；报告：reports/R24-Q4-atomcode-research.md） | 采纳（2026-09-20，原话「采纳」＝采纳修正后推荐=(a)+(d) 复合） | ① **关系定性 canonical→derived**：zh-CN=派生工件非平等副本，首行 canonicalMarker 标注「英文版为权威，不一致以 README.md 为准」——读者锚且被守卫断言存在；② **结构守卫入 NN-check**：heading 骨架互等（zh-CN 标题带 {#english-id} 显式锚钉回源，锚点集相等——锚点不译标题可译，MDN 锚点自译错乱教训）＋fenced code block 集相等（install 命令跨语言不变）＋链接目标集相等＋badge 集相等→结构性漂移=FAIL；③ **半机检版本戳**：zh-CN `<!-- sync: <en-hash> -->`，英文变而戳未 bump=**XFAIL/warn 非 FAIL**（Opendray 教训：小修掉队不逼最小合规假同步；区分结构性漂移与小修掉队）；④ **owner 字段入守卫配置**（zh-CN 跟进人；blume 无 owner 译文 17 天全灭/MDN Tier1「有 lead 才保有译文」）；⑤ **拒 (b) 纯流程纪律单用＋拒 (c) generated 管线**（双语场景得不偿失），升级触发器=译入 ≥3 语言时再裁 ledger/hash 模型；⑥ 译文质量=人评审层，机器只管「是否同步过」不管「译得好不好」。 | ① 同步守卫只管结构面不得断言译文质量（不可机检面如实留人）；② 版本戳失配给 warn/XFAIL 不得 FAIL（防小修逼假同步）；③ (d) 认栽标注只允许以 canonicalMarker 最小形态存在非放任漂移。 | current |
+| D-089 | Q5（轮24）：README 视觉层配置度——现状 0 badge/0 image；可复用 docs/listing/icon.svg 自绘主题色板（#0f172a/#38bdf8/#f59e0b）；S3 门面预算维度使「门面即样品」架构图=评估者高密度证据；CI badge 诚实约束须待 main 实绿（D-085②）。 | a（2026-09-20，原话「a」＝采纳选项 (a) 中度视觉） | ① **静态 honest badges 即挂**：license=Apache-2.0／version=0.1.0／node>=20／marketplace 可安装——只挂当下为真者；② **icon.svg 派生 logo/hero 顶置**（自绘资产复用无版权负担）；③ **一张架构 SVG**（三层盒/五尺度择一，实施票内定——视觉预算花在证明结构不在装饰）；④ **样例报告截片段**（examples/first-report 实物作演示面）；⑤ **两触发项**：motion GIF=CLI 输出面稳定后再拍（实录过期快，留票非取消）；CI badge=main 上对应 workflow 实跑绿后挂（event_bound 不预埋死链）；⑥ social preview card 由 icon.svg 派生归面三元数据题裁。 | ① badge 集合只含当下为真项，禁用占位/死链徽章；② motion GIF 未拍前 README 不得引用不存在的动图；③ 新图资产与 icon.svg 同色板主题（#0f172a/#38bdf8/#f59e0b 族）；④ CI badge 触发条件=main 分支 workflow 实跑绿非「推了就算」。 | current |
+| D-090 | Q6（轮24）：.github 社区面补齐清单——现状仅 3 workflow；root LICENSE=ADR-0021/D-051 已裁未落执行债（git ls-tree origin/main 实证仓根无 LICENSE）；SECURITY=审计产品自指可信度；CONTRIBUTING 须诚实姿态；CoC/CODEOWNERS 单作者阶段摆上是装饰还是标准件之裁。 | a（2026-09-20，原话「a」＝采纳选项 (a) 全清单，覆盖先验荐 (b) 核心四件） | ① **七件全补**：LICENSE（engine/LICENSE Apache-2.0 复制至仓根）＋CONTRIBUTING.md（诚实姿态：preview 单作者维护、issue/反馈欢迎、PR 政策明写、纪律指针到 AGENTS.md/engine README）＋SECURITY.md（披露渠道+支持范围=0.x preview 仅最新版）＋CODE_OF_CONDUCT.md（Contributor Covenant 标准件）＋ISSUE_TEMPLATE（bug_report.yml+feature_request.yml+config.yml——字段含宿主/版本/OS/selftest 输出）＋PULL_REQUEST_TEMPLATE（dogfood 本仓纪律清单：守卫绿/账本/双语同步/dist rebuild）＋CODEOWNERS（*=@Xxx91n）；② 社区文件语种随 README.md 英文主位（zh-CN 对照非本轮必需）。 | ① 内容必须如实——preview 阶段/单作者维护现实不得用模板文案虚饰（SECURITY 支持范围不得承诺不存在的版本线）；② FUNDING 不挂（无资助渠道不空挂）；③ PR/issue 模板字段不得引用不存在的流程（如 Slack/论坛）。 | current |
+| D-091 | Q7（轮24）：GitHub 元数据草稿包与授权形态——main 活面=当前 preview README（origin/main 实证），陈旧点=description（architecture-recovery 18-tickets 阶段叙事）＋topics=null＋homepage 空＋social card 未设。 | a（2026-09-20，原话「a」＝采纳草稿包＋一次授权三项写操作） | ① **description 拟稿生效**（英文随 D-087）：`Macro + micro engineering-content audit for git-healthy repositories — Claude Code Agent Plugin (Hub-of-Facts + federated adjudication, evidence gates, verifiable receipts). Preview: 3 of 5 capabilities live.`；② **topics 十枚生效**：claude-code／claude-code-plugin／agent-plugin／mcp-server／code-audit／engineering-metrics／static-analysis／git-analysis／llm-tools／developer-tools；③ **homepage 留空**（无外部站点=诚实）；④ **social preview=1280×640 PNG**（icon.svg 主题派生＋名/pitch，制作归实施票）；⑤ **授权形态=包级一次授权**：description 改写＋topics 十枚＋social card 上传三项写操作照稿执行不再逐项问——D-085② 执行序不变（元数据写=面三最后一步，仓内物料先行）。 | ① 草稿外字段不得扩写（不加 homepage/不改 visibility/不动 default branch）；② 执行限授权三项，发现新写需求重新呈报；③ social card 未产出前不得上传占位图。 | current |
+
+## 第二十四轮收口对账
+
+增量 7 条去向（GitHub 门面三面整改题域全裁；R24-Q4 一轮 atomcode 深调研经 current 冲突核查零 revised）：
+
+| D | 去向 |
+|---|---|
+| D-085 | BACKLOG #73（门面整改总票：三面全含＋执行序=仓内物料先行/元数据写最后＋生效边界登记；repo-logo 不入门负向约束随票面） |
+| D-086 | 并入 #73 面一（README 双层门面：pitch→badges→能力矩阵→安装→样例→快速验证 上半层；工程节段保留下半层不删不稀释） |
+| D-087 | 并入 #73 面一（README.md EN 主位＋README.zh-CN.md 中文全量；元数据英文）＋同步机制前置（D-088 裁毕方可落地） |
+| D-088 | 并入 #73＋**73-check.mjs 立案**（双语同步守卫：canonicalMarker 断言＋heading 锚点集/code block/链接/badge 互等 FAIL＋sync 版本戳失配 XFAIL＋owner 字段）＋≥3 语言升级触发器留票面 |
+| D-089 | 并入 #73 面一视觉（静态 badges＋icon.svg 派生 hero＋架构 SVG＋样例截片）＋registry 双 event_bound：`readme-ci-badge`（锚=engine-ci-main-green 新事件）／`readme-motion-gif`（锚=listing-material-freeze 既有事件复用——25-P4/25-D3 功能冻结同锚族） |
+| D-090 | 并入 #73 面二（LICENSE/CONTRIBUTING/SECURITY/CODE_OF_CONDUCT/ISSUE_TEMPLATE×3/PULL_REQUEST_TEMPLATE/CODEOWNERS 七件） |
+| D-091 | 并入 #73 面三末步（description/topics/social-card 三项授权写操作——包级授权已授照稿执行；homepage 留空登记） |
+
+revised 链：本轮 0 条。
+
+连带状态更新（非新决策）：registry 51 项/34 事件（+1 事件 engine-ci-main-green、+2 值守项 readme-ci-badge/readme-motion-gif）；33-check +H3/H4；44-check G6 滚动至 #73；CONTEXT.md +Canonical→Derived 条目；BACKLOG +1 票（#73）。
+
+旧 84 条 current 去向在历轮收口对账节有案，无漂移。
+
+无去向记录清单：空。

@@ -275,6 +275,19 @@ t('G7 attestation 行字段齐备＋id=ap-<guard>-<slug>＋evidence 可解析＋
   t('H2 事件-常量一致（pulls.reviews 移出 PLANNED_SURFACES 而事件未翻=漂移 FAIL）',
     evH ? (reviewsPlanned === !evH.occurred) : false,
     'planned=' + reviewsPlanned + ' occurred=' + (evH ? evH.occurred : 'N/A'));
+  const evB = reg.events['engine-ci-main-green'];
+  const itB = reg.items.find(i => i.id === 'readme-ci-badge');
+  const itG = reg.items.find(i => i.id === 'readme-motion-gif');
+  t('H3 门面触发双件在：readme-ci-badge→engine-ci-main-green／readme-motion-gif→listing-material-freeze（D-089⑤ 触发项不预埋）',
+    !!(evB && itB && itB.watch === 'event_bound' && itB.trigger_event === 'engine-ci-main-green'
+      && itG && itG.watch === 'event_bound' && itG.trigger_event === 'listing-material-freeze'),
+    'badge=' + (itB ? 'ok' : 'missing') + ' gif=' + (itG ? 'ok' : 'missing') + ' event=' + (evB ? 'ok' : 'missing'));
+  const rdPath = join(AR, '..', '..', 'README.md');
+  const rdSrc = fs.existsSync(rdPath) ? fs.readFileSync(rdPath, 'utf8') : '';
+  const ciBadgeInReadme = /shields\.io[^\s)]*(workflow|actions)|actions\/workflows\/[^\s)]*badge/i.test(rdSrc);
+  t('H4 CI badge 未预埋（engine-ci-main-green 未 occurred 而 README 含 workflow/actions 徽标=违诚实徽记 FAIL）',
+    evB && evB.occurred ? true : !ciBadgeInReadme,
+    'occurred=' + (evB ? evB.occurred : 'N/A') + ' ciBadge=' + ciBadgeInReadme);
 }
 
 // --- I. #70/D-079 vacuity-manifest.json 元校验（G 组 stale 册同构；dangling 语义按 disposition 分——deleted→slug 必缺席） ---

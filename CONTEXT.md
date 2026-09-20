@@ -251,3 +251,7 @@ _Avoid_: 引擎层并行写承诺（DuckDB 单文件非此设计目标）、判�
 **Kernel/Agent 职责边界（确定性核 / 概率性编排）**:
 本产品分工总则——确定性面归 kernel（事实采集、引文盖章、门禁检查：可重放、可测试、预定路径）；编排与概率性面归宿主 agent（叙事生成、补查回路、触发编排、呈现：模型驱动、路径不预定）。与 Anthropic workflow（predefined code paths）/agent（dynamic direction）区分同构。跨界争议按判例裁：hooks 层＝纯呈现面非裁决点（D-055）；repo 文件面归宿主 agent 原生访问、产品不提供打包上游（D-056）；gap→补查回路归 orchestrator 非 kernel（D-057④）。裁决 band 永不归 agent——band 归 C 层人裁定（ADR-0013/D-026 红线）。
 _Avoid_: 微内核（架构模式借喻）、裁判员/运动员（拟人不精确）、确定性内核 vs 概率外壳（非本仓语序）、AI 管线（丢失 kernel 盖章语义）
+
+**Canonical→Derived（双语门面文书关系）**:
+双语 README 对非平等副本而是 canonical→derived 关系：英文版（README.md）=canonical 权威源，译文（README.zh-CN.md）=derived 工件——译文可暂时落后但不得假装新鲜（canonicalMarker 首行声明＋{#english-id} 锚点钉回源＋sync 版本戳；D-087/D-088）。同步守卫三分：结构互等（锚点集/code block/链接/badge）=FAIL／版本戳掉队=XFAIL·warn／译文质量=人评审不可机检。
+_Avoid_: 平等双写（无权威源必漂移）、双语同步=译文质量机检（机器只管「是否同步过」不管「译得好不好」）

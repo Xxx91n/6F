@@ -142,6 +142,10 @@
   "quadrant-rubric-params-draft": {
    "occurred": false,
    "note": "D-084④：「quadrant-rubric 初版参数起草」票立项之日=事件发生；权重/强弱语义进 quadrant-rubric 判据面（不进映射表/路由契约——D-084 映射表无权重列）。机检=本登记表值守复核＋立案票审计清点。"
+  },
+  "engine-ci-main-green": {
+   "occurred": false,
+   "note": "D-089⑤：.github/workflows/engine-ci.yml 在 main 分支最近一次实跑 conclusion=success 之日=事件发生（CI badge 前置——诚实徽记不预埋死链）。机检=gh run list --workflow engine-ci.yml --branch main --limit 1。"
   }
  },
  "items": [
@@ -1308,6 +1312,54 @@
    "status": "pending",
    "watch": "event_bound",
    "verify_method": "33-check 值守面复核＋立案票审计清点：权重行进 quadrant-rubric 判据面不进映射表/路由层（71-check A2 常量无权重断言同向执哨）"
+  },
+  {
+   "id": "readme-ci-badge",
+   "family": "facade",
+   "title": "README CI badge 挂徽触发器（D-089⑤——main 上 engine-ci 实跑绿后方可挂 CI 徽记）",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "engine-ci-main-green",
+   "trigger": "engine-ci.yml 在 main 分支最近一次 run conclusion=success",
+   "review_at": "事件发生后随门面维护窗挂 badge（徽标指 main 分支 workflow）",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "gh run list --workflow engine-ci.yml --branch main --limit 1 读 conclusion；未绿前 README 不得出现 workflow/actions 徽标（33-check H4 grep 机检）",
+   "confirmations": [
+    {
+     "at": "2026-09-20",
+     "by": "轮24 grill D-089",
+     "criterion_version": "D-089⑤",
+     "decision": "registered",
+     "reason": "badge 诚实纪律——CI 徽记以 main 实跑绿为锚不预埋死链",
+     "evidence": "decision-ledger.md D-089⑤"
+    }
+   ]
+  },
+  {
+   "id": "readme-motion-gif",
+   "family": "facade",
+   "title": "README 演示动图（motion GIF）触发器（D-089⑤——CLI/demo 输出面冻结后拍实录防快照过期）",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "listing-material-freeze",
+   "trigger": "功能冻结事件（listing-material-freeze——与 25-P4/25-D3 截图纪律同锚族：功能冻结后拍真实 UI 不伪造）",
+   "review_at": "冻结后随门面维护窗拍真实 CLI 实录（beautify render_motion_gif.py 或同族工具）",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "registry listing-material-freeze occurred 翻转复核；未冻结前 README 不得引用不存在的动图",
+   "confirmations": [
+    {
+     "at": "2026-09-20",
+     "by": "轮24 grill D-089",
+     "criterion_version": "D-089⑤",
+     "decision": "registered",
+     "reason": "实录过期快——功能冻结后拍真实 UI（25-P4/25-D3 同锚纪律）",
+     "evidence": "decision-ledger.md D-089⑤"
+    }
+   ]
   }
  ]
 }
