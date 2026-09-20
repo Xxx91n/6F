@@ -294,6 +294,12 @@
         "t()"
       ]
     },
+    "73-check": {
+      "assertion_ids": 14,
+      "call_styles": [
+        "t()"
+      ]
+    },
     "r14fix-check": {
       "assertion_ids": 25,
       "call_styles": [
