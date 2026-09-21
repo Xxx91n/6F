@@ -255,3 +255,7 @@ _Avoid_: 微内核（架构模式借喻）、裁判员/运动员（拟人不精�
 **Canonical→Derived（双语门面文书关系）**:
 双语 README 对非平等副本而是 canonical→derived 关系：英文版（README.md）=canonical 权威源，译文（README.zh-CN.md）=derived 工件——译文可暂时落后但不得假装新鲜（canonicalMarker 首行声明＋{#english-id} 锚点钉回源＋sync 版本戳；D-087/D-088）。同步守卫三分：结构互等（锚点集/code block/链接/badge）=FAIL／版本戳掉队=XFAIL·warn／译文质量=人评审不可机检。
 _Avoid_: 平等双写（无权威源必漂移）、双语同步=译文质量机检（机器只管「是否同步过」不管「译得好不好」）
+
+**6F（品牌名 / 六-F 宣言）**:
+仓与产品的公开品牌名——D-052 冻结 plugin=`6f`、仓名=`6F`；语义本体=**六句 F 开头宣言**概括最有价值资产（D-092）：Facts〔Hub-of-Facts ADR-0005〕／Federation〔联邦裁定协议 ADR-0005〕／Forensics〔演化考古 Macro-C〕／Five scales〔五尺度 ADR-0001〕／Frankness〔诚实 preview 标注 ADR-0017〕／Fingerprints〔可验 receipts/溯源〕。**双名分层规则**（D-093）：品牌/门面层=`6F`（README/hero/social-card/marketplace displayName）；kernel 技术标识层=`macro-audit`（.mcp.json 服务名/plugin.json skills 路径/engine 内部名/architecture.svg kernel 标签）——内部名故意不同于营销名=纪律非债。
+_Avoid_: 门面与 kernel 共用一名（三层三名病灶原型）、macro-audit 当品牌名上门面（R25 正名前状态）、F 词凑数不钉资产（宁缺毋滥判据）

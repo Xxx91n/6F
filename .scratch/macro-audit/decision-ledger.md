@@ -735,3 +735,31 @@ revised 链：本轮 0 条。
 旧 84 条 current 去向在历轮收口对账节有案，无漂移。
 
 无去向记录清单：空。
+
+## 第二十五轮 Grill
+
+| D-092 | Q1（轮25）：「6F」门面正名与六-F 宣言形态——用户发现 README 首屏显示名为 `macro-audit`（kernel 内部名误上门面），明示原意=仓名 6F＝用六句 F 开头的话概括仓库内容，且六句须映射项目最有价值的资产与心智模型；atomcode R25-Q1 调研（8 检索/11 原文全读/三引擎四角度）。 | 采纳（2026-09-22，原话「采纳」＝修正后推荐 (a)＋集 B' 六句含 Fingerprints 槽6） | ① **正名**：显示名回 `6F`——hero.svg 重绘/H1/alt/social-card.png 重产（未上传故零成本）；`macro-audit` 保留为 kernel 内部标识（.mcp.json/plugin.json skills 路径/engine 内部文档不动）；② **六句宣言**（集 B'=集 B 框架＋两处换血）：**Facts**（Hub-of-Facts ADR-0005）／**Federation**（联邦裁定协议 ADR-0005）／**Forensics**（演化考古 Macro-C——替换 Foresight 方向反偏差）／**Five scales**（五尺度 ADR-0001——替换 Fivefold 歧义）／**Frankness**（诚实 preview 标注+⚠/synthetic 印记 ADR-0017——诚实本身是宣言一句）／**Fingerprints**（可验 receipts/溯源=证据指纹）；③ **呈现形态**：首屏 Highlights 区六句各一行短动宾句（每句独立可扫懂）＋preview badge 紧随宣言区下方；④ **zh-CN 派生镜像**：六句译文进 README.zh-CN.md（D-088 延伸——EN canonical/zh derived，锚点钉回）；⑤ **不凑数判据**：资产撑不住的槽位宁缺毋滥（routing→scoring→weighting 为实现纪律不进宣言即此判据体现）；⑥ **落选集留案**：集 A（Firewalls/Fossils/Frontiers 术语漂移违 canonical）与集 C（Free 弱化 Federation 且撞 license 义）拒用；槽6 备选 Fenced（闸门族）/Fidelity（双语纪律）留档。 | ① 禁营销腔形容词/大段 manifesto；② 宣言不得越过 preview 诚实边界（无未兑现能力宣称）；③ 每句须钉到已命名+有 ADR 的资产——新增无资产 F 词须回炉；④ zh-CN 译文语义偏移需人评审（机器只管结构）。 | current |
+| D-093 | Q2（轮25）：「6F」正名波及面——`macro-audit` 散布 10 面逐枚定性；atomcode R25-Q2 调研（双名分层纪律/改名四问判据/displayName 可变半区）。 | 采纳（2026-09-22，原话「采纳」＝(a) 门面全波及＋三锐化） | ① **改 6F 四面**：README.md／README.zh-CN.md（H1+alt+宣言块）／hero.svg 重绘（三 chip→六 F 族）／social-card.png 重产（未上传=零成本窗口）／`docs/listing/description.md` displayName `Macro Audit`→`6F` **带变更注记**（原值→新值+日期，冻结面其余字段不动——displayName=生态定义的可变半区，修订走注记非静默重写，D-031 张力化解）；② **双锚兼容**：EN 锚 `#6f` 为 canonical 主锚，`<a id="macro-audit">` 旧锚保留防外链断（zttp 双前缀模式），zh-CN 锚跟随；③ **书面边界**：CONTEXT.md 加「6F」名释条目记双名规则（品牌层=6F／kernel 技术标识=macro-audit*——HN 层内一致+书面边界纪律）＋engine/README 加一行 kernel 代号注记；④ **保留不动=纪律非债**：architecture.svg kernel 标签／plugin.json `skills=./skills/macro-audit` 路径／`.mcp.json` `macro-audit-kernel` 服务名／engine 内部命名——已出货标识符改名=高成本例外（npm 无 rename／MCP 选好就别动判据）。 | ① 禁把 kernel 内部名误当门面债再改一轮；② description.md 除 displayName+注记外字段不许动；③ 历史文档（CHANGELOG/审计报告）不回溯改名（zttp：历史记录描述当时态）。 | current |
+| D-094 | Q3（轮25）：字面钉失效族通用纪律——断言「名↔检」失效族六样本（日期钉/魔数地板/事件钉/名不副实/死面/XFAIL 册规）建制裁定；atomcode R25-Q3 调研。 | 采纳（2026-09-22，原话「采纳」＝修正后推荐 (a) 三件套） | ① **失效三分类入文**（AGENTS.md/WORKFLOW 纪律面）：(a) 守的真坏→修现实；(b) 合法演化→改断言或入 XFAIL 册；(c) 欺诈（名不副实/死面）→修检查面，**禁入 XFAIL 册**——册只收 (b) 类明文写死；② **字面钉普查 pass**（复用 D-079 vacuity-census 机制族）：扫 NN-check 源码找日期字面量/魔数地板/裸 `occurred===`——检出一律要求归因注记（tripwire→挂 registry 事件锚+vacuity 普查豁免登记；无意图钉→改写派生断言）；③ **名↔检纪律**（半机检）：断言文本匹配先剥注释再匹配（73-check A4 修法成通用先例）＋「名声称可见面⇒检查物须在可见层」入评审面；④ **存在≠活性三层约定**：文件/制品类断言命名标 presence/liveness/readiness 层位（engine-ci 修法=YAML 可解析 presence＋run 记录 liveness＋main 绿 readiness=engine-ci-main-green 事件锚既有）；⑤ **册规补丁**：XPASS 摘除=人工裁决明文（两键分离）＋sealed 探针同受注释层规则（豁免显式登记）＋tripwire 事件退役时断言同摘规则。 | ① 欺诈类断言（c）永不入册——册不为假断言背书；② 魔数地板处置前须先问意图（治理 tripwire 与无意图钉分途）；③ 普查检出非判罪——归因注记制非一律改写；④ vacuity 普查对登记 tripwire 豁免须显式（防机制互搏）。 | current |
+| D-095 | Q4（轮25）：枚举面纪律——成员级对账边界＋防御性超枚举合法性（R23 审计 Spec-P1/P2 两病灶同根合烤）；atomcode R25-Q4 调研。 | 采纳（2026-09-22，原话「采纳」＝open/closed 声明制＋常量单一源＋册规补丁修正版） | ① **open/closed 声明制**：每枚枚举面标一行 open/closed 元数据——closed→成员级双向差集 FAIL（lint 对账进现有守卫脚本，最低成本形态）；open→族级值守＋声明理由，「族级」从此是声明的产物非遗漏（「声明了 closed 才立法」=D-081 pending 镜像）；② **常量集=单一权威源**：doc 枚举行与「N 类」计数从常量派生（叙述段可手写但守卫校验计数一致）；派生行改快照级断言——钉管线存在运行而非钉文案字面；③ **成员级对账失败禁入 XFAIL 册**（册规补丁——文档债≠断言预期红，入册=漂移合法化，与 D-094①欺诈禁入册同族不同类）；④ **reserved 成员机制**：仅外部输入面合法（遥测接收端防未知值），`reserved: <理由><失效条件>`＋主集豁免＋生产者出现→FAIL（升格须显式）＋cap≤2；**场景≤1 条不建制**——`preflight` 逐条裁：内部防万一则 YAGNI 删除；⑤ vacuity 普查不得为 reserved 成员写恒真安抚断言（D-094④ 同族防线）。 | ① 内部常量集超枚举成员默认删除（删除派域内占优）；② open/closed 标注缺失面一律按 open 处置（不误伤未立法面）；③ codegen 全单一源化为长期方向非本轮义务（lint 对账先行）；④ 快照断言禁手动洗白（与 XPASS 人工逼摘同神）。 | current |
+| D-096 | Q5（轮25）：census 机芯双份处置——update-70-inventory↔70-check 生成器/校验器同码（R24 审计新观察件，本会话 E1 漂移实证）；atomcode R25-Q5 调研。 | 采纳（2026-09-22，原话「采纳」＝双份维持＋规格显式化契约钉修正版） | ① **不共享机芯**：update 与 70-check 各持独立实现（differential oracle 独立性=E1 判力命根；arc42 判据=「wrong output 不可接受＋N-fold 成本可担」双条件齐）；② **规格显式化**：63 清单头加 `census-contract` 块显式声明断言点判定要素（字段 schema 统一 style/sealedCall 归一＋五枚解析豁免规则各给正反例对——钉性质不钉正则体）；③ **互等裁决断言**：70-check 增断言比对重算结果与契约（非仅与清单）——任一侧按旧语义 emit=硬 FAIL，「生成器悄悄改语义」从漂移变红；④ 契约变更走 PR 审查（golden 惯例 D-037 同构）；⑤ 契约块声明为 **70-check 与 vacuity 普查共用解析规格**（防第三份机芯蔓延；vacuity likely=人工裁分支留契约外）；⑥ 契约枚举自身须 open/closed 声明（D-095 落点），未声明变更=红。 | ① 互等钉不能替代规格显式化（Knight-Leveson：共模失效主因=共享隐式规格歧义——仅钉两侧互等抓不住「一起按错误理解漂」）；② 契约块不编 XFAIL 状态（#33 形制 vs #70 盘点两守卫面不耦合）；③ 每枚豁免规则钉正反例对、禁钉正则体字面（否则成新字面钉负债 D-094 同族）；④ 契约变更禁绕过 PR 直接改两机芯之一。 | current |
+
+第二十五轮收口对账
+
+增量 5 条去向（6F 正名＋守卫纪律建制题域全裁；R25-Q1~Q5 五轮 atomcode 深调研经 current 冲突核查零 revised）：
+
+| D | 去向 |
+|---|---|
+| D-092 | BACKLOG #74（6F 正名＋六-F 宣言门面执行：hero.svg 重绘 6F＋六 F chip 族／README.md H1+Highlights 宣言块+alt／social-card.png 重产〔未上传零成本窗〕／preview badge 紧随宣言区）＋任务书 T1 |
+| D-093 | 并入 #74（波及面=双 README／hero／social-card／description.md displayName→6F 带变更注记；双锚 #6f 主+macro-audit 兼容；73-check 锚点集同步；保留面=architecture.svg kernel 标签／plugin.json skills 路径／.mcp.json macro-audit-kernel／engine 内部名）＋CONTEXT.md「6F」名释条目（本收口落盘）＋engine/README 代号注记随票 |
+| D-094 | BACKLOG #75 批1（失效三分类建制：字面钉普查 pass〔复用 D-079 机制族〕＋剥注释名↔检纪律＋presence/liveness/readiness 三层命名＋XFAIL 册只收合法漂移类＋vacuity 豁免登记位）＋WORKFLOW §4 纪律文（本收口落盘） |
+| D-095 | BACKLOG #75 批2（枚举 open/closed 声明制＋closed 面成员级双向差集 lint＋常量 SSOT 派生计数＋成员级漂移禁入册＋reserved 机制域界〔外部输入面/cap≤2/生产者→FAIL〕＋preflight 逐条裁）＋WORKFLOW §4 |
+| D-096 | BACKLOG #75 批3（63 清单头 census-contract 块〔字段 schema 归一+五豁免规则正反例对〕＋70-check 互等裁决断言比对契约＋契约变更 PR 门控＋契约=70/vacuity 共用规格＋契约枚举 open/closed）＋WORKFLOW §4 |
+
+revised 链：本轮 0 条（五轮调研全部与 current 兼容——D-031 张力经注记式修订化解、D-088/D-052/D-071/D-079/D-081/D-037 全获强化非反转）。
+
+连带状态更新（非新决策）：BACKLOG +3 票（#74/#75/#76〔engine-ci 首跑红修——R24 handoff §新增问题立案，A 类 Node-20 stdout sidecar／B 类 duckdb 非 Windows 补拉，挡 engine-ci-main-green 事件〕）；#73 进度注记（实施+审计+合入 main 毕，social-card 手动上传=闭环链尾）；CONTEXT.md +「6F」条目；WORKFLOW §4 +轮 25 lesson；44-check G6 滚动至 #74；无新增 registry 项。
+
+旧 85 条 current 去向在历轮收口对账节有案，无漂移。
+
+无去向记录清单：空。
