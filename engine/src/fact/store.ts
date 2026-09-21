@@ -7,10 +7,10 @@
 //   实际调用时解析；缺失时抛结构化 DUCKDB-UNAVAILABLE，由调用面转译成 isError/exit 2。
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { existsSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { DuckDBConnection, DuckDBValue } from '@duckdb/node-api';
+import type { DuckDBConnection, DuckDBInstance, DuckDBValue } from '@duckdb/node-api';
 import { AUDIT_FACT_DDL, SCHEMA_REGISTRY_DDL, AUDIT_FACT_FIELDS, assertAppendOnly, SCHEMA_VERSION_V0, type FactField } from './schema.js';
 
 export interface FactEvent {
@@ -49,7 +49,7 @@ let duckdbModulePromise: Promise<DuckDBModule> | null = null;
 // CLI 交互面保留自动自愈（stderr 预告「补拉约 40MB 最长 240s Ctrl-C 可中断」；spawnSync 保留不异步化——
 //   异步 spawn 会让 CLI 拉包中途返回假 exit 0 比阻塞更糟）；MCP/CI 无人值守面永不自动拉包（宿主驱动无人可询问，
 //   自动拉包在此面无工业先例）——改四段披露＋MACRO_AUDIT_SELFHEAL=1 opt-in 出口；doctor --fix=唯一显式主路。
-// 机制不变：平台探测（platform+arch+ldd 判 musl）→npm install --no-save --omit=dev 精确单平台包
+// 机制不变：平台探测（platform+arch+ldd 判 musl）→精确单平台包恢复（in-tree 手术=npm pack+tar 解包，绕 npm#9024 arborist no-op；冷启动=npm install 整装）
 // →完整性校验（.node 存在＋尺寸阈＋包内 version===锁定版，失败删半成品目录回落）；node-api JS 面亦缺才退全量。
 // F4：win32-arm64 死分支摘除——@duckdb/node-bindings-win32-arm64@1.5.5-r.5 npm 实存（D-072 前提证伪），pin -r.4→-r.5；
 // F8：emitSelfHeal 全 stderr 化＋success 移 createRequire 实载后（装成功≠载成功）；
@@ -116,16 +116,41 @@ function selfHealDuckdb(): { ok: boolean; detail: string } {
   const devCheckout = existsSync(join(root, 'package-lock.json'));
   // win32 经 cmd.exe /c 调 npm（Node≥24 硬化禁 .cmd 直调 EINVAL；shell:true 触发 DEP0190——cmd.exe 显式包装两全）；POSIX 直调 npm。
   const npmSpec = process.platform === 'win32' ? { cmd: 'cmd.exe', pre: ['/d', '/s', '/c', 'npm'] } : { cmd: 'npm', pre: [] as string[] };
-  const args = nodeApiPresent
-    ? devCheckout
-      ? ['install', '--no-save', '@duckdb/node-bindings-' + suffix + '@' + DUCKDB_PINNED_VERSION]
-      : ['install', '--no-save', '--omit=dev', '@duckdb/node-bindings-' + suffix + '@' + DUCKDB_PINNED_VERSION]
-    : devCheckout ? ['install'] : ['install', '--omit=dev'];
-  const r = spawnSync(npmSpec.cmd, npmSpec.pre.concat(args), { cwd: root, encoding: 'utf8', timeout: 240000 });
-  if (r.status !== 0) {
-    return { ok: false, detail: 'npm-exit-' + String(r.status) + ':' + String(r.stderr || r.error || '').replace(/\s+/g, ' ').slice(0, 140) };
-  }
   const pkgDir = join(root, 'node_modules', '@duckdb', 'node-bindings-' + suffix);
+  if (!nodeApiPresent) {
+    // 冷启动整装（插件纯净克隆无 node_modules——无手工树编辑，arborist 语义正常）
+    const args = devCheckout ? ['install'] : ['install', '--omit=dev'];
+    const r = spawnSync(npmSpec.cmd, npmSpec.pre.concat(args), { cwd: root, encoding: 'utf8', timeout: 240000 });
+    if (r.status !== 0) {
+      return { ok: false, detail: 'npm-exit-' + String(r.status) + ':' + String(r.stderr || r.error || '').replace(/\s+/g, ' ').slice(0, 140) };
+    }
+  } else {
+    // #76 修复（CI run 35515346216 非 Windows 4/4 FAIL）：npm#9024——install --no-save 对 lockfile
+    // 已含该 optional 边＋磁盘目录缺失的包会 arborist no-op（up to date / exit 0 / 不落盘）。
+    // 绕开 arborist 树推理——npm pack + tar 解包手术恢复：纯 fetch+落文件路径，与 lockfile/npm 版本无关。
+    const stage = mkdtempSync(join(root, '.duckdb-heal-'));
+    try {
+      const spec = '@duckdb/node-bindings-' + suffix + '@' + DUCKDB_PINNED_VERSION;
+      const r = spawnSync(npmSpec.cmd, npmSpec.pre.concat(['pack', spec, '--pack-destination', stage]), { cwd: root, encoding: 'utf8', timeout: 240000 });
+      if (r.status !== 0) {
+        return { ok: false, detail: 'npm-pack-exit-' + String(r.status) + ':' + String(r.stderr || r.error || '').replace(/\s+/g, ' ').slice(0, 140) };
+      }
+      const tgz = readdirSync(stage).filter(function (f) { return f.slice(-4) === '.tgz'; })[0];
+      if (!tgz) { return { ok: false, detail: 'npm-pack-no-artifact' }; }
+      const xdir = join(stage, 'x');
+      mkdirSync(xdir, { recursive: true });
+      // 全相对路径（cwd=stage）——GNU tar on Windows 把 D:\… 当 host:file 远程规格/转义路径解析炸
+      const tr = spawnSync('tar', ['-xzf', tgz, '-C', 'x'], { cwd: stage, encoding: 'utf8', timeout: 120000 });
+      if (tr.status !== 0) {
+        return { ok: false, detail: 'tar-exit-' + String(tr.status) + ':' + String(tr.stderr || '').replace(/\s+/g, ' ').slice(0, 140) };
+      }
+      rmSync(pkgDir, { recursive: true, force: true });
+      mkdirSync(dirname(pkgDir), { recursive: true });
+      renameSync(join(xdir, 'package'), pkgDir);
+    } finally {
+      rmSync(stage, { recursive: true, force: true });
+    }
+  }
   let ver: string | null = null;
   try { ver = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8')).version; } catch { /* missing */ }
   let nodeCount = 0;
@@ -201,10 +226,25 @@ export function healDuckdbBinding(): { ok: boolean; detail: string } {
   return heal;
 }
 
+// #76/D-072 修复（CI run 35515346216 windows-20 ENOTEMPTY）：DuckDBInstance=库文件句柄持有者——
+// conn.closeSync() 只断连接不释库句柄，instance 滞留待 GC/native teardown——Windows 下宿文件
+// delete-pending → rmdir ENOTEMPTY（POSIX unlink-open 文件合法故 POSIX 无症状但同漏）。
+// instance↔connection 登记＋closeDuckdb 双段关闭（conn→instance 序不可换）=唯一确定释放路径。
+const instanceOf = new WeakMap<DuckDBConnection, DuckDBInstance>();
+
+export function closeDuckdb(connection: DuckDBConnection): void {
+  try { connection.closeSync(); }
+  finally {
+    const inst = instanceOf.get(connection);
+    if (inst) { instanceOf.delete(connection); inst.closeSync(); }
+  }
+}
+
 export async function openWriter(dbPath: string): Promise<DuckDBConnection> {
   const { DuckDBInstance, DuckDBConnection } = await loadDuckdb();
   const instance = await DuckDBInstance.create(dbPath, { access_mode: 'READ_WRITE' });
   const connection = await DuckDBConnection.create(instance);
+  instanceOf.set(connection, instance);
   await connection.run(SCHEMA_REGISTRY_DDL);
   await connection.run(AUDIT_FACT_DDL);
   await connection.run('CREATE SEQUENCE IF NOT EXISTS ' + FACT_SEQ_NAME + ' START 1');
@@ -215,7 +255,9 @@ export async function openWriter(dbPath: string): Promise<DuckDBConnection> {
 export async function openReader(dbPath: string): Promise<DuckDBConnection> {
   const { DuckDBInstance, DuckDBConnection } = await loadDuckdb();
   const instance = await DuckDBInstance.create(dbPath, { access_mode: 'READ_ONLY' });
-  return await DuckDBConnection.create(instance);
+  const connection = await DuckDBConnection.create(instance);
+  instanceOf.set(connection, instance);
+  return connection;
 }
 
 export async function appendFact(connection: DuckDBConnection, event: FactEvent): Promise<void> {

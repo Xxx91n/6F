@@ -71,7 +71,7 @@ const STORE = await import(pathToFileURL(join(HERE, '..', 'dist', 'fact', 'store
 const conn = await STORE.openReader(join(OUT, 'facts.duckdb'));
 const reader = await conn.run('SELECT COUNT(*) AS n FROM audit_fact');
 const cnt = Number((await reader.getRows())[0][0]);
-conn.closeSync();
+STORE.closeDuckdb(conn);
 t('D1 facts.duckdb 可读 + audit_fact 行数>0', cnt > 0, 'n=' + cnt);
 
 // ---------- J --json 报告面 ----------

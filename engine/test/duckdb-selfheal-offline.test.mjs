@@ -18,7 +18,7 @@ const t = (n, ok, ex = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + n + (ex ?
 
 const child = [
   "import { openWriter } from './dist/fact/store.js';",
-  "openWriter(process.argv[1]).then(function(){ console.log('UNEXPECTED-OK'); process.exit(2); }).catch(function(e){ console.log('ERR=' + String(e && e.message || e)); process.exit(0); });"
+  "openWriter(process.argv[1]).then(function(){ process.stdout.write('UNEXPECTED-OK\\n', function(){ process.exit(2); }); }).catch(function(e){ process.stdout.write('ERR=' + String(e && e.message || e) + '\\n', function(){ process.exit(0); }); });"
 ].join('\n');
 
 const DEAD = { npm_config_registry: 'http://127.0.0.1:9/', npm_config_fetch_retries: '0', npm_config_fetch_retry_maxtimeout: '1000' };

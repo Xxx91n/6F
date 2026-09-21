@@ -20,6 +20,7 @@ export declare function healDuckdbBinding(): {
     ok: boolean;
     detail: string;
 };
+export declare function closeDuckdb(connection: DuckDBConnection): void;
 export declare function openWriter(dbPath: string): Promise<DuckDBConnection>;
 export declare function openReader(dbPath: string): Promise<DuckDBConnection>;
 export declare function appendFact(connection: DuckDBConnection, event: FactEvent): Promise<void>;

@@ -19,8 +19,9 @@ let pass = 0, fail = 0;
 const t = (n, ok, ex = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + n + (ex ? ' | ' + ex : '')); ok ? pass++ : fail++; };
 
 // --- A. store.ts 自愈面（D-072①②） ---
-t('A1 自愈标记在位（selfHealDuckdb/--no-save/--omit=dev/node-bindings-/每进程旗标）',
-  store.includes('selfHealDuckdb') && store.includes("'--no-save'") && store.includes("'--omit=dev'") && store.includes('node-bindings-') && store.includes('selfHealAttempted'));
+// #76 演化（npm#9024 arborist no-op 绕开）：in-tree 手术恢复=pack+tar 解包，--no-save 面退役；--omit=dev 保留于冷启动整装。
+t('A1 自愈标记在位（selfHealDuckdb/pack+tar/--omit=dev/node-bindings-/每进程旗标）',
+  store.includes('selfHealDuckdb') && store.includes("'pack', spec") && store.includes("'--omit=dev'") && store.includes('node-bindings-') && store.includes('selfHealAttempted'));
 t('A2 版本三方同值（store.ts DUCKDB_PINNED_VERSION == package.json dep == upstream-lock duckdb-node-api）', (() => {
   const m = store.match(/DUCKDB_PINNED_VERSION = '([^']+)'/);
   const lv = lock.match(/id: duckdb-node-api\n\s+kind: node-lib\n\s+version: "([^"]+)"/);

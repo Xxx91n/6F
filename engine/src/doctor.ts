@@ -9,7 +9,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { get } from 'node:https';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { openWriter, healDuckdbBinding, engineRoot, platformPackageSuffix } from './fact/store.js';
+import { openWriter, closeDuckdb, healDuckdbBinding, engineRoot, platformPackageSuffix } from './fact/store.js';
 
 export interface DoctorLeg {
   leg: 'duckdb' | 'bindings' | 'git' | 'upstream';
@@ -34,7 +34,7 @@ async function probeDuckdb(fix: boolean): Promise<DoctorLeg> {
   try {
     const conn = await openWriter(db);
     try { await conn.run('SELECT 1'); } catch { /* 开库成功即达标，查询失败不进 detail */ }
-    try { conn.closeSync(); } catch { /* best effort */ }
+    try { closeDuckdb(conn); } catch { /* best effort */ }
     return { leg: 'duckdb', status: 'ok', detail: 'openWriter 可开库（原生绑定在位）' };
   } catch (e) {
     const msg = String(e && (e as Error).message || e);
@@ -48,7 +48,7 @@ async function probeDuckdb(fix: boolean): Promise<DoctorLeg> {
         try {
           const conn2 = await openWriter(db);
           try { await conn2.run('SELECT 1'); } catch { /* best effort */ }
-          try { conn2.closeSync(); } catch { /* best effort */ }
+          try { closeDuckdb(conn2); } catch { /* best effort */ }
           return { leg: 'duckdb', status: 'ok', detail: 'doctor --fix 显式自愈成功——' + heal.detail };
         } catch (e2) {
           return { leg: 'duckdb', status: 'fail', detail: 'doctor --fix 装成功但加载失败：' + String(e2 && (e2 as Error).message || e2).slice(0, 120) };

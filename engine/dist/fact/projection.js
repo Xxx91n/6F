@@ -1,7 +1,7 @@
 // fact/projection.ts — MCP facts 只读投影（D-053④ / A-057）
 // 宿主 agent 叙事面的唯一取数主路：固定 SELECT 形（不接裸 SQL——stub 面收窄防注入）；
 // 连接=openReader（READ_ONLY 实例，SWMR 读者位，A-007）；投影列=FactEvent 十三列。
-import { openReader } from './store.js';
+import { openReader, closeDuckdb } from './store.js';
 import { assertAppendOnly } from './schema.js';
 const MAX_LIMIT = 500;
 const PROJECTION_COLUMNS = 'fact_id, trace_id, baggage_id, scale, quadrant, dimension, collector_id, repo_ref, subject_ref, evidence_ref, metric, value_json, CAST(observed_at AS VARCHAR) AS observed_at';
@@ -44,6 +44,6 @@ export async function projectFacts(dbPath, filter) {
         });
     }
     finally {
-        conn.closeSync();
+        closeDuckdb(conn);
     }
 }

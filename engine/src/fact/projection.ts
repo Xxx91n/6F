@@ -1,7 +1,7 @@
 // fact/projection.ts — MCP facts 只读投影（D-053④ / A-057）
 // 宿主 agent 叙事面的唯一取数主路：固定 SELECT 形（不接裸 SQL——stub 面收窄防注入）；
 // 连接=openReader（READ_ONLY 实例，SWMR 读者位，A-007）；投影列=FactEvent 十三列。
-import { openReader } from './store.js';
+import { openReader, closeDuckdb } from './store.js';
 import { assertAppendOnly } from './schema.js';
 import type { FactEvent } from './store.js';
 
@@ -45,6 +45,6 @@ export async function projectFacts(dbPath: string, filter: FactProjectionFilter)
       return o as unknown as FactEvent;
     });
   } finally {
-    conn.closeSync();
+    closeDuckdb(conn);
   }
 }

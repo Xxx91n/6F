@@ -9,7 +9,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { get } from 'node:https';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { openWriter, healDuckdbBinding, engineRoot, platformPackageSuffix } from './fact/store.js';
+import { openWriter, closeDuckdb, healDuckdbBinding, engineRoot, platformPackageSuffix } from './fact/store.js';
 function worst(legs) {
     if (legs.some(function (l) { return l.status === 'fail'; })) {
         return 'fail';
@@ -28,7 +28,7 @@ async function probeDuckdb(fix) {
         }
         catch { /* 开库成功即达标，查询失败不进 detail */ }
         try {
-            conn.closeSync();
+            closeDuckdb(conn);
         }
         catch { /* best effort */ }
         return { leg: 'duckdb', status: 'ok', detail: 'openWriter 可开库（原生绑定在位）' };
@@ -49,7 +49,7 @@ async function probeDuckdb(fix) {
                     }
                     catch { /* best effort */ }
                     try {
-                        conn2.closeSync();
+                        closeDuckdb(conn2);
                     }
                     catch { /* best effort */ }
                     return { leg: 'duckdb', status: 'ok', detail: 'doctor --fix 显式自愈成功——' + heal.detail };

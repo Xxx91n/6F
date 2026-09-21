@@ -42,7 +42,7 @@ import { join as join3 } from "node:path";
 // src/fact/store.ts
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
-import { existsSync, readFileSync as readFileSync2, readdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync as readFileSync2, readdirSync, renameSync, rmSync, statSync } from "node:fs";
 import { dirname as dirname2, join as join2 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 
@@ -204,12 +204,40 @@ function selfHealDuckdb() {
   const nodeApiPresent = existsSync(join2(root, "node_modules", "@duckdb", "node-api", "package.json"));
   const devCheckout = existsSync(join2(root, "package-lock.json"));
   const npmSpec = process.platform === "win32" ? { cmd: "cmd.exe", pre: ["/d", "/s", "/c", "npm"] } : { cmd: "npm", pre: [] };
-  const args = nodeApiPresent ? devCheckout ? ["install", "--no-save", "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION] : ["install", "--no-save", "--omit=dev", "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION] : devCheckout ? ["install"] : ["install", "--omit=dev"];
-  const r = spawnSync(npmSpec.cmd, npmSpec.pre.concat(args), { cwd: root, encoding: "utf8", timeout: 24e4 });
-  if (r.status !== 0) {
-    return { ok: false, detail: "npm-exit-" + String(r.status) + ":" + String(r.stderr || r.error || "").replace(/\s+/g, " ").slice(0, 140) };
-  }
   const pkgDir = join2(root, "node_modules", "@duckdb", "node-bindings-" + suffix);
+  if (!nodeApiPresent) {
+    const args = devCheckout ? ["install"] : ["install", "--omit=dev"];
+    const r = spawnSync(npmSpec.cmd, npmSpec.pre.concat(args), { cwd: root, encoding: "utf8", timeout: 24e4 });
+    if (r.status !== 0) {
+      return { ok: false, detail: "npm-exit-" + String(r.status) + ":" + String(r.stderr || r.error || "").replace(/\s+/g, " ").slice(0, 140) };
+    }
+  } else {
+    const stage = mkdtempSync(join2(root, ".duckdb-heal-"));
+    try {
+      const spec = "@duckdb/node-bindings-" + suffix + "@" + DUCKDB_PINNED_VERSION;
+      const r = spawnSync(npmSpec.cmd, npmSpec.pre.concat(["pack", spec, "--pack-destination", stage]), { cwd: root, encoding: "utf8", timeout: 24e4 });
+      if (r.status !== 0) {
+        return { ok: false, detail: "npm-pack-exit-" + String(r.status) + ":" + String(r.stderr || r.error || "").replace(/\s+/g, " ").slice(0, 140) };
+      }
+      const tgz = readdirSync(stage).filter(function(f) {
+        return f.slice(-4) === ".tgz";
+      })[0];
+      if (!tgz) {
+        return { ok: false, detail: "npm-pack-no-artifact" };
+      }
+      const xdir = join2(stage, "x");
+      mkdirSync(xdir, { recursive: true });
+      const tr = spawnSync("tar", ["-xzf", tgz, "-C", "x"], { cwd: stage, encoding: "utf8", timeout: 12e4 });
+      if (tr.status !== 0) {
+        return { ok: false, detail: "tar-exit-" + String(tr.status) + ":" + String(tr.stderr || "").replace(/\s+/g, " ").slice(0, 140) };
+      }
+      rmSync(pkgDir, { recursive: true, force: true });
+      mkdirSync(dirname2(pkgDir), { recursive: true });
+      renameSync(join2(xdir, "package"), pkgDir);
+    } finally {
+      rmSync(stage, { recursive: true, force: true });
+    }
+  }
   let ver = null;
   try {
     ver = JSON.parse(readFileSync2(join2(pkgDir, "package.json"), "utf8")).version;
@@ -285,10 +313,23 @@ function healDuckdbBinding() {
   emitSelfHeal({ result: "success", trigger: "doctor-fix", detail: heal.detail, platform: process.platform + "-" + process.arch });
   return heal;
 }
+var instanceOf = /* @__PURE__ */ new WeakMap();
+function closeDuckdb(connection) {
+  try {
+    connection.closeSync();
+  } finally {
+    const inst = instanceOf.get(connection);
+    if (inst) {
+      instanceOf.delete(connection);
+      inst.closeSync();
+    }
+  }
+}
 async function openWriter(dbPath) {
   const { DuckDBInstance, DuckDBConnection } = await loadDuckdb();
   const instance = await DuckDBInstance.create(dbPath, { access_mode: "READ_WRITE" });
   const connection = await DuckDBConnection.create(instance);
+  instanceOf.set(connection, instance);
   await connection.run(SCHEMA_REGISTRY_DDL);
   await connection.run(AUDIT_FACT_DDL);
   await connection.run("CREATE SEQUENCE IF NOT EXISTS " + FACT_SEQ_NAME + " START 1");
@@ -298,7 +339,9 @@ async function openWriter(dbPath) {
 async function openReader(dbPath) {
   const { DuckDBInstance, DuckDBConnection } = await loadDuckdb();
   const instance = await DuckDBInstance.create(dbPath, { access_mode: "READ_ONLY" });
-  return await DuckDBConnection.create(instance);
+  const connection = await DuckDBConnection.create(instance);
+  instanceOf.set(connection, instance);
+  return connection;
 }
 async function appendFact(connection, event) {
   assertAppendOnly(INSERT_SQL);
@@ -335,7 +378,7 @@ async function probeDuckdb(fix) {
     } catch {
     }
     try {
-      conn.closeSync();
+      closeDuckdb(conn);
     } catch {
     }
     return { leg: "duckdb", status: "ok", detail: "openWriter \u53EF\u5F00\u5E93\uFF08\u539F\u751F\u7ED1\u5B9A\u5728\u4F4D\uFF09" };
@@ -354,7 +397,7 @@ async function probeDuckdb(fix) {
           } catch {
           }
           try {
-            conn2.closeSync();
+            closeDuckdb(conn2);
           } catch {
           }
           return { leg: "duckdb", status: "ok", detail: "doctor --fix \u663E\u5F0F\u81EA\u6108\u6210\u529F\u2014\u2014" + heal.detail };
@@ -419,7 +462,7 @@ async function runDoctor(opts) {
 
 // src/intake/intake.ts
 import { createHash } from "node:crypto";
-import { existsSync as existsSync3, mkdirSync, statSync as statSync2 } from "node:fs";
+import { existsSync as existsSync3, mkdirSync as mkdirSync2, statSync as statSync2 } from "node:fs";
 import { spawnSync as spawnSync3 } from "node:child_process";
 import { dirname as dirname3, isAbsolute, join as join4, resolve } from "node:path";
 var URL_SCHEMES = [
@@ -540,9 +583,9 @@ function cloneToIsolatedCache(url, cacheRoot, timeoutMs = 6e5, refresh = false) 
     }
     throw intakeError("INTAKE-CACHE-COLLISION", "cache slot occupied by foreign content: " + dir);
   }
-  mkdirSync(dirname3(dir), { recursive: true });
+  mkdirSync2(dirname3(dir), { recursive: true });
   const noopHooks = join4(cacheRoot, "noop-hooks");
-  mkdirSync(noopHooks, { recursive: true });
+  mkdirSync2(noopHooks, { recursive: true });
   const r = git([
     "clone",
     "-c",
@@ -628,7 +671,7 @@ function finishLocal(result, timeoutMs) {
 }
 
 // src/demo/demo.ts
-import { mkdtempSync, mkdirSync as mkdirSync3, writeFileSync as writeFileSync2, readFileSync as readFileSync5, existsSync as existsSync5, rmSync as rmSync3 } from "node:fs";
+import { mkdtempSync as mkdtempSync2, mkdirSync as mkdirSync4, writeFileSync as writeFileSync2, readFileSync as readFileSync5, existsSync as existsSync5, rmSync as rmSync3 } from "node:fs";
 import { tmpdir as tmpdir2 } from "node:os";
 import { dirname as dirname5, join as join7, resolve as resolve2 } from "node:path";
 
@@ -2325,7 +2368,7 @@ function degradeReport(r, reason) {
 }
 
 // src/demo/fixture-generator.ts
-import { mkdirSync as mkdirSync2, writeFileSync } from "node:fs";
+import { mkdirSync as mkdirSync3, writeFileSync } from "node:fs";
 import { spawnSync as spawnSync4 } from "node:child_process";
 import { dirname as dirname4, join as join5 } from "node:path";
 var FIXTURE_GENERATOR_VERSION = "1.0.0";
@@ -2358,7 +2401,7 @@ function generateFixtureRepo(def, targetDir) {
   if (def.generator !== FIXTURE_GENERATOR_ID) {
     throw new Error("FIXTURE-DEF-INVALID: generator \u5B57\u6BB5\u987B\u4E3A " + FIXTURE_GENERATOR_ID + "\uFF08got " + String(def.generator) + "\uFF09");
   }
-  mkdirSync2(targetDir, { recursive: true });
+  mkdirSync3(targetDir, { recursive: true });
   git2(["init", "-q", "-b", def.repo.default_branch], targetDir, null);
   let mergeCommits = 0;
   const seenBranches = /* @__PURE__ */ new Set([def.repo.default_branch]);
@@ -2373,7 +2416,7 @@ function generateFixtureRepo(def, targetDir) {
       }
       for (const f of step.files) {
         const p = join5(targetDir, f.path);
-        mkdirSync2(dirname4(p), { recursive: true });
+        mkdirSync3(dirname4(p), { recursive: true });
         writeFileSync(p, f.content, "utf8");
       }
       git2(["add", "-A"], targetDir, null);
@@ -2871,7 +2914,7 @@ function runDemo(opts) {
   const scenario = opts.scenario || "happy-path";
   const def = loadDefinition(scenario);
   const tempRoot = opts.tempRoot || tmpdir2();
-  const workDir = mkdtempSync(join7(tempRoot, "macro-audit-demo-"));
+  const workDir = mkdtempSync2(join7(tempRoot, "macro-audit-demo-"));
   const repoDir = join7(workDir, "repo");
   try {
     let addEvidence2 = function(id, source, tokens, claim, reproCmd, base) {
@@ -2925,7 +2968,7 @@ function runDemo(opts) {
       expect: def.expect
     };
     const outDir = opts.outDir ? resolve2(opts.outDir) : join7(workDir, "out");
-    mkdirSync3(outDir, { recursive: true });
+    mkdirSync4(outDir, { recursive: true });
     const MEAS_NAME = "demo-measurements.json";
     const FACTS_NAME = "demo-facts.jsonl";
     const MD_NAME = "report.md";
@@ -3062,7 +3105,7 @@ function runDemo(opts) {
 }
 
 // src/audit/audit.ts
-import { mkdirSync as mkdirSync4, writeFileSync as writeFileSync3, existsSync as existsSync6, unlinkSync, readFileSync as readFileSync6, mkdtempSync as mkdtempSync2, rmSync as rmSync4 } from "node:fs";
+import { mkdirSync as mkdirSync5, writeFileSync as writeFileSync3, existsSync as existsSync6, unlinkSync, readFileSync as readFileSync6, mkdtempSync as mkdtempSync3, rmSync as rmSync4 } from "node:fs";
 import { basename, join as join8, resolve as resolve3 } from "node:path";
 import { tmpdir as tmpdir3 } from "node:os";
 
@@ -3252,8 +3295,8 @@ async function runAudit(opts) {
   const bhvNc1 = BHV_DEFERRED.length > 0;
   const behaviorBand = bhvRan ? bhvPc1 && bhvTc1 && bhvTc2 && bhvNc1 ? "supported" : "insufficient" : "insufficient";
   const persistOut = !!opts.outDir;
-  const outDir = opts.outDir ? resolve3(cwd, opts.outDir) : mkdtempSync2(join8(tmpdir3(), "macro-audit-run-"));
-  mkdirSync4(outDir, { recursive: true });
+  const outDir = opts.outDir ? resolve3(cwd, opts.outDir) : mkdtempSync3(join8(tmpdir3(), "macro-audit-run-"));
+  mkdirSync5(outDir, { recursive: true });
   const MEAS_NAME = "audit-measurements.json";
   const FACTS_NAME = "audit-facts.jsonl";
   const measurements = {
@@ -3425,7 +3468,7 @@ async function runAudit(opts) {
     }
   }
   await writer.run("FORCE CHECKPOINT");
-  writer.closeSync();
+  closeDuckdb(writer);
   artifacts = persistOut ? { report_md: join8(outDir, "report.md"), report_json: join8(outDir, "report.json"), facts_jsonl: join8(outDir, FACTS_NAME), measurements: join8(outDir, MEAS_NAME), duckdb: dbPath } : null;
   const resultOutDir = persistOut ? outDir : null;
   if (!persistOut) {
@@ -3498,7 +3541,7 @@ async function projectFacts(dbPath, filter) {
       return o;
     });
   } finally {
-    conn.closeSync();
+    closeDuckdb(conn);
   }
 }
 
@@ -3642,221 +3685,231 @@ async function serveMcpStdio(input, output) {
 }
 
 // src/cli.ts
-var cmd = process.argv[2] ?? "--help";
-if (cmd === "--version" || cmd === "-v") {
-  const m = loadManifestMeta();
-  console.log(JSON.stringify({ name: m.name, version: m.version, shells: m.shells }));
-} else if (cmd === "selftest") {
-  const r = runSelftest();
-  console.log(JSON.stringify(r));
-  process.exit(r.ok ? 0 : 1);
-} else if (cmd === "doctor") {
-  const dr = await runDoctor({ fix: process.argv.indexOf("--fix") >= 0 });
-  console.log(JSON.stringify(dr));
-  process.exit(dr.overall === "fail" ? 1 : 0);
-} else if (cmd === "mcp") {
-  const sub = process.argv[3];
-  if (sub === "facts") {
-    const args = process.argv.slice(4);
-    const known = ["--db", "--scale", "--repo", "--subject", "--limit"];
-    const opts = {};
+var ExitSignal = class extends Error {
+  constructor(code) {
+    super("exit:" + code);
+    this.code = code;
+  }
+  code;
+};
+var outExit = (text, code) => {
+  process.stdout.write(text, function() {
+    process.exit(code);
+  });
+  throw new ExitSignal(code);
+};
+var errExit = (text, code) => {
+  process.stderr.write(text, function() {
+    process.exit(code);
+  });
+  throw new ExitSignal(code);
+};
+async function main() {
+  const cmd = process.argv[2] ?? "--help";
+  if (cmd === "--version" || cmd === "-v") {
+    const m = loadManifestMeta();
+    console.log(JSON.stringify({ name: m.name, version: m.version, shells: m.shells }));
+  } else if (cmd === "selftest") {
+    const r = runSelftest();
+    outExit(JSON.stringify(r) + "\n", r.ok ? 0 : 1);
+  } else if (cmd === "doctor") {
+    const dr = await runDoctor({ fix: process.argv.indexOf("--fix") >= 0 });
+    outExit(JSON.stringify(dr) + "\n", dr.overall === "fail" ? 1 : 0);
+  } else if (cmd === "mcp") {
+    const sub = process.argv[3];
+    if (sub === "facts") {
+      const args = process.argv.slice(4);
+      const known = ["--db", "--scale", "--repo", "--subject", "--limit"];
+      const opts = {};
+      for (let i = 0; i < args.length; i++) {
+        const a = args[i];
+        if (known.indexOf(a) < 0) {
+          errExit("MCP-FACTS-ARGS: unknown flag " + a + "\n", 2);
+        }
+        const v = args[i + 1];
+        if (v === void 0 || v.indexOf("--") === 0) {
+          errExit("MCP-FACTS-ARGS: missing value for " + a + "\n", 2);
+        }
+        opts[a] = v;
+        i++;
+      }
+      opts["--db"] = resolveFactsDb(opts["--db"]) || "";
+      if (!opts["--db"]) {
+        errExit("usage: macro-audit mcp facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n]\n", 2);
+      }
+      const limRaw = opts["--limit"];
+      const lim = limRaw === void 0 ? void 0 : Number(limRaw);
+      if (lim !== void 0 && (!Number.isFinite(lim) || lim <= 0)) {
+        errExit(JSON.stringify({ error: "MCP-FACTS-ARGS", message: "--limit must be a positive number" }) + "\n", 2);
+      }
+      try {
+        const rows = await projectFacts(opts["--db"], { scale: opts["--scale"], repo_ref: opts["--repo"], subject_ref: opts["--subject"], limit: lim });
+        for (const r of rows) {
+          console.log(JSON.stringify(r));
+        }
+      } catch (e) {
+        if (e instanceof ExitSignal) throw e;
+        errExit(JSON.stringify({ error: "MCP-FACTS-ERROR", message: String(e && e.message || e) }) + "\n", 2);
+      }
+    } else if (sub === void 0 || sub === "--db") {
+      let serverDb;
+      if (sub === "--db") {
+        serverDb = process.argv[4];
+        if (!serverDb || serverDb.indexOf("--") === 0) {
+          errExit("usage: macro-audit mcp [--db <facts.duckdb>]\n", 2);
+        }
+      }
+      setMcpServerConfig({ db: serverDb });
+      try {
+        await serveMcpStdio(process.stdin, process.stdout);
+      } catch (e) {
+        if (e instanceof ExitSignal) throw e;
+        errExit(JSON.stringify({ error: "MCP-SERVE-ERROR", message: String(e && e.message || e) }) + "\n", 2);
+      }
+    } else {
+      errExit("usage: macro-audit mcp [facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n]]\n", 2);
+    }
+  } else if (cmd === "repo") {
+    const sub = process.argv[3];
+    if (sub !== "add" || !process.argv[4]) {
+      errExit("usage: macro-audit repo add <path|owner/repo|url> [--cache <dir>] [--refresh]\n", 2);
+    }
+    const input = process.argv[4];
+    const ci = process.argv.indexOf("--cache");
+    const cacheRoot = ci > 0 ? process.argv[ci + 1] : void 0;
+    const refresh = process.argv.indexOf("--refresh") > 0;
+    try {
+      const r = repoAdd(input, { cacheRoot, refresh });
+      console.log(JSON.stringify(r));
+    } catch (e) {
+      if (e instanceof ExitSignal) throw e;
+      const err = e;
+      errExit(JSON.stringify({ error: err.code || "INTAKE-ERROR", message: err.message || String(e) }) + "\n", 2);
+    }
+  } else if (cmd === "audit") {
+    const args = process.argv.slice(3);
+    let input;
+    let scale;
+    let outDir;
+    let asJson = false;
+    let refresh = false;
     for (let i = 0; i < args.length; i++) {
       const a = args[i];
-      if (known.indexOf(a) < 0) {
-        console.error("MCP-FACTS-ARGS: unknown flag " + a);
-        process.exit(2);
-      }
-      const v = args[i + 1];
-      if (v === void 0 || v.indexOf("--") === 0) {
-        console.error("MCP-FACTS-ARGS: missing value for " + a);
-        process.exit(2);
-      }
-      opts[a] = v;
-      i++;
-    }
-    opts["--db"] = resolveFactsDb(opts["--db"]) || "";
-    if (!opts["--db"]) {
-      console.error("usage: macro-audit mcp facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n]");
-      process.exit(2);
-    }
-    const limRaw = opts["--limit"];
-    const lim = limRaw === void 0 ? void 0 : Number(limRaw);
-    if (lim !== void 0 && (!Number.isFinite(lim) || lim <= 0)) {
-      console.error(JSON.stringify({ error: "MCP-FACTS-ARGS", message: "--limit must be a positive number" }));
-      process.exit(2);
-    }
-    projectFacts(opts["--db"], { scale: opts["--scale"], repo_ref: opts["--repo"], subject_ref: opts["--subject"], limit: lim }).then(function(rows) {
-      for (const r of rows) {
-        console.log(JSON.stringify(r));
-      }
-    }).catch(function(e) {
-      console.error(JSON.stringify({ error: "MCP-FACTS-ERROR", message: String(e && e.message || e) }));
-      process.exit(2);
-    });
-  } else if (sub === void 0 || sub === "--db") {
-    let serverDb;
-    if (sub === "--db") {
-      serverDb = process.argv[4];
-      if (!serverDb || serverDb.indexOf("--") === 0) {
-        console.error("usage: macro-audit mcp [--db <facts.duckdb>]");
-        process.exit(2);
+      if (a === "--scale") {
+        const v = args[++i];
+        if (v === void 0 || v.indexOf("--") === 0) {
+          errExit("AUDIT-ARGS: missing value for --scale\n", 2);
+        }
+        scale = v;
+      } else if (a === "--out") {
+        const v = args[++i];
+        if (v === void 0 || v.indexOf("--") === 0) {
+          errExit("AUDIT-ARGS: missing value for --out\n", 2);
+        }
+        outDir = v;
+      } else if (a === "--json") {
+        asJson = true;
+      } else if (a === "--refresh") {
+        refresh = true;
+      } else if (a.indexOf("--") === 0) {
+        errExit("AUDIT-ARGS: unknown flag " + a + "\n", 2);
+      } else if (!input) {
+        input = a;
+      } else {
+        errExit("AUDIT-ARGS: unexpected extra positional " + a + "\n", 2);
       }
     }
-    setMcpServerConfig({ db: serverDb });
-    serveMcpStdio(process.stdin, process.stdout).catch(function(e) {
-      console.error(JSON.stringify({ error: "MCP-SERVE-ERROR", message: String(e && e.message || e) }));
-      process.exit(2);
-    });
+    if (!input) {
+      errExit("usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]\n", 2);
+    }
+    try {
+      const r = await runAudit({ input, scale, outDir, json: asJson, refresh });
+      if (r.out_dir) {
+        outExit(JSON.stringify({
+          report_id: r.report_id,
+          receipt_id: r.receipt_id,
+          scale: r.scale,
+          stability: r.stability,
+          capabilities: r.capabilities,
+          overall_verdict: r.overall_verdict,
+          degraded_mode: r.degraded_mode,
+          head_sha: r.head_sha,
+          tree_sha: r.tree_sha,
+          commit_count: r.commit_count,
+          adr_count: r.adr_count,
+          fact_count: r.fact_count,
+          repo_name: r.repo_name,
+          intake: { kind: r.intake_kind, snapshot_fetched_at: r.snapshot_fetched_at, cache_hit: r.cache_hit, refreshed: r.refreshed },
+          codelore: r.codelore,
+          out_dir: r.out_dir,
+          artifacts: r.artifacts
+        }) + "\n", 0);
+      } else {
+        outExit(asJson ? r.sidecar_json : r.report_markdown, 0);
+      }
+    } catch (e) {
+      if (e instanceof ExitSignal) throw e;
+      if (isAuditScaleError(e)) {
+        errExit(JSON.stringify({ error: e.code, message: e.message, implemented: e.implemented, requested: e.requested, layer_order: e.layer_order }) + "\n", 2);
+      }
+      const err = e;
+      errExit(JSON.stringify({ error: err.code || "AUDIT-ERROR", message: err.message || String(e) }) + "\n", 2);
+    }
+  } else if (cmd === "demo") {
+    const args = process.argv.slice(3);
+    let scenario = "happy-path";
+    let outDir;
+    let asJson = false;
+    let keep = false;
+    let list = false;
+    for (let i = 0; i < args.length; i++) {
+      if (args[i] === "--scenario") {
+        scenario = args[++i];
+      } else if (args[i] === "--out") {
+        outDir = args[++i];
+      } else if (args[i] === "--json") {
+        asJson = true;
+      } else if (args[i] === "--keep") {
+        keep = true;
+      } else if (args[i] === "--list") {
+        list = true;
+      }
+    }
+    if (list) {
+      outExit(JSON.stringify(listScenarios()) + "\n", 0);
+    }
+    try {
+      const r = runDemo({ scenario, outDir, keepTemp: keep });
+      if (outDir) {
+        outExit(JSON.stringify({
+          scenario: r.scenario,
+          synthetic: r.synthetic,
+          verdict: r.verdict,
+          degraded_mode: r.degraded_mode,
+          degraded_reason: r.degraded_reason,
+          receipt_id: r.receipt_id,
+          head_sha: r.head_sha,
+          commit_count: r.commit_count,
+          adr_count: r.adr_count,
+          fact_count: r.fact_count,
+          intake_kind: r.intake_kind,
+          temp_discarded: r.temp_discarded,
+          out_dir: r.out_dir,
+          artifacts: r.artifacts
+        }) + "\n", 0);
+      } else {
+        outExit(asJson ? r.sidecar_json : r.report_markdown, 0);
+      }
+    } catch (e) {
+      if (e instanceof ExitSignal) throw e;
+      const err = e;
+      errExit(JSON.stringify({ error: err.code || "DEMO-ERROR", message: err.message || String(e) }) + "\n", 2);
+    }
   } else {
-    console.error("usage: macro-audit mcp [facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n]]");
-    process.exit(2);
+    console.log("macro-audit kernel CLI (walking skeleton)");
+    console.log("usage: macro-audit <--version|selftest|doctor [--fix]|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>");
   }
-} else if (cmd === "repo") {
-  const sub = process.argv[3];
-  if (sub !== "add" || !process.argv[4]) {
-    console.error("usage: macro-audit repo add <path|owner/repo|url> [--cache <dir>] [--refresh]");
-    process.exit(2);
-  }
-  const input = process.argv[4];
-  const ci = process.argv.indexOf("--cache");
-  const cacheRoot = ci > 0 ? process.argv[ci + 1] : void 0;
-  const refresh = process.argv.indexOf("--refresh") > 0;
-  try {
-    const r = repoAdd(input, { cacheRoot, refresh });
-    console.log(JSON.stringify(r));
-  } catch (e) {
-    const err = e;
-    console.error(JSON.stringify({ error: err.code || "INTAKE-ERROR", message: err.message || String(e) }));
-    process.exit(2);
-  }
-} else if (cmd === "audit") {
-  const args = process.argv.slice(3);
-  let input;
-  let scale;
-  let outDir;
-  let asJson = false;
-  let refresh = false;
-  for (let i = 0; i < args.length; i++) {
-    const a = args[i];
-    if (a === "--scale") {
-      const v = args[++i];
-      if (v === void 0 || v.indexOf("--") === 0) {
-        console.error("AUDIT-ARGS: missing value for --scale");
-        process.exit(2);
-      }
-      scale = v;
-    } else if (a === "--out") {
-      const v = args[++i];
-      if (v === void 0 || v.indexOf("--") === 0) {
-        console.error("AUDIT-ARGS: missing value for --out");
-        process.exit(2);
-      }
-      outDir = v;
-    } else if (a === "--json") {
-      asJson = true;
-    } else if (a === "--refresh") {
-      refresh = true;
-    } else if (a.indexOf("--") === 0) {
-      console.error("AUDIT-ARGS: unknown flag " + a);
-      process.exit(2);
-    } else if (!input) {
-      input = a;
-    } else {
-      console.error("AUDIT-ARGS: unexpected extra positional " + a);
-      process.exit(2);
-    }
-  }
-  if (!input) {
-    console.error("usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]");
-    process.exit(2);
-  }
-  runAudit({ input, scale, outDir, json: asJson, refresh }).then(function(r) {
-    if (r.out_dir) {
-      console.log(JSON.stringify({
-        report_id: r.report_id,
-        receipt_id: r.receipt_id,
-        scale: r.scale,
-        stability: r.stability,
-        capabilities: r.capabilities,
-        overall_verdict: r.overall_verdict,
-        degraded_mode: r.degraded_mode,
-        head_sha: r.head_sha,
-        tree_sha: r.tree_sha,
-        commit_count: r.commit_count,
-        adr_count: r.adr_count,
-        fact_count: r.fact_count,
-        repo_name: r.repo_name,
-        intake: { kind: r.intake_kind, snapshot_fetched_at: r.snapshot_fetched_at, cache_hit: r.cache_hit, refreshed: r.refreshed },
-        codelore: r.codelore,
-        out_dir: r.out_dir,
-        artifacts: r.artifacts
-      }));
-    } else {
-      process.stdout.write(asJson ? r.sidecar_json : r.report_markdown);
-    }
-    process.exit(0);
-  }).catch(function(e) {
-    if (isAuditScaleError(e)) {
-      console.error(JSON.stringify({ error: e.code, message: e.message, implemented: e.implemented, requested: e.requested, layer_order: e.layer_order }));
-      process.exit(2);
-    }
-    const err = e;
-    console.error(JSON.stringify({ error: err.code || "AUDIT-ERROR", message: err.message || String(e) }));
-    process.exit(2);
-  });
-} else if (cmd === "demo") {
-  const args = process.argv.slice(3);
-  let scenario = "happy-path";
-  let outDir;
-  let asJson = false;
-  let keep = false;
-  let list = false;
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === "--scenario") {
-      scenario = args[++i];
-    } else if (args[i] === "--out") {
-      outDir = args[++i];
-    } else if (args[i] === "--json") {
-      asJson = true;
-    } else if (args[i] === "--keep") {
-      keep = true;
-    } else if (args[i] === "--list") {
-      list = true;
-    }
-  }
-  if (list) {
-    console.log(JSON.stringify(listScenarios()));
-    process.exit(0);
-  }
-  try {
-    const r = runDemo({ scenario, outDir, keepTemp: keep });
-    if (outDir) {
-      console.log(JSON.stringify({
-        scenario: r.scenario,
-        synthetic: r.synthetic,
-        verdict: r.verdict,
-        degraded_mode: r.degraded_mode,
-        degraded_reason: r.degraded_reason,
-        receipt_id: r.receipt_id,
-        head_sha: r.head_sha,
-        commit_count: r.commit_count,
-        adr_count: r.adr_count,
-        fact_count: r.fact_count,
-        intake_kind: r.intake_kind,
-        temp_discarded: r.temp_discarded,
-        out_dir: r.out_dir,
-        artifacts: r.artifacts
-      }));
-    } else {
-      process.stdout.write(asJson ? r.sidecar_json : r.report_markdown);
-    }
-    process.exit(0);
-  } catch (e) {
-    const err = e;
-    console.error(JSON.stringify({ error: err.code || "DEMO-ERROR", message: err.message || String(e) }));
-    process.exit(2);
-  }
-} else {
-  console.log("macro-audit kernel CLI (walking skeleton)");
-  console.log("usage: macro-audit <--version|selftest|doctor [--fix]|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>");
 }
+main().catch(function(e) {
+  if (!(e instanceof ExitSignal)) throw e;
+});

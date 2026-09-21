@@ -15,7 +15,7 @@ import type { RepoAddResult } from '../intake/intake.js';
 import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, MACRO_B_STOPWORDS, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, TC3_TOPN } from './macro-b.js';
 import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, UNVERIFIED_MARK, firstFactIds } from '../report/generate.js';
 import type { PreviewDisclosure, ReportInput, EvidenceItem, ClaimAnchor, QuadrantEntry, Recommendation, AdjudicationEntry } from '../report/generate.js';
-import { openWriter, appendFact } from '../fact/store.js';
+import { openWriter, appendFact, closeDuckdb } from '../fact/store.js';
 import { projectUpstreamDimensions } from './upstream-dimension-map.js';
 
 const NL = String.fromCharCode(10);
@@ -292,7 +292,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   const seen = new Set<string>();
   for (const f of col.realFacts) { if (!seen.has(f.fact_id)) { seen.add(f.fact_id); await appendFact(writer, f); } }
   await writer.run('FORCE CHECKPOINT');
-  writer.closeSync();
+  closeDuckdb(writer);
   artifacts = persistOut ? { report_md: join(outDir, 'report.md'), report_json: join(outDir, 'report.json'), facts_jsonl: join(outDir, FACTS_NAME), measurements: join(outDir, MEAS_NAME), duckdb: dbPath } : null;
   const resultOutDir = persistOut ? outDir : null;
   if (!persistOut) { rmSync(outDir, { recursive: true, force: true }); }
