@@ -1,6 +1,7 @@
 # macro-audit — engine（6F 单仓子目录 · walking skeleton）
 
 > 位于 6F 单仓的 engine/ 子目录（per ADR-0011：单仓 + 子目录 + but 分支）。spec/契约来源：.scratch/architecture-recovery/spec.md ## R2。
+> kernel 代号注记：`macro-audit` 为 kernel 技术标识（CLI/bin、MCP 服务名 `macro-audit-kernel`、skills 路径保留不动）；门面品牌名 = **6F**（双名分层 D-093——内部名故意不同于营销名=纪律非债）。
 
 ## 结构（Agent Plugin 五层盒子）
 - plugin.json（标准）/ .claude-plugin/plugin.json（Claude Code 原生）—— 由 manifest.meta.json 单一元数据源生成

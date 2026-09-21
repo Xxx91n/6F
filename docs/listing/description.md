@@ -8,7 +8,7 @@
 
 ## displayName
 
-`Macro Audit`（/plugin UI 显示名）
+`6F`（/plugin UI 显示名）　·　**变更注记**：原值 `Macro Audit` → `6F`（2026-09-22，D-092/D-093 门面正名波及面——displayName=生态定义的可变半区，修订走注记非静默重写；冻结面其余字段不动）
 
 ## description（短，≤1 行）
 

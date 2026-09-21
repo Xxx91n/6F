@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 220" width="880" height="220" role="img" aria-label="macro-audit — engineering-content audit">
-  <!-- hero derived from docs/listing/icon.svg: magnifier + audit grid + evidence anchors -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 220" width="880" height="220" role="img" aria-label="6F — engineering-content audit">
+  <!-- hero derived from docs/listing/icon.svg: magnifier + audit grid + evidence anchors; chips = six-F manifesto (D-092) -->
   <rect x="0" y="0" width="880" height="220" rx="24" fill="#0f172a"/>
   <!-- audit grid lines (right side, motif echo) -->
   <g stroke="#38bdf8" stroke-width="6" opacity="0.35">
@@ -19,15 +19,21 @@
     <circle cx="52" cy="52" r="16" fill="#38bdf8"/>
   </g>
   <!-- wordmark -->
-  <text x="210" y="92" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="52" font-weight="700" fill="#e2e8f0">macro-audit</text>
-  <text x="212" y="136" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#38bdf8">macro + micro engineering-content audit</text>
-  <!-- evidence chips -->
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">
-    <rect x="212" y="158" width="150" height="30" rx="15" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-    <text x="227" y="178" fill="#f59e0b">evidence anchors</text>
-    <rect x="374" y="158" width="158" height="30" rx="15" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-    <text x="389" y="178" fill="#f59e0b">verifiable receipts</text>
-    <rect x="544" y="158" width="146" height="30" rx="15" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
-    <text x="559" y="178" fill="#f59e0b">three-way verdicts</text>
+  <text x="210" y="95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="64" font-weight="700" fill="#e2e8f0">6F</text>
+  <text x="212" y="132" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#38bdf8">macro + micro engineering-content audit</text>
+  <!-- six-F chips (Facts / Federation / Forensics / Five scales / Frankness / Fingerprints) -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">
+    <rect x="212" y="150" width="70" height="28" rx="14" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="247" y="169" fill="#f59e0b" text-anchor="middle">Facts</text>
+    <rect x="294" y="150" width="112" height="28" rx="14" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="350" y="169" fill="#f59e0b" text-anchor="middle">Federation</text>
+    <rect x="418" y="150" width="104" height="28" rx="14" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="470" y="169" fill="#f59e0b" text-anchor="middle">Forensics</text>
+    <rect x="212" y="186" width="120" height="28" rx="14" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="272" y="205" fill="#f59e0b" text-anchor="middle">Five scales</text>
+    <rect x="344" y="186" width="104" height="28" rx="14" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="396" y="205" fill="#f59e0b" text-anchor="middle">Frankness</text>
+    <rect x="460" y="186" width="130" height="28" rx="14" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="525" y="205" fill="#f59e0b" text-anchor="middle">Fingerprints</text>
   </g>
 </svg>

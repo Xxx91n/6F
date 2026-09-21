@@ -1,8 +1,9 @@
 <p align="center">
-  <img src="docs/assets/hero.svg" alt="macro-audit — macro + micro engineering-content audit" width="880"/>
+  <img src="docs/assets/hero.svg" alt="6F — macro + micro engineering-content audit" width="880"/>
 </p>
 
-# macro-audit
+<a id="macro-audit"></a>
+# 6F
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-38bdf8" alt="License: Apache-2.0"/></a>
@@ -14,6 +15,18 @@
 <p align="center"><a href="README.md">English</a> &middot; <a href="README.zh-CN.md">&#31616;&#20307;&#20013;&#25991;</a></p>
 
 Macro + micro engineering-content audit for git-healthy repositories — a **Claude Code Agent Plugin**. Evidence collection comes largely from upstream components; the adjudication protocol, fact-table schema, acceptance gates, and verifiable receipts are this project's self-built moat and glue. Five audit scales (Macro-A cross-repo strategy / Macro-B repo quadrant / Macro-C evolution archaeology / Micro-A PR diff / Micro-B file level) share one fact base and one adjudication layer — they differ in triggers and report slices.
+
+## Highlights
+
+- **Facts** — one append-only fact table collects every claim (Hub-of-Facts, ADR-0005).
+- **Federation** — a federated verdict-gate protocol adjudicates every verdict (ADR-0005).
+- **Forensics** — evolution archaeology digs repository history into evidence (Macro-C).
+- **Five scales** — five audit granularities share that one fact base (ADR-0001).
+- **Frankness** — preview, degraded, and `synthetic` marks label themselves (ADR-0017).
+- **Fingerprints** — every verdict ships a dual-anchored, verifiable receipt.
+
+<img src="https://img.shields.io/badge/status-preview-f59e0b" alt="Status: preview"/>
+
 
 > [!NOTE]
 > Status (2026-09-20): **preview** (capability boundaries in the matrix below). Macro-B / Macro-C / Micro-A are in preview; Micro-B / Macro-A are **Not yet in preview** — roadmap narrative, not a usable promise. The plugin is installable today via the marketplace (`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`; install & acceptance details in [engine/README.md](engine/README.md); the official-catalog track is unsubmitted and sits behind the owner's gate). The previous 「发布未发生·不存在可安装 listing」 state was ended by marketplace onboarding. Upstreams marked "planned" are not wired yet — do not read this page as a finished product. Product-facing surfaces (audit reports, listing copy) are primarily in Chinese; this file is the canonical English facade.

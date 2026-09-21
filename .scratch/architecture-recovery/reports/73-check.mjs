@@ -121,8 +121,8 @@ if (stampM && stampM[1] === enHash) {
 
 // ---------- D. 诚实面（D-089：badge 只挂当下为真项/动图未拍不引用/preview 印记保留） ----------
 const allBadgeUrls = [...enBadges, ...zhBadges];
-t('D1 badge 白名单——只含 license/version/node/marketplace 当下为真项，无 CI/workflow 徽记（锚=engine-ci-main-green 未发生）',
-  allBadgeUrls.every(u => /badge\/(license|version|node|marketplace)-/.test(u)) && !allBadgeUrls.some(u => /workflows|actions|build|ci-/i.test(u)),
+t('D1 badge 白名单——只含 license/version/node/marketplace/status-preview 当下为真项，无 CI/workflow 徽记（锚=engine-ci-main-green 未发生；status-preview=preview 宣言区紧随徽记 D-092③，preview 态本身为真）',
+  allBadgeUrls.every(u => /badge\/(license|version|node|marketplace|status-preview)-/.test(u)) && !allBadgeUrls.some(u => /workflows|actions|build|ci-/i.test(u)),
   'badges=' + allBadgeUrls.length);
 t('D2 双文件无 .gif 引用（motion GIF=listing-material-freeze 触发项，未拍前不得引用不存在的动图——D-089②⑤）',
   !/\.gif/i.test(en) && !/\.gif/i.test(zh), '');

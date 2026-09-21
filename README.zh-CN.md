@@ -1,13 +1,13 @@
 <!-- canonical: README.md | owner: Xxx91n -->
-<!-- sync: 69e5b6eb1c72 -->
+<!-- sync: c1096e8405f7 -->
 > ⚠ **本文件为中文译文（derived 工件）——英文版 [README.md](README.md) 为权威版本（canonical 权威源）；如有不一致以英文版为准。** 译文可暂时落后，但不假装新鲜（sync 戳与英文版内容指纹绑定）。
 
 <p align="center">
-  <img src="docs/assets/hero.svg" alt="macro-audit — macro + micro engineering-content audit" width="880"/>
+  <img src="docs/assets/hero.svg" alt="6F — macro + micro engineering-content audit" width="880"/>
 </p>
 
 <a id="macro-audit"></a>
-# macro-audit — 宏观 + 微观工程内容审计 {#macro-audit}
+# 6F — 宏观 + 微观工程内容审计 {#6f}
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-38bdf8" alt="License: Apache-2.0"/></a>
@@ -19,6 +19,19 @@
 <p align="center"><a href="README.md">English</a> &middot; <a href="README.zh-CN.md">&#31616;&#20307;&#20013;&#25991;</a></p>
 
 面向 git 记录健全仓库的工程内容审计产品——**Claude Code Agent Plugin**：证据采集大部分来自上游组合件，裁决协议、事实表 schema、验收闸门与可核验回执是本项目自研的护城河与黏合剂。5 档审计粒度（Macro-A 跨仓战略 / Macro-B 仓库级四象限 / Macro-C 演化考古 / Micro-A PR diff / Micro-B file level）共享同一事实底座与裁决层，差异在触发器与报告切片。
+
+<a id="highlights"></a>
+## 亮点 {#highlights}
+
+- **Facts（事实）** — 一张只追加事实表收纳全部声明（Hub-of-Facts，ADR-0005）。
+- **Federation（联邦）** — 联邦 verdict-gate 协议裁决每条裁定（ADR-0005）。
+- **Forensics（考古）** — 演化考古把仓库历史挖成证据（Macro-C）。
+- **Five scales（五尺度）** — 五档审计粒度共用同一事实底座（ADR-0001）。
+- **Frankness（诚实）** — preview／降级／`synthetic` 印记自我标注（ADR-0017）。
+- **Fingerprints（指纹）** — 每条裁定随附双锚可核验回执。
+
+<img src="https://img.shields.io/badge/status-preview-f59e0b" alt="Status: preview"/>
+
 
 > [!NOTE]
 > 当前状态（2026-09-20）：**preview 形态**（能力边界见下节矩阵）——Macro-B / Macro-C / Micro-A 三层 preview；Micro-B / Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。插件可经 marketplace 安装（`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`，安装/验收口径见 [engine/README.md](engine/README.md)；B 轨官方目录未提交、走用户闸门）；「发布未发生·不存在可安装 listing」旧态已由 marketplace 上架终结。表中标注「planned」的上游尚未接入，请勿据本页认为产品已完成。产品语面（审计报告、listing 文案）以中文为主；本文件是 [README.md](README.md) 的派生译文。
