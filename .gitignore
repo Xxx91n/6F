@@ -4,3 +4,6 @@
 # duckdb 写句柄残留——守卫一律 openReader 后不再产出；.tmp 为防御位
 *.duckdb.wal
 *.duckdb.tmp
+
+# 会话级脚手架（node20 便携件/守卫输出/调试点副本）——非产物面
+.code-tmp/

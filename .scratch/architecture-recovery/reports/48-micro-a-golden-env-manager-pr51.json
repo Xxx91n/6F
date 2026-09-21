@@ -5,24 +5,24 @@
   "capabilities": [],
   "scale": "Micro-A",
   "subject_ref": "Xxx91n/env-manager#51",
-  "generated_at": "2026-09-18T06:37:42.848Z",
+  "generated_at": "2026-09-21T18:25:02.603Z",
   "correlation_key": {
-    "trace_id": "22c94ae377425fa8347159c0433f850a",
+    "trace_id": "f29fcca2320d3bcad22ca60153c6ed7f",
     "baggage_id": "b48f14d63db2bca095fcb730d4d4d666"
   },
   "receipt": {
-    "receipt_id": "RCP-1bf0c3259ad3b9fb",
-    "chain_hash": "1bf0c3259ad3b9fba526faf0bd524b4fabf3685aa8f53f2ac462a99e243c0ba3",
-    "issued_at": "2026-09-18T06:37:42.848Z",
+    "receipt_id": "RCP-2625e4b162258d48",
+    "chain_hash": "2625e4b162258d488e4ba88ee554d6f973d6b5936a0e5037f082222c54d69d3d",
+    "issued_at": "2026-09-21T18:25:02.603Z",
     "commit_anchor": "92764cb14e7178cb2fa39232208c9fd86a899705",
     "tree_anchor": "unanchored",
     "content_digest": {
       "algo": "sha256",
-      "value": "3151f091d345d91adb09549096238690e9672375bca99ba3fd0d33aa5a6088ef",
+      "value": "bc96ec5d4031cfe0aec4acac6a295ebb80e4c0571813a2471cc190b13fb4ef8f",
       "canonicalization": "json_utf8_entries_then_citation_checks"
     },
     "gate_ref": {
-      "prereg_commit": "1c73605",
+      "prereg_commit": "4a5041e",
       "criteria_path": ".scratch/architecture-recovery/reports/48-micro-a-criteria.md",
       "basis_path": ".scratch/architecture-recovery/issues/48-micro-a-preview.md",
       "criterion_ids": [
@@ -37,7 +37,7 @@
     "fact_count": 2,
     "adjudication_count": 6,
     "degraded": false,
-    "mark": "RECEIPT RCP-1bf0c3259ad3b9fb chain=1bf0c3259ad3b9fba526faf0bd524b4f content=3151f091d345d91a facts=2 adjudications=6 issued_at=2026-09-18T06:37:42.848Z commit=92764cb14e7178cb2fa39232208c9fd86a899705 tree=unanchored"
+    "mark": "RECEIPT RCP-2625e4b162258d48 chain=2625e4b162258d488e4ba88ee554d6f9 content=bc96ec5d4031cfe0 facts=2 adjudications=6 issued_at=2026-09-21T18:25:02.603Z commit=92764cb14e7178cb2fa39232208c9fd86a899705 tree=unanchored"
   },
   "overall_verdict": "insufficient",
   "confidence": 0.6,
@@ -131,12 +131,12 @@
     }
   ],
   "fact_ids": [
-    "378e443d-8dc2-3b8f-9e81-ecebe5f52830",
-    "5a05f6bb-44ad-f857-b897-c625d7e915aa"
+    "87b0e65b-bcd2-07f9-0dbe-d880df093e12",
+    "4ec76f78-d26c-ded1-0872-ed25fc1811b2"
   ],
   "adjudication": {
     "protocol_version": "ADR-0013-C/v1",
-    "decided_at": "2026-09-18T06:37:42.848Z",
+    "decided_at": "2026-09-21T18:25:02.603Z",
     "overall": "insufficient",
     "entries": [
       {
@@ -146,12 +146,12 @@
           "B1"
         ],
         "anchored_fact_ids": [
-          "3af324e7-fc46-d83e-f3a8-e6601efdeadd"
+          "a94ed168-3d21-04bc-e5ed-de930426c39c"
         ],
         "anchored_evidence_ids": [
           "EV-48-ENVMANAGER-PR51-01"
         ],
-        "decided_at": "2026-09-18T06:37:42.848Z",
+        "decided_at": "2026-09-21T18:25:02.603Z",
         "rationale": "适配器 run 事实在案：prs_listed=62 calls=4 strategy=env-token（枚举真实发生）"
       },
       {
@@ -161,13 +161,13 @@
           "B2"
         ],
         "anchored_fact_ids": [
-          "378e443d-8dc2-3b8f-9e81-ecebe5f52830",
-          "5a05f6bb-44ad-f857-b897-c625d7e915aa"
+          "87b0e65b-bcd2-07f9-0dbe-d880df093e12",
+          "4ec76f78-d26c-ded1-0872-ed25fc1811b2"
         ],
         "anchored_evidence_ids": [
           "EV-48-ENVMANAGER-PR51-03"
         ],
-        "decided_at": "2026-09-18T06:37:42.848Z",
+        "decided_at": "2026-09-21T18:25:02.603Z",
         "rationale": "证据三联缺腿：summary=1 metadata=1 diff=0 merged=true"
       },
       {
@@ -180,7 +180,7 @@
         "anchored_evidence_ids": [
           "EV-48-ENVMANAGER-PR51-02"
         ],
-        "decided_at": "2026-09-18T06:37:42.848Z",
+        "decided_at": "2026-09-21T18:25:02.603Z",
         "rationale": "diff 事实缺席"
       },
       {
@@ -190,12 +190,12 @@
           "B2"
         ],
         "anchored_fact_ids": [
-          "378e443d-8dc2-3b8f-9e81-ecebe5f52830"
+          "87b0e65b-bcd2-07f9-0dbe-d880df093e12"
         ],
         "anchored_evidence_ids": [
           "EV-48-ENVMANAGER-PR51-03"
         ],
-        "decided_at": "2026-09-18T06:37:42.848Z",
+        "decided_at": "2026-09-21T18:25:02.603Z",
         "rationale": "作者形态披露齐备：bot_declared=false basis=platform-declared:user.type==Bot&&login~[bot]"
       },
       {
@@ -208,7 +208,7 @@
         "anchored_evidence_ids": [
           "EV-48-ENVMANAGER-PR51-01"
         ],
-        "decided_at": "2026-09-18T06:37:42.848Z",
+        "decided_at": "2026-09-21T18:25:02.603Z",
         "rationale": "托管面资格闸：env-manager 托管枚举 merged PR=17（≥1 即 eligible；D-033 硬约束逆用判据）"
       },
       {
@@ -218,12 +218,12 @@
           "B4"
         ],
         "anchored_fact_ids": [
-          "378e443d-8dc2-3b8f-9e81-ecebe5f52830"
+          "87b0e65b-bcd2-07f9-0dbe-d880df093e12"
         ],
         "anchored_evidence_ids": [
           "EV-48-ENVMANAGER-PR51-03"
         ],
-        "decided_at": "2026-09-18T06:37:42.848Z",
+        "decided_at": "2026-09-21T18:25:02.603Z",
         "rationale": "负对照：入选实例 human 票面写死；实测 form=human merged=true（closed-unmerged 不入集、形态错配即判负）"
       }
     ],
@@ -359,7 +359,7 @@
       "locator": "L9",
       "claim": "本次实测：env-manager 托管枚举真实发生（prs_listed=62 merged=17）",
       "grounded": true,
-      "collected_at": "2026-09-18T06:37:42.848Z",
+      "collected_at": "2026-09-21T18:25:02.603Z",
       "reproduce_cmd": "node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden",
       "reproduce_absent_reason": null,
       "required_tokens": [],
@@ -371,7 +371,7 @@
       "locator": "L0",
       "claim": "env-manager#51 diff 工件",
       "grounded": false,
-      "collected_at": "2026-09-18T06:37:42.848Z",
+      "collected_at": "2026-09-21T18:25:02.603Z",
       "reproduce_cmd": "node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden",
       "reproduce_absent_reason": "diff 工件缺席（api diff network status=0）",
       "required_tokens": [],
@@ -383,11 +383,11 @@
       "locator": "L68",
       "claim": "本次实测：env-manager#51 元数据事实落库（merged=true）",
       "grounded": true,
-      "collected_at": "2026-09-18T06:37:42.848Z",
+      "collected_at": "2026-09-21T18:25:02.603Z",
       "reproduce_cmd": "node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden",
       "reproduce_absent_reason": null,
       "required_tokens": [],
-      "excerpt": "{\"fact_seq\":68,\"fact_id\":\"5a05f6bb-44ad-f857-b897-c625d7e915aa\",\"schema_version\":1,\"trace_id\":\"22c94ae377425fa8347159c0433f850a\",\"baggage_id\":\"b48f14d63db2bca095fcb730d4d4d666\",\"scale\":\"Micro-A\",\"quadrant\":\"strategic\",\"dimension\":null,\"collector_id\":\"github-rest-adapter@v1\",\"repo_ref\":\"Xxx91n/env-manager\",\"subject_ref\":\"Xxx91n/env-manager#51\",\"evidence_ref\":\"GET /repos/Xxx91n/env-manager/pulls/51\",\"metric\":\"github_rest.pr_metadata\",\"value_json\":\"{\\\"number\\\":51,\\\"title\\\":\\\"fix(release): add workflow_dispatch trigger to release-please for manual re-runs (ticket 30 drill finding)\\\",\\\"state\\\":\\\"closed\\\",\\\"draft\\\":false,\\\"author_login\\\":\\\"Xxx91n\\\",\\\"author_type\\\":\\\"User\\\",\\\"bot_declared\\\":false,\\\"bot_basis\\\":\\\"platform-declared:user.type==Bot&&login~[bot]\\\",\\\"merged_at\\\":\\\"2026-09-06T03:20:26Z\\\",\\\"head_sha\\\":\\\"b0641b787a3823cba03030847d9d31e30483ece0\\\",\\\"base_sha\\\":\\\"a8f2dd2a4c0dfab43ff40baf92a545f6610aede3\\\",\\\"html_url\\\":\\\"https://github.com/Xxx91n/env-manager/pull/51\\\",\\\"merged\\\":true,\\\"merge_commit_sha\\\":\\\"92764cb14e7178cb2fa39232208c9fd86a899705\\\",\\\"additions\\\":3,\\\"deletions\\\":0,\\\"changed_files\\\":1,\\\"commits\\\":1,\\\"comments\\\":0,\\\"review_comments\\\":0,\\\"created_at\\\":\\\"2026-09-06T03:08:09Z\\\",\\\"closed_at\\\":\\\"2026-09-06T03:20:27Z\\\",\\\"merged_by_login\\\":\\\"Xxx91n\\\",\\\"merged_by_type\\\":\\\"User\\\"}\",\"observed_at\":\"2026-09-18T06:37:42.848Z\",\"ingested_at\":\"2026-09-18T06:37:42.848Z\"}"
+      "excerpt": "{\"fact_seq\":68,\"fact_id\":\"4ec76f78-d26c-ded1-0872-ed25fc1811b2\",\"schema_version\":1,\"trace_id\":\"f29fcca2320d3bcad22ca60153c6ed7f\",\"baggage_id\":\"b48f14d63db2bca095fcb730d4d4d666\",\"scale\":\"Micro-A\",\"quadrant\":\"strategic\",\"dimension\":null,\"collector_id\":\"github-rest-adapter@v1\",\"repo_ref\":\"Xxx91n/env-manager\",\"subject_ref\":\"Xxx91n/env-manager#51\",\"evidence_ref\":\"GET /repos/Xxx91n/env-manager/pulls/51\",\"metric\":\"github_rest.pr_metadata\",\"value_json\":\"{\\\"number\\\":51,\\\"title\\\":\\\"fix(release): add workflow_dispatch trigger to release-please for manual re-runs (ticket 30 drill finding)\\\",\\\"state\\\":\\\"closed\\\",\\\"draft\\\":false,\\\"author_login\\\":\\\"Xxx91n\\\",\\\"author_type\\\":\\\"User\\\",\\\"bot_declared\\\":false,\\\"bot_basis\\\":\\\"platform-declared:user.type==Bot&&login~[bot]\\\",\\\"merged_at\\\":\\\"2026-09-06T03:20:26Z\\\",\\\"head_sha\\\":\\\"b0641b787a3823cba03030847d9d31e30483ece0\\\",\\\"base_sha\\\":\\\"a8f2dd2a4c0dfab43ff40baf92a545f6610aede3\\\",\\\"html_url\\\":\\\"https://github.com/Xxx91n/env-manager/pull/51\\\",\\\"merged\\\":true,\\\"merge_commit_sha\\\":\\\"92764cb14e7178cb2fa39232208c9fd86a899705\\\",\\\"additions\\\":3,\\\"deletions\\\":0,\\\"changed_files\\\":1,\\\"commits\\\":1,\\\"comments\\\":0,\\\"review_comments\\\":0,\\\"created_at\\\":\\\"2026-09-06T03:08:09Z\\\",\\\"closed_at\\\":\\\"2026-09-06T03:20:27Z\\\",\\\"merged_by_login\\\":\\\"Xxx91n\\\",\\\"merged_by_type\\\":\\\"User\\\"}\",\"observed_at\":\"2026-09-21T18:25:02.603Z\",\"ingested_at\":\"2026-09-21T18:25:02.603Z\"}"
     },
     {
       "evidence_id": "EV-48-ENVMANAGER-PR51-04",
@@ -395,7 +395,7 @@
       "locator": "L40",
       "claim": "票面授权锚：D-049 Micro-A preview 单票铺开决策行",
       "grounded": true,
-      "collected_at": "2026-09-18T06:37:42.848Z",
+      "collected_at": "2026-09-21T18:25:02.603Z",
       "reproduce_cmd": "git -C D:\\Aworker\\6F show HEAD:.scratch/macro-audit/decision-ledger.md",
       "reproduce_absent_reason": null,
       "required_tokens": [],
@@ -407,7 +407,7 @@
       "locator": "L15",
       "claim": "判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）",
       "grounded": true,
-      "collected_at": "2026-09-18T06:37:42.848Z",
+      "collected_at": "2026-09-21T18:25:02.603Z",
       "reproduce_cmd": "git -C D:\\Aworker\\6F show HEAD:.scratch/architecture-recovery/reports/48-micro-a-criteria.md",
       "reproduce_absent_reason": null,
       "required_tokens": [],
@@ -451,7 +451,7 @@
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
         "evidence_flag": false,
-        "decided_at": "2026-09-18T06:37:42.848Z",
+        "decided_at": "2026-09-21T18:25:02.603Z",
         "override_reason": null,
         "audit_ref": "reports/48-micro-a-preview.mjs"
       },
@@ -469,7 +469,7 @@
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
         "evidence_flag": false,
-        "decided_at": "2026-09-18T06:37:42.848Z",
+        "decided_at": "2026-09-21T18:25:02.603Z",
         "override_reason": "Micro-A 切片无结构采集面（PR 粒度；结构象限归 Macro-B 仓级采集）",
         "audit_ref": "reports/48-micro-a-preview.mjs"
       },
@@ -489,7 +489,7 @@
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
         "evidence_flag": false,
-        "decided_at": "2026-09-18T06:37:42.848Z",
+        "decided_at": "2026-09-21T18:25:02.603Z",
         "override_reason": "⚠ 数据未接——Scorecard 未接（按层需求队列不插队，D-034③）",
         "audit_ref": "reports/48-micro-a-preview.mjs"
       },
@@ -509,7 +509,7 @@
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
         "evidence_flag": false,
-        "decided_at": "2026-09-18T06:37:42.848Z",
+        "decided_at": "2026-09-21T18:25:02.603Z",
         "override_reason": "Micro-A 切片不裁仓级战略叙事（战略象限在仓级/跨仓层投影）",
         "audit_ref": "reports/48-micro-a-preview.mjs"
       },

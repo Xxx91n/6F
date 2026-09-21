@@ -1,7 +1,7 @@
 # MA-48-ENVMANAGER-PR64-PREVIEW — Micro-A 首报（Xxx91n/env-manager#64）
-> RECEIPT RCP-1ed74742a4202b64 chain=1ed74742a4202b646b4241a48d002989 content=34e25cd983aeb1f5 facts=3 adjudications=6 issued_at=2026-09-18T06:37:42.848Z commit=f5423020e02a0369730c360b8238a234730be85c tree=unanchored
+> RECEIPT RCP-55343cfd58d7b3c1 chain=55343cfd58d7b3c1df0eb3894cbdbc18 content=2929fd969a9c738b facts=3 adjudications=6 issued_at=2026-09-21T18:25:02.603Z commit=f5423020e02a0369730c360b8238a234730be85c tree=unanchored
 >
-> 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-09-18T06:37:42.848Z
+> 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-09-21T18:25:02.603Z
 >
 > 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）
 > - capability: capability 3 of 5 · preview
@@ -15,8 +15,8 @@
 - schema_version: 1.2.0
 - scale: Micro-A
 - subject_ref: Xxx91n/env-manager#64
-- generated_at: 2026-09-18T06:37:42.848Z
-- correlation_key: trace_id=22c94ae377425fa8347159c0433f850a baggage_id=b48f14d63db2bca095fcb730d4d4d666
+- generated_at: 2026-09-21T18:25:02.603Z
+- correlation_key: trace_id=f29fcca2320d3bcad22ca60153c6ed7f baggage_id=b48f14d63db2bca095fcb730d4d4d666
 - overall_verdict: supported
 - confidence: 0.6
 - headline: Xxx91n/env-manager#64 Micro-A preview（capability 3 of 5）：form=machine-generated/release-please diff_channel=api +null/-null f=null → supported
@@ -33,69 +33,69 @@
 - dimensions: 
 - slice_fields: {"pr_number":64,"pr_title":"chore(main): release 0.12.1","pr_state":"closed","merged":true,"merged_at":"2026-09-14T17:14:23Z","author_login":"github-actions[bot]","author_type":"Bot","bot_declared":true,"bot_basis":"platform-declared:user.type==Bot&&login~[bot]","author_form":"machine-generated/release-please","head_sha":"4d601a66f390146ea105c0dc12313fc716ae5afc","base_sha":"17038beff45d132395475a050dbf454af15a7f1a","merge_commit_sha":"f5423020e02a0369730c360b8238a234730be85c","html_url":"https://github.com/Xxx91n/env-manager/pull/64","diff_channel":"api","diff_files_changed":null,"diff_additions":null,"diff_deletions":null,"diff_bytes":1549,"credential_strategy":"env-token","credential_degraded":false,"api_calls":4,"rate_limit_remaining":4990}
 - conflict_markers: (none)
-- verdict_gate: ADR-0013-C/v1 / supported / evidence_flag=true / decided_at=2026-09-18T06:37:42.848Z / audit_ref=reports/48-micro-a-preview.mjs
+- verdict_gate: ADR-0013-C/v1 / supported / evidence_flag=true / decided_at=2026-09-21T18:25:02.603Z / audit_ref=reports/48-micro-a-preview.mjs
 
 ### structure（applicability=not_applicable）
 - verdict: insufficient · score: n/a · confidence: 0
 - dimensions: 
 - slice_fields: {}
 - conflict_markers: out-of-scope-micro-a
-- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-09-18T06:37:42.848Z / audit_ref=reports/48-micro-a-preview.mjs
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-09-21T18:25:02.603Z / audit_ref=reports/48-micro-a-preview.mjs
 
 ### supply_chain（applicability=not_applicable）
 - verdict: insufficient · score: n/a · confidence: 0
 - dimensions: 
 - slice_fields: {}
 - conflict_markers: data-not-connected
-- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-09-18T06:37:42.848Z / audit_ref=reports/48-micro-a-preview.mjs
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-09-21T18:25:02.603Z / audit_ref=reports/48-micro-a-preview.mjs
 
 ### strategy（applicability=not_applicable）
 - verdict: insufficient · score: n/a · confidence: 0
 - dimensions: 
 - slice_fields: {}
 - conflict_markers: out-of-scope-micro-a
-- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-09-18T06:37:42.848Z / audit_ref=reports/48-micro-a-preview.mjs
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-09-21T18:25:02.603Z / audit_ref=reports/48-micro-a-preview.mjs
 
 #### 结构化裁决块（agent 可消费）
 - protocol_version: ADR-0013-C/v1
-- overall: supported · decided_at: 2026-09-18T06:37:42.848Z
-- PC-1: supported | basis=B1 | facts=3af324e7-fc46-d83e-f3a8-e6601efdeadd | evidence=EV-48-ENVMANAGER-PR64-01 | 适配器 run 事实在案：prs_listed=62 calls=4 strategy=env-token（枚举真实发生）
-- TC-1: supported | basis=B2 | facts=e5b0ec46-c99e-15ff-16b1-65e633d1eb39,ab269bcd-c32a-a169-13e4-9afc287ef340,11c5189e-2b37-0370-2364-728f89fd23f3 | evidence=EV-48-ENVMANAGER-PR64-03 | PR 证据三联齐备（summary＋metadata＋diff）且 merged=true
-- TC-2: supported | basis=B2 | facts=11c5189e-2b37-0370-2364-728f89fd23f3 | evidence=EV-48-ENVMANAGER-PR64-02 | diff channel=api files=null +null/-null bytes=1549（api 腿 stats 契约缺席 detail=api diff channel (base/head 本地缺席)）
-- TC-3: supported | basis=B2 | facts=e5b0ec46-c99e-15ff-16b1-65e633d1eb39 | evidence=EV-48-ENVMANAGER-PR64-03 | 作者形态披露齐备：bot_declared=true basis=platform-declared:user.type==Bot&&login~[bot]
+- overall: supported · decided_at: 2026-09-21T18:25:02.603Z
+- PC-1: supported | basis=B1 | facts=a94ed168-3d21-04bc-e5ed-de930426c39c | evidence=EV-48-ENVMANAGER-PR64-01 | 适配器 run 事实在案：prs_listed=62 calls=4 strategy=env-token（枚举真实发生）
+- TC-1: supported | basis=B2 | facts=408b0057-b853-31d6-b338-df2f9eb13b33,d05351ee-2672-6cf8-721e-02020636ae8a,3b59aedf-3492-d177-d947-0089f5b458a1 | evidence=EV-48-ENVMANAGER-PR64-03 | PR 证据三联齐备（summary＋metadata＋diff）且 merged=true
+- TC-2: supported | basis=B2 | facts=3b59aedf-3492-d177-d947-0089f5b458a1 | evidence=EV-48-ENVMANAGER-PR64-02 | diff channel=api files=null +null/-null bytes=1549（api 腿 stats 契约缺席 detail=api diff channel (base/head 本地缺席)）
+- TC-3: supported | basis=B2 | facts=408b0057-b853-31d6-b338-df2f9eb13b33 | evidence=EV-48-ENVMANAGER-PR64-03 | 作者形态披露齐备：bot_declared=true basis=platform-declared:user.type==Bot&&login~[bot]
 - TC-4: supported | basis=B2 | facts=(none) | evidence=EV-48-ENVMANAGER-PR64-01 | 托管面资格闸：env-manager 托管枚举 merged PR=17（≥1 即 eligible；D-033 硬约束逆用判据）
-- NC-1: supported | basis=B4 | facts=e5b0ec46-c99e-15ff-16b1-65e633d1eb39 | evidence=EV-48-ENVMANAGER-PR64-03 | 负对照：入选实例 machine-generated/release-please 票面写死；实测 form=machine-generated/release-please merged=true（closed-unmerged 不入集、形态错配即判负）
+- NC-1: supported | basis=B4 | facts=408b0057-b853-31d6-b338-df2f9eb13b33 | evidence=EV-48-ENVMANAGER-PR64-03 | 负对照：入选实例 machine-generated/release-please 票面写死；实测 form=machine-generated/release-please merged=true（closed-unmerged 不入集、形态错配即判负）
 - human_adjudication: pending（裁定仍由人做，见 B5）
 
 ## C3 证据
 
 ### EV-48-ENVMANAGER-PR64-01 — 48-micro-a-golden-env-manager-measurements.json @ L9
 - claim: 本次实测：env-manager 托管枚举真实发生（prs_listed=62 merged=17）
-- grounded: true · collected_at: 2026-09-18T06:37:42.848Z
+- grounded: true · collected_at: 2026-09-21T18:25:02.603Z
 - reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
 - 引文原文: "prs_listed": 62,
 
 ### EV-48-ENVMANAGER-PR64-02 — 48-micro-a-golden-env-manager-pr64.diff @ L1
 - claim: 本次实测：env-manager#64 diff 工件行级锚（channel=api bytes=1549）
-- grounded: true · collected_at: 2026-09-18T06:37:42.848Z
+- grounded: true · collected_at: 2026-09-21T18:25:02.603Z
 - reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
 - 引文原文: diff --git a/.release-please-manifest.json b/.release-please-manifest.json
 
 ### EV-48-ENVMANAGER-PR64-03 — 48-micro-a-golden-env-manager-facts.jsonl @ L66
 - claim: 本次实测：env-manager#64 元数据事实落库（merged=true）
-- grounded: true · collected_at: 2026-09-18T06:37:42.848Z
+- grounded: true · collected_at: 2026-09-21T18:25:02.603Z
 - reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
-- 引文原文: {"fact_seq":66,"fact_id":"ab269bcd-c32a-a169-13e4-9afc287ef340","schema_version":1,"trace_id":"22c94ae377425fa8347159c0433f850a","baggage_id":"b48f14d63db2bca095fcb730d4d4d666","scale":"Micro-A","quadrant":"strategic","dimension":null,"collector_id":"github-rest-adapter@v1","repo_ref":"Xxx91n/env-manager","subject_ref":"Xxx91n/env-manager#64","evidence_ref":"GET /repos/Xxx91n/env-manager/pulls/64","metric":"github_rest.pr_metadata","value_json":"{\"number\":64,\"title\":\"chore(main): release 0.12.1\",\"state\":\"closed\",\"draft\":false,\"author_login\":\"github-actions[bot]\",\"author_type\":\"Bot\",\"bot_declared\":true,\"bot_basis\":\"platform-declared:user.type==Bot&&login~[bot]\",\"merged_at\":\"2026-09-14T17:14:23Z\",\"head_sha\":\"4d601a66f390146ea105c0dc12313fc716ae5afc\",\"base_sha\":\"17038beff45d132395475a050dbf454af15a7f1a\",\"html_url\":\"https://github.com/Xxx91n/env-manager/pull/64\",\"merged\":true,\"merge_commit_sha\":\"f5423020e02a0369730c360b8238a234730be85c\",\"additions\":11,\"deletions\":1,\"changed_files\":2,\"commits\":1,\"comments\":1,\"review_comments\":0,\"created_at\":\"2026-09-14T04:58:33Z\",\"closed_at\":\"2026-09-14T17:14:23Z\",\"merged_by_login\":\"Xxx91n\",\"merged_by_type\":\"User\"}","observed_at":"2026-09-18T06:37:42.848Z","ingested_at":"2026-09-18T06:37:42.848Z"}
+- 引文原文: {"fact_seq":66,"fact_id":"d05351ee-2672-6cf8-721e-02020636ae8a","schema_version":1,"trace_id":"f29fcca2320d3bcad22ca60153c6ed7f","baggage_id":"b48f14d63db2bca095fcb730d4d4d666","scale":"Micro-A","quadrant":"strategic","dimension":null,"collector_id":"github-rest-adapter@v1","repo_ref":"Xxx91n/env-manager","subject_ref":"Xxx91n/env-manager#64","evidence_ref":"GET /repos/Xxx91n/env-manager/pulls/64","metric":"github_rest.pr_metadata","value_json":"{\"number\":64,\"title\":\"chore(main): release 0.12.1\",\"state\":\"closed\",\"draft\":false,\"author_login\":\"github-actions[bot]\",\"author_type\":\"Bot\",\"bot_declared\":true,\"bot_basis\":\"platform-declared:user.type==Bot&&login~[bot]\",\"merged_at\":\"2026-09-14T17:14:23Z\",\"head_sha\":\"4d601a66f390146ea105c0dc12313fc716ae5afc\",\"base_sha\":\"17038beff45d132395475a050dbf454af15a7f1a\",\"html_url\":\"https://github.com/Xxx91n/env-manager/pull/64\",\"merged\":true,\"merge_commit_sha\":\"f5423020e02a0369730c360b8238a234730be85c\",\"additions\":11,\"deletions\":1,\"changed_files\":2,\"commits\":1,\"comments\":1,\"review_comments\":0,\"created_at\":\"2026-09-14T04:58:33Z\",\"closed_at\":\"2026-09-14T17:14:23Z\",\"merged_by_login\":\"Xxx91n\",\"merged_by_type\":\"User\"}","observed_at":"2026-09-21T18:25:02.603Z","ingested_at":"2026-09-21T18:25:02.603Z"}
 
 ### EV-48-ENVMANAGER-PR64-04 — .scratch/macro-audit/decision-ledger.md @ L40
 - claim: 票面授权锚：D-049 Micro-A preview 单票铺开决策行
-- grounded: true · collected_at: 2026-09-18T06:37:42.848Z
+- grounded: true · collected_at: 2026-09-21T18:25:02.603Z
 - reproduce_cmd: git -C D:\Aworker\6F show HEAD:.scratch/macro-audit/decision-ledger.md
 - 引文原文: - 增量去向：D-048→BACKLOG #47＋spec-phase-tasks R8-01＋upstream-lock github-rest planned 行（kind 词表扩 remote-api）＋README §3 行＋versioning 种子行＋ADR-0020；D-049→BACKLOG #48＋R8-02；D-050→BACKLOG #49＋R8-03（#46 行选定补记于 #49 行内）；D-051→BACKLOG #41b 行＋engine/LICENSE 换文＋manifest/package/marketplace license 字段＋ADR-0021＋checklist §B 勾销；D-052→manifest.meta.json（单源）→双 manifest 重生成（GEN-OK）＋.claude-plugin/marketplace.json 新建＋description.md/checklist 同步＋CONTEXT 双词
 
 ### EV-48-ENVMANAGER-PR64-05 — .scratch/architecture-recovery/reports/48-micro-a-criteria.md @ L15
 - claim: 判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）
-- grounded: true · collected_at: 2026-09-18T06:37:42.848Z
+- grounded: true · collected_at: 2026-09-21T18:25:02.603Z
 - reproduce_cmd: git -C D:\Aworker\6F show HEAD:.scratch/architecture-recovery/reports/48-micro-a-criteria.md
 - 引文原文: | TC-4 | 真判据（托管面资格闸） | 托管枚举 merged PR ≥1 → eligible；=0 → intake 显式拒绝（D-033 硬约束逆用） | supported | merged=0 → unsupported（拒绝成立） |
 

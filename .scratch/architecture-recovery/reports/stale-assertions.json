@@ -8,7 +8,8 @@
     "semantics": "known-failures 清单制（pytest strict-xfail 心智模型）：断言照跑不 archived；status=PASS/FAIL/XFAIL/XPASS；未登记 FAIL 或任何 XPASS→非零；仅已登记 XFAIL→零＋顶显 XFAIL: n (cap 10)；strict=XPASS 一律红无 lenient 逃生门",
     "premise_correction": "D-071 前提「9 条」=清单起草时点快照（next-round 换代前）；换代后 45-H5 新破→同守卫集内第 10 条入册恰满 cap；38/39/40（§3 已处置 11 件）留册外——>cap 即 D-071④ 批量处置压力",
     "runner": "xfail-run.mjs",
-    "resort_2026_09_18": "#65（D-073/D-074）三向分拣：册外 13 件=sealed 11＋活契约入册 2（39-H6/40-G5 同 45-H5 族快径）；册内再分拣腾位 sealed 4（41a-C10 superseded／50-E2·50-E3·t8-A3 registry 时点钉）→ entries 10→8；sealed 全集见 acceptance-probe-attestation.jsonl（append-only）"
+    "resort_2026_09_18": "#65（D-073/D-074）三向分拣：册外 13 件=sealed 11＋活契约入册 2（39-H6/40-G5 同 45-H5 族快径）；册内再分拣腾位 sealed 4（41a-C10 superseded／50-E2·50-E3·t8-A3 registry 时点钉）→ entries 10→8；sealed 全集见 acceptance-probe-attestation.jsonl（append-only）",
+    "xpass_removal_2026_09_22": "xfail-45-h5 摘除（人工裁决明文，D-094⑤ 两键分离）：45-check H5「next-round 含 #45 落点记录」于轮25任务书复绿——实则兜底子串 `demo` 命中「demo.test.mjs M1」（T2 票面）而非 #45 落点本意=偶发复绿。归因：原注册因=轮21任务书锚点过期（anchor-drift）；轮25任务书不再载 #45，断言意图面已失效、偶发子串使其技术性转绿。裁决：摘条目（strict XPASS 无 lenient 逃生门），H5 断言本身收入 T3/D-094② 字面钉普查 findings——`demo` 裸子串兜底属松钉待归因注记。"
   },
   "entries": [
     {
@@ -69,18 +70,6 @@
       "review_anchor": "stage3-close",
       "expires_fallback": "2026-12-31",
       "superseded_by": "ADR-0014 边界现行判定面（子串扫描误吞——修法=结构化 import 断言）",
-      "added": "2026-09-18"
-    },
-    {
-      "id": "xfail-45-h5",
-      "guard": "45",
-      "assertion-slug": "H5",
-      "attribution": "next-round 含 #45 落点记录——轮 21 任务书重写锚点过期（t8-watch-review §3 归因；D-071 前提 9→10 清点勘误第 10 条）",
-      "failure_class": "anchor-drift",
-      "evidence": ".scratch/architecture-recovery/reports/t8-watch-review.md",
-      "review_anchor": "stage3-close",
-      "expires_fallback": "2026-12-31",
-      "superseded_by": "next-round.md 现行轮次任务书（滚动文档锚）",
       "added": "2026-09-18"
     },
     {

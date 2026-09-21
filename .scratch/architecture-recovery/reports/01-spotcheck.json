@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-12T02:32:42.219Z",
+  "generated_at": "2026-09-21T18:24:41.094Z",
   "protocol": "manual spot-check: 5 sampled intent units per repo x 3 repos = 15 units; label by reading top-3 delivery evidence (MiniLM + bge-small); delivered=13, absent=1, drift=1",
   "labels": {
     "env-manager#S1": {
