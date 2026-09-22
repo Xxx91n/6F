@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-12T02:32:17.404Z",
+  "generated_at": "2026-09-22T02:52:53.013Z",
   "corpora": "D:\\Aworker\\6F\\.scratch\\architecture-recovery\\reports\\01-corpora.json",
   "sampled": {
     "env-manager": [
@@ -124,8 +124,8 @@
       "mean_kw": 0.7433
     },
     "jiahao": {
-      "n_delivery": 194,
-      "vocab_size": 926,
+      "n_delivery": 200,
+      "vocab_size": 937,
       "rows": [
         {
           "sid": "jiahao#S1",
@@ -135,35 +135,35 @@
         },
         {
           "sid": "jiahao#S2",
-          "lex_cos_max": 0.5063,
-          "keyword_coverage": 0.1429,
+          "lex_cos_max": 0.3621,
+          "keyword_coverage": 0.2857,
           "top1": "docs/agents"
         },
         {
           "sid": "jiahao#S3",
-          "lex_cos_max": 0.2589,
+          "lex_cos_max": 0.2605,
           "keyword_coverage": 0.5385,
           "top1": "feat(hooks): verdict-gate generator profile advisory mode"
         },
         {
           "sid": "jiahao#S4",
-          "lex_cos_max": 0.3438,
+          "lex_cos_max": 0.3453,
           "keyword_coverage": 0.3889,
           "top1": "test(dual-profile): 8 dual-profile tests + hooks.test.js beforeEach cleanup New: - SKILL.md profile sections exist - generator profile exclu"
         },
         {
           "sid": "jiahao#S5",
-          "lex_cos_max": 0.3204,
+          "lex_cos_max": 0.3226,
           "keyword_coverage": 0.2857,
           "top1": "feat(hooks): verdict-gate generator profile advisory mode"
         }
       ],
-      "mean_lex_cos": 0.4859,
-      "mean_kw": 0.4712
+      "mean_lex_cos": 0.4581,
+      "mean_kw": 0.4998
     },
     "anysearch-cli": {
-      "n_delivery": 230,
-      "vocab_size": 1313,
+      "n_delivery": 241,
+      "vocab_size": 1342,
       "rows": [
         {
           "sid": "anysearch-cli#S1",
@@ -173,30 +173,30 @@
         },
         {
           "sid": "anysearch-cli#S2",
-          "lex_cos_max": 0.515,
+          "lex_cos_max": 0.5162,
           "keyword_coverage": 1,
           "top1": "feat: G009 Retroaererd Engine — fanout + RRF + sufficiency gate"
         },
         {
           "sid": "anysearch-cli#S3",
-          "lex_cos_max": 0.6145,
+          "lex_cos_max": 0.6121,
           "keyword_coverage": 0.9,
           "top1": "packages/retriever"
         },
         {
           "sid": "anysearch-cli#S4",
-          "lex_cos_max": 0.4579,
+          "lex_cos_max": 0.4562,
           "keyword_coverage": 0.8462,
-          "top1": "apps/mcp"
+          "top1": "feat: G018 tool completion — search_web auto-index + recall_memory FTS5 + research_web multi-round"
         },
         {
           "sid": "anysearch-cli#S5",
-          "lex_cos_max": 0.4749,
+          "lex_cos_max": 0.4809,
           "keyword_coverage": 0.8889,
           "top1": "apps/cli"
         }
       ],
-      "mean_lex_cos": 0.6125,
+      "mean_lex_cos": 0.6131,
       "mean_kw": 0.927
     }
   },
@@ -204,7 +204,7 @@
     "minilm-l6-v2": {
       "hf": "Xenova/all-MiniLM-L6-v2",
       "note": "EN generic 6-layer",
-      "load_ms": 1378,
+      "load_ms": 400,
       "per_repo": {
         "env-manager": {
           "n_delivery": 597,
@@ -328,26 +328,26 @@
           "mean": 0.5048
         },
         "jiahao": {
-          "n_delivery": 194,
+          "n_delivery": 200,
           "rows": [
             {
               "sid": "jiahao#S1",
               "text": "Jiahao (嘉豪)",
               "source": "readme:h1",
-              "max": 0.8836,
+              "max": 0.8869,
               "top3": [
                 {
-                  "score": 0.8836,
+                  "score": 0.8869,
                   "kind": "pkg",
                   "unit": "jiahao"
                 },
                 {
-                  "score": 0.7395,
+                  "score": 0.7459,
                   "kind": "path",
                   "unit": "jiahao-mcp"
                 },
                 {
-                  "score": 0.7204,
+                  "score": 0.7096,
                   "kind": "pkg",
                   "unit": "bin jiahao"
                 }
@@ -357,20 +357,20 @@
               "sid": "jiahao#S2",
               "text": "LLM agents suffer from False Completion Syndrome: falsely claiming success, self-deceiving about completion, hallucinating self-evaluation.",
               "source": "readme:para",
-              "max": 0.4123,
+              "max": 0.4146,
               "top3": [
                 {
-                  "score": 0.4123,
+                  "score": 0.4146,
                   "kind": "pkg",
                   "unit": "Prompt-as-mental-model skill distribution for second-party agents"
                 },
                 {
-                  "score": 0.3791,
+                  "score": 0.3648,
                   "kind": "commit",
                   "unit": "feat(adr-0057): skip-honesty gate, suite-count asserting test gate, JUnit evidence"
                 },
                 {
-                  "score": 0.312,
+                  "score": 0.3167,
                   "kind": "commit",
                   "unit": "fix(adr-0044): make twins claim-directed and persist falsification evidence"
                 }
@@ -380,22 +380,22 @@
               "sid": "jiahao#S3",
               "text": "The generator profile attacks the surface signals inside the primary agent (you cannot self-verify — verified advice).",
               "source": "readme:para",
-              "max": 0.4597,
+              "max": 0.4441,
               "top3": [
                 {
-                  "score": 0.4597,
+                  "score": 0.4441,
                   "kind": "commit",
                   "unit": "docs(adr-0032): generator surface rules deepening — gsr header + coverage map + equivalence pre-registration + lifecycle"
                 },
                 {
-                  "score": 0.3906,
-                  "kind": "commit",
-                  "unit": "test(dual-profile): 8 dual-profile tests + hooks.test.js beforeEach cleanup New: - SKILL.md profile sections exist - generator profile excludes verifi"
-                },
-                {
-                  "score": 0.3854,
+                  "score": 0.4087,
                   "kind": "commit",
                   "unit": "docs: ADR-0029 behavioral probe gate (verifier effectiveness, zero-miss smoke gate, advisory upgrade channel, signing rejection)"
+                },
+                {
+                  "score": 0.3827,
+                  "kind": "commit",
+                  "unit": "feat(hooks): verdict-gate generator profile advisory mode"
                 }
               ]
             },
@@ -403,20 +403,20 @@
               "sid": "jiahao#S4",
               "text": "The verifier profile runs in a separate audit agent, where independence theorems actually apply: an external verifier can find errors the generator itself is structurally blind to.",
               "source": "readme:para",
-              "max": 0.4761,
+              "max": 0.4977,
               "top3": [
                 {
-                  "score": 0.4761,
+                  "score": 0.4977,
                   "kind": "commit",
                   "unit": "ADR-0035 audit fix: broken verified_by verifier (exit>1) now WARNs instead of silently reading as not-satisfied; verifier exit-code contract documente"
                 },
                 {
-                  "score": 0.4688,
+                  "score": 0.4775,
                   "kind": "commit",
                   "unit": "docs: verifier deployment discipline — co-installation not supported by design"
                 },
                 {
-                  "score": 0.4661,
+                  "score": 0.4569,
                   "kind": "commit",
                   "unit": "test(dual-profile): 8 dual-profile tests + hooks.test.js beforeEach cleanup New: - SKILL.md profile sections exist - generator profile excludes verifi"
                 }
@@ -426,49 +426,49 @@
               "sid": "jiahao#S5",
               "text": "for a primary agent, use the generator profile to keep tokens cheap while still blocking the worst self-deception.",
               "source": "readme:para",
-              "max": 0.3669,
+              "max": 0.3638,
               "top3": [
                 {
-                  "score": 0.3669,
+                  "score": 0.3638,
                   "kind": "pkg",
                   "unit": "Prompt-as-mental-model skill distribution for second-party agents"
                 },
                 {
-                  "score": 0.3474,
+                  "score": 0.3268,
                   "kind": "commit",
                   "unit": "test(dual-profile): 8 dual-profile tests + hooks.test.js beforeEach cleanup New: - SKILL.md profile sections exist - generator profile excludes verifi"
                 },
                 {
-                  "score": 0.3226,
+                  "score": 0.3194,
                   "kind": "commit",
                   "unit": "feat(adr-0032): generator rule registry - gsr headers, coverage map gate, lifecycle state machine"
                 }
               ]
             }
           ],
-          "mean": 0.5197
+          "mean": 0.5214
         },
         "anysearch-cli": {
-          "n_delivery": 230,
+          "n_delivery": 241,
           "rows": [
             {
               "sid": "anysearch-cli#S1",
               "text": "anysearch-cli",
               "source": "readme:h1",
-              "max": 0.9761,
+              "max": 0.9795,
               "top3": [
                 {
-                  "score": 0.9761,
+                  "score": 0.9795,
                   "kind": "pkg",
                   "unit": "anysearch-cli"
                 },
                 {
-                  "score": 0.5223,
+                  "score": 0.5359,
                   "kind": "commit",
                   "unit": "feat: G008 AnySearch provider adapter (REST API)"
                 },
                 {
-                  "score": 0.4212,
+                  "score": 0.4342,
                   "kind": "path",
                   "unit": "apps/cli"
                 }
@@ -478,20 +478,20 @@
               "sid": "anysearch-cli#S2",
               "text": "**Kernel** (`packages/kernel`): Retroaererd Engine — bounded budget, sufficiency gate, RRF fusion",
               "source": "readme:bullet",
-              "max": 0.6061,
+              "max": 0.617,
               "top3": [
                 {
-                  "score": 0.6061,
+                  "score": 0.617,
                   "kind": "commit",
                   "unit": "feat: G009 Retroaererd Engine — fanout + RRF + sufficiency gate"
                 },
                 {
-                  "score": 0.5703,
+                  "score": 0.5857,
                   "kind": "path",
                   "unit": "packages/kernel"
                 },
                 {
-                  "score": 0.4875,
+                  "score": 0.4921,
                   "kind": "commit",
                   "unit": "feat(governance): ADR-0045 r118 impl - frozen FUSION_REGISTRY (SHA-256 pinned, k_fusion split memory/web/ror=60, weights registry fail-fast), rrf k re"
                 }
@@ -501,20 +501,20 @@
               "sid": "anysearch-cli#S3",
               "text": "**Retriever** (`packages/retriever`): provider contracts (exa/tavily/anysearch) + RRF pure function",
               "source": "readme:bullet",
-              "max": 0.6254,
+              "max": 0.6293,
               "top3": [
                 {
-                  "score": 0.6254,
+                  "score": 0.6293,
                   "kind": "path",
                   "unit": "packages/retriever"
                 },
                 {
-                  "score": 0.4994,
+                  "score": 0.5043,
                   "kind": "commit",
                   "unit": "feat: G008 AnySearch provider adapter (REST API)"
                 },
                 {
-                  "score": 0.4903,
+                  "score": 0.4801,
                   "kind": "pkg",
                   "unit": "anysearch-cli"
                 }
@@ -524,20 +524,20 @@
               "sid": "anysearch-cli#S4",
               "text": "**MCP server** (`apps/mcp`): 5 MCP tools (search_web, research_web, recall_memory, query_knowledge, ans_chat)",
               "source": "readme:bullet",
-              "max": 0.6126,
+              "max": 0.6198,
               "top3": [
                 {
-                  "score": 0.6126,
+                  "score": 0.6198,
                   "kind": "path",
                   "unit": "apps/mcp"
                 },
                 {
-                  "score": 0.4767,
+                  "score": 0.4609,
                   "kind": "commit",
                   "unit": "feat: G018 tool completion — search_web auto-index + recall_memory FTS5 + research_web multi-round"
                 },
                 {
-                  "score": 0.3915,
+                  "score": 0.3993,
                   "kind": "commit",
                   "unit": "feat(adr-0023): memory retrieval deepening — FTS5 tokenization (per-word prefix + phrase OR, 8-term cap), multi-query + RRF k=60 fusion, S1 query rewr"
                 }
@@ -547,27 +547,27 @@
               "sid": "anysearch-cli#S5",
               "text": "**CLI** (`apps/cli`): entry point, `ans` command, composition root forwarder",
               "source": "readme:bullet",
-              "max": 0.6077,
+              "max": 0.6209,
               "top3": [
                 {
-                  "score": 0.6077,
+                  "score": 0.6209,
                   "kind": "path",
                   "unit": "apps/cli"
                 },
                 {
-                  "score": 0.5032,
+                  "score": 0.5002,
                   "kind": "commit",
                   "unit": "feat(G010): CLI composition root — 8 commands, CJS build, process liveness verified"
                 },
                 {
-                  "score": 0.4095,
+                  "score": 0.4158,
                   "kind": "commit",
                   "unit": "scaffold: Step 0+1 monorepo skeleton + ans CLI entry stub"
                 }
               ]
             }
           ],
-          "mean": 0.6856
+          "mean": 0.6933
         }
       },
       "drift": {
@@ -612,79 +612,79 @@
           {
             "label": "W1",
             "from": "2026-09-09T21:58:08+08:00",
-            "to": "2026-09-11T14:17:24+08:00",
-            "n": 31,
-            "align": 0.2803
+            "to": "2026-09-12T10:23:27+08:00",
+            "n": 32,
+            "align": 0.2845
           },
           {
             "label": "W2",
-            "from": "2026-08-30T01:36:08+08:00",
+            "from": "2026-08-30T04:07:32+08:00",
             "to": "2026-09-09T21:58:08+08:00",
-            "n": 31,
-            "align": 0.3159
+            "n": 32,
+            "align": 0.2918
           },
           {
             "label": "W3",
-            "from": "2026-08-28T18:07:47+08:00",
-            "to": "2026-08-30T00:43:09+08:00",
-            "n": 31,
-            "align": 0.3144
+            "from": "2026-08-28T18:33:04+08:00",
+            "to": "2026-08-30T03:50:22+08:00",
+            "n": 32,
+            "align": 0.318
           },
           {
             "label": "W4",
-            "from": "2026-08-25T00:56:15+08:00",
-            "to": "2026-08-28T15:54:29+08:00",
-            "n": 31,
-            "align": 0.2674
+            "from": "2026-08-25T03:40:06+08:00",
+            "to": "2026-08-28T18:07:48+08:00",
+            "n": 32,
+            "align": 0.269
           },
           {
             "label": "W5",
             "from": "2026-08-22T23:32:18+08:00",
-            "to": "2026-08-24T03:20:17+08:00",
-            "n": 30,
-            "align": 0.3866
+            "to": "2026-08-25T00:56:15+08:00",
+            "n": 31,
+            "align": 0.3886
           }
         ],
         "anysearch-cli": [
           {
             "label": "W1",
-            "from": "2026-09-02T21:04:34+08:00",
-            "to": "2026-09-11T23:52:56+08:00",
-            "n": 39,
-            "align": 0.3519
+            "from": "2026-09-05T20:35:51+08:00",
+            "to": "2026-09-12T10:05:06+08:00",
+            "n": 41,
+            "align": 0.3223
           },
           {
             "label": "W2",
-            "from": "2026-08-29T10:41:27+08:00",
-            "to": "2026-09-02T08:50:58+08:00",
-            "n": 39,
+            "from": "2026-08-29T23:54:47+08:00",
+            "to": "2026-09-05T12:25:39+08:00",
+            "n": 41,
             "align": 0.3429
           },
           {
             "label": "W3",
-            "from": "2026-08-24T12:18:50+08:00",
-            "to": "2026-08-29T07:03:07+08:00",
-            "n": 39,
-            "align": 0.3834
+            "from": "2026-08-26T00:31:13+08:00",
+            "to": "2026-08-29T20:16:34+08:00",
+            "n": 41,
+            "align": 0.3465
           },
           {
             "label": "W4",
-            "from": "2026-08-19T18:26:23+08:00",
-            "to": "2026-08-23T17:30:33+08:00",
-            "n": 39,
-            "align": 0.3376
+            "from": "2026-08-20T00:14:32+08:00",
+            "to": "2026-08-26T00:29:03+08:00",
+            "n": 41,
+            "align": 0.3588
           },
           {
             "label": "W5",
             "from": "2026-08-18T15:39:54+08:00",
-            "to": "2026-08-19T18:20:14+08:00",
-            "n": 35,
-            "align": 0.5159
+            "to": "2026-08-19T22:08:31+08:00",
+            "n": 37,
+            "align": 0.521
           }
         ]
       },
-      "pos_mean": 0.57,
-      "neg_mean": 0.3705,
+      "pos_mean": 0.5732,
+      "neg_mean": 0.3713,
       "calibration": {
         "n_pos": 15,
         "n_neg": 30,
@@ -752,14 +752,14 @@
           {
             "theta": 0.3,
             "tp": 15,
-            "fp": 27,
-            "tn": 3,
+            "fp": 26,
+            "tn": 4,
             "fn": 0,
-            "precision": 0.3571,
+            "precision": 0.3659,
             "recall": 1,
-            "f1": 0.5263,
+            "f1": 0.5357,
             "tpr": 1,
-            "fpr": 0.9
+            "fpr": 0.8667
           },
           {
             "theta": 0.35,
@@ -787,14 +787,14 @@
           },
           {
             "theta": 0.45,
-            "tp": 11,
+            "tp": 10,
             "fp": 4,
             "tn": 26,
-            "fn": 4,
-            "precision": 0.7333,
-            "recall": 0.7333,
-            "f1": 0.7333,
-            "tpr": 0.7333,
+            "fn": 5,
+            "precision": 0.7143,
+            "recall": 0.6667,
+            "f1": 0.6897,
+            "tpr": 0.6667,
             "fpr": 0.1333
           },
           {
@@ -812,14 +812,14 @@
           {
             "theta": 0.55,
             "tp": 8,
-            "fp": 1,
-            "tn": 29,
+            "fp": 0,
+            "tn": 30,
             "fn": 7,
-            "precision": 0.8889,
+            "precision": 1,
             "recall": 0.5333,
-            "f1": 0.6667,
+            "f1": 0.6957,
             "tpr": 0.5333,
-            "fpr": 0.0333
+            "fpr": 0
           },
           {
             "theta": 0.6,
@@ -919,28 +919,28 @@
           }
         ],
         "best_f1": {
-          "theta": 0.45,
-          "tp": 11,
-          "fp": 4,
-          "tn": 26,
-          "fn": 4,
-          "precision": 0.7333,
-          "recall": 0.7333,
-          "f1": 0.7333,
-          "tpr": 0.7333,
-          "fpr": 0.1333
+          "theta": 0.5,
+          "tp": 9,
+          "fp": 1,
+          "tn": 29,
+          "fn": 6,
+          "precision": 0.9,
+          "recall": 0.6,
+          "f1": 0.72,
+          "tpr": 0.6,
+          "fpr": 0.0333
         },
         "best_youden": {
-          "theta": 0.45,
-          "tp": 11,
-          "fp": 4,
-          "tn": 26,
-          "fn": 4,
-          "precision": 0.7333,
-          "recall": 0.7333,
-          "f1": 0.7333,
-          "tpr": 0.7333,
-          "fpr": 0.1333
+          "theta": 0.5,
+          "tp": 9,
+          "fp": 1,
+          "tn": 29,
+          "fn": 6,
+          "precision": 0.9,
+          "recall": 0.6,
+          "f1": 0.72,
+          "tpr": 0.6,
+          "fpr": 0.0333
         },
         "at_0_70": {
           "theta": 0.7,
@@ -959,7 +959,7 @@
     "bge-small-en-v15": {
       "hf": "Xenova/bge-small-en-v1.5",
       "note": "EN retrieval-optimized",
-      "load_ms": 775,
+      "load_ms": 322,
       "per_repo": {
         "env-manager": {
           "n_delivery": 597,
@@ -1083,26 +1083,26 @@
           "mean": 0.6873
         },
         "jiahao": {
-          "n_delivery": 194,
+          "n_delivery": 200,
           "rows": [
             {
               "sid": "jiahao#S1",
               "text": "Jiahao (嘉豪)",
               "source": "readme:h1",
-              "max": 0.9789,
+              "max": 0.9804,
               "top3": [
                 {
-                  "score": 0.9789,
+                  "score": 0.9804,
                   "kind": "pkg",
                   "unit": "jiahao"
                 },
                 {
-                  "score": 0.8469,
+                  "score": 0.8504,
                   "kind": "pkg",
                   "unit": "bin jiahao"
                 },
                 {
-                  "score": 0.8441,
+                  "score": 0.838,
                   "kind": "path",
                   "unit": "jiahao-mcp"
                 }
@@ -1112,22 +1112,22 @@
               "sid": "jiahao#S2",
               "text": "LLM agents suffer from False Completion Syndrome: falsely claiming success, self-deceiving about completion, hallucinating self-evaluation.",
               "source": "readme:para",
-              "max": 0.608,
+              "max": 0.6116,
               "top3": [
                 {
-                  "score": 0.608,
-                  "kind": "commit",
-                  "unit": "fix(adr-0044): make twins claim-directed and persist falsification evidence"
-                },
-                {
-                  "score": 0.6067,
+                  "score": 0.6116,
                   "kind": "commit",
                   "unit": "feat(adr-0052): witness-unavailable failure state, degraded append policy, human-gated rebuild"
                 },
                 {
-                  "score": 0.5888,
-                  "kind": "pkg",
-                  "unit": "Prompt-as-mental-model skill distribution for second-party agents"
+                  "score": 0.6085,
+                  "kind": "commit",
+                  "unit": "fix(adr-0044): make twins claim-directed and persist falsification evidence"
+                },
+                {
+                  "score": 0.589,
+                  "kind": "commit",
+                  "unit": "docs(adr-0036): anti-gaming audit - CAISI boundary + answer-corpus migration + corpus freshness soft-hard ladder + gate-defaults params consistency + "
                 }
               ]
             },
@@ -1135,20 +1135,20 @@
               "sid": "jiahao#S3",
               "text": "The generator profile attacks the surface signals inside the primary agent (you cannot self-verify — verified advice).",
               "source": "readme:para",
-              "max": 0.6222,
+              "max": 0.6184,
               "top3": [
                 {
-                  "score": 0.6222,
+                  "score": 0.6184,
                   "kind": "commit",
                   "unit": "docs(adr-0032): generator surface rules deepening — gsr header + coverage map + equivalence pre-registration + lifecycle"
                 },
                 {
-                  "score": 0.5959,
+                  "score": 0.5923,
                   "kind": "commit",
                   "unit": "feat(hooks): verdict-gate generator profile advisory mode"
                 },
                 {
-                  "score": 0.5839,
+                  "score": 0.5882,
                   "kind": "commit",
                   "unit": "fix(adr-0047): enforce per-surface attestations and ADR-only coupling"
                 }
@@ -1158,20 +1158,20 @@
               "sid": "jiahao#S4",
               "text": "The verifier profile runs in a separate audit agent, where independence theorems actually apply: an external verifier can find errors the generator itself is structurally blind to.",
               "source": "readme:para",
-              "max": 0.5839,
+              "max": 0.5779,
               "top3": [
                 {
-                  "score": 0.5839,
+                  "score": 0.5779,
                   "kind": "commit",
                   "unit": "fix(adr-0046): close audit gaps in instrument quarantine gate"
                 },
                 {
-                  "score": 0.5761,
+                  "score": 0.5774,
                   "kind": "commit",
                   "unit": "chore: audit closeout — SSOT splitByProfile, readProfile(), strengthened advisory test, README/AGENTS sync, CONTEXT ADR index"
                 },
                 {
-                  "score": 0.5757,
+                  "score": 0.571,
                   "kind": "commit",
                   "unit": "test(dual-profile): 8 dual-profile tests + hooks.test.js beforeEach cleanup New: - SKILL.md profile sections exist - generator profile excludes verifi"
                 }
@@ -1181,51 +1181,51 @@
               "sid": "jiahao#S5",
               "text": "for a primary agent, use the generator profile to keep tokens cheap while still blocking the worst self-deception.",
               "source": "readme:para",
-              "max": 0.6213,
+              "max": 0.6194,
               "top3": [
                 {
-                  "score": 0.6213,
+                  "score": 0.6194,
                   "kind": "commit",
                   "unit": "feat(hooks): verdict-gate generator profile advisory mode"
                 },
                 {
-                  "score": 0.5898,
+                  "score": 0.598,
                   "kind": "commit",
                   "unit": "feat(adr-0032): generator rule registry - gsr headers, coverage map gate, lifecycle state machine"
                 },
                 {
-                  "score": 0.5883,
+                  "score": 0.5849,
                   "kind": "commit",
                   "unit": "feat(adr-0046): implement instrument identity gate and quarantine state machine"
                 }
               ]
             }
           ],
-          "mean": 0.6829
+          "mean": 0.6815
         },
         "anysearch-cli": {
-          "n_delivery": 230,
+          "n_delivery": 241,
           "rows": [
             {
               "sid": "anysearch-cli#S1",
               "text": "anysearch-cli",
               "source": "readme:h1",
-              "max": 0.996,
+              "max": 0.9959,
               "top3": [
                 {
-                  "score": 0.996,
+                  "score": 0.9959,
                   "kind": "pkg",
                   "unit": "anysearch-cli"
                 },
                 {
-                  "score": 0.7467,
+                  "score": 0.7441,
                   "kind": "commit",
                   "unit": "feat: G008 AnySearch provider adapter (REST API)"
                 },
                 {
-                  "score": 0.728,
-                  "kind": "path",
-                  "unit": "apps/cli"
+                  "score": 0.7356,
+                  "kind": "commit",
+                  "unit": "docs: ADR-0009 grill round 6 — Phase 3 Anysearch Plugin design (7 decisions)"
                 }
               ]
             },
@@ -1233,22 +1233,22 @@
               "sid": "anysearch-cli#S2",
               "text": "**Kernel** (`packages/kernel`): Retroaererd Engine — bounded budget, sufficiency gate, RRF fusion",
               "source": "readme:bullet",
-              "max": 0.7978,
+              "max": 0.7843,
               "top3": [
                 {
-                  "score": 0.7978,
+                  "score": 0.7843,
                   "kind": "commit",
                   "unit": "feat: G009 Retroaererd Engine — fanout + RRF + sufficiency gate"
                 },
                 {
-                  "score": 0.7184,
-                  "kind": "path",
-                  "unit": "packages/kernel"
+                  "score": 0.7331,
+                  "kind": "commit",
+                  "unit": "feat: Step 3 kernel split — 3 packages + 5 seams + ADR-0004"
                 },
                 {
-                  "score": 0.7157,
-                  "kind": "commit",
-                  "unit": "feat: ADR-0014 — Sufficiency Gate deepening (D1-D7 implementation)"
+                  "score": 0.7181,
+                  "kind": "path",
+                  "unit": "packages/kernel"
                 }
               ]
             },
@@ -1256,20 +1256,20 @@
               "sid": "anysearch-cli#S3",
               "text": "**Retriever** (`packages/retriever`): provider contracts (exa/tavily/anysearch) + RRF pure function",
               "source": "readme:bullet",
-              "max": 0.8023,
+              "max": 0.7972,
               "top3": [
                 {
-                  "score": 0.8023,
+                  "score": 0.7972,
                   "kind": "path",
                   "unit": "packages/retriever"
                 },
                 {
-                  "score": 0.7106,
+                  "score": 0.7067,
                   "kind": "commit",
                   "unit": "feat: G008 AnySearch provider adapter (REST API)"
                 },
                 {
-                  "score": 0.6597,
+                  "score": 0.657,
                   "kind": "pkg",
                   "unit": "anysearch-cli"
                 }
@@ -1279,20 +1279,20 @@
               "sid": "anysearch-cli#S4",
               "text": "**MCP server** (`apps/mcp`): 5 MCP tools (search_web, research_web, recall_memory, query_knowledge, ans_chat)",
               "source": "readme:bullet",
-              "max": 0.7453,
+              "max": 0.7349,
               "top3": [
                 {
-                  "score": 0.7453,
+                  "score": 0.7349,
                   "kind": "path",
                   "unit": "apps/mcp"
                 },
                 {
-                  "score": 0.7073,
+                  "score": 0.6911,
                   "kind": "commit",
                   "unit": "feat: G018 tool completion — search_web auto-index + recall_memory FTS5 + research_web multi-round"
                 },
                 {
-                  "score": 0.646,
+                  "score": 0.654,
                   "kind": "commit",
                   "unit": "feat(adr-0023): memory retrieval deepening — FTS5 tokenization (per-word prefix + phrase OR, 8-term cap), multi-query + RRF k=60 fusion, S1 query rewr"
                 }
@@ -1302,27 +1302,27 @@
               "sid": "anysearch-cli#S5",
               "text": "**CLI** (`apps/cli`): entry point, `ans` command, composition root forwarder",
               "source": "readme:bullet",
-              "max": 0.7855,
+              "max": 0.7763,
               "top3": [
                 {
-                  "score": 0.7855,
+                  "score": 0.7763,
                   "kind": "path",
                   "unit": "apps/cli"
                 },
                 {
-                  "score": 0.7596,
+                  "score": 0.7615,
                   "kind": "commit",
                   "unit": "feat(G010): CLI composition root — 8 commands, CJS build, process liveness verified"
                 },
                 {
-                  "score": 0.7257,
+                  "score": 0.7284,
                   "kind": "commit",
                   "unit": "scaffold: Step 0+1 monorepo skeleton + ans CLI entry stub"
                 }
               ]
             }
           ],
-          "mean": 0.8254
+          "mean": 0.8177
         }
       },
       "drift": {
@@ -1367,79 +1367,79 @@
           {
             "label": "W1",
             "from": "2026-09-09T21:58:08+08:00",
-            "to": "2026-09-11T14:17:24+08:00",
-            "n": 31,
-            "align": 0.5679
+            "to": "2026-09-12T10:23:27+08:00",
+            "n": 32,
+            "align": 0.5697
           },
           {
             "label": "W2",
-            "from": "2026-08-30T01:36:08+08:00",
+            "from": "2026-08-30T04:07:32+08:00",
             "to": "2026-09-09T21:58:08+08:00",
-            "n": 31,
-            "align": 0.5603
+            "n": 32,
+            "align": 0.5399
           },
           {
             "label": "W3",
-            "from": "2026-08-28T18:07:47+08:00",
-            "to": "2026-08-30T00:43:09+08:00",
-            "n": 31,
-            "align": 0.5585
+            "from": "2026-08-28T18:33:04+08:00",
+            "to": "2026-08-30T03:50:22+08:00",
+            "n": 32,
+            "align": 0.5593
           },
           {
             "label": "W4",
-            "from": "2026-08-25T00:56:15+08:00",
-            "to": "2026-08-28T15:54:29+08:00",
-            "n": 31,
-            "align": 0.5425
+            "from": "2026-08-25T03:40:06+08:00",
+            "to": "2026-08-28T18:07:48+08:00",
+            "n": 32,
+            "align": 0.5423
           },
           {
             "label": "W5",
             "from": "2026-08-22T23:32:18+08:00",
-            "to": "2026-08-24T03:20:17+08:00",
-            "n": 30,
+            "to": "2026-08-25T00:56:15+08:00",
+            "n": 31,
             "align": 0.5979
           }
         ],
         "anysearch-cli": [
           {
             "label": "W1",
-            "from": "2026-09-02T21:04:34+08:00",
-            "to": "2026-09-11T23:52:56+08:00",
-            "n": 39,
-            "align": 0.6208
+            "from": "2026-09-05T20:35:51+08:00",
+            "to": "2026-09-12T10:05:06+08:00",
+            "n": 41,
+            "align": 0.6204
           },
           {
             "label": "W2",
-            "from": "2026-08-29T10:41:27+08:00",
-            "to": "2026-09-02T08:50:58+08:00",
-            "n": 39,
-            "align": 0.6433
+            "from": "2026-08-29T23:54:47+08:00",
+            "to": "2026-09-05T12:25:39+08:00",
+            "n": 41,
+            "align": 0.643
           },
           {
             "label": "W3",
-            "from": "2026-08-24T12:18:50+08:00",
-            "to": "2026-08-29T07:03:07+08:00",
-            "n": 39,
-            "align": 0.6335
+            "from": "2026-08-26T00:31:13+08:00",
+            "to": "2026-08-29T20:16:34+08:00",
+            "n": 41,
+            "align": 0.6307
           },
           {
             "label": "W4",
-            "from": "2026-08-19T18:26:23+08:00",
-            "to": "2026-08-23T17:30:33+08:00",
-            "n": 39,
-            "align": 0.6428
+            "from": "2026-08-20T00:14:32+08:00",
+            "to": "2026-08-26T00:29:03+08:00",
+            "n": 41,
+            "align": 0.642
           },
           {
             "label": "W5",
             "from": "2026-08-18T15:39:54+08:00",
-            "to": "2026-08-19T18:20:14+08:00",
-            "n": 35,
-            "align": 0.7417
+            "to": "2026-08-19T22:08:31+08:00",
+            "n": 37,
+            "align": 0.7416
           }
         ]
       },
-      "pos_mean": 0.7318,
-      "neg_mean": 0.6275,
+      "pos_mean": 0.7289,
+      "neg_mean": 0.628,
       "calibration": {
         "n_pos": 15,
         "n_neg": 30,
@@ -1567,14 +1567,14 @@
           {
             "theta": 0.55,
             "tp": 15,
-            "fp": 28,
-            "tn": 2,
+            "fp": 29,
+            "tn": 1,
             "fn": 0,
-            "precision": 0.3488,
+            "precision": 0.3409,
             "recall": 1,
-            "f1": 0.5172,
+            "f1": 0.5085,
             "tpr": 1,
-            "fpr": 0.9333
+            "fpr": 0.9667
           },
           {
             "theta": 0.6,
@@ -1626,14 +1626,14 @@
           },
           {
             "theta": 0.8,
-            "tp": 3,
+            "tp": 2,
             "fp": 0,
             "tn": 30,
-            "fn": 12,
+            "fn": 13,
             "precision": 1,
-            "recall": 0.2,
-            "f1": 0.3333,
-            "tpr": 0.2,
+            "recall": 0.1333,
+            "f1": 0.2353,
+            "tpr": 0.1333,
             "fpr": 0
           },
           {
@@ -1714,7 +1714,7 @@
     "me5-small": {
       "hf": "Xenova/multilingual-e5-small",
       "note": "multilingual",
-      "load_ms": 3329,
+      "load_ms": 1734,
       "per_repo": {
         "env-manager": {
           "n_delivery": 597,
@@ -1838,26 +1838,26 @@
           "mean": 0.8693
         },
         "jiahao": {
-          "n_delivery": 194,
+          "n_delivery": 200,
           "rows": [
             {
               "sid": "jiahao#S1",
               "text": "Jiahao (嘉豪)",
               "source": "readme:h1",
-              "max": 0.9096,
+              "max": 0.9073,
               "top3": [
                 {
-                  "score": 0.9096,
+                  "score": 0.9073,
                   "kind": "pkg",
                   "unit": "jiahao"
                 },
                 {
-                  "score": 0.8948,
+                  "score": 0.8958,
                   "kind": "path",
                   "unit": "jiahao-mcp"
                 },
                 {
-                  "score": 0.8873,
+                  "score": 0.8888,
                   "kind": "pkg",
                   "unit": "bin jiahao"
                 }
@@ -1867,22 +1867,22 @@
               "sid": "jiahao#S2",
               "text": "LLM agents suffer from False Completion Syndrome: falsely claiming success, self-deceiving about completion, hallucinating self-evaluation.",
               "source": "readme:para",
-              "max": 0.8405,
+              "max": 0.8427,
               "top3": [
                 {
-                  "score": 0.8405,
+                  "score": 0.8427,
                   "kind": "commit",
-                  "unit": "fix: verdict-gate variable shadowing + stale ponytail debt comments"
+                  "unit": "feat(adr-0052): witness-unavailable failure state, degraded append policy, human-gated rebuild"
                 },
                 {
-                  "score": 0.8404,
+                  "score": 0.8395,
                   "kind": "commit",
                   "unit": "audit(adr-0031): fail-closed confirmatory gates on non-computable metric (judge-bias SKIP bypass) + severity enum validation in judge input whitelist "
                 },
                 {
-                  "score": 0.8396,
+                  "score": 0.8385,
                   "kind": "commit",
-                  "unit": "feat(adr-0052): witness-unavailable failure state, degraded append policy, human-gated rebuild"
+                  "unit": "docs(adr): ADR-0020 research addendum (short-page is weak witness, safe-side use confirmed); README stale FAIL line -> PASS"
                 }
               ]
             },
@@ -1890,20 +1890,20 @@
               "sid": "jiahao#S3",
               "text": "The generator profile attacks the surface signals inside the primary agent (you cannot self-verify — verified advice).",
               "source": "readme:para",
-              "max": 0.8482,
+              "max": 0.8532,
               "top3": [
                 {
-                  "score": 0.8482,
+                  "score": 0.8532,
                   "kind": "commit",
                   "unit": "feat(hooks): verdict-gate generator profile advisory mode"
                 },
                 {
-                  "score": 0.8458,
+                  "score": 0.8505,
                   "kind": "commit",
                   "unit": "docs: verifier deployment discipline — co-installation not supported by design"
                 },
                 {
-                  "score": 0.8447,
+                  "score": 0.8477,
                   "kind": "commit",
                   "unit": "docs(adr-0032): generator surface rules deepening — gsr header + coverage map + equivalence pre-registration + lifecycle"
                 }
@@ -1913,22 +1913,22 @@
               "sid": "jiahao#S4",
               "text": "The verifier profile runs in a separate audit agent, where independence theorems actually apply: an external verifier can find errors the generator itself is structurally blind to.",
               "source": "readme:para",
-              "max": 0.8512,
+              "max": 0.8541,
               "top3": [
                 {
-                  "score": 0.8512,
+                  "score": 0.8541,
                   "kind": "commit",
                   "unit": "feat(hooks): verdict-gate generator profile advisory mode"
                 },
                 {
-                  "score": 0.8423,
-                  "kind": "commit",
-                  "unit": "fix(audit-adr0018): deriveThresholds degenerate-model guard (a=0 -> static band) + comment rot fix + README test count 150"
-                },
-                {
-                  "score": 0.8416,
+                  "score": 0.8412,
                   "kind": "commit",
                   "unit": "audit(adr-0031): fail-closed confirmatory gates on non-computable metric (judge-bias SKIP bypass) + severity enum validation in judge input whitelist "
+                },
+                {
+                  "score": 0.8399,
+                  "kind": "commit",
+                  "unit": "fix(audit-adr0018): deriveThresholds degenerate-model guard (a=0 -> static band) + comment rot fix + README test count 150"
                 }
               ]
             },
@@ -1936,49 +1936,49 @@
               "sid": "jiahao#S5",
               "text": "for a primary agent, use the generator profile to keep tokens cheap while still blocking the worst self-deception.",
               "source": "readme:para",
-              "max": 0.8297,
+              "max": 0.8272,
               "top3": [
                 {
-                  "score": 0.8297,
+                  "score": 0.8272,
+                  "kind": "commit",
+                  "unit": "feat(hooks): verdict-gate generator profile advisory mode"
+                },
+                {
+                  "score": 0.8266,
                   "kind": "path",
                   "unit": "docs/agents"
                 },
                 {
                   "score": 0.8233,
-                  "kind": "commit",
-                  "unit": "fix(adr-0056): drop accidentally committed maintainer run artifacts (ADR-0038 D2 clone purity)"
-                },
-                {
-                  "score": 0.8224,
-                  "kind": "pkg",
-                  "unit": "Prompt-as-mental-model skill distribution for second-party agents"
+                  "kind": "path",
+                  "unit": "private"
                 }
               ]
             }
           ],
-          "mean": 0.8558
+          "mean": 0.8569
         },
         "anysearch-cli": {
-          "n_delivery": 230,
+          "n_delivery": 241,
           "rows": [
             {
               "sid": "anysearch-cli#S1",
               "text": "anysearch-cli",
               "source": "readme:h1",
-              "max": 0.9489,
+              "max": 0.9509,
               "top3": [
                 {
-                  "score": 0.9489,
+                  "score": 0.9509,
                   "kind": "pkg",
                   "unit": "anysearch-cli"
                 },
                 {
-                  "score": 0.8619,
+                  "score": 0.8575,
                   "kind": "path",
                   "unit": "apps/cli"
                 },
                 {
-                  "score": 0.842,
+                  "score": 0.8387,
                   "kind": "commit",
                   "unit": "feat: G008 AnySearch provider adapter (REST API)"
                 }
@@ -1988,20 +1988,20 @@
               "sid": "anysearch-cli#S2",
               "text": "**Kernel** (`packages/kernel`): Retroaererd Engine — bounded budget, sufficiency gate, RRF fusion",
               "source": "readme:bullet",
-              "max": 0.8918,
+              "max": 0.89,
               "top3": [
                 {
-                  "score": 0.8918,
+                  "score": 0.89,
                   "kind": "path",
                   "unit": "packages/kernel"
                 },
                 {
-                  "score": 0.8709,
+                  "score": 0.8674,
                   "kind": "commit",
                   "unit": "refactor(kernel): drop llm-init provider env fallback (ADR-0038 step 7; provider auth stays in pi-ai; r94-deferred hygiene)"
                 },
                 {
-                  "score": 0.8677,
+                  "score": 0.8674,
                   "kind": "commit",
                   "unit": "feat: G009 Retroaererd Engine — fanout + RRF + sufficiency gate"
                 }
@@ -2011,20 +2011,20 @@
               "sid": "anysearch-cli#S3",
               "text": "**Retriever** (`packages/retriever`): provider contracts (exa/tavily/anysearch) + RRF pure function",
               "source": "readme:bullet",
-              "max": 0.9023,
+              "max": 0.9018,
               "top3": [
                 {
-                  "score": 0.9023,
+                  "score": 0.9018,
                   "kind": "path",
                   "unit": "packages/retriever"
                 },
                 {
-                  "score": 0.8705,
-                  "kind": "pkg",
-                  "unit": "anysearch-cli"
+                  "score": 0.8684,
+                  "kind": "commit",
+                  "unit": "docs(adr): ADR-0045 Implementation Notes r118 + audit-checklist r45 fixer boxes ticked + found/fixed/deferred triplet"
                 },
                 {
-                  "score": 0.8661,
+                  "score": 0.8663,
                   "kind": "commit",
                   "unit": "feat: G008 AnySearch provider adapter (REST API)"
                 }
@@ -2034,20 +2034,20 @@
               "sid": "anysearch-cli#S4",
               "text": "**MCP server** (`apps/mcp`): 5 MCP tools (search_web, research_web, recall_memory, query_knowledge, ans_chat)",
               "source": "readme:bullet",
-              "max": 0.9059,
+              "max": 0.9073,
               "top3": [
                 {
-                  "score": 0.9059,
+                  "score": 0.9073,
                   "kind": "path",
                   "unit": "apps/mcp"
                 },
                 {
-                  "score": 0.8893,
+                  "score": 0.8869,
                   "kind": "path",
                   "unit": "apps/plugin"
                 },
                 {
-                  "score": 0.8792,
+                  "score": 0.8811,
                   "kind": "path",
                   "unit": "apps/cli"
                 }
@@ -2057,22 +2057,22 @@
               "sid": "anysearch-cli#S5",
               "text": "**CLI** (`apps/cli`): entry point, `ans` command, composition root forwarder",
               "source": "readme:bullet",
-              "max": 0.9051,
+              "max": 0.9039,
               "top3": [
                 {
-                  "score": 0.9051,
+                  "score": 0.9039,
                   "kind": "path",
                   "unit": "apps/cli"
                 },
                 {
-                  "score": 0.8777,
+                  "score": 0.8779,
                   "kind": "commit",
                   "unit": "feat(G010): CLI composition root — 8 commands, CJS build, process liveness verified"
                 },
                 {
-                  "score": 0.8731,
-                  "kind": "pkg",
-                  "unit": "anysearch-cli"
+                  "score": 0.8746,
+                  "kind": "path",
+                  "unit": "apps/mcp"
                 }
               ]
             }
@@ -2122,79 +2122,79 @@
           {
             "label": "W1",
             "from": "2026-09-09T21:58:08+08:00",
-            "to": "2026-09-11T14:17:24+08:00",
-            "n": 31,
-            "align": 0.8298
+            "to": "2026-09-12T10:23:27+08:00",
+            "n": 32,
+            "align": 0.8284
           },
           {
             "label": "W2",
-            "from": "2026-08-30T01:36:08+08:00",
+            "from": "2026-08-30T04:07:32+08:00",
             "to": "2026-09-09T21:58:08+08:00",
-            "n": 31,
-            "align": 0.8319
+            "n": 32,
+            "align": 0.8289
           },
           {
             "label": "W3",
-            "from": "2026-08-28T18:07:47+08:00",
-            "to": "2026-08-30T00:43:09+08:00",
-            "n": 31,
-            "align": 0.837
+            "from": "2026-08-28T18:33:04+08:00",
+            "to": "2026-08-30T03:50:22+08:00",
+            "n": 32,
+            "align": 0.8348
           },
           {
             "label": "W4",
-            "from": "2026-08-25T00:56:15+08:00",
-            "to": "2026-08-28T15:54:29+08:00",
-            "n": 31,
-            "align": 0.8303
+            "from": "2026-08-25T03:40:06+08:00",
+            "to": "2026-08-28T18:07:48+08:00",
+            "n": 32,
+            "align": 0.8289
           },
           {
             "label": "W5",
             "from": "2026-08-22T23:32:18+08:00",
-            "to": "2026-08-24T03:20:17+08:00",
-            "n": 30,
-            "align": 0.8484
+            "to": "2026-08-25T00:56:15+08:00",
+            "n": 31,
+            "align": 0.8483
           }
         ],
         "anysearch-cli": [
           {
             "label": "W1",
-            "from": "2026-09-02T21:04:34+08:00",
-            "to": "2026-09-11T23:52:56+08:00",
-            "n": 39,
-            "align": 0.8463
+            "from": "2026-09-05T20:35:51+08:00",
+            "to": "2026-09-12T10:05:06+08:00",
+            "n": 41,
+            "align": 0.8456
           },
           {
             "label": "W2",
-            "from": "2026-08-29T10:41:27+08:00",
-            "to": "2026-09-02T08:50:58+08:00",
-            "n": 39,
-            "align": 0.8528
+            "from": "2026-08-29T23:54:47+08:00",
+            "to": "2026-09-05T12:25:39+08:00",
+            "n": 41,
+            "align": 0.8513
           },
           {
             "label": "W3",
-            "from": "2026-08-24T12:18:50+08:00",
-            "to": "2026-08-29T07:03:07+08:00",
-            "n": 39,
-            "align": 0.8578
+            "from": "2026-08-26T00:31:13+08:00",
+            "to": "2026-08-29T20:16:34+08:00",
+            "n": 41,
+            "align": 0.8551
           },
           {
             "label": "W4",
-            "from": "2026-08-19T18:26:23+08:00",
-            "to": "2026-08-23T17:30:33+08:00",
-            "n": 39,
-            "align": 0.8442
+            "from": "2026-08-20T00:14:32+08:00",
+            "to": "2026-08-26T00:29:03+08:00",
+            "n": 41,
+            "align": 0.8477
           },
           {
             "label": "W5",
             "from": "2026-08-18T15:39:54+08:00",
-            "to": "2026-08-19T18:20:14+08:00",
-            "n": 35,
+            "to": "2026-08-19T22:08:31+08:00",
+            "n": 37,
             "align": 0.8681
           }
         ]
       },
-      "pos_mean": 0.8786,
-      "neg_mean": 0.8534,
+      "pos_mean": 0.879,
+      "neg_mean": 0.8536,
       "calibration": {
         "n_pos": 15,
         "n_neg": 30,
@@ -2393,14 +2393,14 @@
           },
           {
             "theta": 0.85,
-            "tp": 10,
+            "tp": 11,
             "fp": 15,
             "tn": 15,
-            "fn": 5,
-            "precision": 0.4,
-            "recall": 0.6667,
-            "f1": 0.5,
-            "tpr": 0.6667,
+            "fn": 4,
+            "precision": 0.4231,
+            "recall": 0.7333,
+            "f1": 0.5366,
+            "tpr": 0.7333,
             "fpr": 0.5
           },
           {
@@ -2417,28 +2417,28 @@
           },
           {
             "theta": 0.95,
-            "tp": 0,
+            "tp": 1,
             "fp": 0,
             "tn": 30,
-            "fn": 15,
-            "precision": 0,
-            "recall": 0,
-            "f1": 0,
-            "tpr": 0,
+            "fn": 14,
+            "precision": 1,
+            "recall": 0.0667,
+            "f1": 0.125,
+            "tpr": 0.0667,
             "fpr": 0
           }
         ],
         "best_f1": {
-          "theta": 0.05,
-          "tp": 15,
-          "fp": 30,
-          "tn": 0,
-          "fn": 0,
-          "precision": 0.3333,
-          "recall": 1,
-          "f1": 0.5,
-          "tpr": 1,
-          "fpr": 1
+          "theta": 0.85,
+          "tp": 11,
+          "fp": 15,
+          "tn": 15,
+          "fn": 4,
+          "precision": 0.4231,
+          "recall": 0.7333,
+          "f1": 0.5366,
+          "tpr": 0.7333,
+          "fpr": 0.5
         },
         "best_youden": {
           "theta": 0.9,

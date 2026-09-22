@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "scanned_at": "2026-09-16T12:27:50.809Z",
+  "scanned_at": "2026-09-22T02:53:07.876Z",
   "scanner": "02-adr-header-scan.mjs",
   "detection_rules": {
     "date_keys": [
@@ -102,7 +102,7 @@
         },
         {
           "path": "docs/adr/0008-agent-plugin-five-layer-box.md",
-          "size_bytes": 960,
+          "size_bytes": 1403,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -110,7 +110,7 @@
         },
         {
           "path": "docs/adr/0009-intake-local-first-url-optin.md",
-          "size_bytes": 1020,
+          "size_bytes": 1165,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -158,7 +158,7 @@
         },
         {
           "path": "docs/adr/0015-serial-calibration-measurement-validity-first.md",
-          "size_bytes": 1939,
+          "size_bytes": 2118,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -737,7 +737,7 @@
         },
         {
           "path": "docs/adr/0047-impact-tiered-instrument-change-control.md",
-          "size_bytes": 7333,
+          "size_bytes": 7824,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -825,7 +825,7 @@
         },
         {
           "path": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
-          "size_bytes": 25411,
+          "size_bytes": 25669,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -873,7 +873,7 @@
         },
         {
           "path": "docs/adr/0064-t6-product-round-pre-registration-mde-gates-and-governance-trend-anchor.md",
-          "size_bytes": 9367,
+          "size_bytes": 9588,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -897,7 +897,7 @@
         },
         {
           "path": "docs/adr/0067-devin-corpus-v1-oot-falsification-adjudication.md",
-          "size_bytes": 8405,
+          "size_bytes": 9411,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -921,7 +921,7 @@
         },
         {
           "path": "docs/adr/0070-hook-side-conviction-lane-pairer-shadow-wiring-promotion-gate.md",
-          "size_bytes": 14061,
+          "size_bytes": 17272,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -929,7 +929,79 @@
         },
         {
           "path": "docs/adr/0071-tarball-cap-trend-anchor-amendment-t10-conviction-lane-surface.md",
-          "size_bytes": 3238,
+          "size_bytes": 3275,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0072-readiness-verdict-remeasurement-preregistration-bake-protocol-critique-dispositions.md",
+          "size_bytes": 15186,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0073-provenance-tiered-corpus-g1-organic-amendment-audit-carryover-bake-stewardship.md",
+          "size_bytes": 15314,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0074-sanitized-history-publish-rewrite-map-reverification-preregistration-independence-grade.md",
+          "size_bytes": 15452,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0075-promotion-review-preregistration-nm-sufficiency-intent-taxonomy-sunset-trigger.md",
+          "size_bytes": 16691,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0076-round-edit-surface-taxonomy-and-governance-carve-out.md",
+          "size_bytes": 11826,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0077-verifier-exit-convention-mechanism-outputs-and-facts-canon.md",
+          "size_bytes": 13921,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0078-fix-round-disclosure-taxonomy.md",
+          "size_bytes": 4617,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0079-bilingual-readme-mirror-convention.md",
+          "size_bytes": 6163,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0080-readme-star-r3-predicate-and-taxonomy-reclassification-channel.md",
+          "size_bytes": 7173,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -937,11 +1009,11 @@
         }
       ],
       "counts": {
-        "total": 71,
+        "total": 80,
         "full_header": 0,
         "partial_header": 0,
         "metadata_only": 0,
-        "no_header": 71,
+        "no_header": 80,
         "unknown": 0
       }
     },
@@ -1402,7 +1474,7 @@
         },
         {
           "path": "docs/adr/0057-architecture-grill-round-57-test-truthfulness-ci-credibility.md",
-          "size_bytes": 18366,
+          "size_bytes": 18515,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -1474,7 +1546,95 @@
         },
         {
           "path": "docs/adr/0066-architecture-grill-round-65-real-host-deployment-codebuddy-hooks-contract.md",
-          "size_bytes": 9281,
+          "size_bytes": 9353,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0067-architecture-grill-round-66-claude-code-host-contract-release-channel.md",
+          "size_bytes": 8276,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0068-architecture-grill-round-67-codex-01425-host-contract-envelope.md",
+          "size_bytes": 7809,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0069-architecture-grill-round-68-release-gate-dual-layer-closeout-lint.md",
+          "size_bytes": 6940,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0070-architecture-grill-round-69-github-facade-bilingual-readme.md",
+          "size_bytes": 7606,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0071-architecture-grill-round-70-verification-timing-hardening.md",
+          "size_bytes": 9120,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0072-architecture-grill-round-71-first-release-path-governance-embedding-reachability.md",
+          "size_bytes": 9892,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0073-architecture-grill-round-72-deepseek-harness-host-adaptation.md",
+          "size_bytes": 7129,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0074-architecture-grill-round-73-dsh-upstream-family-pinning-and-stack-landing.md",
+          "size_bytes": 8411,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0075-architecture-grill-round-74-readme-visual-layer-antigravity-integration.md",
+          "size_bytes": 6094,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/0076-architecture-grill-round-75-transformers-ghost-dep-judgement.md",
+          "size_bytes": 7136,
+          "has_frontmatter": false,
+          "classification": "no_header",
+          "header_date": null,
+          "header_keys": []
+        },
+        {
+          "path": "docs/adr/index.md",
+          "size_bytes": 12399,
           "has_frontmatter": false,
           "classification": "no_header",
           "header_date": null,
@@ -1482,21 +1642,21 @@
         }
       ],
       "counts": {
-        "total": 66,
+        "total": 77,
         "full_header": 0,
         "partial_header": 0,
         "metadata_only": 0,
-        "no_header": 66,
+        "no_header": 77,
         "unknown": 0
       }
     }
   ],
   "aggregate": {
-    "total_adrs_scanned": 172,
+    "total_adrs_scanned": 192,
     "full_header": 1,
     "partial_header": 0,
     "metadata_only": 0,
-    "no_header": 171,
+    "no_header": 191,
     "unknown": 0
   }
 }

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-12T02:32:44.138Z",
+  "generated_at": "2026-09-22T02:52:55.184Z",
   "scanner": "02-adr-fallback.mjs",
   "strategy": "git log --follow --format=%aI --reverse — first commit author date on file path",
   "per_repo": [
@@ -11,89 +11,243 @@
         {
           "path": "docs/adr/0001-five-scale-scope.md",
           "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": null,
-          "first_commit_sha": null,
-          "first_commit_author": null,
-          "first_commit_error": "no commits",
-          "delta_days": null
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "3a049d45133e7ba96152397f659068e9efbf663b",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
         },
         {
           "path": "docs/adr/0002-no-mvp-slice.md",
           "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": null,
-          "first_commit_sha": null,
-          "first_commit_author": null,
-          "first_commit_error": "no commits",
-          "delta_days": null
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "3a049d45133e7ba96152397f659068e9efbf663b",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
         },
         {
           "path": "docs/adr/0003-boundary-product-and-usage.md",
           "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": null,
-          "first_commit_sha": null,
-          "first_commit_author": null,
-          "first_commit_error": "no commits",
-          "delta_days": null
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "3a049d45133e7ba96152397f659068e9efbf663b",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
         },
         {
           "path": "docs/adr/0004-strategic-quadrant-five-dims.md",
           "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": null,
-          "first_commit_sha": null,
-          "first_commit_author": null,
-          "first_commit_error": "no commits",
-          "delta_days": null
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "3a049d45133e7ba96152397f659068e9efbf663b",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
         },
         {
           "path": "docs/adr/0005-hub-of-facts-with-federated-adjudication.md",
           "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": null,
-          "first_commit_sha": null,
-          "first_commit_author": null,
-          "first_commit_error": "no commits",
-          "delta_days": null
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "3a049d45133e7ba96152397f659068e9efbf663b",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
         },
         {
           "path": "docs/adr/0006-shared-skeleton-scale-slice.md",
           "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": null,
-          "first_commit_sha": null,
-          "first_commit_author": null,
-          "first_commit_error": "no commits",
-          "delta_days": null
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "3a049d45133e7ba96152397f659068e9efbf663b",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
         },
         {
           "path": "docs/adr/0007-ten-demo-paths.md",
           "header_date": null,
-          "inline_date": null,
-          "decision_date": null,
-          "first_commit_date": null,
-          "first_commit_sha": null,
-          "first_commit_author": null,
-          "first_commit_error": "no commits",
-          "delta_days": null
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "3a049d45133e7ba96152397f659068e9efbf663b",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0008-agent-plugin-five-layer-box.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "c9bd0ce591d11a478972721f20efee6aa3b8541e",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0009-intake-local-first-url-optin.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "c9bd0ce591d11a478972721f20efee6aa3b8541e",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0010-spec-repo-and-engineering-repo-split.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "f6ddd385f9548a269eb95f499631f05294f7d67e",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0011-single-repo-subdir-but-branches.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "880fcc6a73c8227e41a49262eae4895d067cc918",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0012-value-validation-loop-first.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-13",
+          "first_commit_sha": "ac03dda8cc2ea498fa06b07c0e068642125c55a7",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 1
+        },
+        {
+          "path": "docs/adr/0013-three-layer-acceptance-gates.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-13",
+          "first_commit_sha": "ac03dda8cc2ea498fa06b07c0e068642125c55a7",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 1
+        },
+        {
+          "path": "docs/adr/0014-upstream-integration-dual-track.md",
+          "header_date": null,
+          "inline_date": "2026-09-14",
+          "decision_date": "2026-09-14",
+          "first_commit_date": "2026-09-14",
+          "first_commit_sha": "011dbf5b8aadc9a7682f2aeb5ed1c7947a0c61c4",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0015-serial-calibration-measurement-validity-first.md",
+          "header_date": null,
+          "inline_date": "2026-09-15",
+          "decision_date": "2026-09-15",
+          "first_commit_date": "2026-09-15",
+          "first_commit_sha": "da009fc582269b80f65b1f2ae6032359135edf8e",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0016-distribution-channel-agent-plugins-only.md",
+          "header_date": null,
+          "inline_date": "2026-09-15",
+          "decision_date": "2026-09-15",
+          "first_commit_date": "2026-09-15",
+          "first_commit_sha": "da009fc582269b80f65b1f2ae6032359135edf8e",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0017-preview-release-model.md",
+          "header_date": null,
+          "inline_date": "2026-09-15",
+          "decision_date": "2026-09-15",
+          "first_commit_date": "2026-09-15",
+          "first_commit_sha": "84f571a6d25f69f326c9706ed9f1fb8dd9fde772",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0018-versioning-and-chronicle-discipline.md",
+          "header_date": null,
+          "inline_date": "2026-09-15",
+          "decision_date": "2026-09-15",
+          "first_commit_date": "2026-09-16",
+          "first_commit_sha": "655d8c98c4d273095f88bb7162bc8a990e1b7e54",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 1
+        },
+        {
+          "path": "docs/adr/0019-multiwriter-adjudication-swmr-facade.md",
+          "header_date": null,
+          "inline_date": "2026-09-16",
+          "decision_date": "2026-09-16",
+          "first_commit_date": "2026-09-16",
+          "first_commit_sha": "5dca40df6759eaec9cc5f4f2a948bae8488760c3",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0020-hosted-platform-api-adapter.md",
+          "header_date": null,
+          "inline_date": "2026-09-16",
+          "decision_date": "2026-09-16",
+          "first_commit_date": "2026-09-16",
+          "first_commit_sha": "28b4067049db4eab4b3dd4a07398d507b9c37609",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0021-outbound-license-apache-2-no-copyleft-vendoring.md",
+          "header_date": null,
+          "inline_date": "2026-09-16",
+          "decision_date": "2026-09-16",
+          "first_commit_date": "2026-09-16",
+          "first_commit_sha": "28b4067049db4eab4b3dd4a07398d507b9c37609",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
         }
       ],
-      "head_commit": "2026-09-12T09:05:22+08:00",
+      "head_commit": "2026-09-22T10:23:43+08:00",
       "counts": {
-        "total": 7,
+        "total": 21,
         "header_date": 0,
-        "inline_date": 0,
-        "no_date": 7,
-        "first_commit_ok": 0,
-        "first_commit_failed": 7
+        "inline_date": 21,
+        "no_date": 0,
+        "first_commit_ok": 21,
+        "first_commit_failed": 0
       }
     },
     {
@@ -255,7 +409,7 @@
           "delta_days": 0
         }
       ],
-      "head_commit": "2026-09-10T12:47:28+08:00",
+      "head_commit": "2026-09-15T01:58:42+08:00",
       "counts": {
         "total": 14,
         "header_date": 1,
@@ -906,15 +1060,158 @@
           "first_commit_author": "Euiop1",
           "first_commit_error": null,
           "delta_days": 563
+        },
+        {
+          "path": "docs/adr/0059-external-critique-dialectic-closure-distribution-honesty-and-governance-posture.md",
+          "header_date": null,
+          "inline_date": "2019-07-31",
+          "decision_date": "2019-07-31",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "85775a6236484d531a9ee15ceaba67f33c3f89a4",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 2600
+        },
+        {
+          "path": "docs/adr/0060-judge-conformity-sampling-power-indeterminate-state-and-conditional-certification.md",
+          "header_date": null,
+          "inline_date": "2026-08-29",
+          "decision_date": "2026-08-29",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "4bbdc81df286845d14bea2bc1f69dad77b086cca",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 14
+        },
+        {
+          "path": "docs/adr/0061-pre-registered-gate-amendment-closure-surface-narrowed-judge-identity-and-output-tethered-convergence.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-13",
+          "first_commit_sha": "031a3a747c9b05463c87bc0587d331baf2de3e53",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 1
+        },
+        {
+          "path": "docs/adr/0062-pre-registered-tarball-cap-amendment-policy-before-value-trend-anchor.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-13",
+          "first_commit_sha": "12f31bd465ae91f066cadc2d23fd410f925adef3",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 1
+        },
+        {
+          "path": "docs/adr/0063-surface-narrowed-judge-identity-anchor-semantic-digest-rejected.md",
+          "header_date": null,
+          "inline_date": "2026-09-13",
+          "decision_date": "2026-09-13",
+          "first_commit_date": "2026-09-13",
+          "first_commit_sha": "01c113899f397202162ae4b96ad07ee64ed6fce8",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0064-t6-product-round-pre-registration-mde-gates-and-governance-trend-anchor.md",
+          "header_date": null,
+          "inline_date": "2026-09-14",
+          "decision_date": "2026-09-14",
+          "first_commit_date": "2026-09-14",
+          "first_commit_sha": "b7ccbebec303ea3fa5d665afa5dc03c7589401e7",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0065-t6-confirmatory-round-adjudication-port-surface-devin-corpus-and-claim-honesty.md",
+          "header_date": null,
+          "inline_date": "2026-09-14",
+          "decision_date": "2026-09-14",
+          "first_commit_date": "2026-09-14",
+          "first_commit_sha": "bea9aafe5d8142e118c85e389d17ed8feb19687d",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0066-tarball-cap-trend-anchor-amendment-t6-product-port-surface.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-15",
+          "first_commit_sha": "4c106b685a3e25a64973b3a6ffe827fabbb241b6",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 3
+        },
+        {
+          "path": "docs/adr/0067-devin-corpus-v1-oot-falsification-adjudication.md",
+          "header_date": null,
+          "inline_date": "2026-09-15",
+          "decision_date": "2026-09-15",
+          "first_commit_date": "2026-09-15",
+          "first_commit_sha": "c90ca86eef9f106e0b543deb95f194d82315a98c",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0068-devin-corpus-v2-dual-axis-adjudication-collection-protocol-claim-slot-v3-binding.md",
+          "header_date": null,
+          "inline_date": "2026-09-15",
+          "decision_date": "2026-09-15",
+          "first_commit_date": "2026-09-15",
+          "first_commit_sha": "14855514331471d5363ada573e7c68f656467cfa",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0069-capa-claim-evidence-pairer-artifact-freeze-adjudication-anchor-readiness-positioning.md",
+          "header_date": null,
+          "inline_date": "2026-09-16",
+          "decision_date": "2026-09-16",
+          "first_commit_date": "2026-09-16",
+          "first_commit_sha": "b985f51ebaabb315159d31335d2442fb1c83e25d",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0070-hook-side-conviction-lane-pairer-shadow-wiring-promotion-gate.md",
+          "header_date": null,
+          "inline_date": "2026-09-16",
+          "decision_date": "2026-09-16",
+          "first_commit_date": "2026-09-16",
+          "first_commit_sha": "c9897f3f045895fd588614f9b5fbd9dcb3522890",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0071-tarball-cap-trend-anchor-amendment-t10-conviction-lane-surface.md",
+          "header_date": null,
+          "inline_date": "2026-09-16",
+          "decision_date": "2026-09-16",
+          "first_commit_date": "2026-09-16",
+          "first_commit_sha": "78e902daa20218bfc23e9dc9f90687e3098967a8",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
         }
       ],
-      "head_commit": "2026-09-12T10:23:27+08:00",
+      "head_commit": "2026-09-22T01:21:21+08:00",
       "counts": {
-        "total": 58,
+        "total": 71,
         "header_date": 0,
-        "inline_date": 48,
+        "inline_date": 61,
         "no_date": 10,
-        "first_commit_ok": 58,
+        "first_commit_ok": 71,
         "first_commit_failed": 0
       }
     },
@@ -1539,37 +1836,138 @@
           "delta_days": null
         },
         {
+          "path": "docs/adr/0057-architecture-grill-round-57-test-truthfulness-ci-credibility.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "a76598d90361717e197387cf103509d48061dd4e",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
           "path": "docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md",
           "header_date": null,
           "inline_date": "2025-02-26",
           "decision_date": "2025-02-26",
-          "first_commit_date": null,
-          "first_commit_sha": null,
-          "first_commit_author": null,
-          "first_commit_error": "no commits",
+          "first_commit_date": "2026-09-13",
+          "first_commit_sha": "5d760fbd9c52cab1ea68e69b1848fb8ff4f435f4",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 564
+        },
+        {
+          "path": "docs/adr/0059-architecture-grill-round-58-ci-shipgate-full-green-closure-multiticket.md",
+          "header_date": null,
+          "inline_date": "2026-09-12",
+          "decision_date": "2026-09-12",
+          "first_commit_date": "2026-09-12",
+          "first_commit_sha": "9d87c5744e9120397c9938c9e1799b7db9d387a0",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0060-architecture-grill-round-59-archive-truthfulness-closure.md",
+          "header_date": null,
+          "inline_date": "2026-09-13",
+          "decision_date": "2026-09-13",
+          "first_commit_date": "2026-09-13",
+          "first_commit_sha": "89323df849fa16afb77a2bd8518b6812ea7228d2",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 0
+        },
+        {
+          "path": "docs/adr/0061-architecture-grill-round-60-product-vertical-domain-closure.md",
+          "header_date": null,
+          "inline_date": "2026-08-21",
+          "decision_date": "2026-08-21",
+          "first_commit_date": "2026-09-14",
+          "first_commit_sha": "f27be745ccc7c7e698aac8f32709577913c64b27",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 24
+        },
+        {
+          "path": "docs/adr/0062-architecture-grill-round-61-out-of-domain-abstain-closure-readme.md",
+          "header_date": null,
+          "inline_date": null,
+          "decision_date": null,
+          "first_commit_date": "2026-09-14",
+          "first_commit_sha": "f130f3c0d0b1502a8d2af41ed8b50e29fe89e37c",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": null
+        },
+        {
+          "path": "docs/adr/0063-architecture-grill-round-62-real-usability-closure.md",
+          "header_date": null,
+          "inline_date": null,
+          "decision_date": null,
+          "first_commit_date": "2026-09-15",
+          "first_commit_sha": "47fc5df75090c3b27b93937954bd271bc7edb33e",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": null
+        },
+        {
+          "path": "docs/adr/0064-architecture-grill-round-63-npm-001-go-no-go-release-adjudication.md",
+          "header_date": null,
+          "inline_date": "2026-10-14",
+          "decision_date": "2026-10-14",
+          "first_commit_date": "2026-09-15",
+          "first_commit_sha": "ec1715c681fb63b342064a0098efc155a886b1d1",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": -29
+        },
+        {
+          "path": "docs/adr/0065-architecture-grill-round-64-quarantine-ttl-adjudication-assertion-granularity.md",
+          "header_date": null,
+          "inline_date": "2024-11-05",
+          "decision_date": "2024-11-05",
+          "first_commit_date": "2026-09-16",
+          "first_commit_sha": "85f2c4aedc303725304d205ee33d7950cc6665f7",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
+          "delta_days": 680
+        },
+        {
+          "path": "docs/adr/0066-architecture-grill-round-65-real-host-deployment-codebuddy-hooks-contract.md",
+          "header_date": null,
+          "inline_date": null,
+          "decision_date": null,
+          "first_commit_date": "2026-09-16",
+          "first_commit_sha": "36926f367dec77f7a1b850def46b4dc05b2d0d86",
+          "first_commit_author": "Euiop1",
+          "first_commit_error": null,
           "delta_days": null
         }
       ],
-      "head_commit": "2026-09-12T09:07:38+08:00",
+      "head_commit": "2026-09-22T10:14:32+08:00",
       "counts": {
-        "total": 57,
+        "total": 66,
         "header_date": 0,
-        "inline_date": 39,
-        "no_date": 18,
-        "first_commit_ok": 56,
-        "first_commit_failed": 1
+        "inline_date": 45,
+        "no_date": 21,
+        "first_commit_ok": 66,
+        "first_commit_failed": 0
       }
     }
   ],
   "precision": {
-    "total_with_header_or_inline_date": 98,
-    "with_first_commit_date": 128,
-    "matched": 97,
+    "total_with_header_or_inline_date": 138,
+    "with_first_commit_date": 172,
+    "matched": 138,
     "delta_distribution_days": {
-      "0": 67,
-      "1": 7,
+      "0": 96,
+      "1": 12,
+      "3": 1,
       "7": 1,
-      "24": 1,
+      "14": 1,
+      "24": 2,
       "26": 1,
       "47": 1,
       "55": 1,
@@ -1584,27 +1982,31 @@
       "331": 1,
       "562": 2,
       "563": 1,
+      "564": 1,
       "587": 1,
+      "680": 1,
+      "2600": 1,
       "-372": 1,
       "-1": 2,
-      "-2": 1
+      "-2": 1,
+      "-29": 1
     },
     "abs_delta": {
-      "n": 97,
+      "n": 138,
       "min": 0,
       "median": 0,
-      "p90": 269,
-      "max": 587,
-      "mean": 50.8
+      "p90": 174,
+      "max": 2600,
+      "mean": 64.1
     },
     "abs_delta_buckets": {
-      "0d": 67,
-      "1-7d": 11,
-      "8-30d": 2,
+      "0d": 96,
+      "1-7d": 17,
+      "8-30d": 5,
       "31-90d": 3,
       "91-180d": 4,
       "181-365d": 5,
-      ">365d": 5
+      ">365d": 8
     }
   }
 }

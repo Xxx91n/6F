@@ -1,7 +1,7 @@
-# MA-38-ANYSEARCH-MACRO-C-PREVIEW-degraded — Macro-C 首报（anysearch-cli@8314a3c92b4c）
-> RECEIPT RCP-3f36923d0363b57a chain=3f36923d0363b57a4898e4a8529a9ffc content=64e69b52615258f4 facts=0 adjudications=6 issued_at=2026-09-16T03:03:27+08:00 commit=8314a3c92b4c6f15332e08f3d225cf96675241e3 tree=9a94be447b55 ⚠ unverified
+# MA-38-ANYSEARCH-MACRO-C-PREVIEW-degraded — Macro-C 首报（anysearch-cli@b45d07992d9c）
+> RECEIPT RCP-d8a4a77d8ee2d0b9 chain=d8a4a77d8ee2d0b9731e06300d48be9f content=df3f37dde68fd7e5 facts=0 adjudications=6 issued_at=2026-09-22T10:31:10+08:00 commit=b45d07992d9c2ee9d01c7b7f176e2fb7c7978dd6 tree=02fc9dea1ec4 ⚠ unverified
 >
-> 骨架 1.1.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-09-16T03:03:27+08:00
+> 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-09-22T10:31:10+08:00
 >
 > 降级产出：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest ⚠ unverified
 >
@@ -14,17 +14,17 @@
 ## C1 执行摘要
 
 - report_id: MA-38-ANYSEARCH-MACRO-C-PREVIEW-degraded
-- schema_version: 1.1.0
+- schema_version: 1.2.0
 - scale: Macro-C
-- subject_ref: anysearch-cli@8314a3c92b4c
-- generated_at: 2026-09-16T03:03:27+08:00
-- correlation_key: trace_id=54c76f7e01aeefe00547b7f727f9c453 baggage_id=912174d36772d689bd07179a8f4fc874
+- subject_ref: anysearch-cli@b45d07992d9c
+- generated_at: 2026-09-22T10:31:10+08:00
+- correlation_key: trace_id=ca2009f0696c43be0a8e52619c2b6d6b baggage_id=a6de0fd562d76108022996f097a78312
 - overall_verdict: insufficient
 - confidence: 0
-- headline: anysearch-cli Macro-C preview（capability 2 of 5）：全链实跑——codelore 30/30 面 + ADR 65 份（v2 回退链解析日期 65）+ supersede 引用网 8 边零断链零缺回链 + lag 可判定 65；S4 深检面 llm_gated → 综合裁定 insufficient（preview 诚实部分裁定，非管线失败）；共享事实库已证（Macro-B 228 + Macro-C 1012 同库）→ mw-trigger-b 触发登记。
+- headline: anysearch-cli Macro-C preview（capability 2 of 5）：全链实跑——codelore 30/30 面 + ADR 65 份（v2 回退链解析日期 76）+ supersede 引用网 8 边零断链零缺回链 + lag 可判定 76；S4 深检面 llm_gated → 综合裁定 insufficient（preview 诚实部分裁定，非管线失败）；共享事实库已证（Macro-B 228 + Macro-C 1177 同库）→ mw-trigger-b 触发登记。
 - degraded_mode: true
 - stale_data_marker: unknown（SLA 5s / 实测延迟 0s）
-- read_model_version: 1.1.0 · fact_watermark_version: 1
+- read_model_version: 1.2.0 · fact_watermark_version: 1
 - top_findings: EV-38-01, EV-38-04, EV-38-05, EV-38-07
 - fact_ids: 0 条（清单见侧车 JSON）
 
@@ -33,34 +33,34 @@
 ### strategy（applicability=native）
 - verdict: insufficient · score: n/a · confidence: 0
 - dimensions: S2, S4
-- slice_fields: {"adr_count":65,"supersede_edges":8,"supersede_unresolved":0,"supersede_missing_backrefs":0,"lag_judgeable_n":65,"adr_date_resolvable":65,"llm_gate":"closed"}
+- slice_fields: {"adr_count":76,"supersede_edges":8,"supersede_unresolved":0,"supersede_missing_backrefs":0,"lag_judgeable_n":76,"adr_date_resolvable":76,"llm_gate":"closed"}
 - conflict_markers: single-repo-calibration, degraded
-- verdict_gate: ADR-0013-C/v1 / insufficient / threshold_met=false / decided_at=2026-09-16T03:03:27+08:00 / audit_ref=reports/38-macro-c-preview.mjs
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-09-22T10:31:10+08:00 / audit_ref=reports/38-macro-c-preview.mjs
 
 ### structure（applicability=derived）
 - verdict: insufficient · score: n/a · confidence: 0
 - dimensions: S3
-- slice_fields: {"god_classes_rows":7,"architecture_metrics_rows":18,"dependency_cycles_rows":0,"modularity_violations_rows":73,"instability_rows":269,"architecture_roles_rows":269}
+- slice_fields: {"god_classes_rows":8,"architecture_metrics_rows":18,"dependency_cycles_rows":0,"modularity_violations_rows":82,"instability_rows":325,"architecture_roles_rows":325}
 - conflict_markers: preview-derived-observation-only, degraded
-- verdict_gate: ADR-0013-C/v1 / insufficient / threshold_met=false / decided_at=2026-09-16T03:03:27+08:00 / audit_ref=reports/38-macro-c-preview.mjs
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-09-22T10:31:10+08:00 / audit_ref=reports/38-macro-c-preview.mjs
 
 ### behavior（applicability=derived）
 - verdict: insufficient · score: n/a · confidence: 0
 - dimensions: S5
-- slice_fields: {"revisions_rows":83,"abs_churn_rows":29,"entity_churn_rows":83,"hotspot_velocity_rows":83,"code_age_rows":83,"lead_time_rows":313,"release_cadence_rows":3,"ownership_rows":83,"bus_factor_rows":10}
+- slice_fields: {"revisions_rows":104,"abs_churn_rows":36,"entity_churn_rows":104,"hotspot_velocity_rows":104,"code_age_rows":83,"lead_time_rows":469,"release_cadence_rows":7,"ownership_rows":104,"bus_factor_rows":11}
 - conflict_markers: preview-derived-observation-only, degraded
-- verdict_gate: ADR-0013-C/v1 / insufficient / threshold_met=false / decided_at=2026-09-16T03:03:27+08:00 / audit_ref=reports/38-macro-c-preview.mjs
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-09-22T10:31:10+08:00 / audit_ref=reports/38-macro-c-preview.mjs
 
 ### supply_chain（applicability=not_applicable）
 - verdict: insufficient · score: n/a · confidence: 0
 - dimensions: 
 - slice_fields: {}
 - conflict_markers: data-not-connected, degraded
-- verdict_gate: ADR-0013-C/v1 / insufficient / threshold_met=false / decided_at=2026-09-16T03:03:27+08:00 / audit_ref=reports/38-macro-c-preview.mjs
+- verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=2026-09-22T10:31:10+08:00 / audit_ref=reports/38-macro-c-preview.mjs
 
 #### 结构化裁决块（agent 可消费）
 - protocol_version: ADR-0013-C/v1
-- overall: insufficient · decided_at: 2026-09-16T03:03:27+08:00
+- overall: insufficient · decided_at: 2026-09-22T10:31:10+08:00
 - PC-MC-1: insufficient | basis=B1+B4 | facts=(none) | evidence=(none) | 降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest
 - PC-MC-2: insufficient | basis=B1+B4 | facts=(none) | evidence=(none) | 降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest
 - TC-MC-1: insufficient | basis=B1+B4 | facts=(none) | evidence=(none) | 降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest
@@ -68,60 +68,63 @@
 - TC-MC-3: insufficient | basis=B1+B4 | facts=(none) | evidence=(none) | 降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest
 - NC-MC-1: insufficient | basis=B1+B4 | facts=(none) | evidence=(none) | 降级：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest
 - human_adjudication: pending（裁定仍由人做，见 B5）
+#### 叙事段（宿主 agent 生成/kernel 盖章；叙事面不携带裁决 band——红线 D-053/ADR-0013）
+- [kernel-template-fallback] author=kernel-template model_id=(none) stamp=sealed grounded=0/0
+  - text: 本段为 kernel 模板叙事（degraded 兜底位 ⚠ unverified）：四象限覆盖 strategy·structure·behavior·supply_chain，逐维裁定见 C2 结构化裁决块（本段不重复断言任何判定）；证据与引文支持关系见 C3；降级原因：FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest。正式叙事归宿主 agent 经 MCP facts 只读投影取数后生成——模板叙事不替代之。
 
 ## C3 证据
 
 ### EV-38-01 — .scratch/architecture-recovery/reports/38-macro-c-measurements.json @ L68
 - claim: 本次实测：supersede 引用网 8 边（whole 1 + item 2 + amends 2 + defer 1 + 纪律样本 2）
-- grounded: false · collected_at: 2026-09-16T03:03:27+08:00
+- grounded: false · collected_at: 2026-09-22T10:31:10+08:00
 - reproduce_cmd: (absent: FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest)
 - 引文原文: （缺失 —— ⚠ unverified）
 
 ### EV-38-02 — docs/adr/0058-ci-test-job-independence-and-gate-layer-entrypoint-narrowing.md @ L3
 - claim: anysearch-cli 演化考古稀缺素材：whole-ADR supersede 事件 0058→0060 实物存在
-- grounded: false · collected_at: 2026-09-16T03:03:27+08:00
+- grounded: false · collected_at: 2026-09-22T10:31:10+08:00
 - reproduce_cmd: (absent: FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest)
 - 引文原文: （缺失 —— ⚠ unverified）
 
 ### EV-38-03 — docs/adr/0060-architecture-grill-round-59-archive-truthfulness-closure.md @ L11
 - claim: 回链实物：ADR-0060 提及 ADR-0058（supersede 回链闭合）
-- grounded: false · collected_at: 2026-09-16T03:03:27+08:00
+- grounded: false · collected_at: 2026-09-22T10:31:10+08:00
 - reproduce_cmd: (absent: FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest)
 - 引文原文: （缺失 —— ⚠ unverified）
 
 ### EV-38-04 — .scratch/architecture-recovery/reports/38-macro-c-measurements.json @ L57
 - claim: 本次实测：LLM env 门控关（CODELORE_LLM_* 未配置）→ llm_gated 降级披露
-- grounded: false · collected_at: 2026-09-16T03:03:27+08:00
+- grounded: false · collected_at: 2026-09-22T10:31:10+08:00
 - reproduce_cmd: (absent: FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest)
 - 引文原文: （缺失 —— ⚠ unverified）
 
 ### EV-38-05 — .scratch/architecture-recovery/reports/38-macro-c-measurements.json @ L19
 - claim: 本次实测：CodeLore 契约面 30/30 facet_rows（零 facet_error）
-- grounded: false · collected_at: 2026-09-16T03:03:27+08:00
+- grounded: false · collected_at: 2026-09-22T10:31:10+08:00
 - reproduce_cmd: (absent: FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest)
 - 引文原文: （缺失 —— ⚠ unverified）
 
-### EV-38-06 — .scratch/macro-audit/decision-ledger.md @ L22
+### EV-38-06 — .scratch/macro-audit/decision-ledger.md @ L89
 - claim: D-034⑤：Macro-C preview 报告强制披露「单仓校准（anysearch-cli）」结构性限制
-- grounded: false · collected_at: 2026-09-16T03:03:27+08:00
+- grounded: false · collected_at: 2026-09-22T10:31:10+08:00
 - reproduce_cmd: (absent: FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest)
 - 引文原文: （缺失 —— ⚠ unverified）
 
 ### EV-38-07 — .scratch/architecture-recovery/reports/38-macro-c-measurements.json @ L93
 - claim: 本次实测：共享事实库 38-audit-facts.duckdb 同库双 scale（Macro-B 回放 + Macro-C 追加）
-- grounded: false · collected_at: 2026-09-16T03:03:27+08:00
+- grounded: false · collected_at: 2026-09-22T10:31:10+08:00
 - reproduce_cmd: (absent: FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest)
 - 引文原文: （缺失 —— ⚠ unverified）
 
 ### EV-38-08 — .scratch/architecture-recovery/reports/38-macro-c-measurements.json @ L15
 - claim: 本次实测：ADR 决策日 vs 首提交 lag 可判定数
-- grounded: false · collected_at: 2026-09-16T03:03:27+08:00
+- grounded: false · collected_at: 2026-09-22T10:31:10+08:00
 - reproduce_cmd: (absent: FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest)
 - 引文原文: （缺失 —— ⚠ unverified）
 
 ### EV-38-09 — .scratch/architecture-recovery/reports/37-pilot-measurements.json @ L602
 - claim: 对账：37-pilot 存档 anysearch-cli supersede 边 = 8（38 复测一致性基准）
-- grounded: false · collected_at: 2026-09-16T03:03:27+08:00
+- grounded: false · collected_at: 2026-09-22T10:31:10+08:00
 - reproduce_cmd: (absent: FP-38-1 Macro-C failure 演示场景：演化面采集域返回空事实集（facet_rows=0，data doesn't show 形态）→ 主前提不可裁定，发起 GapRequest)
 - 引文原文: （缺失 —— ⚠ unverified）
 
