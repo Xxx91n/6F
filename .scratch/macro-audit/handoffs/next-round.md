@@ -43,6 +43,17 @@
 - **gitbutler**：VC 唯一写面——本轮收口文档已 commit 防丢；后续 push/merge 逐次闸门
 - **handoff**：下轮收口同规程再生
 
+## 轮26 会话进度（2026-09-22 中点，分支 r26-74-6f-rename）
+
+| T | 状态 | 证据（可复跑） |
+|---|---|---|
+| T0 守卫基线 | ✅ commit kyy | 基线 16/17→xfail-45-h5 XPASS 摘除（人工裁决注记入 stale-assertions.json meta.xpass_removal_2026_09_22）→17/17 绿 |
+| T1 #74 门面 | ✅ commit qwm | 73-check PASS 14/14（sync=c1096e8405f7）；README×2/hero/social-card/listing/engine-README/73-check 全落 |
+| T2 #76 修复 | ✅ **CI 全绿实证**（run 35677822036 六腿全过，commit zty） | 三症三修见 D-097＋④integrity 校验 win32 偏置真因（POSIX 壳 .node<1MB 真本体 .so/.dylib）——B 类实证修复；Node-20.19.5 本地 audit.test 26/26＋demo.test 38/38；Node-24 npm test 全套绿；selfheal-e2e 3/3；offline-sim 13/13；doctor-fix 6/6；64-check 15/15；dist 确定性重build哈希一致 |
+| T3~T5 #75 三批 | ⬜ 未开工 | 伸展项，本轮余力未尽 |
+
+T2 闭环：CI run 35677822036（branch push）六腿全绿——POSIX 自愈 E2E 实证修复。残口=engine-ci-main-green 事件位仍待 main 上绿跑（merge 需授权，分支绿≠事件成立）。
+
 ## 用户闸门（勿越）
 
 - push/merge：上轮已授权执行毕；本轮起新变更仍逐次授权，栈上未 push 分支按 but status 实态管理。

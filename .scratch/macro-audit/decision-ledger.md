@@ -763,3 +763,7 @@ revised 链：本轮 0 条（五轮调研全部与 current 兼容——D-031 张
 旧 85 条 current 去向在历轮收口对账节有案，无漂移。
 
 无去向记录清单：空。
+
+## 第二十六轮实施裁（轮中随案）
+
+| D-097 | T2/#76 engine-ci 首跑红修三症定因与修法（A 类 Node-20 stdout 截断+B 类非 Windows 自愈无实装；atomcode npm#9024 调研佐证） | 采纳（2026-09-22 实施落盘） | ① **stdout 冲刷竞态**：process.exit() 丢弃未冲刷管道写——Node≤20 上 ~39KB sidecar 截断（Node 22+ 自带 exit 冲刷致 22 腿假绿）；修法=outExit/errExit 写回调门控＋ExitSignal 哨兵（never 型+main() 包裹，语义=写完调度→throw→边界吞→排队写持活到 flush 回调 exit）；② **DuckDBInstance 泄漏**：conn.closeSync() 只断连接不释库句柄→Windows delete-pending→宿目录 rmdir ENOTEMPTY（Node-20 5/5 复现）；修法=instanceOf WeakMap 登记＋closeDuckdb() 双段关闭（conn→instance 序不可换），调用面 audit/doctor/projection/audit.test 全接线；③ **npm#9024 arborist no-op**：install --no-save 对 lockfile 已含 optional 边＋磁盘目录缺失的包信任 lock 边 no-op（up to date/exit 0/不落盘——POSIX hidden-lockfile 校验漏检手动改名）；修法=手术恢复改 npm pack+tar 解包（纯 fetch+落文件路径，arborist/lockfile/npm 版本无关），冷启动 npm install 整装保留；tar 路径全相对化避 Windows GNU-tar host:file 解析坑；④ **integrity 校验 win32 偏置（B 类真因，CI run 35677071573 实证）**：sizeOk 钉 .node>1MB——POSIX 布局 .node=465~502KB 加载壳、真本体 libduckdb.so/.dylib 67~111MB→integrity-fail 删已补包；升原生件族正则（node|so|dylib|dll 任一>1MB）；⑤ **守卫演化**：64-check A1/A6 机制字面钉按 D-094(b) 合法演化更新断言非入册；⑥ **CI 实证**：run 35677822036 六腿全绿（rebuild-diff 因漏提交 dist/cli.js 先红一次——bundle 产物漏带 commit 即系统性可检）。 | ① write 回调门控是整类修法非单点补（cli.ts 全 22 出口收敛）；② closeDuckdb 为 conn+instance 唯一正确释放序，caller 全迁；③ pack+extract 仅在 node_modules 在且仅缺绑定包的手术面启用（裸装面仍 npm install）；④ 修复须 CI 全矩阵实证绿方翻 engine-ci-main-green 事件位。 | current |

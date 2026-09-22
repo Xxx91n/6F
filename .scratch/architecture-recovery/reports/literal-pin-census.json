@@ -1,0 +1,616 @@
+{
+  "generated_at": "2026-09-22T01:48:38.351Z",
+  "scope": "T3/D-094② 字面钉普查 pass——NN-check 断言源扫（日期字面钉/断言内字面等值钉）",
+  "files": 55,
+  "hits": 77,
+  "byFile": {
+    "04-downweight-check.mjs": [
+      {
+        "file": "04-downweight-check.mjs",
+        "line": 58,
+        "cls": "LIT-EQ",
+        "text": "const humans = c.identities.filter(i => i.class === 'human').sort((a, b) => b.count - a.count);",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "24-check.mjs": [
+      {
+        "file": "24-check.mjs",
+        "line": 18,
+        "cls": "DATE-LIT",
+        "text": "const GAP_SRC = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-12-report.md');",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "25-check.mjs": [
+      {
+        "file": "25-check.mjs",
+        "line": 89,
+        "cls": "DATE-LIT",
+        "text": "check('C8b', a30.indexOf('implemented') >= 0 && a30.indexOf('2026-09-14') >= 0, 'A-030 implemented marker');",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "26-check.mjs": [
+      {
+        "file": "26-check.mjs",
+        "line": 63,
+        "cls": "DATE-LIT",
+        "text": "const ctx = { runId: 'r6-check', traceId: 't', repoRef: '6F@fc00d458', scale: 'Macro-B', observedAt: '2026-09-",
+        "attribution": "declared"
+      }
+    ],
+    "27-check.mjs": [
+      {
+        "file": "27-check.mjs",
+        "line": 30,
+        "cls": "DATE-LIT",
+        "text": "ok(Object.values(dd).every(v => v.date === '2026-09-12'), 'B6 全部 13 份 decision_date=2026-09-12（腿序正确）');",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "27-check.mjs",
+        "line": 38,
+        "cls": "DATE-LIT",
+        "text": "const ctx = { runId: 'r27-check', traceId: 't', repoRef: '6F@fc00d458', scale: 'Macro-B', observedAt: '2026-09",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "28-check.mjs": [
+      {
+        "file": "28-check.mjs",
+        "line": 106,
+        "cls": "DATE-LIT",
+        "text": "check(name + ' Date=git first-commit', first.startsWith('2026-09-12'), first);",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "29-check.mjs": [
+      {
+        "file": "29-check.mjs",
+        "line": 15,
+        "cls": "DATE-LIT",
+        "text": "ok(l.includes('2026-09-13T10:49:04.195Z'), 'A2 原时间戳未改');",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "35-check.mjs": [
+      {
+        "file": "35-check.mjs",
+        "line": 80,
+        "cls": "LIT-EQ",
+        "text": "t('D3 watch=manual_watch + confirmations 字段在', faceItem.watch === 'manual_watch' && Array.isArray(faceItem.con",
+        "attribution": "declared"
+      }
+    ],
+    "36-check.mjs": [
+      {
+        "file": "36-check.mjs",
+        "line": 19,
+        "cls": "LIT-EQ",
+        "text": "t('A2 探针实测：version=0.28.0 + explain/diff 均带 --llm 旗标', pm.version === 'codelore 0.28.0' && pm.explain_help_has",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "36-check.mjs",
+        "line": 54,
+        "cls": "DATE-LIT",
+        "text": "const CTX = { runId: 'g36', traceId: 't'.padEnd(32, '0'), repoRef: 'guard', scale: 'Macro-C', observedAt: '202",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "37-check.mjs": [
+      {
+        "file": "37-check.mjs",
+        "line": 66,
+        "cls": "LIT-EQ",
+        "text": "t('D5 jiahao 实测托管面纠偏（github_remote + PR≥1 + origin/main 同步）', !!jh.github_remote && jh.pr_ratio.github_pr_tota",
+        "attribution": "declared"
+      }
+    ],
+    "38-check.mjs": [
+      {
+        "file": "38-check.mjs",
+        "line": 33,
+        "cls": "LIT-EQ",
+        "text": "t('B2 happy 侧车 preview_disclosure 机器可读字段齐备', !!sc.preview_disclosure && sc.preview_disclosure.capability_label",
+        "attribution": "declared"
+      },
+      {
+        "file": "38-check.mjs",
+        "line": 35,
+        "cls": "LIT-EQ",
+        "text": "t('B4 failure 件同样带披露块（降级不丢 preview 诚实义务）', fmd.includes('披露块') && fmd.includes('单仓校准（anysearch-cli）') && !!fsc",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "38-check.mjs",
+        "line": 72,
+        "cls": "LIT-EQ",
+        "text": "t('E2 registry 触发器 b 登记：event occurred + confirmations trigger-fired', reg.events['macro-c-shared-duckdb'].occ",
+        "attribution": "declared"
+      }
+    ],
+    "39-check.mjs": [
+      {
+        "file": "39-check.mjs",
+        "line": 96,
+        "cls": "LIT-EQ",
+        "text": "t('E2 mw-trigger-a confirmations 追加 trigger-fired（D-034④a 激活登记）', !!mwa && Array.isArray(mwa.confirmations) &&",
+        "attribution": "declared"
+      }
+    ],
+    "40-check.mjs": [
+      {
+        "file": "40-check.mjs",
+        "line": 34,
+        "cls": "LIT-EQ",
+        "text": "t('A8 回执纪律位：remote_config_execution=disabled + credentials=local-git-credential-chain', rc.remote_config_execu",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "40-check.mjs",
+        "line": 40,
+        "cls": "LIT-EQ",
+        "text": "t('B2 实物浅仓断言：is-shallow-repository=false', shallow === 'false', shallow);",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "40-check.mjs",
+        "line": 48,
+        "cls": "LIT-EQ",
+        "text": "t('B6 clone 产物 protocol.ext.allow=never', ext === 'never', ext);",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "40-check.mjs",
+        "line": 60,
+        "cls": "LIT-EQ",
+        "text": "t('C5 CLI 暴露 repo add 子命令', readFileSync(join(REPO, 'engine', 'src', 'cli.ts'), 'utf8').indexOf(\"cmd === 'repo",
+        "attribution": "declared"
+      },
+      {
+        "file": "40-check.mjs",
+        "line": 99,
+        "cls": "LIT-EQ",
+        "text": "t('E2 对照表覆盖三基线 + 外部仓四行', cmp.targets.length === 4 && BASES.every(b => cmp.targets.some(r => r.repo === b)) && ",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "40-check.mjs",
+        "line": 130,
+        "cls": "DATE-LIT",
+        "text": "const maReport = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "41a-check.mjs": [
+      {
+        "file": "41a-check.mjs",
+        "line": 35,
+        "cls": "DATE-LIT",
+        "text": "t('B4 披露四要素齐：真实产物声明＋生成 commit fc00d458＋日期 2026-09-13T14:31:09＋重生成命令 23-first-report.mjs', exReadme.indexOf('真实",
+        "attribution": "declared"
+      },
+      {
+        "file": "41a-check.mjs",
+        "line": 92,
+        "cls": "DATE-LIT",
+        "text": "const ma = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "41b-check.mjs": [
+      {
+        "file": "41b-check.mjs",
+        "line": 27,
+        "cls": "LIT-EQ",
+        "text": "t('A3 plugin.json homepage/repository = Xxx91n/6F', pj.homepage === 'https://github.com/Xxx91n/6F' && pj.repos",
+        "attribution": "declared"
+      },
+      {
+        "file": "41b-check.mjs",
+        "line": 78,
+        "cls": "DATE-LIT",
+        "text": "t('E4 日报含 #41b', (existsSync(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-report.md')) ? txt(j",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "42-check.mjs": [
+      {
+        "file": "42-check.mjs",
+        "line": 62,
+        "cls": "LIT-EQ",
+        "text": "t('B2 42-probe-measurements.json 在位＋version=0.28.0（==锁表 pin）', meas.version === 'codelore 0.28.0');",
+        "attribution": "declared"
+      },
+      {
+        "file": "42-check.mjs",
+        "line": 66,
+        "cls": "LIT-EQ",
+        "text": "t('B6 与 #35 format 行跨票对账 drift=none', meas.format_line_drift_vs_35 === 'none');",
+        "attribution": "declared"
+      },
+      {
+        "file": "42-check.mjs",
+        "line": 79,
+        "cls": "LIT-EQ",
+        "text": "t('C5 dump 行 adapter=null（未接入事实链）', dumpRow.adapter === 'null');",
+        "attribution": "declared"
+      },
+      {
+        "file": "42-check.mjs",
+        "line": 117,
+        "cls": "DATE-LIT",
+        "text": "const ma = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "43-check.mjs": [
+      {
+        "file": "43-check.mjs",
+        "line": 115,
+        "cls": "DATE-LIT",
+        "text": "const maReport = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "44-check.mjs": [
+      {
+        "file": "44-check.mjs",
+        "line": 175,
+        "cls": "LIT-EQ",
+        "text": "t('E5 README「capability 1 of 5 · preview」== golden 实物 capability_label（Macro-B 文档↔产物同源）', goldenHappy.preview_",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "44-check.mjs",
+        "line": 176,
+        "cls": "LIT-EQ",
+        "text": "t('E6 README「capability 2 of 5 · preview」== #38 实物 capability_label（Macro-C 文档↔产物同源）', macroC.preview_disclosu",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "44-check.mjs",
+        "line": 235,
+        "cls": "DATE-LIT",
+        "text": "const ma = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "45-check.mjs": [
+      {
+        "file": "45-check.mjs",
+        "line": 31,
+        "cls": "LIT-EQ",
+        "text": "t('A3 degraded 双变体 failure.trigger 确定性声明（supply-chain-not-connected / evidence-incomplete）', defs['degraded-su",
+        "attribution": "declared"
+      },
+      {
+        "file": "45-check.mjs",
+        "line": 46,
+        "cls": "LIT-EQ",
+        "text": "t('B6 CLI 挂 demo 子命令（--scenario/--out/--json/--keep/--list）', cliSrc.indexOf(\"cmd === 'demo'\") >= 0 && cliSrc.",
+        "attribution": "declared"
+      },
+      {
+        "file": "45-check.mjs",
+        "line": 78,
+        "cls": "LIT-EQ",
+        "text": "t('D3 印记① calibration_scope = \"fixture: synthetic (generated by fixture-generator@1.0.0)\"', pd.calibration_sco",
+        "attribution": "declared"
+      },
+      {
+        "file": "45-check.mjs",
+        "line": 79,
+        "cls": "LIT-EQ",
+        "text": "t('D4 印记② capability_label = \"capability 1 of 5 · preview\"', pd.capability_label === 'capability 1 of 5 · prev",
+        "attribution": "declared"
+      },
+      {
+        "file": "45-check.mjs",
+        "line": 82,
+        "cls": "LIT-EQ",
+        "text": "t('D7 三场景侧车披露块同源齐备（降级不丢披露）', SCENARIOS.every(s => { const p = json(join(runs[s].outDir, 'report.json')).previe",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "45-check.mjs",
+        "line": 88,
+        "cls": "LIT-EQ",
+        "text": "t('E3 strategy 象限 conflict_markers 带 synthetic-fixture', side.quadrants.find(q => q.quadrant === 'strategy').c",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "45-check.mjs",
+        "line": 90,
+        "cls": "LIT-EQ",
+        "text": "t('E5 测量工件 synthetic=true + generator 印记', SCENARIOS.every(s => { const m = json(join(runs[s].outDir, 'demo-me",
+        "attribution": "declared"
+      },
+      {
+        "file": "45-check.mjs",
+        "line": 116,
+        "cls": "DATE-LIT",
+        "text": "const maReport = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');",
+        "attribution": "declared"
+      }
+    ],
+    "46-check.mjs": [
+      {
+        "file": "46-check.mjs",
+        "line": 56,
+        "cls": "LIT-EQ",
+        "text": "t('B3 删除提交变更面恰 1 文件且为 D 该文件', ns === 'D\\t.github/workflows/macro-b-regression.yml', JSON.stringify(ns));",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "46-check.mjs",
+        "line": 67,
+        "cls": "LIT-EQ",
+        "text": "t('C4 运行锚 40-hex head_sha 可解析为 git 对象', /^[0-9a-f]{40}$/.test(meas.head_sha || '') && git(JIAHAO, ['cat-file',",
+        "attribution": "declared"
+      },
+      {
+        "file": "46-check.mjs",
+        "line": 82,
+        "cls": "DATE-LIT",
+        "text": "const rep = txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md'));",
+        "attribution": "declared"
+      }
+    ],
+    "47-check.mjs": [
+      {
+        "file": "47-check.mjs",
+        "line": 27,
+        "cls": "DATE-LIT",
+        "text": "t('A2 API 版本常量 pin=2022-11-28', src.includes(\"GITHUB_API_VERSION = '2022-11-28'\"));",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "47-check.mjs",
+        "line": 59,
+        "cls": "LIT-EQ",
+        "text": "t('B6 漂移带=实录制派生（derived）且行缺字段', drift && drift.recorded === 'derived');",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "47-check.mjs",
+        "line": 98,
+        "cls": "DATE-LIT",
+        "text": "t('E3 锁表 version/pin_type=api-version 填实', grow.includes('version: \"2022-11-28\"') && grow.includes('pin_type: ",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "47-check.mjs",
+        "line": 116,
+        "cls": "DATE-LIT",
+        "text": "const ma = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "48-check.mjs": [
+      {
+        "file": "48-check.mjs",
+        "line": 64,
+        "cls": "LIT-EQ",
+        "text": "t('D-e1 env64 release-please 平台声明 Bot（github-actions[bot]/Bot 双检真值）', sc['env-manager-pr64'].quadrants[0].slic",
+        "attribution": "declared"
+      },
+      {
+        "file": "48-check.mjs",
+        "line": 67,
+        "cls": "LIT-EQ",
+        "text": "t('D-e4 四件 preview_disclosure=capability 3 of 5 · preview＋同主确认偏差置首＋not_in_preview 收窄', REAL.every(function (s)",
+        "attribution": "declared"
+      },
+      {
+        "file": "48-check.mjs",
+        "line": 95,
+        "cls": "DATE-LIT",
+        "text": "t('E9 日报含 #48 窗口节', txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md')).indexOf('窗口：",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "49-check.mjs": [
+      {
+        "file": "49-check.mjs",
+        "line": 53,
+        "cls": "DATE-LIT",
+        "text": "const dr17 = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-report.md');",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "49-check.mjs",
+        "line": 54,
+        "cls": "DATE-LIT",
+        "text": "const dr16 = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "50-check.mjs": [
+      {
+        "file": "50-check.mjs",
+        "line": 35,
+        "cls": "DATE-LIT",
+        "text": "t('A7 dist 语义：band 违规→rejected', NM.sealNarrative({ section_id: 'x', author: 'host-agent', model_id: 'm', text",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "50-check.mjs",
+        "line": 36,
+        "cls": "DATE-LIT",
+        "text": "t('A8 dist 语义：缺 model_id→rejected', NM.sealNarrative({ section_id: 'x', author: 'host-agent', model_id: null, ",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "50-check.mjs",
+        "line": 76,
+        "cls": "DATE-LIT",
+        "text": "t('E6 日报含 #50 窗口节', txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md')).includes('窗口",
+        "attribution": "declared"
+      }
+    ],
+    "51-check.mjs": [
+      {
+        "file": "51-check.mjs",
+        "line": 37,
+        "cls": "LIT-EQ",
+        "text": "t('B5 codelore_version=0.28.0（pin 一致）', sch.codelore_version === '0.28.0');",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "51-check.mjs",
+        "line": 59,
+        "cls": "LIT-EQ",
+        "text": "t('D5 fact.quadrant=strategic（provenance 不改写，归位在切片层）', factLines.every(f => f.quadrant === 'strategic'));",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "51-check.mjs",
+        "line": 62,
+        "cls": "LIT-EQ",
+        "text": "t('D6 报告 behavior=native 切片且 slice_fields 八键齐备', bq && bq.applicability === 'native' && ['faces', 'face_row_co",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "51-check.mjs",
+        "line": 66,
+        "cls": "LIT-EQ",
+        "text": "t('D10 citation_checks 全 supports（证据锚逐字命中）', rep.citation_checks.length === 3 && rep.citation_checks.every(c =",
+        "attribution": "declared"
+      }
+    ],
+    "52a-check.mjs": [
+      {
+        "file": "52a-check.mjs",
+        "line": 61,
+        "cls": "LIT-EQ",
+        "text": "t('E1 findings 如实落（#56 修复后复测：FN 类披露维持＋FP 类改善方向钉 ≤r16 基线 13 或清零）', !!fnFinding && (!fpFinding || fpFinding.coun",
+        "attribution": "declared"
+      }
+    ],
+    "53-check.mjs": [
+      {
+        "file": "53-check.mjs",
+        "line": 30,
+        "cls": "LIT-EQ",
+        "text": "t('A1 cli.ts audit 命令分发在', /cmd === 'audit'/.test(cli));",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "53-check.mjs",
+        "line": 50,
+        "cls": "DATE-LIT",
+        "text": "const ENV = Object.assign({}, process.env, { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '202",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "53-check.mjs",
+        "line": 118,
+        "cls": "LIT-EQ",
+        "text": "t('G1 narrative_sections 空或仅 kernel/host 兜底（audit 不携宿主叙事生成职责）', !!sAu2 && (sAu2.narrative_sections.length === ",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "55-check.mjs": [
+      {
+        "file": "55-check.mjs",
+        "line": 55,
+        "cls": "DATE-LIT",
+        "text": "const ENV = Object.assign({}, process.env, { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '202",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "56-check.mjs": [
+      {
+        "file": "56-check.mjs",
+        "line": 66,
+        "cls": "LIT-EQ",
+        "text": "t('E1 52a-eval 载 post_repair 注记（#56 修复后复测位）', !!e52.post_repair && e52.post_repair.ticket === '#56', 'post_rep",
+        "attribution": "declared"
+      }
+    ],
+    "70-check.mjs": [
+      {
+        "file": "70-check.mjs",
+        "line": 349,
+        "cls": "LIT-EQ",
+        "text": "scA.length === 1 && scA[0].slug === 'SC1' && scA[0].confidence === 'certain' && /definitely-missing-referent/.",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "71-check.mjs": [
+      {
+        "file": "71-check.mjs",
+        "line": 42,
+        "cls": "LIT-EQ",
+        "text": "t('A3 dist 模块可装载（运行时真值——常量即消费输入，非静态摆设）', !!M && M.UPSTREAM_DIMENSION_MAP_VERSION === 'v1.0', M ? '' : 'dist-mi",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "71-check.mjs",
+        "line": 91,
+        "cls": "LIT-EQ",
+        "text": "!!clReg && clReg.registered === true && clReg.opt_in === 'binary+pin' && /blocked|缺席/.test(clReg.skipped_seman",
+        "attribution": "declared"
+      }
+    ],
+    "r14fix-check.mjs": [
+      {
+        "file": "r14fix-check.mjs",
+        "line": 23,
+        "cls": "LIT-EQ",
+        "text": "t('A1b golden 错文案不再固化：degraded-incomplete 模板引用真实 reason 非「未声明」', (function () { const j = JSON.parse(txt(join(",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "r14fix-check.mjs",
+        "line": 24,
+        "cls": "LIT-EQ",
+        "text": "t('A1c degraded-supply golden 同（FP-45-1）', (function () { const j = JSON.parse(txt(join(ENG, 'fixtures', 'gold",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "r14fix-check.mjs",
+        "line": 33,
+        "cls": "DATE-LIT",
+        "text": "const rpt = txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-report.md'));",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "r14fix-check.mjs",
+        "line": 53,
+        "cls": "DATE-LIT",
+        "text": "t('X1 审计报告＋交接件在', existsSync(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-audit-report.md')) &",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "t8-check.mjs": [
+      {
+        "file": "t8-check.mjs",
+        "line": 45,
+        "cls": "DATE-LIT",
+        "text": "t('E4 日报含 T8', (existsSync(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-report.md')) ? readFil",
+        "attribution": "undeclared-candidate"
+      }
+    ],
+    "t9-check.mjs": [
+      {
+        "file": "t9-check.mjs",
+        "line": 26,
+        "cls": "DATE-LIT",
+        "text": "t('B3 原裁定 supported 逐字保留（2026-09-13T10:49:04.195Z 时间戳不改写）', led.includes('supported') && led.includes('2026-09",
+        "attribution": "undeclared-candidate"
+      },
+      {
+        "file": "t9-check.mjs",
+        "line": 37,
+        "cls": "DATE-LIT",
+        "text": "t('D2 日报含 T9', (existsSync(join(REPO,'.scratch','macro-audit','reports','2026-09-17-report.md'))?readFileSync(",
+        "attribution": "undeclared-candidate"
+      }
+    ]
+  },
+  "classified": true
+}
