@@ -32,7 +32,8 @@ t('A3 四段披露文案（缺失原因→doctor --fix/npm install→能力边�
 t('A4 每进程至多 1 次（内存旗标防循环）', store.includes('already-attempted-once-per-process'));
 t('A5 分层门控＋F4 死分支摘除（duckdbSurface 三面/isTTY/opt-in 在；NO_OFFICIAL_BINDINGS 已除——win32-arm64@r.5 实存接入）',
   store.includes('duckdbSurface') && store.includes('isTTY') && store.includes('MACRO_AUDIT_SELFHEAL') && store.includes("'cli-interactive'") && !store.includes('NO_OFFICIAL_BINDINGS'));
-t('A6 完整性校验三件（.node 存在＋尺寸阈＋version 同值，失败删半成品）', store.includes(".endsWith('.node')") && store.includes('sizeOk') && store.includes('rmSync(pkgDir'));
+// #76 演化：尺寸阈由 .node>1MB（win32 偏置——POSIX 壳<1MB 真本体在 .so/.dylib）升原生件族正则
+t('A6 完整性校验三件（原生件存在＋尺寸阈＋version 同值，失败删半成品）', store.includes('node|so|dylib|dll') && store.includes('sizeOk') && store.includes('rmSync(pkgDir'));
 t('A7 musl 探测在位（ldd --version → -musl 后缀）', store.includes('musl') && store.includes("'ldd'"));
 t('A8 opt-in 可审计性＋F8 stderr 化（emitSelfHeal 事件含 trigger 字段区分 auto/opt-in/doctor-fix；全 stderr 单通道）',
   store.includes('trigger') && store.includes("'opt-in'") && store.includes("'doctor-fix'") && store.includes('console.error') && !store.includes('console.log(line)'));

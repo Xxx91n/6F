@@ -138,23 +138,27 @@ function selfHealDuckdb() {
         ver = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8')).version;
     }
     catch { /* missing */ }
-    let nodeCount = 0;
+    // #76 修复（CI run 35677071573 非 Windows integrity-fail 实证）：载荷布局平台异——
+    // win32=duckdb.node 1.2MB+duckdb.dll 35MB；linux-x64=duckdb.node 465KB 加载壳+libduckdb.so 67MB；
+    // darwin=duckdb.node 502KB 壳+libduckdb.dylib 111MB。sizeOk 钉 .node>1MB 是 win32 偏置误判——
+    // 真本体=共享库后缀族，任一原生件>1MB 即完整。
+    let nativeCount = 0;
     let sizeOk = false;
     if (existsSync(pkgDir)) {
         for (const f of readdirSync(pkgDir)) {
-            if (f.endsWith('.node')) {
-                nodeCount++;
+            if (/\.(node|so|dylib|dll)$/.test(f)) {
+                nativeCount++;
                 if (statSync(join(pkgDir, f)).size > 1024 * 1024)
                     sizeOk = true;
             }
         }
     }
-    if (!(ver === DUCKDB_PINNED_VERSION && nodeCount > 0 && sizeOk)) {
+    if (!(ver === DUCKDB_PINNED_VERSION && nativeCount > 0 && sizeOk)) {
         try {
             rmSync(pkgDir, { recursive: true, force: true });
         }
         catch { /* best effort */ }
-        return { ok: false, detail: 'integrity-fail:ver=' + String(ver) + ' node-files=' + nodeCount + ' sizeOk=' + sizeOk };
+        return { ok: false, detail: 'integrity-fail:ver=' + String(ver) + ' native-files=' + nativeCount + ' sizeOk=' + sizeOk };
     }
     return { ok: true, detail: 'installed @duckdb/node-bindings-' + suffix + '@' + ver };
 }
