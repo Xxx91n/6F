@@ -1,6 +1,6 @@
-# next-round — 轮 28 常驻任务书（轮 28 T1 #77 门面收口包 A 窗交付后）
+# next-round — 轮 29 常驻任务书（轮 28 grill 封口·quarantine 设计树 D-103~D-120 全定后）
 
-> 生成：2026-09-22 轮 28 T1 收口。上位账本=`D:\Aworker\6F\.scratch\macro-audit\decision-ledger.md`（102 主记录：95 current／7 revised=D-002/008/012/014/022/059①款/072）；执行账=`.scratch\architecture-recovery\decision-ledger.md`（A-001~A-089）；本任务书不复述账本全文，只排执行序与覆盖映射。
+> 生成：2026-09-22 轮 28 T1 收口。上位账本=`D:\Aworker\6F\.scratch\macro-audit\decision-ledger.md`（D-001~D-120：110 current／8 revised=D-002/008/012/014/022/059①款/072/100③款）；quarantine 总成 ADR=`docs/adr/0022-quarantine-engine.md`；执行账=`.scratch\architecture-recovery\decision-ledger.md`（A-001~A-089）；本任务书不复述账本全文，只排执行序与覆盖映射。
 
 ## 轮 25~28 留痕（已定，勿重复）
 
@@ -8,6 +8,7 @@
 - 轮 26 实施（A-088）：#74 门面 6F 化＋#76 engine-ci 红修三症四修全落，合入 main d207a0a，CI 分支 35677822036 六腿绿＋main 35681529820 绿——**engine-ci-main-green 事件已发生**。
 - 轮 27 grill 五裁（D-098~D-102，四轮 atomcode 深调研）：致谢三层分工／品牌资产消费面驱动／契约违约两级处置（D-059① 收窄 revised 链）／A-B 双窗边界／xfail-45-h5 摘除追认。调研报告存档 `R27-Q{1,2,3,4,5}-*.md`。
 - **轮 28 T1 交付（A-089）**：#77 门面收口包 A 窗五件全落——`engine/scripts/gen-acknowledgments.mjs` 生成器（per-id 人工模板×8 active／先比后写／--check）→README 双语「## Acknowledgments／致谢」生成式锚段（Honesty notes／诚实注记前）＋77-check 16/16＋engine-ci main badge 双文件挂载（native actions badge，非 shields 族）＋诚实注记措辞合法演化＋gh homepageUrl 补齐＋33-check H4 双向互等化／73-check D1 措辞演化；T0 连带=xfail-45-b5 stale 条目摘除＋meta 归因注记（D-102① 待追认）；台账=A-089＋CHANGELOG M-005＋BACKLOG #77 ✅；报告 `.scratch\macro-audit\reports\2026-09-22-r28-exec-report.md`。
+- **轮 28 grill 封口（2026-09-23）**：quarantine 引擎设计树 18 裁全定（D-103~D-120）——契约层三态分类器／quarantine_log 事件表+disposition／字段实例恒等式／逐 commit 事务幂等写／协议崩溃工件／strict 仓级基线／verdict+exit 两轴／known-gaps 双册／Intake Health 专节／双层对账／39 parity 处置感知矩阵／词表 v1 四族 open-ended／双层 fixture 覆盖；调研档案 `R28-Q{1..18}-*.md` 全存档；收口对账节已落账本；去向全归 #78（D-118 或拆独立小票待归票裁）。
 - **xfail 摘除注记（7 条批，entries 6→0/10）**：①xfail-45-b5——B5 断言轮27 已按 D-094(b) 合法演化重写（结构化 import 断言＋codelore-off 显式钉），册内条目残留未摘→XPASS；②xfail-41a-d6/d7/f4＋43-d5＋39-h6＋40-g5 六条——任务书字面钉／CHANGELOG 区间钉漂移族（入册归因全在条目 attribution），本窗恢复字面锚实物（历史票面闭环索引＋M-005 编年行）后断言真实复绿→条目 stale。摘除＋归因入 meta.xpass_removal_2026_09_22_b5 与 meta.xpass_removal_2026_09_22_anchors——同 H5 形（D-102①），执行侧已落、人工追认侧待批。
 
 ## 历史票面闭环索引（守卫锚点留痕——任务书轮换不丢字面锚；字面钉族归 T3 普查处置）
@@ -33,9 +34,9 @@
 
 | T | 任务 | 覆盖 D | 交付物 | suggested skills |
 |---|---|---|---|---|
-| T0 | 开工前置：读本任务书＋账本第二十七轮节＋R27-Q1~Q5 调研报告；跑守卫基线（33/44/70/71/72/73/xfail-run 等）确认全绿 | D-098~D-102 | 基线快照 | — |
+| T0 | 开工前置：读本任务书＋账本第二十八轮节（D-103~D-120）＋ADR-0022＋R28-Q* 调研报告按需；跑守卫基线（33/44/70/71/72/73/77/xfail-run 等）确认全绿 | D-103~D-120 | 基线快照 | — |
 | T1 | ✅ DONE 2026-09-22（A-089）——**#77 门面收口包·A 窗**：①致谢节生成器（per-id 人工模板=感谢宾语+角色句逐条人定一次，禁从 kind 推导——github-rest=API 非项目）→README.md 尾「## Acknowledgments」生成式锚段（Honesty notes 前，8 active 行=名字+一句角色+上游主页链接，脚注指 upstream-lock.yaml 全集）；②closed 对账守卫=regen→diff empty（成员集⇔active 集双向差集，先比后写同型）；③zh-CN 派生镜像（D-088 纪律）；④CI badge 挂载（徽标指 main 分支 engine-ci workflow——D-089⑤ 事件已发生）；⑤GitHub homepageUrl 补齐（repo URL 或 listing 指定值） | D-098 / D-099③ / D-101① / D-089⑤ / D-037③ / D-088 | 生成器+锚段+守卫绿+zh 镜像 | implement / readme 系 skill（create-readme、readme-crafter） |
-| T2 | **#78 引擎 quarantine 建制·B 并行独立窗（下一轮主任务候选）**：①intake 违约两级化（协议级 fail-fast 保持/字段级病态进 quarantine=null+⚠malformed+审计继续）；②三桶分离计数；③可观测五件（逐 SHA+reason code/原始字节回显/覆盖率恒等式/比例阈值超限→unsupported/--strict-quarantine 反向开关）；④null=毒值纪律全消费面执行；⑤新 reason code 登 known-gaps；⑥验收=macro-b-regression git 腿转绿（%cI 病态 commit 走 quarantine 不崩全仓） | D-100 / D-101② / D-059①收窄链 | intake/macro-b/schema/报告渲染+golden+恒等式同窗 | implement / tdd / diagnosing-bugs |
+| T2 | **#78 引擎 quarantine 建制·B 并行独立窗（设计封板=ADR-0022；实现序）**：a) 契约层分类器 classifyGitIsoField 三态诊断结构（永不 throw；协议级断言保持 throw；本轮仅 %cI 接线+unclassified 兜底独立计数）→D-103/D-104；b) quarantine_log schema（commit_sha/field/raw_bytes/reason_code/collector/run_id/recorded_at/disposition＋自然键 UNIQUE+INSERT OR IGNORE）＋逐 commit 事务写（fact+quarantine 同事务，INSERT 失败=整批回滚+非零，约束违例按协议崩溃类）＋raw_bytes 截断三件套（先跑 corpus 字段值长度直方图校准 ~64KiB）→D-106/D-108/D-112/D-115/D-117；c) 协议崩溃工件双通道（cli.ts 顶层 catch+39 脚本等位，schema=error_code/raw_bytes_hex/crash_location/run_context/counts，CI artifact）→D-109；d) verdict 三面同源投影（报告机读块/receipt/--json，不落库）＋exit code 两轴（0=跑完含 unsupported/insufficient；非零=协议崩溃/IO/strict）＋CI default-deny 三查＋--strict-quarantine 仓级 accepted_reason_codes 版本化常量（棘轮只减不增+unclassified 永禁入+枚举前置校验；env/flag 只传开关）＋锚病态→unsupported 路径（observed_at 永不退化为 ingested_at）→D-105/D-110/D-111；e) 报告 Intake Health 节（恒等式行+受影响 commit 数+quarantined-only 逐 SHA 表+节恒在零病态渲染「无」）＋统计行内联 over N-M 排除声明＋normalized 仅计数 →D-114；f) 恒等式双层对账（引擎内逐 commit+报告前断言=协议崩溃类非零无 warn；独立 NN-check 独立代码路径禁复用引擎对账函数+load-bearing 标注）→D-116；g) known-gaps 台账 committed 首版（gap_id/reason 族/首见证据链/status/owner 到人/review_by/trigger_id 可空；registry 侧触发器单向互链不复制缺口字段）＋reason_code v1 四族种子+open-ended 声明 →D-113/D-119；h) 合成病态 fixture 册（hash-object --literally/fast-import，镜像词表族+恰 N/N+1/嵌定界符/UTF-8 病态/misnamed/missing 边界件，html5lib 弱断言=族命中+错误计数，构造脚本随测试跑）＋39/40 parity 处置感知矩阵升级（未枚举格 fail loud，预期分歧入 known-gaps；可拆独立小票）→D-118/D-120；i) 验收=macro-b-regression git 腿转绿（%cI 病态 quarantine 不崩全仓）＋恒等式断言绿＋golden 契约＋CI 三查实证 | D-103~D-120 全集＋D-100/D-101②/D-059①收窄链 | intake/macro-b/schema/事务写/报告渲染+golden+恒等式+strict 门禁+fixture 册+parity 升级 | implement / tdd / diagnosing-bugs |
 | T3 | **#75 批1 失效三分类建制**（沿用）：字面钉普查 pass（日期字面量/魔数地板/裸 occurred===→归因注记；45-h5 松散「|| demo」分支=已登记的松钉 findings 样本处置）＋剥注释名检通用化＋presence/liveness/readiness 三层命名＋XFAIL 册明文只收合法漂移类＋断言无牙族纪律（|| 便利分支=无牙，mutation 检验标准） | D-094 / D-102③ / D-079 / D-071 | 普查 pass+册规补丁 | implement / tdd |
 | T4 | **#75 批2 枚举 open-closed**（沿用）：枚举面 open/closed 声明＋closed 面成员级双向差集 lint（explain 9 面/遥测排除首案；D-098 致谢节成 closed 面第二案先例）＋常量 SSOT＋preflight 逐条裁＋reserved 机制仅外部输入面 | D-095 / D-081 / D-098② | open-closed 声明集+lint | implement |
 | T5 | **#75 批3 census-contract**（沿用）：63 清单头契约块（字段 schema 归一+五豁免正反例对）＋70-check 互等裁决断言＋契约变更 PR 门控＋70/vacuity 共用规格 | D-096 / D-037 | 契约块+E2 断言 | implement / domain-modeling |
@@ -50,9 +51,9 @@
 
 ## Suggested skills（本窗口）
 
-- **implement / tdd**：T1~T6 主驱动——门面收口包与 quarantine/守卫建制批
+- **implement / tdd**：T2（#78 quarantine 引擎，ADR-0022 九步实现序 a~i）＋T3~T6 建制批主驱动
 - **readme 系 skill**（C:\Users\Administrator\.agents\skills\git\readme\）：T1 致谢节文案与锚段形态（create-readme/readme-crafter）
-- **diagnosing-bugs**：T2 quarantine 分层的边界场景回归（git/git 病态 commit 复现面）
+- **diagnosing-bugs**：T2 病态边界场景回归（git/git INDIA 实件＋合成 fixture 册）＋T10 值守翻转核验
 - **domain-modeling**：T5 契约块措辞＋T9 权重立案（若触发）＋CONTEXT 新词同步
 - **atomcode-research**：新决策题调研入口（沿用规程：题面存档→-p 深调研→辩证呈报→冲突即停标 revised）
 - **gitbutler**：VC 唯一写面——本轮收口文档已 commit 防丢；后续 push/merge 逐次闸门

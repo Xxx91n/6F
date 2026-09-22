@@ -10,6 +10,7 @@
 > 轮 8 grill（2026-09-16 完成）已封口 D-042 ~ D-047：W14 收口窗口包六项全拍——#41b 授权至提交前＋多写者域意图读法闭环（ADR-0019，SWMR 门面成文）＋desk-task15 重绑勘误＋残余 4 面分流＋回归 CI 迁回 6F＋Micro-A 双试点＋第三槽。
 > 轮 11 grill（2026-09-16 完成）已封口 D-048 ~ D-052：#47 托管 API 适配器（REST 主路＋gh 可选回退，ADR-0020）＋#48 Micro-A preview 单票＋#49 经典仓三选＋分发面 A+C 双轨/Apache-2.0（ADR-0021）/插件名 6f@市场 xxx91n；
 > 轮 13 grill（2026-09-17 完成）已封口 D-053 ~ D-058：原预设对照清算——叙事双轨＋rubric 三件＋MCP 出 stub（#50 立案）＋Macro-B behavior 象限接入（#51）＋hooks 层④收窄为可选呈现面/声明位（ADR-0008 勘误）＋repomix-gitingest 退役（锁表 retired＋重开触发器）＋原预设余项×4 核销＋Kernel/Agent 职责边界词条收编；
+> 轮 28 grill（2026-09-23 完成）已封口 D-103 ~ D-120：quarantine 引擎设计树 18 裁——契约层三态分类器＋quarantine_log 事件表＋字段实例恒等式＋逐 commit 事务幂等写＋strict 仓级基线＋verdict/exit 两轴＋known-gaps 双册＋Intake Health 节＋双层对账＋39 parity 处置感知矩阵＋词表 v1 四族＋双层 fixture 覆盖；调研档案 R28-Q{1..18} 系列存档 .scratch/macro-audit/reports/。
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -271,3 +272,27 @@ _Avoid_: 字段级病态硬崩全仓（一个病态 commit 否决百万行审计
 **消费面驱动资产（Consumption-Surface-Driven Assets）**:
 品牌/门面资产派生纪律（D-099）：资产仅在有真实消费面时派生——接触点驱动非成熟度阶段驱动；icon.svg=唯一 logo 母本，派生走 one-SVG-in 脚本化（不生图、禁手工逐件另存）；无消费面的资产=杂物化负期望（npm#10323 十年未实现 logo 字段实证）；消费面出现=registry event_bound 触发器承载（official-catalog-icon-required/docs-site-deployed）。
 _Avoid_: 为不存在消费面预置资产、favicon/webmanifest 对无 HTML 面仓预置（GitHub 仓页不读仓内 favicon）、新 logo 概念+生图撞「已有 logo 优先复用」红线
+
+**Quarantine 字段处置（Field-Level Quarantine）**:
+病态字段值的确定性处置契约（D-103~D-107）：契约层分类器永不 throw，逐字段实例返回 clean/normalized/quarantined 三态＋reason_code＋raw 诊断结构；处置（null 置位/⚠印记/计数/恒等式）全归消费面与报告层——判定/处置硬分界。三桶恒等式=逐字段实例 grain（total=clean+normalized+quarantined，全项库内可重算）。quarantine_log=逐字段处置事件台账（disposition=quarantined|normalized，normalized 留痕不告警）；raw_bytes 有界截断＋指纹三件套（is_truncated/original_length/sha256_full），完整现场由 git 内容寻址重放兜底。
+_Avoid_: 分类器 throw（字段病态≠协议违约）、处置策略进契约层、commit 级计数当恒等式权威（grain 失守）、raw_bytes 无界存储（向量扫描放大 DoS）、截断无指纹（截断声明不可验证）
+
+**Reason Code 受控词表（Reason-Code Vocabulary）**:
+处置事件的分类码词表（D-104④/D-110/D-119）：命名对齐 git fsck msg-id 风；v1 种子=仅有立法出处的四族（anchor_head_date_malformed/normalized_tz_offset/unclassified_field_anomaly/oversize），词表自带审计谱系；open-ended——新码经 known-gaps→立法逐条进场，加码非破坏、删改破坏；unclassified=分类器对不可判形态的输出，非「词表穷尽的 Other」——消费面遇未识别码按 unclassified 路径 default-deny 不落绿。
+_Avoid_: 预防性预登记未验判据码（CA1700 判词=死分支+文档谎言）、词表外置配置（漂移出 CHECK 半径）、exhaustive switch 依赖词表冻结、合成 fixture 当立法依据（构造件≠观测实例）
+
+**Intake Health 节（摄入健康节）**:
+报告固定摄入健康节（D-114，恒在渲染）：逐字段恒等式行＋受影响 commit 数＋quarantined-only 逐 SHA 表（sha/field/reason_code/raw echo 截断呈现）；各派生统计行内联括号排除声明「over N-M commits」（CONSORT n 声明同构）；零病态=节渲染「无」=阴性自证（证据缺席≠证据为零；有/无病态共享同骨架=golden 字节最稳）。
+_Avoid_: 零病态省略节、normalized 行渲染 ⚠（留痕≠报告噪音）、排除声明全局一处（消费者须自映射）、明细分离独立工件（证据与裁定分文件）
+
+**Known-gaps 台账（覆盖缺口登记册）**:
+契约覆盖缺口的产品面登记册（D-100⑤/D-104⑤/D-113，committed+PR 评审）：条目=gap_id＋reason 族＋首见实例证据链（repo+sha+raw 引用）＋status（observed→triaged→legislated）＋owner（到人/角色）＋review_by 复核节奏＋trigger_id（可空）。检测面=quarantine_log 派生信号（unclassified 出现/新码首见），裁决须人审——自动信号不自动等于台账条目；立法触发器另住治理册 registry，gap↔trigger 单向互链、字段权威单向在台账（registry 禁复制 owner/status/进度）。
+_Avoid_: 缺口并入触发器册（层级错配）、纯 SQL 派生当台账（登记≠可查询——无 owner/进度即腐化）、双册双写缺口字段（漂移）、缺 review_by（18 个月腐化先例）
+
+**Strict Quarantine 门禁（严格隔离基线）**:
+仓级病态码白名单门禁（D-110）：accepted_reason_codes=版本化仓级常量，改基线=PR 评审=「接受新病态族」的显式裁定；strict 下 reason_code∉基线→硬崩、∈基线→正常三桶；基线只减不增（棘轮条款——已消失码滞留=红）；unclassified 永不可进基线；flag/env 只传开关、基线内容恒读版本化常量；语义=msg-id 级门禁（git 官方警告：同码新实例静默通过——实例级升级留门 quarantine_log 逐实例行）。
+_Avoid_: 基线内容存 env/CI 配置（配置漂移=基线漂移）、unclassified 入基线（覆盖缺口静默化）、基线只增不减（探测力侵蚀）、声称等强实例级豁免（msg-id 级与 skipList 级不等强）
+
+**处置感知 Parity（Disposition-Aware Parity）**:
+39/40 独立对照物在病态输入上的比对语义（D-118）：比对按 disposition 分流——clean/normalized 照常值等；quarantined×39 结果判分歧类别（39 也判病态/产不同值/解析失败=预期分歧记档；39 产出与 cli 本应值相同=可疑一致 warn=双实现共享错误假设的代理信号）；未枚举组合格默认 fail loud；预期分歧条目落 known-gaps 册；39 端零改动不复制分类规则（独立实现互核=对照物本职，分类真源在 cli 端）。
+_Avoid_: parity 排除病态实例（对照物在价值最大处失明）、39 端复制分类器（双生 bug+双份漂移）、未枚举组合静默通过、把对照物降级为第二分类器

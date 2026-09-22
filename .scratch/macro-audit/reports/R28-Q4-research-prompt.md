@@ -1,0 +1,7 @@
+# R28-Q4 atomcode 调研题面（存档）
+
+> 2026-09-22 轮28 grill Q4。执行面=atomcode -p（ctx_batch_execute 串行）。
+
+## 调研问题（verbatim 发出）
+
+「quarantine 隔离记录的存储承载形态」：一个工程内容审计工具（DuckDB 单文件 fact 表为唯一事实底座 SSOT、只追加不可改、schema 演进走版本号、报告从 fact 投影=read model、字节级确定性可重放、MCP 只读查询面）已建立违约两级处置：协议级违约 fail-fast、字段级病态进 quarantine（字段置 null+malformed 印记+reason code+三桶计数 clean/normalized/quarantined+报告头覆盖率恒等式 total=clean+normalized+quarantined）。现在裁隔离记录的物理承载形态。约束：①审计 fact 表的 quadrant 列是四值闭集 CHECK（structure/behavior/supply-chain/strategic），quarantine 属管线健康元数据归哪个象限都勉强，但已有 meta-fact 先例（上游解析状态、facet 错误等以 metric 行落 fact 表、随采集器声明域落 strategic 象限）；②被隔离 commit 仍产出正常 fact（sha/paths/subjects 可用），仅其 date 派生面被排除；③需求面=逐 SHA 清单+reason code+原始字段字节回显+恒等式可对账+MCP 查询可达+报告可读投影。选项：(a) quarantine 记录作新 metric 的 fact 行落主 fact 表（subject_ref=commit sha、value_json={field,raw_bytes,reason_code}、quadrant 沿 meta-fact 先例落 strategic）；(b) 独立 reject/quarantine 表（DuckDB read_csv 的 reject_errors 表同构——隔离记录独立 schema 不混主表）；(c) 仅报告/工件层（逐 SHA 清单进报告节+measurements 侧车 JSON 计数，不落库）；(d) fact 行承载+报告节投影双写。请调研：①数据质量/DLQ 生态对「隔离记录的存储形态」的成熟惯例——独立隔离表/独立 topic vs 主表打标 vs 仅日志各自的适用边界与演化路径（DuckDB reject_errors 表、Kafka DLQ topic、Great Expectations/Databricks 的 quarantine 表模式、dbt 的 failed test 存诸形态）；②审计/合规场景下「管线健康元数据」与「审计事实」混表还是分表的先例与判据（ lineage/meta 事实是否入同一事实库）；③报告呈现层与持久层的分工纪律——「逐 SHA 清单」这类明细放报告还是放 DB 的判据；④对本题给出建制推荐与理由。辩证看待：指出牵强处与反例（meta-fact 先例是否其实污染了 fact 表语义纯度、独立表在多消费面下的对账优势、单字段规模下独立表是否杀鸡用牛刀）。

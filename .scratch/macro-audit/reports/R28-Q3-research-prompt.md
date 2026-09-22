@@ -1,0 +1,7 @@
+# R28-Q3 atomcode 调研题面（存档）
+
+> 2026-09-22 轮28 grill Q3。执行面=atomcode -p（ctx_batch_execute 串行）。
+
+## 调研问题（verbatim 发出）
+
+「锚点字段病态的处置层级」：一个工程内容审计工具（审计 git 仓历史、字节级确定性、报告可重放）已建立违约两级处置——协议级违约 fail-fast、字段级病态进 quarantine 桶（字段置 null+malformed 印记+reason code+三桶计数 clean/normalized/quarantined+比例阈值超限升级该仓 unsupported 裁定）。所有 per-record 字段已裁。现在要裁一个特殊角色字段：headDate（git log -1 --format=%cI 的 HEAD commit committer date，单值非标量集合成员）——它是观测锚点：下游 feeding 全部 fact 行的 observed_at（DB schema NOT NULL TIMESTAMPTZ）、traceId 关联键哈希输入、报告所有 decided_at 字段。即：它既是字段又是全局锚点，null 无处可去（NOT NULL 约束崩全表）。实证：git/git 仓历史深处有 %cI=「 INDIA」病态 commit，HEAD 大概率正常但语义规则须先裁。选项：(a) 锚字段特权化留 fail-fast——观测时点不可缺，锚病态视为协议级等价物，contract error 硬崩无报告；(b) headDate 进 quarantine 桶＋observedAt 退化为 ingested_at 摄取时点顶位＋全链印记——时点语义改变且 schema 演进；(c) headDate 病态→该仓整体升级 unsupported 裁定——基数 1 字段病态率 100% 必超比例阈值，产出 unsupported 裁定报告（显式降级非崩溃，管线跑通+工件齐备+裁定如实落数仍算绿）；(d) 回退到最近一个 clean commit 的 date 当 observedAt——观测时点=别人 commit 的时间疑似编造数据。请调研：①审计/数据管线中「锚点元数据（观测时点/run 时间戳/correlation anchor）病态」的处置惯例——与 per-record 字段病态是否区别对待，锚点缺失时管线是崩还是降级；②「整条流水线产出 unsupported/N/A 裁定」vs「硬崩」在审计工具与数据质量框架中的成熟度对比（断路器裁定/健康检查不可用状态/审计意见中的 disclaimer of opinion 类比）；③observed_at 类时间戳字段的语义纪律——摄取时点（ingested_at）与观测时点（observed_at）混用的后果与行业做法（event time vs processing time 之争在本场景的映射）；④对本题给出建制推荐与理由。辩证看待：指出牵强处与反例（unsupported 裁定是否掩盖了「工具连 HEAD 都读不了」的基建级故障信号；锚字段特权化是否反而更符合 fail-fast 精神）。
