@@ -6,7 +6,7 @@
 // #64/D-072⑧：MCP stdio 面 stdout 属 JSON-RPC 行帧——自愈结构化事件改落 stderr 避让协议通道
 process.env.MACRO_AUDIT_MCP_STDIO = '1';
 
-import { projectFacts } from './fact/projection.js';
+import { projectFacts, projectQuarantine } from './fact/projection.js';
 import { loadManifestMeta } from './manifest.js';
 
 export const MCP_PROTOCOL_VERSION = '2024-11-05';
@@ -24,6 +24,21 @@ interface RpcResponse {
   result?: unknown;
   error?: { code: number; message: string };
 }
+
+const QUARANTINE_TOOL = {
+  name: 'quarantine',
+  description: 'read-only quarantine_log projection（#78/D-113②）：字段级病态处置事件台账——固定列集（run_id/commit_sha/field_name/disposition/reason_code/raw_bytes_hex/is_trunc/original_length/sha256_full/collector/recorded_at），READ_ONLY 实例，limit≤500。db 寻址同 facts 链',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      db: { type: 'string', description: 'facts.duckdb 绝对路径（可省——省则走服务端寻址链）' },
+      run: { type: 'string', description: 'run_id（trace_id hex32）过滤' },
+      field: { type: 'string', description: 'field_name 过滤（如 committer_date / head_date）' },
+      limit: { type: 'number', description: '行数上限（≤500）' }
+    },
+    additionalProperties: false
+  }
+};
 
 const FACTS_TOOL = {
   name: 'facts',
@@ -88,12 +103,30 @@ export async function handleRpcMessage(msg: RpcMessage): Promise<RpcResponse | n
     return ok(id, {});
   }
   if (method === 'tools/list') {
-    return ok(id, { tools: [FACTS_TOOL] });
+    return ok(id, { tools: [FACTS_TOOL, QUARANTINE_TOOL] });
   }
   if (method === 'tools/call') {
     const p = msg.params || {};
-    if (p.name !== 'facts') {
+    if (p.name !== 'facts' && p.name !== 'quarantine') {
       return fail(id, -32602, 'unknown tool: ' + String(p.name));
+    }
+    if (p.name === 'quarantine') {
+      const a = (p.arguments || {}) as { [k: string]: unknown };
+      const db = resolveFactsDb(asStr(a.db));
+      if (!db) {
+        return fail(id, -32602, 'MCP-FACTS-DB-UNRESOLVED: facts db 寻址失败——arguments.db 未给且服务端无 --db argv/MACRO_AUDIT_FACTS_DB env 配置');
+      }
+      const lim = a.limit === undefined ? undefined : Number(a.limit);
+      if (lim !== undefined && (!Number.isFinite(lim) || lim <= 0)) {
+        return fail(id, -32602, 'quarantine limit must be a positive number');
+      }
+      try {
+        const rows = await projectQuarantine(db, { run_id: asStr(a.run), field_name: asStr(a.field), limit: lim });
+        const text = rows.map(function (r) { return JSON.stringify(r); }).join('\n');
+        return ok(id, { content: [{ type: 'text', text: text }], isError: false });
+      } catch (e) {
+        return ok(id, { content: [{ type: 'text', text: 'MCP-QUAR-ERROR: ' + String(e && (e as Error).message || e) }], isError: true });
+      }
     }
     const a = (p.arguments || {}) as { [k: string]: unknown };
     const db = resolveFactsDb(asStr(a.db));

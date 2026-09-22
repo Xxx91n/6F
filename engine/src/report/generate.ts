@@ -5,6 +5,7 @@
 // 纯逻辑约束：输入一律注入；不读 fs、不起子进程、不发网络请求、不接 LLM（D-016）。
 
 import { createHash } from 'node:crypto';
+import { intakeEscalation, deriveReasonClass, VERDICT_REASON_CLASSES } from '../intake/quarantine.js';
 import { sealNarrativeSections, renderTemplateNarrative, NARRATIVE_SEAL_PROTOCOL } from './narrative.js';
 import type { NarrativeSection, SealedNarrative } from './narrative.js';
 import { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations } from './citation.js';
@@ -134,6 +135,7 @@ export const CONTENT_DIGEST_CANONICALIZATION = 'json_utf8_entries_then_citation_
 // tree sha 才是内容寻址的不可变主体，故 receipt 同时锚 commit + tree。
 export interface Receipt {
   receipt_id: string;
+  verdict?: { band: string; reason_class: string };   // D-111① verdict 三面投影（Receipt 面）；推导投影不入哈希链
   chain_hash: string;
   issued_at: string;
   commit_anchor: string;
@@ -233,6 +235,20 @@ export interface PreviewDisclosure {
   not_in_preview: readonly string[];
 }
 
+// ---------- Intake Health（#78 / ADR-0022 / D-114）：摄入健康节固定渲染 ----------
+export interface IntakeFieldStatRow { field_name: string; total: number; clean: number; normalized: number; quarantined: number }
+export interface IntakeHealthRow { commit_sha: string; field_name: string; reason_code: string; raw_echo: string }
+export interface IntakeHealth {
+  fields: IntakeFieldStatRow[];
+  affected_commits: number;     // quarantined 行去重 commit 数（呈现量，不承载恒等式）
+  excluded_commits: number;     // 日期派生统计显式排除的 quarantined commit 数（over N-M 声明的 M）
+  quarantined_rows: IntakeHealthRow[];
+  threshold_ratio: number;
+  escalation: 'none' | 'anchor' | 'threshold';
+}
+
+export interface VerdictProjection { band: VerdictBand; reason_class: string }
+
 export interface ReportInput {
   report_id: string;
   schema_version?: string;
@@ -260,6 +276,7 @@ export interface ReportInput {
   degraded: boolean;
   degraded_reason: string | null;
   preview_disclosure?: PreviewDisclosure;
+  intake_health?: IntakeHealth;  // 缺席→渲染零病态同形骨架（恒在渲染，D-114⑤）
   human?: HumanAdjudication;
   narrative_sections?: readonly NarrativeSection[];
 }
@@ -287,6 +304,8 @@ export interface Report {
   recommendations: Recommendation[];
   adjudication: AdjudicationBlock;
   receipt: Receipt;
+  verdict: VerdictProjection;
+  intake_health: IntakeHealth | null;
   preview_disclosure: PreviewDisclosure | null;
   narrative_sections: SealedNarrative[];
 }
@@ -305,6 +324,12 @@ export function buildReport(input: ReportInput): Report {
     decided_at: input.decided_at,
     human: input.human
   });
+  // quarantine 升级（D-100③/D-105①）：锚字段病态或单字段病态率超阈 → run 级裁定升级 unsupported；
+  // 条目不动——升级语义载于 verdict.reason_class（三面投影）＋Intake Health 节。
+  const intakeHealth = input.intake_health !== undefined ? input.intake_health : null;
+  const escalation = intakeHealth ? intakeEscalation(intakeHealth.fields) : 'none';
+  if (escalation !== 'none' && adjudication.overall !== 'unsupported') { adjudication.overall = 'unsupported'; }
+  const verdict: VerdictProjection = { band: adjudication.overall, reason_class: deriveReasonClass(adjudication.overall, escalation) };
   const receipt = buildReceipt({
     fact_ids: input.fact_ids,
     adjudication: adjudication,
@@ -314,6 +339,7 @@ export function buildReport(input: ReportInput): Report {
     gate_ref: input.gate_ref,
     degraded: input.degraded
   });
+  receipt.verdict = { band: verdict.band, reason_class: verdict.reason_class };
   return {
     report_id: input.report_id,
     schema_version: input.schema_version ? input.schema_version : REPORT_SKELETON_VERSION,
@@ -337,6 +363,8 @@ export function buildReport(input: ReportInput): Report {
     recommendations: input.recommendations.slice(),
     adjudication: adjudication,
     receipt: receipt,
+    verdict: verdict,
+    intake_health: intakeHealth,
     preview_disclosure: input.preview_disclosure ? input.preview_disclosure : null,
     narrative_sections: sealNarrativeSections(narrativeInput, input.evidence, input.decided_at)
   };
@@ -437,12 +465,44 @@ export function renderMarkdown(r: Report): string {
     }
     out.push('');
   }
+  // ---------- Intake Health 节（D-114 恒在渲染：有/无病态共享同骨架；零病态渲染「无」=阴性自证） ----------
+  out.push('## Intake Health');
+  out.push('');
+  out.push('- 契约：ADR-0022 违约两级处置——协议级违约 fail-fast（崩溃桶工件），字段级病态=quarantine 桶隔离（判定/处置硬分界）');
+  if (r.intake_health === null) {
+    out.push('- 摄入无病态声明：quarantined=0 · normalized=0（接线字段未供给 intake_health——同形骨架负声明，证据缺席≠证据为零）');
+  } else {
+    const ih = r.intake_health;
+    for (const f of ih.fields) {
+      const eq = f.clean + f.normalized + f.quarantined === f.total ? '恒等式=PASS' : '恒等式=MISMATCH';
+      out.push('- field ' + f.field_name + ': total=' + f.total + ' clean=' + f.clean + ' normalized=' + f.normalized + ' quarantined=' + f.quarantined + '（' + eq + '）');
+    }
+    out.push('- affected_commits（quarantined 去重）: ' + ih.affected_commits);
+    const totalCommits = ih.fields.filter(function (f) { return f.field_name === 'committer_date'; })[0];
+    out.push('- 派生统计排除声明：日期派生指标 over ' + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + ' commits（quarantined 排除 ' + ih.excluded_commits + '；quarantined 日期 commit 禁入 first_commit/adr_lag 派生）');
+    out.push('- 阈值纪律：单字段 quarantined/total > ' + ih.threshold_ratio + ' → run 级裁定升级 unsupported；escalation=' + ih.escalation);
+    if (ih.quarantined_rows.length === 0) {
+      out.push('- quarantined rows: 无（摄入无病态=阴性自证）');
+    } else {
+      out.push('- quarantined-only SHA 表（sha | field | reason_code | raw_echo 截断呈现）：');
+      out.push('');
+      out.push('  | sha | field | reason_code | raw_echo |');
+      out.push('  | --- | --- | --- | --- |');
+      for (const row of ih.quarantined_rows) {
+        out.push('  | ' + row.commit_sha + ' | ' + row.field_name + ' | ' + row.reason_code + ' | ' + row.raw_echo + ' |');
+      }
+      out.push('');
+    }
+  }
+  out.push('');
   return out.join(String.fromCharCode(10));
 }
 
 export interface Sidecar {
   schema_version: string;
   report_id: string;
+  verdict: VerdictProjection;         // D-111① 三面投影机读块（band + reason_class）
+  intake_health: IntakeHealth | null;
   stability: 'preview' | 'ga' | null;   // 报告头契约（#53/D-060⑦）
   capabilities: string[];              // 已上架能力面枚举
   scale: string;
@@ -464,13 +524,15 @@ export interface Sidecar {
   recommendations: Recommendation[];
   preview_disclosure: PreviewDisclosure | null;
   narrative_sections: SealedNarrative[];
-  machine_contract: { citation_anchor_format: string; verdict_enum: string[]; human_adjudication_status: string; narrative_seal_protocol: string };
+  machine_contract: { citation_anchor_format: string; verdict_enum: string[]; verdict_reason_class_enum: string[]; human_adjudication_status: string; narrative_seal_protocol: string };
 }
 
 export function toSidecar(r: Report): Sidecar {
   return {
     schema_version: r.schema_version,
     report_id: r.report_id,
+    verdict: r.verdict,
+    intake_health: r.intake_health,
     stability: r.stability,
     capabilities: r.capabilities.slice(),
     scale: r.scale,
@@ -497,6 +559,7 @@ export function toSidecar(r: Report): Sidecar {
     machine_contract: {
       citation_anchor_format: 'evidence_id + source + locator（三者齐备即为可解析引文锚）',
       verdict_enum: ['supported', 'unsupported', 'insufficient'],
+      verdict_reason_class_enum: VERDICT_REASON_CLASSES.slice(),
       human_adjudication_status: r.adjudication.human.status,
       narrative_seal_protocol: NARRATIVE_SEAL_PROTOCOL
     }
@@ -603,6 +666,8 @@ export function degradeReport(r: Report, reason: string): Report {
     }),
     adjudication: adjudication,
     receipt: receipt,
+    verdict: { band: 'insufficient', reason_class: 'evidence_insufficient' },
+    intake_health: r.intake_health,
     preview_disclosure: r.preview_disclosure,
     narrative_sections: []
   };

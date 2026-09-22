@@ -132,15 +132,233 @@ function assertAppendOnly(sql) {
     throw new AppendOnlyViolation(sql, v.reason);
   }
 }
-function buildCreateTableSql(table, fields) {
+function buildCreateTableSql(table, fields, tableConstraints) {
   const cols = fields.map(function(f) {
     return "  " + f.name + " " + f.type + " " + f.constraints.join(" ").trim();
-  });
+  }).concat(tableConstraints ? tableConstraints.map(function(c) {
+    return "  " + c;
+  }) : []);
   const head = "CREATE TABLE IF NOT EXISTS " + table + " (";
   return head + String.fromCharCode(10) + cols.join("," + String.fromCharCode(10)) + String.fromCharCode(10) + ");";
 }
 var AUDIT_FACT_DDL = buildCreateTableSql("audit_fact", AUDIT_FACT_FIELDS);
 var SCHEMA_REGISTRY_DDL = buildCreateTableSql("schema_registry", SCHEMA_REGISTRY_FIELDS);
+var QUARANTINE_LOG_FIELDS = [
+  { name: "q_seq", type: "UBIGINT", nullable: false, role: "identity", constraints: ["NOT NULL", "PRIMARY KEY"], inherits: "D-106" },
+  { name: "run_id", type: "CHAR(32)", nullable: false, role: "correlation", constraints: ["NOT NULL", "CHECK(regexp_matches(run_id, '^[0-9a-f]{32}$'))"], inherits: "D-108" },
+  { name: "commit_sha", type: "VARCHAR(64)", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "D-106" },
+  { name: "field_name", type: "VARCHAR(32)", nullable: false, role: "classification", constraints: ["NOT NULL"], inherits: "D-104" },
+  { name: "disposition", type: "VARCHAR(16)", nullable: false, role: "classification", constraints: ["NOT NULL", "CHECK(disposition IN ('quarantined','normalized'))"], inherits: "D-112" },
+  { name: "reason_code", type: "VARCHAR(64)", nullable: false, role: "classification", constraints: ["NOT NULL", "CHECK(regexp_matches(reason_code, '^[a-z][a-z0-9_]{2,63}$'))"], inherits: "D-119" },
+  { name: "raw_bytes_hex", type: "VARCHAR", nullable: false, role: "payload", constraints: ["NOT NULL", "CHECK(length(raw_bytes_hex) <= 131072)"], inherits: "D-117" },
+  //   列名 is_trunc（非 is_truncated）：append-only 黑名单为子串扫，'TRUNCATE' 会误伤列名——
+  //   改名避开守卫误报（语义不变：D-117 截断标记位；禁词表兼容注记见 docs/known-gaps.md）。
+  { name: "is_trunc", type: "BOOLEAN", nullable: false, role: "payload", constraints: ["NOT NULL"], inherits: "D-117" },
+  { name: "original_length", type: "UBIGINT", nullable: false, role: "payload", constraints: ["NOT NULL"], inherits: "D-117" },
+  { name: "sha256_full", type: "CHAR(64)", nullable: false, role: "payload", constraints: ["NOT NULL", "CHECK(regexp_matches(sha256_full, '^[0-9a-f]{64}$'))"], inherits: "D-117" },
+  { name: "collector", type: "VARCHAR(64)", nullable: false, role: "provenance", constraints: ["NOT NULL"], inherits: "D-106" },
+  { name: "recorded_at", type: "TIMESTAMPTZ", nullable: true, role: "provenance", constraints: ["NULL"], inherits: "D-108" }
+];
+var QUARANTINE_LOG_DDL = buildCreateTableSql("quarantine_log", QUARANTINE_LOG_FIELDS, [
+  "UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)"
+]);
+
+// src/intake/quarantine.ts
+import { createHash } from "node:crypto";
+var QUARANTINE_REASON_CODES = [
+  "anchor_head_date_malformed",
+  "normalized_tz_offset",
+  "unclassified_field_anomaly",
+  "oversize"
+];
+var REASON_ANCHOR_HEAD_DATE_MALFORMED = "anchor_head_date_malformed";
+var REASON_NORMALIZED_TZ_OFFSET = "normalized_tz_offset";
+var REASON_UNCLASSIFIED = "unclassified_field_anomaly";
+var REASON_OVERSIZE = "oversize";
+var FIELD_COMMITTER_DATE = "committer_date";
+var FIELD_HEAD_DATE = "head_date";
+var RAW_BYTES_CAP = 65536;
+function rawBytesFingerprint(raw) {
+  const buf = Buffer.from(raw, "utf8");
+  const truncated = buf.length > RAW_BYTES_CAP;
+  const head = truncated ? buf.subarray(0, RAW_BYTES_CAP) : buf;
+  return {
+    raw_bytes_hex: head.toString("hex"),
+    is_trunc: truncated,
+    original_length: buf.length,
+    sha256_full: createHash("sha256").update(buf).digest("hex")
+  };
+}
+var GIT_ISO_STRICT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/;
+function classifyGitIsoField(raw, opts) {
+  const r = raw === void 0 || raw === null ? "" : String(raw);
+  if (Buffer.byteLength(r, "utf8") > RAW_BYTES_CAP) {
+    return { status: "quarantined", value: null, reason_code: REASON_OVERSIZE, raw: r };
+  }
+  const trimmed = r.trim();
+  const s = trimmed.replace(/\+00:00$/, "Z");
+  if (GIT_ISO_STRICT_RE.test(s)) {
+    if (s !== trimmed) {
+      return { status: "normalized", value: s, reason_code: REASON_NORMALIZED_TZ_OFFSET, raw: r };
+    }
+    return { status: "clean", value: s, reason_code: null, raw: r };
+  }
+  return {
+    status: "quarantined",
+    value: null,
+    reason_code: opts && opts.anchor ? REASON_ANCHOR_HEAD_DATE_MALFORMED : REASON_UNCLASSIFIED,
+    raw: r
+  };
+}
+function emptyFieldStat(fieldName) {
+  return { field_name: fieldName, total: 0, clean: 0, normalized: 0, quarantined: 0 };
+}
+function recordFieldInstance(stat, events, cls, commitSha, fieldName) {
+  stat.total += 1;
+  if (cls.status === "clean") {
+    stat.clean += 1;
+    return;
+  }
+  if (cls.status === "normalized") {
+    stat.normalized += 1;
+  } else {
+    stat.quarantined += 1;
+  }
+  events.push({
+    commit_sha: commitSha,
+    field_name: fieldName,
+    disposition: cls.status === "normalized" ? "normalized" : "quarantined",
+    reason_code: cls.reason_code,
+    raw: cls.raw
+  });
+}
+var ACCEPTED_REASON_CODES = [];
+function strictQuarantineViolations(events) {
+  const baseline = new Set(ACCEPTED_REASON_CODES);
+  const out = [];
+  for (const e of events) {
+    if (e.disposition !== "quarantined") {
+      continue;
+    }
+    if (!baseline.has(e.reason_code)) {
+      out.push(e.reason_code);
+    }
+  }
+  return out;
+}
+function intakeIdentityIssues(stats, dbCounts) {
+  const issues = [];
+  for (const s of stats) {
+    if (s.clean + s.normalized + s.quarantined !== s.total) {
+      issues.push({ field_name: s.field_name, detail: "\u4E09\u6876\u5408\u8BA1\u2260total\uFF1A" + s.clean + "+" + s.normalized + "+" + s.quarantined + "!=" + s.total });
+    }
+    const db = dbCounts[s.field_name] || { normalized: 0, quarantined: 0 };
+    if (db.normalized !== s.normalized) {
+      issues.push({ field_name: s.field_name, detail: "normalized \u5E93\u5185 " + db.normalized + "\u2260\u5185\u5B58 " + s.normalized });
+    }
+    if (db.quarantined !== s.quarantined) {
+      issues.push({ field_name: s.field_name, detail: "quarantined \u5E93\u5185 " + db.quarantined + "\u2260\u5185\u5B58 " + s.quarantined });
+    }
+  }
+  return issues;
+}
+var QUARANTINE_FIELD_RATIO_RED = 1e-3;
+function intakeEscalation(stats) {
+  let threshold = false;
+  for (const s of stats) {
+    if (s.quarantined === 0) {
+      continue;
+    }
+    if (s.field_name === FIELD_HEAD_DATE) {
+      return "anchor";
+    }
+    if (s.quarantined / s.total > QUARANTINE_FIELD_RATIO_RED) {
+      threshold = true;
+    }
+  }
+  return threshold ? "threshold" : "none";
+}
+var VERDICT_REASON_CLASSES = [
+  "none",
+  "evidence_insufficient",
+  "anchor_malformed",
+  "threshold_exceeded",
+  "criteria_unsupported"
+];
+function deriveReasonClass(band, escalation) {
+  if (escalation === "anchor") {
+    return "anchor_malformed";
+  }
+  if (escalation === "threshold") {
+    return "threshold_exceeded";
+  }
+  if (band === "insufficient") {
+    return "evidence_insufficient";
+  }
+  if (band === "unsupported") {
+    return "criteria_unsupported";
+  }
+  return "none";
+}
+var CRASH_ARTIFACT_SCHEMA = "quarantine-crash-artifact/v1";
+function buildCrashArtifact(args) {
+  const fp = rawBytesFingerprint(args.raw === void 0 || args.raw === null ? "" : args.raw);
+  const rc = args.run_context || {};
+  const cn = args.counts || {};
+  return {
+    schema: CRASH_ARTIFACT_SCHEMA,
+    error_code: args.error_code,
+    raw_bytes_hex: fp.raw_bytes_hex,
+    is_trunc: fp.is_trunc,
+    original_length: fp.original_length,
+    sha256_full: fp.sha256_full,
+    crash_location: args.crash_location,
+    run_context: {
+      repo_ref: rc.repo_ref === void 0 ? null : rc.repo_ref,
+      run_id: rc.run_id === void 0 ? null : rc.run_id,
+      commit_sha: rc.commit_sha === void 0 ? null : rc.commit_sha
+    },
+    counts: {
+      commits_seen: cn.commits_seen === void 0 ? 0 : cn.commits_seen,
+      facts_written: cn.facts_written === void 0 ? 0 : cn.facts_written,
+      quarantined_written: cn.quarantined_written === void 0 ? 0 : cn.quarantined_written
+    },
+    at: args.at || (/* @__PURE__ */ new Date()).toISOString()
+  };
+}
+var PROTOCOL_CRASH_CODES = [
+  "GITCLI-OUTPUT-CONTRACT",
+  "GIT-PROBE-FAILED",
+  "PROBE-INVARIANT-FAIL",
+  "STRICT-QUARANTINE-VIOLATION",
+  "QUARANTINE-CONSTRAINT",
+  "REASON-CODE-UNLISTED",
+  "INTAKE-IDENTITY-MISMATCH"
+];
+function protocolCrashError(code, detail, crash) {
+  const e = new Error(code + ": " + detail);
+  e.code = code;
+  e.crash = {
+    raw: crash.raw === void 0 ? null : crash.raw,
+    crash_location: crash.crash_location === void 0 ? "unknown" : crash.crash_location,
+    run_context: crash.run_context || {},
+    counts: crash.counts || {}
+  };
+  return e;
+}
+function isProtocolCrash(e) {
+  return !!e && typeof e === "object" && typeof e.code === "string" && PROTOCOL_CRASH_CODES.indexOf(e.code) >= 0 && typeof e.crash === "object" && e.crash !== null;
+}
+function crashArtifactFromError(e, at) {
+  return buildCrashArtifact({
+    error_code: e.code,
+    raw: e.crash.raw,
+    crash_location: e.crash.crash_location,
+    run_context: e.crash.run_context,
+    counts: e.crash.counts,
+    at
+  });
+}
 
 // src/fact/store.ts
 var WRITE_COLUMNS = AUDIT_FACT_FIELDS.filter(function(f) {
@@ -332,8 +550,11 @@ async function openWriter(dbPath) {
   instanceOf.set(connection, instance);
   await connection.run(SCHEMA_REGISTRY_DDL);
   await connection.run(AUDIT_FACT_DDL);
+  await connection.run(QUARANTINE_LOG_DDL);
   await connection.run("CREATE SEQUENCE IF NOT EXISTS " + FACT_SEQ_NAME + " START 1");
+  await connection.run("CREATE SEQUENCE IF NOT EXISTS " + QUARANTINE_SEQ_NAME + " START 1");
   await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 1, 'Registered', 'FULL', 'schema v0 append-only fact table' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 1)");
+  await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 2, 'Registered', 'BACKWARD', 'quarantine_log added: field-level pathology disposition ledger (#78 / ADR-0022 / D-106)' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 2)");
   return connection;
 }
 async function openReader(dbPath) {
@@ -353,6 +574,67 @@ async function appendFact(connection, event) {
     return v === void 0 ? null : v;
   });
   await connection.run(INSERT_SQL, row);
+}
+var QUARANTINE_SEQ_NAME = "quarantine_log_seq";
+var QUARANTINE_INSERT_SQL = "INSERT INTO quarantine_log (q_seq, run_id, commit_sha, field_name, disposition, reason_code, raw_bytes_hex, is_trunc, original_length, sha256_full, collector, recorded_at) VALUES (nextval('" + QUARANTINE_SEQ_NAME + "'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
+async function appendQuarantineEvent(connection, ev) {
+  if (QUARANTINE_REASON_CODES.indexOf(ev.reason_code) < 0) {
+    throw protocolCrashError("REASON-CODE-UNLISTED", "reason_code outside v1 vocabulary: " + ev.reason_code, {
+      raw: ev.raw,
+      crash_location: "fact/store.ts:appendQuarantineEvent",
+      run_context: { repo_ref: null, run_id: ev.run_id, commit_sha: ev.commit_sha }
+    });
+  }
+  const fp = rawBytesFingerprint(ev.raw);
+  assertAppendOnly(QUARANTINE_INSERT_SQL);
+  await connection.run(QUARANTINE_INSERT_SQL, [
+    ev.run_id,
+    ev.commit_sha,
+    ev.field_name,
+    ev.disposition,
+    ev.reason_code,
+    fp.raw_bytes_hex,
+    fp.is_trunc,
+    fp.original_length,
+    fp.sha256_full,
+    ev.collector,
+    ev.recorded_at
+  ]);
+}
+async function runInTransaction(connection, fn) {
+  await connection.run("BEGIN TRANSACTION");
+  try {
+    const r = await fn();
+    await connection.run("COMMIT");
+    return r;
+  } catch (e) {
+    try {
+      await connection.run("ROLLBACK");
+    } catch (_) {
+    }
+    throw e;
+  }
+}
+async function queryQuarantineCounts(connection, runId) {
+  const sql = "SELECT field_name, disposition, COUNT(*) AS n FROM quarantine_log WHERE run_id = ? GROUP BY field_name, disposition";
+  assertAppendOnly(sql);
+  const res = await connection.run(sql, [runId]);
+  const rows = await res.getRows();
+  const out = {};
+  for (const r of rows) {
+    const field = String(r[0]);
+    const disp = String(r[1]);
+    const n = Number(r[2]);
+    if (!out[field]) {
+      out[field] = { normalized: 0, quarantined: 0 };
+    }
+    if (disp === "normalized") {
+      out[field].normalized = n;
+    } else if (disp === "quarantined") {
+      out[field].quarantined = n;
+    }
+  }
+  return out;
 }
 
 // src/doctor.ts
@@ -426,18 +708,18 @@ function probeUpstream() {
   const conf = process.platform === "win32" ? spawnSync2("cmd.exe", ["/d", "/s", "/c", "npm", "config", "get", "registry"], { encoding: "utf8", timeout: 1e4 }) : spawnSync2("npm", ["config", "get", "registry"], { encoding: "utf8", timeout: 1e4 });
   const configured = conf.status === 0 ? String(conf.stdout || "").trim() : "";
   const reg = /^https?:\/\//.test(configured) ? configured : "https://registry.npmjs.org/";
-  return new Promise(function(resolve4) {
+  return new Promise(function(resolve5) {
     const t0 = Date.now();
     const req = get(reg, { timeout: 5e3, method: "HEAD" }, function(res) {
       res.resume();
-      resolve4({ leg: "upstream", status: "ok", detail: reg + " " + String(res.statusCode) + " " + String(Date.now() - t0) + "ms" });
+      resolve5({ leg: "upstream", status: "ok", detail: reg + " " + String(res.statusCode) + " " + String(Date.now() - t0) + "ms" });
     });
     req.on("timeout", function() {
       req.destroy();
-      resolve4({ leg: "upstream", status: "degraded", detail: "registry HEAD timeout 5s\uFF08\u79BB\u7EBF\u9762\uFF1A\u81EA\u6108/\u4E0A\u6E38\u62C9\u53D6\u4E0D\u53EF\u7528\uFF0C\u672C\u5730\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF09" });
+      resolve5({ leg: "upstream", status: "degraded", detail: "registry HEAD timeout 5s\uFF08\u79BB\u7EBF\u9762\uFF1A\u81EA\u6108/\u4E0A\u6E38\u62C9\u53D6\u4E0D\u53EF\u7528\uFF0C\u672C\u5730\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF09" });
     });
     req.on("error", function(e) {
-      resolve4({ leg: "upstream", status: "degraded", detail: "registry unreachable: " + String(e && e.message || e).slice(0, 120) });
+      resolve5({ leg: "upstream", status: "degraded", detail: "registry unreachable: " + String(e && e.message || e).slice(0, 120) });
     });
   });
 }
@@ -461,7 +743,7 @@ async function runDoctor(opts) {
 }
 
 // src/intake/intake.ts
-import { createHash } from "node:crypto";
+import { createHash as createHash2 } from "node:crypto";
 import { existsSync as existsSync3, mkdirSync as mkdirSync2, statSync as statSync2 } from "node:fs";
 import { spawnSync as spawnSync3 } from "node:child_process";
 import { dirname as dirname3, isAbsolute, join as join4, resolve } from "node:path";
@@ -516,14 +798,6 @@ function isGitRepo(dir, timeoutMs = 3e4) {
   const r = git(["rev-parse", "--git-dir"], dir, timeoutMs);
   return !r.error && r.status === 0;
 }
-var GIT_ISO_STRICT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/;
-function normalizeGitIsoDate(raw) {
-  const s = (raw || "").trim().replace(/\+00:00$/, "Z");
-  if (!GIT_ISO_STRICT_RE.test(s)) {
-    throw intakeError("GITCLI-OUTPUT-CONTRACT", "git %cI output violates frozen shape (expect strict ISO-8601, Z or \xB1HH:MM zone): " + JSON.stringify(raw));
-  }
-  return s;
-}
 function isShallowRepo(dir, timeoutMs = 3e4) {
   const r = gitOk(["rev-parse", "--is-shallow-repository"], dir, timeoutMs);
   return r.stdout === "true";
@@ -537,7 +811,7 @@ function remoteOriginUrl(dir, timeoutMs) {
   return r.status === 0 ? r.stdout : "";
 }
 function sha256Short(text) {
-  return createHash("sha256").update(text).digest("hex").slice(0, 16);
+  return createHash2("sha256").update(text).digest("hex").slice(0, 16);
 }
 function normalizeRepoUrlKey(url) {
   return url.trim().replace(/\/+$/, "").replace(/\.git$/i, "");
@@ -676,9 +950,9 @@ import { tmpdir as tmpdir2 } from "node:os";
 import { dirname as dirname5, join as join7, resolve as resolve2 } from "node:path";
 
 // src/collect/collectors.ts
-import { createHash as createHash2 } from "node:crypto";
+import { createHash as createHash3 } from "node:crypto";
 function sha256Hex(input) {
-  return createHash2("sha256").update(input, "utf8").digest("hex");
+  return createHash3("sha256").update(input, "utf8").digest("hex");
 }
 function uuidFromHex(hex) {
   const h = (hex + "00000000000000000000000000000000").slice(0, 32);
@@ -1097,7 +1371,10 @@ function collectGitlog(input, ctx) {
     if (touching.length === 0) {
       continue;
     }
-    const sorted = touching.slice().sort(function(a, b) {
+    const dated = touching.filter(function(c) {
+      return c.date !== null;
+    });
+    const sorted = dated.slice().sort(function(a, b) {
       if (a.date < b.date) {
         return -1;
       }
@@ -1112,13 +1389,16 @@ function collectGitlog(input, ctx) {
       }
       return 0;
     });
-    const first = sorted[0];
-    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, "git.first_commit", {
-      path,
-      sha: first.sha,
-      date: first.date
-    }));
-    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, "git.commit_count", {
+    const first = sorted.length > 0 ? sorted[0] : null;
+    const anchorSha = first !== null ? first.sha : touching[0].sha;
+    if (first !== null) {
+      out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, "git.first_commit", {
+        path,
+        sha: first.sha,
+        date: first.date
+      }));
+    }
+    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, anchorSha, "git.commit_count", {
       path,
       count: touching.length
     }));
@@ -1133,14 +1413,14 @@ function collectGitlog(input, ctx) {
         topAuthor = a;
       }
     }
-    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, "git.author_matrix", {
+    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, anchorSha, "git.author_matrix", {
       path,
       authors,
       top_author: topAuthor,
       top_share: authorCounts[topAuthor] / touching.length
     }));
     const adrDate = input.adrDates[path];
-    if (adrDate) {
+    if (adrDate && first !== null) {
       out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, "git.adr_lag_days", {
         path,
         adr_date: adrDate,
@@ -1161,7 +1441,7 @@ var COLLECTOR_FAMILIES = COLLECTOR_DESCRIPTORS.map(function(d) {
 });
 
 // src/report/generate.ts
-import { createHash as createHash3 } from "node:crypto";
+import { createHash as createHash4 } from "node:crypto";
 
 // src/report/citation.ts
 var UNVERIFIED_MARK = "\u26A0 unverified";
@@ -2040,7 +2320,7 @@ function buildReceipt(args) {
   }
   const NL4 = String.fromCharCode(10);
   const digestInput = JSON.stringify(args.adjudication.entries) + NL4 + JSON.stringify(args.adjudication.citation_checks);
-  const contentDigest = createHash3("sha256").update(digestInput, "utf8").digest("hex");
+  const contentDigest = createHash4("sha256").update(digestInput, "utf8").digest("hex");
   const payload = [
     "facts:" + sorted.join(","),
     "adj:" + adjParts.join(","),
@@ -2054,7 +2334,7 @@ function buildReceipt(args) {
     "gate_ref:" + args.gate_ref.prereg_commit + "|" + args.gate_ref.criteria_path + "|" + args.gate_ref.basis_path + "|" + args.gate_ref.criterion_ids.join(","),
     "degraded:" + (args.degraded ? "1" : "0")
   ].join(NL4);
-  const chain = createHash3("sha256").update(payload, "utf8").digest("hex");
+  const chain = createHash4("sha256").update(payload, "utf8").digest("hex");
   const receiptId = "RCP-" + chain.slice(0, 16);
   let mark = "RECEIPT " + receiptId + " chain=" + chain.slice(0, 32) + " content=" + contentDigest.slice(0, 16) + " facts=" + args.fact_ids.length + " adjudications=" + args.adjudication.entries.length + " issued_at=" + args.issued_at + " commit=" + args.commit_anchor + " tree=" + args.tree_anchor.slice(0, 12);
   if (args.degraded) {
@@ -2086,6 +2366,12 @@ function buildReport(input) {
     decided_at: input.decided_at,
     human: input.human
   });
+  const intakeHealth = input.intake_health !== void 0 ? input.intake_health : null;
+  const escalation = intakeHealth ? intakeEscalation(intakeHealth.fields) : "none";
+  if (escalation !== "none" && adjudication.overall !== "unsupported") {
+    adjudication.overall = "unsupported";
+  }
+  const verdict = { band: adjudication.overall, reason_class: deriveReasonClass(adjudication.overall, escalation) };
   const receipt = buildReceipt({
     fact_ids: input.fact_ids,
     adjudication,
@@ -2095,6 +2381,7 @@ function buildReport(input) {
     gate_ref: input.gate_ref,
     degraded: input.degraded
   });
+  receipt.verdict = { band: verdict.band, reason_class: verdict.reason_class };
   return {
     report_id: input.report_id,
     schema_version: input.schema_version ? input.schema_version : REPORT_SKELETON_VERSION,
@@ -2118,6 +2405,8 @@ function buildReport(input) {
     recommendations: input.recommendations.slice(),
     adjudication,
     receipt,
+    verdict,
+    intake_health: intakeHealth,
     preview_disclosure: input.preview_disclosure ? input.preview_disclosure : null,
     narrative_sections: sealNarrativeSections(narrativeInput, input.evidence, input.decided_at)
   };
@@ -2221,12 +2510,45 @@ function renderMarkdown(r) {
     }
     out.push("");
   }
+  out.push("## Intake Health");
+  out.push("");
+  out.push("- \u5951\u7EA6\uFF1AADR-0022 \u8FDD\u7EA6\u4E24\u7EA7\u5904\u7F6E\u2014\u2014\u534F\u8BAE\u7EA7\u8FDD\u7EA6 fail-fast\uFF08\u5D29\u6E83\u6876\u5DE5\u4EF6\uFF09\uFF0C\u5B57\u6BB5\u7EA7\u75C5\u6001=quarantine \u6876\u9694\u79BB\uFF08\u5224\u5B9A/\u5904\u7F6E\u786C\u5206\u754C\uFF09");
+  if (r.intake_health === null) {
+    out.push("- \u6444\u5165\u65E0\u75C5\u6001\u58F0\u660E\uFF1Aquarantined=0 \xB7 normalized=0\uFF08\u63A5\u7EBF\u5B57\u6BB5\u672A\u4F9B\u7ED9 intake_health\u2014\u2014\u540C\u5F62\u9AA8\u67B6\u8D1F\u58F0\u660E\uFF0C\u8BC1\u636E\u7F3A\u5E2D\u2260\u8BC1\u636E\u4E3A\u96F6\uFF09");
+  } else {
+    const ih = r.intake_health;
+    for (const f of ih.fields) {
+      const eq = f.clean + f.normalized + f.quarantined === f.total ? "\u6052\u7B49\u5F0F=PASS" : "\u6052\u7B49\u5F0F=MISMATCH";
+      out.push("- field " + f.field_name + ": total=" + f.total + " clean=" + f.clean + " normalized=" + f.normalized + " quarantined=" + f.quarantined + "\uFF08" + eq + "\uFF09");
+    }
+    out.push("- affected_commits\uFF08quarantined \u53BB\u91CD\uFF09: " + ih.affected_commits);
+    const totalCommits = ih.fields.filter(function(f) {
+      return f.field_name === "committer_date";
+    })[0];
+    out.push("- \u6D3E\u751F\u7EDF\u8BA1\u6392\u9664\u58F0\u660E\uFF1A\u65E5\u671F\u6D3E\u751F\u6307\u6807 over " + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + " commits\uFF08quarantined \u6392\u9664 " + ih.excluded_commits + "\uFF1Bquarantined \u65E5\u671F commit \u7981\u5165 first_commit/adr_lag \u6D3E\u751F\uFF09");
+    out.push("- \u9608\u503C\u7EAA\u5F8B\uFF1A\u5355\u5B57\u6BB5 quarantined/total > " + ih.threshold_ratio + " \u2192 run \u7EA7\u88C1\u5B9A\u5347\u7EA7 unsupported\uFF1Bescalation=" + ih.escalation);
+    if (ih.quarantined_rows.length === 0) {
+      out.push("- quarantined rows: \u65E0\uFF08\u6444\u5165\u65E0\u75C5\u6001=\u9634\u6027\u81EA\u8BC1\uFF09");
+    } else {
+      out.push("- quarantined-only SHA \u8868\uFF08sha | field | reason_code | raw_echo \u622A\u65AD\u5448\u73B0\uFF09\uFF1A");
+      out.push("");
+      out.push("  | sha | field | reason_code | raw_echo |");
+      out.push("  | --- | --- | --- | --- |");
+      for (const row of ih.quarantined_rows) {
+        out.push("  | " + row.commit_sha + " | " + row.field_name + " | " + row.reason_code + " | " + row.raw_echo + " |");
+      }
+      out.push("");
+    }
+  }
+  out.push("");
   return out.join(String.fromCharCode(10));
 }
 function toSidecar(r) {
   return {
     schema_version: r.schema_version,
     report_id: r.report_id,
+    verdict: r.verdict,
+    intake_health: r.intake_health,
     stability: r.stability,
     capabilities: r.capabilities.slice(),
     scale: r.scale,
@@ -2253,6 +2575,7 @@ function toSidecar(r) {
     machine_contract: {
       citation_anchor_format: "evidence_id + source + locator\uFF08\u4E09\u8005\u9F50\u5907\u5373\u4E3A\u53EF\u89E3\u6790\u5F15\u6587\u951A\uFF09",
       verdict_enum: ["supported", "unsupported", "insufficient"],
+      verdict_reason_class_enum: VERDICT_REASON_CLASSES.slice(),
       human_adjudication_status: r.adjudication.human.status,
       narrative_seal_protocol: NARRATIVE_SEAL_PROTOCOL
     }
@@ -2357,6 +2680,8 @@ function degradeReport(r, reason) {
     }),
     adjudication,
     receipt,
+    verdict: { band: "insufficient", reason_class: "evidence_insufficient" },
+    intake_health: r.intake_health,
     preview_disclosure: r.preview_disclosure,
     narrative_sections: []
   };
@@ -2547,9 +2872,9 @@ function facetColumns(rows) {
 function collectCodeloreFacets(input, ctx) {
   const out = [];
   const bin = input.binary || "codelore";
-  const resolve4 = input.resolver || resolveCodelore;
+  const resolve5 = input.resolver || resolveCodelore;
   const runner = input.runner || runCodeloreAnalysis;
-  const res = resolve4(bin);
+  const res = resolve5(bin);
   pushResolutionFact(out, ctx, res);
   if (res.error || !res.pinned) {
     return out;
@@ -2627,27 +2952,59 @@ function git3(root, args) {
   return execFileSync("git", ["-C", root].concat(args), { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 }).trim();
 }
 function probeMacroBRepo(repoRoot, headSha2) {
-  const headDate = normalizeGitIsoDate(git3(repoRoot, ["log", "-1", "--format=%cI"]));
-  const treeSha = git3(repoRoot, ["rev-parse", "HEAD^{tree}"]);
-  const commitCount = Number(git3(repoRoot, ["rev-list", "--count", "HEAD"]));
-  const rawLog = git3(repoRoot, ["log", "--pretty=format:__R__%H|%an|%cI", "--name-only"]);
+  const fieldStats = [emptyFieldStat(FIELD_HEAD_DATE), emptyFieldStat(FIELD_COMMITTER_DATE)];
+  const fieldEvents = [];
+  let headRaw = "";
+  let treeSha = "";
+  let commitCount = 0;
+  let rawLog = "";
+  try {
+    headRaw = git3(repoRoot, ["log", "-1", "--format=%cI"]);
+    treeSha = git3(repoRoot, ["rev-parse", "HEAD^{tree}"]);
+    commitCount = Number(git3(repoRoot, ["rev-list", "--count", "HEAD"]));
+    rawLog = git3(repoRoot, ["log", "--pretty=format:__R__%H|%an|%cI", "--name-only"]);
+  } catch (e) {
+    const ee = e;
+    throw protocolCrashError("GIT-PROBE-FAILED", "git \u53EA\u8BFB\u5B50\u547D\u4EE4\u5931\u8D25\uFF1A" + String(e.message || e).split(NL)[0], {
+      raw: ee && ee.stderr ? String(ee.stderr) : null,
+      crash_location: "audit/macro-b.ts:probeMacroBRepo",
+      run_context: { repo_ref: repoRoot, commit_sha: headSha2 }
+    });
+  }
+  const headCls = classifyGitIsoField(headRaw, { anchor: true });
+  recordFieldInstance(fieldStats[0], fieldEvents, headCls, headSha2, FIELD_HEAD_DATE);
+  const headDate = headCls.value;
   const commits = [];
   let cur = null;
   for (const line of rawLog.split(NL)) {
     const t = line.trim();
     if (t.indexOf("__R__") === 0) {
       const parts = t.slice(5).split("|");
-      cur = { sha: parts[0], author: parts[1], date: normalizeGitIsoDate(parts[2]), paths: [] };
+      if (parts.length !== 3) {
+        throw protocolCrashError("GITCLI-OUTPUT-CONTRACT", "git log \u8BB0\u5F55\u5F62\u72B6\u8FDD\u7EA6\uFF1A\u671F\u671B 3 \u5B57\u6BB5\u5B9E\u5F97 " + parts.length + "\uFF08\u5D4C\u5B9A\u754C\u7B26/\u8BB0\u5F55\u622A\u65AD\u2192\u5B57\u6BB5\u4E0D\u53EF\u5B9A\u754C=\u534F\u8BAE\u7EA7\u8FDD\u7EA6\uFF0CD-100\u2460\uFF09", {
+          raw: t,
+          crash_location: "audit/macro-b.ts:probeMacroBRepo:log-parse",
+          run_context: { repo_ref: repoRoot, commit_sha: parts.length > 0 ? parts[0] : null },
+          counts: { commits_seen: commits.length }
+        });
+      }
+      const cls = classifyGitIsoField(parts[2]);
+      cur = { sha: parts[0], author: parts[1], date: cls.value, paths: [] };
+      recordFieldInstance(fieldStats[1], fieldEvents, cls, parts[0], FIELD_COMMITTER_DATE);
       commits.push(cur);
     } else if (cur && t.length > 0) {
       cur.paths.push(t);
     }
   }
   if (commits.length !== commitCount) {
-    throw new Error("PROBE-INVARIANT-FAIL[" + repoRoot + "]: parsed " + commits.length + " != git rev-list " + commitCount);
+    throw protocolCrashError("PROBE-INVARIANT-FAIL", "[" + repoRoot + "]: parsed " + commits.length + " != git rev-list " + commitCount, {
+      crash_location: "audit/macro-b.ts:probeMacroBRepo:invariant",
+      run_context: { repo_ref: repoRoot, commit_sha: headSha2 },
+      counts: { commits_seen: commits.length }
+    });
   }
   const subjects = git3(repoRoot, ["log", "--pretty=format:%s"]).split(NL);
-  return { headSha: headSha2, headDate, treeSha, commitCount, commits, subjects };
+  return { headSha: headSha2, headDate, headRaw, headStatus: headCls.status, treeSha, commitCount, commits, subjects, fieldEvents, fieldStats };
 }
 function collectMacroB(repoRoot, spec, ctx, probes) {
   const adrDir = join6(repoRoot, "docs", "adr");
@@ -2657,7 +3014,7 @@ function collectMacroB(repoRoot, spec, ctx, probes) {
   const firstCommitOf = function(p) {
     let best = null;
     for (const c of probes.commits) {
-      if (c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) {
+      if (c.date !== null && c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) {
         best = c.date;
       }
     }
@@ -2839,13 +3196,14 @@ function tcBand(v) {
   }
   return "supported";
 }
-function macroBContext(runIdLabel, ctxLabel, headSha2, headDate) {
+function macroBContext(runIdLabel, ctxLabel, headSha2, headDate, headRaw) {
+  const anchor = headDate === null ? "quarantined:" + sha256Hex(headRaw === void 0 ? "" : headRaw) : headDate;
   return {
     runId: runIdLabel + "-" + headSha2.slice(0, 7),
-    traceId: sha256Hex(ctxLabel + "|" + headSha2 + "|" + headDate).slice(0, 32),
+    traceId: sha256Hex(ctxLabel + "|" + headSha2 + "|" + anchor).slice(0, 32),
     repoRef: ctxLabel + "@" + headSha2,
     scale: "Macro-B",
-    observedAt: headDate
+    observedAt: headDate === null ? "quarantined(anchor_head_date_malformed)" : headDate
   };
 }
 
@@ -2919,13 +3277,37 @@ function runDemo(opts) {
   try {
     let addEvidence2 = function(id, source, tokens, claim, reproCmd, base) {
       const ex = pickExcerpt(source, tokens, base);
-      evidence.push({ evidence_id: id, source, locator: "L" + ex.line, claim, grounded: true, collected_at: probes.headDate, reproduce_cmd: reproCmd, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
+      evidence.push({ evidence_id: id, source, locator: "L" + ex.line, claim, grounded: true, collected_at: headDate, reproduce_cmd: reproCmd, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
     };
     var addEvidence = addEvidence2;
     const gen = generateFixtureRepo(def, repoDir);
     const intake = repoAdd(repoDir);
     const probes = probeMacroBRepo(repoDir, intake.head_sha);
-    const ctx = macroBContext("r45-" + scenario, def.repo.name, probes.headSha, probes.headDate);
+    if (probes.headDate === null) {
+      throw new Error("DEMO-FIXTURE-QUARANTINE[" + scenario + "]: \u5408\u6210\u5939\u5177\u951A\u5B57\u6BB5\u75C5\u6001\uFF08fixture bug \u975E\u771F\u75C5\u6001\u2014\u2014golden \u8BED\u6599 %cI \u6052\u5408\u6CD5\uFF0C\u75C5\u6001\u5373\u5939\u5177\u56DE\u5F52\uFF09");
+    }
+    const headDate = probes.headDate;
+    const ctx = macroBContext("r45-" + scenario, def.repo.name, probes.headSha, headDate, probes.headRaw);
+    const demoExcl = probes.commits.filter(function(c) {
+      return c.date === null;
+    }).length;
+    const demoQuarRows = probes.fieldEvents.filter(function(e) {
+      return e.disposition === "quarantined";
+    });
+    const demoIntakeHealth = {
+      fields: probes.fieldStats.map(function(s) {
+        return { field_name: s.field_name, total: s.total, clean: s.clean, normalized: s.normalized, quarantined: s.quarantined };
+      }),
+      affected_commits: new Set(demoQuarRows.map(function(e) {
+        return e.commit_sha;
+      })).size,
+      excluded_commits: demoExcl,
+      quarantined_rows: demoQuarRows.map(function(e) {
+        return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + "\u2026" : e.raw) };
+      }),
+      threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
+      escalation: intakeEscalation(probes.fieldStats)
+    };
     const col = collectMacroB(repoDir, {
       intentCandidates: INTENT_CANDIDATES,
       nc1Candidates: NC1_CANDIDATES,
@@ -2941,7 +3323,7 @@ function runDemo(opts) {
       scenario,
       synthetic: true,
       generator: FIXTURE_GENERATOR_ID,
-      observed_at: probes.headDate,
+      observed_at: headDate,
       head_sha: probes.headSha,
       tree_sha: probes.treeSha,
       commit_count: probes.commitCount,
@@ -3017,20 +3399,20 @@ function runDemo(opts) {
       return c.fact_id;
     });
     const adjudicationEntries = [
-      { criterion_id: "PC-1", band: col.pc1.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ["EV-45-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc1.pass ? "adr-structure \u4E0E positioning \u4E24\u65CF\u5747\u4EA7\u51FA\u975E\u7A7A\u4E8B\u5B9E\uFF0Cgolden ADR \u4E94\u4EF6\u5957 5/5 \u4E14 supersede \u94FE\u547D\u4E2D\uFF08\u5408\u6210 run \u5185\u7BA1\u7EBF\u6D3B\u6027\u6B63\u5BF9\u7167\uFF09" : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
-      { criterion_id: "PC-2", band: col.pc2.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ["EV-45-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc2.pass ? "gitlog \u65CF\u68C0\u51FA\u4E8B\u540E\u8865\u5199 delta_days = " + String(col.pc2.delta_days) : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
-      { criterion_id: "TC-1", band: tcBand(ev.tc1.verdict), basis_refs: ["B2"], anchored_fact_ids: tc1FactIds, anchored_evidence_ids: ["EV-45-" + R + "-02"], decided_at: probes.headDate, rationale: scenario + " ADR \u4E8B\u540E\u8865\u5199\uFF1A\u53EF\u5224\u5B9A\u6570 " + ev.tc1.judgeable_n + "\uFF08\u95E8\u69DB " + TC1_MIN_N + "\uFF09\uFF0C>90d \u5360\u6BD4 " + measurements.tc1.ratio_4 + "\uFF0C\u5224 " + ev.tc1.verdict },
-      { criterion_id: "TC-2", band: tcBand(ev.tc2.verdict), basis_refs: ["B2"], anchored_fact_ids: tc2FactIds, anchored_evidence_ids: ["EV-45-" + R + "-03"], decided_at: probes.headDate, rationale: scenario + " ADR \u4E94\u4EF6\u5957\uFF1Amean_ratio " + measurements.tc2.mean_ratio_4 + "\uFF08\u95E8\u69DB " + TC2_MEAN_RED + "\uFF09\uFF0C\u5B57\u6BB5\u7F3A\u5931\u7387\u8D85\u7EBF=" + ev.tc2.cond_b + "\uFF0C\u5224 " + ev.tc2.verdict },
-      { criterion_id: "TC-3", band: tcBand(ev.tc3.verdict), basis_refs: ["B2"], anchored_fact_ids: tc3FactIds, anchored_evidence_ids: ["EV-45-" + R + "-04"], decided_at: probes.headDate, rationale: scenario + " \u5B9A\u4F4D\u8986\u76D6\uFF1A\u610F\u56FE\u9762 " + col.intentDocs.length + " \u4EF6\u6700\u4F4E ratio " + measurements.tc3.lowest_ratio_4 + "\uFF08" + String(measurements.tc3.lowest_path) + "\uFF09\uFF0C\u5224 " + ev.tc3.verdict },
-      { criterion_id: "NC-1", band: col.nc1.pass ? "supported" : "insufficient", basis_refs: ["B4"], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ["EV-45-" + R + "-05"], decided_at: probes.headDate, rationale: col.nc1.pass ? "\u8D1F\u5BF9\u7167\u9009\u6750 " + col.nc1Path + " \u4E94\u4EF6\u5957 0 \u547D\u4E2D\u3001supersede 0 \u547D\u4E2D\uFF08\u7279\u5F02\u6027\u6210\u7ACB\uFF09" : "\u8D1F\u5BF9\u7167\u547D\u4E2D\uFF0C\u8F6C\u590D\u6838\u8DEF\u5F84" }
+      { criterion_id: "PC-1", band: col.pc1.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ["EV-45-" + R + "-01"], decided_at: headDate, rationale: col.pc1.pass ? "adr-structure \u4E0E positioning \u4E24\u65CF\u5747\u4EA7\u51FA\u975E\u7A7A\u4E8B\u5B9E\uFF0Cgolden ADR \u4E94\u4EF6\u5957 5/5 \u4E14 supersede \u94FE\u547D\u4E2D\uFF08\u5408\u6210 run \u5185\u7BA1\u7EBF\u6D3B\u6027\u6B63\u5BF9\u7167\uFF09" : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
+      { criterion_id: "PC-2", band: col.pc2.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ["EV-45-" + R + "-01"], decided_at: headDate, rationale: col.pc2.pass ? "gitlog \u65CF\u68C0\u51FA\u4E8B\u540E\u8865\u5199 delta_days = " + String(col.pc2.delta_days) : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
+      { criterion_id: "TC-1", band: tcBand(ev.tc1.verdict), basis_refs: ["B2"], anchored_fact_ids: tc1FactIds, anchored_evidence_ids: ["EV-45-" + R + "-02"], decided_at: headDate, rationale: scenario + " ADR \u4E8B\u540E\u8865\u5199\uFF1A\u53EF\u5224\u5B9A\u6570 " + ev.tc1.judgeable_n + "\uFF08\u95E8\u69DB " + TC1_MIN_N + "\uFF09\uFF0C>90d \u5360\u6BD4 " + measurements.tc1.ratio_4 + "\uFF0C\u5224 " + ev.tc1.verdict },
+      { criterion_id: "TC-2", band: tcBand(ev.tc2.verdict), basis_refs: ["B2"], anchored_fact_ids: tc2FactIds, anchored_evidence_ids: ["EV-45-" + R + "-03"], decided_at: headDate, rationale: scenario + " ADR \u4E94\u4EF6\u5957\uFF1Amean_ratio " + measurements.tc2.mean_ratio_4 + "\uFF08\u95E8\u69DB " + TC2_MEAN_RED + "\uFF09\uFF0C\u5B57\u6BB5\u7F3A\u5931\u7387\u8D85\u7EBF=" + ev.tc2.cond_b + "\uFF0C\u5224 " + ev.tc2.verdict },
+      { criterion_id: "TC-3", band: tcBand(ev.tc3.verdict), basis_refs: ["B2"], anchored_fact_ids: tc3FactIds, anchored_evidence_ids: ["EV-45-" + R + "-04"], decided_at: headDate, rationale: scenario + " \u5B9A\u4F4D\u8986\u76D6\uFF1A\u610F\u56FE\u9762 " + col.intentDocs.length + " \u4EF6\u6700\u4F4E ratio " + measurements.tc3.lowest_ratio_4 + "\uFF08" + String(measurements.tc3.lowest_path) + "\uFF09\uFF0C\u5224 " + ev.tc3.verdict },
+      { criterion_id: "NC-1", band: col.nc1.pass ? "supported" : "insufficient", basis_refs: ["B4"], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ["EV-45-" + R + "-05"], decided_at: headDate, rationale: col.nc1.pass ? "\u8D1F\u5BF9\u7167\u9009\u6750 " + col.nc1Path + " \u4E94\u4EF6\u5957 0 \u547D\u4E2D\u3001supersede 0 \u547D\u4E2D\uFF08\u7279\u5F02\u6027\u6210\u7ACB\uFF09" : "\u8D1F\u5BF9\u7167\u547D\u4E2D\uFF0C\u8F6C\u590D\u6838\u8DEF\u5F84" }
     ];
     const strategyBand = deriveOverallBand(adjudicationEntries);
     const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: "engine/src/demo/demo.ts" };
     const quadrants = [
-      { quadrant: "strategy", applicability: "native", verdict: strategyBand, score: null, confidence: 0.6, dimensions: ["S1", "S2"], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === "RED", decided_at: probes.headDate, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: ["synthetic-fixture"] },
-      { quadrant: "structure", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: probes.headDate, override_reason: "Macro-B \u5DF2\u4E0A\u67B6\u91C7\u96C6\u9762\u4EC5 strategy\uFF08S1+S2\uFF09\u2014\u2014structure \u65E0\u91C7\u96C6\u5668\uFF08\u4E0E #23/#39 \u540C\u53E3\u5F84\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["out-of-scope-stage1"] },
-      { quadrant: "behavior", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: probes.headDate, override_reason: "Macro-B \u5DF2\u4E0A\u67B6\u91C7\u96C6\u9762\u4EC5 strategy\uFF08S1+S2\uFF09\u2014\u2014behavior \u65E0\u91C7\u96C6\u5668", audit_ref: GATE.audit_ref }, conflict_markers: ["out-of-scope-stage1"] },
-      { quadrant: "supply_chain", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: probes.headDate, override_reason: "\u26A0 \u6570\u636E\u672A\u63A5\u2014\u2014Scorecard/repomix \u6309\u5C42\u9700\u6C42\u961F\u5217\u63A5\u5165\u4E0D\u63D2\u961F\uFF08D-034\u2462\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["data-not-connected"] }
+      { quadrant: "strategy", applicability: "native", verdict: strategyBand, score: null, confidence: 0.6, dimensions: ["S1", "S2"], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === "RED", decided_at: headDate, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: ["synthetic-fixture"] },
+      { quadrant: "structure", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: headDate, override_reason: "Macro-B \u5DF2\u4E0A\u67B6\u91C7\u96C6\u9762\u4EC5 strategy\uFF08S1+S2\uFF09\u2014\u2014structure \u65E0\u91C7\u96C6\u5668\uFF08\u4E0E #23/#39 \u540C\u53E3\u5F84\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["out-of-scope-stage1"] },
+      { quadrant: "behavior", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: headDate, override_reason: "Macro-B \u5DF2\u4E0A\u67B6\u91C7\u96C6\u9762\u4EC5 strategy\uFF08S1+S2\uFF09\u2014\u2014behavior \u65E0\u91C7\u96C6\u5668", audit_ref: GATE.audit_ref }, conflict_markers: ["out-of-scope-stage1"] },
+      { quadrant: "supply_chain", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: headDate, override_reason: "\u26A0 \u6570\u636E\u672A\u63A5\u2014\u2014Scorecard/repomix \u6309\u5C42\u9700\u6C42\u961F\u5217\u63A5\u5165\u4E0D\u63D2\u961F\uFF08D-034\u2462\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["data-not-connected"] }
     ];
     const recommendations = [
       { rec_id: "R-45-" + R + "-1", priority: "P1", action: "\u5BF9\u771F\u5B9E\u76EE\u6807\u4ED3\u8DD1\u540C\u4E00\u94FE\u8DEF\uFF1A`macro-audit repo add <path|url>` \u63A5\u5165\u540E\u6309 Macro-B \u53E3\u5F84\u88C1\u51B3\u2014\u2014\u672C\u62A5\u544A\u4E3A\u5408\u6210 fixture \u6F14\u793A\uFF0Cnot an audit of any real repository", rationale: "D-038 \u786C\u5951\u7EA6\uFF1A\u5408\u6210\u6570\u636E\u4E0D\u5192\u5145\u771F\u5B9E\u5BA1\u8BA1\u7ED3\u8BBA\uFF1B\u672C\u6F14\u793A\u53EA\u8BC1\u7BA1\u7EBF\u5F62\u6001\u4E0E\u62AB\u9732\u9762", expected_impact: "\u83B7\u5F97\u771F\u5B9E\u5BA1\u8BA1\u7ED3\u8BBA\u800C\u975E\u6F14\u793A\u6570\u636E", effort: "S", verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + " / " + strategyBand, evidence_refs: ["EV-45-" + R + "-07"], degraded_note: null },
@@ -3043,7 +3425,7 @@ function runDemo(opts) {
       capabilities: ["macro-b"],
       scale: "Macro-B",
       subject_ref: def.repo.name + "@" + probes.headSha.slice(0, 12),
-      generated_at: probes.headDate,
+      generated_at: headDate,
       trace_id: ctx.traceId,
       baggage_id: deriveBaggageId(ctx, "S2"),
       headline: HEADLINE,
@@ -3058,13 +3440,14 @@ function runDemo(opts) {
       quadrants,
       recommendations,
       adjudication_entries: adjudicationEntries,
-      decided_at: probes.headDate,
+      decided_at: headDate,
       commit_anchor: probes.headSha,
       tree_anchor: probes.treeSha,
       gate_ref: GATE_REF,
       degraded: false,
       degraded_reason: null,
       preview_disclosure: demoDisclosure(),
+      intake_health: demoIntakeHealth,
       human: { status: "pending", adjudicator: "user", text: null, decided_at: null }
     };
     let report = buildReport(reportInput);
@@ -3254,7 +3637,26 @@ async function runAudit(opts) {
   const repoRoot = intake.resolved_root;
   const NAME = auditRepoName(opts.input, repoRoot);
   const probes = probeMacroBRepo(repoRoot, intake.head_sha);
-  const ctx = macroBContext("audit-" + NAME, NAME, probes.headSha, probes.headDate);
+  const ctx = macroBContext("audit-" + NAME, NAME, probes.headSha, probes.headDate, probes.headRaw);
+  const HEAD_AT = probes.headDate === null ? "quarantined(anchor_head_date_malformed)" : probes.headDate;
+  const anchorQuarantined = probes.headDate === null;
+  const excludedCommits = probes.commits.filter(function(c) {
+    return c.date === null;
+  }).length;
+  if (opts.strictQuarantine === true) {
+    const violations = strictQuarantineViolations(probes.fieldEvents);
+    if (violations.length > 0) {
+      const firstEv = probes.fieldEvents.filter(function(e) {
+        return e.disposition === "quarantined";
+      })[0];
+      throw protocolCrashError("STRICT-QUARANTINE-VIOLATION", "reason_code \u8D8A\u4ED3\u7EA7\u57FA\u7EBF\uFF08strict \u6A21\u5F0F fail-closed\uFF09\uFF1A" + violations.join(","), {
+        raw: firstEv ? firstEv.raw : null,
+        crash_location: "audit.ts:strict-quarantine-gate",
+        run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: firstEv ? firstEv.commit_sha : null },
+        counts: { commits_seen: probes.commitCount, facts_written: 0, quarantined_written: 0 }
+      });
+    }
+  }
   const col = collectMacroB(repoRoot, {
     intentCandidates: AUDIT_INTENT_CANDIDATES,
     nc1Candidates: AUDIT_NC1_CANDIDATES,
@@ -3302,7 +3704,7 @@ async function runAudit(opts) {
   const measurements = {
     repo: NAME,
     root: repoRoot,
-    observed_at: probes.headDate,
+    observed_at: HEAD_AT,
     head_sha: probes.headSha,
     tree_sha: probes.treeSha,
     commit_count: probes.commitCount,
@@ -3312,6 +3714,16 @@ async function runAudit(opts) {
     }),
     fact_count: col.realFacts.length,
     intake: { kind: intake.kind, url: intake.url, cloned: intake.cloned, cache_hit: intake.cache_hit, refreshed: intake.refreshed, snapshot_fetched_at: intake.snapshot_fetched_at, full_depth_verified: intake.full_depth_verified, remote_config_execution: intake.remote_config_execution, credentials: intake.credentials },
+    intake_quarantine: {
+      wired_fields: ["committer_date", "head_date"],
+      field_stats: probes.fieldStats,
+      events: probes.fieldEvents.map(function(e) {
+        return { commit_sha: e.commit_sha, field_name: e.field_name, disposition: e.disposition, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + "\u2026" : e.raw) };
+      }),
+      excluded_commits: excludedCommits,
+      threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
+      strict_mode: opts.strictQuarantine === true
+    },
     tc1: { judgeable_n: ev.tc1.judgeable_n, backfill_n: ev.tc1.backfill_n, ratio_4: ev.tc1.ratio.toFixed(4), verdict: ev.tc1.verdict, threshold: { lag_days: TC1_LAG_DAYS, ratio_red: TC1_RATIO_RED, min_n: TC1_MIN_N } },
     tc2: { total: ev.tc2.total, mean_ratio_4: ev.tc2.mean_ratio.toFixed(4), missing_counts: ev.tc2.missing_counts, missing_ratio_4: Object.fromEntries(Object.keys(ev.tc2.missing_ratio).map(function(k) {
       return [k, Number(ev.tc2.missing_ratio[k].toFixed(4))];
@@ -3335,7 +3747,7 @@ async function runAudit(opts) {
   const RUN_CMD = "macro-audit audit " + opts.input + (opts.outDir ? " --out " + opts.outDir : "");
   function addEvidence(id, source, tokens, claim, base) {
     const ex = pickExcerpt2(source, tokens, base);
-    evidence.push({ evidence_id: id, source, locator: "L" + ex.line, claim, grounded: true, collected_at: probes.headDate, reproduce_cmd: RUN_CMD, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
+    evidence.push({ evidence_id: id, source, locator: "L" + ex.line, claim, grounded: true, collected_at: HEAD_AT, reproduce_cmd: RUN_CMD, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
   }
   const measBase = outDir;
   addEvidence("EV-AUDIT-" + R + "-01", MEAS_NAME, ['"fact_count"'], "\u672C\u6B21\u5B9E\u6D4B\uFF1A" + NAME + " Macro-B audit \u91C7\u96C6\u4E8B\u5B9E\u6570", measBase);
@@ -3362,27 +3774,27 @@ async function runAudit(opts) {
     criterion_ids: bhvRan ? ["PC-1", "PC-2", "TC-1", "TC-2", "TC-3", "NC-1", "BHV-PC-1", "BHV-TC-1", "BHV-TC-2", "BHV-NC-1"] : ["PC-1", "PC-2", "TC-1", "TC-2", "TC-3", "NC-1"]
   };
   const adjudicationEntries = [
-    { criterion_id: "PC-1", band: col.pc1.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc1.pass ? "adr-structure \u4E0E positioning \u4E24\u65CF\u5747\u4EA7\u51FA\u975E\u7A7A\u4E8B\u5B9E\uFF0Cgolden ADR \u4E94\u4EF6\u5957 5/5 \u4E14 supersede \u94FE\u547D\u4E2D\uFF08" + NAME + " run \u5185\u7BA1\u7EBF\u6D3B\u6027\u6B63\u5BF9\u7167\uFF09" : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
-    { criterion_id: "PC-2", band: col.pc2.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: probes.headDate, rationale: col.pc2.pass ? "gitlog \u65CF\u68C0\u51FA\u4E8B\u540E\u8865\u5199 delta_days = " + String(col.pc2.delta_days) : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
-    { criterion_id: "TC-1", band: tcBand(ev.tc1.verdict), basis_refs: ["B2"], anchored_fact_ids: ev.lagFactIds, anchored_evidence_ids: ["EV-AUDIT-" + R + "-02"], decided_at: probes.headDate, rationale: NAME + " ADR \u4E8B\u540E\u8865\u5199\uFF1A\u53EF\u5224\u5B9A\u6570 " + ev.tc1.judgeable_n + "\uFF08\u95E8\u69DB " + TC1_MIN_N + "\uFF09\uFF0C>90d \u5360\u6BD4 " + measurements.tc1.ratio_4 + "\uFF0C\u5224 " + ev.tc1.verdict },
-    { criterion_id: "TC-2", band: tcBand(ev.tc2.verdict), basis_refs: ["B2"], anchored_fact_ids: ev.fiveFactIds, anchored_evidence_ids: ["EV-AUDIT-" + R + "-03"], decided_at: probes.headDate, rationale: NAME + " ADR \u4E94\u4EF6\u5957\uFF1Amean_ratio " + measurements.tc2.mean_ratio_4 + "\uFF08\u95E8\u69DB " + TC2_MEAN_RED + "\uFF09\uFF0C\u5B57\u6BB5\u7F3A\u5931\u7387\u8D85\u7EBF=" + ev.tc2.cond_b + "\uFF0C\u5224 " + ev.tc2.verdict },
+    { criterion_id: "PC-1", band: col.pc1.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: HEAD_AT, rationale: col.pc1.pass ? "adr-structure \u4E0E positioning \u4E24\u65CF\u5747\u4EA7\u51FA\u975E\u7A7A\u4E8B\u5B9E\uFF0Cgolden ADR \u4E94\u4EF6\u5957 5/5 \u4E14 supersede \u94FE\u547D\u4E2D\uFF08" + NAME + " run \u5185\u7BA1\u7EBF\u6D3B\u6027\u6B63\u5BF9\u7167\uFF09" : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
+    { criterion_id: "PC-2", band: col.pc2.pass ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: HEAD_AT, rationale: col.pc2.pass ? "gitlog \u65CF\u68C0\u51FA\u4E8B\u540E\u8865\u5199 delta_days = " + String(col.pc2.delta_days) : "\u6B63\u5BF9\u7167\u672A\u4E2D\uFF0C\u7BA1\u7EBF\u6545\u969C P0" },
+    { criterion_id: "TC-1", band: tcBand(ev.tc1.verdict), basis_refs: ["B2"], anchored_fact_ids: ev.lagFactIds, anchored_evidence_ids: ["EV-AUDIT-" + R + "-02"], decided_at: HEAD_AT, rationale: NAME + " ADR \u4E8B\u540E\u8865\u5199\uFF1A\u53EF\u5224\u5B9A\u6570 " + ev.tc1.judgeable_n + "\uFF08\u95E8\u69DB " + TC1_MIN_N + "\uFF09\uFF0C>90d \u5360\u6BD4 " + measurements.tc1.ratio_4 + "\uFF0C\u5224 " + ev.tc1.verdict + "\uFF08\u6D3E\u751F\u7EDF\u8BA1 over " + String(probes.commitCount - excludedCommits) + " commits\uFF1Bquarantined \u65E5\u671F commit \u6392\u9664 " + excludedCommits + "\uFF09" },
+    { criterion_id: "TC-2", band: tcBand(ev.tc2.verdict), basis_refs: ["B2"], anchored_fact_ids: ev.fiveFactIds, anchored_evidence_ids: ["EV-AUDIT-" + R + "-03"], decided_at: HEAD_AT, rationale: NAME + " ADR \u4E94\u4EF6\u5957\uFF1Amean_ratio " + measurements.tc2.mean_ratio_4 + "\uFF08\u95E8\u69DB " + TC2_MEAN_RED + "\uFF09\uFF0C\u5B57\u6BB5\u7F3A\u5931\u7387\u8D85\u7EBF=" + ev.tc2.cond_b + "\uFF0C\u5224 " + ev.tc2.verdict },
     { criterion_id: "TC-3", band: tcBand(ev.tc3.verdict), basis_refs: ["B2"], anchored_fact_ids: ev.covFacts.map(function(c) {
       return c.fact_id;
-    }), anchored_evidence_ids: ["EV-AUDIT-" + R + "-04"], decided_at: probes.headDate, rationale: NAME + " \u5B9A\u4F4D\u8986\u76D6\uFF1A\u610F\u56FE\u9762 " + col.intentDocs.length + " \u4EF6\u6700\u4F4E ratio " + measurements.tc3.lowest_ratio_4 + "\uFF08" + String(ev.tc3.lowest_path) + "\uFF09\uFF0C\u5224 " + ev.tc3.verdict },
-    { criterion_id: "NC-1", band: col.nc1.pass ? "supported" : "insufficient", basis_refs: ["B4"], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ["EV-AUDIT-" + R + "-05"], decided_at: probes.headDate, rationale: col.nc1.pass ? "\u8D1F\u5BF9\u7167\u9009\u6750 " + NAME + "/" + col.nc1.path + " \u4E94\u4EF6\u5957 0 \u547D\u4E2D\u3001supersede 0 \u547D\u4E2D\uFF08\u7279\u5F02\u6027\u6210\u7ACB\uFF09" : "\u8D1F\u5BF9\u7167\u547D\u4E2D\uFF0C\u8F6C\u590D\u6838\u8DEF\u5F84" }
+    }), anchored_evidence_ids: ["EV-AUDIT-" + R + "-04"], decided_at: HEAD_AT, rationale: NAME + " \u5B9A\u4F4D\u8986\u76D6\uFF1A\u610F\u56FE\u9762 " + col.intentDocs.length + " \u4EF6\u6700\u4F4E ratio " + measurements.tc3.lowest_ratio_4 + "\uFF08" + String(ev.tc3.lowest_path) + "\uFF09\uFF0C\u5224 " + ev.tc3.verdict },
+    { criterion_id: "NC-1", band: col.nc1.pass ? "supported" : "insufficient", basis_refs: ["B4"], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ["EV-AUDIT-" + R + "-05"], decided_at: HEAD_AT, rationale: col.nc1.pass ? "\u8D1F\u5BF9\u7167\u9009\u6750 " + NAME + "/" + col.nc1.path + " \u4E94\u4EF6\u5957 0 \u547D\u4E2D\u3001supersede 0 \u547D\u4E2D\uFF08\u7279\u5F02\u6027\u6210\u7ACB\uFF09" : "\u8D1F\u5BF9\u7167\u547D\u4E2D\uFF0C\u8F6C\u590D\u6838\u8DEF\u5F84" }
   ];
   if (bhvRan) {
     adjudicationEntries.push(
       { criterion_id: "BHV-PC-1", band: bhvPc1 ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: facetFacts.map(function(f) {
         return f.fact_id;
-      }), anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: probes.headDate, rationale: "\u884C\u4E3A\u4E09\u9762 facet_rows \u9F50\u5907\u6027\uFF08hotspots/coupling/function-hotspots \u5404 row_count>0\uFF0CerrFacts=" + facetErrs.length + "\uFF09" },
-      { criterion_id: "BHV-TC-1", band: bhvTc1 ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: byFace.hotspots ? [byFace.hotspots.fact_id] : [], anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: probes.headDate, rationale: "\u4F4E\u6837\u672C\u5224\u636E\uFF1Ahotspots min(revisions)>=" + BHV_MIN_REVS + "\uFF08\u5B9E\u6D4B min=" + (hRows.length ? Math.min.apply(null, hRows.map(function(r) {
+      }), anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: HEAD_AT, rationale: "\u884C\u4E3A\u4E09\u9762 facet_rows \u9F50\u5907\u6027\uFF08hotspots/coupling/function-hotspots \u5404 row_count>0\uFF0CerrFacts=" + facetErrs.length + "\uFF09" },
+      { criterion_id: "BHV-TC-1", band: bhvTc1 ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: byFace.hotspots ? [byFace.hotspots.fact_id] : [], anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: HEAD_AT, rationale: "\u4F4E\u6837\u672C\u5224\u636E\uFF1Ahotspots min(revisions)>=" + BHV_MIN_REVS + "\uFF08\u5B9E\u6D4B min=" + (hRows.length ? Math.min.apply(null, hRows.map(function(r) {
         return r.revisions;
       })) : "n/a") + "\uFF09" },
-      { criterion_id: "BHV-TC-2", band: bhvTc2 ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: byFace.coupling ? [byFace.coupling.fact_id] : [], anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: probes.headDate, rationale: "coupling shared>=2&degree>0 \u5360\u6BD4=" + (cRows.length ? (cRows.filter(function(r) {
+      { criterion_id: "BHV-TC-2", band: bhvTc2 ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: byFace.coupling ? [byFace.coupling.fact_id] : [], anchored_evidence_ids: ["EV-AUDIT-" + R + "-01"], decided_at: HEAD_AT, rationale: "coupling shared>=2&degree>0 \u5360\u6BD4=" + (cRows.length ? (cRows.filter(function(r) {
         return r.shared >= 2 && r.degree > 0;
       }).length / cRows.length).toFixed(3) : "n/a") + "\uFF08\u9608\u503C 0.5\uFF09" },
-      { criterion_id: "BHV-NC-1", band: bhvNc1 ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: [], anchored_evidence_ids: [], decided_at: probes.headDate, rationale: "function-coupling\uFF08--target \u53C2\u6570\u9762\uFF09\u6682\u7F13\u5982\u5B9E\u767B\u8BB0\u2014\u2014deferred_faces \u5199\u5165\u5207\u7247\u5B57\u6BB5" }
+      { criterion_id: "BHV-NC-1", band: bhvNc1 ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: [], anchored_evidence_ids: [], decided_at: HEAD_AT, rationale: "function-coupling\uFF08--target \u53C2\u6570\u9762\uFF09\u6682\u7F13\u5982\u5B9E\u767B\u8BB0\u2014\u2014deferred_faces \u5199\u5165\u5207\u7247\u5B57\u6BB5" }
     );
   }
   const strategyBand = deriveOverallBand(adjudicationEntries);
@@ -3391,27 +3803,47 @@ async function runAudit(opts) {
     return String(r.path) + "(revs=" + String(r.revisions) + ",score=" + Number(r.hotspot_score).toFixed(2) + ")";
   });
   const quadrants = [
-    { quadrant: "strategy", applicability: "native", verdict: strategyBand, score: null, confidence: 0.6, dimensions: ["S1", "S2"], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === "RED", decided_at: probes.headDate, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
-    { quadrant: "behavior", applicability: bhvRan ? "native" : "not_applicable", verdict: behaviorBand, score: null, confidence: bhvRan ? 0.6 : 0, dimensions: [], slice_fields: bhvRan ? { faces: ["hotspots", "coupling", "function-hotspots"], face_row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, hotspot_top: hotTop, coupling_pairs: cRows.length, min_revs: BHV_MIN_REVS, sample_met: bhvTc1, deferred_faces: BHV_DEFERRED, quadrant_assignment: "slice-decision\uFF08facts \u5171\u4EAB quadrant=strategic/codelore \u65CF provenance \u4E0D\u6539\u5199\uFF1B\u8C61\u9650\u5F52\u5C5E=\u62A5\u544A\u5207\u7247\u51B3\u7B56 D-054\u2462\uFF09" } : {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: behaviorBand, evidence_flag: bhvPc1, decided_at: probes.headDate, override_reason: bhvRan ? null : "codelore binary \u672A\u89E3\u6790/\u4E0D pin\u2014\u2014\u884C\u4E3A\u9762\u91C7\u96C6\u7F3A\u5E2D\uFF08resolution \u4E8B\u5B9E\u7559\u75D5\uFF0CD-054\u2462 \u964D\u7EA7\u975E\u9759\u9ED8\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: bhvRan ? [] : ["data-not-connected"] },
-    { quadrant: "structure", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: probes.headDate, override_reason: "queued\uFF1A\u4E0E S3 \u65CF\u53CC\u53E3\u5F84\u98CE\u9669\u6682\u7F13\uFF08D-054\uFF09\u2014\u2014structure \u65E0\u91C7\u96C6\u5668", audit_ref: GATE.audit_ref }, conflict_markers: ["out-of-scope-stage1"] },
-    { quadrant: "supply_chain", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: probes.headDate, override_reason: "\u26A0 \u6570\u636E\u672A\u63A5\u2014\u2014Scorecard/repomix \u6309\u5C42\u9700\u6C42\u961F\u5217\u63A5\u5165\u4E0D\u63D2\u961F\uFF08D-034\u2462\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["data-not-connected"] }
+    { quadrant: "strategy", applicability: "native", verdict: strategyBand, score: null, confidence: 0.6, dimensions: ["S1", "S2"], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === "RED", decided_at: HEAD_AT, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
+    { quadrant: "behavior", applicability: bhvRan ? "native" : "not_applicable", verdict: behaviorBand, score: null, confidence: bhvRan ? 0.6 : 0, dimensions: [], slice_fields: bhvRan ? { faces: ["hotspots", "coupling", "function-hotspots"], face_row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, hotspot_top: hotTop, coupling_pairs: cRows.length, min_revs: BHV_MIN_REVS, sample_met: bhvTc1, deferred_faces: BHV_DEFERRED, quadrant_assignment: "slice-decision\uFF08facts \u5171\u4EAB quadrant=strategic/codelore \u65CF provenance \u4E0D\u6539\u5199\uFF1B\u8C61\u9650\u5F52\u5C5E=\u62A5\u544A\u5207\u7247\u51B3\u7B56 D-054\u2462\uFF09" } : {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: behaviorBand, evidence_flag: bhvPc1, decided_at: HEAD_AT, override_reason: bhvRan ? null : "codelore binary \u672A\u89E3\u6790/\u4E0D pin\u2014\u2014\u884C\u4E3A\u9762\u91C7\u96C6\u7F3A\u5E2D\uFF08resolution \u4E8B\u5B9E\u7559\u75D5\uFF0CD-054\u2462 \u964D\u7EA7\u975E\u9759\u9ED8\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: bhvRan ? [] : ["data-not-connected"] },
+    { quadrant: "structure", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: HEAD_AT, override_reason: "queued\uFF1A\u4E0E S3 \u65CF\u53CC\u53E3\u5F84\u98CE\u9669\u6682\u7F13\uFF08D-054\uFF09\u2014\u2014structure \u65E0\u91C7\u96C6\u5668", audit_ref: GATE.audit_ref }, conflict_markers: ["out-of-scope-stage1"] },
+    { quadrant: "supply_chain", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: HEAD_AT, override_reason: "\u26A0 \u6570\u636E\u672A\u63A5\u2014\u2014Scorecard/repomix \u6309\u5C42\u9700\u6C42\u961F\u5217\u63A5\u5165\u4E0D\u63D2\u961F\uFF08D-034\u2462\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["data-not-connected"] }
   ];
   const recommendations = [
     { rec_id: "R-AUDIT-" + R + "-1", priority: "P2", action: "\u5C06\u672C run facts.duckdb \u7ECF mcp.json MACRO_AUDIT_FACTS_DB \u6CE8\u518C\u7ED9\u5BBF\u4E3B agent\u2014\u2014\u53D9\u4E8B\u6BB5\u7531\u5BBF\u4E3B\u7ECF MCP facts \u53EA\u8BFB\u9762\u751F\u6210\uFF08D-053 \u53CC\u8F68\uFF09", rationale: "audit \u547D\u4EE4=kernel \u9762\u4E00\u7B49\u516C\u6C11\u5165\u53E3\uFF1B\u53D9\u4E8B\u804C\u8D23\u4E0D\u5916\u643A\uFF0C\u5BBF\u4E3B agent \u7ECF facts \u6295\u5F71\u6D88\u8D39", expected_impact: "\u4E8B\u5B9E\u5C42\u2192\u53D9\u4E8B\u5C42\u901A\u9053\u95ED\u73AF", effort: "S", verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + " / " + strategyBand, evidence_refs: ["EV-AUDIT-" + R + "-07"], degraded_note: null },
     { rec_id: "R-AUDIT-" + R + "-2", priority: "P2", action: intake.cache_hit && !intake.refreshed ? "intake \u7F13\u5B58\u547D\u4E2D\u672A\u5237\u65B0\uFF1A\u8FDC\u7AEF\u65B0\u63D0\u4EA4\u4E0D\u53EF\u89C1\u2014\u2014\u5982\u9700\u6700\u65B0\u5FEB\u7167\u7528 --refresh \u663E\u5F0F opt-in\uFF08\u4E0D\u81EA\u52A8 pull \u4FDD\u9694\u79BB\uFF09" : "\u5FEB\u7167\u4E3A\u672C\u6B21 fetch/\u672C\u5730\u89C2\u6D4B\u65F6\u70B9", rationale: "\u5FEB\u7167\u65F6\u70B9\u62AB\u9732\u5DF2\u843D\uFF08snapshot_fetched_at\uFF09\uFF1B\u7F13\u5B58\u547D\u4E2D\u4E0E\u5237\u65B0\u533A\u5206\u5982\u5B9E", expected_impact: "staleness \u98CE\u9669\u5982\u5B9E\u62AB\u9732", effort: "S", verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + " / " + strategyBand, evidence_refs: ["EV-AUDIT-" + R + "-07"], degraded_note: null }
   ];
-  const HEADLINE = NAME + " Macro-B audit\uFF08capability 1 of 5 \xB7 preview\uFF09\uFF1A" + probes.commitCount + " commits / ADR " + ev.tc2.total + " \u4EFD / facts " + col.realFacts.length + "\u2014\u2014TC-1 " + ev.tc1.verdict + "\uFF08n=" + ev.tc1.judgeable_n + "\uFF09\u3001TC-2 " + ev.tc2.verdict + "\uFF08mean=" + measurements.tc2.mean_ratio_4 + "\uFF09\u3001TC-3 " + ev.tc3.verdict + "\uFF08" + measurements.tc3.lowest_ratio_4 + "\uFF09" + (bhvRan ? "\uFF0Bbehavior " + behaviorBand : "\uFF08behavior \u8C61\u9650 codelore \u7F3A\u5E2D\u5982\u5B9E not_applicable\uFF09") + "\u2192 \u7EFC\u5408\u88C1\u5B9A " + strategyBand + "\uFF08\u4E09\u6863\u5982\u5B9E\u843D\u6570\uFF09\u3002";
+  const HEADLINE = NAME + " Macro-B audit\uFF08capability 1 of 5 \xB7 preview\uFF09\uFF1A" + probes.commitCount + " commits / ADR " + ev.tc2.total + " \u4EFD / facts " + col.realFacts.length + "\u2014\u2014TC-1 " + ev.tc1.verdict + "\uFF08n=" + ev.tc1.judgeable_n + "\uFF09\u3001TC-2 " + ev.tc2.verdict + "\uFF08mean=" + measurements.tc2.mean_ratio_4 + "\uFF09\u3001TC-3 " + ev.tc3.verdict + "\uFF08" + measurements.tc3.lowest_ratio_4 + "\uFF09" + (bhvRan ? "\uFF0Bbehavior " + behaviorBand : "\uFF08behavior \u8C61\u9650 codelore \u7F3A\u5E2D\u5982\u5B9E not_applicable\uFF09") + (intakeEscalation(probes.fieldStats) !== "none" ? "\uFF0Bquarantine \u75C5\u6001\u5347\u7EA7=" + intakeEscalation(probes.fieldStats) : "") + "\u2192 \u7EFC\u5408\u88C1\u5B9A " + strategyBand + "\uFF08\u4E09\u6863\u5982\u5B9E\u843D\u6570" + (anchorQuarantined ? "\uFF1B\u951A\u75C5\u6001\u2192facts.duckdb \u4EC5 quarantine_log \u884C\u3001fact \u884C\u4E0D\u843D\u5E93" : "") + "\uFF09\u3002";
   const limitations = [
     "one-shot \u5FEB\u7167\u5BA1\u8BA1\uFF1A\u672C\u62A5\u544A\u88C1\u5B9A=\u5BF9 snapshot_fetched_at=" + String(intake.snapshot_fetched_at) + " \u65F6\u70B9\u5FEB\u7167\u7684\u5B9E\u6D4B\u2014\u2014" + (intake.cache_hit && !intake.refreshed ? "intake \u7F13\u5B58\u547D\u4E2D\u672A\u5237\u65B0\uFF0C\u8FDC\u7AEF\u65B0\u63D0\u4EA4\u4E0D\u53EF\u89C1\uFF08--refresh \u663E\u5F0F opt-in \u53EF\u5237\u65B0\uFF1B\u4E0D\u81EA\u52A8 pull \u4FDD\u9694\u79BB\u7EAA\u5F8B\uFF09" : "\u5FEB\u7167\u65F6\u70B9\u5982\u5B9E\u62AB\u9732"),
     "\u91C7\u96C6\u9762=strategy\uFF08S1+S2\uFF09" + (bhvRan ? "\uFF0Bbehavior\uFF08codelore \u884C\u4E3A\u4E09\u9762\uFF09" : "\uFF1Bbehavior \u8C61\u9650 codelore \u672A\u89E3\u6790\u5982\u5B9E not_applicable"),
     "structure/supply_chain \u8C61\u9650 not_applicable\uFF08supply-chain: " + UNVERIFIED_MARK + "\u2014\u2014Scorecard \u672A\u63A5\u5165\uFF0CD-034\u2462\uFF09",
     "\u53CD\u590D\u63A5\u53D7\u975E\u8DD1\u901A\uFF08D-033\uFF09\uFF1ATC \u4E09\u6863\u88C1\u5B9A supported/unsupported/insufficient \u5982\u5B9E\u843D\u6570\uFF0Cone-shot \u6821\u51C6+\u5192\u70DF\u4E0D\u6784\u6210\u6CDB\u5316\u8BC1\u636E"
   ];
+  if (anchorQuarantined) {
+    limitations.push("\u951A\u5B57\u6BB5\u75C5\u6001\uFF1AHEAD %cI quarantined\uFF08anchor_head_date_malformed\uFF09\u2192 audit_fact \u884C\u4E0D\u843D\u5E93\uFF08observed_at NOT NULL \u4E0D\u843D\u4F2A\u503C\uFF09\uFF1Bquarantine_log \u7559\u75D5 recorded_at=NULL\uFF0C\u6574\u4ED3 unsupported");
+  }
   const disclosure = {
     capability_label: "capability 1 of 5 \xB7 preview",
     calibration_scope: NAME + " Macro-B audit\uFF08audit \u4E00\u7B49\u547D\u4EE4\u9762\uFF1Bscale=Macro-B \u5DF2\u4E0A\u67B6\uFF09",
     structural_limitations: limitations,
     not_in_preview: ["Micro-A", "Micro-B", "Macro-C", "Macro-A"]
+  };
+  const quarantinedRows = probes.fieldEvents.filter(function(e) {
+    return e.disposition === "quarantined";
+  });
+  const intakeHealth = {
+    fields: probes.fieldStats.map(function(s) {
+      return { field_name: s.field_name, total: s.total, clean: s.clean, normalized: s.normalized, quarantined: s.quarantined };
+    }),
+    affected_commits: new Set(quarantinedRows.map(function(e) {
+      return e.commit_sha;
+    })).size,
+    excluded_commits: excludedCommits,
+    quarantined_rows: quarantinedRows.map(function(e) {
+      return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + "\u2026" : e.raw) };
+    }),
+    threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
+    escalation: intakeEscalation(probes.fieldStats)
   };
   const reportInput = {
     report_id: "MA-AUDIT-" + R + "-MACRO-B",
@@ -3419,7 +3851,7 @@ async function runAudit(opts) {
     capabilities: ["macro-b"],
     scale,
     subject_ref: NAME + "@" + probes.headSha.slice(0, 12),
-    generated_at: probes.headDate,
+    generated_at: HEAD_AT,
     trace_id: ctx.traceId,
     baggage_id: ctx.traceId,
     headline: HEADLINE,
@@ -3434,24 +3866,16 @@ async function runAudit(opts) {
     quadrants,
     recommendations,
     adjudication_entries: adjudicationEntries,
-    decided_at: probes.headDate,
+    decided_at: HEAD_AT,
     commit_anchor: probes.headSha,
     tree_anchor: probes.treeSha,
     gate_ref: GATE_REF,
     degraded: false,
     degraded_reason: null,
     preview_disclosure: disclosure,
+    intake_health: intakeHealth,
     human: { status: "pending", adjudicator: "user", text: null, decided_at: null }
   };
-  const report = buildReport(reportInput);
-  const reportMd = renderMarkdown(report) + NL3;
-  const sidecarJson = renderSidecar(report) + NL3;
-  let artifacts = null;
-  writeFileSync3(join8(outDir, "report.md"), reportMd, "utf8");
-  writeFileSync3(join8(outDir, "report.json"), sidecarJson, "utf8");
-  writeFileSync3(join8(outDir, FACTS_NAME), col.realFacts.map(function(f) {
-    return JSON.stringify(f);
-  }).join(NL3) + NL3, "utf8");
   const dbPath = join8(outDir, "facts.duckdb");
   if (existsSync6(dbPath)) {
     unlinkSync(dbPath);
@@ -3461,14 +3885,50 @@ async function runAudit(opts) {
   }
   const writer = await openWriter(dbPath);
   const seen = /* @__PURE__ */ new Set();
-  for (const f of col.realFacts) {
-    if (!seen.has(f.fact_id)) {
-      seen.add(f.fact_id);
-      await appendFact(writer, f);
+  let factsWritten = 0;
+  let eventsWritten = 0;
+  try {
+    await runInTransaction(writer, async function() {
+      if (!anchorQuarantined) {
+        for (const f of col.realFacts) {
+          if (!seen.has(f.fact_id)) {
+            seen.add(f.fact_id);
+            await appendFact(writer, f);
+            factsWritten += 1;
+          }
+        }
+      }
+      for (const fe of probes.fieldEvents) {
+        await appendQuarantineEvent(writer, { run_id: ctx.traceId, commit_sha: fe.commit_sha, field_name: fe.field_name, disposition: fe.disposition, reason_code: fe.reason_code, raw: fe.raw, collector: "macro-audit audit", recorded_at: probes.headDate });
+        eventsWritten += 1;
+      }
+    });
+  } catch (e) {
+    try {
+      closeDuckdb(writer);
+    } catch (_) {
     }
+    if (isProtocolCrash(e)) {
+      throw e;
+    }
+    throw protocolCrashError("QUARANTINE-CONSTRAINT", "fact/quarantine \u4E8B\u52A1\u5199\u5931\u8D25\uFF08ROLLBACK \u65E0\u534A\u622A\u5199\uFF09\uFF1A" + String(e.message || e), { crash_location: "audit.ts:fact-write-tx", run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId }, counts: { commits_seen: probes.commitCount, facts_written: factsWritten, quarantined_written: eventsWritten } });
   }
+  const dbCounts = await queryQuarantineCounts(writer, ctx.traceId);
+  const identityIssues = intakeIdentityIssues(probes.fieldStats, dbCounts);
   await writer.run("FORCE CHECKPOINT");
   closeDuckdb(writer);
+  if (identityIssues.length > 0) {
+    throw protocolCrashError("INTAKE-IDENTITY-MISMATCH", "\u6052\u7B49\u5F0F\u65AD\u8A00\u5931\u8D25\uFF1A" + JSON.stringify(identityIssues), { crash_location: "audit.ts:intake-identity", run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId }, counts: { commits_seen: probes.commitCount, facts_written: factsWritten, quarantined_written: eventsWritten } });
+  }
+  const report = buildReport(reportInput);
+  const reportMd = renderMarkdown(report) + NL3;
+  const sidecarJson = renderSidecar(report) + NL3;
+  let artifacts = null;
+  writeFileSync3(join8(outDir, "report.md"), reportMd, "utf8");
+  writeFileSync3(join8(outDir, "report.json"), sidecarJson, "utf8");
+  writeFileSync3(join8(outDir, FACTS_NAME), col.realFacts.map(function(f) {
+    return JSON.stringify(f);
+  }).join(NL3) + NL3, "utf8");
   artifacts = persistOut ? { report_md: join8(outDir, "report.md"), report_json: join8(outDir, "report.json"), facts_jsonl: join8(outDir, FACTS_NAME), measurements: join8(outDir, MEAS_NAME), duckdb: dbPath } : null;
   const resultOutDir = persistOut ? outDir : null;
   if (!persistOut) {
@@ -3481,6 +3941,12 @@ async function runAudit(opts) {
     stability: report.stability,
     capabilities: report.capabilities,
     overall_verdict: report.overall_verdict,
+    verdict: report.verdict,
+    intake_quarantine: { quarantined: intakeHealth.fields.reduce(function(s, f) {
+      return s + f.quarantined;
+    }, 0), normalized: intakeHealth.fields.reduce(function(s, f) {
+      return s + f.normalized;
+    }, 0), affected_commits: intakeHealth.affected_commits, escalation: intakeHealth.escalation, facts_persisted: !anchorQuarantined },
     degraded_mode: report.degraded_mode,
     head_sha: probes.headSha,
     tree_sha: probes.treeSha,
@@ -3544,10 +4010,64 @@ async function projectFacts(dbPath, filter) {
     closeDuckdb(conn);
   }
 }
+var QUAR_PROJECTION_COLUMNS = "run_id, commit_sha, field_name, disposition, reason_code, raw_bytes_hex, is_trunc, original_length, sha256_full, collector, CAST(recorded_at AS VARCHAR) AS recorded_at";
+function buildQuarantineSql(filter) {
+  const where = [];
+  const params = [];
+  if (filter.run_id) {
+    where.push("run_id = ?");
+    params.push(filter.run_id);
+  }
+  if (filter.field_name) {
+    where.push("field_name = ?");
+    params.push(filter.field_name);
+  }
+  const limit = filter.limit === void 0 ? 50 : Math.min(Math.max(Math.floor(filter.limit), 1), MAX_LIMIT);
+  const sql = "SELECT " + QUAR_PROJECTION_COLUMNS + " FROM quarantine_log" + (where.length ? " WHERE " + where.join(" AND ") : "") + " ORDER BY q_seq LIMIT " + limit;
+  return { sql, params };
+}
+async function projectQuarantine(dbPath, filter) {
+  const conn = await openReader(dbPath);
+  try {
+    const q = buildQuarantineSql(filter);
+    assertAppendOnly(q.sql);
+    const reader = await conn.run(q.sql, q.params);
+    const rows = await reader.getRows();
+    const names = reader.columnNames();
+    return rows.map(function(r) {
+      const o = {};
+      names.forEach(function(n, i) {
+        const v = r[i];
+        o[n] = typeof v === "bigint" ? Number(v) : v instanceof Date ? v.toISOString() : v;
+      });
+      return o;
+    });
+  } finally {
+    closeDuckdb(conn);
+  }
+}
+
+// src/cli.ts
+import { writeFileSync as writeFileSync4, existsSync as existsSync7, mkdirSync as mkdirSync6 } from "node:fs";
+import { join as join9, resolve as resolve4 } from "node:path";
 
 // src/mcp-server.ts
 process.env.MACRO_AUDIT_MCP_STDIO = "1";
 var MCP_PROTOCOL_VERSION = "2024-11-05";
+var QUARANTINE_TOOL = {
+  name: "quarantine",
+  description: "read-only quarantine_log projection\uFF08#78/D-113\u2461\uFF09\uFF1A\u5B57\u6BB5\u7EA7\u75C5\u6001\u5904\u7F6E\u4E8B\u4EF6\u53F0\u8D26\u2014\u2014\u56FA\u5B9A\u5217\u96C6\uFF08run_id/commit_sha/field_name/disposition/reason_code/raw_bytes_hex/is_trunc/original_length/sha256_full/collector/recorded_at\uFF09\uFF0CREAD_ONLY \u5B9E\u4F8B\uFF0Climit\u2264500\u3002db \u5BFB\u5740\u540C facts \u94FE",
+  inputSchema: {
+    type: "object",
+    properties: {
+      db: { type: "string", description: "facts.duckdb \u7EDD\u5BF9\u8DEF\u5F84\uFF08\u53EF\u7701\u2014\u2014\u7701\u5219\u8D70\u670D\u52A1\u7AEF\u5BFB\u5740\u94FE\uFF09" },
+      run: { type: "string", description: "run_id\uFF08trace_id hex32\uFF09\u8FC7\u6EE4" },
+      field: { type: "string", description: "field_name \u8FC7\u6EE4\uFF08\u5982 committer_date / head_date\uFF09" },
+      limit: { type: "number", description: "\u884C\u6570\u4E0A\u9650\uFF08\u2264500\uFF09" }
+    },
+    additionalProperties: false
+  }
+};
 var FACTS_TOOL = {
   name: "facts",
   description: "read-only DuckDB facts projection (D-053\u2463)\uFF1A\u56FA\u5B9A SELECT \u5F62\uFF0CFactEvent \u5341\u4E09\u5217\uFF0CREAD_ONLY \u5B9E\u4F8B\uFF0Climit\u2264500\u3002db \u5BFB\u5740\u6536\u655B\u670D\u52A1\u7AEF\u89E3\u6790\uFF08#55/D-059\u2465\uFF09\uFF1Aarguments.db \u2192 server --db argv \u2192 MACRO_AUDIT_FACTS_DB env",
@@ -3608,12 +4128,32 @@ async function handleRpcMessage(msg) {
     return ok(id, {});
   }
   if (method === "tools/list") {
-    return ok(id, { tools: [FACTS_TOOL] });
+    return ok(id, { tools: [FACTS_TOOL, QUARANTINE_TOOL] });
   }
   if (method === "tools/call") {
     const p = msg.params || {};
-    if (p.name !== "facts") {
+    if (p.name !== "facts" && p.name !== "quarantine") {
       return fail(id, -32602, "unknown tool: " + String(p.name));
+    }
+    if (p.name === "quarantine") {
+      const a2 = p.arguments || {};
+      const db2 = resolveFactsDb(asStr(a2.db));
+      if (!db2) {
+        return fail(id, -32602, "MCP-FACTS-DB-UNRESOLVED: facts db \u5BFB\u5740\u5931\u8D25\u2014\u2014arguments.db \u672A\u7ED9\u4E14\u670D\u52A1\u7AEF\u65E0 --db argv/MACRO_AUDIT_FACTS_DB env \u914D\u7F6E");
+      }
+      const lim2 = a2.limit === void 0 ? void 0 : Number(a2.limit);
+      if (lim2 !== void 0 && (!Number.isFinite(lim2) || lim2 <= 0)) {
+        return fail(id, -32602, "quarantine limit must be a positive number");
+      }
+      try {
+        const rows = await projectQuarantine(db2, { run_id: asStr(a2.run), field_name: asStr(a2.field), limit: lim2 });
+        const text = rows.map(function(r) {
+          return JSON.stringify(r);
+        }).join("\n");
+        return ok(id, { content: [{ type: "text", text }], isError: false });
+      } catch (e) {
+        return ok(id, { content: [{ type: "text", text: "MCP-QUAR-ERROR: " + String(e && e.message || e) }], isError: true });
+      }
     }
     const a = p.arguments || {};
     const db = resolveFactsDb(asStr(a.db));
@@ -3650,7 +4190,7 @@ async function serveMcpStdio(input, output) {
       output.write(JSON.stringify(r) + "\n");
     }
   };
-  await new Promise(function(resolve4) {
+  await new Promise(function(resolve5) {
     input.on("data", function(chunk) {
       buf += chunk;
       let idx = buf.indexOf("\n");
@@ -3674,10 +4214,10 @@ async function serveMcpStdio(input, output) {
       }
     });
     input.on("end", function() {
-      resolve4();
+      resolve5();
     });
     input.on("close", function() {
-      resolve4();
+      resolve5();
     });
     input.resume();
   });
@@ -3751,6 +4291,40 @@ async function main() {
         if (e instanceof ExitSignal) throw e;
         errExit(JSON.stringify({ error: "MCP-FACTS-ERROR", message: String(e && e.message || e) }) + "\n", 2);
       }
+    } else if (sub === "quarantine") {
+      const args = process.argv.slice(4);
+      const known = ["--db", "--run", "--field", "--limit"];
+      const opts = {};
+      for (let i = 0; i < args.length; i++) {
+        const a = args[i];
+        if (known.indexOf(a) < 0) {
+          errExit("MCP-QUAR-ARGS: unknown flag " + a + "\n", 2);
+        }
+        const v = args[i + 1];
+        if (v === void 0 || v.indexOf("--") === 0) {
+          errExit("MCP-QUAR-ARGS: missing value for " + a + "\n", 2);
+        }
+        opts[a] = v;
+        i++;
+      }
+      opts["--db"] = resolveFactsDb(opts["--db"]) || "";
+      if (!opts["--db"]) {
+        errExit("usage: macro-audit mcp quarantine [--db <path>] [--run <run_id>] [--field <name>] [--limit n]\n", 2);
+      }
+      const limRaw = opts["--limit"];
+      const lim = limRaw === void 0 ? void 0 : Number(limRaw);
+      if (lim !== void 0 && (!Number.isFinite(lim) || lim <= 0)) {
+        errExit(JSON.stringify({ error: "MCP-QUAR-ARGS", message: "--limit must be a positive number" }) + "\n", 2);
+      }
+      try {
+        const rows = await projectQuarantine(opts["--db"], { run_id: opts["--run"], field_name: opts["--field"], limit: lim });
+        for (const r of rows) {
+          console.log(JSON.stringify(r));
+        }
+      } catch (e) {
+        if (e instanceof ExitSignal) throw e;
+        errExit(JSON.stringify({ error: "MCP-QUAR-ERROR", message: String(e && e.message || e) }) + "\n", 2);
+      }
     } else if (sub === void 0 || sub === "--db") {
       let serverDb;
       if (sub === "--db") {
@@ -3767,7 +4341,7 @@ async function main() {
         errExit(JSON.stringify({ error: "MCP-SERVE-ERROR", message: String(e && e.message || e) }) + "\n", 2);
       }
     } else {
-      errExit("usage: macro-audit mcp [facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n]]\n", 2);
+      errExit("usage: macro-audit mcp [facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n] | quarantine [--db <path>] [--run <run_id>] [--field <name>] [--limit n]]\n", 2);
     }
   } else if (cmd === "repo") {
     const sub = process.argv[3];
@@ -3793,6 +4367,7 @@ async function main() {
     let outDir;
     let asJson = false;
     let refresh = false;
+    let strictQuarantine = false;
     for (let i = 0; i < args.length; i++) {
       const a = args[i];
       if (a === "--scale") {
@@ -3811,6 +4386,8 @@ async function main() {
         asJson = true;
       } else if (a === "--refresh") {
         refresh = true;
+      } else if (a === "--strict-quarantine") {
+        strictQuarantine = true;
       } else if (a.indexOf("--") === 0) {
         errExit("AUDIT-ARGS: unknown flag " + a + "\n", 2);
       } else if (!input) {
@@ -3820,10 +4397,10 @@ async function main() {
       }
     }
     if (!input) {
-      errExit("usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]\n", 2);
+      errExit("usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine]\n", 2);
     }
     try {
-      const r = await runAudit({ input, scale, outDir, json: asJson, refresh });
+      const r = await runAudit({ input, scale, outDir, json: asJson, refresh, strictQuarantine });
       if (r.out_dir) {
         outExit(JSON.stringify({
           report_id: r.report_id,
@@ -3832,6 +4409,8 @@ async function main() {
           stability: r.stability,
           capabilities: r.capabilities,
           overall_verdict: r.overall_verdict,
+          verdict: r.verdict,
+          intake_quarantine: r.intake_quarantine,
           degraded_mode: r.degraded_mode,
           head_sha: r.head_sha,
           tree_sha: r.tree_sha,
@@ -3851,6 +4430,22 @@ async function main() {
       if (e instanceof ExitSignal) throw e;
       if (isAuditScaleError(e)) {
         errExit(JSON.stringify({ error: e.code, message: e.message, implemented: e.implemented, requested: e.requested, layer_order: e.layer_order }) + "\n", 2);
+      }
+      if (isProtocolCrash(e)) {
+        const payload = crashArtifactFromError(e);
+        let artifact = null;
+        try {
+          const dir = outDir ? resolve4(outDir) : resolve4(process.cwd());
+          if (!existsSync7(dir)) {
+            mkdirSync6(dir, { recursive: true });
+          }
+          artifact = join9(dir, "macro-audit-crash-" + String(payload.error_code) + "-" + String(Date.now()) + ".json");
+          writeFileSync4(artifact, JSON.stringify(payload, null, 2) + "\n", "utf8");
+        } catch (_) {
+          artifact = null;
+        }
+        const code = payload.error_code === "STRICT-QUARANTINE-VIOLATION" ? 3 : 2;
+        errExit(JSON.stringify({ error: payload.error_code, message: e.message, crash_artifact: artifact, crash_location: payload.crash_location, run_context: payload.run_context, counts: payload.counts }) + "\n", code);
       }
       const err = e;
       errExit(JSON.stringify({ error: err.code || "AUDIT-ERROR", message: err.message || String(e) }) + "\n", 2);

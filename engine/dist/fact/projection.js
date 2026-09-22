@@ -47,3 +47,40 @@ export async function projectFacts(dbPath, filter) {
         closeDuckdb(conn);
     }
 }
+const QUAR_PROJECTION_COLUMNS = 'run_id, commit_sha, field_name, disposition, reason_code, raw_bytes_hex, is_trunc, original_length, sha256_full, collector, CAST(recorded_at AS VARCHAR) AS recorded_at';
+export function buildQuarantineSql(filter) {
+    const where = [];
+    const params = [];
+    if (filter.run_id) {
+        where.push('run_id = ?');
+        params.push(filter.run_id);
+    }
+    if (filter.field_name) {
+        where.push('field_name = ?');
+        params.push(filter.field_name);
+    }
+    const limit = filter.limit === undefined ? 50 : Math.min(Math.max(Math.floor(filter.limit), 1), MAX_LIMIT);
+    const sql = 'SELECT ' + QUAR_PROJECTION_COLUMNS + ' FROM quarantine_log' + (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY q_seq LIMIT ' + limit;
+    return { sql: sql, params: params };
+}
+export async function projectQuarantine(dbPath, filter) {
+    const conn = await openReader(dbPath);
+    try {
+        const q = buildQuarantineSql(filter);
+        assertAppendOnly(q.sql);
+        const reader = await conn.run(q.sql, q.params);
+        const rows = await reader.getRows();
+        const names = reader.columnNames();
+        return rows.map(function (r) {
+            const o = {};
+            names.forEach(function (n, i) {
+                const v = r[i];
+                o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
+            });
+            return o;
+        });
+    }
+    finally {
+        closeDuckdb(conn);
+    }
+}

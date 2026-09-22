@@ -13,7 +13,9 @@ import { execFileSync } from 'node:child_process';
 import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPositioning, sha256Hex, ADR_FIVE_PIECE } from '../collect/collectors.js';
 import type { CollectContext, CollectedFact } from '../collect/collectors.js';
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
-import { normalizeGitIsoDate } from '../intake/intake.js';
+// %cI 契约=normalizeGitIsoDate 同族判定本体（契约层分类器 classifyGitIsoField 承载，见 quarantine.ts）
+import { classifyGitIsoField, recordFieldInstance, emptyFieldStat, protocolCrashError, FIELD_HEAD_DATE, FIELD_COMMITTER_DATE } from '../intake/quarantine.js';
+import type { FieldStatus, FieldEvent, FieldStat } from '../intake/quarantine.js';
 
 const NL = String.fromCharCode(10);
 
@@ -56,38 +58,80 @@ function git(root: string, args: readonly string[]): string {
   return execFileSync('git', ['-C', root].concat(args as string[]), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
 }
 
-export interface ParsedCommit { sha: string; author: string; date: string; paths: string[] }
+export interface ParsedCommit { sha: string; author: string; date: string | null; paths: string[] }
+// date=null=字段级病态 quarantined 置位（D-100② null=毒值——消费方显式跳过禁当 0）。
 
 export interface MacroBProbes {
   headSha: string;
-  headDate: string;   // %cI 归一化后（+00:00→Z，#54/D-059①）
+  headDate: string | null;  // 锚字段合法值；quarantined→null（headRaw 保原始字节进 traceId 哈希，D-108①）
+  headRaw: string;
+  headStatus: FieldStatus;
   treeSha: string;
   commitCount: number;
   commits: ParsedCommit[];
   subjects: string[];
+  fieldEvents: FieldEvent[];   // normalized+quarantined 处置事件（clean 不记——恒等式 clean=total−事件行）
+  fieldStats: FieldStat[];     // 逐字段实例三桶（head_date 基数 1＋committer_date 基数 commitCount）
 }
 
-// git 探针＋log 解析（PROBE-INVARIANT：解析完整性先断言）；%cI 输出全走 normalizeGitIsoDate。
+// git 探针＋log 解析（PROBE-INVARIANT：解析完整性先断言）。
+// %cI 两级分流（ADR-0022/D-100③）：记录形状坏（__R__ 行 ≠3 字段——嵌定界符/截断行）=协议级违约
+//   fail-fast 落崩溃桶工件；字段值语义非法=字段级病态 → classifyGitIsoField 三态（永不 throw）
+//   → quarantined 置 null＋事件留痕，管线继续。normalizeGitIsoDate 判定本体同族（抛型回执留给旧调用方）。
 export function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes {
-  const headDate = normalizeGitIsoDate(git(repoRoot, ['log', '-1', '--format=%cI']));
-  const treeSha = git(repoRoot, ['rev-parse', 'HEAD^{tree}']);
-  const commitCount = Number(git(repoRoot, ['rev-list', '--count', 'HEAD']));
-  const rawLog = git(repoRoot, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
+  const fieldStats: FieldStat[] = [emptyFieldStat(FIELD_HEAD_DATE), emptyFieldStat(FIELD_COMMITTER_DATE)];
+  const fieldEvents: FieldEvent[] = [];
+  let headRaw = '';
+  let treeSha = '';
+  let commitCount = 0;
+  let rawLog = '';
+  try {
+    headRaw = git(repoRoot, ['log', '-1', '--format=%cI']);
+    treeSha = git(repoRoot, ['rev-parse', 'HEAD^{tree}']);
+    commitCount = Number(git(repoRoot, ['rev-list', '--count', 'HEAD']));
+    rawLog = git(repoRoot, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
+  } catch (e) {
+    const ee = e as { stderr?: Buffer | string };
+    throw protocolCrashError('GIT-PROBE-FAILED', 'git 只读子命令失败：' + String((e as Error).message || e).split(NL)[0], {
+      raw: ee && ee.stderr ? String(ee.stderr) : null,
+      crash_location: 'audit/macro-b.ts:probeMacroBRepo',
+      run_context: { repo_ref: repoRoot, commit_sha: headSha }
+    });
+  }
+  const headCls = classifyGitIsoField(headRaw, { anchor: true });
+  recordFieldInstance(fieldStats[0], fieldEvents, headCls, headSha, FIELD_HEAD_DATE);
+  const headDate = headCls.value;
   const commits: ParsedCommit[] = [];
   let cur: ParsedCommit | null = null;
   for (const line of rawLog.split(NL)) {
     const t = line.trim();
     if (t.indexOf('__R__') === 0) {
       const parts = t.slice(5).split('|');
-      cur = { sha: parts[0], author: parts[1], date: normalizeGitIsoDate(parts[2]), paths: [] };
+      if (parts.length !== 3) {
+        throw protocolCrashError('GITCLI-OUTPUT-CONTRACT', 'git log 记录形状违约：期望 3 字段实得 ' + parts.length + '（嵌定界符/记录截断→字段不可定界=协议级违约，D-100①）', {
+          raw: t,
+          crash_location: 'audit/macro-b.ts:probeMacroBRepo:log-parse',
+          run_context: { repo_ref: repoRoot, commit_sha: parts.length > 0 ? parts[0] : null },
+          counts: { commits_seen: commits.length }
+        });
+      }
+      const cls = classifyGitIsoField(parts[2]);
+      cur = { sha: parts[0], author: parts[1], date: cls.value, paths: [] };
+      recordFieldInstance(fieldStats[1], fieldEvents, cls, parts[0], FIELD_COMMITTER_DATE);
       commits.push(cur);
     } else if (cur && t.length > 0) {
       cur.paths.push(t);
     }
   }
-  if (commits.length !== commitCount) { throw new Error('PROBE-INVARIANT-FAIL[' + repoRoot + ']: parsed ' + commits.length + ' != git rev-list ' + commitCount); }
+  if (commits.length !== commitCount) {
+    throw protocolCrashError('PROBE-INVARIANT-FAIL', '[' + repoRoot + ']: parsed ' + commits.length + ' != git rev-list ' + commitCount, {
+      crash_location: 'audit/macro-b.ts:probeMacroBRepo:invariant',
+      run_context: { repo_ref: repoRoot, commit_sha: headSha },
+      counts: { commits_seen: commits.length }
+    });
+  }
   const subjects = git(repoRoot, ['log', '--pretty=format:%s']).split(NL);
-  return { headSha: headSha, headDate: headDate, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects };
+  return { headSha: headSha, headDate: headDate, headRaw: headRaw, headStatus: headCls.status, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects, fieldEvents: fieldEvents, fieldStats: fieldStats };
 }
 
 export interface MacroBCollectSpec {
@@ -125,7 +169,7 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
   const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
   const firstCommitOf = function (p: string): string | null {
     let best: string | null = null;
-    for (const c of probes.commits) { if (c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) { best = c.date; } }
+    for (const c of probes.commits) { if (c.date !== null && c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) { best = c.date; } }
     return best;
   };
   const adrDocs = adrFiles.map(function (f) {
@@ -255,12 +299,16 @@ export function tcBand(v: string): 'supported' | 'unsupported' | 'insufficient' 
 
 // ctx 契约面：runIdLabel 进 runId（run 身份）；ctxLabel 进 traceId/repoRef（仓身份——demo=def.repo.name，
 // audit=仓名）。两 label 分离原因：demo 原实现 runId 用 scenario、traceId/repoRef 用 repo.name，混并即漂哈希。
-export function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string): CollectContext {
+// headDate=null（锚病态 quarantined）→ traceId 哈希改用锚字段原始字节（D-108①：锚病态哈希 raw bytes
+// 保持确定性）；observedAt 不落伪值——哨兵串 'quarantined(...)' 标记，audit_fact.observed_at
+// NOT NULL 无法满足故该 run 跳过 fact 落库（quarantine_log 行仍写，recorded_at=NULL 合法）。
+export function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string | null, headRaw?: string): CollectContext {
+  const anchor = headDate === null ? 'quarantined:' + sha256Hex(headRaw === undefined ? '' : headRaw) : headDate;
   return {
     runId: runIdLabel + '-' + headSha.slice(0, 7),
-    traceId: sha256Hex(ctxLabel + '|' + headSha + '|' + headDate).slice(0, 32),
+    traceId: sha256Hex(ctxLabel + '|' + headSha + '|' + anchor).slice(0, 32),
     repoRef: ctxLabel + '@' + headSha,
     scale: 'Macro-B',
-    observedAt: headDate
+    observedAt: headDate === null ? 'quarantined(anchor_head_date_malformed)' : headDate
   };
 }

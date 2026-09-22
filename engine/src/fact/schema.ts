@@ -110,11 +110,42 @@ export function assertAppendOnly(sql: string): void {
 }
 
 // ---- DDL 构造器：字段清单程序化派生，禁止手工转录 DDL ----
-export function buildCreateTableSql(table: string, fields: readonly FactField[]): string {
-  const cols = fields.map(function (f) { return '  ' + f.name + ' ' + f.type + ' ' + f.constraints.join(' ').trim(); });
+export function buildCreateTableSql(table: string, fields: readonly FactField[], tableConstraints?: readonly string[]): string {
+  const cols = fields.map(function (f) { return '  ' + f.name + ' ' + f.type + ' ' + f.constraints.join(' ').trim(); })
+    .concat(tableConstraints ? tableConstraints.map(function (c) { return '  ' + c; }) : []);
   const head = 'CREATE TABLE IF NOT EXISTS ' + table + ' (';
   return head + String.fromCharCode(10) + cols.join(',' + String.fromCharCode(10)) + String.fromCharCode(10) + ');';
 }
 
 export const AUDIT_FACT_DDL: string = buildCreateTableSql('audit_fact', AUDIT_FACT_FIELDS);
 export const SCHEMA_REGISTRY_DDL: string = buildCreateTableSql('schema_registry', SCHEMA_REGISTRY_FIELDS);
+
+// ---- quarantine_log（#78 / ADR-0022 / D-106·D-108·D-112·D-115·D-117·D-119）----
+// 字段级病态处置事件台账——逐字段处置事件行（normalized 留痕不告警 / quarantined 隔离）。
+// 幂等自然键（D-108②+D-112④ 扩展）：UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)
+//   ——重跑同 run 重复写=插入幂等（ON CONFLICT DO NOTHING），崩溃后重跑自愈。
+// reason_code CHECK=命名公约契约物（D-119）：开放词表禁把枚举硬编码进 CHECK
+//   ——加码=非破坏；枚举成员资格由写路径（appendQuarantineEvent）校验 QUARANTINE_REASON_CODES。
+// raw_bytes 有界（D-117）：hex 回显 ≤131072 chars（64KiB bytes 上限双编码）＋指纹三件套列
+//   （is_trunc/original_length/sha256_full）——截断声明可机验，完整现场 git 内容寻址重放兜底。
+// recorded_at=该 run 观测时点（值源=headDate，D-108③）；可空——NULL 仅锚病态路径。
+export const QUARANTINE_LOG_FIELDS: readonly FactField[] = [
+  { name: 'q_seq', type: 'UBIGINT', nullable: false, role: 'identity', constraints: ['NOT NULL', 'PRIMARY KEY'], inherits: 'D-106' },
+  { name: 'run_id', type: 'CHAR(32)', nullable: false, role: 'correlation', constraints: ['NOT NULL', "CHECK(regexp_matches(run_id, '^[0-9a-f]{32}$'))"], inherits: 'D-108' },
+  { name: 'commit_sha', type: 'VARCHAR(64)', nullable: false, role: 'provenance', constraints: ['NOT NULL'], inherits: 'D-106' },
+  { name: 'field_name', type: 'VARCHAR(32)', nullable: false, role: 'classification', constraints: ['NOT NULL'], inherits: 'D-104' },
+  { name: 'disposition', type: 'VARCHAR(16)', nullable: false, role: 'classification', constraints: ['NOT NULL', "CHECK(disposition IN ('quarantined','normalized'))"], inherits: 'D-112' },
+  { name: 'reason_code', type: 'VARCHAR(64)', nullable: false, role: 'classification', constraints: ['NOT NULL', "CHECK(regexp_matches(reason_code, '^[a-z][a-z0-9_]{2,63}$'))"], inherits: 'D-119' },
+  { name: 'raw_bytes_hex', type: 'VARCHAR', nullable: false, role: 'payload', constraints: ['NOT NULL', 'CHECK(length(raw_bytes_hex) <= 131072)'], inherits: 'D-117' },
+  //   列名 is_trunc（非 is_truncated）：append-only 黑名单为子串扫，'TRUNCATE' 会误伤列名——
+//   改名避开守卫误报（语义不变：D-117 截断标记位；禁词表兼容注记见 docs/known-gaps.md）。
+  { name: 'is_trunc', type: 'BOOLEAN', nullable: false, role: 'payload', constraints: ['NOT NULL'], inherits: 'D-117' },
+  { name: 'original_length', type: 'UBIGINT', nullable: false, role: 'payload', constraints: ['NOT NULL'], inherits: 'D-117' },
+  { name: 'sha256_full', type: 'CHAR(64)', nullable: false, role: 'payload', constraints: ['NOT NULL', "CHECK(regexp_matches(sha256_full, '^[0-9a-f]{64}$'))"], inherits: 'D-117' },
+  { name: 'collector', type: 'VARCHAR(64)', nullable: false, role: 'provenance', constraints: ['NOT NULL'], inherits: 'D-106' },
+  { name: 'recorded_at', type: 'TIMESTAMPTZ', nullable: true, role: 'provenance', constraints: ['NULL'], inherits: 'D-108' }
+];
+
+export const QUARANTINE_LOG_DDL: string = buildCreateTableSql('quarantine_log', QUARANTINE_LOG_FIELDS, [
+  'UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)'
+]);

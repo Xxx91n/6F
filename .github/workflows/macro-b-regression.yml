@@ -125,10 +125,11 @@ jobs:
             --root "$GITHUB_WORKSPACE/audited-repo" \
             --out "$GITHUB_WORKSPACE/macro-b-artifacts"
 
-      - name: verify report artifacts (receipt + sidecar + md + facts + duckdb present)
+      - name: verify report artifacts (three-check: present + JSON parse + verdict/reason_class enum + intake_health)
         env:
           REPO_NAME: ${{ matrix.repo.name }}
         run: |
+          set -euo pipefail
           test -s "macro-b-artifacts/39-macro-b-$REPO_NAME.json"
           grep -Eq '"receipt_id"[[:space:]]*:[[:space:]]*"RCP-[0-9a-f]{16}"' "macro-b-artifacts/39-macro-b-$REPO_NAME.json"
           grep -q '"scale": "Macro-B"' "macro-b-artifacts/39-macro-b-$REPO_NAME.json"
@@ -136,7 +137,19 @@ jobs:
           test -s "macro-b-artifacts/39-macro-b-$REPO_NAME-facts.jsonl"
           test -s "macro-b-artifacts/39-macro-b-$REPO_NAME-measurements.json"
           test -s "macro-b-artifacts/39-audit-facts.duckdb"
-          echo "macro-b regression artifacts verified (pipeline green; verdict recorded honestly in report)"
+          # #78/ADR-0022 三查升级：①sidecar JSON 可解析 ②overall_verdict+verdict.reason_class 枚举闭集 ③intake_health 恒在
+          node -e "const s=require('./macro-b-artifacts/39-macro-b-$REPO_NAME.json'); if(['supported','unsupported','insufficient'].indexOf(s.overall_verdict)<0) throw new Error('overall_verdict not in enum: '+s.overall_verdict); if(!s.verdict||['none','evidence_insufficient','anchor_malformed','threshold_exceeded','criteria_unsupported'].indexOf(s.verdict.reason_class)<0) throw new Error('reason_class not in enum: '+(s.verdict&&s.verdict.reason_class)); if(!s.intake_health||!Array.isArray(s.intake_health.fields)) throw new Error('intake_health absent');"
+          grep -q '## Intake Health' "macro-b-artifacts/39-macro-b-$REPO_NAME.md"
+          echo "macro-b regression verified: artifacts + JSON + verdict/reason_class enum + intake_health (pipeline green != verdict green)"
+
+      - name: upload crash artifacts (protocol-bucket lane, if any)
+        # #78/D-109：协议级崩溃固定 schema 工件——one-shot 硬崩（exit 2/3）时崩溃桶 JSON 随工件上传，批灭前先留证
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macro-b-crash-${{ matrix.repo.name }}
+          path: macro-b-artifacts/*crash*.json
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v4
         if: always()

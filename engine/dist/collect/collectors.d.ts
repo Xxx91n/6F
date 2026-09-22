@@ -80,7 +80,7 @@ export declare const GITLOG_FAMILY = "gitlog";
 export interface CommitRecord {
     sha: string;
     author: string;
-    date: string;
+    date: string | null;
     paths: readonly string[];
 }
 export interface GitlogInput {

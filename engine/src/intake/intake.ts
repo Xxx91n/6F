@@ -9,6 +9,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, statSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { classifyGitIsoField } from './quarantine.js';
 
 export type RepoInputKind = 'local' | 'owner-repo' | 'url';
 
@@ -82,13 +83,16 @@ export function isGitRepo(dir: string, timeoutMs = 30000): boolean {
 // git <2.45 对 UTC 偏移提交吐 '+00:00'，≥2.45 吐 'Z'——同一 commit object 跨版本字面漂移，
 // 击穿 traceId→fact_id→receipt→report 逐字节确定性链。处置=解析边界归一化 '+00:00'→'Z'
 // （非 UTC 偏移如 +08:00 两版一致不动）＋严格形状断言：归一化后不符即拒，不静默放行。
-const GIT_ISO_STRICT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/;
+// %cI 严格形状正则=quarantine.ts GIT_ISO_STRICT_RE（契约层自持，判定单源）
+// 归一化判定本体=契约层 classifyGitIsoField（ADR-0022/D-103：字段级病态三态分流，永不 throw）。
+// 本函数为既有调用方保留的「抛型回执」：clean/normalized 返回合法值；quarantined 仍抛
+// GITCLI-OUTPUT-CONTRACT（调用方要走隔离桶时须直接消费 classifyGitIsoField）。
 export function normalizeGitIsoDate(raw: string): string {
-  const s = (raw || '').trim().replace(/\+00:00$/, 'Z');
-  if (!GIT_ISO_STRICT_RE.test(s)) {
-    throw intakeError('GITCLI-OUTPUT-CONTRACT', 'git %cI output violates frozen shape (expect strict ISO-8601, Z or ±HH:MM zone): ' + JSON.stringify(raw));
+  const c = classifyGitIsoField(raw);
+  if (c.status === 'quarantined' || c.value === null) {
+    throw intakeError('GITCLI-OUTPUT-CONTRACT', 'git %cI output violates frozen shape (expect strict ISO-8601, Z or ±HH:MM zone; quarantined reason=' + c.reason_code + '): ' + JSON.stringify(raw));
   }
-  return s;
+  return c.value;
 }
 
 export function isShallowRepo(dir: string, timeoutMs = 30000): boolean {

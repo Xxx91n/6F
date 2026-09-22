@@ -487,7 +487,9 @@ export const GITLOG_FAMILY = 'gitlog';
 export interface CommitRecord {
   sha: string;
   author: string;
-  date: string;
+  // date=null=quarantined 置位（D-100② null=毒值）：日期派生指标（first_commit/adr_lag）
+  // 显式跳过该 commit 禁当 0/禁入排序比较；commit_count/author_matrix 无日期语义仍计全量。
+  date: string | null;
   paths: readonly string[];
 }
 
@@ -509,20 +511,26 @@ export function collectGitlog(input: GitlogInput, ctx: CollectContext): Collecte
   for (const path of input.paths) {
     const touching = input.commits.filter(function (c) { return c.paths.indexOf(path) >= 0; });
     if (touching.length === 0) { continue; }
-    const sorted = touching.slice().sort(function (a, b) {
+    // null=毒值显式跳过（D-100②）：first_commit/adr_lag 只在 date 可判定子集上排序；
+    // 排除计数由 Intake Health 节 excluded_commits 披露（over N-M commits 声明）。
+    const dated = touching.filter(function (c): c is CommitRecord & { date: string } { return c.date !== null; });
+    const sorted = dated.slice().sort(function (a, b) {
       if (a.date < b.date) { return -1; }
       if (a.date > b.date) { return 1; }
       if (a.sha < b.sha) { return -1; }
       if (a.sha > b.sha) { return 1; }
       return 0;
     });
-    const first = sorted[0];
-    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.first_commit', {
-      path: path,
-      sha: first.sha,
-      date: first.date
-    }));
-    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.commit_count', {
+    const first = sorted.length > 0 ? sorted[0] : null;
+    const anchorSha = first !== null ? first.sha : touching[0].sha;
+    if (first !== null) {
+      out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.first_commit', {
+        path: path,
+        sha: first.sha,
+        date: first.date
+      }));
+    }
+    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, anchorSha, 'git.commit_count', {
       path: path,
       count: touching.length
     }));
@@ -533,14 +541,14 @@ export function collectGitlog(input: GitlogInput, ctx: CollectContext): Collecte
     for (const a of authors) {
       if (authorCounts[a] > authorCounts[topAuthor]) { topAuthor = a; }
     }
-    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.author_matrix', {
+    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, anchorSha, 'git.author_matrix', {
       path: path,
       authors: authors,
       top_author: topAuthor,
       top_share: authorCounts[topAuthor] / touching.length
     }));
     const adrDate = input.adrDates[path];
-    if (adrDate) {
+    if (adrDate && first !== null) {
       out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.adr_lag_days', {
         path: path,
         adr_date: adrDate,

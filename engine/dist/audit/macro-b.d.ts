@@ -1,4 +1,5 @@
 import type { CollectContext, CollectedFact } from '../collect/collectors.js';
+import type { FieldStatus, FieldEvent, FieldStat } from '../intake/quarantine.js';
 export declare const TC1_LAG_DAYS = 90;
 export declare const TC1_RATIO_RED = 0.2;
 export declare const TC1_MIN_N = 5;
@@ -13,16 +14,20 @@ export declare const POS_DECL = "macro audit positioning convergence determinism
 export interface ParsedCommit {
     sha: string;
     author: string;
-    date: string;
+    date: string | null;
     paths: string[];
 }
 export interface MacroBProbes {
     headSha: string;
-    headDate: string;
+    headDate: string | null;
+    headRaw: string;
+    headStatus: FieldStatus;
     treeSha: string;
     commitCount: number;
     commits: ParsedCommit[];
     subjects: string[];
+    fieldEvents: FieldEvent[];
+    fieldStats: FieldStat[];
 }
 export declare function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes;
 export interface MacroBCollectSpec {
@@ -111,4 +116,4 @@ export interface MacroBEval {
 }
 export declare function evaluateMacroB(collect: MacroBCollect): MacroBEval;
 export declare function tcBand(v: string): 'supported' | 'unsupported' | 'insufficient';
-export declare function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string): CollectContext;
+export declare function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string | null, headRaw?: string): CollectContext;

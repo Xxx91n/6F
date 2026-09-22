@@ -1,6 +1,33 @@
 {
   "schema_version": "1.2.0",
   "report_id": "MA-45-DEMO-HAPPYPATH",
+  "verdict": {
+    "band": "supported",
+    "reason_class": "none"
+  },
+  "intake_health": {
+    "fields": [
+      {
+        "field_name": "head_date",
+        "total": 1,
+        "clean": 1,
+        "normalized": 0,
+        "quarantined": 0
+      },
+      {
+        "field_name": "committer_date",
+        "total": 9,
+        "clean": 9,
+        "normalized": 0,
+        "quarantined": 0
+      }
+    ],
+    "affected_commits": 0,
+    "excluded_commits": 0,
+    "quarantined_rows": [],
+    "threshold_ratio": 0.001,
+    "escalation": "none"
+  },
   "stability": "preview",
   "capabilities": [
     "macro-b"
@@ -39,7 +66,11 @@
     "fact_count": 129,
     "adjudication_count": 6,
     "degraded": false,
-    "mark": "RECEIPT RCP-73e130018f0d155a chain=73e130018f0d155a27598c165fbd06f1 content=82c05995bc07193f facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7"
+    "mark": "RECEIPT RCP-73e130018f0d155a chain=73e130018f0d155a27598c165fbd06f1 content=82c05995bc07193f facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7",
+    "verdict": {
+      "band": "supported",
+      "reason_class": "none"
+    }
   },
   "overall_verdict": "supported",
   "confidence": 0.6,
@@ -743,6 +774,13 @@
       "supported",
       "unsupported",
       "insufficient"
+    ],
+    "verdict_reason_class_enum": [
+      "none",
+      "evidence_insufficient",
+      "anchor_malformed",
+      "threshold_exceeded",
+      "criteria_unsupported"
     ],
     "human_adjudication_status": "pending",
     "narrative_seal_protocol": "ADR-0013-C/v1+narrative-seal/v1"

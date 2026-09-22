@@ -67,6 +67,10 @@ export interface ContentDigest {
 export declare const CONTENT_DIGEST_CANONICALIZATION = "json_utf8_entries_then_citation_checks";
 export interface Receipt {
     receipt_id: string;
+    verdict?: {
+        band: string;
+        reason_class: string;
+    };
     chain_hash: string;
     issued_at: string;
     commit_anchor: string;
@@ -130,6 +134,31 @@ export interface PreviewDisclosure {
     structural_limitations: readonly string[];
     not_in_preview: readonly string[];
 }
+export interface IntakeFieldStatRow {
+    field_name: string;
+    total: number;
+    clean: number;
+    normalized: number;
+    quarantined: number;
+}
+export interface IntakeHealthRow {
+    commit_sha: string;
+    field_name: string;
+    reason_code: string;
+    raw_echo: string;
+}
+export interface IntakeHealth {
+    fields: IntakeFieldStatRow[];
+    affected_commits: number;
+    excluded_commits: number;
+    quarantined_rows: IntakeHealthRow[];
+    threshold_ratio: number;
+    escalation: 'none' | 'anchor' | 'threshold';
+}
+export interface VerdictProjection {
+    band: VerdictBand;
+    reason_class: string;
+}
 export interface ReportInput {
     report_id: string;
     schema_version?: string;
@@ -157,6 +186,7 @@ export interface ReportInput {
     degraded: boolean;
     degraded_reason: string | null;
     preview_disclosure?: PreviewDisclosure;
+    intake_health?: IntakeHealth;
     human?: HumanAdjudication;
     narrative_sections?: readonly NarrativeSection[];
 }
@@ -186,6 +216,8 @@ export interface Report {
     recommendations: Recommendation[];
     adjudication: AdjudicationBlock;
     receipt: Receipt;
+    verdict: VerdictProjection;
+    intake_health: IntakeHealth | null;
     preview_disclosure: PreviewDisclosure | null;
     narrative_sections: SealedNarrative[];
 }
@@ -194,6 +226,8 @@ export declare function renderMarkdown(r: Report): string;
 export interface Sidecar {
     schema_version: string;
     report_id: string;
+    verdict: VerdictProjection;
+    intake_health: IntakeHealth | null;
     stability: 'preview' | 'ga' | null;
     capabilities: string[];
     scale: string;
@@ -226,6 +260,7 @@ export interface Sidecar {
     machine_contract: {
         citation_anchor_format: string;
         verdict_enum: string[];
+        verdict_reason_class_enum: string[];
         human_adjudication_status: string;
         narrative_seal_protocol: string;
     };

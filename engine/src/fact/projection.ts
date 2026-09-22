@@ -48,3 +48,59 @@ export async function projectFacts(dbPath: string, filter: FactProjectionFilter)
     closeDuckdb(conn);
   }
 }
+
+// ---------- quarantine_log 只读投影（#78 / D-113② / D-118） ----------
+// 与 projectFacts 同形面收窄：固定列集、值走参数绑定、LIMIT 硬帽、READ_ONLY 连接。
+// raw_bytes_hex 回显有界（≤131072 chars hex，D-117 截断+指纹三件套随行）。
+export interface QuarantineProjectionFilter {
+  run_id?: string;
+  field_name?: string;
+  limit?: number;
+}
+
+export interface QuarantineRow {
+  run_id: string;
+  commit_sha: string;
+  field_name: string;
+  disposition: string;
+  reason_code: string;
+  raw_bytes_hex: string;
+  is_trunc: boolean;
+  original_length: number;
+  sha256_full: string;
+  collector: string;
+  recorded_at: string | null;
+}
+
+const QUAR_PROJECTION_COLUMNS = 'run_id, commit_sha, field_name, disposition, reason_code, raw_bytes_hex, is_trunc, original_length, sha256_full, collector, CAST(recorded_at AS VARCHAR) AS recorded_at';
+
+export function buildQuarantineSql(filter: QuarantineProjectionFilter): { sql: string; params: string[] } {
+  const where: string[] = [];
+  const params: string[] = [];
+  if (filter.run_id) { where.push('run_id = ?'); params.push(filter.run_id); }
+  if (filter.field_name) { where.push('field_name = ?'); params.push(filter.field_name); }
+  const limit = filter.limit === undefined ? 50 : Math.min(Math.max(Math.floor(filter.limit), 1), MAX_LIMIT);
+  const sql = 'SELECT ' + QUAR_PROJECTION_COLUMNS + ' FROM quarantine_log' + (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY q_seq LIMIT ' + limit;
+  return { sql: sql, params: params };
+}
+
+export async function projectQuarantine(dbPath: string, filter: QuarantineProjectionFilter): Promise<QuarantineRow[]> {
+  const conn = await openReader(dbPath);
+  try {
+    const q = buildQuarantineSql(filter);
+    assertAppendOnly(q.sql);
+    const reader = await conn.run(q.sql, q.params as never);
+    const rows = await reader.getRows();
+    const names = reader.columnNames();
+    return rows.map(function (r) {
+      const o: Record<string, unknown> = {};
+      names.forEach(function (n, i) {
+        const v = r[i];
+        o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
+      });
+      return o as unknown as QuarantineRow;
+    });
+  } finally {
+    closeDuckdb(conn);
+  }
+}

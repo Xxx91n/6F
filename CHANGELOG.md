@@ -43,3 +43,11 @@
 - a_range: A-001 ~ A-089（architecture-recovery 账本实物区间，写时实物读出）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第二十七轮 Grill＋收口对账（D-098~D-102，D-059① revised）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-089）
 - impact: 门面致谢面建制闭环（生成式锚段＋closed 对账守卫 regen→diff empty）；xfail-45-b5 stale 条目摘除同 D-102① 形；readme-ci-badge 实物已挂载，registry status 翻转归 T10 值守面
+
+## [M-006] - 2026-09-23
+
+- milestone: 轮 28 grill 收口——quarantine 引擎设计树 18 裁全拍板（D-103~D-120）＋ADR-0022 总成入册＋CONTEXT.md 六词条（违约两级处置/Quarantine 字段处置/Reason Code 受控词表/Intake Health 节/Known-gaps 台账/Strict Quarantine 门禁＋处置感知 Parity）＋R28 调研档案 19 题全保全；#78 引擎 quarantine 建制 B 窗立案
+- adr_range: ADR-0001 ~ ADR-0022（docs/adr/ 实物 22 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-089（无新增——architecture-recovery 账本实物区间，写时实物读出）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第二十八轮 Grill＋收口对账（D-103~D-120）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-089）
+- impact: 违约两级处置＋字段级 quarantine 建制全决策定案（协议级 fail-fast／字段级三桶隔离）；残余 impl 级参数（列序/reason 枚举/字段名/构造件格式/事务节拍）随 T2 实施票收口；B 窗开工前提=guards 全绿基线

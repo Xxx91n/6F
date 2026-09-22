@@ -142,3 +142,13 @@
 - degraded_note: 降级产出：FP-45-1 供应链数据未接（D-034③④ 演示化实现）：supply-chain 象限证据域不可用（Scorecard/repomix 未接入不插队）→ 主前提不可裁定，发起 GapRequest 降级产出 ⚠ unverified
 
 
+## Intake Health
+
+- 契约：ADR-0022 违约两级处置——协议级违约 fail-fast（崩溃桶工件），字段级病态=quarantine 桶隔离（判定/处置硬分界）
+- field head_date: total=1 clean=1 normalized=0 quarantined=0（恒等式=PASS）
+- field committer_date: total=8 clean=8 normalized=0 quarantined=0（恒等式=PASS）
+- affected_commits（quarantined 去重）: 0
+- 派生统计排除声明：日期派生指标 over 8 commits（quarantined 排除 0；quarantined 日期 commit 禁入 first_commit/adr_lag 派生）
+- 阈值纪律：单字段 quarantined/total > 0.001 → run 级裁定升级 unsupported；escalation=none
+- quarantined rows: 无（摄入无病态=阴性自证）
+

@@ -25,17 +25,21 @@ function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] ==
 
 // ---------- A. enforce 位在 intake.ts ----------
 const intake = txt(join(ENG, 'src', 'intake', 'intake.ts'));
+const quar = txt(join(ENG, 'src', 'intake', 'quarantine.ts'));
 t('A1 normalizeGitIsoDate 导出在', /export function normalizeGitIsoDate\(/.test(intake));
-t('A2 +00:00→Z 归一规则在', intake.indexOf("replace(/\\+00:00$/") >= 0 && intake.indexOf("'Z'") >= 0);
-t('A3 严格 ISO 形状断言（Z 或 ±HH:MM 秒精度）在', /GIT_ISO_STRICT_RE = \/\^\\d\{4\}-/.test(intake));
-t('A4 形状违例抛 GITCLI-OUTPUT-CONTRACT（不静默放行）', intake.indexOf('GITCLI-OUTPUT-CONTRACT') >= 0);
+// #78/ADR-0022：归一规则＋严格形状判定迁入 intake/quarantine.ts 契约层（classifyGitIsoField 单源）；
+// intake.ts 侧 normalizeGitIsoDate=抛型回执委托——两级违约分流钉锚。
+t('A2 +00:00→Z 归一规则在契约层', quar.indexOf("replace(/\\+00:00$/") >= 0 && quar.indexOf("'Z'") >= 0);
+t('A3 严格 ISO 形状断言（Z 或 ±HH:MM 秒精度）在契约层', /GIT_ISO_STRICT_RE = \/\^\\d\{4\}-/.test(quar));
+t('A4 形状违例抛 GITCLI-OUTPUT-CONTRACT（不静默放行；quarantined 经分类器回执）', intake.indexOf('GITCLI-OUTPUT-CONTRACT') >= 0 && intake.indexOf('classifyGitIsoField') >= 0);
 
 // ---------- B. %cI 消费点全走归一化（#53 提炼后位在 audit/macro-b.ts——demo 经共享链同消费） ----------
 const demo = txt(join(ENG, 'src', 'demo', 'demo.ts'));
 const mb = txt(join(ENG, 'src', 'audit', 'macro-b.ts'));
 t('B1 demo.ts 经共享链消费归一化（probeMacroBRepo 从 audit/macro-b.js 导入）', demo.indexOf("from '../audit/macro-b.js'") >= 0 && demo.indexOf('probeMacroBRepo') >= 0);
-t('B2 macro-b.ts HEAD_DATE 走归一化', mb.indexOf("normalizeGitIsoDate(git(repoRoot, ['log', '-1', '--format=%cI']))") >= 0);
-t('B3 macro-b.ts 逐 commit date 走归一化（rawLog 解析行）', mb.indexOf('date: normalizeGitIsoDate(parts[2])') >= 0);
+// #78/ADR-0022：%cI 两级分流——协议级（字段不可定界）fail-fast，字段级病态→classifyGitIsoField 三态桶
+t('B2 macro-b.ts HEAD_DATE 走字段分类器（anchor 位）', mb.indexOf("classifyGitIsoField(headRaw, { anchor: true })") >= 0);
+t('B3 macro-b.ts 逐 commit date 走字段分类器（rawLog 解析行）', mb.indexOf('classifyGitIsoField(parts[2])') >= 0);
 const ciCount = (mb.match(/--format=%cI|\|%cI/g) || []).length;
 const ciDemo = (demo.match(/--format=%cI|\|%cI/g) || []).length;
 t('B4 macro-b.ts %cI 调用点恰 2 处全归一化 + demo.ts 无裸 %cI 调用残留（消费点单源在管线模块）', ciCount === 2 && ciDemo === 0, 'mb=' + ciCount + ' demo=' + ciDemo);

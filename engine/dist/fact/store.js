@@ -10,7 +10,8 @@ import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AUDIT_FACT_DDL, SCHEMA_REGISTRY_DDL, AUDIT_FACT_FIELDS, assertAppendOnly, SCHEMA_VERSION_V0 } from './schema.js';
+import { AUDIT_FACT_DDL, SCHEMA_REGISTRY_DDL, AUDIT_FACT_FIELDS, QUARANTINE_LOG_DDL, assertAppendOnly, SCHEMA_VERSION_V0 } from './schema.js';
+import { QUARANTINE_REASON_CODES, rawBytesFingerprint, protocolCrashError } from '../intake/quarantine.js';
 const WRITE_COLUMNS = AUDIT_FACT_FIELDS
     .filter(function (f) { return f.name !== 'fact_seq' && f.name !== 'ingested_at'; })
     .map(function (f) { return f.name; });
@@ -249,8 +250,11 @@ export async function openWriter(dbPath) {
     instanceOf.set(connection, instance);
     await connection.run(SCHEMA_REGISTRY_DDL);
     await connection.run(AUDIT_FACT_DDL);
+    await connection.run(QUARANTINE_LOG_DDL);
     await connection.run('CREATE SEQUENCE IF NOT EXISTS ' + FACT_SEQ_NAME + ' START 1');
+    await connection.run('CREATE SEQUENCE IF NOT EXISTS ' + QUARANTINE_SEQ_NAME + ' START 1');
     await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 1, 'Registered', 'FULL', 'schema v0 append-only fact table' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 1)");
+    await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 2, 'Registered', 'BACKWARD', 'quarantine_log added: field-level pathology disposition ledger (#78 / ADR-0022 / D-106)' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 2)");
     return connection;
 }
 export async function openReader(dbPath) {
@@ -277,4 +281,74 @@ export async function queryFacts(connection, sql) {
 }
 export function factFieldNames() {
     return AUDIT_FACT_FIELDS.map(function (f) { return f.name; });
+}
+// ---------- quarantine_log 写路径（#78 / D-106·D-108·D-112·D-115·D-117·D-119） ----------
+export const QUARANTINE_SEQ_NAME = 'quarantine_log_seq';
+// 自然键幂等：UNIQUE(run_id,commit_sha,field_name,reason_code,disposition) + ON CONFLICT DO NOTHING
+const QUARANTINE_INSERT_SQL = 'INSERT INTO quarantine_log (q_seq, run_id, commit_sha, field_name, disposition, reason_code, ' +
+    'raw_bytes_hex, is_trunc, original_length, sha256_full, collector, recorded_at) VALUES (' +
+    "nextval('" + QUARANTINE_SEQ_NAME + "'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
+// 分类器产出枚举外的 reason_code=分类器 bug（D-110② 前置枚举校验，与基线未命中硬崩分轨）。
+export async function appendQuarantineEvent(connection, ev) {
+    if (QUARANTINE_REASON_CODES.indexOf(ev.reason_code) < 0) {
+        throw protocolCrashError('REASON-CODE-UNLISTED', 'reason_code outside v1 vocabulary: ' + ev.reason_code, {
+            raw: ev.raw,
+            crash_location: 'fact/store.ts:appendQuarantineEvent',
+            run_context: { repo_ref: null, run_id: ev.run_id, commit_sha: ev.commit_sha }
+        });
+    }
+    const fp = rawBytesFingerprint(ev.raw);
+    assertAppendOnly(QUARANTINE_INSERT_SQL);
+    await connection.run(QUARANTINE_INSERT_SQL, [
+        ev.run_id, ev.commit_sha, ev.field_name, ev.disposition, ev.reason_code,
+        fp.raw_bytes_hex, fp.is_trunc, fp.original_length, fp.sha256_full,
+        ev.collector, ev.recorded_at
+    ]);
+}
+// 逐 commit（或分批节拍）事务边界（D-115①）：fact 行＋quarantine 事件同事务提交；
+// 失败 ROLLBACK 无半截写——恒等式在任意崩溃点不破；重跑=自然键幂等自愈。
+export async function runInTransaction(connection, fn) {
+    await connection.run('BEGIN TRANSACTION');
+    try {
+        const r = await fn();
+        await connection.run('COMMIT');
+        return r;
+    }
+    catch (e) {
+        try {
+            await connection.run('ROLLBACK');
+        }
+        catch (_) { /* rollback 次生错不盖主错 */ }
+        throw e;
+    }
+}
+// 恒等式对账的库内半层：run 内逐字段×disposition 行数（独立核对半层=78-check 自带 SQL）。
+export async function queryQuarantineCounts(connection, runId) {
+    const sql = 'SELECT field_name, disposition, COUNT(*) AS n FROM quarantine_log WHERE run_id = ? GROUP BY field_name, disposition';
+    assertAppendOnly(sql);
+    const res = await connection.run(sql, [runId]);
+    const rows = await res.getRows();
+    const out = {};
+    for (const r of rows) {
+        const field = String(r[0]);
+        const disp = String(r[1]);
+        const n = Number(r[2]);
+        if (!out[field]) {
+            out[field] = { normalized: 0, quarantined: 0 };
+        }
+        if (disp === 'normalized') {
+            out[field].normalized = n;
+        }
+        else if (disp === 'quarantined') {
+            out[field].quarantined = n;
+        }
+    }
+    return out;
+}
+export async function queryQuarantineRows(connection, runId) {
+    const sql = 'SELECT run_id, commit_sha, field_name, disposition, reason_code, raw_bytes_hex, is_trunc, original_length, sha256_full, collector, recorded_at FROM quarantine_log WHERE run_id = ? ORDER BY q_seq';
+    assertAppendOnly(sql);
+    const res = await connection.run(sql, [runId]);
+    const rows = await res.getRowObjects();
+    return rows;
 }

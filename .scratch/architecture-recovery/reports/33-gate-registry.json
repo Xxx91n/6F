@@ -156,6 +156,10 @@
   "docs-site-deployed": {
    "occurred": false,
    "note": "D-099③：docs/ 内容以 HTML 站形态实际对外部署之日=事件发生（favicon/apple-touch-icon 派生消费面届时才出现）"
+  },
+  "quarantine-new-signal": {
+   "occurred": false,
+   "evidence": "quarantine_log 词表外 reason_code 首见 / unclassified_field_anomaly 命中新字段族或新病态形态——检测面 SQL 派生（D-113③）；登记=轮29 T2/#78 实施窗"
   }
  },
  "items": [
@@ -1424,6 +1428,30 @@
      "decision": "registered",
      "reason": "消费面驱动制——favicon 族仅在「存在被浏览器打开的 HTML 页面」时有消费面（web.dev 实证：manifest 须经 link 挂 HTML 才生效）",
      "evidence": "decision-ledger.md D-099；R27-Q2 调研报告"
+    }
+   ]
+  },
+  {
+   "id": "78-quarantine-signal-review",
+   "family": "quarantine",
+   "title": "#78 quarantine_log 缺口信号复核触发器（D-113② 单向权威——缺口语义唯一权威在 docs/known-gaps.md，本条目只持触发器五要素不复制缺口字段）",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "quarantine-new-signal",
+   "trigger": "quarantine_log 出现 v1 词表外 reason_code 首见，或 unclassified_field_anomaly 命中新字段族/新病态形态（检测面=SQL 派生：SELECT DISTINCT reason_code, field_name FROM quarantine_log）",
+   "review_at": "触发后 1 个工作日内人审 → known-gaps 台账 status 流转（observed→triaged→legislated）",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "docs/known-gaps.md 存在对应 gap_id 行且 status≠observed；78-check.mjs F8 格断言登记义务在位",
+   "confirmations": [
+    {
+     "at": "2026-09-23",
+     "by": "轮29 T2/#78 实施窗",
+     "criterion_version": "D-113②④",
+     "decision": "registered",
+     "reason": "缺口信号复核触发器登记——检测面自动 intake、裁决面人审（DryRun/SBOM→VEX 三层同构）；多数缺口经阈值/strict 硬崩处置无需专门触发器，trigger_id 可空",
+     "evidence": "docs/known-gaps.md GAP-078-01~04；decision-ledger.md D-113"
     }
    ]
   }

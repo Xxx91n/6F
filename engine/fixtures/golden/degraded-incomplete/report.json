@@ -1,6 +1,33 @@
 {
   "schema_version": "1.2.0",
   "report_id": "MA-45-DEMO-DEGRADEDINCOMPLETE-degraded",
+  "verdict": {
+    "band": "insufficient",
+    "reason_class": "evidence_insufficient"
+  },
+  "intake_health": {
+    "fields": [
+      {
+        "field_name": "head_date",
+        "total": 1,
+        "clean": 1,
+        "normalized": 0,
+        "quarantined": 0
+      },
+      {
+        "field_name": "committer_date",
+        "total": 3,
+        "clean": 3,
+        "normalized": 0,
+        "quarantined": 0
+      }
+    ],
+    "affected_commits": 0,
+    "excluded_commits": 0,
+    "quarantined_rows": [],
+    "threshold_ratio": 0.001,
+    "escalation": "none"
+  },
   "stability": "preview",
   "capabilities": [
     "macro-b"
@@ -603,6 +630,13 @@
       "supported",
       "unsupported",
       "insufficient"
+    ],
+    "verdict_reason_class_enum": [
+      "none",
+      "evidence_insufficient",
+      "anchor_malformed",
+      "threshold_exceeded",
+      "criteria_unsupported"
     ],
     "human_adjudication_status": "pending",
     "narrative_seal_protocol": "ADR-0013-C/v1+narrative-seal/v1"

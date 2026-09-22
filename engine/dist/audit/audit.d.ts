@@ -15,6 +15,7 @@ export interface AuditOptions {
     outDir?: string;
     json?: boolean;
     refresh?: boolean;
+    strictQuarantine?: boolean;
     cwd?: string;
 }
 export interface AuditResult {
@@ -24,6 +25,17 @@ export interface AuditResult {
     stability: 'preview' | 'ga' | null;
     capabilities: string[];
     overall_verdict: string;
+    verdict: {
+        band: string;
+        reason_class: string;
+    };
+    intake_quarantine: {
+        quarantined: number;
+        normalized: number;
+        affected_commits: number;
+        escalation: string;
+        facts_persisted: boolean;
+    };
     degraded_mode: boolean;
     head_sha: string;
     tree_sha: string;

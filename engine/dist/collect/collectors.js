@@ -436,7 +436,10 @@ export function collectGitlog(input, ctx) {
         if (touching.length === 0) {
             continue;
         }
-        const sorted = touching.slice().sort(function (a, b) {
+        // null=毒值显式跳过（D-100②）：first_commit/adr_lag 只在 date 可判定子集上排序；
+        // 排除计数由 Intake Health 节 excluded_commits 披露（over N-M commits 声明）。
+        const dated = touching.filter(function (c) { return c.date !== null; });
+        const sorted = dated.slice().sort(function (a, b) {
             if (a.date < b.date) {
                 return -1;
             }
@@ -451,13 +454,16 @@ export function collectGitlog(input, ctx) {
             }
             return 0;
         });
-        const first = sorted[0];
-        out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.first_commit', {
-            path: path,
-            sha: first.sha,
-            date: first.date
-        }));
-        out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.commit_count', {
+        const first = sorted.length > 0 ? sorted[0] : null;
+        const anchorSha = first !== null ? first.sha : touching[0].sha;
+        if (first !== null) {
+            out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.first_commit', {
+                path: path,
+                sha: first.sha,
+                date: first.date
+            }));
+        }
+        out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, anchorSha, 'git.commit_count', {
             path: path,
             count: touching.length
         }));
@@ -472,14 +478,14 @@ export function collectGitlog(input, ctx) {
                 topAuthor = a;
             }
         }
-        out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.author_matrix', {
+        out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, anchorSha, 'git.author_matrix', {
             path: path,
             authors: authors,
             top_author: topAuthor,
             top_share: authorCounts[topAuthor] / touching.length
         }));
         const adrDate = input.adrDates[path];
-        if (adrDate) {
+        if (adrDate && first !== null) {
             out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.adr_lag_days', {
                 path: path,
                 adr_date: adrDate,

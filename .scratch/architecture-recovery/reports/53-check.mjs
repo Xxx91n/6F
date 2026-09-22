@@ -85,13 +85,15 @@ if (r4.status === 0 && existsSync(shotJson) && existsSync(join(OUTA, 'report.jso
   const sAu = JSON.parse(txt(join(OUTA, 'report.json')));
   const k39 = Object.keys(s39).sort();
   const kAu = Object.keys(sAu).sort();
-  const missing = kAu.filter(function (k) { return k39.indexOf(k) < 0; });
-  t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段（漂移即报警）', missing.length === 0, 'extra=' + missing.join(','));
+  // #78/D-118⑤ 显式豁免集：intake_health=引擎独有摄入面机读块（对照物 SoD 零分类逻辑不产此面——豁免须显式枚举，沉默不兜底）
+  const PARITY_EXEMPT_PREFIX = ['intake_health', 'verdict.reason_class'];
+  const missing = kAu.filter(function (k) { return k39.indexOf(k) < 0 && PARITY_EXEMPT_PREFIX.indexOf(k) < 0; });
+  t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段∪豁免集（漂移即报警；intake_health=引擎独有 D-118⑤ 显式豁免）', missing.length === 0, 'extra=' + missing.join(','));
   function paths(o, pre, acc) { for (const k of Object.keys(o)) { const v = o[k]; const p = pre ? pre + '.' + k : k; acc.push(p); if (v && typeof v === 'object' && !Array.isArray(v)) { paths(v, p, acc); } } return acc; }
   const p39 = paths(s39, '', []).sort();
   const pAu = paths(sAu, '', []).sort();
-  const drift = pAu.filter(function (p) { return p39.indexOf(p) < 0; });
-  t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径', drift.length === 0, 'drift=' + drift.slice(0, 6).join(','));
+  const drift = pAu.filter(function (p) { return p39.indexOf(p) < 0 && PARITY_EXEMPT_PREFIX.every(function (x) { return p !== x && p.indexOf(x + '.') !== 0; }); });
+  t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径∪豁免集（intake_health.*=预期分歧类 D-118⑤）', drift.length === 0, 'drift=' + drift.slice(0, 6).join(','));
   const q39keys = s39.quadrants.length ? Object.keys(s39.quadrants[0]).sort() : [];
   const qDrift = (sAu.quadrants || []).filter(function (q) { return Object.keys(q).some(function (k) { return q39keys.indexOf(k) < 0; }); });
   t('E3 audit 象限条目字段 ⊆ 39 象限条目字段', qDrift.length === 0);

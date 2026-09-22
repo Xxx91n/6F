@@ -5,7 +5,10 @@ import { loadManifestMeta } from './manifest.js';
 import { repoAdd } from './intake/intake.js';
 import { runDemo, listScenarios } from './demo/demo.js';
 import { runAudit, isAuditScaleError } from './audit/audit.js';
-import { projectFacts } from './fact/projection.js';
+import { projectFacts, projectQuarantine } from './fact/projection.js';
+import { isProtocolCrash, crashArtifactFromError } from './intake/quarantine.js';
+import { writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { serveMcpStdio, setMcpServerConfig, resolveFactsDb } from './mcp-server.js';
 
 // #76 修复（CI run 35515346216）：process.exit() 立即终止进程，丢弃 stdout/stderr 管道中未冲刷的
@@ -66,6 +69,33 @@ async function main(): Promise<void> {
         if (e instanceof ExitSignal) throw e;
         errExit(JSON.stringify({ error: 'MCP-FACTS-ERROR', message: String(e && (e as Error).message || e) }) + '\n', 2);
       }
+    } else if (sub === 'quarantine') {
+      // quarantine_log 只读投影（#78/D-113②）：mcp facts 同形面收窄——固定列集+LIMIT，不接裸 SQL。
+      const args = process.argv.slice(4);
+      const known = ['--db', '--run', '--field', '--limit'];
+      const opts: { [k: string]: string } = {};
+      for (let i = 0; i < args.length; i++) {
+        const a = args[i];
+        if (known.indexOf(a) < 0) { errExit('MCP-QUAR-ARGS: unknown flag ' + a + '\n', 2); }
+        const v = args[i + 1];
+        if (v === undefined || v.indexOf('--') === 0) { errExit('MCP-QUAR-ARGS: missing value for ' + a + '\n', 2); }
+        opts[a] = v;
+        i++;
+      }
+      opts['--db'] = resolveFactsDb(opts['--db']) || '';
+      if (!opts['--db']) { errExit('usage: macro-audit mcp quarantine [--db <path>] [--run <run_id>] [--field <name>] [--limit n]\n', 2); }
+      const limRaw = opts['--limit'];
+      const lim = limRaw === undefined ? undefined : Number(limRaw);
+      if (lim !== undefined && (!Number.isFinite(lim) || lim <= 0)) {
+        errExit(JSON.stringify({ error: 'MCP-QUAR-ARGS', message: '--limit must be a positive number' }) + '\n', 2);
+      }
+      try {
+        const rows = await projectQuarantine(opts['--db'], { run_id: opts['--run'], field_name: opts['--field'], limit: lim });
+        for (const r of rows) { console.log(JSON.stringify(r)); }
+      } catch (e) {
+        if (e instanceof ExitSignal) throw e;
+        errExit(JSON.stringify({ error: 'MCP-QUAR-ERROR', message: String(e && (e as Error).message || e) }) + '\n', 2);
+      }
     } else if (sub === undefined || sub === '--db') {
       // macro-audit mcp [--db <facts.duckdb>]：--db=服务端寻址位（#55/D-059⑥，mcp.json args/env 配置面）。
       let serverDb: string | undefined;
@@ -81,7 +111,7 @@ async function main(): Promise<void> {
         errExit(JSON.stringify({ error: 'MCP-SERVE-ERROR', message: String(e && (e as Error).message || e) }) + '\n', 2);
       }
     } else {
-      errExit('usage: macro-audit mcp [facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n]]\n', 2);
+      errExit('usage: macro-audit mcp [facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n] | quarantine [--db <path>] [--run <run_id>] [--field <name>] [--limit n]]\n', 2);
     }
   } else if (cmd === 'repo') {
     // Repo Intake（ADR-0009 / D-013）：repo add <path|owner/repo|url> [--cache <dir>] [--refresh]
@@ -114,25 +144,27 @@ async function main(): Promise<void> {
     let outDir: string | undefined;
     let asJson = false;
     let refresh = false;
+    let strictQuarantine = false;
     for (let i = 0; i < args.length; i++) {
       const a = args[i];
       if (a === '--scale') { const v = args[++i]; if (v === undefined || v.indexOf('--') === 0) { errExit('AUDIT-ARGS: missing value for --scale\n', 2); } scale = v; }
       else if (a === '--out') { const v = args[++i]; if (v === undefined || v.indexOf('--') === 0) { errExit('AUDIT-ARGS: missing value for --out\n', 2); } outDir = v; }
       else if (a === '--json') { asJson = true; }
       else if (a === '--refresh') { refresh = true; }
+      else if (a === '--strict-quarantine') { strictQuarantine = true; }
       else if (a.indexOf('--') === 0) { errExit('AUDIT-ARGS: unknown flag ' + a + '\n', 2); }
       else if (!input) { input = a; }
       else { errExit('AUDIT-ARGS: unexpected extra positional ' + a + '\n', 2); }
     }
-    if (!input) { errExit('usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]\n', 2); }
+    if (!input) { errExit('usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine]\n', 2); }
     try {
       // input 经上闸收窄（errExit=never）——循环内赋值致 CFA 不传导收窄，as string 如实标注
-      const r = await runAudit({ input: input as string, scale: scale, outDir: outDir, json: asJson, refresh: refresh });
+      const r = await runAudit({ input: input as string, scale: scale, outDir: outDir, json: asJson, refresh: refresh, strictQuarantine: strictQuarantine });
       if (r.out_dir) {
         outExit(JSON.stringify({
           report_id: r.report_id, receipt_id: r.receipt_id, scale: r.scale,
           stability: r.stability, capabilities: r.capabilities,
-          overall_verdict: r.overall_verdict, degraded_mode: r.degraded_mode,
+          overall_verdict: r.overall_verdict, verdict: r.verdict, intake_quarantine: r.intake_quarantine, degraded_mode: r.degraded_mode,
           head_sha: r.head_sha, tree_sha: r.tree_sha, commit_count: r.commit_count,
           adr_count: r.adr_count, fact_count: r.fact_count, repo_name: r.repo_name,
           intake: { kind: r.intake_kind, snapshot_fetched_at: r.snapshot_fetched_at, cache_hit: r.cache_hit, refreshed: r.refreshed },
@@ -145,6 +177,19 @@ async function main(): Promise<void> {
       if (e instanceof ExitSignal) throw e;
       if (isAuditScaleError(e)) {
         errExit(JSON.stringify({ error: e.code, message: e.message, implemented: e.implemented, requested: e.requested, layer_order: e.layer_order }) + '\n', 2);
+      }
+      if (isProtocolCrash(e)) {
+        const payload = crashArtifactFromError(e);
+        // 崩溃桶工件（D-107②）：落盘 best-effort——工件失败不吞主错；stderr 同载荷结构化输出
+        let artifact: string | null = null;
+        try {
+          const dir = outDir ? resolve(outDir) : resolve(process.cwd());
+          if (!existsSync(dir)) { mkdirSync(dir, { recursive: true }); }
+          artifact = join(dir, 'macro-audit-crash-' + String(payload.error_code) + '-' + String(Date.now()) + '.json');
+          writeFileSync(artifact, JSON.stringify(payload, null, 2) + '\n', 'utf8');
+        } catch (_) { artifact = null; }
+        const code = payload.error_code === 'STRICT-QUARANTINE-VIOLATION' ? 3 : 2;
+        errExit(JSON.stringify({ error: payload.error_code, message: (e as Error).message, crash_artifact: artifact, crash_location: payload.crash_location, run_context: payload.run_context, counts: payload.counts }) + '\n', code);
       }
       const err = e as { code?: string; message?: string };
       errExit(JSON.stringify({ error: err.code || 'AUDIT-ERROR', message: err.message || String(e) }) + '\n', 2);

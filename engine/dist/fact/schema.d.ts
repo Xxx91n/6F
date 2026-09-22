@@ -22,6 +22,8 @@ export declare class AppendOnlyViolation extends Error {
     constructor(sql: string, reason: string);
 }
 export declare function assertAppendOnly(sql: string): void;
-export declare function buildCreateTableSql(table: string, fields: readonly FactField[]): string;
+export declare function buildCreateTableSql(table: string, fields: readonly FactField[], tableConstraints?: readonly string[]): string;
 export declare const AUDIT_FACT_DDL: string;
 export declare const SCHEMA_REGISTRY_DDL: string;
+export declare const QUARANTINE_LOG_FIELDS: readonly FactField[];
+export declare const QUARANTINE_LOG_DDL: string;

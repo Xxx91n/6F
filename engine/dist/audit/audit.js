@@ -12,7 +12,8 @@ import { tmpdir } from 'node:os';
 import { repoAdd } from '../intake/intake.js';
 import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, MACRO_B_STOPWORDS, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, TC3_TOPN } from './macro-b.js';
 import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, UNVERIFIED_MARK, firstFactIds } from '../report/generate.js';
-import { openWriter, appendFact, closeDuckdb } from '../fact/store.js';
+import { openWriter, appendFact, appendQuarantineEvent, runInTransaction, queryQuarantineCounts, closeDuckdb } from '../fact/store.js';
+import { strictQuarantineViolations, intakeIdentityIssues, protocolCrashError, isProtocolCrash, intakeEscalation, QUARANTINE_FIELD_RATIO_RED } from '../intake/quarantine.js';
 import { projectUpstreamDimensions } from './upstream-dimension-map.js';
 const NL = String.fromCharCode(10);
 // 已实现规模面（D-060③：--scale 缺省 Macro-B；其余层未实装 → 诚实拒绝 exit 2）
@@ -82,7 +83,24 @@ export async function runAudit(opts) {
     const NAME = auditRepoName(opts.input, repoRoot);
     // ---------- §2 共享管线链（audit/macro-b.ts；与 demo 同消费） ----------
     const probes = probeMacroBRepo(repoRoot, intake.head_sha);
-    const ctx = macroBContext('audit-' + NAME, NAME, probes.headSha, probes.headDate);
+    const ctx = macroBContext('audit-' + NAME, NAME, probes.headSha, probes.headDate, probes.headRaw);
+    // 锚字段病态→观测时点不可用：decided_at/generated_at 用显式哨兵标记（不落伪时间戳）
+    const HEAD_AT = probes.headDate === null ? 'quarantined(anchor_head_date_malformed)' : probes.headDate;
+    const anchorQuarantined = probes.headDate === null;
+    const excludedCommits = probes.commits.filter(function (c) { return c.date === null; }).length;
+    // strict quarantine 门禁（D-110）：写入副作用前先求值——quarantined 行 reason_code 越基线→硬崩
+    if (opts.strictQuarantine === true) {
+        const violations = strictQuarantineViolations(probes.fieldEvents);
+        if (violations.length > 0) {
+            const firstEv = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; })[0];
+            throw protocolCrashError('STRICT-QUARANTINE-VIOLATION', 'reason_code 越仓级基线（strict 模式 fail-closed）：' + violations.join(','), {
+                raw: firstEv ? firstEv.raw : null,
+                crash_location: 'audit.ts:strict-quarantine-gate',
+                run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: firstEv ? firstEv.commit_sha : null },
+                counts: { commits_seen: probes.commitCount, facts_written: 0, quarantined_written: 0 }
+            });
+        }
+    }
     const col = collectMacroB(repoRoot, {
         intentCandidates: AUDIT_INTENT_CANDIDATES, nc1Candidates: AUDIT_NC1_CANDIDATES,
         stopwords: MACRO_B_STOPWORDS, topN: TC3_TOPN,
@@ -116,9 +134,17 @@ export async function runAudit(opts) {
     const MEAS_NAME = 'audit-measurements.json';
     const FACTS_NAME = 'audit-facts.jsonl';
     const measurements = {
-        repo: NAME, root: repoRoot, observed_at: probes.headDate, head_sha: probes.headSha, tree_sha: probes.treeSha, commit_count: probes.commitCount,
+        repo: NAME, root: repoRoot, observed_at: HEAD_AT, head_sha: probes.headSha, tree_sha: probes.treeSha, commit_count: probes.commitCount,
         adr_count: ev.tc2.total, intent_docs: col.intentDocs.map(function (d) { return d.path; }), fact_count: col.realFacts.length,
         intake: { kind: intake.kind, url: intake.url, cloned: intake.cloned, cache_hit: intake.cache_hit, refreshed: intake.refreshed, snapshot_fetched_at: intake.snapshot_fetched_at, full_depth_verified: intake.full_depth_verified, remote_config_execution: intake.remote_config_execution, credentials: intake.credentials },
+        intake_quarantine: {
+            wired_fields: ['committer_date', 'head_date'],
+            field_stats: probes.fieldStats,
+            events: probes.fieldEvents.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, disposition: e.disposition, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + '…' : e.raw) }; }),
+            excluded_commits: excludedCommits,
+            threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
+            strict_mode: opts.strictQuarantine === true
+        },
         tc1: { judgeable_n: ev.tc1.judgeable_n, backfill_n: ev.tc1.backfill_n, ratio_4: ev.tc1.ratio.toFixed(4), verdict: ev.tc1.verdict, threshold: { lag_days: TC1_LAG_DAYS, ratio_red: TC1_RATIO_RED, min_n: TC1_MIN_N } },
         tc2: { total: ev.tc2.total, mean_ratio_4: ev.tc2.mean_ratio.toFixed(4), missing_counts: ev.tc2.missing_counts, missing_ratio_4: Object.fromEntries(Object.keys(ev.tc2.missing_ratio).map(function (k) { return [k, Number(ev.tc2.missing_ratio[k].toFixed(4))]; })), cond_a: ev.tc2.cond_a, cond_b: ev.tc2.cond_b, verdict: ev.tc2.verdict, threshold: { mean_red: TC2_MEAN_RED, field_missing_red: TC2_FIELD_MISSING_RED } },
         tc3: { per_source: ev.tc3.per_source.map(function (c) { return { path: c.subject, hit: c.value.hit, keywords: c.value.keywords, ratio_4: c.value.ratio.toFixed(4) }; }), lowest_path: ev.tc3.lowest_path, lowest_ratio_4: ev.tc3.lowest_ratio.toFixed(4), verdict: ev.tc3.verdict, threshold: { red: TC3_RED, green: TC3_GREEN, top_n: TC3_TOPN } },
@@ -135,7 +161,7 @@ export async function runAudit(opts) {
     const RUN_CMD = 'macro-audit audit ' + opts.input + (opts.outDir ? ' --out ' + opts.outDir : '');
     function addEvidence(id, source, tokens, claim, base) {
         const ex = pickExcerpt(source, tokens, base);
-        evidence.push({ evidence_id: id, source: source, locator: 'L' + ex.line, claim: claim, grounded: true, collected_at: probes.headDate, reproduce_cmd: RUN_CMD, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
+        evidence.push({ evidence_id: id, source: source, locator: 'L' + ex.line, claim: claim, grounded: true, collected_at: HEAD_AT, reproduce_cmd: RUN_CMD, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
     }
     const measBase = outDir; // 运行目录（outDir 或 scratch）——工件相对名锚均可读
     addEvidence('EV-AUDIT-' + R + '-01', MEAS_NAME, ['"fact_count"'], '本次实测：' + NAME + ' Macro-B audit 采集事实数', measBase);
@@ -163,42 +189,54 @@ export async function runAudit(opts) {
         criterion_ids: bhvRan ? ['PC-1', 'PC-2', 'TC-1', 'TC-2', 'TC-3', 'NC-1', 'BHV-PC-1', 'BHV-TC-1', 'BHV-TC-2', 'BHV-NC-1'] : ['PC-1', 'PC-2', 'TC-1', 'TC-2', 'TC-3', 'NC-1']
     };
     const adjudicationEntries = [
-        { criterion_id: 'PC-1', band: col.pc1.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc1.pass ? 'adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（' + NAME + ' run 内管线活性正对照）' : '正对照未中，管线故障 P0' },
-        { criterion_id: 'PC-2', band: col.pc2.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc2.pass ? 'gitlog 族检出事后补写 delta_days = ' + String(col.pc2.delta_days) : '正对照未中，管线故障 P0' },
-        { criterion_id: 'TC-1', band: tcBand(ev.tc1.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.lagFactIds, anchored_evidence_ids: ['EV-AUDIT-' + R + '-02'], decided_at: probes.headDate, rationale: NAME + ' ADR 事后补写：可判定数 ' + ev.tc1.judgeable_n + '（门槛 ' + TC1_MIN_N + '），>90d 占比 ' + measurements.tc1.ratio_4 + '，判 ' + ev.tc1.verdict },
-        { criterion_id: 'TC-2', band: tcBand(ev.tc2.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.fiveFactIds, anchored_evidence_ids: ['EV-AUDIT-' + R + '-03'], decided_at: probes.headDate, rationale: NAME + ' ADR 五件套：mean_ratio ' + measurements.tc2.mean_ratio_4 + '（门槛 ' + TC2_MEAN_RED + '），字段缺失率超线=' + ev.tc2.cond_b + '，判 ' + ev.tc2.verdict },
-        { criterion_id: 'TC-3', band: tcBand(ev.tc3.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.covFacts.map(function (c) { return c.fact_id; }), anchored_evidence_ids: ['EV-AUDIT-' + R + '-04'], decided_at: probes.headDate, rationale: NAME + ' 定位覆盖：意图面 ' + col.intentDocs.length + ' 件最低 ratio ' + measurements.tc3.lowest_ratio_4 + '（' + String(ev.tc3.lowest_path) + '），判 ' + ev.tc3.verdict },
-        { criterion_id: 'NC-1', band: col.nc1.pass ? 'supported' : 'insufficient', basis_refs: ['B4'], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ['EV-AUDIT-' + R + '-05'], decided_at: probes.headDate, rationale: col.nc1.pass ? '负对照选材 ' + NAME + '/' + col.nc1.path + ' 五件套 0 命中、supersede 0 命中（特异性成立）' : '负对照命中，转复核路径' }
+        { criterion_id: 'PC-1', band: col.pc1.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: col.pc1.pass ? 'adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（' + NAME + ' run 内管线活性正对照）' : '正对照未中，管线故障 P0' },
+        { criterion_id: 'PC-2', band: col.pc2.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: col.pc2.pass ? 'gitlog 族检出事后补写 delta_days = ' + String(col.pc2.delta_days) : '正对照未中，管线故障 P0' },
+        { criterion_id: 'TC-1', band: tcBand(ev.tc1.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.lagFactIds, anchored_evidence_ids: ['EV-AUDIT-' + R + '-02'], decided_at: HEAD_AT, rationale: NAME + ' ADR 事后补写：可判定数 ' + ev.tc1.judgeable_n + '（门槛 ' + TC1_MIN_N + '），>90d 占比 ' + measurements.tc1.ratio_4 + '，判 ' + ev.tc1.verdict + '（派生统计 over ' + String(probes.commitCount - excludedCommits) + ' commits；quarantined 日期 commit 排除 ' + excludedCommits + '）' },
+        { criterion_id: 'TC-2', band: tcBand(ev.tc2.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.fiveFactIds, anchored_evidence_ids: ['EV-AUDIT-' + R + '-03'], decided_at: HEAD_AT, rationale: NAME + ' ADR 五件套：mean_ratio ' + measurements.tc2.mean_ratio_4 + '（门槛 ' + TC2_MEAN_RED + '），字段缺失率超线=' + ev.tc2.cond_b + '，判 ' + ev.tc2.verdict },
+        { criterion_id: 'TC-3', band: tcBand(ev.tc3.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.covFacts.map(function (c) { return c.fact_id; }), anchored_evidence_ids: ['EV-AUDIT-' + R + '-04'], decided_at: HEAD_AT, rationale: NAME + ' 定位覆盖：意图面 ' + col.intentDocs.length + ' 件最低 ratio ' + measurements.tc3.lowest_ratio_4 + '（' + String(ev.tc3.lowest_path) + '），判 ' + ev.tc3.verdict },
+        { criterion_id: 'NC-1', band: col.nc1.pass ? 'supported' : 'insufficient', basis_refs: ['B4'], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ['EV-AUDIT-' + R + '-05'], decided_at: HEAD_AT, rationale: col.nc1.pass ? '负对照选材 ' + NAME + '/' + col.nc1.path + ' 五件套 0 命中、supersede 0 命中（特异性成立）' : '负对照命中，转复核路径' }
     ];
     if (bhvRan) {
-        adjudicationEntries.push({ criterion_id: 'BHV-PC-1', band: bhvPc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: facetFacts.map(function (f) { return f.fact_id; }), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: '行为三面 facet_rows 齐备性（hotspots/coupling/function-hotspots 各 row_count>0，errFacts=' + facetErrs.length + '）' }, { criterion_id: 'BHV-TC-1', band: bhvTc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.hotspots ? [byFace.hotspots.fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: '低样本判据：hotspots min(revisions)>=' + BHV_MIN_REVS + '（实测 min=' + (hRows.length ? Math.min.apply(null, hRows.map(function (r) { return r.revisions; })) : 'n/a') + '）' }, { criterion_id: 'BHV-TC-2', band: bhvTc2 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.coupling ? [byFace.coupling.fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: 'coupling shared>=2&degree>0 占比=' + (cRows.length ? (cRows.filter(function (r) { return r.shared >= 2 && r.degree > 0; }).length / cRows.length).toFixed(3) : 'n/a') + '（阈值 0.5）' }, { criterion_id: 'BHV-NC-1', band: bhvNc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: [], anchored_evidence_ids: [], decided_at: probes.headDate, rationale: 'function-coupling（--target 参数面）暂缓如实登记——deferred_faces 写入切片字段' });
+        adjudicationEntries.push({ criterion_id: 'BHV-PC-1', band: bhvPc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: facetFacts.map(function (f) { return f.fact_id; }), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: '行为三面 facet_rows 齐备性（hotspots/coupling/function-hotspots 各 row_count>0，errFacts=' + facetErrs.length + '）' }, { criterion_id: 'BHV-TC-1', band: bhvTc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.hotspots ? [byFace.hotspots.fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: '低样本判据：hotspots min(revisions)>=' + BHV_MIN_REVS + '（实测 min=' + (hRows.length ? Math.min.apply(null, hRows.map(function (r) { return r.revisions; })) : 'n/a') + '）' }, { criterion_id: 'BHV-TC-2', band: bhvTc2 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.coupling ? [byFace.coupling.fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: 'coupling shared>=2&degree>0 占比=' + (cRows.length ? (cRows.filter(function (r) { return r.shared >= 2 && r.degree > 0; }).length / cRows.length).toFixed(3) : 'n/a') + '（阈值 0.5）' }, { criterion_id: 'BHV-NC-1', band: bhvNc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: [], anchored_evidence_ids: [], decided_at: HEAD_AT, rationale: 'function-coupling（--target 参数面）暂缓如实登记——deferred_faces 写入切片字段' });
     }
     const strategyBand = deriveOverallBand(adjudicationEntries);
     // ---------- §7 四象限（strategy 原生；behavior=codelore 实跑决定 native/not_applicable；余两象限如实披露） ----------
     const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'engine/src/audit/audit.ts' };
     const hotTop = hRows.slice(0, 3).map(function (r) { return String(r.path) + '(revs=' + String(r.revisions) + ',score=' + Number(r.hotspot_score).toFixed(2) + ')'; });
     const quadrants = [
-        { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === 'RED', decided_at: probes.headDate, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
-        { quadrant: 'behavior', applicability: bhvRan ? 'native' : 'not_applicable', verdict: behaviorBand, score: null, confidence: bhvRan ? 0.6 : 0, dimensions: [], slice_fields: bhvRan ? { faces: ['hotspots', 'coupling', 'function-hotspots'], face_row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, hotspot_top: hotTop, coupling_pairs: cRows.length, min_revs: BHV_MIN_REVS, sample_met: bhvTc1, deferred_faces: BHV_DEFERRED, quadrant_assignment: 'slice-decision（facts 共享 quadrant=strategic/codelore 族 provenance 不改写；象限归属=报告切片决策 D-054③）' } : {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: behaviorBand, evidence_flag: bhvPc1, decided_at: probes.headDate, override_reason: bhvRan ? null : 'codelore binary 未解析/不 pin——行为面采集缺席（resolution 事实留痕，D-054③ 降级非静默）', audit_ref: GATE.audit_ref }, conflict_markers: bhvRan ? [] : ['data-not-connected'] },
-        { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: probes.headDate, override_reason: 'queued：与 S3 族双口径风险暂缓（D-054）——structure 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
-        { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: probes.headDate, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
+        { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === 'RED', decided_at: HEAD_AT, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
+        { quadrant: 'behavior', applicability: bhvRan ? 'native' : 'not_applicable', verdict: behaviorBand, score: null, confidence: bhvRan ? 0.6 : 0, dimensions: [], slice_fields: bhvRan ? { faces: ['hotspots', 'coupling', 'function-hotspots'], face_row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, hotspot_top: hotTop, coupling_pairs: cRows.length, min_revs: BHV_MIN_REVS, sample_met: bhvTc1, deferred_faces: BHV_DEFERRED, quadrant_assignment: 'slice-decision（facts 共享 quadrant=strategic/codelore 族 provenance 不改写；象限归属=报告切片决策 D-054③）' } : {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: behaviorBand, evidence_flag: bhvPc1, decided_at: HEAD_AT, override_reason: bhvRan ? null : 'codelore binary 未解析/不 pin——行为面采集缺席（resolution 事实留痕，D-054③ 降级非静默）', audit_ref: GATE.audit_ref }, conflict_markers: bhvRan ? [] : ['data-not-connected'] },
+        { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_AT, override_reason: 'queued：与 S3 族双口径风险暂缓（D-054）——structure 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
+        { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_AT, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
     ];
     const recommendations = [
         { rec_id: 'R-AUDIT-' + R + '-1', priority: 'P2', action: '将本 run facts.duckdb 经 mcp.json MACRO_AUDIT_FACTS_DB 注册给宿主 agent——叙事段由宿主经 MCP facts 只读面生成（D-053 双轨）', rationale: 'audit 命令=kernel 面一等公民入口；叙事职责不外携，宿主 agent 经 facts 投影消费', expected_impact: '事实层→叙事层通道闭环', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-AUDIT-' + R + '-07'], degraded_note: null },
         { rec_id: 'R-AUDIT-' + R + '-2', priority: 'P2', action: intake.cache_hit && !intake.refreshed ? 'intake 缓存命中未刷新：远端新提交不可见——如需最新快照用 --refresh 显式 opt-in（不自动 pull 保隔离）' : '快照为本次 fetch/本地观测时点', rationale: '快照时点披露已落（snapshot_fetched_at）；缓存命中与刷新区分如实', expected_impact: 'staleness 风险如实披露', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-AUDIT-' + R + '-07'], degraded_note: null }
     ];
-    const HEADLINE = NAME + ' Macro-B audit（capability 1 of 5 · preview）：' + probes.commitCount + ' commits / ADR ' + ev.tc2.total + ' 份 / facts ' + col.realFacts.length + '——TC-1 ' + ev.tc1.verdict + '（n=' + ev.tc1.judgeable_n + '）、TC-2 ' + ev.tc2.verdict + '（mean=' + measurements.tc2.mean_ratio_4 + '）、TC-3 ' + ev.tc3.verdict + '（' + measurements.tc3.lowest_ratio_4 + '）' + (bhvRan ? '＋behavior ' + behaviorBand : '（behavior 象限 codelore 缺席如实 not_applicable）') + '→ 综合裁定 ' + strategyBand + '（三档如实落数）。';
+    const HEADLINE = NAME + ' Macro-B audit（capability 1 of 5 · preview）：' + probes.commitCount + ' commits / ADR ' + ev.tc2.total + ' 份 / facts ' + col.realFacts.length + '——TC-1 ' + ev.tc1.verdict + '（n=' + ev.tc1.judgeable_n + '）、TC-2 ' + ev.tc2.verdict + '（mean=' + measurements.tc2.mean_ratio_4 + '）、TC-3 ' + ev.tc3.verdict + '（' + measurements.tc3.lowest_ratio_4 + '）' + (bhvRan ? '＋behavior ' + behaviorBand : '（behavior 象限 codelore 缺席如实 not_applicable）') + (intakeEscalation(probes.fieldStats) !== 'none' ? '＋quarantine 病态升级=' + intakeEscalation(probes.fieldStats) : '') + '→ 综合裁定 ' + strategyBand + '（三档如实落数' + (anchorQuarantined ? '；锚病态→facts.duckdb 仅 quarantine_log 行、fact 行不落库' : '') + '）。';
     const limitations = [
         'one-shot 快照审计：本报告裁定=对 snapshot_fetched_at=' + String(intake.snapshot_fetched_at) + ' 时点快照的实测——' + (intake.cache_hit && !intake.refreshed ? 'intake 缓存命中未刷新，远端新提交不可见（--refresh 显式 opt-in 可刷新；不自动 pull 保隔离纪律）' : '快照时点如实披露'),
         '采集面=strategy（S1+S2）' + (bhvRan ? '＋behavior（codelore 行为三面）' : '；behavior 象限 codelore 未解析如实 not_applicable'),
         'structure/supply_chain 象限 not_applicable（supply-chain: ' + UNVERIFIED_MARK + '——Scorecard 未接入，D-034③）',
         '反复接受非跑通（D-033）：TC 三档裁定 supported/unsupported/insufficient 如实落数，one-shot 校准+冒烟不构成泛化证据'
     ];
+    if (anchorQuarantined) {
+        limitations.push('锚字段病态：HEAD %cI quarantined（anchor_head_date_malformed）→ audit_fact 行不落库（observed_at NOT NULL 不落伪值）；quarantine_log 留痕 recorded_at=NULL，整仓 unsupported');
+    }
     const disclosure = {
         capability_label: 'capability 1 of 5 · preview',
         calibration_scope: NAME + ' Macro-B audit（audit 一等命令面；scale=Macro-B 已上架）',
         structural_limitations: limitations,
         not_in_preview: ['Micro-A', 'Micro-B', 'Macro-C', 'Macro-A']
+    };
+    const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
+    const intakeHealth = {
+        fields: probes.fieldStats.map(function (s) { return { field_name: s.field_name, total: s.total, clean: s.clean, normalized: s.normalized, quarantined: s.quarantined }; }),
+        affected_commits: new Set(quarantinedRows.map(function (e) { return e.commit_sha; })).size,
+        excluded_commits: excludedCommits,
+        quarantined_rows: quarantinedRows.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + '…' : e.raw) }; }),
+        threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
+        escalation: intakeEscalation(probes.fieldStats)
     };
     const reportInput = {
         report_id: 'MA-AUDIT-' + R + '-MACRO-B',
@@ -206,7 +244,7 @@ export async function runAudit(opts) {
         capabilities: ['macro-b'],
         scale: scale,
         subject_ref: NAME + '@' + probes.headSha.slice(0, 12),
-        generated_at: probes.headDate,
+        generated_at: HEAD_AT,
         trace_id: ctx.traceId,
         baggage_id: ctx.traceId,
         headline: HEADLINE,
@@ -219,24 +257,19 @@ export async function runAudit(opts) {
         quadrants: quadrants,
         recommendations: recommendations,
         adjudication_entries: adjudicationEntries,
-        decided_at: probes.headDate,
+        decided_at: HEAD_AT,
         commit_anchor: probes.headSha,
         tree_anchor: probes.treeSha,
         gate_ref: GATE_REF,
         degraded: false,
         degraded_reason: null,
         preview_disclosure: disclosure,
+        intake_health: intakeHealth,
         human: { status: 'pending', adjudicator: 'user', text: null, decided_at: null }
     };
-    const report = buildReport(reportInput);
-    const reportMd = renderMarkdown(report) + NL;
-    const sidecarJson = renderSidecar(report) + NL;
-    // ---------- §8 产物落盘（--out 双通道）+ 事实库 ----------
-    // 报告/facts/duckdb 恒在运行目录物化（证据锚已读）；persistOut=false 时跑完即弃。
-    let artifacts = null;
-    writeFileSync(join(outDir, 'report.md'), reportMd, 'utf8');
-    writeFileSync(join(outDir, 'report.json'), sidecarJson, 'utf8');
-    writeFileSync(join(outDir, FACTS_NAME), col.realFacts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
+    // ---------- §8 事实库先行写入（D-115 逐 commit 事务＋自然键幂等）＋恒等式报告前断言（D-116①） ----------
+    // 锚病态（headDate quarantined）→ audit_fact.observed_at NOT NULL 无合法值→fact 行不落库（不落伪值）；
+    // quarantine_log 行仍写（recorded_at=NULL 合法，NULL 仅锚病态路径）。
     const dbPath = join(outDir, 'facts.duckdb');
     if (existsSync(dbPath)) {
         unlinkSync(dbPath);
@@ -246,14 +279,49 @@ export async function runAudit(opts) {
     }
     const writer = await openWriter(dbPath);
     const seen = new Set();
-    for (const f of col.realFacts) {
-        if (!seen.has(f.fact_id)) {
-            seen.add(f.fact_id);
-            await appendFact(writer, f);
-        }
+    let factsWritten = 0;
+    let eventsWritten = 0;
+    try {
+        await runInTransaction(writer, async function () {
+            if (!anchorQuarantined) {
+                for (const f of col.realFacts) {
+                    if (!seen.has(f.fact_id)) {
+                        seen.add(f.fact_id);
+                        await appendFact(writer, f);
+                        factsWritten += 1;
+                    }
+                }
+            }
+            for (const fe of probes.fieldEvents) {
+                await appendQuarantineEvent(writer, { run_id: ctx.traceId, commit_sha: fe.commit_sha, field_name: fe.field_name, disposition: fe.disposition, reason_code: fe.reason_code, raw: fe.raw, collector: 'macro-audit audit', recorded_at: probes.headDate });
+                eventsWritten += 1;
+            }
+        });
     }
+    catch (e) {
+        try {
+            closeDuckdb(writer);
+        }
+        catch (_) { /* 次生关闭错不盖主错 */ }
+        if (isProtocolCrash(e)) {
+            throw e;
+        }
+        throw protocolCrashError('QUARANTINE-CONSTRAINT', 'fact/quarantine 事务写失败（ROLLBACK 无半截写）：' + String(e.message || e), { crash_location: 'audit.ts:fact-write-tx', run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId }, counts: { commits_seen: probes.commitCount, facts_written: factsWritten, quarantined_written: eventsWritten } });
+    }
+    const dbCounts = await queryQuarantineCounts(writer, ctx.traceId);
+    const identityIssues = intakeIdentityIssues(probes.fieldStats, dbCounts);
     await writer.run('FORCE CHECKPOINT');
     closeDuckdb(writer);
+    if (identityIssues.length > 0) {
+        throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '恒等式断言失败：' + JSON.stringify(identityIssues), { crash_location: 'audit.ts:intake-identity', run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId }, counts: { commits_seen: probes.commitCount, facts_written: factsWritten, quarantined_written: eventsWritten } });
+    }
+    const report = buildReport(reportInput);
+    const reportMd = renderMarkdown(report) + NL;
+    const sidecarJson = renderSidecar(report) + NL;
+    let artifacts = null;
+    writeFileSync(join(outDir, 'report.md'), reportMd, 'utf8');
+    writeFileSync(join(outDir, 'report.json'), sidecarJson, 'utf8');
+    writeFileSync(join(outDir, FACTS_NAME), col.realFacts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
     artifacts = persistOut ? { report_md: join(outDir, 'report.md'), report_json: join(outDir, 'report.json'), facts_jsonl: join(outDir, FACTS_NAME), measurements: join(outDir, MEAS_NAME), duckdb: dbPath } : null;
     const resultOutDir = persistOut ? outDir : null;
     if (!persistOut) {
@@ -266,6 +334,8 @@ export async function runAudit(opts) {
         stability: report.stability,
         capabilities: report.capabilities,
         overall_verdict: report.overall_verdict,
+        verdict: report.verdict,
+        intake_quarantine: { quarantined: intakeHealth.fields.reduce(function (s, f) { return s + f.quarantined; }, 0), normalized: intakeHealth.fields.reduce(function (s, f) { return s + f.normalized; }, 0), affected_commits: intakeHealth.affected_commits, escalation: intakeHealth.escalation, facts_persisted: !anchorQuarantined },
         degraded_mode: report.degraded_mode,
         head_sha: probes.headSha,
         tree_sha: probes.treeSha,
