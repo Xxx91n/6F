@@ -285,8 +285,8 @@ t('G7 attestation 行字段齐备＋id=ap-<guard>-<slug>＋evidence 可解析＋
   const rdPath = join(AR, '..', '..', 'README.md');
   const rdSrc = fs.existsSync(rdPath) ? fs.readFileSync(rdPath, 'utf8') : '';
   const ciBadgeInReadme = /shields\.io[^\s)]*(workflow|actions)|actions\/workflows\/[^\s)]*badge/i.test(rdSrc);
-  t('H4 CI badge 未预埋（engine-ci-main-green 未 occurred 而 README 含 workflow/actions 徽标=违诚实徽记 FAIL）',
-    evB && evB.occurred ? true : !ciBadgeInReadme,
+  t('H4 CI badge 与 engine-ci-main-green 事件互等（occurred↔README 徽标在场——未绿预埋／绿后缺席均 FAIL；徽标指 main 分支 workflow，D-089⑤ 锚）',
+    evB ? (ciBadgeInReadme === !!evB.occurred) : false,
     'occurred=' + (evB ? evB.occurred : 'N/A') + ' ciBadge=' + ciBadgeInReadme);
 }
 

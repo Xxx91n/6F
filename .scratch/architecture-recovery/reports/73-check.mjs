@@ -1,7 +1,7 @@
 // 73-check.mjs — #73 步3 双语 README canonical→derived 同步守卫（D-088 / D-087 / D-089）
 // 断言面：A canonicalMarker＋owner 字段 → B 结构互等四集（heading 锚点/code block/链接目标/badge）=FAIL
 //   → C sync 版本戳掉队=XFAIL·warn（非 FAIL——Opendray 教训：小修不逼假同步）＋owner 守卫配置
-//   → D 诚实面（badge 白名单无 CI 徽记/无 .gif 引用/preview 印记双文件保留）
+//   → D 诚实面（shields badge 白名单（CI 徽记=原生 actions badge 归 33-H4 互等钉）/无 .gif 引用/preview 印记双文件保留）
 // 用法：node 73-check.mjs → 逐条 PASS/FAIL/XFAIL；exit 0=全 PASS 或仅 XFAIL，exit 1=有 FAIL
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -121,7 +121,7 @@ if (stampM && stampM[1] === enHash) {
 
 // ---------- D. 诚实面（D-089：badge 只挂当下为真项/动图未拍不引用/preview 印记保留） ----------
 const allBadgeUrls = [...enBadges, ...zhBadges];
-t('D1 badge 白名单——只含 license/version/node/marketplace/status-preview 当下为真项，无 CI/workflow 徽记（锚=engine-ci-main-green 未发生；status-preview=preview 宣言区紧随徽记 D-092③，preview 态本身为真）',
+t('D1 badge 白名单——shields 徽记只含 license/version/node/marketplace/status-preview 当下为真项（CI 徽记=GitHub 原生 actions badge 非 shields 族，occurred↔在场互等归 33-check H4；status-preview=preview 宣言区紧随徽记 D-092③，preview 态本身为真）',
   allBadgeUrls.every(u => /badge\/(license|version|node|marketplace|status-preview)-/.test(u)) && !allBadgeUrls.some(u => /workflows|actions|build|ci-/i.test(u)),
   'badges=' + allBadgeUrls.length);
 t('D2 双文件无 .gif 引用（motion GIF=listing-material-freeze 触发项，未拍前不得引用不存在的动图——D-089②⑤）',

@@ -35,3 +35,11 @@
 - a_range: A-001 ~ A-055（写时实物区间——A-055 于 80e6af3 先于 M-004 落账；审计 B1 修正，原「无新增」为漂移）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第十三轮 Grill（D-053~D-058）／.scratch/architecture-recovery/decision-ledger.md
 - impact: 原预设 BOM 全核销（repomix 退役/anysearch-cli kernel 封口/issue 外联销项）；registry +2 触发器（hooks-presentation-face event_bound／narrative-eval-surface manual_watch）；残余用户闸门=push 授权＋marketplace add
+
+## [M-005] - 2026-09-22
+
+- milestone: 轮 25~27 grill/实施收口＋轮28 #77 门面收口包交付——6F 正名＋六-F 宣言（D-092/093）＋engine-ci 首跑绿六腿（D-097）＋轮27 五裁落账（D-098 致谢三层分工／D-099 消费面驱动资产／D-100 违约两级处置〔D-059① revised 链〕／D-101 A-B 双窗边界／D-102 xfail-45-h5 摘除追认）；#77 实物=README 双语「## Acknowledgments」生成式锚段＋77-check 16/16＋engine-ci main badge 挂载＋homepageUrl 补齐（A-089）
+- adr_range: ADR-0001 ~ ADR-0021（docs/adr/ 实物 21 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-089（architecture-recovery 账本实物区间，写时实物读出）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第二十七轮 Grill＋收口对账（D-098~D-102，D-059① revised）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-089）
+- impact: 门面致谢面建制闭环（生成式锚段＋closed 对账守卫 regen→diff empty）；xfail-45-b5 stale 条目摘除同 D-102① 形；readme-ci-badge 实物已挂载，registry status 翻转归 T10 值守面

@@ -9,92 +9,9 @@
     "premise_correction": "D-071 前提「9 条」=清单起草时点快照（next-round 换代前）；换代后 45-H5 新破→同守卫集内第 10 条入册恰满 cap；38/39/40（§3 已处置 11 件）留册外——>cap 即 D-071④ 批量处置压力",
     "runner": "xfail-run.mjs",
     "resort_2026_09_18": "#65（D-073/D-074）三向分拣：册外 13 件=sealed 11＋活契约入册 2（39-H6/40-G5 同 45-H5 族快径）；册内再分拣腾位 sealed 4（41a-C10 superseded／50-E2·50-E3·t8-A3 registry 时点钉）→ entries 10→8；sealed 全集见 acceptance-probe-attestation.jsonl（append-only）",
-    "xpass_removal_2026_09_22": "xfail-45-h5 摘除（人工裁决明文，D-094⑤ 两键分离）：45-check H5「next-round 含 #45 落点记录」于轮25任务书复绿——实则兜底子串 `demo` 命中「demo.test.mjs M1」（T2 票面）而非 #45 落点本意=偶发复绿。归因：原注册因=轮21任务书锚点过期（anchor-drift）；轮25任务书不再载 #45，断言意图面已失效、偶发子串使其技术性转绿。裁决：摘条目（strict XPASS 无 lenient 逃生门），H5 断言本身收入 T3/D-094② 字面钉普查 findings——`demo` 裸子串兜底属松钉待归因注记。"
+    "xpass_removal_2026_09_22": "xfail-45-h5 摘除（人工裁决明文，D-094⑤ 两键分离）：45-check H5「next-round 含 #45 落点记录」于轮25任务书复绿——实则兜底子串 `demo` 命中「demo.test.mjs M1」（T2 票面）而非 #45 落点本意=偶发复绿。归因：原注册因=轮21任务书锚点过期（anchor-drift）；轮25任务书不再载 #45，断言意图面已失效、偶发子串使其技术性转绿。裁决：摘条目（strict XPASS 无 lenient 逃生门），H5 断言本身收入 T3/D-094② 字面钉普查 findings——`demo` 裸子串兜底属松钉待归因注记。",
+    "xpass_removal_2026_09_22_b5": "xfail-45-b5 摘除（人工裁决明文候选，D-102① 待追认同 H5 例）：注册因=B5 裸子串扫描误吞 `codelore:` 配置字段名（r20 §5 归因）；轮27 收口（pkz）按 D-094(b) 合法演化重写 B5 断言=结构化 import 断言＋`codelore: 'off' 显式配置钉——断言复绿=意图满足非偶发命中。归因：断言重写后册内条目残留未摘=编制债非新破。裁决：摘条目（strict XPASS 无 lenient 逃生门），摘除动作与归因注记并入轮28 T1 报告待用户追认。",
+    "xpass_removal_2026_09_22_anchors": "六条批摘（人工裁决明文候选，D-102① 待追认——轮28 T1 任务书换代连带）：xfail-41a-d6/d7（CHANGELOG a_range/ledger_pointer 字面钉漂移——M-005 编年行恢复实物区间 A-001~A-089＋D-102 指针）、xfail-41a-f4/43-d5/39-h6/40-g5（next-round T 行字面钉锚点过期族——轮28 任务书「历史票面闭环索引」恢复字面锚）。归因：断言复绿=意图满足（锚点实物回写）非偶发命中；条目残留=编制债。裁决：摘条目（strict XPASS 无 lenient 逃生门）。注：该族全属 D-094 字面钉族——根治归 T3/#75批1 普查（锚点 hash＋时点／结构断言化，D-071⑨ 快照化方向）。"
   },
-  "entries": [
-    {
-      "id": "xfail-41a-d6",
-      "guard": "41a",
-      "assertion-slug": "D6",
-      "attribution": "a_range 字面钉随账本增长漂移——want=A-001~A-069，CHANGELOG 未随 A-068/D-070 进账在先、A-069 落账再扩（r20 §5 归因成立）",
-      "failure_class": "growth-surface",
-      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
-      "review_anchor": "stage3-close",
-      "expires_fallback": "2026-12-31",
-      "superseded_by": "无直接后继——增长面修法=单调包含性断言（D-071⑨ 快照化触发器项）",
-      "added": "2026-09-18"
-    },
-    {
-      "id": "xfail-41a-d7",
-      "guard": "41a",
-      "assertion-slug": "D7",
-      "attribution": "ledger_pointer 冻结快照——d_max 字面钉随账本演进漂移（同 D6 增长族，r20 §5 归因成立）",
-      "failure_class": "growth-surface",
-      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
-      "review_anchor": "stage3-close",
-      "expires_fallback": "2026-12-31",
-      "superseded_by": "无直接后继——增长面修法=单调包含性断言（D-071⑨ 快照化触发器项）",
-      "added": "2026-09-18"
-    },
-    {
-      "id": "xfail-41a-f4",
-      "guard": "41a",
-      "assertion-slug": "F4",
-      "attribution": "钉 next-round T6 行 ✅ DONE——任务书逐轮换代锚点过期（r20 §5 归因成立）",
-      "failure_class": "anchor-drift",
-      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
-      "review_anchor": "stage3-close",
-      "expires_fallback": "2026-12-31",
-      "superseded_by": "next-round.md 现行轮次任务书（滚动文档锚——修法=锚点 hash＋时点，D-071⑨）",
-      "added": "2026-09-18"
-    },
-    {
-      "id": "xfail-43-d5",
-      "guard": "43",
-      "assertion-slug": "D5",
-      "attribution": "钉 next-round T14 ✅ DONE——任务书换代锚点过期（r20 §5 追加扫描归因成立）",
-      "failure_class": "anchor-drift",
-      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
-      "review_anchor": "stage3-close",
-      "expires_fallback": "2026-12-31",
-      "superseded_by": "next-round.md 现行轮次任务书（滚动文档锚）",
-      "added": "2026-09-18"
-    },
-    {
-      "id": "xfail-45-b5",
-      "guard": "45",
-      "assertion-slug": "B5",
-      "attribution": "demo 不 import upstream 层——`codelore:` 字段名误吞子串扫描（baeace8 基线已含，检测面过宽误报非边界真破坏；r20 §5 归因成立）",
-      "failure_class": "rolling-surface",
-      "evidence": ".scratch/macro-audit/reports/2026-09-18-r20-audit-report.md",
-      "review_anchor": "stage3-close",
-      "expires_fallback": "2026-12-31",
-      "superseded_by": "ADR-0014 边界现行判定面（子串扫描误吞——修法=结构化 import 断言）",
-      "added": "2026-09-18"
-    },
-    {
-      "id": "xfail-39-h6",
-      "guard": "39",
-      "assertion-slug": "H6",
-      "attribution": "钉 next-round T11 ✅ DONE 行＋#39 闭环——轮 22 任务书重写锚点过期（与已入册 45-H5 同族，R21 审计实测在案）",
-      "failure_class": "anchor-drift",
-      "evidence": ".scratch/macro-audit/reports/2026-09-18-r21-audit-report.md",
-      "review_anchor": "stage3-close",
-      "expires_fallback": "2026-12-31",
-      "superseded_by": "next-round.md 现行轮次任务书（滚动文档锚——修法=锚点 hash＋时点，D-071⑨）",
-      "added": "2026-09-18"
-    },
-    {
-      "id": "xfail-40-g5",
-      "guard": "40",
-      "assertion-slug": "G5",
-      "attribution": "钉 next-round 含 #40 落点记录（T12/进度块）——轮 22 任务书重写锚点过期（同 45-H5/39-H6 族，R21 审计实测在案）",
-      "failure_class": "anchor-drift",
-      "evidence": ".scratch/macro-audit/reports/2026-09-18-r21-audit-report.md",
-      "review_anchor": "stage3-close",
-      "expires_fallback": "2026-12-31",
-      "superseded_by": "next-round.md 现行轮次任务书（滚动文档锚——修法=锚点 hash＋时点，D-071⑨）",
-      "added": "2026-09-18"
-    }
-  ]
+  "entries": []
 }

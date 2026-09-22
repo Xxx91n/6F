@@ -227,7 +227,7 @@ t('G4 A-049 账本行 done → implemented（2026-09-16）', /A-049[^\n]*done �
 const wf = txt(join(REPO, '.scratch', 'architecture-recovery', 'WORKFLOW.md'));
 t('G5 WORKFLOW §4 lessons 含 #44 条目', /#44/.test(wf) && /upstream-lock|上游锁定/.test(wf));
 const nr = txt(join(REPO, '.scratch', 'macro-audit', 'handoffs', 'next-round.md'));
-t('G6 next-round T1 行含当前票 #77（轮27 grill 立案→票面滚动至轮27）', /T1[^\n]*#77/.test(nr));
+t('G6 next-round T1 行含 #77 ✅ 闭环且 #78 下一主窗在册（轮28 票面滚动——#77 交付后票面换代）', /T1[^\n]*#77[^\n]*✅/.test(nr) && nr.indexOf('#78') >= 0);
 const bl = txt(join(REPO, '.scratch', 'architecture-recovery', 'BACKLOG.md'));
 t('G7 BACKLOG #44 行回写闭环', /\| #44[^\n]*✅/.test(bl));
 const rep = existsSync(join(HERE, '44-report.md')) ? txt(join(HERE, '44-report.md')) : '';
