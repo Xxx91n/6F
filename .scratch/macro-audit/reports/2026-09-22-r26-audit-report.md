@@ -85,3 +85,39 @@
 - CI：run 35677822036（六腿全 success）；前轮红 35515346216/35677071573 与报告一致
 - 哈希：dist/cli.js sha256=c9bc372c422ef257（提交态=重建态一致）
 - 本窗口实测环境：Node v24.11.0 / npm 11.19.1（报告 Node-20 腿由 CI 覆盖）
+
+
+---
+
+# LOOP-2 复验（返工后同套验收重跑）
+
+返工由子代理执行、审计侧验收与收口。新增提交（r26-74-6f-rename 栈顶）：
+
+| commit | 内容 |
+|---|---|
+| xul | chore(vcs): .code-tmp/ 断跟踪——kyy gitignore 对已跟踪面不生效；删在库 7 件（本地保留），index 残留同步清理后 check-ignore 命中 .gitignore:9 生效。参考面实证：validate-plugin 读写的 claude-validate-* 为运行态生成物（非在库项）；fixtures 同名串为数据非依赖 |
+| pym | fix(engine): F-01 store.ts 注释同步原生件族正则；F-02 narrative.test.mjs:62/86 子进程串 closeSync→closeDuckdb |
+| rzr | docs(r26): 收口文档面（报告/账本/census/任务书/56-heldout 再生成） |
+
+发现项处置更新：
+
+- F-01 → FIXED（pym）
+- F-02 → FIXED（pym），narrative.test 复跑 NARRATIVE-TEST-OK 34 exit 0
+- F-04 → FIXED（xul）：断跟踪落地 + index 残留清理，check-ignore 实证命中
+- F-05 → FIXED（rzr）：文档面全部入库
+- F-06 → **改判 ADJUDICATED-NO-OP**：返工中实查出 zh-CN 双锚形态（`<a id>` 供 GitHub 解析 + `{#x}` 供 73-check B1/B2 lint 校验）为有意设计，非重复冗余；子代理过度删除已全部回退（git show 2a13575 恢复），文件回到提交态。原判词作废。
+- F-03/F-07 → 维持 judgement call / 口径脚注，不修
+- F-08 → 用户已授权 merge+push，过程裁定闭环
+
+LOOP-2 验收矩阵：
+
+| 项 | 结果 |
+|---|---|
+| npm run build | BUNDLE-OK；重建后 engine/dist git 净（DISTDIRTY=0），确定性一致 |
+| npm run package | tgz 75 件 |
+| selftest / --version | 5 项全过；`{"name":"6f","version":"0.1.0",...}` |
+| 测试面 | narrative 34、audit 26/26、demo 38/38、doctor-fix 6/6、selfheal-e2e 3/3、offline 13/13、smoke 链全 PASS |
+| 守卫面 | 基线 16 件套 + xfail-run 全绿 |
+| 扩展扫描（30 件） | 29/30；唯一 FAIL=01-check（D1 anysearch-cli corpora 断言 + D5 01-report 溯源）——不在基线、未登 xfail 册、与本次 diff 零交集，裁为环境性/陈旧失败（记录非阻断） |
+
+**LOOP-2 终裁：PASS**（F-06 为审计侧误判更正；环境性 01-check 观察项随册）
