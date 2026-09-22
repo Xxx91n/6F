@@ -26,7 +26,7 @@ let duckdbModulePromise = null;
 //   异步 spawn 会让 CLI 拉包中途返回假 exit 0 比阻塞更糟）；MCP/CI 无人值守面永不自动拉包（宿主驱动无人可询问，
 //   自动拉包在此面无工业先例）——改四段披露＋MACRO_AUDIT_SELFHEAL=1 opt-in 出口；doctor --fix=唯一显式主路。
 // 机制不变：平台探测（platform+arch+ldd 判 musl）→精确单平台包恢复（in-tree 手术=npm pack+tar 解包，绕 npm#9024 arborist no-op；冷启动=npm install 整装）
-// →完整性校验（.node 存在＋尺寸阈＋包内 version===锁定版，失败删半成品目录回落）；node-api JS 面亦缺才退全量。
+// →完整性校验（原生件族 .node/.so/.dylib/.dll 任一存在＋任一>1MB 尺寸阈＋包内 version===锁定版，失败删半成品目录回落）；node-api JS 面亦缺才退全量。
 // F4：win32-arm64 死分支摘除——@duckdb/node-bindings-win32-arm64@1.5.5-r.5 npm 实存（D-072 前提证伪），pin -r.4→-r.5；
 // F8：emitSelfHeal 全 stderr 化＋success 移 createRequire 实载后（装成功≠载成功）；
 // F9：MCP 不再 spawn＋CLI 有人在场已消解大半——detached+轮询异步形态存档备选不实施。
