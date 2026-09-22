@@ -87,3 +87,23 @@
 
 ---
 审计人：独立审计 Agent 窗｜方法：硬验收亲跑+实物抽查+双轴评审（Standards/Spec 并行子代理）+D-xxx 逐条核对｜评审输入=.code-tmp/audit-r28/{diff.patch,spec.md}
+
+## 8. LOOP-2 复验补记（2026-09-22 返修后重审）
+
+**终裁更新：PASS-WITH-FINDINGS → PASS（全发现闭环）**。修复窗返修回到位后同套验收亲跑重跑全绿，逐项复验如下。
+
+| 项 | 处置自述 | 复验证据（亲跑） | 结论 |
+|---|---|---|---|
+| F-01 | renderable 门禁渲染＋MISSING-TEMPLATE 防御网 | 代码在位（gen:160 renderable 门先行拦截＋106 防御网）；负测实证：临时副本锁表注入 fake-new-upstream active → exit 1＋输出 `PROBLEMS template-missing(active 无模板): fake-new-upstream`，无 TypeError；真仓 --check 回 CLEAN×2+CHECK-OK | ✅ FIXED |
+| F-02 | 轮26 报告字节级复原＋本报告迁名 r28-exec-report＋引用同步 | 2026-09-22-report.md=4953B 头行「轮26 实施报告…」复原；2026-09-22-r28-exec-report.md 在案（8615B）；BACKLOG #77/next-round 指针已改新名；r26-audit-report 引用面复原正确 | ✅ FIXED |
+| P-01 | reword 补 A-089 | but status/git log：commit ton → "feat(#77/A-089): …" | ✅ FIXED |
+| O-01 | sync 戳 hash 改对盘上 EN EOL 形态（与 73-check raw 严格同型） | gen:143-144 enDiskEol=eolOf(盘上 EN)＋hash(enAfter.join(enDiskEol))；gen --check CLEAN×2＋73-check PASS 14/14 | ✅ FIXED |
+| O-02 | 44-G6 字面钉归 T3/#75批1 不动 | 已入审计观察项+任务书在案 | ✅ ADJUDICATED-NO-OP（有意延迟） |
+
+**同套验收重跑（返修后，宿主 shell）**：npm run build=0（BUNDLE-OK）／package=0（75 件）／selftest={"ok":true} 5/5／smoke=0（18 链 272 PASS 0 FAIL，AUDIT-ZERO-WRITE-TEST-OK 4/4 链尾在）；gen --check CLEAN×2；守卫电池 13 项全绿=33=31/31（ALARM 1=readme-ci-badge T10 值守项，机制正常）／44=59/59／45=51/51／70=13/13（53守卫/1262emit）／71=16/16／72=16/16／73=14/14／77=16/16／xfail-run=0/10／39=28/28／40=57/57／41a=38/38／43=28/28。
+
+栈态：r28-audit（审计件）∥ r28-t1-facade-ack（ton=feat(#77/A-089) 含返修）→ r27-closeout-docs（pkz）→ d207a0a；工作树干净，未 push。
+
+任务书口径基线新增两条入规已核：ctx 沙箱 NODE_OPTIONS 避雷（next-round.md L29）＋报告命名纪律 exec/audit 后缀（L30）——审计经验回流建制，符合「不可蒸发」纪律。
+
+--- LOOP-2 复验人：同一独立审计 Agent 窗｜终态：本轮可收口，下一主任务=T2 #78 quarantine B 窗（见 handoff）
