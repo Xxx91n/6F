@@ -42,7 +42,7 @@ t('B1 生成器 pin author/committer/date（确定性根基）', genSrc.indexOf(
 t('B2 生成器支持 merge/多分支/tag 步型（FerrLabs 模式）', genSrc.indexOf("'merge'") >= 0 && genSrc.indexOf("'branch'") >= 0 && genSrc.indexOf("'tag'") >= 0);
 t('B3 demo 管线走 Repo Intake 本地腿（import repoAdd，不设新输入面 D-013）', demoSrc.indexOf("from '../intake/intake.js'") >= 0 && demoSrc.indexOf('repoAdd(') >= 0);
 t('B4 披露块复用 preview_disclosure 同一契约（PreviewDisclosure 类型 + buildReport 通道）', demoSrc.indexOf('PreviewDisclosure') >= 0 && demoSrc.indexOf('preview_disclosure: demoDisclosure()') >= 0);
-t('B5 ADR-0014：demo 不 import upstream 层（上游适配层零业务改动）', demoSrc.indexOf('upstream/') < 0 && demoSrc.indexOf('codelore') < 0);
+t('B5 ADR-0014：demo 不 import upstream 层（上游适配层零业务改动；codelore 仅许 off 配置——D-094(b) 字面钉合法演化：demo.ts 增 codelore:\u0027off\u0027 显式禁用配置后裸子串断言失配）', demoSrc.indexOf('upstream/') < 0 && !/(?:import|from|require)[^\n;]*codelore/.test(demoSrc) && demoSrc.indexOf("codelore: 'off'") >= 0);
 t('B6 CLI 挂 demo 子命令（--scenario/--out/--json/--keep/--list）', cliSrc.indexOf("cmd === 'demo'") >= 0 && cliSrc.indexOf('--scenario') >= 0 && cliSrc.indexOf('--list') >= 0);
 t('B7 package.json files 含 fixtures（随 tgz 分发）+ smoke 链挂 demo.test.mjs', pkg.files.indexOf('fixtures') >= 0 && pkg.scripts.smoke.indexOf('demo.test.mjs') >= 0);
 t('B8 dist 编译产物在位（demo.js + fixture-generator.js）', existsSync(join(ENG, 'dist', 'demo', 'demo.js')) && existsSync(join(ENG, 'dist', 'demo', 'fixture-generator.js')));

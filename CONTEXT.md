@@ -259,3 +259,15 @@ _Avoid_: 平等双写（无权威源必漂移）、双语同步=译文质量机�
 **6F（品牌名 / 六-F 宣言）**:
 仓与产品的公开品牌名——D-052 冻结 plugin=`6f`、仓名=`6F`；语义本体=**六句 F 开头宣言**概括最有价值资产（D-092）：Facts〔Hub-of-Facts ADR-0005〕／Federation〔联邦裁定协议 ADR-0005〕／Forensics〔演化考古 Macro-C〕／Five scales〔五尺度 ADR-0001〕／Frankness〔诚实 preview 标注 ADR-0017〕／Fingerprints〔可验 receipts/溯源〕。**双名分层规则**（D-093）：品牌/门面层=`6F`（README/hero/social-card/marketplace displayName）；kernel 技术标识层=`macro-audit`（.mcp.json 服务名/plugin.json skills 路径/engine 内部名/architecture.svg kernel 标签）——内部名故意不同于营销名=纪律非债。
 _Avoid_: 门面与 kernel 共用一名（三层三名病灶原型）、macro-audit 当品牌名上门面（R25 正名前状态）、F 词凑数不钉资产（宁缺毋滥判据）
+
+**致谢三层分工（Attribution Three-Layer）**:
+上游信用/合规面的三层分工（D-098）：NOTICE/THIRD-PARTY-NOTICES=法律承接义务（Apache-2.0 §4(d)：上游带 NOTICE 则分发物须附可读副本，承接文本=上游原文非自撰）；upstream-lock.yaml=机读技术权威（全状态+provenance 全集）；README 「## Acknowledgments」=人读 credit 投影——生成式锚段非手写（枚举=lock 的 status=active 集，名字+一句角色+上游主页链接，closed 对账=regen→diff empty）。
+_Avoid_: 致谢节当法律承接替代物、手写枚举清单（漂移必然）、谢 planned/evaluating/retired（谢未接入=roadmap 混 credit 撞 preview 诚实；谢已否决=语义荒谬；retired 的 provenance 反查已由 lock 表覆盖）
+
+**违约两级处置（Contract-Violation Two-Level）**:
+上游输出契约的违约分层（D-100，收窄 D-059①「不符即拒」至协议级）：**协议级违约**（列数/分隔符/记录定界/行形状坏=所有行同病、字段不可定界）→fail-fast；**字段级病态**（记录定界成功但单字段值语义非法且无确定性可挽救目标）→quarantine 桶=字段 null+⚠malformed 印记+审计继续。三桶分离计数 clean/normalized/quarantined（normalized 不打 ⚠）；null=毒值（消费方显式报错或显式跳过禁当 0）；单字段 quarantine 比例超阈→升级该仓 unsupported。
+_Avoid_: 字段级病态硬崩全仓（一个病态 commit 否决百万行审计）、扩形状断言接受任意垃圾值（契约稀释+虚假归类=编造数据）、quarantine 无 reason code/阈值/台账（垃圾收容所化）
+
+**消费面驱动资产（Consumption-Surface-Driven Assets）**:
+品牌/门面资产派生纪律（D-099）：资产仅在有真实消费面时派生——接触点驱动非成熟度阶段驱动；icon.svg=唯一 logo 母本，派生走 one-SVG-in 脚本化（不生图、禁手工逐件另存）；无消费面的资产=杂物化负期望（npm#10323 十年未实现 logo 字段实证）；消费面出现=registry event_bound 触发器承载（official-catalog-icon-required/docs-site-deployed）。
+_Avoid_: 为不存在消费面预置资产、favicon/webmanifest 对无 HTML 面仓预置（GitHub 仓页不读仓内 favicon）、新 logo 概念+生图撞「已有 logo 优先复用」红线

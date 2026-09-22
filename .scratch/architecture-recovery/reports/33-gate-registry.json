@@ -144,8 +144,18 @@
    "note": "D-084④：「quadrant-rubric 初版参数起草」票立项之日=事件发生；权重/强弱语义进 quadrant-rubric 判据面（不进映射表/路由契约——D-084 映射表无权重列）。机检=本登记表值守复核＋立案票审计清点。"
   },
   "engine-ci-main-green": {
+   "occurred": true,
+   "note": "D-089⑤：.github/workflows/engine-ci.yml 在 main 分支最近一次实跑 conclusion=success 之日=事件发生（CI badge 前置——诚实徽记不预埋死链）。机检=gh run list --workflow engine-ci.yml --branch main --limit 1。",
+   "date": "2026-09-22",
+   "evidence": "engine-ci.yml main 实跑 run 35681529820 conclusion=success（R26 修复链合入 main d207a0a 后首绿）；readme-ci-badge 挂徽解锁→#77"
+  },
+  "official-catalog-icon-required": {
    "occurred": false,
-   "note": "D-089⑤：.github/workflows/engine-ci.yml 在 main 分支最近一次实跑 conclusion=success 之日=事件发生（CI badge 前置——诚实徽记不预埋死链）。机检=gh run list --workflow engine-ci.yml --branch main --limit 1。"
+   "note": "D-099③：B 轨官方目录提交流程定义/要求 icon 字段之日=事件发生（当前 marketplace.json/plugin.json schema 实证无 icon 字段——消费面未出现）"
+  },
+  "docs-site-deployed": {
+   "occurred": false,
+   "note": "D-099③：docs/ 内容以 HTML 站形态实际对外部署之日=事件发生（favicon/apple-touch-icon 派生消费面届时才出现）"
   }
  },
  "items": [
@@ -1334,6 +1344,14 @@
      "decision": "registered",
      "reason": "badge 诚实纪律——CI 徽记以 main 实跑绿为锚不预埋死链",
      "evidence": "decision-ledger.md D-089⑤"
+    },
+    {
+     "at": "2026-09-22",
+     "by": "轮27 收口（事件翻转实证）",
+     "criterion_version": "D-089⑤",
+     "decision": "trigger-fired",
+     "reason": "engine-ci-main-green 事件发生：main 实跑 35681529820 success——挂徽解锁，随 #77 门面收口包落地（挂载完成方翻 status）",
+     "evidence": "gh run list --workflow engine-ci.yml --branch main → run 35681529820 conclusion=success"
     }
    ]
   },
@@ -1358,6 +1376,54 @@
      "decision": "registered",
      "reason": "实录过期快——功能冻结后拍真实 UI（25-P4/25-D3 同锚纪律）",
      "evidence": "decision-ledger.md D-089⑤"
+    }
+   ]
+  },
+  {
+   "id": "official-catalog-icon-required",
+   "family": "facade",
+   "title": "官方目录 icon 字段要求触发器（D-099③——B 轨提交若定义 icon 字段则从 icon.svg 脚本化派生 PNG 集）",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "official-catalog-icon-required",
+   "trigger": "B 轨官方目录提交流程定义/要求 icon 字段（当前 marketplace.json/plugin.json schema 实证无 icon 字段）",
+   "review_at": "事件发生后按 D-099⑥ 派生纪律执行（icon.svg 单一母本→脚本派生 128/256 PNG 集；不生图不手工逐件另存）",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "查 B 轨目标目录 schema 是否含 icon 字段；事件未发生前禁预置 PNG 资产（npm#10323 预置负期望教训）",
+   "confirmations": [
+    {
+     "at": "2026-09-22",
+     "by": "轮27 grill D-099",
+     "criterion_version": "D-099③⑥",
+     "decision": "registered",
+     "reason": "消费面驱动制——品牌资产仅在有真实消费面时派生；当前分发 schema 无 icon 字段消费面=零",
+     "evidence": "decision-ledger.md D-099"
+    }
+   ]
+  },
+  {
+   "id": "docs-site-deployed",
+   "family": "facade",
+   "title": "docs 站部署触发器（D-099③——docs 静态站实际部署时派生 favicon 族）",
+   "deadline_event": null,
+   "deadline": "无（事件驱动项）",
+   "trigger_event": "docs-site-deployed",
+   "trigger": "仓内 docs/ 内容以 HTML 站形态实际对外部署（GitHub Pages 或同族）之日",
+   "review_at": "事件发生后按 D-099⑥ 派生 favicon 16/32/48+apple-touch-icon（一条脚本命令面，不预置）",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "docs 站对外 URL 存在且引用 favicon 链路；未部署前 webmanifest/PWA/favicon 族=零消费面禁做",
+   "confirmations": [
+    {
+     "at": "2026-09-22",
+     "by": "轮27 grill D-099",
+     "criterion_version": "D-099③⑥",
+     "decision": "registered",
+     "reason": "消费面驱动制——favicon 族仅在「存在被浏览器打开的 HTML 页面」时有消费面（web.dev 实证：manifest 须经 link 挂 HTML 才生效）",
+     "evidence": "decision-ledger.md D-099；R27-Q2 调研报告"
     }
    ]
   }
