@@ -243,22 +243,22 @@ function selfHealDuckdb() {
     ver = JSON.parse(readFileSync2(join2(pkgDir, "package.json"), "utf8")).version;
   } catch {
   }
-  let nodeCount = 0;
+  let nativeCount = 0;
   let sizeOk = false;
   if (existsSync(pkgDir)) {
     for (const f of readdirSync(pkgDir)) {
-      if (f.endsWith(".node")) {
-        nodeCount++;
+      if (/\.(node|so|dylib|dll)$/.test(f)) {
+        nativeCount++;
         if (statSync(join2(pkgDir, f)).size > 1024 * 1024) sizeOk = true;
       }
     }
   }
-  if (!(ver === DUCKDB_PINNED_VERSION && nodeCount > 0 && sizeOk)) {
+  if (!(ver === DUCKDB_PINNED_VERSION && nativeCount > 0 && sizeOk)) {
     try {
       rmSync(pkgDir, { recursive: true, force: true });
     } catch {
     }
-    return { ok: false, detail: "integrity-fail:ver=" + String(ver) + " node-files=" + nodeCount + " sizeOk=" + sizeOk };
+    return { ok: false, detail: "integrity-fail:ver=" + String(ver) + " native-files=" + nativeCount + " sizeOk=" + sizeOk };
   }
   return { ok: true, detail: "installed @duckdb/node-bindings-" + suffix + "@" + ver };
 }
