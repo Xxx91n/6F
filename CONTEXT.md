@@ -11,6 +11,7 @@
 > 轮 11 grill（2026-09-16 完成）已封口 D-048 ~ D-052：#47 托管 API 适配器（REST 主路＋gh 可选回退，ADR-0020）＋#48 Micro-A preview 单票＋#49 经典仓三选＋分发面 A+C 双轨/Apache-2.0（ADR-0021）/插件名 6f@市场 xxx91n；
 > 轮 13 grill（2026-09-17 完成）已封口 D-053 ~ D-058：原预设对照清算——叙事双轨＋rubric 三件＋MCP 出 stub（#50 立案）＋Macro-B behavior 象限接入（#51）＋hooks 层④收窄为可选呈现面/声明位（ADR-0008 勘误）＋repomix-gitingest 退役（锁表 retired＋重开触发器）＋原预设余项×4 核销＋Kernel/Agent 职责边界词条收编；
 > 轮 28 grill（2026-09-23 完成）已封口 D-103 ~ D-120：quarantine 引擎设计树 18 裁——契约层三态分类器＋quarantine_log 事件表＋字段实例恒等式＋逐 commit 事务幂等写＋strict 仓级基线＋verdict/exit 两轴＋known-gaps 双册＋Intake Health 节＋双层对账＋39 parity 处置感知矩阵＋词表 v1 四族＋双层 fixture 覆盖；调研档案 R28-Q{1..18} 系列存档 .scratch/macro-audit/reports/。
+> 轮 30 grill（2026-09-23 完成）已封口 D-121 ~ D-127：Micro-B 文件级审计卡设计树 7 裁——铺开序归位（Macro-C→Micro-A→Micro-B→Macro-A，Macro-A 最后）＋预采集投影主干+CLI-only lazy 补采双通道（MCP 永不写）＋三层卡契约（kernel 数据+确定性派生+宿主叙事，禁 A-E 判语形态，advisory 结构性隔离）＋per-file 一等事实 grain（facet_rows 降 raw 证据层）＋SCIP 式 subject 规范化形+rename 血缘一等事实（投影层缝合）＋查询语义（at:sha pin/staleness 双字段照答/miss 四类+renamed_to 条件跳转/补采=SHA 可达仓级管线）＋preview 票面形态（单票闭环内部三步+形态三角双仓试点+0-switch/1-switch 边界件+p95 分档双阈值+披露四件套+not_in_preview）；总成 ADR-0023；调研档案 R30-Q{1..7} 系列存档 .scratch/macro-audit/reports/。
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -50,7 +51,7 @@ _Avoid_: hotspot 报告（属行为象限切片）、技术债追踪（与债务
 _Avoid_: AI 代码评审（缺 verdict-gate = 概率性评论，不是审计）
 
 **Micro-B (File-Level Audit)**:
-单文件粒度的审计；触发器为单文件查看或 LSP 调用；数据源为 CodeLore file facts + 局部叙事；输出为文件质量卡（advisory，不进入裁决路径）。
+单文件粒度的审计；触发器为宿主侧文件查看上下文触发的 MCP 查询与 CLI 子命令双通道（宿主 IDE/LSP hooks 属独立可选集成面，不直连数据面）；数据源为文件级审计 facts（per-file 一级 subject，含 rename 血缘）与宿主侧叙事；输出为文件质量卡（read-model 投影，advisory 结构性不进入裁决路径）。
 _Avoid_: lint 报告、code review（人类流程，非工具审计）
 
 **Evidence Gate**:
@@ -296,3 +297,18 @@ _Avoid_: 基线内容存 env/CI 配置（配置漂移=基线漂移）、unclassi
 **处置感知 Parity（Disposition-Aware Parity）**:
 39/40 独立对照物在病态输入上的比对语义（D-118）：比对按 disposition 分流——clean/normalized 照常值等；quarantined×39 结果判分歧类别（39 也判病态/产不同值/解析失败=预期分歧记档；39 产出与 cli 本应值相同=可疑一致 warn=双实现共享错误假设的代理信号）；未枚举组合格默认 fail loud；预期分歧条目落 known-gaps 册；39 端零改动不复制分类规则（独立实现互核=对照物本职，分类真源在 cli 端）。
 _Avoid_: parity 排除病态实例（对照物在价值最大处失明）、39 端复制分类器（双生 bug+双份漂移）、未枚举组合静默通过、把对照物降级为第二分类器
+**Subject Canonical Form（subject 规范化形）**:
+文件 subject 身份的规范化路径表示（D-125）：仓根相对、`/` 分隔（含 Windows）、无 `//` `.` `..` 空段、Unicode NFC（适配层显式归一不依赖 git config）、指向 regular file（symlink 解析到目标或显式跳过披露）；不折叠大小写（case-only 冲突=真实不同文件，Windows 宿主走检测+告警路径）；归一动作单点在发射边界。
+_Avoid_: 平台本地分隔符混入 subject、大小写折叠（CVE 事故先例=折叠合并真实文件成分裂脑）、blob hash 当身份（同内容碰撞+rename+edit 断）、上游原样字符串继承（corrosion boundary 失守）
+
+**File Lineage（文件血缘）**:
+rename 连续性的一等审计事实（D-125/D-126）：`file_renamed{from,to,head_sha,threshold,detector_version}` 登记改名事件，检测参数入载荷可复算；血缘是附加事实非身份本体——subject 恒为规范化 path，跨改名历史由读模型沿血缘链缝合；检测漏判=历史诚实分裂不编造；renamed_to 跳转须逐请求重验证（无血缘→降级 not_tracked 语义）。
+_Avoid_: 血缘进身份本体、无参数披露的 rename 判定（启发式不可复算）、漏判时拼合历史（编造连续性）
+
+**Observation Set（观测集）**:
+一次采集在 HEAD 时点产出的全部 facts（D-122/D-126）：append-only 库内同一 subject 可有多观测集并存；查询默认答最新观测集，`at:<sha>` 显式 pin（常量输入禁自动派生）；staleness=observed_head_sha 与 current_head_sha 双字段披露照答不拒答；补采=新观测集 append 非覆盖。
+_Avoid_: 「当前态」语义（HEAD 会动）、stale 拒答、观测集覆盖式更新（违 append-only）、工作区感知（uncommitted 无 git 观测时点）
+
+**Raw Evidence Layer（原始证据层）**:
+上游原始输出形态的 append-only 保真层（D-124）：facet_rows 聚合载荷转此位，与 quarantine raw_bytes（D-117）同族；供重建、争议仲裁与面级历史对照，不进文件卡查询主路径；面级聚合需求=从 per-file facts 重算的读模型职责。
+_Avoid_: raw 层当一等查询面（subject 边界丢失）、删 raw 记录（审计证据保留义务）、raw+normalized 双写皆一等事实（dual-write 反模式）
