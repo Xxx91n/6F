@@ -9,7 +9,7 @@ export interface SubjectNormResult {
   ok: boolean;
   subject: string | null;     // 规范化形（ok=true 时非空）
   reason: string | null;      // 拒绝原因（ok=false）：empty / absolute / nul-byte / dotdot-segment / empty-after-normalize
-  warnings: string[];         // 非致命归一动作留痕（backslash-normalized / dot-segment-dropped / empty-segment-dropped / nfc-normalized）
+  warnings: string[];         // 非致命归一动作留痕（trimmed / backslash-normalized / dot-segment-dropped / empty-segment-dropped / nfc-normalized）
 }
 
 const ABSOLUTE_RE = /^([A-Za-z]:[\\/]|\\|\/\/|\/)/;
@@ -17,6 +17,7 @@ const ABSOLUTE_RE = /^([A-Za-z]:[\\/]|\\|\/\/|\/)/;
 export function normalizeSubjectPath(raw: string): SubjectNormResult {
   const warnings: string[] = [];
   if (typeof raw !== 'string') { return { ok: false, subject: null, reason: 'non-string', warnings: warnings }; }
+  if (raw.trim() !== raw) { warnings.push('trimmed'); }   // trim=身份合并动作如实留痕（' a.ts '与'a.ts'同 subject——静默合并先例教训）
   let s = raw.trim();
   if (s.length === 0) { return { ok: false, subject: null, reason: 'empty', warnings: warnings }; }
   if (s.indexOf(String.fromCharCode(0)) >= 0) { return { ok: false, subject: null, reason: 'nul-byte', warnings: warnings }; }

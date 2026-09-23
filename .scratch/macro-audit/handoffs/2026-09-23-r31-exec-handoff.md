@@ -31,7 +31,7 @@
 - ctx_execute 写码一律数组行 push+join（模板字面量\/\u/反引号被宿主层吃转义×3 实证）；守卫断言用 includes 不用含括号正则字面量
 - 对账判据比对面=file-bearing 子集−skipped（非文件粒度行天然不入）——判据语义先于代码
 - 宿主级测试 `env -u NODE_OPTIONS`（ctx 沙箱注入污染）；文件写入后字节回读+BOM 检查
-- dist/ 为版本化产物——改 src 后 tsc 重建一起提交
+- dist/ 为版本化产物——改 src 后必须 `npm run build`（tsc+esbuild bundle 两件）一起提交；裸 `npx tsc` 产 346 行裸壳 cli.js 会致 CI rebuild-diff 六腿全红（r31 审计硬红实证）
 - VC 全走 `but`（本会话分支 r31-micro-b-step1 已应用）；历史守卫读冻结工件不重跑采集器
 
 ## suggested skills

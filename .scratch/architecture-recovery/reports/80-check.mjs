@@ -80,7 +80,7 @@ t('F1 新增源/测试/fixture 文件无 BOM', (() => {
   return files.every(f => { const b = fs.readFileSync(join(ENG, f)); return b[0] !== 0xEF; });
 })());
 const backlog = txt(join(ROOT, '.scratch', 'architecture-recovery', 'BACKLOG.md'));
-t('F2 BACKLOG #80 行在（票面归属）', /| #80 |/.test(backlog), '');
+t('F2 BACKLOG #80 行在（票面归属）', backlog.includes('| #80 |'), '');   // 修正：原 regex 竖线未转义成交替空分支恒真——R29 同款立训复发，改 includes 判据
 const adr = txt(join(ROOT, 'docs', 'adr', '0023-micro-b-file-card-architecture.md'));
 t('F3 ADR-0023 在案（D-121~D-127 总成——步①实装对象）', /D-12[1-7]/.test(adr), '');
 

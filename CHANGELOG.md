@@ -67,3 +67,10 @@
 - a_range: A-001 ~ A-090（architecture-recovery 账本实物区间，写时实物读出——本轮零新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十轮 Grill＋收口对账（D-121~D-127）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-090）
 - impact: Micro-B preview 全决策定案（per-file 一等事实发射／SCIP 规范化形＋file_renamed 血缘／三层卡契约 advisory 结构性隔离／at:sha＋miss 四类显式态）；残余 impl 级参数随 #80 票面收口；退路 C 登记在案
+## [M-009] - 2026-09-24
+
+- milestone: 轮 31 #80 步①实装——Micro-B per-file 一等事实发射管线落码（subject 规范化器 SCIP 五规则+NFC+禁折叠+case 冲突检测／file.renamed 血缘事实 rename-detector@v1·阈值 50%／facet_rows 降 raw_evidence／behavior 消费面迁 per-file 重聚合+对账判据入 bhvPc1）＋micro-b-emit 测试入 smoke 第 19 件＋micro-b fixture/golden 骨架锁体系＋80-check 守卫 20/20；审计返修：dist 产物恢复 bundle 规程（npm run build 非裸 tsc）＋本 M 行补编年（41a D6 同源失败复发教训：账本行落盘即须编年随行）
+- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件——区间写时实物读出）
+- a_range: A-001 ~ A-091（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-091）
+- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-091 步① impl 裁决①~⑧）／.scratch/macro-audit/decision-ledger.md（D-121~D-127 设计面）
+- impact: Micro-B 事实面=per-file 一等实体+血缘链可查询（步②投影数据面就位）；验收实证=micro-b-emit 17/17＋80-check 20/20＋npm run smoke 19 件全绿＋守卫组 13 件复绿；步②/T2=投影+查询语义+双通道骨架待开工

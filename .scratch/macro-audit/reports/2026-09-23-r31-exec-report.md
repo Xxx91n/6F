@@ -14,7 +14,7 @@
 | 跨 git 版本可复算验证件 | ✅ | `gitRenameLogArgs('50%')` 真子进程断言写死在测试内（e2e 非回放）——三平台 CI 腿各跑同一断言即跨版本实测载体；载荷 git_version 随行举证不入骨架锁 |
 | facet_rows 降 raw 证据位（append-only 保留+role 标记，不进卡查询主路径） | ✅ | `grep "role: 'raw_evidence'" engine/src/upstream/codelore.ts` 命中；测试 D1：聚合事实 role=raw_evidence+per_file_emitted 计数+rows 保留 |
 | Macro-B behavior 消费面迁移（facet_rows→per-file 聚合）+ 对照期对账判据 | ✅ | audit.ts `reaggregateFileFacetRows`/`reconcilePerFileVsAggregate` 调用在；判据=per-file 重算多重集 == file-bearing 聚合行−skipped（测试 D2：match=true、hotspots 9−2=7、lead-time 非文件面天然真）；bhvPc1 含 recon.match |
-| fixture golden=发射产出骨架锁（字段骨架非内容值）+D-038 fixture 体系接入 | ✅ | `node engine/scripts/gen-micro-b-emission-golden.mjs --check` → `GOLDEN-CHECK-OK`；骨架=metric 集/value_json 键集/subject 规范化形/role/skip reason/冲突对/血缘键集+recon |
+| fixture golden=发射产出骨架锁（字段骨架非内容值）+D-038 同构范式接入（自建 micro-b fixture 体系——非字面接入 demo fixtures/ 目录） | ✅ | `node engine/scripts/gen-micro-b-emission-golden.mjs --check` → `GOLDEN-CHECK-OK`；骨架=metric 集/value_json 键集/subject 规范化形/role/skip reason/冲突对/血缘键集+recon |
 | 步①独立绿（编译+全测试链+守卫） | ✅ | 见 §② |
 | 账本落盘（impl 参数裁决留痕） | ✅ | `.scratch/architecture-recovery/decision-ledger.md` A-091 行（①~⑦ impl 裁决） |
 
@@ -22,11 +22,11 @@
 
 | 项 | 状态 | 证据 |
 |---|---|---|
-| 编译通过 | ✅ | `cd engine && npx tsc -p tsconfig.json` → 0 error（src/fact/subject.ts、src/collect/file-lineage.ts、upstream/codelore.ts、audit/{audit,macro-b,upstream-dimension-map}.ts 全过） |
+| 编译通过 | ✅ | `cd engine && npm run build`（tsc+esbuild bundle 双段——裸 tsc 为错规程，r31 审计打回实证）→ 0 error + `BUNDLE-OK dist/cli.js`（5117 行 bundle 形）（src/fact/subject.ts、src/collect/file-lineage.ts、upstream/codelore.ts、audit/{audit,macro-b,upstream-dimension-map}.ts 全过） |
 | 打包通过 | ✅ | `npm run package`（npm pack --dry-run）→ `macro-audit-0.1.0.tgz` 81 files / 173.8kB |
 | 启动并测活软件进程 | ✅ | `node dist/cli.js selftest` → `{"ok":true,checks:[manifest/shells/default-mode/mcp read-only/receipt 全 pass]}`；smoke SMOKE-OK 6/6 含 --version/selftest/gen-manifests 三实测 |
 | 每个平台 test 闭环 | ✅ | `npm run smoke`（CI 三平台同一命令链）全绿 19 件：smoke 6/6、collectors 14/14、codelore-adapter 7/7、codelore-batch1 41/41、**micro-b-emit 17/17（新件入链）**、codelore-llm 25/25、report-preview 5/5、intake 40/40、gitcli-contract 11/11、sql-literal 17/17、mcp-db 12/12、audit 26/26、demo、github-rest、upstream-map 21/21、narrative、citation 38、doctor 9、quarantine 58/58、audit-zero-write 4/4 |
-| 守卫基线复绿 | ✅ | `node .scratch/architecture-recovery/reports/{33,39,40,41a,43,44,45,70,71,72,73,77}-check.mjs + xfail-run.mjs` → 全 PASS（33=31/31、39=28/28、40=57/57、41a=38/38、43=28/28、44=59/59、45=51/51、70=13/13〔census regen=55守卫/1322点〕、71=16/16、72=16/16、73=14/14、77=16/16、xfail 0条）；新增 `80-check.mjs` → PASS 20/20 |
+| 守卫基线复绿 | ✅ | `node .scratch/architecture-recovery/reports/{33,39,40,41a,43,44,45,70,71,72,73,77}-check.mjs + xfail-run.mjs` → 全 PASS（33=31/31、39=28/28、40=57/57、41a=38/38、43=28/28、44=59/59、45=51/51、70=13/13〔census regen=55守卫/1322点〕、71=16/16、72=16/16、73=14/14、77=16/16、xfail 0条）；新增 `80-check.mjs` → PASS 20/20（返修注记：A-091 落账后 41a D6 编年漂移 FAIL——M-009 补编年后复绿；原自述为落账前窗口态，未当窗重跑=失实教训立账） |
 
 ## ③ 实现面实物清单
 

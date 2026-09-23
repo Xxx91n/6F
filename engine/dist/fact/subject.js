@@ -10,6 +10,9 @@ export function normalizeSubjectPath(raw) {
     if (typeof raw !== 'string') {
         return { ok: false, subject: null, reason: 'non-string', warnings: warnings };
     }
+    if (raw.trim() !== raw) {
+        warnings.push('trimmed');
+    } // trim=身份合并动作如实留痕（' a.ts '与'a.ts'同 subject——静默合并先例教训）
     let s = raw.trim();
     if (s.length === 0) {
         return { ok: false, subject: null, reason: 'empty', warnings: warnings };
