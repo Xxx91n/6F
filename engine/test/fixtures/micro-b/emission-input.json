@@ -1,0 +1,121 @@
+{
+  "note": "#80 步① per-file 发射 fixture 输入——行对象覆盖：backslash/重复斜杠/dot 段/dotdot 拒绝/symlink 解析/case-only 冲突对/entity 字段/成对端点/非文件粒度行。subject_probe=测试注入假探针（不接 fs）。",
+  "subject_probe": {
+    "link/z.ts": {
+      "kind": "symlink",
+      "resolved": "real/z.ts"
+    },
+    "link/dangling.ts": {
+      "kind": "other"
+    }
+  },
+  "facets": [
+    {
+      "analysis": "hotspots",
+      "group": "behavior",
+      "format": "json",
+      "extra_args": [],
+      "rows": [
+        {
+          "path": "src\\alpha.ts",
+          "revisions": 42,
+          "hotspot_score": 9.1
+        },
+        {
+          "path": "docs//adr//x.md",
+          "revisions": 7,
+          "hotspot_score": 2
+        },
+        {
+          "path": "docs/./y.md",
+          "revisions": 3,
+          "hotspot_score": 1.1
+        },
+        {
+          "path": "docs/../evil.md",
+          "revisions": 1,
+          "hotspot_score": 0.1
+        },
+        {
+          "path": "link/z.ts",
+          "revisions": 5,
+          "hotspot_score": 3.3
+        },
+        {
+          "path": "link/dangling.ts",
+          "revisions": 4,
+          "hotspot_score": 2.2
+        },
+        {
+          "path": "Src/A.ts",
+          "revisions": 2,
+          "hotspot_score": 0.5
+        },
+        {
+          "path": "src/a.ts",
+          "revisions": 2,
+          "hotspot_score": 0.6
+        },
+        {
+          "path": "src/UTF8-café.ts",
+          "revisions": 6,
+          "hotspot_score": 4
+        }
+      ]
+    },
+    {
+      "analysis": "coupling",
+      "group": "behavior",
+      "format": "json",
+      "extra_args": [],
+      "rows": [
+        {
+          "entity_a": "src/alpha.ts",
+          "entity_b": "src/beta.ts",
+          "shared": 5,
+          "degree": 60,
+          "fisher_p": 0.001
+        }
+      ]
+    },
+    {
+      "analysis": "function-hotspots",
+      "group": "behavior",
+      "format": "json",
+      "extra_args": [],
+      "rows": [
+        {
+          "path": "src/alpha.ts",
+          "function": "alpha.ts:main@1",
+          "revs": 10,
+          "lines": 30
+        }
+      ]
+    },
+    {
+      "analysis": "revisions",
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "rows": [
+        {
+          "entity": "src/alpha.ts",
+          "n_revs": 30
+        }
+      ]
+    },
+    {
+      "analysis": "lead-time",
+      "group": "evolution",
+      "format": "json",
+      "extra_args": [],
+      "rows": [
+        {
+          "rev": "abc1234",
+          "canonical_author": "a",
+          "lead_time_days": 1.5
+        }
+      ]
+    }
+  ]
+}

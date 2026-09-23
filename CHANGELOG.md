@@ -59,3 +59,11 @@
 - a_range: A-001 ~ A-090
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-090）／.scratch/macro-audit/decision-ledger.md（D-103~D-120 实施面回执）
 - impact: 字段级病态不再全仓崩（quarantine 桶收编＋指纹可重放）；协议级违约 fail-fast 不动；39/40 对照物 SoD 保持零分类逻辑（D-118④）；验收实证=QUARANTINE 56/56＋78CHECK 30/30＋npm test 19 册＋守卫组复绿
+
+## [M-008] - 2026-09-23
+
+- milestone: 轮 30 grill 收口——Micro-B 文件级审计卡设计树 7 裁全拍板（D-121~D-127）＋ADR-0023 总成入册＋CONTEXT.md 新词条×4（Subject Canonical Form／File Lineage／Observation Set／Raw Evidence Layer）＋Micro-B 触发器释义锐化＋R30 调研档案 Q1~Q7 全保全；#80 Micro-B preview 单票立案（内部三步 stacked-diff 各独立绿）
+- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-090（architecture-recovery 账本实物区间，写时实物读出——本轮零新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十轮 Grill＋收口对账（D-121~D-127）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-090）
+- impact: Micro-B preview 全决策定案（per-file 一等事实发射／SCIP 规范化形＋file_renamed 血缘／三层卡契约 advisory 结构性隔离／at:sha＋miss 四类显式态）；残余 impl 级参数随 #80 票面收口；退路 C 登记在案

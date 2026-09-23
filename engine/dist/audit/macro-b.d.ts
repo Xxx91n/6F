@@ -30,12 +30,18 @@ export interface MacroBProbes {
     fieldStats: FieldStat[];
 }
 export declare function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes;
+export type RenameLogRunner = (repoRoot: string, args: readonly string[]) => string;
 export interface MacroBCollectSpec {
     intentCandidates: readonly string[];
     nc1Candidates: readonly string[];
     stopwords: readonly string[];
     topN: number;
     codelore: 'off' | 'auto';
+    fileLineage?: {
+        mode: 'on' | 'off';
+        threshold?: string;
+        runner?: RenameLogRunner;
+    };
     fixtureTag: string;
     pc2Sha: string;
 }
@@ -50,6 +56,7 @@ export interface MacroBCollect {
     gitFacts: CollectedFact[];
     posFacts: CollectedFact[];
     codeloreFacts: CollectedFact[];
+    fileLineageFacts: CollectedFact[];
     realFacts: CollectedFact[];
     pc1: {
         pass: boolean;

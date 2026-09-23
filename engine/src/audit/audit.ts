@@ -18,6 +18,7 @@ import type { PreviewDisclosure, ReportInput, EvidenceItem, ClaimAnchor, Quadran
 import { openWriter, appendFact, appendQuarantineEvent, runInTransaction, queryQuarantineCounts, closeDuckdb, AuditIoError, classifyWriteError } from '../fact/store.js';
 import { strictQuarantineViolations, ratchetIssues, intakeIdentityIssues, protocolCrashError, isProtocolCrash, intakeEscalation, countsFromStats, QUARANTINE_FIELD_RATIO_RED, rawEcho } from '../intake/quarantine.js';
 import { projectUpstreamDimensions } from './upstream-dimension-map.js';
+import { reaggregateFileFacetRows, reconcilePerFileVsAggregate } from '../upstream/codelore.js';
 
 const NL = String.fromCharCode(10);
 
@@ -147,21 +148,29 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     intentCandidates: AUDIT_INTENT_CANDIDATES, nc1Candidates: AUDIT_NC1_CANDIDATES,
     stopwords: MACRO_B_STOPWORDS, topN: TC3_TOPN,
     codelore: 'auto',   // audit=实跑面：binary 缺席/不 pin → resolution 事实留痕＋behavior 象限如实 not_applicable
+    fileLineage: { mode: 'on' },   // #80 步①：确定性 rename 检测→file.renamed 血缘事实（audit 实跑面；demo=off 保确定性）
     fixtureTag: 'AUDIT', pc2Sha: 'pc2fixture000000000000000000000000000053audit'
   }, ctx, probes);
   const ev = evaluateMacroB(col);
 
   // ---------- §3 行为面判据（codelore 实跑成功时；51 同款 PC/TC/NC 形） ----------
+  // 消费面迁移（#80 步① / D-124③）：判据读源=facet_rows 聚合→per-file file_facet_row 重聚合（BbA 双实现先例）；
+  //   facet_rows 保留为 raw 证据锚（anchored_fact_ids 指向 append-only raw 层），对账判据=per_file 重算↔聚合载荷多重集相等。
   const facetFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_rows'; });
   const facetErrs = col.codeloreFacts.filter(function (f) { return /facet_(parse_)?error/.test(f.metric); });
-  const byFace: Record<string, { rows: Record<string, unknown>[]; fact_id: string }> = {};
-  for (const f of facetFacts) { const v = JSON.parse(f.value_json); byFace[v.analysis] = { rows: v.rows, fact_id: f.fact_id }; }
-  const hRows = byFace.hotspots ? byFace.hotspots.rows : [];
-  const cRows = byFace.coupling ? byFace.coupling.rows : [];
-  const fhRows = byFace['function-hotspots'] ? byFace['function-hotspots'].rows : [];
+  const fileFacetFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.file_facet_row'; });
+  const subjectSkips = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.file_subject_skip'; });
+  const caseConflicts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.subject_case_conflict'; });
+  const byFaceRows = reaggregateFileFacetRows(col.codeloreFacts);
+  const aggFactId: Record<string, string> = {};
+  for (const f of facetFacts) { const v = JSON.parse(f.value_json); aggFactId[v.analysis] = f.fact_id; }
+  const facetRecon = reconcilePerFileVsAggregate(col.codeloreFacts);
+  const hRows = byFaceRows.hotspots || [];
+  const cRows = byFaceRows.coupling || [];
+  const fhRows = byFaceRows['function-hotspots'] || [];
   const bhvRan = col.codeloreResolution !== null && col.codeloreResolution.pinned === true;
   const BHV_MIN_REVS = 5;
-  const bhvPc1 = bhvRan && facetFacts.length === 3 && facetFacts.every(function (f) { return JSON.parse(f.value_json).row_count > 0; }) && facetErrs.length === 0;
+  const bhvPc1 = bhvRan && ['hotspots', 'coupling', 'function-hotspots'].every(function (a) { return (byFaceRows[a] || []).length > 0; }) && facetErrs.length === 0 && facetRecon.match === true;
   const bhvTc1 = bhvRan && hRows.length > 0 && hRows.every(function (r) { return typeof r.revisions === 'number' && (r.revisions as number) >= BHV_MIN_REVS; });
   const bhvTc2 = bhvRan && cRows.length > 0 && (cRows.filter(function (r) { return (r.shared as number) >= 2 && (r.degree as number) > 0; }).length / cRows.length) >= 0.5;
   const BHV_DEFERRED = ['function-coupling(--target)'];
@@ -190,8 +199,9 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     tc2: { total: ev.tc2.total, mean_ratio_4: ev.tc2.mean_ratio.toFixed(4), missing_counts: ev.tc2.missing_counts, missing_ratio_4: Object.fromEntries(Object.keys(ev.tc2.missing_ratio).map(function (k) { return [k, Number(ev.tc2.missing_ratio[k].toFixed(4))]; })), cond_a: ev.tc2.cond_a, cond_b: ev.tc2.cond_b, verdict: ev.tc2.verdict, threshold: { mean_red: TC2_MEAN_RED, field_missing_red: TC2_FIELD_MISSING_RED } },
     tc3: { per_source: ev.tc3.per_source.map(function (c) { return { path: c.subject, hit: c.value.hit, keywords: c.value.keywords, ratio_4: c.value.ratio.toFixed(4) }; }), lowest_path: ev.tc3.lowest_path, lowest_ratio_4: ev.tc3.lowest_ratio.toFixed(4), verdict: ev.tc3.verdict, threshold: { red: TC3_RED, green: TC3_GREEN, top_n: TC3_TOPN } },
     nc1: col.nc1, pc1: col.pc1, pc2: col.pc2,
+    file_lineage: { renamed: col.fileLineageFacts.filter(function (f) { return f.metric === 'file.renamed'; }).length, lineage_skips: col.fileLineageFacts.filter(function (f) { return f.metric === 'file.lineage_skip'; }).length, scan_fact: col.fileLineageFacts.some(function (f) { return f.metric === 'file.lineage_scan'; }) },
     upstream_dimension_projection: projectUpstreamDimensions(col.realFacts),
-    behavior: bhvRan ? { faces: facetFacts.map(function (f) { return JSON.parse(f.value_json).analysis; }), row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, facet_errors: facetErrs.length, criteria: { pc1: bhvPc1, tc1: bhvTc1, tc2: bhvTc2, nc1: bhvNc1 }, verdict: behaviorBand, codelore_version: col.codeloreResolution ? col.codeloreResolution.version : null } : { ran: false, reason: col.codeloreResolution ? 'codelore binary 未解析/不 pin（pinned=false）——行为面缺席如实登记' : 'codelore=off', deferred_faces: BHV_DEFERRED }
+    behavior: bhvRan ? { faces: facetFacts.map(function (f) { return JSON.parse(f.value_json).analysis; }), row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, facet_errors: facetErrs.length, criteria: { pc1: bhvPc1, tc1: bhvTc1, tc2: bhvTc2, nc1: bhvNc1 }, verdict: behaviorBand, micro_b: { per_file_facts: fileFacetFacts.length, subject_skips: subjectSkips.length, case_conflicts: caseConflicts.reduce(function (s, f) { const v = JSON.parse(f.value_json); return s + (v.pairs ? v.pairs.length : 0); }, 0), reconciliation: { match: facetRecon.match, per_analysis: facetRecon.per_analysis } }, codelore_version: col.codeloreResolution ? col.codeloreResolution.version : null } : { ran: false, reason: col.codeloreResolution ? 'codelore binary 未解析/不 pin（pinned=false）——行为面缺席如实登记' : 'codelore=off', deferred_faces: BHV_DEFERRED }
   };
   if (outDir) { writeFileSync(join(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL, 'utf8'); }
 
@@ -240,9 +250,9 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   ];
   if (bhvRan) {
     adjudicationEntries.push(
-      { criterion_id: 'BHV-PC-1', band: bhvPc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: facetFacts.map(function (f) { return f.fact_id; }), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: '行为三面 facet_rows 齐备性（hotspots/coupling/function-hotspots 各 row_count>0，errFacts=' + facetErrs.length + '）' },
-      { criterion_id: 'BHV-TC-1', band: bhvTc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.hotspots ? [byFace.hotspots.fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: '低样本判据：hotspots min(revisions)>=' + BHV_MIN_REVS + '（实测 min=' + (hRows.length ? Math.min.apply(null, hRows.map(function (r) { return r.revisions as number; })) : 'n/a') + '）' },
-      { criterion_id: 'BHV-TC-2', band: bhvTc2 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.coupling ? [byFace.coupling.fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: 'coupling shared>=2&degree>0 占比=' + (cRows.length ? (cRows.filter(function (r) { return (r.shared as number) >= 2 && (r.degree as number) > 0; }).length / cRows.length).toFixed(3) : 'n/a') + '（阈值 0.5）' },
+      { criterion_id: 'BHV-PC-1', band: bhvPc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: facetFacts.map(function (f) { return f.fact_id; }), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: '行为三面 per-file 重算齐备性（file_facet_row 三面各 >0 行，errFacts=' + facetErrs.length + '，聚合↔per-file 对账 match=' + facetRecon.match + '）' },
+      { criterion_id: 'BHV-TC-1', band: bhvTc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: aggFactId.hotspots ? [aggFactId.hotspots] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: '低样本判据：hotspots min(revisions)>=' + BHV_MIN_REVS + '（实测 min=' + (hRows.length ? Math.min.apply(null, hRows.map(function (r) { return r.revisions as number; })) : 'n/a') + '）' },
+      { criterion_id: 'BHV-TC-2', band: bhvTc2 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: aggFactId.coupling ? [aggFactId.coupling] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: 'coupling shared>=2&degree>0 占比=' + (cRows.length ? (cRows.filter(function (r) { return (r.shared as number) >= 2 && (r.degree as number) > 0; }).length / cRows.length).toFixed(3) : 'n/a') + '（阈值 0.5）' },
       { criterion_id: 'BHV-NC-1', band: bhvNc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: [], anchored_evidence_ids: [], decided_at: HEAD_AT, rationale: 'function-coupling（--target 参数面）暂缓如实登记——deferred_faces 写入切片字段' }
     );
   }

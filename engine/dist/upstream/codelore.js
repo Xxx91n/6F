@@ -4,6 +4,9 @@
 // 运行时解析策略 = 二进制发现（binary discovery）：codelore 经 PATH 解析 + --version 校验 pin。
 import { spawnSync } from 'node:child_process';
 import { makeFact } from '../collect/collectors.js';
+import { lstatSync, realpathSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import { normalizeSubjectPath, detectCaseOnlyConflicts } from '../fact/subject.js';
 export const CODELORE_ADAPTER_ID = 'codelore-adapter@v1';
 export const CODELORE_FAMILY = 'upstream-codelore';
 export const CODELORE_PINNED_VERSION = '0.28.0';
@@ -94,17 +97,22 @@ export function collectCodeloreFacts(input, ctx) {
         }));
     }
     for (const p of input.explainPaths) {
+        const pn = normalizeSubjectPath(p); // 归一单点：file subject 事实统一规范化形（D-125①）
+        if (!pn.ok) {
+            out.push(makeFact({ runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt }, CODELORE_DESCRIPTOR, 'explain', 'codelore explain', 'codelore.file_subject_skip', { raw_path: p, reason: pn.reason }));
+            continue;
+        }
         const ex = runText(bin, ['explain', p, '--repo', input.repoRoot], input.repoRoot);
         if (!ex.ok) {
-            out.push(makeFact(ctx, CODELORE_DESCRIPTOR, p, 'codelore explain', 'codelore.explain_error', {
+            out.push(makeFact(ctx, CODELORE_DESCRIPTOR, pn.subject, 'codelore explain', 'codelore.explain_error', {
                 status: ex.status,
                 stderr_tail: ex.stderr.slice(-400)
             }));
             continue;
         }
         const d = parseExplainDossier(ex.stdout);
-        out.push(makeFact(ctx, CODELORE_DESCRIPTOR, p, 'codelore explain ' + p, 'codelore.file_dossier', {
-            path: p,
+        out.push(makeFact(ctx, CODELORE_DESCRIPTOR, pn.subject, 'codelore explain ' + p, 'codelore.file_dossier', {
+            path: pn.subject,
             sections: Object.keys(d.sections),
             dossier: d.sections
         }));
@@ -196,6 +204,7 @@ export function collectCodeloreFacets(input, ctx) {
         return out;
     }
     const facets = input.facets || CODELORE_BATCH1_FACETS;
+    const emittedSubjects = [];
     for (const spec of facets) {
         const evidence = 'codelore ' + codeloreAnalysisArgs(spec, input.repoRoot).join(' ');
         const run = runner(bin, spec, input.repoRoot);
@@ -220,17 +229,250 @@ export function collectCodeloreFacets(input, ctx) {
             }));
             continue;
         }
+        // facet_rows 聚合载荷降 raw 证据位（D-124②）：append-only 保留＋role=raw_evidence 标记，
+        //   不进文件卡查询主路径，供重建/争议仲裁/面级历史对照（quarantine raw_bytes D-117 同族）。
+        const emitStat = emitPerFileFacts(rows, spec, evidence, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt }, input.repoRoot, input.subjectProbe || defaultSubjectPathProbe, out);
+        emittedSubjects.push.apply(emittedSubjects, emitStat.subjects);
         out.push(makeFact(ctx, CODELORE_DESCRIPTOR, spec.analysis, evidence, 'codelore.facet_rows', {
             analysis: spec.analysis,
             group: spec.group,
             format: 'json',
             extra_args: spec.extraArgs,
+            role: 'raw_evidence',
+            per_file_emitted: emitStat.emitted,
             columns: facetColumns(rows),
             row_count: rows.length,
             rows: rows
         }));
     }
+    // case-only 冲突检测+告警（D-125① 禁大小写折叠——Windows 宿主分裂脑镜像检测路径）：
+    //   同 run 发射的规范化 subject 按 lower 分桶，同桶多字面=真实不同文件，显式告警事实不折叠。
+    const conflicts = detectCaseOnlyConflicts(emittedSubjects);
+    if (conflicts.pairs.length > 0) {
+        out.push(makeFact({ runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt }, CODELORE_DESCRIPTOR, 'codelore', 'subject-normalizer', 'codelore.subject_case_conflict', {
+            pairs: conflicts.pairs,
+            host_platform: process.platform,
+            note: 'case-only 冲突=真实不同文件保留字面不折叠（CVE-2021-21300 先例）；大小写不敏感文件系统上 checkout 互覆风险——宿主侧告警消费位'
+        }));
+    }
     return out;
+}
+export function defaultSubjectPathProbe(repoRoot, relPath) {
+    const abs = join(repoRoot, relPath);
+    try {
+        const st = lstatSync(abs);
+        if (st.isSymbolicLink()) {
+            let real;
+            try {
+                real = realpathSync(abs);
+            }
+            catch {
+                return { kind: 'other' };
+            }
+            const rel = relative(repoRoot, real).split(String.fromCharCode(92)).join('/');
+            if (rel.indexOf('..') === 0 || rel.length === 0 || /^[A-Za-z]:/.test(rel)) {
+                return { kind: 'other' };
+            }
+            if (!lstatSync(real).isFile()) {
+                return { kind: 'other' };
+            }
+            return { kind: 'symlink', resolved: rel };
+        }
+        if (st.isFile()) {
+            return { kind: 'file' };
+        }
+        return { kind: 'other' };
+    }
+    catch {
+        return { kind: 'missing' }; // 工作树缺席=历史实体路径（git 身份合法照发，D-125① regular-file 仅就可判定者）
+    }
+}
+const FILE_SUBJECT_KEYS = ['path', 'entity'];
+function resolveRowSubject(repoRoot, rawPath, probe) {
+    const n = normalizeSubjectPath(rawPath);
+    if (!n.ok) {
+        return { subject: null, via: null, reason: n.reason };
+    }
+    const pr = probe(repoRoot, n.subject);
+    if (pr.kind === 'file' || pr.kind === 'missing') {
+        return { subject: n.subject, via: null, reason: null };
+    }
+    if (pr.kind === 'symlink' && pr.resolved) {
+        const rn = normalizeSubjectPath(pr.resolved);
+        if (rn.ok) {
+            return { subject: rn.subject, via: 'symlink', reason: null };
+        }
+        return { subject: null, via: null, reason: 'symlink-resolved-' + String(rn.reason) };
+    }
+    return { subject: null, via: null, reason: pr.kind === 'symlink' ? 'symlink-unresolved' : 'non-regular-path' };
+}
+function pushFileSubjectSkip(out, ctx, spec, evidence, rawPath, reason) {
+    out.push(makeFact(ctx, CODELORE_DESCRIPTOR, spec.analysis, evidence, 'codelore.file_subject_skip', {
+        analysis: spec.analysis,
+        group: spec.group,
+        raw_path: rawPath,
+        reason: reason
+    }));
+}
+// 逐行发射：subject_ref=<规范化 path>，value_json=per-path-face 行对象（SonarQube per-component JSON_VALUE 先例——D-124⑥）。
+// 返回发射的规范化 subject 清单（供 case-only 冲突检测）与发射计数。
+export function emitPerFileFacts(rows, spec, evidence, ctx, repoRoot, probe, out) {
+    const seen = new Set();
+    const subjects = [];
+    let emitted = 0;
+    const pushRow = function (subject, via, row, peer) {
+        const value = { analysis: spec.analysis, group: spec.group, role: 'first_class', row: row };
+        if (peer !== null) {
+            value.entity = subject;
+            value.peer = peer;
+        }
+        else {
+            value.path = subject;
+        }
+        if (via !== null) {
+            value.via = via;
+        }
+        const f = makeFact(ctx, CODELORE_DESCRIPTOR, subject, evidence, 'codelore.file_facet_row', value);
+        if (seen.has(f.fact_id)) {
+            return;
+        }
+        seen.add(f.fact_id);
+        out.push(f);
+        subjects.push(subject);
+        emitted += 1;
+    };
+    for (const row of rows) {
+        const ea = row['entity_a'], eb = row['entity_b'];
+        if (typeof ea === 'string' && typeof eb === 'string' && ea.length > 0 && eb.length > 0) {
+            const ra = resolveRowSubject(repoRoot, ea, probe);
+            const rb = resolveRowSubject(repoRoot, eb, probe);
+            if (ra.subject === null) {
+                pushFileSubjectSkip(out, ctx, spec, evidence, ea, ra.reason);
+                continue;
+            }
+            if (rb.subject === null) {
+                pushFileSubjectSkip(out, ctx, spec, evidence, eb, rb.reason);
+                continue;
+            }
+            pushRow(ra.subject, ra.via, row, rb.subject);
+            pushRow(rb.subject, rb.via, row, ra.subject);
+            continue;
+        }
+        let sv = null;
+        for (const k of FILE_SUBJECT_KEYS) {
+            const v = row[k];
+            if (typeof v === 'string' && v.length > 0) {
+                sv = v;
+                break;
+            }
+        }
+        if (sv === null) {
+            continue;
+        }
+        const r = resolveRowSubject(repoRoot, sv, probe);
+        if (r.subject === null) {
+            pushFileSubjectSkip(out, ctx, spec, evidence, sv, r.reason);
+            continue;
+        }
+        pushRow(r.subject, r.via, row, null);
+    }
+    return { emitted: emitted, subjects: subjects };
+}
+// ---------- Macro-B behavior 消费面迁移件（D-124③ / 对照期对账判据=BbA 双实现先例） ----------
+// per-file 重聚合：file_facet_row 事实按 analysis 归组、row 内容去重（成对行双端各一 fact→还原对行）；
+// 对账判据=聚合载荷↔per-file 重算多重集相等（行 JSON 排序比较——同 run 同解析源故恒等，对账钉防未来漂移）。
+export function reaggregateFileFacetRows(facts) {
+    const byFace = {};
+    const seen = {};
+    for (const f of facts) {
+        if (f.metric !== 'codelore.file_facet_row') {
+            continue;
+        }
+        const v = JSON.parse(f.value_json);
+        const a = String(v.analysis);
+        const key = JSON.stringify(v.row);
+        if (!byFace[a]) {
+            byFace[a] = [];
+            seen[a] = new Set();
+        }
+        if (!seen[a].has(key)) {
+            seen[a].add(key);
+            byFace[a].push(v.row);
+        }
+    }
+    return byFace;
+}
+// 对账判据（D-124③ / BbA 双实现先例）：per-file 重算多重集 == file-bearing 聚合行 − skipped 原始路径行。
+//   file-bearing=行含 path/entity 或 entity_a+entity_b（同发射规则同源判定——重复判定逻辑=对账本身失效）；
+//   skip 事实枚举未发射行的 raw_path；非文件粒度行（date/rev/author/module 等）天然不入比对面。
+export function reconcilePerFileVsAggregate(facts) {
+    const perFile = reaggregateFileFacetRows(facts);
+    const canon = function (rows) { return rows.map(function (r) { return JSON.stringify(r); }).sort().join(String.fromCharCode(10)); };
+    const isFileBearing = function (r) {
+        if (typeof r['entity_a'] === 'string' && typeof r['entity_b'] === 'string') {
+            return true;
+        }
+        for (const k of FILE_SUBJECT_KEYS) {
+            if (typeof r[k] === 'string' && r[k].length > 0) {
+                return true;
+            }
+        }
+        return false;
+    };
+    const rowRawPath = function (r) {
+        for (const k of FILE_SUBJECT_KEYS) {
+            const v = r[k];
+            if (typeof v === 'string' && v.length > 0) {
+                return v;
+            }
+        }
+        const ea = r['entity_a'];
+        return typeof ea === 'string' ? ea : null;
+    };
+    const skippedByFace = {};
+    for (const f of facts) {
+        if (f.metric !== 'codelore.file_subject_skip') {
+            continue;
+        }
+        const v = JSON.parse(f.value_json);
+        const a = String(v.analysis);
+        if (!skippedByFace[a]) {
+            skippedByFace[a] = new Set();
+        }
+        skippedByFace[a].add(String(v.raw_path));
+    }
+    const per = {};
+    let all = true;
+    for (const f of facts) {
+        if (f.metric !== 'codelore.facet_rows') {
+            continue;
+        }
+        const v = JSON.parse(f.value_json);
+        const a = String(v.analysis);
+        const aggRows = (v.rows || []);
+        const skip = skippedByFace[a] || new Set();
+        const expected = aggRows.filter(function (r) {
+            if (!isFileBearing(r)) {
+                return false;
+            }
+            const rp = rowRawPath(r);
+            if (rp !== null && skip.has(rp)) {
+                return false;
+            }
+            if (typeof r['entity_a'] === 'string' && typeof r['entity_b'] === 'string' && (skip.has(String(r['entity_a'])) || skip.has(String(r['entity_b'])))) {
+                return false;
+            }
+            return true;
+        });
+        const pf = perFile[a] || [];
+        const fileBearing = aggRows.filter(isFileBearing).length;
+        const m = canon(expected) === canon(pf);
+        per[a] = { file_bearing: fileBearing, skipped: skip.size, per_file: pf.length, match: m };
+        if (!m) {
+            all = false;
+        }
+    }
+    return { match: all, per_analysis: per };
 }
 // ---------- LLM 门控面（#36 / A-041 / D-035②）：explain 族 env 门控 + 成本计量 ----------
 // 面名以实物枚举为准（reports/36-explain-help.txt / 36-diff-help.txt / 36-explain-topics.txt）：
@@ -392,7 +634,12 @@ export function collectCodeloreLlm(input, ctx) {
     for (const spec of facets) {
         if (spec.face === 'explain-file') {
             for (const p of input.explainPaths || []) {
-                subjects.push({ spec: spec, subject: p });
+                const pn = normalizeSubjectPath(p); // 归一单点：file subject 事实统一规范化形（D-125①）
+                if (!pn.ok) {
+                    out.push(makeFact({ runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt }, CODELORE_DESCRIPTOR, 'explain-file', 'codelore explain', 'codelore.file_subject_skip', { raw_path: p, reason: pn.reason }));
+                    continue;
+                }
+                subjects.push({ spec: spec, subject: pn.subject });
             }
         }
         else {

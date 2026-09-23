@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPositioning, sha256Hex, ADR_FIVE_PIECE } from '../collect/collectors.js';
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
+import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
 // %cI 契约=normalizeGitIsoDate 同族判定本体（契约层分类器 classifyGitIsoField 承载，见 quarantine.ts）
 import { classifyGitIsoField, recordFieldInstance, emptyFieldStat, protocolCrashError, FIELD_HEAD_DATE, FIELD_COMMITTER_DATE } from '../intake/quarantine.js';
 const NL = String.fromCharCode(10);
@@ -123,6 +124,7 @@ export function probeMacroBRepo(repoRoot, headSha) {
     }
     return { headSha: headSha, headDate: headDate, headRaw: headRaw, headStatus: headCls.status, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects, fieldEvents: fieldEvents, fieldStats: fieldStats };
 }
+const defaultRenameLogRunner = function (repoRoot, args) { return git(repoRoot, args); };
 export function collectMacroB(repoRoot, spec, ctx, probes) {
     // -- ADR 语料（adr-structure@v2 回退链） --
     const adrDir = join(repoRoot, 'docs', 'adr');
@@ -175,6 +177,26 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
             codeloreResolution = { version: v.version !== undefined ? v.version : null, pinned: v.pinned === true, error: v.error !== undefined ? v.error : null };
         }
     }
+    // -- file_renamed 血缘事实（#80 步① / D-125：检测参数入载荷可复算；audit=on demo=off） --
+    // Micro-B grain：scale=Micro-B（subject=规范化 file path——粒度分类按 subject 非 run，D-124）。
+    let fileLineageFacts = [];
+    if (spec.fileLineage && spec.fileLineage.mode === 'on') {
+        const threshold = spec.fileLineage.threshold || RENAME_DEFAULT_THRESHOLD;
+        const runner = spec.fileLineage.runner || defaultRenameLogRunner;
+        let gitVersion = 'unknown';
+        try {
+            gitVersion = execFileSync('git', ['--version'], { encoding: 'utf8' }).trim();
+        }
+        catch { /* 二进制缺席→unknown 如实 */ }
+        const rawLog = runner(repoRoot, gitRenameLogArgs(threshold));
+        fileLineageFacts = collectFileLineage({
+            edges: parseRenameLogZ(rawLog),
+            headSha: probes.headSha,
+            threshold: threshold,
+            detectorVersion: RENAME_DETECTOR_VERSION,
+            gitVersion: gitVersion
+        }, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt });
+    }
     // -- 正对照 PC-1 / PC-2（夹具与被测仓无关） --
     const pc1AdrFacts = collectAdrStructure({ documents: [{ path: 'fixtures/' + spec.fixtureTag + '-pc1-golden-adr.md', text: GOLDEN_ADR }] }, ctx);
     const pc1PosFacts = collectPositioning({ intentDocs: [{ path: 'fixtures/' + spec.fixtureTag + '-pc1-positioning.md', text: POS_DECL }], deliveryDocs: [{ path: 'fixtures/' + spec.fixtureTag + '-pc1-delivery.md', text: POS_DECL }], topN: spec.topN, stopwords: spec.stopwords }, ctx);
@@ -207,7 +229,8 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
     return {
         adrFiles: adrFiles, intentDocs: intentDocs, nc1Path: nc1Path,
         adrFacts: adrFacts, gitFacts: gitFacts, posFacts: posFacts, codeloreFacts: codeloreFacts,
-        realFacts: adrFacts.concat(posFacts, gitFacts, codeloreFacts),
+        fileLineageFacts: fileLineageFacts,
+        realFacts: adrFacts.concat(posFacts, gitFacts, codeloreFacts, fileLineageFacts),
         pc1: pc1, pc2: pc2, nc1: nc1,
         pc1AdrFacts: pc1AdrFacts, pc1PosFacts: pc1PosFacts, pc2Lag: pc2Lag, nc1Facts: nc1Facts,
         codeloreResolution: codeloreResolution

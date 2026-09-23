@@ -164,6 +164,7 @@ export function projectUpstreamDimensions(facts: readonly CollectedFact[]): Upst
   const mapped: UpstreamProjectionEntry[] = [];
   const unmapped: UpstreamProjectionEntry[] = [];
   for (const f of facts) {
+    if (f.scale === 'Micro-B') { continue; }   // Micro-B lane 事实（file_facet_row/file.renamed）不入 Macro-B 维归位投影——S 维归位=Macro-B 消费面，文件粒度事实归 Micro-B 卡投影（#80 步①/D-124，不入 unmapped 防工件膨胀）
     const fam = f.metric.startsWith('codelore.') ? 'upstream-codelore'
       : f.metric.startsWith('github_rest.') ? 'upstream-github-rest' : null;
     if (fam === null) continue;

@@ -13,6 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPositioning, sha256Hex, ADR_FIVE_PIECE } from '../collect/collectors.js';
 import type { CollectContext, CollectedFact } from '../collect/collectors.js';
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
+import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
 // %cI 契约=normalizeGitIsoDate 同族判定本体（契约层分类器 classifyGitIsoField 承载，见 quarantine.ts）
 import { classifyGitIsoField, recordFieldInstance, emptyFieldStat, protocolCrashError, FIELD_HEAD_DATE, FIELD_COMMITTER_DATE } from '../intake/quarantine.js';
 import type { FieldStatus, FieldEvent, FieldStat } from '../intake/quarantine.js';
@@ -145,12 +146,17 @@ export function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes
   return { headSha: headSha, headDate: headDate, headRaw: headRaw, headStatus: headCls.status, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects, fieldEvents: fieldEvents, fieldStats: fieldStats };
 }
 
+export type RenameLogRunner = (repoRoot: string, args: readonly string[]) => string;
+
+const defaultRenameLogRunner: RenameLogRunner = function (repoRoot, args) { return git(repoRoot, args); };
+
 export interface MacroBCollectSpec {
   intentCandidates: readonly string[];
   nc1Candidates: readonly string[];
   stopwords: readonly string[];
   topN: number;
   codelore: 'off' | 'auto';   // auto=resolveCodelore 决议→行为三面采集；缺席/不 pin→如实降级（resolution 事实留痕）
+  fileLineage?: { mode: 'on' | 'off'; threshold?: string; runner?: RenameLogRunner };   // on=确定性 rename 检测（git log --name-status -z -M）→file.renamed 血缘事实；audit=on demo=off（保合成仓逐字节确定性）
   fixtureTag: string;         // PC/NC 夹具路径前缀（demo='45'/audit='AUDIT'）——进 subject_ref→fact_id 哈希，调用方各保自身前缀防两链漂移
   pc2Sha: string;             // PC-2 夹具 commit sha（入 gitlog 输入→lag 事实哈希，同源纪律同上）
 }
@@ -163,6 +169,7 @@ export interface MacroBCollect {
   gitFacts: CollectedFact[];
   posFacts: CollectedFact[];
   codeloreFacts: CollectedFact[];
+  fileLineageFacts: CollectedFact[];
   realFacts: CollectedFact[];
   pc1: { pass: boolean };
   pc2: { pass: boolean; delta_days: number | null };
@@ -221,6 +228,24 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
     }
   }
 
+  // -- file_renamed 血缘事实（#80 步① / D-125：检测参数入载荷可复算；audit=on demo=off） --
+  // Micro-B grain：scale=Micro-B（subject=规范化 file path——粒度分类按 subject 非 run，D-124）。
+  let fileLineageFacts: CollectedFact[] = [];
+  if (spec.fileLineage && spec.fileLineage.mode === 'on') {
+    const threshold = spec.fileLineage.threshold || RENAME_DEFAULT_THRESHOLD;
+    const runner = spec.fileLineage.runner || defaultRenameLogRunner;
+    let gitVersion = 'unknown';
+    try { gitVersion = execFileSync('git', ['--version'], { encoding: 'utf8' }).trim(); } catch { /* 二进制缺席→unknown 如实 */ }
+    const rawLog = runner(repoRoot, gitRenameLogArgs(threshold));
+    fileLineageFacts = collectFileLineage({
+      edges: parseRenameLogZ(rawLog),
+      headSha: probes.headSha,
+      threshold: threshold,
+      detectorVersion: RENAME_DETECTOR_VERSION,
+      gitVersion: gitVersion
+    }, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt });
+  }
+
   // -- 正对照 PC-1 / PC-2（夹具与被测仓无关） --
   const pc1AdrFacts = collectAdrStructure({ documents: [{ path: 'fixtures/' + spec.fixtureTag + '-pc1-golden-adr.md', text: GOLDEN_ADR }] }, ctx);
   const pc1PosFacts = collectPositioning({ intentDocs: [{ path: 'fixtures/' + spec.fixtureTag + '-pc1-positioning.md', text: POS_DECL }], deliveryDocs: [{ path: 'fixtures/' + spec.fixtureTag + '-pc1-delivery.md', text: POS_DECL }], topN: spec.topN, stopwords: spec.stopwords }, ctx);
@@ -247,7 +272,8 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
   return {
     adrFiles: adrFiles, intentDocs: intentDocs, nc1Path: nc1Path,
     adrFacts: adrFacts, gitFacts: gitFacts, posFacts: posFacts, codeloreFacts: codeloreFacts,
-    realFacts: adrFacts.concat(posFacts, gitFacts, codeloreFacts),
+    fileLineageFacts: fileLineageFacts,
+    realFacts: adrFacts.concat(posFacts, gitFacts, codeloreFacts, fileLineageFacts),
     pc1: pc1, pc2: pc2, nc1: nc1,
     pc1AdrFacts: pc1AdrFacts, pc1PosFacts: pc1PosFacts, pc2Lag: pc2Lag, nc1Facts: nc1Facts,
     codeloreResolution: codeloreResolution

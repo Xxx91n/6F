@@ -53,8 +53,31 @@ export interface CodeloreFacetsInput {
     binary?: string;
     runner?: CodeloreAnalysisRunner;
     resolver?: CodeloreResolver;
+    subjectProbe?: SubjectPathProbe;
 }
 export declare function collectCodeloreFacets(input: CodeloreFacetsInput, ctx: CollectContext): CollectedFact[];
+export type SubjectPathKind = 'file' | 'symlink' | 'missing' | 'other';
+export interface SubjectPathProbeResult {
+    kind: SubjectPathKind;
+    resolved?: string;
+}
+export type SubjectPathProbe = (repoRoot: string, relPath: string) => SubjectPathProbeResult;
+export declare function defaultSubjectPathProbe(repoRoot: string, relPath: string): SubjectPathProbeResult;
+export declare function emitPerFileFacts(rows: readonly CodeloreRow[], spec: CodeloreFacetSpec, evidence: string, ctx: CollectContext, repoRoot: string, probe: SubjectPathProbe, out: CollectedFact[]): {
+    emitted: number;
+    subjects: string[];
+};
+export declare function reaggregateFileFacetRows(facts: readonly CollectedFact[]): Record<string, CodeloreRow[]>;
+export interface FacetReconciliation {
+    match: boolean;
+    per_analysis: Record<string, {
+        file_bearing: number;
+        skipped: number;
+        per_file: number;
+        match: boolean;
+    }>;
+}
+export declare function reconcilePerFileVsAggregate(facts: readonly CollectedFact[]): FacetReconciliation;
 export declare const CODELORE_LLM_ENV_VARS: readonly string[];
 export declare const CODELORE_LLM_CALL_CAP_ENV = "MACRO_AUDIT_CODELORE_LLM_MAX_CALLS";
 export declare const CODELORE_LLM_DEFAULT_CALL_CAP = 20;

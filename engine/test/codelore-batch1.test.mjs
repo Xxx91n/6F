@@ -86,10 +86,22 @@ t('C3 截断 cassette 解析抛错（不产生半截假阳性）', () => {
 const CTX = { runId: 'ut35', traceId: 't'.padEnd(32, '0'), repoRef: 'fixture', scale: 'Macro-C', observedAt: '2026-09-16T00:00:00Z' };
 const fakeResolver = (binary) => ({ strategy: 'binary-discovery', binary, version: '0.28.0', pinned: true, error: null });
 
-t('D1 collect 全 30 面 → 1 resolution + 30 facet_rows，schema v0 字段齐备', () => {
+// #80 步①：per-file 一等事实发射——file-bearing 行（path/entity→1 条；entity_a+entity_b→双端 2 条）
+const expectedFileFacts = (exclude) => Object.entries(manifest.facets).reduce((s, [name, spec]) => {
+  if (name === exclude) return s;
+  const rows = JSON.parse(readFileSync(join(FX, spec.file), 'utf8'));
+  return s + rows.reduce((t, r) => t + (typeof r.entity_a === 'string' && typeof r.entity_b === 'string' ? 2 : ((typeof r.path === 'string' && r.path) || (typeof r.entity === 'string' && r.entity)) ? 1 : 0), 0);
+}, 0);
+
+t('D1 collect 全 30 面 → 1 resolution + 30 facet_rows(raw 证据位) + per-file 一等事实，schema v0 字段齐备', () => {
   const runner = (bin, spec) => ({ ok: true, status: 0, stdout: readFileSync(join(FX, manifest.facets[spec.analysis].file), 'utf8'), stderrTail: '' });
   const facts = C.collectCodeloreFacets({ repoRoot: 'fixture', resolver: fakeResolver, runner }, CTX);
-  assert.equal(facts.length, 31);
+  const fileFacts = facts.filter((f) => f.metric === 'codelore.file_facet_row');
+  assert.equal(facts.length, 31 + fileFacts.length);
+  assert.equal(fileFacts.length, expectedFileFacts());
+  assert.ok(fileFacts.every((f) => f.scale === 'Micro-B'), 'per-file grain=Micro-B');
+  assert.ok(facts.filter((f) => f.metric === 'codelore.facet_rows').every((f) => JSON.parse(f.value_json).role === 'raw_evidence'), 'facet_rows raw 证据位');
+  assert.equal(C.reconcilePerFileVsAggregate(facts).match, true, '聚合↔per-file 对账');
   assert.equal(facts[0].metric, 'upstream.resolution');
   const fr = facts.filter((f) => f.metric === 'codelore.facet_rows');
   assert.equal(fr.length, 30);
@@ -112,6 +124,7 @@ t('D2 面失败 → facet_error 降级不中断其余面', () => {
   const err = facts.find((f) => f.metric === 'codelore.facet_error');
   assert.ok(err && err.subject_ref === 'instability');
   assert.equal(facts.filter((f) => f.metric === 'codelore.facet_rows').length, 29);
+  assert.equal(facts.filter((f) => f.metric === 'codelore.file_facet_row').length, 0);   // 空行面不发 per-file 事实
 });
 
 t('D3 解析失败 → facet_parse_error（原始文本不进 fact）', () => {
