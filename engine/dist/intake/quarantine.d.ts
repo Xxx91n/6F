@@ -7,6 +7,10 @@ export declare const REASON_OVERSIZE = "oversize";
 export declare const FIELD_COMMITTER_DATE = "committer_date";
 export declare const FIELD_HEAD_DATE = "head_date";
 export declare const RAW_BYTES_CAP = 65536;
+export declare const RAW_ECHO_CAP = 80;
+export declare const STRICT_QUARANTINE_ENV = "MACRO_AUDIT_STRICT_QUARANTINE";
+export declare function rawEcho(raw: string): string;
+export declare function strictQuarantineEnabled(flag: boolean | undefined, envValue: string | undefined): boolean;
 export interface RawFingerprint {
     raw_bytes_hex: string;
     is_trunc: boolean;
@@ -47,6 +51,7 @@ export interface BaselineViolation {
 }
 export declare function baselineIssues(): string[];
 export declare function strictQuarantineViolations(events: readonly FieldEvent[]): string[];
+export declare function ratchetIssues(events: readonly FieldEvent[]): string[];
 export interface IdentityIssue {
     field_name: string;
     detail: string;
@@ -65,9 +70,15 @@ export interface CrashContext {
     repo_ref: string | null;
     run_id: string | null;
     commit_sha: string | null;
+    head_date: string | null;
+    collector: string | null;
 }
 export interface CrashCounts {
     commits_seen: number;
+    records_parsed: number;
+    clean: number;
+    normalized: number;
+    quarantined: number;
     facts_written: number;
     quarantined_written: number;
 }
@@ -104,3 +115,4 @@ export interface ProtocolCrash extends Error {
 export declare function protocolCrashError(code: string, detail: string, crash: Partial<ProtocolCrash['crash']>): ProtocolCrash;
 export declare function isProtocolCrash(e: unknown): e is ProtocolCrash;
 export declare function crashArtifactFromError(e: ProtocolCrash, at?: string): CrashArtifact;
+export declare function countsFromStats(stats: readonly FieldStat[], recordsParsed: number, factsWritten?: number, quarantinedWritten?: number): CrashCounts;

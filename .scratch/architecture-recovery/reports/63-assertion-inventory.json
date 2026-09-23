@@ -309,7 +309,7 @@
       ]
     },
     "78-check": {
-      "assertion_ids": 28,
+      "assertion_ids": 40,
       "call_styles": [
         "t()"
       ]

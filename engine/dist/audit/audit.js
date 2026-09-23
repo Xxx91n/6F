@@ -12,8 +12,8 @@ import { tmpdir } from 'node:os';
 import { repoAdd } from '../intake/intake.js';
 import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, MACRO_B_STOPWORDS, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, TC3_TOPN } from './macro-b.js';
 import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, UNVERIFIED_MARK, firstFactIds } from '../report/generate.js';
-import { openWriter, appendFact, appendQuarantineEvent, runInTransaction, queryQuarantineCounts, closeDuckdb } from '../fact/store.js';
-import { strictQuarantineViolations, intakeIdentityIssues, protocolCrashError, isProtocolCrash, intakeEscalation, QUARANTINE_FIELD_RATIO_RED } from '../intake/quarantine.js';
+import { openWriter, appendFact, appendQuarantineEvent, runInTransaction, queryQuarantineCounts, closeDuckdb, AuditIoError, classifyWriteError } from '../fact/store.js';
+import { strictQuarantineViolations, ratchetIssues, intakeIdentityIssues, protocolCrashError, isProtocolCrash, intakeEscalation, countsFromStats, QUARANTINE_FIELD_RATIO_RED, rawEcho } from '../intake/quarantine.js';
 import { projectUpstreamDimensions } from './upstream-dimension-map.js';
 const NL = String.fromCharCode(10);
 // 已实现规模面（D-060③：--scale 缺省 Macro-B；其余层未实装 → 诚实拒绝 exit 2）
@@ -88,16 +88,17 @@ export async function runAudit(opts) {
     const HEAD_AT = probes.headDate === null ? 'quarantined(anchor_head_date_malformed)' : probes.headDate;
     const anchorQuarantined = probes.headDate === null;
     const excludedCommits = probes.commits.filter(function (c) { return c.date === null; }).length;
-    // strict quarantine 门禁（D-110）：写入副作用前先求值——quarantined 行 reason_code 越基线→硬崩
+    // strict quarantine 门禁（D-110）：写入副作用前先求值——quarantined 行 reason_code 越基线
+    // 或基线滞留码（棘轮：只减不增）→硬崩 fail-closed
     if (opts.strictQuarantine === true) {
-        const violations = strictQuarantineViolations(probes.fieldEvents);
+        const violations = strictQuarantineViolations(probes.fieldEvents).concat(ratchetIssues(probes.fieldEvents));
         if (violations.length > 0) {
-            const firstEv = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; })[0];
-            throw protocolCrashError('STRICT-QUARANTINE-VIOLATION', 'reason_code 越仓级基线（strict 模式 fail-closed）：' + violations.join(','), {
+            const firstEv = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined' && violations.join('|').indexOf(e.reason_code) >= 0; })[0];
+            throw protocolCrashError('STRICT-QUARANTINE-VIOLATION', 'reason_code 越仓级基线/棘轮滞留（strict 模式 fail-closed）：' + violations.join(','), {
                 raw: firstEv ? firstEv.raw : null,
                 crash_location: 'audit.ts:strict-quarantine-gate',
-                run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: firstEv ? firstEv.commit_sha : null },
-                counts: { commits_seen: probes.commitCount, facts_written: 0, quarantined_written: 0 }
+                run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: firstEv ? firstEv.commit_sha : null, head_date: probes.headDate, collector: 'macro-audit audit' },
+                counts: countsFromStats(probes.fieldStats, probes.commitCount, 0, 0)
             });
         }
     }
@@ -140,7 +141,7 @@ export async function runAudit(opts) {
         intake_quarantine: {
             wired_fields: ['committer_date', 'head_date'],
             field_stats: probes.fieldStats,
-            events: probes.fieldEvents.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, disposition: e.disposition, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + '…' : e.raw) }; }),
+            events: probes.fieldEvents.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, disposition: e.disposition, reason_code: e.reason_code, raw_echo: rawEcho(e.raw) }; }),
             excluded_commits: excludedCommits,
             threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
             strict_mode: opts.strictQuarantine === true
@@ -234,9 +235,10 @@ export async function runAudit(opts) {
         fields: probes.fieldStats.map(function (s) { return { field_name: s.field_name, total: s.total, clean: s.clean, normalized: s.normalized, quarantined: s.quarantined }; }),
         affected_commits: new Set(quarantinedRows.map(function (e) { return e.commit_sha; })).size,
         excluded_commits: excludedCommits,
-        quarantined_rows: quarantinedRows.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + '…' : e.raw) }; }),
+        quarantined_rows: quarantinedRows.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: rawEcho(e.raw) }; }),
         threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
-        escalation: intakeEscalation(probes.fieldStats)
+        escalation: intakeEscalation(probes.fieldStats),
+        recorded_at: probes.headDate
     };
     const reportInput = {
         report_id: 'MA-AUDIT-' + R + '-MACRO-B',
@@ -267,9 +269,13 @@ export async function runAudit(opts) {
         intake_health: intakeHealth,
         human: { status: 'pending', adjudicator: 'user', text: null, decided_at: null }
     };
-    // ---------- §8 事实库先行写入（D-115 逐 commit 事务＋自然键幂等）＋恒等式报告前断言（D-116①） ----------
+    // ---------- §8 事实库先行写入（D-115① 逐 commit 事务边界＋D-116① 逐 commit 增量断言） ----------
     // 锚病态（headDate quarantined）→ audit_fact.observed_at NOT NULL 无合法值→fact 行不落库（不落伪值）；
     // quarantine_log 行仍写（recorded_at=NULL 合法，NULL 仅锚病态路径）。
+    // 事务 grain=commit：facts(subject_ref=sha)＋该 commit 的 quarantine 事件同事务（Spring Kafka 事务性
+    //   DLQ 同构——错误事件存在 iff 该批其余已提交）；非 commit 粒度 facts 走节拍批（500/批锚节拍非运行末）。
+    // D-115③ 错误码分流：IO 类→AuditIoError（D-111 IO 失败类 exit 4）；约束/schema 类→QUARANTINE-CONSTRAINT 协议崩。
+    const FACT_WRITE_BATCH = 500;
     const dbPath = join(outDir, 'facts.duckdb');
     if (existsSync(dbPath)) {
         unlinkSync(dbPath);
@@ -281,22 +287,83 @@ export async function runAudit(opts) {
     const seen = new Set();
     let factsWritten = 0;
     let eventsWritten = 0;
+    const crashCtx = function (sha) {
+        return { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: sha, head_date: probes.headDate, collector: 'macro-audit audit' };
+    };
+    const crashCounts = function () {
+        return countsFromStats(probes.fieldStats, probes.commitCount, factsWritten, eventsWritten);
+    };
     try {
-        await runInTransaction(writer, async function () {
-            if (!anchorQuarantined) {
-                for (const f of col.realFacts) {
-                    if (!seen.has(f.fact_id)) {
-                        seen.add(f.fact_id);
-                        await appendFact(writer, f);
-                        factsWritten += 1;
-                    }
-                }
+        const commitShaSet = new Set(probes.commits.map(function (c) { return c.sha; }));
+        const factsBySha = new Map();
+        const restFacts = [];
+        for (const f of col.realFacts) {
+            if (commitShaSet.has(f.subject_ref)) {
+                const arr = factsBySha.get(f.subject_ref) || [];
+                arr.push(f);
+                factsBySha.set(f.subject_ref, arr);
             }
-            for (const fe of probes.fieldEvents) {
+            else {
+                restFacts.push(f);
+            }
+        }
+        const eventsBySha = new Map();
+        for (const fe of probes.fieldEvents) {
+            const arr = eventsBySha.get(fe.commit_sha) || [];
+            arr.push(fe);
+            eventsBySha.set(fe.commit_sha, arr);
+        }
+        const appendEvents = async function (evs) {
+            for (const fe of evs) {
                 await appendQuarantineEvent(writer, { run_id: ctx.traceId, commit_sha: fe.commit_sha, field_name: fe.field_name, disposition: fe.disposition, reason_code: fe.reason_code, raw: fe.raw, collector: 'macro-audit audit', recorded_at: probes.headDate });
                 eventsWritten += 1;
             }
-        });
+        };
+        for (const c of probes.commits) {
+            const cFacts = anchorQuarantined ? [] : (factsBySha.get(c.sha) || []);
+            const cEvents = eventsBySha.get(c.sha) || [];
+            if (cFacts.length > 0 || cEvents.length > 0) {
+                await runInTransaction(writer, async function () {
+                    for (const f of cFacts) {
+                        if (!seen.has(f.fact_id)) {
+                            seen.add(f.fact_id);
+                            await appendFact(writer, f);
+                            factsWritten += 1;
+                        }
+                    }
+                    await appendEvents(cEvents);
+                });
+            }
+            // 逐 commit 增量恒等式断言（D-116① 极简纯 COUNT 比较）：库内 (run_id,commit_sha) 行数=本 commit 事件数
+            const cn = await (await writer.run('SELECT COUNT(*) FROM quarantine_log WHERE run_id = ? AND commit_sha = ?', [ctx.traceId, c.sha])).getRows();
+            if (Number(cn[0][0]) !== cEvents.length) {
+                throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '逐 commit 增量恒等式断言失败：sha=' + c.sha + ' 期望 ' + cEvents.length + ' 库内 ' + Number(cn[0][0]), { crash_location: 'audit.ts:per-commit-identity', run_context: crashCtx(c.sha), counts: crashCounts() });
+            }
+        }
+        // 非 commit 粒度 facts 节拍批（500/批锚节拍非运行末单事务）；
+        // 孤儿事件（commit_sha∉commit 集——防御性兜底，head_date 锚事件 sha 理论上∈commits）随末节拍批同事务。
+        const orphanEvents = probes.fieldEvents.filter(function (fe) { return !commitShaSet.has(fe.commit_sha); });
+        for (let i = 0; i < restFacts.length; i += FACT_WRITE_BATCH) {
+            const batch = restFacts.slice(i, i + FACT_WRITE_BATCH);
+            const lastChunk = i + FACT_WRITE_BATCH >= restFacts.length;
+            await runInTransaction(writer, async function () {
+                if (!anchorQuarantined) {
+                    for (const f of batch) {
+                        if (!seen.has(f.fact_id)) {
+                            seen.add(f.fact_id);
+                            await appendFact(writer, f);
+                            factsWritten += 1;
+                        }
+                    }
+                }
+                if (lastChunk) {
+                    await appendEvents(orphanEvents);
+                }
+            });
+        }
+        if (restFacts.length === 0 && orphanEvents.length > 0) {
+            await runInTransaction(writer, async function () { await appendEvents(orphanEvents); });
+        }
     }
     catch (e) {
         try {
@@ -306,14 +373,17 @@ export async function runAudit(opts) {
         if (isProtocolCrash(e)) {
             throw e;
         }
-        throw protocolCrashError('QUARANTINE-CONSTRAINT', 'fact/quarantine 事务写失败（ROLLBACK 无半截写）：' + String(e.message || e), { crash_location: 'audit.ts:fact-write-tx', run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId }, counts: { commits_seen: probes.commitCount, facts_written: factsWritten, quarantined_written: eventsWritten } });
+        if (classifyWriteError(e) === 'io') {
+            throw new AuditIoError('fact/quarantine 写 IO 失败（D-115③ IO 失败类退出类——非协议崩溃）：' + String(e.message || e));
+        }
+        throw protocolCrashError('QUARANTINE-CONSTRAINT', 'fact/quarantine 事务写失败（该批 ROLLBACK 无半截写）：' + String(e.message || e), { crash_location: 'audit.ts:fact-write-tx', run_context: crashCtx(null), counts: crashCounts() });
     }
     const dbCounts = await queryQuarantineCounts(writer, ctx.traceId);
     const identityIssues = intakeIdentityIssues(probes.fieldStats, dbCounts);
     await writer.run('FORCE CHECKPOINT');
     closeDuckdb(writer);
     if (identityIssues.length > 0) {
-        throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '恒等式断言失败：' + JSON.stringify(identityIssues), { crash_location: 'audit.ts:intake-identity', run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId }, counts: { commits_seen: probes.commitCount, facts_written: factsWritten, quarantined_written: eventsWritten } });
+        throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '恒等式断言失败：' + JSON.stringify(identityIssues), { crash_location: 'audit.ts:intake-identity', run_context: crashCtx(null), counts: crashCounts() });
     }
     const report = buildReport(reportInput);
     const reportMd = renderMarkdown(report) + NL;
@@ -321,7 +391,9 @@ export async function runAudit(opts) {
     let artifacts = null;
     writeFileSync(join(outDir, 'report.md'), reportMd, 'utf8');
     writeFileSync(join(outDir, 'report.json'), sidecarJson, 'utf8');
-    writeFileSync(join(outDir, FACTS_NAME), col.realFacts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
+    // O5 split-brain 修：锚病态→fact 行未落库 → jsonl 镜像库面写零行（不落「声称完整」工件；
+    // 采集面 fact_count 仍在 measurements 留痕，facts_persisted=false 明示持久化缺席）
+    writeFileSync(join(outDir, FACTS_NAME), anchorQuarantined ? '' : col.realFacts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
     artifacts = persistOut ? { report_md: join(outDir, 'report.md'), report_json: join(outDir, 'report.json'), facts_jsonl: join(outDir, FACTS_NAME), measurements: join(outDir, MEAS_NAME), duckdb: dbPath } : null;
     const resultOutDir = persistOut ? outDir : null;
     if (!persistOut) {

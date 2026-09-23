@@ -26,7 +26,8 @@
     "excluded_commits": 0,
     "quarantined_rows": [],
     "threshold_ratio": 0.001,
-    "escalation": "none"
+    "escalation": "none",
+    "recorded_at": "2026-04-13T10:00:00Z"
   },
   "stability": "preview",
   "capabilities": [

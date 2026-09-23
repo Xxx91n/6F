@@ -6,7 +6,13 @@ import { repoAdd } from './intake/intake.js';
 import { runDemo, listScenarios } from './demo/demo.js';
 import { runAudit, isAuditScaleError } from './audit/audit.js';
 import { projectFacts, projectQuarantine } from './fact/projection.js';
-import { isProtocolCrash, crashArtifactFromError } from './intake/quarantine.js';
+import { isProtocolCrash, crashArtifactFromError, strictQuarantineEnabled, STRICT_QUARANTINE_ENV } from './intake/quarantine.js';
+import { isAuditIoError } from './fact/store.js';
+
+// D-111① 退出码契约：0=管线完成（verdict 三档均算跑完）；非零三类=协议崩溃 2/strict 门禁 3/IO 失败 4。
+const EXIT_PROTOCOL_CRASH = 2;
+const EXIT_STRICT_GATE = 3;
+const EXIT_IO_FAILURE = 4;
 import { writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { serveMcpStdio, setMcpServerConfig, resolveFactsDb } from './mcp-server.js';
@@ -144,19 +150,23 @@ async function main(): Promise<void> {
     let outDir: string | undefined;
     let asJson = false;
     let refresh = false;
-    let strictQuarantine = false;
+    // D-110④ flag>env>文件 precedence：flag 显式给（--strict-quarantine / --no-strict-quarantine）者胜；
+    // 未给→MACRO_AUDIT_STRICT_QUARANTINE=1 兜底（env 只传开关，基线恒读仓内常量）。
+    let strictFlag: boolean | undefined = undefined;
     for (let i = 0; i < args.length; i++) {
       const a = args[i];
       if (a === '--scale') { const v = args[++i]; if (v === undefined || v.indexOf('--') === 0) { errExit('AUDIT-ARGS: missing value for --scale\n', 2); } scale = v; }
       else if (a === '--out') { const v = args[++i]; if (v === undefined || v.indexOf('--') === 0) { errExit('AUDIT-ARGS: missing value for --out\n', 2); } outDir = v; }
       else if (a === '--json') { asJson = true; }
       else if (a === '--refresh') { refresh = true; }
-      else if (a === '--strict-quarantine') { strictQuarantine = true; }
+      else if (a === '--strict-quarantine') { strictFlag = true; }
+      else if (a === '--no-strict-quarantine') { strictFlag = false; }
       else if (a.indexOf('--') === 0) { errExit('AUDIT-ARGS: unknown flag ' + a + '\n', 2); }
       else if (!input) { input = a; }
       else { errExit('AUDIT-ARGS: unexpected extra positional ' + a + '\n', 2); }
     }
-    if (!input) { errExit('usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine]\n', 2); }
+    const strictQuarantine = strictQuarantineEnabled(strictFlag, process.env[STRICT_QUARANTINE_ENV]);
+    if (!input) { errExit('usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine]\n', 2); }
     try {
       // input 经上闸收窄（errExit=never）——循环内赋值致 CFA 不传导收窄，as string 如实标注
       const r = await runAudit({ input: input as string, scale: scale, outDir: outDir, json: asJson, refresh: refresh, strictQuarantine: strictQuarantine });
@@ -180,7 +190,7 @@ async function main(): Promise<void> {
       }
       if (isProtocolCrash(e)) {
         const payload = crashArtifactFromError(e);
-        // 崩溃桶工件（D-107②）：落盘 best-effort——工件失败不吞主错；stderr 同载荷结构化输出
+        // 崩溃桶工件（D-109①）：落盘 best-effort——工件失败不吞主错；stderr 同载荷结构化输出
         let artifact: string | null = null;
         try {
           const dir = outDir ? resolve(outDir) : resolve(process.cwd());
@@ -188,11 +198,16 @@ async function main(): Promise<void> {
           artifact = join(dir, 'macro-audit-crash-' + String(payload.error_code) + '-' + String(Date.now()) + '.json');
           writeFileSync(artifact, JSON.stringify(payload, null, 2) + '\n', 'utf8');
         } catch (_) { artifact = null; }
-        const code = payload.error_code === 'STRICT-QUARANTINE-VIOLATION' ? 3 : 2;
+        // D-111① 退出码三非零类：协议崩溃=2 / strict 门禁崩=3 / IO 失败=4（verdict 永不进 exit code）
+        const code = payload.error_code === 'STRICT-QUARANTINE-VIOLATION' ? EXIT_STRICT_GATE : EXIT_PROTOCOL_CRASH;
         errExit(JSON.stringify({ error: payload.error_code, message: (e as Error).message, crash_artifact: artifact, crash_location: payload.crash_location, run_context: payload.run_context, counts: payload.counts }) + '\n', code);
       }
+      // D-115③ IO 失败类分流（磁盘满/锁/只读）→ 独立退出类非协议崩溃
+      if (isAuditIoError(e)) {
+        errExit(JSON.stringify({ error: e.code, message: e.message }) + '\n', EXIT_IO_FAILURE);
+      }
       const err = e as { code?: string; message?: string };
-      errExit(JSON.stringify({ error: err.code || 'AUDIT-ERROR', message: err.message || String(e) }) + '\n', 2);
+      errExit(JSON.stringify({ error: err.code || 'AUDIT-ERROR', message: err.message || String(e) }) + '\n', EXIT_PROTOCOL_CRASH);
     }
   } else if (cmd === 'demo') {
     // 演示入口（D-038 / A-050）：demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]

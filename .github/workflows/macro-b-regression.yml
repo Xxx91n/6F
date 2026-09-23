@@ -116,16 +116,33 @@ jobs:
           # 浅拒断言（engine/src/intake.ts SHALLOW-CLONE-REJECTED 同构：全深度才准入）
           test "$(git -C audited-repo rev-parse --is-shallow-repository)" = "false"
 
-      - name: Macro-B one-shot regression
+      - name: Macro-B one-shot regression (exit-code aware; expected-divergence branch)
+        id: oneshot
         env:
           REPO_NAME: ${{ matrix.repo.name }}
+          MACRO_AUDIT_STRICT_QUARANTINE: '0'
         run: |
+          set +e
           node engine-repo/.scratch/architecture-recovery/reports/39-macro-b-one-shot.mjs \
             --repo "$REPO_NAME" \
             --root "$GITHUB_WORKSPACE/audited-repo" \
             --out "$GITHUB_WORKSPACE/macro-b-artifacts"
+          rc=$?
+          set -e
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          # #78/D-118①＋r29 审计 F4 裁定（选项①）：对照物无 quarantine 桶——病态对象解析失败=预期分歧格；
+          # 协议崩（exit 2）+ crash 工件在 = 绿（证据先行，非跑通非吞错）；其余非零 / 崩而无工件 = 真红
+          if [ "$rc" -ne 0 ]; then
+            if [ "$rc" -eq 2 ] && ls macro-b-artifacts/*crash*.json >/dev/null 2>&1; then
+              echo "::warning::one-shot 协议崩溃（预期分歧格，D-118①）——39-crash 工件已留证"
+            else
+              echo "::error::非零退出 rc=$rc 且非「协议崩+工件在」格——真失败非预期分歧"
+              exit 1
+            fi
+          fi
 
       - name: verify report artifacts (three-check: present + JSON parse + verdict/reason_class enum + intake_health)
+        if: steps.oneshot.outputs.rc == '0'
         env:
           REPO_NAME: ${{ matrix.repo.name }}
         run: |
@@ -141,6 +158,14 @@ jobs:
           node -e "const s=require('./macro-b-artifacts/39-macro-b-$REPO_NAME.json'); if(['supported','unsupported','insufficient'].indexOf(s.overall_verdict)<0) throw new Error('overall_verdict not in enum: '+s.overall_verdict); if(!s.verdict||['none','evidence_insufficient','anchor_malformed','threshold_exceeded','criteria_unsupported'].indexOf(s.verdict.reason_class)<0) throw new Error('reason_class not in enum: '+(s.verdict&&s.verdict.reason_class)); if(!s.intake_health||!Array.isArray(s.intake_health.fields)) throw new Error('intake_health absent');"
           grep -q '## Intake Health' "macro-b-artifacts/39-macro-b-$REPO_NAME.md"
           echo "macro-b regression verified: artifacts + JSON + verdict/reason_class enum + intake_health (pipeline green != verdict green)"
+
+      - name: verify crash artifact (expected-divergence branch)
+        # #78/D-118① r29 审计 F4 裁定①：协议崩腿按「工件 schema=v1+error_code 受控」验绿——红=「解析失败格」证据缺席非免死
+        if: steps.oneshot.outputs.rc != '0'
+        run: |
+          set -euo pipefail
+          ls macro-b-artifacts/*crash*.json
+          node -e "const fs=require('fs');const f=fs.readdirSync('macro-b-artifacts').filter(x=>x.indexOf('crash')>=0);const j=JSON.parse(fs.readFileSync('macro-b-artifacts/'+f[0],'utf8'));if(j.schema!=='quarantine-crash-artifact/v1')throw new Error('crash schema!=v1');if(typeof j.error_code!=='string'||!j.error_code)throw new Error('error_code absent');console.log('expected-divergence green:',j.error_code)"
 
       - name: upload crash artifacts (protocol-bucket lane, if any)
         # #78/D-109：协议级崩溃固定 schema 工件——one-shot 硬崩（exit 2/3）时崩溃桶 JSON 随工件上传，批灭前先留证

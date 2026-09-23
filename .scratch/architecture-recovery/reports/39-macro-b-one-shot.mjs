@@ -23,6 +23,8 @@ const G = await import(pathToFileURL(join(DIST, 'report', 'generate.js')).href);
 const S = await import(pathToFileURL(join(DIST, 'fact', 'schema.js')).href);
 const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
 const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同口径防跨版本漂移
+const Q = await import(pathToFileURL(join(DIST, 'intake', 'quarantine.js')).href);   // #78/D-109①：崩溃桶构造器同构复用——只引 crash 族导出（分类器/写库面禁引=SoD 对照物零分类逻辑，D-118④）
+const STRICT_Q = process.env[Q.STRICT_QUARANTINE_ENV] === '1';   // #78/D-110④：env 只传开关——对照物无 quarantine 桶（病态恒硬崩=strict 恒真语义），env 值进证据面供 CI 对账
 
 // ---------- §0 参数：默认三仓全跑；--repo/--root/--out = 单仓 CI 形态 ----------
 const DEFAULT_REPOS = [
@@ -44,6 +46,8 @@ const TARGETS = ARGS.repo ? [{ repo: ARGS.repo, root: resolve(ARGS.root || '.') 
 const OUTDIR = resolve(ARGS.out);
 if (!existsSync(OUTDIR)) { mkdirSync(OUTDIR, { recursive: true }); }
 
+// ---------- 崩溃桶等位 catch 包体（#78/D-109① 双通道第二腿）：try 覆盖 §1~出口——协议崩=结构化工件+stderr+exit 2 ----------
+try {
 // ---------- §1 预声明阈值（与 22-criteria-pre-registration.md 逐字对齐，跑后禁调） ----------
 const PRE_REG = '.scratch/architecture-recovery/reports/22-criteria-pre-registration.md';
 const C_BASIS = '.scratch/architecture-recovery/reports/22-c-adjudication-basis.md';
@@ -416,5 +420,22 @@ for (const r of results) {
     ' | TC-1 ' + v.tc1 + ' TC-2 ' + v.tc2 + ' TC-3 ' + v.tc3 + ' NC-1 ' + (v.nc1 ? 'PASS' : 'FAIL') +
     ' | overall=' + v.overall + ' receipt=' + r.receipt);
 }
-console.log('[39] duckdb appended=' + appended + ' dedup_dropped=' + dedupDropped + ' ' + JSON.stringify(dbCounts.by_repo));
+console.log('[39] duckdb appended=' + appended + ' dedup_dropped=' + dedupDropped + ' ' + JSON.stringify(dbCounts.by_repo) + ' strict_quarantine=' + (STRICT_Q ? 'on' : 'off'));
 process.exit(0);
+} catch (e) {
+  // 崩溃桶等位落盘（D-109①/②）：error_code 取 e.code 或消息首词；工件写失败=证据丢失=工业上界如实（D-109③ 不设兜底）
+  const msg = String((e && e.message) || e);
+  const code = (e && e.code) || ((/^[A-Z][A-Z0-9-]+:/).test(msg) ? msg.match(/^([A-Z][A-Z0-9-]+):/)[1] : 'ONESHOT-UNCAUGHT');
+  const isProto = Q.isProtocolCrash(e) || (/^[A-Z][A-Z0-9-]+:/).test(msg);
+  let artifactPath = null;
+  try {
+    const art = Q.isProtocolCrash(e)
+      ? Q.crashArtifactFromError(e)
+      : Q.buildCrashArtifact({ error_code: code, crash_location: '39-macro-b-one-shot.mjs:top', run_context: { repo_ref: ARGS.root || null, collector: '39-macro-b-one-shot' }, counts: { commits_seen: 0, records_parsed: 0 } });
+    artifactPath = join(OUTDIR, '39-crash-' + code + '.json');
+    writeFileSync(artifactPath, JSON.stringify(art, null, 2) + NL, 'utf8');
+  } catch (_) { artifactPath = null; }
+  console.error(JSON.stringify({ error: code, message: msg.slice(0, 400), crash_artifact: artifactPath, strict_quarantine: STRICT_Q }));
+  // D-111① 退出码同 cli 语义：协议崩溃=2；其余（IO/未知）=4
+  process.exit(isProto ? 2 : 4);
+}

@@ -307,6 +307,20 @@ export async function appendQuarantineEvent(connection, ev) {
 }
 // 逐 commit（或分批节拍）事务边界（D-115①）：fact 行＋quarantine 事件同事务提交；
 // 失败 ROLLBACK 无半截写——恒等式在任意崩溃点不破；重跑=自然键幂等自愈。
+export class AuditIoError extends Error {
+    code = 'AUDIT-IO-FAILURE';
+    constructor(msg) { super(msg); this.name = 'AuditIoError'; }
+}
+export function isAuditIoError(e) {
+    return !!e && typeof e === 'object' && e.code === 'AUDIT-IO-FAILURE';
+}
+// D-115③ 错误码分流：磁盘满/锁/只读/IO 类 → AUDIT-IO-FAILURE（D-111 IO 失败类退出类）；
+// 约束违例/schema bug → QUARANTINE-CONSTRAINT 协议崩溃类。按错误内容归类非按表面异常。
+const IO_ERROR_RE = /IO Error|disk|lock|readonly|read-only|ENOSPC|EBUSY|EPERM|out of space|full/i;
+export function classifyWriteError(e) {
+    const m = String(e.message || e || '');
+    return IO_ERROR_RE.test(m) ? 'io' : 'constraint';
+}
 export async function runInTransaction(connection, fn) {
     await connection.run('BEGIN TRANSACTION');
     try {

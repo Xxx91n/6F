@@ -148,6 +148,7 @@
 - field head_date: total=1 clean=1 normalized=0 quarantined=0（恒等式=PASS）
 - field committer_date: total=8 clean=8 normalized=0 quarantined=0（恒等式=PASS）
 - affected_commits（quarantined 去重）: 0
+- quarantine_log.recorded_at（写入时点列）: 2026-04-06T10:00:00Z
 - 派生统计排除声明：日期派生指标 over 8 commits（quarantined 排除 0；quarantined 日期 commit 禁入 first_commit/adr_lag 派生）
 - 阈值纪律：单字段 quarantined/total > 0.001 → run 级裁定升级 unsupported；escalation=none
 - quarantined rows: 无（摄入无病态=阴性自证）

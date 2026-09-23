@@ -21,7 +21,7 @@ import { repoAdd } from '../intake/intake.js';
 import { generateFixtureRepo, FIXTURE_GENERATOR_ID } from './fixture-generator.js';
 import type { FixtureDefinition } from './fixture-generator.js';
 import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, TC3_TOPN, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, MACRO_B_STOPWORDS } from '../audit/macro-b.js';
-import { intakeEscalation, QUARANTINE_FIELD_RATIO_RED } from '../intake/quarantine.js';
+import { intakeEscalation, QUARANTINE_FIELD_RATIO_RED , rawEcho } from '../intake/quarantine.js';
 import type { IntakeHealth } from '../report/generate.js';
 
 export const DEMO_SCENARIOS: readonly string[] = ['happy-path', 'degraded-supply', 'degraded-incomplete'];
@@ -137,9 +137,10 @@ export function runDemo(opts: DemoOptions): DemoResult {
       fields: probes.fieldStats.map(function (s) { return { field_name: s.field_name, total: s.total, clean: s.clean, normalized: s.normalized, quarantined: s.quarantined }; }),
       affected_commits: new Set(demoQuarRows.map(function (e) { return e.commit_sha; })).size,
       excluded_commits: demoExcl,
-      quarantined_rows: demoQuarRows.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + '…' : e.raw) }; }),
+      quarantined_rows: demoQuarRows.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: rawEcho(e.raw) }; }),
       threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
-      escalation: intakeEscalation(probes.fieldStats)
+      escalation: intakeEscalation(probes.fieldStats),
+      recorded_at: probes.headDate
     };
     const col = collectMacroB(repoDir, {
       intentCandidates: INTENT_CANDIDATES, nc1Candidates: NC1_CANDIDATES, stopwords: DEMO_STOPWORDS, topN: TC3_TOPN,

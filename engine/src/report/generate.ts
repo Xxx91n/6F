@@ -245,6 +245,7 @@ export interface IntakeHealth {
   quarantined_rows: IntakeHealthRow[];
   threshold_ratio: number;
   escalation: 'none' | 'anchor' | 'threshold';
+  recorded_at: string | null;   // quarantine_log.recorded_at 投影（D-108④ NULL 语义呈现面双固化：NULL=锚病态时点不可得，非「开放式」缺省）
 }
 
 export interface VerdictProjection { band: VerdictBand; reason_class: string }
@@ -478,6 +479,8 @@ export function renderMarkdown(r: Report): string {
       out.push('- field ' + f.field_name + ': total=' + f.total + ' clean=' + f.clean + ' normalized=' + f.normalized + ' quarantined=' + f.quarantined + '（' + eq + '）');
     }
     out.push('- affected_commits（quarantined 去重）: ' + ih.affected_commits);
+    // D-108④ NULL 语义呈现面显式文案（防误读「开放式」缺省）：NULL 仅锚病态路径=「时点不可得」自证
+    out.push('- quarantine_log.recorded_at（写入时点列）: ' + (ih.recorded_at === null ? 'NULL（锚病态→观测时点不可得，非「开放式」缺省；列级语义见 schema 注记）' : ih.recorded_at));
     const totalCommits = ih.fields.filter(function (f) { return f.field_name === 'committer_date'; })[0];
     out.push('- 派生统计排除声明：日期派生指标 over ' + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + ' commits（quarantined 排除 ' + ih.excluded_commits + '；quarantined 日期 commit 禁入 first_commit/adr_lag 派生）');
     out.push('- 阈值纪律：单字段 quarantined/total > ' + ih.threshold_ratio + ' → run 级裁定升级 unsupported；escalation=' + ih.escalation);

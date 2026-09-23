@@ -38,6 +38,12 @@ export interface QuarantineEventInput {
     recorded_at: string | null;
 }
 export declare function appendQuarantineEvent(connection: DuckDBConnection, ev: QuarantineEventInput): Promise<void>;
+export declare class AuditIoError extends Error {
+    code: string;
+    constructor(msg: string);
+}
+export declare function isAuditIoError(e: unknown): e is AuditIoError;
+export declare function classifyWriteError(e: unknown): 'io' | 'constraint';
 export declare function runInTransaction<T>(connection: DuckDBConnection, fn: () => Promise<T>): Promise<T>;
 export declare function queryQuarantineCounts(connection: DuckDBConnection, runId: string): Promise<Record<string, {
     normalized: number;

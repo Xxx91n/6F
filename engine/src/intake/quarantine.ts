@@ -35,6 +35,26 @@ export const FIELD_HEAD_DATE = 'head_date';
 // 长度 ∈ {20,25} 字节（Z 形 / ±HH:MM 形）；64KiB=~2600× headroom，放宽-收口工序保守上界。
 export const RAW_BYTES_CAP = 65536;
 
+// 呈现面 raw_echo 截断上界（D-117② kastellan 防漂移条款：截断谓词单点共享——
+// 报告/measurements/demo 三处消费方一律读本常量，禁裸字面量双写）。
+export const RAW_ECHO_CAP = 80;
+
+// strict quarantine 反向开关通道常量（D-110④：flag>env>文件三级 precedence，
+// env/flag 只传开关——基线内容恒读仓内版本化常量 ACCEPTED_REASON_CODES，env 携基线=CI 漂移即基线漂移）。
+export const STRICT_QUARANTINE_ENV = 'MACRO_AUDIT_STRICT_QUARANTINE';
+
+// 呈现面截断谓词单点（D-117②）：raw_echo=JSON 包裹的 ≤80 字符回显——
+// 谓词与常量同点导出，消费方零双写（audit.ts/demo.ts/measurements 三处同源）。
+export function rawEcho(raw: string): string {
+  return JSON.stringify(raw.length > RAW_ECHO_CAP ? raw.slice(0, RAW_ECHO_CAP) + '…' : raw);
+}
+// precedence 单点：flag 显式给出者胜（含 --no-strict-quarantine 显式关——flag>env 双向生效）；
+// flag 未给→env==='1' 兜底；皆无→off。
+export function strictQuarantineEnabled(flag: boolean | undefined, envValue: string | undefined): boolean {
+  if (flag !== undefined) { return flag; }
+  return envValue === '1';
+}
+
 export interface RawFingerprint {
   raw_bytes_hex: string;
   is_trunc: boolean;
@@ -150,12 +170,25 @@ export function baselineIssues(): string[] {
 }
 
 // strict 闸门：返回违反基线的 reason_code 集（默认拒绝语义——不在基线即违规）。
+// 去重返回（同码多实例只报一次——违规清单是「码集」非「实例集」；逐实例证据仍在 fieldEvents）。
 export function strictQuarantineViolations(events: readonly FieldEvent[]): string[] {
   const baseline = new Set(ACCEPTED_REASON_CODES);
   const out: string[] = [];
   for (const e of events) {
     if (e.disposition !== 'quarantined') { continue; }
-    if (!baseline.has(e.reason_code)) { out.push(e.reason_code); }
+    if (!baseline.has(e.reason_code) && out.indexOf(e.reason_code) < 0) { out.push(e.reason_code); }
+  }
+  return out;
+}
+
+// 棘轮机化（D-110③）：基线只减不增——基线条目在本运行 quarantined 观测码集中缺席=滞留即红
+// （hawk --deny-unused-baseline/Betterer 同构：已消失病态族滞留基线=接受面静默扩大，侵蚀探测力）。
+// 观测 grain=当前 run 事件集（基线=仓级声明，逐 run 校验其仍对应当前观测）。
+export function ratchetIssues(events: readonly FieldEvent[]): string[] {
+  const observed = new Set(events.filter(function (e) { return e.disposition === 'quarantined'; }).map(function (e) { return e.reason_code; }));
+  const out: string[] = [];
+  for (const c of ACCEPTED_REASON_CODES) {
+    if (!observed.has(c)) { out.push('baseline 滞留码=' + c + '（本运行 quarantined 观测码集缺席——棘轮条款：滞留即红）'); }
   }
   return out;
 }
@@ -223,12 +256,18 @@ export const CRASH_ARTIFACT_SCHEMA = 'quarantine-crash-artifact/v1';
 
 export interface CrashContext {
   repo_ref: string | null;
-  run_id: string | null;
+  run_id: string | null;       // traceId 关联键
   commit_sha: string | null;
+  head_date: string | null;    // D-109② run_context=traceId+headDate+collector 关联键三件套
+  collector: string | null;
 }
 
 export interface CrashCounts {
-  commits_seen: number;
+  commits_seen: number;        // 已解析记录数（D-109②）
+  records_parsed: number;
+  clean: number;               // 崩溃时刻三桶累计（D-109②）
+  normalized: number;
+  quarantined: number;
   facts_written: number;
   quarantined_written: number;
 }
@@ -269,10 +308,16 @@ export function buildCrashArtifact(args: {
     run_context: {
       repo_ref: rc.repo_ref === undefined ? null : rc.repo_ref,
       run_id: rc.run_id === undefined ? null : rc.run_id,
-      commit_sha: rc.commit_sha === undefined ? null : rc.commit_sha
+      commit_sha: rc.commit_sha === undefined ? null : rc.commit_sha,
+      head_date: rc.head_date === undefined ? null : rc.head_date,
+      collector: rc.collector === undefined ? null : rc.collector
     },
     counts: {
       commits_seen: cn.commits_seen === undefined ? 0 : cn.commits_seen,
+      records_parsed: cn.records_parsed === undefined ? 0 : cn.records_parsed,
+      clean: cn.clean === undefined ? 0 : cn.clean,
+      normalized: cn.normalized === undefined ? 0 : cn.normalized,
+      quarantined: cn.quarantined === undefined ? 0 : cn.quarantined,
       facts_written: cn.facts_written === undefined ? 0 : cn.facts_written,
       quarantined_written: cn.quarantined_written === undefined ? 0 : cn.quarantined_written
     },
@@ -306,6 +351,11 @@ export function protocolCrashError(
   detail: string,
   crash: Partial<ProtocolCrash['crash']>
 ): ProtocolCrash {
+  // 打错码=实现缺陷须响亮失败（对称 REASON-CODE-UNLISTED 前置校验）：
+  // 词表外 code 若放行→isProtocolCrash 不识别→静默降级为普通错无工件，协议桶漏报。
+  if (PROTOCOL_CRASH_CODES.indexOf(code) < 0) {
+    throw new Error('protocolCrashError: code not in PROTOCOL_CRASH_CODES（崩溃桶词表外打错=bug，禁静默降级）：' + code);
+  }
   const e = new Error(code + ': ' + detail) as ProtocolCrash;
   e.code = code;
   e.crash = {
@@ -333,4 +383,25 @@ export function crashArtifactFromError(e: ProtocolCrash, at?: string): CrashArti
     counts: e.crash.counts,
     at: at
   });
+}
+
+// 崩溃时刻三桶快照（D-109② counts=三桶累计+已解析记录数）：FieldStat 集 → counts 投影。
+// 各崩溃点统一调本函数，禁手拼 partial（三桶缺桶=schema 欠项先例）。
+export function countsFromStats(
+  stats: readonly FieldStat[],
+  recordsParsed: number,
+  factsWritten?: number,
+  quarantinedWritten?: number
+): CrashCounts {
+  let clean = 0, normalized = 0, quarantined = 0;
+  for (const s of stats) { clean += s.clean; normalized += s.normalized; quarantined += s.quarantined; }
+  return {
+    commits_seen: recordsParsed,
+    records_parsed: recordsParsed,
+    clean: clean,
+    normalized: normalized,
+    quarantined: quarantined,
+    facts_written: factsWritten === undefined ? 0 : factsWritten,
+    quarantined_written: quarantinedWritten === undefined ? 0 : quarantinedWritten
+  };
 }

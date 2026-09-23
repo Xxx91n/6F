@@ -40,7 +40,7 @@ const c8 = Q.classifyGitIsoField('2005-04-12T02:52:13+99:99');
 t('A8 形状合法语义越界（+99:99）=clean——契约是形状口径，不隐扩语义域', c8.status === 'clean' && c8.value === '2005-04-12T02:52:13+99:99');
 let threw = false;
 const FUZZ = [null, undefined, '', '   ', String.fromCharCode(10), String.fromCharCode(9, 13), '%cI', '垃圾', String.fromCharCode(0, 1, 2), '{bad}', 'not-a-date', 'x'.repeat(200000), '2005-04-07', '2005-04-07T22:13:13', '2005-04-07T22:13:13+0000', ' 2005-04-07T22:13:13Z '];
-for (const f of FUZZ) { try { const r = Q.classifyGitIsoField(f); if (['clean','normalized','quarantined'].indexOf(r.status) < 0) { threw = 'bad-status'; break; } } catch (e) { threw = 'threw:' + String(e).slice(0, 60); break; } }
+for (const f of FUZZ) { try { const r = Q.classifyGitIsoField(f); if (['clean', 'normalized', 'quarantined'].indexOf(r.status) < 0) { threw = 'bad-status'; break; } } catch (e) { threw = 'threw:' + String(e).slice(0, 60); break; } }
 t('A9 永不 throw + 三态枚举闭合（fuzz 15 输入）', threw === false, String(threw));
 const d1 = Q.classifyGitIsoField('bogus-value');
 const d2 = Q.classifyGitIsoField('bogus-value');
@@ -63,7 +63,7 @@ t('B5 hex 回显可逆（hex→bytes→原文）', Buffer.from(fp4.raw_bytes_hex
 t('C1 空基线=零容忍：unclassified quarantined 事件违例', Q.strictQuarantineViolations([{ commit_sha: 's', field_name: 'committer_date', disposition: 'quarantined', reason_code: 'unclassified_field_anomaly', raw: 'r' }]).length === 1);
 t('C2 normalized 留痕不进违例集', Q.strictQuarantineViolations([{ commit_sha: 's', field_name: 'committer_date', disposition: 'normalized', reason_code: 'normalized_tz_offset', raw: 'r' }]).length === 0);
 t('C3 基线自洽（当前空基线无滞留码）', Q.baselineIssues().length === 0, Q.baselineIssues().join('|'));
-t('C4 v1 词表=四族且仅四族', JSON.stringify(Q.QUARANTINE_REASON_CODES.slice().sort()) === JSON.stringify(['anchor_head_date_malformed','normalized_tz_offset','oversize','unclassified_field_anomaly'].sort()));
+t('C4 v1 词表=四族且仅四族', JSON.stringify(Q.QUARANTINE_REASON_CODES.slice().sort()) === JSON.stringify(['anchor_head_date_malformed', 'normalized_tz_offset', 'oversize', 'unclassified_field_anomaly'].sort()));
 t('C5 ACCEPTED 基线=仓内版本化常量（非 env 来源）', Array.isArray(Q.ACCEPTED_REASON_CODES));
 
 // ---------- D. 恒等式（D-116：字段实例 grain） ----------
@@ -141,7 +141,7 @@ t('G1 干净仓 audit exit 0', e1.status === 0, (e1.stderr || '').slice(0, 200))
 const md1 = existsSync(join(OUT1, 'report.md')) ? readFileSync(join(OUT1, 'report.md'), 'utf8') : '';
 t('G2 Intake Health 节恒在+零病态阴性自证', md1.indexOf('## Intake Health') >= 0 && md1.indexOf('摄入无病态') >= 0, md1.split('## Intake Health')[1] ? md1.split('## Intake Health')[1].slice(0, 200) : 'absent');
 const sc1 = existsSync(join(OUT1, 'report.json')) ? JSON.parse(readFileSync(join(OUT1, 'report.json'), 'utf8')) : null;
-t('G3 sidecar verdict 三面投影：摄入零病态→reason_class 属真判据族非摄入族', !!sc1 && sc1.verdict && ['supported','unsupported','insufficient'].indexOf(sc1.verdict.band) >= 0 && ['none','evidence_insufficient','criteria_unsupported'].indexOf(sc1.verdict.reason_class) >= 0, sc1 && sc1.verdict ? JSON.stringify(sc1.verdict) : 'absent');
+t('G3 sidecar verdict 三面投影：摄入零病态→reason_class 属真判据族非摄入族', !!sc1 && sc1.verdict && ['supported', 'unsupported', 'insufficient'].indexOf(sc1.verdict.band) >= 0 && ['none', 'evidence_insufficient', 'criteria_unsupported'].indexOf(sc1.verdict.reason_class) >= 0, sc1 && sc1.verdict ? JSON.stringify(sc1.verdict) : 'absent');
 t('G4 receipt.verdict 投影在（band+reason_class 同 verdict 块一致）', !!sc1 && sc1.receipt && sc1.receipt.verdict && sc1.receipt.verdict.band === sc1.verdict.band && sc1.receipt.verdict.reason_class === sc1.verdict.reason_class);
 
 // -- G2 历史中位病态 commit（committer tz=+GGGG → %cI 字面量输出） --
@@ -209,6 +209,13 @@ let se5 = null; try { se5 = JSON.parse(e5.stderr); } catch (e) { }
 t('G19 stderr error=GITCLI-OUTPUT-CONTRACT（协议桶与字段桶分轨）', !!se5 && se5.error === 'GITCLI-OUTPUT-CONTRACT', e5.stderr.slice(0, 200));
 const crashFiles5 = existsSync(OUT5) ? readdirSync(OUT5).filter(function (f) { return f.indexOf('macro-audit-crash-') === 0; }) : [];
 t('G20 协议崩溃桶工件落盘', crashFiles5.length > 0, crashFiles5.join(','));
+
+// -- G6 strict env 双腿（D-110④：env 只传开关，flag>env precedence） --
+const OUT4E = join(tmpG, 'out-strict-env');
+let e4e = spawnSync('node', [CLI, 'audit', R2, '--out', OUT4E], { encoding: 'utf8', timeout: 120000, env: Object.assign({}, process.env, { MACRO_AUDIT_STRICT_QUARANTINE: '1' }) });
+t('G21 env 腿：MACRO_AUDIT_STRICT_QUARANTINE=1 无 flag → exit 3（同 strict 语义）', e4e.status === 3, 'status=' + e4e.status);
+let e4n = spawnSync('node', [CLI, 'audit', R2, '--out', join(tmpG, 'out-nostrict'), '--no-strict-quarantine'], { encoding: 'utf8', timeout: 120000, env: Object.assign({}, process.env, { MACRO_AUDIT_STRICT_QUARANTINE: '1' }) });
+t('G22 flag>env precedence：--no-strict-quarantine 显式关压 env=1 → exit 0', e4n.status === 0, 'status=' + e4n.status + ' err=' + (e4n.stderr || '').slice(0, 160));
 
 // ---------- H. MCP quarantine 只读投影（D-113②） ----------
 const H1 = spawnSync('node', [CLI, 'mcp', 'quarantine', '--db', join(OUT2, 'facts.duckdb')], { encoding: 'utf8' });

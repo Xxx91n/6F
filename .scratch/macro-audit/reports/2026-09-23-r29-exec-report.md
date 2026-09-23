@@ -44,3 +44,14 @@
 ## 六、引用文件列表
 
 engine/src/intake/quarantine.ts（新）/ engine/src/intake/intake.ts / engine/src/fact/{schema,store,projection}.ts / engine/src/audit/{macro-b,audit}.ts / engine/src/collect/collectors.ts / engine/src/report/generate.ts / engine/src/cli.ts / engine/src/mcp-server.ts / engine/src/demo/demo.ts / engine/test/{quarantine.test.mjs（新）,narrative.test.mjs} / engine/package.json / engine/dist/*（重建）/ engine/fixtures/golden/*（重基线）/ docs/known-gaps.md（新）/ .scratch/architecture-recovery/reports/{78-check.mjs（新）,54-check.mjs,53-check.mjs,33-gate-registry.json,63-assertion-inventory.json} / .github/workflows/macro-b-regression.yml
+
+## 七、勘误（2026-09-23 r29 审计返工批）
+
+> r29 审计窗打回（本仓 .scratch/macro-audit/reports/2026-09-23-r29-audit-report.md）。以下声明按「成对勘误」修正，原文保留：
+
+- **§一「守卫组 …全绿」失实**：41a-check 自 commit 59f72e9 落地即红 1/38（A-090 新增与 M-006 a_range「无新增」同 commit 自相矛盾=编年漂移）。已勘误 M-006＋补 M-007，41a 复绿 38/38；本行上方 §一表述更正为「守卫组除 41a 编年红外全绿，返工后 15/15 复绿」。
+- **T2-i 验收口径张力**：「git 腿转绿」与 D-118④ 对照物必崩结构性互斥——返工批取裁定①：workflow 对「协议崩+crash 工件在」判绿（预期分歧格证据先行），其余非零=真红；账本 A-090 R29-REWORK 注记留痕。
+- **D-115① 措辞失实**：首版为运行末单事务（报告误称「逐 commit」）——已改逐 commit 事务循环+节拍批+逐 commit 增量断言；D-115③ IO/协议崩溃分流补 exit 4 类。
+- 其余返工项（D-109① 39 等位 catch／D-110④ env 双腿／D-109② schema 欠项／D-110③ 棘轮机化／D-116② load-bearing+CI 挂载／D-117② 共享截断谓词／D-108④ NULL 渲染）明细见返工报告。
+
+返工实证：QUARANTINE 58/58（G21/G22 env 双腿新断言）＋78CHECK 42/42＋npm test 19 册全绿＋守卫组 15/15 含 41a 复绿。

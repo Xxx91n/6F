@@ -1,8 +1,10 @@
 // 78-check.mjs —— #78 quarantine 引擎验收闸（ADR-0022 / D-103~D-120）
+// load-bearing: 独立对账守卫——承载性冗余（独立代码路径自持 SQL+git 重放恒等式，禁当重复代码删除；D-116②）。已挂载 engine-ci.yml。
 // 断言面：A=契约层导出+intake 委托 / B=schema+store 持久化面 / C=macro-b+audit+report 接线
 //   D=39/40 one-shot 同口径 / E=quarantine.test.mjs 实跑 / F=病态仓双通道 disposition parity 独立对账
 // 用法：node 78-check.mjs（须先 npm run build——dist 面被断言）
-import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, readdirSync as _rs } from 'node:fs';
+import * as fs2 from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -51,13 +53,24 @@ t('C3 audit 装配：strict 闸+事务写+恒等式断言', audit.indexOf('stric
 t('C4 Intake Health 恒在节+verdict 三面投影', gen.indexOf('## Intake Health') >= 0 && gen.indexOf('reason_class') >= 0 && gen.indexOf('VERDICT_REASON_CLASSES') >= 0);
 t('C5 cli --strict-quarantine 旗 + crash 工件 + 三值退出码', cli.indexOf('--strict-quarantine') >= 0 && cli.indexOf('crashArtifactFromError') >= 0 && cli.indexOf('STRICT-QUARANTINE-VIOLATION') >= 0);
 t('C6 collectors null-date 显式跳过（不静默转 0）', txt(join(ENG, 'src', 'collect', 'collectors.ts')).indexOf('date === null') >= 0 || txt(join(ENG, 'src', 'collect', 'collectors.ts')).indexOf('date: string | null') >= 0);
+t('C7 strict env 通道：cli flag>env precedence（STRICT_QUARANTINE_ENV+strictQuarantineEnabled 单点）', cli.indexOf('STRICT_QUARANTINE_ENV') >= 0 && cli.indexOf('strictQuarantineEnabled') >= 0 && quar.indexOf('STRICT_QUARANTINE_ENV') >= 0);
+t('C8 D-115③ 错误码分流：AuditIoError+classifyWriteError+exit 4 类', store.indexOf('AuditIoError') >= 0 && store.indexOf('classifyWriteError') >= 0 && cli.indexOf('EXIT_IO_FAILURE') >= 0 && audit.indexOf('classifyWriteError') >= 0);
+t('C9 D-110③ 棘轮机化 ratchetIssues+strict 闸接线', quar.indexOf('ratchetIssues') >= 0 && audit.indexOf('ratchetIssues') >= 0);
+t('C10 D-117② raw_echo 截断谓词单点共享（rawEcho 导出+双消费面零裸字面量）', quar.indexOf('RAW_ECHO_CAP') >= 0 && quar.indexOf('export function rawEcho') >= 0 && audit.indexOf('rawEcho(e.raw)') >= 0 && txt(join(ENG, 'src', 'demo', 'demo.ts')).indexOf('rawEcho(e.raw)') >= 0);
+t('C11 D-115①/D-116① 逐 commit 事务+增量断言接线', audit.indexOf('per-commit-identity') >= 0 && audit.indexOf('FACT_WRITE_BATCH') >= 0);
+t('C12 D-109② 工件 schema 三桶+run_context 关联键补齐', quar.indexOf('records_parsed') >= 0 && quar.indexOf('head_date') >= 0 && quar.indexOf('collector') >= 0 && quar.indexOf('countsFromStats') >= 0);
+t('C13 D-108④ NULL 语义呈现面双固化（报告节+接口注释）', gen.indexOf('recorded_at') >= 0 && gen.indexOf('时点不可得') >= 0);
 
-// ---------- D. 39/40 对照物 SoD 断言（D-118④：对照物零代码改动——不引入 quarantine 分类逻辑，独立实现保留） ----------
+// ---------- D. 39/40 对照物 SoD 断言（D-118④：对照物不引入 quarantine 分类/写库逻辑；39 仅获 crash 等位 catch+env 读取=D-109①/D-110④ 裁定边界） ----------
 for (const NN of ['39', '40']) {
   const s = txt(join(HERE, NN + '-macro-b-one-shot.mjs'));
-  t('D-' + NN + '1 对照物不引 quarantine 分类器（SoD：分类规则真源唯 cli 契约层）', s.indexOf('classifyGitIsoField') < 0 && s.indexOf('quarantine.js') < 0);
+  t('D-' + NN + '1 对照物不引 quarantine 分类器/写面（SoD：分类规则真源唯 cli 契约层）', s.indexOf('classifyGitIsoField') < 0 && s.indexOf('recordFieldInstance') < 0 && s.indexOf('appendQuarantineEvent') < 0 && s.indexOf('quarantine_log') < 0);
   t('D-' + NN + '2 对照物保留自身归一化（normalizeGitIsoDate=病态即抛=「解析失败」分歧类的可观测代理）', s.indexOf('normalizeGitIsoDate') >= 0 && s.indexOf('%cI') >= 0);
 }
+const s39 = txt(ONESHOT39);
+t('D-393 39 等位 catch：崩溃桶工件落盘+stderr 结构化（D-109① 第二腿）', s39.indexOf('crashArtifactFromError') >= 0 && s39.indexOf('buildCrashArtifact') >= 0 && s39.indexOf('39-crash-') >= 0 && s39.indexOf('process.exit(isProto ? 2 : 4)') >= 0);
+t('D-394 39 env 腿：MACRO_AUDIT_STRICT_QUARANTINE 读取+证据面回声', s39.indexOf('STRICT_QUARANTINE_ENV') >= 0 && s39.indexOf('strict_quarantine') >= 0);
+t('D-403 40 零 crash/env 引入（40 未在 D-109①/D-110④ 挂载面——保持纯对照）', txt(join(HERE, '40-macro-b-one-shot.mjs')).indexOf('quarantine.js') < 0);
 
 // ---------- E. quarantine.test.mjs 实跑 ----------
 let qout = '';
@@ -93,7 +106,13 @@ t('F1 引擎 audit 病态仓 exit 0', ra.status === 0, (ra.stderr || '').slice(0
 const OUT_39 = join(tmp, 'out-39');
 const r39 = spawnSync('node', [ONESHOT39, '--repo', 'fx', '--root', FX, '--out', OUT_39], { encoding: 'utf8', timeout: 120000 });
 // D-118① parity 矩阵格：{cli=quarantined × 39=解析失败} = 预期分歧类——对照物无 quarantine 语义，病态即抛为合规行为
-t('F2 one-shot39 病态仓=解析失败格（非零退出 + GITCLI-OUTPUT-CONTRACT 命中 stderr）', r39.status !== 0 && (r39.stderr || '').indexOf('GITCLI-OUTPUT-CONTRACT') >= 0, 'status=' + r39.status + ' err=' + (r39.stderr || '').slice(0, 160));
+t('F2 one-shot39 病态仓=解析失败格（exit 2 + GITCLI-OUTPUT-CONTRACT 命中 stderr）', r39.status === 2 && (r39.stderr || '').indexOf('GITCLI-OUTPUT-CONTRACT') >= 0, 'status=' + r39.status + ' err=' + (r39.stderr || '').slice(0, 160));
+const crash39 = existsSync(OUT_39) ? fs2.readdirSync(OUT_39).filter(function (f) { return f.indexOf('39-crash-') === 0; }) : [];
+let crash39j = null; try { crash39j = JSON.parse(txt(join(OUT_39, crash39[0]))); } catch (_) {}
+t('F2b 39 crash 工件落盘 quarantine-crash-artifact/v1（D-109① 双通道实物）', crash39.length === 1 && !!crash39j && crash39j.schema === 'quarantine-crash-artifact/v1' && crash39j.error_code === 'GITCLI-OUTPUT-CONTRACT', crash39.join(';'));
+// env 腿实证：STRICT env=1 时 39 stderr 回声 strict_quarantine:true（对照物语义恒硬崩，env 只进证据面）
+const r39s = spawnSync('node', [ONESHOT39, '--repo', 'fx', '--root', FX, '--out', join(tmp, 'out-39-strict')], { encoding: 'utf8', timeout: 120000, env: Object.assign({}, process.env, { MACRO_AUDIT_STRICT_QUARANTINE: '1' }) });
+t('F2c 39 env 腿实证：MACRO_AUDIT_STRICT_QUARANTINE=1 → stderr 回声 strict_quarantine:true', r39s.status === 2 && (r39s.stderr || '').indexOf('"strict_quarantine":true') >= 0, 'err=' + (r39s.stderr || '').slice(0, 200));
 
 async function quarSet(dbPath) {
   const c = await STORE.openReader(dbPath);

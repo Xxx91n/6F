@@ -108,7 +108,19 @@ export function probeMacroBRepo(repoRoot, headSha) {
             counts: { commits_seen: commits.length }
         });
     }
-    const subjects = git(repoRoot, ['log', '--pretty=format:%s']).split(NL);
+    let subjects;
+    try {
+        subjects = git(repoRoot, ['log', '--pretty=format:%s']).split(NL);
+    }
+    catch (e) {
+        const ee = e;
+        throw protocolCrashError('GIT-PROBE-FAILED', 'git %s 探针失败：' + String(e.message || e).split(NL)[0], {
+            raw: ee && ee.stderr ? String(ee.stderr) : null,
+            crash_location: 'audit/macro-b.ts:probeMacroBRepo:subjects',
+            run_context: { repo_ref: repoRoot, commit_sha: headSha },
+            counts: { commits_seen: commits.length, records_parsed: commits.length }
+        });
+    }
     return { headSha: headSha, headDate: headDate, headRaw: headRaw, headStatus: headCls.status, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects, fieldEvents: fieldEvents, fieldStats: fieldStats };
 }
 export function collectMacroB(repoRoot, spec, ctx, probes) {

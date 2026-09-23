@@ -27,7 +27,7 @@ interface RpcResponse {
 
 const QUARANTINE_TOOL = {
   name: 'quarantine',
-  description: 'read-only quarantine_log projection（#78/D-113②）：字段级病态处置事件台账——固定列集（run_id/commit_sha/field_name/disposition/reason_code/raw_bytes_hex/is_trunc/original_length/sha256_full/collector/recorded_at），READ_ONLY 实例，limit≤500。db 寻址同 facts 链',
+  description: 'read-only quarantine_log projection（#78/D-113②）：字段级病态处置事件台账——固定列集（run_id/commit_sha/field_name/disposition/reason_code/raw_bytes_hex/is_trunc/original_length/sha256_full/collector/recorded_at），READ_ONLY 实例，limit≤500。recorded_at=NULL=锚病态→观测时点不可得（D-108④ NULL 语义显式文案：非「开放式」缺省，range 谓词不吞 NULL）。db 寻址同 facts 链',
   inputSchema: {
     type: 'object',
     properties: {

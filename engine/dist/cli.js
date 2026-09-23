@@ -178,6 +178,17 @@ var REASON_OVERSIZE = "oversize";
 var FIELD_COMMITTER_DATE = "committer_date";
 var FIELD_HEAD_DATE = "head_date";
 var RAW_BYTES_CAP = 65536;
+var RAW_ECHO_CAP = 80;
+var STRICT_QUARANTINE_ENV = "MACRO_AUDIT_STRICT_QUARANTINE";
+function rawEcho(raw) {
+  return JSON.stringify(raw.length > RAW_ECHO_CAP ? raw.slice(0, RAW_ECHO_CAP) + "\u2026" : raw);
+}
+function strictQuarantineEnabled(flag, envValue) {
+  if (flag !== void 0) {
+    return flag;
+  }
+  return envValue === "1";
+}
 function rawBytesFingerprint(raw) {
   const buf = Buffer.from(raw, "utf8");
   const truncated = buf.length > RAW_BYTES_CAP;
@@ -240,8 +251,22 @@ function strictQuarantineViolations(events) {
     if (e.disposition !== "quarantined") {
       continue;
     }
-    if (!baseline.has(e.reason_code)) {
+    if (!baseline.has(e.reason_code) && out.indexOf(e.reason_code) < 0) {
       out.push(e.reason_code);
+    }
+  }
+  return out;
+}
+function ratchetIssues(events) {
+  const observed = new Set(events.filter(function(e) {
+    return e.disposition === "quarantined";
+  }).map(function(e) {
+    return e.reason_code;
+  }));
+  const out = [];
+  for (const c of ACCEPTED_REASON_CODES) {
+    if (!observed.has(c)) {
+      out.push("baseline \u6EDE\u7559\u7801=" + c + "\uFF08\u672C\u8FD0\u884C quarantined \u89C2\u6D4B\u7801\u96C6\u7F3A\u5E2D\u2014\u2014\u68D8\u8F6E\u6761\u6B3E\uFF1A\u6EDE\u7559\u5373\u7EA2\uFF09");
     }
   }
   return out;
@@ -316,10 +341,16 @@ function buildCrashArtifact(args) {
     run_context: {
       repo_ref: rc.repo_ref === void 0 ? null : rc.repo_ref,
       run_id: rc.run_id === void 0 ? null : rc.run_id,
-      commit_sha: rc.commit_sha === void 0 ? null : rc.commit_sha
+      commit_sha: rc.commit_sha === void 0 ? null : rc.commit_sha,
+      head_date: rc.head_date === void 0 ? null : rc.head_date,
+      collector: rc.collector === void 0 ? null : rc.collector
     },
     counts: {
       commits_seen: cn.commits_seen === void 0 ? 0 : cn.commits_seen,
+      records_parsed: cn.records_parsed === void 0 ? 0 : cn.records_parsed,
+      clean: cn.clean === void 0 ? 0 : cn.clean,
+      normalized: cn.normalized === void 0 ? 0 : cn.normalized,
+      quarantined: cn.quarantined === void 0 ? 0 : cn.quarantined,
       facts_written: cn.facts_written === void 0 ? 0 : cn.facts_written,
       quarantined_written: cn.quarantined_written === void 0 ? 0 : cn.quarantined_written
     },
@@ -336,6 +367,9 @@ var PROTOCOL_CRASH_CODES = [
   "INTAKE-IDENTITY-MISMATCH"
 ];
 function protocolCrashError(code, detail, crash) {
+  if (PROTOCOL_CRASH_CODES.indexOf(code) < 0) {
+    throw new Error("protocolCrashError: code not in PROTOCOL_CRASH_CODES\uFF08\u5D29\u6E83\u6876\u8BCD\u8868\u5916\u6253\u9519=bug\uFF0C\u7981\u9759\u9ED8\u964D\u7EA7\uFF09\uFF1A" + code);
+  }
   const e = new Error(code + ": " + detail);
   e.code = code;
   e.crash = {
@@ -358,6 +392,23 @@ function crashArtifactFromError(e, at) {
     counts: e.crash.counts,
     at
   });
+}
+function countsFromStats(stats, recordsParsed, factsWritten, quarantinedWritten) {
+  let clean = 0, normalized = 0, quarantined = 0;
+  for (const s of stats) {
+    clean += s.clean;
+    normalized += s.normalized;
+    quarantined += s.quarantined;
+  }
+  return {
+    commits_seen: recordsParsed,
+    records_parsed: recordsParsed,
+    clean,
+    normalized,
+    quarantined,
+    facts_written: factsWritten === void 0 ? 0 : factsWritten,
+    quarantined_written: quarantinedWritten === void 0 ? 0 : quarantinedWritten
+  };
 }
 
 // src/fact/store.ts
@@ -600,6 +651,21 @@ async function appendQuarantineEvent(connection, ev) {
     ev.collector,
     ev.recorded_at
   ]);
+}
+var AuditIoError = class extends Error {
+  code = "AUDIT-IO-FAILURE";
+  constructor(msg) {
+    super(msg);
+    this.name = "AuditIoError";
+  }
+};
+function isAuditIoError(e) {
+  return !!e && typeof e === "object" && e.code === "AUDIT-IO-FAILURE";
+}
+var IO_ERROR_RE = /IO Error|disk|lock|readonly|read-only|ENOSPC|EBUSY|EPERM|out of space|full/i;
+function classifyWriteError(e) {
+  const m = String(e.message || e || "");
+  return IO_ERROR_RE.test(m) ? "io" : "constraint";
 }
 async function runInTransaction(connection, fn) {
   await connection.run("BEGIN TRANSACTION");
@@ -2522,6 +2588,7 @@ function renderMarkdown(r) {
       out.push("- field " + f.field_name + ": total=" + f.total + " clean=" + f.clean + " normalized=" + f.normalized + " quarantined=" + f.quarantined + "\uFF08" + eq + "\uFF09");
     }
     out.push("- affected_commits\uFF08quarantined \u53BB\u91CD\uFF09: " + ih.affected_commits);
+    out.push("- quarantine_log.recorded_at\uFF08\u5199\u5165\u65F6\u70B9\u5217\uFF09: " + (ih.recorded_at === null ? "NULL\uFF08\u951A\u75C5\u6001\u2192\u89C2\u6D4B\u65F6\u70B9\u4E0D\u53EF\u5F97\uFF0C\u975E\u300C\u5F00\u653E\u5F0F\u300D\u7F3A\u7701\uFF1B\u5217\u7EA7\u8BED\u4E49\u89C1 schema \u6CE8\u8BB0\uFF09" : ih.recorded_at));
     const totalCommits = ih.fields.filter(function(f) {
       return f.field_name === "committer_date";
     })[0];
@@ -3003,7 +3070,18 @@ function probeMacroBRepo(repoRoot, headSha2) {
       counts: { commits_seen: commits.length }
     });
   }
-  const subjects = git3(repoRoot, ["log", "--pretty=format:%s"]).split(NL);
+  let subjects;
+  try {
+    subjects = git3(repoRoot, ["log", "--pretty=format:%s"]).split(NL);
+  } catch (e) {
+    const ee = e;
+    throw protocolCrashError("GIT-PROBE-FAILED", "git %s \u63A2\u9488\u5931\u8D25\uFF1A" + String(e.message || e).split(NL)[0], {
+      raw: ee && ee.stderr ? String(ee.stderr) : null,
+      crash_location: "audit/macro-b.ts:probeMacroBRepo:subjects",
+      run_context: { repo_ref: repoRoot, commit_sha: headSha2 },
+      counts: { commits_seen: commits.length, records_parsed: commits.length }
+    });
+  }
   return { headSha: headSha2, headDate, headRaw, headStatus: headCls.status, treeSha, commitCount, commits, subjects, fieldEvents, fieldStats };
 }
 function collectMacroB(repoRoot, spec, ctx, probes) {
@@ -3303,10 +3381,11 @@ function runDemo(opts) {
       })).size,
       excluded_commits: demoExcl,
       quarantined_rows: demoQuarRows.map(function(e) {
-        return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + "\u2026" : e.raw) };
+        return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: rawEcho(e.raw) };
       }),
       threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
-      escalation: intakeEscalation(probes.fieldStats)
+      escalation: intakeEscalation(probes.fieldStats),
+      recorded_at: probes.headDate
     };
     const col = collectMacroB(repoDir, {
       intentCandidates: INTENT_CANDIDATES,
@@ -3644,16 +3723,16 @@ async function runAudit(opts) {
     return c.date === null;
   }).length;
   if (opts.strictQuarantine === true) {
-    const violations = strictQuarantineViolations(probes.fieldEvents);
+    const violations = strictQuarantineViolations(probes.fieldEvents).concat(ratchetIssues(probes.fieldEvents));
     if (violations.length > 0) {
       const firstEv = probes.fieldEvents.filter(function(e) {
-        return e.disposition === "quarantined";
+        return e.disposition === "quarantined" && violations.join("|").indexOf(e.reason_code) >= 0;
       })[0];
-      throw protocolCrashError("STRICT-QUARANTINE-VIOLATION", "reason_code \u8D8A\u4ED3\u7EA7\u57FA\u7EBF\uFF08strict \u6A21\u5F0F fail-closed\uFF09\uFF1A" + violations.join(","), {
+      throw protocolCrashError("STRICT-QUARANTINE-VIOLATION", "reason_code \u8D8A\u4ED3\u7EA7\u57FA\u7EBF/\u68D8\u8F6E\u6EDE\u7559\uFF08strict \u6A21\u5F0F fail-closed\uFF09\uFF1A" + violations.join(","), {
         raw: firstEv ? firstEv.raw : null,
         crash_location: "audit.ts:strict-quarantine-gate",
-        run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: firstEv ? firstEv.commit_sha : null },
-        counts: { commits_seen: probes.commitCount, facts_written: 0, quarantined_written: 0 }
+        run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: firstEv ? firstEv.commit_sha : null, head_date: probes.headDate, collector: "macro-audit audit" },
+        counts: countsFromStats(probes.fieldStats, probes.commitCount, 0, 0)
       });
     }
   }
@@ -3718,7 +3797,7 @@ async function runAudit(opts) {
       wired_fields: ["committer_date", "head_date"],
       field_stats: probes.fieldStats,
       events: probes.fieldEvents.map(function(e) {
-        return { commit_sha: e.commit_sha, field_name: e.field_name, disposition: e.disposition, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + "\u2026" : e.raw) };
+        return { commit_sha: e.commit_sha, field_name: e.field_name, disposition: e.disposition, reason_code: e.reason_code, raw_echo: rawEcho(e.raw) };
       }),
       excluded_commits: excludedCommits,
       threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
@@ -3840,10 +3919,11 @@ async function runAudit(opts) {
     })).size,
     excluded_commits: excludedCommits,
     quarantined_rows: quarantinedRows.map(function(e) {
-      return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + "\u2026" : e.raw) };
+      return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: rawEcho(e.raw) };
     }),
     threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
-    escalation: intakeEscalation(probes.fieldStats)
+    escalation: intakeEscalation(probes.fieldStats),
+    recorded_at: probes.headDate
   };
   const reportInput = {
     report_id: "MA-AUDIT-" + R + "-MACRO-B",
@@ -3876,6 +3956,7 @@ async function runAudit(opts) {
     intake_health: intakeHealth,
     human: { status: "pending", adjudicator: "user", text: null, decided_at: null }
   };
+  const FACT_WRITE_BATCH = 500;
   const dbPath = join8(outDir, "facts.duckdb");
   if (existsSync6(dbPath)) {
     unlinkSync(dbPath);
@@ -3887,22 +3968,85 @@ async function runAudit(opts) {
   const seen = /* @__PURE__ */ new Set();
   let factsWritten = 0;
   let eventsWritten = 0;
+  const crashCtx = function(sha) {
+    return { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: sha, head_date: probes.headDate, collector: "macro-audit audit" };
+  };
+  const crashCounts = function() {
+    return countsFromStats(probes.fieldStats, probes.commitCount, factsWritten, eventsWritten);
+  };
   try {
-    await runInTransaction(writer, async function() {
-      if (!anchorQuarantined) {
-        for (const f of col.realFacts) {
-          if (!seen.has(f.fact_id)) {
-            seen.add(f.fact_id);
-            await appendFact(writer, f);
-            factsWritten += 1;
-          }
-        }
+    const commitShaSet = new Set(probes.commits.map(function(c) {
+      return c.sha;
+    }));
+    const factsBySha = /* @__PURE__ */ new Map();
+    const restFacts = [];
+    for (const f of col.realFacts) {
+      if (commitShaSet.has(f.subject_ref)) {
+        const arr = factsBySha.get(f.subject_ref) || [];
+        arr.push(f);
+        factsBySha.set(f.subject_ref, arr);
+      } else {
+        restFacts.push(f);
       }
-      for (const fe of probes.fieldEvents) {
+    }
+    const eventsBySha = /* @__PURE__ */ new Map();
+    for (const fe of probes.fieldEvents) {
+      const arr = eventsBySha.get(fe.commit_sha) || [];
+      arr.push(fe);
+      eventsBySha.set(fe.commit_sha, arr);
+    }
+    const appendEvents = async function(evs) {
+      for (const fe of evs) {
         await appendQuarantineEvent(writer, { run_id: ctx.traceId, commit_sha: fe.commit_sha, field_name: fe.field_name, disposition: fe.disposition, reason_code: fe.reason_code, raw: fe.raw, collector: "macro-audit audit", recorded_at: probes.headDate });
         eventsWritten += 1;
       }
+    };
+    for (const c of probes.commits) {
+      const cFacts = anchorQuarantined ? [] : factsBySha.get(c.sha) || [];
+      const cEvents = eventsBySha.get(c.sha) || [];
+      if (cFacts.length > 0 || cEvents.length > 0) {
+        await runInTransaction(writer, async function() {
+          for (const f of cFacts) {
+            if (!seen.has(f.fact_id)) {
+              seen.add(f.fact_id);
+              await appendFact(writer, f);
+              factsWritten += 1;
+            }
+          }
+          await appendEvents(cEvents);
+        });
+      }
+      const cn = await (await writer.run("SELECT COUNT(*) FROM quarantine_log WHERE run_id = ? AND commit_sha = ?", [ctx.traceId, c.sha])).getRows();
+      if (Number(cn[0][0]) !== cEvents.length) {
+        throw protocolCrashError("INTAKE-IDENTITY-MISMATCH", "\u9010 commit \u589E\u91CF\u6052\u7B49\u5F0F\u65AD\u8A00\u5931\u8D25\uFF1Asha=" + c.sha + " \u671F\u671B " + cEvents.length + " \u5E93\u5185 " + Number(cn[0][0]), { crash_location: "audit.ts:per-commit-identity", run_context: crashCtx(c.sha), counts: crashCounts() });
+      }
+    }
+    const orphanEvents = probes.fieldEvents.filter(function(fe) {
+      return !commitShaSet.has(fe.commit_sha);
     });
+    for (let i = 0; i < restFacts.length; i += FACT_WRITE_BATCH) {
+      const batch = restFacts.slice(i, i + FACT_WRITE_BATCH);
+      const lastChunk = i + FACT_WRITE_BATCH >= restFacts.length;
+      await runInTransaction(writer, async function() {
+        if (!anchorQuarantined) {
+          for (const f of batch) {
+            if (!seen.has(f.fact_id)) {
+              seen.add(f.fact_id);
+              await appendFact(writer, f);
+              factsWritten += 1;
+            }
+          }
+        }
+        if (lastChunk) {
+          await appendEvents(orphanEvents);
+        }
+      });
+    }
+    if (restFacts.length === 0 && orphanEvents.length > 0) {
+      await runInTransaction(writer, async function() {
+        await appendEvents(orphanEvents);
+      });
+    }
   } catch (e) {
     try {
       closeDuckdb(writer);
@@ -3911,14 +4055,17 @@ async function runAudit(opts) {
     if (isProtocolCrash(e)) {
       throw e;
     }
-    throw protocolCrashError("QUARANTINE-CONSTRAINT", "fact/quarantine \u4E8B\u52A1\u5199\u5931\u8D25\uFF08ROLLBACK \u65E0\u534A\u622A\u5199\uFF09\uFF1A" + String(e.message || e), { crash_location: "audit.ts:fact-write-tx", run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId }, counts: { commits_seen: probes.commitCount, facts_written: factsWritten, quarantined_written: eventsWritten } });
+    if (classifyWriteError(e) === "io") {
+      throw new AuditIoError("fact/quarantine \u5199 IO \u5931\u8D25\uFF08D-115\u2462 IO \u5931\u8D25\u7C7B\u9000\u51FA\u7C7B\u2014\u2014\u975E\u534F\u8BAE\u5D29\u6E83\uFF09\uFF1A" + String(e.message || e));
+    }
+    throw protocolCrashError("QUARANTINE-CONSTRAINT", "fact/quarantine \u4E8B\u52A1\u5199\u5931\u8D25\uFF08\u8BE5\u6279 ROLLBACK \u65E0\u534A\u622A\u5199\uFF09\uFF1A" + String(e.message || e), { crash_location: "audit.ts:fact-write-tx", run_context: crashCtx(null), counts: crashCounts() });
   }
   const dbCounts = await queryQuarantineCounts(writer, ctx.traceId);
   const identityIssues = intakeIdentityIssues(probes.fieldStats, dbCounts);
   await writer.run("FORCE CHECKPOINT");
   closeDuckdb(writer);
   if (identityIssues.length > 0) {
-    throw protocolCrashError("INTAKE-IDENTITY-MISMATCH", "\u6052\u7B49\u5F0F\u65AD\u8A00\u5931\u8D25\uFF1A" + JSON.stringify(identityIssues), { crash_location: "audit.ts:intake-identity", run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId }, counts: { commits_seen: probes.commitCount, facts_written: factsWritten, quarantined_written: eventsWritten } });
+    throw protocolCrashError("INTAKE-IDENTITY-MISMATCH", "\u6052\u7B49\u5F0F\u65AD\u8A00\u5931\u8D25\uFF1A" + JSON.stringify(identityIssues), { crash_location: "audit.ts:intake-identity", run_context: crashCtx(null), counts: crashCounts() });
   }
   const report = buildReport(reportInput);
   const reportMd = renderMarkdown(report) + NL3;
@@ -3926,7 +4073,7 @@ async function runAudit(opts) {
   let artifacts = null;
   writeFileSync3(join8(outDir, "report.md"), reportMd, "utf8");
   writeFileSync3(join8(outDir, "report.json"), sidecarJson, "utf8");
-  writeFileSync3(join8(outDir, FACTS_NAME), col.realFacts.map(function(f) {
+  writeFileSync3(join8(outDir, FACTS_NAME), anchorQuarantined ? "" : col.realFacts.map(function(f) {
     return JSON.stringify(f);
   }).join(NL3) + NL3, "utf8");
   artifacts = persistOut ? { report_md: join8(outDir, "report.md"), report_json: join8(outDir, "report.json"), facts_jsonl: join8(outDir, FACTS_NAME), measurements: join8(outDir, MEAS_NAME), duckdb: dbPath } : null;
@@ -4056,7 +4203,7 @@ process.env.MACRO_AUDIT_MCP_STDIO = "1";
 var MCP_PROTOCOL_VERSION = "2024-11-05";
 var QUARANTINE_TOOL = {
   name: "quarantine",
-  description: "read-only quarantine_log projection\uFF08#78/D-113\u2461\uFF09\uFF1A\u5B57\u6BB5\u7EA7\u75C5\u6001\u5904\u7F6E\u4E8B\u4EF6\u53F0\u8D26\u2014\u2014\u56FA\u5B9A\u5217\u96C6\uFF08run_id/commit_sha/field_name/disposition/reason_code/raw_bytes_hex/is_trunc/original_length/sha256_full/collector/recorded_at\uFF09\uFF0CREAD_ONLY \u5B9E\u4F8B\uFF0Climit\u2264500\u3002db \u5BFB\u5740\u540C facts \u94FE",
+  description: "read-only quarantine_log projection\uFF08#78/D-113\u2461\uFF09\uFF1A\u5B57\u6BB5\u7EA7\u75C5\u6001\u5904\u7F6E\u4E8B\u4EF6\u53F0\u8D26\u2014\u2014\u56FA\u5B9A\u5217\u96C6\uFF08run_id/commit_sha/field_name/disposition/reason_code/raw_bytes_hex/is_trunc/original_length/sha256_full/collector/recorded_at\uFF09\uFF0CREAD_ONLY \u5B9E\u4F8B\uFF0Climit\u2264500\u3002recorded_at=NULL=\u951A\u75C5\u6001\u2192\u89C2\u6D4B\u65F6\u70B9\u4E0D\u53EF\u5F97\uFF08D-108\u2463 NULL \u8BED\u4E49\u663E\u5F0F\u6587\u6848\uFF1A\u975E\u300C\u5F00\u653E\u5F0F\u300D\u7F3A\u7701\uFF0Crange \u8C13\u8BCD\u4E0D\u541E NULL\uFF09\u3002db \u5BFB\u5740\u540C facts \u94FE",
   inputSchema: {
     type: "object",
     properties: {
@@ -4225,6 +4372,9 @@ async function serveMcpStdio(input, output) {
 }
 
 // src/cli.ts
+var EXIT_PROTOCOL_CRASH = 2;
+var EXIT_STRICT_GATE = 3;
+var EXIT_IO_FAILURE = 4;
 var ExitSignal = class extends Error {
   constructor(code) {
     super("exit:" + code);
@@ -4367,7 +4517,7 @@ async function main() {
     let outDir;
     let asJson = false;
     let refresh = false;
-    let strictQuarantine = false;
+    let strictFlag = void 0;
     for (let i = 0; i < args.length; i++) {
       const a = args[i];
       if (a === "--scale") {
@@ -4387,7 +4537,9 @@ async function main() {
       } else if (a === "--refresh") {
         refresh = true;
       } else if (a === "--strict-quarantine") {
-        strictQuarantine = true;
+        strictFlag = true;
+      } else if (a === "--no-strict-quarantine") {
+        strictFlag = false;
       } else if (a.indexOf("--") === 0) {
         errExit("AUDIT-ARGS: unknown flag " + a + "\n", 2);
       } else if (!input) {
@@ -4396,8 +4548,9 @@ async function main() {
         errExit("AUDIT-ARGS: unexpected extra positional " + a + "\n", 2);
       }
     }
+    const strictQuarantine = strictQuarantineEnabled(strictFlag, process.env[STRICT_QUARANTINE_ENV]);
     if (!input) {
-      errExit("usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine]\n", 2);
+      errExit("usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine]\n", 2);
     }
     try {
       const r = await runAudit({ input, scale, outDir, json: asJson, refresh, strictQuarantine });
@@ -4444,11 +4597,14 @@ async function main() {
         } catch (_) {
           artifact = null;
         }
-        const code = payload.error_code === "STRICT-QUARANTINE-VIOLATION" ? 3 : 2;
+        const code = payload.error_code === "STRICT-QUARANTINE-VIOLATION" ? EXIT_STRICT_GATE : EXIT_PROTOCOL_CRASH;
         errExit(JSON.stringify({ error: payload.error_code, message: e.message, crash_artifact: artifact, crash_location: payload.crash_location, run_context: payload.run_context, counts: payload.counts }) + "\n", code);
       }
+      if (isAuditIoError(e)) {
+        errExit(JSON.stringify({ error: e.code, message: e.message }) + "\n", EXIT_IO_FAILURE);
+      }
       const err = e;
-      errExit(JSON.stringify({ error: err.code || "AUDIT-ERROR", message: err.message || String(e) }) + "\n", 2);
+      errExit(JSON.stringify({ error: err.code || "AUDIT-ERROR", message: err.message || String(e) }) + "\n", EXIT_PROTOCOL_CRASH);
     }
   } else if (cmd === "demo") {
     const args = process.argv.slice(3);

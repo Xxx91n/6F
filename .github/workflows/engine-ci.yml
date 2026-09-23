@@ -58,3 +58,7 @@ jobs:
         shell: bash
         working-directory: engine
         run: node test/doctor-fix.test.mjs
+
+      - name: 78-check quarantine 独立对账守卫（D-116② load-bearing：独立代码路径恒等式重算）
+        shell: bash
+        run: node .scratch/architecture-recovery/reports/78-check.mjs

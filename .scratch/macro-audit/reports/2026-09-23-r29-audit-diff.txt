@@ -1,0 +1,2250 @@
+commit 59f72e9e8e12a341756121ca19a27cfb409ec47d
+Author: Euiop1 <iz0ms@Euiop1.oi>
+Date:   Wed Sep 23 02:18:45 2026 +0800
+
+    feat(#78): quarantine 引擎建制——三态分类器+quarantine_log 幂等持久化+逐 commit 事务+strict 反向开关+Intake Health 恒在+双层对账+known-gaps 台账+病态 fixture e2e+78-check 30/30（ADR-0022/D-103~D-120）
+    
+    - 契约层 intake/quarantine.ts：classifyGitIsoField（clean/normalized/quarantined 永不 throw）+词表 v1 四码+rawBytesFingerprint+ACCEPTED_REASON_CODES 空基线
+    - fact/{schema,store}.ts：quarantine_log DDL+自然键 UNIQUE+ON CONFLICT DO NOTHING+runInTransaction+schema_registry v2
+    - 接线：macro-b 锚+逐 commit %cI 双分类/audit strict 闸+恒等式/collectors null 毒值跳过/generate Intake Health+verdict 三面投影/cli --strict-quarantine+0/2/3 退出码/mcp quarantine 只读投影
+    - 对账：quarantine.test.mjs 56/56（smoke 第 18 件）+78-check.mjs 30/30（双通道 disposition parity）+docs/known-gaps.md GAP-078-01~04+registry 78-quarantine-signal-review
+    - CI：macro-b-regression.yml 三查升级（JSON+verdict/reason_class 枚举+intake_health）+crash 工件上传
+    - 裁：D-118④ SoD——39/40 对照物零改动（quarantined×解析失败=预期分歧格）；is_trunc 列名=TRUNCATE 子串黑名单兼容
+    
+    Generated with [Devin](https://devin.ai)
+    
+    Co-Authored-By: Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>
+
+diff --git a/.github/workflows/macro-b-regression.yml b/.github/workflows/macro-b-regression.yml
+index 532411f..90c2479 100644
+--- a/.github/workflows/macro-b-regression.yml
++++ b/.github/workflows/macro-b-regression.yml
+@@ -125,10 +125,11 @@ jobs:
+             --root "$GITHUB_WORKSPACE/audited-repo" \
+             --out "$GITHUB_WORKSPACE/macro-b-artifacts"
+ 
+-      - name: verify report artifacts (receipt + sidecar + md + facts + duckdb present)
++      - name: verify report artifacts (three-check: present + JSON parse + verdict/reason_class enum + intake_health)
+         env:
+           REPO_NAME: ${{ matrix.repo.name }}
+         run: |
++          set -euo pipefail
+           test -s "macro-b-artifacts/39-macro-b-$REPO_NAME.json"
+           grep -Eq '"receipt_id"[[:space:]]*:[[:space:]]*"RCP-[0-9a-f]{16}"' "macro-b-artifacts/39-macro-b-$REPO_NAME.json"
+           grep -q '"scale": "Macro-B"' "macro-b-artifacts/39-macro-b-$REPO_NAME.json"
+@@ -136,7 +137,19 @@ jobs:
+           test -s "macro-b-artifacts/39-macro-b-$REPO_NAME-facts.jsonl"
+           test -s "macro-b-artifacts/39-macro-b-$REPO_NAME-measurements.json"
+           test -s "macro-b-artifacts/39-audit-facts.duckdb"
+-          echo "macro-b regression artifacts verified (pipeline green; verdict recorded honestly in report)"
++          # #78/ADR-0022 三查升级：①sidecar JSON 可解析 ②overall_verdict+verdict.reason_class 枚举闭集 ③intake_health 恒在
++          node -e "const s=require('./macro-b-artifacts/39-macro-b-$REPO_NAME.json'); if(['supported','unsupported','insufficient'].indexOf(s.overall_verdict)<0) throw new Error('overall_verdict not in enum: '+s.overall_verdict); if(!s.verdict||['none','evidence_insufficient','anchor_malformed','threshold_exceeded','criteria_unsupported'].indexOf(s.verdict.reason_class)<0) throw new Error('reason_class not in enum: '+(s.verdict&&s.verdict.reason_class)); if(!s.intake_health||!Array.isArray(s.intake_health.fields)) throw new Error('intake_health absent');"
++          grep -q '## Intake Health' "macro-b-artifacts/39-macro-b-$REPO_NAME.md"
++          echo "macro-b regression verified: artifacts + JSON + verdict/reason_class enum + intake_health (pipeline green != verdict green)"
++
++      - name: upload crash artifacts (protocol-bucket lane, if any)
++        # #78/D-109：协议级崩溃固定 schema 工件——one-shot 硬崩（exit 2/3）时崩溃桶 JSON 随工件上传，批灭前先留证
++        if: always()
++        uses: actions/upload-artifact@v4
++        with:
++          name: macro-b-crash-${{ matrix.repo.name }}
++          path: macro-b-artifacts/*crash*.json
++          if-no-files-found: ignore
+ 
+       - uses: actions/upload-artifact@v4
+         if: always()
+diff --git a/.scratch/architecture-recovery/BACKLOG.md b/.scratch/architecture-recovery/BACKLOG.md
+index 512887f..2df630c 100644
+--- a/.scratch/architecture-recovery/BACKLOG.md
++++ b/.scratch/architecture-recovery/BACKLOG.md
+@@ -96,5 +96,5 @@
+ | #75 | 守卫纪律建制包三批（D-094/095/096）：批1 失效三分类——字面钉普查 pass〔扫 NN-check 源码找日期字面量/魔数地板/裸 occurred===，检出须归因注记：tripwire→registry 锚+vacuity 豁免登记，无意图钉→改写派生断言〕＋断言文本匹配剥注释通用化〔73-check A4 修法成先例〕＋presence/liveness/readiness 三层命名约定＋XFAIL 册明文只收合法漂移类〔欺诈断言禁入册〕；批2 枚举 open/closed——每枚枚举面标 open/closed＋closed 面成员级双向差集 lint〔explain 9 面/遥测排除首案〕＋常量集 SSOT〔doc 枚举行+N 类计数派生或校验〕＋成员级漂移禁入册＋reserved 机制〔仅外部输入面/reserved: 理由+失效条件/主集豁免/生产者出现→FAIL/cap≤2；场景≤1 条不建制——preflight 逐条裁：内部防万一则删〕；批3 census-contract——63 清单头加契约块〔字段 schema 归一 style/sealedCall＋五豁免规则各给正反例对，钉性质不钉正则体〕＋70-check 互等裁决断言〔重算结果 vs 契约〕＋契约变更 PR 门控＋契约=70-check 与 vacuity 普查共用规格〔防第三份机芯〕＋契约枚举 open/closed 声明 | D-094 / D-095 / D-096 / D-079 / D-071 / D-037 | P1 | 三批可独立落地但同票管——册规补丁/豁免登记/契约枚举互引；互等钉钉输出契约非共享代码〔differential oracle 独立性=E1 判力命根〕；契约块不编 XFAIL 状态〔#33 vs #70 面不耦合〕 |
+ | #76 | engine-ci 首跑红修（R24 handoff §新增问题立案）：A 类 Node-20 三平台——audit.test.mjs J1/J2＋demo.test.mjs M1〔省略 --out→stdout sidecar 解析失败；node20 全挂/node22 全过/本地 node24 绿——疑 CLI stdout 发射 Node-20 行为差，需 Node-20 环境复现〕；B 类非 Windows——duckdb-selfheal-e2e 4/4 FAIL〔ubuntu/macos×node20/22：事件报 success 但 openWriter exit=1、bindings 补拉后包目录未复在；windows 腿过——疑补拉机制非 Windows 路径〕；复现线索 run 35515346216 | R24 handoff / D-072③ / registry engine-ci-main-green | P1 | 挡 engine-ci-main-green 事件翻转→readme-ci-badge 值守链；修毕全绿方可翻事件〔不预翻〕；YAML 死面 8 天未检属「存在≠活性」样本族已入 D-094 建制 | ✅ 2026-09-22 已闭环（R26 实施轮，分支 r26-74-6f-rename 合入 main d207a0a）：D-097 四修法全落——stdout 冲刷门控（cli.ts 22 出口收敛+ExitSignal 哨兵）/closeDuckdb conn+instance 双段释放/npm pack+tar 手术恢复避 arborist no-op/原生件族正则升（node|so|dylib|dll>1MB）；分支 CI run 35677822036 六腿全绿＋main run 35681529820 success=engine-ci-main-green 事件发生→readme-ci-badge 解锁进 #77 |
+ | #77 | 门面收口包·A 窗（本轮实施）：①README.md 新「## Acknowledgments」节置尾（Honesty notes 之前）——**生成式锚段非手写**：生成器持 per-id 人工模板（感谢宾语+角色句逐条人定一次，禁从 kind 推导——github-rest=API 非项目），枚举=upstream-lock.yaml status=active 集（当前 8 id：codelore/duckdb-node-api/duckdb-node-bindings/git-cli/github-rest/esbuild/schemastore-claude-plugin-manifest/claude-cli），行=名字+一句角色+上游主页链接，脚注指 lock 全集；②closed 对账守卫=regen→diff empty（成员集⇔active 集双向差集，manifest.meta.json 先比后写同型）；③planned/evaluating/retired 不进面；④§3 技术上游表不动；⑤禁版本/pin/契约入节、链接指上游主页禁 .scratch 路径；⑥zh-CN 派生镜像（D-088）；⑦CI badge 挂载（engine-ci-main-green 已发生→D-089⑤ 解锁，徽标指 main workflow）＋GitHub homepageUrl 补齐 | D-098 / D-099③ / D-101① / D-089⑤ / D-037③ | ✅ 2026-09-22 已闭环（轮28 A 窗：生成器+双语锚段+77-check 16/16+badge+homepageUrl；报告 .scratch/macro-audit/reports/2026-09-22-r28-exec-report.md） | 一主题一窗（与 #78 并行不混窗——mixed-PR 反模式）；致谢节=生成物锚段（regen-diff 断言非字符串钉）；无消费面资产禁预置（D-099） |
+-| #78 | 引擎 quarantine 建制·B 并行独立窗（含 macro-b-regression git 腿红修=验收件）：①intake 违约两级化——协议级违约（列结构/分隔符/记录定界/行形状坏=所有行同病）保持 fail-fast；字段级病态（记录定界成功但单字段值语义非法且无确定性可挽救目标）进 quarantine 桶=字段 null+⚠malformed 印记+审计继续；②三桶分离计数 clean/normalized/quarantined（normalized 不打 ⚠ 防标记疲劳）；③可观测五件——逐 SHA 清单+reason code（两桶码永不合并）／原始字段字节回显（fact 行保留原值）／报告头覆盖率恒等式 total=clean+normalized+quarantined 且派生统计声明排除行／单字段 quarantine 比例阈值超限→升级该仓 unsupported／--strict-quarantine 反向开关（CI/回归对新 reason code 硬崩）；④null=毒值（消费方触 null 显式报错或显式跳过禁当 0 参与时间窗/排序）；⑤新 reason code=契约覆盖缺口信号登 known-gaps 台账；⑥schema+golden+恒等式同窗一个 idea 不拆 | D-100 / D-101② / D-059①收窄链 | P1 并行独立验证窗 | owner=macro-audit 队列值守；deadline=下一实施窗边界（腐红防线三件套：owner/deadline/已分类）；阈值初值实施期取保守默认并注记；git 腿若本迭代排不上→显式豁免登记（xfail+tracking+deadline）转「显式豁免红」 |
++| #78 | 引擎 quarantine 建制·B 并行独立窗（含 macro-b-regression git 腿红修=验收件）：①intake 违约两级化——协议级违约（列结构/分隔符/记录定界/行形状坏=所有行同病）保持 fail-fast；字段级病态（记录定界成功但单字段值语义非法且无确定性可挽救目标）进 quarantine 桶=字段 null+⚠malformed 印记+审计继续；②三桶分离计数 clean/normalized/quarantined（normalized 不打 ⚠ 防标记疲劳）；③可观测五件——逐 SHA 清单+reason code（两桶码永不合并）／原始字段字节回显（fact 行保留原值）／报告头覆盖率恒等式 total=clean+normalized+quarantined 且派生统计声明排除行／单字段 quarantine 比例阈值超限→升级该仓 unsupported／--strict-quarantine 反向开关（CI/回归对新 reason code 硬崩）；④null=毒值（消费方触 null 显式报错或显式跳过禁当 0 参与时间窗/排序）；⑤新 reason code=契约覆盖缺口信号登 known-gaps 台账；⑥schema+golden+恒等式同窗一个 idea 不拆 | D-100 / D-101② / D-059①收窄链 | ✅ 2026-09-23 已闭环（轮29 T2 B 窗，分支 r29-78-quarantine）：契约层三态分类器+quarantine_log 幂等持久化+事务写+strict 反向开关+Intake Health 恒在+双层对账+known-gaps 台账+病态 fixture e2e+78-check 30/30+QUARANTINE 56/56+npm test 19 册全绿+守卫组全绿；报告 .scratch/macro-audit/reports/2026-09-23-r29-exec-report.md | owner=macro-audit 队列值守；deadline=下一实施窗边界（腐红防线三件套：owner/deadline/已分类）；阈值初值实施期取保守默认并注记；git 腿若本迭代排不上→显式豁免登记（xfail+tracking+deadline）转「显式豁免红」 |
+ | #79 | NOTICE 承接合规核查（D-098⑦ 衍生立项）：8 个 active 上游逐个核查 NOTICE 文件存在性（Apache-2.0 §4(d)：上游带 NOTICE 则分发物须附可读副本）→承接面选型（仓根 NOTICE/THIRD-PARTY-NOTICES）；逐上游实证非批量假设；核查未完不宣称合规闭环 | D-098⑦ / ADR-0021 | 随 #75 排产 | 承接文本=上游 NOTICE 原文非自撰；README 致谢节不替代法律承接文件 |
+diff --git a/.scratch/architecture-recovery/WORKFLOW.md b/.scratch/architecture-recovery/WORKFLOW.md
+index b5fbe76..95629f5 100644
+--- a/.scratch/architecture-recovery/WORKFLOW.md
++++ b/.scratch/architecture-recovery/WORKFLOW.md
+@@ -226,6 +226,7 @@ Phase 之间到达 boundary 时，按本仓库偏好顺序选：
+ 
+ | 日期 | 事由 | 影响 | 解决方案 | 引用 |
+ |---|---|---|---|---|
++| 2026-09-23 | 轮29 #78 quarantine 建制：①D-118④ SoD 裁决落地纠偏——初版误把分类器接进 39/40 对照物（「被观察的独立行为」禁改），回退后 parity 改判格语义（quarantined×解析失败=预期分歧格）；②append-only 子串黑名单误伤列名——is_truncated 含 TRUNCATE 子串被守卫拒，改 is_trunc 并注记；③模板层 $' 与 \\n 双重转义塌陷=源文件字面量雷区——含正则/换行的生成走 String.fromCharCode 规避＋写后 node --check+字节回读 | 教训：改「对照物/基线/守卫」三类权威面前先查账本禁条（D-118④「双实现+parity=否决」直接适用）；标识符命名先过黑名单子串预审；生成文件双验位不可省 | D-8 + 轮29 实战 |
+ | 2026-09-16 | R9 #48 闭环：Micro-A preview 单票铺开——github-rest-adapter@v1 消费侧管道（PR 枚举+元数据+diff 双通道）→ 101 facts 入 48-audit-facts.duckdb（scale=Micro-A）→ 预声明判据 PC-1/TC-1~4/NC-1 → 报告双件×4 全 supported（env64 release-please 机器生成·env55 dependabot api 兜底·env51 人类·jia6 人类）＋goose-duck-agent 无托管面拒绝件 unsupported；golden cassette 回放 14/14；registry micro-a-preview-prep occurred 翻转＋desk-task15 判 decided；40-check F4/44-check E8 漂移对齐 | ① 判据文字面先于实跑锁死（criteria 文件先入库跑后禁调）——api 通道 diff 契约=NULL_STATS（适配器 apiDiff 不算 numstat），判据须编码通道条件语义（local-git→数值齐备/api→bytes>0+detail 注记）否则 api 兜底腿被误杀成 insufficient；② 票面前提漂移如实登记（anysearch-cli 票写时无托管面→实测 merged=6≥1）不硬套票面，failure 演示主体改取真负例 goose-duck-agent（merged=0）；③ 事件翻转连带绑定项全部复审留痕——review 不等于翻转，三项维持 pending＋一项 reaffirmed＋desk-task15 独判 decided | ① 托管面资格闸=枚举行 merged_at 字段即够（≥1 eligible，无需 detail 调用）；② 判据通道条件语义进 criteria 文档并注上游契约出处（apiDiff NULL_STATS 是设计非缺陷）；③ 前提漂移注记三处同源（拒绝件披露块＋日报＋账本） | D-049/D-047/D-033 + 报告 #48 |
+ | 2026-09-16 | R9 #50 闭环：叙事双轨落地——report/narrative.ts sealNarrative（三态 stamp＋band 红线机检＋model_id 必录）＋mcp facts 只读投影（固定 SELECT/READ_ONLY/参数绑定）＋references 三件＋SKILL.md 加载条件；registry narrative-surface-landed occurred＋narrative-eval-surface→triggered-bound＋#52 评测票立案；narrative.test 25/25 入 smoke | ① ctx_execute 写源码文件时正则要 **双重转义**——\b/\s 在外层 JS 字符串被剥成裸字符（backspace 字节/s 字面），正则字面量静默失配——写含正则的文件一律 new RegExp(字符串) 或直接 Edit 工具；② DuckDB TIMESTAMPTZ 返回 DuckDBTimestampTZValue 对象（内含 BigInt 不可 JSON）——投影面 SQL 层 CAST AS VARCHAR 最干净；③ SWMR 同进程 openWriter→openReader 必拒（实例级锁），e2e 一律跨进程（写子进程+读子进程） | ① 文件写入后扫 \x08 控制字节做哨兵；② MCP stub 收窄=固定 SELECT 形+参数绑定不接裸 SQL（stub 面越小越安全）；③ 评测面先物后尺：被测对象落地当刻登记 triggered-bound＋另立票，判据独立于产出方 | D-053/D-057④ + 报告 #50 |
+ | 2026-09-16 | R9 #51 闭环：Macro-B behavior 象限接入——CODELORE_BEHAVIOR_FACETS（hotspots/coupling/function-hotspots group=behavior）＋51 管道（env-manager 实跑 116/241/41 行→判据 PC-1/TC-1/TC-2/NC-1 全 supported→behavior=native 切片）＋能力矩阵收窄（strategy:active·behavior:preview·structure/supply-chain:queued）＋D-035 勘误注记＋registry deferred 面集留痕；51-check PASS | ① 暂缓面集激活不静默——消费侧扩展做账本勘误注记（D-035 行后一行）＋registry 确认留痕，契约本体不变；② quadrant 归位=切片决策（fact.quadrant=provenance 不改写）天然支持同一 facts 双象限消费无冲突；③ 低样本判据预声明阈值（TC1_MIN_N=5=codelore --min-revs 默认）把「小样本信度」从披露话术变成可机检判据 | ① 能力矩阵措辞与立票同票绑定（只收窄不立票=声明↔实物漂移）；② --target 参数面（function-coupling 类）不进全仓面集——登记 deferred 防半接面污染判据；③ schema 实物跑留痕先行（51-behavior-schema.json）再写判据——判据引用的列名必须有实跑锚 | D-054 + 报告 #51 |
+diff --git a/.scratch/architecture-recovery/decision-ledger.md b/.scratch/architecture-recovery/decision-ledger.md
+index aaafb1a..9ee9ef1 100644
+--- a/.scratch/architecture-recovery/decision-ledger.md
++++ b/.scratch/architecture-recovery/decision-ledger.md
+@@ -423,3 +423,4 @@
+ > R14 勘误注记（2026-09-19，r23 独立审计 R1——A-080 先例原文保留）：A-083 需求栏「CODELORE_DIMENSION_MAP 37 行」→实物 43 行（12+6+12+9+3+1）；A-084「遥测七类」与 BACKLOG #72 票面「六类」差=preflight 防御性超枚举（无生产者 fail-safe 预列，doc §② 行已补名对齐七类）；A-086「but status 无 pending」应读「engine/package.json 无 pending」。修复随附：update-70-inventory.mjs assert-back／71-check A1 互等断言＋B4/B7 explain 成员级补盲／map.ts 死 import＋unmapped lane 澄清。审计报告：`.scratch/macro-audit/reports/2026-09-19-r23-audit-report.md`。
+ | A-088 | 轮26 T0~T2 / BACKLOG #74（6F 正名门面）＋#76（engine-ci 首跑红修） | #74：hero.svg 六 chip 重绘＋README 双件 6F 化（H1/六-F Highlights 宣言块/双锚）＋social-card.png 重产＋description.md displayName+变更注记＋engine-README 代号注记＋73-check 锚集同步（14/14）；#76：stdout 冲刷门控（cli.ts 22 出口收敛+ExitSignal 哨兵）＋closeDuckdb conn+instance 双段释放＋npm pack+tar 手术恢复＋原生件族正则升（node|so|dylib|dll>1MB）——D-097 四修法全落；T0 附带 xfail-45-h5 摘除（stale-assertions meta.xpass_removal_2026_09_22 注记，45-check H5 移除） | r26-74-6f-rename 五 commit（kyy/qwm/zty 等）合入 main d207a0a；分支 CI run 35677822036 六腿绿＋main run 35681529820 success=engine-ci-main-green 事件发生 | ①Node≤20 process.exit 丢未冲刷管道写=stdout 截断根因（Node 22+ 自带冲刷致 22 腿假绿——版本差测试信号陷阱）；②DuckDBInstance≠conn：conn.closeSync 断连不释库句柄致 Windows delete-pending；③npm install --no-save 对 lockfile 已含边+目录缺失=arborist no-op（npm#9024）——手术面走 pack+tar 与 npm 版本无关 | D-092 / D-093 / D-097 / D-094 | done → implemented（2026-09-22）：audit 26/26+demo 38/38+selfheal-e2e 3/3+offline 13/13+doctor-fix 6/6+64-check 15/15；R26 审计 LOOP-2 PASS |
+ | A-089 | 轮28 T1 / BACKLOG #77（P1 门面收口包·A 窗——D-098/D-099③/D-101①/D-089⑤/D-037③/D-088） | engine/scripts/gen-acknowledgments.mjs 生成器（per-id 人工模板×8 active＋先比后写＋--check＋zh sync 戳联动）＋README 双语「## Acknowledgments」生成式锚段（Honesty notes/诚实注记前）＋77-check.mjs 16 断言（枚举三向互等/位置/内容纪律/zh 镜像/badge 实物）＋engine-ci main badge 双文件挂载＋诚实注记措辞合法演化＋gh homepageUrl 补齐＋33-check H4 双向互等化＋73-check D1 措辞演化；T0 连带=xfail-45-b5 stale 条目摘除＋meta 归因注记（D-102① 待追认） | 一主题一窗（与 #78 B 窗并行不混）；生成式锚段非手写枚举；徽章=native actions badge 非 shields 族（73-D1 白名单纪律不动）；homepageUrl=repo URL（listing 指定值） | D-098①②③④⑤⑥⑦ / D-089⑤ / D-088 / D-037③ / D-101① / D-102① | implemented 2026-09-22 |
++| A-090 | 轮29 T2 / BACKLOG #78（P1 引擎 quarantine 建制·B 并行独立验证窗——ADR-0022/D-103~D-120） | engine/src/intake/quarantine.ts（契约层：classifyGitIsoField 三态永不 throw＋词表 v1 四码＋rawBytesFingerprint 三件套＋ACCEPTED_REASON_CODES 仓级基线空集=零容忍棘轮＋协议桶七码 crash 工件 schema v1）＋fact/{schema,store}.ts（quarantine_log DDL＋自然键 UNIQUE 五元组＋ON CONFLICT DO NOTHING 幂等＋runInTransaction 逐 commit 边界＋schema_registry v2）＋macro-b/audit/collectors/generate/cli/mcp-server/projection 六面接线（锚+逐 commit %cI 双分类／strict 闸+恒等式断言／null 毒值显式跳过／Intake Health 恒在+verdict{band,reason_class}投影／--strict-quarantine+0/2/3 三值退出码／quarantine 只读投影+tool）＋quarantine.test.mjs 56/56（smoke 第 18 件）＋78-check.mjs 30/30（病态仓双通道 parity）＋docs/known-gaps.md 首版 GAP-078-01~04＋registry 触发器 78-quarantine-signal-review＋macro-b-regression.yml 三查升级+crash 工件上传腿＋demo golden 重基线＋53-check E1/E2 D-118⑤ 显式豁免集＋33-check 事件锚补齐 | ①判定↔处置硬分界不动——协议级 fail-fast/字段级 quarantine；②D-118④ SoD 纠偏=39/40 对照物零代码改动（分类器误接已回退，parity 改判格语义：quarantined×解析失败=预期分歧格登台账）；③is_trunc 列名=禁词表兼容命名（TRUNCATE 子串黑名单误伤实证）；④ON CONFLICT DO NOTHING=DuckDB 幂等方言选（INSERT OR IGNORE 过不了只追加白名单前缀检）；⑤阈值棘轮初值 0.001 保守上界（语料实测 %cI 长度∈{20,25}） | D-103~D-120 / ADR-0022 / D-100 / D-101② / D-059①收窄链 | implemented 2026-09-23 |
+diff --git a/.scratch/architecture-recovery/reports/33-gate-registry.json b/.scratch/architecture-recovery/reports/33-gate-registry.json
+index fdab943..d2924f6 100644
+--- a/.scratch/architecture-recovery/reports/33-gate-registry.json
++++ b/.scratch/architecture-recovery/reports/33-gate-registry.json
+@@ -156,6 +156,10 @@
+   "docs-site-deployed": {
+    "occurred": false,
+    "note": "D-099③：docs/ 内容以 HTML 站形态实际对外部署之日=事件发生（favicon/apple-touch-icon 派生消费面届时才出现）"
++  },
++  "quarantine-new-signal": {
++   "occurred": false,
++   "evidence": "quarantine_log 词表外 reason_code 首见 / unclassified_field_anomaly 命中新字段族或新病态形态——检测面 SQL 派生（D-113③）；登记=轮29 T2/#78 实施窗"
+   }
+  },
+  "items": [
+@@ -1426,6 +1430,30 @@
+      "evidence": "decision-ledger.md D-099；R27-Q2 调研报告"
+     }
+    ]
++  },
++  {
++   "id": "78-quarantine-signal-review",
++   "family": "quarantine",
++   "title": "#78 quarantine_log 缺口信号复核触发器（D-113② 单向权威——缺口语义唯一权威在 docs/known-gaps.md，本条目只持触发器五要素不复制缺口字段）",
++   "deadline_event": null,
++   "deadline": "无（事件驱动项）",
++   "trigger_event": "quarantine-new-signal",
++   "trigger": "quarantine_log 出现 v1 词表外 reason_code 首见，或 unclassified_field_anomaly 命中新字段族/新病态形态（检测面=SQL 派生：SELECT DISTINCT reason_code, field_name FROM quarantine_log）",
++   "review_at": "触发后 1 个工作日内人审 → known-gaps 台账 status 流转（observed→triaged→legislated）",
++   "status": "pending",
++   "watch": "event_bound",
++   "owner": "macro-audit 队列值守",
++   "verify_method": "docs/known-gaps.md 存在对应 gap_id 行且 status≠observed；78-check.mjs F8 格断言登记义务在位",
++   "confirmations": [
++    {
++     "at": "2026-09-23",
++     "by": "轮29 T2/#78 实施窗",
++     "criterion_version": "D-113②④",
++     "decision": "registered",
++     "reason": "缺口信号复核触发器登记——检测面自动 intake、裁决面人审（DryRun/SBOM→VEX 三层同构）；多数缺口经阈值/strict 硬崩处置无需专门触发器，trigger_id 可空",
++     "evidence": "docs/known-gaps.md GAP-078-01~04；decision-ledger.md D-113"
++    }
++   ]
+   }
+  ]
+ }
+diff --git a/.scratch/architecture-recovery/reports/53-check.mjs b/.scratch/architecture-recovery/reports/53-check.mjs
+index 2c81c8e..051af64 100644
+--- a/.scratch/architecture-recovery/reports/53-check.mjs
++++ b/.scratch/architecture-recovery/reports/53-check.mjs
+@@ -85,13 +85,15 @@ if (r4.status === 0 && existsSync(shotJson) && existsSync(join(OUTA, 'report.jso
+   const sAu = JSON.parse(txt(join(OUTA, 'report.json')));
+   const k39 = Object.keys(s39).sort();
+   const kAu = Object.keys(sAu).sort();
+-  const missing = kAu.filter(function (k) { return k39.indexOf(k) < 0; });
+-  t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段（漂移即报警）', missing.length === 0, 'extra=' + missing.join(','));
++  // #78/D-118⑤ 显式豁免集：intake_health=引擎独有摄入面机读块（对照物 SoD 零分类逻辑不产此面——豁免须显式枚举，沉默不兜底）
++  const PARITY_EXEMPT_PREFIX = ['intake_health', 'verdict.reason_class'];
++  const missing = kAu.filter(function (k) { return k39.indexOf(k) < 0 && PARITY_EXEMPT_PREFIX.indexOf(k) < 0; });
++  t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段∪豁免集（漂移即报警；intake_health=引擎独有 D-118⑤ 显式豁免）', missing.length === 0, 'extra=' + missing.join(','));
+   function paths(o, pre, acc) { for (const k of Object.keys(o)) { const v = o[k]; const p = pre ? pre + '.' + k : k; acc.push(p); if (v && typeof v === 'object' && !Array.isArray(v)) { paths(v, p, acc); } } return acc; }
+   const p39 = paths(s39, '', []).sort();
+   const pAu = paths(sAu, '', []).sort();
+-  const drift = pAu.filter(function (p) { return p39.indexOf(p) < 0; });
+-  t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径', drift.length === 0, 'drift=' + drift.slice(0, 6).join(','));
++  const drift = pAu.filter(function (p) { return p39.indexOf(p) < 0 && PARITY_EXEMPT_PREFIX.every(function (x) { return p !== x && p.indexOf(x + '.') !== 0; }); });
++  t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径∪豁免集（intake_health.*=预期分歧类 D-118⑤）', drift.length === 0, 'drift=' + drift.slice(0, 6).join(','));
+   const q39keys = s39.quadrants.length ? Object.keys(s39.quadrants[0]).sort() : [];
+   const qDrift = (sAu.quadrants || []).filter(function (q) { return Object.keys(q).some(function (k) { return q39keys.indexOf(k) < 0; }); });
+   t('E3 audit 象限条目字段 ⊆ 39 象限条目字段', qDrift.length === 0);
+diff --git a/.scratch/architecture-recovery/reports/54-check.mjs b/.scratch/architecture-recovery/reports/54-check.mjs
+index 3f94bc1..2c9c70a 100644
+--- a/.scratch/architecture-recovery/reports/54-check.mjs
++++ b/.scratch/architecture-recovery/reports/54-check.mjs
+@@ -25,17 +25,21 @@ function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] ==
+ 
+ // ---------- A. enforce 位在 intake.ts ----------
+ const intake = txt(join(ENG, 'src', 'intake', 'intake.ts'));
++const quar = txt(join(ENG, 'src', 'intake', 'quarantine.ts'));
+ t('A1 normalizeGitIsoDate 导出在', /export function normalizeGitIsoDate\(/.test(intake));
+-t('A2 +00:00→Z 归一规则在', intake.indexOf("replace(/\\+00:00$/") >= 0 && intake.indexOf("'Z'") >= 0);
+-t('A3 严格 ISO 形状断言（Z 或 ±HH:MM 秒精度）在', /GIT_ISO_STRICT_RE = \/\^\\d\{4\}-/.test(intake));
+-t('A4 形状违例抛 GITCLI-OUTPUT-CONTRACT（不静默放行）', intake.indexOf('GITCLI-OUTPUT-CONTRACT') >= 0);
++// #78/ADR-0022：归一规则＋严格形状判定迁入 intake/quarantine.ts 契约层（classifyGitIsoField 单源）；
++// intake.ts 侧 normalizeGitIsoDate=抛型回执委托——两级违约分流钉锚。
++t('A2 +00:00→Z 归一规则在契约层', quar.indexOf("replace(/\\+00:00$/") >= 0 && quar.indexOf("'Z'") >= 0);
++t('A3 严格 ISO 形状断言（Z 或 ±HH:MM 秒精度）在契约层', /GIT_ISO_STRICT_RE = \/\^\\d\{4\}-/.test(quar));
++t('A4 形状违例抛 GITCLI-OUTPUT-CONTRACT（不静默放行；quarantined 经分类器回执）', intake.indexOf('GITCLI-OUTPUT-CONTRACT') >= 0 && intake.indexOf('classifyGitIsoField') >= 0);
+ 
+ // ---------- B. %cI 消费点全走归一化（#53 提炼后位在 audit/macro-b.ts——demo 经共享链同消费） ----------
+ const demo = txt(join(ENG, 'src', 'demo', 'demo.ts'));
+ const mb = txt(join(ENG, 'src', 'audit', 'macro-b.ts'));
+ t('B1 demo.ts 经共享链消费归一化（probeMacroBRepo 从 audit/macro-b.js 导入）', demo.indexOf("from '../audit/macro-b.js'") >= 0 && demo.indexOf('probeMacroBRepo') >= 0);
+-t('B2 macro-b.ts HEAD_DATE 走归一化', mb.indexOf("normalizeGitIsoDate(git(repoRoot, ['log', '-1', '--format=%cI']))") >= 0);
+-t('B3 macro-b.ts 逐 commit date 走归一化（rawLog 解析行）', mb.indexOf('date: normalizeGitIsoDate(parts[2])') >= 0);
++// #78/ADR-0022：%cI 两级分流——协议级（字段不可定界）fail-fast，字段级病态→classifyGitIsoField 三态桶
++t('B2 macro-b.ts HEAD_DATE 走字段分类器（anchor 位）', mb.indexOf("classifyGitIsoField(headRaw, { anchor: true })") >= 0);
++t('B3 macro-b.ts 逐 commit date 走字段分类器（rawLog 解析行）', mb.indexOf('classifyGitIsoField(parts[2])') >= 0);
+ const ciCount = (mb.match(/--format=%cI|\|%cI/g) || []).length;
+ const ciDemo = (demo.match(/--format=%cI|\|%cI/g) || []).length;
+ t('B4 macro-b.ts %cI 调用点恰 2 处全归一化 + demo.ts 无裸 %cI 调用残留（消费点单源在管线模块）', ciCount === 2 && ciDemo === 0, 'mb=' + ciCount + ' demo=' + ciDemo);
+diff --git a/.scratch/architecture-recovery/reports/63-assertion-inventory.json b/.scratch/architecture-recovery/reports/63-assertion-inventory.json
+index f99b1fb..3e13ab7 100644
+--- a/.scratch/architecture-recovery/reports/63-assertion-inventory.json
++++ b/.scratch/architecture-recovery/reports/63-assertion-inventory.json
+@@ -308,6 +308,12 @@
+         "t()"
+       ]
+     },
++    "78-check": {
++      "assertion_ids": 28,
++      "call_styles": [
++        "t()"
++      ]
++    },
+     "r14fix-check": {
+       "assertion_ids": 25,
+       "call_styles": [
+diff --git a/.scratch/architecture-recovery/reports/78-check.mjs b/.scratch/architecture-recovery/reports/78-check.mjs
+new file mode 100644
+index 0000000..8314b80
+--- /dev/null
++++ b/.scratch/architecture-recovery/reports/78-check.mjs
+@@ -0,0 +1,136 @@
++// 78-check.mjs —— #78 quarantine 引擎验收闸（ADR-0022 / D-103~D-120）
++// 断言面：A=契约层导出+intake 委托 / B=schema+store 持久化面 / C=macro-b+audit+report 接线
++//   D=39/40 one-shot 同口径 / E=quarantine.test.mjs 实跑 / F=病态仓双通道 disposition parity 独立对账
++// 用法：node 78-check.mjs（须先 npm run build——dist 面被断言）
++import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
++import { execFileSync, spawnSync } from 'node:child_process';
++import { fileURLToPath, pathToFileURL } from 'node:url';
++import { dirname, join } from 'node:path';
++import { tmpdir } from 'node:os';
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++const REPO = join(HERE, '..', '..', '..');
++const ENG = join(REPO, 'engine');
++const CLI = join(ENG, 'dist', 'cli.js');
++const ONESHOT39 = join(HERE, '39-macro-b-one-shot.mjs');
++const NL = String.fromCharCode(10);
++const Q = await import(pathToFileURL(join(ENG, 'dist', 'intake', 'quarantine.js')).href);
++const STORE = await import(pathToFileURL(join(ENG, 'dist', 'fact', 'store.js')).href);
++
++let pass = 0, fail = 0;
++function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + String(detail).slice(0, 260) : '')); } }
++function txt(p) { return readFileSync(p, 'utf8'); }
++
++// ---------- A. 契约层（intake/quarantine.ts）导出+intake 委托 ----------
++const quar = txt(join(ENG, 'src', 'intake', 'quarantine.ts'));
++const intake = txt(join(ENG, 'src', 'intake', 'intake.ts'));
++t('A1 分类器+三态+词表导出', /export function classifyGitIsoField/.test(quar) && quar.indexOf("'clean' | 'normalized' | 'quarantined'") >= 0 && /export const QUARANTINE_REASON_CODES/.test(quar));
++t('A2 指纹+截断上界 64KiB 导出', /export function rawBytesFingerprint/.test(quar) && quar.indexOf('RAW_BYTES_CAP = 65536') >= 0);
++t('A3 strict 门禁+恒等式+崩溃桶导出', /export function strictQuarantineViolations/.test(quar) && /export function intakeIdentityIssues/.test(quar) && /export function buildCrashArtifact/.test(quar) && /export function protocolCrashError/.test(quar) && /export function isProtocolCrash/.test(quar));
++t('A4 normalizeGitIsoDate 委托分类器（抛型回执兼容旧调用方）', intake.indexOf('classifyGitIsoField') >= 0 && intake.indexOf('GITCLI-OUTPUT-CONTRACT') >= 0);
++t('A5 ACCEPTED_REASON_CODES 仓级版本化基线常量', /export const ACCEPTED_REASON_CODES/.test(quar));
++
++// ---------- B. schema + store 持久化面 ----------
++const schema = txt(join(ENG, 'src', 'fact', 'schema.ts'));
++const store = txt(join(ENG, 'src', 'fact', 'store.ts'));
++t('B1 quarantine_log 字段集+DDL 常量', schema.indexOf('QUARANTINE_LOG_FIELDS') >= 0 && schema.indexOf('QUARANTINE_LOG_DDL') >= 0);
++t('B2 自然键 UNIQUE(run_id,commit_sha,field_name,reason_code,disposition)', schema.indexOf('UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)') >= 0);
++t('B3 reason_code 命名公约 CHECK + sha256 CHAR(64) + raw_bytes_hex 上界', schema.indexOf('regexp_matches(reason_code') >= 0 && schema.indexOf("'sha256_full', type: 'CHAR(64)'") >= 0 && schema.indexOf('131072') >= 0);
++t('B4 写路径=appendQuarantineEvent + ON CONFLICT DO NOTHING 幂等', /export async function appendQuarantineEvent/.test(store) && store.indexOf('ON CONFLICT DO NOTHING') >= 0);
++t('B5 事务面 runInTransaction + 恒等式半层 queryQuarantineCounts', /export async function runInTransaction/.test(store) && /export async function queryQuarantineCounts/.test(store));
++t('B6 schema_registry v2 幂等注册', store.indexOf('quarantine_log_seq') >= 0 && store.indexOf('schema_registry') >= 0);
++
++// ---------- C. macro-b / audit / report / cli 接线 ----------
++const mb = txt(join(ENG, 'src', 'audit', 'macro-b.ts'));
++const audit = txt(join(ENG, 'src', 'audit', 'audit.ts'));
++const gen = txt(join(ENG, 'src', 'report', 'generate.ts'));
++const cli = txt(join(ENG, 'src', 'cli.ts'));
++t('C1 probe 锚位+逐 commit 双分类接线', mb.indexOf('classifyGitIsoField(headRaw, { anchor: true })') >= 0 && mb.indexOf('classifyGitIsoField(parts[2])') >= 0);
++t('C2 probe 输出带 fieldStats/fieldEvents', mb.indexOf('fieldStats') >= 0 && mb.indexOf('fieldEvents') >= 0);
++t('C3 audit 装配：strict 闸+事务写+恒等式断言', audit.indexOf('strictQuarantineViolations') >= 0 && audit.indexOf('runInTransaction') >= 0 && audit.indexOf('intakeIdentityIssues') >= 0);
++t('C4 Intake Health 恒在节+verdict 三面投影', gen.indexOf('## Intake Health') >= 0 && gen.indexOf('reason_class') >= 0 && gen.indexOf('VERDICT_REASON_CLASSES') >= 0);
++t('C5 cli --strict-quarantine 旗 + crash 工件 + 三值退出码', cli.indexOf('--strict-quarantine') >= 0 && cli.indexOf('crashArtifactFromError') >= 0 && cli.indexOf('STRICT-QUARANTINE-VIOLATION') >= 0);
++t('C6 collectors null-date 显式跳过（不静默转 0）', txt(join(ENG, 'src', 'collect', 'collectors.ts')).indexOf('date === null') >= 0 || txt(join(ENG, 'src', 'collect', 'collectors.ts')).indexOf('date: string | null') >= 0);
++
++// ---------- D. 39/40 对照物 SoD 断言（D-118④：对照物零代码改动——不引入 quarantine 分类逻辑，独立实现保留） ----------
++for (const NN of ['39', '40']) {
++  const s = txt(join(HERE, NN + '-macro-b-one-shot.mjs'));
++  t('D-' + NN + '1 对照物不引 quarantine 分类器（SoD：分类规则真源唯 cli 契约层）', s.indexOf('classifyGitIsoField') < 0 && s.indexOf('quarantine.js') < 0);
++  t('D-' + NN + '2 对照物保留自身归一化（normalizeGitIsoDate=病态即抛=「解析失败」分歧类的可观测代理）', s.indexOf('normalizeGitIsoDate') >= 0 && s.indexOf('%cI') >= 0);
++}
++
++// ---------- E. quarantine.test.mjs 实跑 ----------
++let qout = '';
++try { qout = execFileSync('node', [join(ENG, 'test', 'quarantine.test.mjs')], { encoding: 'utf8', timeout: 300000 }); } catch (e) { qout = (e.stdout || '') + (e.stderr || ''); }
++t('E1 quarantine.test.mjs exit 0 + 全 PASS', /QUARANTINE (\d+)\/\1/.test(qout) && qout.indexOf('FAIL ') < 0, qout.split(NL).slice(-2).join(' | '));
++
++// ---------- F. 病态仓双通道 disposition parity（独立对账半层：check 自持 SQL+git 重放，不借引擎断言函数） ----------
++const PIN = { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '2026-04-10T10:00:00Z' };
++function gitR(args, cwd, input) {
++  const r = spawnSync('git', args, { cwd: cwd, encoding: 'utf8', input: input, env: Object.assign({}, process.env, PIN) });
++  if (r.status !== 0) { throw new Error('git ' + args[0] + ': ' + (r.stderr || '').slice(0, 120)); }
++  return r.stdout.trim();
++}
++const tmp = mkdtempSync(join(tmpdir(), '78check-'));
++const FX = join(tmp, 'fx');
++mkdirSync(join(FX, 'docs', 'adr'), { recursive: true });
++gitR(['init'], FX); gitR(['config', 'user.email', 'a@b.c'], FX); gitR(['config', 'user.name', 't'], FX); gitR(['config', 'commit.gpgsign', 'false'], FX);
++writeFileSync(join(FX, 'CONTEXT.md'), 'macro audit positioning determinism traceability provenance receipt' + NL, 'utf8');
++writeFileSync(join(FX, 'package.json'), '{"name":"fx","private":true}' + NL, 'utf8');
++gitR(['add', '-A'], FX); gitR(['commit', '-m', 'init'], FX);
++writeFileSync(join(FX, 'docs', 'adr', '001-decision.md'), ['# ADR-001', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: t', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL), 'utf8');
++gitR(['add', '-A'], FX); gitR(['commit', '-m', 'adr'], FX);
++const tree = gitR(['rev-parse', 'HEAD^{tree}'], FX);
++const head = gitR(['rev-parse', 'HEAD'], FX);
++const body = ['tree ' + tree, 'parent ' + head, 'author T <t@t> 1112911993 -0700', 'committer T <t@t> 1112911993 +GGGG', '', 'pathological', ''].join(NL);
++const BADSHA = gitR(['hash-object', '--literally', '-t', 'commit', '-w', '--stdin'], FX, body);
++gitR(['update-ref', 'HEAD', BADSHA], FX);
++gitR(['commit', '--allow-empty', '-m', 'top'], FX);
++
++const OUT_A = join(tmp, 'out-audit');
++const ra = spawnSync('node', [CLI, 'audit', FX, '--out', OUT_A], { encoding: 'utf8', timeout: 120000 });
++t('F1 引擎 audit 病态仓 exit 0', ra.status === 0, (ra.stderr || '').slice(0, 160));
++const OUT_39 = join(tmp, 'out-39');
++const r39 = spawnSync('node', [ONESHOT39, '--repo', 'fx', '--root', FX, '--out', OUT_39], { encoding: 'utf8', timeout: 120000 });
++// D-118① parity 矩阵格：{cli=quarantined × 39=解析失败} = 预期分歧类——对照物无 quarantine 语义，病态即抛为合规行为
++t('F2 one-shot39 病态仓=解析失败格（非零退出 + GITCLI-OUTPUT-CONTRACT 命中 stderr）', r39.status !== 0 && (r39.stderr || '').indexOf('GITCLI-OUTPUT-CONTRACT') >= 0, 'status=' + r39.status + ' err=' + (r39.stderr || '').slice(0, 160));
++
++async function quarSet(dbPath) {
++  const c = await STORE.openReader(dbPath);
++  const rows = await (await c.run('SELECT commit_sha, field_name, disposition, reason_code FROM quarantine_log ORDER BY commit_sha, field_name')).getRows();
++  STORE.closeDuckdb(c);
++  return rows.map(function (r) { return [String(r[0]), String(r[1]), String(r[2]), String(r[3])].join('|'); });
++}
++const setA = await quarSet(join(OUT_A, 'facts.duckdb'));
++t('F3 引擎 quarantine_log 键集=病态 sha+committer_date+quarantined+unclassified_field_anomaly', setA.length === 1 && setA[0] === BADSHA + '|committer_date|quarantined|unclassified_field_anomaly', setA.join(';'));
++
++// 干净仓 parity 格：{clean × 39 值同}——两侧各自实跑同干净仓，commit_count/facts 数一致（值等比对照常）
++const FXC = join(tmp, 'fx-clean');
++mkdirSync(join(FXC, 'docs', 'adr'), { recursive: true });
++gitR(['init'], FXC); gitR(['config', 'user.email', 'a@b.c'], FXC); gitR(['config', 'user.name', 't'], FXC); gitR(['config', 'commit.gpgsign', 'false'], FXC);
++writeFileSync(join(FXC, 'CONTEXT.md'), 'macro audit positioning determinism traceability provenance receipt' + NL, 'utf8');
++writeFileSync(join(FXC, 'package.json'), '{"name":"fxc","private":true}' + NL, 'utf8');
++gitR(['add', '-A'], FXC); gitR(['commit', '-m', 'init'], FXC);
++writeFileSync(join(FXC, 'docs', 'adr', '001-decision.md'), ['# ADR-001', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: t', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL), 'utf8');
++gitR(['add', '-A'], FXC); gitR(['commit', '-m', 'adr'], FXC);
++const OUT_C = join(tmp, 'out-audit-clean');
++const rac = spawnSync('node', [CLI, 'audit', FXC, '--out', OUT_C], { encoding: 'utf8', timeout: 120000 });
++const OUT_39C = join(tmp, 'out-39-clean');
++const r39c = spawnSync('node', [ONESHOT39, '--repo', 'fxc', '--root', FXC, '--out', OUT_39C], { encoding: 'utf8', timeout: 120000 });
++t('F4 干净仓 parity 格：两侧皆 exit 0（clean×值同格，无预期分歧）', rac.status === 0 && r39c.status === 0, 'audit=' + rac.status + ' 39=' + r39c.status);
++const mc = existsSync(join(OUT_C, 'audit-measurements.json')) ? JSON.parse(txt(join(OUT_C, 'audit-measurements.json'))) : null;
++const m39c = existsSync(join(OUT_39C, '39-macro-b-fxc-measurements.json')) ? JSON.parse(txt(join(OUT_39C, '39-macro-b-fxc-measurements.json'))) : null;
++t('F5 干净仓 commit_count 双侧一致（值等粒度）', !!mc && !!m39c && mc.commit_count === m39c.commit_count && mc.commit_count === 2, 'eng=' + (mc && mc.commit_count) + ' 39=' + (m39c && m39c.commit_count));
++
++const relog = gitR(['log', '--pretty=format:%H|%cI'], FX).split(NL).filter(function (l) { return l.indexOf('|') > 0; });
++const badN = relog.filter(function (l) { return l.split('|')[1] !== undefined && !/^[0-9]{4}-[0-9]{2}-[0-9]{2}T/.test(l.split('|')[1]); }).length;
++t('F6 独立重放病态数=1 与 quarantine_log committer_date 行数一致（自持 SQL+git 重放=独立半层）', badN === 1 && setA.length === badN, 'relog-bad=' + badN + ' db=' + setA.length);
++const mdA = existsSync(join(OUT_A, 'report.md')) ? txt(join(OUT_A, 'report.md')) : '';
++t('F7 引擎报告 Intake Health 表含病态 sha', mdA.indexOf(BADSHA) >= 0);
++// D-118③：预期分歧类条目须落 known-gaps 册（gap↔trigger 单向互链）
++const KG = join(REPO, 'docs', 'known-gaps.md');
++t('F8 分歧类条目登记 docs/known-gaps.md（GAP-078-01=39 解析失败格）', existsSync(KG) && txt(KG).indexOf('GAP-078-01') >= 0 && txt(KG).indexOf('解析失败') >= 0, existsSync(KG) ? 'file exists, gap-id missing' : 'missing file');
++
++rmSync(tmp, { recursive: true, force: true });
++console.log('78CHECK ' + pass + '/' + (pass + fail));
++if (fail > 0) { process.exit(1); }
+diff --git a/.scratch/macro-audit/handoffs/2026-09-23-r29-exec-handoff.md b/.scratch/macro-audit/handoffs/2026-09-23-r29-exec-handoff.md
+new file mode 100644
+index 0000000..0077d2d
+--- /dev/null
++++ b/.scratch/macro-audit/handoffs/2026-09-23-r29-exec-handoff.md
+@@ -0,0 +1,30 @@
++# 2026-09-23 轮29 执行交接 —— T2/#78 quarantine 引擎建制已落地
++
++> 读者：下一轮任务书执行者（轮30+）。本交接只记「已发生什么+剩什么」，细节引执行报告与账本不重复。
++
++## 一、本轮闭环
++
++- BACKLOG #78（P1 quarantine 建制·B 窗）**全项落地**：分类器/持久化/事务/strict 闸/Intake Health/双层对账/known-gaps/病态 fixture/parity/CI 三查——实证见 `.scratch/macro-audit/reports/2026-09-23-r29-exec-report.md` §一逐项。
++- 账本：A-090 已登记 implemented；BACKLOG #78 ✅；WORKFLOW §4 lesson 已追。
++- 分支：`r29-78-quarantine`（GitButler，未 push——授权闸门在案）。
++
++## 二、留给下轮的接口与闸门
++
++1. **strict 基线演进**：`ACCEPTED_REASON_CODES` 当前空集=零容忍——新 reason_code 进场全流程（quarantine_log 信号→known-gaps observed→人审 triaged→立法 legislated→基线收窄）首码端到端验证=下轮首件（D-119⑤「流程须被使用才能验证」）。
++2. **39/40 对照物 SoD 红线**：零代码改动在案（78-check D 段执哨）——quarantined×解析失败=预期分歧格已登 GAP-078-01；对照物加分类逻辑=直接违 D-118④。
++3. **字段接线扩展面**：当前仅 %cI 独接线（D-104）；扩面=新字段经 `classifyGitIsoField` 同款三态+词表先走立法。
++4. **is_trunc 命名**：列名短写=黑名单子串兼容（TRUNCATE 误伤）；别手欠改回 is_truncated。
++5. **CI 腿**：macro-b-regression 三查升级在案未真跑（调度面=周一 03:17 UTC / workflow_dispatch）；首跑观察 crash 工件上传腿 `if:always()` 语义。
++6. **T0 预存红已清**：41a CHANGELOG M-006 缺口本轮顺带补齐（与本窗无涉）。
++
++## 三、可复跑验收速查
++
++```bash
++cd engine && npm test                    # 19 册全绿（含 QUARANTINE 56/56）
++node ../.scratch/architecture-recovery/reports/78-check.mjs   # 30/30 独立对账
++node dist/cli.js --version && node dist/cli.js doctor        # 测活
++```
++
++## 四、suggested skills
++
++- `$implement`（下轮任务书驱动）；`gitbutler`（版本控制）；`atomcode-research`（联网调研惯例）；`handoff`（收口交接）
+diff --git a/.scratch/macro-audit/reports/2026-09-23-r29-exec-report.md b/.scratch/macro-audit/reports/2026-09-23-r29-exec-report.md
+new file mode 100644
+index 0000000..42ead7e
+--- /dev/null
++++ b/.scratch/macro-audit/reports/2026-09-23-r29-exec-report.md
+@@ -0,0 +1,46 @@
++# 2026-09-23 轮29 T2 执行报告 —— BACKLOG #78 quarantine 引擎建制（ADR-0022 / D-103~D-120）
++
++> 窗位：轮29 独立 B 窗（与 #77 A 窗并行不混）；常驻任务书 `.scratch/macro-audit/handoffs/next-round.md`；版本控制 GitButler。
++
++## 一、完成定义清单逐项
++
++| 项 | 实证 |
++| --- | --- |
++| 编译通过 | `npx tsc --noEmit` 净；`npm run build` → `BUNDLE-OK dist/cli.js` |
++| 打包通过 | `npm pack --dry-run` → `macro-audit-0.1.0.tgz` 77 件 893.1kB |
++| 进程测活 | `node dist/cli.js --version`/`selftest`（ok:true）/`doctor`（四腿全 ok）/`mcp` JSON-RPC init+tools/list=[facts,quarantine] |
++| test 闭环 | `npm test` 19 册全绿（含新 `quarantine.test.mjs` 56/56 挂 smoke 链第 18 件）；`78-check.mjs` 30/30；守卫组 33/39/41a/43/44/45/53/54/70/71/72/73/77/t8/t9 全绿 |
++| git 腿验收件 | 病态 fixture e2e：`hash-object --literally` 注入 committer tz=+GGGG → %cI 字面量 → audit exit 0 + quarantine_log 行落库（不崩全仓） |
++| 恒等式断言绿 | `intakeIdentityIssues` 双层（内存三桶↔库内行数）；78-check F6 自持 SQL+git 重放独立半层复核 |
++| golden 契约 | demo 三场景 golden 重生成逐字节对齐（Intake Health 恒在节进报告体） |
++| CI 三查实证 | `macro-b-regression.yml` 验证步升级=工件在+JSON 可解+verdict/reason_class 枚举+intake_health 恒在+crash 工件 `if:always()` 上传腿 |
++
++## 二、实施面（判定↔处置硬分界，D-100①）
++
++- **契约层** `engine/src/intake/quarantine.ts`：`classifyGitIsoField` 三态（clean/normalized/quarantined）永不 throw；词表 v1 四码（anchor_head_date_malformed/normalized_tz_offset/unclassified_field_anomaly/oversize）；`rawBytesFingerprint` 三件套（hex 回显+is_trunc+sha256 全量）；`ACCEPTED_REASON_CODES` 仓级版本化基线（当前空=零容忍棘轮）；strictQuarantineViolations/intakeIdentityIssues/buildCrashArtifact/protocolCrashError 协议桶七码。
++- **持久化** `engine/src/fact/{schema,store}.ts`：`quarantine_log` DDL+schema_registry v2；自然键 UNIQUE(run_id,commit_sha,field_name,reason_code,disposition)+`ON CONFLICT DO NOTHING` 幂等；`runInTransaction` 逐 commit 事务边界；append 前置词表校验（REASON-CODE-UNLISTED 协议崩）。
++- **接线** `macro-b.ts`（锚位+逐 commit %cI 双分类，fieldStats/fieldEvents）/`audit.ts`（strict 闸+事务写+恒等式断言+锚病态 unsupported 路径）/`collectors.ts`（null-date 毒值显式跳过）/`generate.ts`（Intake Health 恒在节+verdict{band,reason_class}三面投影+receipt.verdict）/`cli.ts`（--strict-quarantine+顶层 crash 工件+三值退出码 0/2/3）/`projection.ts`+`mcp-server.ts`（quarantine 只读投影+tool）。
++- **台账** `docs/known-gaps.md` 首版（GAP-078-01~04，D-113①字段集+单向权威注记）+ `33-gate-registry.json` 触发器条目 `78-quarantine-signal-review`+事件 `quarantine-new-signal`（gap↔trigger 单向互链）。
++- **独立对账** `78-check.mjs` 30 断言：静态 pin+quarantine.test 实跑+病态仓双通道 e2e。
++
++## 三、关键裁定（过程纠偏）
++
++1. **D-118④ SoD 纠偏**：初版误把分类器接进 39/40 对照物——裁决原文「对照物零代码改动不引入 quarantine 分类逻辑」，已回退。parity 矩阵改判格语义：{cli=quarantined × 39=解析失败(GITCLI-OUTPUT-CONTRACT)}=预期分歧格登 GAP-078-01；{clean×值同}=干净仓值等格（F4/F5）。
++2. **禁词表兼容命名**：列名 `is_trunc` 非 `is_truncated`——append-only 黑名单子串扫，`TRUNCATE` 误伤含该子串的标识符（INSERT/SELECT 双双被拒实证）。语义不变，注记入 schema.ts+known-gaps。
++3. **DuckDB 方言**：`INSERT OR IGNORE` 过不掉只追加白名单前缀检——`ON CONFLICT DO NOTHING` 天然过守卫且 DuckDB 实证支持。
++4. **verdict 断言口径**：干净仓 fixture 真判据产出 criteria_unsupported——G3/G4 断言改「reason_class 属判据族非摄入族」非钉死 supported。
++5. **病态对象注法**：`commit-tree` 规范化日期不可用——`hash-object --literally` 手写 commit 体注入 tz=+GGGG/abc/空形态；git 2.55 %cI 输出字面量 `%cI`（协议面）vs `+9999` 形状合法（字段面）分界实证。
++
++## 四、阻塞
++
++无。T0 预存红（41a CHANGELOG M 条目缺口）已补 M-006 修复，与本窗无涉但闭环在案。
++
++## 五、lessons 候选（WORKFLOW §4 待追）
++
++- 模板层 `$'` 与 `\n` 双重转义塌陷=源文件字面量雷区——含正则/换行的 .ts/.mjs 生成走 String.fromCharCode 规避面，写后 `node --check`+字节回读双验。
++- 守卫子串黑名单对面=标识符命名约束——新列名先过 `includes(BLACKLIST)` 预审（is_truncated→is_trunc 实证）。
++- 「被观察对照物」改不得——SoD 类裁决改前先查账本禁条（D-118④ 直接判词「双实现+parity=否决」）。
++
++## 六、引用文件列表
++
++engine/src/intake/quarantine.ts（新）/ engine/src/intake/intake.ts / engine/src/fact/{schema,store,projection}.ts / engine/src/audit/{macro-b,audit}.ts / engine/src/collect/collectors.ts / engine/src/report/generate.ts / engine/src/cli.ts / engine/src/mcp-server.ts / engine/src/demo/demo.ts / engine/test/{quarantine.test.mjs（新）,narrative.test.mjs} / engine/package.json / engine/dist/*（重建）/ engine/fixtures/golden/*（重基线）/ docs/known-gaps.md（新）/ .scratch/architecture-recovery/reports/{78-check.mjs（新）,54-check.mjs,53-check.mjs,33-gate-registry.json,63-assertion-inventory.json} / .github/workflows/macro-b-regression.yml
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 23712b7..9e1a791 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -43,3 +43,11 @@
+ - a_range: A-001 ~ A-089（architecture-recovery 账本实物区间，写时实物读出）
+ - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第二十七轮 Grill＋收口对账（D-098~D-102，D-059① revised）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-089）
+ - impact: 门面致谢面建制闭环（生成式锚段＋closed 对账守卫 regen→diff empty）；xfail-45-b5 stale 条目摘除同 D-102① 形；readme-ci-badge 实物已挂载，registry status 翻转归 T10 值守面
++
++## [M-006] - 2026-09-23
++
++- milestone: 轮 28 grill 收口——quarantine 引擎设计树 18 裁全拍板（D-103~D-120）＋ADR-0022 总成入册＋CONTEXT.md 六词条（违约两级处置/Quarantine 字段处置/Reason Code 受控词表/Intake Health 节/Known-gaps 台账/Strict Quarantine 门禁＋处置感知 Parity）＋R28 调研档案 19 题全保全；#78 引擎 quarantine 建制 B 窗立案
++- adr_range: ADR-0001 ~ ADR-0022（docs/adr/ 实物 22 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
++- a_range: A-001 ~ A-089（无新增——architecture-recovery 账本实物区间，写时实物读出）
++- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第二十八轮 Grill＋收口对账（D-103~D-120）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-089）
++- impact: 违约两级处置＋字段级 quarantine 建制全决策定案（协议级 fail-fast／字段级三桶隔离）；残余 impl 级参数（列序/reason 枚举/字段名/构造件格式/事务节拍）随 T2 实施票收口；B 窗开工前提=guards 全绿基线
+diff --git a/docs/known-gaps.md b/docs/known-gaps.md
+new file mode 100644
+index 0000000..0dac63c
+--- /dev/null
++++ b/docs/known-gaps.md
+@@ -0,0 +1,24 @@
++# Known-Gaps 台账（quarantine 覆盖缺口登记册）
++
++> 立法出处：D-100⑤「新 reason code=契约覆盖缺口信号登记 known-gaps 台账」+ D-113① 台账形态字段集。
++> 分工（D-113② 单向权威）：本册=缺口语义唯一权威（gap_id/reason_code/证据链/status/owner/review_by）；
++>   `.scratch/architecture-recovery/reports/33-gate-registry.json`=立法触发器册（只持五要素触发器字段，
++>   禁复制缺口语义；trigger_id 单向外链 registry，registry 不反写本册）。
++> 检测面（D-113③）：quarantine_log SQL 派生信号（UNCLASSIFIED_FIELD_ANOMALY 出现/新码首见）→ 人审登记——
++>   自动信号≠台账条目（自动 intake→人审→裁决登记三层）。
++
++字段：gap_id / reason_code 族 / first_seen 证据链（repo+sha+raw 引用）/ status（observed→triaged→legislated）/ owner（到人/角色）/ notes / review_by / trigger_id（可空）。
++
++| gap_id | reason_code 族 | first_seen 证据链 | status | owner | notes | review_by | trigger_id |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| GAP-078-01 | unclassified_field_anomaly（committer_date） | 6F 自带回归链 macro-b-regression run 35581038342：git/git 仓 committer tz=`" INDIA"` 致 %cI 输出病态；复现=engine/test/quarantine.test.mjs G5-G10 合成 fixture（hash-object --literally tz=+GGGG → %cI 字面量） | legislated | devin-agent | %cI 病态→quarantined 收编而非全仓崩；39/40 对照物侧=「解析失败」预期分歧格（D-118①，对照物无 quarantine 语义属合规） | 2026-10-23 | — |
++| GAP-078-02 | anchor_head_date_malformed（head_date） | 合成 fixture：HEAD commit committer tz=abc/空 → %cI 字面量锚病态；engine/test/quarantine.test.mjs G11-G14 | legislated | devin-agent | 锚病态→verdict=unsupported/anchor_malformed + fact 零行（observed_at NOT NULL 不落伪值）+ quarantine_log 行 recorded_at=NULL 显式留痕 | 2026-10-23 | — |
++| GAP-078-03 | oversize（>64KiB raw_bytes） | 合成边界：65536 恰界不截 / 65537 截断（quarantine.test.mjs A6-A7/B2-B4）；实测语料 %cI 长度∈{20,25}，64KiB≈2600× headroom 保守上界 | legislated | devin-agent | raw_bytes 截断三件套（is_trunc 注：禁词表兼容名/original_length/sha256_full 全量哈希）——截断声明可机验，完整现场 git 内容寻址重放兜底 | 2026-10-23 | — |
++| GAP-078-04 | normalized_tz_offset（+00:00→Z） | 合成：'2005-04-07T22:13:13+00:00' → normalized disposition；quarantine.test.mjs A3/C2 | legislated | devin-agent | 合法改写留痕不打 ⚠（防标记疲劳）；进 quarantine_log disposition=normalized 行 | 2026-10-23 | — |
++
++## 治理注记
++
++- **未枚举组合 fail-loud**（D-118②）：parity 矩阵未枚举格（如 39 产出与 cli 本应值相同的「可疑一致」）默认判 FAIL 记 warn——沉默不是兜底。
++- **词表进场纪律**（D-119②④）：新 reason_code 走「quarantine_log 信号→本册 observed→人审 triaged→立法 legislated→ACCEPTED_REASON_CODES 基线收窄」全流程；加码非破坏、删改破坏。
++- **is_trunc 命名注记**：列名非 is_truncated——append-only 黑名单为子串扫，`TRUNCATE` 会误伤含该子串的标识符；语义不变（D-117 截断标记位）。
++- **复核节奏**：review_by 到期行须重审 status（Copla 腐化防线：无复核节奏表格册 18 个月后还列着不存在的系统）。
+diff --git a/engine/package.json b/engine/package.json
+index ad9b415..60fccad 100644
+--- a/engine/package.json
++++ b/engine/package.json
+@@ -27,7 +27,7 @@
+     "build": "tsc -p tsconfig.json && node scripts/build-bundle.mjs",
+     "package": "npm pack --dry-run",
+     "demo:golden": "node scripts/gen-demo-golden.mjs",
+-    "smoke": "node test/smoke.test.mjs && node test/collectors.test.mjs && node test/codelore-adapter.test.mjs && node test/codelore-batch1.test.mjs && node test/codelore-llm.test.mjs && node test/report-preview.test.mjs && node test/intake.test.mjs && node test/gitcli-contract.test.mjs && node test/sql-literal.test.mjs && node test/mcp-db-resolution.test.mjs && node test/audit.test.mjs && node test/demo.test.mjs && node test/github-rest.test.mjs && node test/upstream-map.test.mjs && node test/narrative.test.mjs && node test/citation.test.mjs && node test/doctor.test.mjs && node test/audit-zero-write.test.mjs",
++    "smoke": "node test/smoke.test.mjs && node test/collectors.test.mjs && node test/codelore-adapter.test.mjs && node test/codelore-batch1.test.mjs && node test/codelore-llm.test.mjs && node test/report-preview.test.mjs && node test/intake.test.mjs && node test/gitcli-contract.test.mjs && node test/sql-literal.test.mjs && node test/mcp-db-resolution.test.mjs && node test/audit.test.mjs && node test/demo.test.mjs && node test/github-rest.test.mjs && node test/upstream-map.test.mjs && node test/narrative.test.mjs && node test/citation.test.mjs && node test/doctor.test.mjs && node test/quarantine.test.mjs && node test/audit-zero-write.test.mjs",
+     "test": "npm run gen && npm run build && npm run smoke",
+     "selftest": "node dist/cli.js selftest",
+     "validate:plugin": "node scripts/validate-plugin.mjs"
+diff --git a/engine/src/audit/audit.ts b/engine/src/audit/audit.ts
+index 1111de5..0a5a78e 100644
+--- a/engine/src/audit/audit.ts
++++ b/engine/src/audit/audit.ts
+@@ -14,8 +14,9 @@ import { repoAdd } from '../intake/intake.js';
+ import type { RepoAddResult } from '../intake/intake.js';
+ import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, MACRO_B_STOPWORDS, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, TC3_TOPN } from './macro-b.js';
+ import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, UNVERIFIED_MARK, firstFactIds } from '../report/generate.js';
+-import type { PreviewDisclosure, ReportInput, EvidenceItem, ClaimAnchor, QuadrantEntry, Recommendation, AdjudicationEntry } from '../report/generate.js';
+-import { openWriter, appendFact, closeDuckdb } from '../fact/store.js';
++import type { PreviewDisclosure, ReportInput, EvidenceItem, ClaimAnchor, QuadrantEntry, Recommendation, AdjudicationEntry, IntakeHealth } from '../report/generate.js';
++import { openWriter, appendFact, appendQuarantineEvent, runInTransaction, queryQuarantineCounts, closeDuckdb } from '../fact/store.js';
++import { strictQuarantineViolations, intakeIdentityIssues, protocolCrashError, isProtocolCrash, intakeEscalation, QUARANTINE_FIELD_RATIO_RED } from '../intake/quarantine.js';
+ import { projectUpstreamDimensions } from './upstream-dimension-map.js';
+ 
+ const NL = String.fromCharCode(10);
+@@ -62,6 +63,7 @@ export interface AuditOptions {
+   outDir?: string;       // 缺省=不落盘，报告 md 走 stdout
+   json?: boolean;        // 报告面走 sidecar JSON
+   refresh?: boolean;     // 透传 repoAdd refresh opt-in（#55/D-059⑦）
++  strictQuarantine?: boolean;  // D-110 strict 门禁：quarantined 行 reason_code 越仓级基线→硬崩（flag 只传开关，基线=版本化常量）
+   cwd?: string;
+ }
+ 
+@@ -72,6 +74,8 @@ export interface AuditResult {
+   stability: 'preview' | 'ga' | null;
+   capabilities: string[];
+   overall_verdict: string;
++  verdict: { band: string; reason_class: string };
++  intake_quarantine: { quarantined: number; normalized: number; affected_commits: number; escalation: string; facts_persisted: boolean };
+   degraded_mode: boolean;
+   head_sha: string;
+   tree_sha: string;
+@@ -119,7 +123,25 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+ 
+   // ---------- §2 共享管线链（audit/macro-b.ts；与 demo 同消费） ----------
+   const probes = probeMacroBRepo(repoRoot, intake.head_sha);
+-  const ctx = macroBContext('audit-' + NAME, NAME, probes.headSha, probes.headDate);
++  const ctx = macroBContext('audit-' + NAME, NAME, probes.headSha, probes.headDate, probes.headRaw);
++  // 锚字段病态→观测时点不可用：decided_at/generated_at 用显式哨兵标记（不落伪时间戳）
++  const HEAD_AT = probes.headDate === null ? 'quarantined(anchor_head_date_malformed)' : probes.headDate;
++  const anchorQuarantined = probes.headDate === null;
++  const excludedCommits = probes.commits.filter(function (c) { return c.date === null; }).length;
++
++  // strict quarantine 门禁（D-110）：写入副作用前先求值——quarantined 行 reason_code 越基线→硬崩
++  if (opts.strictQuarantine === true) {
++    const violations = strictQuarantineViolations(probes.fieldEvents);
++    if (violations.length > 0) {
++      const firstEv = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; })[0];
++      throw protocolCrashError('STRICT-QUARANTINE-VIOLATION', 'reason_code 越仓级基线（strict 模式 fail-closed）：' + violations.join(','), {
++        raw: firstEv ? firstEv.raw : null,
++        crash_location: 'audit.ts:strict-quarantine-gate',
++        run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: firstEv ? firstEv.commit_sha : null },
++        counts: { commits_seen: probes.commitCount, facts_written: 0, quarantined_written: 0 }
++      });
++    }
++  }
+   const col = collectMacroB(repoRoot, {
+     intentCandidates: AUDIT_INTENT_CANDIDATES, nc1Candidates: AUDIT_NC1_CANDIDATES,
+     stopwords: MACRO_B_STOPWORDS, topN: TC3_TOPN,
+@@ -152,9 +174,17 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+   const MEAS_NAME = 'audit-measurements.json';
+   const FACTS_NAME = 'audit-facts.jsonl';
+   const measurements = {
+-    repo: NAME, root: repoRoot, observed_at: probes.headDate, head_sha: probes.headSha, tree_sha: probes.treeSha, commit_count: probes.commitCount,
++    repo: NAME, root: repoRoot, observed_at: HEAD_AT, head_sha: probes.headSha, tree_sha: probes.treeSha, commit_count: probes.commitCount,
+     adr_count: ev.tc2.total, intent_docs: col.intentDocs.map(function (d) { return d.path; }), fact_count: col.realFacts.length,
+     intake: { kind: intake.kind, url: intake.url, cloned: intake.cloned, cache_hit: intake.cache_hit, refreshed: intake.refreshed, snapshot_fetched_at: intake.snapshot_fetched_at, full_depth_verified: intake.full_depth_verified, remote_config_execution: intake.remote_config_execution, credentials: intake.credentials },
++    intake_quarantine: {
++      wired_fields: ['committer_date', 'head_date'],
++      field_stats: probes.fieldStats,
++      events: probes.fieldEvents.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, disposition: e.disposition, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + '…' : e.raw) }; }),
++      excluded_commits: excludedCommits,
++      threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
++      strict_mode: opts.strictQuarantine === true
++    },
+     tc1: { judgeable_n: ev.tc1.judgeable_n, backfill_n: ev.tc1.backfill_n, ratio_4: ev.tc1.ratio.toFixed(4), verdict: ev.tc1.verdict, threshold: { lag_days: TC1_LAG_DAYS, ratio_red: TC1_RATIO_RED, min_n: TC1_MIN_N } },
+     tc2: { total: ev.tc2.total, mean_ratio_4: ev.tc2.mean_ratio.toFixed(4), missing_counts: ev.tc2.missing_counts, missing_ratio_4: Object.fromEntries(Object.keys(ev.tc2.missing_ratio).map(function (k) { return [k, Number(ev.tc2.missing_ratio[k].toFixed(4))]; })), cond_a: ev.tc2.cond_a, cond_b: ev.tc2.cond_b, verdict: ev.tc2.verdict, threshold: { mean_red: TC2_MEAN_RED, field_missing_red: TC2_FIELD_MISSING_RED } },
+     tc3: { per_source: ev.tc3.per_source.map(function (c) { return { path: c.subject, hit: c.value.hit, keywords: c.value.keywords, ratio_4: c.value.ratio.toFixed(4) }; }), lowest_path: ev.tc3.lowest_path, lowest_ratio_4: ev.tc3.lowest_ratio.toFixed(4), verdict: ev.tc3.verdict, threshold: { red: TC3_RED, green: TC3_GREEN, top_n: TC3_TOPN } },
+@@ -170,7 +200,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+   const RUN_CMD = 'macro-audit audit ' + opts.input + (opts.outDir ? ' --out ' + opts.outDir : '');
+   function addEvidence(id: string, source: string, tokens: readonly string[] | null, claim: string, base: string | null) {
+     const ex = pickExcerpt(source, tokens, base);
+-    evidence.push({ evidence_id: id, source: source, locator: 'L' + ex.line, claim: claim, grounded: true, collected_at: probes.headDate, reproduce_cmd: RUN_CMD, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
++    evidence.push({ evidence_id: id, source: source, locator: 'L' + ex.line, claim: claim, grounded: true, collected_at: HEAD_AT, reproduce_cmd: RUN_CMD, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
+   }
+   const measBase = outDir;   // 运行目录（outDir 或 scratch）——工件相对名锚均可读
+   addEvidence('EV-AUDIT-' + R + '-01', MEAS_NAME, ['"fact_count"'], '本次实测：' + NAME + ' Macro-B audit 采集事实数', measBase);
+@@ -200,19 +230,19 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+     criterion_ids: bhvRan ? ['PC-1', 'PC-2', 'TC-1', 'TC-2', 'TC-3', 'NC-1', 'BHV-PC-1', 'BHV-TC-1', 'BHV-TC-2', 'BHV-NC-1'] : ['PC-1', 'PC-2', 'TC-1', 'TC-2', 'TC-3', 'NC-1']
+   };
+   const adjudicationEntries: AdjudicationEntry[] = [
+-    { criterion_id: 'PC-1', band: col.pc1.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc1.pass ? 'adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（' + NAME + ' run 内管线活性正对照）' : '正对照未中，管线故障 P0' },
+-    { criterion_id: 'PC-2', band: col.pc2.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc2.pass ? 'gitlog 族检出事后补写 delta_days = ' + String(col.pc2.delta_days) : '正对照未中，管线故障 P0' },
+-    { criterion_id: 'TC-1', band: tcBand(ev.tc1.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.lagFactIds, anchored_evidence_ids: ['EV-AUDIT-' + R + '-02'], decided_at: probes.headDate, rationale: NAME + ' ADR 事后补写：可判定数 ' + ev.tc1.judgeable_n + '（门槛 ' + TC1_MIN_N + '），>90d 占比 ' + measurements.tc1.ratio_4 + '，判 ' + ev.tc1.verdict },
+-    { criterion_id: 'TC-2', band: tcBand(ev.tc2.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.fiveFactIds, anchored_evidence_ids: ['EV-AUDIT-' + R + '-03'], decided_at: probes.headDate, rationale: NAME + ' ADR 五件套：mean_ratio ' + measurements.tc2.mean_ratio_4 + '（门槛 ' + TC2_MEAN_RED + '），字段缺失率超线=' + ev.tc2.cond_b + '，判 ' + ev.tc2.verdict },
+-    { criterion_id: 'TC-3', band: tcBand(ev.tc3.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.covFacts.map(function (c) { return c.fact_id; }), anchored_evidence_ids: ['EV-AUDIT-' + R + '-04'], decided_at: probes.headDate, rationale: NAME + ' 定位覆盖：意图面 ' + col.intentDocs.length + ' 件最低 ratio ' + measurements.tc3.lowest_ratio_4 + '（' + String(ev.tc3.lowest_path) + '），判 ' + ev.tc3.verdict },
+-    { criterion_id: 'NC-1', band: col.nc1.pass ? 'supported' : 'insufficient', basis_refs: ['B4'], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ['EV-AUDIT-' + R + '-05'], decided_at: probes.headDate, rationale: col.nc1.pass ? '负对照选材 ' + NAME + '/' + col.nc1.path + ' 五件套 0 命中、supersede 0 命中（特异性成立）' : '负对照命中，转复核路径' }
++    { criterion_id: 'PC-1', band: col.pc1.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: col.pc1.pass ? 'adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（' + NAME + ' run 内管线活性正对照）' : '正对照未中，管线故障 P0' },
++    { criterion_id: 'PC-2', band: col.pc2.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: col.pc2.pass ? 'gitlog 族检出事后补写 delta_days = ' + String(col.pc2.delta_days) : '正对照未中，管线故障 P0' },
++    { criterion_id: 'TC-1', band: tcBand(ev.tc1.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.lagFactIds, anchored_evidence_ids: ['EV-AUDIT-' + R + '-02'], decided_at: HEAD_AT, rationale: NAME + ' ADR 事后补写：可判定数 ' + ev.tc1.judgeable_n + '（门槛 ' + TC1_MIN_N + '），>90d 占比 ' + measurements.tc1.ratio_4 + '，判 ' + ev.tc1.verdict + '（派生统计 over ' + String(probes.commitCount - excludedCommits) + ' commits；quarantined 日期 commit 排除 ' + excludedCommits + '）' },
++    { criterion_id: 'TC-2', band: tcBand(ev.tc2.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.fiveFactIds, anchored_evidence_ids: ['EV-AUDIT-' + R + '-03'], decided_at: HEAD_AT, rationale: NAME + ' ADR 五件套：mean_ratio ' + measurements.tc2.mean_ratio_4 + '（门槛 ' + TC2_MEAN_RED + '），字段缺失率超线=' + ev.tc2.cond_b + '，判 ' + ev.tc2.verdict },
++    { criterion_id: 'TC-3', band: tcBand(ev.tc3.verdict), basis_refs: ['B2'], anchored_fact_ids: ev.covFacts.map(function (c) { return c.fact_id; }), anchored_evidence_ids: ['EV-AUDIT-' + R + '-04'], decided_at: HEAD_AT, rationale: NAME + ' 定位覆盖：意图面 ' + col.intentDocs.length + ' 件最低 ratio ' + measurements.tc3.lowest_ratio_4 + '（' + String(ev.tc3.lowest_path) + '），判 ' + ev.tc3.verdict },
++    { criterion_id: 'NC-1', band: col.nc1.pass ? 'supported' : 'insufficient', basis_refs: ['B4'], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ['EV-AUDIT-' + R + '-05'], decided_at: HEAD_AT, rationale: col.nc1.pass ? '负对照选材 ' + NAME + '/' + col.nc1.path + ' 五件套 0 命中、supersede 0 命中（特异性成立）' : '负对照命中，转复核路径' }
+   ];
+   if (bhvRan) {
+     adjudicationEntries.push(
+-      { criterion_id: 'BHV-PC-1', band: bhvPc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: facetFacts.map(function (f) { return f.fact_id; }), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: '行为三面 facet_rows 齐备性（hotspots/coupling/function-hotspots 各 row_count>0，errFacts=' + facetErrs.length + '）' },
+-      { criterion_id: 'BHV-TC-1', band: bhvTc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.hotspots ? [byFace.hotspots.fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: '低样本判据：hotspots min(revisions)>=' + BHV_MIN_REVS + '（实测 min=' + (hRows.length ? Math.min.apply(null, hRows.map(function (r) { return r.revisions as number; })) : 'n/a') + '）' },
+-      { criterion_id: 'BHV-TC-2', band: bhvTc2 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.coupling ? [byFace.coupling.fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: probes.headDate, rationale: 'coupling shared>=2&degree>0 占比=' + (cRows.length ? (cRows.filter(function (r) { return (r.shared as number) >= 2 && (r.degree as number) > 0; }).length / cRows.length).toFixed(3) : 'n/a') + '（阈值 0.5）' },
+-      { criterion_id: 'BHV-NC-1', band: bhvNc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: [], anchored_evidence_ids: [], decided_at: probes.headDate, rationale: 'function-coupling（--target 参数面）暂缓如实登记——deferred_faces 写入切片字段' }
++      { criterion_id: 'BHV-PC-1', band: bhvPc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: facetFacts.map(function (f) { return f.fact_id; }), anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: '行为三面 facet_rows 齐备性（hotspots/coupling/function-hotspots 各 row_count>0，errFacts=' + facetErrs.length + '）' },
++      { criterion_id: 'BHV-TC-1', band: bhvTc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.hotspots ? [byFace.hotspots.fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: '低样本判据：hotspots min(revisions)>=' + BHV_MIN_REVS + '（实测 min=' + (hRows.length ? Math.min.apply(null, hRows.map(function (r) { return r.revisions as number; })) : 'n/a') + '）' },
++      { criterion_id: 'BHV-TC-2', band: bhvTc2 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.coupling ? [byFace.coupling.fact_id] : [], anchored_evidence_ids: ['EV-AUDIT-' + R + '-01'], decided_at: HEAD_AT, rationale: 'coupling shared>=2&degree>0 占比=' + (cRows.length ? (cRows.filter(function (r) { return (r.shared as number) >= 2 && (r.degree as number) > 0; }).length / cRows.length).toFixed(3) : 'n/a') + '（阈值 0.5）' },
++      { criterion_id: 'BHV-NC-1', band: bhvNc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: [], anchored_evidence_ids: [], decided_at: HEAD_AT, rationale: 'function-coupling（--target 参数面）暂缓如实登记——deferred_faces 写入切片字段' }
+     );
+   }
+   const strategyBand = deriveOverallBand(adjudicationEntries);
+@@ -221,10 +251,10 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+   const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'engine/src/audit/audit.ts' };
+   const hotTop = hRows.slice(0, 3).map(function (r) { return String(r.path) + '(revs=' + String(r.revisions) + ',score=' + Number(r.hotspot_score).toFixed(2) + ')'; });
+   const quadrants: QuadrantEntry[] = [
+-    { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === 'RED', decided_at: probes.headDate, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
+-    { quadrant: 'behavior', applicability: bhvRan ? 'native' : 'not_applicable', verdict: behaviorBand, score: null, confidence: bhvRan ? 0.6 : 0, dimensions: [], slice_fields: bhvRan ? { faces: ['hotspots', 'coupling', 'function-hotspots'], face_row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, hotspot_top: hotTop, coupling_pairs: cRows.length, min_revs: BHV_MIN_REVS, sample_met: bhvTc1, deferred_faces: BHV_DEFERRED, quadrant_assignment: 'slice-decision（facts 共享 quadrant=strategic/codelore 族 provenance 不改写；象限归属=报告切片决策 D-054③）' } : {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: behaviorBand, evidence_flag: bhvPc1, decided_at: probes.headDate, override_reason: bhvRan ? null : 'codelore binary 未解析/不 pin——行为面采集缺席（resolution 事实留痕，D-054③ 降级非静默）', audit_ref: GATE.audit_ref }, conflict_markers: bhvRan ? [] : ['data-not-connected'] },
+-    { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: probes.headDate, override_reason: 'queued：与 S3 族双口径风险暂缓（D-054）——structure 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
+-    { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: probes.headDate, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
++    { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === 'RED', decided_at: HEAD_AT, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
++    { quadrant: 'behavior', applicability: bhvRan ? 'native' : 'not_applicable', verdict: behaviorBand, score: null, confidence: bhvRan ? 0.6 : 0, dimensions: [], slice_fields: bhvRan ? { faces: ['hotspots', 'coupling', 'function-hotspots'], face_row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, hotspot_top: hotTop, coupling_pairs: cRows.length, min_revs: BHV_MIN_REVS, sample_met: bhvTc1, deferred_faces: BHV_DEFERRED, quadrant_assignment: 'slice-decision（facts 共享 quadrant=strategic/codelore 族 provenance 不改写；象限归属=报告切片决策 D-054③）' } : {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: behaviorBand, evidence_flag: bhvPc1, decided_at: HEAD_AT, override_reason: bhvRan ? null : 'codelore binary 未解析/不 pin——行为面采集缺席（resolution 事实留痕，D-054③ 降级非静默）', audit_ref: GATE.audit_ref }, conflict_markers: bhvRan ? [] : ['data-not-connected'] },
++    { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_AT, override_reason: 'queued：与 S3 族双口径风险暂缓（D-054）——structure 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
++    { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_AT, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
+   ];
+ 
+   const recommendations: Recommendation[] = [
+@@ -232,7 +262,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+     { rec_id: 'R-AUDIT-' + R + '-2', priority: 'P2', action: intake.cache_hit && !intake.refreshed ? 'intake 缓存命中未刷新：远端新提交不可见——如需最新快照用 --refresh 显式 opt-in（不自动 pull 保隔离）' : '快照为本次 fetch/本地观测时点', rationale: '快照时点披露已落（snapshot_fetched_at）；缓存命中与刷新区分如实', expected_impact: 'staleness 风险如实披露', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-AUDIT-' + R + '-07'], degraded_note: null }
+   ];
+ 
+-  const HEADLINE = NAME + ' Macro-B audit（capability 1 of 5 · preview）：' + probes.commitCount + ' commits / ADR ' + ev.tc2.total + ' 份 / facts ' + col.realFacts.length + '——TC-1 ' + ev.tc1.verdict + '（n=' + ev.tc1.judgeable_n + '）、TC-2 ' + ev.tc2.verdict + '（mean=' + measurements.tc2.mean_ratio_4 + '）、TC-3 ' + ev.tc3.verdict + '（' + measurements.tc3.lowest_ratio_4 + '）' + (bhvRan ? '＋behavior ' + behaviorBand : '（behavior 象限 codelore 缺席如实 not_applicable）') + '→ 综合裁定 ' + strategyBand + '（三档如实落数）。';
++  const HEADLINE = NAME + ' Macro-B audit（capability 1 of 5 · preview）：' + probes.commitCount + ' commits / ADR ' + ev.tc2.total + ' 份 / facts ' + col.realFacts.length + '——TC-1 ' + ev.tc1.verdict + '（n=' + ev.tc1.judgeable_n + '）、TC-2 ' + ev.tc2.verdict + '（mean=' + measurements.tc2.mean_ratio_4 + '）、TC-3 ' + ev.tc3.verdict + '（' + measurements.tc3.lowest_ratio_4 + '）' + (bhvRan ? '＋behavior ' + behaviorBand : '（behavior 象限 codelore 缺席如实 not_applicable）') + (intakeEscalation(probes.fieldStats) !== 'none' ? '＋quarantine 病态升级=' + intakeEscalation(probes.fieldStats) : '') + '→ 综合裁定 ' + strategyBand + '（三档如实落数' + (anchorQuarantined ? '；锚病态→facts.duckdb 仅 quarantine_log 行、fact 行不落库' : '') + '）。';
+ 
+   const limitations: string[] = [
+     'one-shot 快照审计：本报告裁定=对 snapshot_fetched_at=' + String(intake.snapshot_fetched_at) + ' 时点快照的实测——' + (intake.cache_hit && !intake.refreshed ? 'intake 缓存命中未刷新，远端新提交不可见（--refresh 显式 opt-in 可刷新；不自动 pull 保隔离纪律）' : '快照时点如实披露'),
+@@ -240,6 +270,9 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+     'structure/supply_chain 象限 not_applicable（supply-chain: ' + UNVERIFIED_MARK + '——Scorecard 未接入，D-034③）',
+     '反复接受非跑通（D-033）：TC 三档裁定 supported/unsupported/insufficient 如实落数，one-shot 校准+冒烟不构成泛化证据'
+   ];
++  if (anchorQuarantined) {
++    limitations.push('锚字段病态：HEAD %cI quarantined（anchor_head_date_malformed）→ audit_fact 行不落库（observed_at NOT NULL 不落伪值）；quarantine_log 留痕 recorded_at=NULL，整仓 unsupported');
++  }
+   const disclosure: PreviewDisclosure = {
+     capability_label: 'capability 1 of 5 · preview',
+     calibration_scope: NAME + ' Macro-B audit（audit 一等命令面；scale=Macro-B 已上架）',
+@@ -247,13 +280,22 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+     not_in_preview: ['Micro-A', 'Micro-B', 'Macro-C', 'Macro-A']
+   };
+ 
++  const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
++  const intakeHealth: IntakeHealth = {
++    fields: probes.fieldStats.map(function (s) { return { field_name: s.field_name, total: s.total, clean: s.clean, normalized: s.normalized, quarantined: s.quarantined }; }),
++    affected_commits: new Set(quarantinedRows.map(function (e) { return e.commit_sha; })).size,
++    excluded_commits: excludedCommits,
++    quarantined_rows: quarantinedRows.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + '…' : e.raw) }; }),
++    threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
++    escalation: intakeEscalation(probes.fieldStats)
++  };
+   const reportInput: ReportInput = {
+     report_id: 'MA-AUDIT-' + R + '-MACRO-B',
+     stability: 'preview',
+     capabilities: ['macro-b'],
+     scale: scale,
+     subject_ref: NAME + '@' + probes.headSha.slice(0, 12),
+-    generated_at: probes.headDate,
++    generated_at: HEAD_AT,
+     trace_id: ctx.traceId,
+     baggage_id: ctx.traceId,
+     headline: HEADLINE,
+@@ -266,33 +308,56 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+     quadrants: quadrants,
+     recommendations: recommendations,
+     adjudication_entries: adjudicationEntries,
+-    decided_at: probes.headDate,
++    decided_at: HEAD_AT,
+     commit_anchor: probes.headSha,
+     tree_anchor: probes.treeSha,
+     gate_ref: GATE_REF,
+     degraded: false,
+     degraded_reason: null,
+     preview_disclosure: disclosure,
++    intake_health: intakeHealth,
+     human: { status: 'pending', adjudicator: 'user', text: null, decided_at: null }
+   };
+-  const report = buildReport(reportInput);
+-  const reportMd = renderMarkdown(report) + NL;
+-  const sidecarJson = renderSidecar(report) + NL;
+-
+-  // ---------- §8 产物落盘（--out 双通道）+ 事实库 ----------
+-  // 报告/facts/duckdb 恒在运行目录物化（证据锚已读）；persistOut=false 时跑完即弃。
+-  let artifacts: AuditResult['artifacts'] = null;
+-  writeFileSync(join(outDir, 'report.md'), reportMd, 'utf8');
+-  writeFileSync(join(outDir, 'report.json'), sidecarJson, 'utf8');
+-  writeFileSync(join(outDir, FACTS_NAME), col.realFacts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
++  // ---------- §8 事实库先行写入（D-115 逐 commit 事务＋自然键幂等）＋恒等式报告前断言（D-116①） ----------
++  // 锚病态（headDate quarantined）→ audit_fact.observed_at NOT NULL 无合法值→fact 行不落库（不落伪值）；
++  // quarantine_log 行仍写（recorded_at=NULL 合法，NULL 仅锚病态路径）。
+   const dbPath = join(outDir, 'facts.duckdb');
+   if (existsSync(dbPath)) { unlinkSync(dbPath); }
+   if (existsSync(dbPath + '.wal')) { unlinkSync(dbPath + '.wal'); }
+   const writer = await openWriter(dbPath);
+   const seen = new Set<string>();
+-  for (const f of col.realFacts) { if (!seen.has(f.fact_id)) { seen.add(f.fact_id); await appendFact(writer, f); } }
++  let factsWritten = 0;
++  let eventsWritten = 0;
++  try {
++    await runInTransaction(writer, async function () {
++      if (!anchorQuarantined) {
++        for (const f of col.realFacts) { if (!seen.has(f.fact_id)) { seen.add(f.fact_id); await appendFact(writer, f); factsWritten += 1; } }
++      }
++      for (const fe of probes.fieldEvents) {
++        await appendQuarantineEvent(writer, { run_id: ctx.traceId, commit_sha: fe.commit_sha, field_name: fe.field_name, disposition: fe.disposition, reason_code: fe.reason_code, raw: fe.raw, collector: 'macro-audit audit', recorded_at: probes.headDate });
++        eventsWritten += 1;
++      }
++    });
++  } catch (e) {
++    try { closeDuckdb(writer); } catch (_) { /* 次生关闭错不盖主错 */ }
++    if (isProtocolCrash(e)) { throw e; }
++    throw protocolCrashError('QUARANTINE-CONSTRAINT', 'fact/quarantine 事务写失败（ROLLBACK 无半截写）：' + String((e as Error).message || e), { crash_location: 'audit.ts:fact-write-tx', run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId }, counts: { commits_seen: probes.commitCount, facts_written: factsWritten, quarantined_written: eventsWritten } });
++  }
++  const dbCounts = await queryQuarantineCounts(writer, ctx.traceId);
++  const identityIssues = intakeIdentityIssues(probes.fieldStats, dbCounts);
+   await writer.run('FORCE CHECKPOINT');
+   closeDuckdb(writer);
++  if (identityIssues.length > 0) {
++    throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '恒等式断言失败：' + JSON.stringify(identityIssues), { crash_location: 'audit.ts:intake-identity', run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId }, counts: { commits_seen: probes.commitCount, facts_written: factsWritten, quarantined_written: eventsWritten } });
++  }
++
++  const report = buildReport(reportInput);
++  const reportMd = renderMarkdown(report) + NL;
++  const sidecarJson = renderSidecar(report) + NL;
++  let artifacts: AuditResult['artifacts'] = null;
++  writeFileSync(join(outDir, 'report.md'), reportMd, 'utf8');
++  writeFileSync(join(outDir, 'report.json'), sidecarJson, 'utf8');
++  writeFileSync(join(outDir, FACTS_NAME), col.realFacts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
+   artifacts = persistOut ? { report_md: join(outDir, 'report.md'), report_json: join(outDir, 'report.json'), facts_jsonl: join(outDir, FACTS_NAME), measurements: join(outDir, MEAS_NAME), duckdb: dbPath } : null;
+   const resultOutDir = persistOut ? outDir : null;
+   if (!persistOut) { rmSync(outDir, { recursive: true, force: true }); }
+@@ -304,6 +369,8 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+     stability: report.stability,
+     capabilities: report.capabilities,
+     overall_verdict: report.overall_verdict,
++    verdict: report.verdict,
++    intake_quarantine: { quarantined: intakeHealth.fields.reduce(function (s, f) { return s + f.quarantined; }, 0), normalized: intakeHealth.fields.reduce(function (s, f) { return s + f.normalized; }, 0), affected_commits: intakeHealth.affected_commits, escalation: intakeHealth.escalation, facts_persisted: !anchorQuarantined },
+     degraded_mode: report.degraded_mode,
+     head_sha: probes.headSha,
+     tree_sha: probes.treeSha,
+diff --git a/engine/src/audit/macro-b.ts b/engine/src/audit/macro-b.ts
+index d7e6fb8..6bb9dd5 100644
+--- a/engine/src/audit/macro-b.ts
++++ b/engine/src/audit/macro-b.ts
+@@ -13,7 +13,9 @@ import { execFileSync } from 'node:child_process';
+ import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPositioning, sha256Hex, ADR_FIVE_PIECE } from '../collect/collectors.js';
+ import type { CollectContext, CollectedFact } from '../collect/collectors.js';
+ import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
+-import { normalizeGitIsoDate } from '../intake/intake.js';
++// %cI 契约=normalizeGitIsoDate 同族判定本体（契约层分类器 classifyGitIsoField 承载，见 quarantine.ts）
++import { classifyGitIsoField, recordFieldInstance, emptyFieldStat, protocolCrashError, FIELD_HEAD_DATE, FIELD_COMMITTER_DATE } from '../intake/quarantine.js';
++import type { FieldStatus, FieldEvent, FieldStat } from '../intake/quarantine.js';
+ 
+ const NL = String.fromCharCode(10);
+ 
+@@ -56,38 +58,80 @@ function git(root: string, args: readonly string[]): string {
+   return execFileSync('git', ['-C', root].concat(args as string[]), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
+ }
+ 
+-export interface ParsedCommit { sha: string; author: string; date: string; paths: string[] }
++export interface ParsedCommit { sha: string; author: string; date: string | null; paths: string[] }
++// date=null=字段级病态 quarantined 置位（D-100② null=毒值——消费方显式跳过禁当 0）。
+ 
+ export interface MacroBProbes {
+   headSha: string;
+-  headDate: string;   // %cI 归一化后（+00:00→Z，#54/D-059①）
++  headDate: string | null;  // 锚字段合法值；quarantined→null（headRaw 保原始字节进 traceId 哈希，D-108①）
++  headRaw: string;
++  headStatus: FieldStatus;
+   treeSha: string;
+   commitCount: number;
+   commits: ParsedCommit[];
+   subjects: string[];
++  fieldEvents: FieldEvent[];   // normalized+quarantined 处置事件（clean 不记——恒等式 clean=total−事件行）
++  fieldStats: FieldStat[];     // 逐字段实例三桶（head_date 基数 1＋committer_date 基数 commitCount）
+ }
+ 
+-// git 探针＋log 解析（PROBE-INVARIANT：解析完整性先断言）；%cI 输出全走 normalizeGitIsoDate。
++// git 探针＋log 解析（PROBE-INVARIANT：解析完整性先断言）。
++// %cI 两级分流（ADR-0022/D-100③）：记录形状坏（__R__ 行 ≠3 字段——嵌定界符/截断行）=协议级违约
++//   fail-fast 落崩溃桶工件；字段值语义非法=字段级病态 → classifyGitIsoField 三态（永不 throw）
++//   → quarantined 置 null＋事件留痕，管线继续。normalizeGitIsoDate 判定本体同族（抛型回执留给旧调用方）。
+ export function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes {
+-  const headDate = normalizeGitIsoDate(git(repoRoot, ['log', '-1', '--format=%cI']));
+-  const treeSha = git(repoRoot, ['rev-parse', 'HEAD^{tree}']);
+-  const commitCount = Number(git(repoRoot, ['rev-list', '--count', 'HEAD']));
+-  const rawLog = git(repoRoot, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
++  const fieldStats: FieldStat[] = [emptyFieldStat(FIELD_HEAD_DATE), emptyFieldStat(FIELD_COMMITTER_DATE)];
++  const fieldEvents: FieldEvent[] = [];
++  let headRaw = '';
++  let treeSha = '';
++  let commitCount = 0;
++  let rawLog = '';
++  try {
++    headRaw = git(repoRoot, ['log', '-1', '--format=%cI']);
++    treeSha = git(repoRoot, ['rev-parse', 'HEAD^{tree}']);
++    commitCount = Number(git(repoRoot, ['rev-list', '--count', 'HEAD']));
++    rawLog = git(repoRoot, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
++  } catch (e) {
++    const ee = e as { stderr?: Buffer | string };
++    throw protocolCrashError('GIT-PROBE-FAILED', 'git 只读子命令失败：' + String((e as Error).message || e).split(NL)[0], {
++      raw: ee && ee.stderr ? String(ee.stderr) : null,
++      crash_location: 'audit/macro-b.ts:probeMacroBRepo',
++      run_context: { repo_ref: repoRoot, commit_sha: headSha }
++    });
++  }
++  const headCls = classifyGitIsoField(headRaw, { anchor: true });
++  recordFieldInstance(fieldStats[0], fieldEvents, headCls, headSha, FIELD_HEAD_DATE);
++  const headDate = headCls.value;
+   const commits: ParsedCommit[] = [];
+   let cur: ParsedCommit | null = null;
+   for (const line of rawLog.split(NL)) {
+     const t = line.trim();
+     if (t.indexOf('__R__') === 0) {
+       const parts = t.slice(5).split('|');
+-      cur = { sha: parts[0], author: parts[1], date: normalizeGitIsoDate(parts[2]), paths: [] };
++      if (parts.length !== 3) {
++        throw protocolCrashError('GITCLI-OUTPUT-CONTRACT', 'git log 记录形状违约：期望 3 字段实得 ' + parts.length + '（嵌定界符/记录截断→字段不可定界=协议级违约，D-100①）', {
++          raw: t,
++          crash_location: 'audit/macro-b.ts:probeMacroBRepo:log-parse',
++          run_context: { repo_ref: repoRoot, commit_sha: parts.length > 0 ? parts[0] : null },
++          counts: { commits_seen: commits.length }
++        });
++      }
++      const cls = classifyGitIsoField(parts[2]);
++      cur = { sha: parts[0], author: parts[1], date: cls.value, paths: [] };
++      recordFieldInstance(fieldStats[1], fieldEvents, cls, parts[0], FIELD_COMMITTER_DATE);
+       commits.push(cur);
+     } else if (cur && t.length > 0) {
+       cur.paths.push(t);
+     }
+   }
+-  if (commits.length !== commitCount) { throw new Error('PROBE-INVARIANT-FAIL[' + repoRoot + ']: parsed ' + commits.length + ' != git rev-list ' + commitCount); }
++  if (commits.length !== commitCount) {
++    throw protocolCrashError('PROBE-INVARIANT-FAIL', '[' + repoRoot + ']: parsed ' + commits.length + ' != git rev-list ' + commitCount, {
++      crash_location: 'audit/macro-b.ts:probeMacroBRepo:invariant',
++      run_context: { repo_ref: repoRoot, commit_sha: headSha },
++      counts: { commits_seen: commits.length }
++    });
++  }
+   const subjects = git(repoRoot, ['log', '--pretty=format:%s']).split(NL);
+-  return { headSha: headSha, headDate: headDate, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects };
++  return { headSha: headSha, headDate: headDate, headRaw: headRaw, headStatus: headCls.status, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects, fieldEvents: fieldEvents, fieldStats: fieldStats };
+ }
+ 
+ export interface MacroBCollectSpec {
+@@ -125,7 +169,7 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
+   const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
+   const firstCommitOf = function (p: string): string | null {
+     let best: string | null = null;
+-    for (const c of probes.commits) { if (c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) { best = c.date; } }
++    for (const c of probes.commits) { if (c.date !== null && c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) { best = c.date; } }
+     return best;
+   };
+   const adrDocs = adrFiles.map(function (f) {
+@@ -255,12 +299,16 @@ export function tcBand(v: string): 'supported' | 'unsupported' | 'insufficient'
+ 
+ // ctx 契约面：runIdLabel 进 runId（run 身份）；ctxLabel 进 traceId/repoRef（仓身份——demo=def.repo.name，
+ // audit=仓名）。两 label 分离原因：demo 原实现 runId 用 scenario、traceId/repoRef 用 repo.name，混并即漂哈希。
+-export function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string): CollectContext {
++// headDate=null（锚病态 quarantined）→ traceId 哈希改用锚字段原始字节（D-108①：锚病态哈希 raw bytes
++// 保持确定性）；observedAt 不落伪值——哨兵串 'quarantined(...)' 标记，audit_fact.observed_at
++// NOT NULL 无法满足故该 run 跳过 fact 落库（quarantine_log 行仍写，recorded_at=NULL 合法）。
++export function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string | null, headRaw?: string): CollectContext {
++  const anchor = headDate === null ? 'quarantined:' + sha256Hex(headRaw === undefined ? '' : headRaw) : headDate;
+   return {
+     runId: runIdLabel + '-' + headSha.slice(0, 7),
+-    traceId: sha256Hex(ctxLabel + '|' + headSha + '|' + headDate).slice(0, 32),
++    traceId: sha256Hex(ctxLabel + '|' + headSha + '|' + anchor).slice(0, 32),
+     repoRef: ctxLabel + '@' + headSha,
+     scale: 'Macro-B',
+-    observedAt: headDate
++    observedAt: headDate === null ? 'quarantined(anchor_head_date_malformed)' : headDate
+   };
+ }
+diff --git a/engine/src/cli.ts b/engine/src/cli.ts
+index fc33247..6c9ff27 100644
+--- a/engine/src/cli.ts
++++ b/engine/src/cli.ts
+@@ -5,7 +5,10 @@ import { loadManifestMeta } from './manifest.js';
+ import { repoAdd } from './intake/intake.js';
+ import { runDemo, listScenarios } from './demo/demo.js';
+ import { runAudit, isAuditScaleError } from './audit/audit.js';
+-import { projectFacts } from './fact/projection.js';
++import { projectFacts, projectQuarantine } from './fact/projection.js';
++import { isProtocolCrash, crashArtifactFromError } from './intake/quarantine.js';
++import { writeFileSync, existsSync, mkdirSync } from 'node:fs';
++import { join, resolve } from 'node:path';
+ import { serveMcpStdio, setMcpServerConfig, resolveFactsDb } from './mcp-server.js';
+ 
+ // #76 修复（CI run 35515346216）：process.exit() 立即终止进程，丢弃 stdout/stderr 管道中未冲刷的
+@@ -66,6 +69,33 @@ async function main(): Promise<void> {
+         if (e instanceof ExitSignal) throw e;
+         errExit(JSON.stringify({ error: 'MCP-FACTS-ERROR', message: String(e && (e as Error).message || e) }) + '\n', 2);
+       }
++    } else if (sub === 'quarantine') {
++      // quarantine_log 只读投影（#78/D-113②）：mcp facts 同形面收窄——固定列集+LIMIT，不接裸 SQL。
++      const args = process.argv.slice(4);
++      const known = ['--db', '--run', '--field', '--limit'];
++      const opts: { [k: string]: string } = {};
++      for (let i = 0; i < args.length; i++) {
++        const a = args[i];
++        if (known.indexOf(a) < 0) { errExit('MCP-QUAR-ARGS: unknown flag ' + a + '\n', 2); }
++        const v = args[i + 1];
++        if (v === undefined || v.indexOf('--') === 0) { errExit('MCP-QUAR-ARGS: missing value for ' + a + '\n', 2); }
++        opts[a] = v;
++        i++;
++      }
++      opts['--db'] = resolveFactsDb(opts['--db']) || '';
++      if (!opts['--db']) { errExit('usage: macro-audit mcp quarantine [--db <path>] [--run <run_id>] [--field <name>] [--limit n]\n', 2); }
++      const limRaw = opts['--limit'];
++      const lim = limRaw === undefined ? undefined : Number(limRaw);
++      if (lim !== undefined && (!Number.isFinite(lim) || lim <= 0)) {
++        errExit(JSON.stringify({ error: 'MCP-QUAR-ARGS', message: '--limit must be a positive number' }) + '\n', 2);
++      }
++      try {
++        const rows = await projectQuarantine(opts['--db'], { run_id: opts['--run'], field_name: opts['--field'], limit: lim });
++        for (const r of rows) { console.log(JSON.stringify(r)); }
++      } catch (e) {
++        if (e instanceof ExitSignal) throw e;
++        errExit(JSON.stringify({ error: 'MCP-QUAR-ERROR', message: String(e && (e as Error).message || e) }) + '\n', 2);
++      }
+     } else if (sub === undefined || sub === '--db') {
+       // macro-audit mcp [--db <facts.duckdb>]：--db=服务端寻址位（#55/D-059⑥，mcp.json args/env 配置面）。
+       let serverDb: string | undefined;
+@@ -81,7 +111,7 @@ async function main(): Promise<void> {
+         errExit(JSON.stringify({ error: 'MCP-SERVE-ERROR', message: String(e && (e as Error).message || e) }) + '\n', 2);
+       }
+     } else {
+-      errExit('usage: macro-audit mcp [facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n]]\n', 2);
++      errExit('usage: macro-audit mcp [facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n] | quarantine [--db <path>] [--run <run_id>] [--field <name>] [--limit n]]\n', 2);
+     }
+   } else if (cmd === 'repo') {
+     // Repo Intake（ADR-0009 / D-013）：repo add <path|owner/repo|url> [--cache <dir>] [--refresh]
+@@ -114,25 +144,27 @@ async function main(): Promise<void> {
+     let outDir: string | undefined;
+     let asJson = false;
+     let refresh = false;
++    let strictQuarantine = false;
+     for (let i = 0; i < args.length; i++) {
+       const a = args[i];
+       if (a === '--scale') { const v = args[++i]; if (v === undefined || v.indexOf('--') === 0) { errExit('AUDIT-ARGS: missing value for --scale\n', 2); } scale = v; }
+       else if (a === '--out') { const v = args[++i]; if (v === undefined || v.indexOf('--') === 0) { errExit('AUDIT-ARGS: missing value for --out\n', 2); } outDir = v; }
+       else if (a === '--json') { asJson = true; }
+       else if (a === '--refresh') { refresh = true; }
++      else if (a === '--strict-quarantine') { strictQuarantine = true; }
+       else if (a.indexOf('--') === 0) { errExit('AUDIT-ARGS: unknown flag ' + a + '\n', 2); }
+       else if (!input) { input = a; }
+       else { errExit('AUDIT-ARGS: unexpected extra positional ' + a + '\n', 2); }
+     }
+-    if (!input) { errExit('usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]\n', 2); }
++    if (!input) { errExit('usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine]\n', 2); }
+     try {
+       // input 经上闸收窄（errExit=never）——循环内赋值致 CFA 不传导收窄，as string 如实标注
+-      const r = await runAudit({ input: input as string, scale: scale, outDir: outDir, json: asJson, refresh: refresh });
++      const r = await runAudit({ input: input as string, scale: scale, outDir: outDir, json: asJson, refresh: refresh, strictQuarantine: strictQuarantine });
+       if (r.out_dir) {
+         outExit(JSON.stringify({
+           report_id: r.report_id, receipt_id: r.receipt_id, scale: r.scale,
+           stability: r.stability, capabilities: r.capabilities,
+-          overall_verdict: r.overall_verdict, degraded_mode: r.degraded_mode,
++          overall_verdict: r.overall_verdict, verdict: r.verdict, intake_quarantine: r.intake_quarantine, degraded_mode: r.degraded_mode,
+           head_sha: r.head_sha, tree_sha: r.tree_sha, commit_count: r.commit_count,
+           adr_count: r.adr_count, fact_count: r.fact_count, repo_name: r.repo_name,
+           intake: { kind: r.intake_kind, snapshot_fetched_at: r.snapshot_fetched_at, cache_hit: r.cache_hit, refreshed: r.refreshed },
+@@ -146,6 +178,19 @@ async function main(): Promise<void> {
+       if (isAuditScaleError(e)) {
+         errExit(JSON.stringify({ error: e.code, message: e.message, implemented: e.implemented, requested: e.requested, layer_order: e.layer_order }) + '\n', 2);
+       }
++      if (isProtocolCrash(e)) {
++        const payload = crashArtifactFromError(e);
++        // 崩溃桶工件（D-107②）：落盘 best-effort——工件失败不吞主错；stderr 同载荷结构化输出
++        let artifact: string | null = null;
++        try {
++          const dir = outDir ? resolve(outDir) : resolve(process.cwd());
++          if (!existsSync(dir)) { mkdirSync(dir, { recursive: true }); }
++          artifact = join(dir, 'macro-audit-crash-' + String(payload.error_code) + '-' + String(Date.now()) + '.json');
++          writeFileSync(artifact, JSON.stringify(payload, null, 2) + '\n', 'utf8');
++        } catch (_) { artifact = null; }
++        const code = payload.error_code === 'STRICT-QUARANTINE-VIOLATION' ? 3 : 2;
++        errExit(JSON.stringify({ error: payload.error_code, message: (e as Error).message, crash_artifact: artifact, crash_location: payload.crash_location, run_context: payload.run_context, counts: payload.counts }) + '\n', code);
++      }
+       const err = e as { code?: string; message?: string };
+       errExit(JSON.stringify({ error: err.code || 'AUDIT-ERROR', message: err.message || String(e) }) + '\n', 2);
+     }
+diff --git a/engine/src/collect/collectors.ts b/engine/src/collect/collectors.ts
+index 57ab163..471256a 100644
+--- a/engine/src/collect/collectors.ts
++++ b/engine/src/collect/collectors.ts
+@@ -487,7 +487,9 @@ export const GITLOG_FAMILY = 'gitlog';
+ export interface CommitRecord {
+   sha: string;
+   author: string;
+-  date: string;
++  // date=null=quarantined 置位（D-100② null=毒值）：日期派生指标（first_commit/adr_lag）
++  // 显式跳过该 commit 禁当 0/禁入排序比较；commit_count/author_matrix 无日期语义仍计全量。
++  date: string | null;
+   paths: readonly string[];
+ }
+ 
+@@ -509,20 +511,26 @@ export function collectGitlog(input: GitlogInput, ctx: CollectContext): Collecte
+   for (const path of input.paths) {
+     const touching = input.commits.filter(function (c) { return c.paths.indexOf(path) >= 0; });
+     if (touching.length === 0) { continue; }
+-    const sorted = touching.slice().sort(function (a, b) {
++    // null=毒值显式跳过（D-100②）：first_commit/adr_lag 只在 date 可判定子集上排序；
++    // 排除计数由 Intake Health 节 excluded_commits 披露（over N-M commits 声明）。
++    const dated = touching.filter(function (c): c is CommitRecord & { date: string } { return c.date !== null; });
++    const sorted = dated.slice().sort(function (a, b) {
+       if (a.date < b.date) { return -1; }
+       if (a.date > b.date) { return 1; }
+       if (a.sha < b.sha) { return -1; }
+       if (a.sha > b.sha) { return 1; }
+       return 0;
+     });
+-    const first = sorted[0];
+-    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.first_commit', {
+-      path: path,
+-      sha: first.sha,
+-      date: first.date
+-    }));
+-    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.commit_count', {
++    const first = sorted.length > 0 ? sorted[0] : null;
++    const anchorSha = first !== null ? first.sha : touching[0].sha;
++    if (first !== null) {
++      out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.first_commit', {
++        path: path,
++        sha: first.sha,
++        date: first.date
++      }));
++    }
++    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, anchorSha, 'git.commit_count', {
+       path: path,
+       count: touching.length
+     }));
+@@ -533,14 +541,14 @@ export function collectGitlog(input: GitlogInput, ctx: CollectContext): Collecte
+     for (const a of authors) {
+       if (authorCounts[a] > authorCounts[topAuthor]) { topAuthor = a; }
+     }
+-    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.author_matrix', {
++    out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, anchorSha, 'git.author_matrix', {
+       path: path,
+       authors: authors,
+       top_author: topAuthor,
+       top_share: authorCounts[topAuthor] / touching.length
+     }));
+     const adrDate = input.adrDates[path];
+-    if (adrDate) {
++    if (adrDate && first !== null) {
+       out.push(makeFact(ctx, GITLOG_DESCRIPTOR, path, first.sha, 'git.adr_lag_days', {
+         path: path,
+         adr_date: adrDate,
+diff --git a/engine/src/demo/demo.ts b/engine/src/demo/demo.ts
+index c86cc01..8d2292d 100644
+--- a/engine/src/demo/demo.ts
++++ b/engine/src/demo/demo.ts
+@@ -21,6 +21,8 @@ import { repoAdd } from '../intake/intake.js';
+ import { generateFixtureRepo, FIXTURE_GENERATOR_ID } from './fixture-generator.js';
+ import type { FixtureDefinition } from './fixture-generator.js';
+ import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, TC3_TOPN, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, MACRO_B_STOPWORDS } from '../audit/macro-b.js';
++import { intakeEscalation, QUARANTINE_FIELD_RATIO_RED } from '../intake/quarantine.js';
++import type { IntakeHealth } from '../report/generate.js';
+ 
+ export const DEMO_SCENARIOS: readonly string[] = ['happy-path', 'degraded-supply', 'degraded-incomplete'];
+ const NL = String.fromCharCode(10);
+@@ -126,7 +128,19 @@ export function runDemo(opts: DemoOptions): DemoResult {
+ 
+     // ---------- §3-§7 链本体=共享管线（#53/D-060④：probe→collect→evaluate 全链与 audit 同消费） ----------
+     const probes = probeMacroBRepo(repoDir, intake.head_sha);
+-    const ctx = macroBContext('r45-' + scenario, def.repo.name, probes.headSha, probes.headDate);
++    if (probes.headDate === null) { throw new Error('DEMO-FIXTURE-QUARANTINE[' + scenario + ']: 合成夹具锚字段病态（fixture bug 非真病态——golden 语料 %cI 恒合法，病态即夹具回归）'); }
++    const headDate: string = probes.headDate;   // 上一行断言后收窄——闭包内消费点经本绑定
++    const ctx = macroBContext('r45-' + scenario, def.repo.name, probes.headSha, headDate, probes.headRaw);
++    const demoExcl = probes.commits.filter(function (c) { return c.date === null; }).length;
++    const demoQuarRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
++    const demoIntakeHealth: IntakeHealth = {
++      fields: probes.fieldStats.map(function (s) { return { field_name: s.field_name, total: s.total, clean: s.clean, normalized: s.normalized, quarantined: s.quarantined }; }),
++      affected_commits: new Set(demoQuarRows.map(function (e) { return e.commit_sha; })).size,
++      excluded_commits: demoExcl,
++      quarantined_rows: demoQuarRows.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: JSON.stringify(e.raw.length > 80 ? e.raw.slice(0, 80) + '…' : e.raw) }; }),
++      threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
++      escalation: intakeEscalation(probes.fieldStats)
++    };
+     const col = collectMacroB(repoDir, {
+       intentCandidates: INTENT_CANDIDATES, nc1Candidates: NC1_CANDIDATES, stopwords: DEMO_STOPWORDS, topN: TC3_TOPN,
+       codelore: 'off',   // demo 恒定不接 codelore——合成仓逐字节确定性不容环境相关上游（D-038）
+@@ -139,7 +153,7 @@ export function runDemo(opts: DemoOptions): DemoResult {
+       scenario: scenario,
+       synthetic: true,
+       generator: FIXTURE_GENERATOR_ID,
+-      observed_at: probes.headDate,
++      observed_at: headDate,
+       head_sha: probes.headSha,
+       tree_sha: probes.treeSha,
+       commit_count: probes.commitCount,
+@@ -171,7 +185,7 @@ export function runDemo(opts: DemoOptions): DemoResult {
+     const evidence: EvidenceItem[] = [];
+     function addEvidence(id: string, source: string, tokens: readonly string[] | null, claim: string, reproCmd: string, base: string | null) {
+       const ex = pickExcerpt(source, tokens, base);
+-      evidence.push({ evidence_id: id, source: source, locator: 'L' + ex.line, claim: claim, grounded: true, collected_at: probes.headDate, reproduce_cmd: reproCmd, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
++      evidence.push({ evidence_id: id, source: source, locator: 'L' + ex.line, claim: claim, grounded: true, collected_at: headDate, reproduce_cmd: reproCmd, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
+     }
+     const RUN_CMD = 'macro-audit demo --scenario ' + scenario;
+     const R = scenario.toUpperCase().split('-').join('');
+@@ -205,22 +219,22 @@ export function runDemo(opts: DemoOptions): DemoResult {
+     const tc2FactIds = col.adrFacts.filter(function (f) { return f.metric === 'adr.five_piece_completeness'; }).map(function (f) { return f.fact_id; });
+     const tc3FactIds = ev.covFacts.map(function (c) { return c.fact_id; });
+     const adjudicationEntries: AdjudicationEntry[] = [
+-      { criterion_id: 'PC-1', band: col.pc1.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ['EV-45-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc1.pass ? 'adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（合成 run 内管线活性正对照）' : '正对照未中，管线故障 P0' },
+-      { criterion_id: 'PC-2', band: col.pc2.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ['EV-45-' + R + '-01'], decided_at: probes.headDate, rationale: col.pc2.pass ? 'gitlog 族检出事后补写 delta_days = ' + String(col.pc2.delta_days) : '正对照未中，管线故障 P0' },
+-      { criterion_id: 'TC-1', band: tcBand(ev.tc1.verdict), basis_refs: ['B2'], anchored_fact_ids: tc1FactIds, anchored_evidence_ids: ['EV-45-' + R + '-02'], decided_at: probes.headDate, rationale: scenario + ' ADR 事后补写：可判定数 ' + ev.tc1.judgeable_n + '（门槛 ' + TC1_MIN_N + '），>90d 占比 ' + measurements.tc1.ratio_4 + '，判 ' + ev.tc1.verdict },
+-      { criterion_id: 'TC-2', band: tcBand(ev.tc2.verdict), basis_refs: ['B2'], anchored_fact_ids: tc2FactIds, anchored_evidence_ids: ['EV-45-' + R + '-03'], decided_at: probes.headDate, rationale: scenario + ' ADR 五件套：mean_ratio ' + measurements.tc2.mean_ratio_4 + '（门槛 ' + TC2_MEAN_RED + '），字段缺失率超线=' + ev.tc2.cond_b + '，判 ' + ev.tc2.verdict },
+-      { criterion_id: 'TC-3', band: tcBand(ev.tc3.verdict), basis_refs: ['B2'], anchored_fact_ids: tc3FactIds, anchored_evidence_ids: ['EV-45-' + R + '-04'], decided_at: probes.headDate, rationale: scenario + ' 定位覆盖：意图面 ' + col.intentDocs.length + ' 件最低 ratio ' + measurements.tc3.lowest_ratio_4 + '（' + String(measurements.tc3.lowest_path) + '），判 ' + ev.tc3.verdict },
+-      { criterion_id: 'NC-1', band: col.nc1.pass ? 'supported' : 'insufficient', basis_refs: ['B4'], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ['EV-45-' + R + '-05'], decided_at: probes.headDate, rationale: col.nc1.pass ? '负对照选材 ' + col.nc1Path + ' 五件套 0 命中、supersede 0 命中（特异性成立）' : '负对照命中，转复核路径' }
++      { criterion_id: 'PC-1', band: col.pc1.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc1AdrFacts).concat(firstFactIds(col.pc1PosFacts)), anchored_evidence_ids: ['EV-45-' + R + '-01'], decided_at: headDate, rationale: col.pc1.pass ? 'adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中（合成 run 内管线活性正对照）' : '正对照未中，管线故障 P0' },
++      { criterion_id: 'PC-2', band: col.pc2.pass ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: firstFactIds(col.pc2Lag), anchored_evidence_ids: ['EV-45-' + R + '-01'], decided_at: headDate, rationale: col.pc2.pass ? 'gitlog 族检出事后补写 delta_days = ' + String(col.pc2.delta_days) : '正对照未中，管线故障 P0' },
++      { criterion_id: 'TC-1', band: tcBand(ev.tc1.verdict), basis_refs: ['B2'], anchored_fact_ids: tc1FactIds, anchored_evidence_ids: ['EV-45-' + R + '-02'], decided_at: headDate, rationale: scenario + ' ADR 事后补写：可判定数 ' + ev.tc1.judgeable_n + '（门槛 ' + TC1_MIN_N + '），>90d 占比 ' + measurements.tc1.ratio_4 + '，判 ' + ev.tc1.verdict },
++      { criterion_id: 'TC-2', band: tcBand(ev.tc2.verdict), basis_refs: ['B2'], anchored_fact_ids: tc2FactIds, anchored_evidence_ids: ['EV-45-' + R + '-03'], decided_at: headDate, rationale: scenario + ' ADR 五件套：mean_ratio ' + measurements.tc2.mean_ratio_4 + '（门槛 ' + TC2_MEAN_RED + '），字段缺失率超线=' + ev.tc2.cond_b + '，判 ' + ev.tc2.verdict },
++      { criterion_id: 'TC-3', band: tcBand(ev.tc3.verdict), basis_refs: ['B2'], anchored_fact_ids: tc3FactIds, anchored_evidence_ids: ['EV-45-' + R + '-04'], decided_at: headDate, rationale: scenario + ' 定位覆盖：意图面 ' + col.intentDocs.length + ' 件最低 ratio ' + measurements.tc3.lowest_ratio_4 + '（' + String(measurements.tc3.lowest_path) + '），判 ' + ev.tc3.verdict },
++      { criterion_id: 'NC-1', band: col.nc1.pass ? 'supported' : 'insufficient', basis_refs: ['B4'], anchored_fact_ids: firstFactIds(col.nc1Facts), anchored_evidence_ids: ['EV-45-' + R + '-05'], decided_at: headDate, rationale: col.nc1.pass ? '负对照选材 ' + col.nc1Path + ' 五件套 0 命中、supersede 0 命中（特异性成立）' : '负对照命中，转复核路径' }
+     ];
+     const strategyBand = deriveOverallBand(adjudicationEntries);
+ 
+     // ---------- §11 四象限 + 建议 + 报告装配（披露块=CASRAI 式统一契约面） ----------
+     const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'engine/src/demo/demo.ts' };
+     const quadrants: QuadrantEntry[] = [
+-      { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === 'RED', decided_at: probes.headDate, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: ['synthetic-fixture'] },
+-      { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: probes.headDate, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23/#39 同口径）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
+-      { quadrant: 'behavior', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: probes.headDate, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——behavior 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
+-      { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: probes.headDate, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
++      { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === 'RED', decided_at: headDate, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: ['synthetic-fixture'] },
++      { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: headDate, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23/#39 同口径）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
++      { quadrant: 'behavior', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: headDate, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——behavior 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
++      { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: headDate, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
+     ];
+     const recommendations: Recommendation[] = [
+       { rec_id: 'R-45-' + R + '-1', priority: 'P1', action: '对真实目标仓跑同一链路：`macro-audit repo add <path|url>` 接入后按 Macro-B 口径裁决——本报告为合成 fixture 演示，not an audit of any real repository', rationale: 'D-038 硬契约：合成数据不冒充真实审计结论；本演示只证管线形态与披露面', expected_impact: '获得真实审计结论而非演示数据', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-45-' + R + '-07'], degraded_note: null },
+@@ -234,7 +248,7 @@ export function runDemo(opts: DemoOptions): DemoResult {
+       capabilities: ['macro-b'],
+       scale: 'Macro-B',
+       subject_ref: def.repo.name + '@' + probes.headSha.slice(0, 12),
+-      generated_at: probes.headDate,
++      generated_at: headDate,
+       trace_id: ctx.traceId,
+       baggage_id: deriveBaggageId(ctx, 'S2'),
+       headline: HEADLINE,
+@@ -247,13 +261,14 @@ export function runDemo(opts: DemoOptions): DemoResult {
+       quadrants: quadrants,
+       recommendations: recommendations,
+       adjudication_entries: adjudicationEntries,
+-      decided_at: probes.headDate,
++      decided_at: headDate,
+       commit_anchor: probes.headSha,
+       tree_anchor: probes.treeSha,
+       gate_ref: GATE_REF,
+       degraded: false,
+       degraded_reason: null,
+       preview_disclosure: demoDisclosure(),
++      intake_health: demoIntakeHealth,
+       human: { status: 'pending', adjudicator: 'user', text: null, decided_at: null }
+     };
+     let report = buildReport(reportInput);
+diff --git a/engine/src/fact/projection.ts b/engine/src/fact/projection.ts
+index 4ef678a..c7e0545 100644
+--- a/engine/src/fact/projection.ts
++++ b/engine/src/fact/projection.ts
+@@ -48,3 +48,59 @@ export async function projectFacts(dbPath: string, filter: FactProjectionFilter)
+     closeDuckdb(conn);
+   }
+ }
++
++// ---------- quarantine_log 只读投影（#78 / D-113② / D-118） ----------
++// 与 projectFacts 同形面收窄：固定列集、值走参数绑定、LIMIT 硬帽、READ_ONLY 连接。
++// raw_bytes_hex 回显有界（≤131072 chars hex，D-117 截断+指纹三件套随行）。
++export interface QuarantineProjectionFilter {
++  run_id?: string;
++  field_name?: string;
++  limit?: number;
++}
++
++export interface QuarantineRow {
++  run_id: string;
++  commit_sha: string;
++  field_name: string;
++  disposition: string;
++  reason_code: string;
++  raw_bytes_hex: string;
++  is_trunc: boolean;
++  original_length: number;
++  sha256_full: string;
++  collector: string;
++  recorded_at: string | null;
++}
++
++const QUAR_PROJECTION_COLUMNS = 'run_id, commit_sha, field_name, disposition, reason_code, raw_bytes_hex, is_trunc, original_length, sha256_full, collector, CAST(recorded_at AS VARCHAR) AS recorded_at';
++
++export function buildQuarantineSql(filter: QuarantineProjectionFilter): { sql: string; params: string[] } {
++  const where: string[] = [];
++  const params: string[] = [];
++  if (filter.run_id) { where.push('run_id = ?'); params.push(filter.run_id); }
++  if (filter.field_name) { where.push('field_name = ?'); params.push(filter.field_name); }
++  const limit = filter.limit === undefined ? 50 : Math.min(Math.max(Math.floor(filter.limit), 1), MAX_LIMIT);
++  const sql = 'SELECT ' + QUAR_PROJECTION_COLUMNS + ' FROM quarantine_log' + (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY q_seq LIMIT ' + limit;
++  return { sql: sql, params: params };
++}
++
++export async function projectQuarantine(dbPath: string, filter: QuarantineProjectionFilter): Promise<QuarantineRow[]> {
++  const conn = await openReader(dbPath);
++  try {
++    const q = buildQuarantineSql(filter);
++    assertAppendOnly(q.sql);
++    const reader = await conn.run(q.sql, q.params as never);
++    const rows = await reader.getRows();
++    const names = reader.columnNames();
++    return rows.map(function (r) {
++      const o: Record<string, unknown> = {};
++      names.forEach(function (n, i) {
++        const v = r[i];
++        o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
++      });
++      return o as unknown as QuarantineRow;
++    });
++  } finally {
++    closeDuckdb(conn);
++  }
++}
+diff --git a/engine/src/fact/schema.ts b/engine/src/fact/schema.ts
+index a8c1481..022c325 100644
+--- a/engine/src/fact/schema.ts
++++ b/engine/src/fact/schema.ts
+@@ -110,11 +110,42 @@ export function assertAppendOnly(sql: string): void {
+ }
+ 
+ // ---- DDL 构造器：字段清单程序化派生，禁止手工转录 DDL ----
+-export function buildCreateTableSql(table: string, fields: readonly FactField[]): string {
+-  const cols = fields.map(function (f) { return '  ' + f.name + ' ' + f.type + ' ' + f.constraints.join(' ').trim(); });
++export function buildCreateTableSql(table: string, fields: readonly FactField[], tableConstraints?: readonly string[]): string {
++  const cols = fields.map(function (f) { return '  ' + f.name + ' ' + f.type + ' ' + f.constraints.join(' ').trim(); })
++    .concat(tableConstraints ? tableConstraints.map(function (c) { return '  ' + c; }) : []);
+   const head = 'CREATE TABLE IF NOT EXISTS ' + table + ' (';
+   return head + String.fromCharCode(10) + cols.join(',' + String.fromCharCode(10)) + String.fromCharCode(10) + ');';
+ }
+ 
+ export const AUDIT_FACT_DDL: string = buildCreateTableSql('audit_fact', AUDIT_FACT_FIELDS);
+ export const SCHEMA_REGISTRY_DDL: string = buildCreateTableSql('schema_registry', SCHEMA_REGISTRY_FIELDS);
++
++// ---- quarantine_log（#78 / ADR-0022 / D-106·D-108·D-112·D-115·D-117·D-119）----
++// 字段级病态处置事件台账——逐字段处置事件行（normalized 留痕不告警 / quarantined 隔离）。
++// 幂等自然键（D-108②+D-112④ 扩展）：UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)
++//   ——重跑同 run 重复写=插入幂等（ON CONFLICT DO NOTHING），崩溃后重跑自愈。
++// reason_code CHECK=命名公约契约物（D-119）：开放词表禁把枚举硬编码进 CHECK
++//   ——加码=非破坏；枚举成员资格由写路径（appendQuarantineEvent）校验 QUARANTINE_REASON_CODES。
++// raw_bytes 有界（D-117）：hex 回显 ≤131072 chars（64KiB bytes 上限双编码）＋指纹三件套列
++//   （is_trunc/original_length/sha256_full）——截断声明可机验，完整现场 git 内容寻址重放兜底。
++// recorded_at=该 run 观测时点（值源=headDate，D-108③）；可空——NULL 仅锚病态路径。
++export const QUARANTINE_LOG_FIELDS: readonly FactField[] = [
++  { name: 'q_seq', type: 'UBIGINT', nullable: false, role: 'identity', constraints: ['NOT NULL', 'PRIMARY KEY'], inherits: 'D-106' },
++  { name: 'run_id', type: 'CHAR(32)', nullable: false, role: 'correlation', constraints: ['NOT NULL', "CHECK(regexp_matches(run_id, '^[0-9a-f]{32}$'))"], inherits: 'D-108' },
++  { name: 'commit_sha', type: 'VARCHAR(64)', nullable: false, role: 'provenance', constraints: ['NOT NULL'], inherits: 'D-106' },
++  { name: 'field_name', type: 'VARCHAR(32)', nullable: false, role: 'classification', constraints: ['NOT NULL'], inherits: 'D-104' },
++  { name: 'disposition', type: 'VARCHAR(16)', nullable: false, role: 'classification', constraints: ['NOT NULL', "CHECK(disposition IN ('quarantined','normalized'))"], inherits: 'D-112' },
++  { name: 'reason_code', type: 'VARCHAR(64)', nullable: false, role: 'classification', constraints: ['NOT NULL', "CHECK(regexp_matches(reason_code, '^[a-z][a-z0-9_]{2,63}$'))"], inherits: 'D-119' },
++  { name: 'raw_bytes_hex', type: 'VARCHAR', nullable: false, role: 'payload', constraints: ['NOT NULL', 'CHECK(length(raw_bytes_hex) <= 131072)'], inherits: 'D-117' },
++  //   列名 is_trunc（非 is_truncated）：append-only 黑名单为子串扫，'TRUNCATE' 会误伤列名——
++//   改名避开守卫误报（语义不变：D-117 截断标记位；禁词表兼容注记见 docs/known-gaps.md）。
++  { name: 'is_trunc', type: 'BOOLEAN', nullable: false, role: 'payload', constraints: ['NOT NULL'], inherits: 'D-117' },
++  { name: 'original_length', type: 'UBIGINT', nullable: false, role: 'payload', constraints: ['NOT NULL'], inherits: 'D-117' },
++  { name: 'sha256_full', type: 'CHAR(64)', nullable: false, role: 'payload', constraints: ['NOT NULL', "CHECK(regexp_matches(sha256_full, '^[0-9a-f]{64}$'))"], inherits: 'D-117' },
++  { name: 'collector', type: 'VARCHAR(64)', nullable: false, role: 'provenance', constraints: ['NOT NULL'], inherits: 'D-106' },
++  { name: 'recorded_at', type: 'TIMESTAMPTZ', nullable: true, role: 'provenance', constraints: ['NULL'], inherits: 'D-108' }
++];
++
++export const QUARANTINE_LOG_DDL: string = buildCreateTableSql('quarantine_log', QUARANTINE_LOG_FIELDS, [
++  'UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)'
++]);
+diff --git a/engine/src/fact/store.ts b/engine/src/fact/store.ts
+index 5cab0d4..fcff941 100644
+--- a/engine/src/fact/store.ts
++++ b/engine/src/fact/store.ts
+@@ -11,7 +11,8 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSy
+ import { dirname, join } from 'node:path';
+ import { fileURLToPath } from 'node:url';
+ import type { DuckDBConnection, DuckDBInstance, DuckDBValue } from '@duckdb/node-api';
+-import { AUDIT_FACT_DDL, SCHEMA_REGISTRY_DDL, AUDIT_FACT_FIELDS, assertAppendOnly, SCHEMA_VERSION_V0, type FactField } from './schema.js';
++import { AUDIT_FACT_DDL, SCHEMA_REGISTRY_DDL, AUDIT_FACT_FIELDS, QUARANTINE_LOG_DDL, assertAppendOnly, SCHEMA_VERSION_V0, type FactField } from './schema.js';
++import { QUARANTINE_REASON_CODES, rawBytesFingerprint, protocolCrashError } from '../intake/quarantine.js';
+ 
+ export interface FactEvent {
+   fact_id: string;
+@@ -251,8 +252,11 @@ export async function openWriter(dbPath: string): Promise<DuckDBConnection> {
+   instanceOf.set(connection, instance);
+   await connection.run(SCHEMA_REGISTRY_DDL);
+   await connection.run(AUDIT_FACT_DDL);
++  await connection.run(QUARANTINE_LOG_DDL);
+   await connection.run('CREATE SEQUENCE IF NOT EXISTS ' + FACT_SEQ_NAME + ' START 1');
++  await connection.run('CREATE SEQUENCE IF NOT EXISTS ' + QUARANTINE_SEQ_NAME + ' START 1');
+   await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 1, 'Registered', 'FULL', 'schema v0 append-only fact table' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 1)");
++  await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 2, 'Registered', 'BACKWARD', 'quarantine_log added: field-level pathology disposition ledger (#78 / ADR-0022 / D-106)' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 2)");
+   return connection;
+ }
+ 
+@@ -282,3 +286,83 @@ export async function queryFacts(connection: DuckDBConnection, sql: string) {
+ export function factFieldNames(): readonly string[] {
+   return AUDIT_FACT_FIELDS.map(function (f: FactField) { return f.name; });
+ }
++
++// ---------- quarantine_log 写路径（#78 / D-106·D-108·D-112·D-115·D-117·D-119） ----------
++export const QUARANTINE_SEQ_NAME = 'quarantine_log_seq';
++
++export interface QuarantineEventInput {
++  run_id: string;
++  commit_sha: string;
++  field_name: string;
++  disposition: 'quarantined' | 'normalized';
++  reason_code: string;
++  raw: string;
++  collector: string;
++  recorded_at: string | null;
++}
++
++// 自然键幂等：UNIQUE(run_id,commit_sha,field_name,reason_code,disposition) + ON CONFLICT DO NOTHING
++const QUARANTINE_INSERT_SQL =
++  'INSERT INTO quarantine_log (q_seq, run_id, commit_sha, field_name, disposition, reason_code, ' +
++  'raw_bytes_hex, is_trunc, original_length, sha256_full, collector, recorded_at) VALUES (' +
++  "nextval('" + QUARANTINE_SEQ_NAME + "'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
++
++// 分类器产出枚举外的 reason_code=分类器 bug（D-110② 前置枚举校验，与基线未命中硬崩分轨）。
++export async function appendQuarantineEvent(connection: DuckDBConnection, ev: QuarantineEventInput): Promise<void> {
++  if (QUARANTINE_REASON_CODES.indexOf(ev.reason_code) < 0) {
++    throw protocolCrashError('REASON-CODE-UNLISTED', 'reason_code outside v1 vocabulary: ' + ev.reason_code, {
++      raw: ev.raw,
++      crash_location: 'fact/store.ts:appendQuarantineEvent',
++      run_context: { repo_ref: null, run_id: ev.run_id, commit_sha: ev.commit_sha }
++    });
++  }
++  const fp = rawBytesFingerprint(ev.raw);
++  assertAppendOnly(QUARANTINE_INSERT_SQL);
++  await connection.run(QUARANTINE_INSERT_SQL, [
++    ev.run_id, ev.commit_sha, ev.field_name, ev.disposition, ev.reason_code,
++    fp.raw_bytes_hex, fp.is_trunc, fp.original_length, fp.sha256_full,
++    ev.collector, ev.recorded_at
++  ] as unknown as DuckDBValue[]);
++}
++
++// 逐 commit（或分批节拍）事务边界（D-115①）：fact 行＋quarantine 事件同事务提交；
++// 失败 ROLLBACK 无半截写——恒等式在任意崩溃点不破；重跑=自然键幂等自愈。
++export async function runInTransaction<T>(connection: DuckDBConnection, fn: () => Promise<T>): Promise<T> {
++  await connection.run('BEGIN TRANSACTION');
++  try {
++    const r = await fn();
++    await connection.run('COMMIT');
++    return r;
++  } catch (e) {
++    try { await connection.run('ROLLBACK'); } catch (_) { /* rollback 次生错不盖主错 */ }
++    throw e;
++  }
++}
++
++// 恒等式对账的库内半层：run 内逐字段×disposition 行数（独立核对半层=78-check 自带 SQL）。
++export async function queryQuarantineCounts(
++  connection: DuckDBConnection,
++  runId: string
++): Promise<Record<string, { normalized: number; quarantined: number }>> {
++  const sql = 'SELECT field_name, disposition, COUNT(*) AS n FROM quarantine_log WHERE run_id = ? GROUP BY field_name, disposition';
++  assertAppendOnly(sql);
++  const res = await connection.run(sql, [runId] as unknown as DuckDBValue[]);
++  const rows = await res.getRows();
++  const out: Record<string, { normalized: number; quarantined: number }> = {};
++  for (const r of rows) {
++    const field = String(r[0]);
++    const disp = String(r[1]);
++    const n = Number(r[2]);
++    if (!out[field]) { out[field] = { normalized: 0, quarantined: 0 }; }
++    if (disp === 'normalized') { out[field].normalized = n; } else if (disp === 'quarantined') { out[field].quarantined = n; }
++  }
++  return out;
++}
++
++export async function queryQuarantineRows(connection: DuckDBConnection, runId: string): Promise<Record<string, unknown>[]> {
++  const sql = 'SELECT run_id, commit_sha, field_name, disposition, reason_code, raw_bytes_hex, is_trunc, original_length, sha256_full, collector, recorded_at FROM quarantine_log WHERE run_id = ? ORDER BY q_seq';
++  assertAppendOnly(sql);
++  const res = await connection.run(sql, [runId] as unknown as DuckDBValue[]);
++  const rows = await res.getRowObjects();
++  return rows as unknown as Record<string, unknown>[];
++}
+diff --git a/engine/src/intake/intake.ts b/engine/src/intake/intake.ts
+index 9891fc1..9121b1f 100644
+--- a/engine/src/intake/intake.ts
++++ b/engine/src/intake/intake.ts
+@@ -9,6 +9,7 @@ import { createHash } from 'node:crypto';
+ import { existsSync, mkdirSync, statSync } from 'node:fs';
+ import { spawnSync } from 'node:child_process';
+ import { dirname, isAbsolute, join, resolve } from 'node:path';
++import { classifyGitIsoField } from './quarantine.js';
+ 
+ export type RepoInputKind = 'local' | 'owner-repo' | 'url';
+ 
+@@ -82,13 +83,16 @@ export function isGitRepo(dir: string, timeoutMs = 30000): boolean {
+ // git <2.45 对 UTC 偏移提交吐 '+00:00'，≥2.45 吐 'Z'——同一 commit object 跨版本字面漂移，
+ // 击穿 traceId→fact_id→receipt→report 逐字节确定性链。处置=解析边界归一化 '+00:00'→'Z'
+ // （非 UTC 偏移如 +08:00 两版一致不动）＋严格形状断言：归一化后不符即拒，不静默放行。
+-const GIT_ISO_STRICT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/;
++// %cI 严格形状正则=quarantine.ts GIT_ISO_STRICT_RE（契约层自持，判定单源）
++// 归一化判定本体=契约层 classifyGitIsoField（ADR-0022/D-103：字段级病态三态分流，永不 throw）。
++// 本函数为既有调用方保留的「抛型回执」：clean/normalized 返回合法值；quarantined 仍抛
++// GITCLI-OUTPUT-CONTRACT（调用方要走隔离桶时须直接消费 classifyGitIsoField）。
+ export function normalizeGitIsoDate(raw: string): string {
+-  const s = (raw || '').trim().replace(/\+00:00$/, 'Z');
+-  if (!GIT_ISO_STRICT_RE.test(s)) {
+-    throw intakeError('GITCLI-OUTPUT-CONTRACT', 'git %cI output violates frozen shape (expect strict ISO-8601, Z or ±HH:MM zone): ' + JSON.stringify(raw));
++  const c = classifyGitIsoField(raw);
++  if (c.status === 'quarantined' || c.value === null) {
++    throw intakeError('GITCLI-OUTPUT-CONTRACT', 'git %cI output violates frozen shape (expect strict ISO-8601, Z or ±HH:MM zone; quarantined reason=' + c.reason_code + '): ' + JSON.stringify(raw));
+   }
+-  return s;
++  return c.value;
+ }
+ 
+ export function isShallowRepo(dir: string, timeoutMs = 30000): boolean {
+diff --git a/engine/src/intake/quarantine.ts b/engine/src/intake/quarantine.ts
+new file mode 100644
+index 0000000..240d5bd
+--- /dev/null
++++ b/engine/src/intake/quarantine.ts
+@@ -0,0 +1,336 @@
++// intake/quarantine.ts — 字段级病态 quarantine 契约层（ADR-0022 / D-103~D-120 / #78）
++// 判定/处置硬分界（D-103③）：本模块只产出诊断——字段实例→三态＋reason_code＋raw 诊断结构，
++// 永不 throw；null 置位/⚠印记/计数/恒等式/裁定全归消费面与报告层。
++// 两级违约分流（D-100③）：协议级（行形状/分隔符/记录定界坏）仍由 intake.ts 契约 fail-fast；
++// 本文件只管「记录定界成功但单字段值语义非法」的字段级病态。
++import { createHash } from 'node:crypto';
++
++// ---------- §1 reason_code 受控词表（D-104④ / D-110 / D-119） ----------
++// 命名对齐 git fsck msg-id 风；v1 种子=仅有立法出处的四族，词表自带审计谱系：
++//   anchor_head_date_malformed  —— D-105（锚点基数 1 病态率=100% 既有阈值自动触发）
++//   normalized_tz_offset        —— D-112（+00:00→Z 合法改写留痕，不打 ⚠）
++//   unclassified_field_anomaly  —— D-104②（已接线字段无法归类病态的兜底桶）
++//   oversize                    —— D-117（raw_bytes 超界截断）
++// open-ended：新码经 known-gaps→立法逐条进场；加码非破坏、删改破坏（schema 版本纪律）。
++export const QUARANTINE_REASON_CODES: readonly string[] = [
++  'anchor_head_date_malformed',
++  'normalized_tz_offset',
++  'unclassified_field_anomaly',
++  'oversize'
++];
++
++export const QUARANTINE_DISPOSITIONS: readonly string[] = ['quarantined', 'normalized'];
++
++export const REASON_ANCHOR_HEAD_DATE_MALFORMED = 'anchor_head_date_malformed';
++export const REASON_NORMALIZED_TZ_OFFSET = 'normalized_tz_offset';
++export const REASON_UNCLASSIFIED = 'unclassified_field_anomaly';
++export const REASON_OVERSIZE = 'oversize';
++
++// ---------- §2 接线字段名册（D-104①：本轮只给 %cI 接线） ----------
++export const FIELD_COMMITTER_DATE = 'committer_date';
++export const FIELD_HEAD_DATE = 'head_date';
++
++// ---------- §3 raw_bytes 有界截断（D-117） ----------
++// 上界校准：现有语料（6F/env-manager/anysearch-cli/jiahao/gsd-core ~8k commits）%cI 字段值
++// 长度 ∈ {20,25} 字节（Z 形 / ±HH:MM 形）；64KiB=~2600× headroom，放宽-收口工序保守上界。
++export const RAW_BYTES_CAP = 65536;
++
++export interface RawFingerprint {
++  raw_bytes_hex: string;
++  is_trunc: boolean;
++  original_length: number;
++  sha256_full: string;
++}
++
++export function rawBytesFingerprint(raw: string): RawFingerprint {
++  const buf = Buffer.from(raw, 'utf8');
++  const truncated = buf.length > RAW_BYTES_CAP;
++  const head = truncated ? buf.subarray(0, RAW_BYTES_CAP) : buf;
++  return {
++    raw_bytes_hex: head.toString('hex'),
++    is_trunc: truncated,
++    original_length: buf.length,
++    sha256_full: createHash('sha256').update(buf).digest('hex')
++  };
++}
++
++// ---------- §4 三态分类器（D-103①：契约层逐字段实例判定，永不 throw） ----------
++export type FieldStatus = 'clean' | 'normalized' | 'quarantined';
++
++export interface FieldClassification {
++  status: FieldStatus;
++  value: string | null;
++  reason_code: string | null;
++  raw: string;
++}
++
++// %cI 严格形状（秒精度）：与 intake.ts 既有契约同构——本模块自持正则使契约层自洽。
++const GIT_ISO_STRICT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/;
++
++// anchor=true → 该字段实例是 HEAD 观测锚（headDate）：病态码=anchor_head_date_malformed（D-105）。
++export function classifyGitIsoField(raw: string, opts?: { anchor?: boolean }): FieldClassification {
++  const r = raw === undefined || raw === null ? '' : String(raw);
++  if (Buffer.byteLength(r, 'utf8') > RAW_BYTES_CAP) {
++    return { status: 'quarantined', value: null, reason_code: REASON_OVERSIZE, raw: r };
++  }
++  const trimmed = r.trim();
++  const s = trimmed.replace(/\+00:00$/, 'Z');
++  if (GIT_ISO_STRICT_RE.test(s)) {
++    if (s !== trimmed) {
++      return { status: 'normalized', value: s, reason_code: REASON_NORMALIZED_TZ_OFFSET, raw: r };
++    }
++    return { status: 'clean', value: s, reason_code: null, raw: r };
++  }
++  return {
++    status: 'quarantined',
++    value: null,
++    reason_code: opts && opts.anchor ? REASON_ANCHOR_HEAD_DATE_MALFORMED : REASON_UNCLASSIFIED,
++    raw: r
++  };
++}
++
++// ---------- §5 字段处置事件（判定输出 → quarantine_log 台账行载体） ----------
++export interface FieldEvent {
++  commit_sha: string;
++  field_name: string;
++  disposition: 'quarantined' | 'normalized';
++  reason_code: string;
++  raw: string;
++}
++
++export interface FieldStat {
++  field_name: string;
++  total: number;
++  clean: number;
++  normalized: number;
++  quarantined: number;
++}
++
++export function emptyFieldStat(fieldName: string): FieldStat {
++  return { field_name: fieldName, total: 0, clean: 0, normalized: 0, quarantined: 0 };
++}
++
++// 逐字段实例记账：分类结果→三桶计数＋非 clean 事件（normalized 留痕不告警）。
++export function recordFieldInstance(
++  stat: FieldStat,
++  events: FieldEvent[],
++  cls: FieldClassification,
++  commitSha: string,
++  fieldName: string
++): void {
++  stat.total += 1;
++  if (cls.status === 'clean') { stat.clean += 1; return; }
++  if (cls.status === 'normalized') { stat.normalized += 1; } else { stat.quarantined += 1; }
++  events.push({
++    commit_sha: commitSha,
++    field_name: fieldName,
++    disposition: cls.status === 'normalized' ? 'normalized' : 'quarantined',
++    reason_code: cls.reason_code as string,
++    raw: cls.raw
++  });
++}
++
++// ---------- §6 strict quarantine 门禁（D-110） ----------
++// 仓级版本化常量基线：空基线=零容忍；改基线=PR 评审=「接受新病态族」显式裁定；
++// 棘轮=只减不增（已消失码滞留=红）；UNCLASSIFIED 永不可进（default-deny）。
++// flag/env 只传开关，基线内容恒读本常量（D-110④）。
++export const ACCEPTED_REASON_CODES: readonly string[] = [];
++
++export interface BaselineViolation { kind: string; detail: string }
++
++export function baselineIssues(): string[] {
++  const issues: string[] = [];
++  const vocab = new Set(QUARANTINE_REASON_CODES);
++  for (const c of ACCEPTED_REASON_CODES) {
++    if (c === REASON_UNCLASSIFIED) { issues.push('baseline 禁载 unclassified_field_anomaly（D-110② 永不可进基线）'); }
++    if (!vocab.has(c)) { issues.push('baseline 码越出词表：' + c); }
++  }
++  if (new Set(ACCEPTED_REASON_CODES).size !== ACCEPTED_REASON_CODES.length) { issues.push('baseline 重复条目'); }
++  return issues;
++}
++
++// strict 闸门：返回违反基线的 reason_code 集（默认拒绝语义——不在基线即违规）。
++export function strictQuarantineViolations(events: readonly FieldEvent[]): string[] {
++  const baseline = new Set(ACCEPTED_REASON_CODES);
++  const out: string[] = [];
++  for (const e of events) {
++    if (e.disposition !== 'quarantined') { continue; }
++    if (!baseline.has(e.reason_code)) { out.push(e.reason_code); }
++  }
++  return out;
++}
++
++// ---------- §7 恒等式对账（D-100③ / D-116①：逐字段实例 grain） ----------
++// total=clean+normalized+quarantined；且 quarantine_log 行数（normalized+quarantined）
++// 必须等于 in-memory 非 clean 计数——两层对账的引擎内半层（独立半层=78-check）。
++export interface IdentityIssue { field_name: string; detail: string }
++
++export function intakeIdentityIssues(
++  stats: readonly FieldStat[],
++  dbCounts: Readonly<Record<string, { normalized: number; quarantined: number }>>
++): IdentityIssue[] {
++  const issues: IdentityIssue[] = [];
++  for (const s of stats) {
++    if (s.clean + s.normalized + s.quarantined !== s.total) {
++      issues.push({ field_name: s.field_name, detail: '三桶合计≠total：' + s.clean + '+' + s.normalized + '+' + s.quarantined + '!=' + s.total });
++    }
++    const db = dbCounts[s.field_name] || { normalized: 0, quarantined: 0 };
++    if (db.normalized !== s.normalized) {
++      issues.push({ field_name: s.field_name, detail: 'normalized 库内 ' + db.normalized + '≠内存 ' + s.normalized });
++    }
++    if (db.quarantined !== s.quarantined) {
++      issues.push({ field_name: s.field_name, detail: 'quarantined 库内 ' + db.quarantined + '≠内存 ' + s.quarantined });
++    }
++  }
++  return issues;
++}
++
++// ---------- §8 裁定升级（D-100③ 阈值 / D-105 锚 / D-111 reason_class） ----------
++// 单字段 quarantine 实例比例阈值：初值取保守默认 0.1%（实施期保守注记——后续可按观测校准；
++// 锚字段基数 1 病态即 100% 自动超限=D-105 既有机制）。
++export const QUARANTINE_FIELD_RATIO_RED = 0.001;
++
++export type IntakeEscalation = 'none' | 'anchor' | 'threshold';
++
++export function intakeEscalation(stats: readonly FieldStat[]): IntakeEscalation {
++  let threshold = false;
++  for (const s of stats) {
++    if (s.quarantined === 0) { continue; }
++    if (s.field_name === FIELD_HEAD_DATE) { return 'anchor'; }
++    if (s.quarantined / s.total > QUARANTINE_FIELD_RATIO_RED) { threshold = true; }
++  }
++  return threshold ? 'threshold' : 'none';
++}
++
++export const VERDICT_REASON_CLASSES: readonly string[] = [
++  'none',
++  'evidence_insufficient',
++  'anchor_malformed',
++  'threshold_exceeded',
++  'criteria_unsupported'
++];
++
++export function deriveReasonClass(band: string, escalation: IntakeEscalation): string {
++  if (escalation === 'anchor') { return 'anchor_malformed'; }
++  if (escalation === 'threshold') { return 'threshold_exceeded'; }
++  if (band === 'insufficient') { return 'evidence_insufficient'; }
++  if (band === 'unsupported') { return 'criteria_unsupported'; }
++  return 'none';
++}
++
++// ---------- §9 崩溃桶工件（D-109：协议级崩溃固定 schema） ----------
++export const CRASH_ARTIFACT_SCHEMA = 'quarantine-crash-artifact/v1';
++
++export interface CrashContext {
++  repo_ref: string | null;
++  run_id: string | null;
++  commit_sha: string | null;
++}
++
++export interface CrashCounts {
++  commits_seen: number;
++  facts_written: number;
++  quarantined_written: number;
++}
++
++export interface CrashArtifact {
++  schema: string;
++  error_code: string;
++  raw_bytes_hex: string;
++  is_trunc: boolean;
++  original_length: number;
++  sha256_full: string;
++  crash_location: string;
++  run_context: CrashContext;
++  counts: CrashCounts;
++  at: string;
++}
++
++// 纯构造器——契约层不做 IO（写盘归 cli.ts / one-shot 脚本）。
++export function buildCrashArtifact(args: {
++  error_code: string;
++  raw?: string | null;
++  crash_location: string;
++  run_context?: Partial<CrashContext>;
++  counts?: Partial<CrashCounts>;
++  at?: string;
++}): CrashArtifact {
++  const fp = rawBytesFingerprint(args.raw === undefined || args.raw === null ? '' : args.raw);
++  const rc = args.run_context || {};
++  const cn = args.counts || {};
++  return {
++    schema: CRASH_ARTIFACT_SCHEMA,
++    error_code: args.error_code,
++    raw_bytes_hex: fp.raw_bytes_hex,
++    is_trunc: fp.is_trunc,
++    original_length: fp.original_length,
++    sha256_full: fp.sha256_full,
++    crash_location: args.crash_location,
++    run_context: {
++      repo_ref: rc.repo_ref === undefined ? null : rc.repo_ref,
++      run_id: rc.run_id === undefined ? null : rc.run_id,
++      commit_sha: rc.commit_sha === undefined ? null : rc.commit_sha
++    },
++    counts: {
++      commits_seen: cn.commits_seen === undefined ? 0 : cn.commits_seen,
++      facts_written: cn.facts_written === undefined ? 0 : cn.facts_written,
++      quarantined_written: cn.quarantined_written === undefined ? 0 : cn.quarantined_written
++    },
++    at: args.at || new Date().toISOString()
++  };
++}
++
++// 协议级崩溃类错误：带 code+crash 载荷的 Error；消费面 catch 后据此落崩溃桶工件。
++export const PROTOCOL_CRASH_CODES: readonly string[] = [
++  'GITCLI-OUTPUT-CONTRACT',
++  'GIT-PROBE-FAILED',
++  'PROBE-INVARIANT-FAIL',
++  'STRICT-QUARANTINE-VIOLATION',
++  'QUARANTINE-CONSTRAINT',
++  'REASON-CODE-UNLISTED',
++  'INTAKE-IDENTITY-MISMATCH'
++];
++
++export interface ProtocolCrash extends Error {
++  code: string;
++  crash: {
++    raw: string | null;
++    crash_location: string;
++    run_context: Partial<CrashContext>;
++    counts: Partial<CrashCounts>;
++  };
++}
++
++export function protocolCrashError(
++  code: string,
++  detail: string,
++  crash: Partial<ProtocolCrash['crash']>
++): ProtocolCrash {
++  const e = new Error(code + ': ' + detail) as ProtocolCrash;
++  e.code = code;
++  e.crash = {
++    raw: crash.raw === undefined ? null : crash.raw,
++    crash_location: crash.crash_location === undefined ? 'unknown' : crash.crash_location,
++    run_context: crash.run_context || {},
++    counts: crash.counts || {}
++  };
++  return e;
++}
++
++export function isProtocolCrash(e: unknown): e is ProtocolCrash {
++  return !!e && typeof e === 'object' && typeof (e as { code?: unknown }).code === 'string' &&
++    PROTOCOL_CRASH_CODES.indexOf((e as { code: string }).code) >= 0 &&
++    typeof (e as { crash?: unknown }).crash === 'object' && (e as { crash?: unknown }).crash !== null;
++}
++
++// ProtocolCrash → 崩溃桶工件（消费面一行收口；raw 缺失→空串指纹，指纹三件套恒在）。
++export function crashArtifactFromError(e: ProtocolCrash, at?: string): CrashArtifact {
++  return buildCrashArtifact({
++    error_code: e.code,
++    raw: e.crash.raw,
++    crash_location: e.crash.crash_location,
++    run_context: e.crash.run_context,
++    counts: e.crash.counts,
++    at: at
++  });
++}
+diff --git a/engine/src/mcp-server.ts b/engine/src/mcp-server.ts
+index 5544fc1..533fca0 100644
+--- a/engine/src/mcp-server.ts
++++ b/engine/src/mcp-server.ts
+@@ -6,7 +6,7 @@
+ // #64/D-072⑧：MCP stdio 面 stdout 属 JSON-RPC 行帧——自愈结构化事件改落 stderr 避让协议通道
+ process.env.MACRO_AUDIT_MCP_STDIO = '1';
+ 
+-import { projectFacts } from './fact/projection.js';
++import { projectFacts, projectQuarantine } from './fact/projection.js';
+ import { loadManifestMeta } from './manifest.js';
+ 
+ export const MCP_PROTOCOL_VERSION = '2024-11-05';
+@@ -25,6 +25,21 @@ interface RpcResponse {
+   error?: { code: number; message: string };
+ }
+ 
++const QUARANTINE_TOOL = {
++  name: 'quarantine',
++  description: 'read-only quarantine_log projection（#78/D-113②）：字段级病态处置事件台账——固定列集（run_id/commit_sha/field_name/disposition/reason_code/raw_bytes_hex/is_trunc/original_length/sha256_full/collector/recorded_at），READ_ONLY 实例，limit≤500。db 寻址同 facts 链',
++  inputSchema: {
++    type: 'object',
++    properties: {
++      db: { type: 'string', description: 'facts.duckdb 绝对路径（可省——省则走服务端寻址链）' },
++      run: { type: 'string', description: 'run_id（trace_id hex32）过滤' },
++      field: { type: 'string', description: 'field_name 过滤（如 committer_date / head_date）' },
++      limit: { type: 'number', description: '行数上限（≤500）' }
++    },
++    additionalProperties: false
++  }
++};
++
+ const FACTS_TOOL = {
+   name: 'facts',
+   description: 'read-only DuckDB facts projection (D-053④)：固定 SELECT 形，FactEvent 十三列，READ_ONLY 实例，limit≤500。db 寻址收敛服务端解析（#55/D-059⑥）：arguments.db → server --db argv → MACRO_AUDIT_FACTS_DB env',
+@@ -88,13 +103,31 @@ export async function handleRpcMessage(msg: RpcMessage): Promise<RpcResponse | n
+     return ok(id, {});
+   }
+   if (method === 'tools/list') {
+-    return ok(id, { tools: [FACTS_TOOL] });
++    return ok(id, { tools: [FACTS_TOOL, QUARANTINE_TOOL] });
+   }
+   if (method === 'tools/call') {
+     const p = msg.params || {};
+-    if (p.name !== 'facts') {
++    if (p.name !== 'facts' && p.name !== 'quarantine') {
+       return fail(id, -32602, 'unknown tool: ' + String(p.name));
+     }
++    if (p.name === 'quarantine') {
++      const a = (p.arguments || {}) as { [k: string]: unknown };
++      const db = resolveFactsDb(asStr(a.db));
++      if (!db) {
++        return fail(id, -32602, 'MCP-FACTS-DB-UNRESOLVED: facts db 寻址失败——arguments.db 未给且服务端无 --db argv/MACRO_AUDIT_FACTS_DB env 配置');
++      }
++      const lim = a.limit === undefined ? undefined : Number(a.limit);
++      if (lim !== undefined && (!Number.isFinite(lim) || lim <= 0)) {
++        return fail(id, -32602, 'quarantine limit must be a positive number');
++      }
++      try {
++        const rows = await projectQuarantine(db, { run_id: asStr(a.run), field_name: asStr(a.field), limit: lim });
++        const text = rows.map(function (r) { return JSON.stringify(r); }).join('\n');
++        return ok(id, { content: [{ type: 'text', text: text }], isError: false });
++      } catch (e) {
++        return ok(id, { content: [{ type: 'text', text: 'MCP-QUAR-ERROR: ' + String(e && (e as Error).message || e) }], isError: true });
++      }
++    }
+     const a = (p.arguments || {}) as { [k: string]: unknown };
+     const db = resolveFactsDb(asStr(a.db));
+     if (!db) {
+diff --git a/engine/src/report/generate.ts b/engine/src/report/generate.ts
+index 33708b2..c0717ac 100644
+--- a/engine/src/report/generate.ts
++++ b/engine/src/report/generate.ts
+@@ -5,6 +5,7 @@
+ // 纯逻辑约束：输入一律注入；不读 fs、不起子进程、不发网络请求、不接 LLM（D-016）。
+ 
+ import { createHash } from 'node:crypto';
++import { intakeEscalation, deriveReasonClass, VERDICT_REASON_CLASSES } from '../intake/quarantine.js';
+ import { sealNarrativeSections, renderTemplateNarrative, NARRATIVE_SEAL_PROTOCOL } from './narrative.js';
+ import type { NarrativeSection, SealedNarrative } from './narrative.js';
+ import { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations } from './citation.js';
+@@ -134,6 +135,7 @@ export const CONTENT_DIGEST_CANONICALIZATION = 'json_utf8_entries_then_citation_
+ // tree sha 才是内容寻址的不可变主体，故 receipt 同时锚 commit + tree。
+ export interface Receipt {
+   receipt_id: string;
++  verdict?: { band: string; reason_class: string };   // D-111① verdict 三面投影（Receipt 面）；推导投影不入哈希链
+   chain_hash: string;
+   issued_at: string;
+   commit_anchor: string;
+@@ -233,6 +235,20 @@ export interface PreviewDisclosure {
+   not_in_preview: readonly string[];
+ }
+ 
++// ---------- Intake Health（#78 / ADR-0022 / D-114）：摄入健康节固定渲染 ----------
++export interface IntakeFieldStatRow { field_name: string; total: number; clean: number; normalized: number; quarantined: number }
++export interface IntakeHealthRow { commit_sha: string; field_name: string; reason_code: string; raw_echo: string }
++export interface IntakeHealth {
++  fields: IntakeFieldStatRow[];
++  affected_commits: number;     // quarantined 行去重 commit 数（呈现量，不承载恒等式）
++  excluded_commits: number;     // 日期派生统计显式排除的 quarantined commit 数（over N-M 声明的 M）
++  quarantined_rows: IntakeHealthRow[];
++  threshold_ratio: number;
++  escalation: 'none' | 'anchor' | 'threshold';
++}
++
++export interface VerdictProjection { band: VerdictBand; reason_class: string }
++
+ export interface ReportInput {
+   report_id: string;
+   schema_version?: string;
+@@ -260,6 +276,7 @@ export interface ReportInput {
+   degraded: boolean;
+   degraded_reason: string | null;
+   preview_disclosure?: PreviewDisclosure;
++  intake_health?: IntakeHealth;  // 缺席→渲染零病态同形骨架（恒在渲染，D-114⑤）
+   human?: HumanAdjudication;
+   narrative_sections?: readonly NarrativeSection[];
+ }
+@@ -287,6 +304,8 @@ export interface Report {
+   recommendations: Recommendation[];
+   adjudication: AdjudicationBlock;
+   receipt: Receipt;
++  verdict: VerdictProjection;
++  intake_health: IntakeHealth | null;
+   preview_disclosure: PreviewDisclosure | null;
+   narrative_sections: SealedNarrative[];
+ }
+@@ -305,6 +324,12 @@ export function buildReport(input: ReportInput): Report {
+     decided_at: input.decided_at,
+     human: input.human
+   });
++  // quarantine 升级（D-100③/D-105①）：锚字段病态或单字段病态率超阈 → run 级裁定升级 unsupported；
++  // 条目不动——升级语义载于 verdict.reason_class（三面投影）＋Intake Health 节。
++  const intakeHealth = input.intake_health !== undefined ? input.intake_health : null;
++  const escalation = intakeHealth ? intakeEscalation(intakeHealth.fields) : 'none';
++  if (escalation !== 'none' && adjudication.overall !== 'unsupported') { adjudication.overall = 'unsupported'; }
++  const verdict: VerdictProjection = { band: adjudication.overall, reason_class: deriveReasonClass(adjudication.overall, escalation) };
+   const receipt = buildReceipt({
+     fact_ids: input.fact_ids,
+     adjudication: adjudication,
+@@ -314,6 +339,7 @@ export function buildReport(input: ReportInput): Report {
+     gate_ref: input.gate_ref,
+     degraded: input.degraded
+   });
++  receipt.verdict = { band: verdict.band, reason_class: verdict.reason_class };
+   return {
+     report_id: input.report_id,
+     schema_version: input.schema_version ? input.schema_version : REPORT_SKELETON_VERSION,
+@@ -337,6 +363,8 @@ export function buildReport(input: ReportInput): Report {
+     recommendations: input.recommendations.slice(),
+     adjudication: adjudication,
+     receipt: receipt,
++    verdict: verdict,
++    intake_health: intakeHealth,
+     preview_disclosure: input.preview_disclosure ? input.preview_disclosure : null,
+     narrative_sections: sealNarrativeSections(narrativeInput, input.evidence, input.decided_at)
+   };
+@@ -437,12 +465,44 @@ export function renderMarkdown(r: Report): string {
+     }
+     out.push('');
+   }
++  // ---------- Intake Health 节（D-114 恒在渲染：有/无病态共享同骨架；零病态渲染「无」=阴性自证） ----------
++  out.push('## Intake Health');
++  out.push('');
++  out.push('- 契约：ADR-0022 违约两级处置——协议级违约 fail-fast（崩溃桶工件），字段级病态=quarantine 桶隔离（判定/处置硬分界）');
++  if (r.intake_health === null) {
++    out.push('- 摄入无病态声明：quarantined=0 · normalized=0（接线字段未供给 intake_health——同形骨架负声明，证据缺席≠证据为零）');
++  } else {
++    const ih = r.intake_health;
++    for (const f of ih.fields) {
++      const eq = f.clean + f.normalized + f.quarantined === f.total ? '恒等式=PASS' : '恒等式=MISMATCH';
++      out.push('- field ' + f.field_name + ': total=' + f.total + ' clean=' + f.clean + ' normalized=' + f.normalized + ' quarantined=' + f.quarantined + '（' + eq + '）');
++    }
++    out.push('- affected_commits（quarantined 去重）: ' + ih.affected_commits);
++    const totalCommits = ih.fields.filter(function (f) { return f.field_name === 'committer_date'; })[0];
++    out.push('- 派生统计排除声明：日期派生指标 over ' + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + ' commits（quarantined 排除 ' + ih.excluded_commits + '；quarantined 日期 commit 禁入 first_commit/adr_lag 派生）');
++    out.push('- 阈值纪律：单字段 quarantined/total > ' + ih.threshold_ratio + ' → run 级裁定升级 unsupported；escalation=' + ih.escalation);
++    if (ih.quarantined_rows.length === 0) {
++      out.push('- quarantined rows: 无（摄入无病态=阴性自证）');
++    } else {
++      out.push('- quarantined-only SHA 表（sha | field | reason_code | raw_echo 截断呈现）：');
++      out.push('');
++      out.push('  | sha | field | reason_code | raw_echo |');
++      out.push('  | --- | --- | --- | --- |');
++      for (const row of ih.quarantined_rows) {
++        out.push('  | ' + row.commit_sha + ' | ' + row.field_name + ' | ' + row.reason_code + ' | ' + row.raw_echo + ' |');
++      }
++      out.push('');
++    }
++  }
++  out.push('');
+   return out.join(String.fromCharCode(10));
+ }
+ 
+ export interface Sidecar {
+   schema_version: string;
+   report_id: string;
++  verdict: VerdictProjection;         // D-111① 三面投影机读块（band + reason_class）
++  intake_health: IntakeHealth | null;
+   stability: 'preview' | 'ga' | null;   // 报告头契约（#53/D-060⑦）
+   capabilities: string[];              // 已上架能力面枚举
+   scale: string;
+@@ -464,13 +524,15 @@ export interface Sidecar {
+   recommendations: Recommendation[];
+   preview_disclosure: PreviewDisclosure | null;
+   narrative_sections: SealedNarrative[];
+-  machine_contract: { citation_anchor_format: string; verdict_enum: string[]; human_adjudication_status: string; narrative_seal_protocol: string };
++  machine_contract: { citation_anchor_format: string; verdict_enum: string[]; verdict_reason_class_enum: string[]; human_adjudication_status: string; narrative_seal_protocol: string };
+ }
+ 
+ export function toSidecar(r: Report): Sidecar {
+   return {
+     schema_version: r.schema_version,
+     report_id: r.report_id,
++    verdict: r.verdict,
++    intake_health: r.intake_health,
+     stability: r.stability,
+     capabilities: r.capabilities.slice(),
+     scale: r.scale,
+@@ -497,6 +559,7 @@ export function toSidecar(r: Report): Sidecar {
+     machine_contract: {
+       citation_anchor_format: 'evidence_id + source + locator（三者齐备即为可解析引文锚）',
+       verdict_enum: ['supported', 'unsupported', 'insufficient'],
++      verdict_reason_class_enum: VERDICT_REASON_CLASSES.slice(),
+       human_adjudication_status: r.adjudication.human.status,
+       narrative_seal_protocol: NARRATIVE_SEAL_PROTOCOL
+     }
+@@ -603,6 +666,8 @@ export function degradeReport(r: Report, reason: string): Report {
+     }),
+     adjudication: adjudication,
+     receipt: receipt,
++    verdict: { band: 'insufficient', reason_class: 'evidence_insufficient' },
++    intake_health: r.intake_health,
+     preview_disclosure: r.preview_disclosure,
+     narrative_sections: []
+   };
+diff --git a/engine/test/narrative.test.mjs b/engine/test/narrative.test.mjs
+index f063608..4e6fe44 100644
+--- a/engine/test/narrative.test.mjs
++++ b/engine/test/narrative.test.mjs
+@@ -55,7 +55,7 @@ t('M1 mcp 裸启动=JSON-RPC 2.0 stdio 服务：initialize+initialized+tools/lis
+   const res = r.stdout.trim().split('\n').map(JSON.parse);
+   assert.equal(res.length, 2);
+   assert.equal(res[0].id, 1); assert.equal(res[0].result.serverInfo.name, 'macro-audit'); assert.ok(res[0].result.capabilities.tools);
+-  assert.equal(res[1].id, 2); assert.deepEqual(res[1].result.tools.map(function (x) { return x.name; }), ['facts']);
++  assert.equal(res[1].id, 2); assert.deepEqual(res[1].result.tools.map(function (x) { return x.name; }), ['facts', 'quarantine']);  // #78/D-113②：quarantine_log 只读投影进工具面
+ });
+ t('M4 tools/call facts e2e：JSON-RPC 投影读出真实 fact', () => {
+   const dir = mkdtempSync(join(tmpdir(), 'mcp-rpc-')); const db = join(dir, 'f.duckdb'); try {
+diff --git a/engine/test/quarantine.test.mjs b/engine/test/quarantine.test.mjs
+new file mode 100644
+index 0000000..df847bc
+--- /dev/null
++++ b/engine/test/quarantine.test.mjs
+@@ -0,0 +1,226 @@
++// quarantine.test.mjs —— #78 quarantine 引擎测试册（ADR-0022 / D-103~D-120）
++// A=分类器纯契约（永不 throw 三态）/ B=raw_bytes 指纹+截断边界 / C=strict 门禁基线
++// D=恒等式 / E=quarantine_log DDL / F=store e2e（幂等自然键·事务回滚·未列码崩）
++// G=合成病态 git fixture 全链 e2e（hash-object --literally 病态 commit 对象）/ H=MCP quarantine 只读投影
++import { execFileSync, spawnSync } from 'node:child_process';
++import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync, readdirSync } from 'node:fs';
++import { join, dirname } from 'node:path';
++import { tmpdir } from 'node:os';
++import { fileURLToPath, pathToFileURL } from 'node:url';
++import { createHash } from 'node:crypto';
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++const ROOT = join(HERE, '..');
++const CLI = join(ROOT, 'dist', 'cli.js');
++const NL = String.fromCharCode(10);
++const SHA64 = /[0-9a-f]{64}/;
++const Q = await import(pathToFileURL(join(ROOT, 'dist', 'intake', 'quarantine.js')).href);
++const S = await import(pathToFileURL(join(ROOT, 'dist', 'fact', 'schema.js')).href);
++const STORE = await import(pathToFileURL(join(ROOT, 'dist', 'fact', 'store.js')).href);
++
++let pass = 0, fail = 0;
++function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + String(detail).slice(0, 240) : '')); } }
++
++// ---------- A. 分类器纯契约（D-103/D-104：三态分流，字段级病态永不 throw） ----------
++const c1 = Q.classifyGitIsoField('2005-04-07T22:13:13Z');
++t('A1 clean Z 形', c1.status === 'clean' && c1.value === '2005-04-07T22:13:13Z' && c1.reason_code === null);
++const c2 = Q.classifyGitIsoField('2005-04-07T22:13:13-07:00');
++t('A2 clean ±HH:MM 形', c2.status === 'clean' && c2.value === '2005-04-07T22:13:13-07:00');
++const c3 = Q.classifyGitIsoField('2005-04-07T22:13:13+00:00');
++t('A3 normalized +00:00→Z（留痕不告警）', c3.status === 'normalized' && c3.value === '2005-04-07T22:13:13Z' && c3.reason_code === 'normalized_tz_offset');
++const c4 = Q.classifyGitIsoField('%cI');
++t('A4 字面 %cI → quarantined/unclassified_field_anomaly（病态不升格崩溃）', c4.status === 'quarantined' && c4.value === null && c4.reason_code === 'unclassified_field_anomaly');
++const c5 = Q.classifyGitIsoField('%cI', { anchor: true });
++t('A5 锚位病态码=anchor_head_date_malformed（D-105）', c5.status === 'quarantined' && c5.reason_code === 'anchor_head_date_malformed');
++const c6 = Q.classifyGitIsoField('x'.repeat(65537));
++t('A6 oversize>64KiB → quarantined/oversize', c6.status === 'quarantined' && c6.reason_code === 'oversize');
++const c7 = Q.classifyGitIsoField('x'.repeat(65536));
++t('A7 边界 N=65536 不判 oversize（非 ISO→unclassified）', c7.status === 'quarantined' && c7.reason_code === 'unclassified_field_anomaly');
++const c8 = Q.classifyGitIsoField('2005-04-12T02:52:13+99:99');
++t('A8 形状合法语义越界（+99:99）=clean——契约是形状口径，不隐扩语义域', c8.status === 'clean' && c8.value === '2005-04-12T02:52:13+99:99');
++let threw = false;
++const FUZZ = [null, undefined, '', '   ', String.fromCharCode(10), String.fromCharCode(9, 13), '%cI', '垃圾', String.fromCharCode(0, 1, 2), '{bad}', 'not-a-date', 'x'.repeat(200000), '2005-04-07', '2005-04-07T22:13:13', '2005-04-07T22:13:13+0000', ' 2005-04-07T22:13:13Z '];
++for (const f of FUZZ) { try { const r = Q.classifyGitIsoField(f); if (['clean','normalized','quarantined'].indexOf(r.status) < 0) { threw = 'bad-status'; break; } } catch (e) { threw = 'threw:' + String(e).slice(0, 60); break; } }
++t('A9 永不 throw + 三态枚举闭合（fuzz 15 输入）', threw === false, String(threw));
++const d1 = Q.classifyGitIsoField('bogus-value');
++const d2 = Q.classifyGitIsoField('bogus-value');
++t('A10 确定性：同输入同输出（reason/value/status 逐字节一致）', JSON.stringify(d1) === JSON.stringify(d2));
++const c11 = Q.classifyGitIsoField(' 2005-04-07T22:13:13Z ');
++t('A11 首尾空白清洗同口径（trim 后 ISO=clean）', c11.status === 'clean' && c11.value === '2005-04-07T22:13:13Z');
++
++// ---------- B. raw_bytes 指纹+截断（D-117） ----------
++const fp1 = Q.rawBytesFingerprint('2005-04-07T22:13:13Z');
++t('B1 短值指纹三件套：不截断+原长+sha256 全覆盖', fp1.is_trunc === false && fp1.original_length === 20 && SHA64.test(fp1.sha256_full));
++const fp2 = Q.rawBytesFingerprint('A'.repeat(70000));
++t('B2 超界截断：hex 回显=64KiB×2 + is_trunc + 原长=70000', fp2.is_trunc === true && fp2.original_length === 70000 && fp2.raw_bytes_hex.length === 131072);
++t('B3 sha256_full=对未截断原文全量哈希', fp2.sha256_full === createHash('sha256').update('A'.repeat(70000), 'utf8').digest('hex'));
++const fp3 = Q.rawBytesFingerprint('B'.repeat(65536));
++t('B4 边界 N=65536 不截断（N+1 才截）', fp3.is_trunc === false && fp3.original_length === 65536 && fp3.raw_bytes_hex.length === 131072);
++const fp4 = Q.rawBytesFingerprint('%cI');
++t('B5 hex 回显可逆（hex→bytes→原文）', Buffer.from(fp4.raw_bytes_hex, 'hex').toString('utf8') === '%cI');
++
++// ---------- C. strict 门禁基线（D-110） ----------
++t('C1 空基线=零容忍：unclassified quarantined 事件违例', Q.strictQuarantineViolations([{ commit_sha: 's', field_name: 'committer_date', disposition: 'quarantined', reason_code: 'unclassified_field_anomaly', raw: 'r' }]).length === 1);
++t('C2 normalized 留痕不进违例集', Q.strictQuarantineViolations([{ commit_sha: 's', field_name: 'committer_date', disposition: 'normalized', reason_code: 'normalized_tz_offset', raw: 'r' }]).length === 0);
++t('C3 基线自洽（当前空基线无滞留码）', Q.baselineIssues().length === 0, Q.baselineIssues().join('|'));
++t('C4 v1 词表=四族且仅四族', JSON.stringify(Q.QUARANTINE_REASON_CODES.slice().sort()) === JSON.stringify(['anchor_head_date_malformed','normalized_tz_offset','oversize','unclassified_field_anomaly'].sort()));
++t('C5 ACCEPTED 基线=仓内版本化常量（非 env 来源）', Array.isArray(Q.ACCEPTED_REASON_CODES));
++
++// ---------- D. 恒等式（D-116：字段实例 grain） ----------
++const st = [{ field_name: 'committer_date', total: 5, clean: 3, normalized: 1, quarantined: 1 }];
++t('D1 库内计数=内存三桶 → 空 issue', Q.intakeIdentityIssues(st, { committer_date: { normalized: 1, quarantined: 1 } }).length === 0);
++t('D2 失配 → issue 产出', Q.intakeIdentityIssues(st, { committer_date: { normalized: 0, quarantined: 0 } }).length > 0);
++t('D3 三桶和≠total → issue 产出', Q.intakeIdentityIssues([{ field_name: 'f', total: 5, clean: 5, normalized: 1, quarantined: 0 }], {}).length > 0);
++
++// ---------- E. quarantine_log DDL（D-106/D-112/D-119） ----------
++const ddl = S.QUARANTINE_LOG_DDL;
++t('E1 DDL 建表+组合自然键 UNIQUE', ddl.indexOf('CREATE TABLE IF NOT EXISTS quarantine_log') >= 0 && ddl.indexOf('UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)') >= 0);
++t('E2 reason_code CHECK=命名公约（开放词表非枚举硬编码）', ddl.indexOf('regexp_matches(reason_code') >= 0 && ddl.indexOf('{2,63}') >= 0);
++t('E3 raw_bytes_hex 有界 ≤131072 hex chars', ddl.indexOf('CHECK(length(raw_bytes_hex) <= 131072)') >= 0);
++t('E4 INSERT…ON CONFLICT DO NOTHING 过只追加守卫', S.classifyStatement("INSERT INTO quarantine_log (q_seq, run_id) VALUES (nextval('s'), ?) ON CONFLICT DO NOTHING").allow === true);
++t('E5 黑名单仍拦 UPDATE/DELETE（防线未开洞）', S.classifyStatement('UPDATE quarantine_log SET x=1').allow === false && S.classifyStatement('DELETE FROM quarantine_log').allow === false);
++
++// ---------- F. store e2e（DuckDB 实物：幂等/事务/未列码崩） ----------
++const tmpD = mkdtempSync(join(tmpdir(), 'quar-store-'));
++const DBP = join(tmpD, 'f.duckdb');
++const W = await STORE.openWriter(DBP);
++const RID = 'a'.repeat(32);
++const EV = { run_id: RID, commit_sha: 'c1', field_name: 'committer_date', disposition: 'quarantined', reason_code: 'unclassified_field_anomaly', raw: '%cI', collector: 'test', recorded_at: '2026-04-10T10:00:00Z' };
++await STORE.appendQuarantineEvent(W, EV);
++await STORE.appendQuarantineEvent(W, EV);
++const n1 = await (await W.run('SELECT COUNT(*) FROM quarantine_log')).getRows();
++t('F1 自然键幂等：同键重复写=1 行（ON CONFLICT DO NOTHING）', Number(n1[0][0]) === 1);
++let unlisted = null;
++try { await STORE.appendQuarantineEvent(W, { run_id: RID, commit_sha: 'c9', field_name: 'f', disposition: 'quarantined', reason_code: 'bogus_code', raw: 'r', collector: 'test', recorded_at: null }); } catch (e) { unlisted = e; }
++t('F2 词表外 reason_code → REASON-CODE-UNLISTED 协议崩（前置枚举校验）', Q.isProtocolCrash(unlisted) && unlisted.code === 'REASON-CODE-UNLISTED');
++await STORE.runInTransaction(W, async function () {
++  await STORE.appendQuarantineEvent(W, { run_id: RID, commit_sha: 'c2', field_name: 'committer_date', disposition: 'normalized', reason_code: 'normalized_tz_offset', raw: 'x', collector: 'test', recorded_at: null });
++  throw new Error('forced-rollback');
++}).catch(function () { });
++const n2 = await (await W.run('SELECT COUNT(*) FROM quarantine_log')).getRows();
++t('F3 事务回滚无半截写（失败事件不落库）', Number(n2[0][0]) === 1);
++const cnts = await STORE.queryQuarantineCounts(W, RID);
++t('F4 queryQuarantineCounts 半层读回 {committer_date:{quarantined:1}}', cnts.committer_date && cnts.committer_date.quarantined === 1 && cnts.committer_date.normalized === 0);
++const qr = await STORE.queryQuarantineRows(W, RID);
++t('F5 投影行指纹三件套随行', qr.length === 1 && qr[0].sha256_full && SHA64.test(String(qr[0].sha256_full)) && qr[0].is_trunc === false);
++STORE.closeDuckdb(W);
++
++// ---------- G. 合成病态 git fixture e2e（hash-object --literally） ----------
++const PIN = { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '2026-04-10T10:00:00Z' };
++function gitR(args, cwd, input) {
++  const r = spawnSync('git', args, { cwd: cwd, encoding: 'utf8', input: input, env: Object.assign({}, process.env, PIN) });
++  if (r.status !== 0) { throw new Error('git ' + args[0] + ' failed: ' + (r.stderr || '').slice(0, 120)); }
++  return r.stdout.trim();
++}
++const ADR_MD = ['# ADR-001', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: test', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL);
++function mkRepo(dir) {
++  mkdirSync(join(dir, 'docs', 'adr'), { recursive: true });
++  gitR(['init'], dir); gitR(['config', 'user.email', 'a@b.c'], dir); gitR(['config', 'user.name', 't'], dir); gitR(['config', 'commit.gpgsign', 'false'], dir);
++  writeFileSync(join(dir, 'CONTEXT.md'), 'macro audit positioning determinism traceability provenance receipt quarantine' + NL, 'utf8');
++  writeFileSync(join(dir, 'package.json'), '{"name":"x","private":true}' + NL, 'utf8');
++  gitR(['add', '-A'], dir); gitR(['commit', '-m', 'init'], dir);
++  writeFileSync(join(dir, 'docs', 'adr', '001-decision.md'), ADR_MD, 'utf8');
++  gitR(['add', '-A'], dir); gitR(['commit', '-m', 'adr'], dir);
++}
++// hash-object --literally 手写 commit 对象（病态 committer/author 行原样入库）
++function badCommit(dir, opts) {
++  const tree = gitR(['rev-parse', 'HEAD^{tree}'], dir);
++  const head = gitR(['rev-parse', 'HEAD'], dir);
++  const body = ['tree ' + tree, 'parent ' + head, 'author ' + (opts.author || 'T <t@t>') + ' 1112911993 -0700', 'committer ' + (opts.committer || 'T <t@t>') + ' 1112911993 ' + (opts.tz || '+GGGG'), '', 'pathological fixture', ''].join(NL);
++  const sha = gitR(['hash-object', '--literally', '-t', 'commit', '-w', '--stdin'], dir, body);
++  gitR(['update-ref', 'HEAD', sha], dir);
++  return sha;
++}
++const tmpG = mkdtempSync(join(tmpdir(), 'quar-fix-'));
++
++// -- G1 干净基线仓：Intake Health 零病态同形骨架 --
++const R1 = join(tmpG, 'clean'); mkRepo(R1);
++const OUT1 = join(tmpG, 'out-clean');
++let e1 = spawnSync('node', [CLI, 'audit', R1, '--out', OUT1], { encoding: 'utf8', timeout: 120000 });
++t('G1 干净仓 audit exit 0', e1.status === 0, (e1.stderr || '').slice(0, 200));
++const md1 = existsSync(join(OUT1, 'report.md')) ? readFileSync(join(OUT1, 'report.md'), 'utf8') : '';
++t('G2 Intake Health 节恒在+零病态阴性自证', md1.indexOf('## Intake Health') >= 0 && md1.indexOf('摄入无病态') >= 0, md1.split('## Intake Health')[1] ? md1.split('## Intake Health')[1].slice(0, 200) : 'absent');
++const sc1 = existsSync(join(OUT1, 'report.json')) ? JSON.parse(readFileSync(join(OUT1, 'report.json'), 'utf8')) : null;
++t('G3 sidecar verdict 三面投影：摄入零病态→reason_class 属真判据族非摄入族', !!sc1 && sc1.verdict && ['supported','unsupported','insufficient'].indexOf(sc1.verdict.band) >= 0 && ['none','evidence_insufficient','criteria_unsupported'].indexOf(sc1.verdict.reason_class) >= 0, sc1 && sc1.verdict ? JSON.stringify(sc1.verdict) : 'absent');
++t('G4 receipt.verdict 投影在（band+reason_class 同 verdict 块一致）', !!sc1 && sc1.receipt && sc1.receipt.verdict && sc1.receipt.verdict.band === sc1.verdict.band && sc1.receipt.verdict.reason_class === sc1.verdict.reason_class);
++
++// -- G2 历史中位病态 commit（committer tz=+GGGG → %cI 字面量输出） --
++const R2 = join(tmpG, 'mid-bad'); mkRepo(R2);
++const BADSHA2 = badCommit(R2, { tz: '+GGGG' });
++gitR(['commit', '--allow-empty', '-m', 'top-clean'], R2);
++const OUT2 = join(tmpG, 'out-mid');
++let e2 = spawnSync('node', [CLI, 'audit', R2, '--out', OUT2], { encoding: 'utf8', timeout: 120000 });
++t('G5 病态 committer_date 不崩全仓：audit exit 0', e2.status === 0, 'status=' + e2.status + ' err=' + (e2.stderr || '').slice(0, 200));
++const md2 = existsSync(join(OUT2, 'report.md')) ? readFileSync(join(OUT2, 'report.md'), 'utf8') : '';
++t('G6 Intake Health quarantined-only SHA 表含该 sha+reason_code', md2.indexOf(BADSHA2) >= 0 && md2.indexOf('unclassified_field_anomaly') >= 0);
++const sc2 = existsSync(join(OUT2, 'report.json')) ? JSON.parse(readFileSync(join(OUT2, 'report.json'), 'utf8')) : null;
++t('G7 病态率超阈 → verdict 升级 unsupported/threshold_exceeded（D-105② 棘轮初值 0.001）', !!sc2 && sc2.verdict && sc2.verdict.band === 'unsupported' && sc2.verdict.reason_class === 'threshold_exceeded', sc2 && sc2.verdict ? JSON.stringify(sc2.verdict) : 'absent');
++const ms2 = existsSync(join(OUT2, 'audit-measurements.json')) ? JSON.parse(readFileSync(join(OUT2, 'audit-measurements.json'), 'utf8')) : null;
++t('G8 measurements.intake_quarantine 摄入块在（field_stats 三桶）', !!ms2 && ms2.intake_quarantine && Array.isArray(ms2.intake_quarantine.field_stats));
++if (ms2 && ms2.intake_quarantine) {
++  const cd = ms2.intake_quarantine.field_stats.filter(function (f) { return f.field_name === 'committer_date'; })[0] || {};
++  t('G9 committer_date 三桶：quarantined=1 且恒等式 PASS', cd.quarantined === 1 && cd.clean + cd.normalized + cd.quarantined === cd.total, JSON.stringify(cd));
++} else { t('G9 committer_date 三桶：quarantined=1 且恒等式 PASS', false, 'no intake_quarantine'); }
++if (existsSync(join(OUT2, 'facts.duckdb'))) {
++  const rc2 = await STORE.openReader(join(OUT2, 'facts.duckdb'));
++  const qrows2 = await (await rc2.run("SELECT commit_sha, field_name, reason_code, is_trunc, sha256_full FROM quarantine_log")).getRows();
++  t('G10 quarantine_log 行落库：sha+field+reason+指纹三件套', qrows2.length === 1 && String(qrows2[0][0]) === BADSHA2 && String(qrows2[0][1]) === 'committer_date' && String(qrows2[0][2]) === 'unclassified_field_anomaly' && qrows2[0][4] && SHA64.test(String(qrows2[0][4])), JSON.stringify(qrows2));
++  STORE.closeDuckdb(rc2);
++} else { t('G10 quarantine_log 行落库', false, 'facts.duckdb missing'); }
++
++// -- G3 锚病态（HEAD %cI 病态 → anchor_head_date_malformed → unsupported + fact 不落库） --
++const R3 = join(tmpG, 'anchor-bad'); mkRepo(R3);
++badCommit(R3, { tz: 'abc' });
++const OUT3 = join(tmpG, 'out-anchor');
++let e3 = spawnSync('node', [CLI, 'audit', R3, '--out', OUT3], { encoding: 'utf8', timeout: 120000 });
++t('G11 锚病态 audit exit 0（run 完成不升格崩溃）', e3.status === 0, 'status=' + e3.status + ' err=' + (e3.stderr || '').slice(0, 200));
++const ms3 = existsSync(join(OUT3, 'audit-measurements.json')) ? JSON.parse(readFileSync(join(OUT3, 'audit-measurements.json'), 'utf8')) : null;
++const sc3 = existsSync(join(OUT3, 'report.json')) ? JSON.parse(readFileSync(join(OUT3, 'report.json'), 'utf8')) : null;
++t('G12 锚病态 → verdict=unsupported/anchor_malformed', !!sc3 && sc3.verdict && sc3.verdict.band === 'unsupported' && sc3.verdict.reason_class === 'anchor_malformed', sc3 && sc3.verdict ? JSON.stringify(sc3.verdict) : 'absent');
++t('G13 observed_at=显式哨兵标记（不落伪时间戳）', !!ms3 && ms3.observed_at === 'quarantined(anchor_head_date_malformed)', ms3 ? String(ms3.observed_at) : 'absent');
++const qdb3 = join(OUT3, 'facts.duckdb');
++if (existsSync(qdb3)) {
++  const rc = await STORE.openReader(qdb3);
++  const fq = await (await rc.run('SELECT COUNT(*) FROM audit_fact')).getRows();
++  const qq = await (await rc.run('SELECT field_name, recorded_at FROM quarantine_log')).getRows();
++  const qHd = qq.filter(function (r) { return r[0] === 'head_date'; })[0];
++  const qCd = qq.filter(function (r) { return r[0] === 'committer_date'; })[0];
++  t('G14 锚病态 run：audit_fact 零行 + head_date/committer_date 双行（同一病态 commit 两位被分类）均 recorded_at=NULL', Number(fq[0][0]) === 0 && !!qHd && qHd[1] === null && !!qCd && qCd[1] === null, 'facts=' + Number(fq[0][0]) + ' quar=' + JSON.stringify(qq));
++  STORE.closeDuckdb(rc);
++} else { t('G14 锚病态 run：facts.duckdb 存在', false, 'db missing'); }
++
++// -- G4 strict quarantine 门禁：越基线→硬崩 exit 3 + 崩溃桶工件 --
++const OUT4 = join(tmpG, 'out-strict');
++let e4 = spawnSync('node', [CLI, 'audit', R2, '--out', OUT4, '--strict-quarantine'], { encoding: 'utf8', timeout: 120000 });
++t('G15 strict 模式越基线 → exit 3（非 0 非 2 三值语义）', e4.status === 3, 'status=' + e4.status);
++let se4 = null; try { se4 = JSON.parse(e4.stderr); } catch (e) { }
++t('G16 stderr 结构化 error=STRICT-QUARANTINE-VIOLATION + crash_artifact 路径', !!se4 && se4.error === 'STRICT-QUARANTINE-VIOLATION' && typeof se4.crash_artifact === 'string', e4.stderr.slice(0, 200));
++const crashFiles4 = existsSync(OUT4) ? readdirSync(OUT4).filter(function (f) { return f.indexOf('macro-audit-crash-') === 0; }) : [];
++const art4 = crashFiles4.length > 0 ? JSON.parse(readFileSync(join(OUT4, crashFiles4[0]), 'utf8')) : null;
++t('G17 崩溃桶工件 schema=quarantine-crash-artifact/v1 + 指纹三件套', !!art4 && art4.schema === 'quarantine-crash-artifact/v1' && SHA64.test(art4.sha256_full) && art4.error_code === 'STRICT-QUARANTINE-VIOLATION', crashFiles4.join(','));
++
++// -- G5 协议级违约（author 含 | → 记录字段不可定界 → fail-fast exit 2 + 工件） --
++const R5 = join(tmpG, 'proto-bad'); mkRepo(R5);
++badCommit(R5, { author: 'A|B <t@t>', tz: '-0700' });
++const OUT5 = join(tmpG, 'out-proto');
++let e5 = spawnSync('node', [CLI, 'audit', R5, '--out', OUT5], { encoding: 'utf8', timeout: 120000 });
++t('G18 协议级违约 fail-fast exit 2（非 0 非 3）', e5.status === 2, 'status=' + e5.status + ' err=' + (e5.stderr || '').slice(0, 200));
++let se5 = null; try { se5 = JSON.parse(e5.stderr); } catch (e) { }
++t('G19 stderr error=GITCLI-OUTPUT-CONTRACT（协议桶与字段桶分轨）', !!se5 && se5.error === 'GITCLI-OUTPUT-CONTRACT', e5.stderr.slice(0, 200));
++const crashFiles5 = existsSync(OUT5) ? readdirSync(OUT5).filter(function (f) { return f.indexOf('macro-audit-crash-') === 0; }) : [];
++t('G20 协议崩溃桶工件落盘', crashFiles5.length > 0, crashFiles5.join(','));
++
++// ---------- H. MCP quarantine 只读投影（D-113②） ----------
++const H1 = spawnSync('node', [CLI, 'mcp', 'quarantine', '--db', join(OUT2, 'facts.duckdb')], { encoding: 'utf8' });
++const h1rows = (H1.stdout || '').trim().split(NL).filter(function (l) { return l.length > 0; }).map(function (l) { try { return JSON.parse(l); } catch (e) { return null; } }).filter(Boolean);
++t('H1 mcp quarantine CLI 投影 exit 0 + 行含 reason_code/sha256_full', H1.status === 0 && h1rows.length === 1 && h1rows[0].reason_code === 'unclassified_field_anomaly', 'status=' + H1.status + ' rows=' + h1rows.length + ' ' + (H1.stderr || '').slice(0, 160));
++const H2msgs = [{ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} }, { jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'quarantine', arguments: { db: join(OUT2, 'facts.duckdb') } } }].map(JSON.stringify).join(NL) + NL;
++const H2 = spawnSync('node', [CLI, 'mcp'], { encoding: 'utf8', input: H2msgs });
++const h2res = (H2.stdout || '').trim().split(NL).map(function (l) { try { return JSON.parse(l); } catch (e) { return null; } }).filter(Boolean);
++const h2call = h2res.filter(function (x) { return x.id === 2; })[0];
++t('H2 JSON-RPC tools/call quarantine 读出行', !!h2call && h2call.result && h2call.result.isError === false && h2call.result.content[0].text.indexOf('unclassified_field_anomaly') >= 0, H2.status + '/' + (H2.stdout || '').slice(0, 160));
++
++rmSync(tmpD, { recursive: true, force: true });
++rmSync(tmpG, { recursive: true, force: true });
++console.log('QUARANTINE ' + pass + '/' + (pass + fail));
++if (fail > 0) { process.exit(1); }

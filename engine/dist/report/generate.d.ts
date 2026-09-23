@@ -154,6 +154,7 @@ export interface IntakeHealth {
     quarantined_rows: IntakeHealthRow[];
     threshold_ratio: number;
     escalation: 'none' | 'anchor' | 'threshold';
+    recorded_at: string | null;
 }
 export interface VerdictProjection {
     band: VerdictBand;
