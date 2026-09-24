@@ -1,5 +1,5 @@
 import type { CollectContext, CollectedFact } from '../collect/collectors.js';
-import type { FieldStatus, FieldEvent, FieldStat } from '../intake/quarantine.js';
+import type { FieldStatus, FieldEvent, FieldStat, DialectAbsorption } from '../intake/quarantine.js';
 export declare const TC1_LAG_DAYS = 90;
 export declare const TC1_RATIO_RED = 0.2;
 export declare const TC1_MIN_N = 5;
@@ -17,6 +17,10 @@ export interface ParsedCommit {
     date: string | null;
     paths: string[];
 }
+export interface DialectAbsorptionEvent extends DialectAbsorption {
+    field_name: string;
+    commit_sha: string;
+}
 export interface MacroBProbes {
     headSha: string;
     headDate: string | null;
@@ -28,8 +32,13 @@ export interface MacroBProbes {
     subjects: string[];
     fieldEvents: FieldEvent[];
     fieldStats: FieldStat[];
+    dialectAbsorptions: DialectAbsorptionEvent[];
 }
-export declare function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes;
+export type GitProbeRunner = (repoRoot: string, args: readonly string[]) => string;
+export declare function probeMacroBRepo(repoRoot: string, headSha: string, opts?: {
+    gitRunner?: GitProbeRunner;
+}): MacroBProbes;
+export declare function probeGitVersion(): string;
 export type RenameLogRunner = (repoRoot: string, args: readonly string[]) => string;
 export interface MacroBCollectSpec {
     intentCandidates: readonly string[];

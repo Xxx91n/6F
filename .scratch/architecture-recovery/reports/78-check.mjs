@@ -47,7 +47,8 @@ const mb = txt(join(ENG, 'src', 'audit', 'macro-b.ts'));
 const audit = txt(join(ENG, 'src', 'audit', 'audit.ts'));
 const gen = txt(join(ENG, 'src', 'report', 'generate.ts'));
 const cli = txt(join(ENG, 'src', 'cli.ts'));
-t('C1 probe 锚位+逐 commit 双分类接线', mb.indexOf('classifyGitIsoField(headRaw, { anchor: true })') >= 0 && mb.indexOf('classifyGitIsoField(parts[2])') >= 0);
+// #81/D-128②：接线序改为 absorbGitIsoDialect（边界方言归一）→ classifyGitIsoField（规范流分类）——断言更新为吸收在分类器上游。
+t('C1 probe 锚位+逐 commit 双分类接线（#81：边界吸收→分类器）', mb.indexOf('absorbGitIsoDialect(headRaw)') >= 0 && mb.indexOf('classifyGitIsoField(headAbs.value, { anchor: true })') >= 0 && mb.indexOf('absorbGitIsoDialect(parts[2])') >= 0 && mb.indexOf('classifyGitIsoField(abs.value)') >= 0);
 t('C2 probe 输出带 fieldStats/fieldEvents', mb.indexOf('fieldStats') >= 0 && mb.indexOf('fieldEvents') >= 0);
 t('C3 audit 装配：strict 闸+事务写+恒等式断言', audit.indexOf('strictQuarantineViolations') >= 0 && audit.indexOf('runInTransaction') >= 0 && audit.indexOf('intakeIdentityIssues') >= 0);
 t('C4 Intake Health 恒在节+verdict 三面投影', gen.indexOf('## Intake Health') >= 0 && gen.indexOf('reason_class') >= 0 && gen.indexOf('VERDICT_REASON_CLASSES') >= 0);
@@ -108,7 +109,7 @@ const r39 = spawnSync('node', [ONESHOT39, '--repo', 'fx', '--root', FX, '--out',
 // D-118① parity 矩阵格：{cli=quarantined × 39=解析失败} = 预期分歧类——对照物无 quarantine 语义，病态即抛为合规行为
 t('F2 one-shot39 病态仓=解析失败格（exit 2 + GITCLI-OUTPUT-CONTRACT 命中 stderr）', r39.status === 2 && (r39.stderr || '').indexOf('GITCLI-OUTPUT-CONTRACT') >= 0, 'status=' + r39.status + ' err=' + (r39.stderr || '').slice(0, 160));
 const crash39 = existsSync(OUT_39) ? fs2.readdirSync(OUT_39).filter(function (f) { return f.indexOf('39-crash-') === 0; }) : [];
-let crash39j = null; try { crash39j = JSON.parse(txt(join(OUT_39, crash39[0]))); } catch (_) {}
+let crash39j = null; try { crash39j = JSON.parse(txt(join(OUT_39, crash39[0]))); } catch (_) { }
 t('F2b 39 crash 工件落盘 quarantine-crash-artifact/v1（D-109① 双通道实物）', crash39.length === 1 && !!crash39j && crash39j.schema === 'quarantine-crash-artifact/v1' && crash39j.error_code === 'GITCLI-OUTPUT-CONTRACT', crash39.join(';'));
 // env 腿实证：STRICT env=1 时 39 stderr 回声 strict_quarantine:true（对照物语义恒硬崩，env 只进证据面）
 const r39s = spawnSync('node', [ONESHOT39, '--repo', 'fx', '--root', FX, '--out', join(tmp, 'out-39-strict')], { encoding: 'utf8', timeout: 120000, env: Object.assign({}, process.env, { MACRO_AUDIT_STRICT_QUARANTINE: '1' }) });

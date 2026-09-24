@@ -15,8 +15,9 @@ import type { CollectContext, CollectedFact } from '../collect/collectors.js';
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
 import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
 // %cI 契约=normalizeGitIsoDate 同族判定本体（契约层分类器 classifyGitIsoField 承载，见 quarantine.ts）
-import { classifyGitIsoField, recordFieldInstance, emptyFieldStat, protocolCrashError, FIELD_HEAD_DATE, FIELD_COMMITTER_DATE } from '../intake/quarantine.js';
-import type { FieldStatus, FieldEvent, FieldStat } from '../intake/quarantine.js';
+// #81/D-128：git 版本方言（+00:00↔Z）由 absorbGitIsoDialect 在边界先行吸收——分类器只见规范流。
+import { classifyGitIsoField, recordFieldInstance, emptyFieldStat, protocolCrashError, absorbGitIsoDialect, FIELD_HEAD_DATE, FIELD_COMMITTER_DATE } from '../intake/quarantine.js';
+import type { FieldStatus, FieldEvent, FieldStat, DialectAbsorption } from '../intake/quarantine.js';
 
 const NL = String.fromCharCode(10);
 
@@ -62,6 +63,13 @@ function git(root: string, args: readonly string[]): string {
 export interface ParsedCommit { sha: string; author: string; date: string | null; paths: string[] }
 // date=null=字段级病态 quarantined 置位（D-100② null=毒值——消费方显式跳过禁当 0）。
 
+// 方言吸收事件载体（D-128④ 独立披露面）：逐实例留痕（字段/sha/规则/原文→规范形）——
+// 不进 fieldEvents/quarantine_log/Intake Health，仅由消费面汇进 run 元数据披露块。
+export interface DialectAbsorptionEvent extends DialectAbsorption {
+  field_name: string;
+  commit_sha: string;
+}
+
 export interface MacroBProbes {
   headSha: string;
   headDate: string | null;  // 锚字段合法值；quarantined→null（headRaw 保原始字节进 traceId 哈希，D-108①）
@@ -73,24 +81,30 @@ export interface MacroBProbes {
   subjects: string[];
   fieldEvents: FieldEvent[];   // normalized+quarantined 处置事件（clean 不记——恒等式 clean=total−事件行）
   fieldStats: FieldStat[];     // 逐字段实例三桶（head_date 基数 1＋committer_date 基数 commitCount）
+  dialectAbsorptions: DialectAbsorptionEvent[];  // 边界层方言吸收事件（观测仪器等价拼写差——非主体病态）
 }
 
 // git 探针＋log 解析（PROBE-INVARIANT：解析完整性先断言）。
 // %cI 两级分流（ADR-0022/D-100③）：记录形状坏（__R__ 行 ≠3 字段——嵌定界符/截断行）=协议级违约
 //   fail-fast 落崩溃桶工件；字段值语义非法=字段级病态 → classifyGitIsoField 三态（永不 throw）
 //   → quarantined 置 null＋事件留痕，管线继续。normalizeGitIsoDate 判定本体同族（抛型回执留给旧调用方）。
-export function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes {
+// 边界归一（#81/D-128②）：git 版本方言 +00:00↔Z 由 absorbGitIsoDialect 在分类器上游吸收——
+//   分类器只见规范流（normalized 桶收窄=主体自载语义归一专用）；吸收事件落 dialectAbsorptions 独立披露。
+export type GitProbeRunner = (repoRoot: string, args: readonly string[]) => string;
+export function probeMacroBRepo(repoRoot: string, headSha: string, opts?: { gitRunner?: GitProbeRunner }): MacroBProbes {
+  const run: GitProbeRunner = opts && opts.gitRunner ? opts.gitRunner : git;
   const fieldStats: FieldStat[] = [emptyFieldStat(FIELD_HEAD_DATE), emptyFieldStat(FIELD_COMMITTER_DATE)];
   const fieldEvents: FieldEvent[] = [];
+  const dialectAbsorptions: DialectAbsorptionEvent[] = [];
   let headRaw = '';
   let treeSha = '';
   let commitCount = 0;
   let rawLog = '';
   try {
-    headRaw = git(repoRoot, ['log', '-1', '--format=%cI']);
-    treeSha = git(repoRoot, ['rev-parse', 'HEAD^{tree}']);
-    commitCount = Number(git(repoRoot, ['rev-list', '--count', 'HEAD']));
-    rawLog = git(repoRoot, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
+    headRaw = run(repoRoot, ['log', '-1', '--format=%cI']);
+    treeSha = run(repoRoot, ['rev-parse', 'HEAD^{tree}']);
+    commitCount = Number(run(repoRoot, ['rev-list', '--count', 'HEAD']));
+    rawLog = run(repoRoot, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
   } catch (e) {
     const ee = e as { stderr?: Buffer | string };
     throw protocolCrashError('GIT-PROBE-FAILED', 'git 只读子命令失败：' + String((e as Error).message || e).split(NL)[0], {
@@ -99,7 +113,9 @@ export function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes
       run_context: { repo_ref: repoRoot, commit_sha: headSha }
     });
   }
-  const headCls = classifyGitIsoField(headRaw, { anchor: true });
+  const headAbs = absorbGitIsoDialect(headRaw);
+  if (headAbs.absorption) { dialectAbsorptions.push({ field_name: FIELD_HEAD_DATE, commit_sha: headSha, rule_id: headAbs.absorption.rule_id, raw: headAbs.absorption.raw, canonical: headAbs.absorption.canonical }); }
+  const headCls = classifyGitIsoField(headAbs.value, { anchor: true });
   recordFieldInstance(fieldStats[0], fieldEvents, headCls, headSha, FIELD_HEAD_DATE);
   const headDate = headCls.value;
   const commits: ParsedCommit[] = [];
@@ -116,7 +132,9 @@ export function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes
           counts: { commits_seen: commits.length }
         });
       }
-      const cls = classifyGitIsoField(parts[2]);
+      const abs = absorbGitIsoDialect(parts[2]);
+      if (abs.absorption) { dialectAbsorptions.push({ field_name: FIELD_COMMITTER_DATE, commit_sha: parts[0], rule_id: abs.absorption.rule_id, raw: abs.absorption.raw, canonical: abs.absorption.canonical }); }
+      const cls = classifyGitIsoField(abs.value);
       cur = { sha: parts[0], author: parts[1], date: cls.value, paths: [] };
       recordFieldInstance(fieldStats[1], fieldEvents, cls, parts[0], FIELD_COMMITTER_DATE);
       commits.push(cur);
@@ -133,7 +151,7 @@ export function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes
   }
   let subjects: string[];
   try {
-    subjects = git(repoRoot, ['log', '--pretty=format:%s']).split(NL);
+    subjects = run(repoRoot, ['log', '--pretty=format:%s']).split(NL);
   } catch (e) {
     const ee = e as { stderr?: Buffer | string };
     throw protocolCrashError('GIT-PROBE-FAILED', 'git %s 探针失败：' + String((e as Error).message || e).split(NL)[0], {
@@ -143,7 +161,13 @@ export function probeMacroBRepo(repoRoot: string, headSha: string): MacroBProbes
       counts: { commits_seen: commits.length, records_parsed: commits.length }
     });
   }
-  return { headSha: headSha, headDate: headDate, headRaw: headRaw, headStatus: headCls.status, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects, fieldEvents: fieldEvents, fieldStats: fieldStats };
+  return { headSha: headSha, headDate: headDate, headRaw: headRaw, headStatus: headCls.status, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects, fieldEvents: fieldEvents, fieldStats: fieldStats, dialectAbsorptions: dialectAbsorptions };
+}
+
+// 采集环境探针（D-128④ 双轴披露轴二：仪器元数据与测量值强制分离——OTel Resource 先例）。
+// 如实降级：git 二进制缺席→'unknown'（与 file-lineage 探测同口径）。
+export function probeGitVersion(): string {
+  try { return execFileSync('git', ['--version'], { encoding: 'utf8' }).trim(); } catch { return 'unknown'; }
 }
 
 export type RenameLogRunner = (repoRoot: string, args: readonly string[]) => string;
@@ -234,8 +258,7 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
   if (spec.fileLineage && spec.fileLineage.mode === 'on') {
     const threshold = spec.fileLineage.threshold || RENAME_DEFAULT_THRESHOLD;
     const runner = spec.fileLineage.runner || defaultRenameLogRunner;
-    let gitVersion = 'unknown';
-    try { gitVersion = execFileSync('git', ['--version'], { encoding: 'utf8' }).trim(); } catch { /* 二进制缺席→unknown 如实 */ }
+    const gitVersion = probeGitVersion();
     const rawLog = runner(repoRoot, gitRenameLogArgs(threshold));
     fileLineageFacts = collectFileLineage({
       edges: parseRenameLogZ(rawLog),

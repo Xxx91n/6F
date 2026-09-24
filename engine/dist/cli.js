@@ -221,6 +221,21 @@ function classifyGitIsoField(raw, opts) {
     raw: r
   };
 }
+var GIT_ISO_DIALECT_RULES = [
+  { rule_id: "tz_offset/+00:00\u2192Z", match: /\+00:00$/, canonical: "Z" }
+];
+function absorbGitIsoDialect(raw) {
+  const s = raw === void 0 || raw === null ? "" : String(raw);
+  for (const rule of GIT_ISO_DIALECT_RULES) {
+    if (rule.match.test(s)) {
+      const v = s.replace(rule.match, rule.canonical);
+      if (v !== s) {
+        return { value: v, absorption: { rule_id: rule.rule_id, raw: s, canonical: v } };
+      }
+    }
+  }
+  return { value: s, absorption: null };
+}
 function emptyFieldStat(fieldName) {
   return { field_name: fieldName, total: 0, clean: 0, normalized: 0, quarantined: 0 };
 }
@@ -3420,18 +3435,20 @@ var POS_DECL = "macro audit positioning convergence determinism traceability pro
 function git3(root, args) {
   return execFileSync("git", ["-C", root].concat(args), { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 }).trim();
 }
-function probeMacroBRepo(repoRoot, headSha2) {
+function probeMacroBRepo(repoRoot, headSha2, opts) {
+  const run = opts && opts.gitRunner ? opts.gitRunner : git3;
   const fieldStats = [emptyFieldStat(FIELD_HEAD_DATE), emptyFieldStat(FIELD_COMMITTER_DATE)];
   const fieldEvents = [];
+  const dialectAbsorptions = [];
   let headRaw = "";
   let treeSha = "";
   let commitCount = 0;
   let rawLog = "";
   try {
-    headRaw = git3(repoRoot, ["log", "-1", "--format=%cI"]);
-    treeSha = git3(repoRoot, ["rev-parse", "HEAD^{tree}"]);
-    commitCount = Number(git3(repoRoot, ["rev-list", "--count", "HEAD"]));
-    rawLog = git3(repoRoot, ["log", "--pretty=format:__R__%H|%an|%cI", "--name-only"]);
+    headRaw = run(repoRoot, ["log", "-1", "--format=%cI"]);
+    treeSha = run(repoRoot, ["rev-parse", "HEAD^{tree}"]);
+    commitCount = Number(run(repoRoot, ["rev-list", "--count", "HEAD"]));
+    rawLog = run(repoRoot, ["log", "--pretty=format:__R__%H|%an|%cI", "--name-only"]);
   } catch (e) {
     const ee = e;
     throw protocolCrashError("GIT-PROBE-FAILED", "git \u53EA\u8BFB\u5B50\u547D\u4EE4\u5931\u8D25\uFF1A" + String(e.message || e).split(NL)[0], {
@@ -3440,7 +3457,11 @@ function probeMacroBRepo(repoRoot, headSha2) {
       run_context: { repo_ref: repoRoot, commit_sha: headSha2 }
     });
   }
-  const headCls = classifyGitIsoField(headRaw, { anchor: true });
+  const headAbs = absorbGitIsoDialect(headRaw);
+  if (headAbs.absorption) {
+    dialectAbsorptions.push({ field_name: FIELD_HEAD_DATE, commit_sha: headSha2, rule_id: headAbs.absorption.rule_id, raw: headAbs.absorption.raw, canonical: headAbs.absorption.canonical });
+  }
+  const headCls = classifyGitIsoField(headAbs.value, { anchor: true });
   recordFieldInstance(fieldStats[0], fieldEvents, headCls, headSha2, FIELD_HEAD_DATE);
   const headDate = headCls.value;
   const commits = [];
@@ -3457,7 +3478,11 @@ function probeMacroBRepo(repoRoot, headSha2) {
           counts: { commits_seen: commits.length }
         });
       }
-      const cls = classifyGitIsoField(parts[2]);
+      const abs = absorbGitIsoDialect(parts[2]);
+      if (abs.absorption) {
+        dialectAbsorptions.push({ field_name: FIELD_COMMITTER_DATE, commit_sha: parts[0], rule_id: abs.absorption.rule_id, raw: abs.absorption.raw, canonical: abs.absorption.canonical });
+      }
+      const cls = classifyGitIsoField(abs.value);
       cur = { sha: parts[0], author: parts[1], date: cls.value, paths: [] };
       recordFieldInstance(fieldStats[1], fieldEvents, cls, parts[0], FIELD_COMMITTER_DATE);
       commits.push(cur);
@@ -3474,7 +3499,7 @@ function probeMacroBRepo(repoRoot, headSha2) {
   }
   let subjects;
   try {
-    subjects = git3(repoRoot, ["log", "--pretty=format:%s"]).split(NL);
+    subjects = run(repoRoot, ["log", "--pretty=format:%s"]).split(NL);
   } catch (e) {
     const ee = e;
     throw protocolCrashError("GIT-PROBE-FAILED", "git %s \u63A2\u9488\u5931\u8D25\uFF1A" + String(e.message || e).split(NL)[0], {
@@ -3484,7 +3509,14 @@ function probeMacroBRepo(repoRoot, headSha2) {
       counts: { commits_seen: commits.length, records_parsed: commits.length }
     });
   }
-  return { headSha: headSha2, headDate, headRaw, headStatus: headCls.status, treeSha, commitCount, commits, subjects, fieldEvents, fieldStats };
+  return { headSha: headSha2, headDate, headRaw, headStatus: headCls.status, treeSha, commitCount, commits, subjects, fieldEvents, fieldStats, dialectAbsorptions };
+}
+function probeGitVersion() {
+  try {
+    return execFileSync("git", ["--version"], { encoding: "utf8" }).trim();
+  } catch {
+    return "unknown";
+  }
 }
 var defaultRenameLogRunner = function(repoRoot, args) {
   return git3(repoRoot, args);
@@ -3546,11 +3578,7 @@ function collectMacroB(repoRoot, spec, ctx, probes) {
   if (spec.fileLineage && spec.fileLineage.mode === "on") {
     const threshold = spec.fileLineage.threshold || RENAME_DEFAULT_THRESHOLD;
     const runner = spec.fileLineage.runner || defaultRenameLogRunner;
-    let gitVersion = "unknown";
-    try {
-      gitVersion = execFileSync("git", ["--version"], { encoding: "utf8" }).trim();
-    } catch {
-    }
+    const gitVersion = probeGitVersion();
     const rawLog = runner(repoRoot, gitRenameLogArgs(threshold));
     fileLineageFacts = collectFileLineage({
       edges: parseRenameLogZ(rawLog),
@@ -4242,6 +4270,29 @@ async function runAudit(opts) {
       excluded_commits: excludedCommits,
       threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
       strict_mode: opts.strictQuarantine === true
+    },
+    // D-128④ 双轴披露=独立面（run 元数据载体）：方言吸收事件＋采集环境元数据——
+    // 禁入 Intake Health 统计/禁入 golden 字节比对面/禁打 ⚠（仪器元数据与测量值分离，OTel Resource 先例）。
+    collection_environment: {
+      git_version: probeGitVersion(),
+      instrument_dialect: {
+        note: "observation-instrument dialect absorption\u2014\u2014\u89C2\u6D4B\u4EEA\u5668\u7B49\u4EF7\u62FC\u5199\u5DEE\u5F52\u8FB9\u754C\u5C42\u5438\u6536\uFF08\u975E\u4E3B\u4F53\u75C5\u6001\uFF0C\u4E0D\u8BA1\u5165\u75C5\u6001\u7EDF\u8BA1\uFF09",
+        rules: GIT_ISO_DIALECT_RULES.map(function(r) {
+          return r.rule_id;
+        }),
+        absorbed_total: probes.dialectAbsorptions.length,
+        by_rule: probes.dialectAbsorptions.reduce(function(m, e) {
+          m[e.rule_id] = (m[e.rule_id] || 0) + 1;
+          return m;
+        }, {}),
+        by_field: probes.dialectAbsorptions.reduce(function(m, e) {
+          m[e.field_name] = (m[e.field_name] || 0) + 1;
+          return m;
+        }, {}),
+        events: probes.dialectAbsorptions.slice(0, 20).map(function(e) {
+          return { field_name: e.field_name, commit_sha: e.commit_sha, rule_id: e.rule_id, raw_echo: rawEcho(e.raw) };
+        })
+      }
     },
     tc1: { judgeable_n: ev.tc1.judgeable_n, backfill_n: ev.tc1.backfill_n, ratio_4: ev.tc1.ratio.toFixed(4), verdict: ev.tc1.verdict, threshold: { lag_days: TC1_LAG_DAYS, ratio_red: TC1_RATIO_RED, min_n: TC1_MIN_N } },
     tc2: { total: ev.tc2.total, mean_ratio_4: ev.tc2.mean_ratio.toFixed(4), missing_counts: ev.tc2.missing_counts, missing_ratio_4: Object.fromEntries(Object.keys(ev.tc2.missing_ratio).map(function(k) {

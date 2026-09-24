@@ -28,6 +28,21 @@ export interface FieldClassification {
 export declare function classifyGitIsoField(raw: string, opts?: {
     anchor?: boolean;
 }): FieldClassification;
+export interface GitIsoDialectRule {
+    rule_id: string;
+    match: RegExp;
+    canonical: string;
+}
+export declare const GIT_ISO_DIALECT_RULES: readonly GitIsoDialectRule[];
+export interface DialectAbsorption {
+    rule_id: string;
+    raw: string;
+    canonical: string;
+}
+export declare function absorbGitIsoDialect(raw: string): {
+    value: string;
+    absorption: DialectAbsorption | null;
+};
 export interface FieldEvent {
     commit_sha: string;
     field_name: string;

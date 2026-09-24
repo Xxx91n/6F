@@ -8,7 +8,8 @@ import { createHash } from 'node:crypto';
 // ---------- §1 reason_code 受控词表（D-104④ / D-110 / D-119） ----------
 // 命名对齐 git fsck msg-id 风；v1 种子=仅有立法出处的四族，词表自带审计谱系：
 //   anchor_head_date_malformed  —— D-105（锚点基数 1 病态率=100% 既有阈值自动触发）
-//   normalized_tz_offset        —— D-112（+00:00→Z 合法改写留痕，不打 ⚠）
+//   normalized_tz_offset        —— D-112（+00:00→Z 合法改写留痕，不打 ⚠）；#81 起 dormant 保留——
+//                                 真实管线边界层先行吸收（§4b），本码仅防御纵深兜底（D-128③ impl 裁定）
 //   unclassified_field_anomaly  —— D-104②（已接线字段无法归类病态的兜底桶）
 //   oversize                    —— D-117（raw_bytes 超界截断）
 // open-ended：新码经 known-gaps→立法逐条进场；加码非破坏、删改破坏（schema 版本纪律）。
@@ -107,6 +108,40 @@ export function classifyGitIsoField(raw: string, opts?: { anchor?: boolean }): F
     reason_code: opts && opts.anchor ? REASON_ANCHOR_HEAD_DATE_MALFORMED : REASON_UNCLASSIFIED,
     raw: r
   };
+}
+
+// ---------- §4b 仪器方言边界归一（D-128 / #81） ----------
+// 范畴切分：观测仪器方言（上游工具版本产生的等价拼写差异——RFC 3339 canonical-equivalent，
+// 连「值」都没变）≠主体自载病态（审计对象数据内真值异常）。前者归防腐边界层吸收，
+// 后者才进字段病态统计——归一化单点在发射边界（适配层职责，分类器上游），分类器只见规范流。
+// 归一规则枚举面=GIT_ISO_DIALECT_RULES：当前仅 tz-offset 一族（git<2.45 %cI 吐 +00:00，
+// ≥2.45 吐 Z）；新方言族按 known-gaps→立法进场（D-128⑥），禁钉死 git 版本替代归一（D-128 负向）。
+export interface GitIsoDialectRule {
+  rule_id: string;
+  match: RegExp;
+  canonical: string;
+}
+export const GIT_ISO_DIALECT_RULES: readonly GitIsoDialectRule[] = [
+  { rule_id: 'tz_offset/+00:00→Z', match: /\+00:00$/, canonical: 'Z' }
+];
+
+export interface DialectAbsorption {
+  rule_id: string;
+  raw: string;
+  canonical: string;
+}
+
+// 边界吸收器=确定性纯函数：逐条套用枚举面，命中→返回 canonical＋吸收事件载体；未命中→原样放行。
+// 吸收事件不属字段病态（不进 FieldEvent/quarantine_log/Intake Health）——走独立披露面（D-128④）。
+export function absorbGitIsoDialect(raw: string): { value: string; absorption: DialectAbsorption | null } {
+  const s = raw === undefined || raw === null ? '' : String(raw);
+  for (const rule of GIT_ISO_DIALECT_RULES) {
+    if (rule.match.test(s)) {
+      const v = s.replace(rule.match, rule.canonical);
+      if (v !== s) { return { value: v, absorption: { rule_id: rule.rule_id, raw: s, canonical: v } }; }
+    }
+  }
+  return { value: s, absorption: null };
 }
 
 // ---------- §5 字段处置事件（判定输出 → quarantine_log 台账行载体） ----------

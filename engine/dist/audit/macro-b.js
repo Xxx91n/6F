@@ -13,7 +13,8 @@ import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPosit
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
 import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
 // %cI 契约=normalizeGitIsoDate 同族判定本体（契约层分类器 classifyGitIsoField 承载，见 quarantine.ts）
-import { classifyGitIsoField, recordFieldInstance, emptyFieldStat, protocolCrashError, FIELD_HEAD_DATE, FIELD_COMMITTER_DATE } from '../intake/quarantine.js';
+// #81/D-128：git 版本方言（+00:00↔Z）由 absorbGitIsoDialect 在边界先行吸收——分类器只见规范流。
+import { classifyGitIsoField, recordFieldInstance, emptyFieldStat, protocolCrashError, absorbGitIsoDialect, FIELD_HEAD_DATE, FIELD_COMMITTER_DATE } from '../intake/quarantine.js';
 const NL = String.fromCharCode(10);
 // ---------- 预声明阈值（与 reports/22-criteria-pre-registration.md 逐字同源，跑后禁调） ----------
 export const TC1_LAG_DAYS = 90;
@@ -51,22 +52,20 @@ export const POS_DECL = 'macro audit positioning convergence determinism traceab
 function git(root, args) {
     return execFileSync('git', ['-C', root].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
 }
-// git 探针＋log 解析（PROBE-INVARIANT：解析完整性先断言）。
-// %cI 两级分流（ADR-0022/D-100③）：记录形状坏（__R__ 行 ≠3 字段——嵌定界符/截断行）=协议级违约
-//   fail-fast 落崩溃桶工件；字段值语义非法=字段级病态 → classifyGitIsoField 三态（永不 throw）
-//   → quarantined 置 null＋事件留痕，管线继续。normalizeGitIsoDate 判定本体同族（抛型回执留给旧调用方）。
-export function probeMacroBRepo(repoRoot, headSha) {
+export function probeMacroBRepo(repoRoot, headSha, opts) {
+    const run = opts && opts.gitRunner ? opts.gitRunner : git;
     const fieldStats = [emptyFieldStat(FIELD_HEAD_DATE), emptyFieldStat(FIELD_COMMITTER_DATE)];
     const fieldEvents = [];
+    const dialectAbsorptions = [];
     let headRaw = '';
     let treeSha = '';
     let commitCount = 0;
     let rawLog = '';
     try {
-        headRaw = git(repoRoot, ['log', '-1', '--format=%cI']);
-        treeSha = git(repoRoot, ['rev-parse', 'HEAD^{tree}']);
-        commitCount = Number(git(repoRoot, ['rev-list', '--count', 'HEAD']));
-        rawLog = git(repoRoot, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
+        headRaw = run(repoRoot, ['log', '-1', '--format=%cI']);
+        treeSha = run(repoRoot, ['rev-parse', 'HEAD^{tree}']);
+        commitCount = Number(run(repoRoot, ['rev-list', '--count', 'HEAD']));
+        rawLog = run(repoRoot, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
     }
     catch (e) {
         const ee = e;
@@ -76,7 +75,11 @@ export function probeMacroBRepo(repoRoot, headSha) {
             run_context: { repo_ref: repoRoot, commit_sha: headSha }
         });
     }
-    const headCls = classifyGitIsoField(headRaw, { anchor: true });
+    const headAbs = absorbGitIsoDialect(headRaw);
+    if (headAbs.absorption) {
+        dialectAbsorptions.push({ field_name: FIELD_HEAD_DATE, commit_sha: headSha, rule_id: headAbs.absorption.rule_id, raw: headAbs.absorption.raw, canonical: headAbs.absorption.canonical });
+    }
+    const headCls = classifyGitIsoField(headAbs.value, { anchor: true });
     recordFieldInstance(fieldStats[0], fieldEvents, headCls, headSha, FIELD_HEAD_DATE);
     const headDate = headCls.value;
     const commits = [];
@@ -93,7 +96,11 @@ export function probeMacroBRepo(repoRoot, headSha) {
                     counts: { commits_seen: commits.length }
                 });
             }
-            const cls = classifyGitIsoField(parts[2]);
+            const abs = absorbGitIsoDialect(parts[2]);
+            if (abs.absorption) {
+                dialectAbsorptions.push({ field_name: FIELD_COMMITTER_DATE, commit_sha: parts[0], rule_id: abs.absorption.rule_id, raw: abs.absorption.raw, canonical: abs.absorption.canonical });
+            }
+            const cls = classifyGitIsoField(abs.value);
             cur = { sha: parts[0], author: parts[1], date: cls.value, paths: [] };
             recordFieldInstance(fieldStats[1], fieldEvents, cls, parts[0], FIELD_COMMITTER_DATE);
             commits.push(cur);
@@ -111,7 +118,7 @@ export function probeMacroBRepo(repoRoot, headSha) {
     }
     let subjects;
     try {
-        subjects = git(repoRoot, ['log', '--pretty=format:%s']).split(NL);
+        subjects = run(repoRoot, ['log', '--pretty=format:%s']).split(NL);
     }
     catch (e) {
         const ee = e;
@@ -122,7 +129,17 @@ export function probeMacroBRepo(repoRoot, headSha) {
             counts: { commits_seen: commits.length, records_parsed: commits.length }
         });
     }
-    return { headSha: headSha, headDate: headDate, headRaw: headRaw, headStatus: headCls.status, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects, fieldEvents: fieldEvents, fieldStats: fieldStats };
+    return { headSha: headSha, headDate: headDate, headRaw: headRaw, headStatus: headCls.status, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects, fieldEvents: fieldEvents, fieldStats: fieldStats, dialectAbsorptions: dialectAbsorptions };
+}
+// 采集环境探针（D-128④ 双轴披露轴二：仪器元数据与测量值强制分离——OTel Resource 先例）。
+// 如实降级：git 二进制缺席→'unknown'（与 file-lineage 探测同口径）。
+export function probeGitVersion() {
+    try {
+        return execFileSync('git', ['--version'], { encoding: 'utf8' }).trim();
+    }
+    catch {
+        return 'unknown';
+    }
 }
 const defaultRenameLogRunner = function (repoRoot, args) { return git(repoRoot, args); };
 export function collectMacroB(repoRoot, spec, ctx, probes) {
@@ -183,11 +200,7 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
     if (spec.fileLineage && spec.fileLineage.mode === 'on') {
         const threshold = spec.fileLineage.threshold || RENAME_DEFAULT_THRESHOLD;
         const runner = spec.fileLineage.runner || defaultRenameLogRunner;
-        let gitVersion = 'unknown';
-        try {
-            gitVersion = execFileSync('git', ['--version'], { encoding: 'utf8' }).trim();
-        }
-        catch { /* 二进制缺席→unknown 如实 */ }
+        const gitVersion = probeGitVersion();
         const rawLog = runner(repoRoot, gitRenameLogArgs(threshold));
         fileLineageFacts = collectFileLineage({
             edges: parseRenameLogZ(rawLog),

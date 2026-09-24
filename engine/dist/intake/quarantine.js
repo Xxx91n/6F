@@ -7,7 +7,8 @@ import { createHash } from 'node:crypto';
 // ---------- §1 reason_code 受控词表（D-104④ / D-110 / D-119） ----------
 // 命名对齐 git fsck msg-id 风；v1 种子=仅有立法出处的四族，词表自带审计谱系：
 //   anchor_head_date_malformed  —— D-105（锚点基数 1 病态率=100% 既有阈值自动触发）
-//   normalized_tz_offset        —— D-112（+00:00→Z 合法改写留痕，不打 ⚠）
+//   normalized_tz_offset        —— D-112（+00:00→Z 合法改写留痕，不打 ⚠）；#81 起 dormant 保留——
+//                                 真实管线边界层先行吸收（§4b），本码仅防御纵深兜底（D-128③ impl 裁定）
 //   unclassified_field_anomaly  —— D-104②（已接线字段无法归类病态的兜底桶）
 //   oversize                    —— D-117（raw_bytes 超界截断）
 // open-ended：新码经 known-gaps→立法逐条进场；加码非破坏、删改破坏（schema 版本纪律）。
@@ -81,6 +82,23 @@ export function classifyGitIsoField(raw, opts) {
         reason_code: opts && opts.anchor ? REASON_ANCHOR_HEAD_DATE_MALFORMED : REASON_UNCLASSIFIED,
         raw: r
     };
+}
+export const GIT_ISO_DIALECT_RULES = [
+    { rule_id: 'tz_offset/+00:00→Z', match: /\+00:00$/, canonical: 'Z' }
+];
+// 边界吸收器=确定性纯函数：逐条套用枚举面，命中→返回 canonical＋吸收事件载体；未命中→原样放行。
+// 吸收事件不属字段病态（不进 FieldEvent/quarantine_log/Intake Health）——走独立披露面（D-128④）。
+export function absorbGitIsoDialect(raw) {
+    const s = raw === undefined || raw === null ? '' : String(raw);
+    for (const rule of GIT_ISO_DIALECT_RULES) {
+        if (rule.match.test(s)) {
+            const v = s.replace(rule.match, rule.canonical);
+            if (v !== s) {
+                return { value: v, absorption: { rule_id: rule.rule_id, raw: s, canonical: v } };
+            }
+        }
+    }
+    return { value: s, absorption: null };
 }
 export function emptyFieldStat(fieldName) {
     return { field_name: fieldName, total: 0, clean: 0, normalized: 0, quarantined: 0 };

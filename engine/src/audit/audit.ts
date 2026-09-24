@@ -12,11 +12,11 @@ import { basename, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { repoAdd } from '../intake/intake.js';
 import type { RepoAddResult } from '../intake/intake.js';
-import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, MACRO_B_STOPWORDS, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, TC3_TOPN } from './macro-b.js';
+import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, probeGitVersion, MACRO_B_STOPWORDS, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, TC3_TOPN } from './macro-b.js';
 import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, UNVERIFIED_MARK, firstFactIds } from '../report/generate.js';
 import type { PreviewDisclosure, ReportInput, EvidenceItem, ClaimAnchor, QuadrantEntry, Recommendation, AdjudicationEntry, IntakeHealth } from '../report/generate.js';
 import { openWriter, appendFact, appendQuarantineEvent, runInTransaction, queryQuarantineCounts, closeDuckdb, AuditIoError, classifyWriteError } from '../fact/store.js';
-import { strictQuarantineViolations, ratchetIssues, intakeIdentityIssues, protocolCrashError, isProtocolCrash, intakeEscalation, countsFromStats, QUARANTINE_FIELD_RATIO_RED, rawEcho } from '../intake/quarantine.js';
+import { strictQuarantineViolations, ratchetIssues, intakeIdentityIssues, protocolCrashError, isProtocolCrash, intakeEscalation, countsFromStats, QUARANTINE_FIELD_RATIO_RED, rawEcho, GIT_ISO_DIALECT_RULES } from '../intake/quarantine.js';
 import { projectUpstreamDimensions } from './upstream-dimension-map.js';
 import { reaggregateFileFacetRows, reconcilePerFileVsAggregate } from '../upstream/codelore.js';
 
@@ -194,6 +194,19 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
       excluded_commits: excludedCommits,
       threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
       strict_mode: opts.strictQuarantine === true
+    },
+    // D-128④ 双轴披露=独立面（run 元数据载体）：方言吸收事件＋采集环境元数据——
+    // 禁入 Intake Health 统计/禁入 golden 字节比对面/禁打 ⚠（仪器元数据与测量值分离，OTel Resource 先例）。
+    collection_environment: {
+      git_version: probeGitVersion(),
+      instrument_dialect: {
+        note: 'observation-instrument dialect absorption——观测仪器等价拼写差归边界层吸收（非主体病态，不计入病态统计）',
+        rules: GIT_ISO_DIALECT_RULES.map(function (r) { return r.rule_id; }),
+        absorbed_total: probes.dialectAbsorptions.length,
+        by_rule: probes.dialectAbsorptions.reduce(function (m: Record<string, number>, e) { m[e.rule_id] = (m[e.rule_id] || 0) + 1; return m; }, {}),
+        by_field: probes.dialectAbsorptions.reduce(function (m: Record<string, number>, e) { m[e.field_name] = (m[e.field_name] || 0) + 1; return m; }, {}),
+        events: probes.dialectAbsorptions.slice(0, 20).map(function (e) { return { field_name: e.field_name, commit_sha: e.commit_sha, rule_id: e.rule_id, raw_echo: rawEcho(e.raw) }; })
+      }
     },
     tc1: { judgeable_n: ev.tc1.judgeable_n, backfill_n: ev.tc1.backfill_n, ratio_4: ev.tc1.ratio.toFixed(4), verdict: ev.tc1.verdict, threshold: { lag_days: TC1_LAG_DAYS, ratio_red: TC1_RATIO_RED, min_n: TC1_MIN_N } },
     tc2: { total: ev.tc2.total, mean_ratio_4: ev.tc2.mean_ratio.toFixed(4), missing_counts: ev.tc2.missing_counts, missing_ratio_4: Object.fromEntries(Object.keys(ev.tc2.missing_ratio).map(function (k) { return [k, Number(ev.tc2.missing_ratio[k].toFixed(4))]; })), cond_a: ev.tc2.cond_a, cond_b: ev.tc2.cond_b, verdict: ev.tc2.verdict, threshold: { mean_red: TC2_MEAN_RED, field_missing_red: TC2_FIELD_MISSING_RED } },
