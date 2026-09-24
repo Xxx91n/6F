@@ -25,7 +25,7 @@
 | 编译通过 | ✅ | `cd engine && npm run build`（tsc+esbuild bundle 双段——裸 tsc 为错规程，r31 审计打回实证）→ 0 error + `BUNDLE-OK dist/cli.js`（5117 行 bundle 形）（src/fact/subject.ts、src/collect/file-lineage.ts、upstream/codelore.ts、audit/{audit,macro-b,upstream-dimension-map}.ts 全过） |
 | 打包通过 | ✅ | `npm run package`（npm pack --dry-run）→ `macro-audit-0.1.0.tgz` 81 files / 173.8kB |
 | 启动并测活软件进程 | ✅ | `node dist/cli.js selftest` → `{"ok":true,checks:[manifest/shells/default-mode/mcp read-only/receipt 全 pass]}`；smoke SMOKE-OK 6/6 含 --version/selftest/gen-manifests 三实测 |
-| 每个平台 test 闭环 | ✅ | `npm run smoke`（CI 三平台同一命令链）全绿 19 件：smoke 6/6、collectors 14/14、codelore-adapter 7/7、codelore-batch1 41/41、**micro-b-emit 17/17（新件入链）**、codelore-llm 25/25、report-preview 5/5、intake 40/40、gitcli-contract 11/11、sql-literal 17/17、mcp-db 12/12、audit 26/26、demo、github-rest、upstream-map 21/21、narrative、citation 38、doctor 9、quarantine 58/58、audit-zero-write 4/4 |
+| 每个平台 test 闭环 | ✅ | `npm run smoke`（CI 三平台同一命令链）全绿 20 件：smoke 6/6、collectors 14/14、codelore-adapter 7/7、codelore-batch1 41/41、**micro-b-emit 17/17（新件入链）**、codelore-llm 25/25、report-preview 5/5、intake 40/40、gitcli-contract 11/11、sql-literal 17/17、mcp-db 12/12、audit 26/26、demo、github-rest、upstream-map 21/21、narrative、citation 38、doctor 9、quarantine 58/58、audit-zero-write 4/4 |
 | 守卫基线复绿 | ✅ | `node .scratch/architecture-recovery/reports/{33,39,40,41a,43,44,45,70,71,72,73,77}-check.mjs + xfail-run.mjs` → 全 PASS（33=31/31、39=28/28、40=57/57、41a=38/38、43=28/28、44=59/59、45=51/51、70=13/13〔census regen=55守卫/1322点〕、71=16/16、72=16/16、73=14/14、77=16/16、xfail 0条）；新增 `80-check.mjs` → PASS 20/20（返修注记：A-091 落账后 41a D6 编年漂移 FAIL——M-009 补编年后复绿；原自述为落账前窗口态，未当窗重跑=失实教训立账） |
 
 ## ③ 实现面实物清单
@@ -36,7 +36,7 @@
 - `engine/src/audit/macro-b.ts`：fileLineage spec 旗标（audit=on/demo=off 保合成仓逐字节确定性）+RenameLogRunner 注入缝+Micro-B ctx 发射
 - `engine/src/audit/audit.ts`：behavior 判据读源=per-file 重聚合（BbA 双实现先例）+对账入 bhvPc1+measurements.micro_b{per_file_facts,subject_skips,case_conflicts,reconciliation}+file_lineage{renamed,lineage_skips,scan_fact}
 - `engine/src/audit/upstream-dimension-map.ts`：scale=Micro-B 事实不入 S 维归位投影（防工件膨胀+lane 诚实）
-- `engine/test/micro-b-emit.test.mjs`（新，smoke 第 19 件）＋`test/fixtures/micro-b/`{emission-input.json,rename-log.ztxt,manifest.json,emission-skeleton.golden.json}＋`engine/scripts/gen-micro-b-emission-golden.mjs`（生成+--check 双模）
+- `engine/test/micro-b-emit.test.mjs`（新，smoke 链第 5 位/共 20 件）＋`test/fixtures/micro-b/`{emission-input.json,rename-log.ztxt,manifest.json,emission-skeleton.golden.json}＋`engine/scripts/gen-micro-b-emission-golden.mjs`（生成+--check 双模）
 - `engine/test/codelore-batch1.test.mjs`：D1 契约升级（31+fileFacts、scale 断言、role、对账）+D2 空行面零发射断言
 - `engine/package.json`：smoke 链接入 micro-b-emit.test.mjs
 - `.scratch/architecture-recovery/reports/80-check.mjs`（新守卫 20/20）＋`63-assertion-inventory.json` regen（55 守卫/1322 调用点）＋`decision-ledger.md` A-091
@@ -76,3 +76,11 @@
 
 - T2：文件卡投影（DuckDB 读模型 file_card 表/视图）＋确定性派生（priority_band/percentile_rank/top_n_flag 带规则版本+派生 provenance）＋advisory 结构性隔离（schema 无 verdict/gate-consumable 字段）＋失败三态（new_file/insufficient_history/not_applicable）＋miss 四类（never_collected/not_tracked_at_sha/not_applicable/renamed_to）＋at:sha pin+staleness 双字段＋renamed_to 条件跳转（沿 file.renamed 血缘链投影缝合）＋MCP tool（只读 miss→not_collected+CLI 指引）+CLI audit file（lazy 补采=同构发射管线复用 collectMacroB fileLineage/codelore 面）双通道骨架。
 - 复用位：subject 归一器（查询侧 subject 同样过 normalizeSubjectPath）、file.renamed 血缘链（renamed_to 跳转源）、reaggregateFileFacetRows（卡字段重算源）、audit file 命令挂 cli.ts。
+
+## ⑨ 返修注记（LOOP-2 后残余判断项处置记录）
+
+- reconcile↔emit 判据同源：expected 行过滤改镜像 emitPerFileFacts 发射序——成对=entity_a/entity_b 双端非空串（skip 排除只看双端 raw，path/entity 共存不扰）；单行=path/entity 首个非空值查 skip。
+- file_subject_skip 载荷同骨架：explain/explain-file 两路径补齐 {analysis,group,raw_path,reason}（explain 面无 facet group 概念如实记 null）。
+- file-lineage 三件：删死赋值 value.from_raw；lineage_skip/lineage_scan evidence 归 gitRenameLogArgs().join(' ') 单源；parseRenameLogZ 截断/空 token 尾边 fail-fast RENAME-LOG-TRUNCATED（良构 C 仍只消费不发射）。
+- Micro-B ctx 字面量去重：四处 {runId,traceId,repoRef,scale:'Micro-B',observedAt} 归 microBCtx() 单源。
+- 复跑面：micro-b-emit 18/18（新增 C4 截断断言）＋80-check 20/20＋41a 38/38＋smoke 20 件全绿；S1/S6 判断项留用户裁决未动。

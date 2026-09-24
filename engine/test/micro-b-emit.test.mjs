@@ -143,6 +143,13 @@ t('C3 e2e 真 git rename 检测可复算（跨 git 版本验证项——各 CI �
     assert.equal(JSON.parse(ren.value_json).head_sha, head);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+t('C4 -z 截断尾边 fail-fast：R/C 记录 from/to token 缺席或空串→RENAME-LOG-TRUNCATED', () => {
+  const sha = 'c'.repeat(40);
+  assert.throws(() => FL.parseRenameLogZ('__R__' + sha + '\0\nR100\0src/old.ts\0'), /RENAME-LOG-TRUNCATED/);   // to token 缺席（缓冲截断）
+  assert.throws(() => FL.parseRenameLogZ('__R__' + sha + '\0\nR100\0'), /RENAME-LOG-TRUNCATED/);              // 双 token 全缺
+  assert.throws(() => FL.parseRenameLogZ('__R__' + sha + '\0\nC75\0src/a.ts\0'), /RENAME-LOG-TRUNCATED/);     // C 同协议
+  assert.equal(FL.parseRenameLogZ('__R__' + sha + '\0\nC75\0src/a.ts\0src/b.ts\0').length, 0);                // 良构 C 只消费不发射
+});
 
 // ---------- D. raw 证据位 + 对账 ----------
 t('D1 facet_rows 降 raw 证据位（append-only 保留 + role=raw_evidence + per_file_emitted 计数）', () => {

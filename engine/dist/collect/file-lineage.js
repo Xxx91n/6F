@@ -44,10 +44,15 @@ export function parseRenameLogZ(raw) {
         const status = tok.charAt(0);
         if (status === 'R' || status === 'C') {
             const score = Number(tok.slice(1));
-            const from = tokens[i + 1] !== undefined ? tokens[i + 1] : '';
-            const to = tokens[i + 2] !== undefined ? tokens[i + 2] : '';
+            const from = i + 1 < tokens.length ? tokens[i + 1] : '';
+            const to = i + 2 < tokens.length ? tokens[i + 2] : '';
+            // fail-fast 协议纪律：R/C 双路径记录 from/to token 缺席（缓冲截断）或空串（结构不全）→抛错不静默丢边；
+            //   良构 C=copy 记录照常消费（i+=2）不发射——rename 血缘只认 R 边。
+            if (from.length === 0 || to.length === 0) {
+                throw new Error('RENAME-LOG-TRUNCATED status=' + status + ' tokenIndex=' + i + ' sha=' + curSha);
+            }
             i += 2;
-            if (status === 'R' && from.length > 0 && to.length > 0) {
+            if (status === 'R') {
                 edges.push({ commit_sha: curSha, similarity: Number.isFinite(score) ? score : 100, from: from, to: to });
             }
         }
@@ -66,7 +71,7 @@ export function collectFileLineage(input, ctx) {
         const fromN = normalizeSubjectPath(e.from);
         if (!toN.ok) {
             skipped += 1;
-            out.push(makeFact(ctx, FILE_LINEAGE_DESCRIPTOR, 'file-lineage', 'git log --name-status -z --find-renames=' + input.threshold, 'file.lineage_skip', {
+            out.push(makeFact(ctx, FILE_LINEAGE_DESCRIPTOR, 'file-lineage', gitRenameLogArgs(input.threshold).join(' '), 'file.lineage_skip', {
                 raw_to: e.to,
                 raw_from: e.from,
                 commit_sha: e.commit_sha,
@@ -84,9 +89,6 @@ export function collectFileLineage(input, ctx) {
             detector_version: input.detectorVersion,
             git_version: input.gitVersion
         };
-        if (!fromN.ok) {
-            value.from_raw = e.from;
-        }
         const key = sha256Hex(JSON.stringify([value.from, value.to, value.commit_sha, value.threshold, input.detectorVersion]));
         if (seen.has(key)) {
             continue;
@@ -98,7 +100,7 @@ export function collectFileLineage(input, ctx) {
     for (const e of input.edges) {
         commits.add(e.commit_sha);
     }
-    out.push(makeFact(ctx, FILE_LINEAGE_DESCRIPTOR, ctx.repoRef, 'git log --name-status -z --find-renames=' + input.threshold + ' HEAD', 'file.lineage_scan', {
+    out.push(makeFact(ctx, FILE_LINEAGE_DESCRIPTOR, ctx.repoRef, gitRenameLogArgs(input.threshold).join(' '), 'file.lineage_scan', {
         head_sha: input.headSha,
         edges: seen.size,
         skipped: skipped,

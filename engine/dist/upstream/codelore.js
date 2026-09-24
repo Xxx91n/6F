@@ -36,6 +36,11 @@ function pushResolutionFact(out, ctx, res) {
         error: res.error
     }));
 }
+// Micro-B 粒度 ctx 派生单源（r31 审计返修：四处字面量同源化）——粒度按 subject 非 run（D-124）；
+//   skip/conflict 披露事实统一 scale=Micro-B，ctx 字段映射只此一处防漂移。
+function microBCtx(ctx) {
+    return { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt };
+}
 // `codelore explain <file>` 的确定性输出 = INI 式 [section] + key = value 行。
 export function parseExplainDossier(text) {
     const sections = {};
@@ -99,7 +104,7 @@ export function collectCodeloreFacts(input, ctx) {
     for (const p of input.explainPaths) {
         const pn = normalizeSubjectPath(p); // 归一单点：file subject 事实统一规范化形（D-125①）
         if (!pn.ok) {
-            out.push(makeFact({ runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt }, CODELORE_DESCRIPTOR, 'explain', 'codelore explain', 'codelore.file_subject_skip', { raw_path: p, reason: pn.reason }));
+            out.push(makeFact(microBCtx(ctx), CODELORE_DESCRIPTOR, 'explain', 'codelore explain', 'codelore.file_subject_skip', { analysis: 'explain', group: null, raw_path: p, reason: pn.reason }));
             continue;
         }
         const ex = runText(bin, ['explain', p, '--repo', input.repoRoot], input.repoRoot);
@@ -231,7 +236,7 @@ export function collectCodeloreFacets(input, ctx) {
         }
         // facet_rows 聚合载荷降 raw 证据位（D-124②）：append-only 保留＋role=raw_evidence 标记，
         //   不进文件卡查询主路径，供重建/争议仲裁/面级历史对照（quarantine raw_bytes D-117 同族）。
-        const emitStat = emitPerFileFacts(rows, spec, evidence, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt }, input.repoRoot, input.subjectProbe || defaultSubjectPathProbe, out);
+        const emitStat = emitPerFileFacts(rows, spec, evidence, microBCtx(ctx), input.repoRoot, input.subjectProbe || defaultSubjectPathProbe, out);
         emittedSubjects.push.apply(emittedSubjects, emitStat.subjects);
         out.push(makeFact(ctx, CODELORE_DESCRIPTOR, spec.analysis, evidence, 'codelore.facet_rows', {
             analysis: spec.analysis,
@@ -249,7 +254,7 @@ export function collectCodeloreFacets(input, ctx) {
     //   同 run 发射的规范化 subject 按 lower 分桶，同桶多字面=真实不同文件，显式告警事实不折叠。
     const conflicts = detectCaseOnlyConflicts(emittedSubjects);
     if (conflicts.pairs.length > 0) {
-        out.push(makeFact({ runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt }, CODELORE_DESCRIPTOR, 'codelore', 'subject-normalizer', 'codelore.subject_case_conflict', {
+        out.push(makeFact(microBCtx(ctx), CODELORE_DESCRIPTOR, 'codelore', 'subject-normalizer', 'codelore.subject_case_conflict', {
             pairs: conflicts.pairs,
             host_platform: process.platform,
             note: 'case-only 冲突=真实不同文件保留字面不折叠（CVE-2021-21300 先例）；大小写不敏感文件系统上 checkout 互覆风险——宿主侧告警消费位'
@@ -403,31 +408,32 @@ export function reaggregateFileFacetRows(facts) {
     return byFace;
 }
 // 对账判据（D-124③ / BbA 双实现先例）：per-file 重算多重集 == file-bearing 聚合行 − skipped 原始路径行。
-//   file-bearing=行含 path/entity 或 entity_a+entity_b（同发射规则同源判定——重复判定逻辑=对账本身失效）；
+//   file-bearing 判据=emitPerFileFacts 发射序同源镜像（r31 返修钉：成对=entity_a/entity_b 双端皆非空串；
+//   单行=path/entity 首个非空值）——判据若与发射规则漂移=对账本身失效；
 //   skip 事实枚举未发射行的 raw_path；非文件粒度行（date/rev/author/module 等）天然不入比对面。
 export function reconcilePerFileVsAggregate(facts) {
     const perFile = reaggregateFileFacetRows(facts);
     const canon = function (rows) { return rows.map(function (r) { return JSON.stringify(r); }).sort().join(String.fromCharCode(10)); };
-    const isFileBearing = function (r) {
-        if (typeof r['entity_a'] === 'string' && typeof r['entity_b'] === 'string') {
-            return true;
+    // 成对行判定=emit 同序同源：entity_a/entity_b 双端皆非空串才入成对分支（path/entity 共存字段不扰判定）。
+    const pairEnds = function (r) {
+        const ea = r['entity_a'], eb = r['entity_b'];
+        if (typeof ea === 'string' && typeof eb === 'string' && ea.length > 0 && eb.length > 0) {
+            return [ea, eb];
         }
-        for (const k of FILE_SUBJECT_KEYS) {
-            if (typeof r[k] === 'string' && r[k].length > 0) {
-                return true;
-            }
-        }
-        return false;
+        return null;
     };
-    const rowRawPath = function (r) {
+    // 单行判定=emit 同序同源：FILE_SUBJECT_KEYS 序首个非空串值（emit 取同一 raw 值过归一器）。
+    const singleRawPath = function (r) {
         for (const k of FILE_SUBJECT_KEYS) {
             const v = r[k];
             if (typeof v === 'string' && v.length > 0) {
                 return v;
             }
         }
-        const ea = r['entity_a'];
-        return typeof ea === 'string' ? ea : null;
+        return null;
+    };
+    const isFileBearing = function (r) {
+        return pairEnds(r) !== null || singleRawPath(r) !== null;
     };
     const skippedByFace = {};
     for (const f of facts) {
@@ -452,17 +458,16 @@ export function reconcilePerFileVsAggregate(facts) {
         const aggRows = (v.rows || []);
         const skip = skippedByFace[a] || new Set();
         const expected = aggRows.filter(function (r) {
-            if (!isFileBearing(r)) {
+            const pair = pairEnds(r);
+            // 成对行 skip 排除只看 entity_a/entity_b raw 值（emit 同序：任一端归一失败整行跳——path/entity 共存字段不入排除判据）。
+            if (pair !== null) {
+                return !skip.has(pair[0]) && !skip.has(pair[1]);
+            }
+            const rp = singleRawPath(r);
+            if (rp === null) {
                 return false;
             }
-            const rp = rowRawPath(r);
-            if (rp !== null && skip.has(rp)) {
-                return false;
-            }
-            if (typeof r['entity_a'] === 'string' && typeof r['entity_b'] === 'string' && (skip.has(String(r['entity_a'])) || skip.has(String(r['entity_b'])))) {
-                return false;
-            }
-            return true;
+            return !skip.has(rp);
         });
         const pf = perFile[a] || [];
         const fileBearing = aggRows.filter(isFileBearing).length;
@@ -636,7 +641,7 @@ export function collectCodeloreLlm(input, ctx) {
             for (const p of input.explainPaths || []) {
                 const pn = normalizeSubjectPath(p); // 归一单点：file subject 事实统一规范化形（D-125①）
                 if (!pn.ok) {
-                    out.push(makeFact({ runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt }, CODELORE_DESCRIPTOR, 'explain-file', 'codelore explain', 'codelore.file_subject_skip', { raw_path: p, reason: pn.reason }));
+                    out.push(makeFact(microBCtx(ctx), CODELORE_DESCRIPTOR, 'explain-file', 'codelore explain', 'codelore.file_subject_skip', { analysis: 'explain-file', group: null, raw_path: p, reason: pn.reason }));
                     continue;
                 }
                 subjects.push({ spec: spec, subject: pn.subject });

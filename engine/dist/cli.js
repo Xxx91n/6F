@@ -2957,6 +2957,9 @@ function pushResolutionFact(out, ctx, res) {
     error: res.error
   }));
 }
+function microBCtx(ctx) {
+  return { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: "Micro-B", observedAt: ctx.observedAt };
+}
 function runText(binary, args, cwd) {
   const r = spawnSync5(binary, args, { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   return { ok: !r.error && r.status === 0, stdout: r.stdout || "", stderr: r.stderr || "", status: r.status };
@@ -3055,7 +3058,7 @@ function collectCodeloreFacets(input, ctx) {
       }));
       continue;
     }
-    const emitStat = emitPerFileFacts(rows, spec, evidence, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: "Micro-B", observedAt: ctx.observedAt }, input.repoRoot, input.subjectProbe || defaultSubjectPathProbe, out);
+    const emitStat = emitPerFileFacts(rows, spec, evidence, microBCtx(ctx), input.repoRoot, input.subjectProbe || defaultSubjectPathProbe, out);
     emittedSubjects.push.apply(emittedSubjects, emitStat.subjects);
     out.push(makeFact(ctx, CODELORE_DESCRIPTOR, spec.analysis, evidence, "codelore.facet_rows", {
       analysis: spec.analysis,
@@ -3071,7 +3074,7 @@ function collectCodeloreFacets(input, ctx) {
   }
   const conflicts = detectCaseOnlyConflicts(emittedSubjects);
   if (conflicts.pairs.length > 0) {
-    out.push(makeFact({ runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: "Micro-B", observedAt: ctx.observedAt }, CODELORE_DESCRIPTOR, "codelore", "subject-normalizer", "codelore.subject_case_conflict", {
+    out.push(makeFact(microBCtx(ctx), CODELORE_DESCRIPTOR, "codelore", "subject-normalizer", "codelore.subject_case_conflict", {
       pairs: conflicts.pairs,
       host_platform: process.platform,
       note: "case-only \u51B2\u7A81=\u771F\u5B9E\u4E0D\u540C\u6587\u4EF6\u4FDD\u7559\u5B57\u9762\u4E0D\u6298\u53E0\uFF08CVE-2021-21300 \u5148\u4F8B\uFF09\uFF1B\u5927\u5C0F\u5199\u4E0D\u654F\u611F\u6587\u4EF6\u7CFB\u7EDF\u4E0A checkout \u4E92\u8986\u98CE\u9669\u2014\u2014\u5BBF\u4E3B\u4FA7\u544A\u8B66\u6D88\u8D39\u4F4D"
@@ -3223,26 +3226,24 @@ function reconcilePerFileVsAggregate(facts) {
       return JSON.stringify(r);
     }).sort().join(String.fromCharCode(10));
   };
-  const isFileBearing = function(r) {
-    if (typeof r["entity_a"] === "string" && typeof r["entity_b"] === "string") {
-      return true;
+  const pairEnds = function(r) {
+    const ea = r["entity_a"], eb = r["entity_b"];
+    if (typeof ea === "string" && typeof eb === "string" && ea.length > 0 && eb.length > 0) {
+      return [ea, eb];
     }
-    for (const k of FILE_SUBJECT_KEYS) {
-      if (typeof r[k] === "string" && r[k].length > 0) {
-        return true;
-      }
-    }
-    return false;
+    return null;
   };
-  const rowRawPath = function(r) {
+  const singleRawPath = function(r) {
     for (const k of FILE_SUBJECT_KEYS) {
       const v = r[k];
       if (typeof v === "string" && v.length > 0) {
         return v;
       }
     }
-    const ea = r["entity_a"];
-    return typeof ea === "string" ? ea : null;
+    return null;
+  };
+  const isFileBearing = function(r) {
+    return pairEnds(r) !== null || singleRawPath(r) !== null;
   };
   const skippedByFace = {};
   for (const f of facts) {
@@ -3267,17 +3268,15 @@ function reconcilePerFileVsAggregate(facts) {
     const aggRows = v.rows || [];
     const skip = skippedByFace[a] || /* @__PURE__ */ new Set();
     const expected = aggRows.filter(function(r) {
-      if (!isFileBearing(r)) {
+      const pair = pairEnds(r);
+      if (pair !== null) {
+        return !skip.has(pair[0]) && !skip.has(pair[1]);
+      }
+      const rp = singleRawPath(r);
+      if (rp === null) {
         return false;
       }
-      const rp = rowRawPath(r);
-      if (rp !== null && skip.has(rp)) {
-        return false;
-      }
-      if (typeof r["entity_a"] === "string" && typeof r["entity_b"] === "string" && (skip.has(String(r["entity_a"])) || skip.has(String(r["entity_b"])))) {
-        return false;
-      }
-      return true;
+      return !skip.has(rp);
     });
     const pf = perFile[a] || [];
     const fileBearing = aggRows.filter(isFileBearing).length;
@@ -3321,10 +3320,13 @@ function parseRenameLogZ(raw) {
     const status = tok.charAt(0);
     if (status === "R" || status === "C") {
       const score = Number(tok.slice(1));
-      const from = tokens[i + 1] !== void 0 ? tokens[i + 1] : "";
-      const to = tokens[i + 2] !== void 0 ? tokens[i + 2] : "";
+      const from = i + 1 < tokens.length ? tokens[i + 1] : "";
+      const to = i + 2 < tokens.length ? tokens[i + 2] : "";
+      if (from.length === 0 || to.length === 0) {
+        throw new Error("RENAME-LOG-TRUNCATED status=" + status + " tokenIndex=" + i + " sha=" + curSha);
+      }
       i += 2;
-      if (status === "R" && from.length > 0 && to.length > 0) {
+      if (status === "R") {
         edges.push({ commit_sha: curSha, similarity: Number.isFinite(score) ? score : 100, from, to });
       }
     } else {
@@ -3342,7 +3344,7 @@ function collectFileLineage(input, ctx) {
     const fromN = normalizeSubjectPath(e.from);
     if (!toN.ok) {
       skipped += 1;
-      out.push(makeFact(ctx, FILE_LINEAGE_DESCRIPTOR, "file-lineage", "git log --name-status -z --find-renames=" + input.threshold, "file.lineage_skip", {
+      out.push(makeFact(ctx, FILE_LINEAGE_DESCRIPTOR, "file-lineage", gitRenameLogArgs(input.threshold).join(" "), "file.lineage_skip", {
         raw_to: e.to,
         raw_from: e.from,
         commit_sha: e.commit_sha,
@@ -3360,9 +3362,6 @@ function collectFileLineage(input, ctx) {
       detector_version: input.detectorVersion,
       git_version: input.gitVersion
     };
-    if (!fromN.ok) {
-      value.from_raw = e.from;
-    }
     const key = sha256Hex(JSON.stringify([value.from, value.to, value.commit_sha, value.threshold, input.detectorVersion]));
     if (seen.has(key)) {
       continue;
@@ -3374,7 +3373,7 @@ function collectFileLineage(input, ctx) {
   for (const e of input.edges) {
     commits.add(e.commit_sha);
   }
-  out.push(makeFact(ctx, FILE_LINEAGE_DESCRIPTOR, ctx.repoRef, "git log --name-status -z --find-renames=" + input.threshold + " HEAD", "file.lineage_scan", {
+  out.push(makeFact(ctx, FILE_LINEAGE_DESCRIPTOR, ctx.repoRef, gitRenameLogArgs(input.threshold).join(" "), "file.lineage_scan", {
     head_sha: input.headSha,
     edges: seen.size,
     skipped,
