@@ -1,0 +1,125 @@
+// audit/file-card.ts — `audit file` lazy 补采编排（#80 步② / D-122/D-126 / ADR-0023）
+// 双触发面之 CLI 面：miss→仓级管线重跑产新观测集 append 非覆盖（同构发射管线——与批量同一 emit 函数、
+//   同 grain 同 fact_id 规则；lazy 是发射时机非 grain/身份决策）。MCP 面永不写。
+// 资格检查=目标 SHA 对象库可达（git rev-parse HEAD）；脏工作区零感知（只读 git 观测，不 stat 工作树）。
+// DuckDB SWMR：补采写连接先关再开读连接投影卡（同库读写不并存）。
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { repoAdd } from '../intake/intake.js';
+import { auditRepoName } from './audit.js';
+import { macroBContext, probeGitVersion } from './macro-b.js';
+import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
+import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
+import { absorbGitIsoDialect, classifyGitIsoField } from '../intake/quarantine.js';
+import { openWriter, closeDuckdb, appendFact, classifyWriteError, isAuditIoError } from '../fact/store.js';
+import { projectFileCard } from '../fact/projection.js';
+import { buildFileCard } from '../fact/file-card.js';
+export class AuditFileError extends Error {
+    code;
+    constructor(code, message) { super(message); this.code = code; }
+}
+export function isAuditFileError(e) {
+    return e instanceof AuditFileError || (typeof e === 'object' && e !== null && typeof e.code === 'string' && String(e.code).indexOf('AUDIT-FILE-') === 0);
+}
+function gitOut(root, args) {
+    return execFileSync('git', ['-C', root].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
+}
+// 默认补采发射管线=批量同款：codelore 行为三面（per-file 事实在发射边界内 microBCtx 落 Micro-B grain）＋rename 血缘。
+function defaultCodeloreCollect(ctx, repoRoot) {
+    return collectCodeloreFacets({ repoRoot: repoRoot, facets: CODELORE_BEHAVIOR_FACETS }, ctx);
+}
+function defaultLineageCollect(ctx, repoRoot) {
+    const rawLog = gitOut(repoRoot, gitRenameLogArgs(RENAME_DEFAULT_THRESHOLD));
+    return collectFileLineage({
+        edges: parseRenameLogZ(rawLog),
+        headSha: headShaOf(ctx.repoRef),
+        threshold: RENAME_DEFAULT_THRESHOLD,
+        detectorVersion: RENAME_DETECTOR_VERSION,
+        gitVersion: probeGitVersion()
+    }, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt });
+}
+function headShaOf(repoRef) {
+    const i = repoRef.lastIndexOf('@');
+    return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
+}
+export async function runAuditFile(opts) {
+    const intake = repoAdd(opts.input, { cwd: opts.cwd || process.cwd() });
+    const repoRoot = intake.resolved_root;
+    const name = auditRepoName(opts.input, repoRoot);
+    // 资格检查=SHA 对象库可达（D-126）：rev-parse HEAD 失败=协议级失败 fail-fast（非字段病态）
+    let headSha;
+    try {
+        headSha = gitOut(repoRoot, ['rev-parse', 'HEAD']);
+        if (!/^[0-9a-f]{40}$/i.test(headSha)) {
+            throw new Error('unexpected rev-parse output');
+        }
+    }
+    catch (e) {
+        throw new AuditFileError('AUDIT-FILE-SHA-UNREACHABLE', '目标 SHA 对象库不可达（git rev-parse HEAD）：' + String(e.message));
+    }
+    // headDate=观测时点（方言吸收→分类器同构主链：+00:00↔Z 仪器方言落边界吸收不入 quarantine）
+    const headRaw = gitOut(repoRoot, ['log', '-1', '--format=%cI']);
+    const absorbed = absorbGitIsoDialect(headRaw);
+    const cls = classifyGitIsoField(absorbed.value);
+    const headDate = cls.value !== null ? cls.value : null;
+    const repoRef = name + '@' + headSha;
+    const pinned = opts.at !== undefined && opts.at.length > 0;
+    // 观测集存在性：pin 时禁补采（at:<sha>=只读历史集，采集缺席照答 miss）；非 pin 且当前 HEAD 集空→lazy 补采
+    let backfilled = false;
+    let emitted = 0;
+    if (!pinned) {
+        // db 不存在=零观测集→跳过预读直接补采（READ_ONLY 开库对不存在的文件会 IO 失败）
+        const preCard = existsSync(opts.db)
+            ? await projectFileCard(opts.db, { repo: name, subject: opts.path, current_head_sha: headSha })
+            : null;
+        const setExists = preCard !== null && preCard.observation.head_sha === headSha;
+        const subjectHasFacts = preCard !== null && Object.keys(preCard.kernel.facet_rows).length > 0;
+        if (!setExists || !subjectHasFacts) {
+            const ctx = macroBContext('audit-file-' + name, name, headSha, headDate, headRaw);
+            const codeloreFn = (opts.collectors && opts.collectors.codelore) || defaultCodeloreCollect;
+            const lineageFn = (opts.collectors && opts.collectors.lineage) || defaultLineageCollect;
+            const batch = codeloreFn(ctx, repoRoot).concat(lineageFn(ctx, repoRoot));
+            mkdirSync(dirname(opts.db), { recursive: true }); // db 父目录缺席即建（--db 落点由调用方指定）
+            const writer = await openWriter(opts.db);
+            try {
+                const seen = new Set();
+                for (const f of batch) {
+                    if (seen.has(f.fact_id)) {
+                        continue;
+                    }
+                    seen.add(f.fact_id);
+                    try {
+                        await appendFact(writer, f);
+                        emitted += 1;
+                    }
+                    catch (e) {
+                        // 幂等语义：fact_id 撞 UNIQUE=同观测集同事实已落库→跳过非错误；其余写错按 classifyWriteError 上抛
+                        if (classifyWriteError(e) !== 'constraint') {
+                            throw e;
+                        }
+                    }
+                }
+            }
+            finally {
+                closeDuckdb(writer); // SWMR：写连接先关再开读投影
+            }
+            backfilled = true;
+        }
+    }
+    const card = existsSync(opts.db)
+        ? await projectFileCard(opts.db, {
+            repo: name,
+            subject: opts.path,
+            at: pinned ? opts.at : undefined,
+            current_head_sha: headSha,
+            source: backfilled ? 'backfill' : 'prefetch'
+        })
+        : buildFileCard({
+            subject: opts.path, setRepoRef: null, setFacts: [], availableHeadShas: [],
+            pinnedSha: pinned ? opts.at : null, currentHeadSha: headSha,
+            source: 'unknown', cliGuidance: null
+        });
+    return { card: card, backfilled: backfilled, emitted: emitted, repo_ref: repoRef, repo_name: name, head_sha: headSha };
+}
+export { isAuditIoError };

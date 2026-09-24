@@ -1,4 +1,5 @@
 import type { FactEvent } from './store.js';
+import type { FileCard } from './file-card.js';
 export interface FactProjectionFilter {
     scale?: string;
     repo_ref?: string;
@@ -10,6 +11,15 @@ export declare function buildProjectionSql(filter: FactProjectionFilter): {
     params: string[];
 };
 export declare function projectFacts(dbPath: string, filter: FactProjectionFilter): Promise<FactEvent[]>;
+export interface FileCardQuery {
+    repo: string;
+    subject: string;
+    at?: string;
+    current_head_sha?: string | null;
+    source?: 'prefetch' | 'backfill' | 'unknown';
+    cli_guidance?: string | null;
+}
+export declare function projectFileCard(dbPath: string, q: FileCardQuery): Promise<FileCard>;
 export interface QuarantineProjectionFilter {
     run_id?: string;
     field_name?: string;

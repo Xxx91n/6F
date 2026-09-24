@@ -5,6 +5,7 @@ import { loadManifestMeta } from './manifest.js';
 import { repoAdd } from './intake/intake.js';
 import { runDemo, listScenarios } from './demo/demo.js';
 import { runAudit, isAuditScaleError } from './audit/audit.js';
+import { runAuditFile, isAuditFileError } from './audit/file-card.js';
 import { projectFacts, projectQuarantine } from './fact/projection.js';
 import { isProtocolCrash, crashArtifactFromError, strictQuarantineEnabled, STRICT_QUARANTINE_ENV } from './intake/quarantine.js';
 import { isAuditIoError } from './fact/store.js';
@@ -145,6 +146,39 @@ async function main(): Promise<void> {
     // 省略 --out 时报告 md 走 stdout；--out 双写后 stdout 打印回执 JSON（demo 回执契约字段集）。
     // --scale 缺省 Macro-B；未实装层不假装——SCALE-NOT-IMPLEMENTED 结构化拒绝 exit 2。
     const args = process.argv.slice(3);
+    // #80 步②（D-122/D-126）：audit file=文件卡 lazy 补采唯一写入口（MCP 面永不写）——
+    //   同构发射管线仓级重跑产新观测集 append 非覆盖；资格=HEAD 对象库可达；脏工作区零感知。
+    //   拦截须在通用位置参数循环之前（file 是子命令不是仓输入）。
+    //   usage: macro-audit audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]
+    if (args[0] === 'file') {
+      const fileArgs = args.slice(1);
+      let repoInput: string | undefined;
+      let filePath: string | undefined;
+      let dbPath: string | undefined;
+      let atSha: string | undefined;
+      for (let i = 0; i < fileArgs.length; i++) {
+        const a = fileArgs[i];
+        if (a === '--db') { const v = fileArgs[++i]; if (v === undefined || v.indexOf('--') === 0) { errExit('AUDIT-FILE-ARGS: missing value for --db\n', 2); } dbPath = v; }
+        else if (a === '--at') { const v = fileArgs[++i]; if (v === undefined || v.indexOf('--') === 0) { errExit('AUDIT-FILE-ARGS: missing value for --at\n', 2); } atSha = v; }
+        else if (a.indexOf('--') === 0) { errExit('AUDIT-FILE-ARGS: unknown flag ' + a + '\n', 2); }
+        else if (!repoInput) { repoInput = a; }
+        else if (!filePath) { filePath = a; }
+        else { errExit('AUDIT-FILE-ARGS: unexpected extra positional ' + a + '\n', 2); }
+      }
+      if (!repoInput || !filePath) { errExit('usage: macro-audit audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]\n', 2); }
+      if (!dbPath) { errExit('AUDIT-FILE-ARGS: --db <facts.duckdb> required（观测集落点——不存在则创建 append-only 库）\n', 2); }
+      try {
+        // repoInput/filePath/dbPath 经上闸收窄（errExit=never）——循环内赋值致 CFA 不传导，as string 如实标注
+        const r = await runAuditFile({ input: repoInput as string, path: filePath as string, db: dbPath as string, at: atSha });
+        outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, repo_ref: r.repo_ref, head_sha: r.head_sha }) + '\n', 0);
+      } catch (e) {
+        if (e instanceof ExitSignal) throw e;
+        if (isAuditFileError(e)) { errExit(JSON.stringify({ error: e.code, message: e.message }) + '\n', EXIT_PROTOCOL_CRASH); }
+        if (isAuditIoError(e)) { errExit(JSON.stringify({ error: e.code, message: e.message }) + '\n', EXIT_IO_FAILURE); }
+        const err = e as { code?: string; message?: string };
+        errExit(JSON.stringify({ error: err.code || 'AUDIT-FILE-ERROR', message: err.message || String(e) }) + '\n', EXIT_PROTOCOL_CRASH);
+      }
+    }
     let input: string | undefined;
     let scale: string | undefined;
     let outDir: string | undefined;
@@ -166,7 +200,7 @@ async function main(): Promise<void> {
       else { errExit('AUDIT-ARGS: unexpected extra positional ' + a + '\n', 2); }
     }
     const strictQuarantine = strictQuarantineEnabled(strictFlag, process.env[STRICT_QUARANTINE_ENV]);
-    if (!input) { errExit('usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine]\n', 2); }
+    if (!input) { errExit('usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine] | audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]\n', 2); }
     try {
       // input 经上闸收窄（errExit=never）——循环内赋值致 CFA 不传导收窄，as string 如实标注
       const r = await runAudit({ input: input as string, scale: scale, outDir: outDir, json: asJson, refresh: refresh, strictQuarantine: strictQuarantine });
@@ -249,7 +283,7 @@ async function main(): Promise<void> {
     }
   } else {
     console.log('macro-audit kernel CLI (walking skeleton)');
-    console.log('usage: macro-audit <--version|selftest|doctor [--fix]|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>');
+    console.log('usage: macro-audit <--version|selftest|doctor [--fix]|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>');
   }
 }
 

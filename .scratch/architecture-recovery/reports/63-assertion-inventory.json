@@ -315,7 +315,7 @@
       ]
     },
     "80-check": {
-      "assertion_ids": 20,
+      "assertion_ids": 28,
       "call_styles": [
         "t()"
       ]

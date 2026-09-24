@@ -4,6 +4,8 @@
 import { openReader, closeDuckdb } from './store.js';
 import { assertAppendOnly } from './schema.js';
 import type { FactEvent } from './store.js';
+import { buildFileCard, headShaOfRepoRef } from './file-card.js';
+import type { FileCard } from './file-card.js';
 
 export interface FactProjectionFilter {
   scale?: string;
@@ -35,14 +37,83 @@ export async function projectFacts(dbPath: string, filter: FactProjectionFilter)
     const reader = await conn.run(q.sql, q.params as never);
     const rows = await reader.getRows();
     const names = reader.columnNames();
-    return rows.map(function (r) {
-      const o: Record<string, unknown> = {};
-      names.forEach(function (n, i) {
-        const v = r[i];
-        // JSON 可序列化归一：BigInt→Number、Date→ISO（TIMESTAMPTZ 已 SQL 层 CAST 为 VARCHAR）
-        o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
-      });
-      return o as unknown as FactEvent;
+    return rows.map(normalizeFactRow(names));
+  } finally {
+    closeDuckdb(conn);
+  }
+}
+
+function normalizeFactRow(names: string[]): (r: unknown[]) => FactEvent {
+  return function (r: unknown[]) {
+    const o: Record<string, unknown> = {};
+    names.forEach(function (n, i) {
+      const v = r[i];
+      // JSON 可序列化归一：BigInt→Number、Date→ISO（TIMESTAMPTZ 已 SQL 层 CAST 为 VARCHAR）
+      o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
+    });
+    return o as unknown as FactEvent;
+  };
+}
+
+// ---------- file_card 只读投影（#80 步② / D-126 / ADR-0023） ----------
+// 观测集语义：repo_ref=<name>@<head_sha> 天然成集；默认=最新已采集观测集（MAX(observed_at) 平手按 repo_ref 字典序钉死）；
+// at:<sha>=显式 opt-in pin——精确匹配或 ≥7 字符唯一前缀（常量纪律：不做模糊解析）。
+// 本面只读：miss→never_collected 显式态＋CLI 指引（lazy 补采唯一入口=CLI audit file，MCP 永不写）。
+export interface FileCardQuery {
+  repo: string;                    // repo 名（repo_ref 的 '@' 前缀部）
+  subject: string;                 // 文件路径（卡内归一）
+  at?: string;                     // at:<sha> pin
+  current_head_sha?: string | null;   // 调用面注入的当前 HEAD 探针结果（null=未知→staleness.drift=unknown）
+  source?: 'prefetch' | 'backfill' | 'unknown';
+  cli_guidance?: string | null;    // miss.never_collected 可行动指引（触发面拼好注入）
+}
+
+const FILE_CARD_SET_CAP = 200000;   // 观测集内 Micro-B 事实硬帽（percentile 需全集——超帽如实截断仍确定性）
+
+function likeEscape(s: string): string {
+  return s.split('!').join('!!').split('%').join('!%').split('_').join('!_');
+}
+
+export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise<FileCard> {
+  const conn = await openReader(dbPath);
+  try {
+    const setSql = 'SELECT repo_ref, MAX(CAST(observed_at AS VARCHAR)) AS last_obs FROM audit_fact ' +
+      "WHERE scale = 'Micro-B' AND repo_ref LIKE ? ESCAPE '!' GROUP BY repo_ref ORDER BY last_obs DESC, repo_ref ASC LIMIT 1000";
+    assertAppendOnly(setSql);
+    const setReader = await conn.run(setSql, [(likeEscape(q.repo) + '@%')] as never);
+    const setRows = await setReader.getRows();
+    const sets = setRows.map(function (r) {
+      const rr = String(r[0]);
+      return { repo_ref: rr, head_sha: headShaOfRepoRef(rr) };
+    });
+    const shas = sets.map(function (s) { return s.head_sha; }).filter(function (s): s is string { return s !== null; });
+    let picked: { repo_ref: string; head_sha: string | null } | null = null;
+    if (q.at !== undefined && q.at !== null && q.at.length > 0) {
+      picked = sets.filter(function (s) {
+        return s.head_sha === q.at || (s.head_sha !== null && (q.at as string).length >= 7 && s.head_sha.indexOf(q.at as string) === 0);
+      })[0] || null;
+    } else {
+      picked = sets[0] || null;
+    }
+    const facts: FactEvent[] = [];
+    if (picked !== null) {
+      const fSql = 'SELECT ' + PROJECTION_COLUMNS + ' FROM audit_fact WHERE scale = ? AND repo_ref = ? ORDER BY fact_seq LIMIT ' + FILE_CARD_SET_CAP;
+      assertAppendOnly(fSql);
+      const fReader = await conn.run(fSql, ['Micro-B', picked.repo_ref] as never);
+      const fRows = await fReader.getRows();
+      const names = fReader.columnNames();
+      const norm = normalizeFactRow(names);
+      for (const r of fRows) { facts.push(norm(r)); }
+    }
+    return buildFileCard({
+      subject: q.subject,
+      setRepoRef: picked === null ? null : picked.repo_ref,
+      setFacts: facts,
+      availableHeadShas: shas,
+      pinnedSha: q.at !== undefined && q.at !== null && q.at.length > 0 ? q.at : null,
+      currentHeadSha: q.current_head_sha === undefined ? null : q.current_head_sha,
+      source: q.source || 'unknown',
+      cliGuidance: q.cli_guidance === undefined ? null : q.cli_guidance
     });
   } finally {
     closeDuckdb(conn);

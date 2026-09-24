@@ -55,7 +55,7 @@ t('M1 mcp 裸启动=JSON-RPC 2.0 stdio 服务：initialize+initialized+tools/lis
   const res = r.stdout.trim().split('\n').map(JSON.parse);
   assert.equal(res.length, 2);
   assert.equal(res[0].id, 1); assert.equal(res[0].result.serverInfo.name, 'macro-audit'); assert.ok(res[0].result.capabilities.tools);
-  assert.equal(res[1].id, 2); assert.deepEqual(res[1].result.tools.map(function (x) { return x.name; }), ['facts', 'quarantine']);  // #78/D-113②：quarantine_log 只读投影进工具面
+  assert.equal(res[1].id, 2); assert.deepEqual(res[1].result.tools.map(function (x) { return x.name; }), ['facts', 'quarantine', 'file_card']);  // #78/D-113②：quarantine_log 只读投影进工具面；#80 步②/D-126：file_card 卡投影进工具面
 });
 t('M4 tools/call facts e2e：JSON-RPC 投影读出真实 fact', () => {
   const dir = mkdtempSync(join(tmpdir(), 'mcp-rpc-')); const db = join(dir, 'f.duckdb'); try {

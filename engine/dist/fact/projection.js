@@ -3,6 +3,7 @@
 // 连接=openReader（READ_ONLY 实例，SWMR 读者位，A-007）；投影列=FactEvent 十三列。
 import { openReader, closeDuckdb } from './store.js';
 import { assertAppendOnly } from './schema.js';
+import { buildFileCard, headShaOfRepoRef } from './file-card.js';
 const MAX_LIMIT = 500;
 const PROJECTION_COLUMNS = 'fact_id, trace_id, baggage_id, scale, quadrant, dimension, collector_id, repo_ref, subject_ref, evidence_ref, metric, value_json, CAST(observed_at AS VARCHAR) AS observed_at';
 // 过滤值只允许固定列等值匹配——值走参数绑定不进 SQL 文本，列名白名单硬编码。
@@ -33,14 +34,70 @@ export async function projectFacts(dbPath, filter) {
         const reader = await conn.run(q.sql, q.params);
         const rows = await reader.getRows();
         const names = reader.columnNames();
-        return rows.map(function (r) {
-            const o = {};
-            names.forEach(function (n, i) {
-                const v = r[i];
-                // JSON 可序列化归一：BigInt→Number、Date→ISO（TIMESTAMPTZ 已 SQL 层 CAST 为 VARCHAR）
-                o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
-            });
-            return o;
+        return rows.map(normalizeFactRow(names));
+    }
+    finally {
+        closeDuckdb(conn);
+    }
+}
+function normalizeFactRow(names) {
+    return function (r) {
+        const o = {};
+        names.forEach(function (n, i) {
+            const v = r[i];
+            // JSON 可序列化归一：BigInt→Number、Date→ISO（TIMESTAMPTZ 已 SQL 层 CAST 为 VARCHAR）
+            o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
+        });
+        return o;
+    };
+}
+const FILE_CARD_SET_CAP = 200000; // 观测集内 Micro-B 事实硬帽（percentile 需全集——超帽如实截断仍确定性）
+function likeEscape(s) {
+    return s.split('!').join('!!').split('%').join('!%').split('_').join('!_');
+}
+export async function projectFileCard(dbPath, q) {
+    const conn = await openReader(dbPath);
+    try {
+        const setSql = 'SELECT repo_ref, MAX(CAST(observed_at AS VARCHAR)) AS last_obs FROM audit_fact ' +
+            "WHERE scale = 'Micro-B' AND repo_ref LIKE ? ESCAPE '!' GROUP BY repo_ref ORDER BY last_obs DESC, repo_ref ASC LIMIT 1000";
+        assertAppendOnly(setSql);
+        const setReader = await conn.run(setSql, [(likeEscape(q.repo) + '@%')]);
+        const setRows = await setReader.getRows();
+        const sets = setRows.map(function (r) {
+            const rr = String(r[0]);
+            return { repo_ref: rr, head_sha: headShaOfRepoRef(rr) };
+        });
+        const shas = sets.map(function (s) { return s.head_sha; }).filter(function (s) { return s !== null; });
+        let picked = null;
+        if (q.at !== undefined && q.at !== null && q.at.length > 0) {
+            picked = sets.filter(function (s) {
+                return s.head_sha === q.at || (s.head_sha !== null && q.at.length >= 7 && s.head_sha.indexOf(q.at) === 0);
+            })[0] || null;
+        }
+        else {
+            picked = sets[0] || null;
+        }
+        const facts = [];
+        if (picked !== null) {
+            const fSql = 'SELECT ' + PROJECTION_COLUMNS + ' FROM audit_fact WHERE scale = ? AND repo_ref = ? ORDER BY fact_seq LIMIT ' + FILE_CARD_SET_CAP;
+            assertAppendOnly(fSql);
+            const fReader = await conn.run(fSql, ['Micro-B', picked.repo_ref]);
+            const fRows = await fReader.getRows();
+            const names = fReader.columnNames();
+            const norm = normalizeFactRow(names);
+            for (const r of fRows) {
+                facts.push(norm(r));
+            }
+        }
+        return buildFileCard({
+            subject: q.subject,
+            setRepoRef: picked === null ? null : picked.repo_ref,
+            setFacts: facts,
+            availableHeadShas: shas,
+            pinnedSha: q.at !== undefined && q.at !== null && q.at.length > 0 ? q.at : null,
+            currentHeadSha: q.current_head_sha === undefined ? null : q.current_head_sha,
+            source: q.source || 'unknown',
+            cliGuidance: q.cli_guidance === undefined ? null : q.cli_guidance
         });
     }
     finally {

@@ -6,7 +6,8 @@
 // #64/D-072⑧：MCP stdio 面 stdout 属 JSON-RPC 行帧——自愈结构化事件改落 stderr 避让协议通道
 process.env.MACRO_AUDIT_MCP_STDIO = '1';
 
-import { projectFacts, projectQuarantine } from './fact/projection.js';
+import { execFileSync } from 'node:child_process';
+import { projectFacts, projectQuarantine, projectFileCard } from './fact/projection.js';
 import { loadManifestMeta } from './manifest.js';
 
 export const MCP_PROTOCOL_VERSION = '2024-11-05';
@@ -35,6 +36,25 @@ const QUARANTINE_TOOL = {
       run: { type: 'string', description: 'run_id（trace_id hex32）过滤' },
       field: { type: 'string', description: 'field_name 过滤（如 committer_date / head_date）' },
       limit: { type: 'number', description: '行数上限（≤500）' }
+    },
+    additionalProperties: false
+  }
+};
+
+// #80 步②（D-122/D-126/ADR-0023）：file_card=Micro-B 文件级审计卡只读投影——MCP 面永不写：
+//   miss→显式态＋cli_guidance 指向 CLI audit file 补采（lazy 补采唯一入口在 CLI）。
+const FILE_CARD_TOOL = {
+  name: 'file_card',
+  description: 'read-only Micro-B 文件级审计卡投影（#80 步②/D-123/D-126/ADR-0023）：三层卡契约（kernel facet_rows 逐字段直投带 fact_ref 锚＋derived 确定性派生 hotspot_priority_v1＋narrative 键存在性校验）＋advisory:true 结构性隔离（无 verdict/gate-consumable 字段）＋miss 四类显式态（never_collected 附 CLI 补采指引／not_tracked_at_sha／not_applicable／renamed_to 条件跳转+revalidated）＋at:<sha> pin＋staleness 双字段（observed/current head）',
+  inputSchema: {
+    type: 'object',
+    required: ['repo', 'path'],
+    properties: {
+      db: { type: 'string', description: 'facts.duckdb 绝对路径（可省——省则走服务端寻址链）' },
+      repo: { type: 'string', description: 'repo 名（repo_ref 的 @ 前缀部）' },
+      path: { type: 'string', description: '文件路径（仓根相对；读侧过 subject 归一器）' },
+      at: { type: 'string', description: 'at:<sha> pin——观测集 head_sha 精确或 ≥7 字符唯一前缀（常量纪律）' },
+      repo_path: { type: 'string', description: '可选：本地仓路径——给则只读 git rev-parse HEAD 探 staleness 当前锚' }
     },
     additionalProperties: false
   }
@@ -103,12 +123,46 @@ export async function handleRpcMessage(msg: RpcMessage): Promise<RpcResponse | n
     return ok(id, {});
   }
   if (method === 'tools/list') {
-    return ok(id, { tools: [FACTS_TOOL, QUARANTINE_TOOL] });
+    return ok(id, { tools: [FACTS_TOOL, QUARANTINE_TOOL, FILE_CARD_TOOL] });
   }
   if (method === 'tools/call') {
     const p = msg.params || {};
-    if (p.name !== 'facts' && p.name !== 'quarantine') {
+    if (p.name !== 'facts' && p.name !== 'quarantine' && p.name !== 'file_card') {
       return fail(id, -32602, 'unknown tool: ' + String(p.name));
+    }
+    if (p.name === 'file_card') {
+      const a = (p.arguments || {}) as { [k: string]: unknown };
+      const db = resolveFactsDb(asStr(a.db));
+      if (!db) {
+        return fail(id, -32602, 'MCP-FACTS-DB-UNRESOLVED: facts db 寻址失败——arguments.db 未给且服务端无 --db argv/MACRO_AUDIT_FACTS_DB env 配置');
+      }
+      const repo = asStr(a.repo);
+      const path = asStr(a.path);
+      if (!repo || !path) {
+        return fail(id, -32602, 'file_card requires repo + path');
+      }
+      // staleness 当前锚=可选只读探针（repo_path 给才探；不给→drift=unknown 照答不拒答，D-126）
+      let currentHead: string | null = null;
+      const rp = asStr(a.repo_path);
+      if (rp) {
+        try {
+          const out = execFileSync('git', ['-C', rp, 'rev-parse', 'HEAD'], { encoding: 'utf8', timeout: 15000 }).trim();
+          if (/^[0-9a-f]{40}$/i.test(out)) { currentHead = out; }
+        } catch { currentHead = null; }
+      }
+      try {
+        const card = await projectFileCard(db, {
+          repo: repo,
+          subject: path,
+          at: asStr(a.at),
+          current_head_sha: currentHead,
+          source: 'prefetch',
+          cli_guidance: 'macro-audit audit file ' + repo + ' "' + path + '" --db ' + db
+        });
+        return ok(id, { content: [{ type: 'text', text: JSON.stringify(card) }], isError: false });
+      } catch (e) {
+        return ok(id, { content: [{ type: 'text', text: 'MCP-FILECARD-ERROR: ' + String(e && (e as Error).message || e) }], isError: true });
+      }
     }
     if (p.name === 'quarantine') {
       const a = (p.arguments || {}) as { [k: string]: unknown };

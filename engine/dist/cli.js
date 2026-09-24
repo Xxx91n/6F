@@ -4616,6 +4616,269 @@ async function runAudit(opts) {
   };
 }
 
+// src/audit/file-card.ts
+import { execFileSync as execFileSync2 } from "node:child_process";
+import { existsSync as existsSync7, mkdirSync as mkdirSync6 } from "node:fs";
+import { dirname as dirname6 } from "node:path";
+
+// src/fact/file-card.ts
+var FILE_CARD_SCHEMA_VERSION = "file-card@v1";
+var FILE_CARD_RULE_VERSION = "hotspot_priority_v1";
+var FILE_CARD_TOP_N = 20;
+var FILE_CARD_INSUFFICIENT_MIN_REVS = 3;
+function headShaOfRepoRef(repoRef) {
+  const i = repoRef.lastIndexOf("@");
+  return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
+}
+function asNum(v) {
+  return typeof v === "number" && Number.isFinite(v) ? v : null;
+}
+function fileCardCitationKeys(card) {
+  const keys = ["observation.head_sha", "staleness.drift", "source", "failure_state"];
+  for (const k of Object.keys(card.kernel.facet_rows).sort()) {
+    keys.push("kernel.facet_rows." + k);
+  }
+  if (card.derived.revisions !== null) {
+    keys.push("derived.revisions");
+  }
+  if (card.derived.hotspot_score !== null) {
+    keys.push("derived.hotspot_score");
+  }
+  if (card.derived.percentile_rank.value !== null) {
+    keys.push("derived.percentile_rank");
+  }
+  if (card.derived.top_n_flag.value !== null) {
+    keys.push("derived.top_n_flag");
+  }
+  if (card.derived.priority_band.value !== null) {
+    keys.push("derived.priority_band");
+  }
+  return keys;
+}
+function missCard(subject, miss, input, headSha2) {
+  return {
+    schema_version: FILE_CARD_SCHEMA_VERSION,
+    card_type: miss.state === "not_applicable" ? "not_applicable" : "miss",
+    advisory: true,
+    subject,
+    repo_ref: input.setRepoRef,
+    observation: {
+      head_sha: headSha2,
+      pinned_sha: input.pinnedSha,
+      pin_matches_observed_head: input.pinnedSha !== null && headSha2 !== null ? input.pinnedSha === headSha2 : null
+    },
+    staleness: {
+      observed_head_sha: headSha2,
+      current_head_sha: input.currentHeadSha,
+      drift: input.currentHeadSha === null || headSha2 === null ? "unknown" : input.currentHeadSha === headSha2 ? "fresh" : "behind"
+    },
+    source: input.source,
+    failure_state: miss.state === "not_applicable" ? "not_applicable" : "ok",
+    miss,
+    kernel: { facet_rows: {} },
+    derived: {
+      rule_version: FILE_CARD_RULE_VERSION,
+      revisions: null,
+      hotspot_score: null,
+      percentile_rank: { scope: "repo", metric: "hotspots.hotspot_score", value: null },
+      top_n_flag: { n: FILE_CARD_TOP_N, scope: "repo", metric: "hotspots.hotspot_score", value: null },
+      priority_band: { value: null, inputs: { hotspot_score: null, percentile_rank: null } },
+      suppressed_by: miss.state === "not_applicable" ? "not_applicable" : null
+    },
+    narrative: { hints: [], key_check: { referenced: [], missing: [], ok: true } }
+  };
+}
+function buildFileCard(input) {
+  const norm = normalizeSubjectPath(input.subject);
+  if (!norm.ok) {
+    return missCard(String(input.subject), {
+      state: "not_tracked_at_sha",
+      detail: "subject \u5F52\u4E00\u62D2\u7EDD reason=" + norm.reason + "\uFF08SCIP \u4E94\u89C4\u5219\u8BFB\u4FA7\u955C\u50CF\uFF09"
+    }, input, input.setRepoRef !== null ? headShaOfRepoRef(input.setRepoRef) : null);
+  }
+  const subject = norm.subject;
+  const headSha2 = input.setRepoRef !== null ? headShaOfRepoRef(input.setRepoRef) : null;
+  if (input.setRepoRef === null) {
+    if (input.availableHeadShas.length === 0) {
+      return missCard(subject, {
+        state: "never_collected",
+        detail: "\u8BE5 repo \u65E0\u4EFB\u4F55 Micro-B \u89C2\u6D4B\u96C6\u2014\u2014\u6587\u4EF6\u7EA7\u4E8B\u5B9E\u4ECE\u672A\u91C7\u96C6",
+        cli_guidance: input.cliGuidance === null ? void 0 : input.cliGuidance
+      }, input, null);
+    }
+    return missCard(subject, {
+      state: "not_tracked_at_sha",
+      detail: "pin \u89C2\u6D4B\u96C6\u7F3A\u5E2D\uFF1Aat:" + String(input.pinnedSha) + " \u672A\u91C7\u96C6\uFF08\u4E0D\u5B9E\u73B0\u5F3A\u5236 HEAD \u5339\u914D\uFF0C\u7167\u7B54\u4E0D\u62D2\u7B54\uFF09",
+      available_head_shas: input.availableHeadShas.slice(),
+      cli_guidance: input.cliGuidance === null ? void 0 : input.cliGuidance
+    }, input, null);
+  }
+  const mine = input.setFacts.filter(function(f) {
+    return f.metric === "codelore.file_facet_row" && f.subject_ref === subject;
+  });
+  if (mine.length === 0) {
+    const skip = input.setFacts.filter(function(f) {
+      if (f.metric !== "codelore.file_subject_skip") {
+        return false;
+      }
+      try {
+        const v = JSON.parse(f.value_json);
+        return v.raw_path === subject || v.raw_path === input.subject;
+      } catch {
+        return false;
+      }
+    })[0];
+    if (skip) {
+      let reason = "unclassified";
+      try {
+        reason = String(JSON.parse(skip.value_json).reason);
+      } catch {
+      }
+      return missCard(subject, {
+        state: "not_applicable",
+        detail: "subject \u53D1\u5C04\u4FA7\u5224\u5B9A\u4E0D\u9002\u7528\uFF08" + reason + "\uFF09\u2014\u2014\u5408\u6CD5\u7A7A\u503C\u975E\u91C7\u96C6\u7F3A\u6F0F\uFF0C\u4E0D\u51FA\u7A7A\u5361"
+      }, input, headSha2);
+    }
+    const edgeFact = input.setFacts.filter(function(f) {
+      if (f.metric !== "file.renamed") {
+        return false;
+      }
+      try {
+        return JSON.parse(f.value_json).from === subject;
+      } catch {
+        return false;
+      }
+    })[0];
+    if (edgeFact) {
+      const ev = JSON.parse(edgeFact.value_json);
+      const targetHasFacts = input.setFacts.some(function(f) {
+        return f.metric === "codelore.file_facet_row" && f.subject_ref === ev.to;
+      });
+      return missCard(subject, {
+        state: "renamed_to",
+        detail: "\u8840\u7F18\u68C0\u51FA " + subject + " \u2192 " + ev.to + "\uFF08commit=" + ev.commit_sha.slice(0, 7) + " similarity=" + ev.similarity + "\uFF09\u2014\u2014\u6761\u4EF6\u8DF3\u8F6C\uFF1A\u91CD\u9A8C\u8BC1\u901A\u8FC7\u65B9\u53EF\u8BF7\u6C42\u76EE\u6807\u5361",
+        renamed_to: ev.to,
+        lineage_edge: { from: ev.from, to: ev.to, commit_sha: ev.commit_sha, similarity: ev.similarity },
+        revalidated: targetHasFacts
+      }, input, headSha2);
+    }
+    return missCard(subject, {
+      state: "not_tracked_at_sha",
+      detail: "\u89C2\u6D4B\u96C6 head=" + String(headSha2).slice(0, 7) + " \u5185\u65E0\u8BE5 subject \u7684 per-file \u4E8B\u5B9E\u4E14\u65E0\u8840\u7F18\u8FB9\u2014\u2014\u8BE5 sha \u6811\u4E0B\u4E0D\u8FFD\u8E2A",
+      cli_guidance: input.cliGuidance === null ? void 0 : input.cliGuidance
+    }, input, headSha2);
+  }
+  const facetRows = {};
+  for (const f of mine) {
+    let v;
+    try {
+      v = JSON.parse(f.value_json);
+    } catch {
+      continue;
+    }
+    const analysis = typeof v.analysis === "string" ? v.analysis : "unknown";
+    const row = v.row !== null && typeof v.row === "object" ? v.row : {};
+    const arr = facetRows[analysis] || (facetRows[analysis] = []);
+    arr.push({ row, fact_ref: f.fact_id, observed_at: f.observed_at, evidence_ref: f.evidence_ref });
+  }
+  const analyses = Object.keys(facetRows).sort();
+  const ordered = {};
+  for (const a of analyses) {
+    ordered[a] = facetRows[a];
+  }
+  let revisions = null;
+  let hotspotScore = null;
+  for (const r of ordered["revisions"] || []) {
+    const n = asNum(r.row["n_revs"]);
+    if (n !== null && (revisions === null || n > revisions)) {
+      revisions = n;
+    }
+  }
+  for (const r of ordered["hotspots"] || []) {
+    const n = asNum(r.row["revisions"]);
+    if (n !== null && (revisions === null || n > revisions)) {
+      revisions = n;
+    }
+    const s = asNum(r.row["hotspot_score"]);
+    if (s !== null && (hotspotScore === null || s > hotspotScore)) {
+      hotspotScore = s;
+    }
+  }
+  const peerScores = [];
+  for (const f of input.setFacts) {
+    if (f.metric !== "codelore.file_facet_row") {
+      continue;
+    }
+    try {
+      const v = JSON.parse(f.value_json);
+      if (v.analysis === "hotspots" && v.row) {
+        const s = asNum(v.row.hotspot_score);
+        if (s !== null) {
+          peerScores.push(s);
+        }
+      }
+    } catch {
+    }
+  }
+  let pct = null;
+  if (hotspotScore !== null && peerScores.length > 0) {
+    let less = 0, eq = 0;
+    for (const s of peerScores) {
+      if (s < hotspotScore) {
+        less += 1;
+      } else if (s === hotspotScore) {
+        eq += 1;
+      }
+    }
+    pct = (less + eq / 2) / peerScores.length;
+  }
+  const topN = hotspotScore === null ? null : peerScores.filter(function(s) {
+    return s > hotspotScore;
+  }).length < FILE_CARD_TOP_N;
+  const band = pct === null ? null : pct >= 0.9 ? "high" : pct >= 0.6 ? "medium" : "low";
+  let failure = "ok";
+  if (revisions === 1) {
+    failure = "new_file";
+  } else if (revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS) {
+    failure = "insufficient_history";
+  }
+  const suppressed = failure !== "ok";
+  const card = {
+    schema_version: FILE_CARD_SCHEMA_VERSION,
+    card_type: "file-audit-card",
+    advisory: true,
+    subject,
+    repo_ref: input.setRepoRef,
+    observation: {
+      head_sha: headSha2,
+      pinned_sha: input.pinnedSha,
+      pin_matches_observed_head: input.pinnedSha !== null && headSha2 !== null ? input.pinnedSha === headSha2 : null
+    },
+    staleness: {
+      observed_head_sha: headSha2,
+      current_head_sha: input.currentHeadSha,
+      drift: input.currentHeadSha === null || headSha2 === null ? "unknown" : input.currentHeadSha === headSha2 ? "fresh" : "behind"
+    },
+    source: input.source,
+    failure_state: failure,
+    miss: null,
+    kernel: { facet_rows: ordered },
+    derived: {
+      rule_version: FILE_CARD_RULE_VERSION,
+      revisions,
+      hotspot_score: hotspotScore,
+      percentile_rank: { scope: "repo", metric: "hotspots.hotspot_score", value: suppressed ? null : pct },
+      top_n_flag: { n: FILE_CARD_TOP_N, scope: "repo", metric: "hotspots.hotspot_score", value: suppressed ? null : topN },
+      priority_band: { value: suppressed ? null : band, inputs: { hotspot_score: hotspotScore, percentile_rank: suppressed ? null : pct } },
+      suppressed_by: suppressed ? failure : null
+    },
+    narrative: { hints: [], key_check: { referenced: [], missing: [], ok: true } }
+  };
+  card.narrative.hints = fileCardCitationKeys(card);
+  card.narrative.key_check = { referenced: card.narrative.hints.slice(), missing: [], ok: true };
+  return card;
+}
+
 // src/fact/projection.ts
 var MAX_LIMIT = 500;
 var PROJECTION_COLUMNS = "fact_id, trace_id, baggage_id, scale, quadrant, dimension, collector_id, repo_ref, subject_ref, evidence_ref, metric, value_json, CAST(observed_at AS VARCHAR) AS observed_at";
@@ -4646,13 +4909,70 @@ async function projectFacts(dbPath, filter) {
     const reader = await conn.run(q.sql, q.params);
     const rows = await reader.getRows();
     const names = reader.columnNames();
-    return rows.map(function(r) {
-      const o = {};
-      names.forEach(function(n, i) {
-        const v = r[i];
-        o[n] = typeof v === "bigint" ? Number(v) : v instanceof Date ? v.toISOString() : v;
-      });
-      return o;
+    return rows.map(normalizeFactRow(names));
+  } finally {
+    closeDuckdb(conn);
+  }
+}
+function normalizeFactRow(names) {
+  return function(r) {
+    const o = {};
+    names.forEach(function(n, i) {
+      const v = r[i];
+      o[n] = typeof v === "bigint" ? Number(v) : v instanceof Date ? v.toISOString() : v;
+    });
+    return o;
+  };
+}
+var FILE_CARD_SET_CAP = 2e5;
+function likeEscape(s) {
+  return s.split("!").join("!!").split("%").join("!%").split("_").join("!_");
+}
+async function projectFileCard(dbPath, q) {
+  const conn = await openReader(dbPath);
+  try {
+    const setSql = "SELECT repo_ref, MAX(CAST(observed_at AS VARCHAR)) AS last_obs FROM audit_fact WHERE scale = 'Micro-B' AND repo_ref LIKE ? ESCAPE '!' GROUP BY repo_ref ORDER BY last_obs DESC, repo_ref ASC LIMIT 1000";
+    assertAppendOnly(setSql);
+    const setReader = await conn.run(setSql, [likeEscape(q.repo) + "@%"]);
+    const setRows = await setReader.getRows();
+    const sets = setRows.map(function(r) {
+      const rr = String(r[0]);
+      return { repo_ref: rr, head_sha: headShaOfRepoRef(rr) };
+    });
+    const shas = sets.map(function(s) {
+      return s.head_sha;
+    }).filter(function(s) {
+      return s !== null;
+    });
+    let picked = null;
+    if (q.at !== void 0 && q.at !== null && q.at.length > 0) {
+      picked = sets.filter(function(s) {
+        return s.head_sha === q.at || s.head_sha !== null && q.at.length >= 7 && s.head_sha.indexOf(q.at) === 0;
+      })[0] || null;
+    } else {
+      picked = sets[0] || null;
+    }
+    const facts = [];
+    if (picked !== null) {
+      const fSql = "SELECT " + PROJECTION_COLUMNS + " FROM audit_fact WHERE scale = ? AND repo_ref = ? ORDER BY fact_seq LIMIT " + FILE_CARD_SET_CAP;
+      assertAppendOnly(fSql);
+      const fReader = await conn.run(fSql, ["Micro-B", picked.repo_ref]);
+      const fRows = await fReader.getRows();
+      const names = fReader.columnNames();
+      const norm = normalizeFactRow(names);
+      for (const r of fRows) {
+        facts.push(norm(r));
+      }
+    }
+    return buildFileCard({
+      subject: q.subject,
+      setRepoRef: picked === null ? null : picked.repo_ref,
+      setFacts: facts,
+      availableHeadShas: shas,
+      pinnedSha: q.at !== void 0 && q.at !== null && q.at.length > 0 ? q.at : null,
+      currentHeadSha: q.current_head_sha === void 0 ? null : q.current_head_sha,
+      source: q.source || "unknown",
+      cliGuidance: q.cli_guidance === void 0 ? null : q.cli_guidance
     });
   } finally {
     closeDuckdb(conn);
@@ -4695,11 +5015,117 @@ async function projectQuarantine(dbPath, filter) {
   }
 }
 
+// src/audit/file-card.ts
+var AuditFileError = class extends Error {
+  code;
+  constructor(code, message) {
+    super(message);
+    this.code = code;
+  }
+};
+function isAuditFileError(e) {
+  return e instanceof AuditFileError || typeof e === "object" && e !== null && typeof e.code === "string" && String(e.code).indexOf("AUDIT-FILE-") === 0;
+}
+function gitOut(root, args) {
+  return execFileSync2("git", ["-C", root].concat(args), { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 }).trim();
+}
+function defaultCodeloreCollect(ctx, repoRoot) {
+  return collectCodeloreFacets({ repoRoot, facets: CODELORE_BEHAVIOR_FACETS }, ctx);
+}
+function defaultLineageCollect(ctx, repoRoot) {
+  const rawLog = gitOut(repoRoot, gitRenameLogArgs(RENAME_DEFAULT_THRESHOLD));
+  return collectFileLineage({
+    edges: parseRenameLogZ(rawLog),
+    headSha: headShaOf(ctx.repoRef),
+    threshold: RENAME_DEFAULT_THRESHOLD,
+    detectorVersion: RENAME_DETECTOR_VERSION,
+    gitVersion: probeGitVersion()
+  }, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: "Micro-B", observedAt: ctx.observedAt });
+}
+function headShaOf(repoRef) {
+  const i = repoRef.lastIndexOf("@");
+  return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
+}
+async function runAuditFile(opts) {
+  const intake = repoAdd(opts.input, { cwd: opts.cwd || process.cwd() });
+  const repoRoot = intake.resolved_root;
+  const name = auditRepoName(opts.input, repoRoot);
+  let headSha2;
+  try {
+    headSha2 = gitOut(repoRoot, ["rev-parse", "HEAD"]);
+    if (!/^[0-9a-f]{40}$/i.test(headSha2)) {
+      throw new Error("unexpected rev-parse output");
+    }
+  } catch (e) {
+    throw new AuditFileError("AUDIT-FILE-SHA-UNREACHABLE", "\u76EE\u6807 SHA \u5BF9\u8C61\u5E93\u4E0D\u53EF\u8FBE\uFF08git rev-parse HEAD\uFF09\uFF1A" + String(e.message));
+  }
+  const headRaw = gitOut(repoRoot, ["log", "-1", "--format=%cI"]);
+  const absorbed = absorbGitIsoDialect(headRaw);
+  const cls = classifyGitIsoField(absorbed.value);
+  const headDate = cls.value !== null ? cls.value : null;
+  const repoRef = name + "@" + headSha2;
+  const pinned = opts.at !== void 0 && opts.at.length > 0;
+  let backfilled = false;
+  let emitted = 0;
+  if (!pinned) {
+    const preCard = existsSync7(opts.db) ? await projectFileCard(opts.db, { repo: name, subject: opts.path, current_head_sha: headSha2 }) : null;
+    const setExists = preCard !== null && preCard.observation.head_sha === headSha2;
+    const subjectHasFacts = preCard !== null && Object.keys(preCard.kernel.facet_rows).length > 0;
+    if (!setExists || !subjectHasFacts) {
+      const ctx = macroBContext("audit-file-" + name, name, headSha2, headDate, headRaw);
+      const codeloreFn = opts.collectors && opts.collectors.codelore || defaultCodeloreCollect;
+      const lineageFn = opts.collectors && opts.collectors.lineage || defaultLineageCollect;
+      const batch = codeloreFn(ctx, repoRoot).concat(lineageFn(ctx, repoRoot));
+      mkdirSync6(dirname6(opts.db), { recursive: true });
+      const writer = await openWriter(opts.db);
+      try {
+        const seen = /* @__PURE__ */ new Set();
+        for (const f of batch) {
+          if (seen.has(f.fact_id)) {
+            continue;
+          }
+          seen.add(f.fact_id);
+          try {
+            await appendFact(writer, f);
+            emitted += 1;
+          } catch (e) {
+            if (classifyWriteError(e) !== "constraint") {
+              throw e;
+            }
+          }
+        }
+      } finally {
+        closeDuckdb(writer);
+      }
+      backfilled = true;
+    }
+  }
+  const card = existsSync7(opts.db) ? await projectFileCard(opts.db, {
+    repo: name,
+    subject: opts.path,
+    at: pinned ? opts.at : void 0,
+    current_head_sha: headSha2,
+    source: backfilled ? "backfill" : "prefetch"
+  }) : buildFileCard({
+    // pin 且库缺席=零观测集——never_collected 照答不伪造
+    subject: opts.path,
+    setRepoRef: null,
+    setFacts: [],
+    availableHeadShas: [],
+    pinnedSha: pinned ? opts.at : null,
+    currentHeadSha: headSha2,
+    source: "unknown",
+    cliGuidance: null
+  });
+  return { card, backfilled, emitted, repo_ref: repoRef, repo_name: name, head_sha: headSha2 };
+}
+
 // src/cli.ts
-import { writeFileSync as writeFileSync4, existsSync as existsSync7, mkdirSync as mkdirSync6 } from "node:fs";
+import { writeFileSync as writeFileSync4, existsSync as existsSync8, mkdirSync as mkdirSync7 } from "node:fs";
 import { join as join10, resolve as resolve4 } from "node:path";
 
 // src/mcp-server.ts
+import { execFileSync as execFileSync3 } from "node:child_process";
 process.env.MACRO_AUDIT_MCP_STDIO = "1";
 var MCP_PROTOCOL_VERSION = "2024-11-05";
 var QUARANTINE_TOOL = {
@@ -4712,6 +5138,22 @@ var QUARANTINE_TOOL = {
       run: { type: "string", description: "run_id\uFF08trace_id hex32\uFF09\u8FC7\u6EE4" },
       field: { type: "string", description: "field_name \u8FC7\u6EE4\uFF08\u5982 committer_date / head_date\uFF09" },
       limit: { type: "number", description: "\u884C\u6570\u4E0A\u9650\uFF08\u2264500\uFF09" }
+    },
+    additionalProperties: false
+  }
+};
+var FILE_CARD_TOOL = {
+  name: "file_card",
+  description: "read-only Micro-B \u6587\u4EF6\u7EA7\u5BA1\u8BA1\u5361\u6295\u5F71\uFF08#80 \u6B65\u2461/D-123/D-126/ADR-0023\uFF09\uFF1A\u4E09\u5C42\u5361\u5951\u7EA6\uFF08kernel facet_rows \u9010\u5B57\u6BB5\u76F4\u6295\u5E26 fact_ref \u951A\uFF0Bderived \u786E\u5B9A\u6027\u6D3E\u751F hotspot_priority_v1\uFF0Bnarrative \u952E\u5B58\u5728\u6027\u6821\u9A8C\uFF09\uFF0Badvisory:true \u7ED3\u6784\u6027\u9694\u79BB\uFF08\u65E0 verdict/gate-consumable \u5B57\u6BB5\uFF09\uFF0Bmiss \u56DB\u7C7B\u663E\u5F0F\u6001\uFF08never_collected \u9644 CLI \u8865\u91C7\u6307\u5F15\uFF0Fnot_tracked_at_sha\uFF0Fnot_applicable\uFF0Frenamed_to \u6761\u4EF6\u8DF3\u8F6C+revalidated\uFF09\uFF0Bat:<sha> pin\uFF0Bstaleness \u53CC\u5B57\u6BB5\uFF08observed/current head\uFF09",
+  inputSchema: {
+    type: "object",
+    required: ["repo", "path"],
+    properties: {
+      db: { type: "string", description: "facts.duckdb \u7EDD\u5BF9\u8DEF\u5F84\uFF08\u53EF\u7701\u2014\u2014\u7701\u5219\u8D70\u670D\u52A1\u7AEF\u5BFB\u5740\u94FE\uFF09" },
+      repo: { type: "string", description: "repo \u540D\uFF08repo_ref \u7684 @ \u524D\u7F00\u90E8\uFF09" },
+      path: { type: "string", description: "\u6587\u4EF6\u8DEF\u5F84\uFF08\u4ED3\u6839\u76F8\u5BF9\uFF1B\u8BFB\u4FA7\u8FC7 subject \u5F52\u4E00\u5668\uFF09" },
+      at: { type: "string", description: "at:<sha> pin\u2014\u2014\u89C2\u6D4B\u96C6 head_sha \u7CBE\u786E\u6216 \u22657 \u5B57\u7B26\u552F\u4E00\u524D\u7F00\uFF08\u5E38\u91CF\u7EAA\u5F8B\uFF09" },
+      repo_path: { type: "string", description: "\u53EF\u9009\uFF1A\u672C\u5730\u4ED3\u8DEF\u5F84\u2014\u2014\u7ED9\u5219\u53EA\u8BFB git rev-parse HEAD \u63A2 staleness \u5F53\u524D\u951A" }
     },
     additionalProperties: false
   }
@@ -4776,12 +5218,49 @@ async function handleRpcMessage(msg) {
     return ok(id, {});
   }
   if (method === "tools/list") {
-    return ok(id, { tools: [FACTS_TOOL, QUARANTINE_TOOL] });
+    return ok(id, { tools: [FACTS_TOOL, QUARANTINE_TOOL, FILE_CARD_TOOL] });
   }
   if (method === "tools/call") {
     const p = msg.params || {};
-    if (p.name !== "facts" && p.name !== "quarantine") {
+    if (p.name !== "facts" && p.name !== "quarantine" && p.name !== "file_card") {
       return fail(id, -32602, "unknown tool: " + String(p.name));
+    }
+    if (p.name === "file_card") {
+      const a2 = p.arguments || {};
+      const db2 = resolveFactsDb(asStr(a2.db));
+      if (!db2) {
+        return fail(id, -32602, "MCP-FACTS-DB-UNRESOLVED: facts db \u5BFB\u5740\u5931\u8D25\u2014\u2014arguments.db \u672A\u7ED9\u4E14\u670D\u52A1\u7AEF\u65E0 --db argv/MACRO_AUDIT_FACTS_DB env \u914D\u7F6E");
+      }
+      const repo = asStr(a2.repo);
+      const path = asStr(a2.path);
+      if (!repo || !path) {
+        return fail(id, -32602, "file_card requires repo + path");
+      }
+      let currentHead = null;
+      const rp = asStr(a2.repo_path);
+      if (rp) {
+        try {
+          const out = execFileSync3("git", ["-C", rp, "rev-parse", "HEAD"], { encoding: "utf8", timeout: 15e3 }).trim();
+          if (/^[0-9a-f]{40}$/i.test(out)) {
+            currentHead = out;
+          }
+        } catch {
+          currentHead = null;
+        }
+      }
+      try {
+        const card = await projectFileCard(db2, {
+          repo,
+          subject: path,
+          at: asStr(a2.at),
+          current_head_sha: currentHead,
+          source: "prefetch",
+          cli_guidance: "macro-audit audit file " + repo + ' "' + path + '" --db ' + db2
+        });
+        return ok(id, { content: [{ type: "text", text: JSON.stringify(card) }], isError: false });
+      } catch (e) {
+        return ok(id, { content: [{ type: "text", text: "MCP-FILECARD-ERROR: " + String(e && e.message || e) }], isError: true });
+      }
     }
     if (p.name === "quarantine") {
       const a2 = p.arguments || {};
@@ -5013,6 +5492,57 @@ async function main() {
     }
   } else if (cmd === "audit") {
     const args = process.argv.slice(3);
+    if (args[0] === "file") {
+      const fileArgs = args.slice(1);
+      let repoInput;
+      let filePath;
+      let dbPath;
+      let atSha;
+      for (let i = 0; i < fileArgs.length; i++) {
+        const a = fileArgs[i];
+        if (a === "--db") {
+          const v = fileArgs[++i];
+          if (v === void 0 || v.indexOf("--") === 0) {
+            errExit("AUDIT-FILE-ARGS: missing value for --db\n", 2);
+          }
+          dbPath = v;
+        } else if (a === "--at") {
+          const v = fileArgs[++i];
+          if (v === void 0 || v.indexOf("--") === 0) {
+            errExit("AUDIT-FILE-ARGS: missing value for --at\n", 2);
+          }
+          atSha = v;
+        } else if (a.indexOf("--") === 0) {
+          errExit("AUDIT-FILE-ARGS: unknown flag " + a + "\n", 2);
+        } else if (!repoInput) {
+          repoInput = a;
+        } else if (!filePath) {
+          filePath = a;
+        } else {
+          errExit("AUDIT-FILE-ARGS: unexpected extra positional " + a + "\n", 2);
+        }
+      }
+      if (!repoInput || !filePath) {
+        errExit("usage: macro-audit audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]\n", 2);
+      }
+      if (!dbPath) {
+        errExit("AUDIT-FILE-ARGS: --db <facts.duckdb> required\uFF08\u89C2\u6D4B\u96C6\u843D\u70B9\u2014\u2014\u4E0D\u5B58\u5728\u5219\u521B\u5EFA append-only \u5E93\uFF09\n", 2);
+      }
+      try {
+        const r = await runAuditFile({ input: repoInput, path: filePath, db: dbPath, at: atSha });
+        outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, repo_ref: r.repo_ref, head_sha: r.head_sha }) + "\n", 0);
+      } catch (e) {
+        if (e instanceof ExitSignal) throw e;
+        if (isAuditFileError(e)) {
+          errExit(JSON.stringify({ error: e.code, message: e.message }) + "\n", EXIT_PROTOCOL_CRASH);
+        }
+        if (isAuditIoError(e)) {
+          errExit(JSON.stringify({ error: e.code, message: e.message }) + "\n", EXIT_IO_FAILURE);
+        }
+        const err = e;
+        errExit(JSON.stringify({ error: err.code || "AUDIT-FILE-ERROR", message: err.message || String(e) }) + "\n", EXIT_PROTOCOL_CRASH);
+      }
+    }
     let input;
     let scale;
     let outDir;
@@ -5051,7 +5581,7 @@ async function main() {
     }
     const strictQuarantine = strictQuarantineEnabled(strictFlag, process.env[STRICT_QUARANTINE_ENV]);
     if (!input) {
-      errExit("usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine]\n", 2);
+      errExit("usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine] | audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]\n", 2);
     }
     try {
       const r = await runAudit({ input, scale, outDir, json: asJson, refresh, strictQuarantine });
@@ -5090,8 +5620,8 @@ async function main() {
         let artifact = null;
         try {
           const dir = outDir ? resolve4(outDir) : resolve4(process.cwd());
-          if (!existsSync7(dir)) {
-            mkdirSync6(dir, { recursive: true });
+          if (!existsSync8(dir)) {
+            mkdirSync7(dir, { recursive: true });
           }
           artifact = join10(dir, "macro-audit-crash-" + String(payload.error_code) + "-" + String(Date.now()) + ".json");
           writeFileSync4(artifact, JSON.stringify(payload, null, 2) + "\n", "utf8");
@@ -5159,7 +5689,7 @@ async function main() {
     }
   } else {
     console.log("macro-audit kernel CLI (walking skeleton)");
-    console.log("usage: macro-audit <--version|selftest|doctor [--fix]|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>");
+    console.log("usage: macro-audit <--version|selftest|doctor [--fix]|mcp|repo add <path|owner/repo|url> [--cache <dir>] [--refresh]|audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]|audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]|demo [--scenario <name>] [--out <dir>] [--json] [--keep] [--list]|--help>");
   }
 }
 main().catch(function(e) {

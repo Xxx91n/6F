@@ -74,6 +74,34 @@ t('E2 血缘事实 subject=规范化 to 路径（血缘不进身份——subject
 t('E3 跨版本可复算验证件：e2e 真 git rename 断言在测试内（非注入回放）',
   txt(join(ENG, 'test', 'micro-b-emit.test.mjs')).includes("gitRenameLogArgs('50%')"), '');
 
+// ---------- G. 步② 投影+查询语义（D-123/D-126） ----------
+const fcSrc = exists(join(ENG, 'src', 'fact', 'file-card.ts')) ? txt(join(ENG, 'src', 'fact', 'file-card.ts')) : '';
+const fcDist = exists(join(ENG, 'dist', 'fact', 'file-card.js')) ? txt(join(ENG, 'dist', 'fact', 'file-card.js')) : '';
+t('G1 卡构建器 src+dist 在（buildFileCard+规则版本钉+miss 四类枚举）',
+  /export function buildFileCard/.test(fcSrc) && /hotspot_priority_v1/.test(fcSrc) && /never_collected/.test(fcSrc) && /not_tracked_at_sha/.test(fcSrc) && /not_applicable/.test(fcSrc) && /renamed_to/.test(fcSrc) && /buildFileCard/.test(fcDist), '');
+const projSrc = txt(join(ENG, 'src', 'fact', 'projection.ts'));
+t('G2 投影层 projectFileCard（观测集=repo_ref@sha 分组+最新集默认+at pin 常量纪律+ESCAPE 防注入）',
+  /export async function projectFileCard/.test(projSrc) && /repo_ref LIKE/.test(projSrc) && /MAX\(CAST\(observed_at/.test(projSrc) && /ESCAPE/.test(projSrc), '');
+const mcpSrc = txt(join(ENG, 'src', 'mcp-server.ts'));
+t('G3 MCP file_card 只读工具注册（MCP 面永不写：miss→cli_guidance 指 CLI 补采）',
+  /file_card/.test(mcpSrc) && /cli_guidance/.test(mcpSrc) && /projectFileCard/.test(mcpSrc), '');
+const afSrc = exists(join(ENG, 'src', 'audit', 'file-card.ts')) ? txt(join(ENG, 'src', 'audit', 'file-card.ts')) : '';
+t('G4 CLI lazy 补采=同构发射管线（collectCodeloreFacets+collectFileLineage 复用+appendFact append+SHA 可达资格检）',
+  /collectCodeloreFacets/.test(afSrc) && /collectFileLineage/.test(afSrc) && /appendFact/.test(afSrc) && /rev-parse/.test(afSrc) && /AUDIT-FILE-SHA-UNREACHABLE/.test(afSrc), '');
+const cliSrc = txt(join(ENG, 'src', 'cli.ts'));
+t('G5 audit file 子命令分发（--db 必填+--at pin+在通用参数循环之前拦截）',
+  /args\[0\] === 'file'/.test(cliSrc) && /runAuditFile/.test(cliSrc) && /--db <facts\.duckdb>/.test(cliSrc), '');
+t('G6 miss 四类+advisory:true+无 verdict/gate 字段+staleness 双字段+renamed_to revalidated',
+  /advisory: true/.test(fcSrc) && /observed_head_sha/.test(fcSrc) && /current_head_sha/.test(fcSrc) && /revalidated/.test(fcSrc) && !/^\s*(verdict|gate_score|gate_)\w*\s*[:=]/m.test(fcSrc), '');
+const fcTest = txt(join(ENG, 'test', 'file-card.test.mjs'));
+const pkgJson = JSON.parse(txt(join(ENG, 'package.json')));
+t('G7 file-card 测试在 smoke 链+断言面覆盖（pin/staleness/miss 四类/补采幂等）',
+  pkgJson.scripts.smoke.indexOf('file-card.test.mjs') >= 0 && /renamed_to/.test(fcTest) && /pin_matches_observed_head/.test(fcTest) && /staleness/.test(fcTest), '');
+{
+  const r = spawnSync('node', [join(ENG, 'test', 'file-card.test.mjs')], { encoding: 'utf8', timeout: 240000, env: { ...process.env, NODE_OPTIONS: '' } });
+  t('G8 file-card.test.mjs 实跑绿（FILE-CARD n/n）', r.status === 0 && /FILE-CARD \d+\/\d+/.test(r.stdout), String(r.stdout).trim().split('\n').slice(-1)[0] || String(r.stderr).slice(-160));
+}
+
 // ---------- F. 纪律 ----------
 t('F1 新增源/测试/fixture 文件无 BOM', (() => {
   const files = ['src/fact/subject.ts', 'src/collect/file-lineage.ts', 'test/micro-b-emit.test.mjs', 'scripts/gen-micro-b-emission-golden.mjs', 'test/fixtures/micro-b/emission-input.json', 'test/fixtures/micro-b/rename-log.ztxt', 'test/fixtures/micro-b/manifest.json', 'test/fixtures/micro-b/emission-skeleton.golden.json'];
