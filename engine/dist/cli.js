@@ -5079,21 +5079,25 @@ async function runAuditFile(opts) {
       mkdirSync6(dirname6(opts.db), { recursive: true });
       const writer = await openWriter(opts.db);
       try {
-        const seen = /* @__PURE__ */ new Set();
-        for (const f of batch) {
-          if (seen.has(f.fact_id)) {
-            continue;
-          }
-          seen.add(f.fact_id);
-          try {
-            await appendFact(writer, f);
-            emitted += 1;
-          } catch (e) {
-            if (classifyWriteError(e) !== "constraint") {
-              throw e;
+        emitted = await runInTransaction(writer, async function() {
+          const seen = /* @__PURE__ */ new Set();
+          let n = 0;
+          for (const f of batch) {
+            if (seen.has(f.fact_id)) {
+              continue;
+            }
+            seen.add(f.fact_id);
+            try {
+              await appendFact(writer, f);
+              n += 1;
+            } catch (e) {
+              if (classifyWriteError(e) !== "constraint") {
+                throw e;
+              }
             }
           }
-        }
+          return n;
+        });
       } finally {
         closeDuckdb(writer);
       }
@@ -5255,7 +5259,9 @@ async function handleRpcMessage(msg) {
           at: asStr(a2.at),
           current_head_sha: currentHead,
           source: "prefetch",
-          cli_guidance: "macro-audit audit file " + repo + ' "' + path + '" --db ' + db2
+          // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
+          //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
+          cli_guidance: "macro-audit audit file " + (rp ? '"' + rp + '"' : "<repo-path>") + ' "' + path + '" --db ' + db2
         });
         return ok(id, { content: [{ type: "text", text: JSON.stringify(card) }], isError: false });
       } catch (e) {

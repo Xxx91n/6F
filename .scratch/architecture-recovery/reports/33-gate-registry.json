@@ -1458,6 +1458,30 @@
                     "evidence": "docs/known-gaps.md GAP-078-01~04；decision-ledger.md D-113"
                 }
             ]
+        },
+        {
+            "id": "82-first-external-contributor",
+            "family": "repo-maintenance",
+            "title": "#82 首个外部贡献者出现 → 贡献者体验/文档就绪复核（D-130③ 仓内自创机制如实标注）",
+            "deadline_event": "first-external-contributor",
+            "deadline": "无（事件驱动项）",
+            "trigger_event": "first-external-contributor",
+            "trigger": "非 maintainer 账号发起的首个 PR/issue/discussion 出现——检测面=仓外事件，occurred 翻转由维护者人工登记执行",
+            "review_at": "触发后 1 个工作日内复核贡献路径文档可达性（README 生成式索引/构建命令面）与首个外部反馈的分类处置",
+            "status": "deferred",
+            "watch": "event_bound",
+            "owner": "macro-audit 队列值守",
+            "verify_method": "reg.events['first-external-contributor'].occurred 翻 true 且本条目 status≠deferred 时复核留痕进 confirmations",
+            "confirmations": [
+                {
+                    "at": "2026-09-24",
+                    "by": "轮32 T3/#82 执行窗",
+                    "criterion_version": "D-130③",
+                    "decision": "registered",
+                    "reason": "外部贡献者体验在外部用户出现时测量——当前群体=0 禁提前自服务化文档重构；事件登记+本条目绑定使触发有物可触",
+                    "evidence": "decision-ledger.md D-130；33-gate-registry.json events.first-external-contributor"
+                }
+            ]
         }
     ]
 }

@@ -157,7 +157,9 @@ export async function handleRpcMessage(msg: RpcMessage): Promise<RpcResponse | n
           at: asStr(a.at),
           current_head_sha: currentHead,
           source: 'prefetch',
-          cli_guidance: 'macro-audit audit file ' + repo + ' "' + path + '" --db ' + db
+          // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
+          //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
+          cli_guidance: 'macro-audit audit file ' + (rp ? '"' + rp + '"' : '<repo-path>') + ' "' + path + '" --db ' + db
         });
         return ok(id, { content: [{ type: 'text', text: JSON.stringify(card) }], isError: false });
       } catch (e) {

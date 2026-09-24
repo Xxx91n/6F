@@ -50,7 +50,7 @@
 
 ## 4. 守卫结论
 
-基线 15/15→修复后全绿；新增 81-check(18)、82-check(15)、80-check G 段(+8→28)；70 清单再生 57 守卫/1366 emit 位。漂移判定三处均为合法文档漂移（CHANGELOG 指针/M-010 空行/78-check C1 接线序钉），修复后复跑全绿。
+基线 15/15→修复后全绿；新增 81-check(18)、82-check(15)、80-check G 段(+8→28)；70 清单再生 57 守卫/1366 emit 位。漂移判定如实分类（更正：审计窗指出误称）：CHANGELOG 指针与 M-010 空行=合法文档漂移；78-check C1=接线序钉断言（钉旧接线 `classifyGitIsoField(headRaw…)`），被 #81 吸收→分类新接线合法打破后更新——属断言更新非文档漂移。修复后复跑全绿。
 
 ## 5. 限制与递延
 
@@ -63,3 +63,18 @@
 
 - #80 步③：试点三角（jiahao+env-manager）双仓实跑、miss 四类 0-switch 边界件逐类点名、renamed_to 1-switch 成对件、benchmark p95 分档+双阈值预登记、披露四件套。
 - 闸门纪律维持：push/merge 逐次授权。
+
+## 7. 审计窗返修段（2026-09-24 r32-audit 返工）
+
+审计=有条件通过（硬验收面亲跑全绿+声明无虚构）。必修四项全落：
+
+- **F1** 82-check.mjs A3 真空断言：`/[ADR-d{4}]/g` 字符类 bug（模板串烹煮 `\\d`→`d`，实测 517 假命中）——修为真值对账：索引行数==docs/adr 实物文件数。
+- **F2** first-external-contributor 零绑定→新增 items 条目 `82-first-external-contributor`（event_bound+五要素+诚实机制标注），触发器有物可触。
+- **F3** runAuditFile 补采写环补 `runInTransaction`（D-115）：中途失败回滚不产残观测集。
+- **F4** MCP cli_guidance 仓名不可跑→repo_path 代入或 `<repo-path>` 占位符（实测 PATH-NOT-FOUND 消除）。
+
+**呈报裁**：F8 维持——kernel=逐字段事实直投属静态指标语义（D-123⑤ 读法裁定：抑制面=derived 判语非原始事实行）；F9 计数差归因=HEAD 移动（审计窗跑于 mkq/mkr 提交后，观测集 sha 不同致行数差，非发射不确定性）；F10 D-125③ 血缘缝合（卡投影沿血缘链缝合跨改名历史）确认为孤儿需求→挂账步③ 票面或独立项认领（见 handoff）；F11 golden 再生本宿主不可证=限制如实登记。
+
+**过程违规更正**：registry 全文件重缩进搭车（语义差集已证清白，如实登记）；丢尾行两文件已补（package.json/33-gate-registry.json）；44-check G6 标签改至名实相符（编年行断言非 T1 行）；§4 漂移分类更正（78-check C1=接线序钉断言更新非文档漂移）。
+
+返修后 §7 同款验收复跑：build OK / FILE-CARD 17/17 / 守卫全绿（详见交接）。

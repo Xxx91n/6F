@@ -13,7 +13,7 @@ import { macroBContext, probeGitVersion } from './macro-b.js';
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
 import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
 import { absorbGitIsoDialect, classifyGitIsoField } from '../intake/quarantine.js';
-import { openWriter, closeDuckdb, appendFact, classifyWriteError, isAuditIoError } from '../fact/store.js';
+import { openWriter, closeDuckdb, appendFact, classifyWriteError, isAuditIoError, runInTransaction } from '../fact/store.js';
 import { projectFileCard } from '../fact/projection.js';
 import { buildFileCard } from '../fact/file-card.js';
 import type { FileCard } from '../fact/file-card.js';
@@ -113,18 +113,23 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
       mkdirSync(dirname(opts.db), { recursive: true });   // db 父目录缺席即建（--db 落点由调用方指定）
       const writer = await openWriter(opts.db);
       try {
-        const seen = new Set<string>();
-        for (const f of batch) {
-          if (seen.has(f.fact_id)) { continue; }
-          seen.add(f.fact_id);
-          try {
-            await appendFact(writer, f);
-            emitted += 1;
-          } catch (e) {
-            // 幂等语义：fact_id 撞 UNIQUE=同观测集同事实已落库→跳过非错误；其余写错按 classifyWriteError 上抛
-            if (classifyWriteError(e) !== 'constraint') { throw e; }
+        // D-115 事务包裹（F3 返修）：中途失败回滚不产残观测集——补采 append 语义=all-or-nothing
+        emitted = await runInTransaction(writer, async function () {
+          const seen = new Set<string>();
+          let n = 0;
+          for (const f of batch) {
+            if (seen.has(f.fact_id)) { continue; }
+            seen.add(f.fact_id);
+            try {
+              await appendFact(writer, f);
+              n += 1;
+            } catch (e) {
+              // 幂等语义：fact_id 撞 UNIQUE=同观测集同事实已落库→跳过非错误；其余写错按 classifyWriteError 上抛
+              if (classifyWriteError(e) !== 'constraint') { throw e; }
+            }
           }
-        }
+          return n;
+        });
       } finally {
         closeDuckdb(writer);   // SWMR：写连接先关再开读投影
       }

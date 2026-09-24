@@ -7,12 +7,15 @@
 
 ## 已闭环
 
+- **r32 审计返修已落**：F1 真空断言/F2 触发器绑定/F3 事务包裹/F4 指引可跑四项必修全绿复跑；过程违规（缩进搭车/丢尾行/G6 标签/措辞）已更正。
+
 - **#81** quarantine 方言归一：边界吸收器 absorbGitIsoDialect（+00:00→Z 唯一规则）+collection_environment 独立披露块；Intake Health/golden/⚠ 零触。dialect-boundary.test.mjs 19 断言。
 - **#82** 仓务批：gen-adr-index.mjs→docs/adr/README.md 生成式索引 23 行（README/zh-CN 已改指）；check-dist.mjs 棘轮挂 rebuild-diff 链（EOL 容忍+失败工件上传）；33-gate-registry first-external-contributor occurred=false；BACKLOG #80 两处票面勘误。82-check.mjs 15 断言。
 - **#80 步②** 投影+查询语义：file-card.ts 三层卡（kernel 直投/derived hotspot_priority_v1 确定性派生/narrative 键校验）+miss 四类+失败三态+at pin+staleness 双字段+renamed_to 条件跳转；双触发面=MCP file_card 只读工具+CLI audit file lazy 补采（同构发射管线、SHA 可达资格检、脏工作区零感知）。file-card.test.mjs 17 断言；80-check G 段 8 断言。
 
 ## 下轮主线：#80 步③（依赖步②已就位）
 
+- **孤儿认领（审计窗 F10）**：D-125③ 血缘缝合（卡投影沿 file.renamed 链缝合跨改名历史）步②未含——步③票面显式认领或拆独立项，禁再漂。
 - 试点三角：jiahao（人类密集）+env-manager（历史厚+机器密集）双仓实跑；anysearch-cli 校准对照位可选。票面写「试点集」不写「覆盖面」。
 - 边界件 0-switch 逐类点名：miss 四类+insufficient_history 每类≥1 实物；renamed_to 1-switch 成对件（miss→renamed_to→跳转命中/二次 miss）。
 - benchmark=p95 分档+target/danger 双阈值（r12-wave-a 语法）+机器可裁决三件套（阈值+脚本+原始数工件）；数值实跑预登记禁先写死。
