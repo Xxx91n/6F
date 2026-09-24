@@ -2,8 +2,8 @@
 
 ## 状态
 
-- 栈 `r32-exec`（叠 r31-closeout 55d6ae1 之上）：rly→vpq→yyu→mkq→mkr 五提交分道，未 push/merge。
-- 审计结论=**有条件通过**：硬验收面审计窗亲跑 100% 复现全绿（build/package/selftest/smoke 22 册/16 守卫+xfail/棘轮/gen 幂等/e2e 三面/dist 字节级复现/脏区零感知实验）；报告声明无虚构。但含必修 4 项+建议修包+呈报待裁 4 项，未替你追认。
+- **终局**：返修窗 uym 闭环四项必修+过程违规；审计窗 LOOP 复核=**通过**（复核档 `.scratch/architecture-recovery/reports/2026-09-24-r32-audit-loop-closeout.md`）。栈 rly→vpq→yyu→mkq→mkr→uym→rny 七提交 + r31-closeout yqv 已 `but land --whole-stack` 落 `origin/main`（顶=d1eef6d），分支已删。
+- 审计结论=**有条件通过→LOOP 复核通过**：硬验收面审计窗亲跑 100% 复现全绿；必修 F1-F4 实证落地；呈报裁 F8-F11 如实登记。残留：F5/F6/F7 建议修批延后（含 F7g 实证升级——非 IO 类中途写错仍被吞判 constraint，残集洞未绝，建议升必修或票面裁定）。
 - 审计报告全文：`D:\Aworker\6F\.scratch\architecture-recovery\reports\2026-09-24-r32-audit-report.md`（声明→证据→结论对照表 + D 覆盖表 + 重跑清单 §7）。
 - 取证工件：`D:\Aworker\6F\.scratch\macro-audit\audits\r32\`（full-diff.patch、e2e-audit 产物、dirty-facts.duckdb 脏区实验、mcp-e2e.cjs、dbcmp.cjs）。
 
