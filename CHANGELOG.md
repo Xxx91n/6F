@@ -74,3 +74,11 @@
 - a_range: A-001 ~ A-091（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-091）
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-091 步① impl 裁决①~⑧）／.scratch/macro-audit/decision-ledger.md（D-121~D-127 设计面）
 - impact: Micro-B 事实面=per-file 一等实体+血缘链可查询（步②投影数据面就位）；验收实证=micro-b-emit 17/17＋80-check 20/20＋npm run smoke 20 件全绿＋守卫组 13 件复绿；步②/T2=投影+查询语义+双通道骨架待开工
+
+## [M-010] - 2026-09-24
+
+- milestone: 轮 31 grill 封口——第三轮锐评辩证处置 6 裁全拍板（D-128~D-133）：quarantine 仪器方言受理（范畴切分＋边界归一＋双轴披露；D-100② scoped revised）／dist 批评维持＋棘轮增量／文书法典主体拒收＋生成式索引＋first-external-contributor 触发器／S1 fixture 落点谓词判据／S6 golden 分层锁面「骨架」精修（D-127⑥/D-049⑤ 注记）／增量票面化（#81 quarantine 缺陷票先行＋#82 仓务增量批并行）；waived-research 先例登记（R31-Q6 限流截断标 partial、resume 句柄留档）；CONTEXT 词条×3＋三处锐化；R31 调研档案 Q1~Q5 存档
+- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-091（architecture-recovery 账本实物区间，写时实物读出——本轮零新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十一轮 Grill＋收口对账（D-128~D-133，D-100② scoped revised）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-091）
+- impact: 锐评三轮处置全定案（方言归一真缺陷受理归 #81／仓务增量四件归 #82／主线 #80 步②不动）；排序=#81 先行→#82 并行→#80 步②；编年随行纪律补齐本轮账行（r31 收口 commit 漏编年→41a-D7 红修）

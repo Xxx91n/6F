@@ -83,7 +83,7 @@ t('F2 issue 41a Status=done 且 checklist 全勾', /\*\*Status:\*\* done/.test(i
 const wf = txt(join(REPO, '.scratch', 'architecture-recovery', 'WORKFLOW.md'));
 t('F3 WORKFLOW §4 lessons 含 #41a 条目', /#41a|41a.*分发收尾|分发收尾.*41a/.test(wf));
 const nr = txt(join(REPO, '.scratch', 'macro-audit', 'handoffs', 'next-round.md'));
-t('F4 next-round T6 行 ✅ DONE 且进度块含 #41a', /T6 分发收尾·仓内文档面（#41a\/R6-03，filler 优先级）✅ DONE 2026-09-16/.test(nr) && nr.indexOf('#41a') >= 0);
+t('F4 next-round T6 行 ✅ DONE 且进度块含 #41a', /T6 分发收尾·仓内文档面（#41a\/R6-03[^）]*）✅ DONE 2026-09-16/.test(nr) && nr.indexOf('#41a') >= 0);
 const bl = txt(join(REPO, '.scratch', 'architecture-recovery', 'BACKLOG.md'));
 t('F5 BACKLOG #41a 行回写闭环', /#41a[^\n]*✅ 2026-09-16 已闭环/.test(bl));
 const rep = existsSync(join(HERE, '41a-report.md')) ? txt(join(HERE, '41a-report.md')) : '';
