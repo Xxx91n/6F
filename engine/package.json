@@ -23,7 +23,7 @@
     "PROVENANCE.md"
   ],
   "scripts": {
-    "gen": "node scripts/gen-manifests.mjs",
+    "gen": "node scripts/gen-manifests.mjs && node scripts/gen-adr-index.mjs",
     "build": "tsc -p tsconfig.json && node scripts/build-bundle.mjs",
     "package": "npm pack --dry-run",
     "demo:golden": "node scripts/gen-demo-golden.mjs",

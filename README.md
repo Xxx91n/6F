@@ -137,7 +137,7 @@ flowchart LR
 | path | contents |
 |---|---|
 | [CONTEXT.md](CONTEXT.md) | glossary (domain language) |
-| [docs/adr/](docs/adr/) | architecture decision records ADR-0001 ~ ADR-0021 |
+| [docs/adr/](docs/adr/) | architecture decision records — 生成式索引 [docs/adr/README.md](docs/adr/README.md)（do not edit by hand；regen: cd engine && npm run gen） |
 | [engine/](engine/) | kernel CLI + Agent Plugin five-layer box (build / command details in [engine/README.md](engine/README.md)) |
 | [examples/first-report/](examples/first-report/) | release sample assets: 6F self-audit Macro-B first report, four files (happy + failure pair, disclosure regime) |
 | [CHANGELOG.md](CHANGELOG.md) | 仓级里程碑/决策编年 (repo-level milestone & decision chronicle; pointer-based; product version ledger = engine/CHANGELOG.md) |

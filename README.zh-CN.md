@@ -1,5 +1,5 @@
 <!-- canonical: README.md | owner: Xxx91n -->
-<!-- sync: a9fd3ebfac0d -->
+<!-- sync: 613bb5eccfcb -->
 > ⚠ **本文件为中文译文（derived 工件）——英文版 [README.md](README.md) 为权威版本（canonical 权威源）；如有不一致以英文版为准。** 译文可暂时落后，但不假装新鲜（sync 戳与英文版内容指纹绑定）。
 
 <p align="center">
@@ -152,7 +152,7 @@ flowchart LR
 | 路径 | 内容 |
 |---|---|
 | [CONTEXT.md](CONTEXT.md) | 术语表（领域唯一语言） |
-| [docs/adr/](docs/adr/) | 架构决策记录 ADR-0001 ~ ADR-0021 |
+| [docs/adr/](docs/adr/) | 架构决策记录——生成式索引 [docs/adr/README.md](docs/adr/README.md)（勿手改；regen: cd engine && npm run gen） |
 | [engine/](engine/) | 内核 CLI + Agent Plugin 五层盒子（构建 / 命令细节见 [engine/README.md](engine/README.md)） |
 | [examples/first-report/](examples/first-report/) | 发布样例资产：6F 自审 Macro-B 首报四件（happy + failure 双对，披露制） |
 | [CHANGELOG.md](CHANGELOG.md) | 仓级里程碑/决策编年（指针制；产品版本账以 engine/CHANGELOG.md 为准） |
