@@ -2,7 +2,7 @@
 
 ## 状态摘要
 
-- 分支：`r31-micro-b-step1`（wzt impl → nkn docs(reword 补 A-091 引用) → nmq 审计返修）；审计侧文书在 `r31-audit`（xvk=LOOP-1 FAIL 报告 + 本 handoff 同批 LOOP-2 PASS 报告）——均未 push，合并/推送逐次授权
+- 分支均已落地：`r31-micro-b-step1`（wzt→nkn→nmq→myx LOOP-3 顺修）+ `r31-audit`（xvk→vxt→ztw）+ `e-branch-1`（rwk r30 设计面）经 `but land` 序贯落入 origin/main（线性史 80a830a→…→98fbdeb）＋已 push＋已安全删支（git cherry 全 `-` 验补丁等价后删）——合并态终局，本 handoff 即 main 上实物
 - LOOP-2  verdict=**PASS**：三硬红（dist 裸 tsc 壳→bundle 规程恢复 / 41a-D6 编年漂移→M-009 补 / 80-check F2 空断言→includes 有牙）全修复实证；最终态全量验收本窗重跑全绿（tsc 0err/build 零漂移/package 81f/selftest ok/smoke 20 件 exit0/守卫 14 件全 PASS/golden --check OK）
 - 文书：`D:\Aworker\6F\.scratch\macro-audit\reports\2026-09-24-r31-audit-loop2-report.md`（复审全档）＋`2026-09-23-r31-audit-report.md`（打回清单全目）
 - 执行侧交接（步②复用件清单最详）：`D:\Aworker\6F\.scratch\macro-audit\handoffs\2026-09-23-r31-exec-handoff.md`——其中「dist 重建=npm run build」规程已纠正，可放心沿用
@@ -18,7 +18,7 @@
 6. renamed_to 条件跳转=沿 file.renamed 血缘链投影缝合+逐请求重验证，无血缘→降级 not_tracked
 7. 双通道骨架：MCP tool 只读（miss→not_collected+CLI 指引，永不写）+CLI audit file（lazy 补采=同构发射管线复用 collectMacroB fileLineage/codelore 面，SHA 可达性闸，脏区零感知）
 
-## 步②可顺修的留痕判断项（审计报告④-4 全目）
+## 留痕判断项（审计报告④-4 全目）——LOOP-3 已顺修落地（commit 0c083e6/main），本节存档对照； reconcile 真同函数化仍留步②
 
 - reconcilePerFileVsAggregate 的 isFileBearing/rowRawPath 与 emit 同规则化（畸形对行假 mismatch 窗口——投影层消费对账前必修更稳）
 - file_subject_skip 载荷两形态合一（emit 面四键 vs explain 面两键）
