@@ -25,6 +25,22 @@ Before opening a PR, please work through the checklist in the PR template: guard
 - [docs/adr/](docs/adr/) — architecture decision records; ledger IDs (D-xxx / A-xxx) are the source of truth.
 - [CONTEXT.md](CONTEXT.md) — domain glossary.
 
+## Reading map — where to start, what to skip
+
+This repository carries a large paper trail on purpose — the product audits engineering content, and its own history is the methodology's working sample. You do not need to read it in order.
+
+Read these first:
+
+1. [README.md](README.md) — what the product is, the five audit scales, current capability status.
+2. [CONTEXT.md](CONTEXT.md) — the domain glossary; terms used elsewhere are defined here.
+3. [docs/adr/README.md](docs/adr/README.md) — the generated architecture-decision index (always current; do not edit by hand).
+
+Safe to skip unless you are working on them:
+
+- `.scratch/` — the process archive (decision ledgers, per-round handoffs, audit reports); the ledger of record for *why* things were decided, not required reading.
+- `engine/dist/` — checked-in build output; do not review its diffs line by line — correctness is enforced by the rebuild-diff CI guard, not human diff inspection.
+- Closed decisions and past audit rounds — they explain the path, not the current state.
+
 ## License
 
 By contributing you agree that your contributions are licensed under the project's [Apache-2.0 license](LICENSE).

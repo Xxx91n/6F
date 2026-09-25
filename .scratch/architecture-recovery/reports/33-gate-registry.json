@@ -172,6 +172,10 @@
         "format-piggyback-recurrence": {
             "occurred": false,
             "note": "D-139：格式化-only／机械重缩进变更再次搭车语义提交（V1 型复发）之日=事件发生——审计窗 diff 复核检出即翻转"
+        },
+        "review-intake-mistriage-recurrence": {
+            "occurred": false,
+            "note": "D-142③：外部评审摄入再现「未钉快照 SHA／未对照当前 HEAD 分诊即呈报」——快照已修项被当开放缺陷进裁定链之日=事件发生（审计窗/摄入动作检出即翻转）"
         }
     },
     "items": [
@@ -1536,6 +1540,30 @@
                     "decision": "registered",
                     "reason": "R32 审计 V1 过程违规（重缩进搭车）单次发生按轻规约处置（AGENTS.md 负向行）；复发=规约失效证据，守卫化条件点燃",
                     "evidence": "decision-ledger.md D-139；reports/2026-09-24-r32-audit-report.md §6 V1"
+                }
+            ]
+        },
+        {
+            "id": "90-review-intake-mistriage-recurrence",
+            "family": "process-hygiene",
+            "title": "评审摄入误分诊复发 → 升级摄入校验守卫（D-142③ deferred 触发器——快照滞后误报防复发升级路径）",
+            "deadline_event": "review-intake-mistriage-recurrence",
+            "deadline": "无（事件驱动项）",
+            "trigger_event": "review-intake-mistriage-recurrence",
+            "trigger": "外部评审/锐评摄入再现「未钉快照 SHA 或未对照当前 HEAD 分诊」致快照已修项被当开放缺陷进裁定链（R34 锐评「宿命回响 O2 FAIL」呈报为原案）",
+            "review_at": "触发后升级为摄入校验件——评审工件入仓时快照 SHA 字段必填＋HEAD 对照分诊表强制",
+            "status": "deferred",
+            "watch": "event_bound",
+            "owner": "macro-audit 队列值守",
+            "verify_method": "复发事件翻转→立项摄入校验件（禁立即守卫化——轻规约先行文法同 D-135；本触发器=条件触发升级路径）",
+            "confirmations": [
+                {
+                    "at": "2026-09-25",
+                    "by": "轮34 收口整理窗",
+                    "criterion_version": "D-142③",
+                    "decision": "registered",
+                    "reason": "R34 锐评快照滞后（快照 44cc2a4 呈报时主线已 811d930）按一行摄入规程处置（AGENTS.md）；复发=规程失效证据，守卫化条件点燃",
+                    "evidence": "decision-ledger.md D-142；reports/R34-Q3-atomcode-research.md"
                 }
             ]
         }

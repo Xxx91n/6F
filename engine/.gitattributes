@@ -9,3 +9,5 @@
 *.gz binary
 *.exe binary
 *.dll binary
+# Generated artifacts (D-140): trust source = rebuild-diff CI guard, not human diff review
+dist/** linguist-generated gitlab-generated -diff
