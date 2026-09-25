@@ -98,3 +98,11 @@
 - a_range: A-001 ~ A-092（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-092）
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-092 #83 修批实施）／.scratch/macro-audit/decision-ledger.md（D-134~D-136 执行面回执）
 - impact: lazy 补采写路径=D-115① fail-fast 语义归位（非 fact_id 撞键 constraint 全上抛回滚）；失败态卡面历史派生族不再冒名（suppressed_facets 披露非静默）；MCP miss 首义形态全枝到达（缺库=结构化卡）；验收实证=FILE-CARD 26/26＋83-check 19/19＋smoke 22 册全绿＋守卫组 18 件全绿（含 41a 复绿 38/38）＋package/selftest/MCP stdio 测活
+
+## [M-013] - 2026-09-25
+
+- milestone: 轮 34 grill 封口——第三轮锐评（快照 44cc2a4/R31，评估时主线 811d930）残余四面裁毕（D-140~D-143 全 current）：dist 锁面内制品评审降噪（engine/.gitattributes dist/** generated 标记面级 54 件＋dist 再生独立 bundle commit 规约＋信任源声明=CI rebuild-diff 守卫，D-067/D-059⑨ 互引注记）＋贡献者最小阅读地图（CONTRIBUTING.md Reading map 纯指针段，D-130 注记）＋评审快照摄入分诊规程（AGENTS.md 摄入规程行＋CONTEXT「评审快照分诊」词条＋registry 90-review-intake-mistriage-recurrence deferred 触发器）＋R33 口径卫生三件（F9 emitted 203→197 勘误封账＋SuppressedFacetReason 收窄+B2 标签收窄归轮35 T1）；R34-Q{1..4} 调研档案存档；轮35任务书 T0~T13 落盘
+- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-092（architecture-recovery 账本实物区间，写时实物读出——本轮零新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十四轮 Grill＋收口对账（D-140~D-143）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-092）
+- impact: 第三轮锐评残余清零（dist 评审降噪/贡献者导览/摄入分诊三档/口径卫生批全定）；registry +1 deferred event_bound（90-review-intake-mistriage-recurrence）；编年随行补齐本轮账行（r34 收口 commit 漏编年→41a-D7 红，M-010/r32-t0 同型补录先例）
