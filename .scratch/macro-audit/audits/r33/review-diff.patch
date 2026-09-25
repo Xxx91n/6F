@@ -1,0 +1,1656 @@
+diff --git a/.github/workflows/engine-ci.yml b/.github/workflows/engine-ci.yml
+index b1d8f71..4cd1012 100644
+--- a/.github/workflows/engine-ci.yml
++++ b/.github/workflows/engine-ci.yml
+@@ -32,6 +32,7 @@ jobs:
+       # #82/D-129③：棘轮断言挂 rebuild-diff 同链＋check-dist.yml 式两减痛件
+       # （--ignore-space-at-eol 容忍行尾空白差；失败时 upload-artifact 供异地复核）
+       - name: rebuild-diff guard (D-067 dist committed — src/dist drift fails)
++        id: rebuilddiff
+         shell: bash
+         run: |
+           node scripts/check-dist.mjs
+@@ -44,7 +45,8 @@ jobs:
+             exit 1
+           fi
+       - name: upload dist on rebuild-diff failure
+-        if: failure()
++        # #83/F7j：job 级 failure() 收窄为步级 outcome——仅 rebuild-diff 守卫本身失败才传 dist（前步失败不再触发上传）
++        if: steps.rebuilddiff.outcome == 'failure'
+         uses: actions/upload-artifact@v4
+         with:
+           name: dist-drift-${{ matrix.os }}-node${{ matrix.node }}
+diff --git a/.scratch/architecture-recovery/BACKLOG.md b/.scratch/architecture-recovery/BACKLOG.md
+index ba383d1..f45ce19 100644
+--- a/.scratch/architecture-recovery/BACKLOG.md
++++ b/.scratch/architecture-recovery/BACKLOG.md
+@@ -101,4 +101,4 @@
+ | #80 | Micro-B preview 文件级审计卡单票闭环（D-121~D-127，ADR-0023）：内部三步 stacked-diff 各独立绿——①发射改造+fixture golden：per-file 一等事实发射（subject_ref=规范化形+file_renamed 血缘事实）+facet_rows 降 raw 证据位保留 append-only+Macro-B behavior 消费面迁移+对照期对账判据（聚合载荷↔per-file 重算可对账——BbA 双实现先例）②投影+查询语义：三层卡契约（kernel 数据直投+确定性派生〔priority_band/percentile_rank/top_n_flag 带规则版本〕+宿主叙事 citation 校验验键存在性）+advisory 结构性隔离（无 verdict/gate-consumable 字段）+失败三态+miss 四类显式态+at:sha pin+staleness 双字段+renamed_to 条件跳转 ③双仓实跑+边界件+披露：试点=jiahao+env-manager（anysearch-cli 校准对照可选）+0-switch 逐类点名+renamed_to 1-switch 成对件（双端验证=miss→renamed_to 条件跳转＋新名卡缝合旧名历史）＋血缘缝合显式枚举〔卡投影沿 file_renamed 链把旧名 era 事实并入新名卡——批内子项：多跳链遍历（A→B→C 显式图遍历非单路径 follow）／环检测／跨观测集解析（沿查询时点所在观测集及其祖先观测集的血缘事实，沿用 at:sha 引用层纪律）——任一子项可独立验收，实测体量超载→升级独立票凭实测再裁〕（D-137）+p95 分档双阈值 benchmark（数值实跑预登记+原始数工件）+披露四件套+not_in_preview+能力矩阵措辞收窄同票 | D-121~D-127 / ADR-0023 / D-028 / D-038 / D-137 | P1 | 双触发面=MCP tool（只读 miss→not_collected+CLI 指引）+CLI audit file（lazy 补采=同构发射管线；资格=SHA 可达；脏工作区零感知）；golden 锁面=字段键集＋语义不变量定点值（枚举对齐 manifest 自声明：metric 集/subject 规范化形/value_json 键集/role 标记/skip reason/冲突对/血缘载荷键集；内容值=数据行载荷不锁——D-132④ 票面勘误）；退路 C 在案（infra 先行=D-038 fixture golden 判据+schema 冻结点立法；D-038 为位点类比非字面接入——断言件落 engine/test/fixtures/micro-b/ 自管，落点谓词=谁消费它，D-131③ 票面勘误）；禁项集=切片当一等事实/双写皆一等/lazy 升格两阶段身份/删 facet_rows/大小写折叠/血缘进身份/stale 拒答/miss 单态/renamed_to 无验证跳转/worktree 感知/A-E 判语/边界件后补/搭车 #51/单仓试点/均值阈值/小试点称覆盖面 | —— |
+ | #81 | quarantine 方言归一缺陷修（D-128，R31-Q1 锐评实证受理）：观测仪器方言（git %cI 版本差 +00:00↔Z 族）归防腐边界层确定性吸收——分类器只见规范流、契约不变（D-103 挂点不动）；normalized 桶立法例收窄（D-100② scoped revised 已挂——桶保留主体自载语义归一）；双轴披露=方言吸收事件+采集环境元数据走独立披露面（OTel Resource 先例——禁入 Intake Health 统计/禁入 golden 字节比对面/禁打 ⚠）；golden 一次性再生（全环境 stats 归 clean 跨宿主稳定）；回归 fixture=合成 +00:00 输入断言跨方言计数一致 | D-128 / D-100② / D-103 / D-106 / D-118 | P1 | 归一规则枚举面（当前仅 tz-offset 一族，未来方言族按 known-gaps 进场）/方言留痕载体（报告环境节 vs run 元数据 vs 边界留痕）/normalized_tz_offset 码处置（dormant 保留 defense-in-depth vs 收窄）=票面 impl 参数；禁钉死 git 版本替代边界归一；与 #80 步②并行不冲突（D-128⑥/D-133③） |
+ | #82 | R31 仓务增量批（D-129③/D-130②③/D-131③/D-132④⑤/D-133②）——批内各独立小步：①gen-adr-index 生成式索引（README ADR 枚举指针改脚本生成——移植 anysearch-cli gen-adr-index.mjs/jiahao build-adr-index.js 先例；do-not-edit 注记；属导览工件非审计判定面）②dist 体积棘轮断言挂 rebuild-diff 同链（size-limit 惯例：限值=实测×1.25 起步、抬限走 reviewed PR；借鉴官方 check-dist.yml 两减痛件=--ignore-space-at-eol＋失败 upload-artifact）③first-external-contributor 触发器入 33-gate-registry（event_bound+occurred=false；本仓自创机制如实标注——外部体验在外部用户出现时测量）④#80 票面勘误两处（D-038 位点类比措辞＋golden 锁面枚举对齐 manifest 自声明） | D-129 / D-130 / D-131 / D-132 / D-133 | P1 | 棘轮断言禁写成 verdict/gate 面（属 CI 守卫链非审计判定）；禁以「73% 阈耗」作违规叙事（棘轮管静默增速非绝对百分比）；勘误走票面措辞非静默改骨架（D-025 纪律）；与
+-| #83 | R32 审计建议修批单票（D-135 票面化；批内排序先修后扫）：①**必修收窄**——file-card lazy 补采写循环 constraint 吞错收窄=仅精确指认 fact_id UNIQUE 撞键（消息 `Constraint Error`+约束名，或写循环前预查该观测集已存 fact_id 集消除撞键场景），余者上抛→runInTransaction 回滚（回到 D-115① fail-fast 语义）＋吞错命中递增可披露计数（emitted/skipped 分列）＋毒事实回归断言（非 IO 非指名错→回滚零行）＋DuckDB 消息形态钉（D-059① 先例）＋落票前实物验证（@duckdb/node-api 错误对象全貌探一次/facts.duckdb 违例扫描留证）②**契约符合性**——F5 MCP 缺库→结构化 never_collected 卡非 isError 文本＋F6 集内 not_tracked_at_sha 补 available_head_shas（pin 枝既有，「可提示 at: 其他 sha」机制两枝补齐）＋**D-136 失败态投影收口子项**（new_file/insufficient_history 卡面滤除历史派生族〔entity-churn/entity-ownership/code-age/hotspots/coupling〕＋suppressed_facets closed 枚举带原因码〔复用 D-126③ not_applicable 族〕＋derived.suppressed_by 保留＋raw 层不动）③**正确性边件**——F7a pin ≥7 前缀歧义验重④**卫生组末节**——F7c headShaOf 去重/d 头注/e microBCtx 死引用/f unused import/h CAP 截断卡面标记/i 80-check BOM 钉面更新/j upload-artifact job 级收窄 | D-134 / D-135 / D-136 | P1 | 批内任一子项可独立放弃不阻塞；时点=#80 步③双仓实跑前落（边界件逐类点名 miss 四类实物形态，F5/F6 不修则试点数据带已知契约缺口跑）；禁并入步③（缺陷修 vs 实跑验证性质不重合）；禁卫生组升格独立票 | —— |
+\ No newline at end of file
++| #83 | R32 审计建议修批单票（D-135 票面化；批内排序先修后扫）：①**必修收窄**——file-card lazy 补采写循环 constraint 吞错收窄=仅精确指认 fact_id UNIQUE 撞键（消息 `Constraint Error`+约束名，或写循环前预查该观测集已存 fact_id 集消除撞键场景），余者上抛→runInTransaction 回滚（回到 D-115① fail-fast 语义）＋吞错命中递增可披露计数（emitted/skipped 分列）＋毒事实回归断言（非 IO 非指名错→回滚零行）＋DuckDB 消息形态钉（D-059① 先例）＋落票前实物验证（@duckdb/node-api 错误对象全貌探一次/facts.duckdb 违例扫描留证）②**契约符合性**——F5 MCP 缺库→结构化 never_collected 卡非 isError 文本＋F6 集内 not_tracked_at_sha 补 available_head_shas（pin 枝既有，「可提示 at: 其他 sha」机制两枝补齐）＋**D-136 失败态投影收口子项**（new_file/insufficient_history 卡面滤除历史派生族〔entity-churn/entity-ownership/code-age/hotspots/coupling〕＋suppressed_facets closed 枚举带原因码〔复用 D-126③ not_applicable 族〕＋derived.suppressed_by 保留＋raw 层不动）③**正确性边件**——F7a pin ≥7 前缀歧义验重④**卫生组末节**——F7c headShaOf 去重/d 头注/e microBCtx 死引用/f unused import/h CAP 截断卡面标记/i 80-check BOM 钉面更新/j upload-artifact job 级收窄 | D-134 / D-135 / D-136 | P1 | 批内任一子项可独立放弃不阻塞；时点=#80 步③双仓实跑前落（边界件逐类点名 miss 四类实物形态，F5/F6 不修则试点数据带已知契约缺口跑）；禁并入步③（缺陷修 vs 实跑验证性质不重合）；禁卫生组升格独立票 | —— ✅ 2026-09-25 A-092 已闭环（分支 r33-83-audit-fix）：吞错收窄双臂（existingFactIds 预查消撞键＋isFactIdUniqueViolation 精确指认 catch）＋emitted/skipped 分列披露＋毒事实回滚零行回归＋真 DuckDB 消息形态钉＋F5 缺库 never_collected 结构化卡＋F6 集内 available_head_shas＋D-136 失败态收口（closed 双集＋suppressed_facets 原因码＋raw 不动）＋F7a pin 前缀歧义验重＋卫生七件（c/d/e/f/h/i/j 全落）＋83-check 19/19＋守卫组 18 件全绿 |
+\ No newline at end of file
+diff --git a/.scratch/architecture-recovery/decision-ledger.md b/.scratch/architecture-recovery/decision-ledger.md
+index 633ca99..4d98b8f 100644
+--- a/.scratch/architecture-recovery/decision-ledger.md
++++ b/.scratch/architecture-recovery/decision-ledger.md
+@@ -425,6 +425,7 @@
+ | A-089 | 轮28 T1 / BACKLOG #77（P1 门面收口包·A 窗——D-098/D-099③/D-101①/D-089⑤/D-037③/D-088） | engine/scripts/gen-acknowledgments.mjs 生成器（per-id 人工模板×8 active＋先比后写＋--check＋zh sync 戳联动）＋README 双语「## Acknowledgments」生成式锚段（Honesty notes/诚实注记前）＋77-check.mjs 16 断言（枚举三向互等/位置/内容纪律/zh 镜像/badge 实物）＋engine-ci main badge 双文件挂载＋诚实注记措辞合法演化＋gh homepageUrl 补齐＋33-check H4 双向互等化＋73-check D1 措辞演化；T0 连带=xfail-45-b5 stale 条目摘除＋meta 归因注记（D-102① 待追认） | 一主题一窗（与 #78 B 窗并行不混）；生成式锚段非手写枚举；徽章=native actions badge 非 shields 族（73-D1 白名单纪律不动）；homepageUrl=repo URL（listing 指定值） | D-098①②③④⑤⑥⑦ / D-089⑤ / D-088 / D-037③ / D-101① / D-102① | implemented 2026-09-22 |
+ | A-090 | 轮29 T2 / BACKLOG #78（P1 引擎 quarantine 建制·B 并行独立验证窗——ADR-0022/D-103~D-120） | engine/src/intake/quarantine.ts（契约层：classifyGitIsoField 三态永不 throw＋词表 v1 四码＋rawBytesFingerprint 三件套＋ACCEPTED_REASON_CODES 仓级基线空集=零容忍棘轮＋协议桶七码 crash 工件 schema v1）＋fact/{schema,store}.ts（quarantine_log DDL＋自然键 UNIQUE 五元组＋ON CONFLICT DO NOTHING 幂等＋runInTransaction 逐 commit 边界＋schema_registry v2）＋macro-b/audit/collectors/generate/cli/mcp-server/projection 六面接线（锚+逐 commit %cI 双分类／strict 闸+恒等式断言／null 毒值显式跳过／Intake Health 恒在+verdict{band,reason_class}投影／--strict-quarantine+0/2/3 三值退出码／quarantine 只读投影+tool）＋quarantine.test.mjs 56/56（smoke 第 18 件）＋78-check.mjs 30/30（病态仓双通道 parity）＋docs/known-gaps.md 首版 GAP-078-01~04＋registry 触发器 78-quarantine-signal-review＋macro-b-regression.yml 三查升级+crash 工件上传腿＋demo golden 重基线＋53-check E1/E2 D-118⑤ 显式豁免集＋33-check 事件锚补齐 | ①判定↔处置硬分界不动——协议级 fail-fast/字段级 quarantine；②D-118④ SoD 纠偏=39/40 对照物零代码改动（分类器误接已回退，parity 改判格语义：quarantined×解析失败=预期分歧格登台账）；③is_trunc 列名=禁词表兼容命名（TRUNCATE 子串黑名单误伤实证）；④ON CONFLICT DO NOTHING=DuckDB 幂等方言选（INSERT OR IGNORE 过不了只追加白名单前缀检）；⑤阈值棘轮初值 0.001 保守上界（语料实测 %cI 长度∈{20,25}） | D-103~D-120 / ADR-0022 / D-100 / D-101② / D-059①收窄链 | implemented 2026-09-23 |
+ | A-091 | 轮31 T1 / BACKLOG #80 步①（Micro-B 发射改造 stacked-diff 第一棒——ADR-0023/D-124/D-125/D-038） | engine/src/fact/subject.ts（Subject Canonical Form 归一器：SCIP relative_path 五规则＋NFC 显式归一＋禁大小写折叠＋case-only 冲突检测——纯逻辑零 fs）＋engine/src/collect/file-lineage.ts（file.renamed 血缘一等事实：parseRenameLogZ 原字节解析〔__R__\0\nR<score>\0from\0to\0 实测钉死〕＋collectFileLineage 载荷五字段+commit_sha/similarity/git_version 举证件＋gitRenameLogArgs 单 argv 构建器）＋upstream/codelore.ts（emitPerFileFacts 发射边界归一单点：path/entity 单文件行＋entity_a/entity_b 成对双端＋非文件粒度行驻聚合层；subjectProbe 注入缝+defaultSubjectPathProbe〔lstat→realpath 仓内 regular file〕；facet_rows role=raw_evidence+per_file_emitted；file_subject_skip/subject_case_conflict 披露事实；explain/dossier subject 同器归一；reaggregateFileFacetRows+reconcilePerFileVsAggregate 对账件）＋audit/macro-b.ts（fileLineage spec 旗标 audit=on/demo=off＋RenameLogRunner 注入缝）＋audit/audit.ts（behavior 判据读源迁移=per-file 重聚合＋对账进 bhvPc1＋measurements.micro_b/file_lineage 披露块）＋upstream-dimension-map.ts（Micro-B scale 事实不入 S 维归位投影）＋test/micro-b-emit.test.mjs 17/17（smoke 第 19 件）＋test/fixtures/micro-b 三件套＋emission-skeleton.golden.json（字段骨架锁）＋scripts/gen-micro-b-emission-golden.mjs（--check 判据面）＋80-check.mjs 20/20＋codelore-batch1.test.mjs D1/D2 契约升级 | ①value_json 形态裁=per-path-face 行对象（SonarQube per-component JSON_VALUE 先例）role=first_class；②role 标记机制=聚合载荷内 role=raw_evidence 字段（metric 名不动保 append-only 连续——改名=新事实族断链）；③对账判据=per-file 重算多重集 == file-bearing 聚合行−skipped（非文件粒度行天然不入比对面）；④scale 裁=per-file/血缘事实记 Micro-B（粒度按 subject 非 run），聚合保 Macro-B；⑤成对行=双端各发一条 peer 互指（文件中心视图），subject_ref=规范化 to 端血缘不进身份；⑥阈值 50%（-M 先例）+detector_version=rename-detector@v1 规格钉，git_version 随行举证不入骨架锁；⑦symlink=仓内 realpath→regular file 才解析，缺席路径=历史实体照发不探活 | D-124 / D-125 / D-038 / ADR-0023 / D-028 | implemented 2026-09-23 |
++| A-092 | 轮33 T1 / BACKLOG #83（R32 审计建议修批——D-134 吞错收窄／D-135 修批票面／D-136 失败态收口＋F5/F6/F7a~j） | engine/src/fact/store.ts（isFactIdUniqueViolation 消息三件套精确指认〔Constraint Error＋unique constraint＋"fact_id:〕＋existingFactIds WHERE IN 分批预查——D-134① 两臂全落：判定层预查为主＋收窄 catch 为防御残留）＋engine/src/audit/file-card.ts（写循环预查消撞键＋skipped 披露计数＋毒事实照常上抛→runInTransaction 回滚）＋engine/src/fact/file-card.ts（FILE_CARD_HISTORY_DERIVED_FACETS／FILE_CARD_STATIC_FACETS closed 双集＋kernel.suppressed_facets 带原因码＋kernel.set_truncated＋pinnedAmbiguous 歧义 miss 枝＋集内 not_tracked available_head_shas）＋engine/src/fact/projection.ts（pin ≥7 前缀唯一性验重＋COUNT 超 FILE_CARD_SET_CAP 截断判定）＋engine/src/mcp-server.ts（existsSync 缺库→buildFileCard never_collected 结构化卡非 isError）＋engine/src/cli.ts（skipped 出参）＋engine/test/file-card.test.mjs 26/26（C4~C7/D6/E3/H2/H3/J1/K1 断言组）＋83-check.mjs 19/19 | ①撞键消除双臂=预查为主（撞键消除在判定层非吞错层）＋isFactIdUniqueViolation 收窄 catch=防御残留（同事务单写者 A-007 无竞窗）；②suppressed_facets 原因码=FailureState\{ok} closed 词表（D-136② 复用 D-126③ not_applicable 族）；③未声明 facet=fail-closed 入 suppressed_facets 禁卡面泄漏（closed 枚举成员级双向差集=C6 对账发射词表 33 名）；④F7a 歧义枝=not_tracked_at_sha＋detail 披露全部命中 sha（不猜最新——精确 40 位直取优先）；⑤82-check B4 契约判据随 F7j 步级化同步更新（guard 钉收窄后形态）；⑥70-check inventory regen（83-check 入册 58 守卫 1385 emit） | implemented 2026-09-25 |
+ 
+ > **R29-REWORK 注记（2026-09-23 r29 审计返工批）**：审计窗打回（reports/2026-09-23-r29-audit-report.md），F1~F11 同窗修复：
+ > - F1 编年漂移：CHANGELOG M-006 a_range 勘误至 A-090＋补 M-007 编年行（41a 复绿 38/38）。
+diff --git a/.scratch/architecture-recovery/reports/63-assertion-inventory.json b/.scratch/architecture-recovery/reports/63-assertion-inventory.json
+index cc98ff8..8a3b403 100644
+--- a/.scratch/architecture-recovery/reports/63-assertion-inventory.json
++++ b/.scratch/architecture-recovery/reports/63-assertion-inventory.json
+@@ -332,6 +332,12 @@
+         "t()"
+       ]
+     },
++    "83-check": {
++      "assertion_ids": 19,
++      "call_styles": [
++        "t()"
++      ]
++    },
+     "r14fix-check": {
+       "assertion_ids": 25,
+       "call_styles": [
+diff --git a/.scratch/architecture-recovery/reports/80-check.mjs b/.scratch/architecture-recovery/reports/80-check.mjs
+index a00e70e..91b8abd 100644
+--- a/.scratch/architecture-recovery/reports/80-check.mjs
++++ b/.scratch/architecture-recovery/reports/80-check.mjs
+@@ -104,7 +104,8 @@ t('G7 file-card 测试在 smoke 链+断言面覆盖（pin/staleness/miss 四类/
+ 
+ // ---------- F. 纪律 ----------
+ t('F1 新增源/测试/fixture 文件无 BOM', (() => {
+-  const files = ['src/fact/subject.ts', 'src/collect/file-lineage.ts', 'test/micro-b-emit.test.mjs', 'scripts/gen-micro-b-emission-golden.mjs', 'test/fixtures/micro-b/emission-input.json', 'test/fixtures/micro-b/rename-log.ztxt', 'test/fixtures/micro-b/manifest.json', 'test/fixtures/micro-b/emission-skeleton.golden.json'];
++  // F7i（#83）：钉面更新至步②文件全量（冻结在步①清单=滞后已修——本票面新增件逐件钉）
++  const files = ['src/fact/subject.ts', 'src/collect/file-lineage.ts', 'src/fact/file-card.ts', 'src/fact/projection.ts', 'src/fact/store.ts', 'src/audit/file-card.ts', 'src/mcp-server.ts', 'src/cli.ts', 'test/micro-b-emit.test.mjs', 'test/file-card.test.mjs', 'scripts/gen-micro-b-emission-golden.mjs', 'test/fixtures/micro-b/emission-input.json', 'test/fixtures/micro-b/rename-log.ztxt', 'test/fixtures/micro-b/manifest.json', 'test/fixtures/micro-b/emission-skeleton.golden.json'];
+   return files.every(f => { const b = fs.readFileSync(join(ENG, f)); return b[0] !== 0xEF; });
+ })());
+ const backlog = txt(join(ROOT, '.scratch', 'architecture-recovery', 'BACKLOG.md'));
+diff --git a/.scratch/architecture-recovery/reports/82-check.mjs b/.scratch/architecture-recovery/reports/82-check.mjs
+index 7182e65..1c37a8f 100644
+--- a/.scratch/architecture-recovery/reports/82-check.mjs
++++ b/.scratch/architecture-recovery/reports/82-check.mjs
+@@ -36,7 +36,7 @@ t('B1 check-dist.mjs 棘轮脚本在且载版本化上限常量', existsSync(cd)
+ const ci = txt(join(REPO, '.github', 'workflows', 'engine-ci.yml'));
+ t('B2 rebuild-diff 链挂棘轮调用', ci.indexOf('node scripts/check-dist.mjs') >= 0);
+ t('B3 rebuild-diff 链载 --ignore-space-at-eol（行尾空白容忍件）', ci.indexOf('--ignore-space-at-eol') >= 0);
+-t('B4 失败工件上传件在（if: failure() + upload-artifact + retention）', ci.indexOf('actions/upload-artifact') >= 0 && ci.indexOf('if: failure()') >= 0 && ci.indexOf('retention-days') >= 0);
++t('B4 失败工件上传件在且收窄（steps.rebuilddiff.outcome==failure + upload-artifact + retention；#83 F7j 步级化——job 级 failure() 已收）', ci.indexOf('actions/upload-artifact') >= 0 && ci.indexOf("steps.rebuilddiff.outcome == 'failure'") >= 0 && ci.indexOf('retention-days') >= 0 && ci.indexOf('if: failure()') < 0);
+ try {
+   const out = execFileSync('node', [cd], { encoding: 'utf8', timeout: 60000, env: CLEAN_ENV, cwd: ENG });
+   t('B5 棘轮实跑 PASS（dist/cli.js 未越限）', out.indexOf('DIST-RATCHET PASS') >= 0, out.trim());
+diff --git a/.scratch/architecture-recovery/reports/83-check.mjs b/.scratch/architecture-recovery/reports/83-check.mjs
+new file mode 100644
+index 0000000..bbedebb
+--- /dev/null
++++ b/.scratch/architecture-recovery/reports/83-check.mjs
+@@ -0,0 +1,87 @@
++// 83-check.mjs — #83 R32 审计建议修批守卫（D-134 吞错收窄 / D-135 修批票面 / D-136 失败态收口 / F5/F6/F7a~j）
++// 断言面：A 必修收窄（精确指认+预查+skipped 披露+毒事实回归）→ B 契约符合性（F5 缺库卡/F6 可用集/D-136 收口/F7a 歧义验重）
++//   → C 卫生组（F7c~f/h/j 逐件）→ D 纪律（BOM 钉面/BACKLOG/smoke 链）→ G 实跑绿
++// 用法：node 83-check.mjs → 逐条 PASS/FAIL；exit 0=全 PASS
++import fs from 'node:fs';
++import { spawnSync } from 'node:child_process';
++import { fileURLToPath } from 'node:url';
++import { dirname, join } from 'node:path';
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++const ROOT = join(HERE, '..', '..', '..');
++const ENG = join(ROOT, 'engine');
++
++let pass = 0, fail = 0;
++const t = (name, ok, extra = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : fail++; };
++const txt = p => fs.readFileSync(p, 'utf8');
++const exists = p => fs.existsSync(p);
++
++// ---------- A. D-134 必修收窄 ----------
++const stSrc = txt(join(ENG, 'src', 'fact', 'store.ts'));
++const stDist = exists(join(ENG, 'dist', 'fact', 'store.js')) ? txt(join(ENG, 'dist', 'fact', 'store.js')) : '';
++t('A1 store 精确指认+预查双出口 src+dist 双锚（isFactIdUniqueViolation/existingFactIds）',
++  stSrc.indexOf('export function isFactIdUniqueViolation') >= 0 && stSrc.indexOf('export async function existingFactIds') >= 0 && stDist.indexOf('isFactIdUniqueViolation') >= 0);
++const afSrc = txt(join(ENG, 'src', 'audit', 'file-card.ts'));
++t('A2 写循环预查已存 fact_id＋收窄 catch（撞键消除在判定层非吞错层）',
++  afSrc.indexOf('await existingFactIds(') >= 0 && afSrc.indexOf('isFactIdUniqueViolation(e)') >= 0);
++t('A3 泛 constraint 吞错旧形清除（classifyWriteError 不再决定跳过）',
++  afSrc.indexOf("classifyWriteError(e) !== 'constraint'") < 0 && afSrc.indexOf('classifyWriteError') < 0);
++t('A4 emitted/skipped 分列披露（AuditFileResult.skipped＋cli 输出带 skipped）', (() => {
++  const cli = txt(join(ENG, 'src', 'cli.ts'));
++  return afSrc.indexOf('skipped: number') >= 0 && afSrc.indexOf('skipped: skipped') >= 0 && cli.indexOf('skipped: r.skipped') >= 0;
++})());
++const fcTest = txt(join(ENG, 'test', 'file-card.test.mjs'));
++t('A5 毒事实回归断言在（非指名错上抛+回滚零行+真 DuckDB 消息形态钉）',
++  fcTest.indexOf('isFactIdUniqueViolation') >= 0 && fcTest.indexOf('Constraint Error') >= 0 && fcTest.indexOf('回滚零行') >= 0);
++
++// ---------- B. 契约符合性（F5/F6/D-136/F7a） ----------
++const mcpSrc = txt(join(ENG, 'src', 'mcp-server.ts'));
++t('B1 F5 MCP 缺库→结构化 never_collected 卡（existsSync 分支+buildFileCard 非 isError）',
++  mcpSrc.indexOf('existsSync(db)') >= 0 && mcpSrc.indexOf('buildFileCard') >= 0);
++const fcSrc = txt(join(ENG, 'src', 'fact', 'file-card.ts'));
++const fcDist = exists(join(ENG, 'dist', 'fact', 'file-card.js')) ? txt(join(ENG, 'dist', 'fact', 'file-card.js')) : '';
++t('B2 F6 集内 not_tracked_at_sha 补 available_head_shas（两枝补齐）',
++  fcSrc.indexOf('available_head_shas: input.availableHeadShas.slice()') >= 0);
++t('B3 D-136 失败态收口：closed 枚举双集＋suppressed_facets src+dist',
++  fcSrc.indexOf('FILE_CARD_HISTORY_DERIVED_FACETS') >= 0 && fcSrc.indexOf('FILE_CARD_STATIC_FACETS') >= 0 && fcSrc.indexOf('suppressed_facets') >= 0 && fcDist.indexOf('FILE_CARD_HISTORY_DERIVED_FACETS') >= 0);
++const projSrc = txt(join(ENG, 'src', 'fact', 'projection.ts'));
++t('B4 F7a pin ≥7 前缀歧义验重（pinnedAmbiguous 上卡面，>1 命中不猜最新）',
++  fcSrc.indexOf('pinnedAmbiguous') >= 0 && projSrc.indexOf('pinAmbiguous') >= 0);
++
++// ---------- C. 卫生组 ----------
++t('C1 F7c headShaOf 去重（audit 侧复用 headShaOfRepoRef 单实现）',
++  afSrc.indexOf('headShaOfRepoRef') >= 0 && afSrc.indexOf('function headShaOf') < 0);
++t('C2 F7d mcp-server 头注三工具名实相符（facts/quarantine/file_card）',
++  mcpSrc.indexOf('file_card') >= 0 && mcpSrc.indexOf('唯一暴露 tool=facts') < 0);
++t('C3 F7e 死引用清除（audit/file-card.ts 不再点名 microBCtx）',
++  afSrc.indexOf('microBCtx') < 0);
++t('C4 F7f 测试文件无 existsSync unused import',
++  fcTest.indexOf('existsSync') < 0);
++t('C5 F7h FILE_CARD_SET_CAP 截断卡面标记（kernel.set_truncated＋COUNT 判定）',
++  fcSrc.indexOf('set_truncated') >= 0 && projSrc.indexOf('setTruncated') >= 0 && projSrc.indexOf('SELECT COUNT(*)') >= 0);
++const ci = txt(join(ROOT, '.github', 'workflows', 'engine-ci.yml'));
++t('C6 F7j upload-artifact 收窄为步级 outcome（不再 job 级 failure()）',
++  ci.indexOf('steps.rebuilddiff.outcome') >= 0 && ci.indexOf('id: rebuilddiff') >= 0);
++
++// ---------- D. 纪律 ----------
++t('D1 新触源/测试/CI 文件无 BOM（#83 票面触及集）', (() => {
++  const files = ['src/fact/store.ts', 'src/fact/file-card.ts', 'src/fact/projection.ts', 'src/audit/file-card.ts', 'src/mcp-server.ts', 'src/cli.ts', 'test/file-card.test.mjs'];
++  const all = files.every(f => { const b = fs.readFileSync(join(ENG, f)); return b[0] !== 0xEF; });
++  const cib = fs.readFileSync(join(ROOT, '.github', 'workflows', 'engine-ci.yml'));
++  const clb = fs.readFileSync(join(ROOT, 'CHANGELOG.md'));
++  return all && cib[0] !== 0xEF && clb[0] !== 0xEF;
++})());
++const backlog = txt(join(ROOT, '.scratch', 'architecture-recovery', 'BACKLOG.md'));
++t('D2 BACKLOG #83 行在（票面归属）', backlog.indexOf('| #83 |') >= 0);
++const pkgJson = JSON.parse(txt(join(ENG, 'package.json')));
++t('D3 file-card.test.mjs 在 smoke 链（test 闭环非只引入）', pkgJson.scripts.smoke.indexOf('file-card.test.mjs') >= 0);
++
++// ---------- G. 实跑绿 ----------
++{
++  const r = spawnSync('node', [join(ENG, 'test', 'file-card.test.mjs')], { encoding: 'utf8', timeout: 240000, env: { ...process.env, NODE_OPTIONS: '' } });
++  t('G1 file-card.test.mjs 实跑绿（FILE-CARD n/n 含 #83 断言组 C4~C7/D6/E3/H2/H3/J1/K1）', r.status === 0 && /FILE-CARD [0-9]+[/][0-9]+/.test(r.stdout), String(r.stdout).trim().split(String.fromCharCode(10)).slice(-1)[0] || String(r.stderr).slice(-160));
++}
++
++console.log('');
++console.log((fail === 0 ? 'PASS' : 'FAIL') + ' ' + pass + '/' + (pass + fail));
++process.exit(fail === 0 ? 0 : 1);
+diff --git a/.scratch/macro-audit/handoffs/2026-09-25-r33-impl-handoff.md b/.scratch/macro-audit/handoffs/2026-09-25-r33-impl-handoff.md
+new file mode 100644
+index 0000000..e2104d3
+--- /dev/null
++++ b/.scratch/macro-audit/handoffs/2026-09-25-r33-impl-handoff.md
+@@ -0,0 +1,30 @@
++# R33 实施交接 — #83 R32 审计建议修批已落地（分支 r33-83-audit-fix）
++
++> 2026-09-25。本窗交付：#83 修批单票全包（D-134/D-135/D-136 + F5/F6/F7a~j）＋编年随行补齐。下窗顺序：T2 = #80 步③ 双仓实跑+边界件+披露。
++
++## 已完成（本窗）
++
++- **D-134 吞错收窄双臂**：`existingFactIds` 写前预查（主臂，撞键消除在判定层）＋`isFactIdUniqueViolation` 收窄 catch（防御残留：Constraint Error＋unique constraint＋`"fact_id:` 三件套）。非指名错上抛→runInTransaction 回滚。emitted/skipped 分列披露（AuditFileResult.skipped + cli 出参）。毒事实回归 H2（CHECK 违例→零行回滚）＋真 DuckDB 消息形态钉 H3。
++- **F5**：MCP `existsSync(db)` 缺库→`buildFileCard` never_collected 结构化卡（isError=false）；J1 + stdio 实测。
++- **F6**：集内 not_tracked_at_sha 补 `available_head_shas`。
++- **D-136 失败态收口**：`FILE_CARD_HISTORY_DERIVED_FACETS`(5)/`FILE_CARD_STATIC_FACETS`(28) closed 双集；`kernel.suppressed_facets[{facet,reason}]`；未声明 facet fail-closed；raw 不动；`derived.suppressed_by` 保留。成员级双向差集=C6 对账发射词表 33 名。
++- **F7a**：pin ≥7 前缀歧义验重（>1 命中→pinnedAmbiguous→not_tracked_at_sha＋全部命中披露）。
++- **卫生组**：headShaOf 去重（headShaOfRepoRef）/mcp 头注三工具/microBCtx 死引用/existsSync unused import/`kernel.set_truncated`＋COUNT 判定/80-check F1 BOM 钉面/engine-ci upload-artifact 步级化（`steps.rebuilddiff.outcome`）。
++- **账面**：BACKLOG #83 ✅闭环 / A-092 / CHANGELOG M-011(R32 补)+M-012 / 83-check.mjs 19/19 / 82-B4 契约更新 / 70 inventory regen。
++- **报告**：`D:\Aworker\6F\.scratch\macro-audit\reports\2026-09-25-r33-exec-report.md`。
++
++## 验证快照（复跑见报告 §三）
++
++build→BUNDLE-OK / smoke 22 册全绿（FILE-CARD 26/26）/ package tgz / selftest ok:true / MCP stdio 测活 / 守卫组 18 件全绿（含 41a 复绿）/ check-dist PASS / gen×2 幂等。
++
++## 下窗待办（T2 = #80 步③）
++
++按任务书原执行序：双仓实跑（jiahao+env-manager，anysearch-cli 校准对照可选）＋0-switch 逐类点名 miss 四类实物形态＋renamed_to 1-switch 成对件＋**血缘缝合显式枚举（D-137）**——多跳链遍历/环检测/跨观测集解析，任一子项可独立验收，超载→升级独立票凭实测再裁＋p95 分档双阈值 benchmark（实测预登记）＋披露四件套＋not_in_preview＋能力矩阵措辞收窄。
++
++## 注意
++
++- F5/F6 契约缺口已清——步③试点数据不再带已知缺口。
++- `suppressed_facets`=closed 枚举禁临场裁量（D-136⑤）：步③ 如发现新历史派生族，走 FILE_CARD_HISTORY_DERIVED_FACETS 成员级对账（C6 断言即判据面）。
++- 卡 schema 新增字段：`kernel.set_truncated`/`kernel.suppressed_facets`（file-card@v1 内加性演进——消费面按字段存在性读，勿按完整键集匹配）。
++- 41a-D7 编年随行同型第三次复发已补——收口流程侧缺口未机制化（报告 §六.4 登记为 lessons 候选）。
++- 用户闸门不变：push/merge 逐次授权；本分支 `r33-83-audit-fix` 未 push。
+diff --git a/.scratch/macro-audit/reports/2026-09-25-r33-exec-report.md b/.scratch/macro-audit/reports/2026-09-25-r33-exec-report.md
+new file mode 100644
+index 0000000..b6f0290
+--- /dev/null
++++ b/.scratch/macro-audit/reports/2026-09-25-r33-exec-report.md
+@@ -0,0 +1,100 @@
++# R33 执行报告 — #83 R32 审计建议修批（D-134/D-135/D-136 + F5/F6/F7a~j）
++
++> 轮 33 T1 实施窗（分支 `r33-83-audit-fix`）。覆盖决策：D-134（lazy 补采 constraint 吞错收窄）、D-135（修批单票/批内排序）、D-136（失败态投影收口）；关联：D-115①/D-122/D-123/D-126/D-095/D-059①。
++> 验收标准原文：「编译通过、打包通过、启动并测活软件进程；每个平台都要有 test 闭环，避免只引入却没做到。」
++
++## 一、完成定义清单（逐项）
++
++| # | 票面项 | 状态 | 实证 |
++|---|--------|------|------|
++| 1 | D-134① 必修收窄：仅 fact_id UNIQUE 精确指认可跳，余者上抛回滚 | ✅ | 双臂全落：`existingFactIds` 写前预查（判定层消撞键）＋`isFactIdUniqueViolation` 收窄 catch（防御残留臂）；非指名错上抛→`runInTransaction` 回滚 |
++| 2 | D-134② emitted/skipped 分列披露 | ✅ | `AuditFileResult.skipped`＋cli 输出 `skipped` 字段；skipped=已存命中＋批内重号＋收窄 catch 命中 |
++| 3 | D-134③ 毒事实回归断言（非 IO 非指名错→回滚零行） | ✅ | `file-card.test.mjs` H2：注入 CHECK(trace_id) 违例→上抛＋库内 COUNT=0 |
++| 4 | D-134④ DuckDB 消息形态钉 | ✅ | H3：真 DuckDB dup insert 实物断言 `Constraint Error`＋`"fact_id:`＋`unique constraint` 三件套＋NOT NULL/PK 负路 |
++| 5 | D-134⑤ 落票前实物验证 | ✅ | §四 实物验证节（错误对象探察＋facts.duckdb 违例扫描留证） |
++| 6 | F5 MCP 缺库→结构化 never_collected 卡 | ✅ | `existsSync(db)` 分支→`buildFileCard` miss 卡（isError=false＋cli_guidance）；J1 断言＋MCP stdio 实测 |
++| 7 | F6 集内 not_tracked_at_sha 补 available_head_shas | ✅ | 集内枝补 `available_head_shas`（pin 枝既有——两枝补齐）；D2 断言扩展 |
++| 8 | D-136 失败态投影收口 | ✅ | `FILE_CARD_HISTORY_DERIVED_FACETS`(5)＋`FILE_CARD_STATIC_FACETS`(28) closed 双集；`kernel.suppressed_facets` 带原因码；未声明 facet fail-closed；raw 层不动；`derived.suppressed_by` 保留；C4~C7 断言 |
++| 9 | F7a pin ≥7 前缀歧义验重 | ✅ | 精确 40 位直取；≥7 前缀 >1 命中→`pinnedAmbiguous`→not_tracked_at_sha＋全部命中披露（不猜最新）；E3 断言 |
++| 10 | F7c~j 卫生组七件 | ✅ | c headShaOf 去重（复用 headShaOfRepoRef）/d mcp 头注三工具/e microBCtx 死引用改述/f existsSync unused import 清除/h `kernel.set_truncated` 卡面标记＋COUNT 判定/i 80-check F1 BOM 钉面更新/j upload-artifact 步级收窄（`steps.rebuilddiff.outcome`） |
++| 11 | 编译通过 | ✅ | `npm run build` → BUNDLE-OK（tsc 零错） |
++| 12 | 打包通过 | ✅ | `npm run package` → macro-audit-0.1.0.tgz（85 files） |
++| 13 | 启动并测活软件进程 | ✅ | `selftest` ok:true；MCP stdio 实物握手（initialize/tools-list/file_card→never_collected 卡） |
++| 14 | 每个平台 test 闭环 | ✅ | smoke 22 册全绿；file-card.test 26/26（含新增 10 断言）；83-check 19/19 |
++| 15 | 守卫基线全绿 | ✅ | 18 件守卫全绿（含 41a 复绿 38/38、83-check 新增） |
++| 16 | check-dist 棘轮 | ✅ | DIST-RATCHET PASS 257947B/cap 289395B |
++| 17 | gen 幂等 ×2 | ✅ | `npm run gen`×2 → 跟踪产物零漂移 |
++| 18 | 账面随行 | ✅ | BACKLOG #83 ✅闭环＋A-092 账本行＋CHANGELOG M-011(R32 补)/M-012(R33) |
++
++## 二、关键实现（裁定留痕）
++
++1. **吞错收窄双臂**（D-134① 两臂全落而非二选一）：
++   - 主臂=写循环前 `existingFactIds(writer, batchIds)` 预查——撞键消除在判定层，跳过分级可计数（skipped）；
++   - 副臂=`isFactIdUniqueViolation` 收窄 catch——`Constraint Error`＋`unique constraint`＋`"fact_id:` 三件套精确指认，同事务单写者（A-007）下为防御残留；
++   - 非指名错（PK/NOT NULL/CHECK/FK/IO）照常上抛→回滚=D-115① fail-fast 归位。
++2. **DuckDB 错误对象实物**（2026-09-25 @duckdb/node-api 1.5.5-r.5 探察）：plain `Error`，ownKeys=`[stack,message]`，无 code/errno/errorType；消息形态=UNIQUE `"fact_id: X" violates unique constraint.`／PK `violates primary key constraint.`／NOT NULL `NOT NULL constraint failed: t.n`／CHECK `CHECK constraint failed on table t with expression ...`——指认按消息三件套，措辞漂移由 H3 实物钉防。
++3. **D-136 fail-closed**：失败态卡面只放行 `FILE_CARD_STATIC_FACETS`(28) 声明面；历史派生五族＋一切未声明 facet 均入 `suppressed_facets` 带原因码（reason∈FailureState\{ok} closed）——防退化值与未知族冒名。双集成员级双向差集=C6 对账发射词表 33 名（新增 analysis 未分类即红）。
++4. **F7a 歧义不猜**：前缀命中>1→`pinnedAmbiguous`→not_tracked_at_sha＋detail 披露全部命中 sha（slice 12 前缀回显）——不取 `[0]`。
++5. **F7j 联动**：82-check B4 契约判据随步级化同步更新（钉收窄后形态，防同型回归）；70-check inventory regen（83-check 入册）。
++
++## 三、可复跑证据（命令＋输出摘要）
++
++```
++cd engine && env -u NODE_OPTIONS npm run build
++  → tsc 零错 + BUNDLE-OK dist/cli.js
++cd engine && env -u NODE_OPTIONS npm run smoke
++  → 22 册全绿：SMOKE-OK 6/6 | COLLECTORS 14/14 | CODELORE-ADAPTER 7/7 | BATCH1 41/41 |
++    MICRO-B-EMIT 18/18 | LLM 25/25 | PREVIEW 5/5 | INTAKE/GITCLI/SQL-LITERAL/MCP-DB/AUDIT/
++    DEMO/GITHUB-REST/UPSTREAM-MAP/NARRATIVE/CITATION 38/DOCTOR 9/QUARANTINE(H1~H2)/
++    AUDIT-ZERO-WRITE 4/4 | DIALECT-BOUNDARY 19/19 | FILE-CARD 26/26
++node dist/cli.js selftest → {"ok":true,...} liveness
++cd engine && npm run package → macro-audit-0.1.0.tgz（85 files）
++MCP stdio 实物握手（spawnSync dist/cli.js mcp + NDJSON）：
++  id=1 initialize OK / id=2 tools=facts,quarantine,file_card /
++  id=3 file_card(缺库)→card_type:miss never_collected（isError=false）
++node scripts/check-dist.mjs → DIST-RATCHET PASS: 257947B / cap 289395B
++npm run gen ×2 → git status --porcelain（docs/adr+manifest 面）零输出=幂等
++守卫组（env -u NODE_OPTIONS node .scratch/architecture-recovery/reports/NN-check.mjs）：
++  33:31/31 39:28/28 40:57/57 41a:38/38 43:28/28 44:59/59 45:51/51 70:13/13
++  71:16/16 72:16/16 73:14/14 77:16/16 78:42/42 80:28/28 81:18/18 82:15/15
++  83:19/19 xfail-run:PASS(entries=0/10)
++```
++
++## 四、实物验证留证（D-134⑤）
++
++```
++node -e (engine/, @duckdb/node-api 实物)：
++  dup-unique→'Constraint Error: Duplicate key "fact_id: f1" violates unique constraint.'（ownKeys=[stack,message]）
++  dup-pk→'... violates primary key constraint.' / notnull→'NOT NULL constraint failed: t.n' / check→'CHECK constraint failed ...'
++违例扫描（READ_ONLY）：
++  r32/e2e-audit/facts.duckdb：total=608 fact_id_dup=0 fact_seq_dup=0 notnull_viol=0 seq_gaps=0
++  r32/dirty-facts.duckdb：total=197 fact_id_dup=0 fact_seq_dup=0 notnull_viol=0 seq_gaps=0
++```
++
++## 五、阻塞与基线勘误
++
++- 基线起点 41a-check FAIL 1/38（D7 ledger_pointer）——R32 收口未补编年（D-139 追认的过程违规实物例证）；本窗补 M-011 编年行后复绿 38/38，与本修批同 commit 归账（编年随行纪律）。
++- 中途联动修两处守卫：82-check B4（F7j 收窄后契约判据同步）＋70-check inventory（83-check 入册 regen）——非规避性豁免，判据如实钉收窄后形态。
++- 无未决阻塞；#80 步③前置契约缺口（F5/F6）已清零。
++
++## 六、经验候选（lessons）
++
++1. **吞错收窄＝判定层预查＋精确指认双臂**——预查为主消除撞键场景（跳过可计数），收窄 catch 只作防御残留；比「消息匹配单臂」稳（措辞漂移时预查仍正确）。
++2. **守卫契约判据与实现联动**——改 CI 条件须同步改对应 check 断言（82-B4 先例），否则守卫把修正当回归。
++3. **closed 枚举防泄漏优于「点名抑制」**——失败态以白名单静态集放行（fail-closed），未声明 facet 一律披露入 suppressed_facets；新增 analysis 由成员级双向差集对账强制分类。
++4. **编年随行复发性**——41a-D7 同型第三次复发（M-006→r29／M-010→r31／M-011→r32），收口 commit 的编年义务可立项机制化（候选：收口守卫断言「账本 maxId 必现于 CHANGELOG」已存在，缺口在收口流程非判据）。
++
++## 七、引用文件
++
++- `engine/src/fact/store.ts`（isFactIdUniqueViolation/existingFactIds）
++- `engine/src/audit/file-card.ts`（预查写循环/skipped/headShaOfRepoRef 去重/死引用注记）
++- `engine/src/fact/file-card.ts`（closed 双集/suppressed_facets/set_truncated/pinnedAmbiguous/F6）
++- `engine/src/fact/projection.ts`（歧义验重/COUNT 截断）
++- `engine/src/mcp-server.ts`（existsSync 缺库枝/头注）
++- `engine/src/cli.ts`（skipped 出参）
++- `engine/test/file-card.test.mjs`（C4~C7/D2 扩展/E3/H2/H3/J1/K1）
++- `engine/dist/**`（bundle 重建随行）
++- `.scratch/architecture-recovery/reports/83-check.mjs`（新守卫 19 断言）
++- `.scratch/architecture-recovery/reports/80-check.mjs`（F1 BOM 钉面）/ `82-check.mjs`（B4 契约更新）/ `63-assertion-inventory.json`（regen）
++- `.github/workflows/engine-ci.yml`（F7j 步级化）
++- `CHANGELOG.md`（M-011/M-012）/ BACKLOG #83 闭环 / A-092 账本行
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 3ee0593..15cd76f 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -82,3 +82,18 @@
+ - a_range: A-001 ~ A-091（architecture-recovery 账本实物区间，写时实物读出——本轮零新增）
+ - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十一轮 Grill＋收口对账（D-128~D-133，D-100② scoped revised）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-091）
+ - impact: 锐评三轮处置全定案（方言归一真缺陷受理归 #81／仓务增量四件归 #82／主线 #80 步②不动）；排序=#81 先行→#82 并行→#80 步②；编年随行纪律补齐本轮账行（r31 收口 commit 漏编年→41a-D7 红修）
++
++## [M-011] - 2026-09-25
++
++- milestone: 轮 32 实施+审计收口——#81 quarantine 方言归一（+00:00↔Z 边界吸收器+collection_environment 披露块+dialect-boundary 回归册）＋#82 仓务批（gen-adr-index+dist 棘轮+first-external-contributor 触发器+#80 票面勘误）＋#80 步② 投影+查询语义（三层卡契约+miss 四类+renamed_to+at:sha pin+staleness+lazy 补采）七提交栈 land origin/main；R32 审计 F1-F4 必修闭环+LOOP 复核通过；审计残余六裁 D-134~D-139 全定（吞错收窄归 #83①／建议修批单票 #83／失败态投影收口 D-136／血缘缝合归 #80 步③ D-137／golden 再生 first-non-z-dialect-host 触发器 D-138／V1~V4 过程违规追认 D-139）
++- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
++- a_range: A-001 ~ A-091（architecture-recovery 账本实物区间，写时实物读出——本轮零新增）
++- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十二轮 Grill＋收口对账（D-134~D-139）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-091）
++- impact: Micro-B 查询面可用（卡投影+双触发+MCP file_card）；#83 R32 审计建议修批立案（必修收窄→契约符合性→正确性边件→卫生组，#80 步③前落）；registry +2 deferred event_bound（81-first-non-z-dialect-host／89-format-piggyback-recurrence）；AGENTS 负向行=格式化禁搭车+写断言「禁 BOM＋保尾行」
++## [M-012] - 2026-09-25
++
++- milestone: 轮33 T1 #83 R32 审计建议修批落地（A-092）——D-134 吞错收窄（fact_id UNIQUE 精确指认＋写前预查消撞键＋emitted/skipped 分列披露＋毒事实回滚零行回归＋真 DuckDB 消息形态钉）＋F5 MCP 缺库 never_collected 结构化卡＋F6 集内 not_tracked_at_sha 补 available_head_shas＋D-136 失败态投影收口（closed 双集〔静态保留集/历史派生族〕＋suppressed_facets 带原因码＋raw 层不动）＋F7a pin ≥7 前缀歧义验重＋卫生组七件（headShaOf 去重/mcp 头注/microBCtx 死引用/unused import/CAP 截断卡面标记/80-check BOM 钉面/upload-artifact 步级收窄）＋编年随行补 M-011 R32 行——#80 步③边界件实跑前契约缺口清零
++- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
++- a_range: A-001 ~ A-092（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-092）
++- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-092 #83 修批实施）／.scratch/macro-audit/decision-ledger.md（D-134~D-136 执行面回执）
++- impact: lazy 补采写路径=D-115① fail-fast 语义归位（非 fact_id 撞键 constraint 全上抛回滚）；失败态卡面历史派生族不再冒名（suppressed_facets 披露非静默）；MCP miss 首义形态全枝到达（缺库=结构化卡）；验收实证=FILE-CARD 26/26＋83-check 19/19＋smoke 22 册全绿＋守卫组 18 件全绿（含 41a 复绿 38/38）＋package/selftest/MCP stdio 测活
+diff --git a/engine/dist/audit/file-card.d.ts b/engine/dist/audit/file-card.d.ts
+index dc38d62..dd5fa4e 100644
+--- a/engine/dist/audit/file-card.d.ts
++++ b/engine/dist/audit/file-card.d.ts
+@@ -22,6 +22,7 @@ export interface AuditFileResult {
+     card: FileCard;
+     backfilled: boolean;
+     emitted: number;
++    skipped: number;
+     repo_ref: string;
+     repo_name: string;
+     head_sha: string;
+diff --git a/engine/dist/audit/file-card.js b/engine/dist/audit/file-card.js
+index ff55a17..d7f702c 100644
+--- a/engine/dist/audit/file-card.js
++++ b/engine/dist/audit/file-card.js
+@@ -12,7 +12,8 @@ import { macroBContext, probeGitVersion } from './macro-b.js';
+ import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
+ import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
+ import { absorbGitIsoDialect, classifyGitIsoField } from '../intake/quarantine.js';
+-import { openWriter, closeDuckdb, appendFact, classifyWriteError, isAuditIoError, runInTransaction } from '../fact/store.js';
++import { openWriter, closeDuckdb, appendFact, isAuditIoError, isFactIdUniqueViolation, existingFactIds, runInTransaction } from '../fact/store.js';
++import { headShaOfRepoRef } from '../fact/file-card.js';
+ import { projectFileCard } from '../fact/projection.js';
+ import { buildFileCard } from '../fact/file-card.js';
+ export class AuditFileError extends Error {
+@@ -25,7 +26,7 @@ export function isAuditFileError(e) {
+ function gitOut(root, args) {
+     return execFileSync('git', ['-C', root].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
+ }
+-// 默认补采发射管线=批量同款：codelore 行为三面（per-file 事实在发射边界内 microBCtx 落 Micro-B grain）＋rename 血缘。
++// 默认补采发射管线=批量同款：codelore 行为三面（per-file 事实在发射边界内落 Micro-B grain——ctx 变换为 collectCodeloreFacets 内部职责）＋rename 血缘。
+ function defaultCodeloreCollect(ctx, repoRoot) {
+     return collectCodeloreFacets({ repoRoot: repoRoot, facets: CODELORE_BEHAVIOR_FACETS }, ctx);
+ }
+@@ -33,16 +34,12 @@ function defaultLineageCollect(ctx, repoRoot) {
+     const rawLog = gitOut(repoRoot, gitRenameLogArgs(RENAME_DEFAULT_THRESHOLD));
+     return collectFileLineage({
+         edges: parseRenameLogZ(rawLog),
+-        headSha: headShaOf(ctx.repoRef),
++        headSha: headShaOfRepoRef(ctx.repoRef),
+         threshold: RENAME_DEFAULT_THRESHOLD,
+         detectorVersion: RENAME_DETECTOR_VERSION,
+         gitVersion: probeGitVersion()
+     }, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt });
+ }
+-function headShaOf(repoRef) {
+-    const i = repoRef.lastIndexOf('@');
+-    return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
+-}
+ export async function runAuditFile(opts) {
+     const intake = repoAdd(opts.input, { cwd: opts.cwd || process.cwd() });
+     const repoRoot = intake.resolved_root;
+@@ -68,6 +65,7 @@ export async function runAuditFile(opts) {
+     // 观测集存在性：pin 时禁补采（at:<sha>=只读历史集，采集缺席照答 miss）；非 pin 且当前 HEAD 集空→lazy 补采
+     let backfilled = false;
+     let emitted = 0;
++    let skipped = 0;
+     if (!pinned) {
+         // db 不存在=零观测集→跳过预读直接补采（READ_ONLY 开库对不存在的文件会 IO 失败）
+         const preCard = existsSync(opts.db)
+@@ -85,10 +83,13 @@ export async function runAuditFile(opts) {
+             try {
+                 // D-115 事务包裹（F3 返修）：中途失败回滚不产残观测集——补采 append 语义=all-or-nothing
+                 emitted = await runInTransaction(writer, async function () {
+-                    const seen = new Set();
++                    // D-134① 吞错收窄（#83）：写循环前预查库内已存 fact_id——撞键消除在判定层；
++                    //   skipped=已存命中＋批内重号，与 emitted 分列披露（跳过可观测，对齐 D-122 披露纪律）
++                    const seen = await existingFactIds(writer, batch.map(function (f) { return f.fact_id; }));
+                     let n = 0;
+                     for (const f of batch) {
+                         if (seen.has(f.fact_id)) {
++                            skipped += 1;
+                             continue;
+                         }
+                         seen.add(f.fact_id);
+@@ -97,10 +98,12 @@ export async function runAuditFile(opts) {
+                             n += 1;
+                         }
+                         catch (e) {
+-                            // 幂等语义：fact_id 撞 UNIQUE=同观测集同事实已落库→跳过非错误；其余写错按 classifyWriteError 上抛
+-                            if (classifyWriteError(e) !== 'constraint') {
++                            // 精确指认：仅 fact_id UNIQUE 撞键可跳（防御性残留臂——同事务单写者无竞窗）；
++                            //   其余写错（PK/NOT NULL/CHECK/FK/IO）照常上抛→runInTransaction 回滚（D-115① fail-fast 归位）
++                            if (!isFactIdUniqueViolation(e)) {
+                                 throw e;
+                             }
++                            skipped += 1;
+                         }
+                     }
+                     return n;
+@@ -125,6 +128,6 @@ export async function runAuditFile(opts) {
+             pinnedSha: pinned ? opts.at : null, currentHeadSha: headSha,
+             source: 'unknown', cliGuidance: null
+         });
+-    return { card: card, backfilled: backfilled, emitted: emitted, repo_ref: repoRef, repo_name: name, head_sha: headSha };
++    return { card: card, backfilled: backfilled, emitted: emitted, skipped: skipped, repo_ref: repoRef, repo_name: name, head_sha: headSha };
+ }
+ export { isAuditIoError };
+diff --git a/engine/dist/cli.js b/engine/dist/cli.js
+index 343de0b..c1a2f2b 100644
+--- a/engine/dist/cli.js
++++ b/engine/dist/cli.js
+@@ -682,6 +682,27 @@ function classifyWriteError(e) {
+   const m = String(e.message || e || "");
+   return IO_ERROR_RE.test(m) ? "io" : "constraint";
+ }
++function isFactIdUniqueViolation(e) {
++  const m = String(e.message || e || "");
++  return m.indexOf("Constraint Error") >= 0 && m.indexOf("unique constraint") >= 0 && m.indexOf('"fact_id:') >= 0;
++}
++async function existingFactIds(connection, factIds) {
++  const found = /* @__PURE__ */ new Set();
++  const CHUNK = 500;
++  for (let i = 0; i < factIds.length; i += CHUNK) {
++    const part = factIds.slice(i, i + CHUNK);
++    const sql = "SELECT fact_id FROM audit_fact WHERE fact_id IN (" + part.map(function() {
++      return "?";
++    }).join(", ") + ")";
++    assertAppendOnly(sql);
++    const res = await connection.run(sql, part);
++    const rows = await res.getRows();
++    for (const r of rows) {
++      found.add(String(r[0]));
++    }
++  }
++  return found;
++}
+ async function runInTransaction(connection, fn) {
+   await connection.run("BEGIN TRANSACTION");
+   try {
+@@ -4626,6 +4647,36 @@ var FILE_CARD_SCHEMA_VERSION = "file-card@v1";
+ var FILE_CARD_RULE_VERSION = "hotspot_priority_v1";
+ var FILE_CARD_TOP_N = 20;
+ var FILE_CARD_INSUFFICIENT_MIN_REVS = 3;
++var FILE_CARD_STATIC_FACETS = [
++  "revisions",
++  "abs-churn",
++  "author-churn",
++  "hotspot-velocity",
++  "stale-code",
++  "architecture-trend",
++  "health-trend",
++  "lead-time",
++  "release-cadence",
++  "messages",
++  "god-classes",
++  "architecture-metrics",
++  "dependency-cycles",
++  "modularity-violations",
++  "instability",
++  "architecture-roles",
++  "ownership",
++  "bus-factor",
++  "main-dev",
++  "main-dev-by-revs",
++  "main-dev-by-deletions",
++  "knowledge-islands",
++  "communication",
++  "coordination-needs",
++  "team-composition",
++  "marginal-owner-risk",
++  "pair-programming",
++  "function-hotspots"
++];
+ function headShaOfRepoRef(repoRef) {
+   const i = repoRef.lastIndexOf("@");
+   return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
+@@ -4634,7 +4685,7 @@ function asNum(v) {
+   return typeof v === "number" && Number.isFinite(v) ? v : null;
+ }
+ function fileCardCitationKeys(card) {
+-  const keys = ["observation.head_sha", "staleness.drift", "source", "failure_state"];
++  const keys = ["observation.head_sha", "staleness.drift", "source", "failure_state", "kernel.set_truncated", "kernel.suppressed_facets"];
+   for (const k of Object.keys(card.kernel.facet_rows).sort()) {
+     keys.push("kernel.facet_rows." + k);
+   }
+@@ -4675,7 +4726,7 @@ function missCard(subject, miss, input, headSha2) {
+     source: input.source,
+     failure_state: miss.state === "not_applicable" ? "not_applicable" : "ok",
+     miss,
+-    kernel: { facet_rows: {} },
++    kernel: { facet_rows: {}, set_truncated: input.setTruncated === true, suppressed_facets: [] },
+     derived: {
+       rule_version: FILE_CARD_RULE_VERSION,
+       revisions: null,
+@@ -4699,6 +4750,16 @@ function buildFileCard(input) {
+   const subject = norm.subject;
+   const headSha2 = input.setRepoRef !== null ? headShaOfRepoRef(input.setRepoRef) : null;
+   if (input.setRepoRef === null) {
++    if (input.pinnedAmbiguous !== void 0 && input.pinnedAmbiguous.length > 1) {
++      return missCard(subject, {
++        state: "not_tracked_at_sha",
++        detail: "pin \u524D\u7F00\u6B67\u4E49\uFF1Aat:" + String(input.pinnedSha) + " \u547D\u4E2D " + input.pinnedAmbiguous.length + " \u4E2A\u89C2\u6D4B\u96C6\uFF08" + input.pinnedAmbiguous.map(function(s) {
++          return s.slice(0, 12);
++        }).join(", ") + "\u2026\uFF09\u2014\u2014\u552F\u4E00\u6027\u4E0D\u6210\u7ACB\uFF0C\u7528\u66F4\u957F\u524D\u7F00\u6216\u5168 sha \u91CD\u8BD5",
++        available_head_shas: input.availableHeadShas.slice(),
++        cli_guidance: input.cliGuidance === null ? void 0 : input.cliGuidance
++      }, input, null);
++    }
+     if (input.availableHeadShas.length === 0) {
+       return missCard(subject, {
+         state: "never_collected",
+@@ -4765,6 +4826,8 @@ function buildFileCard(input) {
+     return missCard(subject, {
+       state: "not_tracked_at_sha",
+       detail: "\u89C2\u6D4B\u96C6 head=" + String(headSha2).slice(0, 7) + " \u5185\u65E0\u8BE5 subject \u7684 per-file \u4E8B\u5B9E\u4E14\u65E0\u8840\u7F18\u8FB9\u2014\u2014\u8BE5 sha \u6811\u4E0B\u4E0D\u8FFD\u8E2A",
++      available_head_shas: input.availableHeadShas.slice(),
++      // F6：「可提示 at: 其他 sha 试探」机制两枝补齐（pin 枝既有）
+       cli_guidance: input.cliGuidance === null ? void 0 : input.cliGuidance
+     }, input, headSha2);
+   }
+@@ -4843,6 +4906,15 @@ function buildFileCard(input) {
+     failure = "insufficient_history";
+   }
+   const suppressed = failure !== "ok";
++  const keptFacets = {};
++  const suppressedFacets = [];
++  for (const a of analyses) {
++    if (suppressed && FILE_CARD_STATIC_FACETS.indexOf(a) < 0) {
++      suppressedFacets.push({ facet: a, reason: failure });
++    } else {
++      keptFacets[a] = ordered[a];
++    }
++  }
+   const card = {
+     schema_version: FILE_CARD_SCHEMA_VERSION,
+     card_type: "file-audit-card",
+@@ -4862,7 +4934,7 @@ function buildFileCard(input) {
+     source: input.source,
+     failure_state: failure,
+     miss: null,
+-    kernel: { facet_rows: ordered },
++    kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
+     derived: {
+       rule_version: FILE_CARD_RULE_VERSION,
+       revisions,
+@@ -4945,15 +5017,36 @@ async function projectFileCard(dbPath, q) {
+       return s !== null;
+     });
+     let picked = null;
++    let pinAmbiguous = void 0;
+     if (q.at !== void 0 && q.at !== null && q.at.length > 0) {
+-      picked = sets.filter(function(s) {
+-        return s.head_sha === q.at || s.head_sha !== null && q.at.length >= 7 && s.head_sha.indexOf(q.at) === 0;
+-      })[0] || null;
++      const exact = sets.filter(function(s) {
++        return s.head_sha === q.at;
++      });
++      if (exact.length > 0) {
++        picked = exact[0];
++      } else if (q.at.length >= 7) {
++        const hits = sets.filter(function(s) {
++          return s.head_sha !== null && s.head_sha.indexOf(q.at) === 0;
++        });
++        if (hits.length === 1) {
++          picked = hits[0];
++        } else if (hits.length > 1) {
++          pinAmbiguous = hits.map(function(s) {
++            return s.head_sha;
++          });
++        }
++      }
+     } else {
+       picked = sets[0] || null;
+     }
+     const facts = [];
++    let setTruncated = false;
+     if (picked !== null) {
++      const cSql = "SELECT COUNT(*) FROM audit_fact WHERE scale = ? AND repo_ref = ?";
++      assertAppendOnly(cSql);
++      const cReader = await conn.run(cSql, ["Micro-B", picked.repo_ref]);
++      const cRows = await cReader.getRows();
++      setTruncated = Number(cRows[0][0]) > FILE_CARD_SET_CAP;
+       const fSql = "SELECT " + PROJECTION_COLUMNS + " FROM audit_fact WHERE scale = ? AND repo_ref = ? ORDER BY fact_seq LIMIT " + FILE_CARD_SET_CAP;
+       assertAppendOnly(fSql);
+       const fReader = await conn.run(fSql, ["Micro-B", picked.repo_ref]);
+@@ -4970,9 +5063,11 @@ async function projectFileCard(dbPath, q) {
+       setFacts: facts,
+       availableHeadShas: shas,
+       pinnedSha: q.at !== void 0 && q.at !== null && q.at.length > 0 ? q.at : null,
++      pinnedAmbiguous: pinAmbiguous,
+       currentHeadSha: q.current_head_sha === void 0 ? null : q.current_head_sha,
+       source: q.source || "unknown",
+-      cliGuidance: q.cli_guidance === void 0 ? null : q.cli_guidance
++      cliGuidance: q.cli_guidance === void 0 ? null : q.cli_guidance,
++      setTruncated
+     });
+   } finally {
+     closeDuckdb(conn);
+@@ -5036,16 +5131,12 @@ function defaultLineageCollect(ctx, repoRoot) {
+   const rawLog = gitOut(repoRoot, gitRenameLogArgs(RENAME_DEFAULT_THRESHOLD));
+   return collectFileLineage({
+     edges: parseRenameLogZ(rawLog),
+-    headSha: headShaOf(ctx.repoRef),
++    headSha: headShaOfRepoRef(ctx.repoRef),
+     threshold: RENAME_DEFAULT_THRESHOLD,
+     detectorVersion: RENAME_DETECTOR_VERSION,
+     gitVersion: probeGitVersion()
+   }, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: "Micro-B", observedAt: ctx.observedAt });
+ }
+-function headShaOf(repoRef) {
+-  const i = repoRef.lastIndexOf("@");
+-  return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
+-}
+ async function runAuditFile(opts) {
+   const intake = repoAdd(opts.input, { cwd: opts.cwd || process.cwd() });
+   const repoRoot = intake.resolved_root;
+@@ -5067,6 +5158,7 @@ async function runAuditFile(opts) {
+   const pinned = opts.at !== void 0 && opts.at.length > 0;
+   let backfilled = false;
+   let emitted = 0;
++  let skipped = 0;
+   if (!pinned) {
+     const preCard = existsSync7(opts.db) ? await projectFileCard(opts.db, { repo: name, subject: opts.path, current_head_sha: headSha2 }) : null;
+     const setExists = preCard !== null && preCard.observation.head_sha === headSha2;
+@@ -5080,10 +5172,13 @@ async function runAuditFile(opts) {
+       const writer = await openWriter(opts.db);
+       try {
+         emitted = await runInTransaction(writer, async function() {
+-          const seen = /* @__PURE__ */ new Set();
++          const seen = await existingFactIds(writer, batch.map(function(f) {
++            return f.fact_id;
++          }));
+           let n = 0;
+           for (const f of batch) {
+             if (seen.has(f.fact_id)) {
++              skipped += 1;
+               continue;
+             }
+             seen.add(f.fact_id);
+@@ -5091,9 +5186,10 @@ async function runAuditFile(opts) {
+               await appendFact(writer, f);
+               n += 1;
+             } catch (e) {
+-              if (classifyWriteError(e) !== "constraint") {
++              if (!isFactIdUniqueViolation(e)) {
+                 throw e;
+               }
++              skipped += 1;
+             }
+           }
+           return n;
+@@ -5121,15 +5217,16 @@ async function runAuditFile(opts) {
+     source: "unknown",
+     cliGuidance: null
+   });
+-  return { card, backfilled, emitted, repo_ref: repoRef, repo_name: name, head_sha: headSha2 };
++  return { card, backfilled, emitted, skipped, repo_ref: repoRef, repo_name: name, head_sha: headSha2 };
+ }
+ 
+ // src/cli.ts
+-import { writeFileSync as writeFileSync4, existsSync as existsSync8, mkdirSync as mkdirSync7 } from "node:fs";
++import { writeFileSync as writeFileSync4, existsSync as existsSync9, mkdirSync as mkdirSync7 } from "node:fs";
+ import { join as join10, resolve as resolve4 } from "node:path";
+ 
+ // src/mcp-server.ts
+ import { execFileSync as execFileSync3 } from "node:child_process";
++import { existsSync as existsSync8 } from "node:fs";
+ process.env.MACRO_AUDIT_MCP_STDIO = "1";
+ var MCP_PROTOCOL_VERSION = "2024-11-05";
+ var QUARANTINE_TOOL = {
+@@ -5252,16 +5349,24 @@ async function handleRpcMessage(msg) {
+           currentHead = null;
+         }
+       }
++      const guidance = "macro-audit audit file " + (rp ? '"' + rp + '"' : "<repo-path>") + ' "' + path + '" --db ' + db2;
+       try {
+-        const card = await projectFileCard(db2, {
++        const card = existsSync8(db2) ? await projectFileCard(db2, {
+           repo,
+           subject: path,
+           at: asStr(a2.at),
+           current_head_sha: currentHead,
+           source: "prefetch",
+-          // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
+-          //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
+-          cli_guidance: "macro-audit audit file " + (rp ? '"' + rp + '"' : "<repo-path>") + ' "' + path + '" --db ' + db2
++          cli_guidance: guidance
++        }) : buildFileCard({
++          subject: path,
++          setRepoRef: null,
++          setFacts: [],
++          availableHeadShas: [],
++          pinnedSha: asStr(a2.at) || null,
++          currentHeadSha: currentHead,
++          source: "prefetch",
++          cliGuidance: guidance
+         });
+         return ok(id, { content: [{ type: "text", text: JSON.stringify(card) }], isError: false });
+       } catch (e) {
+@@ -5536,7 +5641,7 @@ async function main() {
+       }
+       try {
+         const r = await runAuditFile({ input: repoInput, path: filePath, db: dbPath, at: atSha });
+-        outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, repo_ref: r.repo_ref, head_sha: r.head_sha }) + "\n", 0);
++        outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, skipped: r.skipped, repo_ref: r.repo_ref, head_sha: r.head_sha }) + "\n", 0);
+       } catch (e) {
+         if (e instanceof ExitSignal) throw e;
+         if (isAuditFileError(e)) {
+@@ -5626,7 +5731,7 @@ async function main() {
+         let artifact = null;
+         try {
+           const dir = outDir ? resolve4(outDir) : resolve4(process.cwd());
+-          if (!existsSync8(dir)) {
++          if (!existsSync9(dir)) {
+             mkdirSync7(dir, { recursive: true });
+           }
+           artifact = join10(dir, "macro-audit-crash-" + String(payload.error_code) + "-" + String(Date.now()) + ".json");
+diff --git a/engine/dist/fact/file-card.d.ts b/engine/dist/fact/file-card.d.ts
+index bc28869..bfc4421 100644
+--- a/engine/dist/fact/file-card.d.ts
++++ b/engine/dist/fact/file-card.d.ts
+@@ -3,6 +3,13 @@ export declare const FILE_CARD_SCHEMA_VERSION = "file-card@v1";
+ export declare const FILE_CARD_RULE_VERSION = "hotspot_priority_v1";
+ export declare const FILE_CARD_TOP_N = 20;
+ export declare const FILE_CARD_INSUFFICIENT_MIN_REVS = 3;
++export declare const FILE_CARD_HISTORY_DERIVED_FACETS: readonly string[];
++export declare const FILE_CARD_STATIC_FACETS: readonly string[];
++export type SuppressedFacetReason = 'new_file' | 'insufficient_history' | 'not_applicable';
++export interface SuppressedFacet {
++    facet: string;
++    reason: SuppressedFacetReason;
++}
+ export type MissState = 'never_collected' | 'not_tracked_at_sha' | 'not_applicable' | 'renamed_to';
+ export type CardType = 'file-audit-card' | 'not_applicable' | 'miss';
+ export type FailureState = 'ok' | 'new_file' | 'insufficient_history' | 'not_applicable';
+@@ -47,6 +54,8 @@ export interface FileCard {
+             observed_at: string;
+             evidence_ref: string;
+         }[]>;
++        set_truncated: boolean;
++        suppressed_facets: SuppressedFacet[];
+     };
+     derived: {
+         rule_version: string;
+@@ -90,6 +99,8 @@ export interface FileCardBuildInput {
+     currentHeadSha: string | null;
+     source: 'prefetch' | 'backfill' | 'unknown';
+     cliGuidance: string | null;
++    setTruncated?: boolean;
++    pinnedAmbiguous?: readonly string[];
+ }
+ export declare function headShaOfRepoRef(repoRef: string): string | null;
+ export declare function fileCardCitationKeys(card: FileCard): string[];
+diff --git a/engine/dist/fact/file-card.js b/engine/dist/fact/file-card.js
+index 3b5d379..23a3b03 100644
+--- a/engine/dist/fact/file-card.js
++++ b/engine/dist/fact/file-card.js
+@@ -16,6 +16,21 @@ export const FILE_CARD_SCHEMA_VERSION = 'file-card@v1';
+ export const FILE_CARD_RULE_VERSION = 'hotspot_priority_v1';
+ export const FILE_CARD_TOP_N = 20;
+ export const FILE_CARD_INSUFFICIENT_MIN_REVS = 3; // <3 修订=历史不足（含 new_file=1）
++// D-136 失败态投影收口（#83）：kernel facet 词表二分 closed 枚举（D-095 纪律）——
++//   历史派生族（D-123⑤ 括号点名五族）在 new_file/insufficient_history 下不进卡面；
++//   保留面=静态指标集 closed。两集成员级双向差集对账=发射词表（CODELORE_*_FACETS 33 名）由
++//   file-card.test 断言：并集=全集且交集=∅——新增 analysis 未分类即红（禁临场裁量）。
++export const FILE_CARD_HISTORY_DERIVED_FACETS = [
++    'entity-churn', 'entity-ownership', 'code-age', 'hotspots', 'coupling'
++];
++export const FILE_CARD_STATIC_FACETS = [
++    'revisions', 'abs-churn', 'author-churn', 'hotspot-velocity', 'stale-code', 'architecture-trend',
++    'health-trend', 'lead-time', 'release-cadence', 'messages', 'god-classes', 'architecture-metrics',
++    'dependency-cycles', 'modularity-violations', 'instability', 'architecture-roles', 'ownership',
++    'bus-factor', 'main-dev', 'main-dev-by-revs', 'main-dev-by-deletions', 'knowledge-islands',
++    'communication', 'coordination-needs', 'team-composition', 'marginal-owner-risk', 'pair-programming',
++    'function-hotspots'
++];
+ export function headShaOfRepoRef(repoRef) {
+     const i = repoRef.lastIndexOf('@');
+     return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
+@@ -25,7 +40,7 @@ function asNum(v) {
+ }
+ // narrative 键集=kernel facet 键＋derived 键＋观测锚键——宿主叙事只可引用已算值键名（D-123 零指标值纪律）。
+ export function fileCardCitationKeys(card) {
+-    const keys = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state'];
++    const keys = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state', 'kernel.set_truncated', 'kernel.suppressed_facets'];
+     for (const k of Object.keys(card.kernel.facet_rows).sort()) {
+         keys.push('kernel.facet_rows.' + k);
+     }
+@@ -72,7 +87,7 @@ function missCard(subject, miss, input, headSha) {
+         source: input.source,
+         failure_state: miss.state === 'not_applicable' ? 'not_applicable' : 'ok',
+         miss: miss,
+-        kernel: { facet_rows: {} },
++        kernel: { facet_rows: {}, set_truncated: input.setTruncated === true, suppressed_facets: [] },
+         derived: {
+             rule_version: FILE_CARD_RULE_VERSION,
+             revisions: null,
+@@ -97,6 +112,15 @@ export function buildFileCard(input) {
+     const headSha = input.setRepoRef !== null ? headShaOfRepoRef(input.setRepoRef) : null;
+     // miss 态序（D-126 四类）：无观测集→never_collected（可行动指引）；集内无 subject→血缘/跳检→renamed_to|not_tracked。
+     if (input.setRepoRef === null) {
++        // F7a：pin 前缀歧义先判（观测集在但前缀不唯一——不猜最新，照答 not_tracked 并披露全部命中 sha）
++        if (input.pinnedAmbiguous !== undefined && input.pinnedAmbiguous.length > 1) {
++            return missCard(subject, {
++                state: 'not_tracked_at_sha',
++                detail: 'pin 前缀歧义：at:' + String(input.pinnedSha) + ' 命中 ' + input.pinnedAmbiguous.length + ' 个观测集（' + input.pinnedAmbiguous.map(function (s) { return s.slice(0, 12); }).join(', ') + '…）——唯一性不成立，用更长前缀或全 sha 重试',
++                available_head_shas: input.availableHeadShas.slice(),
++                cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
++            }, input, null);
++        }
+         if (input.availableHeadShas.length === 0) {
+             return missCard(subject, {
+                 state: 'never_collected',
+@@ -163,6 +187,7 @@ export function buildFileCard(input) {
+         return missCard(subject, {
+             state: 'not_tracked_at_sha',
+             detail: '观测集 head=' + String(headSha).slice(0, 7) + ' 内无该 subject 的 per-file 事实且无血缘边——该 sha 树下不追踪',
++            available_head_shas: input.availableHeadShas.slice(), // F6：「可提示 at: 其他 sha 试探」机制两枝补齐（pin 枝既有）
+             cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
+         }, input, headSha);
+     }
+@@ -246,6 +271,19 @@ export function buildFileCard(input) {
+         failure = 'insufficient_history';
+     }
+     const suppressed = failure !== 'ok';
++    // D-136 失败态投影收口（#83）：kernel 卡面只留静态指标集（closed）——历史派生族及未声明 facet
++    //   一律移 suppressed_facets 带原因码（fail-closed：未入静态集=失败态不上卡面，防退化值冒充有效读数）；
++    //   raw 事实层 append-only 不动（收口只作用投影层）；derived.suppressed_by 现行保留。
++    const keptFacets = {};
++    const suppressedFacets = [];
++    for (const a of analyses) {
++        if (suppressed && FILE_CARD_STATIC_FACETS.indexOf(a) < 0) {
++            suppressedFacets.push({ facet: a, reason: failure });
++        }
++        else {
++            keptFacets[a] = ordered[a];
++        }
++    }
+     const card = {
+         schema_version: FILE_CARD_SCHEMA_VERSION,
+         card_type: 'file-audit-card',
+@@ -265,7 +303,7 @@ export function buildFileCard(input) {
+         source: input.source,
+         failure_state: failure,
+         miss: null,
+-        kernel: { facet_rows: ordered },
++        kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
+         derived: {
+             rule_version: FILE_CARD_RULE_VERSION,
+             revisions: revisions,
+diff --git a/engine/dist/fact/projection.js b/engine/dist/fact/projection.js
+index 0151667..93693e6 100644
+--- a/engine/dist/fact/projection.js
++++ b/engine/dist/fact/projection.js
+@@ -69,16 +69,35 @@ export async function projectFileCard(dbPath, q) {
+         });
+         const shas = sets.map(function (s) { return s.head_sha; }).filter(function (s) { return s !== null; });
+         let picked = null;
++        let pinAmbiguous = undefined;
+         if (q.at !== undefined && q.at !== null && q.at.length > 0) {
+-            picked = sets.filter(function (s) {
+-                return s.head_sha === q.at || (s.head_sha !== null && q.at.length >= 7 && s.head_sha.indexOf(q.at) === 0);
+-            })[0] || null;
++            // F7a（#83）：pin 前缀唯一性验重——精确 40 位命中直取；≥7 前缀命中 >1=歧义不猜（not_tracked_at_sha 披露全部命中）
++            const exact = sets.filter(function (s) { return s.head_sha === q.at; });
++            if (exact.length > 0) {
++                picked = exact[0];
++            }
++            else if (q.at.length >= 7) {
++                const hits = sets.filter(function (s) { return s.head_sha !== null && s.head_sha.indexOf(q.at) === 0; });
++                if (hits.length === 1) {
++                    picked = hits[0];
++                }
++                else if (hits.length > 1) {
++                    pinAmbiguous = hits.map(function (s) { return s.head_sha; });
++                }
++            }
+         }
+         else {
+             picked = sets[0] || null;
+         }
+         const facts = [];
++        let setTruncated = false;
+         if (picked !== null) {
++            // F7h（#83）：截断卡面标记——集内事实行数超 CAP 时如实披露（percentile 语义=截断集上计算，不静默）
++            const cSql = 'SELECT COUNT(*) FROM audit_fact WHERE scale = ? AND repo_ref = ?';
++            assertAppendOnly(cSql);
++            const cReader = await conn.run(cSql, ['Micro-B', picked.repo_ref]);
++            const cRows = await cReader.getRows();
++            setTruncated = Number(cRows[0][0]) > FILE_CARD_SET_CAP;
+             const fSql = 'SELECT ' + PROJECTION_COLUMNS + ' FROM audit_fact WHERE scale = ? AND repo_ref = ? ORDER BY fact_seq LIMIT ' + FILE_CARD_SET_CAP;
+             assertAppendOnly(fSql);
+             const fReader = await conn.run(fSql, ['Micro-B', picked.repo_ref]);
+@@ -95,9 +114,11 @@ export async function projectFileCard(dbPath, q) {
+             setFacts: facts,
+             availableHeadShas: shas,
+             pinnedSha: q.at !== undefined && q.at !== null && q.at.length > 0 ? q.at : null,
++            pinnedAmbiguous: pinAmbiguous,
+             currentHeadSha: q.current_head_sha === undefined ? null : q.current_head_sha,
+             source: q.source || 'unknown',
+-            cliGuidance: q.cli_guidance === undefined ? null : q.cli_guidance
++            cliGuidance: q.cli_guidance === undefined ? null : q.cli_guidance,
++            setTruncated: setTruncated
+         });
+     }
+     finally {
+diff --git a/engine/dist/fact/store.d.ts b/engine/dist/fact/store.d.ts
+index 1a07a5f..efe60c9 100644
+--- a/engine/dist/fact/store.d.ts
++++ b/engine/dist/fact/store.d.ts
+@@ -44,6 +44,8 @@ export declare class AuditIoError extends Error {
+ }
+ export declare function isAuditIoError(e: unknown): e is AuditIoError;
+ export declare function classifyWriteError(e: unknown): 'io' | 'constraint';
++export declare function isFactIdUniqueViolation(e: unknown): boolean;
++export declare function existingFactIds(connection: DuckDBConnection, factIds: readonly string[]): Promise<Set<string>>;
+ export declare function runInTransaction<T>(connection: DuckDBConnection, fn: () => Promise<T>): Promise<T>;
+ export declare function queryQuarantineCounts(connection: DuckDBConnection, runId: string): Promise<Record<string, {
+     normalized: number;
+diff --git a/engine/dist/fact/store.js b/engine/dist/fact/store.js
+index b147a1e..b7f2ae4 100644
+--- a/engine/dist/fact/store.js
++++ b/engine/dist/fact/store.js
+@@ -321,6 +321,33 @@ export function classifyWriteError(e) {
+     const m = String(e.message || e || '');
+     return IO_ERROR_RE.test(m) ? 'io' : 'constraint';
+ }
++// D-134① 吞错收窄精确指认（#83）：仅 fact_id UNIQUE 撞键可判「幂等跳过」——
++// 其余 constraint 类（PK/NOT NULL/CHECK/FK 等）=协议崩上抛回滚（D-115① fail-fast 语义归位）。
++// @duckdb/node-api 错误对象=plain Error（ownKeys=[stack,message]——实物探察 2026-09-25
++// 证据：dup-unique='Constraint Error: Duplicate key "fact_id: f1" violates unique constraint.'），
++// 指认按消息形态三件套（前缀+约束族+列名），版本措辞漂移由 file-card.test 实物钉防。
++export function isFactIdUniqueViolation(e) {
++    const m = String(e.message || e || '');
++    return m.indexOf('Constraint Error') >= 0 && m.indexOf('unique constraint') >= 0 && m.indexOf('"fact_id:') >= 0;
++}
++// D-134① 更稳妥臂：写循环前预查该库已存 fact_id 集（WHERE fact_id IN 分批）——
++// 撞键消除在判定层（跳过可计数）而非吞错层；写者同事务内 SELECT 见本事务已写行，
++// 预查与写入无竞窗（append-only 单写者拓扑 A-007）。
++export async function existingFactIds(connection, factIds) {
++    const found = new Set();
++    const CHUNK = 500;
++    for (let i = 0; i < factIds.length; i += CHUNK) {
++        const part = factIds.slice(i, i + CHUNK);
++        const sql = 'SELECT fact_id FROM audit_fact WHERE fact_id IN (' + part.map(function () { return '?'; }).join(', ') + ')';
++        assertAppendOnly(sql);
++        const res = await connection.run(sql, part);
++        const rows = await res.getRows();
++        for (const r of rows) {
++            found.add(String(r[0]));
++        }
++    }
++    return found;
++}
+ export async function runInTransaction(connection, fn) {
+     await connection.run('BEGIN TRANSACTION');
+     try {
+diff --git a/engine/dist/mcp-server.js b/engine/dist/mcp-server.js
+index 5ff8284..f374f9d 100644
+--- a/engine/dist/mcp-server.js
++++ b/engine/dist/mcp-server.js
+@@ -1,11 +1,13 @@
+ // mcp-server.ts — 最小 JSON-RPC 2.0 stdio 握手（A3 返工：mcp.json 注册面名实相符）
+ // mcp.json 把 `macro-audit mcp` 注册为 stdio MCP server——此前实物只打印描述符即退，真 host 挂上即死。
+ // 本模块实现 MCP over stdio（NDJSON 行帧）最小闭环：initialize / initialized / ping / tools/list / tools/call。
+-// 面收窄不变：唯一暴露 tool=facts（D-053④ read-only DuckDB 投影），clone/写操作不经 MCP 可达。
++// 面收窄不变：暴露 tools=facts / quarantine / file_card 三件套只读投影（D-053④/#78/#80 步②），clone/写操作不经 MCP 可达。
+ // #64/D-072⑧：MCP stdio 面 stdout 属 JSON-RPC 行帧——自愈结构化事件改落 stderr 避让协议通道
+ process.env.MACRO_AUDIT_MCP_STDIO = '1';
+ import { execFileSync } from 'node:child_process';
++import { existsSync } from 'node:fs';
+ import { projectFacts, projectQuarantine, projectFileCard } from './fact/projection.js';
++import { buildFileCard } from './fact/file-card.js';
+ import { loadManifestMeta } from './manifest.js';
+ export const MCP_PROTOCOL_VERSION = '2024-11-05';
+ const QUARANTINE_TOOL = {
+@@ -131,17 +133,31 @@ export async function handleRpcMessage(msg) {
+                     currentHead = null;
+                 }
+             }
++            // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
++            //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
++            const guidance = 'macro-audit audit file ' + (rp ? '"' + rp + '"' : '<repo-path>') + ' "' + path + '" --db ' + db;
+             try {
+-                const card = await projectFileCard(db, {
+-                    repo: repo,
+-                    subject: path,
+-                    at: asStr(a.at),
+-                    current_head_sha: currentHead,
+-                    source: 'prefetch',
+-                    // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
+-                    //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
+-                    cli_guidance: 'macro-audit audit file ' + (rp ? '"' + rp + '"' : '<repo-path>') + ' "' + path + '" --db ' + db
+-                });
++                // F5（#83）：库文件缺席=零观测集→结构化 never_collected 卡（D-126③ miss 首义形态到达 MCP 面），
++                //   非 isError 文本——库在而查询失败才走 MCP-FILECARD-ERROR
++                const card = existsSync(db)
++                    ? await projectFileCard(db, {
++                        repo: repo,
++                        subject: path,
++                        at: asStr(a.at),
++                        current_head_sha: currentHead,
++                        source: 'prefetch',
++                        cli_guidance: guidance
++                    })
++                    : buildFileCard({
++                        subject: path,
++                        setRepoRef: null,
++                        setFacts: [],
++                        availableHeadShas: [],
++                        pinnedSha: asStr(a.at) || null,
++                        currentHeadSha: currentHead,
++                        source: 'prefetch',
++                        cliGuidance: guidance
++                    });
+                 return ok(id, { content: [{ type: 'text', text: JSON.stringify(card) }], isError: false });
+             }
+             catch (e) {
+diff --git a/engine/src/audit/file-card.ts b/engine/src/audit/file-card.ts
+index 8a3206f..6869c71 100644
+--- a/engine/src/audit/file-card.ts
++++ b/engine/src/audit/file-card.ts
+@@ -13,7 +13,8 @@ import { macroBContext, probeGitVersion } from './macro-b.js';
+ import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
+ import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
+ import { absorbGitIsoDialect, classifyGitIsoField } from '../intake/quarantine.js';
+-import { openWriter, closeDuckdb, appendFact, classifyWriteError, isAuditIoError, runInTransaction } from '../fact/store.js';
++import { openWriter, closeDuckdb, appendFact, isAuditIoError, isFactIdUniqueViolation, existingFactIds, runInTransaction } from '../fact/store.js';
++import { headShaOfRepoRef } from '../fact/file-card.js';
+ import { projectFileCard } from '../fact/projection.js';
+ import { buildFileCard } from '../fact/file-card.js';
+ import type { FileCard } from '../fact/file-card.js';
+@@ -46,6 +47,7 @@ export interface AuditFileResult {
+   card: FileCard;
+   backfilled: boolean;
+   emitted: number;                  // 本次补采新增事实数（0=纯 prefetch 读）
++  skipped: number;                  // 已存 fact_id 命中跳过数（D-134② 披露：emitted/skipped 分列——吞错命中可观测）
+   repo_ref: string;
+   repo_name: string;
+   head_sha: string;
+@@ -55,7 +57,7 @@ function gitOut(root: string, args: readonly string[]): string {
+   return execFileSync('git', ['-C', root].concat(args as string[]), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
+ }
+ 
+-// 默认补采发射管线=批量同款：codelore 行为三面（per-file 事实在发射边界内 microBCtx 落 Micro-B grain）＋rename 血缘。
++// 默认补采发射管线=批量同款：codelore 行为三面（per-file 事实在发射边界内落 Micro-B grain——ctx 变换为 collectCodeloreFacets 内部职责）＋rename 血缘。
+ function defaultCodeloreCollect(ctx: CollectContext, repoRoot: string): CollectedFact[] {
+   return collectCodeloreFacets({ repoRoot: repoRoot, facets: CODELORE_BEHAVIOR_FACETS }, ctx);
+ }
+@@ -63,16 +65,12 @@ function defaultLineageCollect(ctx: CollectContext, repoRoot: string): Collected
+   const rawLog = gitOut(repoRoot, gitRenameLogArgs(RENAME_DEFAULT_THRESHOLD));
+   return collectFileLineage({
+     edges: parseRenameLogZ(rawLog),
+-    headSha: headShaOf(ctx.repoRef) as string,
++    headSha: headShaOfRepoRef(ctx.repoRef) as string,
+     threshold: RENAME_DEFAULT_THRESHOLD,
+     detectorVersion: RENAME_DETECTOR_VERSION,
+     gitVersion: probeGitVersion()
+   }, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt });
+ }
+-function headShaOf(repoRef: string): string | null {
+-  const i = repoRef.lastIndexOf('@');
+-  return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
+-}
+ 
+ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileResult> {
+   const intake: RepoAddResult = repoAdd(opts.input, { cwd: opts.cwd || process.cwd() });
+@@ -98,6 +96,7 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
+   // 观测集存在性：pin 时禁补采（at:<sha>=只读历史集，采集缺席照答 miss）；非 pin 且当前 HEAD 集空→lazy 补采
+   let backfilled = false;
+   let emitted = 0;
++  let skipped = 0;
+   if (!pinned) {
+     // db 不存在=零观测集→跳过预读直接补采（READ_ONLY 开库对不存在的文件会 IO 失败）
+     const preCard = existsSync(opts.db)
+@@ -115,17 +114,21 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
+       try {
+         // D-115 事务包裹（F3 返修）：中途失败回滚不产残观测集——补采 append 语义=all-or-nothing
+         emitted = await runInTransaction(writer, async function () {
+-          const seen = new Set<string>();
++          // D-134① 吞错收窄（#83）：写循环前预查库内已存 fact_id——撞键消除在判定层；
++          //   skipped=已存命中＋批内重号，与 emitted 分列披露（跳过可观测，对齐 D-122 披露纪律）
++          const seen = await existingFactIds(writer, batch.map(function (f) { return f.fact_id; }));
+           let n = 0;
+           for (const f of batch) {
+-            if (seen.has(f.fact_id)) { continue; }
++            if (seen.has(f.fact_id)) { skipped += 1; continue; }
+             seen.add(f.fact_id);
+             try {
+               await appendFact(writer, f);
+               n += 1;
+             } catch (e) {
+-              // 幂等语义：fact_id 撞 UNIQUE=同观测集同事实已落库→跳过非错误；其余写错按 classifyWriteError 上抛
+-              if (classifyWriteError(e) !== 'constraint') { throw e; }
++              // 精确指认：仅 fact_id UNIQUE 撞键可跳（防御性残留臂——同事务单写者无竞窗）；
++              //   其余写错（PK/NOT NULL/CHECK/FK/IO）照常上抛→runInTransaction 回滚（D-115① fail-fast 归位）
++              if (!isFactIdUniqueViolation(e)) { throw e; }
++              skipped += 1;
+             }
+           }
+           return n;
+@@ -150,7 +153,7 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
+       pinnedSha: pinned ? (opts.at as string) : null, currentHeadSha: headSha,
+       source: 'unknown', cliGuidance: null
+     });
+-  return { card: card, backfilled: backfilled, emitted: emitted, repo_ref: repoRef, repo_name: name, head_sha: headSha };
++  return { card: card, backfilled: backfilled, emitted: emitted, skipped: skipped, repo_ref: repoRef, repo_name: name, head_sha: headSha };
+ }
+ 
+ export { isAuditIoError };
+diff --git a/engine/src/cli.ts b/engine/src/cli.ts
+index 3876156..8ab0779 100644
+--- a/engine/src/cli.ts
++++ b/engine/src/cli.ts
+@@ -170,7 +170,7 @@ async function main(): Promise<void> {
+       try {
+         // repoInput/filePath/dbPath 经上闸收窄（errExit=never）——循环内赋值致 CFA 不传导，as string 如实标注
+         const r = await runAuditFile({ input: repoInput as string, path: filePath as string, db: dbPath as string, at: atSha });
+-        outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, repo_ref: r.repo_ref, head_sha: r.head_sha }) + '\n', 0);
++        outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, skipped: r.skipped, repo_ref: r.repo_ref, head_sha: r.head_sha }) + '\n', 0);
+       } catch (e) {
+         if (e instanceof ExitSignal) throw e;
+         if (isAuditFileError(e)) { errExit(JSON.stringify({ error: e.code, message: e.message }) + '\n', EXIT_PROTOCOL_CRASH); }
+diff --git a/engine/src/fact/file-card.ts b/engine/src/fact/file-card.ts
+index e5a91f8..d2ef7d8 100644
+--- a/engine/src/fact/file-card.ts
++++ b/engine/src/fact/file-card.ts
+@@ -20,6 +20,26 @@ export const FILE_CARD_RULE_VERSION = 'hotspot_priority_v1';
+ export const FILE_CARD_TOP_N = 20;
+ export const FILE_CARD_INSUFFICIENT_MIN_REVS = 3;   // <3 修订=历史不足（含 new_file=1）
+ 
++// D-136 失败态投影收口（#83）：kernel facet 词表二分 closed 枚举（D-095 纪律）——
++//   历史派生族（D-123⑤ 括号点名五族）在 new_file/insufficient_history 下不进卡面；
++//   保留面=静态指标集 closed。两集成员级双向差集对账=发射词表（CODELORE_*_FACETS 33 名）由
++//   file-card.test 断言：并集=全集且交集=∅——新增 analysis 未分类即红（禁临场裁量）。
++export const FILE_CARD_HISTORY_DERIVED_FACETS: readonly string[] = [
++  'entity-churn', 'entity-ownership', 'code-age', 'hotspots', 'coupling'
++];
++export const FILE_CARD_STATIC_FACETS: readonly string[] = [
++  'revisions', 'abs-churn', 'author-churn', 'hotspot-velocity', 'stale-code', 'architecture-trend',
++  'health-trend', 'lead-time', 'release-cadence', 'messages', 'god-classes', 'architecture-metrics',
++  'dependency-cycles', 'modularity-violations', 'instability', 'architecture-roles', 'ownership',
++  'bus-factor', 'main-dev', 'main-dev-by-revs', 'main-dev-by-deletions', 'knowledge-islands',
++  'communication', 'coordination-needs', 'team-composition', 'marginal-owner-risk', 'pair-programming',
++  'function-hotspots'
++];
++
++// suppressed_facets 原因码=closed 枚举（D-136②）——复用 D-126③ FailureState 词表（不含 ok）。
++export type SuppressedFacetReason = 'new_file' | 'insufficient_history' | 'not_applicable';
++export interface SuppressedFacet { facet: string; reason: SuppressedFacetReason }
++
+ export type MissState = 'never_collected' | 'not_tracked_at_sha' | 'not_applicable' | 'renamed_to';
+ export type CardType = 'file-audit-card' | 'not_applicable' | 'miss';
+ export type FailureState = 'ok' | 'new_file' | 'insufficient_history' | 'not_applicable';
+@@ -52,6 +72,8 @@ export interface FileCard {
+   miss: FileCardMiss | null;
+   kernel: {
+     facet_rows: Record<string, { row: Record<string, unknown>; fact_ref: string; observed_at: string; evidence_ref: string }[]>;
++    set_truncated: boolean;              // F7h：观测集 fact 行数超 FILE_CARD_SET_CAP 截断时=true（卡面如实标记不静默）
++    suppressed_facets: SuppressedFacet[]; // D-136②：失败态滤除的历史派生族 facet 清单（closed 枚举成员级对账，每项带原因码）
+   };
+   derived: {
+     rule_version: string;
+@@ -77,6 +99,8 @@ export interface FileCardBuildInput {
+   currentHeadSha: string | null;            // 探针注入的当前 HEAD（null=宿主未知→drift:unknown 照答）
+   source: 'prefetch' | 'backfill' | 'unknown';
+   cliGuidance: string | null;               // miss 可行动指引（CLI 补采命令形态，由触发面拼好注入）
++  setTruncated?: boolean;                   // 观测集 fact 拉取超 FILE_CARD_SET_CAP 截断标记（投影层判定注入）
++  pinnedAmbiguous?: readonly string[];      // F7a：at:<sha> 前缀命中多个观测集 head_sha（歧义不猜——not_tracked_at_sha 如实答）
+ }
+ 
+ export function headShaOfRepoRef(repoRef: string): string | null {
+@@ -90,7 +114,7 @@ function asNum(v: unknown): number | null {
+ 
+ // narrative 键集=kernel facet 键＋derived 键＋观测锚键——宿主叙事只可引用已算值键名（D-123 零指标值纪律）。
+ export function fileCardCitationKeys(card: FileCard): string[] {
+-  const keys: string[] = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state'];
++  const keys: string[] = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state', 'kernel.set_truncated', 'kernel.suppressed_facets'];
+   for (const k of Object.keys(card.kernel.facet_rows).sort()) { keys.push('kernel.facet_rows.' + k); }
+   if (card.derived.revisions !== null) { keys.push('derived.revisions'); }
+   if (card.derived.hotspot_score !== null) { keys.push('derived.hotspot_score'); }
+@@ -127,7 +151,7 @@ function missCard(subject: string, miss: FileCardMiss, input: FileCardBuildInput
+     source: input.source,
+     failure_state: miss.state === 'not_applicable' ? 'not_applicable' : 'ok',
+     miss: miss,
+-    kernel: { facet_rows: {} },
++    kernel: { facet_rows: {}, set_truncated: input.setTruncated === true, suppressed_facets: [] },
+     derived: {
+       rule_version: FILE_CARD_RULE_VERSION,
+       revisions: null,
+@@ -154,6 +178,15 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
+ 
+   // miss 态序（D-126 四类）：无观测集→never_collected（可行动指引）；集内无 subject→血缘/跳检→renamed_to|not_tracked。
+   if (input.setRepoRef === null) {
++    // F7a：pin 前缀歧义先判（观测集在但前缀不唯一——不猜最新，照答 not_tracked 并披露全部命中 sha）
++    if (input.pinnedAmbiguous !== undefined && input.pinnedAmbiguous.length > 1) {
++      return missCard(subject, {
++        state: 'not_tracked_at_sha',
++        detail: 'pin 前缀歧义：at:' + String(input.pinnedSha) + ' 命中 ' + input.pinnedAmbiguous.length + ' 个观测集（' + input.pinnedAmbiguous.map(function (s) { return s.slice(0, 12); }).join(', ') + '…）——唯一性不成立，用更长前缀或全 sha 重试',
++        available_head_shas: input.availableHeadShas.slice(),
++        cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
++      }, input, null);
++    }
+     if (input.availableHeadShas.length === 0) {
+       return missCard(subject, {
+         state: 'never_collected',
+@@ -205,6 +238,7 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
+     return missCard(subject, {
+       state: 'not_tracked_at_sha',
+       detail: '观测集 head=' + String(headSha).slice(0, 7) + ' 内无该 subject 的 per-file 事实且无血缘边——该 sha 树下不追踪',
++      available_head_shas: input.availableHeadShas.slice(),   // F6：「可提示 at: 其他 sha 试探」机制两枝补齐（pin 枝既有）
+       cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
+     }, input, headSha);
+   }
+@@ -255,6 +289,19 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
+   else if (revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS) { failure = 'insufficient_history'; }
+   const suppressed = failure !== 'ok';
+ 
++  // D-136 失败态投影收口（#83）：kernel 卡面只留静态指标集（closed）——历史派生族及未声明 facet
++  //   一律移 suppressed_facets 带原因码（fail-closed：未入静态集=失败态不上卡面，防退化值冒充有效读数）；
++  //   raw 事实层 append-only 不动（收口只作用投影层）；derived.suppressed_by 现行保留。
++  const keptFacets: FileCard['kernel']['facet_rows'] = {};
++  const suppressedFacets: SuppressedFacet[] = [];
++  for (const a of analyses) {
++    if (suppressed && FILE_CARD_STATIC_FACETS.indexOf(a) < 0) {
++      suppressedFacets.push({ facet: a, reason: failure as SuppressedFacetReason });
++    } else {
++      keptFacets[a] = ordered[a];
++    }
++  }
++
+   const card: FileCard = {
+     schema_version: FILE_CARD_SCHEMA_VERSION,
+     card_type: 'file-audit-card',
+@@ -274,7 +321,7 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
+     source: input.source,
+     failure_state: failure,
+     miss: null,
+-    kernel: { facet_rows: ordered },
++    kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
+     derived: {
+       rule_version: FILE_CARD_RULE_VERSION,
+       revisions: revisions,
+diff --git a/engine/src/fact/projection.ts b/engine/src/fact/projection.ts
+index 5cff271..abc8042 100644
+--- a/engine/src/fact/projection.ts
++++ b/engine/src/fact/projection.ts
+@@ -88,15 +88,29 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
+     });
+     const shas = sets.map(function (s) { return s.head_sha; }).filter(function (s): s is string { return s !== null; });
+     let picked: { repo_ref: string; head_sha: string | null } | null = null;
++    let pinAmbiguous: string[] | undefined = undefined;
+     if (q.at !== undefined && q.at !== null && q.at.length > 0) {
+-      picked = sets.filter(function (s) {
+-        return s.head_sha === q.at || (s.head_sha !== null && (q.at as string).length >= 7 && s.head_sha.indexOf(q.at as string) === 0);
+-      })[0] || null;
++      // F7a（#83）：pin 前缀唯一性验重——精确 40 位命中直取；≥7 前缀命中 >1=歧义不猜（not_tracked_at_sha 披露全部命中）
++      const exact = sets.filter(function (s) { return s.head_sha === q.at; });
++      if (exact.length > 0) {
++        picked = exact[0];
++      } else if ((q.at as string).length >= 7) {
++        const hits = sets.filter(function (s) { return s.head_sha !== null && (s.head_sha as string).indexOf(q.at as string) === 0; });
++        if (hits.length === 1) { picked = hits[0]; }
++        else if (hits.length > 1) { pinAmbiguous = hits.map(function (s) { return s.head_sha as string; }); }
++      }
+     } else {
+       picked = sets[0] || null;
+     }
+     const facts: FactEvent[] = [];
++    let setTruncated = false;
+     if (picked !== null) {
++      // F7h（#83）：截断卡面标记——集内事实行数超 CAP 时如实披露（percentile 语义=截断集上计算，不静默）
++      const cSql = 'SELECT COUNT(*) FROM audit_fact WHERE scale = ? AND repo_ref = ?';
++      assertAppendOnly(cSql);
++      const cReader = await conn.run(cSql, ['Micro-B', picked.repo_ref] as never);
++      const cRows = await cReader.getRows();
++      setTruncated = Number(cRows[0][0]) > FILE_CARD_SET_CAP;
+       const fSql = 'SELECT ' + PROJECTION_COLUMNS + ' FROM audit_fact WHERE scale = ? AND repo_ref = ? ORDER BY fact_seq LIMIT ' + FILE_CARD_SET_CAP;
+       assertAppendOnly(fSql);
+       const fReader = await conn.run(fSql, ['Micro-B', picked.repo_ref] as never);
+@@ -111,9 +125,11 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
+       setFacts: facts,
+       availableHeadShas: shas,
+       pinnedSha: q.at !== undefined && q.at !== null && q.at.length > 0 ? q.at : null,
++      pinnedAmbiguous: pinAmbiguous,
+       currentHeadSha: q.current_head_sha === undefined ? null : q.current_head_sha,
+       source: q.source || 'unknown',
+-      cliGuidance: q.cli_guidance === undefined ? null : q.cli_guidance
++      cliGuidance: q.cli_guidance === undefined ? null : q.cli_guidance,
++      setTruncated: setTruncated
+     });
+   } finally {
+     closeDuckdb(conn);
+diff --git a/engine/src/fact/store.ts b/engine/src/fact/store.ts
+index 7893682..fafc6b2 100644
+--- a/engine/src/fact/store.ts
++++ b/engine/src/fact/store.ts
+@@ -342,6 +342,33 @@ export function classifyWriteError(e: unknown): 'io' | 'constraint' {
+   return IO_ERROR_RE.test(m) ? 'io' : 'constraint';
+ }
+ 
++// D-134① 吞错收窄精确指认（#83）：仅 fact_id UNIQUE 撞键可判「幂等跳过」——
++// 其余 constraint 类（PK/NOT NULL/CHECK/FK 等）=协议崩上抛回滚（D-115① fail-fast 语义归位）。
++// @duckdb/node-api 错误对象=plain Error（ownKeys=[stack,message]——实物探察 2026-09-25
++// 证据：dup-unique='Constraint Error: Duplicate key "fact_id: f1" violates unique constraint.'），
++// 指认按消息形态三件套（前缀+约束族+列名），版本措辞漂移由 file-card.test 实物钉防。
++export function isFactIdUniqueViolation(e: unknown): boolean {
++  const m = String((e as { message?: string }).message || e || '');
++  return m.indexOf('Constraint Error') >= 0 && m.indexOf('unique constraint') >= 0 && m.indexOf('"fact_id:') >= 0;
++}
++
++// D-134① 更稳妥臂：写循环前预查该库已存 fact_id 集（WHERE fact_id IN 分批）——
++// 撞键消除在判定层（跳过可计数）而非吞错层；写者同事务内 SELECT 见本事务已写行，
++// 预查与写入无竞窗（append-only 单写者拓扑 A-007）。
++export async function existingFactIds(connection: DuckDBConnection, factIds: readonly string[]): Promise<Set<string>> {
++  const found = new Set<string>();
++  const CHUNK = 500;
++  for (let i = 0; i < factIds.length; i += CHUNK) {
++    const part = factIds.slice(i, i + CHUNK);
++    const sql = 'SELECT fact_id FROM audit_fact WHERE fact_id IN (' + part.map(function () { return '?'; }).join(', ') + ')';
++    assertAppendOnly(sql);
++    const res = await connection.run(sql, part as unknown as DuckDBValue[]);
++    const rows = await res.getRows();
++    for (const r of rows) { found.add(String(r[0])); }
++  }
++  return found;
++}
++
+ export async function runInTransaction<T>(connection: DuckDBConnection, fn: () => Promise<T>): Promise<T> {
+   await connection.run('BEGIN TRANSACTION');
+   try {
+diff --git a/engine/src/mcp-server.ts b/engine/src/mcp-server.ts
+index 64dc672..cb894d6 100644
+--- a/engine/src/mcp-server.ts
++++ b/engine/src/mcp-server.ts
+@@ -1,13 +1,15 @@
+ // mcp-server.ts — 最小 JSON-RPC 2.0 stdio 握手（A3 返工：mcp.json 注册面名实相符）
+ // mcp.json 把 `macro-audit mcp` 注册为 stdio MCP server——此前实物只打印描述符即退，真 host 挂上即死。
+ // 本模块实现 MCP over stdio（NDJSON 行帧）最小闭环：initialize / initialized / ping / tools/list / tools/call。
+-// 面收窄不变：唯一暴露 tool=facts（D-053④ read-only DuckDB 投影），clone/写操作不经 MCP 可达。
++// 面收窄不变：暴露 tools=facts / quarantine / file_card 三件套只读投影（D-053④/#78/#80 步②），clone/写操作不经 MCP 可达。
+ 
+ // #64/D-072⑧：MCP stdio 面 stdout 属 JSON-RPC 行帧——自愈结构化事件改落 stderr 避让协议通道
+ process.env.MACRO_AUDIT_MCP_STDIO = '1';
+ 
+ import { execFileSync } from 'node:child_process';
++import { existsSync } from 'node:fs';
+ import { projectFacts, projectQuarantine, projectFileCard } from './fact/projection.js';
++import { buildFileCard } from './fact/file-card.js';
+ import { loadManifestMeta } from './manifest.js';
+ 
+ export const MCP_PROTOCOL_VERSION = '2024-11-05';
+@@ -150,17 +152,31 @@ export async function handleRpcMessage(msg: RpcMessage): Promise<RpcResponse | n
+           if (/^[0-9a-f]{40}$/i.test(out)) { currentHead = out; }
+         } catch { currentHead = null; }
+       }
++      // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
++      //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
++      const guidance = 'macro-audit audit file ' + (rp ? '"' + rp + '"' : '<repo-path>') + ' "' + path + '" --db ' + db;
+       try {
+-        const card = await projectFileCard(db, {
+-          repo: repo,
+-          subject: path,
+-          at: asStr(a.at),
+-          current_head_sha: currentHead,
+-          source: 'prefetch',
+-          // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
+-          //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
+-          cli_guidance: 'macro-audit audit file ' + (rp ? '"' + rp + '"' : '<repo-path>') + ' "' + path + '" --db ' + db
+-        });
++        // F5（#83）：库文件缺席=零观测集→结构化 never_collected 卡（D-126③ miss 首义形态到达 MCP 面），
++        //   非 isError 文本——库在而查询失败才走 MCP-FILECARD-ERROR
++        const card = existsSync(db)
++          ? await projectFileCard(db, {
++            repo: repo,
++            subject: path,
++            at: asStr(a.at),
++            current_head_sha: currentHead,
++            source: 'prefetch',
++            cli_guidance: guidance
++          })
++          : buildFileCard({
++            subject: path,
++            setRepoRef: null,
++            setFacts: [],
++            availableHeadShas: [],
++            pinnedSha: asStr(a.at) || null,
++            currentHeadSha: currentHead,
++            source: 'prefetch',
++            cliGuidance: guidance
++          });
+         return ok(id, { content: [{ type: 'text', text: JSON.stringify(card) }], isError: false });
+       } catch (e) {
+         return ok(id, { content: [{ type: 'text', text: 'MCP-FILECARD-ERROR: ' + String(e && (e as Error).message || e) }], isError: true });
+diff --git a/engine/test/file-card.test.mjs b/engine/test/file-card.test.mjs
+index d4d86d0..49de764 100644
+--- a/engine/test/file-card.test.mjs
++++ b/engine/test/file-card.test.mjs
+@@ -1,10 +1,11 @@
+ // file-card.test.mjs — #80 步② 文件级审计卡投影+查询语义契约测试（D-122/D-123/D-126/ADR-0023）
+ // 断言面：A kernel 逐字段直投+citation 锚 / B derived 确定性派生（percentile/top_n/priority_band 规则版本）/
+ //   C 失败三态（new_file/insufficient_history→derived 抑制；not_applicable 不出空卡）/ D miss 四类显式态 /
+-//   E at:<sha> pin+staleness 双字段 / F narrative 键存在性校验 / G projectFileCard DuckDB 投影层 /
+-//   H runAuditFile lazy 补采（注入缝=确定性合成事实；幂等复跑 emitted=0）/ I advisory 结构性隔离。
++//   E at:<sha> pin+staleness 双字段（E3 前缀歧义验重） / F narrative 键存在性校验 / G projectFileCard DuckDB 投影层 /
++//   H runAuditFile lazy 补采（注入缝=确定性合成事实；幂等复跑 emitted=0；H2 毒事实回滚零行/H3 skipped 披露+消息钉）/
++//   I advisory 结构性隔离 / J MCP 缺库 never_collected 卡 / K set_truncated 标记。C4~C7=D-136 失败态收口断言组（#83）。
+ import assert from 'node:assert/strict';
+-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs';
++import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+ import { execFileSync } from 'node:child_process';
+ import { tmpdir } from 'node:os';
+ import { dirname, join } from 'node:path';
+@@ -16,6 +17,8 @@ const FC = await import(pathToFileURL(join(root, 'dist', 'fact', 'file-card.js')
+ const P = await import(pathToFileURL(join(root, 'dist', 'fact', 'projection.js')).href);
+ const S = await import(pathToFileURL(join(root, 'dist', 'fact', 'store.js')).href);
+ const AF = await import(pathToFileURL(join(root, 'dist', 'audit', 'file-card.js')).href);
++const CL = await import(pathToFileURL(join(root, 'dist', 'upstream', 'codelore.js')).href);
++const MCP = await import(pathToFileURL(join(root, 'dist', 'mcp-server.js')).href);
+ 
+ let n = 0;
+ let factSeq = 0;
+@@ -126,6 +129,60 @@ t('C3 binary/非 regular→card_type:not_applicable 不出空卡（合法空值
+   assert.equal(card.failure_state, 'not_applicable');
+ });
+ 
++// ---------- C*. D-136 失败态投影收口（#83） ----------
++t('C4 new_file：kernel 卡面滤除历史派生族入 suppressed_facets 带原因码（静态 revisions 保留）', () => {
++  const card = FC.buildFileCard({
++    subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
++    setFacts: [
++      facetRow('src/a.ts', 'revisions', { entity: 'src/a.ts', n_revs: 1 }),
++      facetRow('src/a.ts', 'hotspots', { path: 'src/a.ts', revisions: 1, hotspot_score: 0.5 }),
++      facetRow('src/a.ts', 'coupling', { entity_a: 'src/a.ts', entity_b: 'src/b.ts', shared: 1 })
++    ],
++    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
++  });
++  assert.equal(card.failure_state, 'new_file');
++  assert.equal(card.kernel.facet_rows.hotspots, undefined);            // 历史派生族不上卡面
++  assert.equal(card.kernel.facet_rows.coupling, undefined);
++  assert.ok(card.kernel.facet_rows.revisions);                          // 静态指标保留（失败态判据本体）
++  assert.deepEqual(card.kernel.suppressed_facets, [
++    { facet: 'coupling', reason: 'new_file' },
++    { facet: 'hotspots', reason: 'new_file' }
++  ]);                                                                  // closed 枚举每项带原因码（analyses 字典序）
++  assert.equal(card.derived.suppressed_by, 'new_file');                 // suppressed_by 现行保留
++});
++t('C5 未声明 facet 在失败态 fail-closed 入 suppressed_facets（禁未分类泄漏——非历史族一样不上卡）', () => {
++  const card = FC.buildFileCard({
++    subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
++    setFacts: [
++      facetRow('src/a.ts', 'hotspots', { path: 'x', revisions: 2, hotspot_score: 5 }),
++      facetRow('src/a.ts', 'future-undeclared', { path: 'x', v: 1 })
++    ],
++    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
++  });
++  assert.equal(card.failure_state, 'insufficient_history');
++  assert.deepEqual(Object.keys(card.kernel.facet_rows), []);            // 卡面零 facet（revisions 未发射则无静态件）
++  assert.deepEqual(card.kernel.suppressed_facets.map(s => s.facet), ['future-undeclared', 'hotspots']);
++});
++t('C6 closed 枚举成员级双向差集：static ∪ history = 发射词表（33 名）且交集 ∅', () => {
++  const vocab = CL.CODELORE_BATCH1_FACETS.concat(CL.CODELORE_BEHAVIOR_FACETS).map(s => s.analysis);
++  const stat = FC.FILE_CARD_STATIC_FACETS, hist = FC.FILE_CARD_HISTORY_DERIVED_FACETS;
++  const both = stat.filter(a => hist.indexOf(a) >= 0);
++  assert.deepEqual(both, []);                                          // 交集空
++  const declared = new Set(stat.concat(hist));
++  assert.deepEqual(vocab.filter(a => !declared.has(a)), []);           // 发射名全已分类
++  assert.deepEqual([...declared].filter(a => vocab.indexOf(a) < 0), []); // 声明名全在词表（无死成员）
++});
++t('C7 ok 态卡面不受收口影响（全 facet 直投+suppressed_facets 空）', () => {
++  const card = FC.buildFileCard({
++    subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
++    setFacts: [facetRow('src/a.ts', 'hotspots', { path: 'x', revisions: 9, hotspot_score: 5 })],
++    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
++  });
++  assert.equal(card.failure_state, 'ok');
++  assert.ok(card.kernel.facet_rows.hotspots);
++  assert.deepEqual(card.kernel.suppressed_facets, []);
++});
++
+ // ---------- D. miss 四类显式态 ----------
+ t('D1 never_collected：无观测集→miss+cli_guidance 可行动指引', () => {
+   const card = FC.buildFileCard({
+@@ -144,6 +201,7 @@ t('D2 not_tracked_at_sha：集内无 subject 且无血缘→显式态+可用集
+     availableHeadShas: [SHA_A, SHA_B], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+   });
+   assert.equal(card.miss.state, 'not_tracked_at_sha');
++  assert.deepEqual(card.miss.available_head_shas, [SHA_A, SHA_B]);      // F6：集内枝补齐可用集清单（pin 枝同形）
+ });
+ t('D3 pin 观测集缺席→not_tracked_at_sha＋available_head_shas 披露', () => {
+   const card = FC.buildFileCard({
+@@ -305,4 +363,124 @@ await tAsync('H1 runAuditFile：首查补采 emitted>0，复跑 prefetch emitted
+   rmSync(dir, { recursive: true, force: true });
+ });
+ 
++// ---------- E3. F7a pin 前缀歧义验重（真 DuckDB 投影层） ----------
++await tAsync('E3 at:<sha> ≥7 前缀歧义→not_tracked_at_sha 如实答不猜最新；唯一前缀照常命中', async () => {
++  const dir = mkdtempSync(join(tmpdir(), 'fcard-amb-'));
++  const db = join(dir, 'f.duckdb');
++  const sha1 = 'aaaaaaa' + '1'.repeat(33);
++  const sha2 = 'aaaaaaa' + '2'.repeat(33);
++  const w = await S.openWriter(db);
++  try {
++    await S.appendFact(w, fact({ repo_ref: 't@' + sha1, subject_ref: 's.ts', observed_at: '2026-09-21T00:00:00Z' }));
++    await S.appendFact(w, fact({ repo_ref: 't@' + sha2, subject_ref: 's.ts', observed_at: '2026-09-22T00:00:00Z' }));
++  } finally { S.closeDuckdb(w); }
++  const amb = await P.projectFileCard(db, { repo: 't', subject: 's.ts', at: 'aaaaaaa' });
++  assert.equal(amb.miss.state, 'not_tracked_at_sha');
++  assert.ok(amb.miss.detail.indexOf('歧义') >= 0);
++  assert.deepEqual(amb.miss.available_head_shas.sort(), [sha1, sha2].sort());
++  const uni = await P.projectFileCard(db, { repo: 't', subject: 's.ts', at: 'aaaaaaa2' });
++  assert.equal(uni.repo_ref, 't@' + sha2);                            // 唯一前缀照常命中
++  const full = await P.projectFileCard(db, { repo: 't', subject: 's.ts', at: sha1 });
++  assert.equal(full.repo_ref, 't@' + sha1);                           // 全 sha 精确命中
++  rmSync(dir, { recursive: true, force: true });
++});
++
++// ---------- H2. D-134 毒事实回归：非 IO 非指名错→回滚零行 ----------
++await tAsync('H2 补采批内非指名 constraint 错（CHECK trace_id）→整体回滚库内零行', async () => {
++  const dir = mkdtempSync(join(tmpdir(), 'fcard-repo2-'));
++  execFileSync('git', ['init', '-q'], { cwd: dir });
++  execFileSync('git', ['config', 'user.email', 't@t'], { cwd: dir });
++  execFileSync('git', ['config', 'user.name', 't'], { cwd: dir });
++  mkdirSync(join(dir, 'src'), { recursive: true });
++  writeFileSync(join(dir, 'src', 'a.ts'), 'export {}\n');
++  execFileSync('git', ['add', '-A'], { cwd: dir });
++  execFileSync('git', ['commit', '-qm', 'c1'], { cwd: dir });
++  const db = join(mkdtempSync(join(tmpdir(), 'fcard-db2-')), 'f.duckdb');
++  const poison = {
++    codelore: (ctx) => [
++      { fact_id: 'ok-1', trace_id: ctx.traceId, baggage_id: 'b'.repeat(32), scale: 'Micro-B', quadrant: 'strategic', dimension: null, collector_id: 'x', repo_ref: ctx.repoRef, subject_ref: 'src/a.ts', evidence_ref: 'e', metric: 'codelore.file_facet_row', value_json: '{}', observed_at: ctx.observedAt },
++      { fact_id: 'poison-1', trace_id: 'NOT-HEX', baggage_id: 'b'.repeat(32), scale: 'Micro-B', quadrant: 'strategic', dimension: null, collector_id: 'x', repo_ref: ctx.repoRef, subject_ref: 'src/a.ts', evidence_ref: 'e', metric: 'codelore.file_facet_row', value_json: '{}', observed_at: ctx.observedAt }
++    ], lineage: () => []
++  };
++  let threw = false;
++  try { await AF.runAuditFile({ input: dir, path: 'src/a.ts', db: db, collectors: poison }); }
++  catch (e) { threw = true; assert.ok(String(e.message).indexOf('Constraint Error') >= 0, 'expect constraint error, got: ' + e.message); }
++  assert.equal(threw, true);                                          // 吞错收窄：非 fact_id UNIQUE 必上抛
++  const w2 = await S.openWriter(db);
++  try {
++    const rows = await (await w2.run('SELECT COUNT(*) FROM audit_fact')).getRows();
++    assert.equal(Number(rows[0][0]), 0);                              // 回滚零行——残观测集不上桌
++  } finally { S.closeDuckdb(w2); }
++  rmSync(dir, { recursive: true, force: true });
++});
++
++// ---------- H3. D-134 skipped 披露 + fact_id UNIQUE 消息形态实物钉 ----------
++await tAsync('H3 fact_id UNIQUE 撞键=幂等跳过 skipped 计数；消息形态钉（真 DuckDB）', async () => {
++  const dir = mkdtempSync(join(tmpdir(), 'fcard-repo3-'));
++  execFileSync('git', ['init', '-q'], { cwd: dir });
++  execFileSync('git', ['config', 'user.email', 't@t'], { cwd: dir });
++  execFileSync('git', ['config', 'user.name', 't'], { cwd: dir });
++  mkdirSync(join(dir, 'src'), { recursive: true });
++  writeFileSync(join(dir, 'src', 'a.ts'), 'export {}\n');
++  execFileSync('git', ['add', '-A'], { cwd: dir });
++  execFileSync('git', ['commit', '-qm', 'c1'], { cwd: dir });
++  const db = join(mkdtempSync(join(tmpdir(), 'fcard-db3-')), 'f.duckdb');
++  const mk = (ids) => ({
++    codelore: (ctx) => ids.map(id => ({ fact_id: id, trace_id: ctx.traceId, baggage_id: 'b'.repeat(32), scale: 'Micro-B', quadrant: 'strategic', dimension: null, collector_id: 'x', repo_ref: ctx.repoRef, subject_ref: 'src/a.ts', evidence_ref: 'e', metric: 'codelore.file_facet_row', value_json: '{}', observed_at: ctx.observedAt })),
++    lineage: () => []
++  });
++  const r1 = await AF.runAuditFile({ input: dir, path: 'src/a.ts', db: db, collectors: mk(['dup-1', 'a-1']) });
++  assert.equal(r1.emitted, 2); assert.equal(r1.skipped, 0);
++  // 新 HEAD→新观测集补采：发射 dup-1（已存）+b-1（新）→emitted=1/skipped=1 分列披露
++  writeFileSync(join(dir, 'src', 'a.ts'), 'export const v = 1\n');
++  execFileSync('git', ['add', '-A'], { cwd: dir });
++  execFileSync('git', ['commit', '-qm', 'c2'], { cwd: dir });
++  const r2 = await AF.runAuditFile({ input: dir, path: 'src/a.ts', db: db, collectors: mk(['dup-1', 'b-1']) });
++  assert.equal(r2.backfilled, true);
++  assert.equal(r2.emitted, 1);
++  assert.equal(r2.skipped, 1);                                        // 已存 fact_id 命中=跳过可观测非吞错
++  // 消息形态钉：真 DuckDB dup insert 产 Constraint Error + "fact_id: 指认三件套（D-059① 防措辞漂移先例）
++  const w3 = await S.openWriter(db);
++  try {
++    let shape = null;
++    try { await S.appendFact(w3, { fact_id: 'dup-1', trace_id: 'a'.repeat(32), baggage_id: 'b'.repeat(32), scale: 'Micro-B', quadrant: 'strategic', dimension: null, collector_id: 'x', repo_ref: 't@' + SHA_A, subject_ref: 's', evidence_ref: 'e', metric: 'm', value_json: '{}', observed_at: '2026-01-01T00:00:00Z' }); }
++    catch (e) { shape = e; }
++    assert.ok(shape !== null);
++    assert.equal(S.isFactIdUniqueViolation(shape), true);              // 实物指认=真消息形态
++    assert.ok(String(shape.message).indexOf('Constraint Error') >= 0 && String(shape.message).indexOf('"fact_id:') >= 0 && String(shape.message).indexOf('unique constraint') >= 0);
++    assert.equal(S.isFactIdUniqueViolation(new Error('Constraint Error: NOT NULL constraint failed: audit_fact.metric')), false);
++    assert.equal(S.isFactIdUniqueViolation(new Error('Constraint Error: Duplicate key "fact_seq: 9" violates primary key constraint.')), false);
++  } finally { S.closeDuckdb(w3); }
++  rmSync(dir, { recursive: true, force: true });
++});
++
++// ---------- J. F5 MCP 缺库→结构化 never_collected 卡（非 isError 文本） ----------
++await tAsync('J1 MCP file_card 库文件缺席→never_collected 卡+cli_guidance（isError=false）', async () => {
++  const r = await MCP.handleRpcMessage({
++    jsonrpc: '2.0', id: 7, method: 'tools/call',
++    params: { name: 'file_card', arguments: { db: join(tmpdir(), 'fcard-no-such-db.duckdb'), repo: 't', path: 'src/a.ts' } }
++  });
++  assert.ok(r.result && r.result.isError === false, 'expect structured card not isError, got: ' + JSON.stringify(r).slice(0, 200));
++  const card = JSON.parse(r.result.content[0].text);
++  assert.equal(card.card_type, 'miss');
++  assert.equal(card.miss.state, 'never_collected');
++  assert.ok(card.miss.cli_guidance.indexOf('audit file') >= 0);
++  assert.equal(card.advisory, true);
++});
++
++// ---------- K. F7h set_truncated 卡面标记 ----------
++t('K1 观测集截断标记 set_truncated 上卡面（输入位 true→kernel.set_truncated=true；缺省 false）', () => {
++  const mk = (tr) => FC.buildFileCard({
++    subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
++    setFacts: [facetRow('src/a.ts', 'hotspots', { path: 'x', revisions: 9, hotspot_score: 5 })],
++    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null,
++    setTruncated: tr
++  });
++  assert.equal(mk(true).kernel.set_truncated, true);
++  assert.equal(mk(false).kernel.set_truncated, false);
++  assert.equal(mk(undefined).kernel.set_truncated, false);
++  const missCard = FC.buildFileCard({ subject: 'x', setRepoRef: null, setFacts: [], availableHeadShas: [], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null, setTruncated: true });
++  assert.equal(missCard.kernel.set_truncated, true);                  // miss 卡同形透传（schema 字段常驻）
++});
++
+ console.log('FILE-CARD ' + n + '/' + n);
