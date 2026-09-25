@@ -40,7 +40,7 @@ t('B1 F5 MCP 缺库→结构化 never_collected 卡（existsSync 分支+buildFil
   mcpSrc.indexOf('existsSync(db)') >= 0 && mcpSrc.indexOf('buildFileCard') >= 0);
 const fcSrc = txt(join(ENG, 'src', 'fact', 'file-card.ts'));
 const fcDist = exists(join(ENG, 'dist', 'fact', 'file-card.js')) ? txt(join(ENG, 'dist', 'fact', 'file-card.js')) : '';
-t('B2 F6 集内 not_tracked_at_sha 补 available_head_shas（两枝补齐）',
+t('B2 F6 集内 not_tracked_at_sha 补 available_head_shas（本枝新增、pin 枝既有）',
   fcSrc.indexOf('available_head_shas: input.availableHeadShas.slice()') >= 0);
 t('B3 D-136 失败态收口：closed 枚举双集＋suppressed_facets src+dist',
   fcSrc.indexOf('FILE_CARD_HISTORY_DERIVED_FACETS') >= 0 && fcSrc.indexOf('FILE_CARD_STATIC_FACETS') >= 0 && fcSrc.indexOf('suppressed_facets') >= 0 && fcDist.indexOf('FILE_CARD_HISTORY_DERIVED_FACETS') >= 0);

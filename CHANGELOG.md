@@ -106,3 +106,11 @@
 - a_range: A-001 ~ A-092（architecture-recovery 账本实物区间，写时实物读出——本轮零新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十四轮 Grill＋收口对账（D-140~D-143）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-092）
 - impact: 第三轮锐评残余清零（dist 评审降噪/贡献者导览/摄入分诊三档/口径卫生批全定）；registry +1 deferred event_bound（90-review-intake-mistriage-recurrence）；编年随行补齐本轮账行（r34 收口 commit 漏编年→41a-D7 红，M-010/r32-t0 同型补录先例）
+
+## [M-014] - 2026-09-25
+
+- milestone: 轮35 T1 R34 收口实施批落地（A-093）——D-143② SuppressedFacetReason 收窄诚实可达集（'new_file'/'insufficient_history' 二成员；not_applicable 仅 miss/card_type 层可达，行尾钉新失败枝扩集义务）＋D-143④ 83-check B2 标签收窄「本枝新增、pin 枝既有」（断言实义对齐 file-card.ts:241 注释）＋编年随行补 M-013 轮34编年（r34 收口漏编年→41a-D7 红修）
+- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-093（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-093）
+- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-093 R34 收口实施批）／.scratch/macro-audit/decision-ledger.md（D-143 执行面回执）
+- impact: suppressed_facets 原因码=closed 诚实可达集（收窄后 exhaustiveness 判力可对第三原因码新枝拦截）；守卫标签名实相符纠偏再落（R32-V2/R33-P1 同型第三次前纠正）；验收=83-check 19/19＋smoke 22 册＋守卫组 18 件＋build/package/selftest

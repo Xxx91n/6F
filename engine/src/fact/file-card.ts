@@ -36,8 +36,8 @@ export const FILE_CARD_STATIC_FACETS: readonly string[] = [
   'function-hotspots'
 ];
 
-// suppressed_facets 原因码=closed 枚举（D-136②）——复用 D-126③ FailureState 词表（不含 ok）。
-export type SuppressedFacetReason = 'new_file' | 'insufficient_history' | 'not_applicable';
+// suppressed_facets 原因码=closed 枚举（D-136②）——词表源=D-126③ FailureState 族。
+export type SuppressedFacetReason = 'new_file' | 'insufficient_history'; // D-126③ 词表可达子集——not_applicable 仅 miss/card_type 层可达；新失败枝须扩此集
 export interface SuppressedFacet { facet: string; reason: SuppressedFacetReason }
 
 export type MissState = 'never_collected' | 'not_tracked_at_sha' | 'not_applicable' | 'renamed_to';
