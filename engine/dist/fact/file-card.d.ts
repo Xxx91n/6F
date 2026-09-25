@@ -5,7 +5,7 @@ export declare const FILE_CARD_TOP_N = 20;
 export declare const FILE_CARD_INSUFFICIENT_MIN_REVS = 3;
 export declare const FILE_CARD_HISTORY_DERIVED_FACETS: readonly string[];
 export declare const FILE_CARD_STATIC_FACETS: readonly string[];
-export type SuppressedFacetReason = 'new_file' | 'insufficient_history' | 'not_applicable';
+export type SuppressedFacetReason = 'new_file' | 'insufficient_history';
 export interface SuppressedFacet {
     facet: string;
     reason: SuppressedFacetReason;
