@@ -13,6 +13,7 @@
 > 轮 28 grill（2026-09-23 完成）已封口 D-103 ~ D-120：quarantine 引擎设计树 18 裁——契约层三态分类器＋quarantine_log 事件表＋字段实例恒等式＋逐 commit 事务幂等写＋strict 仓级基线＋verdict/exit 两轴＋known-gaps 双册＋Intake Health 节＋双层对账＋39 parity 处置感知矩阵＋词表 v1 四族＋双层 fixture 覆盖；调研档案 R28-Q{1..18} 系列存档 .scratch/macro-audit/reports/。
 > 轮 30 grill（2026-09-23 完成）已封口 D-121 ~ D-127：Micro-B 文件级审计卡设计树 7 裁——铺开序归位（Macro-C→Micro-A→Micro-B→Macro-A，Macro-A 最后）＋预采集投影主干+CLI-only lazy 补采双通道（MCP 永不写）＋三层卡契约（kernel 数据+确定性派生+宿主叙事，禁 A-E 判语形态，advisory 结构性隔离）＋per-file 一等事实 grain（facet_rows 降 raw 证据层）＋SCIP 式 subject 规范化形+rename 血缘一等事实（投影层缝合）＋查询语义（at:sha pin/staleness 双字段照答/miss 四类+renamed_to 条件跳转/补采=SHA 可达仓级管线）＋preview 票面形态（单票闭环内部三步+形态三角双仓试点+0-switch/1-switch 边界件+p95 分档双阈值+披露四件套+not_in_preview）；总成 ADR-0023；调研档案 R30-Q{1..7} 系列存档 .scratch/macro-audit/reports/。
 > 轮 31 grill（2026-09-24 完成）已封口 D-128 ~ D-133：锐评第三轮辩证处置——quarantine 方言漂移受理（观测仪器方言 vs 主体自载病态范畴切分＋边界层归一＋双轴披露，D-100② scoped revised）＋dist 批评维持（触发器三子事件零发生+体积棘轮增量）＋文书法典主体拒收（计数失实+导览面在+基数零；生成式索引＋first-external-contributor 触发器两增量）＋悬置裁决 S1（fixture 落点谓词判据）/S6（golden 分层锁面「骨架」精修＋D-127⑥/D-049⑤ 注记）＋增量票面化（#81 缺陷票先行＋#82 仓务批并行，waived-research 先例）；调研档案 R31-Q{1..5} 系列存档（Q6 限流截断标 partial）。
+> 轮 32 grill（2026-09-25 完成）已封口 D-134 ~ D-139：R32 审计残余六面裁毕——F7g 吞错收窄（constraint 仅指认 fact_id UNIQUE 撞键，余者上抛回滚＋披露计数＋毒事实回归）＋建议修批票面化（单票 #83 步③前落）＋D-123⑤ 读法定界（失败态投影收口=历史派生族滤出卡面＋suppressed_facets closed 枚举，D-123⑤ 注记）＋血缘缝合归口（#80 步③扩枚举＋多跳/环/跨观测集子项，D-125 注记）＋golden 再生不可证处置（first-non-z-dialect-host event_bound 触发器，D-128⑤ 注记）＋过程违规追认（AGENTS 格式化禁搭车负向行＋format-piggyback-recurrence deferred 触发器）；调研档案 R32-Q{1,3,4,5,6} 系列存档（Q2 用户直选）。
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -303,7 +304,7 @@ _Avoid_: parity 排除病态实例（对照物在价值最大处失明）、39 �
 _Avoid_: 平台本地分隔符混入 subject、大小写折叠（CVE 事故先例=折叠合并真实文件成分裂脑）、blob hash 当身份（同内容碰撞+rename+edit 断）、上游原样字符串继承（corrosion boundary 失守）
 
 **File Lineage（文件血缘）**:
-rename 连续性的一等审计事实（D-125/D-126）：`file_renamed{from,to,head_sha,threshold,detector_version}` 登记改名事件，检测参数入载荷可复算；血缘是附加事实非身份本体——subject 恒为规范化 path，跨改名历史由读模型沿血缘链缝合；检测漏判=历史诚实分裂不编造；renamed_to 跳转须逐请求重验证（无血缘→降级 not_tracked 语义）。
+rename 连续性的一等审计事实（D-125/D-126）：`file_renamed{from,to,head_sha,threshold,detector_version}` 登记改名事件，检测参数入载荷可复算；血缘是附加事实非身份本体——subject 恒为规范化 path，跨改名历史由读模型沿血缘链缝合；检测漏判=历史诚实分裂不编造；renamed_to 跳转须逐请求重验证（无血缘→降级 not_tracked 语义）；缝合语义的显式子项面（D-137 归 #80 步③）=多跳链遍历（A→B→C 显式图遍历非单路径 follow）＋环检测＋跨观测集解析（沿查询时点所在观测集及其祖先观测集的血缘事实解析，沿用 at:sha 引用层纪律）。
 _Avoid_: 血缘进身份本体、无参数披露的 rename 判定（启发式不可复算）、漏判时拼合历史（编造连续性）
 
 **Observation Set（观测集）**:
@@ -325,3 +326,7 @@ _Avoid_: 手写枚举区间续命（再 stale 必然）、压缩决策记录当�
 **Golden 锁面（Lock Surface）**:
 golden 断言面的分层宽度契约（D-132）：「骨架」=字段键集＋语义不变量定点值（规范化形输出/发射计数/skip reason/冲突对/对账计数/常量阈值版本号——确定性输入的确定性输出即行为契约）；「内容值」=数据行载荷（facet 行数据/指标数值）禁锁；锁面宽度随层定（单元级可锁全值/发射层骨架+定点/报告层 schema 骨架——insta 分层先例，仓内 seal-golden/codelore/micro-b 三档事实分层）；判据=「稳值锁死不稳值遮蔽」；锁面枚举进各域 manifest 自声明。
 _Avoid_: 纯键集收窄（无工业对应物=回归捕获形同虚设）、锁数据行载荷（churn 病灶）、锁环境方言值（D-128——git_version 值放行只进键集）、锁面不写 manifest 自声明（S6 类复核重演）
+
+**Suppressed Facets（抑制 facet 面）**:
+文件卡失败态（new_file/insufficient_history）的投影层收窄面（D-136）：卡面保留指标集与被抑制集都按 closed 枚举声明＋成员级对账，suppressed_facets 每项带抑制原因码（复用 not_applicable 族词表）；收窄只作用 read-model 投影——raw 事实一字不删（append-only 不受触），derived 层 suppressed_by 并行保留；与 Instrument Dialect 范畴切分——本词条裁「历史深度依赖族在证据不足时不上卡面」，非仪器拼写差异。
+_Avoid_: 退化值当合法数据呈现（degraded 标记的 hotspot_score 仍可被宿主叙事合法引用≈披露不足）、逐卡临场裁量 suppressed 集（closed 枚举纪律）、把投影滤除误读为删事实（证据层保留义务不动）

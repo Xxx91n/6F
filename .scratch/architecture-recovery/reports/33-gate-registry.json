@@ -164,6 +164,14 @@
         "first-external-contributor": {
             "occurred": false,
             "note": "D-130③/#82：首个外部贡献者出现（非 maintainer 账号发起的 PR/issue/discussion）之日=事件发生——本仓自创机制如实标注；外部贡献者体验在外部用户出现时测量，当前群体=0，禁提前自服务化文档重构"
+        },
+        "first-non-z-dialect-host": {
+            "occurred": false,
+            "note": "D-138：首个 git<2.45 方言宿主出现（%cI 吐 +00:00 尾缀——采集环境披露面方言吸收事件计数>0 的真实宿主）之日=事件发生；golden 跨宿主稳定声明的本仓不可证伪面等此事件点火取证"
+        },
+        "format-piggyback-recurrence": {
+            "occurred": false,
+            "note": "D-139：格式化-only／机械重缩进变更再次搭车语义提交（V1 型复发）之日=事件发生——审计窗 diff 复核检出即翻转"
         }
     },
     "items": [
@@ -1480,6 +1488,54 @@
                     "decision": "registered",
                     "reason": "外部贡献者体验在外部用户出现时测量——当前群体=0 禁提前自服务化文档重构；事件登记+本条目绑定使触发有物可触",
                     "evidence": "decision-ledger.md D-130；33-gate-registry.json events.first-external-contributor"
+                }
+            ]
+        },
+        {
+            "id": "81-first-non-z-dialect-host",
+            "family": "instrument-dialect",
+            "title": "#81 首遇非 Z 方言宿主 → golden 再生＋差集工件留证（D-138/F11 不可证面闭合路径）",
+            "deadline_event": "first-non-z-dialect-host",
+            "deadline": "无（事件驱动项）",
+            "trigger_event": "first-non-z-dialect-host",
+            "trigger": "采集环境披露面（D-128④ run 元数据族）出现 git<2.45 方言宿主——判据=方言吸收事件计数>0 的真实宿主采集记录",
+            "review_at": "触发后 1 个工作日内执行 golden 一次性再生并留差集工件",
+            "status": "deferred",
+            "watch": "event_bound",
+            "owner": "macro-audit 队列值守",
+            "verify_method": "首遇非 Z 方言宿主→golden 一次性再生＋差集工件留证（零差集=声明闭合，非零差集=归一缺陷立案回 D-128 链路）",
+            "confirmations": [
+                {
+                    "at": "2026-09-25",
+                    "by": "轮32 收口整理窗",
+                    "criterion_version": "D-138①",
+                    "decision": "registered",
+                    "reason": "golden 跨宿主稳定在本仓不可证伪（本宿主 git 方言本即 Z、再生零差集）——机制层已由 dialect-boundary.test.mjs 合成 +00:00/Z 双语料覆盖（fieldStats 逐字节一致＋吸收事件 4/0 分列），真宿主差集工件义务转本事件触发封口",
+                    "evidence": "decision-ledger.md D-138；reports/R32-Q5-atomcode-research.md；engine/test/dialect-boundary.test.mjs C1/C3"
+                }
+            ]
+        },
+        {
+            "id": "89-format-piggyback-recurrence",
+            "family": "process-hygiene",
+            "title": "格式化搭车复发 → 升级 diff 噪声守卫（D-139③ deferred 触发器——R32 V1 过程违规防复发升级路径）",
+            "deadline_event": "format-piggyback-recurrence",
+            "deadline": "无（事件驱动项）",
+            "trigger_event": "format-piggyback-recurrence",
+            "trigger": "审计窗 diff 复核再检出一次「格式化-only／机械重缩进变更搭车语义提交」（V1 型：33-gate-registry.json 1459 行全变搭车 +1 事件为原案）",
+            "review_at": "触发后升级为守卫票——diff 语义等价但字节大差检测（WARN 级，对齐 D-068 对内 WARN 分层）",
+            "status": "deferred",
+            "watch": "event_bound",
+            "owner": "macro-audit 队列值守",
+            "verify_method": "复发事件翻转→立项守卫（禁立即守卫化——违 D-135 卫生组禁升格票面纪律；本触发器=条件触发升级路径）",
+            "confirmations": [
+                {
+                    "at": "2026-09-25",
+                    "by": "轮32 收口整理窗",
+                    "criterion_version": "D-139③",
+                    "decision": "registered",
+                    "reason": "R32 审计 V1 过程违规（重缩进搭车）单次发生按轻规约处置（AGENTS.md 负向行）；复发=规约失效证据，守卫化条件点燃",
+                    "evidence": "decision-ledger.md D-139；reports/2026-09-24-r32-audit-report.md §6 V1"
                 }
             ]
         }
