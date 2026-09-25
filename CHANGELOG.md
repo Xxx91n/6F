@@ -82,3 +82,19 @@
 - a_range: A-001 ~ A-091（architecture-recovery 账本实物区间，写时实物读出——本轮零新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十一轮 Grill＋收口对账（D-128~D-133，D-100② scoped revised）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-091）
 - impact: 锐评三轮处置全定案（方言归一真缺陷受理归 #81／仓务增量四件归 #82／主线 #80 步②不动）；排序=#81 先行→#82 并行→#80 步②；编年随行纪律补齐本轮账行（r31 收口 commit 漏编年→41a-D7 红修）
+
+## [M-011] - 2026-09-25
+
+- milestone: 轮 32 实施+审计收口——#81 quarantine 方言归一（+00:00↔Z 边界吸收器+collection_environment 披露块+dialect-boundary 回归册）＋#82 仓务批（gen-adr-index+dist 棘轮+first-external-contributor 触发器+#80 票面勘误）＋#80 步② 投影+查询语义（三层卡契约+miss 四类+renamed_to+at:sha pin+staleness+lazy 补采）七提交栈 land origin/main；R32 审计 F1-F4 必修闭环+LOOP 复核通过；审计残余六裁 D-134~D-139 全定（吞错收窄归 #83①／建议修批单票 #83／失败态投影收口 D-136／血缘缝合归 #80 步③ D-137／golden 再生 first-non-z-dialect-host 触发器 D-138／V1~V4 过程违规追认 D-139）
+- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-091（architecture-recovery 账本实物区间，写时实物读出——本轮零新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十二轮 Grill＋收口对账（D-134~D-139）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-091）
+- impact: Micro-B 查询面可用（卡投影+双触发+MCP file_card）；#83 R32 审计建议修批立案（必修收窄→契约符合性→正确性边件→卫生组，#80 步③前落）；registry +2 deferred event_bound（81-first-non-z-dialect-host／89-format-piggyback-recurrence）；AGENTS 负向行=格式化禁搭车+写断言「禁 BOM＋保尾行」
+
+## [M-012] - 2026-09-25
+
+- milestone: 轮33 T1 #83 R32 审计建议修批落地（A-092）——D-134 吞错收窄（fact_id UNIQUE 精确指认＋写前预查消撞键＋emitted/skipped 分列披露＋毒事实回滚零行回归＋真 DuckDB 消息形态钉）＋F5 MCP 缺库 never_collected 结构化卡＋F6 集内 not_tracked_at_sha 补 available_head_shas＋D-136 失败态投影收口（closed 双集〔静态保留集/历史派生族〕＋suppressed_facets 带原因码＋raw 层不动）＋F7a pin ≥7 前缀歧义验重＋卫生组七件（headShaOf 去重/mcp 头注/microBCtx 死引用/unused import/CAP 截断卡面标记/80-check BOM 钉面/upload-artifact 步级收窄）＋编年随行补 M-011 R32 行——#80 步③边界件实跑前契约缺口清零
+- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-092（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-092）
+- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-092 #83 修批实施）／.scratch/macro-audit/decision-ledger.md（D-134~D-136 执行面回执）
+- impact: lazy 补采写路径=D-115① fail-fast 语义归位（非 fact_id 撞键 constraint 全上抛回滚）；失败态卡面历史派生族不再冒名（suppressed_facets 披露非静默）；MCP miss 首义形态全枝到达（缺库=结构化卡）；验收实证=FILE-CARD 26/26＋83-check 19/19＋smoke 22 册全绿＋守卫组 18 件全绿（含 41a 复绿 38/38）＋package/selftest/MCP stdio 测活

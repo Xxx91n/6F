@@ -1,13 +1,15 @@
 // mcp-server.ts — 最小 JSON-RPC 2.0 stdio 握手（A3 返工：mcp.json 注册面名实相符）
 // mcp.json 把 `macro-audit mcp` 注册为 stdio MCP server——此前实物只打印描述符即退，真 host 挂上即死。
 // 本模块实现 MCP over stdio（NDJSON 行帧）最小闭环：initialize / initialized / ping / tools/list / tools/call。
-// 面收窄不变：唯一暴露 tool=facts（D-053④ read-only DuckDB 投影），clone/写操作不经 MCP 可达。
+// 面收窄不变：暴露 tools=facts / quarantine / file_card 三件套只读投影（D-053④/#78/#80 步②），clone/写操作不经 MCP 可达。
 
 // #64/D-072⑧：MCP stdio 面 stdout 属 JSON-RPC 行帧——自愈结构化事件改落 stderr 避让协议通道
 process.env.MACRO_AUDIT_MCP_STDIO = '1';
 
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { projectFacts, projectQuarantine, projectFileCard } from './fact/projection.js';
+import { buildFileCard } from './fact/file-card.js';
 import { loadManifestMeta } from './manifest.js';
 
 export const MCP_PROTOCOL_VERSION = '2024-11-05';
@@ -150,17 +152,31 @@ export async function handleRpcMessage(msg: RpcMessage): Promise<RpcResponse | n
           if (/^[0-9a-f]{40}$/i.test(out)) { currentHead = out; }
         } catch { currentHead = null; }
       }
+      // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
+      //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
+      const guidance = 'macro-audit audit file ' + (rp ? '"' + rp + '"' : '<repo-path>') + ' "' + path + '" --db ' + db;
       try {
-        const card = await projectFileCard(db, {
-          repo: repo,
-          subject: path,
-          at: asStr(a.at),
-          current_head_sha: currentHead,
-          source: 'prefetch',
-          // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
-          //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
-          cli_guidance: 'macro-audit audit file ' + (rp ? '"' + rp + '"' : '<repo-path>') + ' "' + path + '" --db ' + db
-        });
+        // F5（#83）：库文件缺席=零观测集→结构化 never_collected 卡（D-126③ miss 首义形态到达 MCP 面），
+        //   非 isError 文本——库在而查询失败才走 MCP-FILECARD-ERROR
+        const card = existsSync(db)
+          ? await projectFileCard(db, {
+            repo: repo,
+            subject: path,
+            at: asStr(a.at),
+            current_head_sha: currentHead,
+            source: 'prefetch',
+            cli_guidance: guidance
+          })
+          : buildFileCard({
+            subject: path,
+            setRepoRef: null,
+            setFacts: [],
+            availableHeadShas: [],
+            pinnedSha: asStr(a.at) || null,
+            currentHeadSha: currentHead,
+            source: 'prefetch',
+            cliGuidance: guidance
+          });
         return ok(id, { content: [{ type: 'text', text: JSON.stringify(card) }], isError: false });
       } catch (e) {
         return ok(id, { content: [{ type: 'text', text: 'MCP-FILECARD-ERROR: ' + String(e && (e as Error).message || e) }], isError: true });

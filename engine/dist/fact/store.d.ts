@@ -44,6 +44,8 @@ export declare class AuditIoError extends Error {
 }
 export declare function isAuditIoError(e: unknown): e is AuditIoError;
 export declare function classifyWriteError(e: unknown): 'io' | 'constraint';
+export declare function isFactIdUniqueViolation(e: unknown): boolean;
+export declare function existingFactIds(connection: DuckDBConnection, factIds: readonly string[]): Promise<Set<string>>;
 export declare function runInTransaction<T>(connection: DuckDBConnection, fn: () => Promise<T>): Promise<T>;
 export declare function queryQuarantineCounts(connection: DuckDBConnection, runId: string): Promise<Record<string, {
     normalized: number;

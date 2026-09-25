@@ -170,7 +170,7 @@ async function main(): Promise<void> {
       try {
         // repoInput/filePath/dbPath 经上闸收窄（errExit=never）——循环内赋值致 CFA 不传导，as string 如实标注
         const r = await runAuditFile({ input: repoInput as string, path: filePath as string, db: dbPath as string, at: atSha });
-        outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, repo_ref: r.repo_ref, head_sha: r.head_sha }) + '\n', 0);
+        outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, skipped: r.skipped, repo_ref: r.repo_ref, head_sha: r.head_sha }) + '\n', 0);
       } catch (e) {
         if (e instanceof ExitSignal) throw e;
         if (isAuditFileError(e)) { errExit(JSON.stringify({ error: e.code, message: e.message }) + '\n', EXIT_PROTOCOL_CRASH); }

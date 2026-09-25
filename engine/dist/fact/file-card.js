@@ -16,6 +16,21 @@ export const FILE_CARD_SCHEMA_VERSION = 'file-card@v1';
 export const FILE_CARD_RULE_VERSION = 'hotspot_priority_v1';
 export const FILE_CARD_TOP_N = 20;
 export const FILE_CARD_INSUFFICIENT_MIN_REVS = 3; // <3 修订=历史不足（含 new_file=1）
+// D-136 失败态投影收口（#83）：kernel facet 词表二分 closed 枚举（D-095 纪律）——
+//   历史派生族（D-123⑤ 括号点名五族）在 new_file/insufficient_history 下不进卡面；
+//   保留面=静态指标集 closed。两集成员级双向差集对账=发射词表（CODELORE_*_FACETS 33 名）由
+//   file-card.test 断言：并集=全集且交集=∅——新增 analysis 未分类即红（禁临场裁量）。
+export const FILE_CARD_HISTORY_DERIVED_FACETS = [
+    'entity-churn', 'entity-ownership', 'code-age', 'hotspots', 'coupling'
+];
+export const FILE_CARD_STATIC_FACETS = [
+    'revisions', 'abs-churn', 'author-churn', 'hotspot-velocity', 'stale-code', 'architecture-trend',
+    'health-trend', 'lead-time', 'release-cadence', 'messages', 'god-classes', 'architecture-metrics',
+    'dependency-cycles', 'modularity-violations', 'instability', 'architecture-roles', 'ownership',
+    'bus-factor', 'main-dev', 'main-dev-by-revs', 'main-dev-by-deletions', 'knowledge-islands',
+    'communication', 'coordination-needs', 'team-composition', 'marginal-owner-risk', 'pair-programming',
+    'function-hotspots'
+];
 export function headShaOfRepoRef(repoRef) {
     const i = repoRef.lastIndexOf('@');
     return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
@@ -25,7 +40,7 @@ function asNum(v) {
 }
 // narrative 键集=kernel facet 键＋derived 键＋观测锚键——宿主叙事只可引用已算值键名（D-123 零指标值纪律）。
 export function fileCardCitationKeys(card) {
-    const keys = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state'];
+    const keys = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state', 'kernel.set_truncated', 'kernel.suppressed_facets'];
     for (const k of Object.keys(card.kernel.facet_rows).sort()) {
         keys.push('kernel.facet_rows.' + k);
     }
@@ -72,7 +87,7 @@ function missCard(subject, miss, input, headSha) {
         source: input.source,
         failure_state: miss.state === 'not_applicable' ? 'not_applicable' : 'ok',
         miss: miss,
-        kernel: { facet_rows: {} },
+        kernel: { facet_rows: {}, set_truncated: input.setTruncated === true, suppressed_facets: [] },
         derived: {
             rule_version: FILE_CARD_RULE_VERSION,
             revisions: null,
@@ -97,6 +112,15 @@ export function buildFileCard(input) {
     const headSha = input.setRepoRef !== null ? headShaOfRepoRef(input.setRepoRef) : null;
     // miss 态序（D-126 四类）：无观测集→never_collected（可行动指引）；集内无 subject→血缘/跳检→renamed_to|not_tracked。
     if (input.setRepoRef === null) {
+        // F7a：pin 前缀歧义先判（观测集在但前缀不唯一——不猜最新，照答 not_tracked 并披露全部命中 sha）
+        if (input.pinnedAmbiguous !== undefined && input.pinnedAmbiguous.length > 1) {
+            return missCard(subject, {
+                state: 'not_tracked_at_sha',
+                detail: 'pin 前缀歧义：at:' + String(input.pinnedSha) + ' 命中 ' + input.pinnedAmbiguous.length + ' 个观测集（' + input.pinnedAmbiguous.map(function (s) { return s.slice(0, 12); }).join(', ') + '…）——唯一性不成立，用更长前缀或全 sha 重试',
+                available_head_shas: input.availableHeadShas.slice(),
+                cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
+            }, input, null);
+        }
         if (input.availableHeadShas.length === 0) {
             return missCard(subject, {
                 state: 'never_collected',
@@ -163,6 +187,7 @@ export function buildFileCard(input) {
         return missCard(subject, {
             state: 'not_tracked_at_sha',
             detail: '观测集 head=' + String(headSha).slice(0, 7) + ' 内无该 subject 的 per-file 事实且无血缘边——该 sha 树下不追踪',
+            available_head_shas: input.availableHeadShas.slice(), // F6：「可提示 at: 其他 sha 试探」机制两枝补齐（pin 枝既有）
             cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
         }, input, headSha);
     }
@@ -246,6 +271,19 @@ export function buildFileCard(input) {
         failure = 'insufficient_history';
     }
     const suppressed = failure !== 'ok';
+    // D-136 失败态投影收口（#83）：kernel 卡面只留静态指标集（closed）——历史派生族及未声明 facet
+    //   一律移 suppressed_facets 带原因码（fail-closed：未入静态集=失败态不上卡面，防退化值冒充有效读数）；
+    //   raw 事实层 append-only 不动（收口只作用投影层）；derived.suppressed_by 现行保留。
+    const keptFacets = {};
+    const suppressedFacets = [];
+    for (const a of analyses) {
+        if (suppressed && FILE_CARD_STATIC_FACETS.indexOf(a) < 0) {
+            suppressedFacets.push({ facet: a, reason: failure });
+        }
+        else {
+            keptFacets[a] = ordered[a];
+        }
+    }
     const card = {
         schema_version: FILE_CARD_SCHEMA_VERSION,
         card_type: 'file-audit-card',
@@ -265,7 +303,7 @@ export function buildFileCard(input) {
         source: input.source,
         failure_state: failure,
         miss: null,
-        kernel: { facet_rows: ordered },
+        kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
         derived: {
             rule_version: FILE_CARD_RULE_VERSION,
             revisions: revisions,

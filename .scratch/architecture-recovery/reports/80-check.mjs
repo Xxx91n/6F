@@ -104,7 +104,8 @@ t('G7 file-card 测试在 smoke 链+断言面覆盖（pin/staleness/miss 四类/
 
 // ---------- F. 纪律 ----------
 t('F1 新增源/测试/fixture 文件无 BOM', (() => {
-  const files = ['src/fact/subject.ts', 'src/collect/file-lineage.ts', 'test/micro-b-emit.test.mjs', 'scripts/gen-micro-b-emission-golden.mjs', 'test/fixtures/micro-b/emission-input.json', 'test/fixtures/micro-b/rename-log.ztxt', 'test/fixtures/micro-b/manifest.json', 'test/fixtures/micro-b/emission-skeleton.golden.json'];
+  // F7i（#83）：钉面更新至步②文件全量（冻结在步①清单=滞后已修——本票面新增件逐件钉）
+  const files = ['src/fact/subject.ts', 'src/collect/file-lineage.ts', 'src/fact/file-card.ts', 'src/fact/projection.ts', 'src/fact/store.ts', 'src/audit/file-card.ts', 'src/mcp-server.ts', 'src/cli.ts', 'test/micro-b-emit.test.mjs', 'test/file-card.test.mjs', 'scripts/gen-micro-b-emission-golden.mjs', 'test/fixtures/micro-b/emission-input.json', 'test/fixtures/micro-b/rename-log.ztxt', 'test/fixtures/micro-b/manifest.json', 'test/fixtures/micro-b/emission-skeleton.golden.json'];
   return files.every(f => { const b = fs.readFileSync(join(ENG, f)); return b[0] !== 0xEF; });
 })());
 const backlog = txt(join(ROOT, '.scratch', 'architecture-recovery', 'BACKLOG.md'));

@@ -1,10 +1,11 @@
 // file-card.test.mjs — #80 步② 文件级审计卡投影+查询语义契约测试（D-122/D-123/D-126/ADR-0023）
 // 断言面：A kernel 逐字段直投+citation 锚 / B derived 确定性派生（percentile/top_n/priority_band 规则版本）/
 //   C 失败三态（new_file/insufficient_history→derived 抑制；not_applicable 不出空卡）/ D miss 四类显式态 /
-//   E at:<sha> pin+staleness 双字段 / F narrative 键存在性校验 / G projectFileCard DuckDB 投影层 /
-//   H runAuditFile lazy 补采（注入缝=确定性合成事实；幂等复跑 emitted=0）/ I advisory 结构性隔离。
+//   E at:<sha> pin+staleness 双字段（E3 前缀歧义验重） / F narrative 键存在性校验 / G projectFileCard DuckDB 投影层 /
+//   H runAuditFile lazy 补采（注入缝=确定性合成事实；幂等复跑 emitted=0；H2 毒事实回滚零行/H3 skipped 披露+消息钉）/
+//   I advisory 结构性隔离 / J MCP 缺库 never_collected 卡 / K set_truncated 标记。C4~C7=D-136 失败态收口断言组（#83）。
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -16,6 +17,8 @@ const FC = await import(pathToFileURL(join(root, 'dist', 'fact', 'file-card.js')
 const P = await import(pathToFileURL(join(root, 'dist', 'fact', 'projection.js')).href);
 const S = await import(pathToFileURL(join(root, 'dist', 'fact', 'store.js')).href);
 const AF = await import(pathToFileURL(join(root, 'dist', 'audit', 'file-card.js')).href);
+const CL = await import(pathToFileURL(join(root, 'dist', 'upstream', 'codelore.js')).href);
+const MCP = await import(pathToFileURL(join(root, 'dist', 'mcp-server.js')).href);
 
 let n = 0;
 let factSeq = 0;
@@ -126,6 +129,60 @@ t('C3 binary/非 regular→card_type:not_applicable 不出空卡（合法空值�
   assert.equal(card.failure_state, 'not_applicable');
 });
 
+// ---------- C*. D-136 失败态投影收口（#83） ----------
+t('C4 new_file：kernel 卡面滤除历史派生族入 suppressed_facets 带原因码（静态 revisions 保留）', () => {
+  const card = FC.buildFileCard({
+    subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [
+      facetRow('src/a.ts', 'revisions', { entity: 'src/a.ts', n_revs: 1 }),
+      facetRow('src/a.ts', 'hotspots', { path: 'src/a.ts', revisions: 1, hotspot_score: 0.5 }),
+      facetRow('src/a.ts', 'coupling', { entity_a: 'src/a.ts', entity_b: 'src/b.ts', shared: 1 })
+    ],
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+  });
+  assert.equal(card.failure_state, 'new_file');
+  assert.equal(card.kernel.facet_rows.hotspots, undefined);            // 历史派生族不上卡面
+  assert.equal(card.kernel.facet_rows.coupling, undefined);
+  assert.ok(card.kernel.facet_rows.revisions);                          // 静态指标保留（失败态判据本体）
+  assert.deepEqual(card.kernel.suppressed_facets, [
+    { facet: 'coupling', reason: 'new_file' },
+    { facet: 'hotspots', reason: 'new_file' }
+  ]);                                                                  // closed 枚举每项带原因码（analyses 字典序）
+  assert.equal(card.derived.suppressed_by, 'new_file');                 // suppressed_by 现行保留
+});
+t('C5 未声明 facet 在失败态 fail-closed 入 suppressed_facets（禁未分类泄漏——非历史族一样不上卡）', () => {
+  const card = FC.buildFileCard({
+    subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [
+      facetRow('src/a.ts', 'hotspots', { path: 'x', revisions: 2, hotspot_score: 5 }),
+      facetRow('src/a.ts', 'future-undeclared', { path: 'x', v: 1 })
+    ],
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+  });
+  assert.equal(card.failure_state, 'insufficient_history');
+  assert.deepEqual(Object.keys(card.kernel.facet_rows), []);            // 卡面零 facet（revisions 未发射则无静态件）
+  assert.deepEqual(card.kernel.suppressed_facets.map(s => s.facet), ['future-undeclared', 'hotspots']);
+});
+t('C6 closed 枚举成员级双向差集：static ∪ history = 发射词表（33 名）且交集 ∅', () => {
+  const vocab = CL.CODELORE_BATCH1_FACETS.concat(CL.CODELORE_BEHAVIOR_FACETS).map(s => s.analysis);
+  const stat = FC.FILE_CARD_STATIC_FACETS, hist = FC.FILE_CARD_HISTORY_DERIVED_FACETS;
+  const both = stat.filter(a => hist.indexOf(a) >= 0);
+  assert.deepEqual(both, []);                                          // 交集空
+  const declared = new Set(stat.concat(hist));
+  assert.deepEqual(vocab.filter(a => !declared.has(a)), []);           // 发射名全已分类
+  assert.deepEqual([...declared].filter(a => vocab.indexOf(a) < 0), []); // 声明名全在词表（无死成员）
+});
+t('C7 ok 态卡面不受收口影响（全 facet 直投+suppressed_facets 空）', () => {
+  const card = FC.buildFileCard({
+    subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [facetRow('src/a.ts', 'hotspots', { path: 'x', revisions: 9, hotspot_score: 5 })],
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+  });
+  assert.equal(card.failure_state, 'ok');
+  assert.ok(card.kernel.facet_rows.hotspots);
+  assert.deepEqual(card.kernel.suppressed_facets, []);
+});
+
 // ---------- D. miss 四类显式态 ----------
 t('D1 never_collected：无观测集→miss+cli_guidance 可行动指引', () => {
   const card = FC.buildFileCard({
@@ -144,6 +201,7 @@ t('D2 not_tracked_at_sha：集内无 subject 且无血缘→显式态+可用集�
     availableHeadShas: [SHA_A, SHA_B], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
   });
   assert.equal(card.miss.state, 'not_tracked_at_sha');
+  assert.deepEqual(card.miss.available_head_shas, [SHA_A, SHA_B]);      // F6：集内枝补齐可用集清单（pin 枝同形）
 });
 t('D3 pin 观测集缺席→not_tracked_at_sha＋available_head_shas 披露', () => {
   const card = FC.buildFileCard({
@@ -303,6 +361,126 @@ await tAsync('H1 runAuditFile：首查补采 emitted>0，复跑 prefetch emitted
   const r4 = await AF.runAuditFile({ input: dir, path: 'src/a.ts', db: db2, collectors: inject });
   assert.equal(r4.card.card_type, 'file-audit-card');
   rmSync(dir, { recursive: true, force: true });
+});
+
+// ---------- E3. F7a pin 前缀歧义验重（真 DuckDB 投影层） ----------
+await tAsync('E3 at:<sha> ≥7 前缀歧义→not_tracked_at_sha 如实答不猜最新；唯一前缀照常命中', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'fcard-amb-'));
+  const db = join(dir, 'f.duckdb');
+  const sha1 = 'aaaaaaa' + '1'.repeat(33);
+  const sha2 = 'aaaaaaa' + '2'.repeat(33);
+  const w = await S.openWriter(db);
+  try {
+    await S.appendFact(w, fact({ repo_ref: 't@' + sha1, subject_ref: 's.ts', observed_at: '2026-09-21T00:00:00Z' }));
+    await S.appendFact(w, fact({ repo_ref: 't@' + sha2, subject_ref: 's.ts', observed_at: '2026-09-22T00:00:00Z' }));
+  } finally { S.closeDuckdb(w); }
+  const amb = await P.projectFileCard(db, { repo: 't', subject: 's.ts', at: 'aaaaaaa' });
+  assert.equal(amb.miss.state, 'not_tracked_at_sha');
+  assert.ok(amb.miss.detail.indexOf('歧义') >= 0);
+  assert.deepEqual(amb.miss.available_head_shas.sort(), [sha1, sha2].sort());
+  const uni = await P.projectFileCard(db, { repo: 't', subject: 's.ts', at: 'aaaaaaa2' });
+  assert.equal(uni.repo_ref, 't@' + sha2);                            // 唯一前缀照常命中
+  const full = await P.projectFileCard(db, { repo: 't', subject: 's.ts', at: sha1 });
+  assert.equal(full.repo_ref, 't@' + sha1);                           // 全 sha 精确命中
+  rmSync(dir, { recursive: true, force: true });
+});
+
+// ---------- H2. D-134 毒事实回归：非 IO 非指名错→回滚零行 ----------
+await tAsync('H2 补采批内非指名 constraint 错（CHECK trace_id）→整体回滚库内零行', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'fcard-repo2-'));
+  execFileSync('git', ['init', '-q'], { cwd: dir });
+  execFileSync('git', ['config', 'user.email', 't@t'], { cwd: dir });
+  execFileSync('git', ['config', 'user.name', 't'], { cwd: dir });
+  mkdirSync(join(dir, 'src'), { recursive: true });
+  writeFileSync(join(dir, 'src', 'a.ts'), 'export {}\n');
+  execFileSync('git', ['add', '-A'], { cwd: dir });
+  execFileSync('git', ['commit', '-qm', 'c1'], { cwd: dir });
+  const db = join(mkdtempSync(join(tmpdir(), 'fcard-db2-')), 'f.duckdb');
+  const poison = {
+    codelore: (ctx) => [
+      { fact_id: 'ok-1', trace_id: ctx.traceId, baggage_id: 'b'.repeat(32), scale: 'Micro-B', quadrant: 'strategic', dimension: null, collector_id: 'x', repo_ref: ctx.repoRef, subject_ref: 'src/a.ts', evidence_ref: 'e', metric: 'codelore.file_facet_row', value_json: '{}', observed_at: ctx.observedAt },
+      { fact_id: 'poison-1', trace_id: 'NOT-HEX', baggage_id: 'b'.repeat(32), scale: 'Micro-B', quadrant: 'strategic', dimension: null, collector_id: 'x', repo_ref: ctx.repoRef, subject_ref: 'src/a.ts', evidence_ref: 'e', metric: 'codelore.file_facet_row', value_json: '{}', observed_at: ctx.observedAt }
+    ], lineage: () => []
+  };
+  let threw = false;
+  try { await AF.runAuditFile({ input: dir, path: 'src/a.ts', db: db, collectors: poison }); }
+  catch (e) { threw = true; assert.ok(String(e.message).indexOf('Constraint Error') >= 0, 'expect constraint error, got: ' + e.message); }
+  assert.equal(threw, true);                                          // 吞错收窄：非 fact_id UNIQUE 必上抛
+  const w2 = await S.openWriter(db);
+  try {
+    const rows = await (await w2.run('SELECT COUNT(*) FROM audit_fact')).getRows();
+    assert.equal(Number(rows[0][0]), 0);                              // 回滚零行——残观测集不上桌
+  } finally { S.closeDuckdb(w2); }
+  rmSync(dir, { recursive: true, force: true });
+});
+
+// ---------- H3. D-134 skipped 披露 + fact_id UNIQUE 消息形态实物钉 ----------
+await tAsync('H3 fact_id UNIQUE 撞键=幂等跳过 skipped 计数；消息形态钉（真 DuckDB）', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'fcard-repo3-'));
+  execFileSync('git', ['init', '-q'], { cwd: dir });
+  execFileSync('git', ['config', 'user.email', 't@t'], { cwd: dir });
+  execFileSync('git', ['config', 'user.name', 't'], { cwd: dir });
+  mkdirSync(join(dir, 'src'), { recursive: true });
+  writeFileSync(join(dir, 'src', 'a.ts'), 'export {}\n');
+  execFileSync('git', ['add', '-A'], { cwd: dir });
+  execFileSync('git', ['commit', '-qm', 'c1'], { cwd: dir });
+  const db = join(mkdtempSync(join(tmpdir(), 'fcard-db3-')), 'f.duckdb');
+  const mk = (ids) => ({
+    codelore: (ctx) => ids.map(id => ({ fact_id: id, trace_id: ctx.traceId, baggage_id: 'b'.repeat(32), scale: 'Micro-B', quadrant: 'strategic', dimension: null, collector_id: 'x', repo_ref: ctx.repoRef, subject_ref: 'src/a.ts', evidence_ref: 'e', metric: 'codelore.file_facet_row', value_json: '{}', observed_at: ctx.observedAt })),
+    lineage: () => []
+  });
+  const r1 = await AF.runAuditFile({ input: dir, path: 'src/a.ts', db: db, collectors: mk(['dup-1', 'a-1']) });
+  assert.equal(r1.emitted, 2); assert.equal(r1.skipped, 0);
+  // 新 HEAD→新观测集补采：发射 dup-1（已存）+b-1（新）→emitted=1/skipped=1 分列披露
+  writeFileSync(join(dir, 'src', 'a.ts'), 'export const v = 1\n');
+  execFileSync('git', ['add', '-A'], { cwd: dir });
+  execFileSync('git', ['commit', '-qm', 'c2'], { cwd: dir });
+  const r2 = await AF.runAuditFile({ input: dir, path: 'src/a.ts', db: db, collectors: mk(['dup-1', 'b-1']) });
+  assert.equal(r2.backfilled, true);
+  assert.equal(r2.emitted, 1);
+  assert.equal(r2.skipped, 1);                                        // 已存 fact_id 命中=跳过可观测非吞错
+  // 消息形态钉：真 DuckDB dup insert 产 Constraint Error + "fact_id: 指认三件套（D-059① 防措辞漂移先例）
+  const w3 = await S.openWriter(db);
+  try {
+    let shape = null;
+    try { await S.appendFact(w3, { fact_id: 'dup-1', trace_id: 'a'.repeat(32), baggage_id: 'b'.repeat(32), scale: 'Micro-B', quadrant: 'strategic', dimension: null, collector_id: 'x', repo_ref: 't@' + SHA_A, subject_ref: 's', evidence_ref: 'e', metric: 'm', value_json: '{}', observed_at: '2026-01-01T00:00:00Z' }); }
+    catch (e) { shape = e; }
+    assert.ok(shape !== null);
+    assert.equal(S.isFactIdUniqueViolation(shape), true);              // 实物指认=真消息形态
+    assert.ok(String(shape.message).indexOf('Constraint Error') >= 0 && String(shape.message).indexOf('"fact_id:') >= 0 && String(shape.message).indexOf('unique constraint') >= 0);
+    assert.equal(S.isFactIdUniqueViolation(new Error('Constraint Error: NOT NULL constraint failed: audit_fact.metric')), false);
+    assert.equal(S.isFactIdUniqueViolation(new Error('Constraint Error: Duplicate key "fact_seq: 9" violates primary key constraint.')), false);
+  } finally { S.closeDuckdb(w3); }
+  rmSync(dir, { recursive: true, force: true });
+});
+
+// ---------- J. F5 MCP 缺库→结构化 never_collected 卡（非 isError 文本） ----------
+await tAsync('J1 MCP file_card 库文件缺席→never_collected 卡+cli_guidance（isError=false）', async () => {
+  const r = await MCP.handleRpcMessage({
+    jsonrpc: '2.0', id: 7, method: 'tools/call',
+    params: { name: 'file_card', arguments: { db: join(tmpdir(), 'fcard-no-such-db.duckdb'), repo: 't', path: 'src/a.ts' } }
+  });
+  assert.ok(r.result && r.result.isError === false, 'expect structured card not isError, got: ' + JSON.stringify(r).slice(0, 200));
+  const card = JSON.parse(r.result.content[0].text);
+  assert.equal(card.card_type, 'miss');
+  assert.equal(card.miss.state, 'never_collected');
+  assert.ok(card.miss.cli_guidance.indexOf('audit file') >= 0);
+  assert.equal(card.advisory, true);
+});
+
+// ---------- K. F7h set_truncated 卡面标记 ----------
+t('K1 观测集截断标记 set_truncated 上卡面（输入位 true→kernel.set_truncated=true；缺省 false）', () => {
+  const mk = (tr) => FC.buildFileCard({
+    subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [facetRow('src/a.ts', 'hotspots', { path: 'x', revisions: 9, hotspot_score: 5 })],
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null,
+    setTruncated: tr
+  });
+  assert.equal(mk(true).kernel.set_truncated, true);
+  assert.equal(mk(false).kernel.set_truncated, false);
+  assert.equal(mk(undefined).kernel.set_truncated, false);
+  const missCard = FC.buildFileCard({ subject: 'x', setRepoRef: null, setFacts: [], availableHeadShas: [], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null, setTruncated: true });
+  assert.equal(missCard.kernel.set_truncated, true);                  // miss 卡同形透传（schema 字段常驻）
 });
 
 console.log('FILE-CARD ' + n + '/' + n);

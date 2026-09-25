@@ -321,6 +321,33 @@ export function classifyWriteError(e) {
     const m = String(e.message || e || '');
     return IO_ERROR_RE.test(m) ? 'io' : 'constraint';
 }
+// D-134① 吞错收窄精确指认（#83）：仅 fact_id UNIQUE 撞键可判「幂等跳过」——
+// 其余 constraint 类（PK/NOT NULL/CHECK/FK 等）=协议崩上抛回滚（D-115① fail-fast 语义归位）。
+// @duckdb/node-api 错误对象=plain Error（ownKeys=[stack,message]——实物探察 2026-09-25
+// 证据：dup-unique='Constraint Error: Duplicate key "fact_id: f1" violates unique constraint.'），
+// 指认按消息形态三件套（前缀+约束族+列名），版本措辞漂移由 file-card.test 实物钉防。
+export function isFactIdUniqueViolation(e) {
+    const m = String(e.message || e || '');
+    return m.indexOf('Constraint Error') >= 0 && m.indexOf('unique constraint') >= 0 && m.indexOf('"fact_id:') >= 0;
+}
+// D-134① 更稳妥臂：写循环前预查该库已存 fact_id 集（WHERE fact_id IN 分批）——
+// 撞键消除在判定层（跳过可计数）而非吞错层；写者同事务内 SELECT 见本事务已写行，
+// 预查与写入无竞窗（append-only 单写者拓扑 A-007）。
+export async function existingFactIds(connection, factIds) {
+    const found = new Set();
+    const CHUNK = 500;
+    for (let i = 0; i < factIds.length; i += CHUNK) {
+        const part = factIds.slice(i, i + CHUNK);
+        const sql = 'SELECT fact_id FROM audit_fact WHERE fact_id IN (' + part.map(function () { return '?'; }).join(', ') + ')';
+        assertAppendOnly(sql);
+        const res = await connection.run(sql, part);
+        const rows = await res.getRows();
+        for (const r of rows) {
+            found.add(String(r[0]));
+        }
+    }
+    return found;
+}
 export async function runInTransaction(connection, fn) {
     await connection.run('BEGIN TRANSACTION');
     try {

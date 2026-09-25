@@ -36,7 +36,7 @@ t('B1 check-dist.mjs 棘轮脚本在且载版本化上限常量', existsSync(cd)
 const ci = txt(join(REPO, '.github', 'workflows', 'engine-ci.yml'));
 t('B2 rebuild-diff 链挂棘轮调用', ci.indexOf('node scripts/check-dist.mjs') >= 0);
 t('B3 rebuild-diff 链载 --ignore-space-at-eol（行尾空白容忍件）', ci.indexOf('--ignore-space-at-eol') >= 0);
-t('B4 失败工件上传件在（if: failure() + upload-artifact + retention）', ci.indexOf('actions/upload-artifact') >= 0 && ci.indexOf('if: failure()') >= 0 && ci.indexOf('retention-days') >= 0);
+t('B4 失败工件上传件在且收窄（steps.rebuilddiff.outcome==failure + upload-artifact + retention；#83 F7j 步级化——job 级 failure() 已收）', ci.indexOf('actions/upload-artifact') >= 0 && ci.indexOf("steps.rebuilddiff.outcome == 'failure'") >= 0 && ci.indexOf('retention-days') >= 0 && ci.indexOf('if: failure()') < 0);
 try {
   const out = execFileSync('node', [cd], { encoding: 'utf8', timeout: 60000, env: CLEAN_ENV, cwd: ENG });
   t('B5 棘轮实跑 PASS（dist/cli.js 未越限）', out.indexOf('DIST-RATCHET PASS') >= 0, out.trim());

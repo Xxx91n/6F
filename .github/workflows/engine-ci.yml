@@ -32,6 +32,7 @@ jobs:
       # #82/D-129③：棘轮断言挂 rebuild-diff 同链＋check-dist.yml 式两减痛件
       # （--ignore-space-at-eol 容忍行尾空白差；失败时 upload-artifact 供异地复核）
       - name: rebuild-diff guard (D-067 dist committed — src/dist drift fails)
+        id: rebuilddiff
         shell: bash
         run: |
           node scripts/check-dist.mjs
@@ -44,7 +45,8 @@ jobs:
             exit 1
           fi
       - name: upload dist on rebuild-diff failure
-        if: failure()
+        # #83/F7j：job 级 failure() 收窄为步级 outcome——仅 rebuild-diff 守卫本身失败才传 dist（前步失败不再触发上传）
+        if: steps.rebuilddiff.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: dist-drift-${{ matrix.os }}-node${{ matrix.node }}

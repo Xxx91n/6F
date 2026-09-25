@@ -69,16 +69,35 @@ export async function projectFileCard(dbPath, q) {
         });
         const shas = sets.map(function (s) { return s.head_sha; }).filter(function (s) { return s !== null; });
         let picked = null;
+        let pinAmbiguous = undefined;
         if (q.at !== undefined && q.at !== null && q.at.length > 0) {
-            picked = sets.filter(function (s) {
-                return s.head_sha === q.at || (s.head_sha !== null && q.at.length >= 7 && s.head_sha.indexOf(q.at) === 0);
-            })[0] || null;
+            // F7a（#83）：pin 前缀唯一性验重——精确 40 位命中直取；≥7 前缀命中 >1=歧义不猜（not_tracked_at_sha 披露全部命中）
+            const exact = sets.filter(function (s) { return s.head_sha === q.at; });
+            if (exact.length > 0) {
+                picked = exact[0];
+            }
+            else if (q.at.length >= 7) {
+                const hits = sets.filter(function (s) { return s.head_sha !== null && s.head_sha.indexOf(q.at) === 0; });
+                if (hits.length === 1) {
+                    picked = hits[0];
+                }
+                else if (hits.length > 1) {
+                    pinAmbiguous = hits.map(function (s) { return s.head_sha; });
+                }
+            }
         }
         else {
             picked = sets[0] || null;
         }
         const facts = [];
+        let setTruncated = false;
         if (picked !== null) {
+            // F7h（#83）：截断卡面标记——集内事实行数超 CAP 时如实披露（percentile 语义=截断集上计算，不静默）
+            const cSql = 'SELECT COUNT(*) FROM audit_fact WHERE scale = ? AND repo_ref = ?';
+            assertAppendOnly(cSql);
+            const cReader = await conn.run(cSql, ['Micro-B', picked.repo_ref]);
+            const cRows = await cReader.getRows();
+            setTruncated = Number(cRows[0][0]) > FILE_CARD_SET_CAP;
             const fSql = 'SELECT ' + PROJECTION_COLUMNS + ' FROM audit_fact WHERE scale = ? AND repo_ref = ? ORDER BY fact_seq LIMIT ' + FILE_CARD_SET_CAP;
             assertAppendOnly(fSql);
             const fReader = await conn.run(fSql, ['Micro-B', picked.repo_ref]);
@@ -95,9 +114,11 @@ export async function projectFileCard(dbPath, q) {
             setFacts: facts,
             availableHeadShas: shas,
             pinnedSha: q.at !== undefined && q.at !== null && q.at.length > 0 ? q.at : null,
+            pinnedAmbiguous: pinAmbiguous,
             currentHeadSha: q.current_head_sha === undefined ? null : q.current_head_sha,
             source: q.source || 'unknown',
-            cliGuidance: q.cli_guidance === undefined ? null : q.cli_guidance
+            cliGuidance: q.cli_guidance === undefined ? null : q.cli_guidance,
+            setTruncated: setTruncated
         });
     }
     finally {

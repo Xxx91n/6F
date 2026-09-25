@@ -22,6 +22,7 @@ export interface AuditFileResult {
     card: FileCard;
     backfilled: boolean;
     emitted: number;
+    skipped: number;
     repo_ref: string;
     repo_name: string;
     head_sha: string;

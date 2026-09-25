@@ -20,6 +20,26 @@ export const FILE_CARD_RULE_VERSION = 'hotspot_priority_v1';
 export const FILE_CARD_TOP_N = 20;
 export const FILE_CARD_INSUFFICIENT_MIN_REVS = 3;   // <3 修订=历史不足（含 new_file=1）
 
+// D-136 失败态投影收口（#83）：kernel facet 词表二分 closed 枚举（D-095 纪律）——
+//   历史派生族（D-123⑤ 括号点名五族）在 new_file/insufficient_history 下不进卡面；
+//   保留面=静态指标集 closed。两集成员级双向差集对账=发射词表（CODELORE_*_FACETS 33 名）由
+//   file-card.test 断言：并集=全集且交集=∅——新增 analysis 未分类即红（禁临场裁量）。
+export const FILE_CARD_HISTORY_DERIVED_FACETS: readonly string[] = [
+  'entity-churn', 'entity-ownership', 'code-age', 'hotspots', 'coupling'
+];
+export const FILE_CARD_STATIC_FACETS: readonly string[] = [
+  'revisions', 'abs-churn', 'author-churn', 'hotspot-velocity', 'stale-code', 'architecture-trend',
+  'health-trend', 'lead-time', 'release-cadence', 'messages', 'god-classes', 'architecture-metrics',
+  'dependency-cycles', 'modularity-violations', 'instability', 'architecture-roles', 'ownership',
+  'bus-factor', 'main-dev', 'main-dev-by-revs', 'main-dev-by-deletions', 'knowledge-islands',
+  'communication', 'coordination-needs', 'team-composition', 'marginal-owner-risk', 'pair-programming',
+  'function-hotspots'
+];
+
+// suppressed_facets 原因码=closed 枚举（D-136②）——复用 D-126③ FailureState 词表（不含 ok）。
+export type SuppressedFacetReason = 'new_file' | 'insufficient_history' | 'not_applicable';
+export interface SuppressedFacet { facet: string; reason: SuppressedFacetReason }
+
 export type MissState = 'never_collected' | 'not_tracked_at_sha' | 'not_applicable' | 'renamed_to';
 export type CardType = 'file-audit-card' | 'not_applicable' | 'miss';
 export type FailureState = 'ok' | 'new_file' | 'insufficient_history' | 'not_applicable';
@@ -52,6 +72,8 @@ export interface FileCard {
   miss: FileCardMiss | null;
   kernel: {
     facet_rows: Record<string, { row: Record<string, unknown>; fact_ref: string; observed_at: string; evidence_ref: string }[]>;
+    set_truncated: boolean;              // F7h：观测集 fact 行数超 FILE_CARD_SET_CAP 截断时=true（卡面如实标记不静默）
+    suppressed_facets: SuppressedFacet[]; // D-136②：失败态滤除的历史派生族 facet 清单（closed 枚举成员级对账，每项带原因码）
   };
   derived: {
     rule_version: string;
@@ -77,6 +99,8 @@ export interface FileCardBuildInput {
   currentHeadSha: string | null;            // 探针注入的当前 HEAD（null=宿主未知→drift:unknown 照答）
   source: 'prefetch' | 'backfill' | 'unknown';
   cliGuidance: string | null;               // miss 可行动指引（CLI 补采命令形态，由触发面拼好注入）
+  setTruncated?: boolean;                   // 观测集 fact 拉取超 FILE_CARD_SET_CAP 截断标记（投影层判定注入）
+  pinnedAmbiguous?: readonly string[];      // F7a：at:<sha> 前缀命中多个观测集 head_sha（歧义不猜——not_tracked_at_sha 如实答）
 }
 
 export function headShaOfRepoRef(repoRef: string): string | null {
@@ -90,7 +114,7 @@ function asNum(v: unknown): number | null {
 
 // narrative 键集=kernel facet 键＋derived 键＋观测锚键——宿主叙事只可引用已算值键名（D-123 零指标值纪律）。
 export function fileCardCitationKeys(card: FileCard): string[] {
-  const keys: string[] = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state'];
+  const keys: string[] = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state', 'kernel.set_truncated', 'kernel.suppressed_facets'];
   for (const k of Object.keys(card.kernel.facet_rows).sort()) { keys.push('kernel.facet_rows.' + k); }
   if (card.derived.revisions !== null) { keys.push('derived.revisions'); }
   if (card.derived.hotspot_score !== null) { keys.push('derived.hotspot_score'); }
@@ -127,7 +151,7 @@ function missCard(subject: string, miss: FileCardMiss, input: FileCardBuildInput
     source: input.source,
     failure_state: miss.state === 'not_applicable' ? 'not_applicable' : 'ok',
     miss: miss,
-    kernel: { facet_rows: {} },
+    kernel: { facet_rows: {}, set_truncated: input.setTruncated === true, suppressed_facets: [] },
     derived: {
       rule_version: FILE_CARD_RULE_VERSION,
       revisions: null,
@@ -154,6 +178,15 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
 
   // miss 态序（D-126 四类）：无观测集→never_collected（可行动指引）；集内无 subject→血缘/跳检→renamed_to|not_tracked。
   if (input.setRepoRef === null) {
+    // F7a：pin 前缀歧义先判（观测集在但前缀不唯一——不猜最新，照答 not_tracked 并披露全部命中 sha）
+    if (input.pinnedAmbiguous !== undefined && input.pinnedAmbiguous.length > 1) {
+      return missCard(subject, {
+        state: 'not_tracked_at_sha',
+        detail: 'pin 前缀歧义：at:' + String(input.pinnedSha) + ' 命中 ' + input.pinnedAmbiguous.length + ' 个观测集（' + input.pinnedAmbiguous.map(function (s) { return s.slice(0, 12); }).join(', ') + '…）——唯一性不成立，用更长前缀或全 sha 重试',
+        available_head_shas: input.availableHeadShas.slice(),
+        cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
+      }, input, null);
+    }
     if (input.availableHeadShas.length === 0) {
       return missCard(subject, {
         state: 'never_collected',
@@ -205,6 +238,7 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     return missCard(subject, {
       state: 'not_tracked_at_sha',
       detail: '观测集 head=' + String(headSha).slice(0, 7) + ' 内无该 subject 的 per-file 事实且无血缘边——该 sha 树下不追踪',
+      available_head_shas: input.availableHeadShas.slice(),   // F6：「可提示 at: 其他 sha 试探」机制两枝补齐（pin 枝既有）
       cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
     }, input, headSha);
   }
@@ -255,6 +289,19 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
   else if (revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS) { failure = 'insufficient_history'; }
   const suppressed = failure !== 'ok';
 
+  // D-136 失败态投影收口（#83）：kernel 卡面只留静态指标集（closed）——历史派生族及未声明 facet
+  //   一律移 suppressed_facets 带原因码（fail-closed：未入静态集=失败态不上卡面，防退化值冒充有效读数）；
+  //   raw 事实层 append-only 不动（收口只作用投影层）；derived.suppressed_by 现行保留。
+  const keptFacets: FileCard['kernel']['facet_rows'] = {};
+  const suppressedFacets: SuppressedFacet[] = [];
+  for (const a of analyses) {
+    if (suppressed && FILE_CARD_STATIC_FACETS.indexOf(a) < 0) {
+      suppressedFacets.push({ facet: a, reason: failure as SuppressedFacetReason });
+    } else {
+      keptFacets[a] = ordered[a];
+    }
+  }
+
   const card: FileCard = {
     schema_version: FILE_CARD_SCHEMA_VERSION,
     card_type: 'file-audit-card',
@@ -274,7 +321,7 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     source: input.source,
     failure_state: failure,
     miss: null,
-    kernel: { facet_rows: ordered },
+    kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
     derived: {
       rule_version: FILE_CARD_RULE_VERSION,
       revisions: revisions,

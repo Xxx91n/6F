@@ -3,6 +3,13 @@ export declare const FILE_CARD_SCHEMA_VERSION = "file-card@v1";
 export declare const FILE_CARD_RULE_VERSION = "hotspot_priority_v1";
 export declare const FILE_CARD_TOP_N = 20;
 export declare const FILE_CARD_INSUFFICIENT_MIN_REVS = 3;
+export declare const FILE_CARD_HISTORY_DERIVED_FACETS: readonly string[];
+export declare const FILE_CARD_STATIC_FACETS: readonly string[];
+export type SuppressedFacetReason = 'new_file' | 'insufficient_history' | 'not_applicable';
+export interface SuppressedFacet {
+    facet: string;
+    reason: SuppressedFacetReason;
+}
 export type MissState = 'never_collected' | 'not_tracked_at_sha' | 'not_applicable' | 'renamed_to';
 export type CardType = 'file-audit-card' | 'not_applicable' | 'miss';
 export type FailureState = 'ok' | 'new_file' | 'insufficient_history' | 'not_applicable';
@@ -47,6 +54,8 @@ export interface FileCard {
             observed_at: string;
             evidence_ref: string;
         }[]>;
+        set_truncated: boolean;
+        suppressed_facets: SuppressedFacet[];
     };
     derived: {
         rule_version: string;
@@ -90,6 +99,8 @@ export interface FileCardBuildInput {
     currentHeadSha: string | null;
     source: 'prefetch' | 'backfill' | 'unknown';
     cliGuidance: string | null;
+    setTruncated?: boolean;
+    pinnedAmbiguous?: readonly string[];
 }
 export declare function headShaOfRepoRef(repoRef: string): string | null;
 export declare function fileCardCitationKeys(card: FileCard): string[];

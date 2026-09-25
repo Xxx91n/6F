@@ -682,6 +682,27 @@ function classifyWriteError(e) {
   const m = String(e.message || e || "");
   return IO_ERROR_RE.test(m) ? "io" : "constraint";
 }
+function isFactIdUniqueViolation(e) {
+  const m = String(e.message || e || "");
+  return m.indexOf("Constraint Error") >= 0 && m.indexOf("unique constraint") >= 0 && m.indexOf('"fact_id:') >= 0;
+}
+async function existingFactIds(connection, factIds) {
+  const found = /* @__PURE__ */ new Set();
+  const CHUNK = 500;
+  for (let i = 0; i < factIds.length; i += CHUNK) {
+    const part = factIds.slice(i, i + CHUNK);
+    const sql = "SELECT fact_id FROM audit_fact WHERE fact_id IN (" + part.map(function() {
+      return "?";
+    }).join(", ") + ")";
+    assertAppendOnly(sql);
+    const res = await connection.run(sql, part);
+    const rows = await res.getRows();
+    for (const r of rows) {
+      found.add(String(r[0]));
+    }
+  }
+  return found;
+}
 async function runInTransaction(connection, fn) {
   await connection.run("BEGIN TRANSACTION");
   try {
@@ -4626,6 +4647,36 @@ var FILE_CARD_SCHEMA_VERSION = "file-card@v1";
 var FILE_CARD_RULE_VERSION = "hotspot_priority_v1";
 var FILE_CARD_TOP_N = 20;
 var FILE_CARD_INSUFFICIENT_MIN_REVS = 3;
+var FILE_CARD_STATIC_FACETS = [
+  "revisions",
+  "abs-churn",
+  "author-churn",
+  "hotspot-velocity",
+  "stale-code",
+  "architecture-trend",
+  "health-trend",
+  "lead-time",
+  "release-cadence",
+  "messages",
+  "god-classes",
+  "architecture-metrics",
+  "dependency-cycles",
+  "modularity-violations",
+  "instability",
+  "architecture-roles",
+  "ownership",
+  "bus-factor",
+  "main-dev",
+  "main-dev-by-revs",
+  "main-dev-by-deletions",
+  "knowledge-islands",
+  "communication",
+  "coordination-needs",
+  "team-composition",
+  "marginal-owner-risk",
+  "pair-programming",
+  "function-hotspots"
+];
 function headShaOfRepoRef(repoRef) {
   const i = repoRef.lastIndexOf("@");
   return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
@@ -4634,7 +4685,7 @@ function asNum(v) {
   return typeof v === "number" && Number.isFinite(v) ? v : null;
 }
 function fileCardCitationKeys(card) {
-  const keys = ["observation.head_sha", "staleness.drift", "source", "failure_state"];
+  const keys = ["observation.head_sha", "staleness.drift", "source", "failure_state", "kernel.set_truncated", "kernel.suppressed_facets"];
   for (const k of Object.keys(card.kernel.facet_rows).sort()) {
     keys.push("kernel.facet_rows." + k);
   }
@@ -4675,7 +4726,7 @@ function missCard(subject, miss, input, headSha2) {
     source: input.source,
     failure_state: miss.state === "not_applicable" ? "not_applicable" : "ok",
     miss,
-    kernel: { facet_rows: {} },
+    kernel: { facet_rows: {}, set_truncated: input.setTruncated === true, suppressed_facets: [] },
     derived: {
       rule_version: FILE_CARD_RULE_VERSION,
       revisions: null,
@@ -4699,6 +4750,16 @@ function buildFileCard(input) {
   const subject = norm.subject;
   const headSha2 = input.setRepoRef !== null ? headShaOfRepoRef(input.setRepoRef) : null;
   if (input.setRepoRef === null) {
+    if (input.pinnedAmbiguous !== void 0 && input.pinnedAmbiguous.length > 1) {
+      return missCard(subject, {
+        state: "not_tracked_at_sha",
+        detail: "pin \u524D\u7F00\u6B67\u4E49\uFF1Aat:" + String(input.pinnedSha) + " \u547D\u4E2D " + input.pinnedAmbiguous.length + " \u4E2A\u89C2\u6D4B\u96C6\uFF08" + input.pinnedAmbiguous.map(function(s) {
+          return s.slice(0, 12);
+        }).join(", ") + "\u2026\uFF09\u2014\u2014\u552F\u4E00\u6027\u4E0D\u6210\u7ACB\uFF0C\u7528\u66F4\u957F\u524D\u7F00\u6216\u5168 sha \u91CD\u8BD5",
+        available_head_shas: input.availableHeadShas.slice(),
+        cli_guidance: input.cliGuidance === null ? void 0 : input.cliGuidance
+      }, input, null);
+    }
     if (input.availableHeadShas.length === 0) {
       return missCard(subject, {
         state: "never_collected",
@@ -4765,6 +4826,8 @@ function buildFileCard(input) {
     return missCard(subject, {
       state: "not_tracked_at_sha",
       detail: "\u89C2\u6D4B\u96C6 head=" + String(headSha2).slice(0, 7) + " \u5185\u65E0\u8BE5 subject \u7684 per-file \u4E8B\u5B9E\u4E14\u65E0\u8840\u7F18\u8FB9\u2014\u2014\u8BE5 sha \u6811\u4E0B\u4E0D\u8FFD\u8E2A",
+      available_head_shas: input.availableHeadShas.slice(),
+      // F6：「可提示 at: 其他 sha 试探」机制两枝补齐（pin 枝既有）
       cli_guidance: input.cliGuidance === null ? void 0 : input.cliGuidance
     }, input, headSha2);
   }
@@ -4843,6 +4906,15 @@ function buildFileCard(input) {
     failure = "insufficient_history";
   }
   const suppressed = failure !== "ok";
+  const keptFacets = {};
+  const suppressedFacets = [];
+  for (const a of analyses) {
+    if (suppressed && FILE_CARD_STATIC_FACETS.indexOf(a) < 0) {
+      suppressedFacets.push({ facet: a, reason: failure });
+    } else {
+      keptFacets[a] = ordered[a];
+    }
+  }
   const card = {
     schema_version: FILE_CARD_SCHEMA_VERSION,
     card_type: "file-audit-card",
@@ -4862,7 +4934,7 @@ function buildFileCard(input) {
     source: input.source,
     failure_state: failure,
     miss: null,
-    kernel: { facet_rows: ordered },
+    kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
     derived: {
       rule_version: FILE_CARD_RULE_VERSION,
       revisions,
@@ -4945,15 +5017,36 @@ async function projectFileCard(dbPath, q) {
       return s !== null;
     });
     let picked = null;
+    let pinAmbiguous = void 0;
     if (q.at !== void 0 && q.at !== null && q.at.length > 0) {
-      picked = sets.filter(function(s) {
-        return s.head_sha === q.at || s.head_sha !== null && q.at.length >= 7 && s.head_sha.indexOf(q.at) === 0;
-      })[0] || null;
+      const exact = sets.filter(function(s) {
+        return s.head_sha === q.at;
+      });
+      if (exact.length > 0) {
+        picked = exact[0];
+      } else if (q.at.length >= 7) {
+        const hits = sets.filter(function(s) {
+          return s.head_sha !== null && s.head_sha.indexOf(q.at) === 0;
+        });
+        if (hits.length === 1) {
+          picked = hits[0];
+        } else if (hits.length > 1) {
+          pinAmbiguous = hits.map(function(s) {
+            return s.head_sha;
+          });
+        }
+      }
     } else {
       picked = sets[0] || null;
     }
     const facts = [];
+    let setTruncated = false;
     if (picked !== null) {
+      const cSql = "SELECT COUNT(*) FROM audit_fact WHERE scale = ? AND repo_ref = ?";
+      assertAppendOnly(cSql);
+      const cReader = await conn.run(cSql, ["Micro-B", picked.repo_ref]);
+      const cRows = await cReader.getRows();
+      setTruncated = Number(cRows[0][0]) > FILE_CARD_SET_CAP;
       const fSql = "SELECT " + PROJECTION_COLUMNS + " FROM audit_fact WHERE scale = ? AND repo_ref = ? ORDER BY fact_seq LIMIT " + FILE_CARD_SET_CAP;
       assertAppendOnly(fSql);
       const fReader = await conn.run(fSql, ["Micro-B", picked.repo_ref]);
@@ -4970,9 +5063,11 @@ async function projectFileCard(dbPath, q) {
       setFacts: facts,
       availableHeadShas: shas,
       pinnedSha: q.at !== void 0 && q.at !== null && q.at.length > 0 ? q.at : null,
+      pinnedAmbiguous: pinAmbiguous,
       currentHeadSha: q.current_head_sha === void 0 ? null : q.current_head_sha,
       source: q.source || "unknown",
-      cliGuidance: q.cli_guidance === void 0 ? null : q.cli_guidance
+      cliGuidance: q.cli_guidance === void 0 ? null : q.cli_guidance,
+      setTruncated
     });
   } finally {
     closeDuckdb(conn);
@@ -5036,15 +5131,11 @@ function defaultLineageCollect(ctx, repoRoot) {
   const rawLog = gitOut(repoRoot, gitRenameLogArgs(RENAME_DEFAULT_THRESHOLD));
   return collectFileLineage({
     edges: parseRenameLogZ(rawLog),
-    headSha: headShaOf(ctx.repoRef),
+    headSha: headShaOfRepoRef(ctx.repoRef),
     threshold: RENAME_DEFAULT_THRESHOLD,
     detectorVersion: RENAME_DETECTOR_VERSION,
     gitVersion: probeGitVersion()
   }, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: "Micro-B", observedAt: ctx.observedAt });
-}
-function headShaOf(repoRef) {
-  const i = repoRef.lastIndexOf("@");
-  return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
 }
 async function runAuditFile(opts) {
   const intake = repoAdd(opts.input, { cwd: opts.cwd || process.cwd() });
@@ -5067,6 +5158,7 @@ async function runAuditFile(opts) {
   const pinned = opts.at !== void 0 && opts.at.length > 0;
   let backfilled = false;
   let emitted = 0;
+  let skipped = 0;
   if (!pinned) {
     const preCard = existsSync7(opts.db) ? await projectFileCard(opts.db, { repo: name, subject: opts.path, current_head_sha: headSha2 }) : null;
     const setExists = preCard !== null && preCard.observation.head_sha === headSha2;
@@ -5080,10 +5172,13 @@ async function runAuditFile(opts) {
       const writer = await openWriter(opts.db);
       try {
         emitted = await runInTransaction(writer, async function() {
-          const seen = /* @__PURE__ */ new Set();
+          const seen = await existingFactIds(writer, batch.map(function(f) {
+            return f.fact_id;
+          }));
           let n = 0;
           for (const f of batch) {
             if (seen.has(f.fact_id)) {
+              skipped += 1;
               continue;
             }
             seen.add(f.fact_id);
@@ -5091,9 +5186,10 @@ async function runAuditFile(opts) {
               await appendFact(writer, f);
               n += 1;
             } catch (e) {
-              if (classifyWriteError(e) !== "constraint") {
+              if (!isFactIdUniqueViolation(e)) {
                 throw e;
               }
+              skipped += 1;
             }
           }
           return n;
@@ -5121,15 +5217,16 @@ async function runAuditFile(opts) {
     source: "unknown",
     cliGuidance: null
   });
-  return { card, backfilled, emitted, repo_ref: repoRef, repo_name: name, head_sha: headSha2 };
+  return { card, backfilled, emitted, skipped, repo_ref: repoRef, repo_name: name, head_sha: headSha2 };
 }
 
 // src/cli.ts
-import { writeFileSync as writeFileSync4, existsSync as existsSync8, mkdirSync as mkdirSync7 } from "node:fs";
+import { writeFileSync as writeFileSync4, existsSync as existsSync9, mkdirSync as mkdirSync7 } from "node:fs";
 import { join as join10, resolve as resolve4 } from "node:path";
 
 // src/mcp-server.ts
 import { execFileSync as execFileSync3 } from "node:child_process";
+import { existsSync as existsSync8 } from "node:fs";
 process.env.MACRO_AUDIT_MCP_STDIO = "1";
 var MCP_PROTOCOL_VERSION = "2024-11-05";
 var QUARANTINE_TOOL = {
@@ -5252,16 +5349,24 @@ async function handleRpcMessage(msg) {
           currentHead = null;
         }
       }
+      const guidance = "macro-audit audit file " + (rp ? '"' + rp + '"' : "<repo-path>") + ' "' + path + '" --db ' + db2;
       try {
-        const card = await projectFileCard(db2, {
+        const card = existsSync8(db2) ? await projectFileCard(db2, {
           repo,
           subject: path,
           at: asStr(a2.at),
           current_head_sha: currentHead,
           source: "prefetch",
-          // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
-          //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
-          cli_guidance: "macro-audit audit file " + (rp ? '"' + rp + '"' : "<repo-path>") + ' "' + path + '" --db ' + db2
+          cli_guidance: guidance
+        }) : buildFileCard({
+          subject: path,
+          setRepoRef: null,
+          setFacts: [],
+          availableHeadShas: [],
+          pinnedSha: asStr(a2.at) || null,
+          currentHeadSha: currentHead,
+          source: "prefetch",
+          cliGuidance: guidance
         });
         return ok(id, { content: [{ type: "text", text: JSON.stringify(card) }], isError: false });
       } catch (e) {
@@ -5536,7 +5641,7 @@ async function main() {
       }
       try {
         const r = await runAuditFile({ input: repoInput, path: filePath, db: dbPath, at: atSha });
-        outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, repo_ref: r.repo_ref, head_sha: r.head_sha }) + "\n", 0);
+        outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, skipped: r.skipped, repo_ref: r.repo_ref, head_sha: r.head_sha }) + "\n", 0);
       } catch (e) {
         if (e instanceof ExitSignal) throw e;
         if (isAuditFileError(e)) {
@@ -5626,7 +5731,7 @@ async function main() {
         let artifact = null;
         try {
           const dir = outDir ? resolve4(outDir) : resolve4(process.cwd());
-          if (!existsSync8(dir)) {
+          if (!existsSync9(dir)) {
             mkdirSync7(dir, { recursive: true });
           }
           artifact = join10(dir, "macro-audit-crash-" + String(payload.error_code) + "-" + String(Date.now()) + ".json");

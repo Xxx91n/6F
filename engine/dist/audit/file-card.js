@@ -12,7 +12,8 @@ import { macroBContext, probeGitVersion } from './macro-b.js';
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
 import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
 import { absorbGitIsoDialect, classifyGitIsoField } from '../intake/quarantine.js';
-import { openWriter, closeDuckdb, appendFact, classifyWriteError, isAuditIoError, runInTransaction } from '../fact/store.js';
+import { openWriter, closeDuckdb, appendFact, isAuditIoError, isFactIdUniqueViolation, existingFactIds, runInTransaction } from '../fact/store.js';
+import { headShaOfRepoRef } from '../fact/file-card.js';
 import { projectFileCard } from '../fact/projection.js';
 import { buildFileCard } from '../fact/file-card.js';
 export class AuditFileError extends Error {
@@ -25,7 +26,7 @@ export function isAuditFileError(e) {
 function gitOut(root, args) {
     return execFileSync('git', ['-C', root].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
 }
-// 默认补采发射管线=批量同款：codelore 行为三面（per-file 事实在发射边界内 microBCtx 落 Micro-B grain）＋rename 血缘。
+// 默认补采发射管线=批量同款：codelore 行为三面（per-file 事实在发射边界内落 Micro-B grain——ctx 变换为 collectCodeloreFacets 内部职责）＋rename 血缘。
 function defaultCodeloreCollect(ctx, repoRoot) {
     return collectCodeloreFacets({ repoRoot: repoRoot, facets: CODELORE_BEHAVIOR_FACETS }, ctx);
 }
@@ -33,15 +34,11 @@ function defaultLineageCollect(ctx, repoRoot) {
     const rawLog = gitOut(repoRoot, gitRenameLogArgs(RENAME_DEFAULT_THRESHOLD));
     return collectFileLineage({
         edges: parseRenameLogZ(rawLog),
-        headSha: headShaOf(ctx.repoRef),
+        headSha: headShaOfRepoRef(ctx.repoRef),
         threshold: RENAME_DEFAULT_THRESHOLD,
         detectorVersion: RENAME_DETECTOR_VERSION,
         gitVersion: probeGitVersion()
     }, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt });
-}
-function headShaOf(repoRef) {
-    const i = repoRef.lastIndexOf('@');
-    return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
 }
 export async function runAuditFile(opts) {
     const intake = repoAdd(opts.input, { cwd: opts.cwd || process.cwd() });
@@ -68,6 +65,7 @@ export async function runAuditFile(opts) {
     // 观测集存在性：pin 时禁补采（at:<sha>=只读历史集，采集缺席照答 miss）；非 pin 且当前 HEAD 集空→lazy 补采
     let backfilled = false;
     let emitted = 0;
+    let skipped = 0;
     if (!pinned) {
         // db 不存在=零观测集→跳过预读直接补采（READ_ONLY 开库对不存在的文件会 IO 失败）
         const preCard = existsSync(opts.db)
@@ -85,10 +83,13 @@ export async function runAuditFile(opts) {
             try {
                 // D-115 事务包裹（F3 返修）：中途失败回滚不产残观测集——补采 append 语义=all-or-nothing
                 emitted = await runInTransaction(writer, async function () {
-                    const seen = new Set();
+                    // D-134① 吞错收窄（#83）：写循环前预查库内已存 fact_id——撞键消除在判定层；
+                    //   skipped=已存命中＋批内重号＋收窄 catch 命中（下段 isFactIdUniqueViolation 臂），与 emitted 分列披露（跳过可观测，对齐 D-122 披露纪律）
+                    const seen = await existingFactIds(writer, batch.map(function (f) { return f.fact_id; }));
                     let n = 0;
                     for (const f of batch) {
                         if (seen.has(f.fact_id)) {
+                            skipped += 1;
                             continue;
                         }
                         seen.add(f.fact_id);
@@ -97,10 +98,12 @@ export async function runAuditFile(opts) {
                             n += 1;
                         }
                         catch (e) {
-                            // 幂等语义：fact_id 撞 UNIQUE=同观测集同事实已落库→跳过非错误；其余写错按 classifyWriteError 上抛
-                            if (classifyWriteError(e) !== 'constraint') {
+                            // 精确指认：仅 fact_id UNIQUE 撞键可跳（防御性残留臂——同事务单写者无竞窗）；
+                            //   其余写错（PK/NOT NULL/CHECK/FK/IO）照常上抛→runInTransaction 回滚（D-115① fail-fast 归位）
+                            if (!isFactIdUniqueViolation(e)) {
                                 throw e;
                             }
+                            skipped += 1;
                         }
                     }
                     return n;
@@ -125,6 +128,6 @@ export async function runAuditFile(opts) {
             pinnedSha: pinned ? opts.at : null, currentHeadSha: headSha,
             source: 'unknown', cliGuidance: null
         });
-    return { card: card, backfilled: backfilled, emitted: emitted, repo_ref: repoRef, repo_name: name, head_sha: headSha };
+    return { card: card, backfilled: backfilled, emitted: emitted, skipped: skipped, repo_ref: repoRef, repo_name: name, head_sha: headSha };
 }
 export { isAuditIoError };
