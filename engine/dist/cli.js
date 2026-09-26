@@ -4899,12 +4899,7 @@ function buildFileCard(input) {
     return s > hotspotScore;
   }).length < FILE_CARD_TOP_N;
   const band = pct === null ? null : pct >= 0.9 ? "high" : pct >= 0.6 ? "medium" : "low";
-  let failure = "ok";
-  if (revisions === 1) {
-    failure = "new_file";
-  } else if (revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS) {
-    failure = "insufficient_history";
-  }
+  const failure = revisions === 1 ? "new_file" : revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS ? "insufficient_history" : "ok";
   const suppressed = failure !== "ok";
   const keptFacets = {};
   const suppressedFacets = [];

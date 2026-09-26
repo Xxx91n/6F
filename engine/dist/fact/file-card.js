@@ -263,13 +263,8 @@ export function buildFileCard(input) {
     const topN = hotspotScore === null ? null : peerScores.filter(function (s) { return s > hotspotScore; }).length < FILE_CARD_TOP_N;
     const band = pct === null ? null : (pct >= 0.9 ? 'high' : (pct >= 0.6 ? 'medium' : 'low'));
     // 失败三态（D-123）：binary/generated 走 miss not_applicable；new_file/insufficient_history=显式态仅静态指标
-    let failure = 'ok';
-    if (revisions === 1) {
-        failure = 'new_file';
-    }
-    else if (revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS) {
-        failure = 'insufficient_history';
-    }
+    const failure = revisions === 1 ? 'new_file'
+        : (revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS) ? 'insufficient_history' : 'ok';
     const suppressed = failure !== 'ok';
     // D-136 失败态投影收口（#83）：kernel 卡面只留静态指标集（closed）——历史派生族及未声明 facet
     //   一律移 suppressed_facets 带原因码（fail-closed：未入静态集=失败态不上卡面，防退化值冒充有效读数）；
