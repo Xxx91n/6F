@@ -131,3 +131,11 @@
 - a_range: A-001 ~ A-094（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-094）
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-094 R35 收口实施批）／.scratch/macro-audit/decision-ledger.md（D-147 执行面回执）
 - impact: D-143② exhaustiveness 判力兑现——第三失败枝词表外原因码将由编译错拦截（交叠 as 断言静默放行面清除）；dist 字节差发生（cli.js 257947→257898B，-49B=let+if-chain→const 三元结构性等价非语义差）触发预声明升格判据→§1 全套重跑全绿照走
+
+## [M-017] - 2026-09-26
+
+- milestone: 轮36 T2 收口——BACKLOG #80 步③ 落地（A-095）：血缘缝合=卡投影沿 file.renamed 链多跳图遍历+环检测+跨观测集边池并入旧名 era 事实（F10 孤儿封口）；双仓试点集实跑（jiahao 1109 facts 1-switch 双端＋env-manager 684 facts 2-hop 链三端验证）；benchmark p95 分档+target/danger 双阈值实测预登记（80-bench-thresholds.md）；披露收窄同票（Micro-B→capability 4 of 5・preview；not_in_preview 双源去 Micro-B；listing/marketplace 口径 1-4 同步；41b/44 守卫钉随口径更新）
+- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-095（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-095）
+- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-095 #80 步③ 收口批）
+- impact: Micro-B 文件卡三内部步全落地（发射①→投影+查询②→缝合+试点+披露③）；血缘缝合四子项全兑现（多跳/环检测/跨观测集/成对件双端）；F10 缺陷路径闭合（改名文件旧名历史计入新名卡不误进 insufficient_history）；试点集=jiahao＋env-manager（票面写「试点集」）；#80 票面 DoD 面齐，关票裁定属账本侧

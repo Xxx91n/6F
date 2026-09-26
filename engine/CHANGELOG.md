@@ -7,6 +7,7 @@ Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
 
 ## [Unreleased]
 
+
 ### Changed
 - #59 kernel 自包含分发（D-067/D-038/A-069）：插件根 `.mcp.json` 契约 bare `macro-audit`+PATH → `node`＋`args:["${CLAUDE_PLUGIN_ROOT}/dist/cli.js","mcp"]`（变量放 args 不放 command；gen-manifests 单源生成；`mcp.json` 兄弟文件保留 npm 消费者面 bare 不动）；`engine/dist/` 40 件随源进仓（`.gitignore` 放开 dist/；`dist/cli.js`=esbuild 0.28.2 单文件 bundle 153,604B，build=tsc+`scripts/build-bundle.mjs`）；`src/fact/store.ts` duckdb 改懒加载降级（git-clone 无 node_modules 时握手/selftest/repo-add 零依赖可用，facts/audit/demo 报 `DUCKDB-UNAVAILABLE` 结构化错非崩溃）；`src/demo/demo.ts` fixtures 锚 `metaPath()`（bundle/tsc 两形态同构）；engine-ci.yml rebuild-diff 守卫（`git status --porcelain -- dist/` 非空即红）＋`npm ci`＋`permissions: contents: read`＋paths 含自身；锁表新增 `esbuild` 行（kind=node-lib，active/exact-version 0.28.2——upstream-lock.yaml diff）
 - upstream-lock repomix-gitingest planned→retired（D-056：宿主 agent 恒在抽空打包用途；retired 行留档＋重开触发器 registry repomix-reopen-trigger）
@@ -17,6 +18,7 @@ Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
 - manifest author/homepage/repository 字段（D-052；gen-manifests 透传扩展）；upstream-lock github-rest planned 行（kind=remote-api，D-048/#47）
 - #47 托管平台 API 适配器（D-048/ADR-0020，A-055）：`src/upstream/github-rest.ts`——GitHub REST 直连主路＋`X-GitHub-Api-Version` pin（2022-11-28）＋凭据三级探测（`GITHUB_TOKEN` env → gh 已认证态只读借读 → 无认证 60/hr 显式降级，即用即清不建存储）＋PR 枚举/元数据/diff 双通道（本地 git `base...head` 优先，REST diff 兜底）＋`x-ratelimit-*`+`Retry-After` 有界退避触顶即停＋余额写事实库；golden cassette×5 离线回放（authenticated/无认证降级=env-manager 实录制；限流耗尽=按官方语义合成；schema 漂移/平台 Bot=实录制派生）；锁表 `github-rest` planned→active（upstream-lock.yaml）
 - `upstream-lock.yaml` 机读权威上游锁定表（D-037③ / ADR-0018 §D-1 / docs/versioning.md §3；#44/A-049）：种子行 codelore=active exact-version 0.28.0＋`--version` pin 契约／duckdb-node-api=active（package-lock 精确锁定）／git-cli=active（随宿主环境·输出解析为契约）／openssf-scorecard·repomix-gitingest=planned／codelore-sqlite-dump=evaluating（risk_note）；禁 range/浮动 tag/latest，retired 行不删，更新走手动窗口＋golden 回归
+- #80 步③ 文件级卡血缘缝合落地（D-137/A-095）：`src/fact/file-card.ts` file.renamed 边池反向多跳显式图遍历＋环检测＋64 名祖先硬帽（`resolveLineageAncestors`）→旧名 era 事实并入新名卡（`lineage` 账本块披露 stitched_from/edges/cycle_detected/truncated；facet_rows 行级 `subject_ref` 溯源键）；`src/fact/projection.ts` 跨观测集血缘解析（边池=选中集∪祖先观测集 file.renamed 行，observed_at 序沿 at:sha 引用层纪律）＋`FILE_CARD_LINEAGE_EDGE_CAP` 硬帽；`scripts/bench-file-card.mjs` p95 分档 benchmark（target/danger 双阈值机器可裁决，阈值预登记票面=.scratch/macro-audit/reports/80-bench-thresholds.md）；peer 分布被取代旧名去重（同一文件新旧名只计新名）。披露同步：能力矩阵 Micro-B→capability 4 of 5 · preview（试点集=jiahao＋env-manager 双仓实跑），audit/demo `not_in_preview` 去 Micro-B
 
 ### Fixed
 - 轮 14 审计返工（A-064）：A1 degradeReport 模板叙事改引降级后对象（原输出「降级原因：未声明」与真值并存）；A2 buildReport degraded:true 直建路径补模板注入（D-053① 通用兜底）；A3 裸 `mcp` 实现最小 JSON-RPC 2.0 stdio 握手（initialize/tools/list/tools/call，NDJSON 行帧——mcp.json 注册面名实相符）；A4 package-lock 根 license UNLICENSED→Apache-2.0；C1 引文核验抽入 citation.ts 破 generate↔narrative 循环 import；C5 已盖章宿主叙事降级后不丢弃（重盖章留痕）；C6/C7 CLI 严格参数面（NaN limit 闸/未知 flag 拒/裸 mcp 子命令显式）

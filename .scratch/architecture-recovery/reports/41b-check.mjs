@@ -55,13 +55,13 @@ t('B5 package.json license=Apache-2.0', pk.license === 'Apache-2.0');
 const rd = txt(join(REPO, 'README.md'));
 const desc = txt(join(REPO, 'docs', 'listing', 'description.md'));
 const cl = txt(join(REPO, 'docs', 'listing', 'credential-checklist.md'));
-const readmeHas3 = rd.includes('capability 3 of 5');
-t('C1 README 口径 = capability 1-3 of 5 preview', readmeHas3 && rd.includes('capability 1 of 5') && rd.includes('capability 2 of 5'));
-t('C2 marketplace description 口径同步（3 of 5）', mk.plugins[0].description.includes('capability 3 of 5'));
-t('C3 description.md 口径同步（1-3 of 5＋Micro-A preview 行）', desc.includes('capability 1-3 of 5') && desc.includes('Micro-A PR diff') && desc.includes('capability 3 of 5'));
+const readmeHas4 = rd.includes('capability 4 of 5');
+t('C1 README 口径 = capability 1-4 of 5 preview（#80 步③ Micro-B 上架后口径）', readmeHas4 && rd.includes('capability 1 of 5') && rd.includes('capability 2 of 5') && rd.includes('capability 3 of 5'));
+t('C2 marketplace description 口径同步（4 of 5）', mk.plugins[0].description.includes('capability 4 of 5'));
+t('C3 description.md 口径同步（1-4 of 5＋Micro-A preview 行）', desc.includes('capability 1-4 of 5') && desc.includes('Micro-A PR diff') && desc.includes('capability 3 of 5'));
 t('C4 description.md license 段 = Apache-2.0（UNLICENSED 阻塞语已清）', desc.includes('`Apache-2.0`') && !desc.includes('UNLICENSED'));
-t('C5 credential-checklist §E 口径同步', cl.includes('capability 1-3 of 5'));
-t('C6 无残留 UNLICENSED/2 of 5 旧口径', !desc.includes('1-2 of 5') && !mk.plugins[0].description.includes('capability 2 of 5') && !cl.includes('1-2 of 5'));
+t('C5 credential-checklist §E 口径同步', cl.includes('capability 1-4 of 5'));
+t('C6 无残留 UNLICENSED/1-3 of 5 旧口径', !desc.includes('1-2 of 5') && !desc.includes('capability 1-3 of 5') && !mk.plugins[0].description.includes('capability 2 of 5') && !mk.plugins[0].description.includes('capability 3 of 5') && !cl.includes('1-2 of 5') && !cl.includes('capability 1-3 of 5'));
 
 // ---------- D. 诚实披露与闸门 ----------
 t('D1 credential-checklist §C 用户专属动作未勾（提交=用户闸门）', /- \[ \] 6F 远端 push 授权确认/.test(cl) && /- \[ \] 若走路径 B：表单提交点击/.test(cl));

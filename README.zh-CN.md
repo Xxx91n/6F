@@ -1,5 +1,5 @@
 <!-- canonical: README.md | owner: Xxx91n -->
-<!-- sync: 613bb5eccfcb -->
+<!-- sync: 038eec5e96cc -->
 > ⚠ **本文件为中文译文（derived 工件）——英文版 [README.md](README.md) 为权威版本（canonical 权威源）；如有不一致以英文版为准。** 译文可暂时落后，但不假装新鲜（sync 戳与英文版内容指纹绑定）。
 
 <p align="center">

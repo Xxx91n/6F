@@ -30,7 +30,7 @@ Macro + micro engineering-content audit for git-healthy repositories — a **Cla
 
 
 > [!NOTE]
-> Status (2026-09-20): **preview** (capability boundaries in the matrix below). Macro-B / Macro-C / Micro-A are in preview; Micro-B / Macro-A are **Not yet in preview** — roadmap narrative, not a usable promise. The plugin is installable today via the marketplace (`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`; install & acceptance details in [engine/README.md](engine/README.md); the official-catalog track is unsubmitted and sits behind the owner's gate). The previous 「发布未发生·不存在可安装 listing」 state was ended by marketplace onboarding. Upstreams marked "planned" are not wired yet — do not read this page as a finished product. Product-facing surfaces (audit reports, listing copy) are primarily in Chinese; this file is the canonical English facade.
+> Status (2026-09-20): **preview** (capability boundaries in the matrix below). Macro-B / Macro-C / Micro-A / Micro-B are in preview; Macro-A is **Not yet in preview** — roadmap narrative, not a usable promise. The plugin is installable today via the marketplace (`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`; install & acceptance details in [engine/README.md](engine/README.md); the official-catalog track is unsubmitted and sits behind the owner's gate). The previous 「发布未发生·不存在可安装 listing」 state was ended by marketplace onboarding. Upstreams marked "planned" are not wired yet — do not read this page as a finished product. Product-facing surfaces (audit reports, listing copy) are primarily in Chinese; this file is the canonical English facade.
 
 ## Capability matrix
 
@@ -41,7 +41,7 @@ Release cadence = **graded preview releases** (ADR-0017): **build-scope ≠ rele
 | Macro-B repo quadrant | **capability 1 of 5 · preview** (self-audit first report: [examples/first-report/](examples/first-report/)); quadrant slices: **strategy: active** (S1+S2 collectors live) · **behavior: preview** (codelore churn/hotspot/coupling slices, #51) · **structure: queued** (deferred on dual-caliber risk with the S3 family, D-054) · **supply-chain: queued** (D-034③ Scorecard does not skip the queue) |
 | Macro-C evolution archaeology | **capability 2 of 5 · preview** (single-repo calibration disclosure) |
 | Micro-A PR diff | **capability 3 of 5 · preview** (hosted-API adapter consumer side, same pilot-repo 4-PR calibration) |
-| Micro-B file level | Not yet in preview |
+| Micro-B file level | **capability 4 of 5 · preview** (file-audit card; pilot set=jiahao＋env-manager two-repo stitching/calibration; advisory-only structural isolation, advisory verdicts never reach gates) |
 | Macro-A cross-repo strategy | Not yet in preview |
 
 Honest preview labeling is a decision, not decoration (ADR-0017): report headers and sidecars carry a `preview_disclosure` block (capability tag + calibration scope + structural limits + not_in_preview list) sourced from the same semantics as the table above; degraded output carries a `⚠ unverified` mark, unwired evidence domains carry a "⚠ data not connected" note, and synthetic fixtures carry a `synthetic` mark — they never impersonate real audits.

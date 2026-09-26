@@ -45,7 +45,7 @@ export function demoDisclosure(): PreviewDisclosure {
       'structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）',
       '确定性 fixture：同 scenario 重跑产物逐字节一致（pin author/committer/date）；临时目录生成跑完即弃不污染仓内状态'
     ],
-    not_in_preview: ['Micro-A', 'Micro-B', 'Macro-A']
+    not_in_preview: ['Micro-A', 'Macro-A']   // Micro-B file-card 进 preview（#80 步③ 缝合落地）
   };
 }
 

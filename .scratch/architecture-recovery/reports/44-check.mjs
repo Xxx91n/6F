@@ -169,13 +169,13 @@ const SRC3 = { 'README边界节': readme, 'engine披露语义源（generate+cita
 t('E1 三处共享 token：preview_disclosure 全命中', Object.keys(SRC3).every(k => SRC3[k].indexOf('preview_disclosure') >= 0));
 t('E2 三处共享 token：⚠ unverified 全命中', Object.keys(SRC3).every(k => SRC3[k].indexOf('⚠ unverified') >= 0));
 t('E3 generate.ts PreviewDisclosure 四字段契约＋UNVERIFIED_MARK 单一语义源（citation.ts 定义＋generate re-export——审计 C1 载体迁移）', genSrc.indexOf('interface PreviewDisclosure') >= 0 && ['capability_label', 'calibration_scope', 'structural_limitations', 'not_in_preview'].every(f => genSrc.indexOf(f) >= 0) && txt(join(ENG, 'src', 'report', 'citation.ts')).indexOf("UNVERIFIED_MARK = '⚠ unverified'") >= 0 && genSrc.indexOf('export { UNVERIFIED_MARK') >= 0);
-t('E4 README 边界节 capability 标注组（1 of 5／2 of 5 · preview＋Not yet in preview ×3）', readme.indexOf('capability 1 of 5 · preview') >= 0 && readme.indexOf('capability 2 of 5 · preview') >= 0 && (readme.match(/Not yet in preview/g) || []).length >= 3);
+t('E4 README 边界节 capability 标注组（1~4 of 5 · preview＋Not yet in preview ≥1——#80 步③ Micro-B 上架后仅剩 Macro-A）', readme.indexOf('capability 1 of 5 · preview') >= 0 && readme.indexOf('capability 2 of 5 · preview') >= 0 && readme.indexOf('capability 3 of 5 · preview') >= 0 && readme.indexOf('capability 4 of 5 · preview') >= 0 && (readme.match(/Not yet in preview/g) || []).length >= 1);
 const goldenHappy = JSON.parse(txt(join(ENG, 'fixtures', 'golden', 'happy-path', 'report.json')));
 const macroC = JSON.parse(txt(join(HERE, '38-macro-c-preview-report.json')));
 t('E5 README「capability 1 of 5 · preview」== golden 实物 capability_label（Macro-B 文档↔产物同源）', goldenHappy.preview_disclosure.capability_label === 'capability 1 of 5 · preview');
 t('E6 README「capability 2 of 5 · preview」== #38 实物 capability_label（Macro-C 文档↔产物同源）', macroC.preview_disclosure.capability_label === 'capability 2 of 5 · preview');
 t('E7 examples README preview_disclosure 时点差如实注＋failure=degradeReport 演示性质', exReadme.indexOf('时点') >= 0 && exReadme.indexOf('degradeReport') >= 0 && exReadme.indexOf('preview_disclosure') >= 0);
-t('E8 越界承诺机检（README 仅允许 capability 3 of 5 · preview——#48 已上架；generate.ts/examples 仍禁 3/4/5）', genSrc.indexOf('capability 3 of 5') < 0 && genSrc.indexOf('capability 4 of 5') < 0 && genSrc.indexOf('capability 5 of 5') < 0 && SRC3['examples/README'].indexOf('capability 3 of 5') < 0 && SRC3['examples/README'].indexOf('capability 4 of 5') < 0 && SRC3['examples/README'].indexOf('capability 5 of 5') < 0 && readme.indexOf('capability 4 of 5') < 0 && readme.indexOf('capability 5 of 5') < 0);
+t('E8 越界承诺机检（README 允许至 capability 4 of 5 · preview——#80 Micro-B 已上架；generate.ts/examples 仍禁 3/4/5，README 禁 5）', genSrc.indexOf('capability 3 of 5') < 0 && genSrc.indexOf('capability 4 of 5') < 0 && genSrc.indexOf('capability 5 of 5') < 0 && SRC3['examples/README'].indexOf('capability 3 of 5') < 0 && SRC3['examples/README'].indexOf('capability 4 of 5') < 0 && SRC3['examples/README'].indexOf('capability 5 of 5') < 0 && readme.indexOf('capability 5 of 5') < 0);
 
 // ---------- F. 编年指针校验（ENFORCE；D-039③：引用存在+superseded 如实计/里程碑单调/双账互指） ----------
 const clP = join(REPO, 'CHANGELOG.md');

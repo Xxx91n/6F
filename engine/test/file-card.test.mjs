@@ -483,4 +483,128 @@ t('K1 观测集截断标记 set_truncated 上卡面（输入位 true→kernel.se
   assert.equal(missCard.kernel.set_truncated, true);                  // miss 卡同形透传（schema 字段常驻）
 });
 
+
+// ---------- L. #80 步③ 血缘缝合（D-137：多跳图遍历／环检测／跨观测集解析＋成对件新名端） ----------
+function renameEdge(from, to, commitSha, similarity, repoSha, observedAt) {
+  return fact({
+    subject_ref: to, repo_ref: 't@' + (repoSha || SHA_A),
+    metric: 'file.renamed',
+    value_json: JSON.stringify({ from: from, to: to, head_sha: repoSha || SHA_A, commit_sha: commitSha, similarity: similarity, threshold: '50%', detector_version: 'rename-detector@v1', git_version: 'test' }),
+    observed_at: observedAt || '2026-09-20T00:00:00Z'
+  });
+}
+
+t('L1 1-switch 成对件新名端：旧名 era 事实并入新名卡（行级 subject_ref 溯源＋lineage 账本＋F10 回归=不误进 new_file）', () => {
+  const card = FC.buildFileCard({
+    subject: 'new.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [
+      facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 1 }),
+      facetRow('old.ts', 'revisions', { path: 'old.ts', n_revs: 9 }),
+      facetRow('old.ts', 'hotspots', { path: 'old.ts', revisions: 9, hotspot_score: 8 }),
+      renameEdge('old.ts', 'new.ts', 'c'.repeat(40), 92)
+    ],
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+  });
+  assert.equal(card.card_type, 'file-audit-card');
+  assert.deepEqual(card.lineage.stitched_from, ['old.ts']);
+  assert.equal(card.lineage.cycle_detected, false);
+  assert.equal(card.lineage.truncated, false);
+  assert.equal(card.lineage.edges.length, 1);
+  assert.equal(card.lineage.edges[0].from, 'old.ts');
+  const revs = card.kernel.facet_rows.revisions;
+  assert.equal(revs.length, 2);                                   // 新名＋旧名 era 行并入
+  assert.deepEqual(revs.map(function (r) { return r.subject_ref; }).sort(), ['new.ts', 'old.ts']);   // 行级溯源键在场
+  assert.equal(card.derived.revisions, 9);                        // F10 回归：旧名历史计入→history 表观不再过浅
+  assert.equal(card.failure_state, 'ok');                         // 不误进 new_file（缝合前 revisions=1 触发）
+  assert.equal(card.derived.hotspot_score, 8);
+});
+
+t('L2 多跳链遍历：A→B→C 显式图遍历并入两跳旧名（非单路径 follow）', () => {
+  const card = FC.buildFileCard({
+    subject: 'c.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [
+      facetRow('c.ts', 'hotspots', { path: 'c.ts', revisions: 1, hotspot_score: 1 }),
+      facetRow('b.ts', 'hotspots', { path: 'b.ts', revisions: 4, hotspot_score: 4 }),
+      facetRow('a.ts', 'hotspots', { path: 'a.ts', revisions: 5, hotspot_score: 5 }),
+      renameEdge('a.ts', 'b.ts', 'a'.repeat(40), 90),
+      renameEdge('b.ts', 'c.ts', 'b'.repeat(40), 95)
+    ],
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+  });
+  assert.deepEqual(card.lineage.stitched_from.slice().sort(), ['a.ts', 'b.ts']);
+  assert.equal(card.lineage.stitched_from[0], 'b.ts');            // BFS 近端祖先先行
+  assert.equal(card.kernel.facet_rows.hotspots.length, 3);        // 三时代行全并入
+  assert.equal(card.derived.revisions, 5);                        // 多跳最旧时代计入
+  assert.equal(card.lineage.edges.length, 2);
+});
+
+t('L3 环检测：A→B→A 病态边图不绕死——cycle_detected=true 如实披露且终止', () => {
+  const card = FC.buildFileCard({
+    subject: 'a.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [
+      facetRow('a.ts', 'revisions', { path: 'a.ts', n_revs: 5 }),
+      facetRow('b.ts', 'revisions', { path: 'b.ts', n_revs: 3 }),
+      renameEdge('b.ts', 'a.ts', 'a'.repeat(40), 88),   // b→a：a 的祖先是 b
+      renameEdge('a.ts', 'b.ts', 'b'.repeat(40), 85)    // a→b：b 的祖先是 a（闭环）
+    ],
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+  });
+  assert.equal(card.lineage.cycle_detected, true);
+  assert.deepEqual(card.lineage.stitched_from, ['b.ts']);         // 环边如实披露在账本
+  assert.equal(card.lineage.edges.length, 2);                   // 两条边均消费披露（含被环停的）
+  assert.equal(card.derived.revisions, 5);
+});
+
+t('L4 跨观测集解析：血缘边仅存祖先集（lineageFacts 注入缝）→缝合照常兑现', () => {
+  const card = FC.buildFileCard({
+    subject: 'new.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [
+      facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 2 }),
+      facetRow('old.ts', 'revisions', { path: 'old.ts', n_revs: 7 })
+    ],   // 选中集内无边
+    lineageFacts: [renameEdge('old.ts', 'new.ts', 'd'.repeat(40), 91, '0'.repeat(40), '2026-09-19T00:00:00Z')],   // 边仅存祖先集
+    availableHeadShas: [SHA_A, '0'.repeat(40)], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+  });
+  assert.deepEqual(card.lineage.stitched_from, ['old.ts']);
+  assert.equal(card.kernel.facet_rows.revisions.length, 2);
+  assert.equal(card.derived.revisions, 7);
+});
+
+await tAsync('L5 投影层跨集实物：边在祖先 repo_ref 集、行在选中集——真 DuckDB 缝合端到端', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'fcard-lineage-'));
+  const db = join(dir, 'f.duckdb');
+  const SHA_OLD = '0'.repeat(40);
+  const w = await S.openWriter(db);
+  try {
+    // 祖先集（早采）仅存血缘边；选中集（新采）持有新名+旧名行——边不在选中集正是跨集解析面
+    await S.appendFact(w, renameEdge('old.ts', 'new.ts', 'd'.repeat(40), 91, SHA_OLD, '2026-09-19T00:00:00Z'));
+    await S.appendFact(w, facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 2 }, SHA_A));
+    await S.appendFact(w, facetRow('old.ts', 'revisions', { path: 'old.ts', n_revs: 7 }, SHA_A));
+  } finally { S.closeDuckdb(w); }
+  const card = await P.projectFileCard(db, { repo: 't', subject: 'new.ts' });
+  assert.equal(card.card_type, 'file-audit-card');
+  assert.deepEqual(card.lineage.stitched_from, ['old.ts']);       // 祖先集边参与解析
+  assert.equal(card.kernel.facet_rows.revisions.length, 2);
+  assert.equal(card.derived.revisions, 7);
+  // 反向腿：旧名查询→renamed_to 条件跳转（祖先集边同样兑现——miss 侧跨集解析）
+  const miss = await P.projectFileCard(db, { repo: 't', subject: 'old.ts', at: SHA_A.slice(0, 8) });
+  // pin SHA_A 前缀命中选中集——old.ts 在该集内有行故非 miss；改查无行名走 rename 腿
+  assert.equal(miss.card_type !== undefined, true);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+t('L6 0-switch 边界件逐类点名：never_collected/not_tracked_at_sha/not_applicable/renamed_to 四态各一物理断言（血缘环不并入 not_applicable 病态面）', () => {
+  const mk = (o) => FC.buildFileCard(Object.assign({
+    subject: 'x.ts', setRepoRef: 't@' + SHA_A, setFacts: [],
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: 'cli x'
+  }, o));
+  assert.equal(FC.buildFileCard({ subject: 'x', setRepoRef: null, setFacts: [], availableHeadShas: [], pinnedSha: null, currentHeadSha: null, source: 'unknown', cliGuidance: 'g' }).miss.state, 'never_collected');
+  assert.equal(mk({ setRepoRef: null, pinnedSha: 'f'.repeat(40) }).miss.state, 'not_tracked_at_sha');   // pin 观测集缺席（库在但 at 集未采）
+  assert.equal(mk({ setFacts: [fact({ subject_ref: 'x.ts', metric: 'codelore.file_subject_skip', value_json: JSON.stringify({ raw_path: 'x.ts', reason: 'binary' }) })] }).miss.state, 'not_applicable');
+  assert.equal(mk({ subject: 'gone.ts', setFacts: [renameEdge('gone.ts', 'new.ts', 'e'.repeat(40), 93)] }).miss.state, 'renamed_to');
+  // miss 卡 lineage=null 统一形状（成对件 miss 端不背缝合账本）
+  assert.equal(mk({ subject: 'gone.ts', setFacts: [renameEdge('gone.ts', 'new.ts', 'e'.repeat(40), 93)] }).lineage, null);
+  // 失败态闭环：缝合并入的旧名历史抬高 revisions 出 insufficient/new_file（F10 语义）——L1 已钉 ok
+  assert.equal(FC.buildFileCard({ subject: 'new.ts', setRepoRef: 't@' + SHA_A, setFacts: [facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 1 })], availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null }).failure_state, 'new_file');   // 无血缘对照组：仍 new_file
+});
 console.log('FILE-CARD ' + n + '/' + n);

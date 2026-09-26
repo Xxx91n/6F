@@ -8,6 +8,9 @@
 // advisory 结构性隔离：卡 schema 无 verdict/gate-consumable 字段＋advisory:true 显式字段＋priority=排序语义非判定。
 // miss 四类显式态（D-126）：never_collected（可行动指引）/not_tracked_at_sha/not_applicable（合法空值非 miss）/renamed_to
 //   （血缘存在→跳转指引＋逐请求重验证 revalidated 字段；无血缘→降级 not_tracked_at_sha）。
+// 血缘缝合（#80 步③ / D-137）：file.renamed 边池=选中集∪祖先集事实行（投影层注入 lineageFacts）→
+//   反向多跳显式图遍历＋环检测＋规模帽→旧名 era 事实并入新名卡（行级 subject_ref 溯源＋lineage 披露块；
+//   漏判=历史诚实分裂不编造——SonarSource「rename 后 history kept」先例同型）。
 // 失败三态：new_file/insufficient_history=显式态仅静态指标（derived 抑制 suppressed_by 留痕）；
 //   binary/generated→card_type:not_applicable 不出空卡。
 // at:<sha>=显式 opt-in pin（常量禁自动派生——SQL:2011 AS OF 仅常量纪律）；staleness=双字段披露照答不拒答。
@@ -55,6 +58,18 @@ export interface FileCardMiss {
   cli_guidance?: string;            // never_collected：可行动指引（MCP 面永不写→指 CLI 补采）
 }
 
+// 血缘缝合披露块（#80 步③ / D-137）：缝合账本非行为修饰——披露哪些旧名被并入、消费了哪些边、
+//   环/截断异常如实留痕（诚实分裂可见不编造）。
+export interface FileCardLineageEdge { from: string; to: string; commit_sha: string; similarity: number }
+export interface FileCardLineage {
+  stitched_from: string[];              // 反向遍历解析出的旧名 subject（确定性序——链序游走，平等枝词典序）
+  edges: FileCardLineageEdge[];         // 缝合消费的血缘边（确定性序——commit_sha 无时间序故词典序）
+  cycle_detected: boolean;              // 环检测命中：from 端回到已访节点即停该边并置旗（A→B→A 病态图不绕死）
+  truncated: boolean;                   // 祖先链超 FILE_CARD_LINEAGE_MAX_ANCESTORS 截断如实披露
+}
+
+export const FILE_CARD_LINEAGE_MAX_ANCESTORS = 64;   // 祖先名链硬帽（病态图保护，正常改名链远小于此）
+
 export interface FileCard {
   schema_version: string;
   card_type: CardType;
@@ -70,8 +85,9 @@ export interface FileCard {
   source: 'prefetch' | 'backfill' | 'unknown';
   failure_state: FailureState;
   miss: FileCardMiss | null;
+  lineage: FileCardLineage | null;      // 缝合账本：null=未参与缝合；对象=缝合账本（stitched_from 可空——解析到旧名但未并入行亦如实披露）
   kernel: {
-    facet_rows: Record<string, { row: Record<string, unknown>; fact_ref: string; observed_at: string; evidence_ref: string }[]>;
+    facet_rows: Record<string, { row: Record<string, unknown>; fact_ref: string; observed_at: string; evidence_ref: string; subject_ref: string }[]>;
     set_truncated: boolean;              // F7h：观测集 fact 行数超 FILE_CARD_SET_CAP 截断时=true（卡面如实标记不静默）
     suppressed_facets: SuppressedFacet[]; // D-136②：失败态滤除的历史派生族 facet 清单（closed 枚举成员级对账，每项带原因码）
   };
@@ -101,6 +117,7 @@ export interface FileCardBuildInput {
   cliGuidance: string | null;               // miss 可行动指引（CLI 补采命令形态，由触发面拼好注入）
   setTruncated?: boolean;                   // 观测集 fact 拉取超 FILE_CARD_SET_CAP 截断标记（投影层判定注入）
   pinnedAmbiguous?: readonly string[];      // F7a：at:<sha> 前缀命中多个观测集 head_sha（歧义不猜——not_tracked_at_sha 如实答）
+  lineageFacts?: readonly FactEvent[];      // D-137② 跨观测集血缘边池增量：祖先观测集的 file.renamed 事实行（投影层解析注入；缺席=仅选中集边）
 }
 
 export function headShaOfRepoRef(repoRef: string): string | null {
@@ -115,6 +132,7 @@ function asNum(v: unknown): number | null {
 // narrative 键集=kernel facet 键＋derived 键＋观测锚键——宿主叙事只可引用已算值键名（D-123 零指标值纪律）。
 export function fileCardCitationKeys(card: FileCard): string[] {
   const keys: string[] = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state', 'kernel.set_truncated', 'kernel.suppressed_facets'];
+  if (card.lineage !== null) { keys.push('lineage.stitched_from', 'lineage.edges', 'lineage.cycle_detected', 'lineage.truncated'); }
   for (const k of Object.keys(card.kernel.facet_rows).sort()) { keys.push('kernel.facet_rows.' + k); }
   if (card.derived.revisions !== null) { keys.push('derived.revisions'); }
   if (card.derived.hotspot_score !== null) { keys.push('derived.hotspot_score'); }
@@ -151,6 +169,7 @@ function missCard(subject: string, miss: FileCardMiss, input: FileCardBuildInput
     source: input.source,
     failure_state: miss.state === 'not_applicable' ? 'not_applicable' : 'ok',
     miss: miss,
+    lineage: null,
     kernel: { facet_rows: {}, set_truncated: input.setTruncated === true, suppressed_facets: [] },
     derived: {
       rule_version: FILE_CARD_RULE_VERSION,
@@ -163,6 +182,71 @@ function missCard(subject: string, miss: FileCardMiss, input: FileCardBuildInput
     },
     narrative: { hints: [], key_check: { referenced: [], missing: [], ok: true } }
   };
+}
+
+// ---------- 血缘缝合（#80 步③ / D-137） ----------
+// file.renamed 事实行→边池：载荷 {from,to,commit_sha,similarity} 逐字段型检；病态行跳过不误吞（解析失败行
+//   本就不构成边）。去重键=(from,to,commit_sha)——同边跨观测集重复检出是常态（历史事实 append-only 重放）。
+function collectRenameEdges(facts: readonly FactEvent[]): FileCardLineageEdge[] {
+  const seen = new Set<string>();
+  const edges: FileCardLineageEdge[] = [];
+  for (const f of facts) {
+    if (f.metric !== 'file.renamed') { continue; }
+    try {
+      const v = JSON.parse(f.value_json) as { from?: unknown; to?: unknown; commit_sha?: unknown; similarity?: unknown };
+      if (typeof v.from !== 'string' || typeof v.to !== 'string' || typeof v.commit_sha !== 'string') { continue; }
+      const key = v.from + ' ' + v.to + ' ' + v.commit_sha;
+      if (seen.has(key)) { continue; }
+      seen.add(key);
+      edges.push({ from: v.from, to: v.to, commit_sha: v.commit_sha, similarity: typeof v.similarity === 'number' ? v.similarity : 0 });
+    } catch { /* skip malformed lineage fact */ }
+  }
+  return edges;
+}
+
+// 反向多跳遍历（D-137② 显式图遍历非单路径 follow——Vajna 补丁实证根因=路径状态单变量 last-write-wins）：
+//   邻接 to→[edges]（from 端=旧名）；BFS 逐层回溯，环检测=from 回到已访节点即停该边如实置旗；
+//   确定性序=邻接内按 (commit_sha,from) 词典序（sha 无时间序）；规模帽截断如实披露。
+function resolveLineageAncestors(subject: string, edges: readonly FileCardLineageEdge[]): {
+  subjects: string[]; edgesUsed: FileCardLineageEdge[]; cycleDetected: boolean; truncated: boolean;
+} {
+  const byTo = new Map<string, FileCardLineageEdge[]>();
+  for (const e of edges) {
+    const arr = byTo.get(e.to) || [];
+    if (arr.length === 0) { byTo.set(e.to, arr); }
+    arr.push(e);
+  }
+  for (const arr of byTo.values()) {
+    arr.sort(function (a, b) {
+      return a.commit_sha === b.commit_sha ? (a.from < b.from ? -1 : a.from > b.from ? 1 : 0) : (a.commit_sha < b.commit_sha ? -1 : 1);
+    });
+  }
+  const visited = new Set<string>([subject]);
+  const ancestors: string[] = [];
+  const edgesUsed: FileCardLineageEdge[] = [];
+  let cycleDetected = false;
+  let truncated = false;
+  const queue: string[] = [subject];
+  while (queue.length > 0 && !truncated) {
+    const cur = queue.shift() as string;
+    for (const e of byTo.get(cur) || []) {
+      edgesUsed.push(e);
+      if (visited.has(e.from)) { cycleDetected = true; continue; }
+      if (ancestors.length >= FILE_CARD_LINEAGE_MAX_ANCESTORS) { truncated = true; break; }
+      visited.add(e.from);
+      ancestors.push(e.from);
+      queue.push(e.from);
+    }
+  }
+  return { subjects: ancestors, edgesUsed: edgesUsed, cycleDetected: cycleDetected, truncated: truncated };
+}
+
+function sortLineageEdges(edges: readonly FileCardLineageEdge[]): FileCardLineageEdge[] {
+  return edges.slice().sort(function (a, b) {
+    return a.commit_sha === b.commit_sha
+      ? (a.from === b.from ? (a.to < b.to ? -1 : a.to > b.to ? 1 : 0) : (a.from < b.from ? -1 : 1))
+      : (a.commit_sha < b.commit_sha ? -1 : 1);
+  });
 }
 
 export function buildFileCard(input: FileCardBuildInput): FileCard {
@@ -202,7 +286,15 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     }, input, null);
   }
 
-  const mine = input.setFacts.filter(function (f) { return f.metric === 'codelore.file_facet_row' && f.subject_ref === subject; });
+  // 血缘边池=选中集∪祖先集 file.renamed 行（D-137② 跨观测集解析——祖先集边经 lineageFacts 注入）
+  const edgePool = input.lineageFacts !== undefined && input.lineageFacts.length > 0
+    ? collectRenameEdges(input.setFacts).concat(collectRenameEdges(input.lineageFacts))
+    : collectRenameEdges(input.setFacts);
+  // 反向多跳遍历解析旧名祖先集——缝合集=subject∪祖先名（并入旧名 era 事实，D-137①）
+  const resolved = resolveLineageAncestors(subject, edgePool);
+  const stitchedNames = new Set<string>([subject].concat(resolved.subjects));
+
+  const mine = input.setFacts.filter(function (f) { return f.metric === 'codelore.file_facet_row' && stitchedNames.has(f.subject_ref); });
   if (mine.length === 0) {
     // binary/generated/非 regular path→发射侧 file_subject_skip 留痕→card_type:not_applicable（合法空值非 miss 态空卡）
     const skip = input.setFacts.filter(function (f) {
@@ -219,13 +311,9 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
       }, input, headSha);
     }
     // 血缘存在→renamed_to＋逐请求重验证（目标在集内有事实=跳转条件成立）；无血缘→not_tracked_at_sha
-    const edgeFact = input.setFacts.filter(function (f) {
-      if (f.metric !== 'file.renamed') { return false; }
-      try { return (JSON.parse(f.value_json) as { from?: unknown }).from === subject; }
-      catch { return false; }
-    })[0];
-    if (edgeFact) {
-      const ev = JSON.parse(edgeFact.value_json) as { from: string; to: string; commit_sha: string; similarity: number };
+    //   （边池含祖先集增量——单跳跳转语义不变：解析到即报一跳，链深处由消费面逐请求推进）
+    const ev = edgePool.filter(function (e) { return e.from === subject; })[0];
+    if (ev) {
       const targetHasFacts = input.setFacts.some(function (f) { return f.metric === 'codelore.file_facet_row' && f.subject_ref === ev.to; });
       return missCard(subject, {
         state: 'renamed_to',
@@ -251,7 +339,8 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     const analysis = typeof v.analysis === 'string' ? v.analysis : 'unknown';
     const row = (v.row !== null && typeof v.row === 'object' ? v.row : {}) as Record<string, unknown>;
     const arr = facetRows[analysis] || (facetRows[analysis] = []);
-    arr.push({ row: row, fact_ref: f.fact_id, observed_at: f.observed_at, evidence_ref: f.evidence_ref });
+    // subject_ref 行级溯源（D-137③：缝合行不洗白身份——并入的旧名 era 行保留其原 subject 键）
+    arr.push({ row: row, fact_ref: f.fact_id, observed_at: f.observed_at, evidence_ref: f.evidence_ref, subject_ref: f.subject_ref });
   }
   const analyses = Object.keys(facetRows).sort();
   const ordered: FileCard['kernel']['facet_rows'] = {};
@@ -266,9 +355,17 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     const s = asNum(r.row['hotspot_score']); if (s !== null && (hotspotScore === null || s > hotspotScore)) { hotspotScore = s; }
   }
   // percentile scope=repo：同观测集全部 subject 的 hotspot_score 分布（中位秩法 less+eq/2 确定性消并列）
+  //   缝合一致性（D-137③）：被取代旧名（其 to 端在集内有行的 from 名）不入同 repo 分布——同一文件
+  //   新旧名两行只计新名一次，防缝合语义的 repo 级重复计数。
+  const supersededNames = new Set<string>();
+  {
+    const namesWithRows = new Set<string>();
+    for (const f of input.setFacts) { if (f.metric === 'codelore.file_facet_row') { namesWithRows.add(f.subject_ref); } }
+    for (const e of edgePool) { if (e.from !== e.to && namesWithRows.has(e.to)) { supersededNames.add(e.from); } }
+  }
   const peerScores: number[] = [];
   for (const f of input.setFacts) {
-    if (f.metric !== 'codelore.file_facet_row') { continue; }
+    if (f.metric !== 'codelore.file_facet_row' || supersededNames.has(f.subject_ref)) { continue; }
     try {
       const v = JSON.parse(f.value_json) as { analysis?: unknown; row?: { hotspot_score?: unknown } };
       if (v.analysis === 'hotspots' && v.row) { const s = asNum(v.row.hotspot_score); if (s !== null) { peerScores.push(s); } }
@@ -320,6 +417,10 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     source: input.source,
     failure_state: failure,
     miss: null,
+    // 缝合账本：解析到边（含纯环边）即披露——旧名解析成功但零行并入亦如实（stitched_from 非空＋facet_rows 无该行 subject_ref 可互证）
+    lineage: resolved.edgesUsed.length > 0 || resolved.cycleDetected
+      ? { stitched_from: resolved.subjects, edges: sortLineageEdges(resolved.edgesUsed), cycle_detected: resolved.cycleDetected, truncated: resolved.truncated }
+      : null,
     kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
     derived: {
       rule_version: FILE_CARD_RULE_VERSION,

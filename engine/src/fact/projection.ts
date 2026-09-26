@@ -69,6 +69,7 @@ export interface FileCardQuery {
 }
 
 const FILE_CARD_SET_CAP = 200000;   // 观测集内 Micro-B 事实硬帽（percentile 需全集——超帽如实截断仍确定性）
+const FILE_CARD_LINEAGE_EDGE_CAP = 10000;   // 血缘边池硬帽（D-137② 跨观测集解析——病态仓库防失控，截断如实）
 
 function likeEscape(s: string): string {
   return s.split('!').join('!!').split('%').join('!%').split('_').join('!_');
@@ -84,7 +85,7 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
     const setRows = await setReader.getRows();
     const sets = setRows.map(function (r) {
       const rr = String(r[0]);
-      return { repo_ref: rr, head_sha: headShaOfRepoRef(rr) };
+      return { repo_ref: rr, head_sha: headShaOfRepoRef(rr), last_obs: String(r[1]) };
     });
     const shas = sets.map(function (s) { return s.head_sha; }).filter(function (s): s is string { return s !== null; });
     let picked: { repo_ref: string; head_sha: string | null } | null = null;
@@ -119,10 +120,30 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
       const norm = normalizeFactRow(names);
       for (const r of fRows) { facts.push(norm(r)); }
     }
+    // D-137② 跨观测集血缘解析（#80 步③）：file.renamed 边池=选中集∪祖先观测集。
+    //   「祖先」语义=同 repo 观测集中 MAX(observed_at) ≤ 选中集者——事实仓仅持采集时点序（git 祖先关系
+    //   不入库，pin 精确性由 D-126⑤ at:sha 引用层纪律承担）；词表侧用 observed_at 字符串词典序（ISO 规范化后可比较）。
+    const lineageFacts: FactEvent[] = [];
+    if (picked !== null) {
+      const pickedSet = sets.filter(function (s) { return s.repo_ref === picked.repo_ref; })[0];
+      const ancestorRefs = pickedSet === undefined ? [] : sets.filter(function (s) {
+        return s.repo_ref !== picked.repo_ref && s.last_obs <= pickedSet.last_obs;
+      }).map(function (s) { return s.repo_ref; });
+      if (ancestorRefs.length > 0) {
+        const ph = ancestorRefs.map(function () { return '?'; }).join(',');
+        const lSql = 'SELECT ' + PROJECTION_COLUMNS + ' FROM audit_fact WHERE scale = ? AND metric = ? AND repo_ref IN (' + ph + ') ORDER BY fact_seq LIMIT ' + FILE_CARD_LINEAGE_EDGE_CAP;
+        assertAppendOnly(lSql);
+        const lReader = await conn.run(lSql, ['Micro-B', 'file.renamed'].concat(ancestorRefs) as never);
+        const lRows = await lReader.getRows();
+        const lNorm = normalizeFactRow(lReader.columnNames());
+        for (const r of lRows) { lineageFacts.push(lNorm(r)); }
+      }
+    }
     return buildFileCard({
       subject: q.subject,
       setRepoRef: picked === null ? null : picked.repo_ref,
       setFacts: facts,
+      lineageFacts: lineageFacts,
       availableHeadShas: shas,
       pinnedSha: q.at !== undefined && q.at !== null && q.at.length > 0 ? q.at : null,
       pinnedAmbiguous: pinAmbiguous,

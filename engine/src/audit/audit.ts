@@ -301,7 +301,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     capability_label: 'capability 1 of 5 · preview',
     calibration_scope: NAME + ' Macro-B audit（audit 一等命令面；scale=Macro-B 已上架）',
     structural_limitations: limitations,
-    not_in_preview: ['Micro-A', 'Micro-B', 'Macro-C', 'Macro-A']
+    not_in_preview: ['Micro-A', 'Macro-C', 'Macro-A']   // Micro-B file-card 进 preview（#80 步③ 缝合落地）
   };
 
   const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });

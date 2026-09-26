@@ -1,0 +1,52 @@
+{
+ "schema": "file-card-bench/v1",
+ "runs_per_case": 30,
+ "thresholds": {
+  "small": {
+   "target": 200,
+   "danger": 800
+  },
+  "medium": {
+   "target": 800,
+   "danger": 3000
+  },
+  "large": {
+   "target": 4000,
+   "danger": 12000
+  }
+ },
+ "measured_at": "2026-09-26T10:55:38.265Z",
+ "node": "v24.11.0",
+ "cases": [
+  {
+   "name": "D:\\Aworker\\6F\\.scratch\\macro-audit\\audits\\r36\\jiahao-facts.duckdb",
+   "tier": "small",
+   "p95_ms": 65.34,
+   "p50_ms": 56.91,
+   "max_ms": 263.45,
+   "target_ms": 200,
+   "danger_ms": 800,
+   "verdict": "target"
+  },
+  {
+   "name": "D:\\Aworker\\6F\\.scratch\\macro-audit\\audits\\r36\\env-manager-facts.duckdb",
+   "tier": "small",
+   "p95_ms": 46.01,
+   "p50_ms": 42.53,
+   "max_ms": 46.51,
+   "target_ms": 200,
+   "danger_ms": 800,
+   "verdict": "target"
+  },
+  {
+   "name": "20000-rows/500-edges/60-hop-chain",
+   "tier": "large",
+   "p95_ms": 34.9,
+   "p50_ms": 24.7,
+   "max_ms": 39.77,
+   "target_ms": 4000,
+   "danger_ms": 12000,
+   "verdict": "target"
+  }
+ ]
+}
