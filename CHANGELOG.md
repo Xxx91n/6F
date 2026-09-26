@@ -155,3 +155,11 @@
 - a_range: A-001 ~ A-096（不变——本轮零新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十六轮 Grill＋收口对账（D-148~D-149，零新 revised）
 - impact: 锐评核销闭环（三税处置全落档）；审计判断项呈报面清零（R1/R2 有名分）；规程生效时点语义封口（M-015 类不再重演）；「守卫组」获 AGENTS 层指称（收口判据可执行化）；静默红 fleet 首次全量画像（12 件）为 T3 普查输入
+## [M-020] - 2026-09-27
+
+- milestone: 轮 37 T1 / BACKLOG #75 批1——失效断言三分类建制＋守卫基线升格判据落地（D-149④ 触发器 fired）：静默红 12 件全过 D-094 门（11 件合法漂移改断言〔26/28/30 porcelain→票面 commit 集、20 SQL 词表→语句形态、23 裸 NodeNext→dist 面、37 等值→钉快照+逐件 committer 核验、38 钉死→字段自洽+外部锚、44 序位钉→行级共现、54 调用点锚+剥注释、35 枚举并集、25 列结构钉〕、1 件入 known-red-manifest〔01 语料退化，复审锚+expires〕、0 欺诈/死面）＋75a-check 字面钉普查 348 条全归因注册＋三层命名/无牙族/剥注释纪律落成＋41a-D7 结构不变量化（编年键覆盖集）＋P5-B2 同名断言普查顺带登记
+- adr_range: ADR-0001 ~ ADR-0023（不变）
+- a_range: A-001 ~ A-097
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-148~D-149 应用面）＋ .scratch/architecture-recovery/decision-ledger.md（A-097）
+- impact: 「守卫组」判据升格为全量跑+册制红集管理（registry 触发器 fired）；断言纪律三族（剥注释/层位/无牙）成建制；known-red manifest 首收 1 件
+
