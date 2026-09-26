@@ -1,0 +1,2438 @@
+[
+ {
+  "key": "01-check.mjs|magic-floor|5a113dcf",
+  "file": "01-check.mjs",
+  "kind": "magic-floor",
+  "lno": 33,
+  "excerpt": "chk(Array.isArray(M.calibration.sweep) && M.calibration.sweep.length >= 15, 'D2 ' + m + ' calibration sweep >="
+ },
+ {
+  "key": "01-check.mjs|magic-floor|30958fcf",
+  "file": "01-check.mjs",
+  "kind": "magic-floor",
+  "lno": 20,
+  "excerpt": "chk(corpora.repos[r].delivery.units.length >= 50, 'D1 ' + r + ' delivery units >= 50 (got ' + corpora.repos[r]"
+ },
+ {
+  "key": "01-check.mjs|magic-floor|4edad797",
+  "file": "01-check.mjs",
+  "kind": "magic-floor",
+  "lno": 47,
+  "excerpt": "chk(labels.filter((l) => l.label === 'delivered').length === 13, 'D3 13 delivered');"
+ },
+ {
+  "key": "01-check.mjs|magic-floor|1699072f",
+  "file": "01-check.mjs",
+  "kind": "magic-floor",
+  "lno": 45,
+  "excerpt": "chk(labels.length === 15, 'D3 spot-check labels == 15 (got ' + labels.length + ')');"
+ },
+ {
+  "key": "01-check.mjs|magic-floor|9aaf2e9c",
+  "file": "01-check.mjs",
+  "kind": "magic-floor",
+  "lno": 58,
+  "excerpt": "chk(typeof fallback.combination === 'string' && fallback.combination.length > 10, 'D4 combination formula pres"
+ },
+ {
+  "key": "01-check.mjs|unstripped-scan|a756c866",
+  "file": "01-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "01-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "16-render-split-check.mjs|multi-hit-probe|f6d12d4c",
+  "file": "16-render-split-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "16-render-split-check.mjs → .scratch\\architecture-recovery\\reports\\16-report.md×4"
+ },
+ {
+  "key": "16-render-split-check.mjs|multi-hit-probe|9a335827",
+  "file": "16-render-split-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "16-render-split.json → .scratch\\architecture-recovery\\reports\\16-report.md×8"
+ },
+ {
+  "key": "20-fact-schema-check.mjs|multi-hit-probe|92b18203",
+  "file": "20-fact-schema-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "REFERENCES schema_registry(version) → .scratch\\architecture-recovery\\reports\\08-report.md×2"
+ },
+ {
+  "key": "21-collectors-check.mjs|magic-floor|f436f84c",
+  "file": "21-collectors-check.mjs",
+  "kind": "magic-floor",
+  "lno": 80,
+  "excerpt": "check('S2', COLLECTOR_COLS.length === 13, 'collectorProducedCols=' + COLLECTOR_COLS.length);"
+ },
+ {
+  "key": "22-criteria-check.mjs|existence-assert|34824d83",
+  "file": "22-criteria-check.mjs",
+  "kind": "existence-assert",
+  "lno": 25,
+  "excerpt": "check(e[0], ok, e[1].split('reports')[1] + ' bytes=' + (existsSync(e[1]) ? Buffer.byteLength(readFileSync(e[1]"
+ },
+ {
+  "key": "23-first-report-check.mjs|existence-assert|9393c566",
+  "file": "23-first-report-check.mjs",
+  "kind": "existence-assert",
+  "lno": 45,
+  "excerpt": "check('P3', existsSync(C_BASIS) && cBasisText.indexOf('B1') >= 0 && cBasisText.indexOf('B5') >= 0, 'C 层裁定依据预入库"
+ },
+ {
+  "key": "23-first-report-check.mjs|magic-floor|b7246ef8",
+  "file": "23-first-report-check.mjs",
+  "kind": "magic-floor",
+  "lno": 71,
+  "excerpt": "check('A4', mdHappy.indexOf('RECEIPT ' + carHappy.receipt.receipt_id) >= 0 && carHappy.receipt.chain_hash.leng"
+ },
+ {
+  "key": "23-first-report-check.mjs|magic-floor|2ba68146",
+  "file": "23-first-report-check.mjs",
+  "kind": "magic-floor",
+  "lno": 112,
+  "excerpt": "check('B4', preRegText.indexOf('0.2462') >= 0 && preRegText.indexOf('0.6000') >= 0 && gates.B.tc1.threshold.la"
+ },
+ {
+  "key": "23-first-report-check.mjs|magic-floor|7876081e",
+  "file": "23-first-report-check.mjs",
+  "kind": "magic-floor",
+  "lno": 141,
+  "excerpt": "check('R1', typeof rc.tree_anchor === 'string' && rc.tree_anchor.length === 40 && gitType(rc.tree_anchor) === "
+ },
+ {
+  "key": "23-first-report-check.mjs|magic-floor|0b0a28ad",
+  "file": "23-first-report-check.mjs",
+  "kind": "magic-floor",
+  "lno": 142,
+  "excerpt": "check('R2', rc.content_digest && rc.content_digest.algo === 'sha256' && rc.content_digest.value.length === 64 "
+ },
+ {
+  "key": "23-first-report-check.mjs|unstripped-scan|4d483933",
+  "file": "23-first-report-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "23-first-report-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "24-check.mjs|date-literal|18092635",
+  "file": "24-check.mjs",
+  "kind": "date-literal",
+  "lno": 86,
+  "excerpt": "check('C10', /D-012\\s*5\\s*\\+\\s*D-013\\s*4/.test(gapSrc) && /16\\s*项/.test(gapSrc), 'gap source 2026-09-12-report"
+ },
+ {
+  "key": "24-check.mjs|date-literal|d9d8e494",
+  "file": "24-check.mjs",
+  "kind": "date-literal",
+  "lno": 18,
+  "excerpt": "const GAP_SRC = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-12-report.md');"
+ },
+ {
+  "key": "24-check.mjs|date-literal|4951f348",
+  "file": "24-check.mjs",
+  "kind": "date-literal",
+  "lno": 93,
+  "excerpt": "const wRow = workflow.split('\\n').filter((l) => /^\\|\\s*2026-09-14/.test(l) && /#24|A-028/.test(l));"
+ },
+ {
+  "key": "24-check.mjs|existence-assert|34824d83",
+  "file": "24-check.mjs",
+  "kind": "existence-assert",
+  "lno": 34,
+  "excerpt": "check(e[0], ok, e[1].split('reports')[1] + ' bytes=' + (existsSync(e[1]) ? Buffer.byteLength(readFileSync(e[1]"
+ },
+ {
+  "key": "24-check.mjs|magic-floor|af1714f9",
+  "file": "24-check.mjs",
+  "kind": "magic-floor",
+  "lno": 57,
+  "excerpt": "check('C5', urlCount >= 20, 'url-like refs=' + urlCount);"
+ },
+ {
+  "key": "25-check.mjs|date-literal|0532dab0",
+  "file": "25-check.mjs",
+  "kind": "date-literal",
+  "lno": 95,
+  "excerpt": "check('C8b', a30.indexOf('implemented') >= 0 && a30.indexOf('2026-09-14') >= 0, 'A-030 implemented marker');"
+ },
+ {
+  "key": "25-check.mjs|date-literal|5ca22dbe",
+  "file": "25-check.mjs",
+  "kind": "date-literal",
+  "lno": 99,
+  "excerpt": "const wrows = L(workflow).filter(function (l) { return l.trim().indexOf('| 2026-09-14') === 0; });"
+ },
+ {
+  "key": "25-check.mjs|existence-assert|34824d83",
+  "file": "25-check.mjs",
+  "kind": "existence-assert",
+  "lno": 32,
+  "excerpt": "check(e[0], ok, e[1].split('reports')[1] + ' bytes=' + (existsSync(e[1]) ? Buffer.byteLength(readFileSync(e[1]"
+ },
+ {
+  "key": "25-check.mjs|magic-floor|70a3a6bc",
+  "file": "25-check.mjs",
+  "kind": "magic-floor",
+  "lno": 50,
+  "excerpt": "check('C2b', urlCount >= 10, 'url-like refs=' + urlCount);"
+ },
+ {
+  "key": "25-check.mjs|magic-floor|33d28e0a",
+  "file": "25-check.mjs",
+  "kind": "magic-floor",
+  "lno": 58,
+  "excerpt": "check('C3a', actionRows.length >= 20, 'action rows=' + actionRows.length);"
+ },
+ {
+  "key": "25-check.mjs|magic-floor|975764a0",
+  "file": "25-check.mjs",
+  "kind": "magic-floor",
+  "lno": 89,
+  "excerpt": "check('C7a', backlogIds.length >= 10, 'backlog ids found=' + backlogIds.length + ' ' + backlogIds.join(','));"
+ },
+ {
+  "key": "26-check.mjs|date-literal|663cad76",
+  "file": "26-check.mjs",
+  "kind": "date-literal",
+  "lno": 63,
+  "excerpt": "const ctx = { runId: 'r6-check', traceId: 't', repoRef: '6F@fc00d458', scale: 'Macro-B', observedAt: '2026-09-"
+ },
+ {
+  "key": "26-check.mjs|magic-floor|f901c9b8",
+  "file": "26-check.mjs",
+  "kind": "magic-floor",
+  "lno": 17,
+  "excerpt": "ok(Array.isArray(j.files) && j.files.length === 14, 'A1 真值表覆盖 14 份（13 冻结 + 1 post-freeze）');"
+ },
+ {
+  "key": "26-check.mjs|magic-floor|d8ce2af3",
+  "file": "26-check.mjs",
+  "kind": "magic-floor",
+  "lno": 31,
+  "excerpt": "ok(cellN === 65 && badCell === 0, 'A4 冻结集 65 cells 字段/分类齐备');"
+ },
+ {
+  "key": "26-check.mjs|magic-floor|cfea3c36",
+  "file": "26-check.mjs",
+  "kind": "magic-floor",
+  "lno": 19,
+  "excerpt": "ok(fz.length === 13, 'A2 冻结集恰为 13 份');"
+ },
+ {
+  "key": "26-check.mjs|unstripped-scan|4cba1c09",
+  "file": "26-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "26-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "27-check.mjs|date-literal|97ea9f41",
+  "file": "27-check.mjs",
+  "kind": "date-literal",
+  "lno": 38,
+  "excerpt": "const ctx = { runId: 'r27-check', traceId: 't', repoRef: '6F@fc00d458', scale: 'Macro-B', observedAt: '2026-09"
+ },
+ {
+  "key": "27-check.mjs|date-literal|c2b9268c",
+  "file": "27-check.mjs",
+  "kind": "date-literal",
+  "lno": 30,
+  "excerpt": "ok(Object.values(dd).every(v => v.date === '2026-09-12'), 'B6 全部 13 份 decision_date=2026-09-12（腿序正确）');"
+ },
+ {
+  "key": "27-check.mjs|existence-assert|1cc9c915",
+  "file": "27-check.mjs",
+  "kind": "existence-assert",
+  "lno": 46,
+  "excerpt": "ok(fs.existsSync(path.join(root, 'engine/test/collectors.test.mjs')), 'D1 collectors.test.mjs 存在');"
+ },
+ {
+  "key": "27-check.mjs|magic-floor|eb342816",
+  "file": "27-check.mjs",
+  "kind": "magic-floor",
+  "lno": 27,
+  "excerpt": "ok(d.agreement.all_agree === true && d.agreement.cells_total === 65, 'B4 golden set 一致率 65/65');"
+ },
+ {
+  "key": "27-check.mjs|unstripped-scan|29cf316f",
+  "file": "27-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "27-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "28-check.mjs|date-literal|c8aa2800",
+  "file": "28-check.mjs",
+  "kind": "date-literal",
+  "lno": 98,
+  "excerpt": "check(name + ' - Date: 2026-09-12', cur.split('\\n').includes('- Date: 2026-09-12'));"
+ },
+ {
+  "key": "28-check.mjs|date-literal|9c113e78",
+  "file": "28-check.mjs",
+  "kind": "date-literal",
+  "lno": 106,
+  "excerpt": "check(name + ' Date=git first-commit', first.startsWith('2026-09-12'), first);"
+ },
+ {
+  "key": "28-check.mjs|date-literal|228c3706",
+  "file": "28-check.mjs",
+  "kind": "date-literal",
+  "lno": 141,
+  "excerpt": "check('0014 header fields byte-identical', ['- Status: accepted', '- Date: 2026-09-14'].every((l) => cur14.spl"
+ },
+ {
+  "key": "29-check.mjs|date-literal|4b2e0295",
+  "file": "29-check.mjs",
+  "kind": "date-literal",
+  "lno": 19,
+  "excerpt": "const iD = l.indexOf('### disposition 补记（2026-09-15，票 #29');"
+ },
+ {
+  "key": "29-check.mjs|date-literal|84063a4a",
+  "file": "29-check.mjs",
+  "kind": "date-literal",
+  "lno": 15,
+  "excerpt": "ok(l.includes('2026-09-13T10:49:04.195Z'), 'A2 原时间戳未改');"
+ },
+ {
+  "key": "29-check.mjs|existence-assert|0f01a3d4",
+  "file": "29-check.mjs",
+  "kind": "existence-assert",
+  "lno": 29,
+  "excerpt": "ok(fs.existsSync(path.join(dir, f)), 'C2 证据文件存在: ' + f);"
+ },
+ {
+  "key": "29-check.mjs|unstripped-scan|396083da",
+  "file": "29-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "29-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "30-check.mjs|magic-floor|e761dfa0",
+  "file": "30-check.mjs",
+  "kind": "magic-floor",
+  "lno": 22,
+  "excerpt": "ok(j.items.every(i => i.draft && i.draft.length > 20), 'A7 逐项草案非空');"
+ },
+ {
+  "key": "30-check.mjs|magic-floor|a442be6c",
+  "file": "30-check.mjs",
+  "kind": "magic-floor",
+  "lno": 14,
+  "excerpt": "ok(j.items.length === 13 && WANT.every(t => j.items.some(i => i.task === t)), 'A1 13 项齐备（11 desk + 5 锚行 + 7 单写"
+ },
+ {
+  "key": "30-check.mjs|magic-floor|81f0f1b5",
+  "file": "30-check.mjs",
+  "kind": "magic-floor",
+  "lno": 21,
+  "excerpt": "ok(probeBad === 0 && j.items.filter(i => i.probe).length === 10, 'A6 待探针占位 10 项全带「满足判据+复审时点」');"
+ },
+ {
+  "key": "30-check.mjs|unstripped-scan|fb4eaaae",
+  "file": "30-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "30-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "31-check.mjs|unstripped-scan|f8bc4178",
+  "file": "31-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "31-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "33-check.mjs|multi-hit-probe|9659cd1b",
+  "file": "33-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "acceptance-probe: sealed → .scratch\\architecture-recovery\\reports\\33-check.mjs×2"
+ },
+ {
+  "key": "33-check.mjs|unstripped-scan|0171f1c0",
+  "file": "33-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "33-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "34-check.mjs|magic-floor|bbde8135",
+  "file": "34-check.mjs",
+  "kind": "magic-floor",
+  "lno": 33,
+  "excerpt": "t('G4 name 符合 pattern（小写域名段、无 -- / ..）', /^(?!.*(--|\\.\\.))[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/.test(pj.name) && "
+ },
+ {
+  "key": "34-check.mjs|multi-hit-probe|760eacac",
+  "file": "34-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "${CLAUDE_PLUGIN_ROOT} → .scratch\\architecture-recovery\\reports\\34-check.mjs×4"
+ },
+ {
+  "key": "34-check.mjs|unstripped-scan|bf1a4aff",
+  "file": "34-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "34-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "35-check.mjs|magic-floor|862f9102",
+  "file": "35-check.mjs",
+  "kind": "magic-floor",
+  "lno": 23,
+  "excerpt": "t('A2 实物枚举 >=56 面', recon.enum_count >= 56, 'enum=' + recon.enum_count);"
+ },
+ {
+  "key": "35-check.mjs|magic-floor|353b976d",
+  "file": "35-check.mjs",
+  "kind": "magic-floor",
+  "lno": 24,
+  "excerpt": "t('A3 首批 30 面名 100% 命中实物枚举、零差异', recon.batch1.matched === 30 && recon.batch1.total_spec === 30 && recon.batch1"
+ },
+ {
+  "key": "35-check.mjs|magic-floor|6541c632",
+  "file": "35-check.mjs",
+  "kind": "magic-floor",
+  "lno": 49,
+  "excerpt": "t('B1 manifest 面数=30', fnames.length === 30, fnames.length + '');"
+ },
+ {
+  "key": "35-check.mjs|magic-floor|465a9ad7",
+  "file": "35-check.mjs",
+  "kind": "magic-floor",
+  "lno": 65,
+  "excerpt": "t('B3 族划分 12+6+12', grp.evolution === 12 && grp.s3 === 6 && grp.s5 === 12, JSON.stringify(grp));"
+ },
+ {
+  "key": "35-check.mjs|magic-floor|e74ae5b5",
+  "file": "35-check.mjs",
+  "kind": "magic-floor",
+  "lno": 98,
+  "excerpt": "t('E1 实测 30 面全成 facet_rows、0 错误', pm.facets_contracted === 30 && pm.facet_errors.length === 0, 'contracted=' +"
+ },
+ {
+  "key": "35-check.mjs|magic-floor|e8893a19",
+  "file": "35-check.mjs",
+  "kind": "magic-floor",
+  "lno": 99,
+  "excerpt": "t('E2 facts = 30 facet_rows + 1 resolution，schema v0 字段齐备', facts.length === 31 && facts.filter((f) => f.metri"
+ },
+ {
+  "key": "35-check.mjs|unstripped-scan|391c1449",
+  "file": "35-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "35-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "36-check.mjs|date-literal|90bb93a3",
+  "file": "36-check.mjs",
+  "kind": "date-literal",
+  "lno": 54,
+  "excerpt": "const CTX = { runId: 'g36', traceId: 't'.padEnd(32, '0'), repoRef: 'guard', scale: 'Macro-C', observedAt: '202"
+ },
+ {
+  "key": "36-check.mjs|existence-assert|3047fd34",
+  "file": "36-check.mjs",
+  "kind": "existence-assert",
+  "lno": 17,
+  "excerpt": "t('A1 枚举/证据存档齐备', need.every((f) => fs.existsSync(join(here, f))), need.filter((f) => !fs.existsSync(join(here"
+ },
+ {
+  "key": "36-check.mjs|magic-floor|3dc7de1a",
+  "file": "36-check.mjs",
+  "kind": "magic-floor",
+  "lno": 23,
+  "excerpt": "t('A5 explain topics=46 登记 + LLM 面=3（2 contracted + 1 deferred）', recon.explain_topics.count === 46 && recon.l"
+ },
+ {
+  "key": "36-check.mjs|unstripped-scan|dca97c11",
+  "file": "36-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "36-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "37-check.mjs|existence-assert|5b171c2e",
+  "file": "37-check.mjs",
+  "kind": "existence-assert",
+  "lno": 83,
+  "excerpt": "t('E1 37-report.md 落盘', fs.existsSync(rp), '');"
+ },
+ {
+  "key": "37-check.mjs|magic-floor|6241f095",
+  "file": "37-check.mjs",
+  "kind": "magic-floor",
+  "lno": 79,
+  "excerpt": "t('D6 jiahao 引用网完整（edges≥30 且断链=0 且 defer-registry 在）', jh.supersede_chain.edge_count >= 30 && jh.supersede_ch"
+ },
+ {
+  "key": "37-check.mjs|unstripped-scan|759df05a",
+  "file": "37-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "37-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "38-check.mjs|bare-occurred|bed775b0",
+  "file": "38-check.mjs",
+  "kind": "bare-occurred",
+  "lno": 72,
+  "excerpt": "t('E2 registry 触发器 b 登记：event occurred + confirmations trigger-fired', reg.events['macro-c-shared-duckdb'].occ"
+ },
+ {
+  "key": "38-check.mjs|existence-assert|212aa986",
+  "file": "38-check.mjs",
+  "kind": "existence-assert",
+  "lno": 21,
+  "excerpt": "t('A1 工件七件齐备', ARTIFACTS.every((f) => fs.existsSync(join(here, f))), ARTIFACTS.filter((f) => !fs.existsSync(jo"
+ },
+ {
+  "key": "38-check.mjs|existence-assert|f560bd78",
+  "file": "38-check.mjs",
+  "kind": "existence-assert",
+  "lno": 100,
+  "excerpt": "t('H1 38-report.md 落盘', fs.existsSync(join(here, '38-report.md')), '');"
+ },
+ {
+  "key": "38-check.mjs|magic-floor|0ffcef69",
+  "file": "38-check.mjs",
+  "kind": "magic-floor",
+  "lno": 48,
+  "excerpt": "t('D2 codelore 契约面 30/30 facet_rows 零 error + resolution pinned', metric('codelore.facet_rows').length === 30 "
+ },
+ {
+  "key": "38-check.mjs|unstripped-scan|606dc30b",
+  "file": "38-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "38-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "39-check.mjs|bare-occurred|31d1dad8",
+  "file": "39-check.mjs",
+  "kind": "bare-occurred",
+  "lno": 95,
+  "excerpt": "t('E1 registry 事件 mw-regression-ci occurred=true + 证据含 jiahao workflow', reg.events['mw-regression-ci'].occurr"
+ },
+ {
+  "key": "39-check.mjs|date-literal|f881aa38",
+  "file": "39-check.mjs",
+  "kind": "date-literal",
+  "lno": 134,
+  "excerpt": "t('H4 账本 A-044 回写 done → implemented（2026-09-16）', a044.includes('done → implemented（2026-09-16）'), '');"
+ },
+ {
+  "key": "39-check.mjs|date-literal|807ffb6c",
+  "file": "39-check.mjs",
+  "kind": "date-literal",
+  "lno": 140,
+  "excerpt": "t('H7 WORKFLOW §4 lessons 追加本票行（#39/A-044）', /2026-09-16[^\\n]*(#39|A-044)/.test(wfMd), '');"
+ },
+ {
+  "key": "39-check.mjs|existence-assert|843a37a0",
+  "file": "39-check.mjs",
+  "kind": "existence-assert",
+  "lno": 30,
+  "excerpt": "t('A1 工件齐备（3仓×4 + 汇总 + duckdb + 脚本×3 + self-probe 产物）', ARTIFACTS.every((f) => fs.existsSync(join(here, f))), "
+ },
+ {
+  "key": "39-check.mjs|existence-assert|52e7d2a9",
+  "file": "39-check.mjs",
+  "kind": "existence-assert",
+  "lno": 126,
+  "excerpt": "t('H1 39-report.md 落盘', fs.existsSync(join(here, '39-report.md')), '');"
+ },
+ {
+  "key": "39-check.mjs|unstripped-scan|3178555a",
+  "file": "39-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "39-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "40-check.mjs|bare-occurred|04e397f7",
+  "file": "40-check.mjs",
+  "kind": "bare-occurred",
+  "lno": 111,
+  "excerpt": "t('F1 first-external-repo.occurred = true（实跑完成后翻转）', reg.events['first-external-repo'].occurred === true);"
+ },
+ {
+  "key": "40-check.mjs|date-literal|ac4d8407",
+  "file": "40-check.mjs",
+  "kind": "date-literal",
+  "lno": 130,
+  "excerpt": "const maReport = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');"
+ },
+ {
+  "key": "40-check.mjs|existence-assert|da8c99e1",
+  "file": "40-check.mjs",
+  "kind": "existence-assert",
+  "lno": 71,
+  "excerpt": "t(n + ' 在位', existsSync(p), p);"
+ },
+ {
+  "key": "40-check.mjs|existence-assert|83719f0f",
+  "file": "40-check.mjs",
+  "kind": "existence-assert",
+  "lno": 25,
+  "excerpt": "t('A1 目标选定记录在位（40-target-selection.json）', existsSync(join(HERE, '40-target-selection.json')));"
+ },
+ {
+  "key": "40-check.mjs|existence-assert|a0f8ee76",
+  "file": "40-check.mjs",
+  "kind": "existence-assert",
+  "lno": 29,
+  "excerpt": "t('A4 intake 回执在位（40-intake-receipt.json）', existsSync(join(HERE, '40-intake-receipt.json')));"
+ },
+ {
+  "key": "40-check.mjs|existence-assert|e131278f",
+  "file": "40-check.mjs",
+  "kind": "existence-assert",
+  "lno": 38,
+  "excerpt": "t('B1 clone 缓存目录实物在位', existsSync(CACHE) && existsSync(join(CACHE, '.git')));"
+ },
+ {
+  "key": "40-check.mjs|existence-assert|92afe409",
+  "file": "40-check.mjs",
+  "kind": "existence-assert",
+  "lno": 61,
+  "excerpt": "t('C6 intake 契约测试在位且入 smoke 链', existsSync(join(REPO, 'engine', 'test', 'intake.test.mjs')) && readFileSync(jo"
+ },
+ {
+  "key": "40-check.mjs|existence-assert|778e37e5",
+  "file": "40-check.mjs",
+  "kind": "existence-assert",
+  "lno": 97,
+  "excerpt": "t('E1 对照表在位（40-external-comparison.json）', existsSync(join(HERE, '40-external-comparison.json')));"
+ },
+ {
+  "key": "40-check.mjs|existence-assert|8bd2e0b5",
+  "file": "40-check.mjs",
+  "kind": "existence-assert",
+  "lno": 106,
+  "excerpt": "t('E7 基线实测文件在位（39-macro-b-*-measurements.json ×3 + 汇总）', BASES.every(b => existsSync(join(HERE, '39-macro-b-' "
+ },
+ {
+  "key": "40-check.mjs|existence-assert|15be4558",
+  "file": "40-check.mjs",
+  "kind": "existence-assert",
+  "lno": 121,
+  "excerpt": "t('G1 40-report.md 在位且六段齐备', existsSync(reportMd) && ['②', '③', '④', '⑤', '⑥'].every(m => readFileSync(reportM"
+ },
+ {
+  "key": "40-check.mjs|existence-assert|e7f4d881",
+  "file": "40-check.mjs",
+  "kind": "existence-assert",
+  "lno": 131,
+  "excerpt": "t('G6 macro-audit 日报含 #40 窗口节', existsSync(maReport) && readFileSync(maReport, 'utf8').indexOf('gsd-core') >= "
+ },
+ {
+  "key": "40-check.mjs|magic-floor|615159de",
+  "file": "40-check.mjs",
+  "kind": "magic-floor",
+  "lno": 50,
+  "excerpt": "t('B7 clone 历史深度 >1000 commits（全深度非浅层表象）', commits > 1000, String(commits));"
+ },
+ {
+  "key": "40-check.mjs|multi-hit-probe|38bc95ee",
+  "file": "40-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "SHALLOW-CLONE-REJECTED → engine\\src\\intake\\intake.ts×4"
+ },
+ {
+  "key": "40-check.mjs|unstripped-scan|a2ee7553",
+  "file": "40-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "40-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "41a-check.mjs|date-literal|a0ec6308",
+  "file": "41a-check.mjs",
+  "kind": "date-literal",
+  "lno": 111,
+  "excerpt": "const ma = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');"
+ },
+ {
+  "key": "41a-check.mjs|date-literal|83b08ded",
+  "file": "41a-check.mjs",
+  "kind": "date-literal",
+  "lno": 35,
+  "excerpt": "t('B4 披露四要素齐：真实产物声明＋生成 commit fc00d458＋日期 2026-09-13T14:31:09＋重生成命令 23-first-report.mjs', exReadme.indexOf('真实"
+ },
+ {
+  "key": "41a-check.mjs|date-literal|1e21f7b2",
+  "file": "41a-check.mjs",
+  "kind": "date-literal",
+  "lno": 100,
+  "excerpt": "t('F1 A-051 账本行 done → implemented（2026-09-16）', /A-051[^\\n]*done → implemented（2026-09-16）/.test(aLedge));"
+ },
+ {
+  "key": "41a-check.mjs|date-literal|698bd883",
+  "file": "41a-check.mjs",
+  "kind": "date-literal",
+  "lno": 105,
+  "excerpt": "t('F4 next-round T6 行 ✅ DONE 且进度块含 #41a', /T6 分发收尾·仓内文档面（#41a\\/R6-03[^）]*）✅ DONE 2026-09-16/.test(nr) && nr.in"
+ },
+ {
+  "key": "41a-check.mjs|date-literal|b36efcd2",
+  "file": "41a-check.mjs",
+  "kind": "date-literal",
+  "lno": 107,
+  "excerpt": "t('F5 BACKLOG #41a 行回写闭环', /#41a[^\\n]*✅ 2026-09-16 已闭环/.test(bl));"
+ },
+ {
+  "key": "41a-check.mjs|existence-assert|64fe7c88",
+  "file": "41a-check.mjs",
+  "kind": "existence-assert",
+  "lno": 28,
+  "excerpt": "t('A2 handoff + prompt 三件套齐备', existsSync(join(REPO, '.scratch', 'architecture-recovery', 'handoffs', '41a-dis"
+ },
+ {
+  "key": "41a-check.mjs|existence-assert|d91cb916",
+  "file": "41a-check.mjs",
+  "kind": "existence-assert",
+  "lno": 31,
+  "excerpt": "t('B1 四件名逐字落位 examples/first-report/', FOUR.every(f => existsSync(join(EX, f))));"
+ },
+ {
+  "key": "41a-check.mjs|existence-assert|bc70877a",
+  "file": "41a-check.mjs",
+  "kind": "existence-assert",
+  "lno": 33,
+  "excerpt": "t('B3 .scratch 原件保留（溯源链未断）', FOUR.every(f => existsSync(join(RPTS, f))));"
+ },
+ {
+  "key": "41a-check.mjs|existence-assert|a45ee4dc",
+  "file": "41a-check.mjs",
+  "kind": "existence-assert",
+  "lno": 56,
+  "excerpt": "t('D1 仓根 CHANGELOG.md 在（W4 悬空指针闭环实体）', existsSync(clP));"
+ },
+ {
+  "key": "41a-check.mjs|existence-assert|130ac913",
+  "file": "41a-check.mjs",
+  "kind": "existence-assert",
+  "lno": 109,
+  "excerpt": "t('F6 41a-report.md 在且六段齐备（①~⑥）', existsSync(join(HERE, '41a-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].ev"
+ },
+ {
+  "key": "41a-check.mjs|existence-assert|a4bdd801",
+  "file": "41a-check.mjs",
+  "kind": "existence-assert",
+  "lno": 112,
+  "excerpt": "t('F8 macro-audit 日报含 #41a 窗口节', existsSync(ma) && txt(ma).indexOf('#41a') >= 0);"
+ },
+ {
+  "key": "41a-check.mjs|multi-hit-probe|52426fea",
+  "file": "41a-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": ".scratch/architecture-recovery/reports/23-first-report → .scratch\\architecture-recovery\\reports\\23-first-report.json×6"
+ },
+ {
+  "key": "41a-check.mjs|multi-hit-probe|0f24c21e",
+  "file": "41a-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "build-scope ≠ release-sequence → .scratch\\architecture-recovery\\reports\\41a-check.mjs×2"
+ },
+ {
+  "key": "41a-check.mjs|multi-hit-probe|444ebe11",
+  "file": "41a-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "examples/first-report/ → README.md×8"
+ },
+ {
+  "key": "41a-check.mjs|multi-hit-probe|e382401d",
+  "file": "41a-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "fc00d458e215cc9a7a26af81626dec8712622821 → .scratch\\architecture-recovery\\reports\\23-first-report-failure.json×3"
+ },
+ {
+  "key": "41a-check.mjs|multi-hit-probe|0ff109d7",
+  "file": "41a-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "github.com/open-gsd/gsd-core → .scratch\\architecture-recovery\\reports\\40-clone-cache\\repos\\f0b1eba9471ef4de\\CONTRIBUTING.md×8"
+ },
+ {
+  "key": "41a-check.mjs|multi-hit-probe|1c9347b0",
+  "file": "41a-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "Try on a real repository → .scratch\\architecture-recovery\\reports\\41a-report.md×4"
+ },
+ {
+  "key": "41a-check.mjs|unstripped-scan|8e91ace3",
+  "file": "41a-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "41a-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "41b-check.mjs|date-literal|92d5e5fe",
+  "file": "41b-check.mjs",
+  "kind": "date-literal",
+  "lno": 78,
+  "excerpt": "t('E4 日报含 #41b', (existsSync(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-report.md')) ? txt(j"
+ },
+ {
+  "key": "41b-check.mjs|existence-assert|1fc9bbe7",
+  "file": "41b-check.mjs",
+  "kind": "existence-assert",
+  "lno": 44,
+  "excerpt": "t('A10 单一 .mcp.json 自动发现位＋无兄弟 mcp.json 同位遮蔽（cursor#252 教训）', existsSync(join(REPO, 'engine', '.mcp.json')) && "
+ },
+ {
+  "key": "41b-check.mjs|existence-assert|8fb8db4e",
+  "file": "41b-check.mjs",
+  "kind": "existence-assert",
+  "lno": 69,
+  "excerpt": "t('D3 字段查证文档在', existsSync(join(REPO, '.scratch', 'macro-audit', 'reports', '41b-marketplace-fields.md')));"
+ },
+ {
+  "key": "41b-check.mjs|existence-assert|a3e83ac5",
+  "file": "41b-check.mjs",
+  "kind": "existence-assert",
+  "lno": 70,
+  "excerpt": "t('D4 icon.svg 在', existsSync(join(REPO, 'docs', 'listing', 'icon.svg')));"
+ },
+ {
+  "key": "41b-check.mjs|existence-assert|fe8cf216",
+  "file": "41b-check.mjs",
+  "kind": "existence-assert",
+  "lno": 77,
+  "excerpt": "t('E3 票档三件套', ['issues/41b-listing-assets.md', 'prompts/41b-listing-assets.md', 'handoffs/41b-listing-assets.m"
+ },
+ {
+  "key": "41b-check.mjs|existence-assert|92d5e5fe",
+  "file": "41b-check.mjs",
+  "kind": "existence-assert",
+  "lno": 78,
+  "excerpt": "t('E4 日报含 #41b', (existsSync(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-report.md')) ? txt(j"
+ },
+ {
+  "key": "41b-check.mjs|existence-assert|f30742df",
+  "file": "41b-check.mjs",
+  "kind": "existence-assert",
+  "lno": 79,
+  "excerpt": "t('E5 41b-report.md 在', existsSync(join(HERE, '41b-report.md')));"
+ },
+ {
+  "key": "41b-check.mjs|existence-assert|650b0e06",
+  "file": "41b-check.mjs",
+  "kind": "existence-assert",
+  "lno": 84,
+  "excerpt": "t('F1 全部相关文件无 BOM', allF.every(function (f) { return !existsSync(f) || noBom(f); }));"
+ },
+ {
+  "key": "41b-check.mjs|unstripped-scan|4ea146a5",
+  "file": "41b-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "41b-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "42-check.mjs|date-literal|a0ec6308",
+  "file": "42-check.mjs",
+  "kind": "date-literal",
+  "lno": 117,
+  "excerpt": "const ma = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');"
+ },
+ {
+  "key": "42-check.mjs|date-literal|a8123cbc",
+  "file": "42-check.mjs",
+  "kind": "date-literal",
+  "lno": 108,
+  "excerpt": "t('F3 A-047 账本行 done → implemented（2026-09-16）', /A-047[^\\n]*done → implemented（2026-09-16）/.test(aLedge));"
+ },
+ {
+  "key": "42-check.mjs|existence-assert|516c3469",
+  "file": "42-check.mjs",
+  "kind": "existence-assert",
+  "lno": 46,
+  "excerpt": "t('A1 42-dump-comparison.md 在位', existsSync(cmpP) && cmp.length > 2000);"
+ },
+ {
+  "key": "42-check.mjs|existence-assert|2c801696",
+  "file": "42-check.mjs",
+  "kind": "existence-assert",
+  "lno": 60,
+  "excerpt": "t('B1 42-probe.mjs 在位且声明只读纪律（禁 analyze --output/写副作用注记）', existsSync(probeP) && txt(probeP).indexOf('只读') >= 0"
+ },
+ {
+  "key": "42-check.mjs|existence-assert|78cddb3d",
+  "file": "42-check.mjs",
+  "kind": "existence-assert",
+  "lno": 68,
+  "excerpt": "t('B7 六件只读档案齐（version/top-help/analyze-help/docs/schema/profile）', arch.every(f => existsSync(join(HERE, f))),"
+ },
+ {
+  "key": "42-check.mjs|existence-assert|b06c75ec",
+  "file": "42-check.mjs",
+  "kind": "existence-assert",
+  "lno": 96,
+  "excerpt": "t('E1 五份 preview 报告均在位', allPrev.every(f => existsSync(join(HERE, f))), allPrev.filter(f => !existsSync(join(H"
+ },
+ {
+  "key": "42-check.mjs|existence-assert|8d600815",
+  "file": "42-check.mjs",
+  "kind": "existence-assert",
+  "lno": 116,
+  "excerpt": "t('F7 42-report.md 在且六段齐备（①~⑥）', existsSync(join(HERE, '42-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].ever"
+ },
+ {
+  "key": "42-check.mjs|existence-assert|3bea7406",
+  "file": "42-check.mjs",
+  "kind": "existence-assert",
+  "lno": 118,
+  "excerpt": "t('F8 macro-audit 日报含 #42 窗口节', existsSync(ma) && txt(ma).indexOf('窗口：#42') >= 0);"
+ },
+ {
+  "key": "42-check.mjs|existence-assert|c9abba0c",
+  "file": "42-check.mjs",
+  "kind": "existence-assert",
+  "lno": 129,
+  "excerpt": "t('G1 全部新增/改动文件无 BOM', newFiles.every(f => !existsSync(f) || noBom(f)), newFiles.filter(f => existsSync(f) && "
+ },
+ {
+  "key": "42-check.mjs|magic-floor|516c3469",
+  "file": "42-check.mjs",
+  "kind": "magic-floor",
+  "lno": 46,
+  "excerpt": "t('A1 42-dump-comparison.md 在位', existsSync(cmpP) && cmp.length > 2000);"
+ },
+ {
+  "key": "42-check.mjs|magic-floor|17ac4972",
+  "file": "42-check.mjs",
+  "kind": "magic-floor",
+  "lno": 64,
+  "excerpt": "t('B4 内部 schema 实物锚（schema_v8 / DuckDB pin / 57 分析面＋57 行类型）', (meas.profile_schema || '').indexOf('schema_v8')"
+ },
+ {
+  "key": "42-check.mjs|multi-hit-probe|10741f72",
+  "file": "42-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "42-dump-comparison.md → .scratch\\architecture-recovery\\reports\\42-check.mjs×5"
+ },
+ {
+  "key": "42-check.mjs|multi-hit-probe|75a6d9b5",
+  "file": "42-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "full fact-store dump → .scratch\\architecture-recovery\\reports\\42-check.mjs×4"
+ },
+ {
+  "key": "42-check.mjs|multi-hit-probe|f7a3135b",
+  "file": "42-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "parquet: hotspots, revisions, summary → .scratch\\architecture-recovery\\reports\\42-check.mjs×2"
+ },
+ {
+  "key": "42-check.mjs|multi-hit-probe|771bd2c6",
+  "file": "42-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "sqlite: full fact-store dump → .scratch\\architecture-recovery\\reports\\42-check.mjs×3"
+ },
+ {
+  "key": "42-check.mjs|unstripped-scan|ea3163f8",
+  "file": "42-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "42-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "43-check.mjs|date-literal|ac4d8407",
+  "file": "43-check.mjs",
+  "kind": "date-literal",
+  "lno": 115,
+  "excerpt": "const maReport = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');"
+ },
+ {
+  "key": "43-check.mjs|existence-assert|b23b1397",
+  "file": "43-check.mjs",
+  "kind": "existence-assert",
+  "lno": 51,
+  "excerpt": "t('B1 冻结 bundle 在位且 verify 通过', existsSync(BUNDLE) && ((() => { const r = spawnSync('git', ['bundle', 'verify'"
+ },
+ {
+  "key": "43-check.mjs|existence-assert|7356a528",
+  "file": "43-check.mjs",
+  "kind": "existence-assert",
+  "lno": 58,
+  "excerpt": "t('B4 overlay README 等签名重构：top-20 关键词计数与 golden 签名逐项一致', existsSync(OVERLAY) && Object.keys(SIG).every(k => oc"
+ },
+ {
+  "key": "43-check.mjs|existence-assert|7dc6b207",
+  "file": "43-check.mjs",
+  "kind": "existence-assert",
+  "lno": 114,
+  "excerpt": "t('D8 43-report.md 在位且六段齐备', existsSync(join(HERE, '43-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(m "
+ },
+ {
+  "key": "43-check.mjs|existence-assert|23bf90be",
+  "file": "43-check.mjs",
+  "kind": "existence-assert",
+  "lno": 116,
+  "excerpt": "t('D9 macro-audit 日报含 #43 窗口节', existsSync(maReport) && readFileSync(maReport, 'utf8').indexOf('#43') >= 0);"
+ },
+ {
+  "key": "43-check.mjs|magic-floor|fa6ba623",
+  "file": "43-check.mjs",
+  "kind": "magic-floor",
+  "lno": 64,
+  "excerpt": "t('B5 overlay top-20 词表与序与 golden 逐字一致（rank-21 边界 <16）', JSON.stringify(keys.slice(0, 20)) === JSON.stringify("
+ },
+ {
+  "key": "43-check.mjs|multi-hit-probe|5e5befb6",
+  "file": "43-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "23-frozen-readme-overlay.md → .scratch\\architecture-recovery\\reports\\43-check.mjs×2"
+ },
+ {
+  "key": "43-check.mjs|multi-hit-probe|ca225b06",
+  "file": "43-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "git status --porcelain → .scratch\\architecture-recovery\\reports\\01-corpora.json×3"
+ },
+ {
+  "key": "43-check.mjs|multi-hit-probe|e0c18297",
+  "file": "43-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "node .scratch/architecture-recovery/reports/23-first-report.mjs → .scratch\\architecture-recovery\\reports\\23-first-report.json×6"
+ },
+ {
+  "key": "43-check.mjs|multi-hit-probe|ace658c8",
+  "file": "43-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "node scripts/gen-demo-golden.mjs → .scratch\\architecture-recovery\\reports\\43-report.md×2"
+ },
+ {
+  "key": "43-check.mjs|unstripped-scan|0b64dae1",
+  "file": "43-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "43-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "44-check.mjs|date-literal|a0ec6308",
+  "file": "44-check.mjs",
+  "kind": "date-literal",
+  "lno": 235,
+  "excerpt": "const ma = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');"
+ },
+ {
+  "key": "44-check.mjs|date-literal|f0389d13",
+  "file": "44-check.mjs",
+  "kind": "date-literal",
+  "lno": 226,
+  "excerpt": "t('G4 A-049 账本行 done → implemented（2026-09-16）', /A-049[^\\n]*done → implemented（2026-09-16）/.test(aLedge));"
+ },
+ {
+  "key": "44-check.mjs|existence-assert|6034bdcd",
+  "file": "44-check.mjs",
+  "kind": "existence-assert",
+  "lno": 74,
+  "excerpt": "t('A1 upstream-lock.yaml 在位且无 BOM', existsSync(LOCK) && noBom(LOCK));"
+ },
+ {
+  "key": "44-check.mjs|existence-assert|779fb97e",
+  "file": "44-check.mjs",
+  "kind": "existence-assert",
+  "lno": 104,
+  "excerpt": "t('A14 upstream 适配器文件无 S1-S5 字样（映射=业务语义禁入防腐层，ADR-0014/D-078⑥）', UP_FILES.every(f => !existsSync(f) || !/\\bS[1-"
+ },
+ {
+  "key": "44-check.mjs|existence-assert|f533d44c",
+  "file": "44-check.mjs",
+  "kind": "existence-assert",
+  "lno": 107,
+  "excerpt": "t('A16 docs/upstream-dimension-map.md 在且骨架齐（准入条件列＋永久排除行＋双挂＋复审两字段）', existsSync(DIMMAP) && ['准入条件', '永久排除', 'S5"
+ },
+ {
+  "key": "44-check.mjs|existence-assert|bafbfd0d",
+  "file": "44-check.mjs",
+  "kind": "existence-assert",
+  "lno": 184,
+  "excerpt": "t('F1 仓根 CHANGELOG 在＋M-键条目＋无版本号头', existsSync(clP) && /## \\[M-\\d{3}\\] - \\d{4}-\\d{2}-\\d{2}/.test(cl) && !/## \\["
+ },
+ {
+  "key": "44-check.mjs|existence-assert|67836534",
+  "file": "44-check.mjs",
+  "kind": "existence-assert",
+  "lno": 224,
+  "excerpt": "t('G2 handoff＋prompt 三件套齐备', existsSync(join(REPO, '.scratch', 'architecture-recovery', 'handoffs', '44-upstre"
+ },
+ {
+  "key": "44-check.mjs|existence-assert|1b9fb28a",
+  "file": "44-check.mjs",
+  "kind": "existence-assert",
+  "lno": 234,
+  "excerpt": "t('G8 44-report.md 在且六段齐备（①~⑥）', existsSync(join(HERE, '44-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].ever"
+ },
+ {
+  "key": "44-check.mjs|existence-assert|4ef92821",
+  "file": "44-check.mjs",
+  "kind": "existence-assert",
+  "lno": 236,
+  "excerpt": "t('G9 macro-audit 日报含 #44 窗口节', existsSync(ma) && txt(ma).indexOf('窗口：#44') >= 0);"
+ },
+ {
+  "key": "44-check.mjs|existence-assert|d9515ffc",
+  "file": "44-check.mjs",
+  "kind": "existence-assert",
+  "lno": 246,
+  "excerpt": "t('H1 全部新增/改动文件无 BOM', newFiles.every(f => !existsSync(f) || noBom(f)), newFiles.filter(f => existsSync(f) && "
+ },
+ {
+  "key": "44-check.mjs|multi-hit-probe|7a1a00ec",
+  "file": "44-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": ".scratch/architecture-recovery/decision-ledger.md → CHANGELOG.md×20"
+ },
+ {
+  "key": "44-check.mjs|multi-hit-probe|20b20aa2",
+  "file": "44-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": ".scratch/macro-audit/decision-ledger.md → CHANGELOG.md×18"
+ },
+ {
+  "key": "44-check.mjs|multi-hit-probe|05991c04",
+  "file": "44-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "禁 range/浮动 tag/latest → .scratch\\architecture-recovery\\reports\\44-check.mjs×3"
+ },
+ {
+  "key": "44-check.mjs|multi-hit-probe|ea0208c1",
+  "file": "44-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "capability 2 of 5 · preview → .scratch\\architecture-recovery\\reports\\38-check.mjs×4"
+ },
+ {
+  "key": "44-check.mjs|multi-hit-probe|90b9d7e4",
+  "file": "44-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "capability 4 of 5 · preview → .scratch\\architecture-recovery\\reports\\44-check.mjs×2"
+ },
+ {
+  "key": "44-check.mjs|multi-hit-probe|18ea0e07",
+  "file": "44-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "engine/upstream-lock.yaml → README.md×6"
+ },
+ {
+  "key": "44-check.mjs|toothless|1d057f0d",
+  "file": "44-check.mjs",
+  "kind": "toothless",
+  "lno": 121,
+  "excerpt": "t('B4 实跑 codelore --version 解析版本=' + binVer + '（binary-discovery 契约实跑）', true);"
+ },
+ {
+  "key": "44-check.mjs|unstripped-scan|1301a11b",
+  "file": "44-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "44-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "45-check.mjs|date-literal|ac4d8407",
+  "file": "45-check.mjs",
+  "kind": "date-literal",
+  "lno": 116,
+  "excerpt": "const maReport = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');"
+ },
+ {
+  "key": "45-check.mjs|existence-assert|87d159f3",
+  "file": "45-check.mjs",
+  "kind": "existence-assert",
+  "lno": 27,
+  "excerpt": "t('A1 三场景定义文件在 fixtures/definitions/（名逐字 D-038）', SCENARIOS.every(s => existsSync(join(DEFS, s + '.json'))));"
+ },
+ {
+  "key": "45-check.mjs|existence-assert|f565c319",
+  "file": "45-check.mjs",
+  "kind": "existence-assert",
+  "lno": 32,
+  "excerpt": "t('A4 golden 三场景目录齐备（4 件/场景）+ manifest.json', SCENARIOS.every(s => GOLDEN_FILES.every(f => existsSync(join(GOL"
+ },
+ {
+  "key": "45-check.mjs|existence-assert|0dd7fb79",
+  "file": "45-check.mjs",
+  "kind": "existence-assert",
+  "lno": 48,
+  "excerpt": "t('B8 dist 编译产物在位（demo.js + fixture-generator.js）', existsSync(join(ENG, 'dist', 'demo', 'demo.js')) && exists"
+ },
+ {
+  "key": "45-check.mjs|existence-assert|08a6a119",
+  "file": "45-check.mjs",
+  "kind": "existence-assert",
+  "lno": 60,
+  "excerpt": "t('C2 三场景产物 4 件落盘（report.md/json + measurements + facts）', SCENARIOS.every(s => runs[s].outDir && GOLDEN_FILES"
+ },
+ {
+  "key": "45-check.mjs|existence-assert|b0c255b1",
+  "file": "45-check.mjs",
+  "kind": "existence-assert",
+  "lno": 103,
+  "excerpt": "t('G3 重渲染脚本在位（#43 CI diff 入口）+ 引用同一 runDemo 管线', existsSync(genScript) && readFileSync(genScript, 'utf8').inde"
+ },
+ {
+  "key": "45-check.mjs|existence-assert|46c9139d",
+  "file": "45-check.mjs",
+  "kind": "existence-assert",
+  "lno": 108,
+  "excerpt": "t('H2 handoff + prompt 三件套齐备', existsSync(join(REPO, '.scratch', 'architecture-recovery', 'handoffs', '45-demo"
+ },
+ {
+  "key": "45-check.mjs|existence-assert|9b34affb",
+  "file": "45-check.mjs",
+  "kind": "existence-assert",
+  "lno": 115,
+  "excerpt": "t('H6 45-report.md 在位且六段齐备', existsSync(join(HERE, '45-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(m "
+ },
+ {
+  "key": "45-check.mjs|existence-assert|351390c5",
+  "file": "45-check.mjs",
+  "kind": "existence-assert",
+  "lno": 117,
+  "excerpt": "t('H7 macro-audit 日报含 #45 窗口节', existsSync(maReport) && readFileSync(maReport, 'utf8').indexOf('#45') >= 0);"
+ },
+ {
+  "key": "45-check.mjs|multi-hit-probe|ee056eca",
+  "file": "45-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "DEMO-SCENARIO-UNKNOWN → .scratch\\architecture-recovery\\reports\\45-check.mjs×2"
+ },
+ {
+  "key": "45-check.mjs|multi-hit-probe|639265f2",
+  "file": "45-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "from '../intake/intake.js' → engine\\src\\audit\\audit.ts×2"
+ },
+ {
+  "key": "45-check.mjs|multi-hit-probe|6d791f0c",
+  "file": "45-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "not an audit of any real repository → engine\\src\\demo\\demo.ts×5"
+ },
+ {
+  "key": "45-check.mjs|multi-hit-probe|c964812d",
+  "file": "45-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "supply-chain: ⚠ unverified → .scratch\\architecture-recovery\\issues\\45-demo-entry.md×2"
+ },
+ {
+  "key": "45-check.mjs|unstripped-scan|f77f6a51",
+  "file": "45-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "45-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "46-check.mjs|date-literal|96d3c5a5",
+  "file": "46-check.mjs",
+  "kind": "date-literal",
+  "lno": 82,
+  "excerpt": "const rep = txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md'));"
+ },
+ {
+  "key": "46-check.mjs|existence-assert|91e2fa9d",
+  "file": "46-check.mjs",
+  "kind": "existence-assert",
+  "lno": 51,
+  "excerpt": "t('B1 jiahao 工作树该文件已缺席', !existsSync(jhWf));"
+ },
+ {
+  "key": "46-check.mjs|existence-assert|9114e0e4",
+  "file": "46-check.mjs",
+  "kind": "existence-assert",
+  "lno": 61,
+  "excerpt": "t('C1 46-out/ 工件集六件齐备', C_FILES.every(f => existsSync(join(OUT, f))), C_FILES.filter(f => !existsSync(join(OUT"
+ },
+ {
+  "key": "46-check.mjs|existence-assert|18895c12",
+  "file": "46-check.mjs",
+  "kind": "existence-assert",
+  "lno": 74,
+  "excerpt": "t('D2 engine dist/cli.js 构建产物在', existsSync(join(REPO, 'engine', 'dist', 'cli.js')));"
+ },
+ {
+  "key": "46-check.mjs|multi-hit-probe|d46c5672",
+  "file": "46-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "39-macro-b-one-shot.mjs → .scratch\\architecture-recovery\\reports\\39-macro-b-anysearch-cli.json×9"
+ },
+ {
+  "key": "46-check.mjs|multi-hit-probe|6177aad6",
+  "file": "46-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "clone \"${{ matrix.repo.url }}\" → .scratch\\architecture-recovery\\reports\\46-check.mjs×2"
+ },
+ {
+  "key": "46-check.mjs|multi-hit-probe|5a53920e",
+  "file": "46-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "https://github.com/Xxx91n/jiahao.git → .scratch\\architecture-recovery\\reports\\37-pilot-measurements.json×3"
+ },
+ {
+  "key": "46-check.mjs|multi-hit-probe|61f53b81",
+  "file": "46-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "MACRO_AUDIT_6F_TOKEN → .scratch\\architecture-recovery\\reports\\46-check.mjs×2"
+ },
+ {
+  "key": "46-check.mjs|multi-hit-probe|e568f48e",
+  "file": "46-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "npm ci --ignore-scripts → .scratch\\architecture-recovery\\reports\\round10-r9exec-audit.md×3"
+ },
+ {
+  "key": "46-check.mjs|multi-hit-probe|f407af80",
+  "file": "46-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "protocol.ext.allow=never → .scratch\\architecture-recovery\\reports\\40-check.mjs×3"
+ },
+ {
+  "key": "46-check.mjs|multi-hit-probe|7e0955d5",
+  "file": "46-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "repository: Xxx91n/6F → .scratch\\architecture-recovery\\reports\\46-check.mjs×2"
+ },
+ {
+  "key": "46-check.mjs|unstripped-scan|d06ae34c",
+  "file": "46-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "46-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "47-check.mjs|date-literal|a0ec6308",
+  "file": "47-check.mjs",
+  "kind": "date-literal",
+  "lno": 116,
+  "excerpt": "const ma = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');"
+ },
+ {
+  "key": "47-check.mjs|date-literal|b33d5168",
+  "file": "47-check.mjs",
+  "kind": "date-literal",
+  "lno": 27,
+  "excerpt": "t('A2 API 版本常量 pin=2022-11-28', src.includes(\"GITHUB_API_VERSION = '2022-11-28'\"));"
+ },
+ {
+  "key": "47-check.mjs|date-literal|72d27b51",
+  "file": "47-check.mjs",
+  "kind": "date-literal",
+  "lno": 98,
+  "excerpt": "t('E3 锁表 version/pin_type=api-version 填实', grow.includes('version: \"2022-11-28\"') && grow.includes('pin_type: "
+ },
+ {
+  "key": "47-check.mjs|existence-assert|210e09f4",
+  "file": "47-check.mjs",
+  "kind": "existence-assert",
+  "lno": 25,
+  "excerpt": "t('A1 src/upstream/github-rest.ts 在', existsSync(SRC));"
+ },
+ {
+  "key": "47-check.mjs|existence-assert|38a8efa2",
+  "file": "47-check.mjs",
+  "kind": "existence-assert",
+  "lno": 39,
+  "excerpt": "t('A9 dist/upstream/github-rest.js 编译产物在（测试作用于 dist）', existsSync(DIST));"
+ },
+ {
+  "key": "47-check.mjs|existence-assert|e60dfcdc",
+  "file": "47-check.mjs",
+  "kind": "existence-assert",
+  "lno": 47,
+  "excerpt": "t('B1 五 cassette 全在', cassettes.every((n) => existsSync(join(FXD, n + '.cassette.json'))));"
+ },
+ {
+  "key": "47-check.mjs|existence-assert|b5a5fe89",
+  "file": "47-check.mjs",
+  "kind": "existence-assert",
+  "lno": 65,
+  "excerpt": "t('C1 test/github-rest.test.mjs 在', existsSync(testP));"
+ },
+ {
+  "key": "47-check.mjs|existence-assert|f8ce5a79",
+  "file": "47-check.mjs",
+  "kind": "existence-assert",
+  "lno": 115,
+  "excerpt": "t('F5 47-report.md 在且六段齐备（①~⑥）', existsSync(join(HERE, '47-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].ever"
+ },
+ {
+  "key": "47-check.mjs|existence-assert|a0bdda2a",
+  "file": "47-check.mjs",
+  "kind": "existence-assert",
+  "lno": 117,
+  "excerpt": "t('F6 macro-audit 日报含 #47 窗口节', existsSync(ma) && txt(ma).indexOf('窗口：#47') >= 0);"
+ },
+ {
+  "key": "47-check.mjs|existence-assert|223a79f4",
+  "file": "47-check.mjs",
+  "kind": "existence-assert",
+  "lno": 130,
+  "excerpt": "t('G1 全部新增/改动文件无 BOM', newFiles.every((f) => !existsSync(f) || noBom(f)), newFiles.filter((f) => existsSync(f)"
+ },
+ {
+  "key": "47-check.mjs|magic-floor|82a99748",
+  "file": "47-check.mjs",
+  "kind": "magic-floor",
+  "lno": 71,
+  "excerpt": "t('C3 github-rest 测试实跑 exit 0 + PASS N/N（同值判）', tr.status === 0 && m && m[1] === m[2] && Number(m[1]) >= 40, m"
+ },
+ {
+  "key": "47-check.mjs|magic-floor|34f9ec66",
+  "file": "47-check.mjs",
+  "kind": "magic-floor",
+  "lno": 90,
+  "excerpt": "t('D6 限流头解析字段齐备', (() => { const r = G.parseRateLimitHeaders({ 'x-ratelimit-limit': '5000', 'x-ratelimit-remai"
+ },
+ {
+  "key": "47-check.mjs|unstripped-scan|ad4fbf44",
+  "file": "47-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "47-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "48-check.mjs|bare-occurred|1be2fa0c",
+  "file": "48-check.mjs",
+  "kind": "bare-occurred",
+  "lno": 82,
+  "excerpt": "t('E1 micro-a-preview-prep occurred=true 带证据', reg.events['micro-a-preview-prep'].occurred === true && /#48/.t"
+ },
+ {
+  "key": "48-check.mjs|date-literal|560924df",
+  "file": "48-check.mjs",
+  "kind": "date-literal",
+  "lno": 95,
+  "excerpt": "t('E9 日报含 #48 窗口节', txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md')).indexOf('窗口："
+ },
+ {
+  "key": "48-check.mjs|existence-assert|f64d410a",
+  "file": "48-check.mjs",
+  "kind": "existence-assert",
+  "lno": 21,
+  "excerpt": "t('A1 48-micro-a-preview.mjs 在', existsSync(PIPE));"
+ },
+ {
+  "key": "48-check.mjs|existence-assert|016ed015",
+  "file": "48-check.mjs",
+  "kind": "existence-assert",
+  "lno": 22,
+  "excerpt": "t('A2 48-micro-a-criteria.md 在（判据先入库）', existsSync(CRIT));"
+ },
+ {
+  "key": "48-check.mjs|existence-assert|ef495f2e",
+  "file": "48-check.mjs",
+  "kind": "existence-assert",
+  "lno": 40,
+  "excerpt": "t('B4 golden 工件齐备（2 PR 双件+拒绝件双件+facts×2+gate+measurements）', ['48-micro-a-golden-env-manager-pr64.md', '48-mic"
+ },
+ {
+  "key": "48-check.mjs|existence-assert|7f56f30c",
+  "file": "48-check.mjs",
+  "kind": "existence-assert",
+  "lno": 44,
+  "excerpt": "t('C1 4 PR 报告双件（md+json）+diff 工件', REAL.every(function (s) { return existsSync(join(HERE, '48-micro-a-' + s + "
+ },
+ {
+  "key": "48-check.mjs|existence-assert|58bad2c8",
+  "file": "48-check.mjs",
+  "kind": "existence-assert",
+  "lno": 45,
+  "excerpt": "t('C2 拒绝件双件', existsSync(join(HERE, '48-micro-a-goose-duck-agent-refusal.md')) && existsSync(join(HERE, '48-mi"
+ },
+ {
+  "key": "48-check.mjs|existence-assert|2f2894d2",
+  "file": "48-check.mjs",
+  "kind": "existence-assert",
+  "lno": 46,
+  "excerpt": "t('C3 事实 JSONL×4（env-manager/jiahao/anysearch-cli/goose-duck-agent）', ['env-manager', 'jiahao', 'anysearch-cli"
+ },
+ {
+  "key": "48-check.mjs|existence-assert|e4f063ad",
+  "file": "48-check.mjs",
+  "kind": "existence-assert",
+  "lno": 47,
+  "excerpt": "t('C4 measurements×2 + gate-probes + 汇总 + 共享库', ['48-micro-a-env-manager-measurements.json', '48-micro-a-jiaha"
+ },
+ {
+  "key": "48-check.mjs|existence-assert|560eeff2",
+  "file": "48-check.mjs",
+  "kind": "existence-assert",
+  "lno": 96,
+  "excerpt": "t('E10 48-report.md 在且六段齐备', existsSync(join(HERE, '48-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(fu"
+ },
+ {
+  "key": "48-check.mjs|existence-assert|b3b5fcec",
+  "file": "48-check.mjs",
+  "kind": "existence-assert",
+  "lno": 94,
+  "excerpt": "t('E8 票档三件套在', existsSync(join(REPO, '.scratch', 'architecture-recovery', 'issues', '48-micro-a-preview.md')) "
+ },
+ {
+  "key": "48-check.mjs|magic-floor|45242a92",
+  "file": "48-check.mjs",
+  "kind": "magic-floor",
+  "lno": 28,
+  "excerpt": "t('A5 导出 MICRO_A_SLICE_FIELDS ≥20 字段', Array.isArray(MOD.MICRO_A_SLICE_FIELDS) && MOD.MICRO_A_SLICE_FIELDS.len"
+ },
+ {
+  "key": "48-check.mjs|magic-floor|24076e2a",
+  "file": "48-check.mjs",
+  "kind": "magic-floor",
+  "lno": 39,
+  "excerpt": "t('B3 golden 断言 ≥10 条且全过', gass !== null && gass.checks.length >= 10 && gass.checks.every(function (c) { retur"
+ },
+ {
+  "key": "48-check.mjs|magic-floor|ee7614eb",
+  "file": "48-check.mjs",
+  "kind": "magic-floor",
+  "lno": 77,
+  "excerpt": "t('D-m1 共享库 Micro-A 四仓事实齐入', meas.shared_duckdb && meas.shared_duckdb.db_by_scale['Micro-A'] >= 90 && ['Xxx91n"
+ },
+ {
+  "key": "48-check.mjs|multi-hit-probe|b2c1b8e4",
+  "file": "48-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "capability 3 of 5 · preview → .scratch\\architecture-recovery\\reports\\48-check.mjs×4"
+ },
+ {
+  "key": "48-check.mjs|unstripped-scan|6c045dd3",
+  "file": "48-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "48-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "49-check.mjs|date-literal|e9b93b1c",
+  "file": "49-check.mjs",
+  "kind": "date-literal",
+  "lno": 54,
+  "excerpt": "const dr16 = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md');"
+ },
+ {
+  "key": "49-check.mjs|date-literal|4535a127",
+  "file": "49-check.mjs",
+  "kind": "date-literal",
+  "lno": 53,
+  "excerpt": "const dr17 = join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-report.md');"
+ },
+ {
+  "key": "49-check.mjs|existence-assert|15dae6b4",
+  "file": "49-check.mjs",
+  "kind": "existence-assert",
+  "lno": 37,
+  "excerpt": "t('C1 49-clone-budget.json 在', existsSync(BP));"
+ },
+ {
+  "key": "49-check.mjs|existence-assert|01f390d2",
+  "file": "49-check.mjs",
+  "kind": "existence-assert",
+  "lno": 52,
+  "excerpt": "t('E3 票档三件套', ['issues/49-regression-matrix.md', 'prompts/49-regression-matrix.md', 'handoffs/49-regression-ma"
+ },
+ {
+  "key": "49-check.mjs|existence-assert|1905a250",
+  "file": "49-check.mjs",
+  "kind": "existence-assert",
+  "lno": 57,
+  "excerpt": "t('E5 49-report.md 在', existsSync(join(HERE, '49-report.md')));"
+ },
+ {
+  "key": "49-check.mjs|existence-assert|41bc0069",
+  "file": "49-check.mjs",
+  "kind": "existence-assert",
+  "lno": 63,
+  "excerpt": "t('F1 全部新增/改动文件无 BOM', allF.every(function (f) { return !existsSync(f) || noBom(f); }), allF.filter(function ("
+ },
+ {
+  "key": "49-check.mjs|unstripped-scan|33edd0d0",
+  "file": "49-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "49-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "50-check.mjs|bare-occurred|65be0ee6",
+  "file": "50-check.mjs",
+  "kind": "bare-occurred",
+  "lno": 70,
+  "excerpt": "t('E1 narrative-surface-landed occurred=true', reg.events['narrative-surface-landed'].occurred === true);"
+ },
+ {
+  "key": "50-check.mjs|date-literal|cc56b9f5",
+  "file": "50-check.mjs",
+  "kind": "date-literal",
+  "lno": 35,
+  "excerpt": "t('A7 dist 语义：band 违规→rejected', NM.sealNarrative({ section_id: 'x', author: 'host-agent', model_id: 'm', text"
+ },
+ {
+  "key": "50-check.mjs|date-literal|b0124c69",
+  "file": "50-check.mjs",
+  "kind": "date-literal",
+  "lno": 36,
+  "excerpt": "t('A8 dist 语义：缺 model_id→rejected', NM.sealNarrative({ section_id: 'x', author: 'host-agent', model_id: null, "
+ },
+ {
+  "key": "50-check.mjs|date-literal|4507bf7d",
+  "file": "50-check.mjs",
+  "kind": "date-literal",
+  "lno": 76,
+  "excerpt": "t('E6 日报含 #50 窗口节', txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md')).includes('窗口"
+ },
+ {
+  "key": "50-check.mjs|existence-assert|3a2d4c6b",
+  "file": "50-check.mjs",
+  "kind": "existence-assert",
+  "lno": 27,
+  "excerpt": "t('A1 src/report/narrative.ts 在', existsSync(NAR));"
+ },
+ {
+  "key": "50-check.mjs|existence-assert|d65cbd3b",
+  "file": "50-check.mjs",
+  "kind": "existence-assert",
+  "lno": 33,
+  "excerpt": "t('A6 dist 产物在（测试作用于 dist）', existsSync(NARD));"
+ },
+ {
+  "key": "50-check.mjs|existence-assert|3d367dbc",
+  "file": "50-check.mjs",
+  "kind": "existence-assert",
+  "lno": 48,
+  "excerpt": "t('C1 projection.ts 在＋openReader READ_ONLY 用', existsSync(PROJ) && pj.includes('openReader'));"
+ },
+ {
+  "key": "50-check.mjs|existence-assert|4731ee37",
+  "file": "50-check.mjs",
+  "kind": "existence-assert",
+  "lno": 53,
+  "excerpt": "t('C5 mcp 裸启动=JSON-RPC stdio 服务（A3 名实相符：serveMcpStdio 接线＋唯一 tool=facts）', cs.includes('serveMcpStdio') && exis"
+ },
+ {
+  "key": "50-check.mjs|existence-assert|31ce04b3",
+  "file": "50-check.mjs",
+  "kind": "existence-assert",
+  "lno": 57,
+  "excerpt": "t('D1 references 三件在', REFS.every(function (f) { return existsSync(join(SK, 'references', f)); }));"
+ },
+ {
+  "key": "50-check.mjs|existence-assert|094a4ac3",
+  "file": "50-check.mjs",
+  "kind": "existence-assert",
+  "lno": 75,
+  "excerpt": "t('E5 票档三件套', existsSync(join(REPO, '.scratch', 'architecture-recovery', 'issues', '50-narrative-dual-track.md"
+ },
+ {
+  "key": "50-check.mjs|existence-assert|1c15d8d8",
+  "file": "50-check.mjs",
+  "kind": "existence-assert",
+  "lno": 78,
+  "excerpt": "t('E8 50-report.md 六段齐备', existsSync(join(HERE, '50-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(funct"
+ },
+ {
+  "key": "50-check.mjs|existence-assert|5151d3ff",
+  "file": "50-check.mjs",
+  "kind": "existence-assert",
+  "lno": 90,
+  "excerpt": "t('F3 全部新增/改动文件无 BOM', allF.every(function (f) { return !existsSync(f) || noBom(f); }), allF.filter(function ("
+ },
+ {
+  "key": "50-check.mjs|magic-floor|34b89a2b",
+  "file": "50-check.mjs",
+  "kind": "magic-floor",
+  "lno": 60,
+  "excerpt": "t('D3 SKILL.md <500 行＋三 references 加载条件写明', skm.split('\\n').length < 500 && REFS.every(function (f) { return s"
+ },
+ {
+  "key": "50-check.mjs|magic-floor|78b144fa",
+  "file": "50-check.mjs",
+  "kind": "magic-floor",
+  "lno": 86,
+  "excerpt": "t('F1 narrative.test 实跑 exit 0 + ≥20 断言', tr.status === 0 && tm && Number(tm[1]) >= 20, tm ? tm[0] : tout.slic"
+ },
+ {
+  "key": "50-check.mjs|unstripped-scan|8e27f168",
+  "file": "50-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "50-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "51-check.mjs|existence-assert|09a8b1cf",
+  "file": "51-check.mjs",
+  "kind": "existence-assert",
+  "lno": 46,
+  "excerpt": "t('C4-' + (i + 1) + ' 产物在：' + f, existsSync(join(HERE, f)));"
+ },
+ {
+  "key": "51-check.mjs|existence-assert|21216ff0",
+  "file": "51-check.mjs",
+  "kind": "existence-assert",
+  "lno": 32,
+  "excerpt": "t('B1 51-behavior-schema.json 在', existsSync(schPath));"
+ },
+ {
+  "key": "51-check.mjs|existence-assert|683183e4",
+  "file": "51-check.mjs",
+  "kind": "existence-assert",
+  "lno": 41,
+  "excerpt": "t('C1 判据文件在＋跑后禁调声明', existsSync(CRIT) && txt(CRIT).includes('预声明'));"
+ },
+ {
+  "key": "51-check.mjs|existence-assert|31ffe878",
+  "file": "51-check.mjs",
+  "kind": "existence-assert",
+  "lno": 79,
+  "excerpt": "t('E6 票档三件套', ['issues/51-macro-b-behavior.md', 'prompts/51-macro-b-behavior.md', 'handoffs/51-macro-b-behavio"
+ },
+ {
+  "key": "51-check.mjs|existence-assert|0c243489",
+  "file": "51-check.mjs",
+  "kind": "existence-assert",
+  "lno": 80,
+  "excerpt": "t('E7 51-report.md 在且含判据复盘面', existsSync(join(HERE, '51-report.md')) && txt(join(HERE, '51-report.md')).includ"
+ },
+ {
+  "key": "51-check.mjs|unstripped-scan|7ed745b9",
+  "file": "51-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "51-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "52a-check.mjs|existence-assert|0e469177",
+  "file": "52a-check.mjs",
+  "kind": "existence-assert",
+  "lno": 68,
+  "excerpt": "t('F1 本票新增/改动文件无 BOM', nbFiles.every(function (f) { return !existsSync(f) || noBom(f); }), nbFiles.filter(func"
+ },
+ {
+  "key": "52a-check.mjs|magic-floor|5bd37986",
+  "file": "52a-check.mjs",
+  "kind": "magic-floor",
+  "lno": 26,
+  "excerpt": "t('A1 语料存在＋item 计数落 80-120 票面区间', corpus.items.length + corpus.band_items.length >= 80 && corpus.items.length "
+ },
+ {
+  "key": "52a-check.mjs|magic-floor|5fda18e5",
+  "file": "52a-check.mjs",
+  "kind": "magic-floor",
+  "lno": 31,
+  "excerpt": "t('A3 双标子集 50-100 条票面区间＋gold_b 全填', subset.length >= 50 && subset.length <= 100 && subset.every(function (i) {"
+ },
+ {
+  "key": "52a-check.mjs|magic-floor|6719b601",
+  "file": "52a-check.mjs",
+  "kind": "magic-floor",
+  "lno": 61,
+  "excerpt": "t('E1 findings 如实落（#56 修复后复测：FN 类披露维持＋FP 类改善方向钉 ≤r16 基线 13 或清零）', !!fnFinding && (!fpFinding || fpFinding.coun"
+ },
+ {
+  "key": "52a-check.mjs|unstripped-scan|d75bbc8a",
+  "file": "52a-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "52a-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "53-check.mjs|date-literal|45b17a49",
+  "file": "53-check.mjs",
+  "kind": "date-literal",
+  "lno": 50,
+  "excerpt": "const ENV = Object.assign({}, process.env, { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '202"
+ },
+ {
+  "key": "53-check.mjs|date-literal|dd16e7de",
+  "file": "53-check.mjs",
+  "kind": "date-literal",
+  "lno": 56,
+  "excerpt": "writeFileSync(join(TGT, 'docs', 'adr', '001-x.md'), ['# ADR-001', '', '- Status: accepted', '- Date: 2026-04-1"
+ },
+ {
+  "key": "53-check.mjs|existence-assert|77fbd647",
+  "file": "53-check.mjs",
+  "kind": "existence-assert",
+  "lno": 65,
+  "excerpt": "t('C2 五工件落盘齐备', ART.every(function (f) { return existsSync(join(OUTA, f)); }), ART.filter(function (f) { retur"
+ },
+ {
+  "key": "53-check.mjs|existence-assert|8e5e15ce",
+  "file": "53-check.mjs",
+  "kind": "existence-assert",
+  "lno": 124,
+  "excerpt": "t('H1 本票新增/改动文件无 BOM', nbFiles.every(function (f) { return !existsSync(f) || noBom(f); }), nbFiles.filter(func"
+ },
+ {
+  "key": "53-check.mjs|multi-hit-probe|600606c6",
+  "file": "53-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] → engine\\src\\cli.ts×2"
+ },
+ {
+  "key": "53-check.mjs|multi-hit-probe|a816763c",
+  "file": "53-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "capabilities: macro-b → .scratch\\architecture-recovery\\reports\\53-check.mjs×2"
+ },
+ {
+  "key": "53-check.mjs|multi-hit-probe|86164b70",
+  "file": "53-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "capability 1 of 5 · preview → .scratch\\architecture-recovery\\reports\\45-check.mjs×4"
+ },
+ {
+  "key": "53-check.mjs|multi-hit-probe|6d1958bd",
+  "file": "53-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "evidence_threshold_met → .scratch\\architecture-recovery\\reports\\23-first-report-failure.json×5"
+ },
+ {
+  "key": "53-check.mjs|multi-hit-probe|2a6a7d42",
+  "file": "53-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "SCALE-NOT-IMPLEMENTED → .scratch\\architecture-recovery\\reports\\53-check.mjs×5"
+ },
+ {
+  "key": "53-check.mjs|unstripped-scan|d502b336",
+  "file": "53-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "53-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "54-check.mjs|date-literal|be5a2c47",
+  "file": "54-check.mjs",
+  "kind": "date-literal",
+  "lno": 53,
+  "excerpt": "t('C1 勘误块在（2026-09-17 / #54 / D-059①）', gci.indexOf('勘误（2026-09-17 / #54 / D-059①）') >= 0);"
+ },
+ {
+  "key": "54-check.mjs|existence-assert|8e5e15ce",
+  "file": "54-check.mjs",
+  "kind": "existence-assert",
+  "lno": 95,
+  "excerpt": "t('H1 本票新增/改动文件无 BOM', nbFiles.every(function (f) { return !existsSync(f) || noBom(f); }), nbFiles.filter(func"
+ },
+ {
+  "key": "54-check.mjs|multi-hit-probe|477d5e11",
+  "file": "54-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "gitcli-contract.test.mjs → .scratch\\architecture-recovery\\reports\\54-check.mjs×5"
+ },
+ {
+  "key": "55-check.mjs|date-literal|45b17a49",
+  "file": "55-check.mjs",
+  "kind": "date-literal",
+  "lno": 55,
+  "excerpt": "const ENV = Object.assign({}, process.env, { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '202"
+ },
+ {
+  "key": "55-check.mjs|existence-assert|0e469177",
+  "file": "55-check.mjs",
+  "kind": "existence-assert",
+  "lno": 89,
+  "excerpt": "t('F1 本票新增/改动文件无 BOM', nbFiles.every(function (f) { return !existsSync(f) || noBom(f); }), nbFiles.filter(func"
+ },
+ {
+  "key": "55-check.mjs|multi-hit-probe|15612fad",
+  "file": "55-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "MACRO_AUDIT_FACTS_DB → engine\\src\\mcp-server.ts×6"
+ },
+ {
+  "key": "55-check.mjs|multi-hit-probe|9812860b",
+  "file": "55-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "MCP-FACTS-DB-UNRESOLVED → engine\\src\\mcp-server.ts×4"
+ },
+ {
+  "key": "56-check.mjs|existence-assert|d719bf3f",
+  "file": "56-check.mjs",
+  "kind": "existence-assert",
+  "lno": 72,
+  "excerpt": "t('F2 本票新增/改动文件无 BOM（缺文件=FAIL 非跳过）', nb.every(function (p) { return existsSync(p) && noBom(p); }), nb.filter(f"
+ },
+ {
+  "key": "56-check.mjs|magic-floor|6cf03702",
+  "file": "56-check.mjs",
+  "kind": "magic-floor",
+  "lno": 38,
+  "excerpt": "t('B1 held-out 语料独立存管（corpus_id≠52a＋item 计数一致）', corpus.corpus_id === '56-checker-heldout-v1' && corpus.items."
+ },
+ {
+  "key": "56-check.mjs|magic-floor|581cccd8",
+  "file": "56-check.mjs",
+  "kind": "magic-floor",
+  "lno": 53,
+  "excerpt": "t('C6 分层结果九类+全在', Object.keys(res.per_stratum).length >= 10);"
+ },
+ {
+  "key": "56-check.mjs|magic-floor|6eb84b44",
+  "file": "56-check.mjs",
+  "kind": "magic-floor",
+  "lno": 59,
+  "excerpt": "t('D2 citation.test 实跑全绿（≥25 断言）', /CITATION-TEST-OK (\\d+)/.test(testOut) && Number(testOut.match(/CITATION-TE"
+ },
+ {
+  "key": "56-check.mjs|unstripped-scan|56894a11",
+  "file": "56-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "56-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "64-check.mjs|unstripped-scan|91ac60d7",
+  "file": "64-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "64-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "71-check.mjs|multi-hit-probe|476d24d4",
+  "file": "71-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "upstream_dimension_projection → .scratch\\architecture-recovery\\reports\\71-check.mjs×3"
+ },
+ {
+  "key": "71-check.mjs|multi-hit-probe|58ecac7f",
+  "file": "71-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "upstream-dimension-map.md → engine\\src\\audit\\upstream-dimension-map.ts×4"
+ },
+ {
+  "key": "71-check.mjs|multi-hit-probe|8b5f8d7b",
+  "file": "71-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "upstream-map.test.mjs → .scratch\\architecture-recovery\\reports\\71-check.mjs×4"
+ },
+ {
+  "key": "71-check.mjs|unstripped-scan|84b9338f",
+  "file": "71-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "71-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "72-check.mjs|bare-occurred|60cbb3c4",
+  "file": "72-check.mjs",
+  "kind": "bare-occurred",
+  "lno": 76,
+  "excerpt": "!!evH && evH.occurred === false, evH ? 'occurred=' + evH.occurred : 'event-missing');"
+ },
+ {
+  "key": "72-check.mjs|multi-hit-probe|c0a2f84a",
+  "file": "72-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "github_rest.pr_summary → .scratch\\architecture-recovery\\reports\\48-micro-a-preview.mjs×3"
+ },
+ {
+  "key": "72-check.mjs|multi-hit-probe|e2b7b303",
+  "file": "72-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "pending(event_bound) → .scratch\\architecture-recovery\\reports\\72-check.mjs×3"
+ },
+ {
+  "key": "72-check.mjs|unstripped-scan|2dd4683e",
+  "file": "72-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "72-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "73-check.mjs|toothless|f0598027",
+  "file": "73-check.mjs",
+  "kind": "toothless",
+  "lno": 116,
+  "excerpt": "t('C2 sync 戳与 EN 内容指纹一致（fresh）', true, 'sync=' + stampM[1]);"
+ },
+ {
+  "key": "77-check.mjs|multi-hit-probe|463bca35",
+  "file": "77-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "](engine/upstream-lock.yaml) → README.md×3"
+ },
+ {
+  "key": "78-check.mjs|date-literal|8d3e2dbc",
+  "file": "78-check.mjs",
+  "kind": "date-literal",
+  "lno": 82,
+  "excerpt": "const PIN = { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '2026-04-10T10:00:00Z' };"
+ },
+ {
+  "key": "78-check.mjs|date-literal|40ed7d32",
+  "file": "78-check.mjs",
+  "kind": "date-literal",
+  "lno": 95,
+  "excerpt": "writeFileSync(join(FX, 'docs', 'adr', '001-decision.md'), ['# ADR-001', '', '- Status: accepted', '- Date: 202"
+ },
+ {
+  "key": "78-check.mjs|date-literal|892e9dc6",
+  "file": "78-check.mjs",
+  "kind": "date-literal",
+  "lno": 134,
+  "excerpt": "writeFileSync(join(FXC, 'docs', 'adr', '001-decision.md'), ['# ADR-001', '', '- Status: accepted', '- Date: 20"
+ },
+ {
+  "key": "78-check.mjs|existence-assert|739a7cb0",
+  "file": "78-check.mjs",
+  "kind": "existence-assert",
+  "lno": 152,
+  "excerpt": "t('F8 分歧类条目登记 docs/known-gaps.md（GAP-078-01=39 解析失败格）', existsSync(KG) && txt(KG).indexOf('GAP-078-01') >= 0 &"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|9e84fe01",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "appendQuarantineEvent → .scratch\\architecture-recovery\\reports\\78-check.mjs×3"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|18f999d4",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "crashArtifactFromError → engine\\src\\cli.ts×2"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|9cc43ab7",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "GITCLI-OUTPUT-CONTRACT → .scratch\\architecture-recovery\\reports\\54-check.mjs×4"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|1a8f0cd3",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "intakeIdentityIssues → engine\\src\\audit\\audit.ts×2"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|92b9a07b",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "ON CONFLICT DO NOTHING → engine\\src\\fact\\store.ts×2"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|b219570b",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "QUARANTINE_LOG_FIELDS → engine\\src\\fact\\schema.ts×2"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|d3a4e45b",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "STRICT_QUARANTINE_ENV → .scratch\\architecture-recovery\\reports\\78-check.mjs×4"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|6345fea1",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "strictQuarantineEnabled → engine\\src\\cli.ts×2"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|d4775034",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "strictQuarantineViolations → engine\\src\\audit\\audit.ts×2"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|f1708f45",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "UNIQUE(run_id, commit_sha, field_name, reason_code, disposition) → engine\\src\\fact\\schema.ts×2"
+ },
+ {
+  "key": "78-check.mjs|multi-hit-probe|abab4746",
+  "file": "78-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "VERDICT_REASON_CLASSES → engine\\src\\report\\generate.ts×2"
+ },
+ {
+  "key": "78-check.mjs|unstripped-scan|938fa4b9",
+  "file": "78-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "78-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "80-check.mjs|unstripped-scan|777474c5",
+  "file": "80-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "80-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "81-check.mjs|date-literal|4d6b6a6d",
+  "file": "81-check.mjs",
+  "kind": "date-literal",
+  "lno": 27,
+  "excerpt": "const aProbe = Q.absorbGitIsoDialect('2005-04-07T22:13:13+00:00');"
+ },
+ {
+  "key": "81-check.mjs|date-literal|981e37e7",
+  "file": "81-check.mjs",
+  "kind": "date-literal",
+  "lno": 28,
+  "excerpt": "t('A4 dist 面吸收器可用且行为正确（+00:00→Z＋事件）', typeof Q.absorbGitIsoDialect === 'function' && aProbe.value === '2005-04"
+ },
+ {
+  "key": "81-check.mjs|existence-assert|6f3a54c1",
+  "file": "81-check.mjs",
+  "kind": "existence-assert",
+  "lno": 51,
+  "excerpt": "t('D2 回归册实物在', existsSync(join(ENG, 'test', 'dialect-boundary.test.mjs')));"
+ },
+ {
+  "key": "81-check.mjs|multi-hit-probe|7bdf6da2",
+  "file": "81-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "'normalized_tz_offset' → engine\\src\\intake\\quarantine.ts×2"
+ },
+ {
+  "key": "81-check.mjs|multi-hit-probe|dd84476e",
+  "file": "81-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "absorbGitIsoDialect(headRaw) → .scratch\\architecture-recovery\\reports\\81-check.mjs×2"
+ },
+ {
+  "key": "81-check.mjs|multi-hit-probe|136f7b7f",
+  "file": "81-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "collection_environment → .scratch\\architecture-recovery\\reports\\81-check.mjs×4"
+ },
+ {
+  "key": "81-check.mjs|multi-hit-probe|579a0a89",
+  "file": "81-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "dialect-boundary.test.mjs → .scratch\\architecture-recovery\\reports\\81-check.mjs×5"
+ },
+ {
+  "key": "81-check.mjs|multi-hit-probe|aabf880b",
+  "file": "81-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "dialectAbsorptions: DialectAbsorptionEvent[] → engine\\src\\audit\\macro-b.ts×2"
+ },
+ {
+  "key": "81-check.mjs|unstripped-scan|dfbba8d2",
+  "file": "81-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "81-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "82-check.mjs|bare-occurred|13c63800",
+  "file": "82-check.mjs",
+  "kind": "bare-occurred",
+  "lno": 49,
+  "excerpt": "t('C1 事件登记 occurred=false（事件未发生如实）', !!ev && ev.occurred === false);"
+ },
+ {
+  "key": "82-check.mjs|existence-assert|89f1b16f",
+  "file": "82-check.mjs",
+  "kind": "existence-assert",
+  "lno": 22,
+  "excerpt": "t('A1 gen-adr-index.mjs 脚本在且挂 npm gen 链', existsSync(genScript) && JSON.parse(txt(join(ENG, 'package.json')))."
+ },
+ {
+  "key": "82-check.mjs|existence-assert|25b19081",
+  "file": "82-check.mjs",
+  "kind": "existence-assert",
+  "lno": 23,
+  "excerpt": "t('A2 docs/adr/README.md 实物在且带 GENERATED 注记', existsSync(idxFile) && txt(idxFile).indexOf('GENERATED by engine"
+ },
+ {
+  "key": "82-check.mjs|existence-assert|da69c394",
+  "file": "82-check.mjs",
+  "kind": "existence-assert",
+  "lno": 35,
+  "excerpt": "t('B1 check-dist.mjs 棘轮脚本在且载版本化上限常量', existsSync(cd) && txt(cd).indexOf('DIST_CLI_SIZE_CAP_BYTES') >= 0);"
+ },
+ {
+  "key": "82-check.mjs|magic-floor|0f9bf77f",
+  "file": "82-check.mjs",
+  "kind": "magic-floor",
+  "lno": 29,
+  "excerpt": "t('A3 索引行数==ADR 实物文件数且 ADR-0022/0023 在册（旧区间枚举已消灭）', rows === adrFileCount && rows >= 23 && idxBody.indexOf('[A"
+ },
+ {
+  "key": "82-check.mjs|multi-hit-probe|51267743",
+  "file": "82-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "--ignore-space-at-eol → .scratch\\architecture-recovery\\reports\\82-check.mjs×2"
+ },
+ {
+  "key": "82-check.mjs|multi-hit-probe|f3ea67c1",
+  "file": "82-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "actions/upload-artifact → .scratch\\architecture-recovery\\reports\\47-capture\\list-auth.json×59"
+ },
+ {
+  "key": "82-check.mjs|multi-hit-probe|41314a8e",
+  "file": "82-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "node scripts/check-dist.mjs → .scratch\\architecture-recovery\\reports\\2026-09-25-r33-audit-report.md×2"
+ },
+ {
+  "key": "82-check.mjs|unstripped-scan|d6f841fc",
+  "file": "82-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "82-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "83-check.mjs|multi-hit-probe|014ad7e4",
+  "file": "83-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "available_head_shas: input.availableHeadShas.slice() → engine\\src\\fact\\file-card.ts×3"
+ },
+ {
+  "key": "83-check.mjs|multi-hit-probe|03521b83",
+  "file": "83-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "FILE_CARD_HISTORY_DERIVED_FACETS → .scratch\\architecture-recovery\\reports\\83-check.mjs×2"
+ },
+ {
+  "key": "83-check.mjs|multi-hit-probe|603ccd8f",
+  "file": "83-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "FILE_CARD_STATIC_FACETS → engine\\src\\fact\\file-card.ts×2"
+ },
+ {
+  "key": "83-check.mjs|multi-hit-probe|67529ca6",
+  "file": "83-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "isFactIdUniqueViolation → .scratch\\architecture-recovery\\reports\\83-check.mjs×5"
+ },
+ {
+  "key": "83-check.mjs|multi-hit-probe|865a90e1",
+  "file": "83-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "steps.rebuilddiff.outcome → .scratch\\architecture-recovery\\reports\\82-check.mjs×2"
+ },
+ {
+  "key": "83-check.mjs|unstripped-scan|0f6b97bc",
+  "file": "83-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "83-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "r14fix-check.mjs|date-literal|dd1a8ca5",
+  "file": "r14fix-check.mjs",
+  "kind": "date-literal",
+  "lno": 33,
+  "excerpt": "const rpt = txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-report.md'));"
+ },
+ {
+  "key": "r14fix-check.mjs|date-literal|03532828",
+  "file": "r14fix-check.mjs",
+  "kind": "date-literal",
+  "lno": 53,
+  "excerpt": "t('X1 审计报告＋交接件在', existsSync(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-audit-report.md')) &"
+ },
+ {
+  "key": "r14fix-check.mjs|existence-assert|03532828",
+  "file": "r14fix-check.mjs",
+  "kind": "existence-assert",
+  "lno": 53,
+  "excerpt": "t('X1 审计报告＋交接件在', existsSync(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-audit-report.md')) &"
+ },
+ {
+  "key": "r14fix-check.mjs|magic-floor|d73aac8e",
+  "file": "r14fix-check.mjs",
+  "kind": "magic-floor",
+  "lno": 49,
+  "excerpt": "t('C11 registry faces=21＋function-coupling 出 faces 留 face_criteria', (function () { const reg = JSON.parse(txt"
+ },
+ {
+  "key": "r14fix-check.mjs|unstripped-scan|43b38be7",
+  "file": "r14fix-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "r14fix-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "t8-check.mjs|bare-occurred|38528c12",
+  "file": "t8-check.mjs",
+  "kind": "bare-occurred",
+  "lno": 18,
+  "excerpt": "t('A1 hooks-presentation-face pending+bound presentation-demand-signal', hp && hp.status === 'pending' && hp.t"
+ },
+ {
+  "key": "t8-check.mjs|bare-occurred|cce489b8",
+  "file": "t8-check.mjs",
+  "kind": "bare-occurred",
+  "lno": 19,
+  "excerpt": "t('A2 repomix-reopen-trigger pending+bound repomix-reopen-demand', rp && rp.status === 'pending' && rp.trigger"
+ },
+ {
+  "key": "t8-check.mjs|bare-occurred|d1cf25f0",
+  "file": "t8-check.mjs",
+  "kind": "bare-occurred",
+  "lno": 26,
+  "excerpt": "t('B2 mw-trigger-c pending+bound macro-a-start 未发生', mc && mc.status === 'pending' && mc.trigger_event === 'ma"
+ },
+ {
+  "key": "t8-check.mjs|date-literal|7d723814",
+  "file": "t8-check.mjs",
+  "kind": "date-literal",
+  "lno": 45,
+  "excerpt": "t('E4 日报含 T8', (existsSync(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-report.md')) ? readFil"
+ },
+ {
+  "key": "t8-check.mjs|existence-assert|23856751",
+  "file": "t8-check.mjs",
+  "kind": "existence-assert",
+  "lno": 43,
+  "excerpt": "t('E2 t8-watch-review.md 在且含陈旧守卫清单', existsSync(join(HERE, 't8-watch-review.md')) && readFileSync(join(HERE, '"
+ },
+ {
+  "key": "t8-check.mjs|existence-assert|7d723814",
+  "file": "t8-check.mjs",
+  "kind": "existence-assert",
+  "lno": 45,
+  "excerpt": "t('E4 日报含 T8', (existsSync(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-17-report.md')) ? readFil"
+ },
+ {
+  "key": "t8-check.mjs|magic-floor|189b3b25",
+  "file": "t8-check.mjs",
+  "kind": "magic-floor",
+  "lno": 32,
+  "excerpt": "t('C3 faces 计数与标题一致（21 面，C11 去重后）', df.faces.length === 21 && df.title.includes('21'));"
+ },
+ {
+  "key": "t8-check.mjs|unstripped-scan|feeac378",
+  "file": "t8-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "t8-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ },
+ {
+  "key": "t9-check.mjs|date-literal|e484241b",
+  "file": "t9-check.mjs",
+  "kind": "date-literal",
+  "lno": 26,
+  "excerpt": "t('B3 原裁定 supported 逐字保留（2026-09-13T10:49:04.195Z 时间戳不改写）', led.includes('supported') && led.includes('2026-09"
+ },
+ {
+  "key": "t9-check.mjs|date-literal|938be159",
+  "file": "t9-check.mjs",
+  "kind": "date-literal",
+  "lno": 37,
+  "excerpt": "t('D2 日报含 T9', (existsSync(join(REPO,'.scratch','macro-audit','reports','2026-09-17-report.md'))?readFileSync("
+ },
+ {
+  "key": "t9-check.mjs|existence-assert|3234beb9",
+  "file": "t9-check.mjs",
+  "kind": "existence-assert",
+  "lno": 31,
+  "excerpt": "t('C1 26-truth-table.json 真值表在', existsSync(join(HERE,'26-truth-table.json')));"
+ },
+ {
+  "key": "t9-check.mjs|existence-assert|92db6416",
+  "file": "t9-check.mjs",
+  "kind": "existence-assert",
+  "lno": 32,
+  "excerpt": "t('C2 27-dual-readings.json 机读双读数在', existsSync(join(HERE,'27-dual-readings.json')));"
+ },
+ {
+  "key": "t9-check.mjs|existence-assert|f0fffe4b",
+  "file": "t9-check.mjs",
+  "kind": "existence-assert",
+  "lno": 33,
+  "excerpt": "t('C3 28-check.mjs 治理清零守卫在', existsSync(join(HERE,'28-check.mjs')));"
+ },
+ {
+  "key": "t9-check.mjs|existence-assert|938be159",
+  "file": "t9-check.mjs",
+  "kind": "existence-assert",
+  "lno": 37,
+  "excerpt": "t('D2 日报含 T9', (existsSync(join(REPO,'.scratch','macro-audit','reports','2026-09-17-report.md'))?readFileSync("
+ },
+ {
+  "key": "t9-check.mjs|unstripped-scan|5d6d060d",
+  "file": "t9-check.mjs",
+  "kind": "unstripped-scan",
+  "lno": null,
+  "excerpt": "t9-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
+ }
+]

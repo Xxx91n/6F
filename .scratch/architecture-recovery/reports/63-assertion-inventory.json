@@ -166,7 +166,7 @@
       ]
     },
     "41a-check": {
-      "assertion_ids": 41,
+      "assertion_ids": 42,
       "call_styles": [
         "sealed()",
         "t()"
@@ -300,6 +300,12 @@
       "call_styles": [
         "t()",
         "x()"
+      ]
+    },
+    "75a-check": {
+      "assertion_ids": 9,
+      "call_styles": [
+        "t()"
       ]
     },
     "77-check": {
