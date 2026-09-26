@@ -4771,17 +4771,40 @@ function collectRenameEdges(facts) {
 }
 function resolveLineageAncestors(subject, edges) {
   const byTo = /* @__PURE__ */ new Map();
+  const byFrom = /* @__PURE__ */ new Map();
   for (const e of edges) {
-    const arr = byTo.get(e.to) || [];
-    if (arr.length === 0) {
-      byTo.set(e.to, arr);
+    const t = byTo.get(e.to) || [];
+    if (t.length === 0) {
+      byTo.set(e.to, t);
     }
-    arr.push(e);
+    t.push(e);
+    const f = byFrom.get(e.from) || [];
+    if (f.length === 0) {
+      byFrom.set(e.from, f);
+    }
+    f.push(e);
   }
   for (const arr of byTo.values()) {
     arr.sort(function(a, b) {
       return a.commit_sha === b.commit_sha ? a.from < b.from ? -1 : a.from > b.from ? 1 : 0 : a.commit_sha < b.commit_sha ? -1 : 1;
     });
+  }
+  function reachesForward(start, target) {
+    const seen = /* @__PURE__ */ new Set([start]);
+    const fq = [start];
+    while (fq.length > 0) {
+      const n = fq.shift();
+      for (const e of byFrom.get(n) || []) {
+        if (e.to === target) {
+          return true;
+        }
+        if (!seen.has(e.to)) {
+          seen.add(e.to);
+          fq.push(e.to);
+        }
+      }
+    }
+    return false;
   }
   const visited = /* @__PURE__ */ new Set([subject]);
   const ancestors = [];
@@ -4794,7 +4817,9 @@ function resolveLineageAncestors(subject, edges) {
     for (const e of byTo.get(cur) || []) {
       edgesUsed.push(e);
       if (visited.has(e.from)) {
-        cycleDetected = true;
+        if (reachesForward(cur, e.from)) {
+          cycleDetected = true;
+        }
         continue;
       }
       if (ancestors.length >= FILE_CARD_LINEAGE_MAX_ANCESTORS) {
@@ -4848,7 +4873,7 @@ function buildFileCard(input) {
       cli_guidance: input.cliGuidance === null ? void 0 : input.cliGuidance
     }, input, null);
   }
-  const edgePool = input.lineageFacts !== void 0 && input.lineageFacts.length > 0 ? collectRenameEdges(input.setFacts).concat(collectRenameEdges(input.lineageFacts)) : collectRenameEdges(input.setFacts);
+  const edgePool = collectRenameEdges(input.lineageFacts !== void 0 && input.lineageFacts.length > 0 ? input.setFacts.concat(input.lineageFacts) : input.setFacts);
   const resolved = resolveLineageAncestors(subject, edgePool);
   const stitchedNames = new Set([subject].concat(resolved.subjects));
   const mine = input.setFacts.filter(function(f) {
@@ -5013,7 +5038,7 @@ function buildFileCard(input) {
     failure_state: failure,
     miss: null,
     // 缝合账本：解析到边（含纯环边）即披露——旧名解析成功但零行并入亦如实（stitched_from 非空＋facet_rows 无该行 subject_ref 可互证）
-    lineage: resolved.edgesUsed.length > 0 || resolved.cycleDetected ? { stitched_from: resolved.subjects, edges: sortLineageEdges(resolved.edgesUsed), cycle_detected: resolved.cycleDetected, truncated: resolved.truncated } : null,
+    lineage: resolved.edgesUsed.length > 0 || resolved.cycleDetected ? { stitched_from: resolved.subjects, edges: sortLineageEdges(resolved.edgesUsed), cycle_detected: resolved.cycleDetected, truncated: resolved.truncated || input.lineageEdgeCapHit === true } : null,
     kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
     derived: {
       rule_version: FILE_CARD_RULE_VERSION,
@@ -5139,26 +5164,28 @@ async function projectFileCard(dbPath, q) {
       }
     }
     const lineageFacts = [];
+    let lineageEdgeCapHit = false;
     if (picked !== null) {
-      const pickedSet = sets.filter(function(s) {
-        return s.repo_ref === picked.repo_ref;
-      })[0];
-      const ancestorRefs = pickedSet === void 0 ? [] : sets.filter(function(s) {
-        return s.repo_ref !== picked.repo_ref && s.last_obs <= pickedSet.last_obs;
+      const ancestorRefs = sets.filter(function(s) {
+        return s.repo_ref !== picked.repo_ref && s.last_obs <= picked.last_obs;
       }).map(function(s) {
         return s.repo_ref;
       });
       if (ancestorRefs.length > 0) {
+        const edgeCap = Math.max(1, Math.floor(q.lineage_edge_cap === void 0 ? FILE_CARD_LINEAGE_EDGE_CAP : q.lineage_edge_cap));
         const ph = ancestorRefs.map(function() {
           return "?";
         }).join(",");
-        const lSql = "SELECT " + PROJECTION_COLUMNS + " FROM audit_fact WHERE scale = ? AND metric = ? AND repo_ref IN (" + ph + ") ORDER BY fact_seq LIMIT " + FILE_CARD_LINEAGE_EDGE_CAP;
+        const lSql = "SELECT " + PROJECTION_COLUMNS + " FROM audit_fact WHERE scale = ? AND metric = ? AND repo_ref IN (" + ph + ") ORDER BY fact_seq LIMIT " + edgeCap;
         assertAppendOnly(lSql);
         const lReader = await conn.run(lSql, ["Micro-B", "file.renamed"].concat(ancestorRefs));
         const lRows = await lReader.getRows();
         const lNorm = normalizeFactRow(lReader.columnNames());
         for (const r of lRows) {
           lineageFacts.push(lNorm(r));
+        }
+        if (lRows.length >= edgeCap) {
+          lineageEdgeCapHit = true;
         }
       }
     }
@@ -5167,6 +5194,7 @@ async function projectFileCard(dbPath, q) {
       setRepoRef: picked === null ? null : picked.repo_ref,
       setFacts: facts,
       lineageFacts,
+      lineageEdgeCapHit,
       availableHeadShas: shas,
       pinnedSha: q.at !== void 0 && q.at !== null && q.at.length > 0 ? q.at : null,
       pinnedAmbiguous: pinAmbiguous,

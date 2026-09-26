@@ -113,20 +113,25 @@ export async function projectFileCard(dbPath, q) {
         //   「祖先」语义=同 repo 观测集中 MAX(observed_at) ≤ 选中集者——事实仓仅持采集时点序（git 祖先关系
         //   不入库，pin 精确性由 D-126⑤ at:sha 引用层纪律承担）；词表侧用 observed_at 字符串词典序（ISO 规范化后可比较）。
         const lineageFacts = [];
+        let lineageEdgeCapHit = false;
         if (picked !== null) {
-            const pickedSet = sets.filter(function (s) { return s.repo_ref === picked.repo_ref; })[0];
-            const ancestorRefs = pickedSet === undefined ? [] : sets.filter(function (s) {
-                return s.repo_ref !== picked.repo_ref && s.last_obs <= pickedSet.last_obs;
+            const ancestorRefs = sets.filter(function (s) {
+                return s.repo_ref !== picked.repo_ref && s.last_obs <= picked.last_obs; // picked 恒为 sets 元素——last_obs 随行不重查
             }).map(function (s) { return s.repo_ref; });
             if (ancestorRefs.length > 0) {
+                const edgeCap = Math.max(1, Math.floor(q.lineage_edge_cap === undefined ? FILE_CARD_LINEAGE_EDGE_CAP : q.lineage_edge_cap));
                 const ph = ancestorRefs.map(function () { return '?'; }).join(',');
-                const lSql = 'SELECT ' + PROJECTION_COLUMNS + ' FROM audit_fact WHERE scale = ? AND metric = ? AND repo_ref IN (' + ph + ') ORDER BY fact_seq LIMIT ' + FILE_CARD_LINEAGE_EDGE_CAP;
+                const lSql = 'SELECT ' + PROJECTION_COLUMNS + ' FROM audit_fact WHERE scale = ? AND metric = ? AND repo_ref IN (' + ph + ') ORDER BY fact_seq LIMIT ' + edgeCap;
                 assertAppendOnly(lSql);
                 const lReader = await conn.run(lSql, ['Micro-B', 'file.renamed'].concat(ancestorRefs));
                 const lRows = await lReader.getRows();
                 const lNorm = normalizeFactRow(lReader.columnNames());
                 for (const r of lRows) {
                     lineageFacts.push(lNorm(r));
+                }
+                // A4 截断如实：拉取量触帽=祖先边池可能不全——经卡面 truncated 伞披露（A4）
+                if (lRows.length >= edgeCap) {
+                    lineageEdgeCapHit = true;
                 }
             }
         }
@@ -135,6 +140,7 @@ export async function projectFileCard(dbPath, q) {
             setRepoRef: picked === null ? null : picked.repo_ref,
             setFacts: facts,
             lineageFacts: lineageFacts,
+            lineageEdgeCapHit: lineageEdgeCapHit,
             availableHeadShas: shas,
             pinnedSha: q.at !== undefined && q.at !== null && q.at.length > 0 ? q.at : null,
             pinnedAmbiguous: pinAmbiguous,

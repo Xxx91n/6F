@@ -117,6 +117,7 @@ export interface FileCardBuildInput {
     setTruncated?: boolean;
     pinnedAmbiguous?: readonly string[];
     lineageFacts?: readonly FactEvent[];
+    lineageEdgeCapHit?: boolean;
 }
 export declare function headShaOfRepoRef(repoRef: string): string | null;
 export declare function fileCardCitationKeys(card: FileCard): string[];

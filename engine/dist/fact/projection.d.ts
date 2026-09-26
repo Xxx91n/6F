@@ -18,6 +18,7 @@ export interface FileCardQuery {
     current_head_sha?: string | null;
     source?: 'prefetch' | 'backfill' | 'unknown';
     cli_guidance?: string | null;
+    lineage_edge_cap?: number;
 }
 export declare function projectFileCard(dbPath: string, q: FileCardQuery): Promise<FileCard>;
 export interface QuarantineProjectionFilter {
