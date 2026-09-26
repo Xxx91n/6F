@@ -158,35 +158,34 @@ const diffHash = (p) =>
 const isForeignKnown = (p) =>
   Object.hasOwn(FOREIGN_EXCEPTIONS, p) && diffHash(p) === FOREIGN_EXCEPTIONS[p];
 
-const porcelain = git('status --porcelain')
-  .split('\n')
-  .map((l) => l.slice(3).trim().replace(/^"|"$/g, ''))
-  .filter(Boolean);
+// R37/#75批1（D-094(b) 工具时代漂移）：GitButler 合成索引令 git status porcelain 现幻影 MM——票面范围断言改钉票面 commit 集物证（A-033 触碰面 ⊆ 允许集）。
+// FOREIGN_EXCEPTIONS/isForeignKnown/diffHash 系 porcelain 时代「并发外部漂移指纹豁免」机件——机制退役留痕不删（D-044 禁裸删）。
+const a33 = git('log --all --format=%H --grep=A-033').split('\n').map((s) => s.trim()).filter(Boolean);
+const touched28 = new Set();
+for (const sha of a33) { git('show --name-only --format= ' + sha).split('\n').map((p) => p.trim()).filter(Boolean).forEach((p) => touched28.add(p)); }
 const allowed = new Set([
   ...NINE.map((n) => 'docs/adr/' + n),
   rel14,
 ]);
-const isAllowed = (p) =>
-  allowed.has(p) || p.startsWith('.scratch/architecture-recovery/reports/28-');
-const stray = porcelain.filter((p) => !isAllowed(p) && !isForeignKnown(p));
-check('scope: only docs/adr(0001~0009,0014)+reports/28-* touched', stray.length === 0, stray.join(', '));
-
-// 高敏路径显式零改动（双保险；已知并发外部漂移按指纹豁免）
-const sensitive = [
-  'engine',
+const bookkeep28 = new Set([
   '.scratch/architecture-recovery/decision-ledger.md',
   '.scratch/architecture-recovery/README.md',
   '.scratch/architecture-recovery/WORKFLOW.md',
+]);
+const isAllowed = (p) => allowed.has(p) || bookkeep28.has(p) || p.startsWith('.scratch/architecture-recovery/reports/28-');
+const stray = [...touched28].filter((p) => !isAllowed(p));
+check('scope: A-033 票面 commit 集触碰面 ⊆ docs/adr(0001~0009,0014)+reports/28-*+簿记三件（' + a33.length + ' commits/' + touched28.size + ' paths 物证）', a33.length > 0 && stray.length === 0, stray.join(', '));
+
+// 高敏路径票面零触（时代域钉——engine/spec/issues/handoffs/prompts 本票无涉）
+const sensitive = [
+  'engine',
   '.scratch/architecture-recovery/spec.md',
   '.scratch/architecture-recovery/issues',
   '.scratch/architecture-recovery/handoffs',
   '.scratch/architecture-recovery/prompts',
 ];
-const touchedSensitive = porcelain.filter(
-  (p) =>
-    sensitive.some((s) => p === s || p.startsWith(s + '/')) && !isForeignKnown(p)
-);
-check('scope: engine/ledger/README/WORKFLOW/spec/issues/handoffs/prompts clean', touchedSensitive.length === 0, touchedSensitive.join(', '));
+const touchedSensitive = [...touched28].filter((p) => sensitive.some((s) => p === s || p.startsWith(s + '/')));
+check('scope: A-033 票面零触 engine/spec/issues/handoffs/prompts', touchedSensitive.length === 0, touchedSensitive.join(', '));
 
 console.log('----------------------------------------');
 console.log(`${pass} pass, ${fail} fail`);

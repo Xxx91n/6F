@@ -227,7 +227,7 @@ t('G4 A-049 账本行 done → implemented（2026-09-16）', /A-049[^\n]*done �
 const wf = txt(join(REPO, '.scratch', 'architecture-recovery', 'WORKFLOW.md'));
 t('G5 WORKFLOW §4 lessons 含 #44 条目', /#44/.test(wf) && /upstream-lock|上游锁定/.test(wf));
 const nr = txt(join(REPO, '.scratch', 'macro-audit', 'handoffs', 'next-round.md'));
-t('G6 next-round.md 编年行含轮28 #77 闭环记与 #78 去向在册（票面滚动断言——字面钉随任务书换代维护，非 T1 行）', /(^|\n)[^\n]*#77[^\n]*(✅|全落|闭环)/.test(nr) && nr.indexOf('#78') >= 0);
+t('G6 next-round.md 编年行含轮28 #77 闭环记与 #78 去向在册（票面滚动断言——字面钉随任务书换代维护，非 T1 行；行内标记不取序——轮37 留痕措辞=交付/收口）', nr.split(String.fromCharCode(10)).some(function (l) { return l.indexOf('#77') >= 0 && /(✅|全落|闭环|交付|落地|收口)/.test(l); }) && nr.indexOf('#78') >= 0);
 const bl = txt(join(REPO, '.scratch', 'architecture-recovery', 'BACKLOG.md'));
 t('G7 BACKLOG #44 行回写闭环', /\| #44[^\n]*✅/.test(bl));
 const rep = existsSync(join(HERE, '44-report.md')) ? txt(join(HERE, '44-report.md')) : '';

@@ -47,11 +47,23 @@ for (const n of REPO_NAMES) {
   } else {
     console.log(`WARN C1-${n} 存档 head ${r.head.slice(0, 8)} 活仓不可达——复测退化不计数（活仓前移语义非失真，见 drift_note）`);
   }
-  const ghCount = spawnSync('git', ['-C', root, 'log', '--all', '--committer=noreply@github.com', '--format=%H'], { encoding: 'utf8' }).stdout.trim().split('\n').filter(Boolean).length;
-  const stored = r.pr_evidence.merge_commit_prs.length + r.pr_evidence.squash_prs.length + r.pr_evidence.other_github_web_commits.length;
-  t(`C2-${n} GitHub-committer 总数 = PR+other 对账`, ghCount === stored, `${ghCount}==${stored}`);
-  const adrOnDisk = fs.existsSync(join(root, r.adr.dir || 'docs/adr')) ? fs.readdirSync(join(root, r.adr.dir || 'docs/adr')).filter((f) => /^\d{3,}.*\.md$/i.test(f)).length : 0;
-  t(`C3-${n} ADR 文件数复测一致`, adrOnDisk === r.adr.count, `${adrOnDisk}==${r.adr.count}`);
+  // R37/#75批1（D-094(b) 外部语料漂移→改断言）：活仓增长使「等值复测」恒碎——
+  // C2 改钉存档 SHA 集单调包含（增长面→成员资格非等值，D-071⑨）；C3 改钉快照 head 树内计数（同 C1 钉快照型）。
+  const storedShas = r.pr_evidence.merge_commit_prs.concat(r.pr_evidence.squash_prs, r.pr_evidence.other_github_web_commits).map((p) => p.sha);
+  const ghOk = function (sha) { const c = spawnSync('git', ['-C', root, 'cat-file', 'commit', sha], { encoding: 'utf8' }); const cl = c.status === 0 ? c.stdout.split(String.fromCharCode(10)).find(function (l) { return l.indexOf('committer ') === 0; }) : ''; return !!cl && cl.indexOf('noreply@github.com') >= 0; };
+  const badGh = storedShas.filter((s) => !ghOk(s));
+  if (storedShas.length > 0) {
+    t(`C2-${n} 存档 GitHub-committer 证据逐件核验（对象可解析+committer=noreply@github.com——活仓增长/引用面漂移不碎钉）`, badGh.length === 0, `recorded=${storedShas.length} bad=${badGh.length}`);
+  } else {
+    console.log(`NOTE C2-${n} 存档 gh-committer 证据集为空——逐件核验恒真不证伪（诚实缺席注记，非断言计件）`);
+  }
+  const ls3 = spawnSync('git', ['-C', root, 'ls-tree', '-r', '--name-only', r.head, '--', r.adr.dir || 'docs/adr'], { encoding: 'utf8' });
+  if (ls3.status === 0) {
+    const adrAtHead = ls3.stdout.split('\n').filter((f) => /^\d{3,}.*\.md$/i.test((f.split('/').pop() || ''))).length;
+    t(`C3-${n} ADR 文件数钉快照 head 复测一致（树内计数防活仓增长）`, adrAtHead === r.adr.count, `${adrAtHead}==${r.adr.count} @${r.head.slice(0, 8)}`);
+  } else {
+    console.log(`WARN C3-${n} 存档 head ${r.head.slice(0, 8)} 活仓不可达——钉快照复测退化不计数（同 C1 退化型）`);
+  }
   t(`C4-${n} supersede 断链=0`, r.supersede_chain.unresolved_refs.length === 0, r.supersede_chain.unresolved_refs.join(','));
 }
 

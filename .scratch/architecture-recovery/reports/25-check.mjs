@@ -49,13 +49,14 @@ check('C2a', analogyRows >= 2, 'analogy rows=' + analogyRows);
 const urlCount = ['.com/', '.org/', '.io/', '.net/', '.edu/', '.de/', '.se/'].reduce(function (n, t) { return n + research.split(t).length - 1; }, 0);
 check('C2b', urlCount >= 10, 'url-like refs=' + urlCount);
 
-// ---- C3 清单每行动作项带「待用户拍板」（B4.1 行豁免，走 C4）----
+// ---- C3 清单每行动作项拍板状态格非空（待拍板/已决/关闭均须填格；B4.1 行豁免，走 C4）----
+// R37/#75批1（D-094(b) 合法演化→改断言）：票面时点「全标待用户拍板」已兑现为 decided/closed 等真处置，结构不变量=末格非空。
 const actionRows = L(checklist).filter(function (l) {
   return l.trim().charAt(0) === '|' && isRowId(firstCell(l)) && l.indexOf('B4.1') < 0;
 });
-const unmarked = actionRows.filter(function (l) { return l.indexOf('待用户拍板') < 0; });
+const unmarked = actionRows.filter(function (l) { const cells = l.split('|').map(function (c) { return c.trim(); }); return (cells[cells.length - 2] || '').length === 0; });
 check('C3a', actionRows.length >= 20, 'action rows=' + actionRows.length);
-check('C3b', unmarked.length === 0, 'rows missing 待用户拍板: ' + JSON.stringify(unmarked.map(function (l) { return l.slice(0, 30); })));
+check('C3b', unmarked.length === 0, 'rows missing 拍板状态格: ' + JSON.stringify(unmarked.map(function (l) { return l.slice(0, 30); })));
 
 // ---- C4 B4.1 一行带过：全文恰 1 次 + 含「已被 D-015 取代」+ 无独立小节 ----
 const b41count = checklist.split('B4.1').length - 1;
@@ -66,7 +67,12 @@ check('C4c', !L(checklist).some(function (l) { return l.trim().charAt(0) === '#'
 
 // ---- C5 零实施：违禁执行声明扫描 + 零实施声明在文 ----
 const forbid = ['已上架', '已推送', '已发布插件', '上架完成', 'push 已执行', '已立票', '已创建立票', '已删除 e-branch'];
-const hit = forbid.filter(function (w) { return checklist.indexOf(w) >= 0 || report.indexOf(w) >= 0; });
+// R37/#75批1（D-094(b)）：禁执行声明钉扫票面自身声明面——清单末格（拍板状态）是处置留痕位，
+// 记录后行事实（如 R3 收口 push 已执行）属裁决历史非本票声明；剥末格再扫。
+const checklistClaims = checklist.split(String.fromCharCode(10)).map(function (l) {
+  return l.trim().charAt(0) === '|' ? l.split('|').slice(0, -2).join('|') : l;
+}).join(String.fromCharCode(10));
+const hit = forbid.filter(function (w) { return checklistClaims.indexOf(w) >= 0 || report.indexOf(w) >= 0; });
 check('C5a', hit.length === 0, 'forbidden exec claims: ' + JSON.stringify(hit));
 check('C5b', checklist.indexOf('零实施') >= 0 && report.indexOf('不实施任何上架或 push') >= 0, 'zero-impl declarations present');
 

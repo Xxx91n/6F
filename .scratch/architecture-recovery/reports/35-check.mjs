@@ -78,9 +78,11 @@ t('D1 暂缓面集 registry 项在位', !!faceItem, '');
 if (faceItem) {
   t('D2 两字段齐备（满足判据 deadline + 复审时点 review_at）', !!faceItem.deadline && !!faceItem.review_at, (faceItem.deadline || '').slice(0, 40));
   t('D3 watch=manual_watch + confirmations 字段在', faceItem.watch === 'manual_watch' && Array.isArray(faceItem.confirmations), '');
-  const d35 = (fs.readFileSync(join(MA, 'decision-ledger.md'), 'utf8').split('\n').find((l) => l.startsWith('| D-035 |')) || '');
-  const missingFaces = (faceItem.faces || []).filter((f) => !d35.includes(f.replace('*', '')));
-  t('D4 暂缓面 ' + (faceItem.faces || []).length + ' 面可回查 D-035④ 原文', missingFaces.length === 0, missingFaces.join(','));
+  // R37/#75批1（D-094(b)）：D-035④ 暂缓面集原文为「~20 面…等」开放枚举，architecture-violations/defect-validation/finding-hotspot-overlap 三面系 D-045 Micro 层枚举正式收编——回查源放宽为 D-035∪D-045 成对锚
+  const ledgerRows35 = fs.readFileSync(join(MA, 'decision-ledger.md'), 'utf8').split(String.fromCharCode(10));
+  const dSrc35 = ledgerRows35.filter((l) => l.startsWith('| D-035 |') || l.startsWith('| D-045 |')).join(String.fromCharCode(10));
+  const missingFaces = (faceItem.faces || []).filter((f) => !dSrc35.includes(f.replace('*', '')));
+  t('D4 暂缓面 ' + (faceItem.faces || []).length + ' 面可回查账本原文（D-035④ 暂缓面集∪D-045 Micro 枚举）', missingFaces.length === 0, missingFaces.join(','));
   const enumSet = new Set(recon.enum);
   const unresolvable = (faceItem.faces || []).filter((f) => {
     if (f === 'function-*') return !recon.enum.some((e) => e.startsWith('function-'));

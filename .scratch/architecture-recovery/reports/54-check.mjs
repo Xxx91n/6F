@@ -12,6 +12,7 @@ import { readFileSync, existsSync, mkdtempSync, readdirSync, rmSync } from 'node
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { stripComments } from './_lib/check-kit.mjs';
 import { tmpdir } from 'node:os';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -36,12 +37,15 @@ t('A4 形状违例抛 GITCLI-OUTPUT-CONTRACT（不静默放行；quarantined 经
 // ---------- B. %cI 消费点全走归一化（#53 提炼后位在 audit/macro-b.ts——demo 经共享链同消费） ----------
 const demo = txt(join(ENG, 'src', 'demo', 'demo.ts'));
 const mb = txt(join(ENG, 'src', 'audit', 'macro-b.ts'));
-t('B1 demo.ts 经共享链消费归一化（probeMacroBRepo 从 audit/macro-b.js 导入）', demo.indexOf("from '../audit/macro-b.js'") >= 0 && demo.indexOf('probeMacroBRepo') >= 0);
 // #78/ADR-0022：%cI 两级分流——协议级（字段不可定界）fail-fast，字段级病态→classifyGitIsoField 三态桶
-t('B2 macro-b.ts HEAD_DATE 走字段分类器（anchor 位）', mb.indexOf("classifyGitIsoField(headRaw, { anchor: true })") >= 0);
-t('B3 macro-b.ts 逐 commit date 走字段分类器（rawLog 解析行）', mb.indexOf('classifyGitIsoField(parts[2])') >= 0);
-const ciCount = (mb.match(/--format=%cI|\|%cI/g) || []).length;
-const ciDemo = (demo.match(/--format=%cI|\|%cI/g) || []).length;
+// R37/#75批1（D-094(b) 调用点锚漂移 + D-094③ 剥注释名检）：#78 吸收层加挂后链路=raw→absorbGitIsoDialect→classifyGitIsoField——锚改钉吸收后分类调用形态；源码面剥注释再匹配。
+const mbCode = stripComments(mb);
+const demoCode = stripComments(demo);
+t('B1 demo.ts 经共享链消费归一化（probeMacroBRepo 从 audit/macro-b.js 导入）', demoCode.indexOf("from '../audit/macro-b.js'") >= 0 && demoCode.indexOf('probeMacroBRepo') >= 0);
+t('B2 macro-b.ts HEAD_DATE 走字段分类器（anchor 位——absorb 后分类）', mbCode.indexOf("classifyGitIsoField(headAbs.value, { anchor: true })") >= 0);
+t('B3 macro-b.ts 逐 commit date 走字段分类器（rawLog 解析行：先 absorbGitIsoDialect 吸收方言再分类三态）', mbCode.indexOf('absorbGitIsoDialect(parts[2])') >= 0 && mbCode.indexOf('classifyGitIsoField(abs.value)') >= 0);
+const ciCount = (mbCode.match(/--format=%cI|\|%cI/g) || []).length;
+const ciDemo = (demoCode.match(/--format=%cI|\|%cI/g) || []).length;
 t('B4 macro-b.ts %cI 调用点恰 2 处全归一化 + demo.ts 无裸 %cI 调用残留（消费点单源在管线模块）', ciCount === 2 && ciDemo === 0, 'mb=' + ciCount + ' demo=' + ciDemo);
 
 // ---------- C. golden-ci.yml 勘误声明 ----------

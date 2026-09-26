@@ -130,9 +130,19 @@ const VERBS = ['update','delete','replace','merge','drop','alter','truncate','pa
 const fns = exportedFnNames(storeSrc);
 const badFns = fns.filter(function (f) { const l = f.toLowerCase(); return VERBS.some(function (v) { return l.indexOf(v) >= 0; }); });
 check('A4', fns.length > 0 && badFns.length === 0, 'exports=' + fns.join(',') + ' bad=' + JSON.stringify(badFns));
-const BAD_TOKENS = ['UPDATE','DELETE','DROP TABLE','ALTER TABLE','TRUNCATE','INSERT OR REPLACE','ON CONFLICT DO UPDATE','MERGE INTO'];
-const upCode = storeCode.toUpperCase();
-const tokenHits = BAD_TOKENS.filter(function (t) { return upCode.indexOf(t) >= 0; });
+// R37/#75批1（D-094(b) 合法演化→改断言）：裸词 UPDATE/DELETE 撞 Map.delete/instanceOf.delete 等 JS API——
+// 改为 SQL 语句形态正则（写语句语境匹配，词界+子句结构；误判面收敛而写 SQL 必中）。
+const BAD_TOKENS = [
+  ['UPDATE..SET', /\bUPDATE\s+\w+\s+SET\b/i],
+  ['DELETE FROM', /\bDELETE\s+FROM\b/i],
+  ['DROP TABLE', /\bDROP\s+TABLE\b/i],
+  ['ALTER TABLE', /\bALTER\s+TABLE\b/i],
+  ['TRUNCATE', /\bTRUNCATE\b/i],
+  ['INSERT OR REPLACE', /\bINSERT\s+OR\s+REPLACE\b/i],
+  ['ON CONFLICT DO UPDATE', /\bON\s+CONFLICT\s+DO\s+UPDATE\b/i],
+  ['MERGE INTO', /\bMERGE\s+INTO\b/i],
+];
+const tokenHits = BAD_TOKENS.filter(function (t) { return t[1].test(storeCode); }).map(function (t) { return t[0]; });
 check('A5', tokenHits.length === 0, 'rewriteTokensInFacade=' + JSON.stringify(tokenHits));
 check('A6', storeSrc.indexOf('access_mode: ' + SQ + 'READ_ONLY' + SQ) >= 0, 'readerReadOnlyDeclared');
 const dep = pkg.dependencies ? pkg.dependencies['@duckdb/node-api'] : undefined;

@@ -9,8 +9,10 @@ import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
-const GENERATE_TS = join(REPO, 'engine', 'src', 'report', 'generate.ts');
-const G = await import(pathToFileURL(GENERATE_TS).href);
+// R37/#75批1：generate.ts 采用 NodeNext .js specifier（import '../intake/quarantine.js'）——Node 类型剥离不做 .js→.ts 映射
+// → 改导 engine/dist 编译面（同一契约出口 REPORT_SKELETON/skeletonOf 等；dist 陈旧由 check-dist/rebuild-diff 另守）。
+const GENERATE_JS = join(REPO, 'engine', 'dist', 'report', 'generate.js');
+const G = await import(pathToFileURL(GENERATE_JS).href);
 
 const PRE_REG = join(REPO, '.scratch', 'architecture-recovery', 'reports', '22-criteria-pre-registration.md');
 const C_BASIS = join(REPO, '.scratch', 'architecture-recovery', 'reports', '22-c-adjudication-basis.md');

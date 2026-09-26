@@ -178,8 +178,13 @@
             "note": "D-142③：外部评审摄入再现「未钉快照 SHA／未对照当前 HEAD 分诊即呈报」——快照已修项被当开放缺陷进裁定链之日=事件发生（审计窗/摄入动作检出即翻转）；覆盖面含第四档误分诊——证伪态误投 pending 或裁定链同列事件（D-146③）"
         },
         "t3-guard-manifest-shipped": {
+            "occurred": true,
+            "date": "2026-09-27",
+            "evidence": "known-red-manifest.json+guard-all-run.mjs+75a-check.mjs+75a-census-register.json 落盘（#75批1 T1，A-097）——60 件全跑红集={01}⊆册"
+        },
+        "corpus-resnapshot-landed": {
             "occurred": false,
-            "evidence": "待 T3/#75批1 普查产出 known-red manifest（D-094 三分类门过审版）落盘"
+            "note": "#75批1 登记：01-check 语料再生退化的复审事件锚（kr-01-corpus-regen；任意语料重采样票落地即翻）"
         }
     },
     "items": [
@@ -1596,7 +1601,7 @@
             "trigger_event": "t3-guard-manifest-shipped",
             "trigger": "T3/#75批1 普查产出 known-red manifest（D-094 三分类门过审版）落盘当轮即升格",
             "review_at": "stage3-close",
-            "status": "pending",
+            "status": "decided",
             "watch": "event_bound",
             "owner": "macro-audit 队列值守",
             "verify_method": "manifest 落盘后下一轮收口即按 58 全跑判据执行并校验红集⊆manifest＋逐件复绿告警",
@@ -1609,6 +1614,14 @@
                     "decision": "registered",
                     "reason": "两阶段防 graveyard 固驻——止血期收口判据=18 件基线枚举全绿（AGENTS.md 锚面固化）；升格条件=manifest 产出当轮（Trigger-gated Closure 同 D-071⑨ 惯例）",
                     "evidence": "decision-ledger.md D-149④＋AGENTS.md 守卫组指称行"
+                },
+                {
+                    "at": "2026-09-27",
+                    "by": "轮37 T1（A-097）",
+                    "criterion_version": "D-149④",
+                    "decision": "fired",
+                    "reason": "T3/#75批1 manifest 产出当轮——升格判据生效：全量跑 60 件（动态枚举）＋红集⊆manifest＋册件复绿 strict 告警（guard-all-run.mjs）",
+                    "evidence": "known-red-manifest.json（1 件 legit-drift：kr-01-corpus-regen）＋guard-all-run.mjs GUARD-ALL-RESULT: PASS 实跑"
                 }
             ],
             "bound_to": "#75批1（T3 字面钉普查产出 manifest——静默红 12 件画像为本普查输入）"
@@ -1670,6 +1683,23 @@
                 }
             ],
             "bound_to": "#80 步③血缘缝合呈报项（B6 延续）"
+        },
+        {
+            "id": "known-red-kr-01-corpus-regen",
+            "family": "guard-baseline",
+            "title": "known-red kr-01：01-check 语料再生退化（intent≥5 破/分数溯源断）复审锚",
+            "deadline_event": null,
+            "deadline": "2026-12-31（expires_fallback）",
+            "trigger_event": "corpus-resnapshot-landed",
+            "trigger": "anysearch-cli 语料重采样票落地（intent 面恢复）或三仓语料冻结重钉",
+            "review_at": "stage3-close",
+            "status": "pending",
+            "watch": "manual_watch",
+            "source": "reports/known-red-manifest.json entries[id=kr-01-corpus-regen]",
+            "owner": "收口窗口指派（登记位：known-red-manifest.json kr-01-corpus-regen 条目）",
+            "review_event": "stage3-close",
+            "verify_method": "guard-all-run.mjs 册件复绿告警（strict 摘除制）＋75a-check M1 schema 校验；复绿即摘条目",
+            "confirmations": []
         }
     ]
 }

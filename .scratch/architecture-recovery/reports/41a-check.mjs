@@ -68,7 +68,26 @@ const dIds = Array.from(new Set((dLedge.match(/\bD-\d{3}\b/g) || []))).sort();
 const dMax = dIds[dIds.length - 1];
 t('D5 adr_range 与实物一致（ADR-0001 ~ ' + adrMax + '，docs/adr 实物 ' + adrs.length + ' 件）', cl.indexOf('ADR-0001 ~ ' + adrMax) >= 0, 'want ADR-0001 ~ ' + adrMax);
 t('D6 a_range 与实物一致（A-001 ~ ' + aMax + '，账本实物唯一编号）', cl.indexOf('A-001 ~ ' + aMax) >= 0, 'want A-001 ~ ' + aMax);
-t('D7 ledger_pointer 双账本实物路径在', cl.indexOf('.scratch/macro-audit/decision-ledger.md') >= 0 && cl.indexOf('.scratch/architecture-recovery/decision-ledger.md') >= 0 && cl.indexOf(dMax) >= 0);
+t('D7 ledger_pointer 双账本实物路径在', cl.indexOf('.scratch/macro-audit/decision-ledger.md') >= 0 && cl.indexOf('.scratch/architecture-recovery/decision-ledger.md') >= 0);
+// R37/#75批1（D-144② 增长面钉→结构不变量）：旧钉=编年全文含 dMax 字面值（位面子串可偶发命中）；
+// 新=解析 ## [M-xxx] 键集→各 M 段内 D-xxx 覆盖集（含 D-aaa~D-bbb 区间展开），断言账本 dMax∈编年键覆盖集——账行增量无编年认领即红。
+const mKeyIdx = [];
+{ let p = cl.indexOf('## [M-'); while (p >= 0) { const digits = cl.slice(p + 6, p + 9); if (/^\d{3}$/.test(digits)) mKeyIdx.push({ id: 'M-' + digits, at: p }); p = cl.indexOf('## [M-', p + 6); } }
+const dCovered = new Set();
+mKeyIdx.forEach((k, i) => {
+  const body = cl.slice(k.at, mKeyIdx[i + 1] ? mKeyIdx[i + 1].at : cl.length);
+  let q = body.indexOf('D-');
+  while (q >= 0) {
+    const n = body.slice(q + 2, q + 5);
+    if (/^\d{3}$/.test(n)) {
+      let hi = +n, hi2 = hi, r = q + 5;
+      if (body[r] === '~' || body[r] === '～') { r++; if (body.slice(r, r + 2) === 'D-') r += 2; const m2 = body.slice(r, r + 3); if (/^\d{3}$/.test(m2)) hi2 = +m2; }
+      for (let x = hi; x <= hi2 && x - hi <= 200; x++) dCovered.add(x);
+    }
+    q = body.indexOf('D-', q + 2);
+  }
+});
+t('D7b 编年键覆盖集含账本 dMax（' + dMax + ' 须有 M-段认领——结构不变量替代字面钉）', mKeyIdx.length > 0 && dCovered.size > 0 && dCovered.has(+dMax.slice(2)), 'mSecs=' + mKeyIdx.length + ' covered=' + dCovered.size);
 t('D8 头部声明：仓级编年＋产品版本账以 engine/CHANGELOG.md 为准', cl.indexOf('仓级里程碑') >= 0 && cl.indexOf('engine/CHANGELOG.md') >= 0);
 
 // ---------- E. 双账指针闭环（D-039②；W4 悬空指针清零） ----------

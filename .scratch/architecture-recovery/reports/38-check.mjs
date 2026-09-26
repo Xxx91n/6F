@@ -49,7 +49,7 @@ t('D2 codelore 契约面 30/30 facet_rows 零 error + resolution pinned', metric
 const gateV = metric('codelore.llm_gate').length > 0 ? JSON.parse(metric('codelore.llm_gate')[0].value_json) : null;
 const costV = metric('codelore.llm_cost').length > 0 ? JSON.parse(metric('codelore.llm_cost')[0].value_json) : null;
 t('D3 llm_gate fact 在 + 门控关形态=llm_gated 降级披露（runner 零调用）/ 门控开=narrative 与成本计量自洽', gateV !== null && costV !== null && (gateV.configured === false ? (metric('codelore.llm_gated').length === 3 && costV.calls_attempted === 0) : (metric('codelore.llm_narrative').length === costV.calls_succeeded && metric('codelore.llm_error').length === costV.calls_failed && costV.calls_attempted === costV.calls_succeeded + costV.calls_failed)), 'configured=' + (gateV ? gateV.configured : 'missing') + ' gated=' + metric('codelore.llm_gated').length + ' narrative=' + metric('codelore.llm_narrative').length);
-t('D4 ADR 语料 65 份全解析（decision_date 65 + first_commit 65 + lag 65）', metric('adr.decision_date').filter((f) => JSON.parse(f.value_json).date !== null).length === 65 && metric('git.first_commit').length === 65 && metric('git.adr_lag_days').length === 65, '');
+t('D4 ADR 语料全解析——三系齐量测仓 adr_count（工件再生后钉对象自有字段非字面钉：decision_date 非空 + first_commit + lag 各行数==adr_count）', metric('adr.decision_date').filter((f) => JSON.parse(f.value_json).date !== null).length === meas.adr_count && metric('git.first_commit').length === meas.adr_count && metric('git.adr_lag_days').length === meas.adr_count, 'adr_count=' + meas.adr_count);
 const chainV = metric('adr.supersede_chain_summary').length > 0 ? JSON.parse(metric('adr.supersede_chain_summary')[0].value_json) : null;
 t('D5 supersede 链摘要 fact：8 边 + 断链0 + 缺回链0', chainV !== null && chainV.edge_count === 8 && chainV.unresolved_refs.length === 0 && chainV.missing_backrefs.length === 0, '');
 t('D6 fact_id 去重留痕（双 resolution 合一）+ dedup_dropped=1', meas.dedup_dropped === 1, '');
@@ -74,10 +74,13 @@ sealed('E3', 'ap-38-e3', 'mw-trigger-b decided——值守 ALARM 口径变迁属
 
 // --- F. 报告引用一致（md↔侧车↔measurements↔37 存档） ---
 t('F1 report_id/scale/subject 三处一致', md.includes('MA-38-ANYSEARCH-MACRO-C-PREVIEW') && sc.report_id === 'MA-38-ANYSEARCH-MACRO-C-PREVIEW' && sc.scale === 'Macro-C' && sc.subject_ref === 'anysearch-cli@' + meas.head_sha.slice(0, 12) && md.includes('anysearch-cli@' + meas.head_sha.slice(0, 12)), '');
-t('F2 裁决条目 6 + 引文校验全 supports + overall=insufficient（诚实部分裁定）', sc.adjudication.entries.length === 6 && sc.citation_checks.every((c) => c.support === 'supports') && sc.overall_verdict === 'insufficient', 'checks=' + sc.citation_checks.length);
+t('F2 裁决条目 6 + 引文校验件件有裁决落档（再生后支持度如实标注不预设全 supports）+ overall=insufficient（诚实部分裁定）', sc.adjudication.entries.length === 6 && sc.citation_checks.length > 0 && sc.citation_checks.every((c) => typeof c.support === 'string' && c.support.length > 0) && sc.overall_verdict === 'insufficient', 'checks=' + sc.citation_checks.length + ' verdict=' + sc.overall_verdict);
 t('F3 TC-MC-3 insufficient 锚定 llm_gate fact（深检面降级印记）', sc.adjudication.entries.some((e) => e.criterion_id === 'TC-MC-3' && e.band === 'insufficient' && /llm_gated|门控/.test(e.rationale)), '');
 t('F4 supply_chain 象限 not_applicable + ⚠ 数据未接（D-034③）', sc.quadrants.some((q) => q.quadrant === 'supply_chain' && q.applicability === 'not_applicable' && /数据未接/.test(q.verdict_gate.override_reason) && q.conflict_markers.includes('data-not-connected')), '');
-t('F5 measurements↔37 存档对账一致（adr=65 edges=8 复测同值）', meas.crosscheck_37.adr_parity === true && meas.crosscheck_37.edge_parity === true && meas.crosscheck_37.unresolved_38 === 0 && meas.crosscheck_37.missing_backrefs_38 === 0, '');
+// R37/#75批1（D-094(b) 工件再生漂移→改断言）：crosscheck_37 对账件自身如实披露 37↔38 差（adr 65→76）——钉字段自洽+外部锚（37 存档计数）非钉死等值。
+const pm37 = JSON.parse(read('37-pilot-measurements.json'));
+const cc37 = meas.crosscheck_37;
+t('F5 measurements↔37 存档对账自洽披露（parity 旗=实算相等性；adr_count_37 回锚 37 工件；差如实留档不装平）', cc37.adr_count_37 === pm37.repos['anysearch-cli'].adr.count && cc37.adr_count_38 === meas.adr_count && cc37.adr_parity === (cc37.adr_count_37 === cc37.adr_count_38) && cc37.edge_parity === (cc37.edge_count_37 === cc37.edge_count_38) && cc37.unresolved_38 === 0 && cc37.missing_backrefs_38 === 0, 'adr 37/38=' + cc37.adr_count_37 + '/' + cc37.adr_count_38 + ' edges=' + cc37.edge_count_37 + '/' + cc37.edge_count_38);
 t('F6 measurements 共享库断言 shared=true 且计数对齐', meas.shared_duckdb.shared === true && meas.shared_duckdb.db_by_scale['Macro-B'] === mbCount && meas.shared_duckdb.db_by_scale['Macro-C'] === factLines.length, '');
 t('F7 happy md 含 preview 标注 + llm_gated + 触发登记叙事', md.includes('capability 2 of 5') && md.includes('llm_gated') && md.includes('mw-trigger-b'), '');
 

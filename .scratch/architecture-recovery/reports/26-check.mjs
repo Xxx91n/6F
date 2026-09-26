@@ -76,11 +76,14 @@ for (const f of facts) {
 for (const f of fz) for (const k of FIVE) if (live[f.path.split('/').pop()][k] !== f.fields[k].v1_present) cellDiff++;
 ok(cellDiff === 0, 'C3 v1 实跑与真值表 v1_present 逐格一致（65/65）');
 
-// ---- D. 纯文档零构建断言 ----
-const dirty = spawnSync('git', ['status', '--porcelain', '--', 'docs/adr', 'engine'], { cwd: root, encoding: 'utf8' }).stdout.trim();
-ok(dirty === '', 'D1 docs/adr 与 engine/ 零改动');
-const m23 = spawnSync('git', ['status', '--porcelain', '--', '.scratch/architecture-recovery/reports/23-measurements.json'], { cwd: root, encoding: 'utf8' }).stdout.trim();
-ok(m23 === '', 'D2 冻结读数 23-measurements.json 未改动');
+// ---- D. 票面时代域断言（R37/#75批1 D-094(b) 工具时代漂移——GitButler 合成索引令 git status porcelain 现幻影 MM，永失真；钉票面 commit 集物证） ----
+const a31 = spawnSync('git', ['log', '--all', '--format=%H', '--grep', 'A-031'], { cwd: root, encoding: 'utf8' }).stdout.trim().split(String.fromCharCode(10)).filter(Boolean);
+const touched26 = new Set();
+for (const sha of a31) { spawnSync('git', ['show', '--name-only', '--format=', sha], { cwd: root, encoding: 'utf8' }).stdout.split(String.fromCharCode(10)).map(function (p) { return p.trim(); }).filter(Boolean).forEach(function (p) { touched26.add(p); }); }
+const badTouched26 = [...touched26].filter(function (p) { return p === 'engine' || p === 'docs/adr' || p.indexOf('engine/') === 0 || p.indexOf('docs/adr/') === 0; });
+ok(a31.length > 0 && badTouched26.length === 0, 'D1 票面时代域：A-031 commit 集零触 docs/adr/engine（' + a31.length + ' commits/' + touched26.size + ' paths 物证）' + (badTouched26.length ? ' BAD=' + badTouched26.join(',') : ''));
+const freeze23 = spawnSync('git', ['log', '-1', '--format=%H', '--', '.scratch/architecture-recovery/reports/23-measurements.json'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+ok(freeze23.indexOf('e39468c9c53d') === 0, 'D2 冻结读数 23-measurements.json 最后变更钉死冻结点 e39468c（内容自冻结零改动）got ' + freeze23.slice(0, 10));
 const md = fs.readFileSync(path.join(dir, '26-truth-table.md'), 'utf8');
 ok(md.includes('0.4923') && md.includes('AC-26-5') && md.includes('delta 表模板'), 'D3 人读表含真值聚合 + AC 登记 + delta 模板');
 
