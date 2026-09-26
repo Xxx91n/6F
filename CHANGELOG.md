@@ -114,3 +114,12 @@
 - a_range: A-001 ~ A-093（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-093）
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-093 R34 收口实施批）／.scratch/macro-audit/decision-ledger.md（D-143 执行面回执）
 - impact: suppressed_facets 原因码=closed 诚实可达集（收窄后 exhaustiveness 判力可对第三原因码新枝拦截）；守卫标签名实相符纠偏再落（R32-V2/R33-P1 同型第三次前纠正）；验收=83-check 19/19＋smoke 22 册＋守卫组 18 件＋build/package/selftest
+
+## [M-015] - 2026-09-26
+
+- milestone: 轮 35 grill 封口——第四轮锐评（快照=当时 HEAD 68db5ad，新鲜度满）辩证处置四裁全拍板（D-144~D-147 全 current）：守卫复绿税双层组合（收口前置核对＋41a-D7 类高频钉→结构不变量改写归 #75批1＋守卫组 CI 层硬跑不降级）＋dist 再生工序内化（src/dist 触碰→build+check-dist 前置核对行）＋评审摄入四档制（D-142→revised 仅①款枚举三档→四档＋90-条目覆盖面扩写＋XFAIL「10/10 危机」勘误=快照不属实显式驳回）＋P4 as-cast 立即返工裁；R35-Q{1..4} 调研档案存档；轮36任务书 T0~T13 落盘
+- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-093（architecture-recovery 账本实物区间，写时实物读出——本轮零新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十五轮 Grill＋收口对账（D-144~D-147，D-142① revised）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-093）
+- impact: 第四轮锐评清零（守卫税制双层/dist 再生前置核对/摄入四档制/P4 返工裁全定）；D-071⑨ 触发器实证追认 bound_to 改挂 #75批1；registry 90-条目覆盖面扩第四档；**编年随行补录**——r35-closeout 收口 commit 漏本轮编年致 41a-D7 红，由轮36 T1 批补录（M-013/M-010/r32-t0 同型先例）
+
