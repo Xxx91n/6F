@@ -123,3 +123,11 @@
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十五轮 Grill＋收口对账（D-144~D-147，D-142① revised）／.scratch/architecture-recovery/decision-ledger.md（A-001~A-093）
 - impact: 第四轮锐评清零（守卫税制双层/dist 再生前置核对/摄入四档制/P4 返工裁全定）；D-071⑨ 触发器实证追认 bound_to 改挂 #75批1；registry 90-条目覆盖面扩第四档；**编年随行补录**——r35-closeout 收口 commit 漏本轮编年致 41a-D7 红，由轮36 T1 批补录（M-013/M-010/r32-t0 同型先例）
 
+
+## [M-016] - 2026-09-26
+
+- milestone: 轮36 T1 R35 收口实施批落地（A-094）——D-147 P4 as-cast 返工：engine/src/fact/file-card.ts failure 注记收窄 'ok' | SuppressedFacetReason＋删 :299 as cast（落地修正=let→const 三元单式——TS 4.4 别名收窄对重赋值 let 绑定不生效，TS 5.9.3 最小复现实证）＋编年随行补录 M-015＋WORKFLOW §4 lessons 行补 P6
+- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-094（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-094）
+- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-094 R35 收口实施批）／.scratch/macro-audit/decision-ledger.md（D-147 执行面回执）
+- impact: D-143② exhaustiveness 判力兑现——第三失败枝词表外原因码将由编译错拦截（交叠 as 断言静默放行面清除）；dist 字节差发生（cli.js 257947→257898B，-49B=let+if-chain→const 三元结构性等价非语义差）触发预声明升格判据→§1 全套重跑全绿照走

@@ -284,9 +284,8 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
   const band: 'high' | 'medium' | 'low' | null = pct === null ? null : (pct >= 0.9 ? 'high' : (pct >= 0.6 ? 'medium' : 'low'));
 
   // 失败三态（D-123）：binary/generated 走 miss not_applicable；new_file/insufficient_history=显式态仅静态指标
-  let failure: FailureState = 'ok';
-  if (revisions === 1) { failure = 'new_file'; }
-  else if (revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS) { failure = 'insufficient_history'; }
+  const failure: 'ok' | SuppressedFacetReason = revisions === 1 ? 'new_file'
+    : (revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS) ? 'insufficient_history' : 'ok';
   const suppressed = failure !== 'ok';
 
   // D-136 失败态投影收口（#83）：kernel 卡面只留静态指标集（closed）——历史派生族及未声明 facet
@@ -296,7 +295,7 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
   const suppressedFacets: SuppressedFacet[] = [];
   for (const a of analyses) {
     if (suppressed && FILE_CARD_STATIC_FACETS.indexOf(a) < 0) {
-      suppressedFacets.push({ facet: a, reason: failure as SuppressedFacetReason });
+      suppressedFacets.push({ facet: a, reason: failure });
     } else {
       keptFacets[a] = ordered[a];
     }
