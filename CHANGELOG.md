@@ -147,3 +147,11 @@
 - a_range: A-001 ~ A-096（本轮新增 A-096）
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-096 R36 T2 审计返工批）
 - impact: 血缘缝合正确性缺陷清零（dup 边/钻石不误报环、截断有披露）；源文件字节级卫生恢复 grep 可见；FILE-CARD 36/36；试点集同主偏差如实披露
+
+## [M-019] - 2026-09-27
+
+- milestone: 轮 36 grill 封口——第四轮锐评核销复核（锐评文本面零残余裁面确认）＋锐评后新生面双裁全拍板（D-148~D-149 全 current）：审计窗判断项处置（R1 Accepted-Risk 裁立三要素〔病态角双条件/reprobe 补偿控制/真实零边触帽案例重开〕＋R2 确认式呈报补复评触发〔多 to 竞争边歧义案例即重开〕）＋规程生效时点规约立法（grandfather/落盘 commit 自身豁免——M-015 复绿税第三次实证注记）＋守卫组界定（H51 十八件枚举锚面固化至 AGENTS＋成员进出生命周期一句话＋静默红 12 件处置谱挂 T3 分诊门＋升格触发器入 registry event_bound）；R36-Q{1,2} 调研档案存档；轮37任务书落盘
+- adr_range: ADR-0001 ~ ADR-0023（不变）
+- a_range: A-001 ~ A-096（不变——本轮零新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十六轮 Grill＋收口对账（D-148~D-149，零新 revised）
+- impact: 锐评核销闭环（三税处置全落档）；审计判断项呈报面清零（R1/R2 有名分）；规程生效时点语义封口（M-015 类不再重演）；「守卫组」获 AGENTS 层指称（收口判据可执行化）；静默红 fleet 首次全量画像（12 件）为 T3 普查输入

@@ -176,6 +176,10 @@
         "review-intake-mistriage-recurrence": {
             "occurred": false,
             "note": "D-142③：外部评审摄入再现「未钉快照 SHA／未对照当前 HEAD 分诊即呈报」——快照已修项被当开放缺陷进裁定链之日=事件发生（审计窗/摄入动作检出即翻转）；覆盖面含第四档误分诊——证伪态误投 pending 或裁定链同列事件（D-146③）"
+        },
+        "t3-guard-manifest-shipped": {
+            "occurred": false,
+            "evidence": "待 T3/#75批1 普查产出 known-red manifest（D-094 三分类门过审版）落盘"
         }
     },
     "items": [
@@ -1249,6 +1253,14 @@
                     "decision": "trigger-event-ratified",
                     "reason": "第四轮锐评两轮实证（r32-t0/r35-t0 复绿 commit）=增长面腿显式触发事件——Trigger-gated Closure 追认非改向，零 revised；执行载体并入 #75批1（41a-D7 类高频钉→结构不变量改写）",
                     "evidence": "decision-ledger.md D-144③；reports/R35-Q1-atomcode-research.md"
+                },
+                {
+                    "at": "2026-09-27",
+                    "by": "轮36 grill D-148③",
+                    "criterion_version": "D-148③",
+                    "decision": "confirmed-third-recurrence",
+                    "reason": "M-015 事件=复绿税第三次实证（r35-closeout 落盘 commit db40c8f 自身漏编年触红 41a-D7，1714e8b 补录修复）——生效时点语义空白经 grandfather 规约立法封口：豁免对象=新规程非追溯旧守卫（41a-D7 当时已生效且正确履职红→补录=机制工作非失效）",
+                    "evidence": "decision-ledger.md D-148③＋1714e8b commit＋reports/R36-Q1-atomcode-research.md §结论三四"
                 }
             ],
             "bound_to": "#65（cap 腿已分拣清零）＋#75批1（增长面腿——41a-D7 类结构不变量改写，D-144③）"
@@ -1574,6 +1586,90 @@
                     "evidence": "decision-ledger.md D-142；reports/R34-Q3-atomcode-research.md"
                 }
             ]
+        },
+        {
+            "id": "guard-baseline-upgrade-trigger",
+            "family": "code-hygiene",
+            "title": "收口判据升格触发器（D-149④）——T3 manifest 产出当轮「守卫组」判据升格为 58 件全跑＋红集⊆known-red manifest＋manifest 件复绿告警",
+            "deadline_event": null,
+            "deadline": "无（值守项）",
+            "trigger_event": "t3-guard-manifest-shipped",
+            "trigger": "T3/#75批1 普查产出 known-red manifest（D-094 三分类门过审版）落盘当轮即升格",
+            "review_at": "stage3-close",
+            "status": "pending",
+            "watch": "event_bound",
+            "owner": "macro-audit 队列值守",
+            "verify_method": "manifest 落盘后下一轮收口即按 58 全跑判据执行并校验红集⊆manifest＋逐件复绿告警",
+            "review_event": "stage3-close",
+            "confirmations": [
+                {
+                    "at": "2026-09-27",
+                    "by": "轮36 grill D-149④",
+                    "criterion_version": "D-149④",
+                    "decision": "registered",
+                    "reason": "两阶段防 graveyard 固驻——止血期收口判据=18 件基线枚举全绿（AGENTS.md 锚面固化）；升格条件=manifest 产出当轮（Trigger-gated Closure 同 D-071⑨ 惯例）",
+                    "evidence": "decision-ledger.md D-149④＋AGENTS.md 守卫组指称行"
+                }
+            ],
+            "bound_to": "#75批1（T3 字面钉普查产出 manifest——静默红 12 件画像为本普查输入）"
+        },
+        {
+            "id": "r1-lineage-edgecap-accepted-risk",
+            "family": "micro-b-file-card",
+            "title": "R1 lineageEdgeCapHit 病态角披露缺口——subject 无边＋祖先边池触帽时卡面 lineage:null 帽事件不可见（D-148② Accepted-Risk 裁立）",
+            "deadline_event": null,
+            "deadline": "无（复评触发制）",
+            "trigger_event": null,
+            "trigger": "复评触发：subject 零边∧边池触帽真实案例出现即升回裁定链（expires_at 载明）",
+            "review_at": "stage3-close",
+            "status": "decided",
+            "watch": "risk_accepted",
+            "acceptor": "用户（2026-09-27 R36-Q1 拍板）",
+            "reason": "病态角非硬错——触发需 subject 零边∧边池触帽双重条件；披露伞 truncated 在有边时如实工作；补偿控制=reprobe 路径经非空 lineage 块回查",
+            "expires_at": "复评触发：出现 subject 零边且触帽真实案例即重开裁定（事件制非日历期）",
+            "owner": "macro-audit 队列值守",
+            "review_event": "stage3-close",
+            "verify_method": "复评触发命中即把本条升回裁定链重裁（Accepted-Risk 三要素齐备在案：不修理由+补偿控制+复评触发）",
+            "confirmations": [
+                {
+                    "at": "2026-09-27",
+                    "by": "轮36 grill D-148②",
+                    "criterion_version": "D-148②",
+                    "decision": "accepted-risk",
+                    "reason": "Three-Disposition 三要素齐备（不修理由/补偿控制/复评触发）；finding-triage/OWASP 分诊三态同构",
+                    "evidence": "decision-ledger.md D-148②＋reports/R36-Q1-atomcode-research.md"
+                }
+            ],
+            "bound_to": "#80 步③血缘缝合呈报项（R36-T2 审计窗产出）"
+        },
+        {
+            "id": "r2-peer-dedup-reaffirmed",
+            "family": "micro-b-file-card",
+            "title": "R2 peer 去重一跳＋renamed_to 多 to-竞争边取首匹配——确认式呈报（D-148②：票面「带病边界不修」注记在案＋补复评触发条件，非新裁）",
+            "deadline_event": null,
+            "deadline": "无（复评触发制）",
+            "trigger_event": null,
+            "trigger": "复评触发：renamed_to 多 to 竞争边产生实际取首匹配歧义案例即升回裁定链（expires_at 载明）",
+            "review_at": "stage3-close",
+            "status": "decided",
+            "watch": "risk_accepted",
+            "acceptor": "用户（2026-09-27 R36-Q1 拍板=re-affirmation 非新裁）",
+            "reason": "票面「带病边界注明不修」既决——本轮动作仅补复评触发条件字段（accepted-risk 文书 Approver+Date+trigger 惯例），措辞与「注明不修」同调故零 revised",
+            "expires_at": "复评触发：renamed_to 多 to 竞争边产生实际取首匹配歧义案例即重开",
+            "owner": "macro-audit 队列值守",
+            "review_event": "stage3-close",
+            "verify_method": "复评触发命中即升回裁定链（禁改向性再裁——任何与「注明不修」不同调判词须标 revised 呈报）",
+            "confirmations": [
+                {
+                    "at": "2026-09-27",
+                    "by": "轮36 grill D-148②",
+                    "criterion_version": "D-148②",
+                    "decision": "reaffirmed",
+                    "reason": "确认式呈报非改向——既有票面注记+补齐触发字段",
+                    "evidence": "decision-ledger.md D-148②＋2026-09-26-r36-t2-audit-pass-handoff.md 呈报项留档"
+                }
+            ],
+            "bound_to": "#80 步③血缘缝合呈报项（B6 延续）"
         }
     ]
 }

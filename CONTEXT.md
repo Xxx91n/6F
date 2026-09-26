@@ -16,6 +16,7 @@
 > 轮 32 grill（2026-09-25 完成）已封口 D-134 ~ D-139：R32 审计残余六面裁毕——F7g 吞错收窄（constraint 仅指认 fact_id UNIQUE 撞键，余者上抛回滚＋披露计数＋毒事实回归）＋建议修批票面化（单票 #83 步③前落）＋D-123⑤ 读法定界（失败态投影收口=历史派生族滤出卡面＋suppressed_facets closed 枚举，D-123⑤ 注记）＋血缘缝合归口（#80 步③扩枚举＋多跳/环/跨观测集子项，D-125 注记）＋golden 再生不可证处置（first-non-z-dialect-host event_bound 触发器，D-128⑤ 注记）＋过程违规追认（AGENTS 格式化禁搭车负向行＋format-piggyback-recurrence deferred 触发器）；调研档案 R32-Q{1,3,4,5,6} 系列存档（Q2 用户直选）。
 > 轮 34 grill（2026-09-25 完成）已封口 D-140 ~ D-143：第三轮锐评残余四面裁毕——dist 锁面内制品评审降噪（dist/** generated 标记＋独立 bundle commit 规约＋信任源声明=CI rebuild-diff 守卫，D-067/D-059⑨ 互引注记）＋贡献者最小阅读地图（CONTRIBUTING 纯指针段＋.scratch 过程档案声明，D-130 注记）＋评审快照摄入分诊规程（钉 SHA＋HEAD 三档分诊 AGENTS 一行＋review-intake-mistriage-recurrence deferred 触发器）＋R33 口径卫生三件（F9 emitted 203→197 勘误封账＋SuppressedFacetReason 收窄可达集〔D-136 注记〕＋B2 标签名实相符）；调研档案 R34-Q{1..4} 系列存档 .scratch/macro-audit/reports/。
 > 轮 35 grill（2026-09-26 完成）已封口 D-144 ~ D-147：第四轮锐评（快照=当前 HEAD 68db5ad）辩证处置＋R35 审计窗 P4 裁决——守卫复绿税双层组合（closeout 前置核对工序化＋41a-D7 类高频钉结构不变量改写〔D-071⑨ 增长面腿触发器追认→#75批1〕＋无账行增量显式豁免声明＋守卫组 CI 层硬跑不降级）＋dist 再生工序内化（src 或 dist 触碰→build＋check-dist 前置核对行，官方 check-dist 先例同型）＋评审摄入四档制（D-142 → revised 仅①款——「可核实且证伪→快照不属实」附核实依据显式驳回封闭处置态〔非第四值守态〕＋XFAIL 10/10 呈报勘误：entries=0/10 快照时点即失实；registry 覆盖面扩写）＋P4 as-cast 立即返工（failure 注记收窄 `'ok' | SuppressedFacetReason`＋删 cast，TS 4.4 别名收窄兑现 exhaustiveness——预声明轻量验证包＋dist 字节差即升格全套）；调研档案 R35-Q{1..4} 系列存档 .scratch/macro-audit/reports/。
+> 轮 36 grill（2026-09-27 完成）已封口 D-148 ~ D-149：第四轮锐评核销复核（锐评面零残余裁面——已完成核销表）＋审计窗判断项处置（R1 Accepted-Risk 裁立三要素／R2 确认式呈报补复评触发）＋规程生效时点规约（grandfather／落盘 commit 自身豁免）＋守卫组界定（18 件枚举锚面固化 AGENTS＋成员进出生命周期＋静默红 12 件处置谱挂 T3 分诊门＋升格触发器登记）
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -335,3 +336,15 @@ _Avoid_: 退化值当合法数据呈现（degraded 标记的 hotspot_score 仍�
 **评审快照分诊（Review Snapshot Triage）**:
 外部评审/锐评摄入的分诊纪律（D-142→D-146 四档制）：先钉评审快照 SHA（报告日基准），逐条对照当前 HEAD——四档=「快照属实/现状已修」（事实性×现行性正交之已修组合；不进裁定链、去向表照登——Bugzilla WORKSFORME/GitLab Likely Fixed 同族）／「仍开放」（进裁定链，D-075 三要素受理）／「无法核实→pending」（票面瞬时标记带复审时点；须入 registry 则走 manual_watch 五要素，不属 Watch Tri-state）／「可核实且证伪→快照不属实」（**附核实依据**显式驳回不进裁定链、去向表照登——Bugzilla INVALID／IETF errata Rejected 同族；摄入分诊**封闭处置态，非第四值守态**，D-146）。
 _Avoid_: 滞后快照当现状呈报（已修项再裁定）、未分诊直接进裁定链、pending 升格第四值守态（Watch Tri-state 封闭）、证伪态误投 pending 或裁定链（查清证伪≠查不清——悬置态与驳回态语义正交）、「快照不属实」裸标不附核实依据（INVALID 误用病——驳回定性须可复核）、要求评审方提交前重拉 HEAD（后续事项处置义务错配——接收方对照现状是本分）
+
+**Accepted Risk（验收风险处置）**:
+审计/评审 finding 的封闭处置态之一（Three-Disposition 分诊：Fixed／Deferred／Accepted-Risk；另 false-positive 第四态语义=「finding 不存在」非处置档，与评审摄入面「快照不属实」同族不同轴）；成名分须三要素齐备——不修理由＋补偿控制＋复评触发条件（复评触发=业界最常漏填字段），缺任一=finding 被静默丢弃（D-148②）。
+_Avoid_: wontfix 裸标（暗示无声消失）、known-issue（无复评锚）、把 Accepted Risk 当第四值守态（与 Watch Tri-state 不同轴）
+
+**规程生效时点（Prospective/Grandfather 生效）**:
+一切 checklist/规程自其落盘 commit 起对新行为生效，落盘 commit 自身豁免（grandfather clause／lint 存量豁免惯例同构——「须先清零存量才能启用规则」是死局）；豁免对象=新规程文本，落盘时点已生效的旧守卫仍全额适用（D-148③；M-015 第三次实证注记——41a-D7 当时已正确履职红→补录=机制工作非失效）。
+_Avoid_: 溯及既往（立法 commit 永远无法启动）、落盘豁免误读为守卫失效、生效时点不写明的规程（歧义造新空白）
+
+**守卫基线枚举（Guard Baseline Set）**:
+「收口前跑守卫组」的指称对象=明示枚举集（当前 18 件 NN-check＋xfail-run，AGENTS.md「守卫组指称」行载明）；入列=新 check 落盘轮登记＋实测绿，出列=T3 分诊门（D-094 三分类：合法漂移入册带期限／真坏修现实／欺诈死面禁 manifest）；升格终态=全量跑＋known-red manifest 判据（D-149④ 触发器挂 T3 manifest 产出当轮，防 graveyard 中间态固驻）。
+_Avoid_: 守卫组无指称（挑跑=选择歧义税源）、枚举只住换代任务书（挥发锚面）、静默红留无名分（确定性红常驻教团队无视红——Normalization-of-Deviance 机理）
