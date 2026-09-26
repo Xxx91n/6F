@@ -175,7 +175,7 @@
         },
         "review-intake-mistriage-recurrence": {
             "occurred": false,
-            "note": "D-142③：外部评审摄入再现「未钉快照 SHA／未对照当前 HEAD 分诊即呈报」——快照已修项被当开放缺陷进裁定链之日=事件发生（审计窗/摄入动作检出即翻转）"
+            "note": "D-142③：外部评审摄入再现「未钉快照 SHA／未对照当前 HEAD 分诊即呈报」——快照已修项被当开放缺陷进裁定链之日=事件发生（审计窗/摄入动作检出即翻转）；覆盖面含第四档误分诊——证伪态误投 pending 或裁定链同列事件（D-146③）"
         }
     },
     "items": [
@@ -1241,9 +1241,17 @@
                     "decision": "triggered-bound",
                     "reason": "cap=10/10 已满即触发条件实然命中（条款内 fired 认定非绕序）——处置走 #65 批量分拣票，期序纪律保在处置层",
                     "evidence": "decision-ledger.md D-073＋stale-assertions.json entries=10/10＋R22-Q1 报告"
+                },
+                {
+                    "at": "2026-09-26",
+                    "by": "轮35 grill D-144③",
+                    "criterion_version": "D-144③",
+                    "decision": "trigger-event-ratified",
+                    "reason": "第四轮锐评两轮实证（r32-t0/r35-t0 复绿 commit）=增长面腿显式触发事件——Trigger-gated Closure 追认非改向，零 revised；执行载体并入 #75批1（41a-D7 类高频钉→结构不变量改写）",
+                    "evidence": "decision-ledger.md D-144③；reports/R35-Q1-atomcode-research.md"
                 }
             ],
-            "bound_to": "#65"
+            "bound_to": "#65（cap 腿已分拣清零）＋#75批1（增长面腿——41a-D7 类结构不变量改写，D-144③）"
         },
         {
             "id": "git-iso-contract-review",
@@ -1550,7 +1558,7 @@
             "deadline_event": "review-intake-mistriage-recurrence",
             "deadline": "无（事件驱动项）",
             "trigger_event": "review-intake-mistriage-recurrence",
-            "trigger": "外部评审/锐评摄入再现「未钉快照 SHA 或未对照当前 HEAD 分诊」致快照已修项被当开放缺陷进裁定链（R34 锐评「宿命回响 O2 FAIL」呈报为原案）",
+            "trigger": "外部评审/锐评摄入再现「未钉快照 SHA 或未对照当前 HEAD 分诊」致快照已修项被当开放缺陷进裁定链（R34 锐评「宿命回响 O2 FAIL」呈报为原案）；覆盖面含证伪态误投 pending/裁定链（第四档误分诊，D-146③）",
             "review_at": "触发后升级为摄入校验件——评审工件入仓时快照 SHA 字段必填＋HEAD 对照分诊表强制",
             "status": "deferred",
             "watch": "event_bound",
