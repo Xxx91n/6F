@@ -6,8 +6,10 @@
 
 | 仓 | HEAD | 观测集事实数 | 形态角 | 证据 |
 |---|---|---|---|---|
-| jiahao | ba83908aa47666c3b93c3d2e8713afae5d264e62 | 1109 | 1-switch 成对件（hooks/jiahao-paths.js→src/shared/paths.js，R092） | `D:\Aworker\6F\.scratch\macro-audit\audits\r36\jiahao-facts.duckdb` |
-| env-manager | 9eb8f24be508750f299e920d816ba9079771a3f1 | 684 | 2-hop 链（AuditCrypto.cs→src/AuditCrypto.cs→src/Audit/Crypto/AuditCrypto.cs，R100×2）＋成对件 | `D:\Aworker\6F\.scratch\macro-audit\audits\r36\env-manager-facts.duckdb` |
+| jiahao | ba83908aa47666c3b93c3d2e8713afae5d264e62 | 1105 | 1-switch 成对件（hooks/jiahao-paths.js→src/shared/paths.js，R092） | `D:\Aworker\6F\.scratch\macro-audit\audits\r36\jiahao-facts.duckdb` |
+| env-manager | 9eb8f24be508750f299e920d816ba9079771a3f1 | 680 | 2-hop 链（AuditCrypto.cs→src/AuditCrypto.cs→src/Audit/Crypto/AuditCrypto.cs，R100×2）＋成对件 | `D:\Aworker\6F\.scratch\macro-audit\audits\r36\env-manager-facts.duckdb` |
+
+**同主偏差如实**：两试点仓均为本机同 maintainer 仓库（same-owner pilot set）——不构成跨维护者泛化证据，票面写「试点集」。
 
 实跑回执（`node dist/cli.js audit file <repo> <path> --db <duckdb>`）：
 
@@ -19,11 +21,11 @@
 
 | 档 | 事实行数界 | target | danger | 实测基线（p95） |
 |---|---|---|---|---|
-| small | <5k | 200 | 800 | jiahao=72 / env-manager=53.65 |
-| medium | 5k~50k | 800 | 3000 | （无实档——合成 20k 行纯建卡面归 large） |
-| large | >50k | 4000 | 12000 | 合成 stress（20k 行/500 边/60 跳链）=84.99 |
+| small | <5k | 200 | 800 | jiahao=112.63（1105 行）/ env-manager=89.61（680 行） |
+| medium | 5k~50k | 800 | 3000 | 合成 stress=41.35（20561 行＝20k facet+500 边+60 跳链+1） |
+| large | >50k | 4000 | 12000 | （无实档——合成件按票面行数界归 medium） |
 
-判读：verdict=target 当 p95≤target；acceptable 当 target<p95≤danger；danger=p95>danger → exit 1（机器可裁决）。测量面=projectFileCard 端到端（开库→选集→取行→缝合→建卡）实档＋buildFileCard 纯算 stress。冷启离群（max 283ms）不入判据——判据=p95 非 max。
+判读：verdict=target 当 p95≤target；acceptable 当 target<p95≤danger；danger=p95>danger → exit 1（机器可裁决）。测量面=projectFileCard 端到端（开库→选集→取行→缝合→建卡）实档＋buildFileCard 纯算 stress。**档界按观测集 Micro-B 事实行数**（A5 修复：DB 案实测 `COUNT(*)` 于选中 repo_ref、合成案按构造行数 tierOf 自动归属——早前误按卡内行数/硬写档名已纠）。冷启离群（max）不入判据——判据=p95 非 max；逐跑数值读 `audits/r36/bench-file-card.json`（host-load 噪声在容忍带内，读数以工件为准）。
 
 复跑命令：`cd engine && env -u NODE_OPTIONS node scripts/bench-file-card.mjs --runs 30 --out ../.scratch/macro-audit/audits/r36/bench-file-card.json`
 
@@ -34,6 +36,7 @@
 | never_collected | J1（MCP 缺库）＋G1 投影层 |
 | not_tracked_at_sha | E3（pin 歧义）＋L6（pin 缺席）＋runAuditFile pin 路径 |
 | not_applicable | L6（skip 事实判枝）＋D2 系列 |
+| insufficient_history（failure_state 族） | C2（revisions<3→insufficient_history＋suppressed_by 留痕）＋L6 对照组实物断言 |
 | renamed_to | D4/D5（同集边）＋L5（祖先集边跨集解析）＋L6 |
 | 新名端缝合 | L1（1-switch 并入＋F10 回归）／L2（多跳两跳）／L3（环检测）／L4（注入缝跨集）／L5（真 DuckDB 端到端） |
 

@@ -578,18 +578,23 @@ await tAsync('L5 投影层跨集实物：边在祖先 repo_ref 集、行在选�
   try {
     // 祖先集（早采）仅存血缘边；选中集（新采）持有新名+旧名行——边不在选中集正是跨集解析面
     await S.appendFact(w, renameEdge('old.ts', 'new.ts', 'd'.repeat(40), 91, SHA_OLD, '2026-09-19T00:00:00Z'));
+    await S.appendFact(w, renameEdge('gone.ts', 'new.ts', 'e'.repeat(40), 88, SHA_OLD, '2026-09-19T00:00:00Z'));   // 仅祖先集存在的第二边——miss 侧跨集实证素材
     await S.appendFact(w, facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 2 }, SHA_A));
     await S.appendFact(w, facetRow('old.ts', 'revisions', { path: 'old.ts', n_revs: 7 }, SHA_A));
   } finally { S.closeDuckdb(w); }
   const card = await P.projectFileCard(db, { repo: 't', subject: 'new.ts' });
   assert.equal(card.card_type, 'file-audit-card');
-  assert.deepEqual(card.lineage.stitched_from, ['old.ts']);       // 祖先集边参与解析
+  assert.deepEqual(card.lineage.stitched_from, ['old.ts', 'gone.ts']);   // 祖先集两边参与解析（BFS 序）
   assert.equal(card.kernel.facet_rows.revisions.length, 2);
   assert.equal(card.derived.revisions, 7);
   // 反向腿：旧名查询→renamed_to 条件跳转（祖先集边同样兑现——miss 侧跨集解析）
-  const miss = await P.projectFileCard(db, { repo: 't', subject: 'old.ts', at: SHA_A.slice(0, 8) });
-  // pin SHA_A 前缀命中选中集——old.ts 在该集内有行故非 miss；改查无行名走 rename 腿
-  assert.equal(miss.card_type !== undefined, true);
+  // 反向腿（真实断言）：gone.ts 无任何集内有行——其血缘边仅存祖先集→miss 侧跨集解析实证
+  const miss = await P.projectFileCard(db, { repo: 't', subject: 'gone.ts' });
+  assert.equal(miss.card_type, 'miss');
+  assert.equal(miss.miss.state, 'renamed_to');
+  assert.equal(miss.miss.renamed_to, 'new.ts');
+  assert.equal(miss.miss.revalidated, true);                    // 目标 new.ts 在选中集内有行→重验证通过
+  assert.equal(miss.miss.lineage_edge.commit_sha, 'e'.repeat(40));
   rmSync(dir, { recursive: true, force: true });
 });
 
@@ -606,5 +611,72 @@ t('L6 0-switch 边界件逐类点名：never_collected/not_tracked_at_sha/not_ap
   assert.equal(mk({ subject: 'gone.ts', setFacts: [renameEdge('gone.ts', 'new.ts', 'e'.repeat(40), 93)] }).lineage, null);
   // 失败态闭环：缝合并入的旧名历史抬高 revisions 出 insufficient/new_file（F10 语义）——L1 已钉 ok
   assert.equal(FC.buildFileCard({ subject: 'new.ts', setRepoRef: 't@' + SHA_A, setFacts: [facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 1 })], availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null }).failure_state, 'new_file');   // 无血缘对照组：仍 new_file
+  assert.equal(FC.buildFileCard({ subject: 'new.ts', setRepoRef: 't@' + SHA_A, setFacts: [facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 2 })], availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null }).failure_state, 'insufficient_history');   // 对照组：revisions=2→insufficient_history 实物断言
+});
+
+t('L7 跨集 dup 边零假阳：同键边 (from,to,commit_sha) 在选中集+祖先集共存→并池去重后不置环旗、披露单份（A2a 回归）', () => {
+  const card = FC.buildFileCard({
+    subject: 'new.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [
+      facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 5 }),
+      renameEdge('old.ts', 'new.ts', 'c'.repeat(40), 92)
+    ],
+    lineageFacts: [renameEdge('old.ts', 'new.ts', 'c'.repeat(40), 92)],   // 同键边跨集重检=多观测集常态
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+  });
+  assert.equal(card.lineage.cycle_detected, false);
+  assert.equal(card.lineage.edges.length, 1);                       // 并池去重后披露单份
+  assert.deepEqual(card.lineage.stitched_from, ['old.ts']);
+});
+
+t('L8 DAG 钻石零假阳：a→b→c 链＋a→c 直达边汇于同祖先=汇合非环——cycle_detected 不置旗（A2b 回归）', () => {
+  const card = FC.buildFileCard({
+    subject: 'c.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [
+      facetRow('c.ts', 'hotspots', { path: 'c.ts', revisions: 2, hotspot_score: 1 }),
+      facetRow('a.ts', 'revisions', { path: 'a.ts', n_revs: 9 }),
+      renameEdge('a.ts', 'b.ts', 'a'.repeat(40), 90),
+      renameEdge('b.ts', 'c.ts', 'b'.repeat(40), 95),
+      renameEdge('a.ts', 'c.ts', 'c'.repeat(40), 70)    // 直达边与 a→b→c 构成钻石
+    ],
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+  });
+  assert.equal(card.lineage.cycle_detected, false);                 // 汇合路径复查 a→b 非环
+  assert.deepEqual(card.lineage.stitched_from.slice().sort(), ['a.ts', 'b.ts']);
+  assert.equal(card.lineage.edges.length, 3);                       // 三边全披露（含汇复查边）
+});
+
+t('L9 真环仍置旗（对照 L8——同形三边但含互达对）：a→b→c→a 三环 cycle_detected=true', () => {
+  const card = FC.buildFileCard({
+    subject: 'c.ts', setRepoRef: 't@' + SHA_A,
+    setFacts: [
+      facetRow('c.ts', 'revisions', { path: 'c.ts', n_revs: 5 }),
+      renameEdge('a.ts', 'b.ts', 'a'.repeat(40), 90),
+      renameEdge('b.ts', 'c.ts', 'b'.repeat(40), 95),
+      renameEdge('c.ts', 'a.ts', 'c'.repeat(40), 70)    // c→a 前向边使 a 既为祖先又为后裔=真环
+    ],
+    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
+  });
+  assert.equal(card.lineage.cycle_detected, true);
+});
+
+await tAsync('L10 EDGE_CAP 命中如实披露：祖先边池拉取触帽→lineage.truncated=true（A4 降帽测试缝）', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'fcard-cap-'));
+  const db = join(dir, 'f.duckdb');
+  const SHA_OLD = '0'.repeat(40);
+  const w = await S.openWriter(db);
+  try {
+    for (const p of [['a.ts','b.ts'],['b.ts','c.ts'],['gone.ts','c.ts']]) {
+      await S.appendFact(w, renameEdge(p[0], p[1], 'd'.repeat(40), 90, SHA_OLD, '2026-09-19T00:00:00Z'));
+    }
+    await S.appendFact(w, facetRow('c.ts', 'revisions', { path: 'c.ts', n_revs: 2 }, SHA_A));
+  } finally { S.closeDuckdb(w); }
+  const capped = await P.projectFileCard(db, { repo: 't', subject: 'c.ts', lineage_edge_cap: 2 });
+  assert.equal(capped.card_type, 'file-audit-card');
+  assert.equal(capped.lineage.truncated, true);                     // 3 边拉 2→截断如实上伞
+  const full = await P.projectFileCard(db, { repo: 't', subject: 'c.ts' });
+  assert.equal(full.lineage.truncated, false);                    // 对照：默认帽下三边全解析
+  assert.deepEqual(full.lineage.stitched_from.slice().sort(), ['a.ts', 'b.ts', 'gone.ts']);
+  rmSync(dir, { recursive: true, force: true });
 });
 console.log('FILE-CARD ' + n + '/' + n);

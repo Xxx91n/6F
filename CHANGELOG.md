@@ -139,3 +139,11 @@
 - a_range: A-001 ~ A-095（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-095）
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-095 #80 步③ 收口批）
 - impact: Micro-B 文件卡三内部步全落地（发射①→投影+查询②→缝合+试点+披露③）；血缘缝合四子项全兑现（多跳/环检测/跨观测集/成对件双端）；F10 缺陷路径闭合（改名文件旧名历史计入新名卡不误进 insufficient_history）；试点集=jiahao＋env-manager（票面写「试点集」）；#80 票面 DoD 面齐，关票裁定属账本侧
+
+## [M-018] - 2026-09-26
+
+- milestone: 轮36 T2 审计返工批闭环（A-096）——A-095 审计不通过打回（A 类 5 项全修）：NUL 字节清出 file-card.ts／cycle_detected 假阳根治（跨集 dup 边并池去重＋DAG 钻石前向可达判定）／EDGE_CAP 截断如实披露（truncated 伞）／zh-CN 假同步修正（正文补译）／bench 分档按票面事实行数语义；B 类同修（L5 真实断言＋insufficient_history 实物件＋同主偏差措辞＋报告三处自漂移纠偏＋CHANGELOG 空行）
+- adr_range: ADR-0001 ~ ADR-0023（不变）
+- a_range: A-001 ~ A-096（本轮新增 A-096）
+- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-096 R36 T2 审计返工批）
+- impact: 血缘缝合正确性缺陷清零（dup 边/钻石不误报环、截断有披露）；源文件字节级卫生恢复 grep 可见；FILE-CARD 36/36；试点集同主偏差如实披露

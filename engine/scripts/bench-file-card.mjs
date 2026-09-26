@@ -4,7 +4,7 @@
 //   （深链 60 跳＋宽边 500 条＋20k facet 行）。分档=按观测集事实行数分 small/medium/large。
 // 阈值=实测预登记（见下方 THRESHOLDS 常量——登记值先于批内 commit 锁死，实跑数值留 artifact）。
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { performance } from 'node:perf_hooks';
@@ -12,6 +12,7 @@ import { performance } from 'node:perf_hooks';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const root = join(HERE, '..');
 const P = await import(pathToFileURL(join(root, 'dist', 'fact', 'projection.js')).href);
+const S = await import(pathToFileURL(join(root, 'dist', 'fact', 'store.js')).href);
 const FC = await import(pathToFileURL(join(root, 'dist', 'fact', 'file-card.js')).href);
 
 // ── 预登记阈值（ms）——实测预登记制：先测后写锁票面，target=正常达成档 danger=病态上限档
@@ -23,12 +24,15 @@ const THRESHOLDS = {
 };
 
 function parseArgs(argv) {
-  const o = { runs: 30, dbs: [], out: null };
+  const o = { runs: 30, dbs: [], out: null, subject: null };
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--runs') { o.runs = Number(argv[++i]); }
     else if (argv[i] === '--db') { o.dbs.push(argv[++i]); }
+    else if (argv[i] === '--subject') { o.subject = argv[++i]; }
     else if (argv[i] === '--out') { o.out = argv[++i]; }
   }
+  if (!Number.isInteger(o.runs) || o.runs < 1) { throw new Error('BENCH-ARGS --runs 须为 ≥1 整数'); }
+  for (const db of o.dbs) { if (!existsSync(db)) { throw new Error('BENCH-ARGS --db 不存在：' + db); } }
   if (o.dbs.length === 0) {
     o.dbs = [
       join(root, '..', '.scratch', 'macro-audit', 'audits', 'r36', 'jiahao-facts.duckdb'),
@@ -81,8 +85,16 @@ async function benchDb(dbPath, repo, subject, runs) {
     ts.push(performance.now() - t0);
   }
   ts.sort((a, b) => a - b);
-  const setCount = card && card.kernel ? Object.keys(card.kernel.facet_rows).reduce((s, k) => s + card.kernel.facet_rows[k].length, 0) : 0;
-  return { db: dbPath, subject: subject, runs: runs, p50: pct(ts, 0.5), p95: pct(ts, 0.95), max: pct(ts, 1), card_rows: setCount };
+  // A5：分档按票面语义=观测集事实行数（非卡内行数）——实测 Micro-B 行数于选中 repo_ref
+  let setFacts = 0;
+  if (card && card.repo_ref) {
+    const conn = await S.openReader(dbPath);
+    try {
+      const r = await conn.run("SELECT COUNT(*) FROM audit_fact WHERE scale = 'Micro-B' AND repo_ref = ?", [card.repo_ref]);
+      setFacts = Number((await r.getRows())[0][0]);
+    } finally { S.closeDuckdb(conn); }
+  }
+  return { db: dbPath, subject: subject, runs: runs, p50: pct(ts, 0.5), p95: pct(ts, 0.95), max: pct(ts, 1), set_facts: setFacts };
 }
 
 function benchBuild(setFacts, subject, runs) {
@@ -103,19 +115,21 @@ async function main() {
   for (const db of o.dbs) {
     const base = db.split(/[\\/]/).pop();
     const repo = base.replace(/-facts\.duckdb$/, '');
-    const subject = subjects[base] || 'src/shared/paths.js';
+    const subject = o.subject || subjects[base];
+    if (!subject) { throw new Error('BENCH-ARGS 未知 --db 基名且未给 --subject：' + base); }
     results.push(await benchDb(db, repo, subject, o.runs));
   }
   // 合成 stress：20000 facet 行＋60 跳深链＋500 宽边——大档
-  const synth = benchBuild(syntheticSet(20000, 500, 60), 'v60.ts', o.runs);
+  const synthFacts = syntheticSet(20000, 500, 60);
+  const synth = benchBuild(synthFacts, 'v60.ts', o.runs);
   synth.synthetic = '20000-rows/500-edges/60-hop-chain';
-  synth.tier = 'large';
+  synth.tier = tierOf(synthFacts.length);   // A5：档名按票面行数界自动归属（20k+ 行→medium，不硬写）
   const verdicts = [];
   for (const r of results.concat([synth])) {
-    const tier = r.tier || tierOf(r.card_rows || r.rows || 0);
+    const tier = r.tier || tierOf(r.set_facts !== undefined ? r.set_facts : (r.rows || 0));
     const t = THRESHOLDS[tier];
     const verdict = r.p95 === null ? 'no-data' : r.p95 <= t.target ? 'target' : r.p95 <= t.danger ? 'acceptable' : 'danger';
-    verdicts.push({ name: r.synthetic || r.db, tier: tier, p95_ms: r.p95, p50_ms: r.p50, max_ms: r.max, target_ms: t.target, danger_ms: t.danger, verdict: verdict });
+    verdicts.push({ name: r.synthetic || r.db, tier: tier, set_facts: r.set_facts !== undefined ? r.set_facts : r.rows, p95_ms: r.p95, p50_ms: r.p50, max_ms: r.max, target_ms: t.target, danger_ms: t.danger, verdict: verdict });
   }
   const out = { schema: 'file-card-bench/v1', runs_per_case: o.runs, thresholds: THRESHOLDS, measured_at: new Date().toISOString(), node: process.version, cases: verdicts };
   const text = JSON.stringify(out, null, 1) + '\n';

@@ -118,6 +118,7 @@ export interface FileCardBuildInput {
   setTruncated?: boolean;                   // 观测集 fact 拉取超 FILE_CARD_SET_CAP 截断标记（投影层判定注入）
   pinnedAmbiguous?: readonly string[];      // F7a：at:<sha> 前缀命中多个观测集 head_sha（歧义不猜——not_tracked_at_sha 如实答）
   lineageFacts?: readonly FactEvent[];      // D-137② 跨观测集血缘边池增量：祖先观测集的 file.renamed 事实行（投影层解析注入；缺席=仅选中集边）
+  lineageEdgeCapHit?: boolean;              // 祖先集血缘拉取超 FILE_CARD_LINEAGE_EDGE_CAP——截断如实披露（并入 truncated 伞）
 }
 
 export function headShaOfRepoRef(repoRef: string): string | null {
@@ -195,7 +196,7 @@ function collectRenameEdges(facts: readonly FactEvent[]): FileCardLineageEdge[] 
     try {
       const v = JSON.parse(f.value_json) as { from?: unknown; to?: unknown; commit_sha?: unknown; similarity?: unknown };
       if (typeof v.from !== 'string' || typeof v.to !== 'string' || typeof v.commit_sha !== 'string') { continue; }
-      const key = v.from + ' ' + v.to + ' ' + v.commit_sha;
+      const key = v.from + '\u0000' + v.to + '\u0000' + v.commit_sha;
       if (seen.has(key)) { continue; }
       seen.add(key);
       edges.push({ from: v.from, to: v.to, commit_sha: v.commit_sha, similarity: typeof v.similarity === 'number' ? v.similarity : 0 });
@@ -210,16 +211,35 @@ function collectRenameEdges(facts: readonly FactEvent[]): FileCardLineageEdge[] 
 function resolveLineageAncestors(subject: string, edges: readonly FileCardLineageEdge[]): {
   subjects: string[]; edgesUsed: FileCardLineageEdge[]; cycleDetected: boolean; truncated: boolean;
 } {
+  // byTo=反向邻接（to→[from]：朝旧名回溯）；byFrom=前向邻接（from→[to]：old→new），供 dup 命中时的真环判定
   const byTo = new Map<string, FileCardLineageEdge[]>();
+  const byFrom = new Map<string, FileCardLineageEdge[]>();
   for (const e of edges) {
-    const arr = byTo.get(e.to) || [];
-    if (arr.length === 0) { byTo.set(e.to, arr); }
-    arr.push(e);
+    const t = byTo.get(e.to) || [];
+    if (t.length === 0) { byTo.set(e.to, t); }
+    t.push(e);
+    const f = byFrom.get(e.from) || [];
+    if (f.length === 0) { byFrom.set(e.from, f); }
+    f.push(e);
   }
   for (const arr of byTo.values()) {
     arr.sort(function (a, b) {
       return a.commit_sha === b.commit_sha ? (a.from < b.from ? -1 : a.from > b.from ? 1 : 0) : (a.commit_sha < b.commit_sha ? -1 : 1);
     });
+  }
+  // 前向可达判定：cur 沿 old→new 方向可达 e.from ⟺ e.from 兼为 cur 的祖先（边 Y→X）与后裔（X→*Y）=真环；
+  //   DAG 钻石/重复边命中（两路径汇于同一祖先名）不满足互达——照实不置环旗（D-137② 披露≠误报）。
+  function reachesForward(start: string, target: string): boolean {
+    const seen = new Set<string>([start]);
+    const fq: string[] = [start];
+    while (fq.length > 0) {
+      const n = fq.shift() as string;
+      for (const e of byFrom.get(n) || []) {
+        if (e.to === target) { return true; }
+        if (!seen.has(e.to)) { seen.add(e.to); fq.push(e.to); }
+      }
+    }
+    return false;
   }
   const visited = new Set<string>([subject]);
   const ancestors: string[] = [];
@@ -231,7 +251,7 @@ function resolveLineageAncestors(subject: string, edges: readonly FileCardLineag
     const cur = queue.shift() as string;
     for (const e of byTo.get(cur) || []) {
       edgesUsed.push(e);
-      if (visited.has(e.from)) { cycleDetected = true; continue; }
+      if (visited.has(e.from)) { if (reachesForward(cur, e.from)) { cycleDetected = true; } continue; }
       if (ancestors.length >= FILE_CARD_LINEAGE_MAX_ANCESTORS) { truncated = true; break; }
       visited.add(e.from);
       ancestors.push(e.from);
@@ -287,9 +307,9 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
   }
 
   // 血缘边池=选中集∪祖先集 file.renamed 行（D-137② 跨观测集解析——祖先集边经 lineageFacts 注入）
-  const edgePool = input.lineageFacts !== undefined && input.lineageFacts.length > 0
-    ? collectRenameEdges(input.setFacts).concat(collectRenameEdges(input.lineageFacts))
-    : collectRenameEdges(input.setFacts);
+  const edgePool = collectRenameEdges(input.lineageFacts !== undefined && input.lineageFacts.length > 0
+    ? input.setFacts.concat(input.lineageFacts)
+    : input.setFacts);
   // 反向多跳遍历解析旧名祖先集——缝合集=subject∪祖先名（并入旧名 era 事实，D-137①）
   const resolved = resolveLineageAncestors(subject, edgePool);
   const stitchedNames = new Set<string>([subject].concat(resolved.subjects));
@@ -419,7 +439,7 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     miss: null,
     // 缝合账本：解析到边（含纯环边）即披露——旧名解析成功但零行并入亦如实（stitched_from 非空＋facet_rows 无该行 subject_ref 可互证）
     lineage: resolved.edgesUsed.length > 0 || resolved.cycleDetected
-      ? { stitched_from: resolved.subjects, edges: sortLineageEdges(resolved.edgesUsed), cycle_detected: resolved.cycleDetected, truncated: resolved.truncated }
+      ? { stitched_from: resolved.subjects, edges: sortLineageEdges(resolved.edgesUsed), cycle_detected: resolved.cycleDetected, truncated: resolved.truncated || input.lineageEdgeCapHit === true }
       : null,
     kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
     derived: {
