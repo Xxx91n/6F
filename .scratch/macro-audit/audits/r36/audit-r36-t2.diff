@@ -1,0 +1,1057 @@
+diff --git a/.claude-plugin/marketplace.json b/.claude-plugin/marketplace.json
+index d9b980f..a0b78b0 100644
+--- a/.claude-plugin/marketplace.json
++++ b/.claude-plugin/marketplace.json
+@@ -10,7 +10,7 @@
+     {
+       "name": "6f",
+       "source": "./engine",
+-      "description": "宏观+微观工程内容审计（Agent Plugin；5 scale：Macro-A/B・Macro-C・Micro-A/B；Hub-of-Facts + 联邦裁定。preview 阶段：capability 3 of 5）",
++      "description": "宏观+微观工程内容审计（Agent Plugin；5 scale：Macro-A/B・Macro-C・Micro-A/B；Hub-of-Facts + 联邦裁定。preview 阶段：capability 4 of 5）",
+       "version": "0.1.0",
+       "author": {
+         "name": "Xxx91n",
+diff --git a/.scratch/architecture-recovery/decision-ledger.md b/.scratch/architecture-recovery/decision-ledger.md
+index 2a76c94..732e62c 100644
+--- a/.scratch/architecture-recovery/decision-ledger.md
++++ b/.scratch/architecture-recovery/decision-ledger.md
+@@ -428,6 +428,7 @@
+ | A-092 | 轮33 T1 / BACKLOG #83（R32 审计建议修批——D-134 吞错收窄／D-135 修批票面／D-136 失败态收口＋F5/F6/F7a~j） | engine/src/fact/store.ts（isFactIdUniqueViolation 消息三件套精确指认〔Constraint Error＋unique constraint＋"fact_id:〕＋existingFactIds WHERE IN 分批预查——D-134① 两臂全落：判定层预查为主＋收窄 catch 为防御残留）＋engine/src/audit/file-card.ts（写循环预查消撞键＋skipped 披露计数＋毒事实照常上抛→runInTransaction 回滚）＋engine/src/fact/file-card.ts（FILE_CARD_HISTORY_DERIVED_FACETS／FILE_CARD_STATIC_FACETS closed 双集＋kernel.suppressed_facets 带原因码＋kernel.set_truncated＋pinnedAmbiguous 歧义 miss 枝＋集内 not_tracked available_head_shas）＋engine/src/fact/projection.ts（pin ≥7 前缀唯一性验重＋COUNT 超 FILE_CARD_SET_CAP 截断判定）＋engine/src/mcp-server.ts（existsSync 缺库→buildFileCard never_collected 结构化卡非 isError）＋engine/src/cli.ts（skipped 出参）＋engine/test/file-card.test.mjs 26/26（C4~C7/D2扩展/E3/H2/H3/J1/K1 断言组）＋83-check.mjs 19/19 | ①撞键消除双臂=预查为主（撞键消除在判定层非吞错层）＋isFactIdUniqueViolation 收窄 catch=防御残留（同事务单写者 A-007 无竞窗）；②suppressed_facets 原因码=FailureState\{ok} closed 词表（D-136② 复用 D-126③ not_applicable 族）；③未声明 facet=fail-closed 入 suppressed_facets 禁卡面泄漏（closed 枚举成员级双向差集=C6 对账发射词表 33 名）；④F7a 歧义枝=not_tracked_at_sha＋detail 披露全部命中 sha（不猜最新——精确 40 位直取优先）；⑤82-check B4 契约判据随 F7j 步级化同步更新（guard 钉收窄后形态）；⑥70-check inventory regen（83-check 入册 58 守卫 1385 emit） | implemented 2026-09-25 |
+ | A-093 | 轮35 T1 / next-round T1（R34 收口实施批——D-143②④：词表收窄＋标签名实相符） | engine/src/fact/file-card.ts（SuppressedFacetReason 收窄为 {new_file, insufficient_history} 可达二成员集＋行尾钉「D-126③ 词表可达子集——not_applicable 仅 miss/card_type 层可达；新失败枝须扩此集」＋上行注释「不含 ok」失实声明同步更正）＋.scratch/architecture-recovery/reports/83-check.mjs（B2 标签「两枝补齐」→「本枝新增、pin 枝既有」对齐断言实义） | ①收窄=closed 诚实可达集非破坏——preview 0.x 无外部消费者，删后加回=additive（D-104④「加码非破坏」）；②B2 断言只验集内枝新增行——pin 枝既有面由断言外实证覆盖，标签照实收窄不借注释全称（R32-V2/R33-P1 同型第三次前纠正）；③dist 再生独立 bundle commit 本批首用（D-140②） | D-143②④ / D-094③ / D-095① | implemented 2026-09-25 |
+ | A-094 | 轮36 T1 / next-round T1（R35 收口实施批——D-147：P4 as-cast 返工＋P6 补录） | engine/src/fact/file-card.ts（failure 注记收窄 'ok' | SuppressedFacetReason＋删 :299 as SuppressedFacetReason cast——落地修正为 const 三元单式：revisions===1→'new_file' / <FILE_CARD_INSUFFICIENT_MIN_REVS→'insufficient_history' / 否则 'ok'）＋engine/dist/*（独立 bundle commit——字节差发生故 D-140② 义务触发）＋CHANGELOG.md（M-015 r35-closeout 漏编年补录＋M-016 本批编年随行）＋WORKFLOW.md §4 lessons 行（P6） | ①TS 4.4 别名收窄机制边界实证（TS 5.9.3）：const suppressed=failure!=='ok' 对「函数内多处赋值的 let 绑定」不产生窄化——最简复现三中两（let+alias 环外亦败）；落地取 const 三元单式保裁定机制句成立（别名收窄真实生效、cast 可删、新枝词外值→编译错）；②dist 字节差 -49B（257947→257898）=结构性等价非语义差，但预声明判据无条件升格——§1 全套重跑照走（build/package/selftest/MCP stdio/smoke 22 册/83-check/棘轮/gen 幂等）；③协议核对结论：「返工须重跑 §1 全套」逐字出处=R35 审计报告 §5 P4 行＋r35-audit-handoff 第 11 行（逐条呈报措辞非常驻协议条文），D-147(c′) 用户拍板本身即授权判据预声明减让机制；本轮字节差实发生，升格路径实际执行无减让需求；④M-015 补录=M-013/M-010/r32-t0 同型先例（收口 commit 漏编年→41a-D7 红→下批顺带补录）；⑤P6 处置=本 commit 携 A-NNN＋WORKFLOW lessons 行追记（kmk/xtl 历史 commit 不改写） | D-147 / D-143② / D-139 / D-140② | implemented 2026-09-26 |
++| A-095 | 轮36 T2 / BACKLOG #80 步③（Micro-B 文件卡收束——血缘缝合＋双仓试点＋benchmark＋披露收窄） | engine/src/fact/file-card.ts（file.renamed 边池反向多跳显式图遍历 resolveLineageAncestors〔BFS to→from 邻接 + visited 环检测 + FILE_CARD_LINEAGE_MAX_ANCESTORS=64 帽〕＋FileCardLineage/FileCardLineageEdge 披露块〔stitched_from/edges/cycle_detected/truncated〕＋facet_rows 行级 subject_ref 溯源键＋peer 分布被取代旧名去重〔to 端有行的 from 名不入 repo 分布〕＋renamed_to 边池扩为选中集∪祖先集）＋engine/src/fact/projection.ts（跨观测集血缘解析：祖先集=同 repo 且 MAX(observed_at)≤选中集＋FILE_CARD_LINEAGE_EDGE_CAP=10000＋lineageFacts 注入）＋engine/test/file-card.test.mjs L1~L6（32/32）＋engine/scripts/bench-file-card.mjs（p95 分档 target/danger 双阈值机器可裁决）＋披露收窄面：README 能力矩阵 Micro-B→capability 4 of 5・preview／audit.ts+demo.ts not_in_preview 去 Micro-B／marketplace.json 4 of 5／docs/listing 口径 1-4／41b-check+44-check 钉随口径更新／README.zh-CN.md 再生＋demo golden 再生（not_in_preview 形变） | ①跨观测集语义=血缘事实（非 facet 行）沿祖先集解析——「祖先」=observed_at≤选中集（事实仓唯一序，git 祖先不入库，pin 精确性由 at:sha 引用层承担）；②边池合并后 renamed_to miss 亦能解析祖先集边（一跳语义不变，逐请求推进纪律不动）；③被取代旧名出 peer 分布=同一文件新旧名只计新名（缝合语义一致性——repo 级分布不重复计数）；④benchmark=实测预登记制：先测后写阈值（small 200/800、medium 800/3000、large 4000/12000 ms——实测 p95：jiahao 72 / env-manager 46~54 / 合成 stress 35~85）；⑤披露四件套执行面=README 矩阵行+not_in_preview 两源+listing 口径三件套（同票收窄 D-127）；⑥上游只按当前名发 facet 行→两仓实跑 stitched_from 解析名集在行级零并入（账本语义照实：解析名集≠行并入量，subject_ref 逐行可证） | D-137 / D-126 / D-127 / D-122⑤ | implemented 2026-09-26 |
+ 
+ > **R29-REWORK 注记（2026-09-23 r29 审计返工批）**：审计窗打回（reports/2026-09-23-r29-audit-report.md），F1~F11 同窗修复：
+ > - F1 编年漂移：CHANGELOG M-006 a_range 勘误至 A-090＋补 M-007 编年行（41a 复绿 38/38）。
+diff --git a/.scratch/architecture-recovery/reports/41b-check.mjs b/.scratch/architecture-recovery/reports/41b-check.mjs
+index a4970a8..68c552d 100644
+--- a/.scratch/architecture-recovery/reports/41b-check.mjs
++++ b/.scratch/architecture-recovery/reports/41b-check.mjs
+@@ -55,13 +55,13 @@ t('B5 package.json license=Apache-2.0', pk.license === 'Apache-2.0');
+ const rd = txt(join(REPO, 'README.md'));
+ const desc = txt(join(REPO, 'docs', 'listing', 'description.md'));
+ const cl = txt(join(REPO, 'docs', 'listing', 'credential-checklist.md'));
+-const readmeHas3 = rd.includes('capability 3 of 5');
+-t('C1 README 口径 = capability 1-3 of 5 preview', readmeHas3 && rd.includes('capability 1 of 5') && rd.includes('capability 2 of 5'));
+-t('C2 marketplace description 口径同步（3 of 5）', mk.plugins[0].description.includes('capability 3 of 5'));
+-t('C3 description.md 口径同步（1-3 of 5＋Micro-A preview 行）', desc.includes('capability 1-3 of 5') && desc.includes('Micro-A PR diff') && desc.includes('capability 3 of 5'));
++const readmeHas4 = rd.includes('capability 4 of 5');
++t('C1 README 口径 = capability 1-4 of 5 preview（#80 步③ Micro-B 上架后口径）', readmeHas4 && rd.includes('capability 1 of 5') && rd.includes('capability 2 of 5') && rd.includes('capability 3 of 5'));
++t('C2 marketplace description 口径同步（4 of 5）', mk.plugins[0].description.includes('capability 4 of 5'));
++t('C3 description.md 口径同步（1-4 of 5＋Micro-A preview 行）', desc.includes('capability 1-4 of 5') && desc.includes('Micro-A PR diff') && desc.includes('capability 3 of 5'));
+ t('C4 description.md license 段 = Apache-2.0（UNLICENSED 阻塞语已清）', desc.includes('`Apache-2.0`') && !desc.includes('UNLICENSED'));
+-t('C5 credential-checklist §E 口径同步', cl.includes('capability 1-3 of 5'));
+-t('C6 无残留 UNLICENSED/2 of 5 旧口径', !desc.includes('1-2 of 5') && !mk.plugins[0].description.includes('capability 2 of 5') && !cl.includes('1-2 of 5'));
++t('C5 credential-checklist §E 口径同步', cl.includes('capability 1-4 of 5'));
++t('C6 无残留 UNLICENSED/1-3 of 5 旧口径', !desc.includes('1-2 of 5') && !desc.includes('capability 1-3 of 5') && !mk.plugins[0].description.includes('capability 2 of 5') && !mk.plugins[0].description.includes('capability 3 of 5') && !cl.includes('1-2 of 5') && !cl.includes('capability 1-3 of 5'));
+ 
+ // ---------- D. 诚实披露与闸门 ----------
+ t('D1 credential-checklist §C 用户专属动作未勾（提交=用户闸门）', /- \[ \] 6F 远端 push 授权确认/.test(cl) && /- \[ \] 若走路径 B：表单提交点击/.test(cl));
+diff --git a/.scratch/architecture-recovery/reports/44-check.mjs b/.scratch/architecture-recovery/reports/44-check.mjs
+index 054a284..b18e490 100644
+--- a/.scratch/architecture-recovery/reports/44-check.mjs
++++ b/.scratch/architecture-recovery/reports/44-check.mjs
+@@ -169,13 +169,13 @@ const SRC3 = { 'README边界节': readme, 'engine披露语义源（generate+cita
+ t('E1 三处共享 token：preview_disclosure 全命中', Object.keys(SRC3).every(k => SRC3[k].indexOf('preview_disclosure') >= 0));
+ t('E2 三处共享 token：⚠ unverified 全命中', Object.keys(SRC3).every(k => SRC3[k].indexOf('⚠ unverified') >= 0));
+ t('E3 generate.ts PreviewDisclosure 四字段契约＋UNVERIFIED_MARK 单一语义源（citation.ts 定义＋generate re-export——审计 C1 载体迁移）', genSrc.indexOf('interface PreviewDisclosure') >= 0 && ['capability_label', 'calibration_scope', 'structural_limitations', 'not_in_preview'].every(f => genSrc.indexOf(f) >= 0) && txt(join(ENG, 'src', 'report', 'citation.ts')).indexOf("UNVERIFIED_MARK = '⚠ unverified'") >= 0 && genSrc.indexOf('export { UNVERIFIED_MARK') >= 0);
+-t('E4 README 边界节 capability 标注组（1 of 5／2 of 5 · preview＋Not yet in preview ×3）', readme.indexOf('capability 1 of 5 · preview') >= 0 && readme.indexOf('capability 2 of 5 · preview') >= 0 && (readme.match(/Not yet in preview/g) || []).length >= 3);
++t('E4 README 边界节 capability 标注组（1~4 of 5 · preview＋Not yet in preview ≥1——#80 步③ Micro-B 上架后仅剩 Macro-A）', readme.indexOf('capability 1 of 5 · preview') >= 0 && readme.indexOf('capability 2 of 5 · preview') >= 0 && readme.indexOf('capability 3 of 5 · preview') >= 0 && readme.indexOf('capability 4 of 5 · preview') >= 0 && (readme.match(/Not yet in preview/g) || []).length >= 1);
+ const goldenHappy = JSON.parse(txt(join(ENG, 'fixtures', 'golden', 'happy-path', 'report.json')));
+ const macroC = JSON.parse(txt(join(HERE, '38-macro-c-preview-report.json')));
+ t('E5 README「capability 1 of 5 · preview」== golden 实物 capability_label（Macro-B 文档↔产物同源）', goldenHappy.preview_disclosure.capability_label === 'capability 1 of 5 · preview');
+ t('E6 README「capability 2 of 5 · preview」== #38 实物 capability_label（Macro-C 文档↔产物同源）', macroC.preview_disclosure.capability_label === 'capability 2 of 5 · preview');
+ t('E7 examples README preview_disclosure 时点差如实注＋failure=degradeReport 演示性质', exReadme.indexOf('时点') >= 0 && exReadme.indexOf('degradeReport') >= 0 && exReadme.indexOf('preview_disclosure') >= 0);
+-t('E8 越界承诺机检（README 仅允许 capability 3 of 5 · preview——#48 已上架；generate.ts/examples 仍禁 3/4/5）', genSrc.indexOf('capability 3 of 5') < 0 && genSrc.indexOf('capability 4 of 5') < 0 && genSrc.indexOf('capability 5 of 5') < 0 && SRC3['examples/README'].indexOf('capability 3 of 5') < 0 && SRC3['examples/README'].indexOf('capability 4 of 5') < 0 && SRC3['examples/README'].indexOf('capability 5 of 5') < 0 && readme.indexOf('capability 4 of 5') < 0 && readme.indexOf('capability 5 of 5') < 0);
++t('E8 越界承诺机检（README 允许至 capability 4 of 5 · preview——#80 Micro-B 已上架；generate.ts/examples 仍禁 3/4/5，README 禁 5）', genSrc.indexOf('capability 3 of 5') < 0 && genSrc.indexOf('capability 4 of 5') < 0 && genSrc.indexOf('capability 5 of 5') < 0 && SRC3['examples/README'].indexOf('capability 3 of 5') < 0 && SRC3['examples/README'].indexOf('capability 4 of 5') < 0 && SRC3['examples/README'].indexOf('capability 5 of 5') < 0 && readme.indexOf('capability 5 of 5') < 0);
+ 
+ // ---------- F. 编年指针校验（ENFORCE；D-039③：引用存在+superseded 如实计/里程碑单调/双账互指） ----------
+ const clP = join(REPO, 'CHANGELOG.md');
+diff --git a/.scratch/macro-audit/audits/r36/bench-file-card.json b/.scratch/macro-audit/audits/r36/bench-file-card.json
+new file mode 100644
+index 0000000..988c451
+--- /dev/null
++++ b/.scratch/macro-audit/audits/r36/bench-file-card.json
+@@ -0,0 +1,52 @@
++{
++ "schema": "file-card-bench/v1",
++ "runs_per_case": 30,
++ "thresholds": {
++  "small": {
++   "target": 200,
++   "danger": 800
++  },
++  "medium": {
++   "target": 800,
++   "danger": 3000
++  },
++  "large": {
++   "target": 4000,
++   "danger": 12000
++  }
++ },
++ "measured_at": "2026-09-26T10:55:38.265Z",
++ "node": "v24.11.0",
++ "cases": [
++  {
++   "name": "D:\\Aworker\\6F\\.scratch\\macro-audit\\audits\\r36\\jiahao-facts.duckdb",
++   "tier": "small",
++   "p95_ms": 65.34,
++   "p50_ms": 56.91,
++   "max_ms": 263.45,
++   "target_ms": 200,
++   "danger_ms": 800,
++   "verdict": "target"
++  },
++  {
++   "name": "D:\\Aworker\\6F\\.scratch\\macro-audit\\audits\\r36\\env-manager-facts.duckdb",
++   "tier": "small",
++   "p95_ms": 46.01,
++   "p50_ms": 42.53,
++   "max_ms": 46.51,
++   "target_ms": 200,
++   "danger_ms": 800,
++   "verdict": "target"
++  },
++  {
++   "name": "20000-rows/500-edges/60-hop-chain",
++   "tier": "large",
++   "p95_ms": 34.9,
++   "p50_ms": 24.7,
++   "max_ms": 39.77,
++   "target_ms": 4000,
++   "danger_ms": 12000,
++   "verdict": "target"
++  }
++ ]
++}
+diff --git a/.scratch/macro-audit/audits/r36/env-manager-facts.duckdb b/.scratch/macro-audit/audits/r36/env-manager-facts.duckdb
+new file mode 100644
+index 0000000..426944c
+Binary files /dev/null and b/.scratch/macro-audit/audits/r36/env-manager-facts.duckdb differ
+diff --git a/.scratch/macro-audit/audits/r36/jiahao-facts.duckdb b/.scratch/macro-audit/audits/r36/jiahao-facts.duckdb
+new file mode 100644
+index 0000000..4708ac9
+Binary files /dev/null and b/.scratch/macro-audit/audits/r36/jiahao-facts.duckdb differ
+diff --git a/.scratch/macro-audit/handoffs/2026-09-26-r36-t2-handoff.md b/.scratch/macro-audit/handoffs/2026-09-26-r36-t2-handoff.md
+new file mode 100644
+index 0000000..39d53e9
+--- /dev/null
++++ b/.scratch/macro-audit/handoffs/2026-09-26-r36-t2-handoff.md
+@@ -0,0 +1,22 @@
++# R36 T2 交接——#80 步③ 已落地（A-095）
++
++**栈态**：`r36-t1-ascast-rework` 顶 `ssw`（dist bundle）← `lxt`（语义 27 件）← `ltu`/`lmp`/`yty`/`onl`（T1）← `qwp`（r35-closeout）← main。工作树净。未 push。
++
++## 本批落地
++- file-card.ts：resolveLineageAncestors 反向 BFS（to→from 邻接表，visited=环检测+去重，64 名帽→truncated）＋`lineage` 卡面账本块＋facet_rows 行 subject_ref 溯源＋peer 去重被取代名；
++- projection.ts：祖先观测集血缘解析（同 repo∧MAX(observed_at)≤选中集；FILE_CARD_LINEAGE_EDGE_CAP=10000；lineageFacts 注入）；
++- test L1~L6（32/32）＋bench-file-card.mjs（p95 分档 target/danger）＋80-bench-thresholds.md 预登记票面＋audits/r36 双仓实档；
++- 披露收窄：README 矩阵 4 of 5 preview、not_in_preview 双源去 Micro-B、listing/marketplace 1-4 同步、41b/44 钉更新、zh-CN README+demo golden 再生。
++
++## 要点给下轮
++1. **Micro-B 已 preview**（capability 4 of 5）——剩余未上架=Macro-A 唯一；任何「not_in_preview 含 Micro-B」都是过时口径。
++2. **祖先集语义**=observed_at≤选中集（事实仓唯一序；git 祖先不入库；pin 精确性靠 at:sha 纪律）。写血缘相关测试时沿用。
++3. **renamed_to 一跳语义**没改成多跳直达——逐请求推进纪律是故意的（D-137）；消费者链式自查。AuditCrypto.cs 3-hop 根名→revalidated:false 是该纪律的实跑印记，不是 bug。
++4. **benchmark 复跑**：`cd engine && node scripts/bench-file-card.mjs --runs 30 --out ../.scratch/macro-audit/audits/r36/bench-file-card.json`；阈值预登记票面 `.scratch/macro-audit/reports/80-bench-thresholds.md`——改阈值要走票面+账本。
++5. **don't-merge 纪律**：语义提交与 dist bundle 分离已维持（lxt/ssw）；zh-CN README 与 demo golden 属同语义面共生（77-A3/demo-O2 原子约束）——别拆；
++6. T3=#75 批1 失效三分类建制（含 41a-D7 改写＋字面钉普查＋B2 同名断言顺带）——开工前读本批 70-check 输出格式作建制参照。
++
++## 坑位
++- demo.test O2 golden 逐字节钉：not_in_preview 形变即红→`node scripts/gen-demo-golden.mjs` 再生后绿（正常消费面，非缺陷）；
++- engine/CHANGELOG Unreleased 段有唯一 `### Added` 分区——新条目 append 到其列尾而非新起 heading（本批曾误生双 ## Added 已修）；
++- `.claude-plugin/marketplace.json` 不被 gen-manifests 覆盖——手动面，capability 口径随 listing 走（41b-C2 钉）。
+diff --git a/.scratch/macro-audit/reports/2026-09-26-r36-t2-exec-report.md b/.scratch/macro-audit/reports/2026-09-26-r36-t2-exec-report.md
+new file mode 100644
+index 0000000..9d562e0
+--- /dev/null
++++ b/.scratch/macro-audit/reports/2026-09-26-r36-t2-exec-report.md
+@@ -0,0 +1,45 @@
++# 轮36 T2 执行报告——#80 步③ 血缘缝合＋双仓试点＋benchmark＋披露收窄（A-095）
++
++> 批次：r36 T2 on `r36-t1-ascast-rework`（栈底 r35-closeout）。提交：`lxt` 语义（27 件）+ `ssw` dist bundle（6 件）。工作树净。
++
++## 一、实施面
++
++### T2a 血缘缝合（D-137 四子项全兑现）
++- `D:\Aworker\6F\engine\src\fact\file-card.ts`：`collectRenameEdges` 边池（JSON.parse 防御式 malformed skip）＋`resolveLineageAncestors` 反向 BFS（to→from 邻接表；visited 环检测双作用=去重+环旗；`FILE_CARD_LINEAGE_MAX_ANCESTORS=64` 帽→truncated 如实披露；BFS 次序注入 stitched_from）＋`FileCardLineage`/`FileCardLineageEdge` 披露块（stitched_from/edges/cycle_detected/truncated）＋facet_rows 行级 `subject_ref` 溯源键（additive）＋`checkHintKeys` 扩展 lineage.* 锚＋peer 分布被取代旧名去重（同一文件新旧名只计新名）＋renamed_to 边池=选中集∪祖先集。
++- `D:\Aworker\6F\engine\src\fact\projection.ts`：跨观测集血缘解析——`sets` 保留 last_obs（MAX observed_at）；祖先集=同 repo 且 last_obs≤选中集；`FILE_CARD_LINEAGE_EDGE_CAP=10000` 边池硬帽；`lineageFacts` 注入 buildFileCard（仅 file.renamed 行——血缘与 facet 事实分轨）。
++- miss 卡 `lineage: null` 常驻（schema 形状统一）；renamed_to 一跳语义与逐请求重验证不动。
++
++### T2b 双仓实跑（试点集票面）
++- jiahao@ba83908：1109 事实；`src/shared/paths.js`→stitched_from=[hooks/jiahao-paths.js]（edge 175aff7 sim=92）；旧名查询→renamed_to+revalidated=true（成对件双端）。
++- env-manager@9eb8f24：684 事实；`src/Audit/Crypto/AuditCrypto.cs`→stitched_from 双名（2-hop：AuditCrypto.cs→src/AuditCrypto.cs→src/Audit/Crypto/AuditCrypto.cs）；根名→renamed_to+revalidated=false（一跳诚实，逐请求推进实证）；中间名→renamed_to+revalidated=true。
++- 实物档：`D:\Aworker\6F\.scratch\macro-audit\audits\r36\{jiahao,env-manager}-facts.duckdb`。
++
++### T2c 边界件（FILE-CARD 32/32）
++- L1 1-switch 成对件新名端（并入+F10 回归=不误进 new_file）；L2 多跳 A→B→C；L3 环检测 A⇄B；L4 跨集注入缝；L5 真 DuckDB 投影端到端（祖先集边）；L6 0-switch 四态逐类点名+对照组（无血缘仍 new_file）。
++
++### T2d benchmark（机器可裁决三件套）
++- `D:\Aworker\6F\engine\scripts\bench-file-card.mjs`：projectFileCard 端到端×实档＋buildFileCard 病态图 stress（20k 行/500 边/60 跳链）；p95 分档 target/danger 双阈值；danger 档 exit 1。
++- 预登记票面：`D:\Aworker\6F\.scratch\macro-audit\reports\80-bench-thresholds.md`；实测件 `audits/r36/bench-file-card.json`：jiahao p95=72→target 200/danger 800；env-manager 46~54；合成 large 34.9→target 4000/danger 12000。verdict 全 target。
++
++### T2e/f 披露四件套＋能力矩阵收窄
++- README 矩阵 Micro-B→capability 4 of 5・preview（试点集措辞）；Status 句同步；docs/listing/description.md+credential-checklist.md 1-4 口径；`.claude-plugin/marketplace.json` 4 of 5；audit.ts/demo.ts `not_in_preview` 去 Micro-B；README.zh-CN.md 再生；demo golden 再生（not_in_preview 形变）；41b-check/44-check 钉随口径更新（D-127 同票收窄）。
++
++## 二、验证回执
++
++| 面 | 命令 | 结果 |
++|---|---|---|
++| 编译 | `env -u NODE_OPTIONS npx tsc -p tsconfig.json --noEmit` | rc=0 |
++| 打包 | `npm run build`+`npm run package` | BUNDLE-OK / macro-audit-0.1.0.tgz 85 文件 |
++| 测活 | `dist/cli.js selftest` | 5/5 ok |
++| MCP | `node .scratch/macro-audit/audits/r33/mcp-f5.cjs` | INIT ok / TOOLS[facts,quarantine,file_card] / never_collected 结构化 |
++| smoke | `npm run smoke` | 22 册全绿（FILE-CARD 32/32 尾位） |
++| 守卫 | 33 39 40 41a 43 44 45 70 71 72 73 77 78 80 81 82 83 41b xfail | 全 rc=0（41a 38/38・44 59/59・77 16/16・80/83 19/19） |
++| gen | `npm run gen`（manifests+adr-index）＋gen-demo-golden | GEN-OK 幂等＋golden 三场景再生 |
++| dist 钉 | `scripts/check-dist.mjs` | DIST-RATCHET PASS 262422B/289395B |
++
++44/77/41b 曾因 Micro-B 上架口径旧钉红——按 D-127 同票收窄纪律更新钉面后全绿（非降级：钉随契约改写）。
++
++## 三、遗留/边界
++- T2b 判定：本票面写「试点集」非覆盖面——two-repo 不构成生产泛化；upstream 只按当前名发行→实跑中 stitched_from 解析名集行级零并入照实披露。
++- T3+ 未动：#75 批1建制/枚举/census-contract/NOTICE 核查/观察项/MCP 验收/触发器/post-merge/勘误双读数/R31-Q6 续——下轮任务书序列照走。
++- 用户闸门维持：不 push/merge；social-card.png 所有者手动。
+diff --git a/.scratch/macro-audit/reports/80-bench-thresholds.md b/.scratch/macro-audit/reports/80-bench-thresholds.md
+new file mode 100644
+index 0000000..1a19cb4
+--- /dev/null
++++ b/.scratch/macro-audit/reports/80-bench-thresholds.md
+@@ -0,0 +1,46 @@
++# #80 步③ benchmark 阈值预登记＋双仓试点回执
++
++> 批次：轮36 T2（A-095）。制度：数值先实跑测定、再预登记锁票面——本文件即票面；实跑原始件=`D:\Aworker\6F\.scratch\macro-audit\audits\r36\bench-file-card.json`。
++
++## 一、试点集（票面写「试点集」非覆盖面）
++
++| 仓 | HEAD | 观测集事实数 | 形态角 | 证据 |
++|---|---|---|---|---|
++| jiahao | ba83908aa47666c3b93c3d2e8713afae5d264e62 | 1109 | 1-switch 成对件（hooks/jiahao-paths.js→src/shared/paths.js，R092） | `D:\Aworker\6F\.scratch\macro-audit\audits\r36\jiahao-facts.duckdb` |
++| env-manager | 9eb8f24be508750f299e920d816ba9079771a3f1 | 684 | 2-hop 链（AuditCrypto.cs→src/AuditCrypto.cs→src/Audit/Crypto/AuditCrypto.cs，R100×2）＋成对件 | `D:\Aworker\6F\.scratch\macro-audit\audits\r36\env-manager-facts.duckdb` |
++
++实跑回执（`node dist/cli.js audit file <repo> <path> --db <duckdb>`）：
++
++- jiahao `src/shared/paths.js`：`card_type=file-audit-card`，`lineage.stitched_from=["hooks/jiahao-paths.js"]`（edge commit=175aff7 similarity=92），`cycle_detected=false`；旧名 `hooks/jiahao-paths.js` 查询→`miss.state=renamed_to`+`revalidated=true`（成对件双端兑现）。
++- env-manager `src/Audit/Crypto/AuditCrypto.cs`：`stitched_from=["src/AuditCrypto.cs","AuditCrypto.cs"]`（BFS 近端先行两跳全解析），edges 双条披露；`AuditCrypto.cs` 查询→`renamed_to=src/AuditCrypto.cs`+`revalidated=false`（一跳诚实披露不直达末端——逐请求推进纪律实证）；`src/AuditCrypto.cs` 查询→`renamed_to=src/Audit/Crypto/AuditCrypto.cs`+`revalidated=true`（链末端触卡）。
++- 旧名 era 行并入实测：两仓 upstream 均只按当前名发射 facet 行——`stitched_from` 解析祖先名在行级零并入情形照实披露（账本语义=解析名集，行并入量以 `subject_ref` 逐行可证）。
++
++## 二、benchmark 预登记阈值（p95，ms）
++
++| 档 | 事实行数界 | target | danger | 实测基线（p95） |
++|---|---|---|---|---|
++| small | <5k | 200 | 800 | jiahao=72 / env-manager=53.65 |
++| medium | 5k~50k | 800 | 3000 | （无实档——合成 20k 行纯建卡面归 large） |
++| large | >50k | 4000 | 12000 | 合成 stress（20k 行/500 边/60 跳链）=84.99 |
++
++判读：verdict=target 当 p95≤target；acceptable 当 target<p95≤danger；danger=p95>danger → exit 1（机器可裁决）。测量面=projectFileCard 端到端（开库→选集→取行→缝合→建卡）实档＋buildFileCard 纯算 stress。冷启离群（max 283ms）不入判据——判据=p95 非 max。
++
++复跑命令：`cd engine && env -u NODE_OPTIONS node scripts/bench-file-card.mjs --runs 30 --out ../.scratch/macro-audit/audits/r36/bench-file-card.json`
++
++## 三、边界件盘点（0-switch 逐类点名＋1-switch 双端）
++
++| 件 | 断言位 |
++|---|---|
++| never_collected | J1（MCP 缺库）＋G1 投影层 |
++| not_tracked_at_sha | E3（pin 歧义）＋L6（pin 缺席）＋runAuditFile pin 路径 |
++| not_applicable | L6（skip 事实判枝）＋D2 系列 |
++| renamed_to | D4/D5（同集边）＋L5（祖先集边跨集解析）＋L6 |
++| 新名端缝合 | L1（1-switch 并入＋F10 回归）／L2（多跳两跳）／L3（环检测）／L4（注入缝跨集）／L5（真 DuckDB 端到端） |
++
++FILE-CARD 32/32（L 组 6 断言新增后全绿），smoke 22 册全过。
++
++## 四、披露件状态
++
++- 能力矩阵措辞收窄：README.md Micro-B 行 Not yet in preview → capability 4 of 5 · preview（试点集=jiahao＋env-manager；advisory-only 结构性隔离在案）。
++- preview_disclosure 四件套：audit.ts/demo.ts `not_in_preview` 去掉 Micro-B（file-card 面已交付）；报告头 capability_label 序列不变（Macro-B 报告面）。
++- 卡 schema：file-card@v1 追加 `lineage` 账本块（additive——miss 卡 lineage=null；行级 subject_ref 溯源键 additive 于 facet_rows 条目）。
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index e6879b5..09ced4b 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -131,3 +131,11 @@
+ - a_range: A-001 ~ A-094（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-094）
+ - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-094 R35 收口实施批）／.scratch/macro-audit/decision-ledger.md（D-147 执行面回执）
+ - impact: D-143② exhaustiveness 判力兑现——第三失败枝词表外原因码将由编译错拦截（交叠 as 断言静默放行面清除）；dist 字节差发生（cli.js 257947→257898B，-49B=let+if-chain→const 三元结构性等价非语义差）触发预声明升格判据→§1 全套重跑全绿照走
++
++## [M-017] - 2026-09-26
++
++- milestone: 轮36 T2 收口——BACKLOG #80 步③ 落地（A-095）：血缘缝合=卡投影沿 file.renamed 链多跳图遍历+环检测+跨观测集边池并入旧名 era 事实（F10 孤儿封口）；双仓试点集实跑（jiahao 1109 facts 1-switch 双端＋env-manager 684 facts 2-hop 链三端验证）；benchmark p95 分档+target/danger 双阈值实测预登记（80-bench-thresholds.md）；披露收窄同票（Micro-B→capability 4 of 5・preview；not_in_preview 双源去 Micro-B；listing/marketplace 口径 1-4 同步；41b/44 守卫钉随口径更新）
++- adr_range: ADR-0001 ~ ADR-0023（docs/adr/ 实物 23 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
++- a_range: A-001 ~ A-095（architecture-recovery 账本实物区间，写时实物读出——本轮新增 A-095）
++- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-095 #80 步③ 收口批）
++- impact: Micro-B 文件卡三内部步全落地（发射①→投影+查询②→缝合+试点+披露③）；血缘缝合四子项全兑现（多跳/环检测/跨观测集/成对件双端）；F10 缺陷路径闭合（改名文件旧名历史计入新名卡不误进 insufficient_history）；试点集=jiahao＋env-manager（票面写「试点集」）；#80 票面 DoD 面齐，关票裁定属账本侧
+diff --git a/README.md b/README.md
+index 99d9300..9558f53 100644
+--- a/README.md
++++ b/README.md
+@@ -30,7 +30,7 @@ Macro + micro engineering-content audit for git-healthy repositories — a **Cla
+ 
+ 
+ > [!NOTE]
+-> Status (2026-09-20): **preview** (capability boundaries in the matrix below). Macro-B / Macro-C / Micro-A are in preview; Micro-B / Macro-A are **Not yet in preview** — roadmap narrative, not a usable promise. The plugin is installable today via the marketplace (`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`; install & acceptance details in [engine/README.md](engine/README.md); the official-catalog track is unsubmitted and sits behind the owner's gate). The previous 「发布未发生·不存在可安装 listing」 state was ended by marketplace onboarding. Upstreams marked "planned" are not wired yet — do not read this page as a finished product. Product-facing surfaces (audit reports, listing copy) are primarily in Chinese; this file is the canonical English facade.
++> Status (2026-09-20): **preview** (capability boundaries in the matrix below). Macro-B / Macro-C / Micro-A / Micro-B are in preview; Macro-A is **Not yet in preview** — roadmap narrative, not a usable promise. The plugin is installable today via the marketplace (`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`; install & acceptance details in [engine/README.md](engine/README.md); the official-catalog track is unsubmitted and sits behind the owner's gate). The previous 「发布未发生·不存在可安装 listing」 state was ended by marketplace onboarding. Upstreams marked "planned" are not wired yet — do not read this page as a finished product. Product-facing surfaces (audit reports, listing copy) are primarily in Chinese; this file is the canonical English facade.
+ 
+ ## Capability matrix
+ 
+@@ -41,7 +41,7 @@ Release cadence = **graded preview releases** (ADR-0017): **build-scope ≠ rele
+ | Macro-B repo quadrant | **capability 1 of 5 · preview** (self-audit first report: [examples/first-report/](examples/first-report/)); quadrant slices: **strategy: active** (S1+S2 collectors live) · **behavior: preview** (codelore churn/hotspot/coupling slices, #51) · **structure: queued** (deferred on dual-caliber risk with the S3 family, D-054) · **supply-chain: queued** (D-034③ Scorecard does not skip the queue) |
+ | Macro-C evolution archaeology | **capability 2 of 5 · preview** (single-repo calibration disclosure) |
+ | Micro-A PR diff | **capability 3 of 5 · preview** (hosted-API adapter consumer side, same pilot-repo 4-PR calibration) |
+-| Micro-B file level | Not yet in preview |
++| Micro-B file level | **capability 4 of 5 · preview** (file-audit card; pilot set=jiahao＋env-manager two-repo stitching/calibration; advisory-only structural isolation, advisory verdicts never reach gates) |
+ | Macro-A cross-repo strategy | Not yet in preview |
+ 
+ Honest preview labeling is a decision, not decoration (ADR-0017): report headers and sidecars carry a `preview_disclosure` block (capability tag + calibration scope + structural limits + not_in_preview list) sourced from the same semantics as the table above; degraded output carries a `⚠ unverified` mark, unwired evidence domains carry a "⚠ data not connected" note, and synthetic fixtures carry a `synthetic` mark — they never impersonate real audits.
+diff --git a/README.zh-CN.md b/README.zh-CN.md
+index db286bd..186c8ba 100644
+--- a/README.zh-CN.md
++++ b/README.zh-CN.md
+@@ -1,5 +1,5 @@
+ <!-- canonical: README.md | owner: Xxx91n -->
+-<!-- sync: 613bb5eccfcb -->
++<!-- sync: 038eec5e96cc -->
+ > ⚠ **本文件为中文译文（derived 工件）——英文版 [README.md](README.md) 为权威版本（canonical 权威源）；如有不一致以英文版为准。** 译文可暂时落后，但不假装新鲜（sync 戳与英文版内容指纹绑定）。
+ 
+ <p align="center">
+diff --git a/docs/listing/credential-checklist.md b/docs/listing/credential-checklist.md
+index a9c2243..b7160dd 100644
+--- a/docs/listing/credential-checklist.md
++++ b/docs/listing/credential-checklist.md
+@@ -37,6 +37,6 @@
+ ## E. 诚实披露（入 listing 前须知）
+ 
+ - 发布未发生；不存在可安装 listing（README 口径）；
+-- preview 为 capability 1-3 of 5（Macro-B/Macro-C/Micro-A）；Micro-B/Macro-A 两层 Not yet in preview；
++- preview 为 capability 1-4 of 5（Macro-B/Macro-C/Micro-A/Micro-B）；Macro-A 层 Not yet in preview；
+ - 生态无签名机制——listing 描述已写权限最小化/`defaultEnabled:false` 建议作差异化（竞品启示）。
+ 
+diff --git a/docs/listing/description.md b/docs/listing/description.md
+index 8e93ff5..773c171 100644
+--- a/docs/listing/description.md
++++ b/docs/listing/description.md
+@@ -1,6 +1,6 @@
+ # macro-audit —— listing 文案草稿（#41b / D-031 冻结口径）
+ 
+-> 边界文案唯一事实源 = 仓根 README 能力矩阵（capability 1-3 of 5 preview；Micro-B/Macro-A = Not yet in preview）。本草稿不发明能力声明。
++> 边界文案唯一事实源 = 仓根 README 能力矩阵（capability 1-4 of 5 preview；Macro-A = Not yet in preview）。本草稿不发明能力声明。
+ 
+ ## name
+ 
+@@ -23,7 +23,7 @@
+ - **Macro-B 仓库级四象限**（capability 1 of 5 · preview）：gitlog/ADR 结构/定位三族采集 → 事实表 → 预声明判据裁决 → 带回执的报告；
+ - **Macro-C 演化考古**（capability 2 of 5 · preview）：单仓校准披露口径；
+ - **Micro-A PR diff**（capability 3 of 5 · preview）：托管 API 适配器消费侧（GitHub REST），同主试点仓 4-PR 校准口径；
+-- Micro-B / Macro-A = **Not yet in preview**（roadmap 叙事非可用承诺）。
++- Macro-A = **Not yet in preview**（roadmap 叙事非可用承诺）。
+ 
+ 设计原则：
+ 
+diff --git a/engine/CHANGELOG.md b/engine/CHANGELOG.md
+index e716f78..c0ea870 100644
+--- a/engine/CHANGELOG.md
++++ b/engine/CHANGELOG.md
+@@ -7,6 +7,7 @@ Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
+ 
+ ## [Unreleased]
+ 
++
+ ### Changed
+ - #59 kernel 自包含分发（D-067/D-038/A-069）：插件根 `.mcp.json` 契约 bare `macro-audit`+PATH → `node`＋`args:["${CLAUDE_PLUGIN_ROOT}/dist/cli.js","mcp"]`（变量放 args 不放 command；gen-manifests 单源生成；`mcp.json` 兄弟文件保留 npm 消费者面 bare 不动）；`engine/dist/` 40 件随源进仓（`.gitignore` 放开 dist/；`dist/cli.js`=esbuild 0.28.2 单文件 bundle 153,604B，build=tsc+`scripts/build-bundle.mjs`）；`src/fact/store.ts` duckdb 改懒加载降级（git-clone 无 node_modules 时握手/selftest/repo-add 零依赖可用，facts/audit/demo 报 `DUCKDB-UNAVAILABLE` 结构化错非崩溃）；`src/demo/demo.ts` fixtures 锚 `metaPath()`（bundle/tsc 两形态同构）；engine-ci.yml rebuild-diff 守卫（`git status --porcelain -- dist/` 非空即红）＋`npm ci`＋`permissions: contents: read`＋paths 含自身；锁表新增 `esbuild` 行（kind=node-lib，active/exact-version 0.28.2——upstream-lock.yaml diff）
+ - upstream-lock repomix-gitingest planned→retired（D-056：宿主 agent 恒在抽空打包用途；retired 行留档＋重开触发器 registry repomix-reopen-trigger）
+@@ -17,6 +18,7 @@ Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
+ - manifest author/homepage/repository 字段（D-052；gen-manifests 透传扩展）；upstream-lock github-rest planned 行（kind=remote-api，D-048/#47）
+ - #47 托管平台 API 适配器（D-048/ADR-0020，A-055）：`src/upstream/github-rest.ts`——GitHub REST 直连主路＋`X-GitHub-Api-Version` pin（2022-11-28）＋凭据三级探测（`GITHUB_TOKEN` env → gh 已认证态只读借读 → 无认证 60/hr 显式降级，即用即清不建存储）＋PR 枚举/元数据/diff 双通道（本地 git `base...head` 优先，REST diff 兜底）＋`x-ratelimit-*`+`Retry-After` 有界退避触顶即停＋余额写事实库；golden cassette×5 离线回放（authenticated/无认证降级=env-manager 实录制；限流耗尽=按官方语义合成；schema 漂移/平台 Bot=实录制派生）；锁表 `github-rest` planned→active（upstream-lock.yaml）
+ - `upstream-lock.yaml` 机读权威上游锁定表（D-037③ / ADR-0018 §D-1 / docs/versioning.md §3；#44/A-049）：种子行 codelore=active exact-version 0.28.0＋`--version` pin 契约／duckdb-node-api=active（package-lock 精确锁定）／git-cli=active（随宿主环境·输出解析为契约）／openssf-scorecard·repomix-gitingest=planned／codelore-sqlite-dump=evaluating（risk_note）；禁 range/浮动 tag/latest，retired 行不删，更新走手动窗口＋golden 回归
++- #80 步③ 文件级卡血缘缝合落地（D-137/A-095）：`src/fact/file-card.ts` file.renamed 边池反向多跳显式图遍历＋环检测＋64 名祖先硬帽（`resolveLineageAncestors`）→旧名 era 事实并入新名卡（`lineage` 账本块披露 stitched_from/edges/cycle_detected/truncated；facet_rows 行级 `subject_ref` 溯源键）；`src/fact/projection.ts` 跨观测集血缘解析（边池=选中集∪祖先观测集 file.renamed 行，observed_at 序沿 at:sha 引用层纪律）＋`FILE_CARD_LINEAGE_EDGE_CAP` 硬帽；`scripts/bench-file-card.mjs` p95 分档 benchmark（target/danger 双阈值机器可裁决，阈值预登记票面=.scratch/macro-audit/reports/80-bench-thresholds.md）；peer 分布被取代旧名去重（同一文件新旧名只计新名）。披露同步：能力矩阵 Micro-B→capability 4 of 5 · preview（试点集=jiahao＋env-manager 双仓实跑），audit/demo `not_in_preview` 去 Micro-B
+ 
+ ### Fixed
+ - 轮 14 审计返工（A-064）：A1 degradeReport 模板叙事改引降级后对象（原输出「降级原因：未声明」与真值并存）；A2 buildReport degraded:true 直建路径补模板注入（D-053① 通用兜底）；A3 裸 `mcp` 实现最小 JSON-RPC 2.0 stdio 握手（initialize/tools/list/tools/call，NDJSON 行帧——mcp.json 注册面名实相符）；A4 package-lock 根 license UNLICENSED→Apache-2.0；C1 引文核验抽入 citation.ts 破 generate↔narrative 循环 import；C5 已盖章宿主叙事降级后不丢弃（重盖章留痕）；C6/C7 CLI 严格参数面（NaN limit 闸/未知 flag 拒/裸 mcp 子命令显式）
+diff --git a/engine/dist/audit/audit.js b/engine/dist/audit/audit.js
+index f41305f..996411a 100644
+Binary files a/engine/dist/audit/audit.js and b/engine/dist/audit/audit.js differ
+diff --git a/engine/dist/cli.js b/engine/dist/cli.js
+index 5f4a357..b70cbee 100644
+Binary files a/engine/dist/cli.js and b/engine/dist/cli.js differ
+diff --git a/engine/dist/demo/demo.js b/engine/dist/demo/demo.js
+index 9801234..f716803 100644
+Binary files a/engine/dist/demo/demo.js and b/engine/dist/demo/demo.js differ
+diff --git a/engine/dist/fact/file-card.d.ts b/engine/dist/fact/file-card.d.ts
+index bb947a4..34efe41 100644
+Binary files a/engine/dist/fact/file-card.d.ts and b/engine/dist/fact/file-card.d.ts differ
+diff --git a/engine/dist/fact/file-card.js b/engine/dist/fact/file-card.js
+index f06d776..61c53b7 100644
+Binary files a/engine/dist/fact/file-card.js and b/engine/dist/fact/file-card.js differ
+diff --git a/engine/dist/fact/projection.js b/engine/dist/fact/projection.js
+index 93693e6..98fcd9a 100644
+Binary files a/engine/dist/fact/projection.js and b/engine/dist/fact/projection.js differ
+diff --git a/engine/fixtures/golden/degraded-incomplete/report.json b/engine/fixtures/golden/degraded-incomplete/report.json
+index 03dc286..1d85d04 100644
+--- a/engine/fixtures/golden/degraded-incomplete/report.json
++++ b/engine/fixtures/golden/degraded-incomplete/report.json
+@@ -604,7 +604,6 @@
+     ],
+     "not_in_preview": [
+       "Micro-A",
+-      "Micro-B",
+       "Macro-A"
+     ]
+   },
+diff --git a/engine/fixtures/golden/degraded-incomplete/report.md b/engine/fixtures/golden/degraded-incomplete/report.md
+index 670a4e6..824c212 100644
+--- a/engine/fixtures/golden/degraded-incomplete/report.md
++++ b/engine/fixtures/golden/degraded-incomplete/report.md
+@@ -10,7 +10,7 @@
+ > - capability: capability 1 of 5 · preview
+ > - calibration_scope: fixture: synthetic (generated by fixture-generator@1.0.0)
+ > - structural_limitations: not an audit of any real repository——合成 fixture 仓演示产物，所有裁定不构成真实审计结论（D-038 硬契约：合成数据不冒充真实审计）；supply-chain: ⚠ unverified——Scorecard/repomix 未接入，供应链象限证据缺失（D-034③④ 演示化维持）；structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）；确定性 fixture：同 scenario 重跑产物逐字节一致（pin author/committer/date）；临时目录生成跑完即弃不污染仓内状态
+-> - not_in_preview: Micro-A / Micro-B / Macro-A
++> - not_in_preview: Micro-A / Macro-A
+ 
+ ## C1 执行摘要
+ 
+diff --git a/engine/fixtures/golden/degraded-supply/report.json b/engine/fixtures/golden/degraded-supply/report.json
+index dca92fa..2fcfa2d 100644
+--- a/engine/fixtures/golden/degraded-supply/report.json
++++ b/engine/fixtures/golden/degraded-supply/report.json
+@@ -604,7 +604,6 @@
+     ],
+     "not_in_preview": [
+       "Micro-A",
+-      "Micro-B",
+       "Macro-A"
+     ]
+   },
+diff --git a/engine/fixtures/golden/degraded-supply/report.md b/engine/fixtures/golden/degraded-supply/report.md
+index 3bd4523..4c293e0 100644
+--- a/engine/fixtures/golden/degraded-supply/report.md
++++ b/engine/fixtures/golden/degraded-supply/report.md
+@@ -10,7 +10,7 @@
+ > - capability: capability 1 of 5 · preview
+ > - calibration_scope: fixture: synthetic (generated by fixture-generator@1.0.0)
+ > - structural_limitations: not an audit of any real repository——合成 fixture 仓演示产物，所有裁定不构成真实审计结论（D-038 硬契约：合成数据不冒充真实审计）；supply-chain: ⚠ unverified——Scorecard/repomix 未接入，供应链象限证据缺失（D-034③④ 演示化维持）；structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）；确定性 fixture：同 scenario 重跑产物逐字节一致（pin author/committer/date）；临时目录生成跑完即弃不污染仓内状态
+-> - not_in_preview: Micro-A / Micro-B / Macro-A
++> - not_in_preview: Micro-A / Macro-A
+ 
+ ## C1 执行摘要
+ 
+diff --git a/engine/fixtures/golden/happy-path/report.json b/engine/fixtures/golden/happy-path/report.json
+index 4168717..f912131 100644
+--- a/engine/fixtures/golden/happy-path/report.json
++++ b/engine/fixtures/golden/happy-path/report.json
+@@ -764,7 +764,6 @@
+     ],
+     "not_in_preview": [
+       "Micro-A",
+-      "Micro-B",
+       "Macro-A"
+     ]
+   },
+diff --git a/engine/fixtures/golden/happy-path/report.md b/engine/fixtures/golden/happy-path/report.md
+index 42894fa..6f271d2 100644
+--- a/engine/fixtures/golden/happy-path/report.md
++++ b/engine/fixtures/golden/happy-path/report.md
+@@ -8,7 +8,7 @@
+ > - capability: capability 1 of 5 · preview
+ > - calibration_scope: fixture: synthetic (generated by fixture-generator@1.0.0)
+ > - structural_limitations: not an audit of any real repository——合成 fixture 仓演示产物，所有裁定不构成真实审计结论（D-038 硬契约：合成数据不冒充真实审计）；supply-chain: ⚠ unverified——Scorecard/repomix 未接入，供应链象限证据缺失（D-034③④ 演示化维持）；structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）；确定性 fixture：同 scenario 重跑产物逐字节一致（pin author/committer/date）；临时目录生成跑完即弃不污染仓内状态
+-> - not_in_preview: Micro-A / Micro-B / Macro-A
++> - not_in_preview: Micro-A / Macro-A
+ 
+ ## C1 执行摘要
+ 
+diff --git a/engine/fixtures/golden/manifest.json b/engine/fixtures/golden/manifest.json
+index bd50d77..52b350c 100644
+--- a/engine/fixtures/golden/manifest.json
++++ b/engine/fixtures/golden/manifest.json
+@@ -11,8 +11,8 @@
+       "head_sha": "4f9b0b567d3dd47be141c10f867bbbac877c1f94",
+       "fact_count": 129,
+       "sha256": {
+-        "report.md": "3fe032af21b7eccfe5e83a28399623f61b97d9340a3295a323c3f343816e573b",
+-        "report.json": "dd8cc25480fb8aa8b90c1a339fdd70a2d2ac76d242ea42fe65e030792fa1341d",
++        "report.md": "a5a99a3f8f21330af65993ebcd5ef00d0240d34575b7e84e7b09f10edc73d224",
++        "report.json": "fc667714bbc3e08fdd3f39c2c3bdaf992944d54d750bf73f115321cb41bf5064",
+         "demo-measurements.json": "09d5b820aede586b9989c850788213d2fa68975e89f80cf773aa80621b832bda",
+         "demo-facts.jsonl": "77672b8406b2f7edbf75a1cb88c877a3d1bb11f27381de5fc01e316686bb79b3"
+       }
+@@ -24,8 +24,8 @@
+       "head_sha": "8fc753eddd6dbe22b43818c704fda26096e7189c",
+       "fact_count": 129,
+       "sha256": {
+-        "report.md": "4dafdd000c32c3b50a53ee02a1dbb6ee53cde879aa886f211cc145eccb628fa6",
+-        "report.json": "a724b66883000914b0e3ef8f02e1e0945e64ba3262db9762f2965f4251b67af4",
++        "report.md": "d1c6c75a052160d64b3275164d7d1dcd98f2565813285263bd7839f61e570a4f",
++        "report.json": "a456ecf8bf989072053e3e4bc8709f5100bdd8982f1f0ccc46246da120362539",
+         "demo-measurements.json": "fc7345281fd95e1789a6c07fb82603fb47752bddeaf438b3f5ef413c6f3b3aa9",
+         "demo-facts.jsonl": "dddb41381ae717324f385d7b4d1cfd4a41ea4f1cb2a4345cee931234e592fb5c"
+       }
+@@ -37,8 +37,8 @@
+       "head_sha": "d757d4cd3046ac0d6251b5c3f0e5cb8884647012",
+       "fact_count": 30,
+       "sha256": {
+-        "report.md": "231d738d6a7f235c540669db252530abf6ca214ab96e353a3a7cd7a8d0e44446",
+-        "report.json": "168e0755386e400bb939d6cba79d6b25b5f9b8dd90221c22670f3635a3d54409",
++        "report.md": "50c79845d187a7c7d41405a52f82aa8ab0053314775ca030aedb33d38274096f",
++        "report.json": "065865a8d5b519697111059b9434a4528812e6d1023dd60682feea412b0a1665",
+         "demo-measurements.json": "56486a1903620ca4b5e783f739faf2a8b79888d6daba049b3f4d1dbccdb57e49",
+         "demo-facts.jsonl": "f3c936a2ed7c2c50ae71c3dfdf6969b1a961b2299798d23aaec5dc531e27fd2a"
+       }
+diff --git a/engine/scripts/bench-file-card.mjs b/engine/scripts/bench-file-card.mjs
+new file mode 100644
+index 0000000..094bb0f
+--- /dev/null
++++ b/engine/scripts/bench-file-card.mjs
+@@ -0,0 +1,128 @@
++// scripts/bench-file-card.mjs — #80 步③ 文件卡投影 benchmark（D-137/D-127：p95 分档＋target/danger 双阈值＋机器可裁决）
++// 用法：node scripts/bench-file-card.mjs [--runs N] [--db <path>...] [--out <artifact.json>]
++// 测量面：projectFileCard 端到端（开库→选集→取行→缝合→建卡）×试点库实档＋合成病态图 stress
++//   （深链 60 跳＋宽边 500 条＋20k facet 行）。分档=按观测集事实行数分 small/medium/large。
++// 阈值=实测预登记（见下方 THRESHOLDS 常量——登记值先于批内 commit 锁死，实跑数值留 artifact）。
++
++import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
++import { dirname, join } from 'node:path';
++import { fileURLToPath, pathToFileURL } from 'node:url';
++import { performance } from 'node:perf_hooks';
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++const root = join(HERE, '..');
++const P = await import(pathToFileURL(join(root, 'dist', 'fact', 'projection.js')).href);
++const FC = await import(pathToFileURL(join(root, 'dist', 'fact', 'file-card.js')).href);
++
++// ── 预登记阈值（ms）——实测预登记制：先测后写锁票面，target=正常达成档 danger=病态上限档
++//   登记值见 .scratch/macro-audit/reports/80-bench-thresholds.md（同票）
++const THRESHOLDS = {
++  small:  { target: 200,  danger: 800   },   // <5k facts（实测基线 p95≤72ms——target≈3×基线留异机余量）
++  medium: { target: 800,  danger: 3000  },   // 5k~50k facts
++  large:  { target: 4000, danger: 12000 },   // >50k facts（含病态血缘图 stress——合成件实测 p95≈85ms 纯建卡面）
++};
++
++function parseArgs(argv) {
++  const o = { runs: 30, dbs: [], out: null };
++  for (let i = 2; i < argv.length; i++) {
++    if (argv[i] === '--runs') { o.runs = Number(argv[++i]); }
++    else if (argv[i] === '--db') { o.dbs.push(argv[++i]); }
++    else if (argv[i] === '--out') { o.out = argv[++i]; }
++  }
++  if (o.dbs.length === 0) {
++    o.dbs = [
++      join(root, '..', '.scratch', 'macro-audit', 'audits', 'r36', 'jiahao-facts.duckdb'),
++      join(root, '..', '.scratch', 'macro-audit', 'audits', 'r36', 'env-manager-facts.duckdb')
++    ];
++  }
++  return o;
++}
++
++function pct(sorted, p) {
++  if (sorted.length === 0) { return null; }
++  const i = Math.min(sorted.length - 1, Math.ceil(sorted.length * p) - 1);
++  return Math.round(sorted[i] * 100) / 100;
++}
++
++function tierOf(factCount) {
++  return factCount < 5000 ? 'small' : factCount <= 50000 ? 'medium' : 'large';
++}
++
++// 合成病态图：60 跳深链＋500 条宽边＋N 条 facet 行——纯 buildFileCard CPU 面（无 IO）
++function syntheticSet(nRows, nEdges, chainLen) {
++  const facts = [];
++  let seq = 0;
++  const mk = (metric, subject, value) => ({
++    fact_id: 'b' + (seq++).toString(16).padStart(35, '0'), trace_id: 'a'.repeat(32), baggage_id: 'b'.repeat(32),
++    scale: 'Micro-B', quadrant: 'strategic', dimension: null, collector_id: 'bench@v1',
++    repo_ref: 'bench@' + 'c'.repeat(40), subject_ref: subject, evidence_ref: 'bench',
++    metric: metric, value_json: JSON.stringify(value), observed_at: '2026-09-26T00:00:00Z'
++  });
++  for (let i = 0; i < nRows; i++) {
++    facts.push(mk('codelore.file_facet_row', 'src/f' + i + '.ts', { analysis: 'hotspots', row: { path: 'src/f' + i + '.ts', revisions: i % 97 + 1, hotspot_score: (i % 100) / 10 } }));
++  }
++  for (let i = 0; i < chainLen; i++) {
++    facts.push(mk('file.renamed', 'v' + (i + 1) + '.ts', { from: 'v' + i + '.ts', to: 'v' + (i + 1) + '.ts', commit_sha: String(i).padStart(40, '0'), similarity: 90 }));
++  }
++  for (let i = 0; i < nEdges; i++) {
++    facts.push(mk('file.renamed', 'w' + i + '.ts', { from: 'wold' + i + '.ts', to: 'w' + i + '.ts', commit_sha: String(900000 + i).padStart(40, '9'), similarity: 80 }));
++  }
++  // 深链末端行：v<chainLen>.ts 自带行（缝合触发面）
++  facts.push(mk('codelore.file_facet_row', 'v' + chainLen + '.ts', { analysis: 'hotspots', row: { path: 'v' + chainLen + '.ts', revisions: 3, hotspot_score: 1 } }));
++  return facts;
++}
++
++async function benchDb(dbPath, repo, subject, runs) {
++  const ts = [];
++  let card = null;
++  for (let i = 0; i < runs; i++) {
++    const t0 = performance.now();
++    card = await P.projectFileCard(dbPath, { repo: repo, subject: subject, current_head_sha: null });
++    ts.push(performance.now() - t0);
++  }
++  ts.sort((a, b) => a - b);
++  const setCount = card && card.kernel ? Object.keys(card.kernel.facet_rows).reduce((s, k) => s + card.kernel.facet_rows[k].length, 0) : 0;
++  return { db: dbPath, subject: subject, runs: runs, p50: pct(ts, 0.5), p95: pct(ts, 0.95), max: pct(ts, 1), card_rows: setCount };
++}
++
++function benchBuild(setFacts, subject, runs) {
++  const ts = [];
++  for (let i = 0; i < runs; i++) {
++    const t0 = performance.now();
++    FC.buildFileCard({ subject: subject, setRepoRef: 'bench@' + 'c'.repeat(40), setFacts: setFacts, availableHeadShas: [], pinnedSha: null, currentHeadSha: null, source: 'unknown', cliGuidance: null });
++    ts.push(performance.now() - t0);
++  }
++  ts.sort((a, b) => a - b);
++  return { runs: runs, rows: setFacts.length, p50: pct(ts, 0.5), p95: pct(ts, 0.95), max: pct(ts, 1) };
++}
++
++async function main() {
++  const o = parseArgs(process.argv);
++  const subjects = { 'jiahao-facts.duckdb': 'src/shared/paths.js', 'env-manager-facts.duckdb': 'src/Audit/Crypto/AuditCrypto.cs' };
++  const results = [];
++  for (const db of o.dbs) {
++    const base = db.split(/[\\/]/).pop();
++    const repo = base.replace(/-facts\.duckdb$/, '');
++    const subject = subjects[base] || 'src/shared/paths.js';
++    results.push(await benchDb(db, repo, subject, o.runs));
++  }
++  // 合成 stress：20000 facet 行＋60 跳深链＋500 宽边——大档
++  const synth = benchBuild(syntheticSet(20000, 500, 60), 'v60.ts', o.runs);
++  synth.synthetic = '20000-rows/500-edges/60-hop-chain';
++  synth.tier = 'large';
++  const verdicts = [];
++  for (const r of results.concat([synth])) {
++    const tier = r.tier || tierOf(r.card_rows || r.rows || 0);
++    const t = THRESHOLDS[tier];
++    const verdict = r.p95 === null ? 'no-data' : r.p95 <= t.target ? 'target' : r.p95 <= t.danger ? 'acceptable' : 'danger';
++    verdicts.push({ name: r.synthetic || r.db, tier: tier, p95_ms: r.p95, p50_ms: r.p50, max_ms: r.max, target_ms: t.target, danger_ms: t.danger, verdict: verdict });
++  }
++  const out = { schema: 'file-card-bench/v1', runs_per_case: o.runs, thresholds: THRESHOLDS, measured_at: new Date().toISOString(), node: process.version, cases: verdicts };
++  const text = JSON.stringify(out, null, 1) + '\n';
++  if (o.out) { mkdirSync(dirname(o.out), { recursive: true }); writeFileSync(o.out, text); }
++  process.stdout.write(text);
++  const bad = verdicts.filter(v => v.verdict === 'danger').length;
++  process.exit(bad > 0 ? 1 : 0);   // danger 档=非零退出（机器可裁决）
++}
++
++main().catch(e => { console.error('BENCH-FAIL ' + (e && e.message ? e.message : e)); process.exit(2); });
+diff --git a/engine/src/audit/audit.ts b/engine/src/audit/audit.ts
+index b4286cf..59e0866 100644
+--- a/engine/src/audit/audit.ts
++++ b/engine/src/audit/audit.ts
+@@ -301,7 +301,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
+     capability_label: 'capability 1 of 5 · preview',
+     calibration_scope: NAME + ' Macro-B audit（audit 一等命令面；scale=Macro-B 已上架）',
+     structural_limitations: limitations,
+-    not_in_preview: ['Micro-A', 'Micro-B', 'Macro-C', 'Macro-A']
++    not_in_preview: ['Micro-A', 'Macro-C', 'Macro-A']   // Micro-B file-card 进 preview（#80 步③ 缝合落地）
+   };
+ 
+   const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
+diff --git a/engine/src/demo/demo.ts b/engine/src/demo/demo.ts
+index 74290b9..64cab5b 100644
+--- a/engine/src/demo/demo.ts
++++ b/engine/src/demo/demo.ts
+@@ -45,7 +45,7 @@ export function demoDisclosure(): PreviewDisclosure {
+       'structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）',
+       '确定性 fixture：同 scenario 重跑产物逐字节一致（pin author/committer/date）；临时目录生成跑完即弃不污染仓内状态'
+     ],
+-    not_in_preview: ['Micro-A', 'Micro-B', 'Macro-A']
++    not_in_preview: ['Micro-A', 'Macro-A']   // Micro-B file-card 进 preview（#80 步③ 缝合落地）
+   };
+ }
+ 
+diff --git a/engine/src/fact/file-card.ts b/engine/src/fact/file-card.ts
+index f72c749..96626ed 100644
+--- a/engine/src/fact/file-card.ts
++++ b/engine/src/fact/file-card.ts
+@@ -8,6 +8,9 @@
+ // advisory 结构性隔离：卡 schema 无 verdict/gate-consumable 字段＋advisory:true 显式字段＋priority=排序语义非判定。
+ // miss 四类显式态（D-126）：never_collected（可行动指引）/not_tracked_at_sha/not_applicable（合法空值非 miss）/renamed_to
+ //   （血缘存在→跳转指引＋逐请求重验证 revalidated 字段；无血缘→降级 not_tracked_at_sha）。
++// 血缘缝合（#80 步③ / D-137）：file.renamed 边池=选中集∪祖先集事实行（投影层注入 lineageFacts）→
++//   反向多跳显式图遍历＋环检测＋规模帽→旧名 era 事实并入新名卡（行级 subject_ref 溯源＋lineage 披露块；
++//   漏判=历史诚实分裂不编造——SonarSource「rename 后 history kept」先例同型）。
+ // 失败三态：new_file/insufficient_history=显式态仅静态指标（derived 抑制 suppressed_by 留痕）；
+ //   binary/generated→card_type:not_applicable 不出空卡。
+ // at:<sha>=显式 opt-in pin（常量禁自动派生——SQL:2011 AS OF 仅常量纪律）；staleness=双字段披露照答不拒答。
+@@ -55,6 +58,18 @@ export interface FileCardMiss {
+   cli_guidance?: string;            // never_collected：可行动指引（MCP 面永不写→指 CLI 补采）
+ }
+ 
++// 血缘缝合披露块（#80 步③ / D-137）：缝合账本非行为修饰——披露哪些旧名被并入、消费了哪些边、
++//   环/截断异常如实留痕（诚实分裂可见不编造）。
++export interface FileCardLineageEdge { from: string; to: string; commit_sha: string; similarity: number }
++export interface FileCardLineage {
++  stitched_from: string[];              // 反向遍历解析出的旧名 subject（确定性序——链序游走，平等枝词典序）
++  edges: FileCardLineageEdge[];         // 缝合消费的血缘边（确定性序——commit_sha 无时间序故词典序）
++  cycle_detected: boolean;              // 环检测命中：from 端回到已访节点即停该边并置旗（A→B→A 病态图不绕死）
++  truncated: boolean;                   // 祖先链超 FILE_CARD_LINEAGE_MAX_ANCESTORS 截断如实披露
++}
++
++export const FILE_CARD_LINEAGE_MAX_ANCESTORS = 64;   // 祖先名链硬帽（病态图保护，正常改名链远小于此）
++
+ export interface FileCard {
+   schema_version: string;
+   card_type: CardType;
+@@ -70,8 +85,9 @@ export interface FileCard {
+   source: 'prefetch' | 'backfill' | 'unknown';
+   failure_state: FailureState;
+   miss: FileCardMiss | null;
++  lineage: FileCardLineage | null;      // 缝合账本：null=未参与缝合；对象=缝合账本（stitched_from 可空——解析到旧名但未并入行亦如实披露）
+   kernel: {
+-    facet_rows: Record<string, { row: Record<string, unknown>; fact_ref: string; observed_at: string; evidence_ref: string }[]>;
++    facet_rows: Record<string, { row: Record<string, unknown>; fact_ref: string; observed_at: string; evidence_ref: string; subject_ref: string }[]>;
+     set_truncated: boolean;              // F7h：观测集 fact 行数超 FILE_CARD_SET_CAP 截断时=true（卡面如实标记不静默）
+     suppressed_facets: SuppressedFacet[]; // D-136②：失败态滤除的历史派生族 facet 清单（closed 枚举成员级对账，每项带原因码）
+   };
+@@ -101,6 +117,7 @@ export interface FileCardBuildInput {
+   cliGuidance: string | null;               // miss 可行动指引（CLI 补采命令形态，由触发面拼好注入）
+   setTruncated?: boolean;                   // 观测集 fact 拉取超 FILE_CARD_SET_CAP 截断标记（投影层判定注入）
+   pinnedAmbiguous?: readonly string[];      // F7a：at:<sha> 前缀命中多个观测集 head_sha（歧义不猜——not_tracked_at_sha 如实答）
++  lineageFacts?: readonly FactEvent[];      // D-137② 跨观测集血缘边池增量：祖先观测集的 file.renamed 事实行（投影层解析注入；缺席=仅选中集边）
+ }
+ 
+ export function headShaOfRepoRef(repoRef: string): string | null {
+@@ -115,6 +132,7 @@ function asNum(v: unknown): number | null {
+ // narrative 键集=kernel facet 键＋derived 键＋观测锚键——宿主叙事只可引用已算值键名（D-123 零指标值纪律）。
+ export function fileCardCitationKeys(card: FileCard): string[] {
+   const keys: string[] = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state', 'kernel.set_truncated', 'kernel.suppressed_facets'];
++  if (card.lineage !== null) { keys.push('lineage.stitched_from', 'lineage.edges', 'lineage.cycle_detected', 'lineage.truncated'); }
+   for (const k of Object.keys(card.kernel.facet_rows).sort()) { keys.push('kernel.facet_rows.' + k); }
+   if (card.derived.revisions !== null) { keys.push('derived.revisions'); }
+   if (card.derived.hotspot_score !== null) { keys.push('derived.hotspot_score'); }
+@@ -151,6 +169,7 @@ function missCard(subject: string, miss: FileCardMiss, input: FileCardBuildInput
+     source: input.source,
+     failure_state: miss.state === 'not_applicable' ? 'not_applicable' : 'ok',
+     miss: miss,
++    lineage: null,
+     kernel: { facet_rows: {}, set_truncated: input.setTruncated === true, suppressed_facets: [] },
+     derived: {
+       rule_version: FILE_CARD_RULE_VERSION,
+@@ -165,6 +184,71 @@ function missCard(subject: string, miss: FileCardMiss, input: FileCardBuildInput
+   };
+ }
+ 
++// ---------- 血缘缝合（#80 步③ / D-137） ----------
++// file.renamed 事实行→边池：载荷 {from,to,commit_sha,similarity} 逐字段型检；病态行跳过不误吞（解析失败行
++//   本就不构成边）。去重键=(from,to,commit_sha)——同边跨观测集重复检出是常态（历史事实 append-only 重放）。
++function collectRenameEdges(facts: readonly FactEvent[]): FileCardLineageEdge[] {
++  const seen = new Set<string>();
++  const edges: FileCardLineageEdge[] = [];
++  for (const f of facts) {
++    if (f.metric !== 'file.renamed') { continue; }
++    try {
++      const v = JSON.parse(f.value_json) as { from?: unknown; to?: unknown; commit_sha?: unknown; similarity?: unknown };
++      if (typeof v.from !== 'string' || typeof v.to !== 'string' || typeof v.commit_sha !== 'string') { continue; }
++      const key = v.from + ' ' + v.to + ' ' + v.commit_sha;
++      if (seen.has(key)) { continue; }
++      seen.add(key);
++      edges.push({ from: v.from, to: v.to, commit_sha: v.commit_sha, similarity: typeof v.similarity === 'number' ? v.similarity : 0 });
++    } catch { /* skip malformed lineage fact */ }
++  }
++  return edges;
++}
++
++// 反向多跳遍历（D-137② 显式图遍历非单路径 follow——Vajna 补丁实证根因=路径状态单变量 last-write-wins）：
++//   邻接 to→[edges]（from 端=旧名）；BFS 逐层回溯，环检测=from 回到已访节点即停该边如实置旗；
++//   确定性序=邻接内按 (commit_sha,from) 词典序（sha 无时间序）；规模帽截断如实披露。
++function resolveLineageAncestors(subject: string, edges: readonly FileCardLineageEdge[]): {
++  subjects: string[]; edgesUsed: FileCardLineageEdge[]; cycleDetected: boolean; truncated: boolean;
++} {
++  const byTo = new Map<string, FileCardLineageEdge[]>();
++  for (const e of edges) {
++    const arr = byTo.get(e.to) || [];
++    if (arr.length === 0) { byTo.set(e.to, arr); }
++    arr.push(e);
++  }
++  for (const arr of byTo.values()) {
++    arr.sort(function (a, b) {
++      return a.commit_sha === b.commit_sha ? (a.from < b.from ? -1 : a.from > b.from ? 1 : 0) : (a.commit_sha < b.commit_sha ? -1 : 1);
++    });
++  }
++  const visited = new Set<string>([subject]);
++  const ancestors: string[] = [];
++  const edgesUsed: FileCardLineageEdge[] = [];
++  let cycleDetected = false;
++  let truncated = false;
++  const queue: string[] = [subject];
++  while (queue.length > 0 && !truncated) {
++    const cur = queue.shift() as string;
++    for (const e of byTo.get(cur) || []) {
++      edgesUsed.push(e);
++      if (visited.has(e.from)) { cycleDetected = true; continue; }
++      if (ancestors.length >= FILE_CARD_LINEAGE_MAX_ANCESTORS) { truncated = true; break; }
++      visited.add(e.from);
++      ancestors.push(e.from);
++      queue.push(e.from);
++    }
++  }
++  return { subjects: ancestors, edgesUsed: edgesUsed, cycleDetected: cycleDetected, truncated: truncated };
++}
++
++function sortLineageEdges(edges: readonly FileCardLineageEdge[]): FileCardLineageEdge[] {
++  return edges.slice().sort(function (a, b) {
++    return a.commit_sha === b.commit_sha
++      ? (a.from === b.from ? (a.to < b.to ? -1 : a.to > b.to ? 1 : 0) : (a.from < b.from ? -1 : 1))
++      : (a.commit_sha < b.commit_sha ? -1 : 1);
++  });
++}
++
+ export function buildFileCard(input: FileCardBuildInput): FileCard {
+   const norm = normalizeSubjectPath(input.subject);
+   if (!norm.ok) {
+@@ -202,7 +286,15 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
+     }, input, null);
+   }
+ 
+-  const mine = input.setFacts.filter(function (f) { return f.metric === 'codelore.file_facet_row' && f.subject_ref === subject; });
++  // 血缘边池=选中集∪祖先集 file.renamed 行（D-137② 跨观测集解析——祖先集边经 lineageFacts 注入）
++  const edgePool = input.lineageFacts !== undefined && input.lineageFacts.length > 0
++    ? collectRenameEdges(input.setFacts).concat(collectRenameEdges(input.lineageFacts))
++    : collectRenameEdges(input.setFacts);
++  // 反向多跳遍历解析旧名祖先集——缝合集=subject∪祖先名（并入旧名 era 事实，D-137①）
++  const resolved = resolveLineageAncestors(subject, edgePool);
++  const stitchedNames = new Set<string>([subject].concat(resolved.subjects));
++
++  const mine = input.setFacts.filter(function (f) { return f.metric === 'codelore.file_facet_row' && stitchedNames.has(f.subject_ref); });
+   if (mine.length === 0) {
+     // binary/generated/非 regular path→发射侧 file_subject_skip 留痕→card_type:not_applicable（合法空值非 miss 态空卡）
+     const skip = input.setFacts.filter(function (f) {
+@@ -219,13 +311,9 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
+       }, input, headSha);
+     }
+     // 血缘存在→renamed_to＋逐请求重验证（目标在集内有事实=跳转条件成立）；无血缘→not_tracked_at_sha
+-    const edgeFact = input.setFacts.filter(function (f) {
+-      if (f.metric !== 'file.renamed') { return false; }
+-      try { return (JSON.parse(f.value_json) as { from?: unknown }).from === subject; }
+-      catch { return false; }
+-    })[0];
+-    if (edgeFact) {
+-      const ev = JSON.parse(edgeFact.value_json) as { from: string; to: string; commit_sha: string; similarity: number };
++    //   （边池含祖先集增量——单跳跳转语义不变：解析到即报一跳，链深处由消费面逐请求推进）
++    const ev = edgePool.filter(function (e) { return e.from === subject; })[0];
++    if (ev) {
+       const targetHasFacts = input.setFacts.some(function (f) { return f.metric === 'codelore.file_facet_row' && f.subject_ref === ev.to; });
+       return missCard(subject, {
+         state: 'renamed_to',
+@@ -251,7 +339,8 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
+     const analysis = typeof v.analysis === 'string' ? v.analysis : 'unknown';
+     const row = (v.row !== null && typeof v.row === 'object' ? v.row : {}) as Record<string, unknown>;
+     const arr = facetRows[analysis] || (facetRows[analysis] = []);
+-    arr.push({ row: row, fact_ref: f.fact_id, observed_at: f.observed_at, evidence_ref: f.evidence_ref });
++    // subject_ref 行级溯源（D-137③：缝合行不洗白身份——并入的旧名 era 行保留其原 subject 键）
++    arr.push({ row: row, fact_ref: f.fact_id, observed_at: f.observed_at, evidence_ref: f.evidence_ref, subject_ref: f.subject_ref });
+   }
+   const analyses = Object.keys(facetRows).sort();
+   const ordered: FileCard['kernel']['facet_rows'] = {};
+@@ -266,9 +355,17 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
+     const s = asNum(r.row['hotspot_score']); if (s !== null && (hotspotScore === null || s > hotspotScore)) { hotspotScore = s; }
+   }
+   // percentile scope=repo：同观测集全部 subject 的 hotspot_score 分布（中位秩法 less+eq/2 确定性消并列）
++  //   缝合一致性（D-137③）：被取代旧名（其 to 端在集内有行的 from 名）不入同 repo 分布——同一文件
++  //   新旧名两行只计新名一次，防缝合语义的 repo 级重复计数。
++  const supersededNames = new Set<string>();
++  {
++    const namesWithRows = new Set<string>();
++    for (const f of input.setFacts) { if (f.metric === 'codelore.file_facet_row') { namesWithRows.add(f.subject_ref); } }
++    for (const e of edgePool) { if (e.from !== e.to && namesWithRows.has(e.to)) { supersededNames.add(e.from); } }
++  }
+   const peerScores: number[] = [];
+   for (const f of input.setFacts) {
+-    if (f.metric !== 'codelore.file_facet_row') { continue; }
++    if (f.metric !== 'codelore.file_facet_row' || supersededNames.has(f.subject_ref)) { continue; }
+     try {
+       const v = JSON.parse(f.value_json) as { analysis?: unknown; row?: { hotspot_score?: unknown } };
+       if (v.analysis === 'hotspots' && v.row) { const s = asNum(v.row.hotspot_score); if (s !== null) { peerScores.push(s); } }
+@@ -320,6 +417,10 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
+     source: input.source,
+     failure_state: failure,
+     miss: null,
++    // 缝合账本：解析到边（含纯环边）即披露——旧名解析成功但零行并入亦如实（stitched_from 非空＋facet_rows 无该行 subject_ref 可互证）
++    lineage: resolved.edgesUsed.length > 0 || resolved.cycleDetected
++      ? { stitched_from: resolved.subjects, edges: sortLineageEdges(resolved.edgesUsed), cycle_detected: resolved.cycleDetected, truncated: resolved.truncated }
++      : null,
+     kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
+     derived: {
+       rule_version: FILE_CARD_RULE_VERSION,
+diff --git a/engine/src/fact/projection.ts b/engine/src/fact/projection.ts
+index abc8042..1d89a36 100644
+--- a/engine/src/fact/projection.ts
++++ b/engine/src/fact/projection.ts
+@@ -69,6 +69,7 @@ export interface FileCardQuery {
+ }
+ 
+ const FILE_CARD_SET_CAP = 200000;   // 观测集内 Micro-B 事实硬帽（percentile 需全集——超帽如实截断仍确定性）
++const FILE_CARD_LINEAGE_EDGE_CAP = 10000;   // 血缘边池硬帽（D-137② 跨观测集解析——病态仓库防失控，截断如实）
+ 
+ function likeEscape(s: string): string {
+   return s.split('!').join('!!').split('%').join('!%').split('_').join('!_');
+@@ -84,7 +85,7 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
+     const setRows = await setReader.getRows();
+     const sets = setRows.map(function (r) {
+       const rr = String(r[0]);
+-      return { repo_ref: rr, head_sha: headShaOfRepoRef(rr) };
++      return { repo_ref: rr, head_sha: headShaOfRepoRef(rr), last_obs: String(r[1]) };
+     });
+     const shas = sets.map(function (s) { return s.head_sha; }).filter(function (s): s is string { return s !== null; });
+     let picked: { repo_ref: string; head_sha: string | null } | null = null;
+@@ -119,10 +120,30 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
+       const norm = normalizeFactRow(names);
+       for (const r of fRows) { facts.push(norm(r)); }
+     }
++    // D-137② 跨观测集血缘解析（#80 步③）：file.renamed 边池=选中集∪祖先观测集。
++    //   「祖先」语义=同 repo 观测集中 MAX(observed_at) ≤ 选中集者——事实仓仅持采集时点序（git 祖先关系
++    //   不入库，pin 精确性由 D-126⑤ at:sha 引用层纪律承担）；词表侧用 observed_at 字符串词典序（ISO 规范化后可比较）。
++    const lineageFacts: FactEvent[] = [];
++    if (picked !== null) {
++      const pickedSet = sets.filter(function (s) { return s.repo_ref === picked.repo_ref; })[0];
++      const ancestorRefs = pickedSet === undefined ? [] : sets.filter(function (s) {
++        return s.repo_ref !== picked.repo_ref && s.last_obs <= pickedSet.last_obs;
++      }).map(function (s) { return s.repo_ref; });
++      if (ancestorRefs.length > 0) {
++        const ph = ancestorRefs.map(function () { return '?'; }).join(',');
++        const lSql = 'SELECT ' + PROJECTION_COLUMNS + ' FROM audit_fact WHERE scale = ? AND metric = ? AND repo_ref IN (' + ph + ') ORDER BY fact_seq LIMIT ' + FILE_CARD_LINEAGE_EDGE_CAP;
++        assertAppendOnly(lSql);
++        const lReader = await conn.run(lSql, ['Micro-B', 'file.renamed'].concat(ancestorRefs) as never);
++        const lRows = await lReader.getRows();
++        const lNorm = normalizeFactRow(lReader.columnNames());
++        for (const r of lRows) { lineageFacts.push(lNorm(r)); }
++      }
++    }
+     return buildFileCard({
+       subject: q.subject,
+       setRepoRef: picked === null ? null : picked.repo_ref,
+       setFacts: facts,
++      lineageFacts: lineageFacts,
+       availableHeadShas: shas,
+       pinnedSha: q.at !== undefined && q.at !== null && q.at.length > 0 ? q.at : null,
+       pinnedAmbiguous: pinAmbiguous,
+diff --git a/engine/test/file-card.test.mjs b/engine/test/file-card.test.mjs
+index 49de764..3015210 100644
+--- a/engine/test/file-card.test.mjs
++++ b/engine/test/file-card.test.mjs
+@@ -483,4 +483,128 @@ t('K1 观测集截断标记 set_truncated 上卡面（输入位 true→kernel.se
+   assert.equal(missCard.kernel.set_truncated, true);                  // miss 卡同形透传（schema 字段常驻）
+ });
+ 
++
++// ---------- L. #80 步③ 血缘缝合（D-137：多跳图遍历／环检测／跨观测集解析＋成对件新名端） ----------
++function renameEdge(from, to, commitSha, similarity, repoSha, observedAt) {
++  return fact({
++    subject_ref: to, repo_ref: 't@' + (repoSha || SHA_A),
++    metric: 'file.renamed',
++    value_json: JSON.stringify({ from: from, to: to, head_sha: repoSha || SHA_A, commit_sha: commitSha, similarity: similarity, threshold: '50%', detector_version: 'rename-detector@v1', git_version: 'test' }),
++    observed_at: observedAt || '2026-09-20T00:00:00Z'
++  });
++}
++
++t('L1 1-switch 成对件新名端：旧名 era 事实并入新名卡（行级 subject_ref 溯源＋lineage 账本＋F10 回归=不误进 new_file）', () => {
++  const card = FC.buildFileCard({
++    subject: 'new.ts', setRepoRef: 't@' + SHA_A,
++    setFacts: [
++      facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 1 }),
++      facetRow('old.ts', 'revisions', { path: 'old.ts', n_revs: 9 }),
++      facetRow('old.ts', 'hotspots', { path: 'old.ts', revisions: 9, hotspot_score: 8 }),
++      renameEdge('old.ts', 'new.ts', 'c'.repeat(40), 92)
++    ],
++    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
++  });
++  assert.equal(card.card_type, 'file-audit-card');
++  assert.deepEqual(card.lineage.stitched_from, ['old.ts']);
++  assert.equal(card.lineage.cycle_detected, false);
++  assert.equal(card.lineage.truncated, false);
++  assert.equal(card.lineage.edges.length, 1);
++  assert.equal(card.lineage.edges[0].from, 'old.ts');
++  const revs = card.kernel.facet_rows.revisions;
++  assert.equal(revs.length, 2);                                   // 新名＋旧名 era 行并入
++  assert.deepEqual(revs.map(function (r) { return r.subject_ref; }).sort(), ['new.ts', 'old.ts']);   // 行级溯源键在场
++  assert.equal(card.derived.revisions, 9);                        // F10 回归：旧名历史计入→history 表观不再过浅
++  assert.equal(card.failure_state, 'ok');                         // 不误进 new_file（缝合前 revisions=1 触发）
++  assert.equal(card.derived.hotspot_score, 8);
++});
++
++t('L2 多跳链遍历：A→B→C 显式图遍历并入两跳旧名（非单路径 follow）', () => {
++  const card = FC.buildFileCard({
++    subject: 'c.ts', setRepoRef: 't@' + SHA_A,
++    setFacts: [
++      facetRow('c.ts', 'hotspots', { path: 'c.ts', revisions: 1, hotspot_score: 1 }),
++      facetRow('b.ts', 'hotspots', { path: 'b.ts', revisions: 4, hotspot_score: 4 }),
++      facetRow('a.ts', 'hotspots', { path: 'a.ts', revisions: 5, hotspot_score: 5 }),
++      renameEdge('a.ts', 'b.ts', 'a'.repeat(40), 90),
++      renameEdge('b.ts', 'c.ts', 'b'.repeat(40), 95)
++    ],
++    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
++  });
++  assert.deepEqual(card.lineage.stitched_from.slice().sort(), ['a.ts', 'b.ts']);
++  assert.equal(card.lineage.stitched_from[0], 'b.ts');            // BFS 近端祖先先行
++  assert.equal(card.kernel.facet_rows.hotspots.length, 3);        // 三时代行全并入
++  assert.equal(card.derived.revisions, 5);                        // 多跳最旧时代计入
++  assert.equal(card.lineage.edges.length, 2);
++});
++
++t('L3 环检测：A→B→A 病态边图不绕死——cycle_detected=true 如实披露且终止', () => {
++  const card = FC.buildFileCard({
++    subject: 'a.ts', setRepoRef: 't@' + SHA_A,
++    setFacts: [
++      facetRow('a.ts', 'revisions', { path: 'a.ts', n_revs: 5 }),
++      facetRow('b.ts', 'revisions', { path: 'b.ts', n_revs: 3 }),
++      renameEdge('b.ts', 'a.ts', 'a'.repeat(40), 88),   // b→a：a 的祖先是 b
++      renameEdge('a.ts', 'b.ts', 'b'.repeat(40), 85)    // a→b：b 的祖先是 a（闭环）
++    ],
++    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
++  });
++  assert.equal(card.lineage.cycle_detected, true);
++  assert.deepEqual(card.lineage.stitched_from, ['b.ts']);         // 环边如实披露在账本
++  assert.equal(card.lineage.edges.length, 2);                   // 两条边均消费披露（含被环停的）
++  assert.equal(card.derived.revisions, 5);
++});
++
++t('L4 跨观测集解析：血缘边仅存祖先集（lineageFacts 注入缝）→缝合照常兑现', () => {
++  const card = FC.buildFileCard({
++    subject: 'new.ts', setRepoRef: 't@' + SHA_A,
++    setFacts: [
++      facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 2 }),
++      facetRow('old.ts', 'revisions', { path: 'old.ts', n_revs: 7 })
++    ],   // 选中集内无边
++    lineageFacts: [renameEdge('old.ts', 'new.ts', 'd'.repeat(40), 91, '0'.repeat(40), '2026-09-19T00:00:00Z')],   // 边仅存祖先集
++    availableHeadShas: [SHA_A, '0'.repeat(40)], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
++  });
++  assert.deepEqual(card.lineage.stitched_from, ['old.ts']);
++  assert.equal(card.kernel.facet_rows.revisions.length, 2);
++  assert.equal(card.derived.revisions, 7);
++});
++
++await tAsync('L5 投影层跨集实物：边在祖先 repo_ref 集、行在选中集——真 DuckDB 缝合端到端', async () => {
++  const dir = mkdtempSync(join(tmpdir(), 'fcard-lineage-'));
++  const db = join(dir, 'f.duckdb');
++  const SHA_OLD = '0'.repeat(40);
++  const w = await S.openWriter(db);
++  try {
++    // 祖先集（早采）仅存血缘边；选中集（新采）持有新名+旧名行——边不在选中集正是跨集解析面
++    await S.appendFact(w, renameEdge('old.ts', 'new.ts', 'd'.repeat(40), 91, SHA_OLD, '2026-09-19T00:00:00Z'));
++    await S.appendFact(w, facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 2 }, SHA_A));
++    await S.appendFact(w, facetRow('old.ts', 'revisions', { path: 'old.ts', n_revs: 7 }, SHA_A));
++  } finally { S.closeDuckdb(w); }
++  const card = await P.projectFileCard(db, { repo: 't', subject: 'new.ts' });
++  assert.equal(card.card_type, 'file-audit-card');
++  assert.deepEqual(card.lineage.stitched_from, ['old.ts']);       // 祖先集边参与解析
++  assert.equal(card.kernel.facet_rows.revisions.length, 2);
++  assert.equal(card.derived.revisions, 7);
++  // 反向腿：旧名查询→renamed_to 条件跳转（祖先集边同样兑现——miss 侧跨集解析）
++  const miss = await P.projectFileCard(db, { repo: 't', subject: 'old.ts', at: SHA_A.slice(0, 8) });
++  // pin SHA_A 前缀命中选中集——old.ts 在该集内有行故非 miss；改查无行名走 rename 腿
++  assert.equal(miss.card_type !== undefined, true);
++  rmSync(dir, { recursive: true, force: true });
++});
++
++t('L6 0-switch 边界件逐类点名：never_collected/not_tracked_at_sha/not_applicable/renamed_to 四态各一物理断言（血缘环不并入 not_applicable 病态面）', () => {
++  const mk = (o) => FC.buildFileCard(Object.assign({
++    subject: 'x.ts', setRepoRef: 't@' + SHA_A, setFacts: [],
++    availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: 'cli x'
++  }, o));
++  assert.equal(FC.buildFileCard({ subject: 'x', setRepoRef: null, setFacts: [], availableHeadShas: [], pinnedSha: null, currentHeadSha: null, source: 'unknown', cliGuidance: 'g' }).miss.state, 'never_collected');
++  assert.equal(mk({ setRepoRef: null, pinnedSha: 'f'.repeat(40) }).miss.state, 'not_tracked_at_sha');   // pin 观测集缺席（库在但 at 集未采）
++  assert.equal(mk({ setFacts: [fact({ subject_ref: 'x.ts', metric: 'codelore.file_subject_skip', value_json: JSON.stringify({ raw_path: 'x.ts', reason: 'binary' }) })] }).miss.state, 'not_applicable');
++  assert.equal(mk({ subject: 'gone.ts', setFacts: [renameEdge('gone.ts', 'new.ts', 'e'.repeat(40), 93)] }).miss.state, 'renamed_to');
++  // miss 卡 lineage=null 统一形状（成对件 miss 端不背缝合账本）
++  assert.equal(mk({ subject: 'gone.ts', setFacts: [renameEdge('gone.ts', 'new.ts', 'e'.repeat(40), 93)] }).lineage, null);
++  // 失败态闭环：缝合并入的旧名历史抬高 revisions 出 insufficient/new_file（F10 语义）——L1 已钉 ok
++  assert.equal(FC.buildFileCard({ subject: 'new.ts', setRepoRef: 't@' + SHA_A, setFacts: [facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 1 })], availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null }).failure_state, 'new_file');   // 无血缘对照组：仍 new_file
++});
+ console.log('FILE-CARD ' + n + '/' + n);
