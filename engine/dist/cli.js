@@ -3775,7 +3775,8 @@ function demoDisclosure() {
       "structure/behavior/supply_chain \u8C61\u9650 not_applicable\uFF1AMacro-B \u5DF2\u4E0A\u67B6\u91C7\u96C6\u9762\u4EC5 strategy\uFF08S1+S2\uFF09",
       "\u786E\u5B9A\u6027 fixture\uFF1A\u540C scenario \u91CD\u8DD1\u4EA7\u7269\u9010\u5B57\u8282\u4E00\u81F4\uFF08pin author/committer/date\uFF09\uFF1B\u4E34\u65F6\u76EE\u5F55\u751F\u6210\u8DD1\u5B8C\u5373\u5F03\u4E0D\u6C61\u67D3\u4ED3\u5185\u72B6\u6001"
     ],
-    not_in_preview: ["Micro-A", "Micro-B", "Macro-A"]
+    not_in_preview: ["Micro-A", "Macro-A"]
+    // Micro-B file-card 进 preview（#80 步③ 缝合落地）
   };
 }
 function listScenarios() {
@@ -4427,7 +4428,8 @@ async function runAudit(opts) {
     capability_label: "capability 1 of 5 \xB7 preview",
     calibration_scope: NAME + " Macro-B audit\uFF08audit \u4E00\u7B49\u547D\u4EE4\u9762\uFF1Bscale=Macro-B \u5DF2\u4E0A\u67B6\uFF09",
     structural_limitations: limitations,
-    not_in_preview: ["Micro-A", "Micro-B", "Macro-C", "Macro-A"]
+    not_in_preview: ["Micro-A", "Macro-C", "Macro-A"]
+    // Micro-B file-card 进 preview（#80 步③ 缝合落地）
   };
   const quarantinedRows = probes.fieldEvents.filter(function(e) {
     return e.disposition === "quarantined";
@@ -4677,6 +4679,7 @@ var FILE_CARD_STATIC_FACETS = [
   "pair-programming",
   "function-hotspots"
 ];
+var FILE_CARD_LINEAGE_MAX_ANCESTORS = 64;
 function headShaOfRepoRef(repoRef) {
   const i = repoRef.lastIndexOf("@");
   return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
@@ -4686,6 +4689,9 @@ function asNum(v) {
 }
 function fileCardCitationKeys(card) {
   const keys = ["observation.head_sha", "staleness.drift", "source", "failure_state", "kernel.set_truncated", "kernel.suppressed_facets"];
+  if (card.lineage !== null) {
+    keys.push("lineage.stitched_from", "lineage.edges", "lineage.cycle_detected", "lineage.truncated");
+  }
   for (const k of Object.keys(card.kernel.facet_rows).sort()) {
     keys.push("kernel.facet_rows." + k);
   }
@@ -4726,6 +4732,7 @@ function missCard(subject, miss, input, headSha2) {
     source: input.source,
     failure_state: miss.state === "not_applicable" ? "not_applicable" : "ok",
     miss,
+    lineage: null,
     kernel: { facet_rows: {}, set_truncated: input.setTruncated === true, suppressed_facets: [] },
     derived: {
       rule_version: FILE_CARD_RULE_VERSION,
@@ -4738,6 +4745,73 @@ function missCard(subject, miss, input, headSha2) {
     },
     narrative: { hints: [], key_check: { referenced: [], missing: [], ok: true } }
   };
+}
+function collectRenameEdges(facts) {
+  const seen = /* @__PURE__ */ new Set();
+  const edges = [];
+  for (const f of facts) {
+    if (f.metric !== "file.renamed") {
+      continue;
+    }
+    try {
+      const v = JSON.parse(f.value_json);
+      if (typeof v.from !== "string" || typeof v.to !== "string" || typeof v.commit_sha !== "string") {
+        continue;
+      }
+      const key = v.from + "\0" + v.to + "\0" + v.commit_sha;
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      edges.push({ from: v.from, to: v.to, commit_sha: v.commit_sha, similarity: typeof v.similarity === "number" ? v.similarity : 0 });
+    } catch {
+    }
+  }
+  return edges;
+}
+function resolveLineageAncestors(subject, edges) {
+  const byTo = /* @__PURE__ */ new Map();
+  for (const e of edges) {
+    const arr = byTo.get(e.to) || [];
+    if (arr.length === 0) {
+      byTo.set(e.to, arr);
+    }
+    arr.push(e);
+  }
+  for (const arr of byTo.values()) {
+    arr.sort(function(a, b) {
+      return a.commit_sha === b.commit_sha ? a.from < b.from ? -1 : a.from > b.from ? 1 : 0 : a.commit_sha < b.commit_sha ? -1 : 1;
+    });
+  }
+  const visited = /* @__PURE__ */ new Set([subject]);
+  const ancestors = [];
+  const edgesUsed = [];
+  let cycleDetected = false;
+  let truncated = false;
+  const queue = [subject];
+  while (queue.length > 0 && !truncated) {
+    const cur = queue.shift();
+    for (const e of byTo.get(cur) || []) {
+      edgesUsed.push(e);
+      if (visited.has(e.from)) {
+        cycleDetected = true;
+        continue;
+      }
+      if (ancestors.length >= FILE_CARD_LINEAGE_MAX_ANCESTORS) {
+        truncated = true;
+        break;
+      }
+      visited.add(e.from);
+      ancestors.push(e.from);
+      queue.push(e.from);
+    }
+  }
+  return { subjects: ancestors, edgesUsed, cycleDetected, truncated };
+}
+function sortLineageEdges(edges) {
+  return edges.slice().sort(function(a, b) {
+    return a.commit_sha === b.commit_sha ? a.from === b.from ? a.to < b.to ? -1 : a.to > b.to ? 1 : 0 : a.from < b.from ? -1 : 1 : a.commit_sha < b.commit_sha ? -1 : 1;
+  });
 }
 function buildFileCard(input) {
   const norm = normalizeSubjectPath(input.subject);
@@ -4774,8 +4848,11 @@ function buildFileCard(input) {
       cli_guidance: input.cliGuidance === null ? void 0 : input.cliGuidance
     }, input, null);
   }
+  const edgePool = input.lineageFacts !== void 0 && input.lineageFacts.length > 0 ? collectRenameEdges(input.setFacts).concat(collectRenameEdges(input.lineageFacts)) : collectRenameEdges(input.setFacts);
+  const resolved = resolveLineageAncestors(subject, edgePool);
+  const stitchedNames = new Set([subject].concat(resolved.subjects));
   const mine = input.setFacts.filter(function(f) {
-    return f.metric === "codelore.file_facet_row" && f.subject_ref === subject;
+    return f.metric === "codelore.file_facet_row" && stitchedNames.has(f.subject_ref);
   });
   if (mine.length === 0) {
     const skip = input.setFacts.filter(function(f) {
@@ -4800,18 +4877,10 @@ function buildFileCard(input) {
         detail: "subject \u53D1\u5C04\u4FA7\u5224\u5B9A\u4E0D\u9002\u7528\uFF08" + reason + "\uFF09\u2014\u2014\u5408\u6CD5\u7A7A\u503C\u975E\u91C7\u96C6\u7F3A\u6F0F\uFF0C\u4E0D\u51FA\u7A7A\u5361"
       }, input, headSha2);
     }
-    const edgeFact = input.setFacts.filter(function(f) {
-      if (f.metric !== "file.renamed") {
-        return false;
-      }
-      try {
-        return JSON.parse(f.value_json).from === subject;
-      } catch {
-        return false;
-      }
+    const ev = edgePool.filter(function(e) {
+      return e.from === subject;
     })[0];
-    if (edgeFact) {
-      const ev = JSON.parse(edgeFact.value_json);
+    if (ev) {
       const targetHasFacts = input.setFacts.some(function(f) {
         return f.metric === "codelore.file_facet_row" && f.subject_ref === ev.to;
       });
@@ -4842,7 +4911,7 @@ function buildFileCard(input) {
     const analysis = typeof v.analysis === "string" ? v.analysis : "unknown";
     const row = v.row !== null && typeof v.row === "object" ? v.row : {};
     const arr = facetRows[analysis] || (facetRows[analysis] = []);
-    arr.push({ row, fact_ref: f.fact_id, observed_at: f.observed_at, evidence_ref: f.evidence_ref });
+    arr.push({ row, fact_ref: f.fact_id, observed_at: f.observed_at, evidence_ref: f.evidence_ref, subject_ref: f.subject_ref });
   }
   const analyses = Object.keys(facetRows).sort();
   const ordered = {};
@@ -4867,9 +4936,23 @@ function buildFileCard(input) {
       hotspotScore = s;
     }
   }
+  const supersededNames = /* @__PURE__ */ new Set();
+  {
+    const namesWithRows = /* @__PURE__ */ new Set();
+    for (const f of input.setFacts) {
+      if (f.metric === "codelore.file_facet_row") {
+        namesWithRows.add(f.subject_ref);
+      }
+    }
+    for (const e of edgePool) {
+      if (e.from !== e.to && namesWithRows.has(e.to)) {
+        supersededNames.add(e.from);
+      }
+    }
+  }
   const peerScores = [];
   for (const f of input.setFacts) {
-    if (f.metric !== "codelore.file_facet_row") {
+    if (f.metric !== "codelore.file_facet_row" || supersededNames.has(f.subject_ref)) {
       continue;
     }
     try {
@@ -4929,6 +5012,8 @@ function buildFileCard(input) {
     source: input.source,
     failure_state: failure,
     miss: null,
+    // 缝合账本：解析到边（含纯环边）即披露——旧名解析成功但零行并入亦如实（stitched_from 非空＋facet_rows 无该行 subject_ref 可互证）
+    lineage: resolved.edgesUsed.length > 0 || resolved.cycleDetected ? { stitched_from: resolved.subjects, edges: sortLineageEdges(resolved.edgesUsed), cycle_detected: resolved.cycleDetected, truncated: resolved.truncated } : null,
     kernel: { facet_rows: keptFacets, set_truncated: input.setTruncated === true, suppressed_facets: suppressedFacets },
     derived: {
       rule_version: FILE_CARD_RULE_VERSION,
@@ -4992,6 +5077,7 @@ function normalizeFactRow(names) {
   };
 }
 var FILE_CARD_SET_CAP = 2e5;
+var FILE_CARD_LINEAGE_EDGE_CAP = 1e4;
 function likeEscape(s) {
   return s.split("!").join("!!").split("%").join("!%").split("_").join("!_");
 }
@@ -5004,7 +5090,7 @@ async function projectFileCard(dbPath, q) {
     const setRows = await setReader.getRows();
     const sets = setRows.map(function(r) {
       const rr = String(r[0]);
-      return { repo_ref: rr, head_sha: headShaOfRepoRef(rr) };
+      return { repo_ref: rr, head_sha: headShaOfRepoRef(rr), last_obs: String(r[1]) };
     });
     const shas = sets.map(function(s) {
       return s.head_sha;
@@ -5052,10 +5138,35 @@ async function projectFileCard(dbPath, q) {
         facts.push(norm(r));
       }
     }
+    const lineageFacts = [];
+    if (picked !== null) {
+      const pickedSet = sets.filter(function(s) {
+        return s.repo_ref === picked.repo_ref;
+      })[0];
+      const ancestorRefs = pickedSet === void 0 ? [] : sets.filter(function(s) {
+        return s.repo_ref !== picked.repo_ref && s.last_obs <= pickedSet.last_obs;
+      }).map(function(s) {
+        return s.repo_ref;
+      });
+      if (ancestorRefs.length > 0) {
+        const ph = ancestorRefs.map(function() {
+          return "?";
+        }).join(",");
+        const lSql = "SELECT " + PROJECTION_COLUMNS + " FROM audit_fact WHERE scale = ? AND metric = ? AND repo_ref IN (" + ph + ") ORDER BY fact_seq LIMIT " + FILE_CARD_LINEAGE_EDGE_CAP;
+        assertAppendOnly(lSql);
+        const lReader = await conn.run(lSql, ["Micro-B", "file.renamed"].concat(ancestorRefs));
+        const lRows = await lReader.getRows();
+        const lNorm = normalizeFactRow(lReader.columnNames());
+        for (const r of lRows) {
+          lineageFacts.push(lNorm(r));
+        }
+      }
+    }
     return buildFileCard({
       subject: q.subject,
       setRepoRef: picked === null ? null : picked.repo_ref,
       setFacts: facts,
+      lineageFacts,
       availableHeadShas: shas,
       pinnedSha: q.at !== void 0 && q.at !== null && q.at.length > 0 ? q.at : null,
       pinnedAmbiguous: pinAmbiguous,

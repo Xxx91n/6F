@@ -28,6 +28,19 @@ export interface FileCardMiss {
     available_head_shas?: string[];
     cli_guidance?: string;
 }
+export interface FileCardLineageEdge {
+    from: string;
+    to: string;
+    commit_sha: string;
+    similarity: number;
+}
+export interface FileCardLineage {
+    stitched_from: string[];
+    edges: FileCardLineageEdge[];
+    cycle_detected: boolean;
+    truncated: boolean;
+}
+export declare const FILE_CARD_LINEAGE_MAX_ANCESTORS = 64;
 export interface FileCard {
     schema_version: string;
     card_type: CardType;
@@ -47,12 +60,14 @@ export interface FileCard {
     source: 'prefetch' | 'backfill' | 'unknown';
     failure_state: FailureState;
     miss: FileCardMiss | null;
+    lineage: FileCardLineage | null;
     kernel: {
         facet_rows: Record<string, {
             row: Record<string, unknown>;
             fact_ref: string;
             observed_at: string;
             evidence_ref: string;
+            subject_ref: string;
         }[]>;
         set_truncated: boolean;
         suppressed_facets: SuppressedFacet[];
@@ -101,6 +116,7 @@ export interface FileCardBuildInput {
     cliGuidance: string | null;
     setTruncated?: boolean;
     pinnedAmbiguous?: readonly string[];
+    lineageFacts?: readonly FactEvent[];
 }
 export declare function headShaOfRepoRef(repoRef: string): string | null;
 export declare function fileCardCitationKeys(card: FileCard): string[];
