@@ -90,3 +90,46 @@
 9. NUL/BOM 嗅探全改动面 0/0
 
 **裁断注记**：本审计按职责分离未动手修。P-1~P-7 为呈报项非打回条件——由修复窗裁定吸纳或票面登记批2+。
+
+---
+
+## LOOP-2 复核核销（2026-09-27，返工后）
+
+**裁定：F1 核销——审计通过。**
+
+### 返工实物核对（亲跑，非轻信自述）
+
+| 验收项 | 复跑结果 |
+|---|---|
+| build | PASS（tsc 0 + BUNDLE-OK） |
+| check-dist | PASS 263151B/289395B（engine 零动） |
+| package | PASS 85 件 tgz 255.2kB |
+| selftest | PASS 5/5 |
+| MCP stdio | engine/dist 零动 → 前轮实测结论沿用（dist/cli.js 263151B 逐字节同值） |
+| smoke | 22 册全绿、FAIL 行 0（6 条命中均为 PASS 行内含 failure 字样） |
+| 75a-check | PASS 9/9 findings=348 |
+| guard-all-run | **PASS：ran=60 red=1(registered) problems=0**，红集={01}⊆册 |
+| NUL/BOM/tailNL | 返工触及 21 文件 bad=[] |
+
+### 修法核对
+
+- `23-check` P2：`%h`→`%H` 全锚 + `startsWith(t22_prereg_commit)` 前缀等值，R37 返工注记行在位——钉=commit 存在性（行 42-45）。
+- `75a-check`：新增 `short-sha-pin` 探测族（行 39）+ C4 正对照扩六族（行 121/124）；findings 仍 348 → 该族当前零命中，与残余普查声明一致。
+- 同族残余独立复扫（剥注释）：12 命中全部为 detail 打印/数组截取/探测族自身——断言面零残余属实。
+
+### 过程核对
+
+- commit 分件：`4d92312c` fix（仅 23-check+75a-check 两语义文件）/`ed9e085f` chore（纯再生工件 12 件）/`68d9c51f` docs（A-098 账行+M-021 编年+rework-report+handoff 追记四件同 commit，D-144① 合规）。
+- 账行 A-098 在位（ledger:434）、M-021 在编年（CHANGELOG:166-172，a_range 升至 A-098）、返工报告与 handoff 追记段在档。
+- 未 push。
+
+### 闭环结论
+
+轮 37 T1 / BACKLOG #75 批1 审计闭环成立：打回→窄修→同套九项复验全绿→账编随行钉合规。附注：本 LOOP 同时构成升格机制首次实战拦截记录——册外新红被如实挡在闸门外，修复后红集回落册内。
+
+## 产物（LOOP-2）
+
+- 本核销段（追加于本报告末）
+- 审计窗交接：`.scratch/macro-audit/handoffs/2026-09-27-r37-audit-pass-handoff.md`
+
+*LOOP-2 复核毕——审计通过。*
