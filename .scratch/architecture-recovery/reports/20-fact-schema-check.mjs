@@ -4,6 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { stripComments } from './_lib/check-kit.mjs';
 
 const NL = String.fromCharCode(10);
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -16,12 +17,7 @@ const PKG_JSON = join(REPO, 'engine', 'package.json');
 const results = [];
 function check(id, pass, detail) { results.push([id, !!pass, String(detail)]); }
 
-function stripComments(src) {
-  return src.split(NL).map(function (line) {
-    const i = line.indexOf('//');
-    return i >= 0 ? line.slice(0, i) : line;
-  }).join(NL);
-}
+// R38/#75批2（r37 审计 P-4/20-A5）：本地裸「//」剥离器退役——不剥 /* */ 块注使注释内 SQL 词可误报、不保字符串字面量；_lib 库版自消费收口（54-check B 先例同型）。
 
 function exportedFnNames(src) {
   const out = [];

@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import url from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { commitsByGrep, touchedPaths, lastChangeSha } from './_lib/check-kit.mjs';
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(dir, '../../..');
@@ -77,12 +78,12 @@ for (const f of fz) for (const k of FIVE) if (live[f.path.split('/').pop()][k] !
 ok(cellDiff === 0, 'C3 v1 实跑与真值表 v1_present 逐格一致（65/65）');
 
 // ---- D. 票面时代域断言（R37/#75批1 D-094(b) 工具时代漂移——GitButler 合成索引令 git status porcelain 现幻影 MM，永失真；钉票面 commit 集物证） ----
-const a31 = spawnSync('git', ['log', '--all', '--format=%H', '--grep', 'A-031'], { cwd: root, encoding: 'utf8' }).stdout.trim().split(String.fromCharCode(10)).filter(Boolean);
-const touched26 = new Set();
-for (const sha of a31) { spawnSync('git', ['show', '--name-only', '--format=', sha], { cwd: root, encoding: 'utf8' }).stdout.split(String.fromCharCode(10)).map(function (p) { return p.trim(); }).filter(Boolean).forEach(function (p) { touched26.add(p); }); }
+// R38/#75批2（r37 审计 P-5）：git log --grep + show --name-only 机件收编 _lib/check-kit.mjs（26/28/30 三份复制去重）。
+const a31 = commitsByGrep(root, 'A-031');
+const touched26 = touchedPaths(root, a31);
 const badTouched26 = [...touched26].filter(function (p) { return p === 'engine' || p === 'docs/adr' || p.indexOf('engine/') === 0 || p.indexOf('docs/adr/') === 0; });
 ok(a31.length > 0 && badTouched26.length === 0, 'D1 票面时代域：A-031 commit 集零触 docs/adr/engine（' + a31.length + ' commits/' + touched26.size + ' paths 物证）' + (badTouched26.length ? ' BAD=' + badTouched26.join(',') : ''));
-const freeze23 = spawnSync('git', ['log', '-1', '--format=%H', '--', '.scratch/architecture-recovery/reports/23-measurements.json'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+const freeze23 = lastChangeSha(root, '.scratch/architecture-recovery/reports/23-measurements.json');
 ok(freeze23.indexOf('e39468c9c53d') === 0, 'D2 冻结读数 23-measurements.json 最后变更钉死冻结点 e39468c（内容自冻结零改动）got ' + freeze23.slice(0, 10));
 const md = fs.readFileSync(path.join(dir, '26-truth-table.md'), 'utf8');
 ok(md.includes('0.4923') && md.includes('AC-26-5') && md.includes('delta 表模板'), 'D3 人读表含真值聚合 + AC 登记 + delta 模板');

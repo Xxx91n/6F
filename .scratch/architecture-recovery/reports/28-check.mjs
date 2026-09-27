@@ -11,6 +11,7 @@
 //      engine/、decision-ledger.md、README.md、WORKFLOW.md、spec.md、issues/handoffs/prompts 零改动。
 // 运行：node .scratch/architecture-recovery/reports/28-check.mjs（或于 reports/ 目录内 node 28-check.mjs）
 import { execSync } from 'node:child_process';
+import { commitsByGrep, touchedPaths } from './_lib/check-kit.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -160,9 +161,9 @@ const isForeignKnown = (p) =>
 
 // R37/#75批1（D-094(b) 工具时代漂移）：GitButler 合成索引令 git status porcelain 现幻影 MM——票面范围断言改钉票面 commit 集物证（A-033 触碰面 ⊆ 允许集）。
 // FOREIGN_EXCEPTIONS/isForeignKnown/diffHash 系 porcelain 时代「并发外部漂移指纹豁免」机件——机制退役留痕不删（D-044 禁裸删）。
-const a33 = git('log --all --format=%H --grep=A-033').split('\n').map((s) => s.trim()).filter(Boolean);
-const touched28 = new Set();
-for (const sha of a33) { git('show --name-only --format= ' + sha).split('\n').map((p) => p.trim()).filter(Boolean).forEach((p) => touched28.add(p)); }
+// R38/#75批2（r37 审计 P-5）：机件收编 _lib/check-kit.mjs（spawnSync argv + core.quotePath=false 同语义）。
+const a33 = commitsByGrep(ROOT, 'A-033');
+const touched28 = touchedPaths(ROOT, a33);
 const allowed = new Set([
   ...NINE.map((n) => 'docs/adr/' + n),
   rel14,

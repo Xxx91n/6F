@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "policy": "D-094 三分位——本册只收 (b) 合法漂移类红件；(a) 真坏必修现实、(c) 欺诈/死面断言禁入册（处置=修检查面非掩饰）。条目四要素齐备：evidence / review_anchor / expires_fallback / added。册件复绿=必须人工摘除（guard-all-run.mjs strict 告警），防确定性红常驻养无视。",
+  "policy": "D-094 三分类——本册只收 (b) 合法漂移类红件；(a) 真坏必修现实、(c) 欺诈/死面断言禁入册（处置=修检查面非掩饰）。条目四要素齐备：evidence / review_anchor / expires_fallback / added。册件复绿=必须人工摘除（guard-all-run.mjs strict 告警），防确定性红常驻养无视。",
   "meta": {
     "created": "2026-09-27",
     "round": 37,
