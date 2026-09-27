@@ -1053,3 +1053,4 @@ CodeBuddy 宿主试用面三裁毕＋执行协议定稿＋完备性核查判定�
 - **scoping**：charter 三件预声明（not-run 规则/安装树为准豁免/参数 R-a~c）属执行面载体非新裁面——不写=把裁定推到试用中途临场裁，写=Kill Criterion 兑现（D-152②⑦）；「试用关窗」明示不注册 registry 事件条目（判据驱动≠事件驱动，同族不同轴——关窗后未实测残项方按 Trigger-gated 挂 manual_watch 接力）；试用 findings 的 D-146 摄入分诊=四档初分非终裁（量大不阻塞关窗，终裁走后续轮次）。
 - **缺口随裁入案**（调研如实标）：插件级 `.mcp.json` 自动发现无明文／Windows 真机占位符展开无一手报告／pilot exit-criteria 文献系医学-六西格玛域外推（同构迁移标注）／字段级 parity 无逐字同名工业术语（分层映射+D-132 托底）／CodeBuddy IDE vs CLI 安装约定官方未分列（归三悬点实测）。
 - **过程登记**：41a-D7b 本轮中途红=grill 账行先行落盘、编年随收口 commit 同行（D-144① 合规形态——M-022 与本节同 commit）；本轮零源码零行为面改动（grill 纪律），物理落点=charter/trials/语义声明/注记行/编年/任务书全属账本语言兑现。
+- **执行窗登记（r38-impl 批2-α）**：T2 批2 首片=A-099 实修闭环（呈报七件＋75b 分档草案，探测面残余漏洞归批2-β 裁定链）；T1 session 骨架落盘 trials/codebuddy-r38-session.md（环境快照预填、判据读数格 pending——宿主会话=用户驱动面）；编年随行 M-023 与 A-099 同 commit（D-144①）。
