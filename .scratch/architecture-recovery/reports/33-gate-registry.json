@@ -194,6 +194,11 @@
       "occurred": true,
       "date": "2026-09-28",
       "evidence": "R40-T1（D-159②④）落地：全量守卫 tier 自声明建制——env-contract={37-check,39-check,46-check}（sibling 活体依赖三件，画像 9→3 勘误在案）＋portable×57；GUARD_SIBLING_ROOT SSOT 寻址；SKIP-with-reason 三态呈现契约同票"
+    },
+    "retired-class-schema-active": {
+      "occurred": true,
+      "date": "2026-09-28",
+      "evidence": "R40-T1（D-160②⑤）落地：known-red-manifest.json retired 类终态留档 schema 生效（八要素+归档实物+出运行集——75a-M3 机检）＋_retired/ 归档目录建制＋D-094 划界注记成对落盘"
     }
   },
   "items": [
@@ -1800,6 +1805,32 @@
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-159 环境契约分层立法兑现）"
+    },
+    {
+      "id": "guard-retirement-class",
+      "family": "code-hygiene",
+      "title": "retired 退役类登记（D-160①②⑤）——绿守卫守护面消亡终态留档：manifest retired 类＋_retired/ 归档目录建制；断言量/年龄/通过史不作退役判据（D-160⑥ 裁军诉求显式驳回留痕）",
+      "deadline_event": null,
+      "deadline": "无（登记项）",
+      "trigger_event": "retired-class-schema-active",
+      "trigger": "retired 类 schema 建制落地当轮即登记（D-149④ manifest 机制延伸——生命周期成环：升格判据已立，本条补出列通道）",
+      "review_at": "每审计窗复核（退役提案经 T3 逐件呈报——本项为通道登记非判据本体）",
+      "status": "decided",
+      "owner": "macro-audit 队列值守",
+      "verify_method": "75a-check.mjs M3 断言：manifest retired 类八要素齐备＋归档实物存在＋原守卫出运行集（空类 vacuous 通过）",
+      "review_event": "next-audit-window",
+      "watch": "manual_watch",
+      "confirmations": [
+        {
+          "at": "2026-09-28",
+          "by": "R40-T1（D-160⑤）",
+          "criterion_version": "D-160①②③⑤",
+          "decision": "registered",
+          "reason": "era-scoped 退役机制建制兑现：manifest retired 类终态留档非删除＋_retired/ 归档考古面＋protected_surface+tier 双字段显式扩展（D-159 schema 延伸）＋首件退役经 T3 窗逐件呈报；retired 终态化不设二次出口=明示设计选择",
+          "evidence": "reports/known-red-manifest.json retired 类+retired_policy、reports/_retired/README.md、75a-check.mjs M3 断言"
+        }
+      ],
+      "bound_to": "#R40-T1 执行窗（D-160 era-scoped 退役机制立法兑现）"
     }
   ]
 }

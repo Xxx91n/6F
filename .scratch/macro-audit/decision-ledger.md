@@ -1128,3 +1128,5 @@ T1 CodeBuddy 试用关窗核认＋批2-β 探测面硬化三裁＋登记处置�
 - **retired 建制**（D-160）：manifest retired 类终态留档扩容（枚举版本化先例）＋D-094 划界注记成对落盘（红件三分类 vs 绿件面消亡正交）＋`protected_surface`+tier 双字段（D-159 显式扩展）＋归档目录＋首件退役流程=面消亡提案经 T3 窗逐件。
 - **暴露梯度**（D-162）：Stage-0 追认注记落点＋Stage-2 判据包+30 日静默窗 registry manual_watch 登记＋D-031⑤ 重查义务挂判据①。
 - 编年随行每 commit（D-144①＋D-161 新形态 footer `Chronicle:`）；engine/src|dist 触碰走 build+check-dist 前置（D-145①）；语义/format/生成物 commit 不混（D-139/D-140）。
+
+- **D-094 划界注记**（D-160 登记义务）：三分类（hit/no-judge/silent-embed 红守卫处置面）判据域不覆盖 retired 类——retired=**绿守卫守护面消亡**处置面，两族输入正交：VACUOUS 普查一份产出双通道（红侧恒真件→三分类处置；绿侧面消亡→retired 提案经 T3 窗逐件呈报），互不混标。断言量/年龄/通过史不作退役判据（D-160⑥）。

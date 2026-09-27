@@ -143,6 +143,11 @@ const km = JSON.parse(readFileSync(join(HERE, 'known-red-manifest.json'), 'utf8'
 const mk = km.entries.every((e) => e.id && e.guard && e.failure_class === 'legit-drift' && e.evidence && e.review_anchor && e.expires_fallback && e.added && existsSync(join(HERE, e.guard)));
 t('M1 known-red manifest schema 合规（legit-drift 单类域+四要素齐备+guard 文件在）', km.version === 1 && km.policy.indexOf('禁入册') >= 0 && mk, 'entries=' + km.entries.length);
 const stale = JSON.parse(readFileSync(join(HERE, 'stale-assertions.json'), 'utf8'));
+// M3 retired 类（D-160②⑤ era-scoped 终态留档——八要素齐备＋归档实物在＋原守卫出运行集；空类 vacuous 通过、schema 即机制本体）
+const ret = Array.isArray(km.retired) ? km.retired : null;
+const retBad = (ret || []).filter((e) => !(e.id && e.guard && e.protected_surface && (e.tier === 'portable' || e.tier === 'env-contract') && e.retired_at && e.era && e.reason && e.decision_ref && e.archive_path && existsSync(join(HERE, e.archive_path))));
+const retInRun = (ret || []).filter((e) => existsSync(join(HERE, e.guard)));
+t('M3 retired 类终态留档 schema（八要素+归档实物在+原守卫出运行集——面消亡提案经 T3 逐件呈报 D-160①②）', ret !== null && retBad.length === 0 && retInRun.length === 0, 'retired=' + (ret === null ? 'missing' : ret.length) + ' bad=' + retBad.length + ' inrun=' + retInRun.length);
 t('M2 stale-assertions meta 载 D-094 禁欺诈入册条款', stale.meta && typeof stale.meta.policy_d094 === 'string' && stale.meta.policy_d094.indexOf('欺诈') >= 0, '');
 
 // 41a-D7 字面钉回归钉

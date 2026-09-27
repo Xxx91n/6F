@@ -226,3 +226,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-158 ①②③④ 全兑现执行面）
 - impact: 豁免面从词缀匹配收窄为真消费位判定——字符串/属性名/标识符/注释内提名不再豁免（C4/C5/S2 fixture 组钉住双向边界）；成员调用 obj.stripComments( 不豁免（具名 import 已覆盖正路）；41 件在册件零迁移证明谓词收紧零现状扰动
+
+## [M-029] - 2026-09-28
+
+- milestone: 轮 40 T1 C 件落地——era-scoped 退役机制建制（D-160 全要件）：known-red-manifest.json retired 类扩容（终态留档八要素 schema：id/guard/protected_surface/tier/retired_at/era/reason/decision_ref/archive_path——沿 D-037/D-048 枚举版本化先例顶层类扩）＋_retired/ 归档目录建制（文件本体考古面非删除；retired 终态化不设二次出口=明示设计选择）＋75a-M3 机检断言（八要素齐备＋归档实物在＋原守卫出运行集——每机制留可跑校验闭环）＋D-094 划界注记成对落盘（红件三分类 vs 绿件面消亡处置输入正交、VACUOUS 普查双通道）＋registry guard-retirement-class 条目+retired-class-schema-active 事件（D-149④ 形态生命周期成环）＋CONTEXT retired 类词条
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-160 ①②③④⑤⑥ 执行面全兑现——③ 双字段在 B commit 同窗落地、本件登记 schema+划界+归档）
+- impact: 退役唯一合法路径=面消亡经 T3 窗逐件呈报；断言量/年龄/通过史裁军诉求显式驳回留痕（ACH 277/571 实证）；registry 67 项/46 事件；retired 类当前空册——首件走链立先例

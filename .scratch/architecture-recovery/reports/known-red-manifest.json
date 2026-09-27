@@ -8,7 +8,8 @@
     "decisions": "D-094 / D-149③④ / D-071⑨",
     "runner": "guard-all-run.mjs",
     "census_register": "75a-census-register.json",
-    "upgrade_event": "t3-guard-manifest-shipped（registry 项 guard-baseline-upgrade-trigger）——升格后收口判据=全量跑+红集⊆本册+册件复绿告警，基线18件枚举为历史快照存证"
+    "upgrade_event": "t3-guard-manifest-shipped（registry 项 guard-baseline-upgrade-trigger）——升格后收口判据=全量跑+红集⊆本册+册件复绿告警，基线18件枚举为历史快照存证",
+    "retired_class": "D-160②⑤ 建制（R40-T1 落地）：终态留档 schema=75a-M3 机检；归档目录=_retired/（考古面非删除）；registry 项=guard-retirement-class"
   },
   "entries": [
     {
@@ -33,5 +34,7 @@
         }
       ]
     }
-  ]
+  ],
+  "retired_policy": "retired 类=绿守卫守护面消亡终态留档（D-160①②）：守护面消亡〔对象移除/上层吸收/更强更窄契约取代〕经 T3 审计窗逐件呈报裁定后，守卫移出运行集、文件本体归档 _retired/ 留考古面非删除；断言量/年龄/通过史不作退役判据（D-160⑥ 锐评裁军诉求显式驳回）；retired 终态化不设二次出口=明示设计选择（retire→delete 时点无工业统一答案）；与 entries[] legit-drift 红件册输入正交——一份 VACUOUS 普查双处置通道（D-160③）",
+  "retired": []
 }
