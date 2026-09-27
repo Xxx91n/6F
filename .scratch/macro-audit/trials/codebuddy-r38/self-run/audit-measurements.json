@@ -1,0 +1,239 @@
+{
+  "repo": "6F",
+  "root": "d:\\Aworker\\6F",
+  "observed_at": "2026-09-27T15:40:17+08:00",
+  "head_sha": "35c0a39bfe040141cf50addb4acbe6ea1528dd63",
+  "tree_sha": "f006572a596bfb956d617e1194eefdf924894d8f",
+  "commit_count": 306,
+  "adr_count": 23,
+  "intent_docs": [
+    "CONTEXT.md",
+    "README.md",
+    "AGENTS.md"
+  ],
+  "fact_count": 797,
+  "intake": {
+    "kind": "local",
+    "url": null,
+    "cloned": false,
+    "cache_hit": false,
+    "refreshed": false,
+    "snapshot_fetched_at": null,
+    "full_depth_verified": true,
+    "remote_config_execution": "disabled",
+    "credentials": "local-git-credential-chain"
+  },
+  "intake_quarantine": {
+    "wired_fields": [
+      "committer_date",
+      "head_date"
+    ],
+    "field_stats": [
+      {
+        "field_name": "head_date",
+        "total": 1,
+        "clean": 1,
+        "normalized": 0,
+        "quarantined": 0
+      },
+      {
+        "field_name": "committer_date",
+        "total": 306,
+        "clean": 306,
+        "normalized": 0,
+        "quarantined": 0
+      }
+    ],
+    "events": [],
+    "excluded_commits": 0,
+    "threshold_ratio": 0.001,
+    "strict_mode": false
+  },
+  "collection_environment": {
+    "git_version": "git version 2.55.0.windows.2",
+    "instrument_dialect": {
+      "note": "observation-instrument dialect absorption——观测仪器等价拼写差归边界层吸收（非主体病态，不计入病态统计）",
+      "rules": [
+        "tz_offset/+00:00→Z"
+      ],
+      "absorbed_total": 0,
+      "by_rule": {},
+      "by_field": {},
+      "events": []
+    }
+  },
+  "tc1": {
+    "judgeable_n": 23,
+    "backfill_n": 0,
+    "ratio_4": "0.0000",
+    "verdict": "NOT_RED",
+    "threshold": {
+      "lag_days": 90,
+      "ratio_red": 0.2,
+      "min_n": 5
+    }
+  },
+  "tc2": {
+    "total": 23,
+    "mean_ratio_4": "1.0000",
+    "missing_counts": {
+      "Status": 0,
+      "Date": 0,
+      "Context": 0,
+      "Decision": 0,
+      "Consequences": 0
+    },
+    "missing_ratio_4": {
+      "Status": 0,
+      "Date": 0,
+      "Context": 0,
+      "Decision": 0,
+      "Consequences": 0
+    },
+    "cond_a": false,
+    "cond_b": false,
+    "verdict": "NOT_RED",
+    "threshold": {
+      "mean_red": 0.6,
+      "field_missing_red": 0.5
+    }
+  },
+  "tc3": {
+    "per_source": [
+      {
+        "path": "CONTEXT.md",
+        "hit": 18,
+        "keywords": 20,
+        "ratio_4": "0.9000"
+      },
+      {
+        "path": "README.md",
+        "hit": 15,
+        "keywords": 20,
+        "ratio_4": "0.7500"
+      },
+      {
+        "path": "AGENTS.md",
+        "hit": 18,
+        "keywords": 20,
+        "ratio_4": "0.9000"
+      }
+    ],
+    "lowest_path": "README.md",
+    "lowest_ratio_4": "0.7500",
+    "verdict": "GREEN",
+    "threshold": {
+      "red": 0.5,
+      "green": 0.7,
+      "top_n": 20
+    }
+  },
+  "nc1": {
+    "path": "README.md",
+    "fact_count": 11,
+    "five_piece_present": 0,
+    "supersede_present": false,
+    "pass": true
+  },
+  "pc1": {
+    "pass": true
+  },
+  "pc2": {
+    "pass": true,
+    "delta_days": 255
+  },
+  "file_lineage": {
+    "renamed": 1,
+    "lineage_skips": 0,
+    "scan_fact": true
+  },
+  "upstream_dimension_projection": {
+    "map_version": "v1.0",
+    "map_review": {
+      "last_reviewed": "2026-09-19",
+      "next_review": "2026-10-19"
+    },
+    "mapped": [],
+    "unmapped": [
+      {
+        "fact_id": "54ae67da-92e7-380a-4b47-506fee9e1a21",
+        "family": "upstream-codelore",
+        "metric": "codelore.facet_rows",
+        "subject_ref": "hotspots",
+        "dimension": null,
+        "lane": "Macro-B-QuadrantEntry",
+        "admitted": false,
+        "reason": "behavior 族→Macro-B 行为象限切片"
+      },
+      {
+        "fact_id": "72da1101-f159-de43-27d9-11f820f6273a",
+        "family": "upstream-codelore",
+        "metric": "codelore.facet_rows",
+        "subject_ref": "coupling",
+        "dimension": null,
+        "lane": "Macro-B-QuadrantEntry",
+        "admitted": false,
+        "reason": "behavior 族→Macro-B 行为象限切片"
+      },
+      {
+        "fact_id": "81f6cb03-e87e-d117-d8b1-384c5c8e8d95",
+        "family": "upstream-codelore",
+        "metric": "codelore.facet_rows",
+        "subject_ref": "function-hotspots",
+        "dimension": null,
+        "lane": "Macro-B-QuadrantEntry",
+        "admitted": false,
+        "reason": "behavior 族→Macro-B 行为象限切片"
+      }
+    ]
+  },
+  "behavior": {
+    "faces": [
+      "hotspots",
+      "coupling",
+      "function-hotspots"
+    ],
+    "row_counts": {
+      "hotspots": 83,
+      "coupling": 131,
+      "function_hotspots": 35
+    },
+    "facet_errors": 0,
+    "criteria": {
+      "pc1": true,
+      "tc1": true,
+      "tc2": true,
+      "nc1": true
+    },
+    "verdict": "supported",
+    "micro_b": {
+      "per_file_facts": 380,
+      "subject_skips": 0,
+      "case_conflicts": 0,
+      "reconciliation": {
+        "match": true,
+        "per_analysis": {
+          "hotspots": {
+            "file_bearing": 83,
+            "skipped": 0,
+            "per_file": 83,
+            "match": true
+          },
+          "coupling": {
+            "file_bearing": 131,
+            "skipped": 0,
+            "per_file": 131,
+            "match": true
+          },
+          "function-hotspots": {
+            "file_bearing": 35,
+            "skipped": 0,
+            "per_file": 35,
+            "match": true
+          }
+        }
+      }
+    },
+    "codelore_version": "0.28.0"
+  }
+}
