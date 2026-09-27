@@ -1,0 +1,910 @@
+diff --git a/.scratch/architecture-recovery/BACKLOG.md b/.scratch/architecture-recovery/BACKLOG.md
+index f45ce199..1e803239 100644
+--- a/.scratch/architecture-recovery/BACKLOG.md
++++ b/.scratch/architecture-recovery/BACKLOG.md
+@@ -93,7 +93,7 @@
+ | #72 | github-rest 接线票·批2（D-080③ sibling 次票）：①opt-in 注册（需 token＋网络——凭据缺席环境**显式报告 skipped 不算 PASS**防假绿）；②pr_summary→S4 无准入／merge lead time→S4 仅人类 PR／Bot 占比→S5 辅助披露（措辞锁仅计平台声明 Bot——进 quadrant 判据与否随票裁 D-082 留票）／pr_diff→Micro-A 通道不直采 Macro-B／遥测六类永久排除；③review 覆盖行=event_bound 挂起消费（pulls.reviews 移出 PLANNED_SURFACES→registry github-rest-reviews-active→本票或后续票按采集数据裁定 D-081）；④映射常量与表对账守卫同批1；⑤golden/cassette 对账（#47 cassette 复用） | D-080 / D-081 / D-082 / D-048 / ADR-0020 | P1 | 依赖=#71 批1 形态先立（常量块＋对账守卫首件）；Micro-A preview #48 硬前置=#47 消费侧；github-rest 最小契约=PR 枚举+元数据+diff 双通道（review 面激活=另事件非本票义务） | —— ✅ 2026-09-19 A-084 已闭环：72-check 16/16＋GITHUB-REST 56/56（L1 live 凭据腿）＋opt-in/skipped 语义注册＋cassette 五面回放绿
+ | #73 | GitHub 门面整改总票（D-085 三面全含）：①面二社区文件七件先行（root LICENSE=engine/LICENSE Apache-2.0 复制〔ADR-0021/D-051 执行债〕／CONTRIBUTING 诚实姿态〔preview 单作者维护+issue 欢迎+PR 政策明写+纪律指针 AGENTS.md〕／SECURITY〔披露渠道+支持范围=0.x 仅最新版〕／CODE_OF_CONDUCT／ISSUE_TEMPLATE〔bug_report+feature_request+config，字段含宿主/版本/OS/selftest 输出〕／PULL_REQUEST_TEMPLATE〔dogfood 本仓纪律：守卫绿/账本/双语同步/dist rebuild〕／CODEOWNERS〔*=Xxx91n〕）；②面一 README 双语双文件——README.md EN 主位双层门面（pitch→静态 badges〔license/version/node/marketplace〕→能力矩阵→安装→样例截片→快速验证 上半层＋工程节段下半层不删）＋README.zh-CN.md 中文全量（canonicalMarker 首行「英文版为权威」＋heading 带 {#english-id} 锚点＋<!-- sync: <en-hash> --> 版本戳＋owner 字段）＋icon.svg 派生 logo/hero＋架构 SVG 一张（三层盒/五尺度择一）；③73-check.mjs 双语同步守卫（结构互等=FAIL／版本戳失配=XFAIL／canonicalMarker 断言）；④面三末步元数据写操作三项（description/topics/social-card 1280×640——D-091 包级授权已授照稿执行） | D-085~D-091 / ADR-0021 / D-051 / D-031 | P1 | 执行序=①②③仓内物料→④元数据写最后（D-085②）；CI badge/motion GIF 走 registry event_bound 不预埋；push/merge 用户闸门不变；badge 只挂当下为真项；R24 审计登记：EN 中文钉串双语契约张力注记（D-087①）／73-check D 组票面外扩（T3 未列 D-089 执法）已收编／zh 全锚段补 <a id> 深链｜进度：2026-09-20 实施+审计 PASS+合入 main（双语门面/badges/73-check 上线、description/topics 生效）；未闭环= social-card.png 待所有者 web-UI 手动上传（闭环链尾） |
+ | #74 | 6F 正名＋六-F 宣言门面执行（D-092/D-093）：①hero.svg 重绘〔名=6F＋三 chip→六 F 族〕；②README.md——H1/alt→6F＋首屏 Highlights 宣言块六句〔Facts=Hub-of-Facts／Federation=联邦裁定／Forensics=演化考古 Macro-C／Five scales=五尺度／Frankness=诚实标注／Fingerprints=可验 receipts〕各一行短句＋preview badge 紧随＋canonical 锚 #6f＋兼容锚 <a id="macro-audit">；③README.zh-CN.md 派生镜像（六句译文+锚点钉回，D-088 纪律）；④social-card.png 重产（未上传零成本窗）；⑤docs/listing/description.md displayName Macro Audit→6F＋变更注记（原值→新值+日期，余字段不动）；⑥engine/README.md 加 kernel 代号注记行；⑦73-check 锚点集同步（H1/锚改名波及断言面） | D-092 / D-093 / D-088 / D-031 / D-052 | P1 | 保留不动面：architecture.svg kernel 标签／plugin.json skills 路径／.mcp.json macro-audit-kernel／engine 内部命名／历史文档不回溯；宣言六句禁营销腔、须钉已命名+ADR 资产、不越 preview 诚实边界；落选集 A/C 留案在 D-092 |
+-| #75 | 守卫纪律建制包三批（D-094/095/096）：批1 失效三分类——字面钉普查 pass〔扫 NN-check 源码找日期字面量/魔数地板/裸 occurred===，检出须归因注记：tripwire→registry 锚+vacuity 豁免登记，无意图钉→改写派生断言〕＋断言文本匹配剥注释通用化〔73-check A4 修法成先例〕＋presence/liveness/readiness 三层命名约定＋XFAIL 册明文只收合法漂移类〔欺诈断言禁入册〕；批2 枚举 open/closed——每枚枚举面标 open/closed＋closed 面成员级双向差集 lint〔explain 9 面/遥测排除首案〕＋常量集 SSOT〔doc 枚举行+N 类计数派生或校验〕＋成员级漂移禁入册＋reserved 机制〔仅外部输入面/reserved: 理由+失效条件/主集豁免/生产者出现→FAIL/cap≤2；场景≤1 条不建制——preflight 逐条裁：内部防万一则删〕；批3 census-contract——63 清单头加契约块〔字段 schema 归一 style/sealedCall＋五豁免规则各给正反例对，钉性质不钉正则体〕＋70-check 互等裁决断言〔重算结果 vs 契约〕＋契约变更 PR 门控＋契约=70-check 与 vacuity 普查共用规格〔防第三份机芯〕＋契约枚举 open/closed 声明 | D-094 / D-095 / D-096 / D-079 / D-071 / D-037 | P1 | 三批可独立落地但同票管——册规补丁/豁免登记/契约枚举互引；互等钉钉输出契约非共享代码〔differential oracle 独立性=E1 判力命根〕；契约块不编 XFAIL 状态〔#33 vs #70 面不耦合〕 |
++| #75 | 守卫纪律建制包三批（D-094/095/096）：批1〔已闭环 2026-09-27/A-097：60 件全跑红集={01}⊆known-red-manifest；75a 普查 348 条全归因〕失效三分类——字面钉普查 pass〔扫 NN-check 源码找日期字面量/魔数地板/裸 occurred===，检出须归因注记：tripwire→registry 锚+vacuity 豁免登记，无意图钉→改写派生断言〕＋断言文本匹配剥注释通用化〔73-check A4 修法成先例〕＋presence/liveness/readiness 三层命名约定＋XFAIL 册明文只收合法漂移类〔欺诈断言禁入册〕；批2 枚举 open/closed——每枚枚举面标 open/closed＋closed 面成员级双向差集 lint〔explain 9 面/遥测排除首案〕＋常量集 SSOT〔doc 枚举行+N 类计数派生或校验〕＋成员级漂移禁入册＋reserved 机制〔仅外部输入面/reserved: 理由+失效条件/主集豁免/生产者出现→FAIL/cap≤2；场景≤1 条不建制——preflight 逐条裁：内部防万一则删〕；批3 census-contract——63 清单头加契约块〔字段 schema 归一 style/sealedCall＋五豁免规则各给正反例对，钉性质不钉正则体〕＋70-check 互等裁决断言〔重算结果 vs 契约〕＋契约变更 PR 门控＋契约=70-check 与 vacuity 普查共用规格〔防第三份机芯〕＋契约枚举 open/closed 声明 | D-094 / D-095 / D-096 / D-079 / D-071 / D-037 | P1 | 三批可独立落地但同票管——册规补丁/豁免登记/契约枚举互引；互等钉钉输出契约非共享代码〔differential oracle 独立性=E1 判力命根〕；契约块不编 XFAIL 状态〔#33 vs #70 面不耦合〕 |
+ | #76 | engine-ci 首跑红修（R24 handoff §新增问题立案）：A 类 Node-20 三平台——audit.test.mjs J1/J2＋demo.test.mjs M1〔省略 --out→stdout sidecar 解析失败；node20 全挂/node22 全过/本地 node24 绿——疑 CLI stdout 发射 Node-20 行为差，需 Node-20 环境复现〕；B 类非 Windows——duckdb-selfheal-e2e 4/4 FAIL〔ubuntu/macos×node20/22：事件报 success 但 openWriter exit=1、bindings 补拉后包目录未复在；windows 腿过——疑补拉机制非 Windows 路径〕；复现线索 run 35515346216 | R24 handoff / D-072③ / registry engine-ci-main-green | P1 | 挡 engine-ci-main-green 事件翻转→readme-ci-badge 值守链；修毕全绿方可翻事件〔不预翻〕；YAML 死面 8 天未检属「存在≠活性」样本族已入 D-094 建制 | ✅ 2026-09-22 已闭环（R26 实施轮，分支 r26-74-6f-rename 合入 main d207a0a）：D-097 四修法全落——stdout 冲刷门控（cli.ts 22 出口收敛+ExitSignal 哨兵）/closeDuckdb conn+instance 双段释放/npm pack+tar 手术恢复避 arborist no-op/原生件族正则升（node|so|dylib|dll>1MB）；分支 CI run 35677822036 六腿全绿＋main run 35681529820 success=engine-ci-main-green 事件发生→readme-ci-badge 解锁进 #77 |
+ | #77 | 门面收口包·A 窗（本轮实施）：①README.md 新「## Acknowledgments」节置尾（Honesty notes 之前）——**生成式锚段非手写**：生成器持 per-id 人工模板（感谢宾语+角色句逐条人定一次，禁从 kind 推导——github-rest=API 非项目），枚举=upstream-lock.yaml status=active 集（当前 8 id：codelore/duckdb-node-api/duckdb-node-bindings/git-cli/github-rest/esbuild/schemastore-claude-plugin-manifest/claude-cli），行=名字+一句角色+上游主页链接，脚注指 lock 全集；②closed 对账守卫=regen→diff empty（成员集⇔active 集双向差集，manifest.meta.json 先比后写同型）；③planned/evaluating/retired 不进面；④§3 技术上游表不动；⑤禁版本/pin/契约入节、链接指上游主页禁 .scratch 路径；⑥zh-CN 派生镜像（D-088）；⑦CI badge 挂载（engine-ci-main-green 已发生→D-089⑤ 解锁，徽标指 main workflow）＋GitHub homepageUrl 补齐 | D-098 / D-099③ / D-101① / D-089⑤ / D-037③ | ✅ 2026-09-22 已闭环（轮28 A 窗：生成器+双语锚段+77-check 16/16+badge+homepageUrl；报告 .scratch/macro-audit/reports/2026-09-22-r28-exec-report.md） | 一主题一窗（与 #78 并行不混窗——mixed-PR 反模式）；致谢节=生成物锚段（regen-diff 断言非字符串钉）；无消费面资产禁预置（D-099） |
+ | #78 | 引擎 quarantine 建制·B 并行独立窗（含 macro-b-regression git 腿红修=验收件）：①intake 违约两级化——协议级违约（列结构/分隔符/记录定界/行形状坏=所有行同病）保持 fail-fast；字段级病态（记录定界成功但单字段值语义非法且无确定性可挽救目标）进 quarantine 桶=字段 null+⚠malformed 印记+审计继续；②三桶分离计数 clean/normalized/quarantined（normalized 不打 ⚠ 防标记疲劳）；③可观测五件——逐 SHA 清单+reason code（两桶码永不合并）／原始字段字节回显（fact 行保留原值）／报告头覆盖率恒等式 total=clean+normalized+quarantined 且派生统计声明排除行／单字段 quarantine 比例阈值超限→升级该仓 unsupported／--strict-quarantine 反向开关（CI/回归对新 reason code 硬崩）；④null=毒值（消费方触 null 显式报错或显式跳过禁当 0 参与时间窗/排序）；⑤新 reason code=契约覆盖缺口信号登 known-gaps 台账；⑥schema+golden+恒等式同窗一个 idea 不拆 | D-100 / D-101② / D-059①收窄链 | ✅ 2026-09-23 已闭环（轮29 T2 B 窗，分支 r29-78-quarantine）：契约层三态分类器+quarantine_log 幂等持久化+事务写+strict 反向开关+Intake Health 恒在+双层对账+known-gaps 台账+病态 fixture e2e+78-check 30/30+QUARANTINE 56/56+npm test 19 册全绿+守卫组全绿〔勘误：首报时 41a 红 1/38（M-006 编年漂移），r29 审计打回返工批同窗修复后复绿 15/15；返工件=M-006/M-007 编年勘误+39 侧 crash 工件+env 双腿+逐 commit 事务粒度+78-check load-bearing/CI 挂载+F4 裁定①，报告 .scratch/macro-audit/reports/2026-09-23-r29-rework-report.md〕；报告 .scratch/macro-audit/reports/2026-09-23-r29-exec-report.md | owner=macro-audit 队列值守；deadline=下一实施窗边界（腐红防线三件套：owner/deadline/已分类）；阈值初值实施期取保守默认并注记；git 腿若本迭代排不上→显式豁免登记（xfail+tracking+deadline）转「显式豁免红」 |
+@@ -101,4 +101,4 @@
+ | #80 | Micro-B preview 文件级审计卡单票闭环（D-121~D-127，ADR-0023）：内部三步 stacked-diff 各独立绿——①发射改造+fixture golden：per-file 一等事实发射（subject_ref=规范化形+file_renamed 血缘事实）+facet_rows 降 raw 证据位保留 append-only+Macro-B behavior 消费面迁移+对照期对账判据（聚合载荷↔per-file 重算可对账——BbA 双实现先例）②投影+查询语义：三层卡契约（kernel 数据直投+确定性派生〔priority_band/percentile_rank/top_n_flag 带规则版本〕+宿主叙事 citation 校验验键存在性）+advisory 结构性隔离（无 verdict/gate-consumable 字段）+失败三态+miss 四类显式态+at:sha pin+staleness 双字段+renamed_to 条件跳转 ③双仓实跑+边界件+披露：试点=jiahao+env-manager（anysearch-cli 校准对照可选）+0-switch 逐类点名+renamed_to 1-switch 成对件（双端验证=miss→renamed_to 条件跳转＋新名卡缝合旧名历史）＋血缘缝合显式枚举〔卡投影沿 file_renamed 链把旧名 era 事实并入新名卡——批内子项：多跳链遍历（A→B→C 显式图遍历非单路径 follow）／环检测／跨观测集解析（沿查询时点所在观测集及其祖先观测集的血缘事实，沿用 at:sha 引用层纪律）——任一子项可独立验收，实测体量超载→升级独立票凭实测再裁〕（D-137）+p95 分档双阈值 benchmark（数值实跑预登记+原始数工件）+披露四件套+not_in_preview+能力矩阵措辞收窄同票 | D-121~D-127 / ADR-0023 / D-028 / D-038 / D-137 | P1 | 双触发面=MCP tool（只读 miss→not_collected+CLI 指引）+CLI audit file（lazy 补采=同构发射管线；资格=SHA 可达；脏工作区零感知）；golden 锁面=字段键集＋语义不变量定点值（枚举对齐 manifest 自声明：metric 集/subject 规范化形/value_json 键集/role 标记/skip reason/冲突对/血缘载荷键集；内容值=数据行载荷不锁——D-132④ 票面勘误）；退路 C 在案（infra 先行=D-038 fixture golden 判据+schema 冻结点立法；D-038 为位点类比非字面接入——断言件落 engine/test/fixtures/micro-b/ 自管，落点谓词=谁消费它，D-131③ 票面勘误）；禁项集=切片当一等事实/双写皆一等/lazy 升格两阶段身份/删 facet_rows/大小写折叠/血缘进身份/stale 拒答/miss 单态/renamed_to 无验证跳转/worktree 感知/A-E 判语/边界件后补/搭车 #51/单仓试点/均值阈值/小试点称覆盖面 | —— |
+ | #81 | quarantine 方言归一缺陷修（D-128，R31-Q1 锐评实证受理）：观测仪器方言（git %cI 版本差 +00:00↔Z 族）归防腐边界层确定性吸收——分类器只见规范流、契约不变（D-103 挂点不动）；normalized 桶立法例收窄（D-100② scoped revised 已挂——桶保留主体自载语义归一）；双轴披露=方言吸收事件+采集环境元数据走独立披露面（OTel Resource 先例——禁入 Intake Health 统计/禁入 golden 字节比对面/禁打 ⚠）；golden 一次性再生（全环境 stats 归 clean 跨宿主稳定）；回归 fixture=合成 +00:00 输入断言跨方言计数一致 | D-128 / D-100② / D-103 / D-106 / D-118 | P1 | 归一规则枚举面（当前仅 tz-offset 一族，未来方言族按 known-gaps 进场）/方言留痕载体（报告环境节 vs run 元数据 vs 边界留痕）/normalized_tz_offset 码处置（dormant 保留 defense-in-depth vs 收窄）=票面 impl 参数；禁钉死 git 版本替代边界归一；与 #80 步②并行不冲突（D-128⑥/D-133③） |
+ | #82 | R31 仓务增量批（D-129③/D-130②③/D-131③/D-132④⑤/D-133②）——批内各独立小步：①gen-adr-index 生成式索引（README ADR 枚举指针改脚本生成——移植 anysearch-cli gen-adr-index.mjs/jiahao build-adr-index.js 先例；do-not-edit 注记；属导览工件非审计判定面）②dist 体积棘轮断言挂 rebuild-diff 同链（size-limit 惯例：限值=实测×1.25 起步、抬限走 reviewed PR；借鉴官方 check-dist.yml 两减痛件=--ignore-space-at-eol＋失败 upload-artifact）③first-external-contributor 触发器入 33-gate-registry（event_bound+occurred=false；本仓自创机制如实标注——外部体验在外部用户出现时测量）④#80 票面勘误两处（D-038 位点类比措辞＋golden 锁面枚举对齐 manifest 自声明） | D-129 / D-130 / D-131 / D-132 / D-133 | P1 | 棘轮断言禁写成 verdict/gate 面（属 CI 守卫链非审计判定）；禁以「73% 阈耗」作违规叙事（棘轮管静默增速非绝对百分比）；勘误走票面措辞非静默改骨架（D-025 纪律）；与
+-| #83 | R32 审计建议修批单票（D-135 票面化；批内排序先修后扫）：①**必修收窄**——file-card lazy 补采写循环 constraint 吞错收窄=仅精确指认 fact_id UNIQUE 撞键（消息 `Constraint Error`+约束名，或写循环前预查该观测集已存 fact_id 集消除撞键场景），余者上抛→runInTransaction 回滚（回到 D-115① fail-fast 语义）＋吞错命中递增可披露计数（emitted/skipped 分列）＋毒事实回归断言（非 IO 非指名错→回滚零行）＋DuckDB 消息形态钉（D-059① 先例）＋落票前实物验证（@duckdb/node-api 错误对象全貌探一次/facts.duckdb 违例扫描留证）②**契约符合性**——F5 MCP 缺库→结构化 never_collected 卡非 isError 文本＋F6 集内 not_tracked_at_sha 补 available_head_shas（pin 枝既有，「可提示 at: 其他 sha」机制两枝补齐）＋**D-136 失败态投影收口子项**（new_file/insufficient_history 卡面滤除历史派生族〔entity-churn/entity-ownership/code-age/hotspots/coupling〕＋suppressed_facets closed 枚举带原因码〔复用 D-126③ not_applicable 族〕＋derived.suppressed_by 保留＋raw 层不动）③**正确性边件**——F7a pin ≥7 前缀歧义验重④**卫生组末节**——F7c headShaOf 去重/d 头注/e microBCtx 死引用/f unused import/h CAP 截断卡面标记/i 80-check BOM 钉面更新/j upload-artifact job 级收窄 | D-134 / D-135 / D-136 | P1 | 批内任一子项可独立放弃不阻塞；时点=#80 步③双仓实跑前落（边界件逐类点名 miss 四类实物形态，F5/F6 不修则试点数据带已知契约缺口跑）；禁并入步③（缺陷修 vs 实跑验证性质不重合）；禁卫生组升格独立票 | —— ✅ 2026-09-25 A-092 已闭环（分支 r33-83-audit-fix）：吞错收窄双臂（existingFactIds 预查消撞键＋isFactIdUniqueViolation 精确指认 catch）＋emitted/skipped 分列披露＋毒事实回滚零行回归＋真 DuckDB 消息形态钉＋F5 缺库 never_collected 结构化卡＋F6 集内 available_head_shas＋D-136 失败态收口（closed 双集＋suppressed_facets 原因码＋raw 不动）＋F7a pin 前缀歧义验重＋卫生七件（c/d/e/f/h/i/j 全落）＋83-check 19/19＋守卫组 18 件全绿 |
+\ No newline at end of file
++| #83 | R32 审计建议修批单票（D-135 票面化；批内排序先修后扫）：①**必修收窄**——file-card lazy 补采写循环 constraint 吞错收窄=仅精确指认 fact_id UNIQUE 撞键（消息 `Constraint Error`+约束名，或写循环前预查该观测集已存 fact_id 集消除撞键场景），余者上抛→runInTransaction 回滚（回到 D-115① fail-fast 语义）＋吞错命中递增可披露计数（emitted/skipped 分列）＋毒事实回归断言（非 IO 非指名错→回滚零行）＋DuckDB 消息形态钉（D-059① 先例）＋落票前实物验证（@duckdb/node-api 错误对象全貌探一次/facts.duckdb 违例扫描留证）②**契约符合性**——F5 MCP 缺库→结构化 never_collected 卡非 isError 文本＋F6 集内 not_tracked_at_sha 补 available_head_shas（pin 枝既有，「可提示 at: 其他 sha」机制两枝补齐）＋**D-136 失败态投影收口子项**（new_file/insufficient_history 卡面滤除历史派生族〔entity-churn/entity-ownership/code-age/hotspots/coupling〕＋suppressed_facets closed 枚举带原因码〔复用 D-126③ not_applicable 族〕＋derived.suppressed_by 保留＋raw 层不动）③**正确性边件**——F7a pin ≥7 前缀歧义验重④**卫生组末节**——F7c headShaOf 去重/d 头注/e microBCtx 死引用/f unused import/h CAP 截断卡面标记/i 80-check BOM 钉面更新/j upload-artifact job 级收窄 | D-134 / D-135 / D-136 | P1 | 批内任一子项可独立放弃不阻塞；时点=#80 步③双仓实跑前落（边界件逐类点名 miss 四类实物形态，F5/F6 不修则试点数据带已知契约缺口跑）；禁并入步③（缺陷修 vs 实跑验证性质不重合）；禁卫生组升格独立票 | —— ✅ 2026-09-25 A-092 已闭环（分支 r33-83-audit-fix）：吞错收窄双臂（existingFactIds 预查消撞键＋isFactIdUniqueViolation 精确指认 catch）＋emitted/skipped 分列披露＋毒事实回滚零行回归＋真 DuckDB 消息形态钉＋F5 缺库 never_collected 结构化卡＋F6 集内 available_head_shas＋D-136 失败态收口（closed 双集＋suppressed_facets 原因码＋raw 不动）＋F7a pin 前缀歧义验重＋卫生七件（c/d/e/f/h/i/j 全落）＋83-check 19/19＋守卫组 18 件全绿 |
+diff --git a/.scratch/architecture-recovery/WORKFLOW.md b/.scratch/architecture-recovery/WORKFLOW.md
+index 245410c6..76301383 100644
+--- a/.scratch/architecture-recovery/WORKFLOW.md
++++ b/.scratch/architecture-recovery/WORKFLOW.md
+@@ -358,3 +358,4 @@ Phase 之间到达 boundary 时，按本仓库偏好顺序选：
+ | 2026-09-20 | 轮 24 grill 收口：GitHub 门面三面整改七裁（D-085~D-091）——R24-Q4 atomcode 深调研经账本 current 冲突核查零 revised | ①双语 README 不是平等双写而是 canonical→derived——「译文可落后但不得假装新鲜」（MDN/blume/Weblate 三引擎收敛；锚点英文不译、标题可译）；②可机检面分三类——结构互等 FAIL／版本戳掉队 XFAIL／译文质量人评审，硬阻断对小修过严逼假同步（Opendray advisory-only 先例）；③repo 元数据是即刻生效公开门面与 README 分支态不同步——旧 description 是过时阶段叙事 | ①翻译同步核心是声明「谁权威」而非追求「双一致」——canonicalMarker＋结构守卫＋owner 字段三件套；②badge 只挂当下为真者，CI 徽记绑实跑绿事件；③无 owner 译文必死（17 天 11 译文全灭先例）；④门面工作范围→定位→语言→同步→视觉→社区→元数据七裁序可复用 | D-085~D-091 + R24-Q4 报告 |
+ | 2026-09-22 | 轮 25 grill 收口：6F 正名＋守卫纪律建制五裁（D-092~D-096）——五轮 atomcode 深调研全经账本 current 冲突核查零 revised | ①断言失效三分类——守的真坏→修现实／合法演化→改断言或入 XFAIL 册／欺诈（名不副实断言·死面守卫）→修检查面**禁入册**，册只收合法漂移类（字面钉普查 pass 复用 D-079 机制族：日期字面量/魔数地板/裸 occurred=== 检出须归因注记）；②断言名↔检查面一致——名声称可见面则检查物须在可见层，文本匹配先剥注释（73-check A4 先例）；存在≠活性三层：presence/liveness/readiness 断言命名分层（K8s 三态移植）；③枚举面 open/closed 声明制——声明 closed 才立成员级双向对账法（D-081 pending 镜像），常量集=单一权威源、文档枚举行派生或校验；成员级漂移禁入 XFAIL 册（文档债≠预期红）；reserved 成员仅外部输入面合法（cap≤2、生产者出现→FAIL、场景≤1 不建制）；④生成器/校验器双份机芯不共享——differential oracle 独立性是判力命根（tautological test 反模式），但独立性非布尔量：Knight–Leveson 共模失效主因=共享隐式规格歧义→规格显式化（census-contract 块钉正反例对不钉正则体）＋互等裁决断言比对契约 | ①失效断言先分类再处置，禁一律 XFAIL 洗绿；②枚举成员增删双向可机检才配称 closed 面；③机芯冗余要配分歧显式化机制否则塌成同义反复；④F 词宣言每句钉已命名+ADR 资产，撑不住的槽位宁缺毋滥 | D-092~D-096 + R25-Q1~Q5 报告 |
+ | 2026-09-22 | 轮 27 grill 收口：门面致谢建制+品牌资产边界+契约脏数据分层+窗口边界+xfail 摘除裁（D-098~D-102）——四轮 atomcode 深调研，一处触发 revised 规程（D-059①「不符即拒」收窄至协议级） | ①致谢枚举=active-only，谢未接入=roadmap 混 credit 撞 preview 诚实纪律；生成式锚段+regen-diff 对账强于手写枚举+字符串断言（钉集合非钉字面，manifest.meta.json 先比后写同型）；②品牌资产判据=真实消费面枚举优先于资产完整性（接触点驱动非阶段驱动），为不存在消费面预置资产=负期望（npm#10323 实证）；③契约违约分层判据=「重试/挽救同一批字节是否有意义」：协议级 fail-fast/字段级 quarantine——git 上游自身对病态 ident 选记录级宽容（620e92b 先例），宽容须「有界且被度量」（reason code+阈值+台账否则垃圾收容所）；④窗口拆分判据=主题一致性非改动类型一致性，回滚原子性定边界；非门禁 broken 红 SLA=限期立票非抢修非拖延（Fuchsia 政策同构） | ①XPASS 不得作摘除触发——归因本身是裁决证据（失配命中≠意图满足，GitLab :stale=rewrite-or-delete 域）；②断言体内 || 宽松分支=断言无牙族（能被错误原因满足=平时假安心 XPASS 假信号），mutation 检验=「意图未满足世界里必须红」；③调研报告引述本仓实物须实证防知识库串仓幻觉（docs/brand 24 文件误召回实证剔除）；④null 必须是毒值非默认值（当 0 处理=静默谎言注入） | D-098~D-102 + R27-Q1~Q5 报告 |
++| 2026-09-27 | 轮 37 T1/#75批1：失效三分类建制+守卫升格（D-094②③④/D-144②/D-149④/D-071⑨）——12 件静默红全过三分类门（0 欺诈/死面）；11 件合法漂移改断言〔porcelain→票面 commit 集/SQL 词表→语句形态/活仓等值→钉快照+单调含件/字面钉→结构不变量〕＋1 件入 known-red 册带锚；升格判据落地=60 件全跑红集⊆册 | ①字面钉换代判据=行级匹配（标记序不取）——「编年行含 X」=同行共现非序位钉；②裸词词表撞 JS API（Map.delete）→SQL 语句形态正则；③porcelain 断言在合成索引下永失真——钉票面 commit 集+冻结 SHA 是时代域等价面；④普查+注册表=归因注记制（检出≠红，悬空条目=须摘除） | D-094/D-144②/D-149④ + R37 T1 报告 |
+diff --git a/.scratch/architecture-recovery/decision-ledger.md b/.scratch/architecture-recovery/decision-ledger.md
+index 052163cc..55284ffb 100644
+--- a/.scratch/architecture-recovery/decision-ledger.md
++++ b/.scratch/architecture-recovery/decision-ledger.md
+@@ -430,6 +430,7 @@
+ | A-094 | 轮36 T1 / next-round T1（R35 收口实施批——D-147：P4 as-cast 返工＋P6 补录） | engine/src/fact/file-card.ts（failure 注记收窄 'ok' | SuppressedFacetReason＋删 :299 as SuppressedFacetReason cast——落地修正为 const 三元单式：revisions===1→'new_file' / <FILE_CARD_INSUFFICIENT_MIN_REVS→'insufficient_history' / 否则 'ok'）＋engine/dist/*（独立 bundle commit——字节差发生故 D-140② 义务触发）＋CHANGELOG.md（M-015 r35-closeout 漏编年补录＋M-016 本批编年随行）＋WORKFLOW.md §4 lessons 行（P6） | ①TS 4.4 别名收窄机制边界实证（TS 5.9.3）：const suppressed=failure!=='ok' 对「函数内多处赋值的 let 绑定」不产生窄化——最简复现三中两（let+alias 环外亦败）；落地取 const 三元单式保裁定机制句成立（别名收窄真实生效、cast 可删、新枝词外值→编译错）；②dist 字节差 -49B（257947→257898）=结构性等价非语义差，但预声明判据无条件升格——§1 全套重跑照走（build/package/selftest/MCP stdio/smoke 22 册/83-check/棘轮/gen 幂等）；③协议核对结论：「返工须重跑 §1 全套」逐字出处=R35 审计报告 §5 P4 行＋r35-audit-handoff 第 11 行（逐条呈报措辞非常驻协议条文），D-147(c′) 用户拍板本身即授权判据预声明减让机制；本轮字节差实发生，升格路径实际执行无减让需求；④M-015 补录=M-013/M-010/r32-t0 同型先例（收口 commit 漏编年→41a-D7 红→下批顺带补录）；⑤P6 处置=本 commit 携 A-NNN＋WORKFLOW lessons 行追记（kmk/xtl 历史 commit 不改写） | D-147 / D-143② / D-139 / D-140② | implemented 2026-09-26 |
+ | A-095 | 轮36 T2 / BACKLOG #80 步③（Micro-B 文件卡收束——血缘缝合＋双仓试点＋benchmark＋披露收窄） | engine/src/fact/file-card.ts（file.renamed 边池反向多跳显式图遍历 resolveLineageAncestors〔BFS to→from 邻接 + visited 环检测 + FILE_CARD_LINEAGE_MAX_ANCESTORS=64 帽〕＋FileCardLineage/FileCardLineageEdge 披露块〔stitched_from/edges/cycle_detected/truncated〕＋facet_rows 行级 subject_ref 溯源键＋peer 分布被取代旧名去重〔to 端有行的 from 名不入 repo 分布〕＋renamed_to 边池扩为选中集∪祖先集）＋engine/src/fact/projection.ts（跨观测集血缘解析：祖先集=同 repo 且 MAX(observed_at)≤选中集＋FILE_CARD_LINEAGE_EDGE_CAP=10000＋lineageFacts 注入）＋engine/test/file-card.test.mjs L1~L6（32/32）＋engine/scripts/bench-file-card.mjs（p95 分档 target/danger 双阈值机器可裁决）＋披露收窄面：README 能力矩阵 Micro-B→capability 4 of 5・preview／audit.ts+demo.ts not_in_preview 去 Micro-B／marketplace.json 4 of 5／docs/listing 口径 1-4／41b-check+44-check 钉随口径更新／README.zh-CN.md 再生＋demo golden 再生（not_in_preview 形变） | ①跨观测集语义=血缘事实（非 facet 行）沿祖先集解析——「祖先」=observed_at≤选中集（事实仓唯一序，git 祖先不入库，pin 精确性由 at:sha 引用层承担）；②边池合并后 renamed_to miss 亦能解析祖先集边（一跳语义不变，逐请求推进纪律不动）；③被取代旧名出 peer 分布=同一文件新旧名只计新名（缝合语义一致性——repo 级分布不重复计数）；④benchmark=实测预登记制：先测后写阈值（small 200/800、medium 800/3000、large 4000/12000 ms——实测 p95：jiahao 72 / env-manager 46~54 / 合成 stress 35~85）；⑤披露四件套执行面=README 矩阵行+not_in_preview 两源+listing 口径三件套（同票收窄 D-127）；⑥上游只按当前名发 facet 行→两仓实跑 stitched_from 解析名集在行级零并入（账本语义照实：解析名集≠行并入量，subject_ref 逐行可证） | D-137 / D-126 / D-127 / D-122⑤ | implemented 2026-09-26 |
+ | A-096 | 轮36 T2 审计返工批（A-095 裁定不通过回炉——A 类 5 项必修） | engine/src/fact/file-card.ts（A1 NUL 字节→\\u0000 转义；A2a 边池合并不去重→改并集单次 collectRenameEdges 跨侧去重；A2b 环检假阳→visited 命中时 reachesForward 前向可达判定真环〔DAG 钻石/重复命中不置旗〕＋byFrom 邻接表）＋engine/src/fact/projection.ts（A4 FILE_CARD_LINEAGE_EDGE_CAP 触帽→lineageEdgeCapHit→truncated 伞如实披露＋lineage_edge_cap 降帽测试缝＋pickedSet 重查消除〔picked 恒为 sets 元素携 last_obs〕）＋engine/scripts/bench-file-card.mjs（A5 分档按票面语义=观测集 Micro-B 事实行数〔DB 案 COUNT(*) 实测／合成案按构造行数〕＋B7 subjects 未知基名显式拒/--subject 覆盖/--runs≥1 校验/set_facts 入工件）＋test/file-card.test.mjs（L5 恒真断言→gone.ts 跨集 miss 实证；L6 加 insufficient_history 对照；L7 跨集 dup 边/L8 DAG 钻石/L9 真环对照/L10 EDGE_CAP 披露=36/36）＋披露面（A3 README.zh-CN 正文两行补译真同步＋README.md Micro-B 行同主偏差措辞 B3＋44-check E4 ≥1→===2 收紧＋engine/CHANGELOG 空行搭车清除 B5）＋报告自漂移纠偏（B2：p95 工件读数 112.63/89.61/41.35、fileCardCitationKeys 实名、80-check=28/28）＋票面 insufficient_history 实物件登记（B4→C2+L6） | ①NUL 字节源文件=对 rg/git-grep 隐形——字节级源文件卫生（写文件经 ctx_execute 时 '\0' 须防物化为字面 NUL）；②「visited 命中≠环」——BFS 去重集合兼任环检须区分「已到祖先」与「互达闭环」；③截断不披露=不实——帽面每处均须披露载体（set_truncated/truncated 伞先例）；④票面语义与实现机制对齐核查属审计常项（分档界≠计量面字段）；⑤生成镜像文（zh-CN）戳绑指纹≠语义同步——正文过期须逐行核（73-check C2 盲区已踩中）；⑥不自述——报告数值以工件为源写实际读数非基线记项 | D-137② / D-127③⑤ / D-139 / D-144 / 审计报告 2026-09-26-r36-t2 | implemented 2026-09-26 |
++| A-097 | 轮37 T1 / #75批1（守卫纪律建制——失效断言三分类＋字面钉普查＋升格判据落地——D-094②③④/D-144②/D-149④ 应用） | .scratch/architecture-recovery/reports/{75a-check.mjs,guard-all-run.mjs,known-red-manifest.json,75a-census-register.json,75a-census-findings.json,_lib/check-kit.mjs} 新建＋12 件守卫断言修法（20/23/25/26/28/30/35/37/38/41a/44/54——porcelain→票面 commit 集/裸词表→SQL 语句形态/活仓等值→钉快照+单调含件/字面钉→结构不变量）＋stale-assertions.json policy_d094 条款＋33-gate-registry.json（t3-guard-manifest-shipped 事件立+升格触发器 fired+kr-01 manual_watch 项）＋AGENTS.md 守卫组升格条款＋BACKLOG #75 批1 闭环标＋WORKFLOW §4 lessons 行 | ①静默红 12 件全过 D-094 三分类门：0 欺诈/死面（全档证据可复跑）；11 件合法漂移改断言、1 件（01 语料退化）入册带期限/复审锚；②porcelain 断言在 GitButler 合成索引下永失真——钉票面 commit 集+冻结 SHA 是时代域等价面；③裸词词表须防 JS API 撞名（Map.delete→DELETE FROM 语句形态化）；④行级匹配胜过序位钉（任务书留痕标记可在锚词前序）；⑤普查+注册表=归因注记制（检出≠红；悬空条目=须摘除——注册表防腐对偶闸门）；⑥升格判据落地即替代基线枚举（全量跑自动入列新 check，防 graveyard） | D-094 / D-144② / D-149③④ / D-071⑨ / D-079⑥ / P5-B2 | implemented 2026-09-27 |
+ 
+ > **R29-REWORK 注记（2026-09-23 r29 审计返工批）**：审计窗打回（reports/2026-09-23-r29-audit-report.md），F1~F11 同窗修复：
+ > - F1 编年漂移：CHANGELOG M-006 a_range 勘误至 A-090＋补 M-007 编年行（41a 复绿 38/38）。
+diff --git a/.scratch/architecture-recovery/reports/20-fact-schema-check.mjs b/.scratch/architecture-recovery/reports/20-fact-schema-check.mjs
+index ef725975..b62417c3 100644
+--- a/.scratch/architecture-recovery/reports/20-fact-schema-check.mjs
++++ b/.scratch/architecture-recovery/reports/20-fact-schema-check.mjs
+@@ -130,9 +130,19 @@ const VERBS = ['update','delete','replace','merge','drop','alter','truncate','pa
+ const fns = exportedFnNames(storeSrc);
+ const badFns = fns.filter(function (f) { const l = f.toLowerCase(); return VERBS.some(function (v) { return l.indexOf(v) >= 0; }); });
+ check('A4', fns.length > 0 && badFns.length === 0, 'exports=' + fns.join(',') + ' bad=' + JSON.stringify(badFns));
+-const BAD_TOKENS = ['UPDATE','DELETE','DROP TABLE','ALTER TABLE','TRUNCATE','INSERT OR REPLACE','ON CONFLICT DO UPDATE','MERGE INTO'];
+-const upCode = storeCode.toUpperCase();
+-const tokenHits = BAD_TOKENS.filter(function (t) { return upCode.indexOf(t) >= 0; });
++// R37/#75批1（D-094(b) 合法演化→改断言）：裸词 UPDATE/DELETE 撞 Map.delete/instanceOf.delete 等 JS API——
++// 改为 SQL 语句形态正则（写语句语境匹配，词界+子句结构；误判面收敛而写 SQL 必中）。
++const BAD_TOKENS = [
++  ['UPDATE..SET', /\bUPDATE\s+\w+\s+SET\b/i],
++  ['DELETE FROM', /\bDELETE\s+FROM\b/i],
++  ['DROP TABLE', /\bDROP\s+TABLE\b/i],
++  ['ALTER TABLE', /\bALTER\s+TABLE\b/i],
++  ['TRUNCATE', /\bTRUNCATE\b/i],
++  ['INSERT OR REPLACE', /\bINSERT\s+OR\s+REPLACE\b/i],
++  ['ON CONFLICT DO UPDATE', /\bON\s+CONFLICT\s+DO\s+UPDATE\b/i],
++  ['MERGE INTO', /\bMERGE\s+INTO\b/i],
++];
++const tokenHits = BAD_TOKENS.filter(function (t) { return t[1].test(storeCode); }).map(function (t) { return t[0]; });
+ check('A5', tokenHits.length === 0, 'rewriteTokensInFacade=' + JSON.stringify(tokenHits));
+ check('A6', storeSrc.indexOf('access_mode: ' + SQ + 'READ_ONLY' + SQ) >= 0, 'readerReadOnlyDeclared');
+ const dep = pkg.dependencies ? pkg.dependencies['@duckdb/node-api'] : undefined;
+@@ -142,4 +152,4 @@ let ok = true;
+ results.forEach(function (r) { console.log((r[1] ? 'PASS ' : 'FAIL ') + r[0] + ' :: ' + r[2]); if (!r[1]) { ok = false; } });
+ const passed = results.filter(function (r) { return r[1]; }).length;
+ console.log(ok ? ('GUARD-PASS ' + passed + '/' + results.length) : ('GUARD-FAIL ' + passed + '/' + results.length));
+-process.exitCode = ok ? 0 : 1;
+\ No newline at end of file
++process.exitCode = ok ? 0 : 1;
+diff --git a/.scratch/architecture-recovery/reports/23-first-report-check.mjs b/.scratch/architecture-recovery/reports/23-first-report-check.mjs
+index 5e701240..8c3b2acd 100644
+--- a/.scratch/architecture-recovery/reports/23-first-report-check.mjs
++++ b/.scratch/architecture-recovery/reports/23-first-report-check.mjs
+@@ -9,8 +9,10 @@ import { dirname, join } from 'node:path';
+ 
+ const HERE = dirname(fileURLToPath(import.meta.url));
+ const REPO = join(HERE, '..', '..', '..');
+-const GENERATE_TS = join(REPO, 'engine', 'src', 'report', 'generate.ts');
+-const G = await import(pathToFileURL(GENERATE_TS).href);
++// R37/#75批1：generate.ts 采用 NodeNext .js specifier（import '../intake/quarantine.js'）——Node 类型剥离不做 .js→.ts 映射
++// → 改导 engine/dist 编译面（同一契约出口 REPORT_SKELETON/skeletonOf 等；dist 陈旧由 check-dist/rebuild-diff 另守）。
++const GENERATE_JS = join(REPO, 'engine', 'dist', 'report', 'generate.js');
++const G = await import(pathToFileURL(GENERATE_JS).href);
+ 
+ const PRE_REG = join(REPO, '.scratch', 'architecture-recovery', 'reports', '22-criteria-pre-registration.md');
+ const C_BASIS = join(REPO, '.scratch', 'architecture-recovery', 'reports', '22-c-adjudication-basis.md');
+diff --git a/.scratch/architecture-recovery/reports/25-check.mjs b/.scratch/architecture-recovery/reports/25-check.mjs
+index 959eaadf..3d25dfbb 100644
+--- a/.scratch/architecture-recovery/reports/25-check.mjs
++++ b/.scratch/architecture-recovery/reports/25-check.mjs
+@@ -49,13 +49,14 @@ check('C2a', analogyRows >= 2, 'analogy rows=' + analogyRows);
+ const urlCount = ['.com/', '.org/', '.io/', '.net/', '.edu/', '.de/', '.se/'].reduce(function (n, t) { return n + research.split(t).length - 1; }, 0);
+ check('C2b', urlCount >= 10, 'url-like refs=' + urlCount);
+ 
+-// ---- C3 清单每行动作项带「待用户拍板」（B4.1 行豁免，走 C4）----
++// ---- C3 清单每行动作项拍板状态格非空（待拍板/已决/关闭均须填格；B4.1 行豁免，走 C4）----
++// R37/#75批1（D-094(b) 合法演化→改断言）：票面时点「全标待用户拍板」已兑现为 decided/closed 等真处置，结构不变量=末格非空。
+ const actionRows = L(checklist).filter(function (l) {
+   return l.trim().charAt(0) === '|' && isRowId(firstCell(l)) && l.indexOf('B4.1') < 0;
+ });
+-const unmarked = actionRows.filter(function (l) { return l.indexOf('待用户拍板') < 0; });
++const unmarked = actionRows.filter(function (l) { const cells = l.split('|').map(function (c) { return c.trim(); }); return (cells[cells.length - 2] || '').length === 0; });
+ check('C3a', actionRows.length >= 20, 'action rows=' + actionRows.length);
+-check('C3b', unmarked.length === 0, 'rows missing 待用户拍板: ' + JSON.stringify(unmarked.map(function (l) { return l.slice(0, 30); })));
++check('C3b', unmarked.length === 0, 'rows missing 拍板状态格: ' + JSON.stringify(unmarked.map(function (l) { return l.slice(0, 30); })));
+ 
+ // ---- C4 B4.1 一行带过：全文恰 1 次 + 含「已被 D-015 取代」+ 无独立小节 ----
+ const b41count = checklist.split('B4.1').length - 1;
+@@ -66,7 +67,12 @@ check('C4c', !L(checklist).some(function (l) { return l.trim().charAt(0) === '#'
+ 
+ // ---- C5 零实施：违禁执行声明扫描 + 零实施声明在文 ----
+ const forbid = ['已上架', '已推送', '已发布插件', '上架完成', 'push 已执行', '已立票', '已创建立票', '已删除 e-branch'];
+-const hit = forbid.filter(function (w) { return checklist.indexOf(w) >= 0 || report.indexOf(w) >= 0; });
++// R37/#75批1（D-094(b)）：禁执行声明钉扫票面自身声明面——清单末格（拍板状态）是处置留痕位，
++// 记录后行事实（如 R3 收口 push 已执行）属裁决历史非本票声明；剥末格再扫。
++const checklistClaims = checklist.split(String.fromCharCode(10)).map(function (l) {
++  return l.trim().charAt(0) === '|' ? l.split('|').slice(0, -2).join('|') : l;
++}).join(String.fromCharCode(10));
++const hit = forbid.filter(function (w) { return checklistClaims.indexOf(w) >= 0 || report.indexOf(w) >= 0; });
+ check('C5a', hit.length === 0, 'forbidden exec claims: ' + JSON.stringify(hit));
+ check('C5b', checklist.indexOf('零实施') >= 0 && report.indexOf('不实施任何上架或 push') >= 0, 'zero-impl declarations present');
+ 
+diff --git a/.scratch/architecture-recovery/reports/26-check.mjs b/.scratch/architecture-recovery/reports/26-check.mjs
+index 828717c8..2c9032b5 100644
+--- a/.scratch/architecture-recovery/reports/26-check.mjs
++++ b/.scratch/architecture-recovery/reports/26-check.mjs
+@@ -76,11 +76,14 @@ for (const f of facts) {
+ for (const f of fz) for (const k of FIVE) if (live[f.path.split('/').pop()][k] !== f.fields[k].v1_present) cellDiff++;
+ ok(cellDiff === 0, 'C3 v1 实跑与真值表 v1_present 逐格一致（65/65）');
+ 
+-// ---- D. 纯文档零构建断言 ----
+-const dirty = spawnSync('git', ['status', '--porcelain', '--', 'docs/adr', 'engine'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+-ok(dirty === '', 'D1 docs/adr 与 engine/ 零改动');
+-const m23 = spawnSync('git', ['status', '--porcelain', '--', '.scratch/architecture-recovery/reports/23-measurements.json'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+-ok(m23 === '', 'D2 冻结读数 23-measurements.json 未改动');
++// ---- D. 票面时代域断言（R37/#75批1 D-094(b) 工具时代漂移——GitButler 合成索引令 git status porcelain 现幻影 MM，永失真；钉票面 commit 集物证） ----
++const a31 = spawnSync('git', ['log', '--all', '--format=%H', '--grep', 'A-031'], { cwd: root, encoding: 'utf8' }).stdout.trim().split(String.fromCharCode(10)).filter(Boolean);
++const touched26 = new Set();
++for (const sha of a31) { spawnSync('git', ['show', '--name-only', '--format=', sha], { cwd: root, encoding: 'utf8' }).stdout.split(String.fromCharCode(10)).map(function (p) { return p.trim(); }).filter(Boolean).forEach(function (p) { touched26.add(p); }); }
++const badTouched26 = [...touched26].filter(function (p) { return p === 'engine' || p === 'docs/adr' || p.indexOf('engine/') === 0 || p.indexOf('docs/adr/') === 0; });
++ok(a31.length > 0 && badTouched26.length === 0, 'D1 票面时代域：A-031 commit 集零触 docs/adr/engine（' + a31.length + ' commits/' + touched26.size + ' paths 物证）' + (badTouched26.length ? ' BAD=' + badTouched26.join(',') : ''));
++const freeze23 = spawnSync('git', ['log', '-1', '--format=%H', '--', '.scratch/architecture-recovery/reports/23-measurements.json'], { cwd: root, encoding: 'utf8' }).stdout.trim();
++ok(freeze23.indexOf('e39468c9c53d') === 0, 'D2 冻结读数 23-measurements.json 最后变更钉死冻结点 e39468c（内容自冻结零改动）got ' + freeze23.slice(0, 10));
+ const md = fs.readFileSync(path.join(dir, '26-truth-table.md'), 'utf8');
+ ok(md.includes('0.4923') && md.includes('AC-26-5') && md.includes('delta 表模板'), 'D3 人读表含真值聚合 + AC 登记 + delta 模板');
+ 
+diff --git a/.scratch/architecture-recovery/reports/28-check.mjs b/.scratch/architecture-recovery/reports/28-check.mjs
+index 3848a9cc..74213faa 100644
+--- a/.scratch/architecture-recovery/reports/28-check.mjs
++++ b/.scratch/architecture-recovery/reports/28-check.mjs
+@@ -158,35 +158,34 @@ const diffHash = (p) =>
+ const isForeignKnown = (p) =>
+   Object.hasOwn(FOREIGN_EXCEPTIONS, p) && diffHash(p) === FOREIGN_EXCEPTIONS[p];
+ 
+-const porcelain = git('status --porcelain')
+-  .split('\n')
+-  .map((l) => l.slice(3).trim().replace(/^"|"$/g, ''))
+-  .filter(Boolean);
++// R37/#75批1（D-094(b) 工具时代漂移）：GitButler 合成索引令 git status porcelain 现幻影 MM——票面范围断言改钉票面 commit 集物证（A-033 触碰面 ⊆ 允许集）。
++// FOREIGN_EXCEPTIONS/isForeignKnown/diffHash 系 porcelain 时代「并发外部漂移指纹豁免」机件——机制退役留痕不删（D-044 禁裸删）。
++const a33 = git('log --all --format=%H --grep=A-033').split('\n').map((s) => s.trim()).filter(Boolean);
++const touched28 = new Set();
++for (const sha of a33) { git('show --name-only --format= ' + sha).split('\n').map((p) => p.trim()).filter(Boolean).forEach((p) => touched28.add(p)); }
+ const allowed = new Set([
+   ...NINE.map((n) => 'docs/adr/' + n),
+   rel14,
+ ]);
+-const isAllowed = (p) =>
+-  allowed.has(p) || p.startsWith('.scratch/architecture-recovery/reports/28-');
+-const stray = porcelain.filter((p) => !isAllowed(p) && !isForeignKnown(p));
+-check('scope: only docs/adr(0001~0009,0014)+reports/28-* touched', stray.length === 0, stray.join(', '));
+-
+-// 高敏路径显式零改动（双保险；已知并发外部漂移按指纹豁免）
+-const sensitive = [
+-  'engine',
++const bookkeep28 = new Set([
+   '.scratch/architecture-recovery/decision-ledger.md',
+   '.scratch/architecture-recovery/README.md',
+   '.scratch/architecture-recovery/WORKFLOW.md',
++]);
++const isAllowed = (p) => allowed.has(p) || bookkeep28.has(p) || p.startsWith('.scratch/architecture-recovery/reports/28-');
++const stray = [...touched28].filter((p) => !isAllowed(p));
++check('scope: A-033 票面 commit 集触碰面 ⊆ docs/adr(0001~0009,0014)+reports/28-*+簿记三件（' + a33.length + ' commits/' + touched28.size + ' paths 物证）', a33.length > 0 && stray.length === 0, stray.join(', '));
++
++// 高敏路径票面零触（时代域钉——engine/spec/issues/handoffs/prompts 本票无涉）
++const sensitive = [
++  'engine',
+   '.scratch/architecture-recovery/spec.md',
+   '.scratch/architecture-recovery/issues',
+   '.scratch/architecture-recovery/handoffs',
+   '.scratch/architecture-recovery/prompts',
+ ];
+-const touchedSensitive = porcelain.filter(
+-  (p) =>
+-    sensitive.some((s) => p === s || p.startsWith(s + '/')) && !isForeignKnown(p)
+-);
+-check('scope: engine/ledger/README/WORKFLOW/spec/issues/handoffs/prompts clean', touchedSensitive.length === 0, touchedSensitive.join(', '));
++const touchedSensitive = [...touched28].filter((p) => sensitive.some((s) => p === s || p.startsWith(s + '/')));
++check('scope: A-033 票面零触 engine/spec/issues/handoffs/prompts', touchedSensitive.length === 0, touchedSensitive.join(', '));
+ 
+ console.log('----------------------------------------');
+ console.log(`${pass} pass, ${fail} fail`);
+diff --git a/.scratch/architecture-recovery/reports/30-check.mjs b/.scratch/architecture-recovery/reports/30-check.mjs
+index 165a95da..5bd04fc5 100644
+--- a/.scratch/architecture-recovery/reports/30-check.mjs
++++ b/.scratch/architecture-recovery/reports/30-check.mjs
+@@ -22,9 +22,16 @@ ok(probeBad === 0 && j.items.filter(i => i.probe).length === 10, 'A6 待探针
+ ok(j.items.every(i => i.draft && i.draft.length > 20), 'A7 逐项草案非空');
+ const md = fs.readFileSync(path.join(dir, '30-desk-calibration.md'), 'utf8');
+ ok(md.includes('置信域') && md.includes('满足判据') && md.includes('复审时点'), 'B1 md 表头两字段纪律出现');
+-// C. 冻结数据 + 上游零改动
+-const dirty = spawnSync('git', ['status', '--porcelain', '--', '.scratch/architecture-recovery/reports/23-measurements.json', '.scratch/architecture-recovery/reports/23-facts.jsonl', '.scratch/architecture-recovery/reports/23-first-report.json', '.scratch/architecture-recovery/reports/23-first-report.md', 'engine', 'docs/adr'], { cwd: root, encoding: 'utf8' }).stdout.trim();
+-ok(dirty === '', 'C1 冻结数据/engine/docs-adr 零改动（本票纯 desk）');
++// C. 冻结数据 + 上游零改动（R37/#75批1 D-094(b)：GitButler 合成索引令 porcelain 现幻影 MM——票面时代域钉）
++const a35 = spawnSync('git', ['log', '--all', '--format=%H', '--grep', 'A-035'], { cwd: root, encoding: 'utf8' }).stdout.trim().split(String.fromCharCode(10)).filter(Boolean);
++const touched30 = new Set();
++for (const sha of a35) { spawnSync('git', ['show', '--name-only', '--format=', sha], { cwd: root, encoding: 'utf8' }).stdout.split(String.fromCharCode(10)).map(function (p) { return p.trim(); }).filter(Boolean).forEach(function (p) { touched30.add(p); }); }
++const FROZEN30 = ['.scratch/architecture-recovery/reports/23-measurements.json', '.scratch/architecture-recovery/reports/23-facts.jsonl', '.scratch/architecture-recovery/reports/23-first-report.json', '.scratch/architecture-recovery/reports/23-first-report.md'];
++const badTouched30 = [...touched30].filter(function (p) { return p === 'engine' || p.indexOf('engine/') === 0 || p === 'docs/adr' || p.indexOf('docs/adr/') === 0 || FROZEN30.indexOf(p) >= 0; });
++ok(a35.length > 0 && badTouched30.length === 0, 'C1a 票面时代域：A-035 commit 集零触 冻结数据/engine/docs-adr（' + a35.length + ' commits 物证）' + (badTouched30.length ? ' BAD=' + badTouched30.join(',') : ''));
++const FROZEN_AT30 = { '23-measurements.json': 'e39468c9c53d', '23-facts.jsonl': '55dc34ec2fc0', '23-first-report.json': 'e39468c9c53d', '23-first-report.md': 'e39468c9c53d' };
++const unfrozen30 = FROZEN30.filter(function (f) { const last = spawnSync('git', ['log', '-1', '--format=%H', '--', f], { cwd: root, encoding: 'utf8' }).stdout.trim(); const key = f.split('/').pop(); return last.indexOf(FROZEN_AT30[key]) !== 0; });
++ok(unfrozen30.length === 0, 'C1b 冻结工件四件最后变更 commit=冻结点钉（内容自冻结零改动）' + (unfrozen30.length ? ' UNFROZEN=' + unfrozen30.join(',') : ''));
+ 
+ console.log('\nGUARD RESULT:', fail === 0 ? 'PASS' : 'FAIL', '(' + pass + ' pass, ' + fail + ' fail)');
+ process.exit(fail === 0 ? 0 : 1);
+diff --git a/.scratch/architecture-recovery/reports/33-gate-registry.json b/.scratch/architecture-recovery/reports/33-gate-registry.json
+index 419b5519..b3aeb768 100644
+--- a/.scratch/architecture-recovery/reports/33-gate-registry.json
++++ b/.scratch/architecture-recovery/reports/33-gate-registry.json
+@@ -178,8 +178,13 @@
+             "note": "D-142③：外部评审摄入再现「未钉快照 SHA／未对照当前 HEAD 分诊即呈报」——快照已修项被当开放缺陷进裁定链之日=事件发生（审计窗/摄入动作检出即翻转）；覆盖面含第四档误分诊——证伪态误投 pending 或裁定链同列事件（D-146③）"
+         },
+         "t3-guard-manifest-shipped": {
++            "occurred": true,
++            "date": "2026-09-27",
++            "evidence": "known-red-manifest.json+guard-all-run.mjs+75a-check.mjs+75a-census-register.json 落盘（#75批1 T1，A-097）——60 件全跑红集={01}⊆册"
++        },
++        "corpus-resnapshot-landed": {
+             "occurred": false,
+-            "evidence": "待 T3/#75批1 普查产出 known-red manifest（D-094 三分类门过审版）落盘"
++            "note": "#75批1 登记：01-check 语料再生退化的复审事件锚（kr-01-corpus-regen；任意语料重采样票落地即翻）"
+         }
+     },
+     "items": [
+@@ -1596,7 +1601,7 @@
+             "trigger_event": "t3-guard-manifest-shipped",
+             "trigger": "T3/#75批1 普查产出 known-red manifest（D-094 三分类门过审版）落盘当轮即升格",
+             "review_at": "stage3-close",
+-            "status": "pending",
++            "status": "decided",
+             "watch": "event_bound",
+             "owner": "macro-audit 队列值守",
+             "verify_method": "manifest 落盘后下一轮收口即按 58 全跑判据执行并校验红集⊆manifest＋逐件复绿告警",
+@@ -1609,6 +1614,14 @@
+                     "decision": "registered",
+                     "reason": "两阶段防 graveyard 固驻——止血期收口判据=18 件基线枚举全绿（AGENTS.md 锚面固化）；升格条件=manifest 产出当轮（Trigger-gated Closure 同 D-071⑨ 惯例）",
+                     "evidence": "decision-ledger.md D-149④＋AGENTS.md 守卫组指称行"
++                },
++                {
++                    "at": "2026-09-27",
++                    "by": "轮37 T1（A-097）",
++                    "criterion_version": "D-149④",
++                    "decision": "fired",
++                    "reason": "T3/#75批1 manifest 产出当轮——升格判据生效：全量跑 60 件（动态枚举）＋红集⊆manifest＋册件复绿 strict 告警（guard-all-run.mjs）",
++                    "evidence": "known-red-manifest.json（1 件 legit-drift：kr-01-corpus-regen）＋guard-all-run.mjs GUARD-ALL-RESULT: PASS 实跑"
+                 }
+             ],
+             "bound_to": "#75批1（T3 字面钉普查产出 manifest——静默红 12 件画像为本普查输入）"
+@@ -1670,6 +1683,23 @@
+                 }
+             ],
+             "bound_to": "#80 步③血缘缝合呈报项（B6 延续）"
++        },
++        {
++            "id": "known-red-kr-01-corpus-regen",
++            "family": "guard-baseline",
++            "title": "known-red kr-01：01-check 语料再生退化（intent≥5 破/分数溯源断）复审锚",
++            "deadline_event": null,
++            "deadline": "2026-12-31（expires_fallback）",
++            "trigger_event": "corpus-resnapshot-landed",
++            "trigger": "anysearch-cli 语料重采样票落地（intent 面恢复）或三仓语料冻结重钉",
++            "review_at": "stage3-close",
++            "status": "pending",
++            "watch": "manual_watch",
++            "source": "reports/known-red-manifest.json entries[id=kr-01-corpus-regen]",
++            "owner": "收口窗口指派（登记位：known-red-manifest.json kr-01-corpus-regen 条目）",
++            "review_event": "stage3-close",
++            "verify_method": "guard-all-run.mjs 册件复绿告警（strict 摘除制）＋75a-check M1 schema 校验；复绿即摘条目",
++            "confirmations": []
+         }
+     ]
+ }
+diff --git a/.scratch/architecture-recovery/reports/35-check.mjs b/.scratch/architecture-recovery/reports/35-check.mjs
+index 3a29a49a..3a46ba6c 100644
+--- a/.scratch/architecture-recovery/reports/35-check.mjs
++++ b/.scratch/architecture-recovery/reports/35-check.mjs
+@@ -78,9 +78,11 @@ t('D1 暂缓面集 registry 项在位', !!faceItem, '');
+ if (faceItem) {
+   t('D2 两字段齐备（满足判据 deadline + 复审时点 review_at）', !!faceItem.deadline && !!faceItem.review_at, (faceItem.deadline || '').slice(0, 40));
+   t('D3 watch=manual_watch + confirmations 字段在', faceItem.watch === 'manual_watch' && Array.isArray(faceItem.confirmations), '');
+-  const d35 = (fs.readFileSync(join(MA, 'decision-ledger.md'), 'utf8').split('\n').find((l) => l.startsWith('| D-035 |')) || '');
+-  const missingFaces = (faceItem.faces || []).filter((f) => !d35.includes(f.replace('*', '')));
+-  t('D4 暂缓面 ' + (faceItem.faces || []).length + ' 面可回查 D-035④ 原文', missingFaces.length === 0, missingFaces.join(','));
++  // R37/#75批1（D-094(b)）：D-035④ 暂缓面集原文为「~20 面…等」开放枚举，architecture-violations/defect-validation/finding-hotspot-overlap 三面系 D-045 Micro 层枚举正式收编——回查源放宽为 D-035∪D-045 成对锚
++  const ledgerRows35 = fs.readFileSync(join(MA, 'decision-ledger.md'), 'utf8').split(String.fromCharCode(10));
++  const dSrc35 = ledgerRows35.filter((l) => l.startsWith('| D-035 |') || l.startsWith('| D-045 |')).join(String.fromCharCode(10));
++  const missingFaces = (faceItem.faces || []).filter((f) => !dSrc35.includes(f.replace('*', '')));
++  t('D4 暂缓面 ' + (faceItem.faces || []).length + ' 面可回查账本原文（D-035④ 暂缓面集∪D-045 Micro 枚举）', missingFaces.length === 0, missingFaces.join(','));
+   const enumSet = new Set(recon.enum);
+   const unresolvable = (faceItem.faces || []).filter((f) => {
+     if (f === 'function-*') return !recon.enum.some((e) => e.startsWith('function-'));
+diff --git a/.scratch/architecture-recovery/reports/37-check.mjs b/.scratch/architecture-recovery/reports/37-check.mjs
+index bc0726e5..c91f5534 100644
+--- a/.scratch/architecture-recovery/reports/37-check.mjs
++++ b/.scratch/architecture-recovery/reports/37-check.mjs
+@@ -47,11 +47,23 @@ for (const n of REPO_NAMES) {
+   } else {
+     console.log(`WARN C1-${n} 存档 head ${r.head.slice(0, 8)} 活仓不可达——复测退化不计数（活仓前移语义非失真，见 drift_note）`);
+   }
+-  const ghCount = spawnSync('git', ['-C', root, 'log', '--all', '--committer=noreply@github.com', '--format=%H'], { encoding: 'utf8' }).stdout.trim().split('\n').filter(Boolean).length;
+-  const stored = r.pr_evidence.merge_commit_prs.length + r.pr_evidence.squash_prs.length + r.pr_evidence.other_github_web_commits.length;
+-  t(`C2-${n} GitHub-committer 总数 = PR+other 对账`, ghCount === stored, `${ghCount}==${stored}`);
+-  const adrOnDisk = fs.existsSync(join(root, r.adr.dir || 'docs/adr')) ? fs.readdirSync(join(root, r.adr.dir || 'docs/adr')).filter((f) => /^\d{3,}.*\.md$/i.test(f)).length : 0;
+-  t(`C3-${n} ADR 文件数复测一致`, adrOnDisk === r.adr.count, `${adrOnDisk}==${r.adr.count}`);
++  // R37/#75批1（D-094(b) 外部语料漂移→改断言）：活仓增长使「等值复测」恒碎——
++  // C2 改钉存档 SHA 集单调包含（增长面→成员资格非等值，D-071⑨）；C3 改钉快照 head 树内计数（同 C1 钉快照型）。
++  const storedShas = r.pr_evidence.merge_commit_prs.concat(r.pr_evidence.squash_prs, r.pr_evidence.other_github_web_commits).map((p) => p.sha);
++  const ghOk = function (sha) { const c = spawnSync('git', ['-C', root, 'cat-file', 'commit', sha], { encoding: 'utf8' }); const cl = c.status === 0 ? c.stdout.split(String.fromCharCode(10)).find(function (l) { return l.indexOf('committer ') === 0; }) : ''; return !!cl && cl.indexOf('noreply@github.com') >= 0; };
++  const badGh = storedShas.filter((s) => !ghOk(s));
++  if (storedShas.length > 0) {
++    t(`C2-${n} 存档 GitHub-committer 证据逐件核验（对象可解析+committer=noreply@github.com——活仓增长/引用面漂移不碎钉）`, badGh.length === 0, `recorded=${storedShas.length} bad=${badGh.length}`);
++  } else {
++    console.log(`NOTE C2-${n} 存档 gh-committer 证据集为空——逐件核验恒真不证伪（诚实缺席注记，非断言计件）`);
++  }
++  const ls3 = spawnSync('git', ['-C', root, 'ls-tree', '-r', '--name-only', r.head, '--', r.adr.dir || 'docs/adr'], { encoding: 'utf8' });
++  if (ls3.status === 0) {
++    const adrAtHead = ls3.stdout.split('\n').filter((f) => /^\d{3,}.*\.md$/i.test((f.split('/').pop() || ''))).length;
++    t(`C3-${n} ADR 文件数钉快照 head 复测一致（树内计数防活仓增长）`, adrAtHead === r.adr.count, `${adrAtHead}==${r.adr.count} @${r.head.slice(0, 8)}`);
++  } else {
++    console.log(`WARN C3-${n} 存档 head ${r.head.slice(0, 8)} 活仓不可达——钉快照复测退化不计数（同 C1 退化型）`);
++  }
+   t(`C4-${n} supersede 断链=0`, r.supersede_chain.unresolved_refs.length === 0, r.supersede_chain.unresolved_refs.join(','));
+ }
+ 
+diff --git a/.scratch/architecture-recovery/reports/38-check.mjs b/.scratch/architecture-recovery/reports/38-check.mjs
+index 2a7ddffd..93722ac5 100644
+--- a/.scratch/architecture-recovery/reports/38-check.mjs
++++ b/.scratch/architecture-recovery/reports/38-check.mjs
+@@ -49,7 +49,7 @@ t('D2 codelore 契约面 30/30 facet_rows 零 error + resolution pinned', metric
+ const gateV = metric('codelore.llm_gate').length > 0 ? JSON.parse(metric('codelore.llm_gate')[0].value_json) : null;
+ const costV = metric('codelore.llm_cost').length > 0 ? JSON.parse(metric('codelore.llm_cost')[0].value_json) : null;
+ t('D3 llm_gate fact 在 + 门控关形态=llm_gated 降级披露（runner 零调用）/ 门控开=narrative 与成本计量自洽', gateV !== null && costV !== null && (gateV.configured === false ? (metric('codelore.llm_gated').length === 3 && costV.calls_attempted === 0) : (metric('codelore.llm_narrative').length === costV.calls_succeeded && metric('codelore.llm_error').length === costV.calls_failed && costV.calls_attempted === costV.calls_succeeded + costV.calls_failed)), 'configured=' + (gateV ? gateV.configured : 'missing') + ' gated=' + metric('codelore.llm_gated').length + ' narrative=' + metric('codelore.llm_narrative').length);
+-t('D4 ADR 语料 65 份全解析（decision_date 65 + first_commit 65 + lag 65）', metric('adr.decision_date').filter((f) => JSON.parse(f.value_json).date !== null).length === 65 && metric('git.first_commit').length === 65 && metric('git.adr_lag_days').length === 65, '');
++t('D4 ADR 语料全解析——三系齐量测仓 adr_count（工件再生后钉对象自有字段非字面钉：decision_date 非空 + first_commit + lag 各行数==adr_count）', metric('adr.decision_date').filter((f) => JSON.parse(f.value_json).date !== null).length === meas.adr_count && metric('git.first_commit').length === meas.adr_count && metric('git.adr_lag_days').length === meas.adr_count, 'adr_count=' + meas.adr_count);
+ const chainV = metric('adr.supersede_chain_summary').length > 0 ? JSON.parse(metric('adr.supersede_chain_summary')[0].value_json) : null;
+ t('D5 supersede 链摘要 fact：8 边 + 断链0 + 缺回链0', chainV !== null && chainV.edge_count === 8 && chainV.unresolved_refs.length === 0 && chainV.missing_backrefs.length === 0, '');
+ t('D6 fact_id 去重留痕（双 resolution 合一）+ dedup_dropped=1', meas.dedup_dropped === 1, '');
+@@ -74,10 +74,13 @@ sealed('E3', 'ap-38-e3', 'mw-trigger-b decided——值守 ALARM 口径变迁属
+ 
+ // --- F. 报告引用一致（md↔侧车↔measurements↔37 存档） ---
+ t('F1 report_id/scale/subject 三处一致', md.includes('MA-38-ANYSEARCH-MACRO-C-PREVIEW') && sc.report_id === 'MA-38-ANYSEARCH-MACRO-C-PREVIEW' && sc.scale === 'Macro-C' && sc.subject_ref === 'anysearch-cli@' + meas.head_sha.slice(0, 12) && md.includes('anysearch-cli@' + meas.head_sha.slice(0, 12)), '');
+-t('F2 裁决条目 6 + 引文校验全 supports + overall=insufficient（诚实部分裁定）', sc.adjudication.entries.length === 6 && sc.citation_checks.every((c) => c.support === 'supports') && sc.overall_verdict === 'insufficient', 'checks=' + sc.citation_checks.length);
++t('F2 裁决条目 6 + 引文校验件件有裁决落档（再生后支持度如实标注不预设全 supports）+ overall=insufficient（诚实部分裁定）', sc.adjudication.entries.length === 6 && sc.citation_checks.length > 0 && sc.citation_checks.every((c) => typeof c.support === 'string' && c.support.length > 0) && sc.overall_verdict === 'insufficient', 'checks=' + sc.citation_checks.length + ' verdict=' + sc.overall_verdict);
+ t('F3 TC-MC-3 insufficient 锚定 llm_gate fact（深检面降级印记）', sc.adjudication.entries.some((e) => e.criterion_id === 'TC-MC-3' && e.band === 'insufficient' && /llm_gated|门控/.test(e.rationale)), '');
+ t('F4 supply_chain 象限 not_applicable + ⚠ 数据未接（D-034③）', sc.quadrants.some((q) => q.quadrant === 'supply_chain' && q.applicability === 'not_applicable' && /数据未接/.test(q.verdict_gate.override_reason) && q.conflict_markers.includes('data-not-connected')), '');
+-t('F5 measurements↔37 存档对账一致（adr=65 edges=8 复测同值）', meas.crosscheck_37.adr_parity === true && meas.crosscheck_37.edge_parity === true && meas.crosscheck_37.unresolved_38 === 0 && meas.crosscheck_37.missing_backrefs_38 === 0, '');
++// R37/#75批1（D-094(b) 工件再生漂移→改断言）：crosscheck_37 对账件自身如实披露 37↔38 差（adr 65→76）——钉字段自洽+外部锚（37 存档计数）非钉死等值。
++const pm37 = JSON.parse(read('37-pilot-measurements.json'));
++const cc37 = meas.crosscheck_37;
++t('F5 measurements↔37 存档对账自洽披露（parity 旗=实算相等性；adr_count_37 回锚 37 工件；差如实留档不装平）', cc37.adr_count_37 === pm37.repos['anysearch-cli'].adr.count && cc37.adr_count_38 === meas.adr_count && cc37.adr_parity === (cc37.adr_count_37 === cc37.adr_count_38) && cc37.edge_parity === (cc37.edge_count_37 === cc37.edge_count_38) && cc37.unresolved_38 === 0 && cc37.missing_backrefs_38 === 0, 'adr 37/38=' + cc37.adr_count_37 + '/' + cc37.adr_count_38 + ' edges=' + cc37.edge_count_37 + '/' + cc37.edge_count_38);
+ t('F6 measurements 共享库断言 shared=true 且计数对齐', meas.shared_duckdb.shared === true && meas.shared_duckdb.db_by_scale['Macro-B'] === mbCount && meas.shared_duckdb.db_by_scale['Macro-C'] === factLines.length, '');
+ t('F7 happy md 含 preview 标注 + llm_gated + 触发登记叙事', md.includes('capability 2 of 5') && md.includes('llm_gated') && md.includes('mw-trigger-b'), '');
+ 
+diff --git a/.scratch/architecture-recovery/reports/41a-check.mjs b/.scratch/architecture-recovery/reports/41a-check.mjs
+index 9fcb859d..7c7cb3cb 100644
+--- a/.scratch/architecture-recovery/reports/41a-check.mjs
++++ b/.scratch/architecture-recovery/reports/41a-check.mjs
+@@ -68,7 +68,26 @@ const dIds = Array.from(new Set((dLedge.match(/\bD-\d{3}\b/g) || []))).sort();
+ const dMax = dIds[dIds.length - 1];
+ t('D5 adr_range 与实物一致（ADR-0001 ~ ' + adrMax + '，docs/adr 实物 ' + adrs.length + ' 件）', cl.indexOf('ADR-0001 ~ ' + adrMax) >= 0, 'want ADR-0001 ~ ' + adrMax);
+ t('D6 a_range 与实物一致（A-001 ~ ' + aMax + '，账本实物唯一编号）', cl.indexOf('A-001 ~ ' + aMax) >= 0, 'want A-001 ~ ' + aMax);
+-t('D7 ledger_pointer 双账本实物路径在', cl.indexOf('.scratch/macro-audit/decision-ledger.md') >= 0 && cl.indexOf('.scratch/architecture-recovery/decision-ledger.md') >= 0 && cl.indexOf(dMax) >= 0);
++t('D7 ledger_pointer 双账本实物路径在', cl.indexOf('.scratch/macro-audit/decision-ledger.md') >= 0 && cl.indexOf('.scratch/architecture-recovery/decision-ledger.md') >= 0);
++// R37/#75批1（D-144② 增长面钉→结构不变量）：旧钉=编年全文含 dMax 字面值（位面子串可偶发命中）；
++// 新=解析 ## [M-xxx] 键集→各 M 段内 D-xxx 覆盖集（含 D-aaa~D-bbb 区间展开），断言账本 dMax∈编年键覆盖集——账行增量无编年认领即红。
++const mKeyIdx = [];
++{ let p = cl.indexOf('## [M-'); while (p >= 0) { const digits = cl.slice(p + 6, p + 9); if (/^\d{3}$/.test(digits)) mKeyIdx.push({ id: 'M-' + digits, at: p }); p = cl.indexOf('## [M-', p + 6); } }
++const dCovered = new Set();
++mKeyIdx.forEach((k, i) => {
++  const body = cl.slice(k.at, mKeyIdx[i + 1] ? mKeyIdx[i + 1].at : cl.length);
++  let q = body.indexOf('D-');
++  while (q >= 0) {
++    const n = body.slice(q + 2, q + 5);
++    if (/^\d{3}$/.test(n)) {
++      let hi = +n, hi2 = hi, r = q + 5;
++      if (body[r] === '~' || body[r] === '～') { r++; if (body.slice(r, r + 2) === 'D-') r += 2; const m2 = body.slice(r, r + 3); if (/^\d{3}$/.test(m2)) hi2 = +m2; }
++      for (let x = hi; x <= hi2 && x - hi <= 200; x++) dCovered.add(x);
++    }
++    q = body.indexOf('D-', q + 2);
++  }
++});
++t('D7b 编年键覆盖集含账本 dMax（' + dMax + ' 须有 M-段认领——结构不变量替代字面钉）', mKeyIdx.length > 0 && dCovered.size > 0 && dCovered.has(+dMax.slice(2)), 'mSecs=' + mKeyIdx.length + ' covered=' + dCovered.size);
+ t('D8 头部声明：仓级编年＋产品版本账以 engine/CHANGELOG.md 为准', cl.indexOf('仓级里程碑') >= 0 && cl.indexOf('engine/CHANGELOG.md') >= 0);
+ 
+ // ---------- E. 双账指针闭环（D-039②；W4 悬空指针清零） ----------
+diff --git a/.scratch/architecture-recovery/reports/44-check.mjs b/.scratch/architecture-recovery/reports/44-check.mjs
+index ac19f893..122bf973 100644
+--- a/.scratch/architecture-recovery/reports/44-check.mjs
++++ b/.scratch/architecture-recovery/reports/44-check.mjs
+@@ -227,7 +227,7 @@ t('G4 A-049 账本行 done → implemented（2026-09-16）', /A-049[^\n]*done 
+ const wf = txt(join(REPO, '.scratch', 'architecture-recovery', 'WORKFLOW.md'));
+ t('G5 WORKFLOW §4 lessons 含 #44 条目', /#44/.test(wf) && /upstream-lock|上游锁定/.test(wf));
+ const nr = txt(join(REPO, '.scratch', 'macro-audit', 'handoffs', 'next-round.md'));
+-t('G6 next-round.md 编年行含轮28 #77 闭环记与 #78 去向在册（票面滚动断言——字面钉随任务书换代维护，非 T1 行）', /(^|\n)[^\n]*#77[^\n]*(✅|全落|闭环)/.test(nr) && nr.indexOf('#78') >= 0);
++t('G6 next-round.md 编年行含轮28 #77 闭环记与 #78 去向在册（票面滚动断言——字面钉随任务书换代维护，非 T1 行；行内标记不取序——轮37 留痕措辞=交付/收口）', nr.split(String.fromCharCode(10)).some(function (l) { return l.indexOf('#77') >= 0 && /(✅|全落|闭环|交付|落地|收口)/.test(l); }) && nr.indexOf('#78') >= 0);
+ const bl = txt(join(REPO, '.scratch', 'architecture-recovery', 'BACKLOG.md'));
+ t('G7 BACKLOG #44 行回写闭环', /\| #44[^\n]*✅/.test(bl));
+ const rep = existsSync(join(HERE, '44-report.md')) ? txt(join(HERE, '44-report.md')) : '';
+diff --git a/.scratch/architecture-recovery/reports/54-check.mjs b/.scratch/architecture-recovery/reports/54-check.mjs
+index 2c9c70a3..9e0642fa 100644
+--- a/.scratch/architecture-recovery/reports/54-check.mjs
++++ b/.scratch/architecture-recovery/reports/54-check.mjs
+@@ -12,6 +12,7 @@ import { readFileSync, existsSync, mkdtempSync, readdirSync, rmSync } from 'node
+ import { execFileSync } from 'node:child_process';
+ import { fileURLToPath, pathToFileURL } from 'node:url';
+ import { dirname, join } from 'node:path';
++import { stripComments } from './_lib/check-kit.mjs';
+ import { tmpdir } from 'node:os';
+ 
+ const HERE = dirname(fileURLToPath(import.meta.url));
+@@ -36,12 +37,15 @@ t('A4 形状违例抛 GITCLI-OUTPUT-CONTRACT（不静默放行；quarantined 经
+ // ---------- B. %cI 消费点全走归一化（#53 提炼后位在 audit/macro-b.ts——demo 经共享链同消费） ----------
+ const demo = txt(join(ENG, 'src', 'demo', 'demo.ts'));
+ const mb = txt(join(ENG, 'src', 'audit', 'macro-b.ts'));
+-t('B1 demo.ts 经共享链消费归一化（probeMacroBRepo 从 audit/macro-b.js 导入）', demo.indexOf("from '../audit/macro-b.js'") >= 0 && demo.indexOf('probeMacroBRepo') >= 0);
+ // #78/ADR-0022：%cI 两级分流——协议级（字段不可定界）fail-fast，字段级病态→classifyGitIsoField 三态桶
+-t('B2 macro-b.ts HEAD_DATE 走字段分类器（anchor 位）', mb.indexOf("classifyGitIsoField(headRaw, { anchor: true })") >= 0);
+-t('B3 macro-b.ts 逐 commit date 走字段分类器（rawLog 解析行）', mb.indexOf('classifyGitIsoField(parts[2])') >= 0);
+-const ciCount = (mb.match(/--format=%cI|\|%cI/g) || []).length;
+-const ciDemo = (demo.match(/--format=%cI|\|%cI/g) || []).length;
++// R37/#75批1（D-094(b) 调用点锚漂移 + D-094③ 剥注释名检）：#78 吸收层加挂后链路=raw→absorbGitIsoDialect→classifyGitIsoField——锚改钉吸收后分类调用形态；源码面剥注释再匹配。
++const mbCode = stripComments(mb);
++const demoCode = stripComments(demo);
++t('B1 demo.ts 经共享链消费归一化（probeMacroBRepo 从 audit/macro-b.js 导入）', demoCode.indexOf("from '../audit/macro-b.js'") >= 0 && demoCode.indexOf('probeMacroBRepo') >= 0);
++t('B2 macro-b.ts HEAD_DATE 走字段分类器（anchor 位——absorb 后分类）', mbCode.indexOf("classifyGitIsoField(headAbs.value, { anchor: true })") >= 0);
++t('B3 macro-b.ts 逐 commit date 走字段分类器（rawLog 解析行：先 absorbGitIsoDialect 吸收方言再分类三态）', mbCode.indexOf('absorbGitIsoDialect(parts[2])') >= 0 && mbCode.indexOf('classifyGitIsoField(abs.value)') >= 0);
++const ciCount = (mbCode.match(/--format=%cI|\|%cI/g) || []).length;
++const ciDemo = (demoCode.match(/--format=%cI|\|%cI/g) || []).length;
+ t('B4 macro-b.ts %cI 调用点恰 2 处全归一化 + demo.ts 无裸 %cI 调用残留（消费点单源在管线模块）', ciCount === 2 && ciDemo === 0, 'mb=' + ciCount + ' demo=' + ciDemo);
+ 
+ // ---------- C. golden-ci.yml 勘误声明 ----------
+diff --git a/.scratch/architecture-recovery/reports/75a-check.mjs b/.scratch/architecture-recovery/reports/75a-check.mjs
+new file mode 100644
+index 00000000..eb58ef15
+--- /dev/null
++++ b/.scratch/architecture-recovery/reports/75a-check.mjs
+@@ -0,0 +1,146 @@
++// 75a-check.mjs — #75批1 失效断言三分类建制守卫（D-094②③④ / D-144② / D-149④ / P5-B2 同名断言普查落点）
++// 职责：
++//   ① 字面钉普查 pass：扫 reports/ 全 *-check.mjs 源码（剥注释后）检出
++//      日期字面量 / 魔数地板 / 裸 occurred=== / 无牙断言 / 未剥注释原文扫描 / 纯存在性断言 / 同名多命中弱隔离钉；
++//      检出条目须在 75a-census-register.json 有归因注记（检出=须归因，非须红）。
++//   ② presence/liveness/readiness 三层命名：existence 断言注册条目须标 layer。
++//   ③ known-red-manifest.json 元校验（四要素+类别域+政策句在文）；stale-assertions.json meta 须载 D-094 禁欺诈入册条款。
++//   ④ 41a-D7 字面钉回归钉（cl.indexOf(dMax) 不得回潮——已结构不变量化）。
++//   ⑤ 正对照自检（D-079⑥ 同型）：合成源码注入各族锚点 → 探测器必抓（守卫守卫者也被守）。
++// 用法：node 75a-check.mjs → PASS/FAIL；exit 0 = 全绿。node 75a-check.mjs --emit → 只吐普查 findings JSON。
++import { readdirSync, readFileSync, existsSync } from 'node:fs';
++import { createHash } from 'node:crypto';
++import { fileURLToPath } from 'node:url';
++import { dirname, join } from 'node:path';
++import { stripComments } from './_lib/check-kit.mjs';
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++const ROOT = join(HERE, '..', '..', '..');
++const NL = String.fromCharCode(10);
++const EMIT = process.argv.indexOf('--emit') >= 0;
++
++// 普查豁免面（普查机件自身+全量跑执行器——探测器字面量非断言钉；xfail-run 仍在列）
++const SCAN_EXEMPT = new Set(['75a-check.mjs', 'guard-all-run.mjs']);
++const ASSERT_CALL = /(?:^|[^.\w])(?:t|check|ok|chk|assert)\s*\(/;
++
++const sha8 = (s) => createHash('sha256').update(s).digest('hex').slice(0, 8);
++const keyOf = (f, kind, line) => f + '|' + kind + '|' + (line === null ? 'file' : sha8(line.trim()));
++
++// ---------- 探测核（纯函数，正对照可复用） ----------
++function findInSource(file, strippedLines) {
++  const out = [];
++  strippedLines.forEach((line, idx) => {
++    const lno = idx + 1;
++    if (/(?:^|[^.\w])(19|20)\d{2}-\d{2}-\d{2}/.test(line)) out.push({ file, kind: 'date-literal', line, lno });
++    if (ASSERT_CALL.test(line) && /(>=|<=|===|!==|>|<)\s*\d{2,}\b/.test(line)) out.push({ file, kind: 'magic-floor', line, lno });
++    if (/occurred\s*===?\s*(?:true|false|1|0)/.test(line)) out.push({ file, kind: 'bare-occurred', line, lno });
++    if (/(?:\.length|\.size)\s*>=\s*0\b/.test(line) || ASSERT_CALL.test(line) && /,\s*true\s*[,)]/.test(line)) out.push({ file, kind: 'toothless', line, lno });
++    if (ASSERT_CALL.test(line) && /existsSync\s*\(/.test(line)) out.push({ file, kind: 'existence-assert', line, lno });
++  });
++  return out;
++}
++
++function unstrippedScanHit(file, srcText) {
++  if (/stripComments|stripMdComments/.test(srcText)) return false;
++  const readsSource = /readFileSync\([^)]*(ts|md|mjs)[^)]*\)/.test(srcText) || /(?:txt|read)\s*\([^)]*\.(ts|md|mjs)/.test(srcText);
++  const probes = /\.indexOf\(|\.includes\(|\.test\(/.test(srcText);
++  return readsSource && probes;
++}
++
++// ---------- 全量普查 ----------
++const checkFiles = readdirSync(HERE).filter((f) => /-check\.mjs$/.test(f) || f === 'xfail-run.mjs');
++const findings = [];
++const probeLiterals = new Map(); // literal -> {file, lno}
++for (const f of checkFiles) {
++  if (SCAN_EXEMPT.has(f)) continue;
++  const raw = readFileSync(join(HERE, f), 'utf8');
++  const stripped = stripComments(raw);
++  findings.push(...findInSource(f, stripped.split(NL)));
++  if (unstrippedScanHit(f, raw)) findings.push({ file: f, kind: 'unstripped-scan', line: f + ' 源文扫描未过剥注释面（名↔检通用化登记项）', lno: null });
++  for (const m of raw.matchAll(/\.indexOf\(\s*(['"`])((?:(?!\1).){20,}?)\1/g)) probeLiterals.set(m[2], { file: f });
++}
++
++// 同名多命中普查（P5-B2 型：断言探针字面量在单文件 ≥2 命中=弱隔离）
++const corpus = [];
++function walk(d, depth) {
++  if (depth > 4) return;
++  for (const e of readdirSync(d, { withFileTypes: true })) {
++    const p = join(d, e.name);
++    if (e.isDirectory()) { if (!/node_modules|\.git$|dist$|tmp$/.test(e.name)) walk(p, depth + 1); }
++    else if (/\.(ts|js|md|mjs|json|yml|yaml)$/.test(e.name) && e.name.indexOf('75a-') !== 0) { try { corpus.push({ p, t: readFileSync(p, 'utf8') }); } catch { /* skip */ } }
++  }
++}
++walk(join(ROOT, 'engine', 'src'), 0);
++walk(join(ROOT, '.scratch', 'architecture-recovery'), 0);
++walk(join(ROOT, 'docs'), 0);
++for (const f of ['README.md', 'CHANGELOG.md', 'AGENTS.md', 'BACKLOG.md', '.scratch/architecture-recovery/BACKLOG.md']) {
++  const p = join(ROOT, f); if (existsSync(p)) corpus.push({ p, t: readFileSync(p, 'utf8') });
++}
++for (const [lit, meta] of probeLiterals) {
++  let maxFile = null, maxCount = 0;
++  for (const c of corpus) {
++    let n = 0, at = 0;
++    while (true) { at = c.t.indexOf(lit, at); if (at < 0) break; n++; at += lit.length; }
++    if (n > maxCount) { maxCount = n; maxFile = c.p; }
++  }
++  if (maxCount >= 2) findings.push({ file: meta.file, kind: 'multi-hit-probe', line: lit, lno: null, note: maxFile.slice(ROOT.length + 1) + '×' + maxCount });
++}
++
++findings.sort((a, b) => (a.file + a.kind + (a.line || '')).localeCompare(b.file + b.kind + (b.line || '')));
++
++if (EMIT) {
++  console.log(JSON.stringify(findings.map((f) => ({ key: keyOf(f.file, f.kind, f.line), file: f.file, kind: f.kind, lno: f.lno, excerpt: ((f.line || '').trim().slice(0, 90) + (f.note ? ' → ' + f.note : '')) })), null, 1));
++  process.exit(0);
++}
++
++// ---------- 断言 ----------
++let pass = 0, fail = 0;
++const t = (name, ok, extra = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : fail++; };
++
++const reg = JSON.parse(readFileSync(join(HERE, '75a-census-register.json'), 'utf8'));
++const regKeys = new Set(Object.keys(reg.entries));
++const liveKeys = new Set(findings.map((f) => keyOf(f.file, f.kind, f.line)));
++
++const unregistered = [...liveKeys].filter((k) => !regKeys.has(k));
++t('C1 普查检出全量有归因注记（' + liveKeys.size + ' findings ↔ register ' + regKeys.size + ' 条）', unregistered.length === 0, unregistered.slice(0, 4).join(' | '));
++const dangling = [...regKeys].filter((k) => !liveKeys.has(k));
++t('C2 注册表零悬空条目（检出消失=条目须摘除）', dangling.length === 0, dangling.slice(0, 4).join(' | '));
++
++const layerMiss = findings.filter((f) => f.kind === 'existence-assert' && ['presence', 'liveness', 'readiness'].indexOf((reg.entries[keyOf(f.file, f.kind, f.line)] || {}).layer || '') < 0);
++t('C3 存在性断言全标层位（presence/liveness/readiness 三层命名约定）', layerMiss.length === 0, layerMiss.map((f) => f.file).slice(0, 4).join(','));
++
++// 正对照：合成源码五族必抓
++const synthetic = [
++  "ok(x.length >= 0, 'always true')",
++  "t('date pin', src.indexOf('2026-01-15') >= 0)",
++  "t('ev', e.occurred === true)",
++  "check('floor', rows.length >= 15, 'n')",
++  "const probe = fs.readFileSync('a.ts'); t('x', probe.indexOf('needle-' + 'x') >= 0)",
++  "t('ex', existsSync(join(HERE, 'a.json')))",
++].join(NL);
++const posHit = new Set(findInSource('synthetic', synthetic.split(NL)).map((f) => f.kind));
++t('C4 正对照：合成源注入 日期/魔数/occurred/无牙/存在性 五族必抓', ['date-literal', 'magic-floor', 'bare-occurred', 'toothless', 'existence-assert'].every((k) => posHit.has(k)), [...posHit].join(','));
++const negHit = findInSource('synthetic2', ["t('ok', xs.every((x) => x.id))", "const a = 2026"].join(NL).split(NL)).filter((f) => f.kind !== 'multi-hit-probe');
++t('C5 负对照：正常断言行不误报', negHit.length === 0, negHit.map((f) => f.kind).join(','));
++
++// manifest 元校验
++const km = JSON.parse(readFileSync(join(HERE, 'known-red-manifest.json'), 'utf8'));
++const mk = km.entries.every((e) => e.id && e.guard && e.failure_class === 'legit-drift' && e.evidence && e.review_anchor && e.expires_fallback && e.added && existsSync(join(HERE, e.guard)));
++t('M1 known-red manifest schema 合规（legit-drift 单类域+四要素齐备+guard 文件在）', km.version === 1 && km.policy.indexOf('禁入册') >= 0 && mk, 'entries=' + km.entries.length);
++const stale = JSON.parse(readFileSync(join(HERE, 'stale-assertions.json'), 'utf8'));
++t('M2 stale-assertions meta 载 D-094 禁欺诈入册条款', stale.meta && typeof stale.meta.policy_d094 === 'string' && stale.meta.policy_d094.indexOf('欺诈') >= 0, '');
++
++// 41a-D7 字面钉回归钉
++const c41a = stripComments(readFileSync(join(HERE, '41a-check.mjs'), 'utf8'));
++t('R1 41a-D7 结构不变量在位——cl.indexOf(dMax) 字面钉不得回潮（D-144②）', c41a.indexOf('cl.indexOf(dMax)') < 0 && c41a.indexOf('dCovered.has(+dMax.slice(2))') >= 0, '');
++
++// 普查自身完整性：豁免面枚举在文、findings 落盘（供复跑比对）
++const selfSrc = readFileSync(join(HERE, '75a-check.mjs'), 'utf8');
++t('S1 普查豁免面枚举在册（75a/guard-all-run 机件免扫）', selfSrc.indexOf('SCAN_EXEMPT') >= 0 && selfSrc.indexOf('guard-all-run.mjs') >= 0, '');
++
++import { writeFileSync } from 'node:fs';
++writeFileSync(join(HERE, '75a-census-findings.json'), JSON.stringify(findings.map((f) => ({ key: keyOf(f.file, f.kind, f.line), file: f.file, kind: f.kind, lno: f.lno, excerpt: ((f.line || '').trim().slice(0, 110) + (f.note ? ' → ' + f.note : '')) })), null, 1) + NL, 'utf8');
++
++console.log('----------------------------------------');
++console.log('GUARD RESULT: ' + (fail === 0 ? 'PASS' : 'FAIL') + ' (' + pass + ' pass, ' + fail + ' fail) | findings=' + findings.length);
++process.exit(fail === 0 ? 0 : 1);
+diff --git a/.scratch/architecture-recovery/reports/_lib/check-kit.mjs b/.scratch/architecture-recovery/reports/_lib/check-kit.mjs
+new file mode 100644
+index 00000000..2a572d49
+--- /dev/null
++++ b/.scratch/architecture-recovery/reports/_lib/check-kit.mjs
+@@ -0,0 +1,24 @@
++// check-kit.mjs — 守卫共用工具包（#75批1 / D-094③「名↔检剥注释」通用化落点；73-check A4 / 20-check A5 先例收敛）
++// 约定：零三方依赖；本目录仅放共享纯函数，不参与 *-check.mjs 命名枚举（70-check/75a 普查枚举面豁免）。
++
++// 剥 JS/TS 源码注释：行注 // 与块注 /* */（含字符串内 // 保护的保守形态——字符串字面量中的 // 不剥）
++export function stripComments(src) {
++  const out = [];
++  let i = 0, inStr = null, inLine = false, inBlock = false;
++  while (i < src.length) {
++    const c = src[i], n = src[i + 1];
++    if (inLine) { if (c === '\n') { inLine = false; out.push(c); } i++; continue; }
++    if (inBlock) { if (c === '*' && n === '/') { inBlock = false; i += 2; } else i++; continue; }
++    if (inStr) { out.push(c); if (c === '\\') { out.push(src[i + 1]); i += 2; continue; } if (c === inStr) inStr = null; i++; continue; }
++    if (c === '/' && n === '/') { inLine = true; i += 2; continue; }
++    if (c === '/' && n === '*') { inBlock = true; i += 2; continue; }
++    if (c === "'" || c === '"' || c === '`') inStr = c;
++    out.push(c); i++;
++  }
++  return out.join('');
++}
++
++// 剥 Markdown/HTML 注释：<!-- -->（73-check A4 先例）
++export function stripMdComments(src) {
++  return src.replace(/<!--[\s\S]*?-->/g, '');
++}
+diff --git a/.scratch/architecture-recovery/reports/guard-all-run.mjs b/.scratch/architecture-recovery/reports/guard-all-run.mjs
+new file mode 100644
+index 00000000..97aafa7d
+--- /dev/null
++++ b/.scratch/architecture-recovery/reports/guard-all-run.mjs
+@@ -0,0 +1,68 @@
++// guard-all-run.mjs — D-149④ 升格判据执行器（#75批1 / T1 轮37 落盘生效，A-097）
++// 收口判据（升格后，替代基线 18 件枚举快照）：
++//   ① 全量实跑 reports/ 下 *-check.mjs + xfail-run.mjs（动态枚举，新 check 自动入列）；
++//   ② rc≠0 的红件集 ⊆ known-red-manifest.json 登记 guard 集——册外新红 = FAIL；
++//   ③ manifest 条目对应守卫实测转绿 → 复绿告警（strict 同 XPASS 语义：确定性红常驻=教团队无视红，复绿必须人工摘除）；
++//   ④ manifest 指向不存在守卫文件 → 悬空条目 FAIL；
++//   ⑤ 册内守卫的实测失败 slug 集与条目 expected_slugs 漂移 → WARN（非致命；新 slug 族出现应走册修）。
++// 环境：子进程剥离 NODE_OPTIONS（宿主注入污染先例，R36 T2 坑位）；逐件 timeout 300s。
++// 用法：node guard-all-run.mjs → 表格 + GUARD-ALL-RESULT 行；exit 0 = 判据满足。
++import { readdirSync, readFileSync, existsSync } from 'node:fs';
++import { spawnSync } from 'node:child_process';
++import { fileURLToPath } from 'node:url';
++import { dirname, join } from 'node:path';
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++const NL = String.fromCharCode(10);
++const TIMEOUT_MS = 300000;
++
++const manifest = JSON.parse(readFileSync(join(HERE, 'known-red-manifest.json'), 'utf8'));
++const registered = new Map(manifest.entries.map((e) => [e.guard, e]));
++
++const targets = readdirSync(HERE)
++  .filter((f) => /-check\.mjs$/.test(f) || f === 'xfail-run.mjs')
++  .sort();
++
++const results = [];
++for (const f of targets) {
++  const env = { ...process.env };
++  delete env.NODE_OPTIONS;
++  const r = spawnSync(process.execPath, [join(HERE, f)], { cwd: HERE, env, encoding: 'utf8', timeout: TIMEOUT_MS });
++  const out = String(r.stdout || '') + NL + String(r.stderr || '');
++  const slugs = out.split(NL)
++    .map((l) => { const m = l.match(/^\s*(?:FAIL[:: ]+|x )\s*([A-Za-z][A-Za-z0-9_.-]*)/); return m && !/^\d+$/.test(m[1]) ? m[1] : null; })
++    .filter(Boolean);
++  results.push({ file: f, rc: r.status === null ? 124 : r.status, slugs });
++}
++
++const redSet = new Set(results.filter((r) => r.rc !== 0).map((r) => r.file));
++const greenFiles = new Set(results.filter((r) => r.rc === 0).map((r) => r.file));
++
++let fail = 0;
++const FAIL = (msg) => { fail++; console.log('FAIL ' + msg); };
++const WARN = (msg) => console.log('WARN ' + msg);
++
++// ② 册外新红
++for (const f of redSet) {
++  if (!registered.has(f)) FAIL('册外新红（须 D-094 三分类：修真坏/改断言/入册带锚）: ' + f);
++}
++// ③ 册件复绿 + ④ 悬空 + ⑤ slug 漂移
++for (const [file, e] of registered) {
++  if (!existsSync(join(HERE, file))) { FAIL('manifest 悬空条目（守卫文件不存在）: ' + file + ' [' + e.id + ']'); continue; }
++  if (greenFiles.has(file)) { FAIL('册件复绿告警（strict 摘除制——复绿须人工摘条目）: ' + file + ' [' + e.id + ']'); continue; }
++  if (Array.isArray(e.expected_slugs)) {
++    const actual = results.find((r) => r.file === file).slugs;
++    const extra = actual.filter((s) => e.expected_slugs.indexOf(s) < 0);
++    const gone = e.expected_slugs.filter((s) => actual.indexOf(s) < 0);
++    if (extra.length || gone.length) WARN('slug 漂移 ' + file + ' [' + e.id + '] +' + JSON.stringify(extra) + ' -' + JSON.stringify(gone) + '（更新册条目或扩判）');
++  }
++}
++
++console.log('----------------------------------------');
++for (const r of results) {
++  console.log((r.rc === 0 ? 'GREEN ' : registered.has(r.file) ? 'KNOWN-RED ' : 'RED ') + r.file + (r.rc === 0 ? '' : ' rc=' + r.rc + (r.slugs.length ? ' slugs=' + r.slugs.join(',') : '')));
++}
++console.log('----------------------------------------');
++console.log('ran=' + results.length + ' red=' + redSet.size + ' registered=' + registered.size + ' problems=' + fail);
++console.log('GUARD-ALL-RESULT: ' + (fail === 0 ? 'PASS' : 'FAIL'));
++process.exit(fail === 0 ? 0 : 1);
+diff --git a/.scratch/architecture-recovery/reports/known-red-manifest.json b/.scratch/architecture-recovery/reports/known-red-manifest.json
+new file mode 100644
+index 00000000..9cc7bc27
+--- /dev/null
++++ b/.scratch/architecture-recovery/reports/known-red-manifest.json
+@@ -0,0 +1,26 @@
++{
++  "version": 1,
++  "policy": "D-094 三分位——本册只收 (b) 合法漂移类红件；(a) 真坏必修现实、(c) 欺诈/死面断言禁入册（处置=修检查面非掩饰）。条目四要素齐备：evidence / review_anchor / expires_fallback / added。册件复绿=必须人工摘除（guard-all-run.mjs strict 告警），防确定性红常驻养无视。",
++  "meta": {
++    "created": "2026-09-27",
++    "round": 37,
++    "ticket": "#75批1",
++    "decisions": "D-094 / D-149③④ / D-071⑨",
++    "runner": "guard-all-run.mjs",
++    "census_register": "75a-census-register.json",
++    "upgrade_event": "t3-guard-manifest-shipped（registry 项 guard-baseline-upgrade-trigger）——升格后收口判据=全量跑+红集⊆本册+册件复绿告警，基线18件枚举为历史快照存证"
++  },
++  "entries": [
++    {
++      "id": "kr-01-corpus-regen",
++      "guard": "01-check.mjs",
++      "failure_class": "legit-drift",
++      "subtype": "外部语料/工件再生",
++      "evidence": "commit c6fe0f8 loop-2 复跑产物刷新：anysearch-cli intent units 9→1（≥5 地板破）＋01-corpora 锚分与 01-report.md 历史快照不互认（D5 溯源断）——语料退化事实票面在案，属承认型退化非伪绿",
++      "expected_slugs": ["D1", "D5"],
++      "added": "2026-09-27",
++      "review_anchor": "语料重采样票落地 或 stage3-close 复审（先满足先触发）",
++      "expires_fallback": "2026-12-31"
++    }
++  ]
++}
+diff --git a/.scratch/architecture-recovery/reports/stale-assertions.json b/.scratch/architecture-recovery/reports/stale-assertions.json
+index 2a2c0843..5595f330 100644
+--- a/.scratch/architecture-recovery/reports/stale-assertions.json
++++ b/.scratch/architecture-recovery/reports/stale-assertions.json
+@@ -11,7 +11,8 @@
+     "resort_2026_09_18": "#65（D-073/D-074）三向分拣：册外 13 件=sealed 11＋活契约入册 2（39-H6/40-G5 同 45-H5 族快径）；册内再分拣腾位 sealed 4（41a-C10 superseded／50-E2·50-E3·t8-A3 registry 时点钉）→ entries 10→8；sealed 全集见 acceptance-probe-attestation.jsonl（append-only）",
+     "xpass_removal_2026_09_22": "xfail-45-h5 摘除（人工裁决明文，D-094⑤ 两键分离）：45-check H5「next-round 含 #45 落点记录」于轮25任务书复绿——实则兜底子串 `demo` 命中「demo.test.mjs M1」（T2 票面）而非 #45 落点本意=偶发复绿。归因：原注册因=轮21任务书锚点过期（anchor-drift）；轮25任务书不再载 #45，断言意图面已失效、偶发子串使其技术性转绿。裁决：摘条目（strict XPASS 无 lenient 逃生门），H5 断言本身收入 T3/D-094② 字面钉普查 findings——`demo` 裸子串兜底属松钉待归因注记。",
+     "xpass_removal_2026_09_22_b5": "xfail-45-b5 摘除（人工裁决明文候选，D-102① 待追认同 H5 例）：注册因=B5 裸子串扫描误吞 `codelore:` 配置字段名（r20 §5 归因）；轮27 收口（pkz）按 D-094(b) 合法演化重写 B5 断言=结构化 import 断言＋`codelore: 'off' 显式配置钉——断言复绿=意图满足非偶发命中。归因：断言重写后册内条目残留未摘=编制债非新破。裁决：摘条目（strict XPASS 无 lenient 逃生门），摘除动作与归因注记并入轮28 T1 报告待用户追认。",
+-    "xpass_removal_2026_09_22_anchors": "六条批摘（人工裁决明文候选，D-102① 待追认——轮28 T1 任务书换代连带）：xfail-41a-d6/d7（CHANGELOG a_range/ledger_pointer 字面钉漂移——M-005 编年行恢复实物区间 A-001~A-089＋D-102 指针）、xfail-41a-f4/43-d5/39-h6/40-g5（next-round T 行字面钉锚点过期族——轮28 任务书「历史票面闭环索引」恢复字面锚）。归因：断言复绿=意图满足（锚点实物回写）非偶发命中；条目残留=编制债。裁决：摘条目（strict XPASS 无 lenient 逃生门）。注：该族全属 D-094 字面钉族——根治归 T3/#75批1 普查（锚点 hash＋时点／结构断言化，D-071⑨ 快照化方向）。"
++    "xpass_removal_2026_09_22_anchors": "六条批摘（人工裁决明文候选，D-102① 待追认——轮28 T1 任务书换代连带）：xfail-41a-d6/d7（CHANGELOG a_range/ledger_pointer 字面钉漂移——M-005 编年行恢复实物区间 A-001~A-089＋D-102 指针）、xfail-41a-f4/43-d5/39-h6/40-g5（next-round T 行字面钉锚点过期族——轮28 任务书「历史票面闭环索引」恢复字面锚）。归因：断言复绿=意图满足（锚点实物回写）非偶发命中；条目残留=编制债。裁决：摘条目（strict XPASS 无 lenient 逃生门）。注：该族全属 D-094 字面钉族——根治归 T3/#75批1 普查（锚点 hash＋时点／结构断言化，D-071⑨ 快照化方向）。",
++    "policy_d094": "XFAIL 册只收 D-094(b) 合法漂移类条目；(a) 真坏必修现实、(c) 欺诈/死面断言禁入册（处置=修检查面非掩饰）。#75批1（A-097）起生效；guard 级红件另走 known-red-manifest.json。"
+   },
+   "entries": []
+ }
+diff --git a/.scratch/macro-audit/handoffs/2026-09-27-r37-t1-handoff.md b/.scratch/macro-audit/handoffs/2026-09-27-r37-t1-handoff.md
+new file mode 100644
+index 00000000..984e7169
+--- /dev/null
++++ b/.scratch/macro-audit/handoffs/2026-09-27-r37-t1-handoff.md
+@@ -0,0 +1,39 @@
++# 轮 37 T1 交接 —— #75批1 失效三分类建制 + 守卫升格判据（A-097 / M-020）
++
++## 状态
++
++**已闭环交付**（deltas-pending 下轮裁定）。`guard-all-run.mjs` 全量判据 PASS：60 件实跑、红集={01}⊆册、册件复绿告警武装在位。
++
++## 本批落盘
++
++**新建**：`reports/75a-check.mjs`（七族字面钉普查+注册表归因闸）／`reports/guard-all-run.mjs`（D-149④ 升格判据执行器）／`reports/known-red-manifest.json`（册制红集）／`reports/75a-census-register.json`（348 条归因）／`reports/75a-census-findings.json`（实跑快照）／`reports/_lib/check-kit.mjs`（剥注释共享面）。
++
++**改断言 11 件**（合法漂移，D-094(b)）：
++- `20-check` A5：裸词表→SQL 语句形态（Map.delete 撞名修复）。
++- `23-check`：裸 NodeNext import→`dist/report/generate.js`（dist 钉属于 check-dist 另守）。
++- `25-check` C3b：字面「待用户拍板」→末格非空；C5a 剥末格（处置留痕位）。
++- `26/28/30-check`：porcelain 断言→票面 commit 集+冻结 SHA（GitButler 合成索引幻影 MM 实证）。
++- `35-check` D4：D-035④∪D-045 枚举并集回查。
++- `37-check`：C2 改逐件 SHA committer 核验（noreply@github.com）；C3 钉快照 head 树内。
++- `38-check`：D4 钉自有字段非字面 65；F2 全 supports→件件落档+总体如实；F5 parity→自洽+外部锚。
++- `41a-check` D7b：编年 `## [M-xxx]` 键集→D 覆盖集∋dMax（D-144② 结构不变量化）。
++- `44-check` G6：序位正则→行级共现。
++- `54-check` B2/B3：吸收后分类调用锚+剥注释扫描（接 _lib/check-kit.mjs）。
++
++**册/表**：`known-red-manifest.json` 首收 `kr-01-corpus-regen`（01-check D1/D5 语料再生退化，复审锚+expires 2026-12-31）；`stale-assertions.json` meta 补 `policy_d094`；`75a-census-register.json` 348 条全归因。
++
++**注册面**：`33-gate-registry.json` —— `t3-guard-manifest-shipped` occurred=true；`guard-baseline-upgrade-trigger` fired→decided；新增 `known-red-kr-01-corpus-regen`（manual_watch）；`corpus-resnapshot-landed` 事件立。`AGENTS.md` 升格条款生效。**BACKLOG #75 批1 闭环标**；**WORKFLOW §4** lessons 行；**CHANGELOG M-020**；**账本 A-097**。
++
++## 验收实测（本机 Windows/Node24）
++
++build（tsc 0+BUNDLE-OK）／check-dist PASS 263151B／pack 85 件／selftest 5/5／MCP stdio initialize+tools/list=[facts,quarantine,file_card]／smoke 22 册全 PASS／guard-all-run PASS（60 件）／75a 9/9／NUL·BOM 嗅探 0。报告：`reports/2026-09-27-r37-exec-report.md`。
++
++## 下轮交接点
++
++1. **册件值守**：01-check 复绿→必须摘 kr-01（strict 告警驱动，勿留确定性红养无视）。
++2. **批2/批3 未动**：枚举 open/closed 差集 lint、census-contract 双机芯互等裁决（#75 票面批2 目录面已释为各守卫按三分类门处理件——按批收口）。
++3. **multi-hit 族** 76 件 ack 在册（83-B2 含 P5-B2 实证三点位）——点级锚整改归批2+。
++4. **unstripped-scan 族** 41 件登记 convention-registered——**新增断言对 .ts/.md 源文必先过 `_lib/check-kit.mjs` 剥注释**（违规=75a C1 红）。
++5. **75a 键=sha8(行)**：编辑断言行=重归因义务（悬空条目闸 C2 会红）。
++6. **子任务红线重申**：B 轨不碰；dist 禁移除；阈值禁先写死；摄入四档未动；密封/验收探针语义不动。
++7. **Windows 坑（复述 R36）**：ctx_execute 必带 `language:"javascript"`；`'\n'` 进文件须 JSON 四级转义或直接 `String.fromCharCode(10)`（本轮 30/35 曾两次踩塌——restore+fromCharCode 修复）；`NODE_OPTIONS` 注入宿主→子进程须剥。
+diff --git a/.scratch/macro-audit/reports/2026-09-27-r37-exec-report.md b/.scratch/macro-audit/reports/2026-09-27-r37-exec-report.md
+new file mode 100644
+index 00000000..c884e47a
+--- /dev/null
++++ b/.scratch/macro-audit/reports/2026-09-27-r37-exec-report.md
+@@ -0,0 +1,70 @@
++# 轮 37 T1 / #75批1 执行报告 —— 失效断言三分类建制 + 守卫基线升格判据落地
++
++- 日期：2026-09-27
++- 票面：`D:\Aworker\6F\.scratch\macro-audit\handoffs\next-round.md` T1（吸收 D-144②③＋D-149③④）
++- 覆盖决策：D-094②③④ / D-102③ / D-079⑥ / D-071⑨ / D-144②③ / D-149③④；账本行 A-097；编年 M-020
++- 验收标准（原文）：「编译通过、打包通过、启动并测活软件进程；每个平台都要有 test 闭环，避免只引入却没做到。」
++
++## 1. 三分类裁定矩阵（T1-a 主交付——12 件静默红全过 D-094 门）
++
++| guard | 红断言 | 三分类 | 处置 | 证据锚 |
++|---|---|---|---|---|
++| 01-check.mjs | D1 anysearch intent≥5（实测1）；D5 45 分全溯源 | (b) 合法漂移——语料再生退化 | **入 known-red-manifest**（kr-01-corpus-regen，复审锚=语料重采样票/stage3-close，expires 2026-12-31） | commit c6fe0f8 复跑产物刷新记录在案 |
++| 20-fact-schema-check.mjs | A5 SQL 写令牌 | (b) 断言面撞 JS API——改断言 | `Map.delete`/`instanceOf.delete` 误判收窄→SQL 语句形态正则（`DELETE\s+FROM` 等 8 条） | `engine/src/fact/store.ts` Map 删除调用点 |
++| 23-first-report-check.mjs | 全件 crash | (b) 机制漂移——改断言 | `import generate.ts` → `engine/dist/report/generate.js`（NodeNext `.js` specifier 在 Node 类型剥离下不映射；dist 陈旧由 check-dist 另守） | dist 导出实含 REPORT_SKELETON/skeletonOf/UNVERIFIED_MARK/CONTENT_DIGEST_CANONICALIZATION |
++| 25-check.mjs | C3b 每行「待用户拍板」；C5a `push 已执行` | (b) 处置落地后的票面钉——改断言 | C3b=末格（拍板状态）非空结构钉；C5a 扫票面自身声明面（剥末格——处置留痕位不属本票声明） | checklist 行末格已填 decided/closed 实物 |
++| 26-check.mjs | D1/D2 porcelain 零改动 | (b) 工具时代漂移——改断言 | GitButler 合成索引幻影 MM→钉票面 commit 集（A-031 触碰面零触 docs/adr/engine）＋冻结 SHA（23-measurements 最后变更=e39468c） | `git show --name-only` A-031 集实物 |
++| 28-check.mjs | scope porcelain 零杂项 | 同上 | A-033 commit 集 ⊆ docs/adr(0001~0009,0014)+reports/28-*+簿记三件；engine/spec/issues/handoffs/prompts 零触 | 3586f2e 触碰面枚举 |
++| 30-check.mjs | C1 porcelain | 同上 | A-035 commit 集零触敏感面＋冻结四件最后变更钉（e39468c×3 / 55dc34e） | ee18d2e + `git log -1 --format=%H` 实测 |
++| 35-check.mjs | D4 三暂缓面名缺 | (b) 枚举源历史挪移——改断言 | 回查源 D-035④∪D-045（architecture-violations/defect-validation/finding-hotspot-overlap 系 D-045 Micro 枚举收编） | D-045 行含三名实物 |
++| 37-check.mjs | C2 对账等值/C3 活盘等值 | (b) 外部语料增长——改断言 | C2→存档 SHA 逐件核验（可解析+committer=noreply@github.com）；C3→钉快照 head 树内计数（ls-tree -r） | 复测 65/69/14 ADR 钉快照；gh-committer 逐件核验 |
++| 38-check.mjs | D4/F2/F5 65 份/全 supports/parity | (b) 工件再生漂移——改断言 | D4 钉 meas.adr_count 自有字段（非字面 65）；F2=件件有裁决落档+overall=insufficient 如实；F5=crosscheck 字段自洽+37 档回锚+差如实披露 | pm37.adr.count=65 ↔ meas.adr_count=76 差在档 |
++| 44-check.mjs | G6 #77/#78 字面钉 | (b) 任务书换代（断言自承滚动维护）——改断言 | 序位正则→行级共现（`#77` 同行+收口/交付族标记）；#78 去向在册不动 | next-round.md 轮28 留痕行实物 |
++| 54-check.mjs | B2/B3 调用点锚 | (b) 吸收层加挂调用点挪移——改断言 | 锚改钉吸收后分类调用（`classifyGitIsoField(headAbs.value,…)` / `absorbGitIsoDialect(parts[2])`+`classifyGitIsoField(abs.value)`）＋剥注释扫描 | #78/ADR-0022 吸收层实物 |
++| 41a-check.mjs | （绿但 D7 高频增长面钉） | D-144② 预防性结构不变量改写 | D7 保双路径钉；新增 D7b=解析 `## [M-xxx]` 键集→各段 D-xxx 覆盖集（区间展开）断言 `dMax∈覆盖集` | 覆盖集实算：M-001~M-020 段内 D-id 含 D-149 |
++
++**裁定汇总：真坏 0 / 合法漂移 11（改断言）＋1 入册 / 欺诈·死面 0。** 44-G6 属新红入画（轮37 任务书换代失锚）。
++
++## 2. 字面钉普查（T1-b）
++
++`75a-check.mjs` 落成：七族检出器（日期字面量 53 / 魔数地板 51 / 裸 occurred=== 10 / 无牙断言 2 / 未剥注释扫描 41 / 存在性断言 115 / 同名多命中 76）＝**348 条 findings 全量归因**至 `75a-census-register.json`（键=文件|族|sha8(行)）。
++
++- **剥注释通用化**：`_lib/check-kit.mjs` stripComments（行注+块注+字符串保护）/stripMdComments；54-check 已接为消费点，其余 41 件 unstripped-scan 登记 `convention-registered`（存量保留，新增断言须过剥注释面——73-A4/20-A5/54-B 先例链）。
++- **三层命名**：115 件存在性断言全标 `layer=presence`；liveness/readiness 语义注记入注册表 meta。
++- **无牙族**：2 件恒真谓词（44-check B4 / 73-check C2）登记 `observability-emit`（值打印位借断言形态；改 console.log 会破 63 emit 盘点账——登记即注记）。
++- **正对照自检**（D-079⑥ 同型）：合成源码五族必抓 + 负对照不误报。
++
++## 3. known-red manifest + 升格判据（T1-d）
++
++- `known-red-manifest.json` v1：policy 明文「只收 legit-drift / 欺诈死面禁入册」＋单条目 `kr-01-corpus-regen`（四要素齐备）。
++- `guard-all-run.mjs`：动态枚举 `*-check.mjs`+`xfail-run.mjs`（60 件）→ 红集⊆册（册外新红 FAIL）＋册件复绿 strict 告警＋悬空条目 FAIL＋slug 漂移 WARN。子进程剥 NODE_OPTIONS。
++- registry `guard-baseline-upgrade-trigger` **fired**（status→decided，confirmations 补 fired 记）；`events['t3-guard-manifest-shipped'].occurred=true`；新增 manual_watch 项 `known-red-kr-01-corpus-regen`（deadline 2026-12-31）。
++- AGENTS.md 守卫组指称行追加升格生效条款（基线 18 件→全量跑判据，枚举为历史快照存证）。
++- stale-assertions.json meta 补 `policy_d094`（XFAIL 册禁欺诈入册条款）。
++
++## 4. P5/B2 同名断言普查（T1-e）
++
++`83-check.mjs` B2 探针 `available_head_shas: input.availableHeadShas.slice()` 在 `engine/src/fact/file-card.ts` 3 命中——普查自动检出并注册 `acknowledged-multi-hit`（注记明记 R35 审计件 + D-143④ 禁加分支凑数，整改方向=点级锚，归 #75批2+ 排产）。同类族 76 件全注册。
++
++## 5. 验收链（复跑口径）
++
++| 项 | 命令 | 结果 |
++|---|---|---|
++| 编译 | `cd D:\Aworker\6F\engine && npm run build` | tsc 0 + BUNDLE-OK dist/cli.js |
++| dist 零漂 | `node scripts/check-dist.mjs` | DIST-RATCHET PASS 263151B/289395B |
++| 打包 | `npm run package` | macro-audit-0.1.0.tgz 85 件 255.2kB |
++| selftest | `npm run selftest` | 5/5 ok:true |
++| 进程测活/MCP | `node dist/cli.js mcp` + JSON-RPC initialize/tools/list | init ok + tools=[facts,quarantine,file_card] |
++| smoke 链 | `npm run smoke`（22 册实跑） | 尾册 dialect-boundary 全 PASS（含真机 PROBE-INVARIANT） |
++| 守卫升格判据 | `node .scratch/architecture-recovery/reports/guard-all-run.mjs` | ran=60 red=1(registered) problems=0 **GUARD-ALL-RESULT: PASS** |
++| 75a 普查 | `node 75a-check.mjs` | 9/9 PASS（findings=348 全归因） |
++| NUL/BOM | 字节嗅探全改动面 | 0 NUL / 0 BOM / tailNL 全在（20-check/BACKLOG 尾行补齐） |
++
++平台闭环：本机 Windows/Node24 全链绿；`.github/workflows/engine-ci.yml` 矩阵（ubuntu/windows/macos × node 20/22）承接异平台 test 面——本轮改动全为 reports/ 守卫+文档面，引擎产物零字节差（check-dist 实跑证）。
++
++## 6. 遗留与边界
++
++- kr-01-corpus-regen 册件：语料退化承认态留档，复审锚/期限在册+registry manual_watch。
++- 75a 普查为行级启发式——键=sha8(行) 稳于行号漂移但弱于内容编辑（编辑即须重归因——纪律本意）。
++- 批2/批3（枚举 open/closed 差集 lint、census-contract 机芯互等裁决）未动——归后续批次。
++- 子任务红线遵守：未碰 B 轨、未删 dist、阈值经分类门而非先写死、摄入四档未动、密封/验收探针语义未动、无 push。
+diff --git a/AGENTS.md b/AGENTS.md
+index 670a432b..5a34ab35 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -12,7 +12,7 @@
+ - **生成物再生禁搭车语义提交**——`engine/dist/` 产物（tsc+esbuild 输出）变更须独立 bundle commit；bundle-only SHA 可登记 `.git-blame-ignore-revs`（D-140②，D-139 同型扩展）
+ - **外部评审摄入先分诊再裁定**：钉评审快照 SHA＋逐条对照当前 HEAD——「快照属实/现状已修」不进裁定链（去向表照登）；仍开放→裁定链（D-075 三要素受理）；无法核实→pending+复审时点（入 registry 须走 manual_watch 五要素）；「可核实且证伪」→标「快照不属实」**附核实依据**显式驳回不进裁定链（去向表照登——摄入分诊封闭处置态，非第四值守态）（D-142/D-146）
+ - **收口工序前置核对**：账行增量↔编年随行核对＋收口前跑守卫组——「本轮无账行增量」可显式声明豁免（D-144①④）；`engine/src` 或 `engine/dist` 触碰→前置 `npm run build`＋`node scripts/check-dist.mjs` 核对零 drift 再 commit（D-145①；守卫组/CI 层硬闸不降级）
+-- **守卫组指称**（D-149①②）：「收口前跑守卫组」=基线 18 件枚举——`33/39/40/41a/43/44/45/70/71/72/73/77/78/80/81/82/83-check.mjs`＋`xfail-run.mjs`（reports/ 下全绿判据；41a 编行随行钉在账行增量 commit 落盘前许可中途红）——成员进出：新 check 落盘轮登记＋实测绿入列，出列=T3 分诊门处置；升格触发器=T3 manifest 产出当轮改「58 件全跑＋红集⊆manifest＋manifest 件复绿告警」（registry `guard-baseline-upgrade-trigger`）
++- **守卫组指称**（D-149①②）：「收口前跑守卫组」=基线 18 件枚举——`33/39/40/41a/43/44/45/70/71/72/73/77/78/80/81/82/83-check.mjs`＋`xfail-run.mjs`（reports/ 下全绿判据；41a 编行随行钉在账行增量 commit 落盘前许可中途红）——成员进出：新 check 落盘轮登记＋实测绿入列，出列=T3 分诊门处置；升格触发器=T3 manifest 产出当轮改「58 件全跑＋红集⊆manifest＋manifest 件复绿告警」（registry `guard-baseline-upgrade-trigger`）——**已触发（A-097/轮37）**：升格后判据=`node .scratch/architecture-recovery/reports/guard-all-run.mjs` 全量跑（动态枚举含新入列 check）＋红集⊆`known-red-manifest.json`＋册件复绿 strict 告警；18 件枚举为升格前基线历史快照存证
+ - **规程生效时点**（D-148③）：checklist/规程自其落盘 commit 起对新行为生效，落盘 commit 自身豁免（grandfather/lint 存量豁免同构）——豁免对象=新规程，落盘时点已生效的旧守卫仍全额适用
+ - **审计 finding 处置**（D-148②）：Accepted Risk 封闭处置态须三要素齐备——不修理由＋补偿控制＋复评触发条件；缺任一=finding 静默丢弃（wontfix≠裸标；false-positive=finding 不存在语义非处置档）
+ - 版本控制用 `but`（GitButler），不 push 除非用户明示
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 85cf7685..8d38fec0 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -155,3 +155,11 @@
+ - a_range: A-001 ~ A-096（不变——本轮零新增）
+ - ledger_pointer: .scratch/macro-audit/decision-ledger.md 第三十六轮 Grill＋收口对账（D-148~D-149，零新 revised）
+ - impact: 锐评核销闭环（三税处置全落档）；审计判断项呈报面清零（R1/R2 有名分）；规程生效时点语义封口（M-015 类不再重演）；「守卫组」获 AGENTS 层指称（收口判据可执行化）；静默红 fleet 首次全量画像（12 件）为 T3 普查输入
++## [M-020] - 2026-09-27
++
++- milestone: 轮 37 T1 / BACKLOG #75 批1——失效断言三分类建制＋守卫基线升格判据落地（D-149④ 触发器 fired）：静默红 12 件全过 D-094 门（11 件合法漂移改断言〔26/28/30 porcelain→票面 commit 集、20 SQL 词表→语句形态、23 裸 NodeNext→dist 面、37 等值→钉快照+逐件 committer 核验、38 钉死→字段自洽+外部锚、44 序位钉→行级共现、54 调用点锚+剥注释、35 枚举并集、25 列结构钉〕、1 件入 known-red-manifest〔01 语料退化，复审锚+expires〕、0 欺诈/死面）＋75a-check 字面钉普查 348 条全归因注册＋三层命名/无牙族/剥注释纪律落成＋41a-D7 结构不变量化（编年键覆盖集）＋P5-B2 同名断言普查顺带登记
++- adr_range: ADR-0001 ~ ADR-0023（不变）
++- a_range: A-001 ~ A-097
++- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-148~D-149 应用面）＋ .scratch/architecture-recovery/decision-ledger.md（A-097）
++- impact: 「守卫组」判据升格为全量跑+册制红集管理（registry 触发器 fired）；断言纪律三族（剥注释/层位/无牙）成建制；known-red manifest 首收 1 件
++
