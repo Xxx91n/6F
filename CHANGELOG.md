@@ -203,3 +203,10 @@
 - a_range: A-001 ~ A-099（无新增——批2-β 属 macro-audit 账本 D 面裁定执行批）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-001~D-156：145 current/10 revised/1 closed；本批兑现 D-153②〔①②③〕/D-154①②③/D-156④ 执行面）
 - impact: 普查基线 348→389（扩面新检出全量批注册=baseline-ratchet 基线重生成事件非膨胀；75a-check 10/10 绿）；探测器判定面锚消费位立法成文；豁免面死项自此有机检牙；批3/批4 择批点维持不预裁
+## [M-026] - 2026-09-28
+
+- milestone: 轮 40 grill 收口——第五轮锐评辩证处置六裁全 current 零 revised（D-157~D-162）：摄入分诊九条定案（勘误：sibling 活体依赖 9→3／幽灵钉挂 26-check／计量漂移登记）＋F-A1 谓词收紧剥后真消费形态（字符串提名不豁免＋S2 fxStringNom 正对照＋41 件字符串维度重测）＋守卫面环境契约分层（portable/env-contract 两档＋tier 自声明＋SKIP-with-reason 三态呈现）＋era-scoped 退役机制（面消亡判据＋manifest retired 类终态留档——裁军诉求显式驳回）＋提交信息三栏位 trailer 化（Ledger-Refs/Chronicle/Adrs 词表入 CONTEXT）＋外部暴露梯度三段（Stage-0 追认／Stage-1 charter 复用／Stage-2 四判据包＋30 日静默窗）。
+- adr_range: ADR-0001 ~ ADR-0024（不变；ADR-0024 注记挂 D-158 指针随执行窗同窗，不开 ADR-0025）
+- a_range: A-001 ~ A-099
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-001~D-162：151 current/10 revised/1 closed；D-157~D-162 新增＋R40 收口节）
+- impact: 锐评五面全部判据化收编（C1 环境契约／C2 退役机制／C3 提交形态／S3 暴露梯度＋ghost 并轨 D-094 普查通道）；提交信息新形态自下一 commit 起适用（本 commit 豁免——D-148③）；Stage-0 被动挂牌追认即刻生效、Stage-2 判据包值守义务随执行窗 registry 登记；六裁均禁轮内动源码、执行窗义务全量挂账（R40-impl 批序在收口节登记）。

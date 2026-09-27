@@ -19,6 +19,8 @@
 > 轮 36 grill（2026-09-27 完成）已封口 D-148 ~ D-149：第四轮锐评核销复核（锐评面零残余裁面——已完成核销表）＋审计窗判断项处置（R1 Accepted-Risk 裁立三要素／R2 确认式呈报补复评触发）＋规程生效时点规约（grandfather／落盘 commit 自身豁免）＋守卫组界定（18 件枚举锚面固化 AGENTS＋成员进出生命周期＋静默红 12 件处置谱挂 T3 分诊门＋升格触发器登记）
 > 轮 38 grill（2026-09-27 完成）已封口 D-150 ~ D-152：CodeBuddy 宿主试用三裁＋执行协议＋完备性核查——插件全路径主验收线＋CLI 裸跑对照（安装树自对照钉 SHA，单变量=驱动路径）／兼容性面官方兼容证伪零预修（`${CLAUDE_PLUGIN_ROOT}`+`.claude-plugin/` 双源实证，三悬点列首轮实测清单）／试用先行=排程优先（findings 回流喂批2）／SBTM charter 三件套＋exit/success 双轴封口＋trials/ 档案位新立＋findings 票面五要素；调研档案 R38-Q{1..3} 系列存档 .scratch/macro-audit/reports/；本轮零 revised。
 > 轮 39 grill（2026-09-27 完成）已封口 D-153 ~ D-156：T1 CodeBuddy 试用关窗核认＋批2-β 探测面硬化裁定——射程 (b′)（核销呈报＋五项混合颗粒度＋簿记不占裁定链＋批3/批4 显式不预裁）＋unstrippedScanHit 豁免判据改剥后消费位＋multi-hit 扩面 dry-run→批注册→预声明转窗 enforcing＋SCAN_EXEMPT 死项摘除＋S1 改写「SCAN_EXEMPT ⊆ 枚举面」可达性自检（自命中入册 348→349 作正对照）＋ADR-0024 立法义务＋技术债八件两全形态登记（known-gaps 节级条目＋registry 节级 manual_watch 机读锚 next-audit-window）＋IDE 缺口 manual_watch（CLI=verified/IDE=observed-unverified 三态披露）＋F-02 宿主盲区不上报挂哨兵观察；完备性对抗核查捞出 N1/N2 去向断链一处补登 GAP-B2B-07/08；调研档案 R39-Q{1..4} 系列存档 .scratch/macro-audit/reports/；本轮零 revised。
+> 轮 40 grill（2026-09-28 完成）已封口 D-157 ~ D-162：第五轮锐评辩证处置六裁毕——摄入分诊九条定案（sibling 活体依赖勘误 9→3／幽灵钉挂 26-check）＋F-A1 谓词收紧剥后真消费形态（字符串/属性名/标识符提名不豁免＋S2 fxStringNom 正对照）＋守卫面环境契约分层（portable/env-contract 两档＋tier 自声明＋SKIP-with-reason 三态呈现契约）＋era-scoped 退役机制（面消亡判据＋manifest retired 类终态留档）＋提交信息三栏位 trailer 化（Ledger-Refs/Chronicle/Adrs）＋外部暴露梯度三段（Stage-0 追认／Stage-1 charter 复用／Stage-2 四判据包＋30 日静默窗）。
+
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -366,3 +368,7 @@ _Avoid_: 提名位当豁免依据（overreacted no-restricted-disable 同族病�
 **豁免集可达性自检（Exempt-Set Reachability Self-Check）**:
 枚举型豁免集合的成员必须落在被枚举步的可达面内（D-154③/ADR-0024 不收处置类）：75a-check S1=assert `SCAN_EXEMPT ⊆ walked 枚举面`（`*-check.mjs`＋`xfail-run.mjs` 实际枚举集），死项（枚举面外成员如旧 `guard-all-run.mjs`）即红——恒真断言转 killable 不变式（75a-C2 零悬空镜像；gitleaks `--deny-unused-baseline`/eslint-seatbelt 先例：死项在册即红态）。
 _Avoid_: 自指断言（断言文本自带被搜词=恒真不红，Autonoma tautological-test/D-102 无牙族同型）、豁免死项静默滞留（baseline 腐化）、自检面外移挂册外锚（违册内可达性先例）
+
+**Commit Trailer 词表（Ledger-Refs / Chronicle / Adrs）**:
+提交信息 footer 机读面三键（D-161①③，Conventional Commits §8 token 语法——token 无空格、`-` 代）：`Ledger-Refs: D-157 D-158` 钉账本裁定引用；`Chronicle: M-026` 钉随行编年号；`Adrs: ADR-0024` 钉涉及 ADR；subject 只载单意图人读行（「什么+为什么」），body 载分项清单 bullets，机读锚全迁 footer 永截不断位（subject >72 全工具链截断带不再寄锚）。
+_Avoid_: subject 发票化（清单+引用挤标题行=git/CC/kernel/Gerrit 四生态无先例孤证）、机读锚钉 subject 截断带、词表私造键（三键之外新键须先入词条再入 footer）、以 footer 迁移替代编年文件内容（Chronicle=指针，M-段仍落 CHANGELOG.md）
