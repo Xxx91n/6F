@@ -163,3 +163,11 @@
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-148~D-149 应用面）＋ .scratch/architecture-recovery/decision-ledger.md（A-097）
 - impact: 「守卫组」判据升格为全量跑+册制红集管理（registry 触发器 fired）；断言纪律三族（剥注释/层位/无牙）成建制；known-red manifest 首收 1 件
 
+## [M-021] - 2026-09-27
+
+- milestone: 轮 37 T1 返工核销——审计打回 F1（guard-all-run 复跑拦下册外新红 23-P2：git auto-abbrev 7→8 跳变撞 7 位字面钉）窄修毕：%h→%H 全锚+startsWith 前缀等值；75a 增 short-sha-pin 探测族（第六族入正对照）；升格机制首效实证（红集⊆册判定如实拦截）
+- adr_range: ADR-0001 ~ ADR-0023（不变）
+- a_range: A-001 ~ A-098
+- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-098 返工行）＋ .scratch/macro-audit/reports/2026-09-27-r37-audit-report.md（裁定源）
+- impact: 收口判据复绿（guard-all-run 60 件 PASS 红集={01}⊆册）；同族残余普查净面；审计打回→修复→复核闭环成例
+
