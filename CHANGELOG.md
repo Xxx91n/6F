@@ -195,3 +195,11 @@
 - a_range: A-001 ~ A-099
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-099）＋.scratch/macro-audit/decision-ledger.md（D-001~D-156：145 current/10 revised/1 closed）
 - impact: 探测面语义立法齐备待实施（dry-run→批注册→转窗 enforcing 序；禁用过期差值）；登记面实物全兑现（双册分工维持、裸 prose 锚机读化）；批3/批4 择批点显式不预裁；宿主面 CLI=verified/IDE=observed-unverified 三态披露在册（禁 CLI 外推 IDE）
+
+## [M-025] - 2026-09-27
+
+- milestone: 轮 40 T1 批2-β 探测面硬化实施批落地——①unstrippedScanHit 豁免判据改剥后消费位（实测 comment-only 逃逸=0、存量 41 件册零迁移）②multi-hit 扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（dry-run→批注册→当日转窗 enforcing：delta +42 全量批注册 acknowledged-multi-hit＋1 件字面量归因迁移 46→49 摘悬空）③SCAN_EXEMPT 摘 guard-all-run.mjs 死项＋S1 改写 ⊆枚举面可达性自检＋S2 消费位判据正对照 fixture ④ADR-0024 立法落盘（单收①②取舍）＋CONTEXT「消费位判据/豁免集可达性自检」词条同步立＋41 件册 note 挂 ADR-0024 指针
+- adr_range: ADR-0001 ~ ADR-0024（docs/adr/ 实物 24 件，含 ADR-0002/ADR-0010 superseded 如实计——区间写时实物读出）
+- a_range: A-001 ~ A-099（无新增——批2-β 属 macro-audit 账本 D 面裁定执行批）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-001~D-156：145 current/10 revised/1 closed；本批兑现 D-153②〔①②③〕/D-154①②③/D-156④ 执行面）
+- impact: 普查基线 348→389（扩面新检出全量批注册=baseline-ratchet 基线重生成事件非膨胀；75a-check 10/10 绿）；探测器判定面锚消费位立法成文；豁免面死项自此有机检牙；批3/批4 择批点维持不预裁

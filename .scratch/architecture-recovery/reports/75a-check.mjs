@@ -19,8 +19,10 @@ const ROOT = join(HERE, '..', '..', '..');
 const NL = String.fromCharCode(10);
 const EMIT = process.argv.indexOf('--emit') >= 0;
 
-// 普查豁免面（普查机件自身+全量跑执行器——探测器字面量非断言钉；xfail-run 仍在列）
-const SCAN_EXEMPT = new Set(['75a-check.mjs', 'guard-all-run.mjs']);
+// 普查豁免面（普查机件自身——探测器字面量非断言钉；xfail-run 仍在列）
+// 批2-β③（D-154③）：摘除 guard-all-run.mjs 死项（枚举面 *-check.mjs 文案漂移合法演化类，
+// D-094③ 归因在案）；S1 改写为「SCAN_EXEMPT ⊆ walked 枚举面」可达性自检（killable 不变式，死项即红）。
+const SCAN_EXEMPT = new Set(['75a-check.mjs']);
 const ASSERT_CALL = /(?:^|[^.\w])(?:t|check|ok|chk|assert)\s*\(/;
 
 const sha8 = (s) => createHash('sha256').update(s).digest('hex').slice(0, 8);
@@ -41,10 +43,13 @@ function findInSource(file, strippedLines) {
   return out;
 }
 
+// 批2-β①（D-154①/ADR-0024）：豁免判据改测剥后源码消费位——import/真实调用计消费位，
+// 注释提名不再豁免（全局豁免反模式收口）；探测谓词同走剥后面（注释内假消费位不计）。
 function unstrippedScanHit(file, srcText) {
-  if (/stripComments|stripMdComments/.test(srcText)) return false;
-  const readsSource = /readFileSync\([^)]*(ts|md|mjs)[^)]*\)/.test(srcText) || /(?:txt|read)\s*\([^)]*\.(ts|md|mjs)/.test(srcText);
-  const probes = /\.indexOf\(|\.includes\(|\.test\(/.test(srcText);
+  const stripped = stripComments(srcText);
+  if (/stripComments|stripMdComments/.test(stripped)) return false;
+  const readsSource = /readFileSync\([^)]*(ts|md|mjs)[^)]*\)/.test(stripped) || /(?:txt|read)\s*\([^)]*\.(ts|md|mjs)/.test(stripped);
+  const probes = /\.indexOf\(|\.includes\(|\.test\(/.test(stripped);
   return readsSource && probes;
 }
 
@@ -58,7 +63,8 @@ for (const f of checkFiles) {
   const stripped = stripComments(raw);
   findings.push(...findInSource(f, stripped.split(NL)));
   if (unstrippedScanHit(f, raw)) findings.push({ file: f, kind: 'unstripped-scan', line: f + ' 源文扫描未过剥注释面（名↔检通用化登记项）', lno: null });
-  for (const m of raw.matchAll(/\.indexOf\(\s*(['"`])((?:(?!\1).){20,}?)\1/g)) probeLiterals.set(m[2], { file: f });
+  // 批2-β②（D-154②）：探针字面量收集扩 .includes(/.test( 调用形态（原仅 .indexOf( 逃逸面收口）
+  for (const m of raw.matchAll(/\.(?:indexOf|includes|test)\(\s*(['"`])((?:(?!\1).){20,}?)\1/g)) probeLiterals.set(m[2], { file: f });
 }
 
 // 同名多命中普查（P5-B2 型：断言探针字面量在单文件 ≥2 命中=弱隔离）
@@ -73,6 +79,7 @@ function walk(d, depth) {
 }
 walk(join(ROOT, 'engine', 'src'), 0);
 walk(join(ROOT, '.scratch', 'architecture-recovery'), 0);
+walk(join(ROOT, '.scratch', 'macro-audit'), 0); // 批2-β② 补漏面（实测零 .mjs——纯封洞）
 walk(join(ROOT, 'docs'), 0);
 for (const f of ['README.md', 'CHANGELOG.md', 'AGENTS.md', 'BACKLOG.md', '.scratch/architecture-recovery/BACKLOG.md']) {
   const p = join(ROOT, f); if (existsSync(p)) corpus.push({ p, t: readFileSync(p, 'utf8') });
@@ -136,9 +143,22 @@ t('M2 stale-assertions meta 载 D-094 禁欺诈入册条款', stale.meta && type
 const c41a = stripComments(readFileSync(join(HERE, '41a-check.mjs'), 'utf8'));
 t('R1 41a-D7 结构不变量在位——cl.indexOf(dMax) 字面钉不得回潮（D-144②）', c41a.indexOf('cl.indexOf(dMax)') < 0 && c41a.indexOf('dCovered.has(+dMax.slice(2))') >= 0, '');
 
-// 普查自身完整性：豁免面枚举在文、findings 落盘（供复跑比对）
-const selfSrc = readFileSync(join(HERE, '75a-check.mjs'), 'utf8');
-t('S1 普查豁免面枚举在册（75a/guard-all-run 机件免扫）', selfSrc.indexOf('SCAN_EXEMPT') >= 0 && selfSrc.indexOf('guard-all-run.mjs') >= 0, '');
+// 普查自身完整性：豁免面可达性自检、findings 落盘（供复跑比对）
+// S1 批2-β③ 改写（D-154③）：恒真断言（自指文本命中即过）转 killable 不变式——
+// 引枚举面集合（checkFiles=*-check.mjs+xfail-run.mjs walked 面）非自身文本，
+// SCAN_EXEMPT 任一成员出枚举面（死项）即红（75a-C2 零悬空镜像；gitleaks --deny-unused-baseline 先例）。
+const enumSurface = new Set(checkFiles);
+const deadExempt = [...SCAN_EXEMPT].filter((f) => !enumSurface.has(f));
+t('S1 普查豁免面可达性自检（SCAN_EXEMPT ⊆ walked 枚举面——死项即红）', deadExempt.length === 0, deadExempt.join(','));
+
+// S2 批2-β③ 面A修法正对照 fixture（D-154③「改写后 S1 作面A修法首个正对照」落点）：
+//   合成源注入——SCAN_EXEMPT 字面于真实消费位必被修后探测器命中；注释提名 stripComments 不再豁免；
+//   真实 import/调用计消费位仍豁免。回滚①修复（豁免判据退回原文测试）即红=killable。
+const fxConsumption = unstrippedScanHit('fx-consumption', "const ex = new Set(['SCAN_EXEMPT']); const s = readFileSync('a.mjs', 'utf8'); s.indexOf(ex);");
+const fxCommentOnly = unstrippedScanHit('fx-comment-only', "// stripComments 注释提名不豁免\nconst s = readFileSync('a.mjs', 'utf8'); s.indexOf('k');");
+const fxRealImport = unstrippedScanHit('fx-real-import', "import { stripComments } from './k.mjs'; const s = readFileSync('a.mjs', 'utf8'); s.indexOf(stripComments(s));");
+const fxRealCall = unstrippedScanHit('fx-real-call', "const s = readFileSync('a.mjs', 'utf8'); s.indexOf(stripMdComments(s));");
+t('S2 消费位判据正对照（面A fixture：消费位命中/注释提名必中/真实消费位豁免）', fxConsumption === true && fxCommentOnly === true && fxRealImport === false && fxRealCall === false, 'hit=' + fxConsumption + ' comment=' + fxCommentOnly + ' import=' + fxRealImport + ' call=' + fxRealCall);
 
 import { writeFileSync } from 'node:fs';
 writeFileSync(join(HERE, '75a-census-findings.json'), JSON.stringify(findings.map((f) => ({ key: keyOf(f.file, f.kind, f.line), file: f.file, kind: f.kind, lno: f.lno, excerpt: ((f.line || '').trim().slice(0, 110) + (f.note ? ' → ' + f.note : '')) })), null, 1) + NL, 'utf8');
