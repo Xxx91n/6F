@@ -80,35 +80,35 @@
   "key": "23-first-report-check.mjs|existence-assert|9393c566",
   "file": "23-first-report-check.mjs",
   "kind": "existence-assert",
-  "lno": 45,
+  "lno": 46,
   "excerpt": "check('P3', existsSync(C_BASIS) && cBasisText.indexOf('B1') >= 0 && cBasisText.indexOf('B5') >= 0, 'C 层裁定依据预入库"
  },
  {
   "key": "23-first-report-check.mjs|magic-floor|b7246ef8",
   "file": "23-first-report-check.mjs",
   "kind": "magic-floor",
-  "lno": 71,
+  "lno": 72,
   "excerpt": "check('A4', mdHappy.indexOf('RECEIPT ' + carHappy.receipt.receipt_id) >= 0 && carHappy.receipt.chain_hash.leng"
  },
  {
   "key": "23-first-report-check.mjs|magic-floor|2ba68146",
   "file": "23-first-report-check.mjs",
   "kind": "magic-floor",
-  "lno": 112,
+  "lno": 113,
   "excerpt": "check('B4', preRegText.indexOf('0.2462') >= 0 && preRegText.indexOf('0.6000') >= 0 && gates.B.tc1.threshold.la"
  },
  {
   "key": "23-first-report-check.mjs|magic-floor|7876081e",
   "file": "23-first-report-check.mjs",
   "kind": "magic-floor",
-  "lno": 141,
+  "lno": 142,
   "excerpt": "check('R1', typeof rc.tree_anchor === 'string' && rc.tree_anchor.length === 40 && gitType(rc.tree_anchor) === "
  },
  {
   "key": "23-first-report-check.mjs|magic-floor|0b0a28ad",
   "file": "23-first-report-check.mjs",
   "kind": "magic-floor",
-  "lno": 142,
+  "lno": 143,
   "excerpt": "check('R2', rc.content_digest && rc.content_digest.algo === 'sha256' && rc.content_digest.value.length === 64 "
  },
  {
