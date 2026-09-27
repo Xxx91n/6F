@@ -1,6 +1,6 @@
-# next-round —— 轮 40 常驻任务书（轮 40 grill 封口·第五轮锐评五面＋F-A1 D-157~D-162 全定后）
+# next-round —— 轮 41 常驻任务书（轮 40 T1 执行窗已闭环·T2/T3 为窗本体）
 
-> 生成：2026-09-28 轮 40 收口。上位账本=`D:\Aworker\6F\.scratch\macro-audit\decision-ledger.md`（D-001~D-162：**151 current**／10 revised＋1 closed=D-019 沿旧例）。六裁均裁定≠执行——执行窗义务全量挂账（收口节「执行窗登记」预声明，实施不许再裁）。
+> 生成：2026-09-28 轮 40 收口（R40-T1 执行窗 2026-09-28 全量闭环——报告 reports/2026-09-28-r40-t1-exec-report.md）。上位账本=`D:\Aworker\6F\.scratch\macro-audit\decision-ledger.md`（D-001~D-162：**151 current**／10 revised＋1 closed=D-019 沿旧例）。六裁均裁定≠执行——执行窗义务全量挂账（收口节「执行窗登记」预声明，实施不许再裁）。
 
 ## 轮 25~40 留痕（已定，勿重复）
 
@@ -13,6 +13,7 @@
 - xfail 摘除注记：执行侧已落（45-check H5 摘除＋xfail-run 复绿）、人工追认注记已登 R39 收口节（D-102① 封闭）；**entries 当前 0/10**。
 
 - **轮 39 收口实施批（2026-09-27）**：R39 收口节＋registry 65/44＋known-gaps 批2-β 九行＋engine/README 实测化＋M-024＋任务书换代（vpt commit）。
+- **轮 40 T1 执行窗闭环（2026-09-28）**：D-158~D-162 执行面全兑现——F-A1 谓词收紧（realConsumption 真消费位判定＋fxStringNom 正对照，41 件册零迁移 findings=389）＋env-contract 分层（60 件 tier 自声明＋GUARD_SIBLING_ROOT SSOT＋SKIP 三态呈现）＋retired 建制（manifest 终态类＋_retired/ 归档＋75a-M3 机检）＋暴露梯度登记（stage2-launch-criteria manual_watch）；guard-all-run allOk=true（60 跑 59 绿 1 册内红）；commit skt/tml/yms/rus/kny 于 r40-t1-exec 栈。
 - **轮 40 grill 封口（2026-09-28）**：第五轮锐评六裁毕——D-157 摄入分诊九条（勘误 9→3/幽灵钉挂 26）／D-158 F-A1 谓词收紧／D-159 环境契约分层／D-160 era-scoped 退役机制／D-161 提交信息 trailer 化／D-162 暴露梯度三段；零 revised；调研十二件存档。
 
 ## 历史票面闭环索引（守卫锚点留痕）
@@ -26,17 +27,17 @@
 
 ## 口径基线（读前必知）
 
-- 账本：D 面 **162 条（151 current／10 revised／1 closed=D-019 沿旧例）**；A 面 max A-099；编年 max **M-026**。
-- **守卫判据（升格后形态，D-149④ fired）**：收口前跑 `node .scratch/architecture-recovery/reports/guard-all-run.mjs`（动态枚举全量）＋红集⊆`known-red-manifest.json`＋册件复绿 strict 告警——**D-159 env-contract/tier/skip 新语义执行窗待落地，当前判据形态不变**。
+- 账本：D 面 **162 条（151 current／10 revised／1 closed=D-019 沿旧例）**；A 面 max A-099；编年 max **M-030**。
+- **守卫判据（升格后形态，D-149④ fired）**：收口前跑 `node .scratch/architecture-recovery/reports/guard-all-run.mjs`（动态枚举全量）＋红集⊆`known-red-manifest.json`＋册件复绿 strict 告警——**D-159 env-contract/tier/skip 新语义已生效**：全量守卫 tier 自声明（未声明=75a-T 组红）、SKIP-with-reason 第三态（不进 allOk）、sibling 寻址走 GUARD_SIBLING_ROOT SSOT。
 - 收口工序前置（D-144①④/D-145①）：账行增量↔编年随行核对＋守卫组硬跑；engine/src|dist 触碰→`npm run build`＋`node scripts/check-dist.mjs` 零 drift 再 commit。
 - **提交信息新形态已生效（D-161④）**：收口 commit 之后全量 commit 用三栏位——subject 单意图人读行／body 分项 bullets／footer `Ledger-Refs:`+`Chronicle:`+`Adrs:`（词表已立 CONTEXT）。
-- **registry=65 项/44 事件**（33-check 基线）；Stage-2 判据包 manual_watch 登记=执行窗义务（D-162）。
+- **registry=68 项/47 事件**（33-check 基线；R40-T1 增 env-gated-guard-class/guard-retirement-class/stage2-launch-criteria 三件登记项）；Stage-2 判据包 manual_watch 已入册值守。
 - **known-gaps 台账**：quarantine 四件（GAP-078-*）＋批2-β 九行（GAP-B2B-01~08 triaged＋GAP-HOST-01 observed——CLI=verified/IDE=observed-unverified 禁外推）。
 - 宿主实证面：CodeBuddy **CLI** 三判据 hit 已封口；IDE 未实测残项在册值守。
 
 ## 任务序列
 
-### T1 — R40 裁定执行窗实施批（主线；覆盖 D-158／D-159／D-160／D-161②④／D-162③⑤⑥ 执行面）
+### T1 — R40 裁定执行窗实施批 ✅ DONE 2026-09-28（报告 `reports/2026-09-28-r40-t1-exec-report.md`；commit skt/tml/yms/rus/kny @ r40-t1-exec）
 
 - **A. F-A1 谓词收紧五件（D-158）**：75a-check 豁免判据改剥后真消费形态（import/require 或 `stripComments(`/`stripMdComments(` 调用位；字符串/属性名/标识符提名不豁免）＋S2 fixture 扩 `fxStringNom` 逃逸件（字符串含函数名+源扫描必须命中，回滚即红）＋41 件存量字符串维度重跑分诊（掉出者 D-094 批注册）＋CONTEXT:363 表述坐实＋`docs/adr/0024` 一行注记挂 D-158（兑现注记不开 ADR-0025）。
 - **B. env-contract 六件套（D-159）**：env SSOT 变量（`_lib/env-contract.mjs` 集中定义＋`GUARD_SIBLING_ROOT` 类变量；禁 sibling 清单文件进仓；env-manager 寻址须 D-150③ 预声明）＋全 60 件守卫 tier 自声明（portable|env-contract；未声明=红）＋check-kit skip 原语＋三态呈现契约（SKIP-with-reason 不进 allOk、计数+reason 进 footer；skip/xfail 不混标）＋37/39/46 探测化（缺失→skip；在但漂移→方言披露）＋manifest env-gated 类（registry 条目+事件 D-149④）＋01-check repo-relative→kr-01 manifest 显式关账（先修后摘同票）＋11 件非 check `D:/` 字面顺手收敛。
@@ -49,7 +50,7 @@
 
 - 对象：#75 票面 open/closed 枚举建制＋常量 SSOT＋reserved 机制——独立建制批非本批裁面；开启时点随执行窗落地后临窗再裁（批3/批4 择批点同句显式不预裁）。
 
-### T3 — 审计窗哨兵值守（覆盖 D-155②③／D-159／D-160／D-162 兑现面）
+### T3 — 审计窗哨兵值守（覆盖 D-155②③／D-159／D-160／D-162 兑现面——本窗本体）
 
 - registry manual_watch 复审：next-audit-window 锚 occurred→三件到期复审（batch2beta-techdebt-review／codebuddy-ide-gap-watch／codebuddy-f02-display-watch）。
 - GAP-B2B 八件逐件 status 重审读数（供 D-160 退役提案面输入——有无守卫面消亡实例）。
@@ -73,7 +74,7 @@
 
 - 判据/charter/裁定临场不可改——变更须先走裁定链；探测面修语义必带预声明验证包（D-147 先例）。
 - dry-run 无转窗条件禁长期化；过期差值禁直接转窗（以转窗日实跑重算）；S1 改写禁再自指。
-- **工具链避雷**：ctx 沙箱 bash 注入 NODE_OPTIONS 污染 stderr——宿主级测试先 `env -u NODE_OPTIONS`；写文件经 node/ctx 时 ` ` 字面量会物化为真 NUL（A-096 根因教训）。
+- **工具链避雷**：bash 下 `2>nul` 会写真 `nul` 文件（Windows 保留名→libgit2/but 卡死根因——误创须即删）；ctx 沙箱 bash 注入 NODE_OPTIONS 污染 stderr——宿主级测试先 `env -u NODE_OPTIONS`；写文件经 node/ctx 时 ` ` 字面量会物化为真 NUL（A-096 根因教训）。
 - 报告命名纪律：`{date}-r{NN}-exec-report.md`／`-audit-report.md`；试用件命名 `codebuddy-r38-{charter|session|report}.md`。
 - DB 探查纪律：audits/ 下证据库一律副本探查（cp 到 Temp 再 --db），原件 sha256 前后校验。
 
