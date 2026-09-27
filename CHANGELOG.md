@@ -187,3 +187,11 @@
 - a_range: A-001 ~ A-099
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-099）＋.scratch/macro-audit/decision-ledger.md（D-150~D-152 无增量——本轮实施窗零新裁）
 - impact: 守卫判据力回硬三件（枚举域钉/双向欠数检出/盲区豁免登记）；探测面残余漏洞（注释提名豁免/multi-hit includes·test·macro-audit 面/SCAN_EXEMPT 不可达项/75a-S1 自指恒真）归批2-β 裁定链不机械推进；票面批2（枚举 open/closed 建制）未动——75b 草案明示留后续建制批；T1 试用读数随用户会话回填 session 档
+
+## [M-024] - 2026-09-27
+
+- milestone: 轮 39 grill 收口＋执行窗登记批——D-153~D-156 四裁全 current 零 revised（射程(b′)＋批2-β 探测面硬化三面〔剥后消费位/dry-run 批注册预声明转窗/SCAN_EXEMPT 死项+S1 可达性改写〕＋登记处置面〔技术债八件两全形态/IDE manual_watch/F-02 哨兵观察〕＋完备性终裁〔N1/N2 断链补登 GAP-B2B-07/08、批4 对称性、词条声明〕）；registry +3 项/+1 事件（62/43→65/44）＋known-gaps 批2-β 节九行＋engine/README 兼容注记实测化（R38-T3 义务兑现）＋轮39 任务书换代
+- adr_range: ADR-0001 ~ ADR-0023（ADR-0024 立法义务立案归批2-β 执行窗随源码同窗）
+- a_range: A-001 ~ A-099
+- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-099）＋.scratch/macro-audit/decision-ledger.md（D-001~D-156：145 current/10 revised/1 closed）
+- impact: 探测面语义立法齐备待实施（dry-run→批注册→转窗 enforcing 序；禁用过期差值）；登记面实物全兑现（双册分工维持、裸 prose 锚机读化）；批3/批4 择批点显式不预裁；宿主面 CLI=verified/IDE=observed-unverified 三态披露在册（禁 CLI 外推 IDE）

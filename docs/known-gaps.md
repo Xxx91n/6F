@@ -22,3 +22,17 @@
 - **词表进场纪律**（D-119②④）：新 reason_code 走「quarantine_log 信号→本册 observed→人审 triaged→立法 legislated→ACCEPTED_REASON_CODES 基线收窄」全流程；加码非破坏、删改破坏。
 - **is_trunc 命名注记**：列名非 is_truncated——append-only 黑名单为子串扫，`TRUNCATE` 会误伤含该子串的标识符；语义不变（D-117 截断标记位）。
 - **复核节奏**：review_by 到期行须重审 status（Copla 腐化防线：无复核节奏表格册 18 个月后还列着不存在的系统）。
+
+## 批2-β 登记批（轮39 D-155①/D-156②——技术债＋宿主观察面，两全形态：节级条目＋逐件 mini-五要素）
+
+| gap_id | reason_code 族 | first_seen 证据链 | status | owner | notes | review_by | trigger_id |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| GAP-B2B-01 | tech_debt（guard_writes_worktree_artifact） | 75a-check.mjs 每跑写 findings 工件落工作树；r37 审计呈报＋75b-disposition-draft §3-④ | triaged | 仓内值守 | 守卫写工作树属设计内面——登记为债非缺陷裁定；处置方向=工件归位、dry-run 产物走独立工件位（D-154② 转窗伴生） | 批2-β 落地后下一审计窗 | batch2beta-techdebt-review |
+| GAP-B2B-02 | tech_debt（hand_rolled_indexof_parser） | 41a-check.mjs 手写 indexOf 解析器（无依赖引入偏好代价面）；r37 审计呈报 | triaged | 仓内值守 | 功能正确，维护成本登记；引入解析库须走依赖引入裁定链 | 批2-β 落地后下一审计窗 | batch2beta-techdebt-review |
+| GAP-B2B-03 | tech_debt（fail_slug_regex_coupling） | guard-all-run.mjs FAIL-slug 正则耦合 check 文件名约定；r37 审计呈报 | triaged | 仓内值守 | 命名约定即契约面——slug 正则与文件名同命漂移；check 改名须同步改正则 | 批2-β 落地后下一审计窗 | batch2beta-techdebt-review |
+| GAP-B2B-04 | tech_debt（inline_spawnSync_residual） | N5：37-check.mjs 残余 inline spawnSync 未走 check-kit；r38-t1 审计 N 族 | triaged | 仓内值守 | check-kit 收编渐进的未竟项 | 批2-β 落地后下一审计窗 | batch2beta-techdebt-review |
+| GAP-B2B-05 | tech_debt（gitout_status_blindspot） | N6：check-kit gitOut 不检 spawnSync status——false-green 方向性风险；r38-t1 审计 N 族 | triaged | 仓内值守 | 八件中最高优先面：git 静默失败可致守卫假绿；处置方向=gitOut 内建 status/error 检查 | 批2-β 落地后下一审计窗 | batch2beta-techdebt-review |
+| GAP-B2B-06 | wording_precision（parity_full_equality） | T1-N1：debrief「字段级 parity 全等」表述过强——实态 report.json 70 键中 69 全等、唯一差=evidence[].reproduce_cmd 含 per-run 输出路径自引；trials/codebuddy-r38-report.md | triaged | 仓内值守 | 对外口径须用精化表述「字段级 parity（语义锚全等；reproduce_cmd 含 per-run 路径差）」 | 对外转述/发布材料前（里程碑锚）＋批2-β 后下一审计窗 | batch2beta-techdebt-review |
+| GAP-B2B-07 | doc_drift（comment_impl_mismatch） | N1：25-check.mjs:79 注释与实现不符；r38-t1 审计报告声明归批2-β 补录——去向断链经 R39-Q4 核查捞出，D-156② 补登兑现 | triaged | 仓内值守 | nit 级注释面——处置时按实态裁修注或修码 | 批2-β 落地后下一审计窗 | batch2beta-techdebt-review |
+| GAP-B2B-08 | doc_drift（stale_header_comment） | N2：check-kit 头注过时；同上去向断链补登 | triaged | 仓内值守 | 同上 | 批2-β 落地后下一审计窗 | batch2beta-techdebt-review |
+| GAP-HOST-01 | host_surface_unverified（codebuddy_ide） | T1 试用实证面=CodeBuddy CLI 2.151.0 三判据 hit；IDE 形态 not-run 如实留痕（trials/codebuddy-r38-report.md） | observed | 仓内值守 | 宿主形态矩阵：CLI=verified／IDE=observed-unverified——禁以 CLI 证据外推 IDE；实装时按 charter 三判据重跑（verify_method 见 registry） | 下一审计窗哨兵（IDE 形态可得即提前） | codebuddy-ide-gap-watch |

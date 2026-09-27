@@ -185,6 +185,10 @@
         "corpus-resnapshot-landed": {
             "occurred": false,
             "note": "#75批1 登记：01-check 语料再生退化的复审事件锚（kr-01-corpus-regen；任意语料重采样票落地即翻）"
+        },
+        "next-audit-window": {
+            "occurred": false,
+            "note": "下一审计窗哨兵锚——任一审计窗开启即 occurred=true（manual_watch 复审节律机读锚，D-155 裸 prose 锚合格化改写）"
         }
     },
     "items": [
@@ -1700,6 +1704,58 @@
             "review_event": "stage3-close",
             "verify_method": "guard-all-run.mjs 册件复绿告警（strict 摘除制）＋75a-check M1 schema 校验；复绿即摘条目",
             "confirmations": []
+        },
+        {
+            "id": "batch2beta-techdebt-review",
+            "family": "techdebt-ledger",
+            "title": "批2-β 技术债节级复审锚（known-gaps 登记批八件 GAP-B2B-01~08）",
+            "deadline_event": null,
+            "deadline": "—（manual_watch：复审节律驱动非事件触发）",
+            "trigger_event": null,
+            "trigger": "—（同上）",
+            "review_at": "批2-β 落地后的下一审计窗（机读锚=next-audit-window；届时复核含批2-β 落地确认）",
+            "status": "pending",
+            "watch": "manual_watch",
+            "source": "docs/known-gaps.md 批2-β 登记批节（D-155①/D-156②）",
+            "owner": "仓内值守",
+            "review_event": "next-audit-window",
+            "verify_method": "known-gaps 台账批2-β 节八件逐件 status 重审（observed→triaged→legislated 走向）＋逐件 mini-五要素齐备抽查（gap_id/证据链/owner/notes/review_by/trigger_id）",
+            "confirmations": []
+        },
+        {
+            "id": "codebuddy-ide-gap-watch",
+            "family": "host-pilot-residual",
+            "title": "CodeBuddy IDE 形态缺口值守——CLI 已 verified 三判据 hit／IDE 关窗后未实测残项",
+            "deadline_event": null,
+            "deadline": "—（manual_watch）",
+            "trigger_event": null,
+            "trigger": "CodeBuddy IDE 形态可得或用户启用 IDE 面（宿主侧条件本仓无可观测手段→哨兵节律替代锚）",
+            "review_at": "下一审计窗哨兵复核（IDE 形态可得即提前）",
+            "status": "pending",
+            "watch": "manual_watch",
+            "source": "trials/codebuddy-r38-report.md（T1 试用关窗：CLI 面三判据 hit，IDE not-run 如实留痕）",
+            "owner": "仓内值守",
+            "review_event": "next-audit-window",
+            "verify_method": "IDE 实装时按 trials/codebuddy-r38-charter.md 三判据重跑（C1 安装链/C2 安装树自对照 parity/C3 披露），读数标 IDE-specific——禁从 CLI 结果外推（D-155② 归属裁：同宿主未覆盖驱动路径=关窗后未实测残项）",
+            "confirmations": []
+        },
+        {
+            "id": "codebuddy-f02-display-watch",
+            "family": "host-side-observation",
+            "title": "F-02 CodeBuddy 宿主展示盲区观察项——mcp list 不列插件注入 server 而会话内实 connected（宿主侧行为，非本仓缺陷，不立案）",
+            "deadline_event": null,
+            "deadline": "—（manual_watch）",
+            "trigger_event": null,
+            "trigger": "宿主版本演进修复展示盲区（触发源在宿主侧、本仓只做守望——D-155③ C2 归因前置）",
+            "review_at": "下一审计窗哨兵复测",
+            "status": "pending",
+            "watch": "manual_watch",
+            "source": "trials/codebuddy-r38-report.md findings F-02（D-146 分诊=宿主侧行为不进裁定链）",
+            "owner": "仓内值守",
+            "review_event": "next-audit-window",
+            "verify_method": "复跑 `codebuddy mcp list` 对照会话内 MCP server 连通态——列名补齐即宿主侧已修；不主动上报（用户有官方渠道意愿另行授权，本仓不代办）",
+            "confirmations": [],
+            "bound_to": "T1 findings F-02——宿主侧展示盲区（D-155③）"
         }
     ]
 }
