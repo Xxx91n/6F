@@ -6,6 +6,10 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#48 Micro-A preview 守卫（R8-02 / A-056 / D-049）';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');

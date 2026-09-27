@@ -10,11 +10,17 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { siblingPath, envProbe, need } from './_lib/env-contract.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const NL = '\n';
 const REPO = join(HERE, '..', '..', '..');
-const JIAHAO = 'D:/Aworker/jiahao';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'env-contract';
+const PROTECTED_SURFACE = '46 回归 CI 迁回面（6F workflow 契约＋jiahao 撤除＋46-out 工件）';
+const JIAHAO = siblingPath('jiahao');
+// env-contract 启动探测（D-159①⑤）：sibling 缺失→SKIP-with-reason
+envProbe('46-check', [need('sibling:jiahao', existsSync(JIAHAO))]);
 const WF = join(REPO, '.github', 'workflows', 'macro-b-regression.yml');
 const OUT = join(HERE, '46-out');
 

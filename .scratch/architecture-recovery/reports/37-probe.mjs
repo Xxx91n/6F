@@ -5,12 +5,13 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { siblingPath } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPOS = {
-  'env-manager': 'D:/Aworker/env-manager',
-  'anysearch-cli': 'D:/Aworker/anysearch-cli',
-  'jiahao': 'D:/Aworker/jiahao',
+  'env-manager': siblingPath('env-manager'),
+  'anysearch-cli': siblingPath('anysearch-cli'),
+  'jiahao': siblingPath('jiahao'),
 };
 
 const git = (repo, args) => {

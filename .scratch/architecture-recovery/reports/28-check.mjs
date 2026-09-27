@@ -15,6 +15,10 @@ import { commitsByGrep, touchedPaths } from './_lib/check-kit.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#28 ADR 治理卫生票守卫';
+
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..', '..');

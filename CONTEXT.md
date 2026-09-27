@@ -372,3 +372,7 @@ _Avoid_: 自指断言（断言文本自带被搜词=恒真不红，Autonoma taut
 **Commit Trailer 词表（Ledger-Refs / Chronicle / Adrs）**:
 提交信息 footer 机读面三键（D-161①③，Conventional Commits §8 token 语法——token 无空格、`-` 代）：`Ledger-Refs: D-157 D-158` 钉账本裁定引用；`Chronicle: M-026` 钉随行编年号；`Adrs: ADR-0024` 钉涉及 ADR；subject 只载单意图人读行（「什么+为什么」），body 载分项清单 bullets，机读锚全迁 footer 永截不断位（subject >72 全工具链截断带不再寄锚）。
 _Avoid_: subject 发票化（清单+引用挤标题行=git/CC/kernel/Gerrit 四生态无先例孤证）、机读锚钉 subject 截断带、词表私造键（三键之外新键须先入词条再入 footer）、以 footer 迁移替代编年文件内容（Chronicle=指针，M-段仍落 CHANGELOG.md）
+
+**环境契约分层（Guard Tier Contract）**:
+守卫运行环境契约两档自声明（D-159①②/R40-T1 落地）：`portable`=仓内自足随处可跑；`env-contract`=依赖仓外 sibling 工作树（现集={37-check,39-check,46-check}——sibling 画像 9→3 勘误在案：内容级提及者零文件系统依赖不并入，26-check 幽灵钉归 D-094 普查通道）。声明形态=每件守卫文件头 `const TIER = '<tier>'`＋`const PROTECTED_SURFACE = '<面>'`（D-160③ 双字段同窗显式扩展——tier 管环境契约、protected_surface 管守护面消亡判据输入）；未声明=红（75a-T 组普查断言）；env-contract 声明集与 registry env-gated 类 guards 集对账（75a-T3，漂移即红）。sibling 根寻址单一 SSOT=`GUARD_SIBLING_ROOT` 环境变量（默认 `D:/Aworker`；禁 sibling 清单文件进仓——git-crypt #217 初始化固化同病）；启动探测缺失→`SKIP <guard> | env-missing:*` 三态退出（exit 0；skip 不进 allOk、禁折 pass、禁门禁计数——footer 计数+reason 进 GUARD-ALL 尾部）；sibling 在但漂移→方言披露面（D-128 Instrument Dialect——值进 WARN/NOTE 披露不进断言红）；skip≠xfail 不可混标（环境没有=skip、该工作但物不在=xfail/known-red——混标丢环境修复后自动转红的哨兵价值）。
+_Avoid_: 缺失环境渲染 FAIL（kit #518/startaitools 实证废案——skip 不门禁只如实三态）、skip 折 pass 进门禁计数（假信心）、env SSOT 落 sibling 清单文件、env-manager 服务寻址未预声明启用（D-150③ 前置：可得性钉 SHA＋两段读数）、名册化画像回写（勘误 9→3 后内容级提名不算依赖）

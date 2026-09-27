@@ -5,6 +5,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = 'A-015 机检守卫：Scale 切片差异边界（spec.md §Decision 6.2 / ADR-0006）';
+
 const here = path.dirname(fileURLToPath(import.meta.url));
 const data = JSON.parse(fs.readFileSync(path.join(here, '15-slice-boundaries.json'), 'utf8'));
 const up = JSON.parse(fs.readFileSync(path.join(here, '14-skeleton-fields.json'), 'utf8'));

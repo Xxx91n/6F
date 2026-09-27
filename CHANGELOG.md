@@ -210,3 +210,11 @@
 - a_range: A-001 ~ A-099
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-001~D-162：151 current/10 revised/1 closed；D-157~D-162 新增＋R40 收口节）
 - impact: 锐评五面全部判据化收编（C1 环境契约／C2 退役机制／C3 提交形态／S3 暴露梯度＋ghost 并轨 D-094 普查通道）；提交信息新形态自下一 commit 起适用（本 commit 豁免——D-148③）；Stage-0 被动挂牌追认即刻生效、Stage-2 判据包值守义务随执行窗 registry 登记；六裁均禁轮内动源码、执行窗义务全量挂账（R40-impl 批序在收口节登记）。
+
+## [M-027] - 2026-09-28
+
+- milestone: 轮 40 T1 B 件落地——守卫环境契约分层建制兑现（D-159 全六要件）：tier 两档自声明（portable×57/env-contract×3={37,39,46}——未声明=红由 75a-T 组普查断言强制）＋_lib/env-contract.mjs env SSOT（GUARD_SIBLING_ROOT 变量寻址＋siblingPath/envProbe，禁 sibling 清单进仓）＋check-kit SKIP-with-reason 三态原语（exit 0 不进 allOk 不门禁、reason 进 GUARD-ALL footer）＋37/39/46 启动探测化（sibling 缺→skip、在但漂移→方言披露面）＋registry env-gated 类条目+事件（D-149④ 形态：66 项/45 事件）＋01-check 自指绝对路径→repo-relative（kr-01 env 缺陷面 manifest lifecycle_log＋registry confirmations 双侧关账留痕，语料红面维持）＋11 件非 check .mjs D:/ 字面收敛＋CONTEXT 环境契约分层词条＋protected_surface 双字段同窗（D-160③ 显式扩展前置兑现）
+- adr_range: ADR-0001 ~ ADR-0024（不变——ADR-0024 判据引用于声明注释，执行注记归 A 件同窗）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-157~D-162；本轮兑现 D-159①②③④⑤⑥ 执行面＋D-160③ 字段面）
+- impact: 全量 60 守卫 tier 自声明机检化（75a T1~T3 绿）；SKIP 三态呈现契约落地（GUARD_SIBLING_ROOT=缺席路径实测 37/46 SKIP-with-reason exit 0）；fresh-clone 不可移植病（自指钉/sibling 硬钉）收口；xfail-run tier=portable 注记册入 env-contract 守卫须随批重 tier

@@ -9,6 +9,10 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#78 quarantine 引擎验收闸（ADR-0022 / D-103~D-120）';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');

@@ -7,6 +7,10 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#80 Micro-B 步①守卫（per-file 一等事实发射 + facet_rows raw 证据位 + file_renamed 血缘 ';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');

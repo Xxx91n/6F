@@ -6,6 +6,10 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, isAbsolute } from 'node:path';
 import { createHash } from 'node:crypto';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#40 非自有公开仓 URL opt-in 泛化验证守卫（R5-09 / A-045）';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');

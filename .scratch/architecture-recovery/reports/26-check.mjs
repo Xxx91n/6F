@@ -6,6 +6,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import url from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { commitsByGrep, touchedPaths, lastChangeSha } from './_lib/check-kit.mjs';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = 'R4-01 量测审计守卫：真值表完整性 + v1 冻结集复跑一致性 + 纯文档零构建断言';
+
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(dir, '../../..');

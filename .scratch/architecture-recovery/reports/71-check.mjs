@@ -13,6 +13,10 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#71 守卫——codelore 接线票·批1（D-080③ sibling 首票／D-078 映射表 v1.0 落地）';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');

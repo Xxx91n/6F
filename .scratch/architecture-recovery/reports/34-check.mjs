@@ -5,6 +5,10 @@ import { execSync, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#34 常驻守卫 —— plugin.json Agent Plugins 1.0.0 结构断言（零依赖；ajv 一次性校验留证见 34-rep';
+
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ENGINE = join(here, '..', '..', '..', 'engine');

@@ -3,8 +3,9 @@
 // 输入: 01-corpora.json   输出: 01-align.json
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const REPORTS = 'D:/Aworker/6F/.scratch/architecture-recovery/reports';
+const REPORTS = path.dirname(fileURLToPath(import.meta.url)); // D-159⑥ repo-relative 收敛
 const CORP = path.join(REPORTS, '01-corpora.json');
 const OUT = path.join(REPORTS, '01-align.json');
 const HF_ENTRY = 'file:///C:/Users/Administrator/.workbuddy-ai/binaries/node/workspace/node_modules/@huggingface/transformers/dist/transformers.node.mjs';

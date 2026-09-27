@@ -7,6 +7,11 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+//   注：entries=0 时无环境需求；册入 env-contract 守卫须随批重 tier（探测须覆盖册内守卫环境集）
+const TIER = 'portable';
+const PROTECTED_SURFACE = 'known-failures 清单制协议面（stale-assertions 断言重分级 PASS/XFAIL/XPASS）';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const LIST = JSON.parse(readFileSync(join(HERE, 'stale-assertions.json'), 'utf8'));

@@ -14,6 +14,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { stripComments } from './_lib/check-kit.mjs';
 import { tmpdir } from 'node:os';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#54 %cI 确定性修复守卫（D-059① / T1）';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');

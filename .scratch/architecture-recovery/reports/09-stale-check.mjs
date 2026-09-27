@@ -1,6 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '09-stale 守卫面';
+
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const F_STALE = path.join(HERE, '09-stale-marker-fields.json');

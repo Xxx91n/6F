@@ -3,6 +3,10 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#64/D-072 duckdb 自愈补拉守卫';
+
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO = join(here, '..', '..', '..');

@@ -45,3 +45,22 @@ export function touchedPaths(root, shas) {
 export function lastChangeSha(root, relPath) {
   return gitOut(root, ['log', '-1', '--format=%H', '--', relPath]).trim();
 }
+// ---- 守卫自声明 + skip 三态原语（R40-T1：D-159②③ tier 自声明强制＋SKIP 呈现契约＋D-160③ protected_surface 双字段） ----
+// tier 自声明形态（每件守卫文件头声明；未声明=红——75a-T 组普查断言）：
+//   const TIER = 'portable' | 'env-contract';
+//   const PROTECTED_SURFACE = '<守护面描述>';
+export const GUARD_TIERS = ['portable', 'env-contract'];
+
+// skip 原语：环境缺席→SKIP-with-reason 三态退出（exit 0；GUARD-RESULT: SKIP 行供 guard-all-run 分类——
+// skip 不进 allOk 禁折 pass、禁门禁计数〔kit #518/startaitools 实证〕；skip≠xfail 不可混标——
+// 环境没有=skip、该工作但物不在=xfail/known-red，混标丢环境修复后自动转红的哨兵价值）
+export function guardSkip(guardName, reasons) {
+  const rs = (Array.isArray(reasons) ? reasons : [reasons]).join('; ');
+  console.log('SKIP ' + guardName + ' | ' + rs);
+  console.log('GUARD-RESULT: SKIP ' + guardName + ' reason=' + rs);
+  process.exit(0);
+}
+
+// 自声明解析（75a-T 组与 runner 共用——声明形态钉死利于普查）
+export function guardDeclaredTier(src) { const m = src.match(/^const TIER = '(portable|env-contract)';$/m); return m ? m[1] : null; }
+export function guardDeclaredSurface(src) { const m = src.match(/^const PROTECTED_SURFACE = '([^'\n]+)';$/m); return m ? m[1] : null; }

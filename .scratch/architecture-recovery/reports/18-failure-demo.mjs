@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const DIR = 'D:/Aworker/6F/.scratch/architecture-recovery/reports';
+const DIR = path.dirname(fileURLToPath(import.meta.url)); // D-159⑥ repo-relative 收敛
 const SKELETON = ['执行摘要', '4 象限 / 裁决', '证据', '行动建议'];
 
 const STAMP_PREFIXES = [

@@ -4,10 +4,16 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { siblingPath, envProbe, need } from './_lib/env-contract.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const ROOTS = { 'env-manager': 'D:/Aworker/env-manager', 'anysearch-cli': 'D:/Aworker/anysearch-cli', 'jiahao': 'D:/Aworker/jiahao' };
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'env-contract';
+const PROTECTED_SURFACE = '37-pilot 三仓实测面（measurements 字段齐备＋证据锚回查＋快照钉复测）';
+const ROOTS = { 'env-manager': siblingPath('env-manager'), 'anysearch-cli': siblingPath('anysearch-cli'), 'jiahao': siblingPath('jiahao') };
 const REPO_NAMES = Object.keys(ROOTS);
+// env-contract 启动探测（D-159①⑤）：sibling 缺失→SKIP-with-reason；在但漂移→下方 WARN/NOTE 方言披露面承载
+envProbe('37-check', REPO_NAMES.map((n) => need('sibling:' + n, fs.existsSync(ROOTS[n]))));
 
 let pass = 0, fail = 0;
 const t = (name, ok, extra = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : fail++; };

@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#36 守卫——explain 族 LLM 面：实物枚举对账 + env 门控契约 + 成本验收面 + 引擎不回归';
+
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(here, '..', '..', '..');

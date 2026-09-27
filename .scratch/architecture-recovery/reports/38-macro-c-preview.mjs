@@ -9,10 +9,11 @@ import { readFileSync, readdirSync, writeFileSync, existsSync, unlinkSync } from
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { siblingPath } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');                 // 6F 仓根
-const AS = 'D:/Aworker/anysearch-cli';                    // 校准语料仓（只读对象）
+const AS = siblingPath('anysearch-cli');                  // 校准语料仓（只读对象；env SSOT）
 const DIST = join(REPO, 'engine', 'dist');
 
 const C = await import(pathToFileURL(join(DIST, 'collect', 'collectors.js')).href);

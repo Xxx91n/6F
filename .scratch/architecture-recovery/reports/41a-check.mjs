@@ -7,6 +7,10 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#41a 分发收尾·仓内文档面守卫（R6-03 / A-051 / D-030·D-031·D-032·D-038·D-039·D-040）';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');

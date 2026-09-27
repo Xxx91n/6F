@@ -1,7 +1,7 @@
 // 39-macro-b-one-shot.mjs — Macro-B（已上架层）三仓 one-shot 泛化验证（#39 / A-044 / R5-08 / spec §R5-D8）
 // 用法：
 // [轮16/#53-D-060⑤] 本脚本已转 audit 一等命令（macro-audit audit）的回归对照物——非命令面主入口；audit 产物字段⊆本脚本产物字段，漂移即报警（53-check 断言）。
-//   node 39-macro-b-one-shot.mjs                                      # 默认三仓全跑（D:/Aworker/{env-manager,anysearch-cli,jiahao}），产物落本目录
+//   node 39-macro-b-one-shot.mjs                                      # 默认三仓全跑（GUARD_SIBLING_ROOT/{env-manager,anysearch-cli,jiahao}，默认 D:/Aworker），产物落本目录
 //   node 39-macro-b-one-shot.mjs --repo jiahao --root <abs> --out <dir>  # 单仓形态（CI 回归用：6F .github/workflows/macro-b-regression.yml）
 // 链 = 采集（gitlog + adr-structure@v2 + positioning）→ fact（39-macro-b-<repo>-facts.jsonl + 共享 39-audit-facts.duckdb）
 //   → 裁决（PC-1/PC-2 正对照 + TC-1/2/3 真判据 + NC-1 负对照，阈值=22-criteria-pre-registration.md 预声明，跑后禁调）
@@ -12,6 +12,7 @@ import { readFileSync, readdirSync, writeFileSync, existsSync, mkdirSync, unlink
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
+import { siblingPath } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');                 // 6F 仓根（engine 所在）
@@ -28,9 +29,9 @@ const STRICT_Q = process.env[Q.STRICT_QUARANTINE_ENV] === '1';   // #78/D-110④
 
 // ---------- §0 参数：默认三仓全跑；--repo/--root/--out = 单仓 CI 形态 ----------
 const DEFAULT_REPOS = [
-  { repo: 'env-manager', root: 'D:/Aworker/env-manager' },
-  { repo: 'anysearch-cli', root: 'D:/Aworker/anysearch-cli' },
-  { repo: 'jiahao', root: 'D:/Aworker/jiahao' }
+  { repo: 'env-manager', root: siblingPath('env-manager') },
+  { repo: 'anysearch-cli', root: siblingPath('anysearch-cli') },
+  { repo: 'jiahao', root: siblingPath('jiahao') }
 ];
 function parseArgs(argv) {
   const out = { repo: null, root: null, out: HERE };

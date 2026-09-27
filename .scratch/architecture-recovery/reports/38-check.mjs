@@ -5,6 +5,10 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#38 守卫——Macro-C preview：披露块在（缺=FAIL）/ happy+failure 双件形态 / 采集事实字段 / 报告引用';
+
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(here, '..', '..', '..');

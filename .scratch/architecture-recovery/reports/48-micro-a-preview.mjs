@@ -17,6 +17,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from '
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
+import { siblingPath } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
@@ -44,7 +45,7 @@ export const MICRO_A_SLICE_FIELDS = [
 // ---------- §1 票面写死实例（恰 4 条 merged；D-049③）----------
 const PILOTS = [
   {
-    name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', root: 'D:/Aworker/env-manager',
+    name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', root: siblingPath('env-manager'),
     prs: [
       { n: 64, form: 'machine-generated/release-please' },
       { n: 55, form: 'platform-declared-bot/dependabot' },
@@ -52,7 +53,7 @@ const PILOTS = [
     ]
   },
   {
-    name: 'jiahao', owner: 'Xxx91n', repo: 'jiahao', root: 'D:/Aworker/jiahao',
+    name: 'jiahao', owner: 'Xxx91n', repo: 'jiahao', root: siblingPath('jiahao'),
     prs: [{ n: 6, form: 'human' }]
   }
 ];
@@ -60,7 +61,7 @@ const PILOTS = [
 // goose-duck-agent=真负例拒绝主体（托管仓 merged PR=0 → intake 显式拒绝）。
 const GATE_PROBES = [
   { name: 'anysearch-cli', owner: 'Xxx91n', repo: 'anysearch-cli' },
-  { name: 'goose-duck-agent', owner: 'Xxx91n', repo: 'goose-duck-agent', root: 'D:/Aworker/eys', refusal: true }
+  { name: 'goose-duck-agent', owner: 'Xxx91n', repo: 'goose-duck-agent', root: siblingPath('goose-duck-agent'), refusal: true }
 ];
 // golden 回放面：authenticated cassette 录制 = list(62)+detail#64+detail#51+diff#64——golden 选定子集与之逐字对齐。
 const GOLDEN_PRS = [{ n: 64, form: 'machine-generated/release-please' }, { n: 51, form: 'human' }];

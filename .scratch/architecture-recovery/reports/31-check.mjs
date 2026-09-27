@@ -3,6 +3,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = 'R4-05 守卫：适配器存在 + pin + golden fixtures + 探针产物 + provenance + 漂移报告 + 冻结零改';
+
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(dir, '../../..');

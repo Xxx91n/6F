@@ -11,6 +11,10 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#33 T7 挂门机检化守卫 —— 全挂门项三字段（最迟拍板时点/触发事件/复审时点）扫描 + 到期/触发报警';
+
 
 const here = dirname(fileURLToPath(import.meta.url));
 const AR = join(here, '..');

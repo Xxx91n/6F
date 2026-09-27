@@ -5,6 +5,10 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '守卫：B 层判据预声明文档 + C 层裁定依据（A-023 / A-024 / A-025 / A-029；spec §R3-D4）';
+
 
 const NL = String.fromCharCode(10);
 const HERE = dirname(fileURLToPath(import.meta.url));

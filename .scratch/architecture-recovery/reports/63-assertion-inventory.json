@@ -303,7 +303,7 @@
       ]
     },
     "75a-check": {
-      "assertion_ids": 10,
+      "assertion_ids": 13,
       "call_styles": [
         "t()"
       ]

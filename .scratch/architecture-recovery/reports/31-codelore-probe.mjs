@@ -19,7 +19,7 @@ const git = (args) => spawnSync('git', args.split(' '), { cwd: REPO, encoding: '
 const res = U.resolveCodelore('codelore');
 
 // --- 2. 上游探针事实采集（raw 语义，不过界） ---
-const ctx = { repoRef: 'D:/Aworker/6F', headSha: git('rev-parse HEAD'), observedAt: new Date().toISOString(), runId: 'r31-codelore-probe', traceId: sha256('r31').slice(0, 32), baggageId: sha256('r31-bag').slice(0, 32) };
+const ctx = { repoRef: REPO, headSha: git('rev-parse HEAD'), observedAt: new Date().toISOString(), runId: 'r31-codelore-probe', traceId: sha256('r31').slice(0, 32), baggageId: sha256('r31-bag').slice(0, 32) }; // D-159⑥ repoRef 收敛 repo-relative
 const explainPaths = ['engine/src/collect/collectors.ts', 'engine/src/fact/store.ts', 'engine/src/cli.ts'];
 const upFacts = res.pinned ? U.collectCodeloreFacts({ repoRoot: REPO, explainPaths }, ctx) : [];
 

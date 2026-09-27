@@ -3,6 +3,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { commitsByGrep, touchedPaths, lastChangeSha } from './_lib/check-kit.mjs';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = 'R4-04 守卫：13 项清单齐备 + 置信域标注 + 待探针两字段 + 冻结数据零改动';
+
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(dir, '../../..');

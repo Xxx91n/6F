@@ -17,10 +17,21 @@
       "failure_class": "legit-drift",
       "subtype": "外部语料/工件再生",
       "evidence": "commit c6fe0f8 loop-2 复跑产物刷新：anysearch-cli intent units 9→1（≥5 地板破）＋01-corpora 锚分与 01-report.md 历史快照不互认（D5 溯源断）——语料退化事实票面在案，属承认型退化非伪绿",
-      "expected_slugs": ["D1", "D5"],
+      "expected_slugs": [
+        "D1",
+        "D5"
+      ],
       "added": "2026-09-27",
       "review_anchor": "语料重采样票落地 或 stage3-close 复审（先满足先触发）",
-      "expires_fallback": "2026-12-31"
+      "expires_fallback": "2026-12-31",
+      "lifecycle_log": [
+        {
+          "at": "2026-09-28",
+          "event": "env-defect-closed",
+          "ref": "D-159④",
+          "note": "01-check.mjs:4 自指绝对路径 R=D:/Aworker/6F/... 改 repo-relative（import.meta.url 锚）——异地 clone 必红无条件病修复落地；语料退化（D1 intent units≥5/D5 分数溯源）仍为在册红面值守至 review_anchor 命中"
+        }
+      ]
     }
   ]
 }

@@ -32,11 +32,14 @@ for (const f of targets) {
   const slugs = out.split(NL)
     .map((l) => { const m = l.match(/^\s*(?:FAIL[:: ]+|x )\s*([A-Za-z][A-Za-z0-9_.-]*)/); return m && !/^\d+$/.test(m[1]) ? m[1] : null; })
     .filter(Boolean);
-  results.push({ file: f, rc: r.status === null ? 124 : r.status, slugs });
+  // SKIP 三态（D-159③）：GUARD-RESULT: SKIP 行→skipped（rc=0 非绿非红；skip 不进 allOk 禁折 pass；reason 进 footer）
+  const skipM = out.match(/GUARD-RESULT:\s*SKIP\s+\S+\s+reason=([^\n]+)/);
+  results.push({ file: f, rc: r.status === null ? 124 : r.status, slugs, skipped: !!skipM, skipReason: skipM ? skipM[1].trim() : '' });
 }
 
 const redSet = new Set(results.filter((r) => r.rc !== 0).map((r) => r.file));
-const greenFiles = new Set(results.filter((r) => r.rc === 0).map((r) => r.file));
+const greenFiles = new Set(results.filter((r) => r.rc === 0 && !r.skipped).map((r) => r.file));
+const skipSet = new Set(results.filter((r) => r.skipped).map((r) => r.file));
 
 let fail = 0;
 const FAIL = (msg) => { fail++; console.log('FAIL ' + msg); };
@@ -50,6 +53,7 @@ for (const f of redSet) {
 for (const [file, e] of registered) {
   if (!existsSync(join(HERE, file))) { FAIL('manifest 悬空条目（守卫文件不存在）: ' + file + ' [' + e.id + ']'); continue; }
   if (greenFiles.has(file)) { FAIL('册件复绿告警（strict 摘除制——复绿须人工摘条目）: ' + file + ' [' + e.id + ']'); continue; }
+  if (skipSet.has(file)) { WARN('册件转 SKIP（环境缺席——非复绿非红，slug 比对免）: ' + file + ' [' + e.id + ']'); continue; }
   if (Array.isArray(e.expected_slugs)) {
     const actual = results.find((r) => r.file === file).slugs;
     const extra = actual.filter((s) => e.expected_slugs.indexOf(s) < 0);
@@ -60,9 +64,11 @@ for (const [file, e] of registered) {
 
 console.log('----------------------------------------');
 for (const r of results) {
-  console.log((r.rc === 0 ? 'GREEN ' : registered.has(r.file) ? 'KNOWN-RED ' : 'RED ') + r.file + (r.rc === 0 ? '' : ' rc=' + r.rc + (r.slugs.length ? ' slugs=' + r.slugs.join(',') : '')));
+  const tag = r.skipped ? 'SKIP ' : r.rc === 0 ? 'GREEN ' : registered.has(r.file) ? 'KNOWN-RED ' : 'RED ';
+  console.log(tag + r.file + (r.skipped ? ' reason=' + r.skipReason : r.rc === 0 ? '' : ' rc=' + r.rc + (r.slugs.length ? ' slugs=' + r.slugs.join(',') : '')));
 }
 console.log('----------------------------------------');
-console.log('ran=' + results.length + ' red=' + redSet.size + ' registered=' + registered.size + ' problems=' + fail);
+console.log('ran=' + results.length + ' green=' + greenFiles.size + ' skipped=' + skipSet.size + ' red=' + redSet.size + ' registered=' + registered.size + ' problems=' + fail + ' allOk=' + (fail === 0 && skipSet.size === 0));
+if (skipSet.size) { for (const r of results.filter((x) => x.skipped)) console.log('  skip-reason ' + r.file + ' :: ' + r.skipReason); }
 console.log('GUARD-ALL-RESULT: ' + (fail === 0 ? 'PASS' : 'FAIL'));
 process.exit(fail === 0 ? 0 : 1);

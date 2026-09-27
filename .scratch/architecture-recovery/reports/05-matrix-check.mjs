@@ -1,6 +1,10 @@
 // 05-matrix-check.mjs — machine check for 05-unit-matrix.json against 05-unit-matrix.schema.json
 // covers: JSON Schema 2020-12 subset (type/required/enum/const/pattern/minItems/maxItems/minLength/minimum/maximum/additionalProperties/$ref) + matrix coverage invariants
 import fs from "node:fs";
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = 'machine check for 05-unit-matrix.json against 05-unit-matrix.schema.json';
+
 const dir = new URL(".", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 const schema = JSON.parse(fs.readFileSync(dir + "05-unit-matrix.schema.json", "utf8"));
 const data = JSON.parse(fs.readFileSync(dir + "05-unit-matrix.json", "utf8"));

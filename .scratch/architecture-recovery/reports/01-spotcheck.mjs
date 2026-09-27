@@ -6,7 +6,9 @@
 //   drift     = 部分回响 / 单位自身为 README 断句碎片（非完整声明）
 //   absent    = 无交付证据对应（营销式口号）
 import fs from 'node:fs';
-const REPORTS = 'D:/Aworker/6F/.scratch/architecture-recovery/reports';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const REPORTS = path.dirname(fileURLToPath(import.meta.url)); // D-159⑥ repo-relative 收敛
 const align = JSON.parse(fs.readFileSync(REPORTS + '/01-align.json', 'utf8'));
 
 const LABELS = {

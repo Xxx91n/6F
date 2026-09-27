@@ -2,6 +2,10 @@
 // Validates: bucket coverage/monotonicity, matrix snapshot sync, B1 saturation,
 // per-case recomputation (identities, override, gates, module share), template schema.
 import { readFileSync } from 'node:fs';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = 'guard for reports/04-downweight.json (ticket #04, A-004)';
+
 
 const dir = new URL('.', import.meta.url);
 const data = JSON.parse(readFileSync(new URL('04-downweight.json', dir)));

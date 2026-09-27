@@ -10,6 +10,10 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { createHash } from 'node:crypto';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#52a checker 仪器标定守卫（D-061）';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const NL = '\n';

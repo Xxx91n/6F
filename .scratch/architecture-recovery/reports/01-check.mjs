@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 // 01-check.mjs -- 票 #01 (A-001) 守卫脚本：校验全部交付物可机检
 import fs from 'node:fs';
-const R = 'D:/Aworker/6F/.scratch/architecture-recovery/reports';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '01-corpora/align/spotcheck/fallback 交付物机检面';
+const R = dirname(fileURLToPath(import.meta.url)); // D-159④ repo-relative——自指绝对路径修复（kr-01 env 缺陷面关账）
 const fail = [];
 const ok = [];
 const chk = (cond, msg) => { (cond ? ok : fail).push(msg); };

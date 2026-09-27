@@ -10,6 +10,7 @@
 import { writeFileSync, existsSync, unlinkSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { siblingPath } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
@@ -24,7 +25,7 @@ const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
 
 const OUT = HERE;
 const SUBJECT = 'Xxx91n/env-manager';
-const REPO_ROOT = 'D:/Aworker/env-manager';
+const REPO_ROOT = siblingPath('env-manager'); // D-159⑥ env SSOT 收敛
 const TC1_MIN_N = 5;
 
 // ---------- §0 behavior 切片字段契约 ----------

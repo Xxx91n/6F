@@ -5,6 +5,10 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { stripComments } from './_lib/check-kit.mjs';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '守卫：fact table schema v0（A-021 / spec.md §R3-D2）';
+
 
 const NL = String.fromCharCode(10);
 const HERE = dirname(fileURLToPath(import.meta.url));

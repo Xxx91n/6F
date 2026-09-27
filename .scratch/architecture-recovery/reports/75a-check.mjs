@@ -13,6 +13,10 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { stripComments } from './_lib/check-kit.mjs';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#75批1 失效断言三分类建制守卫（D-094②③④ / D-144② / D-149④ / P5-B2 同名断言普查落点）';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
@@ -159,6 +163,25 @@ const fxCommentOnly = unstrippedScanHit('fx-comment-only', "// stripComments 注
 const fxRealImport = unstrippedScanHit('fx-real-import', "import { stripComments } from './k.mjs'; const s = readFileSync('a.mjs', 'utf8'); s.indexOf(stripComments(s));");
 const fxRealCall = unstrippedScanHit('fx-real-call', "const s = readFileSync('a.mjs', 'utf8'); s.indexOf(stripMdComments(s));");
 t('S2 消费位判据正对照（面A fixture：消费位命中/注释提名必中/真实消费位豁免）', fxConsumption === true && fxCommentOnly === true && fxRealImport === false && fxRealCall === false, 'hit=' + fxConsumption + ' comment=' + fxCommentOnly + ' import=' + fxRealImport + ' call=' + fxRealCall);
+
+// T 组（R40-T1：D-159② tier 自声明强制＋D-160③ protected_surface 双字段显式扩展——未声明=红）
+const tierMap = new Map(), surfMap = new Map();
+for (const f of checkFiles) {
+  const srcT = readFileSync(join(HERE, f), 'utf8');
+  const mt = srcT.match(/^const TIER = '(portable|env-contract)';$/m);
+  const ms = srcT.match(/^const PROTECTED_SURFACE = '([^'\n]+)';$/m);
+  tierMap.set(f, mt ? mt[1] : null);
+  surfMap.set(f, ms ? ms[1] : null);
+}
+const noTier = checkFiles.filter((f) => !tierMap.get(f));
+const noSurf = checkFiles.filter((f) => !surfMap.get(f));
+t('T1 全量守卫 tier 自声明（portable|env-contract；未声明=红——stevenengelhardt/Bazel 反转先例）', noTier.length === 0, noTier.slice(0, 6).join(','));
+t('T2 全量守卫 protected_surface 自声明非空（D-160③ 面消亡退役判据输入）', noSurf.length === 0, noSurf.slice(0, 6).join(','));
+const envDeclared = checkFiles.filter((f) => tierMap.get(f) === 'env-contract').sort();
+const reg33 = JSON.parse(readFileSync(join(HERE, '33-gate-registry.json'), 'utf8'));
+const envRegItem = reg33.items.find((i) => i.id === 'env-gated-guard-class');
+const envReg = ((envRegItem && envRegItem.guards) || []).slice().sort();
+t('T3 env-contract 声明集 ↔ registry env-gated 类对账（声明≠登记即红——防事后标签漂移）', JSON.stringify(envDeclared) === JSON.stringify(envReg), 'decl=' + envDeclared.join(',') + ' reg=' + envReg.join(','));
 
 import { writeFileSync } from 'node:fs';
 writeFileSync(join(HERE, '75a-census-findings.json'), JSON.stringify(findings.map((f) => ({ key: keyOf(f.file, f.kind, f.line), file: f.file, kind: f.kind, lno: f.lno, excerpt: ((f.line || '').trim().slice(0, 110) + (f.note ? ' → ' + f.note : '')) })), null, 1) + NL, 'utf8');

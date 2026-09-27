@@ -7,6 +7,10 @@ import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#81 quarantine 方言归一缺陷修验收闸（D-128 / D-100② scoped / ADR-0022 §4b）';
+
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');

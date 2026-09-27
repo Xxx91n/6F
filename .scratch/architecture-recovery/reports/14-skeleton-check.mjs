@@ -1,5 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '14-skeleton 守卫面';
+
 
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 const ROOT = path.resolve(HERE, '..');

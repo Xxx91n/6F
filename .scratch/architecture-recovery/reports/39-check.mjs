@@ -9,12 +9,18 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { siblingPath, envProbe, need } from './_lib/env-contract.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(here, '..', '..', '..');
 const ENG = join(ROOT, 'engine');
-const REPOS = { 'env-manager': 'D:/Aworker/env-manager', 'anysearch-cli': 'D:/Aworker/anysearch-cli', 'jiahao': 'D:/Aworker/jiahao' };
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'env-contract';
+const PROTECTED_SURFACE = '39-macro-b 三仓 one-shot 面（产物/证据锚/registry 翻转/self-probe）';
+const REPOS = { 'env-manager': siblingPath('env-manager'), 'anysearch-cli': siblingPath('anysearch-cli'), 'jiahao': siblingPath('jiahao') };
 const NAMES = Object.keys(REPOS);
+// env-contract 启动探测（D-159①⑤）：sibling 缺失→SKIP-with-reason；在但漂移→断言外 WARN/NOTE 披露承载
+envProbe('39-check', NAMES.map((n) => need('sibling:' + n, fs.existsSync(REPOS[n]))));
 
 let pass = 0, fail = 0;
 const t = (name, ok, extra = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : fail++; };

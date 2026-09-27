@@ -4,13 +4,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { siblingPath } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
 
-const OUT = process.env.OUT || 'D:/Aworker/6F/.scratch/architecture-recovery/reports/01-corpora.json';
+const OUT = process.env.OUT || path.join(path.dirname(fileURLToPath(import.meta.url)), '01-corpora.json');
 
 const REPOS = [
-  { id: 'env-manager',   dir: 'D:/Aworker/env-manager' },
-  { id: 'jiahao',        dir: 'D:/Aworker/jiahao' },
-  { id: 'anysearch-cli', dir: 'D:/Aworker/anysearch-cli' },
+  { id: 'env-manager',   dir: siblingPath('env-manager') },
+  { id: 'jiahao',        dir: siblingPath('jiahao') },
+  { id: 'anysearch-cli', dir: siblingPath('anysearch-cli') },
 ];
 
 const NOISE_SUBJECT = /^(merge\b|Merge\b|wip\b|WIP\b|GitButler Workspace Commit|Revert\b|Merge pull request)/;

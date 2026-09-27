@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#35 守卫——首批 30 面契约化对账 + 暂缓面集两字段核对 + 引擎不回归';
+
 
 const here = dirname(fileURLToPath(import.meta.url));
 const AR = join(here, '..');

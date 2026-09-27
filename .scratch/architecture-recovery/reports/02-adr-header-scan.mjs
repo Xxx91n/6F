@@ -4,6 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { siblingPath } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
 
 const args = process.argv.slice(2);
 function arg(name, def) {
@@ -12,10 +13,10 @@ function arg(name, def) {
 }
 
 const DEFAULT_REPOS = [
-  { name: "6F",            root: "D:/Aworker/6F",            adr_dirs: ["docs/adr"] },
-  { name: "env-manager",   root: "D:/Aworker/env-manager",   adr_dirs: ["docs/adr"] },
-  { name: "jiahao",        root: "D:/Aworker/jiahao",        adr_dirs: ["docs/adr"] },
-  { name: "anysearch-cli", root: "D:/Aworker/anysearch-cli", adr_dirs: ["docs/adr"] }
+  { name: "6F",            root: path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..'), adr_dirs: ["docs/adr"] },
+  { name: "env-manager",   root: siblingPath('env-manager'),   adr_dirs: ["docs/adr"] },
+  { name: "jiahao",        root: siblingPath('jiahao'),        adr_dirs: ["docs/adr"] },
+  { name: "anysearch-cli", root: siblingPath('anysearch-cli'), adr_dirs: ["docs/adr"] }
 ];
 
 const reposJson = arg("--repos", null);
