@@ -358,3 +358,11 @@ _Avoid_: 试用窗与整改批混窗（findings 未分诊就修=绕摄入分诊�
 **安装树自对照（Installed-Tree Self-Baseline）**:
 跨宿主 parity 的基线构造（D-151①）：基线=所装分发物 `dist/cli.js` 本机直跑（票面钉安装树 SHA——钉快照惯例），宿主 agent 驱动同码对照——唯一差异变量=驱动路径（确定性 CLI vs agent 在 skills 壳＋MCP 读面引导下的行动序列），安装树↔开发 HEAD 版本差轴构造性归零。语义=变更检测器非正确性证明（characterization/golden-master 定位——「helps detect unwanted effects」不证正确）。parity 判据钉字段级（Golden 锁面词条——字段键集＋语义不变量定点值，禁滑纯键集）；版本差轴被迫引入时启用降级路径（版本差声明＋parity 降结构级，Dual Reporting 惯例）；历史异版读数不可比→降参照轶事，读数冲突走 Assignable Cause（找不到可归属原因默认异常读数有效并升级调查，禁悄悄二选一）。
 _Avoid_: 拿开发仓 HEAD 当基线（自买版本混因轴）、字节级等同后宣称宿主面已验（判据在驱动路径非产物字节）、parity 滑成纯键集（锁面失守）、异常读数无归因即二选一
+
+**消费位判据（Consumption-Position Criterion）**:
+探测面豁免/命中判定只以剥注释后源码的真实消费位为准（D-154①/ADR-0024）：`import`/真实调用计消费位，注释或字符串里的字面提名不计——一行 `// TODO 改用 stripComments` 不再能让「源文扫描未过剥注释面」检出失效（全局豁免反模式收口）；探测谓词同走剥后面，注释内假消费位不计入。适用面=75a-check `unstrippedScanHit` 豁免判据；实证=comment-only 逃逸 0、存量 41 件 convention-registered 两语义下皆命中零迁移。
+_Avoid_: 提名位当豁免依据（overreacted no-restricted-disable 同族病）、探测谓词扫未剥原文、豁免判据无正对照（S2 fixture=回滚即红的 killable 断言——判据可杀性是断言质量闸）
+
+**豁免集可达性自检（Exempt-Set Reachability Self-Check）**:
+枚举型豁免集合的成员必须落在被枚举步的可达面内（D-154③/ADR-0024 不收处置类）：75a-check S1=assert `SCAN_EXEMPT ⊆ walked 枚举面`（`*-check.mjs`＋`xfail-run.mjs` 实际枚举集），死项（枚举面外成员如旧 `guard-all-run.mjs`）即红——恒真断言转 killable 不变式（75a-C2 零悬空镜像；gitleaks `--deny-unused-baseline`/eslint-seatbelt 先例：死项在册即红态）。
+_Avoid_: 自指断言（断言文本自带被搜词=恒真不红，Autonoma tautological-test/D-102 无牙族同型）、豁免死项静默滞留（baseline 腐化）、自检面外移挂册外锚（违册内可达性先例）

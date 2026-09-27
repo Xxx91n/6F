@@ -29,3 +29,4 @@ Architecture decision records — generated index (navigation surface; not an au
 | [ADR-0021](0021-outbound-license-apache-2-no-copyleft-vendoring.md) | 出站 license = Apache-2.0；copyleft 上游禁 vendor 入分发物 | accepted | 2026-09-16 |
 | [ADR-0022](0022-quarantine-engine.md) | Quarantine 引擎——上游病态输入的两级处置建制 | accepted | 2026-09-23 |
 | [ADR-0023](0023-micro-b-file-card-architecture.md) | Micro-B 文件级审计卡——预采集投影×per-file subject×血缘事实 | accepted | 2026-09-23 |
+| [ADR-0024](0024-detector-judgment-at-consumption-position.md) | 探测面判定锚消费位——#75批2-β 探测器硬化 | accepted | 2026-09-27 |

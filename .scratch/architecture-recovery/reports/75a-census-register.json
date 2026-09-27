@@ -12,7 +12,7 @@
    "multi_hit": "同名字面量探针在单文件≥2 命中=弱隔离——登记 ack，整改走点级锚（行钉/结构匹配）"
   },
   "scanner": "剥注释后行级扫描 + 探针字面量跨 corpus 同文件多命中解析",
-  "exempt": "SCAN_EXEMPT={75a-check.mjs, guard-all-run.mjs}（普查机件自身/执行器字面量非断言钉）"
+  "exempt": "SCAN_EXEMPT={75a-check.mjs}（普查机件自身字面量非断言钉）；批2-β摘除 guard-all-run.mjs 死项——枚举面 *-check.mjs 文案漂移合法演化类（D-094③ 归因/D-154③），S1 改写为 ⊆walked 枚举面可达性自检（ADR-0024 不收③处置类）"
  },
  "entries": {
   "01-check.mjs|magic-floor|5a113dcf": {
@@ -73,7 +73,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "16-render-split-check.mjs|multi-hit-probe|f6d12d4c": {
    "guard": "16-render-split-check.mjs",
@@ -185,7 +185,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "24-check.mjs|date-literal|18092635": {
    "guard": "24-check.mjs",
@@ -347,7 +347,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "27-check.mjs|date-literal|97ea9f41": {
    "guard": "27-check.mjs",
@@ -398,7 +398,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "28-check.mjs|date-literal|c8aa2800": {
    "guard": "28-check.mjs",
@@ -469,7 +469,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "30-check.mjs|magic-floor|e761dfa0": {
    "guard": "30-check.mjs",
@@ -509,7 +509,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "31-check.mjs|unstripped-scan|f8bc4178": {
    "guard": "31-check.mjs",
@@ -519,7 +519,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "33-check.mjs|multi-hit-probe|9659cd1b": {
    "guard": "33-check.mjs",
@@ -539,7 +539,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "34-check.mjs|magic-floor|bbde8135": {
    "guard": "34-check.mjs",
@@ -569,7 +569,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "35-check.mjs|magic-floor|862f9102": {
    "guard": "35-check.mjs",
@@ -639,7 +639,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "36-check.mjs|date-literal|90bb93a3": {
    "guard": "36-check.mjs",
@@ -680,7 +680,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "37-check.mjs|existence-assert|5b171c2e": {
    "guard": "37-check.mjs",
@@ -711,7 +711,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "38-check.mjs|bare-occurred|bed775b0": {
    "guard": "38-check.mjs",
@@ -763,7 +763,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "39-check.mjs|bare-occurred|31d1dad8": {
    "guard": "39-check.mjs",
@@ -825,7 +825,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "40-check.mjs|bare-occurred|04e397f7": {
    "guard": "40-check.mjs",
@@ -974,7 +974,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "41a-check.mjs|date-literal|a0ec6308": {
    "guard": "41a-check.mjs",
@@ -1160,7 +1160,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "41b-check.mjs|date-literal|92d5e5fe": {
    "guard": "41b-check.mjs",
@@ -1257,7 +1257,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "42-check.mjs|date-literal|a0ec6308": {
    "guard": "42-check.mjs",
@@ -1424,7 +1424,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "43-check.mjs|date-literal|ac4d8407": {
    "guard": "43-check.mjs",
@@ -1538,7 +1538,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "44-check.mjs|date-literal|a0ec6308": {
    "guard": "44-check.mjs",
@@ -1726,7 +1726,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "45-check.mjs|date-literal|ac4d8407": {
    "guard": "45-check.mjs",
@@ -1874,7 +1874,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "46-check.mjs|date-literal|96d3c5a5": {
    "guard": "46-check.mjs",
@@ -1918,16 +1918,6 @@
    "round": 37,
    "note": "存在性断言=presence 层（liveness=可解析+关键字段，readiness=可服务——三层命名约定）",
    "layer": "presence"
-  },
-  "46-check.mjs|multi-hit-probe|d46c5672": {
-   "guard": "46-check.mjs",
-   "kind": "multi-hit-probe",
-   "excerpt": "39-macro-b-one-shot.mjs → .scratch\\architecture-recovery\\reports\\39-macro-b-anysearch-cli.json×9",
-   "disposition": "acknowledged-multi-hit",
-   "decision": "D-094②/D-144②",
-   "added": "2026-09-27",
-   "round": 37,
-   "note": "同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
   },
   "46-check.mjs|multi-hit-probe|6177aad6": {
    "guard": "46-check.mjs",
@@ -1997,7 +1987,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "47-check.mjs|date-literal|a0ec6308": {
    "guard": "47-check.mjs",
@@ -2134,7 +2124,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "48-check.mjs|bare-occurred|1be2fa0c": {
    "guard": "48-check.mjs",
@@ -2303,7 +2293,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "49-check.mjs|date-literal|e9b93b1c": {
    "guard": "49-check.mjs",
@@ -2377,7 +2367,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "50-check.mjs|bare-occurred|65be0ee6": {
    "guard": "50-check.mjs",
@@ -2535,7 +2525,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "51-check.mjs|existence-assert|09a8b1cf": {
    "guard": "51-check.mjs",
@@ -2600,7 +2590,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "52a-check.mjs|existence-assert|0e469177": {
    "guard": "52a-check.mjs",
@@ -2651,7 +2641,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "53-check.mjs|date-literal|45b17a49": {
    "guard": "53-check.mjs",
@@ -2753,7 +2743,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "54-check.mjs|date-literal|be5a2c47": {
    "guard": "54-check.mjs",
@@ -2876,7 +2866,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "64-check.mjs|unstripped-scan|91ac60d7": {
    "guard": "64-check.mjs",
@@ -2886,7 +2876,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "71-check.mjs|multi-hit-probe|476d24d4": {
    "guard": "71-check.mjs",
@@ -2926,7 +2916,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "72-check.mjs|bare-occurred|60cbb3c4": {
    "guard": "72-check.mjs",
@@ -2966,7 +2956,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "73-check.mjs|toothless|f0598027": {
    "guard": "73-check.mjs",
@@ -3147,7 +3137,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "80-check.mjs|unstripped-scan|777474c5": {
    "guard": "80-check.mjs",
@@ -3157,7 +3147,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "81-check.mjs|date-literal|4d6b6a6d": {
    "guard": "81-check.mjs",
@@ -3248,7 +3238,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "82-check.mjs|bare-occurred|13c63800": {
    "guard": "82-check.mjs",
@@ -3341,7 +3331,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "83-check.mjs|multi-hit-probe|014ad7e4": {
    "guard": "83-check.mjs",
@@ -3401,7 +3391,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "r14fix-check.mjs|date-literal|dd1a8ca5": {
    "guard": "r14fix-check.mjs",
@@ -3452,7 +3442,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "t8-check.mjs|bare-occurred|38528c12": {
    "guard": "t8-check.mjs",
@@ -3534,7 +3524,7 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
   },
   "t9-check.mjs|date-literal|e484241b": {
    "guard": "t9-check.mjs",
@@ -3608,7 +3598,427 @@
    "decision": "D-094②/D-144②",
    "added": "2026-09-27",
    "round": 37,
-   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面"
+   "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）"
+  },
+  "09-stale-check.mjs|multi-hit-probe|1bef47c7": {
+   "guard": "09-stale-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "read_model_lag_seconds → .scratch\\architecture-recovery\\reports\\09-stale-marker-fields.json×8",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "29-check.mjs|multi-hit-probe|c9c87623": {
+   "guard": "29-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "27-dual-readings.json → .scratch\\architecture-recovery\\reports\\29-check.mjs×4",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "31-check.mjs|multi-hit-probe|cbd48b6a": {
+   "guard": "31-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "../collect/collectors.js → engine\\src\\audit\\macro-b.ts×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "31-check.mjs|multi-hit-probe|a60e375f": {
+   "guard": "31-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "codelore.file_dossier → .scratch\\architecture-recovery\\reports\\31-probe-measurements.json×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "31-check.mjs|multi-hit-probe|5e26eab9": {
+   "guard": "31-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "strategy: 'binary-discovery' → engine\\src\\upstream\\codelore.ts×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "34-check.mjs|multi-hit-probe|2ff375b9": {
+   "guard": "34-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "claude-validate-receipts.jsonl → .scratch\\macro-audit\\decision-ledger.md×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "34-check.mjs|multi-hit-probe|4a6068dc": {
+   "guard": "34-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "local-observation-only → .scratch\\architecture-recovery\\decision-ledger.md×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "35-check.mjs|multi-hit-probe|eb8e1d1b": {
+   "guard": "35-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "CODELORE_BATCH1_FACETS → engine\\src\\upstream\\codelore.ts×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "35-check.mjs|multi-hit-probe|8fc52a4e": {
+   "guard": "35-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "codelore-batch1.test.mjs → .scratch\\architecture-recovery\\reports\\35-check.mjs×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "35-check.mjs|multi-hit-probe|f4e72948": {
+   "guard": "35-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "collectCodeloreFacets → engine\\src\\audit\\file-card.ts×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "35-check.mjs|multi-hit-probe|9267b44b": {
+   "guard": "35-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "Object.entries(manifest.facets) → .scratch\\architecture-recovery\\reports\\35-check.mjs×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "36-check.mjs|multi-hit-probe|098dacdd": {
+   "guard": "36-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "codelore-llm.test.mjs → .scratch\\architecture-recovery\\reports\\36-check.mjs×4",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "37-check.mjs|multi-hit-probe|e5266135": {
+   "guard": "37-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "37-pilot-measurements.json → .scratch\\architecture-recovery\\reports\\37-report.md×5",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "38-check.mjs|multi-hit-probe|16b9f643": {
+   "guard": "38-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "38-macro-c-measurements.json → .scratch\\architecture-recovery\\reports\\38-macro-c-preview-failure.json×5",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "38-check.mjs|multi-hit-probe|16b6a9fb": {
+   "guard": "38-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "MA-38-ANYSEARCH-MACRO-C-PREVIEW → .scratch\\architecture-recovery\\reports\\38-check.mjs×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "38-check.mjs|multi-hit-probe|b34fd9bd": {
+   "guard": "38-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "report-preview.test.mjs → .scratch\\architecture-recovery\\reports\\38-check.mjs×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "38-check.mjs|multi-hit-probe|2ec4ab23": {
+   "guard": "38-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "verdict_gate_stamp: insufficient ⚠ unverified → .scratch\\architecture-recovery\\reports\\38-macro-c-preview-failure.md×4",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "39-check.mjs|multi-hit-probe|54367a27": {
+   "guard": "39-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "39-mw-self-probe.json → .scratch\\architecture-recovery\\reports\\39-check.mjs×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "39-check.mjs|multi-hit-probe|b7be9c4d": {
+   "guard": "39-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "done → implemented（2026-09-16） → .scratch\\architecture-recovery\\decision-ledger.md×16",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "39-check.mjs|multi-hit-probe|f818783f": {
+   "guard": "39-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "macro-b-regression.yml → .scratch\\architecture-recovery\\reports\\46-check.mjs×8",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "39-check.mjs|multi-hit-probe|c69a0900": {
+   "guard": "39-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "RCP-4d1b294f6e2b0a07 → .scratch\\architecture-recovery\\reports\\39-macro-b-jiahao.json×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "39-check.mjs|multi-hit-probe|38daa868": {
+   "guard": "39-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "RCP-b1106d4112171be9 → .scratch\\architecture-recovery\\reports\\39-macro-b-env-manager.json×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "39-check.mjs|multi-hit-probe|83cbf1af": {
+   "guard": "39-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "RCP-b87bc53eb457a9fc → .scratch\\architecture-recovery\\reports\\39-macro-b-anysearch-cli.json×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "41b-check.mjs|multi-hit-probe|1d2bc34d": {
+   "guard": "41b-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "defaultEnabled:false → .scratch\\macro-audit\\reports\\41b-marketplace-fields.md×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "47-check.mjs|multi-hit-probe|9362c5dc": {
+   "guard": "47-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "error_kind: GithubApiErrorKind; → engine\\src\\upstream\\github-rest.ts×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "47-check.mjs|multi-hit-probe|ca1a1b38": {
+   "guard": "47-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "github-rest.test.mjs → .scratch\\architecture-recovery\\reports\\47-check.mjs×4",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "49-check.mjs|multi-hit-probe|d46c5672": {
+   "guard": "49-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "39-macro-b-one-shot.mjs → .scratch\\architecture-recovery\\reports\\39-macro-b-anysearch-cli.json×9",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出＋归因迁移（同一探针字面量原挂 46-check.mjs indexOf 位——Map 后写覆盖，49 经 .includes( 扩面收集后胜）；同名多命中弱隔离钉（整改方向=点级锚/结构断言）"
+  },
+  "50-check.mjs|multi-hit-probe|f6efa52f": {
+   "guard": "50-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "narrative_seal_protocol → engine\\src\\report\\generate.ts×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "50-check.mjs|multi-hit-probe|a7ebdbb6": {
+   "guard": "50-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "renderTemplateNarrative → .scratch\\architecture-recovery\\reports\\50-check.mjs×4",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "50-check.mjs|multi-hit-probe|d67974b4": {
+   "guard": "50-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "sealNarrativeSections → engine\\src\\report\\generate.ts×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "51-check.mjs|multi-hit-probe|3694f86d": {
+   "guard": "51-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "CODELORE_BEHAVIOR_FACETS → .scratch\\architecture-recovery\\reports\\51-check.mjs×5",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "53-check.mjs|multi-hit-probe|b884d395": {
+   "guard": "53-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "macro-audit audit <path|owner/repo|url> → .scratch\\macro-audit\\reports\\R14-Q2-atomcode-research.md×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "53-check.mjs|multi-hit-probe|c923f0f3": {
+   "guard": "53-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "Macro-C→Micro-A→Micro-B→Macro-A → .scratch\\macro-audit\\decision-ledger.md×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "64-check.mjs|multi-hit-probe|259b3d14": {
+   "guard": "64-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "DUCKDB_PINNED_VERSION → engine\\src\\fact\\store.ts×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "64-check.mjs|multi-hit-probe|45feaa3f": {
+   "guard": "64-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "MACRO_AUDIT_MCP_STDIO → engine\\src\\fact\\store.ts×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "64-check.mjs|multi-hit-probe|7d293e05": {
+   "guard": "64-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "MACRO_AUDIT_SELFHEAL → engine\\src\\fact\\store.ts×5",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "64-check.mjs|multi-hit-probe|aca7970e": {
+   "guard": "64-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "NO_OFFICIAL_BINDINGS → .scratch\\macro-audit\\reports\\2026-09-18-r21-audit-report.md×4",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "64-check.mjs|multi-hit-probe|056f0def": {
+   "guard": "64-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "npm install --omit=dev → .scratch\\architecture-recovery\\BACKLOG.md×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "r14fix-check.mjs|multi-hit-probe|4daf4b13": {
+   "guard": "r14fix-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "栈段 r14-51-behavior-quadrant → .scratch\\macro-audit\\reports\\2026-09-17-report.md×3",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "r14fix-check.mjs|multi-hit-probe|2c9e1416": {
+   "guard": "r14fix-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "from './citation.js' → engine\\src\\report\\generate.ts×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "t9-check.mjs|multi-hit-probe|e5728964": {
+   "guard": "t9-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "2026-09-13T10:49:04.195Z → .scratch\\architecture-recovery\\decision-ledger.md×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+  },
+  "t9-check.mjs|multi-hit-probe|a6e8fbf4": {
+   "guard": "t9-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "修正读数成为 reportable value → .scratch\\architecture-recovery\\decision-ledger.md×2",
+   "disposition": "acknowledged-multi-hit",
+   "decision": "D-094②/D-154②",
+   "added": "2026-09-27",
+   "round": 40,
+   "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
   }
  }
 }
