@@ -171,3 +171,11 @@
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-098 返工行）＋ .scratch/macro-audit/reports/2026-09-27-r37-audit-report.md（裁定源）
 - impact: 收口判据复绿（guard-all-run 60 件 PASS 红集={01}⊆册）；同族残余普查净面；审计打回→修复→复核闭环成例
 
+
+## [M-022] - 2026-09-27
+
+- milestone: 轮 38 grill 封口——CodeBuddy 宿主试用三裁＋执行协议＋完备性核查全定（D-150~D-152）：宿主面=插件全路径主验收＋安装树自对照基线（同 SHA 单变量=驱动路径）／兼容性面官方兼容证伪零预修（`${CLAUDE_PLUGIN_ROOT}`/`.claude-plugin/` 官方兼容别名双源，三悬点列首轮实测清单）／exit-success 双轴封口＋SBTM charter 三件套＋trials/ 档案位新立＋findings 票面五要素／批2 排序=试用先行排程优先（无依赖项可并行准备）
+- adr_range: ADR-0001 ~ ADR-0023（不变；0016 Consequences 落宿主扩展注记①）
+- a_range: A-001 ~ A-098
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-150~D-152＋D-150⑤ scoped 注记＋R38 收口节勘误：runtime-doctor-trigger 已 discharged-decided 于 2026-09-18 T6——CodeBuddy 试用=第二宿主链路非首锚）
+- impact: 宿主扩展面首裁（CodeBuddy=ADR-0016 渠道语义内新增宿主非新渠道）；试用 charter 落盘即判据预声明生效（Kill Criterion 兑现）；r37 呈报七件＋批2 348 条全挂批2 待试用 findings 回流重排；本轮零 revised
