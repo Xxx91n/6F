@@ -47,7 +47,7 @@ marketplace 安装 = git clone 无构建步——可运行体 `dist/cli.js`（es
 
 **Windows 已知 bug 链**：Claude Code 对 `${CLAUDE_PLUGIN_ROOT}` 的展开在 hook 面有 open issue（anthropics/claude-code#43380 / #65579）；MCP stdio exec-form 官方口径为纯字符串替换、理论免疫，但 Windows 真机以 `/mcp` 实测为准。失败引导：`claude --debug` 看 MCP init 日志；若 server 未 connected，先 `node dist/cli.js selftest` 区分「宿主未拉起」与「进程拉起即崩」。
 
-**宿主兼容注记**（D-150④ 注记义务②，R38-Q1 调研官方 EN+CN 双源）：CodeBuddy 官方声明兼容 Claude Code 插件规范——`${CODEBUDDY_PLUGIN_ROOT}` 优先、`${CLAUDE_PLUGIN_ROOT}` 与 `.claude-plugin/` 目录为兼容保留项自动识别——故 `.mcp.json` 写死 `${CLAUDE_PLUGIN_ROOT}` 在 CodeBuddy 侧应为可用形态；真机收口待 CodeBuddy 试用首轮实证（三悬点清单见 `.scratch/macro-audit/trials/codebuddy-r38-charter.md`）。
+**宿主兼容注记**（D-150④ 注记义务②，R38-Q1 调研官方 EN+CN 双源）：CodeBuddy 官方声明兼容 Claude Code 插件规范——`${CODEBUDDY_PLUGIN_ROOT}` 优先、`${CLAUDE_PLUGIN_ROOT}` 与 `.claude-plugin/` 目录为兼容保留项自动识别——`.mcp.json` 写死 `${CLAUDE_PLUGIN_ROOT}` **已实证可用**（R38 T1 试用 CLI 2.151.0 三悬点全实证：marketplace.json 被读／插件级 `.mcp.json` 自动发现拉起／占位符 Windows 展开——证据 `trials/codebuddy-r38-report.md`）；IDE 形态未覆盖（docs/known-gaps.md GAP-HOST-01 observed 在册，禁以 CLI 结果外推；D-155②）。
 
 ## 验收
 编译通过 / 打包通过 / 启动并测活；每平台 test 闭环 = 仓根 .github/workflows/engine-ci.yml（paths: engine/**），需 push 后以 CI run 结果为准。
