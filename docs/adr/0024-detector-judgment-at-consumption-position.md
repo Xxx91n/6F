@@ -37,3 +37,8 @@
 - CONTEXT.md 同步立「消费位判据／豁免集可达性自检」词条（D-156④ 词条声明义务）；存量 41 件 convention-registered 册 note 挂本册指针。
 - 批3（multi-hit 点级锚改造）/批4（existence-assert 升格）择批点显式不预裁（D-153④/D-156③）——随批2-β 落地后临窗再裁。
 - 调研档案 R39-Q1/Q2 存档 .scratch/macro-audit/reports/。
+
+## 执行注记（2026-09-28 R40-T1）
+
+- D-158① 同窗兑现：豁免判据收紧至剥后真消费形态——仅 `import`/`require` 具名引入 `stripComments`|`stripMdComments`，或 `stripComments(`／`stripMdComments(` 裸调用位计消费位豁免；字符串/属性名/标识符内提名不豁免（机件=`_lib/check-kit.mjs` `realConsumption`＋`blankStrings`，75a S2 增 fxStringNom 正对照——回滚即红）。
+- 41 件存量 unstripped-scan convention-registered 谓词收紧重测零迁移（findings=389 不变、零新增检出、零册项悬空），无 D-094 新分诊项产出；分诊留痕挂各册项 `recheck_log`。

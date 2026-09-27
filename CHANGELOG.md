@@ -218,3 +218,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-157~D-162；本轮兑现 D-159①②③④⑤⑥ 执行面＋D-160③ 字段面）
 - impact: 全量 60 守卫 tier 自声明机检化（75a T1~T3 绿）；SKIP 三态呈现契约落地（GUARD_SIBLING_ROOT=缺席路径实测 37/46 SKIP-with-reason exit 0）；fresh-clone 不可移植病（自指钉/sibling 硬钉）收口；xfail-run tier=portable 注记册入 env-contract 守卫须随批重 tier
+
+## [M-028] - 2026-09-28
+
+- milestone: 轮 40 T1 A 件落地——F-A1 unstripped-scan 豁免谓词收紧（D-158 全要件）：check-kit 新立 blankStrings（字符串/模板字面量遮罩保行号）＋realConsumption（真消费形态判定——import/require 具名引入 stripComments|stripMdComments 或裸调用位 stripComments(／stripMdComments(）；75a 谓词换 realConsumption＋fxStringNom 正对照 fixture（字符串提名必中——回归即红）；41 件注册条目重跑分诊零迁移零悬空（findings=389 前后不变——收紧不改现状面，纯防提名逃逸）；ADR-0024 执行注记随落（消费位判据实现形态钉档）
+- adr_range: ADR-0001 ~ ADR-0024（ADR-0024 增执行注记——判据实现形态与回钉 fixture 锚记）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-158 ①②③④ 全兑现执行面）
+- impact: 豁免面从词缀匹配收窄为真消费位判定——字符串/属性名/标识符/注释内提名不再豁免（C4/C5/S2 fixture 组钉住双向边界）；成员调用 obj.stripComments( 不豁免（具名 import 已覆盖正路）；41 件在册件零迁移证明谓词收紧零现状扰动

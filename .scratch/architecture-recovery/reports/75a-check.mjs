@@ -12,7 +12,7 @@ import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { stripComments } from './_lib/check-kit.mjs';
+import { stripComments, realConsumption } from './_lib/check-kit.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '#75批1 失效断言三分类建制守卫（D-094②③④ / D-144② / D-149④ / P5-B2 同名断言普查落点）';
@@ -51,7 +51,9 @@ function findInSource(file, strippedLines) {
 // 注释提名不再豁免（全局豁免反模式收口）；探测谓词同走剥后面（注释内假消费位不计）。
 function unstrippedScanHit(file, srcText) {
   const stripped = stripComments(srcText);
-  if (/stripComments|stripMdComments/.test(stripped)) return false;
+  // D-158① 谓词收紧：仅认剥注释+剥字符串后真消费形态——import/require 具名引入 或 stripComments(／stripMdComments( 裸调用位；
+  //   字符串/属性名/标识符内提名不豁免（fxStringNom 正对照钉住——回滚即红）
+  if (realConsumption(stripped)) return false;
   const readsSource = /readFileSync\([^)]*(ts|md|mjs)[^)]*\)/.test(stripped) || /(?:txt|read)\s*\([^)]*\.(ts|md|mjs)/.test(stripped);
   const probes = /\.indexOf\(|\.includes\(|\.test\(/.test(stripped);
   return readsSource && probes;
@@ -162,7 +164,8 @@ const fxConsumption = unstrippedScanHit('fx-consumption', "const ex = new Set(['
 const fxCommentOnly = unstrippedScanHit('fx-comment-only', "// stripComments 注释提名不豁免\nconst s = readFileSync('a.mjs', 'utf8'); s.indexOf('k');");
 const fxRealImport = unstrippedScanHit('fx-real-import', "import { stripComments } from './k.mjs'; const s = readFileSync('a.mjs', 'utf8'); s.indexOf(stripComments(s));");
 const fxRealCall = unstrippedScanHit('fx-real-call', "const s = readFileSync('a.mjs', 'utf8'); s.indexOf(stripMdComments(s));");
-t('S2 消费位判据正对照（面A fixture：消费位命中/注释提名必中/真实消费位豁免）', fxConsumption === true && fxCommentOnly === true && fxRealImport === false && fxRealCall === false, 'hit=' + fxConsumption + ' comment=' + fxCommentOnly + ' import=' + fxRealImport + ' call=' + fxRealCall);
+const fxStringNom = unstrippedScanHit('fx-stringnom', "const s = readFileSync('a.mjs', 'utf8'); const label = 'stripComments 字符串提名'; s.indexOf(label);");
+t('S2 消费位判据正对照（面A fixture：消费位命中/注释提名必中/字符串提名必中/真实消费位豁免）', fxConsumption === true && fxCommentOnly === true && fxStringNom === true && fxRealImport === false && fxRealCall === false, 'hit=' + fxConsumption + ' comment=' + fxCommentOnly + ' stringNom=' + fxStringNom + ' import=' + fxRealImport + ' call=' + fxRealCall);
 
 // T 组（R40-T1：D-159② tier 自声明强制＋D-160③ protected_surface 双字段显式扩展——未声明=红）
 const tierMap = new Map(), surfMap = new Map();
