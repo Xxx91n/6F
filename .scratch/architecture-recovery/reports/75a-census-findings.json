@@ -157,14 +157,14 @@
   "key": "25-check.mjs|date-literal|0532dab0",
   "file": "25-check.mjs",
   "kind": "date-literal",
-  "lno": 95,
+  "lno": 109,
   "excerpt": "check('C8b', a30.indexOf('implemented') >= 0 && a30.indexOf('2026-09-14') >= 0, 'A-030 implemented marker');"
  },
  {
   "key": "25-check.mjs|date-literal|5ca22dbe",
   "file": "25-check.mjs",
   "kind": "date-literal",
-  "lno": 99,
+  "lno": 113,
   "excerpt": "const wrows = L(workflow).filter(function (l) { return l.trim().indexOf('| 2026-09-14') === 0; });"
  },
  {
@@ -192,35 +192,35 @@
   "key": "25-check.mjs|magic-floor|975764a0",
   "file": "25-check.mjs",
   "kind": "magic-floor",
-  "lno": 89,
+  "lno": 103,
   "excerpt": "check('C7a', backlogIds.length >= 10, 'backlog ids found=' + backlogIds.length + ' ' + backlogIds.join(','));"
  },
  {
   "key": "26-check.mjs|date-literal|663cad76",
   "file": "26-check.mjs",
   "kind": "date-literal",
-  "lno": 63,
+  "lno": 64,
   "excerpt": "const ctx = { runId: 'r6-check', traceId: 't', repoRef: '6F@fc00d458', scale: 'Macro-B', observedAt: '2026-09-"
  },
  {
   "key": "26-check.mjs|magic-floor|f901c9b8",
   "file": "26-check.mjs",
   "kind": "magic-floor",
-  "lno": 17,
+  "lno": 18,
   "excerpt": "ok(Array.isArray(j.files) && j.files.length === 14, 'A1 真值表覆盖 14 份（13 冻结 + 1 post-freeze）');"
  },
  {
   "key": "26-check.mjs|magic-floor|d8ce2af3",
   "file": "26-check.mjs",
   "kind": "magic-floor",
-  "lno": 31,
+  "lno": 32,
   "excerpt": "ok(cellN === 65 && badCell === 0, 'A4 冻结集 65 cells 字段/分类齐备');"
  },
  {
   "key": "26-check.mjs|magic-floor|cfea3c36",
   "file": "26-check.mjs",
   "kind": "magic-floor",
-  "lno": 19,
+  "lno": 20,
   "excerpt": "ok(fz.length === 13, 'A2 冻结集恰为 13 份');"
  },
  {
@@ -269,21 +269,21 @@
   "key": "28-check.mjs|date-literal|c8aa2800",
   "file": "28-check.mjs",
   "kind": "date-literal",
-  "lno": 98,
+  "lno": 99,
   "excerpt": "check(name + ' - Date: 2026-09-12', cur.split('\\n').includes('- Date: 2026-09-12'));"
  },
  {
   "key": "28-check.mjs|date-literal|9c113e78",
   "file": "28-check.mjs",
   "kind": "date-literal",
-  "lno": 106,
+  "lno": 107,
   "excerpt": "check(name + ' Date=git first-commit', first.startsWith('2026-09-12'), first);"
  },
  {
   "key": "28-check.mjs|date-literal|228c3706",
   "file": "28-check.mjs",
   "kind": "date-literal",
-  "lno": 141,
+  "lno": 142,
   "excerpt": "check('0014 header fields byte-identical', ['- Status: accepted', '- Date: 2026-09-14'].every((l) => cur14.spl"
  },
  {
@@ -465,14 +465,14 @@
   "key": "37-check.mjs|existence-assert|5b171c2e",
   "file": "37-check.mjs",
   "kind": "existence-assert",
-  "lno": 83,
+  "lno": 98,
   "excerpt": "t('E1 37-report.md 落盘', fs.existsSync(rp), '');"
  },
  {
   "key": "37-check.mjs|magic-floor|6241f095",
   "file": "37-check.mjs",
   "kind": "magic-floor",
-  "lno": 79,
+  "lno": 94,
   "excerpt": "t('D6 jiahao 引用网完整（edges≥30 且断链=0 且 defer-registry 在）', jh.supersede_chain.edge_count >= 30 && jh.supersede_ch"
  },
  {
@@ -1110,14 +1110,14 @@
   "file": "44-check.mjs",
   "kind": "multi-hit-probe",
   "lno": null,
-  "excerpt": ".scratch/architecture-recovery/decision-ledger.md → CHANGELOG.md×21"
+  "excerpt": ".scratch/architecture-recovery/decision-ledger.md → CHANGELOG.md×22"
  },
  {
   "key": "44-check.mjs|multi-hit-probe|20b20aa2",
   "file": "44-check.mjs",
   "kind": "multi-hit-probe",
   "lno": null,
-  "excerpt": ".scratch/macro-audit/decision-ledger.md → CHANGELOG.md×18"
+  "excerpt": ".scratch/macro-audit/decision-ledger.md → CHANGELOG.md×20"
  },
  {
   "key": "44-check.mjs|multi-hit-probe|05991c04",

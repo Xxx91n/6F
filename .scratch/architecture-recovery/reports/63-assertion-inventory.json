@@ -73,7 +73,7 @@
       ]
     },
     "25-check": {
-      "assertion_ids": 22,
+      "assertion_ids": 23,
       "call_styles": [
         "check()"
       ]
@@ -140,7 +140,7 @@
       ]
     },
     "37-check": {
-      "assertion_ids": 22,
+      "assertion_ids": 23,
       "call_styles": [
         "t()"
       ]
