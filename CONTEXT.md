@@ -380,3 +380,10 @@ _Avoid_: 缺失环境渲染 FAIL（kit #518/startaitools 实证废案——skip 
 ### retired 类（退役守卫终态留档）
 
 绿守卫**守护面消亡**（对象移除/上层吸收/更强更窄契约取代）经 T3 审计窗逐件呈报裁定后：守卫移出运行集、文件本体归档 `reports/_retired/`（考古面非删除）、`known-red-manifest.json` retired 类增八要素终态记录（id/guard/protected_surface/tier/retired_at/era/reason/decision_ref/archive_path——75a-M3 机检）。**断言量/年龄/通过史不作退役判据**（D-160⑥）；retired 终态化不设二次出口；与 D-094 三分类（红件）输入正交——VACUOUS 普查双通道（D-160③）。
+
+### 暴露梯度（Stage-0/1/2 三段模型）
+
+外部真实用户暴露分三段（D-162）：
+- **Stage-0 被动挂牌**——marketplace 公开零外联=D-051 公开决定既有事实的显式命名（追认即刻生效，语义命名非动作）；preview 标注诚实=ADR-0017 决策本体延伸（release≠launch 二分）；
+- **Stage-1 定向邀请试用**——逐案 charter 协议（D-151 形态：判据预声明＋not-run 记 N/A＋读数以安装树为准；findings 全程走摄入分诊四态）；宿主资格=逐案用户闸门（D-162⑤，用户主权不立机检）；
+- **Stage-2 公开推广**——预声明四判据全达标方启：①capability 5/5（Macro-A preview 上架；重查 D-031⑤ 悬置条款）②fresh clone 不红海（操作性定义=D-159 env-contract tier 判据）③GAP-HOST-01 关闭④试点 findings 无未分诊残留；加 30 日静默窗（判据④封闭后 30 日无新增回流）。判据包值守=registry `stage2-launch-criteria`（manual_watch）。

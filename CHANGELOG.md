@@ -234,3 +234,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-160 ①②③④⑤⑥ 执行面全兑现——③ 双字段在 B commit 同窗落地、本件登记 schema+划界+归档）
 - impact: 退役唯一合法路径=面消亡经 T3 窗逐件呈报；断言量/年龄/通过史裁军诉求显式驳回留痕（ACH 277/571 实证）；registry 67 项/46 事件；retired 类当前空册——首件走链立先例
+
+## [M-030] - 2026-09-28
+
+- milestone: 轮 40 T1 E 件落地——暴露梯度三段建制登记（D-162③⑤⑥）：registry stage2-launch-criteria manual_watch 判据包入册（四判据预声明全达标方启 Stage-2：①capability 5/5〔D-031⑤ 重查义务挂判据①——agent-plugin 标注规范未成文维持悬置〕②fresh clone 不红海〔操作性定义=D-159 env-contract tier 判据防双裁〕③GAP-HOST-01 关闭〔verified 或 D-148 三要素 accepted-risk〕④试点 findings 无未分诊残留〔D-162⑥ 措辞修正——禁「无 pending」〕＋参数 A(a) 30 日静默窗〔KEP-5241 两周先例放宽月度窗〕）＋exposure-ladder-registered 事件；Stage-0 被动挂牌追认即刻生效（marketplace 公开零外联=D-051 既有事实语义命名）；Stage-1 宿主资格=逐案用户闸门不立机检（D-162⑤ 用户主权 D-026/D-027 同族）；CONTEXT 暴露梯度词条随落
+- adr_range: ADR-0001 ~ ADR-0024（不变——release≠launch 二分与 preview 诚实=ADR-0017 延伸）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-162 ③④⑤⑥ 执行面兑现——判据包+静默窗+逐案闸门+措辞修正全在册）
+- impact: Stage-2 启动闸门判据化预声明（criteria kickoff 前写定——design-partner 三源同构先例）；负向条款全量留痕（禁提前启动/禁开放描述/禁绕 D-159/禁绕摄入四态/禁 Stage-1 泛化 beta/禁动 D-051 与 ADR-0017 层序/禁轮内动 marketplace）；registry 68 项/47 事件

@@ -199,6 +199,11 @@
       "occurred": true,
       "date": "2026-09-28",
       "evidence": "R40-T1（D-160②⑤）落地：known-red-manifest.json retired 类终态留档 schema 生效（八要素+归档实物+出运行集——75a-M3 机检）＋_retired/ 归档目录建制＋D-094 划界注记成对落盘"
+    },
+    "exposure-ladder-registered": {
+      "occurred": true,
+      "date": "2026-09-28",
+      "evidence": "R40-T1（D-162③④⑥）落地：暴露梯度三段建制登记——Stage-0 被动挂牌追认即刻生效＋Stage-2 四判据包+30 日静默窗入 manual_watch 值守（D-155 同形态）＋D-031⑤ 重查义务挂判据①"
     }
   },
   "items": [
@@ -1831,6 +1836,32 @@
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-160 era-scoped 退役机制立法兑现）"
+    },
+    {
+      "id": "stage2-launch-criteria",
+      "family": "code-hygiene",
+      "title": "Stage-2 公开推广判据包值守（D-162③④⑥）——预声明四判据全达标＋30 日静默窗方启；Stage-1 宿主资格=逐案用户闸门（D-162⑤ 不立机检）",
+      "deadline_event": null,
+      "deadline": "无（判据包值守项——判据未达标主动推广=禁制）",
+      "trigger_event": "exposure-ladder-registered",
+      "trigger": "判据包随执行窗登记即刻生效（D-162③ 执行时点——Stage-0 追认即刻、Stage-1 随首例 charter、Stage-2 判据包入册值守）",
+      "review_at": "每审计窗核对四判据读数（T3 值守并入）；判据①执行时重查 agent-plugin 标注规范悬置条款（D-031⑤ 义务挂判据①——R40-Q6 调研再证未成文维持悬置）",
+      "status": "decided",
+      "owner": "macro-audit 队列值守",
+      "verify_method": "四判据机查/台账可核：①capability 5/5（Macro-A 层 preview 上架=ADR-0017 漏斗终点）②fresh clone 不红海（操作性定义=D-159 env-contract tier 判据防双裁）③GAP-HOST-01 关闭（IDE 面 verified 或 D-148 三要素齐备 accepted-risk）④试点 findings 全部过摄入分诊四态封闭处置——无未分诊残留（D-162⑥ 措辞：禁「无 pending」）；参数 A(a)=判据④封闭处置后 30 日无新增 finding 回流方算达标（KEP-5241 两周先例放宽至月度窗）",
+      "review_event": "next-audit-window",
+      "watch": "manual_watch",
+      "confirmations": [
+        {
+          "at": "2026-09-28",
+          "by": "R40-T1（D-162③⑤⑥）",
+          "criterion_version": "D-162①②③④⑤⑥",
+          "decision": "registered",
+          "reason": "暴露梯度三段建制登记：Stage-0 被动挂牌追认即刻生效（marketplace 公开零外联=D-051 既有事实语义命名非动作；release≠launch 二分）；Stage-1 定向邀请逐案 charter（D-151 形态，宿主资格=逐案用户闸门不立机检——用户主权 D-026/D-027 同族）；Stage-2 四判据包+30 日静默窗入册值守；负向留痕：禁提前启动/禁开放描述/禁绕开 D-159 回指/禁绕摄入四态/禁 Stage-1 泛化开放 beta/禁动 D-051、ADR-0017 层序/禁轮内动 marketplace 字段",
+          "evidence": "registry 本项＋CONTEXT 暴露梯度词条"
+        }
+      ],
+      "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）"
     }
   ]
 }
