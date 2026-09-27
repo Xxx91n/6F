@@ -39,9 +39,10 @@ const ciArchived = Array.isArray(ciIds) && ciIds.length > 0 && ciIds.every(funct
 check('P1', ciArchived, '票 19 CI 证据在档：run ' + ciIds.join(', ') + ' 见于 decision-ledger.md 或 19-report.md');
 let preregCommit = '';
 try {
-  preregCommit = execFileSync('git', ['log', '--format=%h', '-1', '--', '.scratch/architecture-recovery/reports/22-criteria-pre-registration.md'], { cwd: REPO, encoding: 'utf8' }).trim();
+  preregCommit = execFileSync('git', ['log', '--format=%H', '-1', '--', '.scratch/architecture-recovery/reports/22-criteria-pre-registration.md'], { cwd: REPO, encoding: 'utf8' }).trim();
 } catch (e) { preregCommit = ''; }
-check('P2', preregCommit.length > 0 && preregCommit === gates.preflight.t22_prereg_commit, '票 22 预声明已 commit：' + preregCommit + '（预期 ' + gates.preflight.t22_prereg_commit + '）');
+// R37 返工 F1（D-094(b) 短 SHA 字面钉脆性）：%h auto-abbrev 随对象库 7→8 跳变——钉钉=commit 存在性（%H 前缀等值）非显示宽度
+check('P2', preregCommit.length > 0 && preregCommit.startsWith(gates.preflight.t22_prereg_commit), '票 22 预声明已 commit：' + preregCommit + '（预期 ' + gates.preflight.t22_prereg_commit + '）');
 check('P3', existsSync(C_BASIS) && cBasisText.indexOf('B1') >= 0 && cBasisText.indexOf('B5') >= 0, 'C 层裁定依据预入库文件可指认：22-c-adjudication-basis.md 含 B1-B5');
 
 // ---------- A 闸：形式达标（骨架 + 引文 + Receipt） ----------

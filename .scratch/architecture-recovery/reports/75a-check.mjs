@@ -36,6 +36,7 @@ function findInSource(file, strippedLines) {
     if (/occurred\s*===?\s*(?:true|false|1|0)/.test(line)) out.push({ file, kind: 'bare-occurred', line, lno });
     if (/(?:\.length|\.size)\s*>=\s*0\b/.test(line) || ASSERT_CALL.test(line) && /,\s*true\s*[,)]/.test(line)) out.push({ file, kind: 'toothless', line, lno });
     if (ASSERT_CALL.test(line) && /existsSync\s*\(/.test(line)) out.push({ file, kind: 'existence-assert', line, lno });
+    if (/--format=%h\b|'--short'|--abbrev(=|\b)/.test(line)) out.push({ file, kind: 'short-sha-pin', line, lno });
   });
   return out;
 }
@@ -117,9 +118,10 @@ const synthetic = [
   "check('floor', rows.length >= 15, 'n')",
   "const probe = fs.readFileSync('a.ts'); t('x', probe.indexOf('needle-' + 'x') >= 0)",
   "t('ex', existsSync(join(HERE, 'a.json')))",
+  "execSync('git', ['log', '--format=%h', '-1'])",
 ].join(NL);
 const posHit = new Set(findInSource('synthetic', synthetic.split(NL)).map((f) => f.kind));
-t('C4 正对照：合成源注入 日期/魔数/occurred/无牙/存在性 五族必抓', ['date-literal', 'magic-floor', 'bare-occurred', 'toothless', 'existence-assert'].every((k) => posHit.has(k)), [...posHit].join(','));
+t('C4 正对照：合成源注入 日期/魔数/occurred/无牙/存在性/短SHA钉 六族必抓', ['date-literal', 'magic-floor', 'bare-occurred', 'toothless', 'existence-assert', 'short-sha-pin'].every((k) => posHit.has(k)), [...posHit].join(','));
 const negHit = findInSource('synthetic2', ["t('ok', xs.every((x) => x.id))", "const a = 2026"].join(NL).split(NL)).filter((f) => f.kind !== 'multi-hit-probe');
 t('C5 负对照：正常断言行不误报', negHit.length === 0, negHit.map((f) => f.kind).join(','));
 
