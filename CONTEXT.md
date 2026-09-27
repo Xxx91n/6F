@@ -17,6 +17,7 @@
 > 轮 34 grill（2026-09-25 完成）已封口 D-140 ~ D-143：第三轮锐评残余四面裁毕——dist 锁面内制品评审降噪（dist/** generated 标记＋独立 bundle commit 规约＋信任源声明=CI rebuild-diff 守卫，D-067/D-059⑨ 互引注记）＋贡献者最小阅读地图（CONTRIBUTING 纯指针段＋.scratch 过程档案声明，D-130 注记）＋评审快照摄入分诊规程（钉 SHA＋HEAD 三档分诊 AGENTS 一行＋review-intake-mistriage-recurrence deferred 触发器）＋R33 口径卫生三件（F9 emitted 203→197 勘误封账＋SuppressedFacetReason 收窄可达集〔D-136 注记〕＋B2 标签名实相符）；调研档案 R34-Q{1..4} 系列存档 .scratch/macro-audit/reports/。
 > 轮 35 grill（2026-09-26 完成）已封口 D-144 ~ D-147：第四轮锐评（快照=当前 HEAD 68db5ad）辩证处置＋R35 审计窗 P4 裁决——守卫复绿税双层组合（closeout 前置核对工序化＋41a-D7 类高频钉结构不变量改写〔D-071⑨ 增长面腿触发器追认→#75批1〕＋无账行增量显式豁免声明＋守卫组 CI 层硬跑不降级）＋dist 再生工序内化（src 或 dist 触碰→build＋check-dist 前置核对行，官方 check-dist 先例同型）＋评审摄入四档制（D-142 → revised 仅①款——「可核实且证伪→快照不属实」附核实依据显式驳回封闭处置态〔非第四值守态〕＋XFAIL 10/10 呈报勘误：entries=0/10 快照时点即失实；registry 覆盖面扩写）＋P4 as-cast 立即返工（failure 注记收窄 `'ok' | SuppressedFacetReason`＋删 cast，TS 4.4 别名收窄兑现 exhaustiveness——预声明轻量验证包＋dist 字节差即升格全套）；调研档案 R35-Q{1..4} 系列存档 .scratch/macro-audit/reports/。
 > 轮 36 grill（2026-09-27 完成）已封口 D-148 ~ D-149：第四轮锐评核销复核（锐评面零残余裁面——已完成核销表）＋审计窗判断项处置（R1 Accepted-Risk 裁立三要素／R2 确认式呈报补复评触发）＋规程生效时点规约（grandfather／落盘 commit 自身豁免）＋守卫组界定（18 件枚举锚面固化 AGENTS＋成员进出生命周期＋静默红 12 件处置谱挂 T3 分诊门＋升格触发器登记）
+> 轮 38 grill（2026-09-27 完成）已封口 D-150 ~ D-152：CodeBuddy 宿主试用三裁＋执行协议＋完备性核查——插件全路径主验收线＋CLI 裸跑对照（安装树自对照钉 SHA，单变量=驱动路径）／兼容性面官方兼容证伪零预修（`${CLAUDE_PLUGIN_ROOT}`+`.claude-plugin/` 双源实证，三悬点列首轮实测清单）／试用先行=排程优先（findings 回流喂批2）／SBTM charter 三件套＋exit/success 双轴封口＋trials/ 档案位新立＋findings 票面五要素；调研档案 R38-Q{1..3} 系列存档 .scratch/macro-audit/reports/；本轮零 revised。
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
@@ -348,3 +349,11 @@ _Avoid_: 溯及既往（立法 commit 永远无法启动）、落盘豁免误读
 **守卫基线枚举（Guard Baseline Set）**:
 「收口前跑守卫组」的指称对象=明示枚举集（当前 18 件 NN-check＋xfail-run，AGENTS.md「守卫组指称」行载明）；入列=新 check 落盘轮登记＋实测绿，出列=T3 分诊门（D-094 三分类：合法漂移入册带期限／真坏修现实／欺诈死面禁 manifest）；升格终态=全量跑＋known-red manifest 判据（D-149④ 触发器挂 T3 manifest 产出当轮，防 graveyard 中间态固驻）。
 _Avoid_: 守卫组无指称（挑跑=选择歧义税源）、枚举只住换代任务书（挥发锚面）、静默红留无名分（确定性红常驻教团队无视红——Normalization-of-Deviance 机理）
+
+**宿主试用（Host Pilot）**:
+跨宿主分发的实证验证形态（D-150~D-152）：载体=SBTM 三件套——charter（试用前 commit 入库＝Kill Criterion 预声明：可操作定义＋显式阈值＋命中方向＋未中语义；directive 非 prescriptive，执行步骤不进 charter）→ session 实测记录 → debrief 试用报告（标题自带 feasibility 语义，禁写成适配验收文书）。判据双轴：exit（过程完备性——判据全跑完＋每条有读数＋findings 全过摄入分诊＋报告落盘）与 success（各判据命中读数）独立取值——关窗不预设成功、关窗≠缺陷清零、未达标≠试用失败（pilot outcome 四档：stop/continue-with-modifications/monitoring/as-is）；关窗=判据驱动，禁写触发器形态（与 Trigger-gated Closure 同族不同轴——触发器等事件、判据封口等活动做完；关窗后残项→manual_watch 接力）；依赖不可得→读数=not-run 如实记录，不换仓不临场扩射程；宿主面内 agent 话术呈现=判据被测对象非立法对象。
+_Avoid_: 试用窗与整改批混窗（findings 未分诊就修=绕摄入分诊）、临场换靶（预声明义务失守）、把试点读数虚报成宿主认证、关窗等事件（触发器混轴留提前关窗漏洞）、无基线单跑（裁决力空转）
+
+**安装树自对照（Installed-Tree Self-Baseline）**:
+跨宿主 parity 的基线构造（D-151①）：基线=所装分发物 `dist/cli.js` 本机直跑（票面钉安装树 SHA——钉快照惯例），宿主 agent 驱动同码对照——唯一差异变量=驱动路径（确定性 CLI vs agent 在 skills 壳＋MCP 读面引导下的行动序列），安装树↔开发 HEAD 版本差轴构造性归零。语义=变更检测器非正确性证明（characterization/golden-master 定位——「helps detect unwanted effects」不证正确）。parity 判据钉字段级（Golden 锁面词条——字段键集＋语义不变量定点值，禁滑纯键集）；版本差轴被迫引入时启用降级路径（版本差声明＋parity 降结构级，Dual Reporting 惯例）；历史异版读数不可比→降参照轶事，读数冲突走 Assignable Cause（找不到可归属原因默认异常读数有效并升级调查，禁悄悄二选一）。
+_Avoid_: 拿开发仓 HEAD 当基线（自买版本混因轴）、字节级等同后宣称宿主面已验（判据在驱动路径非产物字节）、parity 滑成纯键集（锁面失守）、异常读数无归因即二选一

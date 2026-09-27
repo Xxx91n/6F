@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { commitsByGrep, touchedPaths, lastChangeSha } from './_lib/check-kit.mjs';
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(dir, '../../..');
@@ -23,14 +23,14 @@ ok(j.items.every(i => i.draft && i.draft.length > 20), 'A7 逐项草案非空');
 const md = fs.readFileSync(path.join(dir, '30-desk-calibration.md'), 'utf8');
 ok(md.includes('置信域') && md.includes('满足判据') && md.includes('复审时点'), 'B1 md 表头两字段纪律出现');
 // C. 冻结数据 + 上游零改动（R37/#75批1 D-094(b)：GitButler 合成索引令 porcelain 现幻影 MM——票面时代域钉）
-const a35 = spawnSync('git', ['log', '--all', '--format=%H', '--grep', 'A-035'], { cwd: root, encoding: 'utf8' }).stdout.trim().split(String.fromCharCode(10)).filter(Boolean);
-const touched30 = new Set();
-for (const sha of a35) { spawnSync('git', ['show', '--name-only', '--format=', sha], { cwd: root, encoding: 'utf8' }).stdout.split(String.fromCharCode(10)).map(function (p) { return p.trim(); }).filter(Boolean).forEach(function (p) { touched30.add(p); }); }
+// R38/#75批2（r37 审计 P-5）：机件收编 _lib/check-kit.mjs。
+const a35 = commitsByGrep(root, 'A-035');
+const touched30 = touchedPaths(root, a35);
 const FROZEN30 = ['.scratch/architecture-recovery/reports/23-measurements.json', '.scratch/architecture-recovery/reports/23-facts.jsonl', '.scratch/architecture-recovery/reports/23-first-report.json', '.scratch/architecture-recovery/reports/23-first-report.md'];
 const badTouched30 = [...touched30].filter(function (p) { return p === 'engine' || p.indexOf('engine/') === 0 || p === 'docs/adr' || p.indexOf('docs/adr/') === 0 || FROZEN30.indexOf(p) >= 0; });
 ok(a35.length > 0 && badTouched30.length === 0, 'C1a 票面时代域：A-035 commit 集零触 冻结数据/engine/docs-adr（' + a35.length + ' commits 物证）' + (badTouched30.length ? ' BAD=' + badTouched30.join(',') : ''));
 const FROZEN_AT30 = { '23-measurements.json': 'e39468c9c53d', '23-facts.jsonl': '55dc34ec2fc0', '23-first-report.json': 'e39468c9c53d', '23-first-report.md': 'e39468c9c53d' };
-const unfrozen30 = FROZEN30.filter(function (f) { const last = spawnSync('git', ['log', '-1', '--format=%H', '--', f], { cwd: root, encoding: 'utf8' }).stdout.trim(); const key = f.split('/').pop(); return last.indexOf(FROZEN_AT30[key]) !== 0; });
+const unfrozen30 = FROZEN30.filter(function (f) { const last = lastChangeSha(root, f); const key = f.split('/').pop(); return last.indexOf(FROZEN_AT30[key]) !== 0; });
 ok(unfrozen30.length === 0, 'C1b 冻结工件四件最后变更 commit=冻结点钉（内容自冻结零改动）' + (unfrozen30.length ? ' UNFROZEN=' + unfrozen30.join(',') : ''));
 
 console.log('\nGUARD RESULT:', fail === 0 ? 'PASS' : 'FAIL', '(' + pass + ' pass, ' + fail + ' fail)');

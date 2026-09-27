@@ -171,3 +171,19 @@
 - ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-098 返工行）＋ .scratch/macro-audit/reports/2026-09-27-r37-audit-report.md（裁定源）
 - impact: 收口判据复绿（guard-all-run 60 件 PASS 红集={01}⊆册）；同族残余普查净面；审计打回→修复→复核闭环成例
 
+
+## [M-022] - 2026-09-27
+
+- milestone: 轮 38 grill 封口——CodeBuddy 宿主试用三裁＋执行协议＋完备性核查全定（D-150~D-152）：宿主面=插件全路径主验收＋安装树自对照基线（同 SHA 单变量=驱动路径）／兼容性面官方兼容证伪零预修（`${CLAUDE_PLUGIN_ROOT}`/`.claude-plugin/` 官方兼容别名双源，三悬点列首轮实测清单）／exit-success 双轴封口＋SBTM charter 三件套＋trials/ 档案位新立＋findings 票面五要素／批2 排序=试用先行排程优先（无依赖项可并行准备）
+- adr_range: ADR-0001 ~ ADR-0023（不变；0016 Consequences 落宿主扩展注记①）
+- a_range: A-001 ~ A-098
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-150~D-152＋D-150⑤ scoped 注记＋R38 收口节勘误：runtime-doctor-trigger 已 discharged-decided 于 2026-09-18 T6——CodeBuddy 试用=第二宿主链路非首锚）
+- impact: 宿主扩展面首裁（CodeBuddy=ADR-0016 渠道语义内新增宿主非新渠道）；试用 charter 落盘即判据预声明生效（Kill Criterion 兑现）；r37 呈报七件＋批2 348 条全挂批2 待试用 findings 回流重排；本轮零 revised
+
+## [M-023] - 2026-09-27
+
+- milestone: 轮 38 T2 #75批2-α 实施批——r37 审计呈报七件全实修闭环（38-F2 枚举域钉回补／25-C5c 末格禁言盲区→豁免登记制／37-C2b 快照界欠数检出双向回补／20-A5 _lib 剥注释自消费／26·28·30 票面 commit 集机件收编 check-kit／manifest「三分位→三分类」笔误／01-spotcheck 尾行+生成器）＋75b 分档草案落盘（348 条→六轨映射＋批2-β 裁定候选）＋CodeBuddy 试用 session 骨架预填环境快照（宿主操作=用户驱动面 pending）
+- adr_range: ADR-0001 ~ ADR-0023（不变）
+- a_range: A-001 ~ A-099
+- ledger_pointer: .scratch/architecture-recovery/decision-ledger.md（A-099）＋.scratch/macro-audit/decision-ledger.md（D-150~D-152 无增量——本轮实施窗零新裁）
+- impact: 守卫判据力回硬三件（枚举域钉/双向欠数检出/盲区豁免登记）；探测面残余漏洞（注释提名豁免/multi-hit includes·test·macro-audit 面/SCAN_EXEMPT 不可达项/75a-S1 自指恒真）归批2-β 裁定链不机械推进；票面批2（枚举 open/closed 建制）未动——75b 草案明示留后续建制批；T1 试用读数随用户会话回填 session 档

@@ -74,7 +74,7 @@ sealed('E3', 'ap-38-e3', 'mw-trigger-b decided——值守 ALARM 口径变迁属
 
 // --- F. 报告引用一致（md↔侧车↔measurements↔37 存档） ---
 t('F1 report_id/scale/subject 三处一致', md.includes('MA-38-ANYSEARCH-MACRO-C-PREVIEW') && sc.report_id === 'MA-38-ANYSEARCH-MACRO-C-PREVIEW' && sc.scale === 'Macro-C' && sc.subject_ref === 'anysearch-cli@' + meas.head_sha.slice(0, 12) && md.includes('anysearch-cli@' + meas.head_sha.slice(0, 12)), '');
-t('F2 裁决条目 6 + 引文校验件件有裁决落档（再生后支持度如实标注不预设全 supports）+ overall=insufficient（诚实部分裁定）', sc.adjudication.entries.length === 6 && sc.citation_checks.length > 0 && sc.citation_checks.every((c) => typeof c.support === 'string' && c.support.length > 0) && sc.overall_verdict === 'insufficient', 'checks=' + sc.citation_checks.length + ' verdict=' + sc.overall_verdict);
+t('F2 裁决条目 6 + 引文校验件件有裁决落档（再生后支持度如实标注不预设全 supports）+ support∈{supports,insufficient} 枚举域钉（R38/#75批2 回补 r37-P1，词表源=citation.ts output_states）+ overall=insufficient（诚实部分裁定）', sc.adjudication.entries.length === 6 && sc.citation_checks.length > 0 && sc.citation_checks.every((c) => ['supports', 'insufficient'].indexOf(c.support) >= 0) && sc.overall_verdict === 'insufficient', 'checks=' + sc.citation_checks.length + ' verdict=' + sc.overall_verdict);
 t('F3 TC-MC-3 insufficient 锚定 llm_gate fact（深检面降级印记）', sc.adjudication.entries.some((e) => e.criterion_id === 'TC-MC-3' && e.band === 'insufficient' && /llm_gated|门控/.test(e.rationale)), '');
 t('F4 supply_chain 象限 not_applicable + ⚠ 数据未接（D-034③）', sc.quadrants.some((q) => q.quadrant === 'supply_chain' && q.applicability === 'not_applicable' && /数据未接/.test(q.verdict_gate.override_reason) && q.conflict_markers.includes('data-not-connected')), '');
 // R37/#75批1（D-094(b) 工件再生漂移→改断言）：crosscheck_37 对账件自身如实披露 37↔38 差（adr 65→76）——钉字段自洽+外部锚（37 存档计数）非钉死等值。

@@ -76,6 +76,20 @@ const hit = forbid.filter(function (w) { return checklistClaims.indexOf(w) >= 0 
 check('C5a', hit.length === 0, 'forbidden exec claims: ' + JSON.stringify(hit));
 check('C5b', checklist.indexOf('零实施') >= 0 && report.indexOf('不实施任何上架或 push') >= 0, 'zero-impl declarations present');
 
+// R38/#75批2（r37 审计 P-3）：C5a 末格剥离遗留禁言盲区收口——末格不再剥离出扫描面，改走显式豁免登记制：
+// 违禁词命中末格仅当其行含登记的历史锚片段时放行（登记外命中=FAIL；盲区→有名例外集，新增须先登记后放行）。
+const LAST_CELL_EXEMPT = ['R3 收口 push 已执行'];
+const lastCellHits = [];
+checklist.split(NL).forEach(function (l) {
+  if (l.trim().charAt(0) !== '|') { return; }
+  const cells = l.split('|').map(function (c) { return c.trim(); });
+  const last = cells[cells.length - 2] || '';
+  forbid.forEach(function (w) {
+    if (last.indexOf(w) >= 0 && LAST_CELL_EXEMPT.every(function (x) { return last.indexOf(x) < 0; })) { lastCellHits.push(w + ' @' + last.slice(0, 50)); }
+  });
+});
+check('C5c', lastCellHits.length === 0, 'last-cell forbidden claims outside exemption register: ' + JSON.stringify(lastCellHits));
+
 // ---- C6 每项前置条件可执行判定（能/不能/需什么）----
 const noJudg = actionRows.filter(function (l) { const c = l.split('|')[3] || ''; return c.indexOf('能') < 0; });
 const noNeed = actionRows.filter(function (l) { return l.indexOf('需') < 0; });

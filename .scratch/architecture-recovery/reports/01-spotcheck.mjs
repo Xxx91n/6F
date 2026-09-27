@@ -93,7 +93,7 @@ const result = {
   per_repo_mean_excluding_title: titleExcluded,
   rows,
 };
-fs.writeFileSync(REPORTS + '/01-spotcheck.json', JSON.stringify(result, null, 2), { encoding: 'utf8' });
+fs.writeFileSync(REPORTS + '/01-spotcheck.json', JSON.stringify(result, null, 2) + '\n', { encoding: 'utf8' });
 for (const [mid, v] of Object.entries(perModel)) {
   console.log(mid + ': n_pos=' + v.n_pos + ' n_neg=' + v.n_neg + ' pos_mean=' + v.pos_mean + ' neg_mean=' + v.neg_mean + ' @0.70=' + JSON.stringify(v.at_0_70) + ' bestF1=' + JSON.stringify(v.best_f1));
 }

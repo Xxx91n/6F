@@ -57,6 +57,21 @@ for (const n of REPO_NAMES) {
   } else {
     console.log(`NOTE C2-${n} 存档 gh-committer 证据集为空——逐件核验恒真不证伪（诚实缺席注记，非断言计件）`);
   }
+  // R38/#75批2（r37 审计 P-3 欠数检出回补）：C2 单向收窄补双向——存档证据集对快照 head 可达
+  // gh-committer 全集欠数可检出（钉 r.head 防活仓增长漂移，同 C1/C3 钉快照型）；head 不可达→WARN 退化同例。
+  const ghReach = spawnSync('git', ['-C', root, 'log', r.head, '--format=%H', '--committer=noreply@github.com'], { encoding: 'utf8' });
+  if (ghReach.status !== 0) {
+    console.log('WARN C2b-' + n + ' 存档 head ' + r.head.slice(0, 8) + ' 活仓不可达——欠数检出退化不计数（同 C1 退化型）');
+  } else {
+    const ghReachShas = ghReach.stdout.split('\n').filter(Boolean);
+    const storedSet = new Set(storedShas);
+    const missingCov = ghReachShas.filter(function (s) { return !storedSet.has(s.slice(0, 8)); });
+    if (ghReachShas.length > 0) {
+      t('C2b-' + n + ' 存档 gh-committer 证据集对快照 head 可达全集欠数检出（stored ⊇ reachable@' + r.head.slice(0, 8) + '）', missingCov.length === 0, 'reachable=' + ghReachShas.length + ' stored=' + storedShas.length + ' missing=' + missingCov.length);
+    } else {
+      console.log('NOTE C2b-' + n + ' 快照 head 可达 gh-committer 集为空——欠数检出恒真不证伪（诚实缺席注记，同 C2 型）');
+    }
+  }
   const ls3 = spawnSync('git', ['-C', root, 'ls-tree', '-r', '--name-only', r.head, '--', r.adr.dir || 'docs/adr'], { encoding: 'utf8' });
   if (ls3.status === 0) {
     const adrAtHead = ls3.stdout.split('\n').filter((f) => /^\d{3,}.*\.md$/i.test((f.split('/').pop() || ''))).length;
