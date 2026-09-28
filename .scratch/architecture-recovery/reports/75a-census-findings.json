@@ -640,21 +640,21 @@
   "key": "39-check.mjs|bare-occurred|31d1dad8",
   "file": "39-check.mjs",
   "kind": "bare-occurred",
-  "lno": 101,
+  "lno": 108,
   "excerpt": "t('E1 registry 事件 mw-regression-ci occurred=true + 证据含 jiahao workflow', reg.events['mw-regression-ci'].occurr"
  },
  {
   "key": "39-check.mjs|date-literal|f881aa38",
   "file": "39-check.mjs",
   "kind": "date-literal",
-  "lno": 140,
+  "lno": 147,
   "excerpt": "t('H4 账本 A-044 回写 done → implemented（2026-09-16）', a044.includes('done → implemented（2026-09-16）'), '');"
  },
  {
   "key": "39-check.mjs|date-literal|807ffb6c",
   "file": "39-check.mjs",
   "kind": "date-literal",
-  "lno": 146,
+  "lno": 153,
   "excerpt": "t('H7 WORKFLOW §4 lessons 追加本票行（#39/A-044）', /2026-09-16[^\\n]*(#39|A-044)/.test(wfMd), '');"
  },
  {
@@ -668,7 +668,7 @@
   "key": "39-check.mjs|existence-assert|52e7d2a9",
   "file": "39-check.mjs",
   "kind": "existence-assert",
-  "lno": 132,
+  "lno": 139,
   "excerpt": "t('H1 39-report.md 落盘', fs.existsSync(join(here, '39-report.md')), '');"
  },
  {
@@ -690,7 +690,7 @@
   "file": "39-check.mjs",
   "kind": "multi-hit-probe",
   "lno": null,
-  "excerpt": "macro-b-regression.yml → .scratch\\architecture-recovery\\reports\\46-check.mjs×8"
+  "excerpt": "macro-b-regression.yml → .scratch\\architecture-recovery\\reports\\46-check.mjs×9"
  },
  {
   "key": "39-check.mjs|multi-hit-probe|c69a0900",
@@ -1285,7 +1285,7 @@
   "file": "44-check.mjs",
   "kind": "multi-hit-probe",
   "lno": null,
-  "excerpt": ".scratch/macro-audit/decision-ledger.md → CHANGELOG.md×27"
+  "excerpt": ".scratch/macro-audit/decision-ledger.md → CHANGELOG.md×29"
  },
  {
   "key": "44-check.mjs|multi-hit-probe|05991c04",
@@ -1431,28 +1431,28 @@
   "key": "46-check.mjs|date-literal|96d3c5a5",
   "file": "46-check.mjs",
   "kind": "date-literal",
-  "lno": 88,
+  "lno": 106,
   "excerpt": "const rep = txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md'));"
  },
  {
   "key": "46-check.mjs|existence-assert|91e2fa9d",
   "file": "46-check.mjs",
   "kind": "existence-assert",
-  "lno": 57,
+  "lno": 62,
   "excerpt": "t('B1 jiahao 工作树该文件已缺席', !existsSync(jhWf));"
  },
  {
   "key": "46-check.mjs|existence-assert|9114e0e4",
   "file": "46-check.mjs",
   "kind": "existence-assert",
-  "lno": 67,
+  "lno": 79,
   "excerpt": "t('C1 46-out/ 工件集六件齐备', C_FILES.every(f => existsSync(join(OUT, f))), C_FILES.filter(f => !existsSync(join(OUT"
  },
  {
   "key": "46-check.mjs|existence-assert|18895c12",
   "file": "46-check.mjs",
   "kind": "existence-assert",
-  "lno": 80,
+  "lno": 98,
   "excerpt": "t('D2 engine dist/cli.js 构建产物在', existsSync(join(REPO, 'engine', 'dist', 'cli.js')));"
  },
  {
