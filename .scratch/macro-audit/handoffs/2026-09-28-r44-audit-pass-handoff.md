@@ -11,14 +11,14 @@
 ## 呈报件（观察级 O1~O4，零必修，详见报告 §5）
 
 - O1：footer partial 行谓词形状近似——judgement-call 以下不报修。
-- O2：atomcode 裁决辅助调研无仓内工件——过程性声明，记录一致。
+- O2：atomcode 裁决辅助调研无仓内工件——过程性声明，记录一致。（**LOOP 已修**：R44-Q1 工件归档 `reports/R44-Q1-*.md`）
 - O3：r1/r2 RA 到期=事件制 vs 五要件 ≤90d——grandfather 合规但留开口缝（下轮 grill 候选①）。
 - O4：任务书换代先红后绿已披露、守卫按设计抓获——零净违规。
 
 ## 待办/值守（下轮）
 
 - 轮45 常驻任务书本体=`D:\Aworker\6F\.scratch\macro-audit\handoffs\next-round.md`——T1 无新执行批；T2 批2-β 续挂账（触发器三事件未点火）；T3 哨兵节律续任。
-- **轮45 T3 registry 确认行未登记**——本审计已取证全同态，登记动作按职责分离留待下窗/用户裁定（报告 §6）。
+- **轮45 T3 registry 确认行未登记**——本审计已取证全同态，登记动作按职责分离留待下窗/用户裁定（报告 §6）。（**本窗 LOOP 已补登**：七件 manual_watch 确认行已入册 `33-gate-registry.json`）
 - RA 复审钩：GAP-HOST-01 min(下次 IDE 会话,2026-12-27)——逾期失效须五要件重立项；O6 顺删随下次触碰 40-check.mjs NO-OP 搭车。
 - 栈态：r43-closeout → r44-t1-exec(uys,kzz) → r44-audit(本批)；全部未 push（逐次授权闸门）。
 

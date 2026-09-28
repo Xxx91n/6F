@@ -117,3 +117,15 @@ codebuddy mcp list                                        # No MCP servers confi
 ## 8. 引用文件
 
 docs/ra/GAP-HOST-01.md；docs/known-gaps.md；.scratch/architecture-recovery/reports/33-gate-registry.json；.scratch/architecture-recovery/reports/known-red-manifest.json；.scratch/architecture-recovery/reports/guard-all-run.mjs；.scratch/macro-audit/decision-ledger.md；CHANGELOG.md；.scratch/macro-audit/handoffs/next-round.md（轮45）；.scratch/macro-audit/handoffs/2026-09-28-r44-exec-handoff.md；.scratch/macro-audit/reports/2026-09-28-r44-exec-report.md；.scratch/macro-audit/trials/codebuddy-r38-{charter,report,session}.md。
+
+## 附：LOOP 修批（2026-09-28 审计窗后续）
+
+用户指示小问题自修＋自审 LOOP：
+
+- **O2 关闭**：atomcode 同题复跑归档 `reports/R44-Q1-research-prompt.md`＋`R44-Q1-atomcode-research.md`（9 源、结论与原报告自述同向：五要件三框架一致、关档为合法处置）——过程性声明转仓内可核工件。
+- **轮45 T3 欠账清**：registry 七件 manual_watch 各追加 R45 审计窗确认行（batch2beta-techdebt-review/codebuddy-ide-gap-watch/codebuddy-f02-display-watch/guard-retirement-class/stage2-launch-criteria/protected-surface-death-watch/batch2beta-open-triggers），字段形沿用 R44 体例（at/by/criterion_version/decision/reason/evidence）。
+- **O1 维持不修**：`skipGroups.length` 派生判断属品味级，修即churn——记录不改码。
+- **O3 维持裁定件**：事件制到期 vs ≤90d 日历期系裁决权属问题，已转交接 grill 候选，审计窗不越权自裁。
+- **O4 维持披露**：先红后绿为守卫按设计抓获＋落盘态合规，已披露无需修。
+
+修后复审：33-check PASS（31/31）、guard-all-run PASS（60/59/1 册内 kr-01）、registry JSON 结构无损（73 项、无 BOM、尾行、roundtrip 一致）。
