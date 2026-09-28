@@ -74,6 +74,9 @@ for (const r of results) {
 console.log('----------------------------------------');
 const groupSkipTotal = results.reduce((a, r) => a + r.skipGroups.length, 0);
 console.log('ran=' + results.length + ' green=' + greenFiles.size + ' skipped=' + skipSet.size + ' group-skipped=' + groupSkipTotal + ' red=' + redSet.size + ' registered=' + registered.size + ' problems=' + fail + ' allOk=' + (fail === 0 && skipSet.size === 0 && groupSkipTotal === 0));
+// D-167-b 派生展示语（可选 polish 兑现——呈现层自由组合，机读面 GREEN/GUARD-RESULT 态值不动）：partial=N/M = 有组级部分跳过的守卫件数/总跑件数
+const partialCount = results.filter((r) => !r.skipped && r.skipGroups.length > 0).length;
+console.log('partial=' + partialCount + '/' + results.length);
 if (skipSet.size) { for (const r of results.filter((x) => x.skipped)) console.log('  skip-reason ' + r.file + ' :: ' + r.skipReason); }
 if (groupSkipTotal) { for (const r of results.filter((x) => x.skipGroups.length)) { for (const g of r.skipGroups) console.log('  group-skip ' + r.file + ':' + g.group + ' :: ' + g.missing); } }
 console.log('GUARD-ALL-RESULT: ' + (fail === 0 ? 'PASS' : 'FAIL'));

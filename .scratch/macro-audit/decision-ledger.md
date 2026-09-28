@@ -1241,3 +1241,13 @@ scoping（非裁面/执行边界如实登记）：
 
 - **裁定层：闭环**——锐评五条终局名分齐备（本节去向表），逐题拍板留痕；第五轮锐评处置响应链（分诊→裁定→执行→独立复验→终局裁定）宣告完成。
 - **验收层：开放**——§2.1 已实证闭环（R42 审计独立复验判据②转绿）；§3.3「真实用户」未闭：①capability 5/5 阻塞（DoR-b：≥2 真实仓生产线 facts 不存在）＋③GAP-HOST-01 RA 档案呈批中＋④30 日静默窗计时中——Stage-2 维持关闭，「锐评关切已解决」禁作对外表述口径。
+
+### 执行窗兑现（R44-T1 impl 批，2026-09-28 落盘）
+
+- **T1-A GAP-HOST-01 RA 档案呈批→用户批「关档」**（D-168②/D-169-b② 兑现）：docs/ra/GAP-HOST-01.md 五要件齐备草案成文呈批（判据引用+justification+补偿控制+具名裁者=用户+到期日 min(IDE 会话,2026-12-27)+复审钩）；atomcode 深调研裁决辅助（NIST SP 800-37 R2 授权裁定／ISO 27001/27005 风险接受登记册／decryptiondigest 五字段逐字段对齐；「续等实证」≈risk-deferral 反模式；与 current 账本零冲突→零 revised）；用户拍板=**关档**——known-gaps GAP-HOST-01 status=accepted-risk（台账 status 词表增列第四态）、registry codebuddy-ide-gap-watch 确认行落册、双哨兵转补偿控制＋复审钩续任。
+- **T1-B 存量 RA 字段标注普查兑现**（D-169-b③ grandfather 轻回填）：registry risk_accepted 两件（r1/r2——acceptor=用户具名＋expires_at 事件制复评触发在册，grandfather 事件制形态保留标注不重裁内容）＋known-gaps 13 行全字段机读核验（GAP-B2B-01~08 mini-五要素 8/8 齐备、GAP-078×4 legislated review_by=2026-10-23 未到期、GAP-HOST-01 随本批转 RA 档）——**零「到期缺失/已过」活跃项，重立项触发器（D-169-b④）不点火**；普查登 registry 确认行（r1/r2/batch2beta-techdebt-review 三件）。
+- **T1-C O6 顺删维持挂账**（D-167-c①）：本窗未触碰 40-check.mjs——40-B1 闸后重言断言删=下次触碰时 NO-OP 搭车，不专开批纪律维持；Bond 判据普查随 T3 同窗随读=本窗零同型新例。
+- **T1-D 可选 footer partial 兑现**（D-167-b）：guard-all-run.mjs footer 增 `partial=N/M` 派生展示行（N=组级部分跳过守卫件数／M=总跑件数）——机读面 GREEN/GUARD-RESULT/ran= 行零改动。
+- **T2 批2-β 续挂账＋点火检查**（D-169-a②）：三问全否——①GAP-B2B 八件读数较基线无恶化②无第二同型需求确认③known-gaps 无新增命中条目→batch2beta-open-triggers.trigger_event 未置 occurred，deferred 维持。
+- **T3 值守读数全落 registry**：protected-surface-death-watch=零消亡事件（60 件守卫 PROTECTED_SURFACE 声明全非空＋引用物普查在位）；guard-retirement-class=通道空闲（retired[] 空＋_retired/README 在位）；codebuddy-f02-display-watch=CLI 2.151.0 mcp list 复测盲区持续（宿主侧行为维持观察）；codebuddy-ide-gap-watch=RA 批准确认行落册复审钩续任；batch2beta-techdebt-review=八件重审无迁移；stage2-launch-criteria 四读数=①阻塞②PASS 维持③本轮达标（RA 五要件齐备关档）④计时中→**Stage-2 维持关闭（①④未达）**。
+- **分层定稿读数**（D-170② Dual Reporting）：裁定层=R43 六裁闭环不动；验收层=判据③本轮转「RA 五要件齐备关闭」态（用户批准留痕），判据①阻塞／②PASS／④计时——「锐评关切已解决」仍禁作对外表述口径。

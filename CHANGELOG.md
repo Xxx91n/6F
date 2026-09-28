@@ -290,3 +290,12 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-166/D-167/D-168/D-169/D-170 新立 current；D-148→revised 留原文——RA 三要素→五要件升级按规程字面路径处置）
 - impact: 第五轮锐评处置响应链终局——裁定层闭环（逐项名分＋逐题拍板）／验收层开放双行呈报（§3.3 判据①③④ 值守）；欠账三件三要素齐备在册（owner+时点锚+复验方式）；registry 72→73 项
+
+## [M-037] - 2026-09-28
+
+- milestone: R44-T1 执行窗兑现批——GAP-HOST-01 RA 五要件档案成文呈批＋用户批「关档」（atomcode 裁决辅助调研同向零冲突）＋存量 RA 两字段普查 15 项全在册零重立项触发＋guard-all-run footer partial:N/M 可选 polish 落＋T3 六项哨兵读数全落 registry（批2-β 点火三问全否续挂账）＋known-gaps status 词表增 accepted-risk 第四态
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R43 收口节执行窗兑现小节；reports/2026-09-28-r44-exec-report.md）
+- impact: Stage-2 判据③转「RA 五要件齐备关闭」态（①④未达 Stage-2 维持关闭）；registry 73 项哨兵确认行续任；GAP-HOST-01 IDE 复审钩=min(下次 IDE 会话,2026-12-27)
+

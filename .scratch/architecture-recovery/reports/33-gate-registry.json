@@ -1690,6 +1690,14 @@
           "decision": "accepted-risk",
           "reason": "Three-Disposition 三要素齐备（不修理由/补偿控制/复评触发）；finding-triage/OWASP 分诊三态同构",
           "evidence": "decision-ledger.md D-148②＋reports/R36-Q1-atomcode-research.md"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R44-T1 存量RA普查（D-169-b③）",
+          "criterion_version": "D-169-b③",
+          "decision": "ra-census-fields-verified",
+          "reason": "两检查字段核验：裁者具名=用户（2026-09-27 R36-Q1 拍板）✓；到期在册=expires_at 复评触发事件制 ✓（grandfather 事件制形态保留标注：五要件口径下 expiry 为事件锚非日历——普查标注非重做，不重裁内容）；非到期缺失/已过档，不重立项",
+          "evidence": "registry 本项 acceptor/expires_at 字段机读核验"
         }
       ],
       "bound_to": "#80 步③血缘缝合呈报项（R36-T2 审计窗产出）"
@@ -1719,6 +1727,14 @@
           "decision": "reaffirmed",
           "reason": "确认式呈报非改向——既有票面注记+补齐触发字段",
           "evidence": "decision-ledger.md D-148②＋2026-09-26-r36-t2-audit-pass-handoff.md 呈报项留档"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R44-T1 存量RA普查（D-169-b③）",
+          "criterion_version": "D-169-b③",
+          "decision": "ra-census-fields-verified",
+          "reason": "两检查字段核验：裁者具名=用户（2026-09-27 R36-Q1 拍板=re-affirmation）✓；到期在册=expires_at 复评触发事件制 ✓（grandfather 事件制形态保留同上）；非到期缺失/已过档，不重立项",
+          "evidence": "registry 本项 acceptor/expires_at 字段机读核验"
         }
       ],
       "bound_to": "#80 步③血缘缝合呈报项（B6 延续）"
@@ -1772,6 +1788,14 @@
           "decision": "status-unchanged",
           "reason": "GAP-B2B-01~08 逐件复审：全八件 status=triaged/仓内值守、mini-五要素齐备——批2-β 未落地，复审窗未至（锚=next-audit-window）；本窗无迁移",
           "evidence": "docs/known-gaps.md 批2-β 节八行 status 列全 triaged"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R44-T3 审计窗随读＋T1-B 普查同窗",
+          "criterion_version": "D-156②/D-169-b③",
+          "decision": "status-unchanged",
+          "reason": "GAP-B2B-01~08 逐件重审：全八件 status=triaged/owner=仓内值守、mini-五要素 8/8 字段齐备、review_by=批2-β 落地后下一审计窗（事件锚在册）——批2-β 未落地复审窗未至，本窗无迁移；兼作触发器①读数=无恶化（较基线同态）；RA 两字段标注=裁者可溯源（D-155①/D-156② 轮39 立法登记）＋复审锚在册",
+          "evidence": "docs/known-gaps.md 批2-β 节八行字段机读核验（fields=8/8 mini5ok=true ×8）"
         }
       ]
     },
@@ -1798,6 +1822,14 @@
           "decision": "ra-dossier-path-initiated",
           "reason": "GAP-HOST-01 走 RA 五要件档案路径——执行窗起草呈用户批（具名裁者=用户，Agent 不代批）；关档/续等实证皆合法终态；本哨兵续任",
           "evidence": "decision-ledger R43 收口节去向表 D-168 行"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R44-T1 执行批呈批＋用户拍板",
+          "criterion_version": "D-168②/D-169-b②",
+          "decision": "ra-approved-closed",
+          "reason": "GAP-HOST-01 RA 五要件档案（docs/ra/GAP-HOST-01.md）成文呈批→用户裁定「关档」：accepted-risk 封闭处置落地（atomcode 深调研同向强化：五要件对齐 NIST SP 800-37 R2/ISO 27001/27005/GRC 五字段；续等实证≈risk-deferral 反模式；与 current 账本零冲突）；known-gaps status=accepted-risk 词表第四态增列；本哨兵转补偿控制＋复审钩续任（min(下次 IDE 会话,2026-12-27)，逾期失效须重立项）",
+          "evidence": "docs/ra/GAP-HOST-01.md §6 批准登记＋docs/known-gaps.md GAP-HOST-01 行"
         }
       ]
     },
@@ -1816,7 +1848,16 @@
       "owner": "仓内值守",
       "review_event": "next-audit-window",
       "verify_method": "复跑 `codebuddy mcp list` 对照会话内 MCP server 连通态——列名补齐即宿主侧已修；不主动上报（用户有官方渠道意愿另行授权，本仓不代办）",
-      "confirmations": [],
+      "confirmations": [
+        {
+          "at": "2026-09-28",
+          "by": "R44-T3 审计窗哨兵复测",
+          "criterion_version": "D-155③",
+          "decision": "status-unchanged",
+          "reason": "宿主侧复测：codebuddy mcp list @ CLI 2.151.0 输出「No MCP servers configured」——插件注入 server 展示盲区持续（宿主侧行为非本仓缺陷，不立案维持）；触发源=宿主版本演进，继续守望",
+          "evidence": "codebuddy mcp list 实跑 stdout（2026-09-28，工作目录 D:/Aworker/6F）"
+        }
+      ],
       "bound_to": "T1 findings F-02——宿主侧展示盲区（D-155③）"
     },
     {
@@ -1894,6 +1935,14 @@
           "decision": "registered",
           "reason": "era-scoped 退役机制建制兑现：manifest retired 类终态留档非删除＋_retired/ 归档考古面＋protected_surface+tier 双字段显式扩展（D-159 schema 延伸）＋首件退役经 T3 窗逐件呈报；retired 终态化不设二次出口=明示设计选择",
           "evidence": "reports/known-red-manifest.json retired 类+retired_policy、reports/_retired/README.md、75a-check.mjs M3 断言"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R44-T3 审计窗随读",
+          "criterion_version": "D-160①②③⑤",
+          "decision": "channel-idle",
+          "reason": "退役通道登记项随读：manifest retired[] 空类维持＋_retired/ 归档目录在位（仅 README）＋无退役提案——通道建制完好零使用，消亡事件零发生",
+          "evidence": "known-red-manifest.json retired=[]＋reports/_retired/README.md 在位核验"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-160 era-scoped 退役机制立法兑现）"
@@ -1944,6 +1993,14 @@
           "decision": "layered-disposition-registered",
           "reason": "判据① Macro-A 绑死 DoR（DoR-b 不满足：≥2 真实仓生产线 facts 不存在——如实报阻塞非绕闸）／判据③ RA 档案呈批中／判据④ 30 日窗计时确认；锐评裁定层闭环但验收层开放双行呈报",
           "evidence": "decision-ledger R43 收口节分层定稿读数"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R44-T3 审计窗四判据读数",
+          "criterion_version": "D-162③④⑥/D-168②",
+          "decision": "criterion-03-ra-closed",
+          "reason": "四判据读数：①capability 5/5 阻塞维持（Macro-A 绑 DoR-b：≥2 真实仓生产线 facts 不存在——如实报非绕闸）②fresh-clone PASS 维持（R42 criterion-02-pass-read；本轮 runner 仅增 partial 派生展示行无环境面影响）③**本轮达标**：GAP-HOST-01 经 RA 五要件档案用户批「关档」——判据③口径「accepted-risk 五要件齐备关闭」形态命中（D-162③+D-168②）④30 日静默窗计时中（findings 封闭处置后计时起算）——**Stage-2 维持关闭（①④未达）**",
+          "evidence": "docs/ra/GAP-HOST-01.md＋decision-ledger R43 收口节执行窗兑现小节"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）"
@@ -2012,6 +2069,14 @@
           "decision": "zero-event-read",
           "reason": "消亡面人工普查：59 件 -check.mjs 全在位且 PROTECTED_SURFACE 声明非空（75a-T2 机查复核同证）——本窗零消亡事件，不预建退役发射机件",
           "evidence": "reports/75a-check.mjs T2 断言绿；reports/75a-census-findings.json"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R44-T3 审计窗随读",
+          "criterion_version": "D-160①/D-164-b",
+          "decision": "zero-event-read",
+          "reason": "消亡面普查：60 件守卫件（*-check.mjs＋xfail-run.mjs）PROTECTED_SURFACE 声明全非空机读核验＋引用物在位普查零消亡事件——退役发射腿不预建维持",
+          "evidence": "reports/ 枚举机读：60/60 declared、0 missing/empty；retired[] 空"
         }
       ],
       "bound_to": "guard-retirement-class（通道登记项；本项补消亡事件触发锚）"
@@ -2087,6 +2152,14 @@
           "decision": "registered",
           "reason": "触发器注册兑现 D-170③「未注册触发器不算锚定」——三事件锚立、点火检查挂审计窗",
           "evidence": "本项落册"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R44-T3 审计窗点火检查",
+          "criterion_version": "D-169-a②",
+          "decision": "trigger-not-ignited",
+          "reason": "三问核验全否：①GAP-B2B-01~08 读数较基线无恶化（全 triaged 同态）②第二同型需求未出现（无 open/closed 枚举/常量 SSOT/reserved 机制新需求确认）③known-gaps 无新增条目命中批2-β 机制——trigger_event 未置 occurred，批2-β 维持 deferred（「执行窗空」必要非充分）",
+          "evidence": "docs/known-gaps.md 全量行读数＋registry 本项 verify_method 三问"
         }
       ]
     }

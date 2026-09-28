@@ -7,7 +7,7 @@
 > 检测面（D-113③）：quarantine_log SQL 派生信号（UNCLASSIFIED_FIELD_ANOMALY 出现/新码首见）→ 人审登记——
 >   自动信号≠台账条目（自动 intake→人审→裁决登记三层）。
 
-字段：gap_id / reason_code 族 / first_seen 证据链（repo+sha+raw 引用）/ status（observed→triaged→legislated）/ owner（到人/角色）/ notes / review_by / trigger_id（可空）。
+字段：gap_id / reason_code 族 / first_seen 证据链（repo+sha+raw 引用）/ status（observed→triaged→legislated；accepted-risk=RA 五要件齐备封闭终态，D-169-b②——档案位 docs/ra/）/ owner（到人/角色）/ notes / review_by / trigger_id（可空）。
 
 | gap_id | reason_code 族 | first_seen 证据链 | status | owner | notes | review_by | trigger_id |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -35,4 +35,4 @@
 | GAP-B2B-06 | wording_precision（parity_full_equality） | T1-N1：debrief「字段级 parity 全等」表述过强——实态 report.json 70 键中 69 全等、唯一差=evidence[].reproduce_cmd 含 per-run 输出路径自引；trials/codebuddy-r38-report.md | triaged | 仓内值守 | 对外口径须用精化表述「字段级 parity（语义锚全等；reproduce_cmd 含 per-run 路径差）」 | 对外转述/发布材料前（里程碑锚）＋批2-β 后下一审计窗 | batch2beta-techdebt-review |
 | GAP-B2B-07 | doc_drift（comment_impl_mismatch） | N1：25-check.mjs:79 注释与实现不符；r38-t1 审计报告声明归批2-β 补录——去向断链经 R39-Q4 核查捞出，D-156② 补登兑现 | triaged | 仓内值守 | nit 级注释面——处置时按实态裁修注或修码 | 批2-β 落地后下一审计窗 | batch2beta-techdebt-review |
 | GAP-B2B-08 | doc_drift（stale_header_comment） | N2：check-kit 头注过时；同上去向断链补登 | triaged | 仓内值守 | 同上 | 批2-β 落地后下一审计窗 | batch2beta-techdebt-review |
-| GAP-HOST-01 | host_surface_unverified（codebuddy_ide） | T1 试用实证面=CodeBuddy CLI 2.151.0 三判据 hit；IDE 形态 not-run 如实留痕（trials/codebuddy-r38-report.md） | observed | 仓内值守 | 宿主形态矩阵：CLI=verified／IDE=observed-unverified——禁以 CLI 证据外推 IDE；实装时按 charter 三判据重跑（verify_method 见 registry） | 下一审计窗哨兵（IDE 形态可得即提前） | codebuddy-ide-gap-watch |
+| GAP-HOST-01 | host_surface_unverified（codebuddy_ide） | T1 试用实证面=CodeBuddy CLI 2.151.0 三判据 hit；IDE 形态 not-run 如实留痕（trials/codebuddy-r38-report.md）；R44 RA 档案 docs/ra/GAP-HOST-01.md（用户 2026-09-28 批「关档」） | accepted-risk | 仓内值守 | 宿主形态矩阵：CLI=verified／IDE=RA-closed（未实测缺口按五要件封闭——禁以 CLI 证据外推 IDE；判据③读数=「RA 五要件齐备关闭」非「IDE verified」）；IDE 形态可得即按 charter 三判据重跑回填档案 §6（verify_method 见 registry 哨兵） | min（下次 IDE 形态会话,2026-12-27)——RA 档案复审钩 | codebuddy-ide-gap-watch |
