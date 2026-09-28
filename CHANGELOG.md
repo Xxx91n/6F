@@ -250,3 +250,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-158①③④ 执行面补完——审计返工单 reports/2026-09-28-r41-t1-audit-report.md F-2）
 - impact: 豁免面终至 spec 文本等宽——字符串全类提名（含调用形态字样）不豁免＋调用位按原文全计（成员调用含）；审计 conditional-PASS 必修项 1/2 闭环
+
+## [M-032] - 2026-09-28
+
+- milestone: R41 审计 F-1 呈报→认账登记落账——`.git-blame-ignore-revs` 新立载 64f0ae74（33-gate-registry 4sp→2sp 重缩进搭车）＋6d62d16a（75a-census-register/findings 1sp→2sp 搭车）两 SHA；exec 报告 §四 补披露（含 63-inventory 生成物随行同族灰区）；审计处置建议①采「登记」路径、②工具面纪律强化留痕=后续 JSON 写入一律钉 JSON.stringify(x,null,2) 口径
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（审计 F-1 过程违规处置；纪律源 D-139/D-140②）
+- impact: 过程违规补登记非追认——blame 归因粒度代价明示在案；披露完备性回补（audit §5「披露缺位」项闭环）

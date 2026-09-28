@@ -62,6 +62,7 @@
 1. `01-check` D1/D5 红在册（kr-01 语料面数据质量，env 缺陷面本批已关账）。
 2. `readme-ci-badge` ALARM 为存量（触发已发生未拍），非本批引入。
 3. 工作树残留非本批改动（`48-micro-a-golden-*`、`56-heldout-eval.json`、`codebuddy-r38` 删除/未跟踪）——按并行 session 纪律未动。
+4.5 **F-1 披露补记（R41 审计返工，2026-09-28 追记）**：本批 commit 64f0ae74（B）内 `33-gate-registry.json` 整文件 4sp→2sp 重缩进搭车（diff 3558 行/有效 46 行）、6d62d16a（A）内 `75a-census-register.json`/`75a-census-findings.json` 1sp→2sp 搭车（8329/369 行）——违「format 独立 commit＋blame-ignore-revs 登记」纪律且原报告未披露。处置=认账登记：`.git-blame-ignore-revs` 已立载两 SHA（登记粒度整 commit，语义行归因同被跳过——读史请结合 commit 信息）；另 `63-assertion-inventory.json` 生成物随语义 commit 行（B/C 内 10→13→14）同族灰区一并呈报。另 F-2（字符串内调用形态逃逸）/F-7（39/46 披露半腿）缺陷已分别于返工 commit lpx 与后续批修净。
 4. Stage-2 判据包值守条目已入册待审计窗读数；Stage-1 首例 charter 未发生（机制在位、无被守护对象属正常态）。
 
 ## 五、本批事故与处置
