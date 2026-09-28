@@ -20,6 +20,7 @@
 > 轮 38 grill（2026-09-27 完成）已封口 D-150 ~ D-152：CodeBuddy 宿主试用三裁＋执行协议＋完备性核查——插件全路径主验收线＋CLI 裸跑对照（安装树自对照钉 SHA，单变量=驱动路径）／兼容性面官方兼容证伪零预修（`${CLAUDE_PLUGIN_ROOT}`+`.claude-plugin/` 双源实证，三悬点列首轮实测清单）／试用先行=排程优先（findings 回流喂批2）／SBTM charter 三件套＋exit/success 双轴封口＋trials/ 档案位新立＋findings 票面五要素；调研档案 R38-Q{1..3} 系列存档 .scratch/macro-audit/reports/；本轮零 revised。
 > 轮 39 grill（2026-09-27 完成）已封口 D-153 ~ D-156：T1 CodeBuddy 试用关窗核认＋批2-β 探测面硬化裁定——射程 (b′)（核销呈报＋五项混合颗粒度＋簿记不占裁定链＋批3/批4 显式不预裁）＋unstrippedScanHit 豁免判据改剥后消费位＋multi-hit 扩面 dry-run→批注册→预声明转窗 enforcing＋SCAN_EXEMPT 死项摘除＋S1 改写「SCAN_EXEMPT ⊆ 枚举面」可达性自检（自命中入册 348→349 作正对照）＋ADR-0024 立法义务＋技术债八件两全形态登记（known-gaps 节级条目＋registry 节级 manual_watch 机读锚 next-audit-window）＋IDE 缺口 manual_watch（CLI=verified/IDE=observed-unverified 三态披露）＋F-02 宿主盲区不上报挂哨兵观察；完备性对抗核查捞出 N1/N2 去向断链一处补登 GAP-B2B-07/08；调研档案 R39-Q{1..4} 系列存档 .scratch/macro-audit/reports/；本轮零 revised。
 > 轮 40 grill（2026-09-28 完成）已封口 D-157 ~ D-162：第五轮锐评辩证处置六裁毕——摄入分诊九条定案（sibling 活体依赖勘误 9→3／幽灵钉挂 26-check）＋F-A1 谓词收紧剥后真消费形态（字符串/属性名/标识符提名不豁免＋S2 fxStringNom 正对照）＋守卫面环境契约分层（portable/env-contract 两档＋tier 自声明＋SKIP-with-reason 三态呈现契约）＋era-scoped 退役机制（面消亡判据＋manifest retired 类终态留档）＋提交信息三栏位 trailer 化（Ledger-Refs/Chronicle/Adrs）＋外部暴露梯度三段（Stage-0 追认／Stage-1 charter 复用／Stage-2 四判据包＋30 日静默窗）。
+> 轮 41 grill（2026-09-28 完成）已封口 D-163 ~ D-165：第五轮锐评「辩证复验——完成了没」审计——fresh-clone 亲测 14 红/13 册外归因四类环境前置漏探测→env-contract 泛化四类前置（git-object/engine-deps/asset/sibling＋SKIP 指引模板＋ghost 五件 T3 逐件判＋临时仓零写入读法＋tier 真实性重声明——**D-159→revised 留原文**，本轮唯一正面冲突按规程字面路径处置）＋envProbe 组级粒度精化（groupProbe 下沉——JUnit assumingThat/Go subtest 先例＋D-159⑤ 已隐式承认组内异质；拆件登记为复审触发）＋retired 发射哨兵锚定（消亡判据事件触发非纯时间窗；机制建制首例先行——Optuna 28→11 假阳实证）＋**分层定稿立法**（裁定层闭环≠验收层闭环——POA&M/retest-letter 五域先例收敛；验收层 fresh-clone 判据② FAIL 如实值守 Stage-2 维持关闭）＋二阶勘误链式追加（R40 勘误两件修正+subject 锚残留登记）；调研档案 R41-Q{1..3} 系列存档 .scratch/macro-audit/reports/。
 
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
@@ -387,3 +388,8 @@ _Avoid_: 缺失环境渲染 FAIL（kit #518/startaitools 实证废案——skip 
 - **Stage-0 被动挂牌**——marketplace 公开零外联=D-051 公开决定既有事实的显式命名（追认即刻生效，语义命名非动作）；preview 标注诚实=ADR-0017 决策本体延伸（release≠launch 二分）；
 - **Stage-1 定向邀请试用**——逐案 charter 协议（D-151 形态：判据预声明＋not-run 记 N/A＋读数以安装树为准；findings 全程走摄入分诊四态）；宿主资格=逐案用户闸门（D-162⑤，用户主权不立机检）；
 - **Stage-2 公开推广**——预声明四判据全达标方启：①capability 5/5（Macro-A preview 上架；重查 D-031⑤ 悬置条款）②fresh clone 不红海（操作性定义=D-159 env-contract tier 判据）③GAP-HOST-01 关闭④试点 findings 无未分诊残留；加 30 日静默窗（判据④封闭后 30 日无新增回流）。判据包值守=registry `stage2-launch-criteria`（manual_watch）。
+
+### 分层定稿（Two-Layer Closure）
+
+评审/审计处置的双层闭环语义（D-165①②——CMS POA&M/ISO 27001/pentest retest-letter/SOC2/FDA-483/code-review 五域先例收敛）：**裁定层闭环**=每条指控有名分去向（兑现/显式驳回/值守登记/执行窗登记——code-review「每条评论有去向」同义）；**验收层闭环**=修复实证复绿（POA&M close 须 milestone+内测＋retest letter 独立文书）。两层独立判据独立时点——裁定层闭环不豁免验收层未达事实；「定稿」声明必按 Dual Reporting 文法分行（裁定层/验收层各一行，禁单句「已完成」）。验收层未达面值守=manual_watch 哨兵＋判据② fail 确认行如实记册；执行义务必带时点锚（POA&M completion-date 纪律——无限期执行窗=变相 accepted-risk 绕 D-148② 三要素）。resolve 语义锚接收方处置完备性（单向摄入；评审方可回访时重开 LLVM 归属争议）。
+_Avoid_: 「定稿」越读成「评审关切已解决」（retest-letter 缺位宣称修好=fooling-yourself）、判据② Stage-2 门槛误作收口门槛（层级错置——POA&M 存续期处置工作可宣告完成先例）、勘误改写一阶原条目（链式追加+指回——IETF errata 留痕精神）、执行窗无限期登记

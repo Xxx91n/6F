@@ -266,3 +266,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（审计 F-4/F-5/F-6/F-7 处置；audit reports/2026-09-28-r41-t1-audit-report.md）
 - impact: env-contract 三件披露腿全齐（37 原有+39/46 补齐）；返工中途自产 toothless×3+existence-assert 悬空×1 已修净（75a 普查自动捕获）；全量跑 allOk=true 维持
+
+## [M-034] - 2026-09-28
+
+- milestone: R41 grill 收口批——账本 R41 收口节（去向表 D-163~165＋D-159 revised 注记＋二阶勘误三件链式追加＋scoping＋过程＋执行窗登记）＋CONTEXT 轮41 封口行＋「分层定稿」词条新立＋registry 四哨兵（fresh-clone-rerun-watch／protected-surface-death-watch〔消亡判据事件触发〕／tier-misdeclaration-recurrence〔event_bound〕／npm-v12-allowscripts-review〔event_bound〕）＋stage2-launch-criteria 判据② FAIL 确认行如实记册＋轮41 任务书换代
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-163/D-164/D-165 新立 current；D-159→revised 留原文——本轮唯一正面冲突按规程字面路径处置）
+- impact: 第五轮锐评裁定层闭环（每条指控去向在册）；验收层如实不闭——fresh-clone 判据② FAIL 登哨兵值守，Stage-2 维持关闭；registry 68→72 项/事件+4

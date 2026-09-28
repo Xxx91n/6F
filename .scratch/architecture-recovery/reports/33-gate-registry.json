@@ -204,6 +204,22 @@
       "occurred": true,
       "date": "2026-09-28",
       "evidence": "R40-T1（D-162③④⑥）落地：暴露梯度三段建制登记——Stage-0 被动挂牌追认即刻生效＋Stage-2 四判据包+30 日静默窗入 manual_watch 值守（D-155 同形态）＋D-031⑤ 重查义务挂判据①"
+    },
+    "env-contract-generalization-landed": {
+      "occurred": false,
+      "note": "R41 收口登记：env-contract 泛化探测面（git-object:/engine-deps:/asset: 三类 need 扩展）落地即翻——fresh-clone-rerun-watch 复跑激活锚（D-163⑦/D-165②）"
+    },
+    "protected-surface-death-event": {
+      "occurred": false,
+      "note": "R41 收口登记：任一守卫 PROTECTED_SURFACE 消亡判据事件（对象移除/上层吸收/更强更窄契约取代——D-160① 判据集）——protected-surface-death-watch 触发锚（D-164-b，钉事件非纯时间窗）"
+    },
+    "tier-misdeclaration-detected": {
+      "occurred": false,
+      "note": "R41 收口登记：任何守卫 TIER 自声明被探测/普查证伪（portable 件实有外部前置或反向）——tier-misdeclaration-recurrence 触发锚（D-165③；R41 fresh-clone 五件误声明为原案）"
+    },
+    "npm-v12-adopted-or-bootstrap-touched": {
+      "occurred": false,
+      "note": "R41 收口登记：本仓采用 npm v12 或 install/bootstrap 路径文件被触碰——npm-v12-allowscripts-review 触发锚（D-163⑧；install scripts 默认关闭体制下 D-072 自愈路径复评义务）"
     }
   },
   "items": [
@@ -1859,9 +1875,117 @@
           "decision": "registered",
           "reason": "暴露梯度三段建制登记：Stage-0 被动挂牌追认即刻生效（marketplace 公开零外联=D-051 既有事实语义命名非动作；release≠launch 二分）；Stage-1 定向邀请逐案 charter（D-151 形态，宿主资格=逐案用户闸门不立机检——用户主权 D-026/D-027 同族）；Stage-2 四判据包+30 日静默窗入册值守；负向留痕：禁提前启动/禁开放描述/禁绕开 D-159 回指/禁绕摄入四态/禁 Stage-1 泛化开放 beta/禁动 D-051、ADR-0017 层序/禁轮内动 marketplace 字段",
           "evidence": "registry 本项＋CONTEXT 暴露梯度词条"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R41 fresh-clone 实测（D-163/D-165②）",
+          "criterion_version": "D-162②",
+          "decision": "criterion-02-fail-read",
+          "reason": "fresh clone（独立 worktree 无本机环境）guard-all-run 实测：14 红/13 册外新红——判据②「不红海」当前 FAIL，Stage-2 维持关闭；处置路由=D-163 泛化立法，复验哨兵=fresh-clone-rerun-watch",
+          "evidence": "decision-ledger.md R41 收口节；D-163/D-165②"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）"
+    },
+    {
+      "id": "fresh-clone-rerun-watch",
+      "family": "code-hygiene",
+      "title": "fresh-clone 复跑哨兵（D-163⑦/D-165②）——env-contract 泛化探测面落地后 fresh clone 全量守卫复跑，验证「外人 clone 不红海」判据② 转绿",
+      "deadline_event": null,
+      "deadline": "无（哨兵值守项——判据② 未复验转绿前 Stage-2 维持关闭）",
+      "trigger_event": "env-contract-generalization-landed",
+      "trigger": "D-163 泛化探测面（git-object:/engine-deps:/asset:）落地即激活复跑义务（D-165④ 时点锚=下轮 T3/执行批）",
+      "review_at": "每审计窗随读（判据② 读数并入 stage2-launch-criteria 值守）；泛化落地后当窗必复跑",
+      "status": "decided",
+      "owner": "macro-audit 队列值守",
+      "verify_method": "独立 worktree clone（无本机 sibling/node_modules/clone-cache）→依赖 bootstrap→guard-all-run：未册化红=0＋SKIP 件全带可读 reason（复验动作=D-165② 预声明）",
+      "review_event": "next-audit-window",
+      "watch": "manual_watch",
+      "confirmations": [
+        {
+          "at": "2026-09-28",
+          "by": "R41 收口（D-163⑦/D-165②）",
+          "criterion_version": "D-162②/D-163⑦/D-165②",
+          "decision": "registered",
+          "reason": "分层定稿验收层值守载体：fresh-clone 判据② 实测 FAIL（14 红/13 册外）如实值守不粉饰；复跑义务挂泛化落地时点锚，防执行窗无限期变相 accepted-risk",
+          "evidence": "decision-ledger.md D-163⑦/D-165②④；reports/R41-Q3-atomcode-research.md"
+        }
+      ],
+      "bound_to": "stage2-launch-criteria 判据② 操作性复验动作"
+    },
+    {
+      "id": "protected-surface-death-watch",
+      "family": "code-hygiene",
+      "title": "retired 消亡判据事件哨兵（D-164-b）——任一 PROTECTED_SURFACE 消亡判据事件发生即激活复裁通道；retired 发射腿首例临窗再裁建制与否",
+      "deadline_event": null,
+      "deadline": "无（哨兵值守项——触发条件钉消亡判据事件非纯时间窗，防首件退役落两审计窗间静默丢失〔调研 C4〕）",
+      "trigger_event": "protected-surface-death-event",
+      "trigger": "任一守卫 protected_surface 守护面消亡判据事件（对象移除/上层吸收/更强更窄契约取代——D-160① 判据集）即激活 T3 逐件呈报通道；首件退役提案临窗再裁发射腿建制（VACUOUS 方向反转成本彼时补评）",
+      "review_at": "随审计窗随读 existence 普查义务（注册化零机件）；消亡判据事件发生即激活，不等窗",
+      "status": "decided",
+      "owner": "macro-audit 队列值守",
+      "verify_method": "T3 窗随读：各守卫 PROTECTED_SURFACE 引用物存在性人工普查（零机件——发射腿预建禁制：空转机件+假阳分诊实证负担 Optuna 28→11/203-unused）；事件发生时→D-160① 首件退役流程逐件呈报",
+      "review_event": "next-audit-window",
+      "watch": "manual_watch",
+      "confirmations": [
+        {
+          "at": "2026-09-28",
+          "by": "R41 收口（D-164-b）",
+          "criterion_version": "D-160①/D-164-b",
+          "decision": "registered",
+          "reason": "案例驱动纪律（D-079 建制由 39-F2 首例触发、D-094/A-097 同型）——retired 册空期不建发射机件；哨兵钉消亡判据事件触发防首件退役两窗间静默丢失",
+          "evidence": "decision-ledger.md D-164；reports/R41-Q2-atomcode-research.md C3/C4/C7"
+        }
+      ],
+      "bound_to": "guard-retirement-class（通道登记项；本项补消亡事件触发锚）"
+    },
+    {
+      "id": "tier-misdeclaration-recurrence",
+      "family": "process-hygiene",
+      "title": "tier 自声明误报复发 → 升级声明真实性普查守卫（D-165③ 触发器——13 红中五件自声明 portable 误属裁定质量缺陷同族登记）",
+      "deadline_event": "tier-misdeclaration-detected",
+      "deadline": "无（事件驱动项）",
+      "trigger_event": "tier-misdeclaration-detected",
+      "trigger": "任何守卫 TIER 自声明被探测/普查证伪（portable 件实有外部前置或 env-contract 件实已自足——R41 fresh-clone 五件 portable 误声明为原案）即翻转",
+      "review_at": "触发后升级为声明真实性普查件——75a-T 同窗对 tier 声明 vs 实际探测结果机检（轻规约先行文法同 D-135）",
+      "status": "deferred",
+      "watch": "event_bound",
+      "owner": "macro-audit 队列值守",
+      "verify_method": "复发事件翻转→立项普查件（禁立即守卫化）；R41 泛化落地后探测面可机证声明真伪",
+      "confirmations": [
+        {
+          "at": "2026-09-28",
+          "by": "R41 收口（D-165③）",
+          "criterion_version": "D-165③",
+          "decision": "registered",
+          "reason": "13 册外红中五件自声明 portable 误=裁定质量缺陷非纯执行欠账——90-review-intake-mistriage-recurrence 同族触发器登记防同型复发无点燃条件",
+          "evidence": "decision-ledger.md D-165③；reports/R41-Q3-atomcode-research.md §4-3"
+        }
+      ]
+    },
+    {
+      "id": "npm-v12-allowscripts-review",
+      "family": "process-hygiene",
+      "title": "npm v12 allowScripts 复审触发器（D-163⑧）——install scripts 默认关闭体制下 D-072 自愈路径/安装文档复评",
+      "deadline_event": "npm-v12-adopted-or-bootstrap-touched",
+      "deadline": "无（事件驱动项）",
+      "trigger_event": "npm-v12-adopted-or-bootstrap-touched",
+      "trigger": "本仓采用 npm v12 或仓内 install/bootstrap 路径文档/脚本被触碰时点燃（npm 官方：2026-06-09 起 install scripts 默认关闭——守卫内自愈 npm install 被官方拦截实证）",
+      "review_at": "触发后复评：D-072 结构化降级自愈路径与 INSTALL/bootstrap 文档在 install-scripts-default-off 体制下的可达性（探测+指引替代自愈的方向已成 D-163 主干）",
+      "status": "deferred",
+      "watch": "event_bound",
+      "owner": "macro-audit 队列值守",
+      "verify_method": "点燃事件=仓库 npm 版本声明升 v12 或 bootstrap/install 相关文件 diff——复审产出=三分类处置（改文档/改路径/显式 accepted-risk）",
+      "confirmations": [
+        {
+          "at": "2026-09-28",
+          "by": "R41 收口（D-163⑧）",
+          "criterion_version": "D-163⑧",
+          "decision": "registered",
+          "reason": "npm v12 install-scripts 默认关闭=自愈路径被官方拦截的时效性警示；探测+修复指引非自愈路线 D-163 已采纳，本触发器值守既有自愈面（D-072）在体制变化下的复审义务",
+          "evidence": "decision-ledger.md D-163⑧；reports/R41-Q1-atomcode-research.md npm v12 时效警示"
+        }
+      ]
     }
   ]
 }
