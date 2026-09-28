@@ -6,8 +6,9 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
-const TIER = 'portable';
+const TIER = 'env-contract';
 const PROTECTED_SURFACE = '#83 R32 审计建议修批守卫（D-134 吞错收窄 / D-135 修批票面 / D-136 失败态收口 / F5/F6/F7a~j）';
 
 
@@ -81,7 +82,8 @@ const pkgJson = JSON.parse(txt(join(ENG, 'package.json')));
 t('D3 file-card.test.mjs 在 smoke 链（test 闭环非只引入）', pkgJson.scripts.smoke.indexOf('file-card.test.mjs') >= 0);
 
 // ---------- G. 实跑绿 ----------
-{
+// engine-deps 前置（D-163③）：file-card.test 写读真库需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
+if (groupProbe('83-check', 'G', [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))])) {
   const r = spawnSync('node', [join(ENG, 'test', 'file-card.test.mjs')], { encoding: 'utf8', timeout: 240000, env: { ...process.env, NODE_OPTIONS: '' } });
   t('G1 file-card.test.mjs 实跑绿（FILE-CARD n/n 含 #83 断言组 C4~C7/D2扩展/E3/H2/H3/J1/K1）', r.status === 0 && /FILE-CARD [0-9]+[/][0-9]+/.test(r.stdout), String(r.stdout).trim().split(String.fromCharCode(10)).slice(-1)[0] || String(r.stderr).slice(-160));
 }

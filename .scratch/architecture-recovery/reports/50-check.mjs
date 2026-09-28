@@ -6,8 +6,9 @@ import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
-const TIER = 'portable';
+const TIER = 'env-contract';
 const PROTECTED_SURFACE = '#50 叙事双轨守卫（R9-01 / A-057 / D-053+D-057④）';
 
 
@@ -84,10 +85,13 @@ const wf = txt(join(REPO, '.scratch', 'architecture-recovery', 'WORKFLOW.md'));
 t('E9 WORKFLOW §4 lessons 含 #50', /#50/.test(wf));
 
 // ---------- F. 测试实跑 + BOM ----------
+// engine-deps 前置（D-163③）：narrative.test mcp e2e 子进程写库需 @duckdb 原生绑定——缺席→组级 SKIP
+if (groupProbe('50-check', 'F1', [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))])) {
 const tr = spawnSync('node', [join(ENG, 'test', 'narrative.test.mjs')], { cwd: ENG, encoding: 'utf8', timeout: 120000 });
 const tout = (tr.stdout || '') + (tr.stderr || '');
 const tm = tout.match(/NARRATIVE-TEST-OK (\d+)/);
 t('F1 narrative.test 实跑 exit 0 + ≥20 断言', tr.status === 0 && tm && Number(tm[1]) >= 20, tm ? tm[0] : tout.slice(-200));
+}
 const pkg = JSON.parse(txt(join(ENG, 'package.json')));
 t('F2 smoke 链含 narrative.test', (pkg.scripts.smoke || '').includes('narrative.test.mjs'));
 const allF = [NAR, PROJ, GEN, CLI, join(ENG, 'test', 'narrative.test.mjs'), join(ENG, 'test', 'fixtures', 'narrative', 'seal-golden.json'), join(SK, 'SKILL.md')].concat(REFS.map(function (f) { return join(SK, 'references', f); })).concat([join(HERE, '50-check.mjs'), join(HERE, '50-report.md')]);

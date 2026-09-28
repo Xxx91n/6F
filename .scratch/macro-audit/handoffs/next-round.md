@@ -1,6 +1,6 @@
 # next-round —— 轮 42 常驻任务书（轮 41 grill 收口毕·R41 执行窗时点锚=本批/下轮首启）
 
-> 生成：2026-09-28 轮 41 收口（R41 grill 三裁毕＋分层定稿——裁定层闭环、验收层哨兵值守）。上位账本=`D:\Aworker\6F\.scratch\macro-audit\decision-ledger.md`（D-001~D-165：**153 current**／11 revised〔含本轮换入 D-159〕＋1 closed=D-019 沿旧例）。三裁均裁定≠执行——执行窗义务全量挂账（收口节「执行窗登记」预声明，实施不许再裁）。
+> 生成：2026-09-28 轮 41 收口（R41 grill 三裁毕＋分层定稿——裁定层闭环、验收层哨兵值守）；**轮 42 T1 执行批已兑现（2026-09-28，报告=reports/2026-09-28-r42-exec-report.md）**。上位账本=`D:\Aworker\6F\.scratch\macro-audit\decision-ledger.md`（D-001~D-165：**153 current**／11 revised〔含本轮换入 D-159〕＋1 closed=D-019 沿旧例）。三裁均裁定≠执行——执行窗义务全量挂账（收口节「执行窗登记」预声明，实施不许再裁）。
 
 ## 轮 25~41 留痕（已定，勿重复）
 
@@ -19,8 +19,8 @@
 
 ## 口径基线（读前必知）
 
-- 账本：D 面 **165 条（153 current／11 revised〔D-159 本轮换入〕／1 closed=D-019 沿旧例）**；A 面 max A-099；编年 max **M-034**。
-- **守卫判据**：收口前跑 `node .scratch/architecture-recovery/reports/guard-all-run.mjs`（动态枚举全量）＋红集⊆`known-red-manifest.json`＋册件复绿 strict 告警；D-159 SKIP 三态生效——skip 不进 allOk、计数+reason 进 footer、sibling 寻址走 GUARD_SIBLING_ROOT SSOT。
+- 账本：D 面 **165 条（153 current／11 revised／1 closed）**；A 面 max A-099；编年 max **M-035**（R42-T1 兑现批）。
+- **守卫判据**：收口前跑 `node .scratch/architecture-recovery/reports/guard-all-run.mjs`（动态枚举全量）＋红集⊆`known-red-manifest.json`＋册件复绿 strict 告警；D-159 SKIP 三态生效——skip 不进 allOk、计数+reason 进 footer、sibling 寻址走 GUARD_SIBLING_ROOT SSOT；**R42 起四类 need 机读面（sibling:/git-object:/engine-deps:/asset:）＋groupProbe 组级闸＋footer group-skipped= 组粒度计数生效（env-contract 十件={37,38,39,40,46,50,53,78,80,83}）**。
 - 收口工序前置（D-144①④/D-145①）：账行增量↔编年随行核对＋守卫组硬跑；engine/src|dist 触碰→`npm run build`＋`node scripts/check-dist.mjs` 零 drift 再 commit。
 - **提交信息三栏位已全量生效（D-161④）**：subject 单意图人读行／body 分项 bullets／footer `Ledger-Refs:`+`Chronicle:`+`Adrs:`；T1 批 3 件 subject 锚残留已登 R41 收口节（历史不重写）。
 - **registry=72 项**（33-check 基线——R41 收口增四哨兵：fresh-clone-rerun-watch〔manual_watch〕／protected-surface-death-watch〔manual_watch·消亡判据事件触发〕／tier-misdeclaration-recurrence〔event_bound〕／npm-v12-allowscripts-review〔event_bound〕）；stage2-launch-criteria 判据② FAIL 确认行在册。
@@ -30,7 +30,8 @@
 
 ## 任务序列
 
-### T1 — R41 裁定执行窗实施批（时点锚=本批/下轮首启；覆盖 D-163/D-164/D-165②）
+### T1 — R41 裁定执行窗实施批 ✅ DONE 2026-09-28（r42-t1-exec 栈；覆盖 D-163/D-164/D-165② 全兑现——详见兑现节与本批报告）
+
 
 - **A. env-contract 泛化四件套（D-163①②③④⑥）**：need 类型扩 `git-object:`/`engine-deps:`/`asset:`＋SKIP reason 修复指引模板（D-072 三段文案：原因→手动命令→无网影响面）＋**git-object 五件 T3 逐件判**（23/26/27/28/43——在仓自足且系正当冻结语料→环境前置；首选临时仓零写入读法 mkdtemp unbundle＋GIT_ALTERNATE_OBJECT_DIRECTORIES 借用使 portable 声明变真，**禁主仓 fetch 写 object store**〔D-074〕；**43-check B1 单裁**——verify 语义本身是 ghost 证据面禁机械归类）＋engine-deps 七件原生绑定探测（38/39/50/53/78/80/83）＋40-clone-cache asset 探测＋tier 真实性逐件重声明（portable=任何 clone 零外部前置）。
 - **B. 组级探测四件套（D-164-a）**：`groupProbe(group,needs)` API 下沉 env-contract.mjs＋46-check B/C 挂 `sibling:jiahao`／A·D·E 零需 portable 段＋39-check E 段 registry 面脱 sibling/deps 连坐＋GUARD-RESULT 组级三态渲染＋footer skip 计数跟组粒度＋guard-all-run 分类器同步扩列＋**47-check 组内异质普查**（75a-T3 同窗——调研信息缺口③）。

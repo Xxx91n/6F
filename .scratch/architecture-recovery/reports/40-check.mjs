@@ -6,8 +6,9 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, isAbsolute } from 'node:path';
 import { createHash } from 'node:crypto';
+import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
-const TIER = 'portable';
+const TIER = 'env-contract';
 const PROTECTED_SURFACE = '#40 非自有公开仓 URL opt-in 泛化验证守卫（R5-09 / A-045）';
 
 
@@ -39,6 +40,8 @@ t('A8 回执纪律位：remote_config_execution=disabled + credentials=local-git
 t('A9 回执 head_sha 为 40 位 git SHA', /^[0-9a-f]{40}$/.test(rc.head_sha || ''), rc.head_sha);
 
 // ---------- B. clone 实物核查（git 只读子命令） ----------
+// asset 前置（D-163④）：40-clone-cache=gitignored 隔离缓存设计不入仓——缺席→组级 SKIP 带播种指引
+if (groupProbe('40-check', 'B', [need('asset:40-clone-cache', existsSync(CACHE) && existsSync(join(CACHE, '.git')), '原因：gitignored 隔离缓存 40-clone-cache 缺席（设计不入仓）；手动修复：node engine/dist/cli.js repo add https://github.com/open-gsd/gsd-core.git --cache .scratch/architecture-recovery/reports/40-clone-cache 重新播种（intake 隔离目录形态，须先 engine 依赖 bootstrap）；无网影响面：远端 clone 首次播种须联网一次，复制既有缓存目录可离线')])) {
 t('B1 clone 缓存目录实物在位', existsSync(CACHE) && existsSync(join(CACHE, '.git')));
 const shallow = git(CACHE, ['rev-parse', '--is-shallow-repository']);
 t('B2 实物浅仓断言：is-shallow-repository=false', shallow === 'false', shallow);
@@ -54,6 +57,7 @@ const commits = Number(git(CACHE, ['rev-list', '--count', 'HEAD']));
 t('B7 clone 历史深度 >1000 commits（全深度非浅层表象）', commits > 1000, String(commits));
 const status = git(CACHE, ['status', '--porcelain']);
 t('B8 clone 工作树干净（intake 未遗留改动）', status === '', status.slice(0, 80));
+}
 
 // ---------- C. intake 实现纪律（源码断言面） ----------
 const srcIntake = readFileSync(join(REPO, 'engine', 'src', 'intake', 'intake.ts'), 'utf8');
@@ -85,6 +89,8 @@ const mdText = readFileSync(MD, 'utf8');
 t('D10 侧车 receipt 与 MD 标注 receipt 一致', !!side.receipt && mdText.indexOf(side.receipt.receipt_id) >= 0, side.receipt && side.receipt.receipt_id);
 t('D11 报告披露块 = 外部仓 URL opt-in 校准面（非试点文案残留）', mdText.indexOf('外部公开仓 URL opt-in') >= 0 && mdText.indexOf('capability 1 of 5') >= 0);
 t('D12 综合裁定与实测一致（unsupported=TC-2 RED 传播，如实落数）', side.overall_verdict === 'unsupported' && meas.tc2.verdict === 'RED' && meas.tc2.cond_b === true, side.overall_verdict + '/' + meas.tc2.verdict);
+// engine-deps 前置（D-163③）：openReader 需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
+if (groupProbe('40-check', 'D13', [need('engine-deps:@duckdb/node-api', engineDepsOk(join(REPO, 'engine'), '@duckdb/node-api'))])) {
 const duckCount = await (async () => {
   const S = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
   // 只读纪律落实：openReader=READ_ONLY 无 DDL/种子/写锁（openWriter 每跑产 .wal 与本守卫文件头自述相悖，38/39-check 同形态）
@@ -94,6 +100,7 @@ const duckCount = await (async () => {
   return Number(rows[0][0]);
 })();
 t('D13 DuckDB audit_fact 行数 = facts.jsonl 行数（共享库读回）', duckCount === factLines.length, String(duckCount));
+}
 t('D14 外部仓 ADR 语料 ≥ min_n（92 份 → TC-1 可判）', meas.adr_count >= 5 && meas.tc1.judgeable_n >= 5, 'adr=' + meas.adr_count + ' judgeable=' + meas.tc1.judgeable_n);
 t('D15 正/负对照在外部仓全过（PC-1/PC-2/NC-1）', meas.pc1.pass === true && meas.pc2.pass === true && meas.nc1.pass === true);
 

@@ -16,6 +16,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const NL = String.fromCharCode(10);
 const TIMEOUT_MS = 300000;
 
+const SKIP_GROUP_RE = /^GUARD-RESULT:\s*SKIP-GROUP (\S+) group=(\S+) reason=(.+)$/;
 const manifest = JSON.parse(readFileSync(join(HERE, 'known-red-manifest.json'), 'utf8'));
 const registered = new Map(manifest.entries.map((e) => [e.guard, e]));
 
@@ -35,7 +36,9 @@ for (const f of targets) {
   // SKIP 三态（D-159③）：GUARD-RESULT: SKIP 行→skipped（rc=0 非绿非红；skip 不进 allOk 禁折 pass；reason 进 footer）
   const skipM = out.match(/GUARD-RESULT:\s*SKIP\s+\S+\s+reason=([^\n]+)/);
   // F-6 角落修：SKIP 行仅 rc=0 生效——打印 SKIP 后崩溃者归 red 集（crash 赢过 skip，双集互斥防同件双归属）
-  results.push({ file: f, rc: r.status === null ? 124 : r.status, slugs, skipped: !!skipM && r.status === 0, skipReason: skipM ? skipM[1].trim() : '' });
+  // D-164-a③ 组级 SKIP 机读方言：groupProbe 行解析进组粒度计数（不入 skipped/rc 判据——组内其余断言照常计票）
+  const skipGroups = out.split(NL).map((l) => { const m = l.match(SKIP_GROUP_RE); return m ? { group: m[2].trim(), missing: m[3].trim().split(' | ')[0] } : null; }).filter(Boolean);
+  results.push({ file: f, rc: r.status === null ? 124 : r.status, slugs, skipped: !!skipM && r.status === 0, skipReason: skipM ? skipM[1].trim() : '', skipGroups });
 }
 
 const redSet = new Set(results.filter((r) => r.rc !== 0).map((r) => r.file));
@@ -66,10 +69,12 @@ for (const [file, e] of registered) {
 console.log('----------------------------------------');
 for (const r of results) {
   const tag = r.skipped ? 'SKIP ' : r.rc === 0 ? 'GREEN ' : registered.has(r.file) ? 'KNOWN-RED ' : 'RED ';
-  console.log(tag + r.file + (r.skipped ? ' reason=' + r.skipReason : r.rc === 0 ? '' : ' rc=' + r.rc + (r.slugs.length ? ' slugs=' + r.slugs.join(',') : '')));
+  console.log(tag + r.file + (r.skipped ? ' reason=' + r.skipReason : r.rc === 0 ? '' : ' rc=' + r.rc + (r.slugs.length ? ' slugs=' + r.slugs.join(',') : '')) + (r.skipGroups.length ? '  group-skip[' + r.skipGroups.map((g) => g.group).join(',') + ']' : ''));
 }
 console.log('----------------------------------------');
-console.log('ran=' + results.length + ' green=' + greenFiles.size + ' skipped=' + skipSet.size + ' red=' + redSet.size + ' registered=' + registered.size + ' problems=' + fail + ' allOk=' + (fail === 0 && skipSet.size === 0));
+const groupSkipTotal = results.reduce((a, r) => a + r.skipGroups.length, 0);
+console.log('ran=' + results.length + ' green=' + greenFiles.size + ' skipped=' + skipSet.size + ' group-skipped=' + groupSkipTotal + ' red=' + redSet.size + ' registered=' + registered.size + ' problems=' + fail + ' allOk=' + (fail === 0 && skipSet.size === 0 && groupSkipTotal === 0));
 if (skipSet.size) { for (const r of results.filter((x) => x.skipped)) console.log('  skip-reason ' + r.file + ' :: ' + r.skipReason); }
+if (groupSkipTotal) { for (const r of results.filter((x) => x.skipGroups.length)) { for (const g of r.skipGroups) console.log('  group-skip ' + r.file + ':' + g.group + ' :: ' + g.missing); } }
 console.log('GUARD-ALL-RESULT: ' + (fail === 0 ? 'PASS' : 'FAIL'));
 process.exit(fail === 0 ? 0 : 1);

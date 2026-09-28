@@ -10,7 +10,7 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { siblingPath, envProbe, need } from './_lib/env-contract.mjs';
+import { siblingPath, need, groupProbe } from './_lib/env-contract.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const NL = '\n';
@@ -19,8 +19,7 @@ const REPO = join(HERE, '..', '..', '..');
 const TIER = 'env-contract';
 const PROTECTED_SURFACE = '46 回归 CI 迁回面（6F workflow 契约＋jiahao 撤除＋46-out 工件）';
 const JIAHAO = siblingPath('jiahao');
-// env-contract 启动探测（D-159①⑤）：sibling 缺失→SKIP-with-reason
-envProbe('46-check', [need('sibling:jiahao', existsSync(JIAHAO))]);
+// 组级前置（D-164-a②）：B/C 组挂 sibling:jiahao；A/D/E 零需 portable 段不因 sibling 缺席连坐
 const WF = join(REPO, '.github', 'workflows', 'macro-b-regression.yml');
 const OUT = join(HERE, '46-out');
 
@@ -53,6 +52,7 @@ if (wf !== null) {
 }
 
 // ---------- B. jiahao 单文件撤除（T2 交付面） ----------
+if (groupProbe('46-check', 'B/C', [need('sibling:jiahao', existsSync(JIAHAO))])) {
 const jhWf = join(JIAHAO, '.github', 'workflows', 'macro-b-regression.yml');
 // F-7 漂移披露补腿（D-159⑤ 兑现）：sibling 在但状态越出钉定时代（文件重现/删除提交不可达/变更面不符）
 //   →WARN 方言披露不计数（同 37-C1 退化型）；非漂移路径保留原断言 verbatim（sibling 态属环境面非本仓契约）
@@ -89,6 +89,7 @@ if (meas) {
   } else {
     t('C4 运行锚 40-hex head_sha 可解析为 git 对象', /^[0-9a-f]{40}$/.test(meas.head_sha || '') && headType === 'commit', 'head=' + (meas.head_sha || 'n/a'));
   }
+}
 }
 
 // ---------- D. 引擎健康回归 ----------

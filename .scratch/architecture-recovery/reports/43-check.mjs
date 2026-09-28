@@ -3,9 +3,10 @@
 //   → 重生成命令与 examples README 所录逐字一致 → diff 非零即 fail 机械件在位
 //   → 禁自动回写（无 commit/push/writeback action）→ bundle/overlay 传输件完整可解
 //   → 本机模拟 diff 正误两态（冻结工作树实跑四件逐字节一致＋tmp 篡改必检出）
-// 纪律：实跑产物只写 os.tmpdir()（冻结 worktree 在临时目录，用完即除）；仓内状态善后——
-//   bundle unbundle 写入的 loose objects 留本仓 .git 由 gc 回收（不强行 prune），产物 ref
-//   refs/frozen/first-report 在 C 段 finally 中 update-ref -d 删除（断言成败均走清理路径）。
+// 纪律：实跑产物只写 os.tmpdir()（冻结 worktree 在临时目录，用完即除）；主仓 object store 零写——
+//   D-163②/D-074：fc00d458 经仓内 bundle→mkdtemp 临时仓 unbundle（借主仓 objects 补 prereq）→
+//   GIT_ALTERNATE_OBJECT_DIRECTORIES 反借读通，unbundle/ref 写入全落临时仓随 rmSync 回收；
+//   worktree add 仅写 .git/worktrees 管理目录（无对象/引用写入），C 段 finally 兜底移除。
 //   exit 0 + PASS N/N 为绿。
 import { createHash } from 'node:crypto';
 import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
@@ -13,6 +14,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { need, groupProbe, gitObjectNeedOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '#43 样例 golden CI 守卫（R5-12 / A-048 / D-030③）';
@@ -60,22 +62,26 @@ const ov = existsSync(OVERLAY) ? readFileSync(OVERLAY, 'utf8') : '';
 const SIG = { md: 192, prompts: 64, handoffs: 53, issues: 53, blocked: 20, by: 20, mjs: 20, 'a-xxx': 19, '全部': 19, w3: 18, branch: 17, pass: 17, w2: 17, workflow: 17, 'architecture-recovery': 16, '复核': 16, '守卫': 16, '张票': 16, '覆盖': 16, '阻塞': 16 };
 const oc = {}; for (const tk of tokenize(ov)) { oc[tk] = (oc[tk] || 0) + 1; }
 t('B4 overlay README 等签名重构：top-20 关键词计数与 golden 签名逐项一致', existsSync(OVERLAY) && Object.keys(SIG).every(k => oc[k] === SIG[k]));
+// git-object 前置（D-163②）：fc00d458 幽灵钉非分支祖先 clone 不携带——缺席借仓内 bundle 临时仓零写入物化
+const GO43 = [need('git-object:' + FROZEN_SHA, gitObjectNeedOk(REPO, FROZEN_SHA, BUNDLE))];
+if (groupProbe('43-check', 'B5', GO43)) {
 const raw = JSON.parse(git(['show', FROZEN_SHA + ':.scratch/architecture-recovery/reports/22-threshold-raw.json']));
 const stop = new Set(raw.tc3_s1_coverage.stopwords.map(s => s.toLowerCase()));
 const keys = Object.keys(oc).filter(k => !stop.has(k));
 keys.sort((a, b) => { const d = oc[b] - oc[a]; if (d !== 0) return d; return a < b ? -1 : a > b ? 1 : 0; });
 const GOLDEN_TOP20 = ['md', 'prompts', 'handoffs', 'issues', 'blocked', 'by', 'mjs', 'a-xxx', '全部', 'w3', 'branch', 'pass', 'w2', 'workflow', 'architecture-recovery', '复核', '守卫', '张票', '覆盖', '阻塞'];
 t('B5 overlay top-20 词表与序与 golden 逐字一致（rank-21 边界 <16）', JSON.stringify(keys.slice(0, 20)) === JSON.stringify(GOLDEN_TOP20) && oc[keys[20]] < 16);
+}
 t('B6 examples 四件与 .scratch 原件逐字节一致（溯源链未漂移）', FOUR.every(f => sha(join(EX, f)) === sha(join(HERE, f))));
 const man = JSON.parse(readFileSync(join(GOLDEN, 'manifest.json'), 'utf8'));
 t('B7 engine golden manifest sha256 与实物一致（3 场景×4 件）', SCENARIOS.every(s => GOLDEN_FILES.every(f => man.scenarios[s].sha256[f] === sha(join(GOLDEN, s, f)))));
 
 // ---------- C. 本机模拟 diff 正误两态 ----------
-// unbundle 向本仓 .git 写 loose objects + refs/frozen/first-report——ref 善后走 finally（无论断言成败）；
-// loose objects 不强行 prune，由 gc 回收。
+// 物化走上方 git-object 前置（D-163②/D-074）：临时仓 unbundle＋alternates 反借——主仓 object store
+// 零写（unbundle 不再入主仓；worktree add 仅写 .git/worktrees 管理目录，无对象/引用写入）。
+if (groupProbe('43-check', 'C', GO43)) {
 const FW = join(tmp, 'frozen');
 try {
-git(['bundle', 'unbundle', BUNDLE]);
 execFileSync('git', ['worktree', 'add', FW, FROZEN_SHA], { cwd: REPO, encoding: 'utf8' });
 mkdirSync(join(FW, 'engine', 'src', 'report'), { recursive: true });
 writeFileSync(join(FW, 'engine', 'src', 'report', 'generate.ts'), git(['show', GEN_COMMIT + ':engine/src/report/generate.ts']), 'utf8');
@@ -97,9 +103,9 @@ writeFileSync(gfile, readFileSync(gfile, 'utf8') + '\nTAMPERED\n', 'utf8');
 t('C4 误态：engine golden 篡改 → byte diff 逻辑必检出', readFileSync(gfile, 'utf8') !== readFileSync(join(GOLDEN, 'happy-path', 'report.md'), 'utf8'));
 execFileSync('git', ['worktree', 'remove', '--force', FW], { cwd: REPO, encoding: 'utf8' });
 } finally {
-  // 善后：worktree 兜底移除（成功路径上方已除，此处兜断言中断情形）＋ unbundle 产物 ref 删除
+  // 善后：worktree 兜底移除（成功路径上方已除，此处兜断言中断情形）；主仓无 unbundle 产物须清
   try { execFileSync('git', ['worktree', 'remove', '--force', FW], { cwd: REPO, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch (e) { /* 已移除或未建成——忽略（stderr 吞掉，成功路径上方已除） */ }
-  try { git(['update-ref', '-d', 'refs/frozen/first-report']); } catch (e) { /* ref 不存在时忽略 */ }
+}
 }
 
 // ---------- D. 文档与账本落文 ----------

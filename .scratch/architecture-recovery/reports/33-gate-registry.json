@@ -1760,7 +1760,16 @@
       "owner": "仓内值守",
       "review_event": "next-audit-window",
       "verify_method": "known-gaps 台账批2-β 节八件逐件 status 重审（observed→triaged→legislated 走向）＋逐件 mini-五要素齐备抽查（gap_id/证据链/owner/notes/review_by/trigger_id）",
-      "confirmations": []
+      "confirmations": [
+        {
+          "at": "2026-09-28",
+          "by": "R42-T1 审计窗随读",
+          "criterion_version": "D-156②",
+          "decision": "status-unchanged",
+          "reason": "GAP-B2B-01~08 逐件复审：全八件 status=triaged/仓内值守、mini-五要素齐备——批2-β 未落地，复审窗未至（锚=next-audit-window）；本窗无迁移",
+          "evidence": "docs/known-gaps.md 批2-β 节八行 status 列全 triaged"
+        }
+      ]
     },
     {
       "id": "codebuddy-ide-gap-watch",
@@ -1800,7 +1809,7 @@
     {
       "id": "env-gated-guard-class",
       "family": "code-hygiene",
-      "title": "env-gated 守卫类登记（D-159①④）——sibling 依赖三件 env-contract tier；75a-T3 强制声明集↔本项 guards 对账（新增 env-contract 守卫须同窗更新本项）",
+      "title": "env-gated 守卫类登记（D-159①④/D-163）——十件 env-contract tier（sibling 三件＋engine-deps 七件含 asset/engine 混合面）；75a-T3 强制声明集↔本项 guards 对账（新增 env-contract 守卫须同窗更新本项）",
       "deadline_event": null,
       "deadline": "无（登记项）",
       "trigger_event": "env-contract-tier-active",
@@ -1812,8 +1821,15 @@
       "review_event": "stage3-close",
       "guards": [
         "37-check.mjs",
+        "38-check.mjs",
         "39-check.mjs",
-        "46-check.mjs"
+        "40-check.mjs",
+        "46-check.mjs",
+        "50-check.mjs",
+        "53-check.mjs",
+        "78-check.mjs",
+        "80-check.mjs",
+        "83-check.mjs"
       ],
       "confirmations": [
         {
@@ -1823,6 +1839,14 @@
           "decision": "registered",
           "reason": "manifest env-gated 类延伸=registry 条目+事件沿 D-149④ 形态登记；sibling 画像 9→3 勘误随批（38/40/42/48/49/51 内容级提及零依赖不并入；26-check 幽灵钉归 D-094 普查通道不拉回）",
           "evidence": "reports/37-check.mjs、39-check.mjs、46-check.mjs envProbe 启动探测＋_lib/env-contract.mjs SSOT"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R42-T1（D-163④/D-164-a②③）",
+          "criterion_version": "D-163③④⑥",
+          "decision": "expanded",
+          "reason": "泛化探测立法兑现：envProbe→groupProbe 组级化；engine-deps 七件（38-E1/39-D/40-D13/50-F1/53-B3·C·E·F·G/78-E·F/80-G8/83-G——38 兼 asset 无关、40 兼 asset:40-clone-cache、39/46 兼 sibling）入册；git-object 五件（23/26/27/28/43）经临时仓零写物化实为 portable 不入册",
+          "evidence": "reports/_lib/env-contract.mjs groupProbe/gitObjectNeedOk/engineDepsOk＋各 check groupProbe 调用点；run=guard-all-run 组级 SKIP-GROUP 计数"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-159 环境契约分层立法兑现）"
@@ -1883,6 +1907,14 @@
           "decision": "criterion-02-fail-read",
           "reason": "fresh clone（独立 worktree 无本机环境）guard-all-run 实测：14 红/13 册外新红——判据②「不红海」当前 FAIL，Stage-2 维持关闭；处置路由=D-163 泛化立法，复验哨兵=fresh-clone-rerun-watch",
           "evidence": "decision-ledger.md R41 收口节；D-163/D-165②"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R42-T1 fresh-clone 复验（D-163/D-164-a 兑现后）",
+          "criterion_version": "D-162②",
+          "decision": "criterion-02-pass-read",
+          "reason": "判据②「fresh clone 不红海」实测翻绿：clone+bootstrap+guard-all-run 未册化红=0、SKIP 全带三段可读 reason（见 fresh-clone-rerun-watch 同窗确认）——余判据不变：①capability 5/5（Macro-A preview 上架=漏斗终点）未达，③GAP-HOST-01 未闭，④A(a) 30 日窗计时中；Stage-2 维持关闭，值守非绿宣称",
+          "evidence": "clone 实跑 footer：ran=60 green=58 skipped=1 group-skipped=3 red=1(registered) problems=0"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）"
@@ -1909,6 +1941,14 @@
           "decision": "registered",
           "reason": "分层定稿验收层值守载体：fresh-clone 判据② 实测 FAIL（14 红/13 册外）如实值守不粉饰；复跑义务挂泛化落地时点锚，防执行窗无限期变相 accepted-risk",
           "evidence": "decision-ledger.md D-163⑦/D-165②④；reports/R41-Q3-atomcode-research.md"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R42-T1 执行窗（D-163②③④/D-164-a 兑现后复跑）",
+          "criterion_version": "D-165②",
+          "decision": "criterion-met",
+          "reason": "fresh clone（D:/tmp-fc/6F-clone，git clone --no-local file:// 传输面——幽灵对象不随克隆）+ git apply 本批 diff + engine npm ci --ignore-scripts（9 pkg）→ guard-all-run 60 件：green=58/registered-red=1(01-check kr-01)/skipped=1(37 sibling 整件)/group-skipped=3（39-B sibling、40-B asset、46-B/C sibling）全带三段可读 reason——未册化红=0 判据② 达成；git-object 五件经仓内 bundle 临时仓零写物化全绿（主仓 object store 零写实证）",
+          "evidence": "reports/_lib/env-contract.mjs groupProbe/gitObjectNeedOk/engineDepsOk；clone 跑 log=footer allOk=false（skip≠绿如实）"
         }
       ],
       "bound_to": "stage2-launch-criteria 判据② 操作性复验动作"
@@ -1935,6 +1975,14 @@
           "decision": "registered",
           "reason": "案例驱动纪律（D-079 建制由 39-F2 首例触发、D-094/A-097 同型）——retired 册空期不建发射机件；哨兵钉消亡判据事件触发防首件退役两窗间静默丢失",
           "evidence": "decision-ledger.md D-164；reports/R41-Q2-atomcode-research.md C3/C4/C7"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R42-T1 审计窗随读",
+          "criterion_version": "D-160①/D-164-b",
+          "decision": "zero-event-read",
+          "reason": "消亡面人工普查：59 件 -check.mjs 全在位且 PROTECTED_SURFACE 声明非空（75a-T2 机查复核同证）——本窗零消亡事件，不预建退役发射机件",
+          "evidence": "reports/75a-check.mjs T2 断言绿；reports/75a-census-findings.json"
         }
       ],
       "bound_to": "guard-retirement-class（通道登记项；本项补消亡事件触发锚）"

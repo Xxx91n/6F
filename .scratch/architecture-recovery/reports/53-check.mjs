@@ -13,8 +13,9 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
-const TIER = 'portable';
+const TIER = 'env-contract';
 const PROTECTED_SURFACE = '#53 `macro-audit audit` 一等命令守卫（D-060 八要素）';
 
 
@@ -23,6 +24,7 @@ const REPO = join(HERE, '..', '..', '..');
 const ENG = join(REPO, 'engine');
 const CLI = join(ENG, 'dist', 'cli.js');
 const NL = '\n';
+const DEP53 = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
 
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
@@ -44,8 +46,11 @@ let sj = null; try { sj = JSON.parse(r1.stderr); } catch (e) { }
 t('B1 --scale Macro-A → exit 2 + error=SCALE-NOT-IMPLEMENTED', r1.status === 2 && !!sj && sj.error === 'SCALE-NOT-IMPLEMENTED', 'status=' + r1.status);
 t('B2 拒绝 JSON 载 implemented/requested/layer_order', !!sj && JSON.stringify(sj.implemented) === JSON.stringify(['Macro-B']) && sj.requested === 'Macro-A' && typeof sj.layer_order === 'string');
 t('B2b layer_order=ADR-0017③ 原文层序', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0 && sj.layer_order.indexOf('ADR-0017') >= 0, sj && sj.layer_order);
-let r1b = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-B'], { encoding: 'utf8', cwd: ENG });
+// engine-deps 前置（D-163③）：audit 实跑需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
+if (groupProbe('53-check', 'B3', DEP53)) {
+const r1b = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-B'], { encoding: 'utf8', cwd: ENG });
 t('B3 --scale Macro-B 不误拒（进入实跑面）', r1b.status === 0, 'status=' + r1b.status + ' err=' + (r1b.stderr || '').slice(0, 120));
+}
 
 // ---------- 合成被测仓（C/E 实跑面共用） ----------
 const tmp = mkdtempSync(join(tmpdir(), '53check-'));
@@ -61,6 +66,8 @@ writeFileSync(join(TGT, 'docs', 'adr', '001-x.md'), ['# ADR-001', '', '- Status:
 sh(['add', '-A']); sh(['commit', '-m', 'adr']);
 
 // ---------- C. --out 双通道 ----------
+// engine-deps 前置（D-163③）：本组实跑 audit/one-shot 需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
+if (groupProbe('53-check', 'C', DEP53)) {
 const OUTA = join(tmp, 'audit-out');
 let r2 = spawnSync('node', [CLI, 'audit', TGT, '--out', OUTA], { encoding: 'utf8', timeout: 120000 });
 let rec = null; try { rec = JSON.parse(r2.stdout); } catch (e) { }
@@ -71,6 +78,7 @@ let r3 = spawnSync('node', [CLI, 'audit', TGT], { encoding: 'utf8', timeout: 120
 t('C3 省略 --out → stdout=报告 markdown（含 RECEIPT 行）', r3.status === 0 && r3.stdout.indexOf('# MA-AUDIT-') >= 0 && r3.stdout.indexOf('RECEIPT RCP-') >= 0, 'status=' + r3.status);
 const repJsonC4 = existsSync(join(OUTA, 'report.json')) ? JSON.parse(txt(join(OUTA, 'report.json'))) : null;
 t('C4 F11 改名生效：象限 verdict_gate 全载 evidence_flag 且旧名 evidence_threshold_met 零残留（含 skeleton.required_fields）', !!repJsonC4 && repJsonC4.quadrants.every(function (q) { return q.verdict_gate && typeof q.verdict_gate.evidence_flag === 'boolean' && !('evidence_threshold_met' in q.verdict_gate); }) && JSON.stringify(repJsonC4).indexOf('evidence_threshold_met') < 0);
+}
 
 // ---------- D. 共享管线消费 ----------
 const demo = txt(join(ENG, 'src', 'demo', 'demo.ts'));
@@ -80,6 +88,9 @@ t('D2 macro-b.ts 导出三链件 + normalizeGitIsoDate 消费（%cI 归一化位
 t('D3 demo codelore=off 确定性位 + audit codelore=auto 实跑位', demo.indexOf("codelore: 'off'") >= 0 && audit.indexOf("codelore: 'auto'") >= 0);
 
 // ---------- E. golden parity：audit 产物字段 ⊆ 39 one-shot 复跑产物 ----------
+// engine-deps 前置（D-163③）：本组实跑 audit/one-shot 需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
+if (groupProbe('53-check', 'E', DEP53)) {
+const OUTA = join(tmp, 'audit-out');
 const OUTB = join(tmp, 'shot-out');
 let r4 = spawnSync('node', [join(HERE, '39-macro-b-one-shot.mjs'), '--repo', 'tgt', '--root', TGT, '--out', OUTB], { encoding: 'utf8', timeout: 180000, cwd: REPO });
 t('E0 对照物 39 one-shot 复跑 exit 0（脚本保留为回归对照物非主入口）', r4.status === 0, 'status=' + r4.status + ' err=' + (r4.stderr || '').slice(-300));
@@ -112,16 +123,24 @@ if (r4.status === 0 && existsSync(shotJson) && existsSync(join(OUTA, 'report.jso
   t('E3 audit 象限条目字段 ⊆ 39 象限条目字段', false, '跳过');
   t('E4 audit measurements 含 39 全部核心字段', false, '跳过');
 }
+}
 
 // ---------- F. 报告头 preview 披露 ----------
+// engine-deps 前置（D-163③）：读 audit --out 产物需 C 组已实跑（@duckdb 原生绑定）
+if (groupProbe('53-check', 'F', DEP53)) {
+const OUTA = join(tmp, 'audit-out');
 const md = existsSync(join(OUTA, 'report.md')) ? txt(join(OUTA, 'report.md')) : '';
 t('F1 报告头 stability: preview · capabilities: macro-b', md.indexOf('stability: preview') >= 0 && md.indexOf('capabilities: macro-b') >= 0);
 t('F2 披露块 capability 1 of 5 · preview + not_in_preview 四层名', md.indexOf('capability 1 of 5 · preview') >= 0 && md.indexOf('not_in_preview') >= 0);
 t('F3 快照时点披露进披露块（snapshot_fetched_at 载于限制条）', md.indexOf('snapshot_fetched_at') >= 0);
+}
 
 // ---------- G. 不携叙事职责 ----------
+if (groupProbe('53-check', 'G', DEP53)) {
+const OUTA = join(tmp, 'audit-out');
 const sAu2 = existsSync(join(OUTA, 'report.json')) ? JSON.parse(txt(join(OUTA, 'report.json'))) : null;
 t('G1 narrative_sections 空或仅 kernel/host 兜底（audit 不携宿主叙事生成职责）', !!sAu2 && (sAu2.narrative_sections.length === 0 || sAu2.narrative_sections.every(function (s) { return s.author === 'kernel-template' || s.author === 'host'; })), 'n=' + (sAu2 ? sAu2.narrative_sections.length : 'n/a'));
+}
 
 // ---------- H. BOM ----------
 const nbFiles = ['engine/src/audit/audit.ts', 'engine/src/audit/macro-b.ts', 'engine/test/audit.test.mjs'].map(function (f) { return join(REPO, f); });

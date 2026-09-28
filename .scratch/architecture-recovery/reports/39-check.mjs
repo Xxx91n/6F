@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
-import { siblingPath, envProbe, need } from './_lib/env-contract.mjs';
+import { siblingPath, need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(here, '..', '..', '..');
@@ -19,8 +19,7 @@ const TIER = 'env-contract';
 const PROTECTED_SURFACE = '39-macro-b 三仓 one-shot 面（产物/证据锚/registry 翻转/self-probe）';
 const REPOS = { 'env-manager': siblingPath('env-manager'), 'anysearch-cli': siblingPath('anysearch-cli'), 'jiahao': siblingPath('jiahao') };
 const NAMES = Object.keys(REPOS);
-// env-contract 启动探测（D-159①⑤）：sibling 缺失→SKIP-with-reason；在但漂移→断言外 WARN/NOTE 披露承载
-envProbe('39-check', NAMES.map((n) => need('sibling:' + n, fs.existsSync(REPOS[n]))));
+// 组级前置（D-164-a③）：B 组挂三 sibling／D 组挂 engine-deps；E 段 registry 本仓面与其余组零需 portable 不连坐
 
 let pass = 0, fail = 0;
 const t = (name, ok, extra = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : fail++; };
@@ -49,6 +48,8 @@ for (const n of NAMES) {
 }
 
 // --- B. 每仓证据锚（facts 数 / receipt / commit 锚可解析为真实对象——产物锚定生成时刻，禁止与易变 HEAD 相等比较，#23 教训） ---
+// sibling 前置挂本组（D-164-a②）：三仓工作树缺席→B 组 SKIP，其余组照跑
+if (groupProbe('39-check', 'B', NAMES.map((n) => need('sibling:' + n, fs.existsSync(REPOS[n]))))) {
 for (const n of NAMES) {
   const r = perRepo[n];
   const anchorType = git(REPOS[n], ['cat-file', '-t', r.meas.head_sha]);
@@ -62,6 +63,7 @@ for (const n of NAMES) {
     console.log('WARN B-' + n + ' 存档 head ' + r.meas.head_sha.slice(0, 8) + ' 活仓不可达（anchor=' + anchorType + '）——commit 锚腿退化不计数，本地腿仍断言（方言披露面 D-159⑤ 同 37-C1 退化型）');
     t('B-' + n + '-local 证据锚本地腿：facts>0 + receipt RCP- + subject_ref 一致', localOk, 'facts=' + r.facts.length + ' receipt=' + (r.sc.receipt ? r.sc.receipt.receipt_id : 'none'));
   }
+}
 }
 
 // --- C. 报告形态（骨架/披露块/裁决/引文校验/诚实裁定带） ---
@@ -83,6 +85,8 @@ t('C-supply_chain 三仓 supply_chain 象限全 not_applicable + ⚠ 数据未�
   NAMES.every((n) => perRepo[n].sc.quadrants.some((q) => q.quadrant === 'supply_chain' && q.applicability === 'not_applicable' && /数据未接/.test(q.verdict_gate.override_reason))), '');
 
 // --- D. 共享事实库（同一 audit_fact 表：3 仓 Macro-B，计数对齐 jsonl） ---
+// engine-deps 前置（D-163③）：openReader 需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
+if (groupProbe('39-check', 'D', [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))])) {
 const STORE = await import(pathToFileURL(join(ENG, 'dist', 'fact', 'store.js')).href);
 let dbOk = false, dbScale = {}, dbRepo = {};
 try {
@@ -100,6 +104,7 @@ t('D1 共享事实库单 scale=Macro-B + 3 repo_ref + 计数=三仓 jsonl 总和
   JSON.stringify(dbRepo));
 t('D2 汇总 measurements 与库一致（appended=' + summary.shared_duckdb.appended + ' dedup=' + summary.shared_duckdb.dedup_dropped + '）',
   summary.shared_duckdb.appended === jsonlTotal && summary.shared_duckdb.dedup_dropped === 0 && summary.shared_duckdb.db_by_scale['Macro-B'] === jsonlTotal, '');
+}
 
 // --- E. registry 翻转（mw-regression-ci occurred + mw-trigger-a trigger-fired + desk-task7 实测封口翻转） ---
 const reg = JSON.parse(read('33-gate-registry.json'));

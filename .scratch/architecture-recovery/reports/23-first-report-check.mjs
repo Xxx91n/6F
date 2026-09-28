@@ -4,6 +4,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { need, groupProbe, gitObjectNeedOk } from './_lib/env-contract.mjs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
@@ -143,15 +144,17 @@ function gitType(rev) {
   try { return execFileSync('git', ['cat-file', '-t', rev], { cwd: REPO, encoding: 'utf8' }).trim(); }
   catch (e) { return ''; }
 }
-check('R1', typeof rc.tree_anchor === 'string' && rc.tree_anchor.length === 40 && gitType(rc.tree_anchor) === 'tree' && gitType(rc.commit_anchor) === 'commit', '双锚可解析：tree ' + rc.tree_anchor.slice(0, 12) + ' 为真实 tree 对象，commit ' + rc.commit_anchor.slice(0, 7) + ' 为真实 commit 对象');
+// git-object 前置（D-163②）：receipt 锚 fc00d458/6f405cfc 幽灵对象非分支祖先 clone 不携带——
+// 缺席借仓内 bundle 临时仓零写入物化；R2/R4 纯 JSON 断言零需不连坐
+const GO23 = groupProbe('23-first-report-check', 'R-anchor', [need('git-object:' + rc.commit_anchor, gitObjectNeedOk(REPO, rc.commit_anchor, join(HERE, '23-frozen-' + rc.commit_anchor.slice(0, 8) + '.bundle')))]);
+if (GO23) check('R1', typeof rc.tree_anchor === 'string' && rc.tree_anchor.length === 40 && gitType(rc.tree_anchor) === 'tree' && gitType(rc.commit_anchor) === 'commit', '双锚可解析：tree ' + rc.tree_anchor.slice(0, 12) + ' 为真实 tree 对象，commit ' + rc.commit_anchor.slice(0, 7) + ' 为真实 commit 对象');
 check('R2', rc.content_digest && rc.content_digest.algo === 'sha256' && rc.content_digest.value.length === 64 && rc.content_digest.canonicalization === G.CONTENT_DIGEST_CANONICALIZATION, '内容摘要显式声明算法与规范化规则（' + rc.content_digest.canonicalization + '）');
 const gr = rc.gate_ref;
 let preregAncestor = false;
 try {
-  execFileSync('git', ['merge-base', '--is-ancestor', gr.prereg_commit, rc.commit_anchor], { cwd: REPO, encoding: 'utf8' });
-  preregAncestor = true;
+  if (GO23) { execFileSync('git', ['merge-base', '--is-ancestor', gr.prereg_commit, rc.commit_anchor], { cwd: REPO, encoding: 'utf8' }); preregAncestor = true; }
 } catch (e) { preregAncestor = false; }
-check('R3', !!gr && gr.prereg_commit.length > 0 && gr.criterion_ids.join(',') === 'PC-1,PC-2,TC-1,TC-2,TC-3,NC-1' && preregAncestor, 'gate_ref 指向预声明闸门且其 commit 拓扑先于首报锚（闸门先于被裁定对象）');
+if (GO23) check('R3', !!gr && gr.prereg_commit.length > 0 && gr.criterion_ids.join(',') === 'PC-1,PC-2,TC-1,TC-2,TC-3,NC-1' && preregAncestor, 'gate_ref 指向预声明闸门且其 commit 拓扑先于首报锚（闸门先于被裁定对象）');
 check('R4', rc.degraded === false && carFail.receipt.degraded === true && carFail.receipt.tree_anchor === rc.tree_anchor, '降级 receipt 保留同一 tree 锚并置 degraded=true（同锚可比）');
 
 // ---------- 汇总 ----------

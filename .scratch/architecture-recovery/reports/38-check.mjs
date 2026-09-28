@@ -5,8 +5,9 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
-const TIER = 'portable';
+const TIER = 'env-contract';
 const PROTECTED_SURFACE = '#38 守卫——Macro-C preview：披露块在（缺=FAIL）/ happy+failure 双件形态 / 采集事实字段 / 报告引用';
 
 
@@ -59,18 +60,21 @@ t('D5 supersede 链摘要 fact：8 边 + 断链0 + 缺回链0', chainV !== null 
 t('D6 fact_id 去重留痕（双 resolution 合一）+ dedup_dropped=1', meas.dedup_dropped === 1, '');
 
 // --- E. 共享 DuckDB + 触发器 b 登记（衔接 #33 registry） ---
-const STORE = await import(pathToFileURL(join(ENG, 'dist', 'fact', 'store.js')).href);
-let dbOk = false, dbScale = {};
-try {
-  const reader = await STORE.openReader(join(here, '38-audit-facts.duckdb'));
-  const rows = await (await STORE.queryFacts(reader, 'SELECT scale, COUNT(*) n FROM audit_fact GROUP BY scale ORDER BY scale')).getRows();
-  const repos = await (await STORE.queryFacts(reader, 'SELECT COUNT(DISTINCT repo_ref) n FROM audit_fact')).getRows();
-  for (const r of rows) { dbScale[String(r[0])] = Number(r[1]); }
-  dbOk = Number(repos[0][0]) >= 2;
-  reader.closeSync();
-} catch (e) { dbOk = false; console.log('  duckdb read error: ' + e.message); }
+// engine-deps 前置（D-163③）：openReader 需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
 const mbCount = read('23-facts.jsonl').split('\n').filter(Boolean).length;
-t('E1 共享事实库同库双 scale（Macro-B ' + mbCount + ' + Macro-C ' + factLines.length + '）+ ≥2 repo_ref', dbScale['Macro-B'] === mbCount && dbScale['Macro-C'] === factLines.length && dbOk, JSON.stringify(dbScale));
+if (groupProbe('38-check', 'E1', [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))])) {
+  const STORE = await import(pathToFileURL(join(ENG, 'dist', 'fact', 'store.js')).href);
+  let dbOk = false, dbScale = {};
+  try {
+    const reader = await STORE.openReader(join(here, '38-audit-facts.duckdb'));
+    const rows = await (await STORE.queryFacts(reader, 'SELECT scale, COUNT(*) n FROM audit_fact GROUP BY scale ORDER BY scale')).getRows();
+    const repos = await (await STORE.queryFacts(reader, 'SELECT COUNT(DISTINCT repo_ref) n FROM audit_fact')).getRows();
+    for (const r of rows) { dbScale[String(r[0])] = Number(r[1]); }
+    dbOk = Number(repos[0][0]) >= 2;
+    reader.closeSync();
+  } catch (e) { dbOk = false; console.log('  duckdb read error: ' + e.message); }
+  t('E1 共享事实库同库双 scale（Macro-B ' + mbCount + ' + Macro-C ' + factLines.length + '）+ ≥2 repo_ref', dbScale['Macro-B'] === mbCount && dbScale['Macro-C'] === factLines.length && dbOk, JSON.stringify(dbScale));
+}
 const reg = JSON.parse(read('33-gate-registry.json'));
 const mwb = reg.items.find((i) => i.id === 'mw-trigger-b');
 t('E2 registry 触发器 b 登记：event occurred + confirmations trigger-fired', reg.events['macro-c-shared-duckdb'].occurred === true && !!mwb && Array.isArray(mwb.confirmations) && mwb.confirmations.some((c) => c.decision === 'trigger-fired'), '');

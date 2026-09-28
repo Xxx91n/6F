@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import url from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { commitsByGrep, touchedPaths, lastChangeSha } from './_lib/check-kit.mjs';
+import { need, groupProbe, gitObjectNeedOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = 'R4-01 量测审计守卫：真值表完整性 + v1 冻结集复跑一致性 + 纯文档零构建断言';
@@ -63,6 +64,8 @@ ok(j.aggregates.truth.mean_ratio < 0.60 && j.aggregates.truth.missing_counts.Con
 
 // ---- C. v1 真实代码冻结集复跑 ----
 const mod = await import(url.pathToFileURL(path.join(root, 'engine/src/collect/collectors.ts')).href);
+// git-object 前置（D-163②）：fc00d458 冻结集非分支祖先 clone 不携带——缺席借仓内 bundle 临时仓零写入物化
+if (groupProbe('26-check', 'C', [need('git-object:' + SHA, gitObjectNeedOk(root, SHA, path.join(dir, '23-frozen-' + SHA.slice(0, 8) + '.bundle')))])) {
 const docs = fz.map(f => ({ path: f.path, text: spawnSync('git', ['show', SHA + ':' + f.path], { cwd: root, encoding: 'utf8' }).stdout }));
 ok(docs.every(d => d.text && d.text.length > 0), 'C1 冻结集 13 份可由 git show 取出');
 const ctx = { runId: 'r6-check', traceId: 't', repoRef: '6F@fc00d458', scale: 'Macro-B', observedAt: '2026-09-13T14:31:09+08:00' };
@@ -80,6 +83,7 @@ for (const f of facts) {
 }
 for (const f of fz) for (const k of FIVE) if (live[f.path.split('/').pop()][k] !== f.fields[k].v1_present) cellDiff++;
 ok(cellDiff === 0, 'C3 v1 实跑与真值表 v1_present 逐格一致（65/65）');
+}
 
 // ---- D. 票面时代域断言（R37/#75批1 D-094(b) 工具时代漂移——GitButler 合成索引令 git status porcelain 现幻影 MM，永失真；钉票面 commit 集物证） ----
 // R38/#75批2（r37 审计 P-5）：git log --grep + show --name-only 机件收编 _lib/check-kit.mjs（26/28/30 三份复制去重）。

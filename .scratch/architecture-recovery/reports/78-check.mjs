@@ -9,8 +9,9 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
-const TIER = 'portable';
+const TIER = 'env-contract';
 const PROTECTED_SURFACE = '#78 quarantine 引擎验收闸（ADR-0022 / D-103~D-120）';
 
 
@@ -22,6 +23,7 @@ const ONESHOT39 = join(HERE, '39-macro-b-one-shot.mjs');
 const NL = String.fromCharCode(10);
 const Q = await import(pathToFileURL(join(ENG, 'dist', 'intake', 'quarantine.js')).href);
 const STORE = await import(pathToFileURL(join(ENG, 'dist', 'fact', 'store.js')).href);
+const DEP78 = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
 
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + String(detail).slice(0, 260) : '')); } }
@@ -78,11 +80,16 @@ t('D-394 39 env 腿：MACRO_AUDIT_STRICT_QUARANTINE 读取+证据面回声', s39
 t('D-403 40 零 crash/env 引入（40 未在 D-109①/D-110④ 挂载面——保持纯对照）', txt(join(HERE, '40-macro-b-one-shot.mjs')).indexOf('quarantine.js') < 0);
 
 // ---------- E. quarantine.test.mjs 实跑 ----------
+// engine-deps 前置（D-163③）：quarantine.test 写读真库需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
+if (groupProbe('78-check', 'E', DEP78)) {
 let qout = '';
 try { qout = execFileSync('node', [join(ENG, 'test', 'quarantine.test.mjs')], { encoding: 'utf8', timeout: 300000 }); } catch (e) { qout = (e.stdout || '') + (e.stderr || ''); }
 t('E1 quarantine.test.mjs exit 0 + 全 PASS', /QUARANTINE (\d+)\/\1/.test(qout) && qout.indexOf('FAIL ') < 0, qout.split(NL).slice(-2).join(' | '));
+}
 
 // ---------- F. 病态仓双通道 disposition parity（独立对账半层：check 自持 SQL+git 重放，不借引擎断言函数） ----------
+// engine-deps 前置（D-163③）：本组 CLI audit 实跑+quarantine_log 读回需 @duckdb 原生绑定——缺席→组级 SKIP
+if (groupProbe('78-check', 'F', DEP78)) {
 const PIN = { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '2026-04-10T10:00:00Z' };
 function gitR(args, cwd, input) {
   const r = spawnSync('git', args, { cwd: cwd, encoding: 'utf8', input: input, env: Object.assign({}, process.env, PIN) });
@@ -151,10 +158,11 @@ const badN = relog.filter(function (l) { return l.split('|')[1] !== undefined &&
 t('F6 独立重放病态数=1 与 quarantine_log committer_date 行数一致（自持 SQL+git 重放=独立半层）', badN === 1 && setA.length === badN, 'relog-bad=' + badN + ' db=' + setA.length);
 const mdA = existsSync(join(OUT_A, 'report.md')) ? txt(join(OUT_A, 'report.md')) : '';
 t('F7 引擎报告 Intake Health 表含病态 sha', mdA.indexOf(BADSHA) >= 0);
+rmSync(tmp, { recursive: true, force: true });
+}
 // D-118③：预期分歧类条目须落 known-gaps 册（gap↔trigger 单向互链）
 const KG = join(REPO, 'docs', 'known-gaps.md');
 t('F8 分歧类条目登记 docs/known-gaps.md（GAP-078-01=39 解析失败格）', existsSync(KG) && txt(KG).indexOf('GAP-078-01') >= 0 && txt(KG).indexOf('解析失败') >= 0, existsSync(KG) ? 'file exists, gap-id missing' : 'missing file');
 
-rmSync(tmp, { recursive: true, force: true });
 console.log('78CHECK ' + pass + '/' + (pass + fail));
 if (fail > 0) { process.exit(1); }

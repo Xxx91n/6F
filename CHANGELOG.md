@@ -274,3 +274,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-163/D-164/D-165 新立 current；D-159→revised 留原文——本轮唯一正面冲突按规程字面路径处置）
 - impact: 第五轮锐评裁定层闭环（每条指控去向在册）；验收层如实不闭——fresh-clone 判据② FAIL 登哨兵值守，Stage-2 维持关闭；registry 68→72 项/事件+4
+
+## [M-035] - 2026-09-28
+
+- milestone: R42-T1 执行窗兑现批——env-contract.mjs 泛化四类 need（sibling/git-object/engine-deps/asset＋D-072 三段修复指引）＋groupProbe 组级闸 API＋git-object 五件（23/26/27/28/43）临时仓零写物化（43 摘除主仓 unbundle，D-074 口径）＋engine-deps 七件真 require 探测＋40 asset 播种探测＋46 B/C·39 B·D 组级化＋guard-all-run SKIP-GROUP 机读面＋footer 组粒度计数＋tier 十件 env-contract↔registry 对账＋47-check 齐次普查登记；验收层 fresh-clone 判据②实测转绿（clone+npm ci+guard-all-run：未册化红=0、skip=1+group-skip=3 全带可读 reason）＋build/pack/selftest/smoke 全过
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R42-T1 兑现节；reports/2026-09-28-r42-exec-report.md）
+- impact: 守卫套件可移植性立法兑现——SKIP≠绿≠xfail 三态纪律贯穿组粒度；Stage-2 判据②翻绿（余 ①③④ 值守原状）；registry 四哨兵确认行各记一读

@@ -164,16 +164,6 @@
       "round": 37,
       "note": "结构/语料计数钉（tripwire：实物面数/样本数变化=有意知红；阈值语义票面在案）"
     },
-    "23-first-report-check.mjs|magic-floor|7876081e": {
-      "guard": "23-first-report-check.mjs",
-      "kind": "magic-floor",
-      "excerpt": "check('R1', typeof rc.tree_anchor === 'string' && rc.tree_anchor.length === 40 && gitType(",
-      "disposition": "legit-literal",
-      "decision": "D-094②/D-144②",
-      "added": "2026-09-27",
-      "round": 37,
-      "note": "结构/语料计数钉（tripwire：实物面数/样本数变化=有意知红；阈值语义票面在案）"
-    },
     "23-first-report-check.mjs|magic-floor|0b0a28ad": {
       "guard": "23-first-report-check.mjs",
       "kind": "magic-floor",
@@ -4306,6 +4296,16 @@
       "added": "2026-09-27",
       "round": 40,
       "note": "批2-β扩面检出——multi-hit 探针收集形态扩 .includes(/.test( 字面量＋walk 补 .scratch/macro-audit/（baseline-ratchet 批注册=基线重生成事件非膨胀）；同名多命中弱隔离钉（P5-B2 型——任一满足即过；整改方向=点级锚/结构断言）"
+    },
+    "23-first-report-check.mjs|magic-floor|a1fbd7fb": {
+      "guard": "23-first-report-check.mjs",
+      "kind": "magic-floor",
+      "excerpt": "if (GO23) check('R1', typeof rc.tree_anchor === 'string' && rc.tree_anchor.length === 40 && gitType(",
+      "disposition": "legit-literal",
+      "decision": "D-094②/D-144②",
+      "added": "2026-09-27",
+      "round": 37,
+      "note": "结构/语料计数钉（tripwire：实物面数/样本数变化=有意知红；阈值语义票面在案）；R42（D-163②）行首增 groupProbe 门→键迁移重归因（同义延续非新finding）"
     }
   }
 }

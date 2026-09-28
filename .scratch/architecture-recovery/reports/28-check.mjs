@@ -12,6 +12,7 @@
 // 运行：node .scratch/architecture-recovery/reports/28-check.mjs（或于 reports/ 目录内 node 28-check.mjs）
 import { execSync } from 'node:child_process';
 import { commitsByGrep, touchedPaths } from './_lib/check-kit.mjs';
+import { need, groupProbe, gitObjectNeedOk } from './_lib/env-contract.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -85,7 +86,9 @@ function fragments(text) {
 }
 
 // ---------- (a)(b)(c) 0001~0009 ----------
-for (const name of NINE) {
+// git-object 前置（D-163②）：frozen @fc00d458 非分支祖先 clone 不携带——缺席借仓内 bundle 临时仓零写入物化
+const GO28 = groupProbe('28-check', 'a-c', [need('git-object:' + FROZEN, gitObjectNeedOk(ROOT, FROZEN, path.join(HERE, '23-frozen-' + FROZEN.slice(0, 8) + '.bundle')))]);
+if (GO28) for (const name of NINE) {
   const rel = 'docs/adr/' + name;
   const cur = fs.readFileSync(path.join(ROOT, rel), 'utf8');
   const frozen = git('show ' + FROZEN + ':' + rel);

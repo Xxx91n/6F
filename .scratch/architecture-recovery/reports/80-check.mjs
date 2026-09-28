@@ -7,8 +7,9 @@ import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
-const TIER = 'portable';
+const TIER = 'env-contract';
 const PROTECTED_SURFACE = '#80 Micro-B 步①守卫（per-file 一等事实发射 + facet_rows raw 证据位 + file_renamed 血缘 ';
 
 
@@ -101,7 +102,8 @@ const fcTest = txt(join(ENG, 'test', 'file-card.test.mjs'));
 const pkgJson = JSON.parse(txt(join(ENG, 'package.json')));
 t('G7 file-card 测试在 smoke 链+断言面覆盖（pin/staleness/miss 四类/补采幂等）',
   pkgJson.scripts.smoke.indexOf('file-card.test.mjs') >= 0 && /renamed_to/.test(fcTest) && /pin_matches_observed_head/.test(fcTest) && /staleness/.test(fcTest), '');
-{
+// engine-deps 前置（D-163③）：file-card.test 写读真库需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
+if (groupProbe('80-check', 'G8', [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))])) {
   const r = spawnSync('node', [join(ENG, 'test', 'file-card.test.mjs')], { encoding: 'utf8', timeout: 240000, env: { ...process.env, NODE_OPTIONS: '' } });
   t('G8 file-card.test.mjs 实跑绿（FILE-CARD n/n）', r.status === 0 && /FILE-CARD \d+\/\d+/.test(r.stdout), String(r.stdout).trim().split('\n').slice(-1)[0] || String(r.stderr).slice(-160));
 }
