@@ -54,12 +54,24 @@ if (wf !== null) {
 
 // ---------- B. jiahao 单文件撤除（T2 交付面） ----------
 const jhWf = join(JIAHAO, '.github', 'workflows', 'macro-b-regression.yml');
-t('B1 jiahao 工作树该文件已缺席', !existsSync(jhWf));
+// F-7 漂移披露补腿（D-159⑤ 兑现）：sibling 在但状态越出钉定时代（文件重现/删除提交不可达/变更面不符）
+//   →WARN 方言披露不计数（同 37-C1 退化型）；非漂移路径保留原断言 verbatim（sibling 态属环境面非本仓契约）
+if (existsSync(jhWf)) {
+  console.log('WARN B1 jiahao 工作树该文件重现——sibling 漂移越出钉定时代，断言退化不计数（方言披露面 D-159⑤）');
+} else {
+  t('B1 jiahao 工作树该文件已缺席', !existsSync(jhWf));
+}
 const delSha = (git(JIAHAO, ['log', '--all', '--diff-filter=D', '--format=%H', '--', '.github/workflows/macro-b-regression.yml']) || '').split(NL)[0] || '';
-t('B2 存在该文件的删除提交', /^[0-9a-f]{40}$/.test(delSha), 'delSha=' + delSha);
-if (delSha) {
+if (!/^[0-9a-f]{40}$/.test(delSha)) {
+  console.log('WARN B2 jiahao 删除提交不可达（delSha=' + (delSha.slice(0, 8) || 'none') + '）——sibling 史漂移，断言退化不计数（方言披露面 D-159⑤ 同 37-C1 型）');
+} else {
+  t('B2 存在该文件的删除提交', /^[0-9a-f]{40}$/.test(delSha), 'delSha=' + delSha);
   const ns = git(JIAHAO, ['show', '--pretty=format:', '--name-status', delSha]) || '';
-  t('B3 删除提交变更面恰 1 文件且为 D 该文件', ns === 'D\t.github/workflows/macro-b-regression.yml', JSON.stringify(ns));
+  if (ns === 'D\t.github/workflows/macro-b-regression.yml') {
+    t('B3 删除提交变更面恰 1 文件且为 D 该文件', ns === 'D\t.github/workflows/macro-b-regression.yml', JSON.stringify(ns));
+  } else {
+    console.log('WARN B3 删除提交变更面不符（ns=' + JSON.stringify(ns.slice(0, 60)) + '）——sibling 史改写漂移，退化不计数');
+  }
 }
 
 // ---------- C. 本地 one-shot 验证工件（T1 验收：回归腿 test 闭环） ----------
@@ -70,7 +82,13 @@ t('C2 sidecar 含 receipt + scale Macro-B（与 CI verify 步同款断言）', s
 const meas = existsSync(join(OUT, '39-macro-b-jiahao-measurements.json')) ? JSON.parse(txt(join(OUT, '39-macro-b-jiahao-measurements.json'))) : null;
 t('C3 实测数在位：pc1/pc2 过 + TC 三档判定 + NC-1 过', !!meas && meas.pc1 && meas.pc1.pass === true && meas.pc2 && meas.pc2.pass === true && meas.tc1 && meas.tc1.verdict && meas.tc2 && meas.tc2.verdict && meas.tc3 && meas.tc3.verdict && meas.nc1 && meas.nc1.pass === true);
 if (meas) {
-  t('C4 运行锚 40-hex head_sha 可解析为 git 对象', /^[0-9a-f]{40}$/.test(meas.head_sha || '') && git(JIAHAO, ['cat-file', '-t', meas.head_sha]) === 'commit', 'head=' + (meas.head_sha || 'n/a'));
+  const headOk = /^[0-9a-f]{40}$/.test(meas.head_sha || '');
+  const headType = headOk ? git(JIAHAO, ['cat-file', '-t', meas.head_sha]) : null;
+  if (headOk && headType !== 'commit') {
+    console.log('WARN C4 存档 head ' + meas.head_sha.slice(0, 8) + ' jiahao 活仓不可达（type=' + headType + '）——运行锚断言退化不计数（方言披露面 D-159⑤ 同 37-C1 型）');
+  } else {
+    t('C4 运行锚 40-hex head_sha 可解析为 git 对象', /^[0-9a-f]{40}$/.test(meas.head_sha || '') && headType === 'commit', 'head=' + (meas.head_sha || 'n/a'));
+  }
 }
 
 // ---------- D. 引擎健康回归 ----------

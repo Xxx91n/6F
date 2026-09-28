@@ -52,9 +52,16 @@ for (const n of NAMES) {
 for (const n of NAMES) {
   const r = perRepo[n];
   const anchorType = git(REPOS[n], ['cat-file', '-t', r.meas.head_sha]);
-  t('B-' + n + ' 证据锚三件套：facts>0 + receipt RCP- + commit 锚可解析 + subject_ref 一致',
-    r.facts.length > 0 && /^RCP-[0-9a-f]{16}$/.test(r.sc.receipt && r.sc.receipt.receipt_id ? r.sc.receipt.receipt_id : '') && anchorType === 'commit' && r.sc.subject_ref === n + '@' + r.meas.head_sha.slice(0, 12),
-    'facts=' + r.facts.length + ' receipt=' + (r.sc.receipt ? r.sc.receipt.receipt_id : 'none') + ' anchor=' + r.meas.head_sha.slice(0, 7) + '(' + anchorType + ')');
+  const localOk = r.facts.length > 0 && /^RCP-[0-9a-f]{16}$/.test(r.sc.receipt && r.sc.receipt.receipt_id ? r.sc.receipt.receipt_id : '') && r.sc.subject_ref === n + '@' + r.meas.head_sha.slice(0, 12);
+  // F-7 漂移披露补腿（D-159⑤ 兑现）：commit 锚活仓不可达→WARN 退化不计数（方言披露，同 37-C1 型）；本地腿照断言不降级
+  if (anchorType === 'commit') {
+    t('B-' + n + ' 证据锚三件套：facts>0 + receipt RCP- + commit 锚可解析 + subject_ref 一致',
+      localOk,
+      'facts=' + r.facts.length + ' receipt=' + (r.sc.receipt ? r.sc.receipt.receipt_id : 'none') + ' anchor=' + r.meas.head_sha.slice(0, 7) + '(commit)');
+  } else {
+    console.log('WARN B-' + n + ' 存档 head ' + r.meas.head_sha.slice(0, 8) + ' 活仓不可达（anchor=' + anchorType + '）——commit 锚腿退化不计数，本地腿仍断言（方言披露面 D-159⑤ 同 37-C1 退化型）');
+    t('B-' + n + '-local 证据锚本地腿：facts>0 + receipt RCP- + subject_ref 一致', localOk, 'facts=' + r.facts.length + ' receipt=' + (r.sc.receipt ? r.sc.receipt.receipt_id : 'none'));
+  }
 }
 
 // --- C. 报告形态（骨架/披露块/裁决/引文校验/诚实裁定带） ---

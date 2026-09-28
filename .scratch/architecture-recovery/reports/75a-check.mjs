@@ -8,11 +8,11 @@
 //   ④ 41a-D7 字面钉回归钉（cl.indexOf(dMax) 不得回潮——已结构不变量化）。
 //   ⑤ 正对照自检（D-079⑥ 同型）：合成源码注入各族锚点 → 探测器必抓（守卫守卫者也被守）。
 // 用法：node 75a-check.mjs → PASS/FAIL；exit 0 = 全绿。node 75a-check.mjs --emit → 只吐普查 findings JSON。
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { stripComments, realConsumption } from './_lib/check-kit.mjs';
+import { stripComments, realConsumption, guardDeclaredTier, guardDeclaredSurface } from './_lib/check-kit.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '#75批1 失效断言三分类建制守卫（D-094②③④ / D-144② / D-149④ / P5-B2 同名断言普查落点）';
@@ -180,10 +180,8 @@ t('S2 消费位判据正对照（面A fixture：消费位命中/注释提名必�
 const tierMap = new Map(), surfMap = new Map();
 for (const f of checkFiles) {
   const srcT = readFileSync(join(HERE, f), 'utf8');
-  const mt = srcT.match(/^const TIER = '(portable|env-contract)';$/m);
-  const ms = srcT.match(/^const PROTECTED_SURFACE = '([^'\n]+)';$/m);
-  tierMap.set(f, mt ? mt[1] : null);
-  surfMap.set(f, ms ? ms[1] : null);
+  tierMap.set(f, guardDeclaredTier(srcT));
+  surfMap.set(f, guardDeclaredSurface(srcT));
 }
 const noTier = checkFiles.filter((f) => !tierMap.get(f));
 const noSurf = checkFiles.filter((f) => !surfMap.get(f));
@@ -195,7 +193,6 @@ const envRegItem = reg33.items.find((i) => i.id === 'env-gated-guard-class');
 const envReg = ((envRegItem && envRegItem.guards) || []).slice().sort();
 t('T3 env-contract 声明集 ↔ registry env-gated 类对账（声明≠登记即红——防事后标签漂移）', JSON.stringify(envDeclared) === JSON.stringify(envReg), 'decl=' + envDeclared.join(',') + ' reg=' + envReg.join(','));
 
-import { writeFileSync } from 'node:fs';
 writeFileSync(join(HERE, '75a-census-findings.json'), JSON.stringify(findings.map((f) => ({ key: keyOf(f.file, f.kind, f.line), file: f.file, kind: f.kind, lno: f.lno, excerpt: ((f.line || '').trim().slice(0, 110) + (f.note ? ' → ' + f.note : '')) })), null, 1) + NL, 'utf8');
 
 console.log('----------------------------------------');

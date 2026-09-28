@@ -258,3 +258,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（审计 F-1 过程违规处置；纪律源 D-139/D-140②）
 - impact: 过程违规补登记非追认——blame 归因粒度代价明示在案；披露完备性回补（audit §5「披露缺位」项闭环）
+
+## [M-033] - 2026-09-28
+
+- milestone: R41 审计返工硬化批——env-contract.mjs 注释还原可读 UTF-8（u-escape 转义实害修净）＋siblingExists 死导出摘除；75a T 组改用 check-kit 共用解析件 guardDeclaredTier/guardDeclaredSurface（消内联重复正则，F-5 采「75a 改复用」路径）＋中行 writeFileSync import 归顶；guard-all-run skip+crash 角落修净（GUARD-RESULT SKIP 仅 rc=0 生效，crash 赢过 skip、red/skip 双集互斥）；39/46 漂移披露补腿（D-159⑤ 半腿兑现——39 B 组 commit 锚不可达→WARN 退化+本地腿仍断言；46 B1/B2/B3/C4 sibling 漂移→WARN 不计数，原断言 verbatim 入非漂移分支保 census 键）
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（审计 F-4/F-5/F-6/F-7 处置；audit reports/2026-09-28-r41-t1-audit-report.md）
+- impact: env-contract 三件披露腿全齐（37 原有+39/46 补齐）；返工中途自产 toothless×3+existence-assert 悬空×1 已修净（75a 普查自动捕获）；全量跑 allOk=true 维持

@@ -34,7 +34,8 @@ for (const f of targets) {
     .filter(Boolean);
   // SKIP 三态（D-159③）：GUARD-RESULT: SKIP 行→skipped（rc=0 非绿非红；skip 不进 allOk 禁折 pass；reason 进 footer）
   const skipM = out.match(/GUARD-RESULT:\s*SKIP\s+\S+\s+reason=([^\n]+)/);
-  results.push({ file: f, rc: r.status === null ? 124 : r.status, slugs, skipped: !!skipM, skipReason: skipM ? skipM[1].trim() : '' });
+  // F-6 角落修：SKIP 行仅 rc=0 生效——打印 SKIP 后崩溃者归 red 集（crash 赢过 skip，双集互斥防同件双归属）
+  results.push({ file: f, rc: r.status === null ? 124 : r.status, slugs, skipped: !!skipM && r.status === 0, skipReason: skipM ? skipM[1].trim() : '' });
 }
 
 const redSet = new Set(results.filter((r) => r.rc !== 0).map((r) => r.file));
