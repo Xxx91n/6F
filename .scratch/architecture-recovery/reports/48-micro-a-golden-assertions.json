@@ -1,6 +1,6 @@
 {
   "probe": "48-micro-a-preview.mjs --golden",
-  "generated_at": "2026-09-28T09:16:44.078Z",
+  "generated_at": "2026-09-28T10:12:44.179Z",
   "cassette": "authenticated（real 录制）＋拒绝腿 zero-pr-synthetic",
   "all_pass": true,
   "checks": [
@@ -17,7 +17,7 @@
     {
       "name": "golden pr64 receipt RCP- 格式",
       "pass": true,
-      "detail": "RCP-594f9f28c88fccd6"
+      "detail": "RCP-3620949d7fce5c1d"
     },
     {
       "name": "golden pr64 骨架交集∩切片字段机械断言",
@@ -47,7 +47,7 @@
     {
       "name": "golden pr51 receipt RCP- 格式",
       "pass": true,
-      "detail": "RCP-9ed03eff4d245ef4"
+      "detail": "RCP-7f0f5b5a589104a6"
     },
     {
       "name": "golden pr51 骨架交集∩切片字段机械断言",

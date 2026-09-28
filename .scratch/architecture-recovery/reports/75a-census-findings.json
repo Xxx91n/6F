@@ -1431,28 +1431,28 @@
   "key": "46-check.mjs|date-literal|96d3c5a5",
   "file": "46-check.mjs",
   "kind": "date-literal",
-  "lno": 107,
+  "lno": 109,
   "excerpt": "const rep = txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md'));"
  },
  {
   "key": "46-check.mjs|existence-assert|91e2fa9d",
   "file": "46-check.mjs",
   "kind": "existence-assert",
-  "lno": 62,
+  "lno": 63,
   "excerpt": "t('B1 jiahao 工作树该文件已缺席', !existsSync(jhWf));"
  },
  {
   "key": "46-check.mjs|existence-assert|9114e0e4",
   "file": "46-check.mjs",
   "kind": "existence-assert",
-  "lno": 79,
+  "lno": 81,
   "excerpt": "t('C1 46-out/ 工件集六件齐备', C_FILES.every(f => existsSync(join(OUT, f))), C_FILES.filter(f => !existsSync(join(OUT"
  },
  {
   "key": "46-check.mjs|existence-assert|18895c12",
   "file": "46-check.mjs",
   "kind": "existence-assert",
-  "lno": 99,
+  "lno": 101,
   "excerpt": "t('D2 engine dist/cli.js 构建产物在', existsSync(join(REPO, 'engine', 'dist', 'cli.js')));"
  },
  {
@@ -1991,14 +1991,14 @@
   "key": "53-check.mjs|date-literal|45b17a49",
   "file": "53-check.mjs",
   "kind": "date-literal",
-  "lno": 59,
+  "lno": 60,
   "excerpt": "const ENV = Object.assign({}, process.env, { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '202"
  },
  {
   "key": "53-check.mjs|date-literal|dd16e7de",
   "file": "53-check.mjs",
   "kind": "date-literal",
-  "lno": 65,
+  "lno": 66,
   "excerpt": "writeFileSync(join(TGT, 'docs', 'adr', '001-x.md'), ['# ADR-001', '', '- Status: accepted', '- Date: 2026-04-1"
  },
  {
@@ -2012,7 +2012,7 @@
   "key": "53-check.mjs|existence-assert|8e5e15ce",
   "file": "53-check.mjs",
   "kind": "existence-assert",
-  "lno": 147,
+  "lno": 144,
   "excerpt": "t('H1 本票新增/改动文件无 BOM', nbFiles.every(function (f) { return !existsSync(f) || noBom(f); }), nbFiles.filter(func"
  },
  {
