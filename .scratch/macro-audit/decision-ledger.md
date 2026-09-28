@@ -1184,3 +1184,11 @@ T1 CodeBuddy 试用关窗核认＋批2-β 探测面硬化三裁＋登记处置�
 - **T3 值守读数**：protected-surface-death-watch=零消亡事件（59 件 check 全在位+PROTECTED_SURFACE 非空）；batch2beta-techdebt-review=GAP-B2B-01~08 全 triaged 五要素齐备（复审窗未至——批2-β 未落地）；codebuddy 两哨兵宿主侧触发未至维持 pending；stage2-launch-criteria 判据②翻绿如实记册——**Stage-2 维持关闭**（①capability 5/5 未达、③GAP-HOST-01 未闭、④30 日窗计时中）。
 - **分层定稿读数**（D-165 Dual Reporting 文法）：裁定层=R41 六裁闭环不动；验收层=判据②本轮实测转绿（哨兵确认行升级——fresh-clone-rerun-watch criterion-met／stage2 criterion-02-pass-read），余判据值守原状。
 - **过程登记**：envProbe 整件闸退位保留（37-check 全件 sibling 依赖仍走整件 SKIP 语义）；75a-census-register 键迁移 7876081e→a1fbd7fb（R1 行首增 groupProbe 门→同义延续重归因非新 finding）；`git diff` 语义件与再生件分流（48-golden/56-heldout/75a-findings 再生独立 commit）。
+
+- **审计后 LOOP 修批勘误**（R42 审计窗 findings 处置，reports/2026-09-28-r42-audit-report.md §5/§6）：
+  - P1 交付摘要口述「语义批 25 件」实为 24 件（git diff --name-only 核实）——摘要文本计数误差，账面文件无此计数落点无需改文；
+  - P2 `siblingPath()` 名册外名由静默回退改 throw（env-contract.mjs）——执行批未申报硬化，本批补记于账（方向正确保留：错名早炸优于探测错路径）；
+  - O1 env-contract 三潜伏脆性补齐：GIT_ALTERNATE_OBJECT_DIRECTORIES 覆写→追加保留既有值／_gobjCleanup 单槽→数组全清／`.git/objects` 直拼→`git rev-parse --git-common-dir` 解析（linked-worktree 兼容）；
+  - O2 53-check `const OUTA` 四块重复上提一次（Duplicated Code 收敛）；
+  - O3 46-check 闸粒度收窄：原 'B/C' 整闸连坐 C1~C3 仓内 46-out 断言→改 B＋C4 双闸（C1~C3 脱连坐照跑）——clone 组级跳行 46 由 `B/C` 一行变为 `B`＋`C4` 两行，fresh-clone 读数 group-skipped 3→4（fresh-clone-rerun-watch criterion-met 原确认行保持史实有效，本行载变更后读数）；
+  - O5 47-check 普查结论入 registry 机读行（env-gated-guard-class confirmations 增 census-registered）。

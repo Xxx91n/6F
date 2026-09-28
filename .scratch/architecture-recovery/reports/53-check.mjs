@@ -48,13 +48,14 @@ t('B2 拒绝 JSON 载 implemented/requested/layer_order', !!sj && JSON.stringify
 t('B2b layer_order=ADR-0017③ 原文层序', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0 && sj.layer_order.indexOf('ADR-0017') >= 0, sj && sj.layer_order);
 // engine-deps 前置（D-163③）：audit 实跑需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
 if (groupProbe('53-check', 'B3', DEP53)) {
-const r1b = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-B'], { encoding: 'utf8', cwd: ENG });
-t('B3 --scale Macro-B 不误拒（进入实跑面）', r1b.status === 0, 'status=' + r1b.status + ' err=' + (r1b.stderr || '').slice(0, 120));
+  const r1b = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-B'], { encoding: 'utf8', cwd: ENG });
+  t('B3 --scale Macro-B 不误拒（进入实跑面）', r1b.status === 0, 'status=' + r1b.status + ' err=' + (r1b.stderr || '').slice(0, 120));
 }
 
 // ---------- 合成被测仓（C/E 实跑面共用） ----------
 const tmp = mkdtempSync(join(tmpdir(), '53check-'));
 const TGT = join(tmp, 'tgt');
+const OUTA = join(tmp, 'audit-out');
 mkdirSync(join(TGT, 'docs', 'adr'), { recursive: true });
 const ENV = Object.assign({}, process.env, { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '2026-04-10T10:00:00Z' });
 function sh(args) { execFileSync('git', args, { cwd: TGT, encoding: 'utf8', env: ENV }); }
@@ -68,16 +69,15 @@ sh(['add', '-A']); sh(['commit', '-m', 'adr']);
 // ---------- C. --out 双通道 ----------
 // engine-deps 前置（D-163③）：本组实跑 audit/one-shot 需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
 if (groupProbe('53-check', 'C', DEP53)) {
-const OUTA = join(tmp, 'audit-out');
-let r2 = spawnSync('node', [CLI, 'audit', TGT, '--out', OUTA], { encoding: 'utf8', timeout: 120000 });
-let rec = null; try { rec = JSON.parse(r2.stdout); } catch (e) { }
-t('C1 audit --out exit 0 + stdout=回执 JSON', r2.status === 0 && !!rec && /^RCP-[0-9a-f]{16}$/.test(rec.receipt_id || ''), 'status=' + r2.status + ' err=' + (r2.stderr || '').slice(0, 160));
-const ART = ['report.md', 'report.json', 'audit-facts.jsonl', 'audit-measurements.json', 'facts.duckdb'];
-t('C2 五工件落盘齐备', ART.every(function (f) { return existsSync(join(OUTA, f)); }), ART.filter(function (f) { return !existsSync(join(OUTA, f)); }).join(','));
-let r3 = spawnSync('node', [CLI, 'audit', TGT], { encoding: 'utf8', timeout: 120000 });
-t('C3 省略 --out → stdout=报告 markdown（含 RECEIPT 行）', r3.status === 0 && r3.stdout.indexOf('# MA-AUDIT-') >= 0 && r3.stdout.indexOf('RECEIPT RCP-') >= 0, 'status=' + r3.status);
-const repJsonC4 = existsSync(join(OUTA, 'report.json')) ? JSON.parse(txt(join(OUTA, 'report.json'))) : null;
-t('C4 F11 改名生效：象限 verdict_gate 全载 evidence_flag 且旧名 evidence_threshold_met 零残留（含 skeleton.required_fields）', !!repJsonC4 && repJsonC4.quadrants.every(function (q) { return q.verdict_gate && typeof q.verdict_gate.evidence_flag === 'boolean' && !('evidence_threshold_met' in q.verdict_gate); }) && JSON.stringify(repJsonC4).indexOf('evidence_threshold_met') < 0);
+  let r2 = spawnSync('node', [CLI, 'audit', TGT, '--out', OUTA], { encoding: 'utf8', timeout: 120000 });
+  let rec = null; try { rec = JSON.parse(r2.stdout); } catch (e) { }
+  t('C1 audit --out exit 0 + stdout=回执 JSON', r2.status === 0 && !!rec && /^RCP-[0-9a-f]{16}$/.test(rec.receipt_id || ''), 'status=' + r2.status + ' err=' + (r2.stderr || '').slice(0, 160));
+  const ART = ['report.md', 'report.json', 'audit-facts.jsonl', 'audit-measurements.json', 'facts.duckdb'];
+  t('C2 五工件落盘齐备', ART.every(function (f) { return existsSync(join(OUTA, f)); }), ART.filter(function (f) { return !existsSync(join(OUTA, f)); }).join(','));
+  let r3 = spawnSync('node', [CLI, 'audit', TGT], { encoding: 'utf8', timeout: 120000 });
+  t('C3 省略 --out → stdout=报告 markdown（含 RECEIPT 行）', r3.status === 0 && r3.stdout.indexOf('# MA-AUDIT-') >= 0 && r3.stdout.indexOf('RECEIPT RCP-') >= 0, 'status=' + r3.status);
+  const repJsonC4 = existsSync(join(OUTA, 'report.json')) ? JSON.parse(txt(join(OUTA, 'report.json'))) : null;
+  t('C4 F11 改名生效：象限 verdict_gate 全载 evidence_flag 且旧名 evidence_threshold_met 零残留（含 skeleton.required_fields）', !!repJsonC4 && repJsonC4.quadrants.every(function (q) { return q.verdict_gate && typeof q.verdict_gate.evidence_flag === 'boolean' && !('evidence_threshold_met' in q.verdict_gate); }) && JSON.stringify(repJsonC4).indexOf('evidence_threshold_met') < 0);
 }
 
 // ---------- D. 共享管线消费 ----------
@@ -90,56 +90,53 @@ t('D3 demo codelore=off 确定性位 + audit codelore=auto 实跑位', demo.inde
 // ---------- E. golden parity：audit 产物字段 ⊆ 39 one-shot 复跑产物 ----------
 // engine-deps 前置（D-163③）：本组实跑 audit/one-shot 需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
 if (groupProbe('53-check', 'E', DEP53)) {
-const OUTA = join(tmp, 'audit-out');
-const OUTB = join(tmp, 'shot-out');
-let r4 = spawnSync('node', [join(HERE, '39-macro-b-one-shot.mjs'), '--repo', 'tgt', '--root', TGT, '--out', OUTB], { encoding: 'utf8', timeout: 180000, cwd: REPO });
-t('E0 对照物 39 one-shot 复跑 exit 0（脚本保留为回归对照物非主入口）', r4.status === 0, 'status=' + r4.status + ' err=' + (r4.stderr || '').slice(-300));
-const shotJson = join(OUTB, '39-macro-b-tgt.json');
-if (r4.status === 0 && existsSync(shotJson) && existsSync(join(OUTA, 'report.json'))) {
-  const s39 = JSON.parse(txt(shotJson));
-  const sAu = JSON.parse(txt(join(OUTA, 'report.json')));
-  const k39 = Object.keys(s39).sort();
-  const kAu = Object.keys(sAu).sort();
-  // #78/D-118⑤ 显式豁免集：intake_health=引擎独有摄入面机读块（对照物 SoD 零分类逻辑不产此面——豁免须显式枚举，沉默不兜底）
-  const PARITY_EXEMPT_PREFIX = ['intake_health', 'verdict.reason_class'];
-  const missing = kAu.filter(function (k) { return k39.indexOf(k) < 0 && PARITY_EXEMPT_PREFIX.indexOf(k) < 0; });
-  t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段∪豁免集（漂移即报警；intake_health=引擎独有 D-118⑤ 显式豁免）', missing.length === 0, 'extra=' + missing.join(','));
-  function paths(o, pre, acc) { for (const k of Object.keys(o)) { const v = o[k]; const p = pre ? pre + '.' + k : k; acc.push(p); if (v && typeof v === 'object' && !Array.isArray(v)) { paths(v, p, acc); } } return acc; }
-  const p39 = paths(s39, '', []).sort();
-  const pAu = paths(sAu, '', []).sort();
-  const drift = pAu.filter(function (p) { return p39.indexOf(p) < 0 && PARITY_EXEMPT_PREFIX.every(function (x) { return p !== x && p.indexOf(x + '.') !== 0; }); });
-  t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径∪豁免集（intake_health.*=预期分歧类 D-118⑤）', drift.length === 0, 'drift=' + drift.slice(0, 6).join(','));
-  const q39keys = s39.quadrants.length ? Object.keys(s39.quadrants[0]).sort() : [];
-  const qDrift = (sAu.quadrants || []).filter(function (q) { return Object.keys(q).some(function (k) { return q39keys.indexOf(k) < 0; }); });
-  t('E3 audit 象限条目字段 ⊆ 39 象限条目字段', qDrift.length === 0);
-  const m39 = JSON.parse(txt(join(OUTB, '39-macro-b-tgt-measurements.json')));
-  const mAu = JSON.parse(txt(join(OUTA, 'audit-measurements.json')));
-  const core = ['repo', 'root', 'observed_at', 'head_sha', 'tree_sha', 'commit_count', 'adr_count', 'intent_docs', 'fact_count', 'tc1', 'tc2', 'tc3', 'nc1', 'pc1', 'pc2'];
-  const coreMiss = core.filter(function (k) { return !(k in mAu); });
-  t('E4 audit measurements 含 39 全部核心字段（39 集合 ⊆ audit 集合；audit 扩展项=intake/behavior 披露面）', coreMiss.length === 0, 'miss=' + coreMiss.join(','));
-} else {
-  t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段（漂移即报警）', false, '39 复跑或 audit 产物缺席');
-  t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径', false, '跳过');
-  t('E3 audit 象限条目字段 ⊆ 39 象限条目字段', false, '跳过');
-  t('E4 audit measurements 含 39 全部核心字段', false, '跳过');
-}
+  const OUTB = join(tmp, 'shot-out');
+  let r4 = spawnSync('node', [join(HERE, '39-macro-b-one-shot.mjs'), '--repo', 'tgt', '--root', TGT, '--out', OUTB], { encoding: 'utf8', timeout: 180000, cwd: REPO });
+  t('E0 对照物 39 one-shot 复跑 exit 0（脚本保留为回归对照物非主入口）', r4.status === 0, 'status=' + r4.status + ' err=' + (r4.stderr || '').slice(-300));
+  const shotJson = join(OUTB, '39-macro-b-tgt.json');
+  if (r4.status === 0 && existsSync(shotJson) && existsSync(join(OUTA, 'report.json'))) {
+    const s39 = JSON.parse(txt(shotJson));
+    const sAu = JSON.parse(txt(join(OUTA, 'report.json')));
+    const k39 = Object.keys(s39).sort();
+    const kAu = Object.keys(sAu).sort();
+    // #78/D-118⑤ 显式豁免集：intake_health=引擎独有摄入面机读块（对照物 SoD 零分类逻辑不产此面——豁免须显式枚举，沉默不兜底）
+    const PARITY_EXEMPT_PREFIX = ['intake_health', 'verdict.reason_class'];
+    const missing = kAu.filter(function (k) { return k39.indexOf(k) < 0 && PARITY_EXEMPT_PREFIX.indexOf(k) < 0; });
+    t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段∪豁免集（漂移即报警；intake_health=引擎独有 D-118⑤ 显式豁免）', missing.length === 0, 'extra=' + missing.join(','));
+    function paths(o, pre, acc) { for (const k of Object.keys(o)) { const v = o[k]; const p = pre ? pre + '.' + k : k; acc.push(p); if (v && typeof v === 'object' && !Array.isArray(v)) { paths(v, p, acc); } } return acc; }
+    const p39 = paths(s39, '', []).sort();
+    const pAu = paths(sAu, '', []).sort();
+    const drift = pAu.filter(function (p) { return p39.indexOf(p) < 0 && PARITY_EXEMPT_PREFIX.every(function (x) { return p !== x && p.indexOf(x + '.') !== 0; }); });
+    t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径∪豁免集（intake_health.*=预期分歧类 D-118⑤）', drift.length === 0, 'drift=' + drift.slice(0, 6).join(','));
+    const q39keys = s39.quadrants.length ? Object.keys(s39.quadrants[0]).sort() : [];
+    const qDrift = (sAu.quadrants || []).filter(function (q) { return Object.keys(q).some(function (k) { return q39keys.indexOf(k) < 0; }); });
+    t('E3 audit 象限条目字段 ⊆ 39 象限条目字段', qDrift.length === 0);
+    const m39 = JSON.parse(txt(join(OUTB, '39-macro-b-tgt-measurements.json')));
+    const mAu = JSON.parse(txt(join(OUTA, 'audit-measurements.json')));
+    const core = ['repo', 'root', 'observed_at', 'head_sha', 'tree_sha', 'commit_count', 'adr_count', 'intent_docs', 'fact_count', 'tc1', 'tc2', 'tc3', 'nc1', 'pc1', 'pc2'];
+    const coreMiss = core.filter(function (k) { return !(k in mAu); });
+    t('E4 audit measurements 含 39 全部核心字段（39 集合 ⊆ audit 集合；audit 扩展项=intake/behavior 披露面）', coreMiss.length === 0, 'miss=' + coreMiss.join(','));
+  } else {
+    t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段（漂移即报警）', false, '39 复跑或 audit 产物缺席');
+    t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径', false, '跳过');
+    t('E3 audit 象限条目字段 ⊆ 39 象限条目字段', false, '跳过');
+    t('E4 audit measurements 含 39 全部核心字段', false, '跳过');
+  }
 }
 
 // ---------- F. 报告头 preview 披露 ----------
 // engine-deps 前置（D-163③）：读 audit --out 产物需 C 组已实跑（@duckdb 原生绑定）
 if (groupProbe('53-check', 'F', DEP53)) {
-const OUTA = join(tmp, 'audit-out');
-const md = existsSync(join(OUTA, 'report.md')) ? txt(join(OUTA, 'report.md')) : '';
-t('F1 报告头 stability: preview · capabilities: macro-b', md.indexOf('stability: preview') >= 0 && md.indexOf('capabilities: macro-b') >= 0);
-t('F2 披露块 capability 1 of 5 · preview + not_in_preview 四层名', md.indexOf('capability 1 of 5 · preview') >= 0 && md.indexOf('not_in_preview') >= 0);
-t('F3 快照时点披露进披露块（snapshot_fetched_at 载于限制条）', md.indexOf('snapshot_fetched_at') >= 0);
+  const md = existsSync(join(OUTA, 'report.md')) ? txt(join(OUTA, 'report.md')) : '';
+  t('F1 报告头 stability: preview · capabilities: macro-b', md.indexOf('stability: preview') >= 0 && md.indexOf('capabilities: macro-b') >= 0);
+  t('F2 披露块 capability 1 of 5 · preview + not_in_preview 四层名', md.indexOf('capability 1 of 5 · preview') >= 0 && md.indexOf('not_in_preview') >= 0);
+  t('F3 快照时点披露进披露块（snapshot_fetched_at 载于限制条）', md.indexOf('snapshot_fetched_at') >= 0);
 }
 
 // ---------- G. 不携叙事职责 ----------
 if (groupProbe('53-check', 'G', DEP53)) {
-const OUTA = join(tmp, 'audit-out');
-const sAu2 = existsSync(join(OUTA, 'report.json')) ? JSON.parse(txt(join(OUTA, 'report.json'))) : null;
-t('G1 narrative_sections 空或仅 kernel/host 兜底（audit 不携宿主叙事生成职责）', !!sAu2 && (sAu2.narrative_sections.length === 0 || sAu2.narrative_sections.every(function (s) { return s.author === 'kernel-template' || s.author === 'host'; })), 'n=' + (sAu2 ? sAu2.narrative_sections.length : 'n/a'));
+  const sAu2 = existsSync(join(OUTA, 'report.json')) ? JSON.parse(txt(join(OUTA, 'report.json'))) : null;
+  t('G1 narrative_sections 空或仅 kernel/host 兜底（audit 不携宿主叙事生成职责）', !!sAu2 && (sAu2.narrative_sections.length === 0 || sAu2.narrative_sections.every(function (s) { return s.author === 'kernel-template' || s.author === 'host'; })), 'n=' + (sAu2 ? sAu2.narrative_sections.length : 'n/a'));
 }
 
 // ---------- H. BOM ----------

@@ -10,7 +10,7 @@
 //   envProbe=整件级前置闸（缺一即整件 SKIP 出 0）；groupProbe=组级前置闸（缺一组跳一组，
 //   其余组照跑——46-check B/C 挂 sibling 而 A/D/E 零需 portable 段的精化面）。
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, isAbsolute, delimiter } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -88,7 +88,9 @@ export function materializeGitObjects(repoRoot, bundlePath) {
   const tmp = mkdtempSync(join(tmpdir(), 'env-contract-gobj-'));
   const cleanup = () => { try { rmSync(tmp, { recursive: true, force: true }); } catch (_) { /* best-effort */ } };
   try {
-    const mainObjects = join(repoRoot, '.git', 'objects');
+    const gcd = spawnSync('git', ['-C', repoRoot, 'rev-parse', '--git-common-dir'], { encoding: 'utf8' });
+    const gcdPath = gcd.status === 0 ? gcd.stdout.trim() : '';
+    const mainObjects = join(gcdPath ? (isAbsolute(gcdPath) ? gcdPath : join(repoRoot, gcdPath)) : join(repoRoot, '.git'), 'objects');
     let r = spawnSync('git', ['init', '-q', tmp], { encoding: 'utf8' });
     if (r.status !== 0) { cleanup(); return null; }
     const borrowEnv = Object.assign({}, process.env, { GIT_ALTERNATE_OBJECT_DIRECTORIES: mainObjects });
@@ -100,16 +102,17 @@ export function materializeGitObjects(repoRoot, bundlePath) {
 
 // 组合探测：对象已在库→直达；否则尝试 bundle 物化→借出。返回 need() 可用的 ok 布尔；
 //   ok=true 且物化过 → env 已就位（调用方无须再动作；cleanup 挂 process exit）。
-let _gobjCleanup = null;
+const _gobjCleanups = [];
 export function gitObjectNeedOk(repoRoot, sha, bundlePath) {
   if (gitObjectOk(repoRoot, sha)) return true;
   const m = materializeGitObjects(repoRoot, bundlePath);
   if (!m) return false;
-  process.env.GIT_ALTERNATE_OBJECT_DIRECTORIES = m.objectsDir;
-  _gobjCleanup = m.cleanup;
+  const prev = process.env.GIT_ALTERNATE_OBJECT_DIRECTORIES;
+  process.env.GIT_ALTERNATE_OBJECT_DIRECTORIES = prev ? prev + delimiter + m.objectsDir : m.objectsDir;
+  _gobjCleanups.push(m.cleanup);
   return gitObjectOk(repoRoot, sha);
 }
-process.on('exit', () => { if (_gobjCleanup) _gobjCleanup(); });
+process.on('exit', () => { for (const c of _gobjCleanups) { try { c(); } catch (_) { /* best-effort */ } } });
 
 // ---------- engine-deps 探测（D-163③：真 require 加载测试，非仅目录存在） ----------
 export function engineDepsOk(engRoot, spec) {

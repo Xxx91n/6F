@@ -30,7 +30,7 @@
 
 ## 任务序列
 
-### T1 — R41 裁定执行窗实施批 ✅ DONE 2026-09-28（r42-t1-exec 栈；覆盖 D-163/D-164/D-165② 全兑现——详见兑现节与本批报告）
+### T1 — R41 裁定执行窗实施批 ✅ DONE 2026-09-28（r42-t1-exec 栈；覆盖 D-163/D-164/D-165② 全兑现——详见兑现节与本批报告；审计窗 PASS 于 r42-audit，findings O1~O6 LOOP 修批于 r42-fix——46-check 闸收窄 B＋C4 后 fresh-clone 组跳计数 3→4）
 
 
 - **A. env-contract 泛化四件套（D-163①②③④⑥）**：need 类型扩 `git-object:`/`engine-deps:`/`asset:`＋SKIP reason 修复指引模板（D-072 三段文案：原因→手动命令→无网影响面）＋**git-object 五件 T3 逐件判**（23/26/27/28/43——在仓自足且系正当冻结语料→环境前置；首选临时仓零写入读法 mkdtemp unbundle＋GIT_ALTERNATE_OBJECT_DIRECTORIES 借用使 portable 声明变真，**禁主仓 fetch 写 object store**〔D-074〕；**43-check B1 单裁**——verify 语义本身是 ghost 证据面禁机械归类）＋engine-deps 七件原生绑定探测（38/39/50/53/78/80/83）＋40-clone-cache asset 探测＋tier 真实性逐件重声明（portable=任何 clone 零外部前置）。

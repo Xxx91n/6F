@@ -1847,6 +1847,14 @@
           "decision": "expanded",
           "reason": "泛化探测立法兑现：envProbe→groupProbe 组级化；engine-deps 七件（38-E1/39-D/40-D13/50-F1/53-B3·C·E·F·G/78-E·F/80-G8/83-G——38 兼 asset 无关、40 兼 asset:40-clone-cache、39/46 兼 sibling）入册；git-object 五件（23/26/27/28/43）经临时仓零写物化实为 portable 不入册",
           "evidence": "reports/_lib/env-contract.mjs groupProbe/gitObjectNeedOk/engineDepsOk＋各 check groupProbe 调用点；run=guard-all-run 组级 SKIP-GROUP 计数"
+        },
+        {
+          "at": "2026-09-28",
+          "by": "R42 审计 LOOP 修批",
+          "criterion_version": "D-164-a⑤",
+          "decision": "census-registered",
+          "reason": "47-check 组内异质普查落机读登记面（审计 O5 残留闭环）：A 源面/B cassette×5 离线/C smoke+实跑 github-rest.test/D dist 契约/E 锁表/F 文档/G BOM——七组齐次 portable 零环境前置不拆件；同窗 46-check 闸粒度收窄为 B＋C4 双闸（C1~C3 仓内断言脱连坐——审计 O3）",
+          "evidence": "reports/47-check.mjs 全文零 siblingPath/envProbe/groupProbe/engineDepsOk 引用（grep 干净）；reports/46-check.mjs B·C4 双闸落地"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-159 环境契约分层立法兑现）"
