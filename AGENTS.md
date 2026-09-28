@@ -14,6 +14,6 @@
 - **收口工序前置核对**：账行增量↔编年随行核对＋收口前跑守卫组——「本轮无账行增量」可显式声明豁免（D-144①④）；`engine/src` 或 `engine/dist` 触碰→前置 `npm run build`＋`node scripts/check-dist.mjs` 核对零 drift 再 commit（D-145①；守卫组/CI 层硬闸不降级）
 - **守卫组指称**（D-149①②）：「收口前跑守卫组」=基线 18 件枚举——`33/39/40/41a/43/44/45/70/71/72/73/77/78/80/81/82/83-check.mjs`＋`xfail-run.mjs`（reports/ 下全绿判据；41a 编行随行钉在账行增量 commit 落盘前许可中途红）——成员进出：新 check 落盘轮登记＋实测绿入列，出列=T3 分诊门处置；升格触发器=T3 manifest 产出当轮改「58 件全跑＋红集⊆manifest＋manifest 件复绿告警」（registry `guard-baseline-upgrade-trigger`）——**已触发（A-097/轮37）**：升格后判据=`node .scratch/architecture-recovery/reports/guard-all-run.mjs` 全量跑（动态枚举含新入列 check）＋红集⊆`known-red-manifest.json`＋册件复绿 strict 告警；18 件枚举为升格前基线历史快照存证
 - **规程生效时点**（D-148③）：checklist/规程自其落盘 commit 起对新行为生效，落盘 commit 自身豁免（grandfather/lint 存量豁免同构）——豁免对象=新规程，落盘时点已生效的旧守卫仍全额适用
-- **审计 finding 处置**（D-148②）：Accepted Risk 封闭处置态须三要素齐备——不修理由＋补偿控制＋复评触发条件；缺任一=finding 静默丢弃（wontfix≠裸标；false-positive=finding 不存在语义非处置档）
+- **审计 finding 处置**（D-169 取代 D-148②）：Accepted Risk 封闭处置态须五要件齐备——判据引用＋不修理由＋可验证补偿控制＋具名裁者（起草人≠批准人）＋到期日（≤90d，到期复审）；缺任一=finding 静默丢弃；活跃档到期缺失/已过禁续期须按新标重立项（wontfix≠裸标；false-positive=finding 不存在语义非处置档）
 - 版本控制用 `but`（GitButler），不 push 除非用户明示
 - 本机验证用守卫脚本 `node .scratch/architecture-recovery/reports/NN-check.mjs`（exit 0 + PASS/FAIL）

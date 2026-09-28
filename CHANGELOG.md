@@ -282,3 +282,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（R42-T1 兑现节；reports/2026-09-28-r42-exec-report.md）
 - impact: 守卫套件可移植性立法兑现——SKIP≠绿≠xfail 三态纪律贯穿组粒度；Stage-2 判据②翻绿（余 ①③④ 值守原状）；registry 四哨兵确认行各记一读
+
+## [M-036] - 2026-09-28
+
+- milestone: R43 grill 收口批——账本 R43 收口节（去向表 D-166~170＋D-148 revised 注记＋scoping 七条＋执行窗登记＋分层定稿读数）＋CONTEXT 轮43 封口行＋Accepted Risk 词条五要件升级＋分层定稿词条项级兑现/欠账三要素扩写＋AGENTS.md RA 行五要件同步＋registry 新增 batch2beta-open-triggers 触发器项（三事件锚）＋stage2/codebuddy-ide-gap 哨兵确认行＋轮44 任务书换代
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-166/D-167/D-168/D-169/D-170 新立 current；D-148→revised 留原文——RA 三要素→五要件升级按规程字面路径处置）
+- impact: 第五轮锐评处置响应链终局——裁定层闭环（逐项名分＋逐题拍板）／验收层开放双行呈报（§3.3 判据①③④ 值守）；欠账三件三要素齐备在册（owner+时点锚+复验方式）；registry 72→73 项
