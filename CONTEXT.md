@@ -362,7 +362,7 @@ _Avoid_: 试用窗与整改批混窗（findings 未分诊就修=绕摄入分诊�
 _Avoid_: 拿开发仓 HEAD 当基线（自买版本混因轴）、字节级等同后宣称宿主面已验（判据在驱动路径非产物字节）、parity 滑成纯键集（锁面失守）、异常读数无归因即二选一
 
 **消费位判据（Consumption-Position Criterion）**:
-探测面豁免/命中判定只以剥注释后源码的真实消费位为准（D-154①/ADR-0024）：`import`/真实调用计消费位，注释或字符串里的字面提名不计——一行 `// TODO 改用 stripComments` 不再能让「源文扫描未过剥注释面」检出失效（全局豁免反模式收口）；探测谓词同走剥后面，注释内假消费位不计入。适用面=75a-check `unstrippedScanHit` 豁免判据；实证=comment-only 逃逸 0、存量 41 件 convention-registered 两语义下皆命中零迁移。
+探测面豁免/命中判定只以剥注释后源码的真实消费位为准（D-154①/ADR-0024）：`import`/`require` 具名引入与真实调用位（含成员调用 `x.stripComments(`）计消费位，注释或字符串里的字面提名不计——字符串内调用形态（`'…stripComments(x)…'`）经遮罩后同样不豁免（R41 返工 F-2 修净：引号串内容抹空格，此前仅模板字面量遮罩留半洞）——一行 `// TODO 改用 stripComments` 不再能让「源文扫描未过剥注释面」检出失效（全局豁免反模式收口）；探测谓词同走剥后面，注释内假消费位不计入。适用面=75a-check `unstrippedScanHit` 豁免判据；实证=comment-only 逃逸 0、存量 41 件 convention-registered 两语义下皆命中零迁移。
 _Avoid_: 提名位当豁免依据（overreacted no-restricted-disable 同族病）、探测谓词扫未剥原文、豁免判据无正对照（S2 fixture=回滚即红的 killable 断言——判据可杀性是断言质量闸）
 
 **豁免集可达性自检（Exempt-Set Reachability Self-Check）**:

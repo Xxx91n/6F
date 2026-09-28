@@ -40,5 +40,6 @@
 
 ## 执行注记（2026-09-28 R40-T1）
 
-- D-158① 同窗兑现：豁免判据收紧至剥后真消费形态——仅 `import`/`require` 具名引入 `stripComments`|`stripMdComments`，或 `stripComments(`／`stripMdComments(` 裸调用位计消费位豁免；字符串/属性名/标识符内提名不豁免（机件=`_lib/check-kit.mjs` `realConsumption`＋`blankStrings`，75a S2 增 fxStringNom 正对照——回滚即红）。
+- D-158① 同窗兑现：豁免判据收紧至剥后真消费形态——仅 `import`/`require` 具名引入 `stripComments`|`stripMdComments`，或 `stripComments(`／`stripMdComments(` 调用位计消费位豁免（成员调用 `x.stripComments(` 同计——原文「调用位」无「裸」字，R41 审计修正措辞虚挂）；字符串/属性名/标识符内提名不豁免（机件=`_lib/check-kit.mjs` `realConsumption`＋`blankStrings`，75a S2 增 fxStringNom 正对照——回滚即红）。
 - 41 件存量 unstripped-scan convention-registered 谓词收紧重测零迁移（findings=389 不变、零新增检出、零册项悬空），无 D-094 新分诊项产出；分诊留痕挂各册项 `recheck_log`。
+- R41 审计返工（F-2）：`blankStrings` 初版仅遮罩模板字面量、引号串内容原样透传致 `'…stripComments(x)…'` 字符串内调用形态仍豁免——已改引号串内容抹空格封死；`fxStrCall` fixture 钉死回滚即红。谓词语义与本判据一致（消费位判定不变），属实现洞修补非改向。

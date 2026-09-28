@@ -170,7 +170,11 @@ const fxCommentOnly = unstrippedScanHit('fx-comment-only', "// stripComments 注
 const fxRealImport = unstrippedScanHit('fx-real-import', "import { stripComments } from './k.mjs'; const s = readFileSync('a.mjs', 'utf8'); s.indexOf(stripComments(s));");
 const fxRealCall = unstrippedScanHit('fx-real-call', "const s = readFileSync('a.mjs', 'utf8'); s.indexOf(stripMdComments(s));");
 const fxStringNom = unstrippedScanHit('fx-stringnom', "const s = readFileSync('a.mjs', 'utf8'); const label = 'stripComments 字符串提名'; s.indexOf(label);");
-t('S2 消费位判据正对照（面A fixture：消费位命中/注释提名必中/字符串提名必中/真实消费位豁免）', fxConsumption === true && fxCommentOnly === true && fxStringNom === true && fxRealImport === false && fxRealCall === false, 'hit=' + fxConsumption + ' comment=' + fxCommentOnly + ' stringNom=' + fxStringNom + ' import=' + fxRealImport + ' call=' + fxRealCall);
+// R41 返工（审计 F-2）：字符串内调用形态逃逸钉——引号串遮罩后 stripComments(x) 字样必中；成员调用位=spec 调用位原文兑现（豁免）
+const fxStrCall = unstrippedScanHit('fx-strcall', "const s = readFileSync('a.mjs', 'utf8'); const label = 'stripComments(x) 字符串内调用形态'; s.indexOf(label);");
+const fxMemberCall = unstrippedScanHit('fx-membercall', "const s = readFileSync('a.mjs', 'utf8'); s.indexOf(kit.stripComments(s));");
+
+t('S2 消费位判据正对照（面A fixture：消费位命中/注释提名必中/字符串提名必中/字符串内调用形态必中/真实消费位与成员调用位豁免）', fxConsumption === true && fxCommentOnly === true && fxStringNom === true && fxStrCall === true && fxRealImport === false && fxRealCall === false && fxMemberCall === false, 'hit=' + fxConsumption + ' comment=' + fxCommentOnly + ' stringNom=' + fxStringNom + ' strCall=' + fxStrCall + ' import=' + fxRealImport + ' call=' + fxRealCall + ' member=' + fxMemberCall);
 
 // T 组（R40-T1：D-159② tier 自声明强制＋D-160③ protected_surface 双字段显式扩展——未声明=红）
 const tierMap = new Map(), surfMap = new Map();

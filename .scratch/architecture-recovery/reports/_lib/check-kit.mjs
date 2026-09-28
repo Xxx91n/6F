@@ -65,7 +65,7 @@ export function guardSkip(guardName, reasons) {
 export function guardDeclaredTier(src) { const m = src.match(/^const TIER = '(portable|env-contract)';$/m); return m ? m[1] : null; }
 export function guardDeclaredSurface(src) { const m = src.match(/^const PROTECTED_SURFACE = '([^'\n]+)';$/m); return m ? m[1] : null; }
 
-// blankStrings：剥除字符串/模板字面量内容的遮罩——保留引号边界与 ${...} 内代码（递归遮罩），行号不动
+// blankStrings：剥除字符串/模板字面量内容的遮罩——引号串内容抹为空格（保引号边界），模板体抹空格而 ${...} 内代码递归保留，全长/行号不动
 // 面态判定专用：字符串内容/属性名/标识符内提名不构成消费位；注释剥离仍由 stripComments 担纲
 export function blankStrings(src) {
   let out = '', i = 0;
@@ -78,7 +78,7 @@ export function blankStrings(src) {
         if (src[j] === '\\') j++;
         j++;
       }
-      out += src.slice(i, j + 1);
+      out += q + ' '.repeat(Math.max(0, j - i - 1)) + (j < src.length ? q : '');
       i = j + 1;
       continue;
     }
@@ -117,12 +117,13 @@ function findMatchingBrace(src, open) {
   return src.length - 1;
 }
 
-// realConsumption：真消费形态判定——仅认 import/require 具名引入 或 stripComments(/stripMdComments( 裸调用位
-// 字符串/属性名/标识符内提名不豁免（先剥字符串再判）；调用位用裸左括号锚定而非词缀（ADR-0024 判据）
+// realConsumption：真消费形态判定——仅认 import/require 具名引入 或 stripComments(/stripMdComments( 调用位
+//   （含成员调用 x.stripComments(——D-158① 原文「调用位」无「裸」字；声明位 {stripComments:…} 无左括号不中）
+// 字符串/属性名/标识符内提名不豁免（先剥字符串再判）；调用位用左括号锚定而非词缀（ADR-0024 判据）
 export function realConsumption(strippedNoComments) {
   const noStr = blankStrings(strippedNoComments);
   const importBind = /\bimport\b[^'"\n]*\b(?:stripComments|stripMdComments)\b[^'"\n]*\bfrom\b\s*['"]/;
   const requireBind = /\{[^}\n]*\b(?:stripComments|stripMdComments)\b[^}\n]*\}\s*=\s*require\s*\(/;
-  const callForm = /(?:^|[^\w$.])(?:stripComments|stripMdComments)\s*\(/;
+  const callForm = /(?:^|[^\w$])(?:stripComments|stripMdComments)\s*\(/;
   return importBind.test(noStr) || requireBind.test(noStr) || callForm.test(noStr);
 }

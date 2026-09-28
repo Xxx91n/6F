@@ -242,3 +242,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-162 ③④⑤⑥ 执行面兑现——判据包+静默窗+逐案闸门+措辞修正全在册）
 - impact: Stage-2 启动闸门判据化预声明（criteria kickoff 前写定——design-partner 三源同构先例）；负向条款全量留痕（禁提前启动/禁开放描述/禁绕 D-159/禁绕摄入四态/禁 Stage-1 泛化 beta/禁动 D-051 与 ADR-0017 层序/禁轮内动 marketplace）；registry 68 项/47 事件
+
+## [M-031] - 2026-09-28
+
+- milestone: R41 审计返工 F-2 修净——blankStrings 引号串内容抹空格（此前仅模板字面量遮罩留半洞：'…stripComments(x)…' 字符串内调用形态仍豁免=F-A1「字符串提名不豁免」同族残余二次发生）；callForm 放宽认成员调用位 x.stripComments(（D-158① 原文「调用位」无「裸」字——审计 WRONG 项对齐）；75a 增 fxStrCall（字符串内调用形态必中）＋fxMemberCall（成员调用位豁免）正对照钉死双向；check-kit docstring/CONTEXT 消费位词条/ADR-0024 注记措辞校准至实态；变异探测 14 例全过；41 件在册零迁移 findings=389 不变
+- adr_range: ADR-0001 ~ ADR-0024（ADR-0024 执行注记校准＋F-2 补记，不动判据本体）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-158①③④ 执行面补完——审计返工单 reports/2026-09-28-r41-t1-audit-report.md F-2）
+- impact: 豁免面终至 spec 文本等宽——字符串全类提名（含调用形态字样）不豁免＋调用位按原文全计（成员调用含）；审计 conditional-PASS 必修项 1/2 闭环
