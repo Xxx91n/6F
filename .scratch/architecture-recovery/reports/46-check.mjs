@@ -56,14 +56,20 @@ if (wf !== null) {
 const WF_DIR = join(REPO, '.github', 'workflows');
 const wfSick = [];
 const wfFiles = existsSync(WF_DIR) ? readdirSync(WF_DIR).filter(f => /\.ya?ml$/.test(f)) : [];
-// plain 标量起始指示符集（' " | > [ ] { } & * ! % @ `——charCode 判定：源码零裸引号，防普查剥注释面引号态漂移）
-const NONPLAIN_START = new Set([39, 34, 124, 62, 91, 93, 123, 125, 38, 42, 33, 37, 64, 96]);
+// plain 标量起始指示符集（' " | > [ ] { } & * ! % @ ` #——charCode 判定：源码零裸引号，防普查剥注释面引号态漂移；#=注释起始符于值位置即整行注释值实为 null 非病态）
+const NONPLAIN_START = new Set([39, 34, 124, 62, 91, 93, 123, 125, 38, 42, 33, 37, 64, 96, 35]);
 for (const f of wfFiles) {
+  let blockIndent = -1;                                  // 块标量（|/>）体区段缩进水线（-1=区外；体内更深缩进行/空行不涉键行判定）
   txt(join(WF_DIR, f)).split(NL).forEach((line, i) => {
+    const head = line.match(/^(\s*)(-\s+)?/);
+    const indent = head[1].length + (head[2] ? head[2].length : 0);
+    if (blockIndent >= 0) { if (line.trim() === '' || indent > blockIndent) return; blockIndent = -1; }
     const m = line.match(/^\s*(?:-\s+)?[A-Za-z_][\w-]*:\s+(\S.*)$/);
     if (!m) return;                                        // 非键行（shell/注释/块内容/空行）不涉
     const v = m[1];
-    if (NONPLAIN_START.has(v.charCodeAt(0))) return;       // 引号/块标量/流式/锚点/指示符=非 plain 标量
+    const c0 = v.charCodeAt(0);
+    if (c0 === 124 || c0 === 62) { blockIndent = indent; return; } // |/> 块标量起始行登记区段（值本体=标量指示符非 plain）
+    if (NONPLAIN_START.has(c0)) return;                    // 引号/流式/锚点/#注释/指示符=非 plain 标量
     const bare = v.replace(/\s+#.*$/, '');                // 行尾注释剥离后取净值
     if (/:(\s|$)/.test(bare)) wfSick.push(f + ':' + (i + 1) + ' ' + line.trim().slice(0, 80));
   });
