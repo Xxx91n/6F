@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { stripComments } from './_lib/check-kit.mjs';
 
 const TIER = 'portable';
 const PROTECTED_SURFACE = 'D-179 守卫伴生再生确定性（生成器种子化＋volatile-fields 键级豁免枚举＋同输入两跑零 diff 自检）';
@@ -74,14 +75,13 @@ const frozen = new Set((km.frozen_evidence_packs || []).flatMap(pk => Object.key
 const frozenHit = vf ? vf.enumerated_artifacts.filter(a => frozen.has(a)) : [];
 t('A4 frozen 禁区：enumerated_artifacts ∩ frozen_evidence_packs=∅（D-171/D-172②，packs=' + frozen.size + '）', frozen.size > 0 && frozenHit.length === 0, frozenHit.join(','));
 
-// A5 熵源钉：生成器源码禁回潮墙钟调用（剥注释面判）
+// A5 熵源钉：生成器源码禁回潮墙钟调用（check-kit stripComments 成文共用剥面——行注/块注剥尽、字符串内 // 不误截）
 const CLOCK = /new\s+Date\s*\(|Date\.now\s*\(/;
 const genFiles = ['48-micro-a-preview.mjs', '56-checker-heldout-eval.mjs'];
 const clockHits = [];
 for (const g of genFiles) {
-  readText(join(HERE, g)).split(NL).forEach((l, i) => {
-    const code = l.replace(/\/\/.*$/, '');
-    if (code.match(CLOCK)) clockHits.push(g + ':' + (i + 1));
+  stripComments(readText(join(HERE, g))).split(NL).forEach((l, i) => {
+    if (CLOCK.test(l)) clockHits.push(g + ':' + (i + 1));
   });
 }
 t('A5 熵源钉：种子化生成器源码无 new Date(/Date.now( 墙钟调用（回潮即红）', clockHits.length === 0, clockHits.join(','));
@@ -99,7 +99,7 @@ t('B1 56-heldout-eval 同输入两跑零 diff（原位回写等值）', e1.statu
   'rc=' + e1.status + '/' + e2.status + ' sha=' + h1.slice(0, 12) + '/' + h2.slice(0, 12));
 
 // B2：48-micro-a-preview --golden 双 tmpdir 两跑全件对账
-const snapDir = (d) => { const m = {}; for (const f of readdirSync(d).sort()) { m[f] = createHash('sha256').update(readFileSync(join(d, f))).digest('hex'); } return m; };
+const snapDir = (d) => { const m = {}; for (const f of readdirSync(d).sort()) { m[f] = shaFile(join(d, f)); } return m; };
 const d1 = mkdtempSync(join(tmpdir(), 'd179-golden-a-'));
 const d2 = mkdtempSync(join(tmpdir(), 'd179-golden-b-'));
 let b2ok = false, b2extra = '';

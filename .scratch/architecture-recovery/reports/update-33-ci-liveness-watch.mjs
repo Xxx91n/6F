@@ -26,7 +26,7 @@ const ITEM = {
   source: 'macro-audit decision-ledger D-176③（R48 收口节执行窗登记——轮49 T1 兑现位）',
   owner: '仓内值守',
   review_event: 'next-audit-window',
-  verify_method: 'T3 审计窗三读数：①gh workflow list/run list（或等值 API 列读）核 macro-b-regression 名复原且 schedule 注册活性在案、近窗 run 无 0s 败迹/YAML error 形态；②actionlint 或等值解析器本地跑 .github/workflows/*.yml 全绿（parse 校验工具归哨兵节律承载非 CI 硬依赖——D-176③）；③46-check A18 parse 档闸读数在绿。workflow_dispatch 实跑属未授权动作不入本册（D-176 scoping 另行登记）',
+  verify_method: 'T3 审计窗三读数：①gh workflow list/run list（或等值 API 列读）核 macro-b-regression 名复原且 schedule 注册活性在案（覆盖 60 天自动停用/注册漂移平台侧失效——D-176③ 原款字面）、近窗 run 无 0s 败迹/YAML error 形态；②actionlint 或等值解析器本地跑 .github/workflows/*.yml 全绿（parse 校验工具归哨兵节律承载非 CI 硬依赖——D-176③）；③46-check A18 parse 档闸读数在绿。workflow_dispatch 实跑属未授权动作不入本册（D-176 scoping 另行登记）',
   confirmations: [{
     at: '2026-09-29',
     by: 'R49-impl 执行批（轮49 T1，分支 r49-t1-exec）',
