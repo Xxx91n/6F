@@ -2119,9 +2119,42 @@
           "decision": "criteria-readings",
           "reason": "四判据读数：①阻塞维持（DoR-b 真实仓 facts 面未形成，Macro-A 未启动）②维持（本轮全量跑未册化红=0——kr-01 摘除后册集空）③维持（GAP-HOST-01=RA 五要件齐备关闭，复审钩未逾期）④计时中（30 日静默窗未达标）→Stage-2 维持关闭",
           "evidence": "guard-all-run 全量实跑＋docs/ra/GAP-HOST-01.md＋registry 读数"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46-impl 执行批（轮47 T1，分支 r47-t1-exec）",
+          "criterion_version": "D-173①~⑤",
+          "decision": "window-state-corrected",
+          "reason": "窗读数链式更正（D-173①④兑现）：静默窗语义钉定后，前六次承载窗读数的确认行语义悬空——confs#0 registered（「四判据包+30日静默窗入册值守」登记行=窗规格入册非计时宣称）／#2 criterion-02-pass-read（「④A(a) 30日窗计时中」）／#3 layered-disposition-registered（「判据④ 30日窗计时确认」）／#4 criterion-03-ra-closed（「④30日静默窗计时中（findings封闭处置后计时起算）」）／#5 status-unchanged（「④30日静默窗计时中」）／#6 criteria-readings（「④计时中（30日静默窗未达标）」）——窗起点事件未发生（start_event∈{pilot_started,findings_all_closed,freeze_declared} 无一注册：Stage-1 charter 空集=零试点）⇒无起点锚的计时宣称=不可审计读数；判据④读数口径更正为 window_state=not_started（vacuous silence≠stability——空真不是稳定性证据）；读数链留痕不改写（D-146⑤ 勘误链二阶修正——原确认行逐字保留，本行即更正注记）。",
+          "evidence": "registry 本项 window_state/window 机读字段＋decision-ledger.md D-173"
         }
       ],
-      "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）"
+      "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）",
+      "window_state": "not_started",
+      "window": {
+        "start_event": null,
+        "start_event_enum": [
+          "pilot_started",
+          "findings_all_closed",
+          "freeze_declared"
+        ],
+        "start_at": null,
+        "prereq_check": "pilot_running",
+        "reset_log": [
+          {
+            "finding_id": "R46-F1",
+            "source_class": "capability",
+            "reset_at": null,
+            "new_window_start": null,
+            "note": "窗未启动不重置（D-173②④）——能力面归类先例在案：证据完整性错值=capability 非 hygiene"
+          }
+        ],
+        "decision_date": {
+          "require_open_findings": 0,
+          "require_fix_deployed": true,
+          "min_observation_days": 30
+        }
+      }
     },
     {
       "id": "fresh-clone-rerun-watch",

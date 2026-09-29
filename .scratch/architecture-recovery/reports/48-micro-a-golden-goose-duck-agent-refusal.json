@@ -10,24 +10,24 @@
   "capabilities": [],
   "scale": "Micro-A",
   "subject_ref": "Xxx91n/goose-duck-agent",
-  "generated_at": "2026-09-29T03:19:04.883Z",
+  "generated_at": "2026-09-29T05:26:03.301Z",
   "correlation_key": {
-    "trace_id": "64164e3d40c734ec31a92fada2af505f",
+    "trace_id": "34d785853073e41faa9956ef3c49d3da",
     "baggage_id": "c342b8667e33736f5332cb6600b26929"
   },
   "receipt": {
-    "receipt_id": "RCP-eeda139e915e7bd8",
-    "chain_hash": "eeda139e915e7bd892e3a3769a2f078bf1d2059be9daa28e909cb8e8a1aeb685",
-    "issued_at": "2026-09-29T03:19:04.883Z",
+    "receipt_id": "RCP-153383479ef36046",
+    "chain_hash": "153383479ef3604616bc6b3b72430bc8b0929f2be582794c6c7166c37bcc021d",
+    "issued_at": "2026-09-29T05:26:03.301Z",
     "commit_anchor": "unanchored-no-local-clone",
     "tree_anchor": "unanchored",
     "content_digest": {
       "algo": "sha256",
-      "value": "18507f847c8d5186b78728ff98b65eb538ee11146e82ff491304fb1c5467e464",
+      "value": "b0e8c5346130953c002e6d115a00a0f65dbbf089579021c9f723ec81d2c32f8a",
       "canonicalization": "json_utf8_entries_then_citation_checks"
     },
     "gate_ref": {
-      "prereg_commit": "904f4f68",
+      "prereg_commit": "1be47dbd",
       "criteria_path": ".scratch/architecture-recovery/reports/48-micro-a-criteria.md",
       "basis_path": ".scratch/architecture-recovery/issues/48-micro-a-preview.md",
       "criterion_ids": [
@@ -42,7 +42,7 @@
     "fact_count": 3,
     "adjudication_count": 2,
     "degraded": false,
-    "mark": "RECEIPT RCP-eeda139e915e7bd8 chain=eeda139e915e7bd892e3a3769a2f078b content=18507f847c8d5186 facts=3 adjudications=2 issued_at=2026-09-29T03:19:04.883Z commit=unanchored-no-local-clone tree=unanchored",
+    "mark": "RECEIPT RCP-153383479ef36046 chain=153383479ef3604616bc6b3b72430bc8 content=b0e8c5346130953c facts=3 adjudications=2 issued_at=2026-09-29T05:26:03.301Z commit=unanchored-no-local-clone tree=unanchored",
     "verdict": {
       "band": "unsupported",
       "reason_class": "criteria_unsupported"
@@ -140,13 +140,13 @@
     }
   ],
   "fact_ids": [
-    "d29d979a-9d47-cc4c-84aa-2828c2db41a1",
-    "64ae1ce9-f539-a480-d05f-c40fe90a7231",
-    "8b11da26-bfc0-60fc-db05-4b6e018c1c26"
+    "4b630f7a-67bf-f6a5-bb92-d4baee712d4d",
+    "3fcbcee7-f600-47a4-2c3b-8ea748093423",
+    "aeb2da72-9120-9ad2-015d-d247c47d217a"
   ],
   "adjudication": {
     "protocol_version": "ADR-0013-C/v1",
-    "decided_at": "2026-09-29T03:19:04.883Z",
+    "decided_at": "2026-09-29T05:26:03.301Z",
     "overall": "unsupported",
     "entries": [
       {
@@ -156,12 +156,12 @@
           "B1"
         ],
         "anchored_fact_ids": [
-          "8b11da26-bfc0-60fc-db05-4b6e018c1c26"
+          "aeb2da72-9120-9ad2-015d-d247c47d217a"
         ],
         "anchored_evidence_ids": [
           "EV-48-GOOSEDUCKAGENT-REF-01"
         ],
-        "decided_at": "2026-09-29T03:19:04.883Z",
+        "decided_at": "2026-09-29T05:26:03.301Z",
         "rationale": "适配器 run 事实在案：calls=1 strategy=unauthenticated（枚举真实发生——拒绝非管线故障）"
       },
       {
@@ -174,7 +174,7 @@
         "anchored_evidence_ids": [
           "EV-48-GOOSEDUCKAGENT-REF-01"
         ],
-        "decided_at": "2026-09-29T03:19:04.883Z",
+        "decided_at": "2026-09-29T05:26:03.301Z",
         "rationale": "托管面资格闸未过：goose-duck-agent 托管枚举 merged PR=0 → intake 显式拒绝（D-033 硬约束逆用）。原因=无托管 PR 面（无可裁 PR 对象）；前置条件=仓接入托管 PR 流程且产出 ≥1 merged PR 后再复审"
       }
     ],
@@ -284,7 +284,7 @@
       "locator": "L7",
       "claim": "本次实测：goose-duck-agent 托管枚举 merged PR=0——无托管 PR 面",
       "grounded": true,
-      "collected_at": "2026-09-29T03:19:04.883Z",
+      "collected_at": "2026-09-29T05:26:03.301Z",
       "reproduce_cmd": "node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden",
       "reproduce_absent_reason": null,
       "required_tokens": [],
@@ -296,7 +296,7 @@
       "locator": "L14",
       "claim": "前提漂移锚：anysearch-cli 票面撰写时无托管面（#37 实测 pr=0），本票复核托管枚举 merged=null",
       "grounded": true,
-      "collected_at": "2026-09-29T03:19:04.883Z",
+      "collected_at": "2026-09-29T05:26:03.301Z",
       "reproduce_cmd": "node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden",
       "reproduce_absent_reason": null,
       "required_tokens": [],
@@ -308,7 +308,7 @@
       "locator": "L54",
       "claim": "硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」",
       "grounded": true,
-      "collected_at": "2026-09-29T03:19:04.883Z",
+      "collected_at": "2026-09-29T05:26:03.301Z",
       "reproduce_cmd": "git -C D:\\Aworker\\6F show HEAD:.scratch/macro-audit/decision-ledger.md",
       "reproduce_absent_reason": null,
       "required_tokens": [],
@@ -328,7 +328,7 @@
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
         "evidence_flag": false,
-        "decided_at": "2026-09-29T03:19:04.883Z",
+        "decided_at": "2026-09-29T05:26:03.301Z",
         "override_reason": "intake 拒绝——无 PR 对象，象限无可裁面",
         "audit_ref": "reports/48-micro-a-preview.mjs"
       },
@@ -348,7 +348,7 @@
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
         "evidence_flag": false,
-        "decided_at": "2026-09-29T03:19:04.883Z",
+        "decided_at": "2026-09-29T05:26:03.301Z",
         "override_reason": "intake 拒绝——无 PR 对象，象限无可裁面",
         "audit_ref": "reports/48-micro-a-preview.mjs"
       },
@@ -368,7 +368,7 @@
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
         "evidence_flag": false,
-        "decided_at": "2026-09-29T03:19:04.883Z",
+        "decided_at": "2026-09-29T05:26:03.301Z",
         "override_reason": "intake 拒绝——无 PR 对象，象限无可裁面",
         "audit_ref": "reports/48-micro-a-preview.mjs"
       },
@@ -388,7 +388,7 @@
         "protocol_version": "ADR-0013-C/v1",
         "decision": "insufficient",
         "evidence_flag": false,
-        "decided_at": "2026-09-29T03:19:04.883Z",
+        "decided_at": "2026-09-29T05:26:03.301Z",
         "override_reason": "intake 拒绝——无 PR 对象，象限无可裁面",
         "audit_ref": "reports/48-micro-a-preview.mjs"
       },
