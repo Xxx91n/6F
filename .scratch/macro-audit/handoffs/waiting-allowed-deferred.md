@@ -98,9 +98,9 @@
 | nb-split-46ab-review | 挂账常项 | — | deferred | 拆件复审触发（D-164④——groupProbe 落地后连坐仍实质发生再裁 46a/46b） |
 | nb-assertion-level-need | 挂账常项 | — | deferred | 断言级 need() 不预建（D-167-a——首个断言级异质实例触发临窗裁） |
 | nb-resolve-ownership | 挂账常项 | — | deferred | resolve 归属争议点——评审方可回访时重开 |
-| c-stage1-charter-template | (c) 候选件 | (c) | deferred | 三问筛呈裁量位（问卷=reports/2026-09-29-r48-exec-report.md §T1-D）——任一否=不建 |
-| c-pilot-intake-pipeline | (c) 候选件 | (c) | deferred | 同上——备而建不启用边界（D-175④ 管道类件） |
-| d-33check-enum-assert | (d) 具体件 | (d) | deferred | 呈裁量位：33-check 增 window_state∈window_state_enum 值域断言＋D-174② 可选跨字段流转断言——做则须 D-147 预声明验证包工序 |
-| d-guard-perf-baseline | (d) 具体件 | (d) | deferred | 呈裁量位：守卫组耗时基线建制——D-175③ 边界禁开新状态文件，形态=报告 footer/确认行承载 |
-| d-frozen-pack-recheck | (d) 具体件 | (d) | deferred | 呈裁量位：frozen_evidence_packs 代表性巡检制度化（钉值机检已有 01-F/75a-M5——制度化形态呈裁，禁触钉值） |
+| c-stage1-charter-template | (c) 候选件 | (c) | allowed | 用户拍板「建」（2026-09-29 呈批回执）——已落盘 trials/stage1-charter-template.md 备而建不启用（首个具案仍须用户逐案闸门 D-162⑤） |
+| c-pilot-intake-pipeline | (c) 候选件 | (c) | deferred | 用户拍板「缓建」（2026-09-29 呈批回执）——本体不建，至多接口草约 |
+| d-33check-enum-assert | (d) 具体件 | (d) | deferred | 呈裁中——用户令转 atomcode 深度调研复核（回报后再拍板；纪律：冲突→revised＋新 D 呈裁不静默改向）|
+| d-guard-perf-baseline | (d) 具体件 | (d) | deferred | 呈裁中——用户令转 atomcode 深度调研复核（回报后再拍板；纪律：冲突→revised＋新 D 呈裁不静默改向）|
+| d-frozen-pack-recheck | (d) 具体件 | (d) | deferred | 呈裁中——用户令转 atomcode 深度调研复核（回报后再拍板；纪律：冲突→revised＋新 D 呈裁不静默改向）|
 

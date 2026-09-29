@@ -102,3 +102,11 @@ bundle-only commit（D-140② 生成物独立 commit——若有守卫全量跑�
 - ctx_execute 嵌套模板字面量写 .mjs 有双层转义坑（JSON→模板）——\n 类转义序列经两层求值会物化为真换行；写含转义序列的脚本件用 ctx_batch_execute bash heredoc <<'EOF' 全字面量更稳。
 - registry 驱动生成清单表行可消 id 手抄笔误，但生成时点若先于 status 翻转会产生重复行——生成件应与状态变更同窗复核（本批 badge 行去重即此型）。
 - 「挂载完成方翻 status」类项内纪律兑现要点=实挂证据链（README 行＋事件机检读数＋H4 互等断言）三件套齐再翻，且当前红态如实披露进确认行。
+
+## 呈批回执（2026-09-29 用户拍板补记）
+
+| 件 | 裁定 | 落地 |
+| --- | --- | --- |
+| c-stage1-charter-template | **建** | 已落盘 `.scratch/macro-audit/trials/stage1-charter-template.md`（备而建不启用——模板不产生试点；首个具案仍须用户逐案闸门 D-162⑤） |
+| c-pilot-intake-pipeline | **缓建** | 清单行 deferred 维持（本体不建，至多接口草约） |
+| d-33check-enum-assert / d-guard-perf-baseline / d-frozen-pack-recheck | **转 atomcode 深度调研复核** | 用户令：调研须回顾账本全 current＋docs/adr＋CONTEXT＋工业界成熟心智模型出推荐与理由；辩证性看待——冲突→对应 D-xxx 标 revised＋新 D 呈裁，禁静默改向；回报后再拍板 |

@@ -1412,4 +1412,5 @@ scoping（非裁面/执行边界如实登记）：
 - **T1-C (b) 面欠账清零**（D-175②⑦）：readme-ci-badge status pending→decided＋`badge-mounted` 确认行（项内纪律「挂载完成方翻 status」兑现——徽标 2026-09-22 实挂 README.md，33-check H4 互等断言持续绿）；审计呈报 nit 三型口径入 WORKFLOW §4.2.5（计数标签机核／清单含自身／漂移不低估——F1~F3 禁再犯）；**计划外新欠账同窗清零**——engine-ci.yml 末步 78-check 缺 working-directory 覆盖（job 默认 engine/ cwd → `engine/.scratch/…` MODULE_NOT_FOUND，main 自 09-25 起全平台红，引入 commit e6724489）补 `working-directory: ${{ github.workspace }}` 一行修复（badge 显红根因——徽记诚实生效非徽章缺陷）。
 - **T1-D/E 呈裁（起草位）**（D-175③④⑦）：(c) 候选件 2 件逐项三问答卷＋(d) 具体件 3 件清单呈用户裁量位——执行批只起草不拍板；呈批记录=reports/2026-09-29-r48-exec-report.md §T1-D/E。
 - **复验**：两迁移脚本 assert-back fail-closed＋幂等重跑 IDEMPOTENT-SKIP；33-check PASS 31/31（readme-ci-badge fired ALARM 清除 1→0，confirmations 111→113）；guard-all-run 全量 PASS（ran=60 green=60 red=0 allOk=true）；verify-waiting-list VERIFY-PASS。
+- **呈批回执（2026-09-29 用户拍板落地）**：(c)① c-stage1-charter-template=「建」→已落盘 trials/stage1-charter-template.md（备而建不启用——模板不产生试点，首个具案仍须用户逐案闸门 D-162⑤）；(c)② c-pilot-intake-pipeline=「缓建」；(d) 三件=用户令转 atomcode 深度调研复核（回顾范围=账本全 current＋docs/adr＋CONTEXT＋工业界心智模型；冲突→revised＋新 D 呈裁纪律），回报后再拍板。
 - O6 顺删续挂账（D-167-c①）：本轮未触 40-check.mjs——搭车路径维持不专开批。
