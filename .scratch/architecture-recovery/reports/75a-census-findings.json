@@ -1431,28 +1431,28 @@
   "key": "46-check.mjs|date-literal|96d3c5a5",
   "file": "46-check.mjs",
   "kind": "date-literal",
-  "lno": 128,
+  "lno": 134,
   "excerpt": "const rep = txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md'));"
  },
  {
   "key": "46-check.mjs|existence-assert|91e2fa9d",
   "file": "46-check.mjs",
   "kind": "existence-assert",
-  "lno": 82,
+  "lno": 88,
   "excerpt": "t('B1 jiahao 工作树该文件已缺席', !existsSync(jhWf));"
  },
  {
   "key": "46-check.mjs|existence-assert|9114e0e4",
   "file": "46-check.mjs",
   "kind": "existence-assert",
-  "lno": 100,
+  "lno": 106,
   "excerpt": "t('C1 46-out/ 工件集六件齐备', C_FILES.every(f => existsSync(join(OUT, f))), C_FILES.filter(f => !existsSync(join(OUT"
  },
  {
   "key": "46-check.mjs|existence-assert|18895c12",
   "file": "46-check.mjs",
   "kind": "existence-assert",
-  "lno": 120,
+  "lno": 126,
   "excerpt": "t('D2 engine dist/cli.js 构建产物在', existsSync(join(REPO, 'engine', 'dist', 'cli.js')));"
  },
  {
