@@ -322,3 +322,10 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（R45 收口节 轮46 审计 LOOP 修复批小节）
 - impact: 用户门清零（r1 批准＋F1 勘误裁定兑现）；registry 74 项 confirmations +2 行；75a 断言面 14→16＋70-inventory 重钉；账/工件面零弱化——审计呈报全闭环
+## [M-041] - 2026-09-29
+
+- milestone: 轮46 grill 收口——D-173 判据④ A(a) 静默窗语义钉定（not_started/running/satisfied_at 状态机＋来源分级回流口径内外同权＋重置锚=制品变更事件＋机读五件建制）＋D-162→revised（仅④ A(a) 收窄）＋registry 六次「计时中」读数链式更正为 not_started（执行窗）＋CONTEXT 静默窗词条＋轮47 任务书换代
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R46 收口节）
+- impact: D 面 173 条（158 current/14 revised/1 closed）；判据④读数正化 not_started（vacuous silence≠stability——零试点期窗未启动）；atomcode 调研存档 R46-Q1（置信中高/Q2 高；「内部 findings 重置静默窗」无逐字成文标准如实标位）
