@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
-const PROTECTED_SURFACE = '01-corpora/align/spotcheck/fallback 交付物机检面';
+const PROTECTED_SURFACE = '01-corpora/align/spotcheck/fallback 交付物机检面＋known-red-manifest frozen-01-series 豁免钉值面';
 const R = dirname(fileURLToPath(import.meta.url)); // D-159④ repo-relative——自指绝对路径修复（kr-01 env 缺陷面关账）
 const fail = [];
 const ok = [];
@@ -81,11 +81,11 @@ const fpack = (manifest.frozen_evidence_packs || []).find((p) => p.id === 'froze
 chk(!!fpack, 'F1 frozen-01-series 豁免节在位（known-red-manifest.json frozen_evidence_packs）');
 if (fpack) {
   const frozen5 = ['01-corpora.json', '01-align.json', '01-spotcheck.json', '01-report.md', '01-fallback.json'];
-  chk(JSON.stringify(Object.keys(fpack.artifacts || {}).sort()) === JSON.stringify(frozen5.slice().sort()), 'F1 frozen pack 覆盖恰 01 系五件');
+  chk(JSON.stringify(Object.keys(fpack.artifacts || {}).sort()) === JSON.stringify(frozen5.slice().sort()), 'F1b frozen pack 覆盖恰 01 系五件');
   for (const f of frozen5) chk(fpack.artifacts[f] && fpack.artifacts[f].sha256 === crypto.createHash('sha256').update(fs.readFileSync(R + '/' + f)).digest('hex'), 'F2 ' + f + ' sha256 钉值一致');
 }
 console.log('PASS: ' + ok.length + ' assertions');
 if (fail.length) { console.log('FAIL: ' + fail.length); fail.forEach((f) => console.log('  x ' + f)); process.exit(1); }
 console.log('checks: repos=' + repos.length + ' models=' + models.length + ' sampled/repo=5 spotcheck=15 fallback_triggers=' + fallback.triggers.length);
 console.log('frozen-pack=' + (fpack ? fpack.artifacts && Object.keys(fpack.artifacts).length : 0));
-console.log('OK: D1 (>=2 real repos run) + D2 (>=3 embedding candidates) + D3 (5 points/repo + 0.70 calibration + manual spot-check) + D4 (fallback trigger list) + D5 (report<->artifact consistency) all verified');
+console.log('OK: D1 (>=2 real repos run) + D2 (>=3 embedding candidates) + D3 (5 points/repo + 0.70 calibration + manual spot-check) + D4 (fallback trigger list) + D5 (report<->artifact consistency) + F (frozen-01-series 豁免钉值在位/覆盖恰五件/逐件 sha256) all verified');

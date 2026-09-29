@@ -149,6 +149,13 @@ const retBad = (ret || []).filter((e) => !(e.id && e.guard && e.protected_surfac
 const retInRun = (ret || []).filter((e) => existsSync(join(HERE, e.guard)));
 t('M3 retired 类终态留档 schema（八要素+归档实物在+原守卫出运行集——面消亡提案经 T3 逐件呈报 D-160①②）', ret !== null && retBad.length === 0 && retInRun.length === 0, 'retired=' + (ret === null ? 'missing' : ret.length) + ' bad=' + retBad.length + ' inrun=' + retInRun.length);
 t('M2 stale-assertions meta 载 D-094 禁欺诈入册条款', stale.meta && typeof stale.meta.policy_d094 === 'string' && stale.meta.policy_d094.indexOf('欺诈') >= 0, '');
+// M4/M5 轮46 LOOP 扩面（审计 F4：closed/frozen_evidence_packs 新顶层类无 schema 钉——同 M3 建制先例补齐；空类 vacuous 通过）
+const cls = Array.isArray(km.closed) ? km.closed : null;
+const clsBad = (cls || []).filter((e) => !(e.id && e.guard && e.failure_class && e.evidence && e.added && e.review_anchor && e.expires_fallback && e.closed_at && e.closed_by && e.closure && existsSync(join(HERE, e.guard))));
+t('M4 closed 类结案留档 schema（九要素齐备+guard 文件在——摘除留档类防任填）', cls !== null && clsBad.length === 0, 'closed=' + (cls === null ? 'missing' : cls.length) + ' bad=' + clsBad.length);
+const fp = Array.isArray(km.frozen_evidence_packs) ? km.frozen_evidence_packs : null;
+const fpBad = (fp || []).filter((pk) => !(pk.id && pk.legislated_by && pk.legislated_at && pk.exempt_from && pk.refresh_path && pk.scope && pk.artifacts && Object.keys(pk.artifacts).length !== 0 && Object.values(pk.artifacts).every((a) => /^[0-9a-f]{64}$/.test(a.sha256 || '') && typeof a.bytes === 'number' && a.bytes !== 0)));
+t('M5 frozen_evidence_packs schema（立法要素+钉值形态 64hex-sha256/bytes 非零+豁免面/刷新链/范围字段齐备）', fp !== null && fpBad.length === 0, 'packs=' + (fp === null ? 'missing' : fp.length) + ' bad=' + fpBad.length);
 
 // 41a-D7 字面钉回归钉
 const c41a = stripComments(readFileSync(join(HERE, '41a-check.mjs'), 'utf8'));
