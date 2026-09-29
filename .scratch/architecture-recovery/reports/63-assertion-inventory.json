@@ -205,7 +205,7 @@
       ]
     },
     "46-check": {
-      "assertion_ids": 31,
+      "assertion_ids": 32,
       "call_styles": [
         "t()"
       ]
@@ -340,6 +340,12 @@
     },
     "83-check": {
       "assertion_ids": 19,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "d179-check": {
+      "assertion_ids": 7,
       "call_styles": [
         "t()"
       ]

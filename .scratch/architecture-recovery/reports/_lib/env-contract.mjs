@@ -121,3 +121,15 @@ export function engineDepsOk(engRoot, spec) {
     return true;
   } catch (_) { return false; }
 }
+
+// ---------- D-179① 确定性种子化（SOURCE_DATE_EPOCH 式 env 注入；缺席=固定默认 epoch 不取墙钟） ----------
+// 守卫伴生再生面 run 时戳唯一熵源收敛：env 注入=可复现定值（reproducible-builds.org 惯例，秒级 unix epoch）；
+//   缺席→固定默认 epoch 0（确定性=默认行为非隐藏开关——D-179⑥）；非法值→throw fail-closed
+//   （静默回落会使「显式注入」与「缺席」不可分辨——同 D-179⑥ 语义合）。
+export function deterministicRunAt(env) {
+  const e = (env || process.env).SOURCE_DATE_EPOCH;
+  if (e === undefined || e === '') return new Date(0).toISOString();
+  const n = Number(e);
+  if (!Number.isFinite(n)) throw new Error('SOURCE_DATE_EPOCH 非法值：' + JSON.stringify(e) + '（须为秒级 unix epoch 数值）');
+  return new Date(Math.trunc(n) * 1000).toISOString();
+}

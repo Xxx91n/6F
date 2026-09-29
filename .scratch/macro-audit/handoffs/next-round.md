@@ -43,6 +43,8 @@
 
 ### T1 — 执行窗批（R48-impl，覆盖 D-176①~④／D-177⑤／D-178③／D-179①~⑦——欠账三要素逐件齐备）
 
+> **〔批已兑现——轮49 T1 六件全毕（2026-09-29，r49-t1-exec，commits vvp~txn＋收口文书批）〕**：读数与证据总表=reports/2026-09-29-r49-exec-report.md；交接=handoffs/2026-09-29-r49-exec-handoff.md；账本=decision-ledger.md「执行窗兑现（R48-impl 批=轮49 T1）」节；编年=M-046。伴生再生面新常态：churn 12~14/轮→0，后续工件 diff=真实语义信号禁自动 discard（D-179④）。
+
 - **T1-A macro-b-regression 死件修复**（D-176①）：`.github/workflows/macro-b-regression.yml` L144 `name:` 引号包裹（或去冒号）一行修——恢复解析非改行为；触发面/矩阵/隔离纪律/verify 语义全不动；owner=执行批；时点=本轮 T1 首件（(b) 面清零第一优先——D-175①）；复验=push 后 workflow name 复原 `macro-b-regression`＋本地 yaml.safe_load PASS＋审计窗复核（workflow_dispatch 实跑=未授权另案不默认跑）。
 - **T1-B parse 档机检闸**（D-176②）：46-check 增「.github/workflows/*.yml 无未引号标量含 `: ` 病态模式」最小结构断言（零依赖手写闸）；若实测 yaml 包可低成本引入则升格全量 parse 断言（包引入独立 commit 走 D-139）；actionlint 登记为 manual_watch T3 工具非 CI 硬依赖；owner=执行批；复验=46-check 新断言绿＋病态样本红态诱导实跑读数（D-177 工序适用——先落声明物化面＋实跑留读数）。
 - **T1-C liveness 哨兵册项**（D-176③）：registry 增 `ci-workflow-liveness-watch` manual_watch 册项——五要件齐备（D-155）：判据引用=分档判据（成本×频率×时延——odown 失效域外置戒律）；sentinel=`gh workflow list` name≠path 退化态＋`gh run list` 0s 败迹＋schedule 注册活性（60 天停用/调度漂移兜平台侧失效形态）；复审锚=next-audit-window；owner=执行批；复验=册项在册＋五要素字段齐＋33-check 相容＋verify-waiting-list 相容。
