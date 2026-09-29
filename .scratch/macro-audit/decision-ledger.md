@@ -1456,3 +1456,20 @@ scoping（非裁面/执行边界如实登记）：
 
 - **裁定层：闭环**——R48 审计呈报三候选（D-147 工序收严/调研存档形态/守卫再生减负）＋本窗新发现（macro-b 死件）全裁毕各有名分去向（兑现登记/显式驳回入去向表/scoped revised 规程）；P1/P5 信息级登记无裁点。
 - **验收层：部分开放**——guard-all-run 本窗 60/60 全绿（allOk=true）；macro-b-regression.yml 处死亡态存续中（schedule 面 D-046④ 回归覆盖缺口自 2026-09-23 起 ~6 天持续——处置包=D-176 执行窗义务轮49 兑现）；Stage-2 判据① DoR-b 阻塞维持＋判据④ window_state=not_started（零试点窗未启动）＋②③维持达标——分层定稿义：裁定层可闭环，验收层如实挂欠账。
+
+
+### 执行窗兑现（R48-impl 批 = 轮49 T1，2026-09-29 落盘，分支 r49-t1-exec——栈于 r48-closeout 之上）
+
+- **D-177 工序先启**：预声明验证包锚=.scratch/macro-audit/reports/2026-09-29-r49-predecl-verification-packs.md 先于一切语义面 commit 落盘（vvp——包A 覆盖 T1-B A18 病态闸、包B 覆盖 T1-F 种子化建制；红态诱导实跑读数随批附证）。
+- **T1-A macro-b-regression 死件修复**（D-176①）：.github/workflows/macro-b-regression.yml L144 病态标量加双引号复原解析（rtu）；name/schedule cron 17 3 * * 1/workflow_dispatch/jobs=resolve,macro-b 逐项核对零漂移；js-yaml safe_load PASS；workflow_dispatch 实跑=未授权另案未跑（如实登记）。
+- **T1-B parse 档机检闸**（D-176②）：46-check A18 落——扫 .github/workflows/*.{yml,yaml} 检出「键行未引号 plain 标量含 : 后空白」病态模式，files=3 全量零误报（zqq）；红态诱导读数=合成病态行检出 SICK＋引号/块标量/注释/shell 行/行尾注释对照零误报；中途发现 stripComments 普查剥面引号态吞行（正则字面量内裸引号打开幻影字符串态吞后续行——46-check 四条已注册 findings 悬空、75a C2 红）→ 改 charCode 起始指示符集判定，源码零裸引号，剥面 134 行全保＋findings 389↔389 零悬空——教训入 WORKFLOW §4.2 Lessons 随行。
+- **T1-C liveness 哨兵册项**（D-176③）：update-33-ci-liveness-watch.mjs 幂等迁移（UPDATED→IDEMPOTENT-SKIP assert-back fail-closed）落 ci-workflow-liveness-watch 册项（qkw）——manual_watch 五要件齐（判据引用=分档判据／sentinel=gh workflow list name≠path 退化态＋run list 0s 败迹＋schedule 注册活性三读／复审锚=next-audit-window／owner=仓内值守／workflow_dispatch 实跑显式不入哨义）；waiting-allowed-deferred.md 值守行＋头部计数同步（registry 74→75、live 62→63、数据行 88→89）；33-check 33/33＋verify-waiting-list VERIFY-PASS。
+- **T1-D R48 (d) 面调研件补落**（D-178③）：.scratch/macro-audit/reports/R48-d-face-atomcode-research.md 物化（xlp，15240B 无 BOM LF）——六搜八读全源/出处限制/GitLab 403 与 MSF 静默期未完全核实等局限如实随文；三候选裁荐载册（enum-assert 建〔D-147 工序〕／perf-baseline 缓〔footer 派生形态锁〕／frozen-recheck 建〔T3 节律非册项防双册〕）。
+- **T1-E D-177 工序文书面**（D-177⑤）：WORKFLOW §4.2.8 落行（rqr）——锚定义（先落物化面合法／同 commit 原子落盘不满足时序强度）＋红态诱导实跑必选（不可跑=缺件）＋无账行锚件须先落声明＋生效时点不溯既往（7bd2e8e1 形态不重开）。
+- **T1-F 伴生再生减负包**（D-179①~⑦，zxu＋txn bundle）：①_lib/env-contract.mjs 增 deterministicRunAt()（SOURCE_DATE_EPOCH 秒级 epoch 注入／缺席=固定 epoch 0〔确定性=默认行为非隐藏开关〕／非法值 fail-closed）——48-micro-a-preview 与 56-checker-heldout-eval 两处墙钟熵源摘除；下游 trace_id/baggage_id/receipt_id/chain_hash 本已内容寻址自动稳定；追加发现：gate_ref.prereg_commit 原取运行时 HEAD=永漂源（每次 commit 后整批 golden 必漂）——改钉 criteria 文件 last-change 锚（3e588e02=判据预声明 commit 本体，名实归位且满足 23-check R3 闸门先于被裁定对象祖先语义）；②volatile-fields.json 建制——纯挥发族键级枚举 11 键＋派生信号族禁列 18 键（计数/盘点/git 派生 sha/内容摘要——禁键须实达工件键空间反空虚校验）＋enumerated_artifacts 9 件＋frozen-01-series 五件禁区声明；③d179-check.mjs 自检件（TIER=portable/PROTECTED_SURFACE 自声明）A1 schema／A2 键级可达性死项即红（75a-S1 同构）／A3 派生族禁入＋反空虚／A4 frozen 禁区／A5 熵源钉——B1 原位两跑字节等值＋B2 双 tmpdir 两跑 12 件 sha256 全等（Bazel null-build 同构）；④自动 discard 形态显式驳回登记——语义 commit 不搭车再生、再生 bundle 独立 commit（D-140②）＋差异走断言面非一键丢弃；⑤~⑦读数：红态诱导=异 SOURCE_DATE_EPOCH 两跑 diff≠0（通道可火）＋同 env 恒等＋缺席默认 epoch；伴生 churn 实测=guard-all-run 完整跑后 git status 零 diff（12~14/轮→0，唯余真实语义变化件）；46-check 31/31 相容。
+- **复验**：guard-all-run 全量 PASS ran=61 green=61 red=0 allOk=true（d179-check 动态入列）＋二跑后工作树零漂；33-check 33/33＋verify-waiting-list VERIFY-PASS＋46-check 31/31＋75a-check 16/16（findings 389↔register 389 零悬空）；engine npm run build＋npm run package（85 件）＋selftest 5/5 ok=true＋npm test 全链 23 套件绿；js-yaml workflow 解析绿。Commits=vvp/rtu/zqq/qkw/xlp/rqr/zxu/txn（未 push 未 merge）。
+
+分层定稿读数（D-170②）：
+
+- **裁定层：闭环**——轮49 T1 六件义务全兑现（D-176①~④ 死件处置包〔修＋A18 闸＋liveness 册项〕＋D-177⑤ 文书落行＋D-178③ 调研件物化＋D-179①~⑦ 减负包建制＋伴生再基线 bundle）。
+- **验收层：开放**——macro-b-regression.yml 本地解析面复原（push 后平台侧 name 复原属未授权另案复验面）；Stage-2 判据① DoR-b 阻塞维持＋判据④ window_state=not_started＋②③维持达标；后续轮义务=ci-workflow-liveness-watch 首窗盘查（T3 哨兵读数）＋(b)/(d) 面续程。
