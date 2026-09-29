@@ -24,6 +24,7 @@
 > 轮 43 grill（2026-09-28 完成）已封口 D-166 ~ D-170：第五轮锐评「辩证看待——完成了没」终局复验——逐项双层终局裁定（§2.1 双层闭环实证愈／§2.2·§2.3 显式驳回-USP2类带替代控制／§3.3 验收开放-值守／§1 留痕——retest-letter 逐条三态+证据锚形态）＋闸粒度上限终裁（组粒度=终态，语义单位重合/控制流≠验证流/生态最细停点三结构性理由；断言级 need() 不预建——首个断言级异质实例触发临窗裁）＋O4/O6 处置（三重披露维持不引 GREEN-WITH-SKIP 方言态——五生态先例一致；O6 顺删+Bond 判据「还能失败吗」入册）＋Stage-2 残余分层（①DoR-b 阻塞如实报——.scratch 四仓 facts 被 D-062③ 排除非生产线；③GAP-HOST-01 RA 档案草案呈批路径开＋具名裁者=用户；④30 日窗计时）＋T2 挂账续持三事件触发器（GAP-B2B 恶化/第二同型需求/缺口新增命中——real-options 零利息债弱支配＋FM-11 零确认用例停建）＋**D-148→revised**：RA 三要素→五要件标准（判据引用/justification+补偿控制/具名裁者/到期日≤90d/到期复审）＋分层定稿判据化（欠账三要素=具名 owner+时点锚+复验方式；裁定层宣告闭环、验收层开放双行呈报）；调研档案 R43-Q{1..5} 系列存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-148②）。
 > 轮 45 grill（2026-09-29 完成）已封口 D-171 ~ D-172：轮44 交接开口缝收口——RA 到期语义分类立法（腐化基座类强制 min(事件先到,≤90d) 双锚／wontfix 恒久类事件制合法双条件=触发事件在册可核验 sentinel＋低频盘查钩〔T3 审计窗普查形态〕；分类判据=补偿控制存续承载接受有效性；**D-169-b②→revised** 普适≤90d 收窄）＋kr-01 册内红收口裁（冻结重钉 3 件恢复历史证据包＋frozen 证据包机器可查豁免立法＋流程缺陷归因登记＋上游漂移观察移交＋review_anchor 无属主修正——全挂执行窗）；调研档案 R45-Q{1,2} 系列存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-169②）。
 > 轮 46 grill（2026-09-29 完成）已封口 D-173：Stage-2 判据④ A(a) 静默窗语义钉定——窗状态机显式化（not_started/running/satisfied_at；零试点⇒not_started，「计时中」非法读数）＋回流口径来源分级内外同权（能力面 findings 重置窗／hygiene 记 reset_log 披露不重置）＋重置锚=变更进入被验证制品事件非 finding 到达本体＋机读五件建制（start_event/start_at/prereq_check/reset_log/decision_date 复合测试「issue closure alone satisfies neither test」）＋registry 六次「计时中」读数链式更正为 not_started（D-146⑤）；**D-162→revised**（仅④款 A(a) 收窄）；调研档案 R46-Q1 存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-162④ A(a)）。
+> 轮 47 grill（2026-09-29 完成）已封口 D-174 ~ D-175：F4 枚举键建制裁（window_state_enum 数据面补位——sibling-of-field 归位三态闭集；同容器枚举覆盖不对称=建制欠账〔install-manifest-spec 结构缺口 bug 修复先例〕；枚举键=值域声明约束既有字段非数据字段扩张，D-173③ 不破零 revised；跨字段流转断言可选叠加须 D-147 预声明验证包工序）＋等待期工作面序立法（临界路径外置段仓内合法面序：(b) 已触发欠账清零第一优先〔试点期失败信号与已知噪音隔离——Burndown 同构〕→(d) 冻结资产深度维护主体〔守卫覆盖/性能基线/代表性巡检；禁借机开新 API/状态文件/workflow〕→(c) 预备件三问筛〔解锁首周必用∧不赖试点反馈∧假设被否仍成立，任一否不建〕→(a) 纯值守仅底线不构成策略；落地载体=allowed/deferred 清单约束文件；shadow 边界重申——内部/模拟仓证据永不充真实仓〔D-062③ 同构〕）；调研档案 R47-Q{1,2} 系列存档 .scratch/macro-audit/reports/；本轮零 revised。
 
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
@@ -388,6 +389,11 @@ _Avoid_: 缺失环境渲染 FAIL（kit #518/startaitools 实证废案——skip 
 **静默窗（Silent/Soak Window）**:
 发布判据的稳定性观察期（D-173——KEP-5241 无 flake 窗/SOC 2 观察窗/CPersona v1.4 soak 惯例收敛）；语义=「在刺激存在的前提下无信号」——零试点（无 field experience）下「无新 findings」=vacuously true 空真，非稳定性证据。状态机=not_started→running(reset_count)→satisfied_at；起点=显式注册事件（start_event∈{pilot_started/findings_all_closed/freeze_declared}＋start_at＋prereq_check 启动校验）——无起点机读锚⇔窗未启动，「计时中」非合法读数。回流口径=来源分级内外同权：能力面 findings（审计产出正确性/证据完整性/守卫真值/用户面向行为）重置窗，hygiene findings（措辞/nit/format/记账纪律）记 reset_log 披露不重置；重置锚=变更进入被验证制品事件非 finding 到达本体（patch releases inside the window do NOT reset it）。达标判定=decision_date 复合测试（open 清零∧修复部署∧窗内观察满最短时长——issue closure alone satisfies neither test）。
 _Avoid_: vacuous silence 当稳定证据（没跑测试所以无 flake）、审计勤勉受罚（Goodhart 陷阱——一切 findings 重置窗）、finding 到达即重置（锚在制品变更事件——否则修复动作反重置窗）、零试点期「计时中」读数（窗未启动无刺激可量度）
+
+**等待期工作面序（Wait-Phase Work-Surface Order）**:
+临界路径外置于外部验证依赖（试点在场/真实环境证据）时的仓内合法工作面排序律：已触发未处置欠账清零=第一优先（残余欠账不清则外部验证期失败信号与仓内已知噪音无法分诊）→对冻结资产做深度非广度的维护强化=主体面（守卫覆盖加深/性能基线/冻结资产代表性巡检，禁借机开新 API/新状态文件/新 workflow）→预备件严格三问筛（解锁后首周必用∧不依赖试点反馈∧假设被否定仍成立——任一否=不建；管道类件备而建不启用）→纯值守仅作底线不构成策略（值守义务续任非全部活动）；载体=allowed/deferred 清单成文约束，退出条件随行。
+_Avoid_: 冻结期/封存期（判据未达≠产品冻结）、空转（纯值守=隐性复利腐化非中立）、影子验证（内部/模拟仓证据充真实环境证据=shadow 反模式）
+
 
 ### retired 类（退役守卫终态留档）
 

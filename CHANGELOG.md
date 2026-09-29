@@ -336,3 +336,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（轮46 收口节 执行窗兑现小节；reports/2026-09-29-r47-exec-report.md）
 - impact: 判据④读数=window_state 字段机读（not_started——零试点窗未启动，「计时中」读数退役，起点事件注册方转 running）；registry 74 项 confirmations 110→111；33-check PASS 31/31 相容未破校验面；guard-all-run 60/60 红=0
+
+## [M-043] - 2026-09-29
+
+- milestone: 轮47 grill 收口——D-174 window_state_enum 对称建制裁（数据面补位 sibling-of-field 归位三态闭集；枚举键=值域声明约束既有字段非字段扩张，D-173③ 不破零 revised；跨字段断言可选叠加须 D-147 工序）＋D-175 等待期工作面序立法（(b) 残余清零第一→(d) 深度维护主体→(c) 三问筛预备件→(a) 值守仅底线；allowed/deferred 清单载体；shadow 边界重申）＋CONTEXT「等待期工作面序」新词条（词条 89→90）＋审计呈报 F1~F3 nit 收口节登记
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R47 收口节）
+- impact: D 面 175 条（160 current/14 revised/1 closed）；等待期排工位有法可依（临界路径外置段非空转）；F4 观察项闭环；atomcode 调研存档 R47-Q{1,2}（置信高/双题 Tavily 限流转三源替代）
