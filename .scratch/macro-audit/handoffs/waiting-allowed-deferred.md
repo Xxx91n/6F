@@ -4,7 +4,7 @@
 > 面序法源：D-175① (b) 已触发欠账清零第一优先→(d) 冻结资产深度维护主体→(c) 预备件三问筛限流→(a) 纯值守仅底线；D-175⑧ 边界——Stage-2 判据本体／批2-β 触发器／批3批4 择批点／Stage-1 用户主权不动。
 > shadow 边界：内部/模拟仓证据永不充真实仓（D-062③ 重申）。
 > 失效条件（全表统一）：Stage-1 首例 charter 落地（试点起点事件注册→window_state 转 running）或 Stage-2 判据面变化（D-162 系修订／四判据读数翻转）即全表失效重裁。
-> 机查：`node .scratch/architecture-recovery/reports/verify-waiting-list.mjs`（项级归位机查——归位枚举合法＋registry 74 项逐项覆盖＋语义一致抽查）。
+> 机查：`node .scratch/architecture-recovery/reports/verify-waiting-list.mjs`（项级归位机查——归位枚举合法＋registry 75 项逐项覆盖＋语义一致抽查）。
 
 ## allowed（等待期合法工作面）
 
@@ -38,6 +38,7 @@
 | protected-surface-death-watch | 值守项 | (a) | allowed | T3 哨兵值守续任=底线义务；复审锚=next-audit-window |
 | batch2beta-open-triggers | 值守项 | (a) | allowed | T3 哨兵值守续任=底线义务；复审锚=next-audit-window |
 | anysearch-cli-intent-drift-watch | 值守项 | (a) | allowed | T3 哨兵值守续任=底线义务；复审锚=next-audit-window |
+| ci-workflow-liveness-watch | 值守项 | (a) | allowed | T3 哨兵值守续任=底线义务；复审锚=next-audit-window（46-check A18 parse 档闸转红/语法病复发/活性败迹即提前——D-176③） |
 
 ## deferred（等待期禁动工/未拍板面）
 
