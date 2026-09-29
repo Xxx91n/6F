@@ -344,3 +344,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（R47 收口节）
 - impact: D 面 175 条（160 current/14 revised/1 closed）；等待期排工位有法可依（临界路径外置段非空转）；F4 观察项闭环；atomcode 调研存档 R47-Q{1,2}（置信高/双题 Tavily 限流转三源替代）
+
+## [M-044] - 2026-09-29
+
+- milestone: R47-impl 执行窗兑现批（轮48 T1，分支 r48-t1-exec）——D-174①④ window_state_enum 数据面补位（三态闭集 sibling-of-field 旁挂；window_state=not_started 不动；window-state-enum-established 确认行）＋D-175②⑦ (b) 面清零（readme-ci-badge status→decided 挂载完成翻转＋审计 nit 三型口径入 WORKFLOW §4.2.5）＋D-175⑥⑦ 等待期 allowed/deferred 清单成文（registry 74 项+挂账常项+候选件逐项归位，verify-waiting-list.mjs 机查）＋(c)(d) 候选件呈裁量位＋engine-ci.yml 78-check 步 cwd 缺陷修复（main 全平台红根因）
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R47 收口节 执行窗兑现小节；reports/2026-09-29-r48-exec-report.md）
+- impact: registry confirmations 111→113；33-check PASS 31/31 相容未破（readme-ci-badge ALARM 1→0 清除）；guard-all-run 60/60 红=0；D 面 175 条不变；CI cwd 修复后 main 下次 push 复绿路径开

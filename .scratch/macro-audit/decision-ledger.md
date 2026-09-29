@@ -1404,3 +1404,12 @@ scoping（非裁面/执行边界如实登记）：
 
 - **裁定层：闭环**——轮47 交接题面＋用户进度问引出裁面全终局名分：F4 枚举键建制（D-174）＋等待期工作面序立法（D-175）；本轮零 revised。
 - **验收层：开放**——Stage-2 判据①阻塞维持（DoR-b：≥2 真实仓生产线 facts 不存在）＋判据④ window_state=not_started（零试点窗未启动）＋②③维持达标（②fresh-clone PASS／③GAP-HOST-01 RA-closed 复审钩未逾期）；等待期立法不动判据本体，「Stage-2 关闭」口径不变。
+
+### 执行窗兑现（R47-impl 批 = 轮48 T1，2026-09-29 落盘，分支 r48-t1-exec）
+
+- **T1-A window_state_enum 补位**（D-174①④）：`update-33-window-state-enum.mjs` 幂等迁移落盘——stage2-launch-criteria 项补 `window_state_enum:["not_started","running","satisfied_at"]`（sibling-of-field 归位：window_state 顶层紧邻旁挂，与 window{} 内 start_event/start_event_enum 命名惯例同构）；window_state 当前值 not_started 不动（枚举建制非读数变更）；confirmations 追加 `window-state-enum-established` 建制留痕行（追加不改写——D-146⑤ 同构）；同容器枚举覆盖不对称欠账消解。D-174② 跨字段断言（running/satisfied_at 态须 start_event 已注册）=可选叠加层未做——归 (d) 面候选呈裁量位，做则须 D-147 预声明验证包工序。
+- **T1-B allowed/deferred 清单成文**（D-175⑥⑦）：`.scratch/macro-audit/handoffs/waiting-allowed-deferred.md` 落盘（数据行 88：allowed 28／deferred 60）——registry 74 项逐项归位＋非册挂账常项 6 件＋(c) 候选件 2 件＋(d) 具体件 3 件；统一失效条件随行（Stage-1 首例 charter 落地或 Stage-2 判据面变化即全表失效重裁）；`verify-waiting-list.mjs` 项级归位机查 PASS 5/5（归位枚举合法／74 项全命中／挂账∪值守 62 项零漏列／语义一致两查）。
+- **T1-C (b) 面欠账清零**（D-175②⑦）：readme-ci-badge status pending→decided＋`badge-mounted` 确认行（项内纪律「挂载完成方翻 status」兑现——徽标 2026-09-22 实挂 README.md，33-check H4 互等断言持续绿）；审计呈报 nit 三型口径入 WORKFLOW §4.2.5（计数标签机核／清单含自身／漂移不低估——F1~F3 禁再犯）；**计划外新欠账同窗清零**——engine-ci.yml 末步 78-check 缺 working-directory 覆盖（job 默认 engine/ cwd → `engine/.scratch/…` MODULE_NOT_FOUND，main 自 09-25 起全平台红，引入 commit e6724489）补 `working-directory: ${{ github.workspace }}` 一行修复（badge 显红根因——徽记诚实生效非徽章缺陷）。
+- **T1-D/E 呈裁（起草位）**（D-175③④⑦）：(c) 候选件 2 件逐项三问答卷＋(d) 具体件 3 件清单呈用户裁量位——执行批只起草不拍板；呈批记录=reports/2026-09-29-r48-exec-report.md §T1-D/E。
+- **复验**：两迁移脚本 assert-back fail-closed＋幂等重跑 IDEMPOTENT-SKIP；33-check PASS 31/31（readme-ci-badge fired ALARM 清除 1→0，confirmations 111→113）；guard-all-run 全量 PASS（ran=60 green=60 red=0 allOk=true）；verify-waiting-list VERIFY-PASS。
+- O6 顺删续挂账（D-167-c①）：本轮未触 40-check.mjs——搭车路径维持不专开批。

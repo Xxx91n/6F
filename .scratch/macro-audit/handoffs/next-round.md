@@ -40,7 +40,7 @@
 ### T1 — 执行窗批（R47-impl，覆盖 D-174①~④／D-175②④⑥⑦——欠账三要素逐件齐备）
 
 - **T1-A window_state_enum 补位**（D-174①④）：registry stage2-launch-criteria 项补 `window_state_enum:["not_started","running","satisfied_at"]`（sibling-of-field 归位=window_state 顶层旁挂，与 window{} 内 start_event/start_event_enum 惯例同构；禁改 window_state 当前值 not_started）；可选跨字段断言（window_state↔start_event 流转合法边——running/satisfied_at 态须 start_event 已注册）若做归 33-check 且随批走 D-147 预声明验证包工序；owner=执行批；复验=33-check 相容＋机读存在性断言。
-- **T1-B allowed/deferred 清单成文**（D-175⑥⑦）：等待期约束文件最小形态——在册挂账项/值守项/候选件逐项归位 allowed 或 deferred 栏＋退出条件随行（Stage-1 首例 charter 落地或 Stage-2 判据面变化即失效重裁）；owner=执行批；复验=清单成文＋项级归位机查。
+- **T1-B allowed/deferred 清单成文**（D-175⑥⑦）：等待期约束文件最小形态——在册挂账项/值守项/候选件逐项归位 allowed 或 deferred 栏＋退出条件随行（Stage-1 首例 charter 落地或 Stage-2 判据面变化即失效重裁）；owner=执行批；复验=清单成文＋项级归位机查。〔载体已落盘：handoffs/waiting-allowed-deferred.md，机查=reports/verify-waiting-list.mjs〕
 - **T1-C (b) 面欠账清零排程**（D-175②⑦）：readme-ci-badge 挂载安排门面维护窗（trigger fired 09-22 在册）＋审计呈报 nit 注记面清零（r47 F1~F3 文书瑕疵——bundle 计数标签/清单完整性口径入写作规程面）；owner=执行批；复验=registry readme-ci-badge 项 status 翻转＋badge 实挂证据。
 - **T1-D (c) 面候选件三问筛呈裁**（D-175④⑦）：候选件清单（Stage-1 charter 模板/试点接入采集管线预备等管道类件）＋逐项三问答卷呈用户裁量位——任一否=不建；owner=执行批起草＋用户拍板；复验=裁量位呈批记录。
 - **T1-E (d) 面具体件清单呈裁**（D-175③⑦）：守卫覆盖加深/性能基线/frozen 巡检制度化具体件枚举呈裁量；owner=执行批起草＋用户拍板；复验=裁量位呈批记录。
