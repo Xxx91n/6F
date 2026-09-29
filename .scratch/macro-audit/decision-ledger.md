@@ -1359,3 +1359,10 @@ scoping（非裁面/执行边界如实登记）：
 
 - **裁定层：闭环**——轮46 交接候选题面清算：①F1 勘误②75a schema 已由审计 LOOP 批兑现（非本裁面）③T3 哨兵首读=值守例行④挂账常项不重复烤；真缝一件（判据④静默窗语义悬空）经 D-173 终局名分；一处 revised 规程履行（D-162④ A(a)）。
 - **验收层：开放**——Stage-2 判据①阻塞维持（DoR-b 真实仓 facts 不存在）＋判据④窗读数更正 not_started（窗未启动——Stage-1 首例试点 charter 落地后方有窗起点）；registry 字段化义务未兑现；「Stage-2 关闭」口径不变。
+
+### 执行窗兑现（R46-impl 批 = 轮47 T1，2026-09-29 落盘，分支 r47-t1-exec）
+
+- **T1-A registry stage2-launch-criteria 字段化兑现**（D-173①③④）：`update-33-window-state.mjs` 幂等迁移落盘——`window_state=not_started`＋`window{}` 五件机读建制（start_event 枚举 pilot_started/findings_all_closed/freeze_declared＋start_at＋prereq_check=pilot_running＋reset_log[]＋decision_date 复合测试 require_open_findings=0∧require_fix_deployed=true∧min_observation_days=30）；六次承载静默窗读数的确认行（confs#0 registered／#2 criterion-02-pass-read／#3 layered-disposition-registered／#4 criterion-03-ra-closed／#5 status-unchanged／#6 criteria-readings）链式更正注记 `decision=window-state-corrected`（读数链留痕不改写——D-146⑤ 勘误链二阶修正，原确认行逐字保留）；R46-F1 归能力面入 reset_log 披露（finding_id/source_class=capability/reset_at=null/new_window_start=null——窗未启动不重置，分类先例在案 D-173②④）。
+- **复验**（欠账三要素之复验方式兑现）：update 脚本 assert-back fail-closed＋幂等重跑 REGISTRY-IDEMPOTENT-SKIP＋`33-check.mjs` PASS 31/31（新字段未破校验面——D2 五要素 22 项／D6 确认行 110→111 条全齐，未触发「破则同步扩」条件故 33-check 本体不动）＋`guard-all-run.mjs` 全量 PASS（ran=60 green=60 red=0——册内红维持 0）。
+- **验收层读数更新**：判据④读数自此=`window_state` 字段机读（not_started——窗未启动非「计时中」；start_event∈{pilot_started,findings_all_closed,freeze_declared} 任一注册方转 running）；①③维持不变（①DoR-b 阻塞／③RA-closed 复审钩未逾期）。
+- O6 顺删续挂账（D-167-c①）：本轮未触 40-check.mjs——随下次触碰兑现，不专开批。

@@ -329,3 +329,10 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（R46 收口节）
 - impact: D 面 173 条（158 current/14 revised/1 closed）；判据④读数正化 not_started（vacuous silence≠stability——零试点期窗未启动）；atomcode 调研存档 R46-Q1（置信中高/Q2 高；「内部 findings 重置静默窗」无逐字成文标准如实标位）
+## [M-042] - 2026-09-29
+
+- milestone: R46-impl 执行窗兑现批（轮47 T1，分支 r47-t1-exec）——registry stage2-launch-criteria 字段化落地（D-173①③④）：window_state=not_started＋window 五件机读建制（start_event 枚举/start_at/prereq_check/reset_log/decision_date 复合测试）＋六次「计时中」确认行链式更正（window-state-corrected——读数链留痕不改写）＋R46-F1 归能力面入 reset_log 披露；幂等迁移脚本 update-33-window-state.mjs assert-back fail-closed
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（轮46 收口节 执行窗兑现小节；reports/2026-09-29-r47-exec-report.md）
+- impact: 判据④读数=window_state 字段机读（not_started——零试点窗未启动，「计时中」读数退役，起点事件注册方转 running）；registry 74 项 confirmations 110→111；33-check PASS 31/31 相容未破校验面；guard-all-run 60/60 红=0
