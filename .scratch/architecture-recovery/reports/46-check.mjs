@@ -51,6 +51,25 @@ if (wf !== null) {
   t('A17 verify 步强断言：test -s 非零字节 + receipt_id RCP-[0-9a-f]{16} 格式断言', wf.indexOf('test -s') >= 0 && wf.indexOf('RCP-[0-9a-f]{16}') >= 0 && wf.indexOf('"receipt_id"') >= 0);
 }
 
+// A18（D-176②）：.github/workflows/*.yml parse 档病态闸——拦 L144 未引号 plain 标量含 ': '（冒号+空白）死件同型
+// 零依赖手写最小结构闸（D-176 scoping：yaml 包/全量 parse 升格=条件项，引入须独立 commit 走 D-139）；命中=文件名:行号+行摘
+const WF_DIR = join(REPO, '.github', 'workflows');
+const wfSick = [];
+const wfFiles = existsSync(WF_DIR) ? readdirSync(WF_DIR).filter(f => /\.ya?ml$/.test(f)) : [];
+// plain 标量起始指示符集（' " | > [ ] { } & * ! % @ `——charCode 判定：源码零裸引号，防普查剥注释面引号态漂移）
+const NONPLAIN_START = new Set([39, 34, 124, 62, 91, 93, 123, 125, 38, 42, 33, 37, 64, 96]);
+for (const f of wfFiles) {
+  txt(join(WF_DIR, f)).split(NL).forEach((line, i) => {
+    const m = line.match(/^\s*(?:-\s+)?[A-Za-z_][\w-]*:\s+(\S.*)$/);
+    if (!m) return;                                        // 非键行（shell/注释/块内容/空行）不涉
+    const v = m[1];
+    if (NONPLAIN_START.has(v.charCodeAt(0))) return;       // 引号/块标量/流式/锚点/指示符=非 plain 标量
+    const bare = v.replace(/\s+#.*$/, '');                // 行尾注释剥离后取净值
+    if (/:(\s|$)/.test(bare)) wfSick.push(f + ':' + (i + 1) + ' ' + line.trim().slice(0, 80));
+  });
+}
+t('A18 workflows/*.yml 无未引号标量含 ": " 病态模式（parse 档闸——拦 macro-b 死件同型，files=' + wfFiles.length + '）', wfFiles.length > 0 && wfSick.length === 0, wfSick.join(' | '));
+
 // ---------- B. jiahao 单文件撤除（T2 交付面） ----------
 const JH46 = [need('sibling:jiahao', existsSync(JIAHAO))];
 if (groupProbe('46-check', 'B', JH46)) {
