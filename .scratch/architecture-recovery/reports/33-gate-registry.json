@@ -1858,6 +1858,14 @@
           "decision": "status-unchanged",
           "reason": "GAP-B2B-01~08 逐件 status 重审：全 8 件 triaged 维持零恶化读数＋mini-五要素齐备抽查 8/8（gap_id/证据链/owner/notes/review_by/trigger_id 全在册）——批2-β 未落地故本复审仅值守读数",
           "evidence": "docs/known-gaps.md 批2-β 登记批节 8 行机读"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
+          "criterion_version": "D-156②/D-169-b③",
+          "decision": "status-unchanged",
+          "reason": "GAP-B2B-01~08 逐件 status 重审读数：全八件 triaged 维持零恶化＋mini-五要素齐备（gap_id/类别/证据链/owner/notes/复审锚/trigger_id 在册）——批2-β 未落地复审窗未至，兼作触发器①读数=无恶化",
+          "evidence": "docs/known-gaps.md 批2-β 节八行逐行重读"
         }
       ]
     },
@@ -2053,6 +2061,14 @@
           "decision": "channel-idle",
           "reason": "退役通道随读：manifest retired[] 空类维持＋_retired/ 归档目录在位（仅 README）＋无退役提案——通道建制完好零使用",
           "evidence": "known-red-manifest.json retired=[]＋reports/_retired/README.md 在位"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
+          "criterion_version": "D-160①②③⑤",
+          "decision": "channel-idle",
+          "reason": "退役通道随读：manifest retired[] 空类维持＋_retired/README.md 在位＋无退役提案——通道建制完好零使用",
+          "evidence": "known-red-manifest.json retired=[]＋reports/_retired/README.md 在场＋75a M3 PASS"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-160 era-scoped 退役机制立法兑现）"
@@ -2143,6 +2159,14 @@
           "decision": "window-state-enum-established",
           "reason": "window_state 枚举键补位（D-174①④ 兑现）：window_state_enum=[\"not_started\",\"running\",\"satisfied_at\"] 顶层旁挂 window_state——同容器枚举覆盖不对称建制欠账消解（install-manifest-spec 结构缺口 bug 修复先例；值域闭集机读化，写错值有数据面闸）；枚举键=值域声明约束既有字段非数据字段扩张，window_state=not_started 当前值不动；跨字段断言（running/satisfied_at 态须 start_event 已注册）=可选叠加层未做——做则归 33-check 且须 D-147 预声明验证包工序（列 (d) 面候选呈裁量位）。",
           "evidence": "registry 本项 window_state_enum 机读字段＋decision-ledger.md D-174"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
+          "criterion_version": "D-162③④⑥/D-173/D-174",
+          "decision": "status-unchanged",
+          "reason": "四判据复核读数：①capability 5/5 阻塞维持（Macro-A 绑 DoR-b ≥2 真实仓 facts 仍不存在——如实报非绕闸）②fresh-clone PASS 维持（R42 criterion-02-pass-read 在案）③GAP-HOST-01 RA-closed 维持（docs/ra/ 档案两件在册）④window_state=not_started（start_event=null 零试点窗未启动——不报「计时中」）——Stage-2 维持关闭（①④未达）",
+          "evidence": "registry 本项 window_state=not_started 机读＋docs/ra/GAP-HOST-01.md/r1-*.md 在场"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）",
@@ -2273,6 +2297,14 @@
           "decision": "census-clean",
           "reason": "PROTECTED_SURFACE 引用物存在性普查：守卫文件 61 件扫描、60/60 守卫声明非空（guard-all-run.mjs=运行器非守卫不计入）＋零消亡判据事件——守护面全存活",
           "evidence": "reports/ 全 *-check.mjs PROTECTED_SURFACE 常量扫描机读"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
+          "criterion_version": "D-160①",
+          "decision": "census-clean",
+          "reason": "PROTECTED_SURFACE 引用物存在性普查：reports/ 守卫文件 61 件扫描（d179-check 新入列）61/61 声明非空＋guard-all-run 61/61 实跑全绿＝守护面全存活，零消亡判据事件",
+          "evidence": "reports/ 全 *-check.mjs PROTECTED_SURFACE 常量机扫＋guard-all-run footer ran=61 green=61"
         }
       ],
       "bound_to": "guard-retirement-class（通道登记项；本项补消亡事件触发锚）"
@@ -2372,6 +2404,14 @@
           "decision": "all-no-deferred-holds",
           "reason": "点火检查三问全否：①GAP-B2B-01~08 读数较基线无恶化（8/8 triaged）②同型需求第二例未出现③known-gaps 无新增条目命中批2-β 机制（open/closed 枚举/常量 SSOT/reserved）→挂账续持不入 WIP",
           "evidence": "docs/known-gaps.md 台账全量复核"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
+          "criterion_version": "D-169-a②",
+          "decision": "trigger-not-ignited",
+          "reason": "审计窗三问核验全否：①GAP-B2B-01~08 读数全 triaged 同态较 R46 基线零恶化（docs/known-gaps.md 八行逐行重读）②第二同型需求未出现（open/closed 枚举/常量 SSOT/reserved 机制无新需求确认）③known-gaps 无新增条目命中批2-β 机制——挂账续持，批3/批4 不预裁边界未破",
+          "evidence": "docs/known-gaps.md GAP-B2B-01~08 行机读＋registry 事件锚在案"
         }
       ]
     },
@@ -2406,6 +2446,14 @@
           "decision": "errata-anchor-corrected",
           "reason": "冻结锚勘误：实测退化系 anysearch-cli intent 8→1→8（非 9→1）——frozen 01-corpora.json 三时点 intent.len=8（0e5b2514/3a049d45/重钉后）＋frozen 01-report.md 自记意图单元=8；本项 title/source/verify_method 字段更正为 8，原确认行留痕不改写",
           "evidence": "01-report.md 意图单元行＋git 历史三时点实测＋decision-ledger.md 轮46 LOOP 勘误节"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
+          "criterion_version": "D-172④",
+          "decision": "drift-confirmed-escalate-to-ruling",
+          "reason": "续读实测：同一提取逻辑（01-extract.mjs 谓词）复测上游 anysearch-cli intent 面计数=1（readme:h1）——对 frozen 锚=8 持续退化（与 c6fe0f8 读数=1 同签名）；归因=上游 r69-t2 README 登录页 IA 重构（定位 bullets 段消除）属上游自主改版非 6F 面漂移事件，「该退化无认领票」标注维持准确；按册项 verify_method 漂移坐实→呈裁冻结包代表性衰减声明＋S1 重校准有意图裁定（列入下轮 grill 方向候选）",
+          "evidence": "01-extract.mjs extractIntent 复测 anysearch-cli intent=1＋frozen 01-corpora.json 锚 intent.len=8＋上游 commit bbb3ba73（r69-t2 README IA 重构）实物在史"
         }
       ],
       "bound_to": "#轮46 T1-E（D-172④）"
@@ -2433,6 +2481,14 @@
           "decision": "ci-liveness-sentinel-registered",
           "reason": "D-176③ 兑现：死件复原后活性兜底建制——workflow 文件级解析失败致 schedule 静默死亡系本窗新发现失效形态（冒号病态→解析拒绝→dispatch 无声 0 跑），仓内断言网原无死角；双轨闸=46-check A18 文本档拦网＋本册哨兵补平台态（dispatches/API 列读不可达时 gh workflow list 等价）",
           "evidence": "registry 本项＋decision-ledger.md D-176＋46-check.mjs A18"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
+          "criterion_version": "D-176③",
+          "decision": "sentinel-first-read-degradation-persists",
+          "reason": "册项落地后首窗三读数实跑：①gh workflow list 实测 workflow 名=文件路径 .github/workflows/macro-b-regression.yml（name≠path 退化签名在案）＋gh run list 近 8 push 全 completed/failure 时长 0s（0s 败迹签名全对上）＋schedule 列 active 但死件态未注册触发——平台侧签名与 D-176 诊断逐字一致，复原待 r49-t1-exec push（D-176④ 外部事件锚）；②actionlint 本机未装（随读工具缺位——PyYAML 等值解析器代读三 workflow 全绿）；③46-check A18 读数在绿（files=3 零命中）。workflow_dispatch 实跑未授权不入哨义",
+          "evidence": "gh workflow list/run list 实测输出＋PyYAML safe_load 三件全过＋46-check A18 PASS"
         }
       ]
     }
