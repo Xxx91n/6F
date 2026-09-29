@@ -11,7 +11,10 @@
     "upgrade_event": "t3-guard-manifest-shipped（registry 项 guard-baseline-upgrade-trigger）——升格后收口判据=全量跑+红集⊆本册+册件复绿告警，基线18件枚举为历史快照存证",
     "retired_class": "D-160②⑤ 建制（R40-T1 落地）：终态留档 schema=75a-M3 机检；归档目录=_retired/（考古面非删除）；registry 项=guard-retirement-class"
   },
-  "entries": [
+  "entries": [],
+  "retired_policy": "retired 类=绿守卫守护面消亡终态留档（D-160①②）：守护面消亡〔对象移除/上层吸收/更强更窄契约取代〕经 T3 审计窗逐件呈报裁定后，守卫移出运行集、文件本体归档 _retired/ 留考古面非删除；断言量/年龄/通过史不作退役判据（D-160⑥ 锐评裁军诉求显式驳回）；retired 终态化不设二次出口=明示设计选择（retire→delete 时点无工业统一答案）；与 entries[] legit-drift 红件册输入正交——一份 VACUOUS 普查双处置通道（D-160③）",
+  "retired": [],
+  "closed": [
     {
       "id": "kr-01-corpus-regen",
       "guard": "01-check.mjs",
@@ -31,10 +34,61 @@
           "event": "env-defect-closed",
           "ref": "D-159④",
           "note": "01-check.mjs:4 自指绝对路径 R=D:/Aworker/6F/... 改 repo-relative（import.meta.url 锚）——异地 clone 必红无条件病修复落地；语料退化（D1 intent units≥5/D5 分数溯源）仍为在册红面值守至 review_anchor 命中"
+        },
+        {
+          "at": "2026-09-29",
+          "event": "collateral-damage-attribution",
+          "ref": "D-172③",
+          "note": "根因=loop-2 再生成批缺 golden 感知（c6fe0f8 波及面核实恰 01-corpora/align/spotcheck 三件）——流程缺陷登记非仅修数据（恢复+立法+归因三步惯例）"
+        },
+        {
+          "at": "2026-09-29",
+          "event": "closed-resolved",
+          "ref": "D-172①⑤",
+          "note": "冻结重钉兑现：git show 3a049d45 原 blob 字节级恢复 3 件（sha256 corpora=5a2e0491…/align=8bc5fb58…/spotcheck=26a1821c… 对账一致）＋01-check PASS 75/75（D1 anysearch-cli intent 1→9≥5 地板恢复＋D5 45/45 锚分溯源互认恢复）；结案=已消解（冻结重钉＋frozen 立法）"
         }
-      ]
+      ],
+      "review_anchor_correction": {
+        "at": "2026-09-29",
+        "ref": "D-172⑤",
+        "note": "原 review_anchor「语料重采样票落地」腿判无属主不合格锚点（graveyard/issue-links-no-resolve 反模式——上游无认领票，跨仓主权禁代排产立案）；闭合锚=本条生命周期完结（frozen 包 sha256 钉值生效）＋stage3-close 复审腿保留"
+      },
+      "closed_at": "2026-09-29",
+      "closed_by": "轮46 T1 执行窗",
+      "closure": "resolved（冻结重钉＋frozen 立法）"
     }
   ],
-  "retired_policy": "retired 类=绿守卫守护面消亡终态留档（D-160①②）：守护面消亡〔对象移除/上层吸收/更强更窄契约取代〕经 T3 审计窗逐件呈报裁定后，守卫移出运行集、文件本体归档 _retired/ 留考古面非删除；断言量/年龄/通过史不作退役判据（D-160⑥ 锐评裁军诉求显式驳回）；retired 终态化不设二次出口=明示设计选择（retire→delete 时点无工业统一答案）；与 entries[] legit-drift 红件册输入正交——一份 VACUOUS 普查双处置通道（D-160③）",
-  "retired": []
+  "frozen_evidence_packs": [
+    {
+      "id": "frozen-01-series",
+      "legislated_by": "D-172②",
+      "legislated_at": "2026-09-29",
+      "semantics": "01 系五件=历史校准证据包——工件语义=历史证据非当前行为断言（再生即失义判据）",
+      "artifacts": {
+        "01-corpora.json": {
+          "sha256": "5a2e0491426293058f3fc881c48bf56307ed943e7e190850dca12d631e831151",
+          "bytes": 407340
+        },
+        "01-align.json": {
+          "sha256": "8bc5fb589956c89f39961410bfb12e8b66029572af6a3189e2ed3d7df5e4fd99",
+          "bytes": 76352
+        },
+        "01-spotcheck.json": {
+          "sha256": "26a1821c6491384a040bd225420e2ca490b64de800f47d9ae7f99bcabde3d806",
+          "bytes": 25082
+        },
+        "01-report.md": {
+          "sha256": "a579b7c597f5fd57e773ff98113eaa51df900c6ca28c0cca8f0a6a6baa6f92d7",
+          "bytes": 26611
+        },
+        "01-fallback.json": {
+          "sha256": "92db7cb6f5854f393979486aa23fe8408d5be46fe9f54b0c80df2e33230caf1a",
+          "bytes": 3779
+        }
+      },
+      "exempt_from": "regen/刷新批禁扫入——01-check F 组钉值违例即触碰证据信号（T3 随读复核）",
+      "refresh_path": "有意图刷新走裁定链写明理由（Jest --ci／pinned-corpus freshness-pause 同构）；阈值禁下调、禁手改数字冒充重钉",
+      "scope": "恰 01 系五件——02/38/56 系未被钉历史数字不自动豁免，同类判定准则=「历史证据 vs 当前断言」逐类裁定"
+    }
+  ]
 }
