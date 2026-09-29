@@ -307,3 +307,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（R45 收口节；reports/R45-Q{1,2}-*.md 四件）
 - impact: 裁定层闭环（两题裁毕＋一处 revised 规程履行）；验收层开放——kr-01 物理复绿/r1 重立项呈批/frozen 豁免标注/上游观察项全挂执行窗；registry＋01 系工件本收口节零触碰
+
+## [M-039] - 2026-09-29
+
+- milestone: R45-impl 执行窗兑现批（轮46 T1，分支 r46-t1-exec）——kr-01 冻结重钉字节级恢复 3 件（git show 3a049d45；commit 树 blob id 逐件对账一致）＋01-check 82/82 复绿＋known-red-manifest 摘除结案（册内红清零）＋frozen 证据包机器可查豁免立法落地（frozen_evidence_packs 节＋01-check F 组钉值断言）＋r1 RA 腐化基座类重立项草案呈批（docs/ra/，待用户裁定）＋r2 wontfix 恒久类追认注记＋anysearch-cli 上游漂移观察项入册（intent 9→1＋无认领票双标注）＋T3 哨兵八确认行落册
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R45 收口节 执行窗兑现小节；reports/2026-09-29-r46-exec-report.md）
+- impact: kr-01 验收层消解、册内红=0（guard-all-run 60/60 全绿）；registry 74 项；Stage-2 ①④ 维持值守；r1 RA 待用户批准（min(事件,2026-12-28)）；frozen 01 系五件此后禁扫 regen/刷新批

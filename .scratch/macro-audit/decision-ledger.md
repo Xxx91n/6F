@@ -1298,3 +1298,16 @@ scoping（非裁面/执行边界如实登记）：
 
 - **裁定层：闭环**——轮44 交接两开口缝全终局名分（O3=RA 到期分类立法／守卫欠账面=kr-01 重钉收口裁），逐题拍板留痕；一处 revised 规程履行（D-169-b②）。
 - **验收层：开放**——kr-01 册件仍红在册（重钉工件未动——裁定已立执行未行）；r1 档案待呈批（裁者=用户）；Stage-2 ①④ 值守不变。「册内红件已消解」禁作对外口径至重钉兑现。
+### 执行窗兑现（R45-impl 批 = 轮46 T1，2026-09-29 落盘，分支 r46-t1-exec）
+
+- **T1-C kr-01 冻结重钉＋摘除**（D-172①⑤）：git show 3a049d45 原 blob 字节级恢复 01-corpora/align/spotcheck 三件——工作树 sha256 对账一致（corpora=5a2e0491…/align=8bc5fb58…/spotcheck=26a1821c…）且 commit 树 blob id 与冻结目标逐件相等（重钉 commit uom 经 amend 校正 GitButler 无尾换行序列化偏差后落地）；01-report.md/01-fallback.json 未被 c6fe0f8 波及未动（sha256=3a049d45 blob 实证）；01-check.mjs 75/75→82/82 复绿（D1 anysearch-cli intent 1→9≥5 地板恢复＋D5 45/45 锚分互认恢复）→known-red-manifest kr-01 人工摘除入 closed[]（结案=已消解〔冻结重钉＋立法〕＋lifecycle_log 追加误伤归因行 D-172③＋review_anchor_correction 无属主腿修正注记 D-172⑤）；registry known-red-kr-01-corpus-regen status→decided＋确认行＋corpus-resnapshot-landed 事件 superseded_by 注记（保留不翻 occurred）。
+- **T1-D frozen 豁免机器可查标注**（D-172②）：最小形态=manifest 豁免节——frozen_evidence_packs[id=frozen-01-series] 五件 sha256/bytes 钉值在册；01-check 新增 F 组断言（F1 豁免节在位且覆盖恰五件＋F2 逐件钉值一致）——regen/刷新批触碰=钉值红即违例信号；范围恰 01 系五件，02/38/56 系不自动豁免。
+- **T1-A r1 RA 重立项草案呈批**（D-171③a）：docs/ra/r1-lineage-edgecap-accepted-risk.md 五要件成文呈批——判据引用（D-171①a 腐化基座类）＋justification＋补偿控制（reprobe 路径）＋具名裁者=用户＋到期 min(复评触发,2026-12-28)＋复审钩重验补偿控制存续；§6 待裁登记，registry r1 项确认行=refiled-draft-pending-approval（批准前原事件制字段维持值守不预判裁定）。
+- **T1-B r2 追认注记**（D-171③b）：registry r2 确认行补注 wontfix 恒久类判定＋双条件核验（在册可核验 sentinel=本项 expires_at/review_event 锚＋低频盘查钩=T3 普查复读）——字段标注非内容重裁，无需重批。
+- **T1-E 上游漂移观察项**（D-172④）：registry 新增 anysearch-cli-intent-drift-watch（manual_watch 五要素齐备，family=upstream-drift）——intent 9→1 实测退化＋「该退化无认领票」双标注在册＋观察期条款（上游永久演进坐实→冻结包代表性衰减声明随观察项＋S1 重校准走有意图裁定非机械 regen）；跨仓主权不代排产。
+- **T1-F r1 reprobe 代码路径哨兵**：可选加固不建制呈裁量（日历兜底复审已覆盖静默腐化探测——D-171③a 明裁不建制不违规）。
+- **词条同步核验**（D-171④/D-172② 余量）：CONTEXT「Accepted Risk」到期二分扩写（L347~349）＋「Frozen 证据包」词条（L359~361）＋AGENTS.md RA/守卫组/Frozen 行已随 R45 收口批（b3306052）落地——本批实证复核在册零补写。
+- **T3 值守读数**（同窗落册 8 确认行）：批2-β 八件全 triaged 零恶化＋mini-五要素 8/8／点火三问全否续挂账（batch2beta-open-triggers）／GAP-HOST-01 RA 关档维持复审钩 min(IDE会话,2026-12-27) 未逾期／F-02 盲区续存（codebuddy mcp list 实测输出「No MCP servers configured」——宿主侧未修不代办）／退役通道零使用（retired[]=[]＋_retired/README 在位）／Stage-2 四判据①阻塞②维持③维持④计时中→维持关闭／protected-surface 普查 60/60 声明非空零消亡／fresh-clone 随读（泛化未落地复跑义务未激活）。
+- **验收层读数更新**：kr-01 册件已消解（冻结重钉兑现＋manifest 摘除在册）——册内红=0，「册内红件已消解」自此可引用（D-170 分层口径：kr-01 验收层闭合）；r1 档案呈批待用户裁定（验收层开放项）；Stage-2 ①④ 值守不变。
+- 收口守卫硬跑：guard-all-run GUARD-ALL-RESULT PASS（ran=60 green=60 red=0 registered=0 allOk=true；升格判据成立——红集⊆manifest=空册＋无册件复绿告警残留）＋engine npm run build BUNDLE-OK／check-dist PASS 263151B／selftest 5/5／npm pack dry-run 85 files／smoke 349 PASS 0 FAIL／engine/dist 零 drift；编年随行 M-039；commit 序 uom(重钉)→nvm(frozen 立法+摘除)→mzz(登记面)→qwn(生成物 bundle)。
+- O6 顺删续挂账（本轮未触 40-check.mjs——D-167-c① 随下次触碰兑现）。
