@@ -59,6 +59,7 @@
 - Stage-2 判据包四读数值守：①capability 漏斗态（Macro-A 绑 DoR-b——真实仓 facts 面形成与否）／②fresh-clone 判据维持／③GAP-HOST-01=RA-closed 复审钩值守／④**窗读数=window_state 字段机读**（not_started 期不报「计时中」；R47 增量=window_state_enum 补位后读数形态=枚举内值断言）。
 - IDE 面可得→charter 三判据重跑读数标 IDE-specific＋r1 RA 档案复审钩（min(复评触发,2026-12-28)——复审时重验 reprobe 补偿控制存续）；F-02 哨兵复测。
 - **等待期序随读**（D-175）：挂账项膨胀度＋allowed/deferred 清单与实际批工位一致性核对（清单成文后生效）。
+- **frozen_evidence_packs 代表性复审节律**（(d) 面建制——atomcode 调研终裁「建=T3 节律行」2026-09-29）：钉值完整性由 01-check F 组／75a-check M5 常驻机检覆盖，本行值守「代表性衰减」语义面——每审计窗复读上游 intent/corpus 漂移信号（intent-drift-watch 在册管上游漂移面，本行只管代表性声明复读——防双册双源）＋代表性衰减声明有无（D-172④ 观察期条款进读数面）。
 
 ### 挂账常项（勿重复烤）
 

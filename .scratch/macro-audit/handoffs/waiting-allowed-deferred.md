@@ -100,7 +100,7 @@
 | nb-resolve-ownership | 挂账常项 | — | deferred | resolve 归属争议点——评审方可回访时重开 |
 | c-stage1-charter-template | (c) 候选件 | (c) | allowed | 用户拍板「建」（2026-09-29 呈批回执）——已落盘 trials/stage1-charter-template.md 备而建不启用（首个具案仍须用户逐案闸门 D-162⑤） |
 | c-pilot-intake-pipeline | (c) 候选件 | (c) | deferred | 用户拍板「缓建」（2026-09-29 呈批回执）——本体不建，至多接口草约 |
-| d-33check-enum-assert | (d) 具体件 | (d) | deferred | 呈裁中——atomcode 调研推荐「建（含跨字段断言，须 D-147 预声明验证包）」（2026-09-29 回报）——待用户终裁|
-| d-guard-perf-baseline | (d) 具体件 | (d) | deferred | 呈裁中——atomcode 调研推荐「缓建挂观察触发器」（噪声环境无基线不立硬门；解封形态=报告 footer 派生行）——待用户终裁|
-| d-frozen-pack-recheck | (d) 具体件 | (d) | deferred | 呈裁中——atomcode 调研推荐「建，形态=T3 哨兵普查节律行非 manual_watch 册项（防双册）」——待用户终裁|
+| d-33check-enum-assert | (d) 具体件 | (d) | allowed | 用户终裁「建」（2026-09-29）——已建制：33-check.mjs J 组两断言（J1 值域＋J2 流转合法边）随 D-147 预声明验证包工序落地|
+| d-guard-perf-baseline | (d) 具体件 | (d) | deferred | 用户终裁「缓建」挂观察触发器（2026-09-29）——解封条件=守卫耗时进关键路径实测信号／CI 超时复发；解封形态锁=报告 footer 派生行（D-175③ 禁新状态文件）|
+| d-frozen-pack-recheck | (d) 具体件 | (d) | allowed | 用户终裁「建=T3 节律行」（2026-09-29）——已建制：next-round.md T3 增代表性复审节律行（挂 next-audit-window 锚）；不建 manual_watch 册项（防双册）|
 

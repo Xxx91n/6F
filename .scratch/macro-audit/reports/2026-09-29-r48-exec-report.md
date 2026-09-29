@@ -121,4 +121,22 @@ bundle-only commit（D-140② 生成物独立 commit——若有守卫全量跑�
 | d-guard-perf-baseline | **缓建**（挂观察触发器） | 若解封=guard-all-run 报告 footer 派生耗时行（D-175③ 禁新状态文件） | 高 | criterion FAQ「CI 噪声环境性能回归不应门禁失败」＋pythonspeed 实测噪声 ~1.5%＋Stryker「先读数分布后阈值」——本仓零观测零消费面 |
 | d-frozen-pack-recheck | **建** | T3 哨兵普查节律行（挂 next-audit-window 锚），不建 manual_watch 册项 | 中高 | attestation 时效 policy/chain-of-custody 周期盘查惯例；完整性已有 01-F/75a-M5 常驻，缺口仅「代表性」语义面；防双册（intent-drift-watch 在册） |
 
-**冲突清单=零 revised**——两处张力如实呈报：①D-175② 点名列「性能基线」为主体面类目而件级判缓建——属 D-175④⑦「立法不立件、枚举呈裁量位」预留裁量空间，非改向；②manual_watch 形态拒绝=防双册双源（intent-drift-watch 已覆盖同观察面），非拒登记纪律。终裁待用户拍板。
+**冲突清单=零 revised**——两处张力如实呈报：①D-175② 点名列「性能基线」为主体面类目而件级判缓建——属 D-175④⑦「立法不立件、枚举呈裁量位」预留裁量空间，非改向；②manual_watch 形态拒绝=防双册双源（intent-drift-watch 已覆盖同观察面），非拒登记纪律。**终裁已落（见末节回执）**：①建→J 组断言随 D-147 包动工（33-check 33/33 绿）；②缓建挂触发器；③建→T3 节律行入 next-round.md。
+
+## (d) 面终裁回执（2026-09-29 用户拍板）
+
+| 件 | 终裁 | 落地 |
+| --- | --- | --- |
+| d-33check-enum-assert | **建（采纳调研推荐）** | 先做 D-147 预声明验证包（本节下），再改 33-check.mjs 增 J 组两断言 |
+| d-guard-perf-baseline | **缓建（采纳调研推荐）** | 清单行 deferred 维持＋挂观察触发器（守卫耗时进关键路径实测信号／CI 超时复发即解封；解封形态锁=报告 footer 派生行，D-175③ 禁新状态文件） |
+| d-frozen-pack-recheck | **建=T3 节律行（采纳调研推荐）** | T3 哨兵值守增「frozen_evidence_packs 代表性复审」节律行（挂 next-audit-window 锚）；禁立 manual_watch 册项（防双册——intent-drift-watch 在册管上游漂移面） |
+
+### D-147 预声明验证包（d-33check-enum-assert 动工前置——探测面变更工序）
+
+- **断言面变更**：33-check.mjs 新增 J 组两断言（探测面增量——字母序 J 组入 I 组后值守快照前，不入 stale/vacuity 册）
+  - J1 `stage2-launch-criteria.window_state ∈ window_state_enum`（枚举键在且当前值归属——值域断言）
+  - J2 `window.start_event 已注册 ⇔ window_state ∈ {running, satisfied_at}`；且注册值须 `∈ window.start_event_enum`（跨字段流转合法边——D-174② 可选层兑现）
+- **预期当前态（写前声明）**：J1 PASS（not_started ∈ 三态闭集）；J2 PASS（start_event=null ⇔ not_started 一致——registered⇔not_started 双向成立）
+- **预期红态诱导面**：window_state 写词表外值→J1 红；window_state=running 而 start_event=null→J2 红；start_event=词表外值→J2 红；window_state=not_started 而 start_event 已注册→J2 红
+- **复验命令与预期**：`node 33-check.mjs` → PASS 33/33（31+2 断言入总线）；`node guard-all-run.mjs` → 60 件全绿（断言增在既有守卫件内，守卫计数不变）
+- **改动面限定**：33-check.mjs 唯 +J 组；registry／其余守卫／其余断言组零改动；sealed/stale/vacuity 面无涉

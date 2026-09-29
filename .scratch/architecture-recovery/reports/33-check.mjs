@@ -325,6 +325,20 @@ t('I4 evidence 指针存在（逐条 evidence 路径可解析）', vmEvMiss.leng
 const vmOverdue = vmEntries.filter(e => typeof e.expires_fallback === 'string' && e.expires_fallback < TODAY33).map(e => e.id);
 if (vmOverdue.length) warns.push('vacuity-manifest 复审锚逾期未动（expires_fallback<' + TODAY33 + '）：' + vmOverdue.join(',') + ' → risk_accepted 候选同构转人工裁决（D-041③ 同构）');
 
+// --- J. stage2-launch-criteria 静默窗枚举建制校验（D-174①④ window_state_enum 值域断言＋D-174② 跨字段流转合法边——D-147 预声明验证包先行，见报告 2026-09-29-r48-exec-report.md 末节） ---
+const itW = reg.items.find(i => i.id === 'stage2-launch-criteria');
+const wEnum = itW && Array.isArray(itW.window_state_enum) ? itW.window_state_enum : [];
+t('J1 window_state ∈ window_state_enum 值域断言（枚举键在＋当前值归属——D-174①④ 枚举建制消费面）',
+  !!itW && wEnum.length === 3 && wEnum.includes(itW.window_state),
+  itW ? 'state=' + itW.window_state + ' enum=' + JSON.stringify(wEnum) : 'item missing');
+const wObj = itW && itW.window ? itW.window : {};
+const startReg = wObj.start_event !== null && wObj.start_event !== undefined && wObj.start_event !== '';
+const startLegal = !startReg || (Array.isArray(wObj.start_event_enum) && wObj.start_event_enum.includes(wObj.start_event));
+const started = itW ? itW.window_state !== 'not_started' : false;
+t('J2 window_state↔start_event 流转合法边（start_event 已注册⇔state∈{running,satisfied_at}；注册值须∈start_event_enum——D-174② 可选层兑现）',
+  !!itW && startReg === started && startLegal,
+  'start_event=' + JSON.stringify(wObj.start_event) + ' state=' + (itW ? itW.window_state : 'missing'));
+
 
 console.log('--- 值守快照 ---');
 alarms.forEach(a => console.log('ALARM ' + a));
