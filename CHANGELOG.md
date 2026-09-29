@@ -360,6 +360,7 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（R48 收口节；reports/R48-Q{1,2,4}-atomcode-research.md 系列）
 - impact: D 面 179 条（163 current/15 revised/1 closed）；执行窗义务四件登记（死件处置包轮49 T1＋调研件补落文书批＋D-177 文书面落行＋种子化包 D-176 后排程）；CONTEXT +1 词条（预声明验证包）；macro-b schedule 回归覆盖缺口如实挂账（验收层开放面）
+
 ## [M-046] - 2026-09-29
 
 - milestone: R48-impl 执行窗批（轮49 T1）——D-176 死件处置包兑现（macro-b-regression.yml L144 病态标量加引号复原＋46-check A18 parse 档病态闸〔charCode 指示符判定——剥面引号态吞行教训随行〕＋registry ci-workflow-liveness-watch manual_watch 册项五要件）＋D-177 工序首个适用实例（预声明验证包先落物化面＋红态诱导实跑读数随批）＋WORKFLOW §4.2.8 落行＋D-178 (d) 面调研件物化（R48-d-face-atomcode-research.md）＋D-179 伴生再生减负包建制（deterministicRunAt 种子化〔SOURCE_DATE_EPOCH 注入/缺席=固定 epoch 0/非法值 fail-closed〕＋volatile-fields.json 键级豁免枚举〔纯挥发 11 键/派生信号禁列 18 键/frozen 禁区〕＋d179-check 两跑零 diff 自检件〔Bazel null-build 同构〕＋prereg_commit 改钉 criteria 预声明锚断永漂尾）；伴生 churn 实测 12~14/轮→0（guard-all-run 跑后 git status 零 diff）
