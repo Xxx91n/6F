@@ -1679,10 +1679,10 @@
       "watch": "risk_accepted",
       "acceptor": "用户（2026-09-27 R36-Q1 拍板）",
       "reason": "病态角非硬错——触发需 subject 零边∧边池触帽双重条件；披露伞 truncated 在有边时如实工作；补偿控制=reprobe 路径经非空 lineage 块回查",
-      "expires_at": "复评触发：出现 subject 零边且触帽真实案例即重开裁定（事件制非日历期）",
+      "expires_at": "min(复评触发：subject 零边且触帽真实案例先到, 2026-12-28 日历兜底)（D-171①a 腐化基座类标准形——2026-09-29 用户批准重立项生效）",
       "owner": "macro-audit 队列值守",
       "review_event": "stage3-close",
-      "verify_method": "复评触发命中即把本条升回裁定链重裁（Accepted-Risk 三要素齐备在案：不修理由+补偿控制+复评触发）",
+      "verify_method": "复评触发命中或日历兜底到期（早者为准）即把本条升回裁定链重裁＋复审钩=重验补偿控制存续（reprobe 代码路径存在性）（Accepted-Risk 五要件齐备在案：不修理由+补偿控制+具名裁者+双锚到期+复审钩）",
       "confirmations": [
         {
           "at": "2026-09-27",
@@ -1707,6 +1707,14 @@
           "decision": "refiled-draft-pending-approval",
           "reason": "r1 判腐化基座类（reprobe 补偿控制=代码路径依赖可静默腐化——重构删路径不产生事件）→按新标五要件重立项 RA 档案草案 docs/ra/r1-lineage-edgecap-accepted-risk.md 成文呈批（到期=min(复评触发事件,2026-12-28)＋复审钩重验补偿控制存续）；具名裁者=用户——批准决定待决前原事件制到期字段维持值守，不预判裁定",
           "evidence": "docs/ra/r1-lineage-edgecap-accepted-risk.md（呈批件）"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "用户（Xxx91n）批准——轮46 审计 LOOP 批落册",
+          "criterion_version": "D-171③a 五要件",
+          "decision": "refile-approved",
+          "reason": "用户批准 r1 腐化基座类重立项（呈批件 docs/ra/r1-lineage-edgecap-accepted-risk.md）：到期转 min(复评触发,2026-12-28) 双锚＋复审钩重验补偿控制存续；批准人=用户≠呈批人=执行批——D-169-b② 职责分离合规",
+          "evidence": "docs/ra/r1-lineage-edgecap-accepted-risk.md §6 回填＋本项 expires_at/verify_method 双锚字段"
         }
       ],
       "bound_to": "#80 步③血缘缝合呈报项（R36-T2 审计窗产出）"
@@ -2316,7 +2324,7 @@
     {
       "id": "anysearch-cli-intent-drift-watch",
       "family": "upstream-drift",
-      "title": "anysearch-cli intent 面上游漂移观察项——语料 intent 面实测 9→1（c6fe0f8 loop-2 再生捕获）＋该退化无认领票",
+      "title": "anysearch-cli intent 面上游漂移观察项——语料 intent 面实测 8→1（c6fe0f8 loop-2 再生捕获）＋该退化无认领票",
       "deadline_event": null,
       "deadline": "—（manual_watch 观察项）",
       "trigger_event": null,
@@ -2325,9 +2333,9 @@
       "review_event": "next-audit-window",
       "status": "pending",
       "watch": "manual_watch",
-      "source": "commit c6fe0f8 实测捕获（anysearch-cli intent units 9→1）＋D-172④ 移交裁定",
+      "source": "commit c6fe0f8 实测捕获（anysearch-cli intent units 8→1）＋D-172④ 移交裁定",
       "owner": "macro-audit 队列值守",
-      "verify_method": "对照 01-corpora.json frozen 锚（anysearch-cli intent=9）与 c6fe0f8 退化读数（=1）：复测上游 intent 面计数／检索上游仓认领票——「该退化无认领票」标注在场复核；漂移坐实即呈裁冻结包代表性衰减声明，S1 重校准须有意图裁定",
+      "verify_method": "对照 01-corpora.json frozen 锚（anysearch-cli intent=8）与 c6fe0f8 退化读数（=1）：复测上游 intent 面计数／检索上游仓认领票——「该退化无认领票」标注在场复核；漂移坐实即呈裁冻结包代表性衰减声明，S1 重校准须有意图裁定",
       "confirmations": [
         {
           "at": "2026-09-29",
@@ -2336,6 +2344,14 @@
           "decision": "registered",
           "reason": "上游漂移移交观察项落地：intent 9→1 退化读数＋「该退化无认领票」双标注在册；跨仓主权——不代立案不代排产（D-172④ 负向）；漂移移交=观察项非代管",
           "evidence": "known-red-manifest.json frozen_evidence_packs 节＋closed kr-01 lifecycle_log＋01-check F 组钉值"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "轮46 审计 LOOP 修复批（F1 勘误兑现）",
+          "criterion_version": "D-146⑤",
+          "decision": "errata-anchor-corrected",
+          "reason": "冻结锚勘误：实测退化系 anysearch-cli intent 8→1→8（非 9→1）——frozen 01-corpora.json 三时点 intent.len=8（0e5b2514/3a049d45/重钉后）＋frozen 01-report.md 自记意图单元=8；本项 title/source/verify_method 字段更正为 8，原确认行留痕不改写",
+          "evidence": "01-report.md 意图单元行＋git 历史三时点实测＋decision-ledger.md 轮46 LOOP 勘误节"
         }
       ],
       "bound_to": "#轮46 T1-E（D-172④）"

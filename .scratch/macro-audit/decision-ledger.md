@@ -1311,3 +1311,16 @@ scoping（非裁面/执行边界如实登记）：
 - **验收层读数更新**：kr-01 册件已消解（冻结重钉兑现＋manifest 摘除在册）——册内红=0，「册内红件已消解」自此可引用（D-170 分层口径：kr-01 验收层闭合）；r1 档案呈批待用户裁定（验收层开放项）；Stage-2 ①④ 值守不变。
 - 收口守卫硬跑：guard-all-run GUARD-ALL-RESULT PASS（ran=60 green=60 red=0 registered=0 allOk=true；升格判据成立——红集⊆manifest=空册＋无册件复绿告警残留）＋engine npm run build BUNDLE-OK／check-dist PASS 263151B／selftest 5/5／npm pack dry-run 85 files／smoke 349 PASS 0 FAIL／engine/dist 零 drift；编年随行 M-039；commit 序 uom(重钉)→nvm(frozen 立法+摘除)→mzz(登记面)→qwn(生成物 bundle)。
 - O6 顺删续挂账（本轮未触 40-check.mjs——D-167-c① 随下次触碰兑现）。
+### 轮46 审计 LOOP 修复批（2026-09-29 落盘——审计呈报 F1~F6 处置＋r1 呈批裁定兑现）
+
+- **r1 RA 裁定兑现（用户批准）**：docs/ra/r1-lineage-edgecap-accepted-risk.md §6 回填（决定=批准／裁定时间=2026-09-29／裁者签认=用户(Xxx91n)）＋registry r1 项确认行 refile-approved＋expires_at 转 min(复评触发,2026-12-28) 双锚＋verify_method 补复审钩（重验 reprobe 补偿控制存续）——批准人=用户≠呈批人=执行批，D-169-b② 职责分离合规。
+- **勘误登记（D-146⑤ 链式追加——原行留痕不改写）**：
+  - F1 intent 锚数勘误：「anysearch-cli intent 9→1」实系 **8→1→8**——frozen 01-corpora.json 三时点 intent.len=8（0e5b2514 初刻／3a049d45 冻结源／重钉后）＋frozen 01-report.md 自记意图单元=8；错值源自 R45 规范层原文（T1-E/D-172④ 口径）经执行批传播至报告/commit msg/registry verify_method 机读面。处置=registry drift-watch 项 title/source/verify_method 更正 9→8＋errata-anchor-corrected 确认行挂链；历史面（执行报告/账本小节/编年/commit msg/manifest lifecycle）留痕不改。
+  - F2 manifest lifecycle 记「01-check PASS 75/75」系落位前时点实录（F 组 7 断言同 commit 增列后实跑 82/82）——时点差非错账，本条登记澄清。
+  - F3 执行报告「AGENTS.md RA/守卫组/Frozen 行」措辞虚列——AGENTS.md 实含 RA/守卫组材料（b3306052 单行 RA 修订），「Frozen 证据包」词条实落 CONTEXT.md（L359~361）——报告原文留痕，本条登记勘误。
+- **建制扩面（审计建议兑现）**：
+  - F4：75a-check.mjs 增 M4（closed[] 结案留档 schema：九要素+guard 文件在）＋M5（frozen_evidence_packs schema：立法要素+64hex-sha256/bytes 非零钉值形态）——同 M3 retired 建制先例，新顶层类自此有 schema 钉防任填；63-assertion-inventory.json 棘轮随增列重钉（75a 断言 14→16，70-check E1 复绿 13/13）。
+  - F5：01-check.mjs F 组修缮——F1 标签复用消歧（覆盖断言改 F1b）＋PROTECTED_SURFACE 声明扩 frozen 豁免钉值面＋OK 汇总行补 F 组枚举。
+  - F6：qwn（原 aebd49c6）chore bundle commit reword 补 Ledger-Refs/Adrs 拖车对齐三拖车建制（bundle 语义不变）。
+- **验收重跑（审计同款十面硬验收——修复后全格复现）**：build BUNDLE-OK／package 85 files≈1.0MB／selftest 5/5／check-dist 263151B PASS／smoke 349 PASS 0 FAIL／guard-all-run 60/60 green red=0 allOk=true／01 82/82／33 31/31／75a 16/16／70 13/13。修复中途 70-check E1 曾报册外新红（75a ids 14→16 未重钉）——按机制自带修法 update-70-inventory.mjs 重钉复绿，非掩盖处置。
+- **用户门清零**：r1 RA 批准裁定落地＋F1 勘误形态裁决（D-146⑤ 链式注记）——上轮审计交接两裁面全兑现。
