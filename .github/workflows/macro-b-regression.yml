@@ -141,7 +141,7 @@ jobs:
             fi
           fi
 
-      - name: verify report artifacts (three-check: present + JSON parse + verdict/reason_class enum + intake_health)
+      - name: "verify report artifacts (three-check: present + JSON parse + verdict/reason_class enum + intake_health)"
         if: steps.oneshot.outputs.rc == '0'
         env:
           REPO_NAME: ${{ matrix.repo.name }}
