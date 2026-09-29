@@ -299,3 +299,11 @@
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（R43 收口节执行窗兑现小节；reports/2026-09-28-r44-exec-report.md）
 - impact: Stage-2 判据③转「RA 五要件齐备关闭」态（①④未达 Stage-2 维持关闭）；registry 73 项哨兵确认行续任；GAP-HOST-01 IDE 复审钩=min(下次 IDE 会话,2026-12-27)
 
+
+## [M-038] - 2026-09-29
+
+- milestone: R45 grill 收口——RA 到期语义分类立法（D-171：腐化基座类强制 min(事件先到,≤90d) 双锚／wontfix 恒久类事件制双条件豁免=在册可核验 sentinel＋低频盘查钩〔T3 普查〕，判据钉补偿控制存续承载性；D-169-b② 普适 ≤90d 收窄 revised 留痕）＋kr-01 册内红收口裁（D-172 (iv)：冻结重钉 3 件〔git show 3a049d45 字节级恢复 corpora/align/spotcheck〕＋frozen 证据包机器可查豁免立法＋流程缺陷归因登记＋上游漂移观察移交＋review_anchor 无属主修正——全挂执行窗）＋atomcode 双题调研存档零翻转
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R45 收口节；reports/R45-Q{1,2}-*.md 四件）
+- impact: 裁定层闭环（两题裁毕＋一处 revised 规程履行）；验收层开放——kr-01 物理复绿/r1 重立项呈批/frozen 豁免标注/上游观察项全挂执行窗；registry＋01 系工件本收口节零触碰
