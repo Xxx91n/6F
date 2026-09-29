@@ -110,3 +110,15 @@ bundle-only commit（D-140② 生成物独立 commit——若有守卫全量跑�
 | c-stage1-charter-template | **建** | 已落盘 `.scratch/macro-audit/trials/stage1-charter-template.md`（备而建不启用——模板不产生试点；首个具案仍须用户逐案闸门 D-162⑤） |
 | c-pilot-intake-pipeline | **缓建** | 清单行 deferred 维持（本体不建，至多接口草约） |
 | d-33check-enum-assert / d-guard-perf-baseline / d-frozen-pack-recheck | **转 atomcode 深度调研复核** | 用户令：调研须回顾账本全 current＋docs/adr＋CONTEXT＋工业界成熟心智模型出推荐与理由；辩证性看待——冲突→对应 D-xxx 标 revised＋新 D 呈裁，禁静默改向；回报后再拍板 |
+
+## (d) 面调研回报（atomcode 深度调研，2026-09-29 回报——待用户终裁）
+
+调研范围：账本全 current 记录＋docs/adr＋CONTEXT 词条＋守卫件本体（33-check/guard-all-run/01-F/75a-M5/registry/events）本地核读 9 文件＋联网 6 searches（web_search×4＋tavily＋anysearch 三引擎）/8 处全文（KEP-5241、release_phases.md、criterion CLI+FAQ、Stryker 配置、pythonspeed 噪声文、GitHub 限流最佳实践）。
+
+| 件 | 推荐 | 形态 | 置信 | 关键依据 |
+| --- | --- | --- | --- | --- |
+| d-33check-enum-assert | **建**（含可选跨字段断言一并建） | 33-check 增加值域断言＋流转合法边断言，须 D-147 预声明验证包 | 高 | D-174①④ 立法同向＋K8s conformance/KEP-5241 预声明判据惯例；枚举覆盖不对称欠账最后一半 |
+| d-guard-perf-baseline | **缓建**（挂观察触发器） | 若解封=guard-all-run 报告 footer 派生耗时行（D-175③ 禁新状态文件） | 高 | criterion FAQ「CI 噪声环境性能回归不应门禁失败」＋pythonspeed 实测噪声 ~1.5%＋Stryker「先读数分布后阈值」——本仓零观测零消费面 |
+| d-frozen-pack-recheck | **建** | T3 哨兵普查节律行（挂 next-audit-window 锚），不建 manual_watch 册项 | 中高 | attestation 时效 policy/chain-of-custody 周期盘查惯例；完整性已有 01-F/75a-M5 常驻，缺口仅「代表性」语义面；防双册（intent-drift-watch 在册） |
+
+**冲突清单=零 revised**——两处张力如实呈报：①D-175② 点名列「性能基线」为主体面类目而件级判缓建——属 D-175④⑦「立法不立件、枚举呈裁量位」预留裁量空间，非改向；②manual_watch 形态拒绝=防双册双源（intent-drift-watch 已覆盖同观察面），非拒登记纪律。终裁待用户拍板。

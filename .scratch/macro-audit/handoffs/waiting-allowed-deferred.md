@@ -100,7 +100,7 @@
 | nb-resolve-ownership | 挂账常项 | — | deferred | resolve 归属争议点——评审方可回访时重开 |
 | c-stage1-charter-template | (c) 候选件 | (c) | allowed | 用户拍板「建」（2026-09-29 呈批回执）——已落盘 trials/stage1-charter-template.md 备而建不启用（首个具案仍须用户逐案闸门 D-162⑤） |
 | c-pilot-intake-pipeline | (c) 候选件 | (c) | deferred | 用户拍板「缓建」（2026-09-29 呈批回执）——本体不建，至多接口草约 |
-| d-33check-enum-assert | (d) 具体件 | (d) | deferred | 呈裁中——用户令转 atomcode 深度调研复核（回报后再拍板；纪律：冲突→revised＋新 D 呈裁不静默改向）|
-| d-guard-perf-baseline | (d) 具体件 | (d) | deferred | 呈裁中——用户令转 atomcode 深度调研复核（回报后再拍板；纪律：冲突→revised＋新 D 呈裁不静默改向）|
-| d-frozen-pack-recheck | (d) 具体件 | (d) | deferred | 呈裁中——用户令转 atomcode 深度调研复核（回报后再拍板；纪律：冲突→revised＋新 D 呈裁不静默改向）|
+| d-33check-enum-assert | (d) 具体件 | (d) | deferred | 呈裁中——atomcode 调研推荐「建（含跨字段断言，须 D-147 预声明验证包）」（2026-09-29 回报）——待用户终裁|
+| d-guard-perf-baseline | (d) 具体件 | (d) | deferred | 呈裁中——atomcode 调研推荐「缓建挂观察触发器」（噪声环境无基线不立硬门；解封形态=报告 footer 派生行）——待用户终裁|
+| d-frozen-pack-recheck | (d) 具体件 | (d) | deferred | 呈裁中——atomcode 调研推荐「建，形态=T3 哨兵普查节律行非 manual_watch 册项（防双册）」——待用户终裁|
 
