@@ -22,6 +22,7 @@
 > 轮 40 grill（2026-09-28 完成）已封口 D-157 ~ D-162：第五轮锐评辩证处置六裁毕——摄入分诊九条定案（sibling 活体依赖勘误 9→3／幽灵钉挂 26-check）＋F-A1 谓词收紧剥后真消费形态（字符串/属性名/标识符提名不豁免＋S2 fxStringNom 正对照）＋守卫面环境契约分层（portable/env-contract 两档＋tier 自声明＋SKIP-with-reason 三态呈现契约）＋era-scoped 退役机制（面消亡判据＋manifest retired 类终态留档）＋提交信息三栏位 trailer 化（Ledger-Refs/Chronicle/Adrs）＋外部暴露梯度三段（Stage-0 追认／Stage-1 charter 复用／Stage-2 四判据包＋30 日静默窗）。
 > 轮 41 grill（2026-09-28 完成）已封口 D-163 ~ D-165：第五轮锐评「辩证复验——完成了没」审计——fresh-clone 亲测 14 红/13 册外归因四类环境前置漏探测→env-contract 泛化四类前置（git-object/engine-deps/asset/sibling＋SKIP 指引模板＋ghost 五件 T3 逐件判＋临时仓零写入读法＋tier 真实性重声明——**D-159→revised 留原文**，本轮唯一正面冲突按规程字面路径处置）＋envProbe 组级粒度精化（groupProbe 下沉——JUnit assumingThat/Go subtest 先例＋D-159⑤ 已隐式承认组内异质；拆件登记为复审触发）＋retired 发射哨兵锚定（消亡判据事件触发非纯时间窗；机制建制首例先行——Optuna 28→11 假阳实证）＋**分层定稿立法**（裁定层闭环≠验收层闭环——POA&M/retest-letter 五域先例收敛；验收层 fresh-clone 判据② FAIL 如实值守 Stage-2 维持关闭）＋二阶勘误链式追加（R40 勘误两件修正+subject 锚残留登记）；调研档案 R41-Q{1..3} 系列存档 .scratch/macro-audit/reports/。
 > 轮 43 grill（2026-09-28 完成）已封口 D-166 ~ D-170：第五轮锐评「辩证看待——完成了没」终局复验——逐项双层终局裁定（§2.1 双层闭环实证愈／§2.2·§2.3 显式驳回-USP2类带替代控制／§3.3 验收开放-值守／§1 留痕——retest-letter 逐条三态+证据锚形态）＋闸粒度上限终裁（组粒度=终态，语义单位重合/控制流≠验证流/生态最细停点三结构性理由；断言级 need() 不预建——首个断言级异质实例触发临窗裁）＋O4/O6 处置（三重披露维持不引 GREEN-WITH-SKIP 方言态——五生态先例一致；O6 顺删+Bond 判据「还能失败吗」入册）＋Stage-2 残余分层（①DoR-b 阻塞如实报——.scratch 四仓 facts 被 D-062③ 排除非生产线；③GAP-HOST-01 RA 档案草案呈批路径开＋具名裁者=用户；④30 日窗计时）＋T2 挂账续持三事件触发器（GAP-B2B 恶化/第二同型需求/缺口新增命中——real-options 零利息债弱支配＋FM-11 零确认用例停建）＋**D-148→revised**：RA 三要素→五要件标准（判据引用/justification+补偿控制/具名裁者/到期日≤90d/到期复审）＋分层定稿判据化（欠账三要素=具名 owner+时点锚+复验方式；裁定层宣告闭环、验收层开放双行呈报）；调研档案 R43-Q{1..5} 系列存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-148②）。
+> 轮 45 grill（2026-09-29 完成）已封口 D-171 ~ D-172：轮44 交接开口缝收口——RA 到期语义分类立法（腐化基座类强制 min(事件先到,≤90d) 双锚／wontfix 恒久类事件制合法双条件=触发事件在册可核验 sentinel＋低频盘查钩〔T3 审计窗普查形态〕；分类判据=补偿控制存续承载接受有效性；**D-169-b②→revised** 普适≤90d 收窄）＋kr-01 册内红收口裁（冻结重钉 3 件恢复历史证据包＋frozen 证据包机器可查豁免立法＋流程缺陷归因登记＋上游漂移观察移交＋review_anchor 无属主修正——全挂执行窗）；调研档案 R45-Q{1,2} 系列存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-169②）。
 
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
@@ -344,8 +345,8 @@ _Avoid_: 退化值当合法数据呈现（degraded 标记的 hotspot_score 仍�
 _Avoid_: 滞后快照当现状呈报（已修项再裁定）、未分诊直接进裁定链、pending 升格第四值守态（Watch Tri-state 封闭）、证伪态误投 pending 或裁定链（查清证伪≠查不清——悬置态与驳回态语义正交）、「快照不属实」裸标不附核实依据（INVALID 误用病——驳回定性须可复核）、要求评审方提交前重拉 HEAD（后续事项处置义务错配——接收方对照现状是本分）
 
 **Accepted Risk（验收风险处置）**:
-审计/评审 finding 的封闭处置态之一（Three-Disposition 分诊：Fixed／Deferred／Accepted-Risk；另 false-positive 第四态语义=「finding 不存在」非处置档，与评审摄入面「快照不属实」同族不同轴）；成名分须五要件齐备（D-169 升级取代 D-148② 三要素）——判据引用＋不修理由+补偿控制（可验证非「我们会小心」）＋具名裁者（起草人≠批准人）＋到期日（≤90d/到期复审钩——例外永久化=40% 组织实证反模式），缺任一=finding 被静默丢弃；活跃档到期缺失/已过禁续期须按五要件重立项（NYS「过期=失效=重新申请」）；存量档 grandfather 轻回填=字段标注普查非重做（D-169-b③）。
-_Avoid_: wontfix 裸标（暗示无声消失）、known-issue（无复评锚）、把 Accepted Risk 当第四值守态（与 Watch Tri-state 不同轴）
+审计/评审 finding 的封闭处置态之一（Three-Disposition 分诊：Fixed／Deferred／Accepted-Risk；另 false-positive 第四态语义=「finding 不存在」非处置档，与评审摄入面「快照不属实」同族不同轴）；成名分须五要件齐备（D-169 升级取代 D-148② 三要素）——判据引用＋不修理由+补偿控制（可验证非「我们会小心」）＋具名裁者（起草人≠批准人）＋到期日（≤90d/到期复审钩——例外永久化=40% 组织实证反模式），缺任一=finding 被静默丢弃；活跃档到期缺失/已过禁续期须按五要件重立项（NYS「过期=失效=重新申请」）；存量档 grandfather 轻回填=字段标注普查非重做（D-169-b③）；**到期形态二分**（D-171，收窄 D-169-b② 普适≤90d）：补偿控制存续承载接受有效性者→强制 min(事件先到,≤90d) 双锚（腐化基座类——含一切代码依赖型补偿控制）；wontfix 恒久类（接受=事实判据本身不依赖存续控制）→事件制到期合法，双条件缺一不可=触发事件在册可核验 sentinel（RA-4 同构——纯事件无周期也 fail）＋低频盘查钩（T3 审计窗存量普查复读＋review_at 锚；ISO 9.3 周期评审弱等价——wontfix 豁免日历兜底标位为中置信推断非标准明文）；分类漏洞亮线=判据钉「控制存续承载性」非名义标签。
+_Avoid_: wontfix 裸标（暗示无声消失）、known-issue（无复评锚）、把 Accepted Risk 当第四值守态（与 Watch Tri-state 不同轴）、到期形态不分（wontfix 恒久类强加日历=机械空转复审／缓期类裸事件无兜底=静默腐化豁口）、无在册哨兵或盘查钩的「纯事件豁免」（负面事实不可审计）
 
 **规程生效时点（Prospective/Grandfather 生效）**:
 一切 checklist/规程自其落盘 commit 起对新行为生效，落盘 commit 自身豁免（grandfather clause／lint 存量豁免惯例同构——「须先清零存量才能启用规则」是死局）；豁免对象=新规程文本，落盘时点已生效的旧守卫仍全额适用（D-148③；M-015 第三次实证注记——41a-D7 当时已正确履职红→补录=机制工作非失效）。
@@ -354,6 +355,10 @@ _Avoid_: 溯及既往（立法 commit 永远无法启动）、落盘豁免误读
 **守卫基线枚举（Guard Baseline Set）**:
 「收口前跑守卫组」的指称对象=明示枚举集（当前 18 件 NN-check＋xfail-run，AGENTS.md「守卫组指称」行载明）；入列=新 check 落盘轮登记＋实测绿，出列=T3 分诊门（D-094 三分类：合法漂移入册带期限／真坏修现实／欺诈死面禁 manifest）；升格终态=全量跑＋known-red manifest 判据（D-149④ 触发器挂 T3 manifest 产出当轮，防 graveyard 中间态固驻）。
 _Avoid_: 守卫组无指称（挑跑=选择歧义税源）、枚举只住换代任务书（挥发锚面）、静默红留无名分（确定性红常驻教团队无视红——Normalization-of-Deviance 机理）
+
+**Frozen 证据包（Frozen Evidence Pack）**:
+审计工件生命周期二分（D-172②）：工件语义=「历史证据」者冻结——钉死历史快照互认面的校准证据包（01-corpora/align/spotcheck/fallback/report 五件；再生即失义：新采样分永远对不上历史报告数字）；语义=「当前行为断言」者可再生。frozen 包须机器可查豁免标注（工件内标记字段或 manifest/registry 豁免节），再生成/刷新批禁扫入；有意图刷新走裁定链写明理由（Jest `--ci` 永不写 snapshot／golden=approved artifact 走 review-diff-approve 人审循环／pinned-corpus freshness-pause 先例同构）；上游漂移致 frozen 面转红=诚实入册＋冻结重钉恢复原 blob＋退化事实另立观察项移交（不吞——上游永久演进坐实→代表性衰减声明随观察项＋重校准走有意图裁定非机械 regen）；未审再生成=抹掉测试信号；手改数字冒充重钉=伪造证据完整性。
+_Avoid_: 证据包当可再生输出扫入 regen 批（误伤红）、frozen 读成「永不更新」（有意图刷新走裁定链非豁免）、阈值下调当收口（弱化判据=静默改向判据）、跨仓代排产（sibling 仓主权）、观察项缺「无认领票」标注（quarantine without ownership=graveyard——owner+issue+expiry 三要素缺任一不合格）
 
 **宿主试用（Host Pilot）**:
 跨宿主分发的实证验证形态（D-150~D-152）：载体=SBTM 三件套——charter（试用前 commit 入库＝Kill Criterion 预声明：可操作定义＋显式阈值＋命中方向＋未中语义；directive 非 prescriptive，执行步骤不进 charter）→ session 实测记录 → debrief 试用报告（标题自带 feasibility 语义，禁写成适配验收文书）。判据双轴：exit（过程完备性——判据全跑完＋每条有读数＋findings 全过摄入分诊＋报告落盘）与 success（各判据命中读数）独立取值——关窗不预设成功、关窗≠缺陷清零、未达标≠试用失败（pilot outcome 四档：stop/continue-with-modifications/monitoring/as-is）；关窗=判据驱动，禁写触发器形态（与 Trigger-gated Closure 同族不同轴——触发器等事件、判据封口等活动做完；关窗后残项→manual_watch 接力）；依赖不可得→读数=not-run 如实记录，不换仓不临场扩射程；宿主面内 agent 话术呈现=判据被测对象非立法对象。

@@ -299,3 +299,26 @@
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（R43 收口节执行窗兑现小节；reports/2026-09-28-r44-exec-report.md）
 - impact: Stage-2 判据③转「RA 五要件齐备关闭」态（①④未达 Stage-2 维持关闭）；registry 73 项哨兵确认行续任；GAP-HOST-01 IDE 复审钩=min(下次 IDE 会话,2026-12-27)
 
+
+## [M-038] - 2026-09-29
+
+- milestone: R45 grill 收口——RA 到期语义分类立法（D-171：腐化基座类强制 min(事件先到,≤90d) 双锚／wontfix 恒久类事件制双条件豁免=在册可核验 sentinel＋低频盘查钩〔T3 普查〕，判据钉补偿控制存续承载性；D-169-b② 普适 ≤90d 收窄 revised 留痕）＋kr-01 册内红收口裁（D-172 (iv)：冻结重钉 3 件〔git show 3a049d45 字节级恢复 corpora/align/spotcheck〕＋frozen 证据包机器可查豁免立法＋流程缺陷归因登记＋上游漂移观察移交＋review_anchor 无属主修正——全挂执行窗）＋atomcode 双题调研存档零翻转
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R45 收口节；reports/R45-Q{1,2}-*.md 四件）
+- impact: 裁定层闭环（两题裁毕＋一处 revised 规程履行）；验收层开放——kr-01 物理复绿/r1 重立项呈批/frozen 豁免标注/上游观察项全挂执行窗；registry＋01 系工件本收口节零触碰
+
+## [M-039] - 2026-09-29
+
+- milestone: R45-impl 执行窗兑现批（轮46 T1，分支 r46-t1-exec）——kr-01 冻结重钉字节级恢复 3 件（git show 3a049d45；commit 树 blob id 逐件对账一致）＋01-check 82/82 复绿＋known-red-manifest 摘除结案（册内红清零）＋frozen 证据包机器可查豁免立法落地（frozen_evidence_packs 节＋01-check F 组钉值断言）＋r1 RA 腐化基座类重立项草案呈批（docs/ra/，待用户裁定）＋r2 wontfix 恒久类追认注记＋anysearch-cli 上游漂移观察项入册（intent 9→1＋无认领票双标注）＋T3 哨兵八确认行落册
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R45 收口节 执行窗兑现小节；reports/2026-09-29-r46-exec-report.md）
+- impact: kr-01 验收层消解、册内红=0（guard-all-run 60/60 全绿）；registry 74 项；Stage-2 ①④ 维持值守；r1 RA 待用户批准（min(事件,2026-12-28)）；frozen 01 系五件此后禁扫 regen/刷新批
+## [M-040] - 2026-09-29
+
+- milestone: 轮46 审计 LOOP 修复批——审计呈报 F1~F6 全处置（F1 intent 锚 9→8 勘误〔D-146⑤ 链式〕＋F2/F3 时点/措辞澄清＋F4 75a M4/M5 closed/frozen_evidence_packs schema 扩面＋F5 01-check F 组消歧＋F6 qwn 拖车补齐）＋r1 RA 用户批准落册（§6 回填＋registry refile-approved 确认行＋expires_at 双锚）＋修复后十面硬验收重跑全格复现（guard 60/60、smoke 349/0）
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R45 收口节 轮46 审计 LOOP 修复批小节）
+- impact: 用户门清零（r1 批准＋F1 勘误裁定兑现）；registry 74 项 confirmations +2 行；75a 断言面 14→16＋70-inventory 重钉；账/工件面零弱化——审计呈报全闭环

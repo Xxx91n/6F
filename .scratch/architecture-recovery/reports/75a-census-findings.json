@@ -3,35 +3,35 @@
   "key": "01-check.mjs|magic-floor|5a113dcf",
   "file": "01-check.mjs",
   "kind": "magic-floor",
-  "lno": 38,
+  "lno": 39,
   "excerpt": "chk(Array.isArray(M.calibration.sweep) && M.calibration.sweep.length >= 15, 'D2 ' + m + ' calibration sweep >="
  },
  {
   "key": "01-check.mjs|magic-floor|30958fcf",
   "file": "01-check.mjs",
   "kind": "magic-floor",
-  "lno": 25,
+  "lno": 26,
   "excerpt": "chk(corpora.repos[r].delivery.units.length >= 50, 'D1 ' + r + ' delivery units >= 50 (got ' + corpora.repos[r]"
  },
  {
   "key": "01-check.mjs|magic-floor|4edad797",
   "file": "01-check.mjs",
   "kind": "magic-floor",
-  "lno": 52,
+  "lno": 53,
   "excerpt": "chk(labels.filter((l) => l.label === 'delivered').length === 13, 'D3 13 delivered');"
  },
  {
   "key": "01-check.mjs|magic-floor|1699072f",
   "file": "01-check.mjs",
   "kind": "magic-floor",
-  "lno": 50,
+  "lno": 51,
   "excerpt": "chk(labels.length === 15, 'D3 spot-check labels == 15 (got ' + labels.length + ')');"
  },
  {
   "key": "01-check.mjs|magic-floor|9aaf2e9c",
   "file": "01-check.mjs",
   "kind": "magic-floor",
-  "lno": 63,
+  "lno": 64,
   "excerpt": "chk(typeof fallback.combination === 'string' && fallback.combination.length > 10, 'D4 combination formula pres"
  },
  {
@@ -1180,7 +1180,7 @@
   "file": "43-check.mjs",
   "kind": "multi-hit-probe",
   "lno": null,
-  "excerpt": "git status --porcelain → .scratch\\architecture-recovery\\reports\\01-corpora.json×3"
+  "excerpt": "git status --porcelain → .scratch\\macro-audit\\reports\\2026-09-23-r31-audit-report.md×3"
  },
  {
   "key": "43-check.mjs|multi-hit-probe|e0c18297",
@@ -1285,7 +1285,7 @@
   "file": "44-check.mjs",
   "kind": "multi-hit-probe",
   "lno": null,
-  "excerpt": ".scratch/macro-audit/decision-ledger.md → CHANGELOG.md×34"
+  "excerpt": ".scratch/macro-audit/decision-ledger.md → CHANGELOG.md×36"
  },
  {
   "key": "44-check.mjs|multi-hit-probe|05991c04",
