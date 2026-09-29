@@ -1417,7 +1417,7 @@
       "trigger_event": "engine-ci-main-green",
       "trigger": "engine-ci.yml 在 main 分支最近一次 run conclusion=success",
       "review_at": "事件发生后随门面维护窗挂 badge（徽标指 main 分支 workflow）",
-      "status": "pending",
+      "status": "decided",
       "watch": "event_bound",
       "owner": "macro-audit 队列值守",
       "verify_method": "gh run list --workflow engine-ci.yml --branch main --limit 1 读 conclusion；未绿前 README 不得出现 workflow/actions 徽标（33-check H4 grep 机检）",
@@ -1437,6 +1437,14 @@
           "decision": "trigger-fired",
           "reason": "engine-ci-main-green 事件发生：main 实跑 35681529820 success——挂徽解锁，随 #77 门面收口包落地（挂载完成方翻 status）",
           "evidence": "gh run list --workflow engine-ci.yml --branch main → run 35681529820 conclusion=success"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R47-impl 执行批（轮48 T1，分支 r48-t1-exec）",
+          "criterion_version": "D-089⑤/D-175②⑦",
+          "decision": "badge-mounted",
+          "reason": "挂载完成翻 status（项内纪律「挂载完成方翻 status」兑现）：CI 徽标已于 2026-09-22 实挂 README.md（actions/workflows/engine-ci.yml/badge.svg?branch=main——engine-ci-main-green 事件 fired run 35681529820 success 同日解锁）；33-check H4 互等断言持续绿（occurred↔徽标在场）。如实披露：当前 main 最新实跑 36324002874（2026-09-27）conclusion=failure——根因=engine-ci.yml 末步 78-check 缺 working-directory 覆盖（job 默认 engine/ cwd 致 .scratch 路径错寻 MODULE_NOT_FOUND，e6724489 引入即带缺陷），徽标如实显红=诚实徽记生效非徽章缺陷；cwd 修复随本批同分支 engine-ci.yml 一行补丁落地。",
+          "evidence": "README.md 徽标行＋gh run list --workflow engine-ci.yml --branch main 读数＋.github/workflows/engine-ci.yml 修复 diff"
         }
       ]
     },
@@ -2127,10 +2135,23 @@
           "decision": "window-state-corrected",
           "reason": "窗读数链式更正（D-173①④兑现）：静默窗语义钉定后，前六次承载窗读数的确认行语义悬空——confs#0 registered（「四判据包+30日静默窗入册值守」登记行=窗规格入册非计时宣称）／#2 criterion-02-pass-read（「④A(a) 30日窗计时中」）／#3 layered-disposition-registered（「判据④ 30日窗计时确认」）／#4 criterion-03-ra-closed（「④30日静默窗计时中（findings封闭处置后计时起算）」）／#5 status-unchanged（「④30日静默窗计时中」）／#6 criteria-readings（「④计时中（30日静默窗未达标）」）——窗起点事件未发生（start_event∈{pilot_started,findings_all_closed,freeze_declared} 无一注册：Stage-1 charter 空集=零试点）⇒无起点锚的计时宣称=不可审计读数；判据④读数口径更正为 window_state=not_started（vacuous silence≠stability——空真不是稳定性证据）；读数链留痕不改写（D-146⑤ 勘误链二阶修正——原确认行逐字保留，本行即更正注记）。",
           "evidence": "registry 本项 window_state/window 机读字段＋decision-ledger.md D-173"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R47-impl 执行批（轮48 T1，分支 r48-t1-exec）",
+          "criterion_version": "D-174①④",
+          "decision": "window-state-enum-established",
+          "reason": "window_state 枚举键补位（D-174①④ 兑现）：window_state_enum=[\"not_started\",\"running\",\"satisfied_at\"] 顶层旁挂 window_state——同容器枚举覆盖不对称建制欠账消解（install-manifest-spec 结构缺口 bug 修复先例；值域闭集机读化，写错值有数据面闸）；枚举键=值域声明约束既有字段非数据字段扩张，window_state=not_started 当前值不动；跨字段断言（running/satisfied_at 态须 start_event 已注册）=可选叠加层未做——做则归 33-check 且须 D-147 预声明验证包工序（列 (d) 面候选呈裁量位）。",
+          "evidence": "registry 本项 window_state_enum 机读字段＋decision-ledger.md D-174"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）",
       "window_state": "not_started",
+      "window_state_enum": [
+        "not_started",
+        "running",
+        "satisfied_at"
+      ],
       "window": {
         "start_event": null,
         "start_event_enum": [

@@ -115,7 +115,7 @@
       ]
     },
     "33-check": {
-      "assertion_ids": 31,
+      "assertion_ids": 33,
       "call_styles": [
         "t()"
       ]

@@ -80,4 +80,6 @@ jobs:
 
       - name: 78-check quarantine 独立对账守卫（D-116② load-bearing：独立代码路径恒等式重算）
         shell: bash
+        # 本步跑仓根 .scratch 守卫——job 默认 working-directory=engine 致相对路径错寻（MODULE_NOT_FOUND 全平台红），显式覆盖回仓根
+        working-directory: ${{ github.workspace }}
         run: node .scratch/architecture-recovery/reports/78-check.mjs
