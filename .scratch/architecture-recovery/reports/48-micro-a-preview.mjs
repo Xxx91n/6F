@@ -17,13 +17,13 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from '
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
-import { siblingPath } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
+import { siblingPath, deterministicRunAt } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
 const DIST = join(REPO, 'engine', 'dist');
 const NL = String.fromCharCode(10);
-const RUN_AT = new Date().toISOString();
+const RUN_AT = deterministicRunAt(); // D-179① 种子化：SOURCE_DATE_EPOCH env 注入、缺席=固定默认 epoch——原 new Date() 墙钟熵源摘除，确定性=默认行为
 
 const C = await import(pathToFileURL(join(DIST, 'collect', 'collectors.js')).href);
 const G = await import(pathToFileURL(join(DIST, 'report', 'generate.js')).href);
@@ -87,6 +87,9 @@ if (!existsSync(OUTDIR)) { mkdirSync(OUTDIR, { recursive: true }); }
 // ---------- §2 小工具 ----------
 function git(root, args) { return execFileSync('git', ['-C', root].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }); }
 function tryGit(root, args) { try { return git(root, args).trim(); } catch (e) { return null; } }
+// D-179① 伴生确定性：prereg_commit 钉判据预声明件最后变更 commit（名实归位——「预声明锚」非运行时 HEAD；
+//   原 rev-parse HEAD 令每次 commit 后整批 golden 必漂，改钉 CRITERIA_PATH 锚=判据不动即恒值）
+const PREREG_COMMIT = tryGit(REPO, ['log', '-1', '--format=%h', '--', CRITERIA_PATH]) || 'unknown';
 function pickExcerpt(absOrRelPath, tokens, base) {
   const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
   const lines = text.split(NL);
@@ -341,7 +344,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
     decided_at: RUN_AT,
     commit_anchor: mergeSha,
     tree_anchor: treeSha,
-    gate_ref: { prereg_commit: (tryGit(REPO, ['rev-parse', '--short', 'HEAD']) || 'unknown'), criteria_path: CRITERIA_PATH, basis_path: '.scratch/architecture-recovery/issues/48-micro-a-preview.md', criterion_ids: CRITERION_IDS },
+    gate_ref: { prereg_commit: PREREG_COMMIT, criteria_path: CRITERIA_PATH, basis_path: '.scratch/architecture-recovery/issues/48-micro-a-preview.md', criterion_ids: CRITERION_IDS },
     degraded: collected.res.degraded === true,
     degraded_reason: collected.res.degraded === true ? '无凭据降级（unauthenticated 60/h 限额）——事实面如实降级' : null,
     preview_disclosure: {
@@ -430,7 +433,7 @@ async function buildRefusalReport(gp, allGates, shared, opts) {
     decided_at: RUN_AT,
     commit_anchor: commitAnchor,
     tree_anchor: treeSha,
-    gate_ref: { prereg_commit: (tryGit(REPO, ['rev-parse', '--short', 'HEAD']) || 'unknown'), criteria_path: CRITERIA_PATH, basis_path: '.scratch/architecture-recovery/issues/48-micro-a-preview.md', criterion_ids: CRITERION_IDS },
+    gate_ref: { prereg_commit: PREREG_COMMIT, criteria_path: CRITERIA_PATH, basis_path: '.scratch/architecture-recovery/issues/48-micro-a-preview.md', criterion_ids: CRITERION_IDS },
     degraded: false,
     degraded_reason: null,
     preview_disclosure: {

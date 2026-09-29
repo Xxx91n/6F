@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
+import { deterministicRunAt } from './_lib/env-contract.mjs'; // D-179① 种子化原语
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
@@ -46,7 +47,7 @@ for (const it of corpus.items) {
 
 const results = {
   eval_id: '56-heldout-eval-v1',
-  run_at: new Date().toISOString(),
+  run_at: deterministicRunAt(),
   corpus: { corpus_id: corpus.corpus_id, sha256_16: corpusSha, item_count: corpus.item_count },
   predeclared: {
     note: 'D-064⑤/D-065：held-out 分区存管＋修复后首跑复测＋禁参照 52a 标签调参；contract 层 100% 对齐、披露层全记 disclosed_fn、输出恒为二态',

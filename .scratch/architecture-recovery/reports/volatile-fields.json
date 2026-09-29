@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "decision_ref": "D-179②",
+  "purpose": "守卫伴生再生素描面「纯挥发族」键级豁免枚举——枚举制键级非全文件豁免；断言面消费=键级 diff 分类＋死项即红可达性棘轮（75a-S1/D-154③ 同构）",
+  "keys": [
+    "baggage_id",
+    "chain_hash",
+    "collected_at",
+    "decided_at",
+    "generated_at",
+    "ingested_at",
+    "issued_at",
+    "observed_at",
+    "receipt_id",
+    "run_at",
+    "trace_id"
+  ],
+  "derived_signal_banned": [
+    "adjudication_count",
+    "api_calls",
+    "commit_anchor",
+    "content_digest",
+    "context_flag_coverage",
+    "fact_count",
+    "fact_id",
+    "head_sha",
+    "item_count",
+    "mark",
+    "merged_prs",
+    "per_stratum",
+    "prereg_commit",
+    "prs_listed",
+    "rate",
+    "sha256_16",
+    "tree_anchor",
+    "violations"
+  ],
+  "enumerated_artifacts": [
+    "48-micro-a-golden-assertions.json",
+    "48-micro-a-golden-env-manager-facts.jsonl",
+    "48-micro-a-golden-env-manager-measurements.json",
+    "48-micro-a-golden-env-manager-pr51.json",
+    "48-micro-a-golden-env-manager-pr64.json",
+    "48-micro-a-golden-gate-probes.json",
+    "48-micro-a-golden-goose-duck-agent-facts.jsonl",
+    "48-micro-a-golden-goose-duck-agent-refusal.json",
+    "56-heldout-eval.json"
+  ],
+  "frozen_exclusion": "known-red-manifest.json frozen_evidence_packs[frozen-01-series] 五件（01-corpora/01-align/01-spotcheck/01-report/01-fallback）永不在豁免/再生面——钉值漂移即违例信号非伴生再生（D-171/D-172② 禁区声明）",
+  "notes": "keys 仅收纯挥发族（运行实例时戳＋UUID/回执哈希身份键——种子化后同输入恒值）；derived_signal_banned=派生信号族显式禁入锚（计数/盘点/git 派生 sha/内容摘要类——禁键须在工件键空间真实可达，反空虚校验锚）；同输入两跑零 diff 自检=d179-check.mjs B 组。"
+}
