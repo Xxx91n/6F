@@ -184,7 +184,8 @@
     },
     "corpus-resnapshot-landed": {
       "occurred": false,
-      "note": "#75批1 登记：01-check 语料再生退化的复审事件锚（kr-01-corpus-regen；任意语料重采样票落地即翻）"
+      "note": "#75批1 登记：01-check 语料再生退化的复审事件锚（kr-01-corpus-regen；任意语料重采样票落地即翻）",
+      "superseded_by": "D-172①⑤——kr-01 于 2026-09-29 经冻结重钉闭合（01-corpora/align/spotcheck 字节级恢复）；「任意语料重采样票落地」腿判无属主不合格锚点，不作翻转条件，事件保留存证不翻 occurred"
     },
     "next-audit-window": {
       "occurred": false,
@@ -1698,6 +1699,14 @@
           "decision": "ra-census-fields-verified",
           "reason": "两检查字段核验：裁者具名=用户（2026-09-27 R36-Q1 拍板）✓；到期在册=expires_at 复评触发事件制 ✓（grandfather 事件制形态保留标注：五要件口径下 expiry 为事件锚非日历——普查标注非重做，不重裁内容）；非到期缺失/已过档，不重立项",
           "evidence": "registry 本项 acceptor/expires_at 字段机读核验"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46-T1 执行批（D-171③a）",
+          "criterion_version": "D-171③a",
+          "decision": "refiled-draft-pending-approval",
+          "reason": "r1 判腐化基座类（reprobe 补偿控制=代码路径依赖可静默腐化——重构删路径不产生事件）→按新标五要件重立项 RA 档案草案 docs/ra/r1-lineage-edgecap-accepted-risk.md 成文呈批（到期=min(复评触发事件,2026-12-28)＋复审钩重验补偿控制存续）；具名裁者=用户——批准决定待决前原事件制到期字段维持值守，不预判裁定",
+          "evidence": "docs/ra/r1-lineage-edgecap-accepted-risk.md（呈批件）"
         }
       ],
       "bound_to": "#80 步③血缘缝合呈报项（R36-T2 审计窗产出）"
@@ -1735,6 +1744,14 @@
           "decision": "ra-census-fields-verified",
           "reason": "两检查字段核验：裁者具名=用户（2026-09-27 R36-Q1 拍板=re-affirmation）✓；到期在册=expires_at 复评触发事件制 ✓（grandfather 事件制形态保留同上）；非到期缺失/已过档，不重立项",
           "evidence": "registry 本项 acceptor/expires_at 字段机读核验"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46-T1 执行批（D-171③b）",
+          "criterion_version": "D-171③b",
+          "decision": "wontfix-permanent-reaffirmed-annotated",
+          "reason": "r2 判 wontfix 恒久类追认——接受对象=不随时间衰减的设计事实（票面「带病边界注明不修」既决）且无存续依赖补偿控制→事件制到期合法保留无需重批；双条件核验在册：触发事件=本项可核验 sentinel（expires_at 复评触发锚＋review_event=stage3-close 绑值守）＋低频盘查钩=T3 审计窗存量普查复读；本行=字段标注非内容重裁",
+          "evidence": "registry 本项 expires_at/trigger/review_at 机读在册"
         }
       ],
       "bound_to": "#80 步③血缘缝合呈报项（B6 延续）"
@@ -1748,7 +1765,7 @@
       "trigger_event": "corpus-resnapshot-landed",
       "trigger": "anysearch-cli 语料重采样票落地（intent 面恢复）或三仓语料冻结重钉",
       "review_at": "stage3-close",
-      "status": "pending",
+      "status": "decided",
       "watch": "manual_watch",
       "source": "reports/known-red-manifest.json entries[id=kr-01-corpus-regen]",
       "owner": "收口窗口指派（登记位：known-red-manifest.json kr-01-corpus-regen 条目）",
@@ -1762,8 +1779,21 @@
           "decision": "lifecycle-note",
           "reason": "env 缺陷面关账：01-check.mjs 自指绝对路径改 repo-relative（import.meta.url 锚）——异地 clone 必红无条件病修复；语料退化 D1/D5 在册红面维持，review_anchor 未命中不摘除",
           "evidence": "reports/01-check.mjs R=dirname(import.meta.url)＋known-red-manifest.json kr-01 lifecycle_log"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46-T1 执行批",
+          "criterion_version": "D-172①⑤",
+          "decision": "closed-resolved",
+          "reason": "冻结重钉兑现：git show 3a049d45 原 blob 字节级恢复 3 件（sha256 对账一致）＋01-check PASS 82/82（D1 intent 9≥5＋D5 45/45 互认恢复＋F 组 frozen 钉值断言落位）→manifest kr-01 人工摘除，结案=已消解（冻结重钉＋frozen 立法）＋lifecycle_log 追加误伤归因；review_anchor 无属主腿修正注记落地",
+          "evidence": "reports/known-red-manifest.json closed[] kr-01 条目＋01-check.mjs 82/82 实跑"
         }
-      ]
+      ],
+      "review_anchor_correction": {
+        "at": "2026-09-29",
+        "ref": "D-172⑤",
+        "note": "原 trigger/review_anchor「anysearch-cli 语料重采样票落地」腿判无属主不合格锚点（上游无认领票＋跨仓主权禁代排产立案——graveyard/issue-links-no-resolve 反模式）；实际闭合腿=「三仓语料冻结重钉」——字段级修正注记随本批落，册件摘除走 strict 复绿正轨"
+      }
     },
     {
       "id": "batch2beta-techdebt-review",
@@ -1804,6 +1834,14 @@
           "decision": "status-unchanged",
           "reason": "GAP-B2B-01~08 复核：全八件 status=triaged/owner=仓内值守同态、mini-五要素字段仍齐备、复审锚在册——批2-β 未落地复审窗未至；兼作触发器①读数=无恶化",
           "evidence": "docs/known-gaps.md 批2-β 节八行复核（审计窗逐行重读，与 R44 登记读数同态）"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
+          "criterion_version": "D-169-a②/D-155②",
+          "decision": "status-unchanged",
+          "reason": "GAP-B2B-01~08 逐件 status 重审：全 8 件 triaged 维持零恶化读数＋mini-五要素齐备抽查 8/8（gap_id/证据链/owner/notes/review_by/trigger_id 全在册）——批2-β 未落地故本复审仅值守读数",
+          "evidence": "docs/known-gaps.md 批2-β 登记批节 8 行机读"
         }
       ]
     },
@@ -1846,6 +1884,14 @@
           "decision": "status-unchanged",
           "reason": "GAP-HOST-01 RA 关档态维持：docs/ra/GAP-HOST-01.md 五要件档案在册、用户批准有效；复审钩 min(下次 CodeBuddy IDE 会话,2026-12-27) 未到、档案未失效——补偿控制＋复审钩续守望",
           "evidence": "docs/ra/GAP-HOST-01.md §6＋docs/known-gaps.md GAP-HOST-01 行 status=accepted-risk 复核"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
+          "criterion_version": "D-168②/D-169-b②/D-171①a",
+          "decision": "status-unchanged",
+          "reason": "GAP-HOST-01 RA 关档态维持：docs/ra/GAP-HOST-01.md 五要件档案在册、用户批准有效；复审钩 min(下次 IDE 会话,2026-12-27) 未到未失效——腐化基座类标准形续守望",
+          "evidence": "docs/ra/GAP-HOST-01.md §6＋docs/known-gaps.md GAP-HOST-01 行复核"
         }
       ]
     },
@@ -1880,6 +1926,14 @@
           "decision": "status-unchanged",
           "reason": "宿主侧复测：codebuddy mcp list 本审计窗复跑输出「No MCP servers configured. Use codebuddy mcp add to add a server.」——插件注入 server 展示盲区持续（宿主侧行为非本仓缺陷，不立案维持）",
           "evidence": "codebuddy mcp list 实跑 stdout（2026-09-28 审计窗复跑，cwd=D:/Aworker/6F）"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
+          "criterion_version": "D-155③",
+          "decision": "blind-spot-persists",
+          "reason": "实测复跑 `codebuddy mcp list`→「No MCP servers configured」——会话内 MCP server 连通态与 CLI 列表盲区续存；宿主侧未修不代办上报",
+          "evidence": "codebuddy mcp list 2026-09-29 实跑输出"
         }
       ],
       "bound_to": "T1 findings F-02——宿主侧展示盲区（D-155③）"
@@ -1975,6 +2029,14 @@
           "decision": "channel-idle",
           "reason": "退役通道随读复核：manifest retired[] 空类维持＋_retired/ 归档目录在位（仅 README）＋无退役提案——通道建制完好零使用，消亡事件零发生",
           "evidence": "known-red-manifest.json retired=[]＋reports/_retired/README.md 在位复核（审计窗重读）"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
+          "criterion_version": "D-160①②③⑤",
+          "decision": "channel-idle",
+          "reason": "退役通道随读：manifest retired[] 空类维持＋_retired/ 归档目录在位（仅 README）＋无退役提案——通道建制完好零使用",
+          "evidence": "known-red-manifest.json retired=[]＋reports/_retired/README.md 在位"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-160 era-scoped 退役机制立法兑现）"
@@ -2041,6 +2103,14 @@
           "decision": "status-unchanged",
           "reason": "四判据复核读数：①capability 5/5 阻塞维持（Macro-A 绑 DoR-b ≥2 真实仓 facts 仍不存在）②fresh-clone PASS 维持③criterion-03 RA-closed 维持（GAP-HOST-01 RA 档在册未失效）④30 日静默窗计时中——Stage-2 维持关闭（①④未达）",
           "evidence": "docs/ra/GAP-HOST-01.md＋R44 执行报告判据读数同窗复核同态"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
+          "criterion_version": "D-162③⑥",
+          "decision": "criteria-readings",
+          "reason": "四判据读数：①阻塞维持（DoR-b 真实仓 facts 面未形成，Macro-A 未启动）②维持（本轮全量跑未册化红=0——kr-01 摘除后册集空）③维持（GAP-HOST-01=RA 五要件齐备关闭，复审钩未逾期）④计时中（30 日静默窗未达标）→Stage-2 维持关闭",
+          "evidence": "guard-all-run 全量实跑＋docs/ra/GAP-HOST-01.md＋registry 读数"
         }
       ],
       "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）"
@@ -2075,6 +2145,14 @@
           "decision": "criterion-met",
           "reason": "fresh clone（D:/tmp-fc/6F-clone，git clone --no-local file:// 传输面——幽灵对象不随克隆）+ git apply 本批 diff + engine npm ci --ignore-scripts（9 pkg）→ guard-all-run 60 件：green=58/registered-red=1(01-check kr-01)/skipped=1(37 sibling 整件)/group-skipped=3（39-B sibling、40-B asset、46-B/C sibling）全带三段可读 reason——未册化红=0 判据② 达成；git-object 五件经仓内 bundle 临时仓零写物化全绿（主仓 object store 零写实证）",
           "evidence": "reports/_lib/env-contract.mjs groupProbe/gitObjectNeedOk/engineDepsOk；clone 跑 log=footer allOk=false（skip≠绿如实）"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
+          "criterion_version": "D-163⑦/D-165②",
+          "decision": "standby-read",
+          "reason": "随读：env-contract 泛化探测面（git-object:/engine-deps:/asset:）未落地→复跑义务未激活；本机全量守卫跑绿＋未册化红=0（判据②读数并入 stage2-launch-criteria）",
+          "evidence": "registry env-contract-generalization-landed occurred=false＋本批全量守卫读数"
         }
       ],
       "bound_to": "stage2-launch-criteria 判据② 操作性复验动作"
@@ -2125,6 +2203,14 @@
           "decision": "zero-event-read",
           "reason": "消亡面独立重数：审计窗对 reports/ 全量 60 件守卫件（*-check.mjs＋xfail-run.mjs）PROTECTED_SURFACE 声明机读核验 60/60 非空＋引用物在位零消亡事件——退役发射腿不预建维持",
           "evidence": "审计窗机读普查 60/60 declared、0 missing/empty（与 R44 登记读数一致）"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
+          "criterion_version": "D-160①",
+          "decision": "census-clean",
+          "reason": "PROTECTED_SURFACE 引用物存在性普查：守卫文件 61 件扫描、60/60 守卫声明非空（guard-all-run.mjs=运行器非守卫不计入）＋零消亡判据事件——守护面全存活",
+          "evidence": "reports/ 全 *-check.mjs PROTECTED_SURFACE 常量扫描机读"
         }
       ],
       "bound_to": "guard-retirement-class（通道登记项；本项补消亡事件触发锚）"
@@ -2216,8 +2302,43 @@
           "decision": "trigger-not-ignited",
           "reason": "三问复验全否：①GAP-B2B-01~08 全 triaged 同态较基线无恶化②无第二同型需求（无 open/closed 枚举/常量 SSOT/reserved 机制新需求确认）③known-gaps 无新增条目命中批2-β 机制——trigger_event 未置 occurred，批2-β 维持 deferred",
           "evidence": "docs/known-gaps.md 全量行复核＋registry 本项 verify_method 三问复跑"
+        },
+        {
+          "at": "2026-09-29",
+          "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
+          "criterion_version": "D-169-a②",
+          "decision": "all-no-deferred-holds",
+          "reason": "点火检查三问全否：①GAP-B2B-01~08 读数较基线无恶化（8/8 triaged）②同型需求第二例未出现③known-gaps 无新增条目命中批2-β 机制（open/closed 枚举/常量 SSOT/reserved）→挂账续持不入 WIP",
+          "evidence": "docs/known-gaps.md 台账全量复核"
         }
       ]
+    },
+    {
+      "id": "anysearch-cli-intent-drift-watch",
+      "family": "upstream-drift",
+      "title": "anysearch-cli intent 面上游漂移观察项——语料 intent 面实测 9→1（c6fe0f8 loop-2 再生捕获）＋该退化无认领票",
+      "deadline_event": null,
+      "deadline": "—（manual_watch 观察项）",
+      "trigger_event": null,
+      "trigger": "上游 anysearch-cli 仓 intent 面结构演进坐实（官方票/issue 出现、维度面变更确认或复测读数持续偏离冻结锚）→冻结包代表性衰减声明确认入裁",
+      "review_at": "每审计窗随读；观察期条款=上游永久演进坐实→01 系冻结包代表性衰减声明随本项＋S1 重校准走有意图裁定链非机械 regen（D-172④）",
+      "review_event": "next-audit-window",
+      "status": "pending",
+      "watch": "manual_watch",
+      "source": "commit c6fe0f8 实测捕获（anysearch-cli intent units 9→1）＋D-172④ 移交裁定",
+      "owner": "macro-audit 队列值守",
+      "verify_method": "对照 01-corpora.json frozen 锚（anysearch-cli intent=9）与 c6fe0f8 退化读数（=1）：复测上游 intent 面计数／检索上游仓认领票——「该退化无认领票」标注在场复核；漂移坐实即呈裁冻结包代表性衰减声明，S1 重校准须有意图裁定",
+      "confirmations": [
+        {
+          "at": "2026-09-29",
+          "by": "R46-T1 执行批",
+          "criterion_version": "D-172④",
+          "decision": "registered",
+          "reason": "上游漂移移交观察项落地：intent 9→1 退化读数＋「该退化无认领票」双标注在册；跨仓主权——不代立案不代排产（D-172④ 负向）；漂移移交=观察项非代管",
+          "evidence": "known-red-manifest.json frozen_evidence_packs 节＋closed kr-01 lifecycle_log＋01-check F 组钉值"
+        }
+      ],
+      "bound_to": "#轮46 T1-E（D-172④）"
     }
   ]
 }
