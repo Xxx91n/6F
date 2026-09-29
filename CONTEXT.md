@@ -25,6 +25,7 @@
 > 轮 45 grill（2026-09-29 完成）已封口 D-171 ~ D-172：轮44 交接开口缝收口——RA 到期语义分类立法（腐化基座类强制 min(事件先到,≤90d) 双锚／wontfix 恒久类事件制合法双条件=触发事件在册可核验 sentinel＋低频盘查钩〔T3 审计窗普查形态〕；分类判据=补偿控制存续承载接受有效性；**D-169-b②→revised** 普适≤90d 收窄）＋kr-01 册内红收口裁（冻结重钉 3 件恢复历史证据包＋frozen 证据包机器可查豁免立法＋流程缺陷归因登记＋上游漂移观察移交＋review_anchor 无属主修正——全挂执行窗）；调研档案 R45-Q{1,2} 系列存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-169②）。
 > 轮 46 grill（2026-09-29 完成）已封口 D-173：Stage-2 判据④ A(a) 静默窗语义钉定——窗状态机显式化（not_started/running/satisfied_at；零试点⇒not_started，「计时中」非法读数）＋回流口径来源分级内外同权（能力面 findings 重置窗／hygiene 记 reset_log 披露不重置）＋重置锚=变更进入被验证制品事件非 finding 到达本体＋机读五件建制（start_event/start_at/prereq_check/reset_log/decision_date 复合测试「issue closure alone satisfies neither test」）＋registry 六次「计时中」读数链式更正为 not_started（D-146⑤）；**D-162→revised**（仅④款 A(a) 收窄）；调研档案 R46-Q1 存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-162④ A(a)）。
 > 轮 47 grill（2026-09-29 完成）已封口 D-174 ~ D-175：F4 枚举键建制裁（window_state_enum 数据面补位——sibling-of-field 归位三态闭集；同容器枚举覆盖不对称=建制欠账〔install-manifest-spec 结构缺口 bug 修复先例〕；枚举键=值域声明约束既有字段非数据字段扩张，D-173③ 不破零 revised；跨字段流转断言可选叠加须 D-147 预声明验证包工序）＋等待期工作面序立法（临界路径外置段仓内合法面序：(b) 已触发欠账清零第一优先〔试点期失败信号与已知噪音隔离——Burndown 同构〕→(d) 冻结资产深度维护主体〔守卫覆盖/性能基线/代表性巡检；禁借机开新 API/状态文件/workflow〕→(c) 预备件三问筛〔解锁首周必用∧不赖试点反馈∧假设被否仍成立，任一否不建〕→(a) 纯值守仅底线不构成策略；落地载体=allowed/deferred 清单约束文件；shadow 边界重申——内部/模拟仓证据永不充真实仓〔D-062③ 同构〕）；调研档案 R47-Q{1,2} 系列存档 .scratch/macro-audit/reports/；本轮零 revised。
+> 轮 48 grill（2026-09-29 完成）已封口 D-176 ~ D-179：四裁——macro-b-regression 死件处置包（本窗新发现：YAML 未引号冒号→文件级解析失败→schedule 静默死亡 ~6 天；修＋双轨建制=parse 档闸归机检面 46-check＋liveness 哨归 manual_watch 五要件；分档判据=验证成本×失效频率×检测时延容忍，平台侧失效形态〔60 天自动停用/调度注册漂移〕只有哨兵可兜）＋预声明验证包锚定义＋实跑必选（声明锚=先落物化面即合法〔账行/报告节/独立文件〕，同 commit 原子落盘不满足证据强度；红态诱导实跑必选——未跑=缺件处置非静默放行；不溯既往——7bd2e8e1 维持实质合规）＋调研存档形态统一（reports/ 文件硬要求——ctx 索引=检索增强非等价持久件；R48 (d) 面缺件补落义务）＋守卫伴生再生减负包（确定性种子化主腿〔SOURCE_DATE_EPOCH 式 env 注入＋UUID 内容寻址〕＋volatile-fields 枚举豁免清单副腿〔三硬边界：枚举键级/派生信号族禁入/死项即红棘轮〕＋两跑零 diff 防退化自检；自动 discard 显式驳回——无先例且绕开 D-140② 记账面）；**D-147→revised**（仅③款锚形态——由 D-177 承载一般化，账行锚=新规特例）；调研档案 R48-Q{1,2,4} 系列存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-147③）。
 
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
@@ -393,6 +394,11 @@ _Avoid_: vacuous silence 当稳定证据（没跑测试所以无 flake）、审�
 **等待期工作面序（Wait-Phase Work-Surface Order）**:
 临界路径外置于外部验证依赖（试点在场/真实环境证据）时的仓内合法工作面排序律：已触发未处置欠账清零=第一优先（残余欠账不清则外部验证期失败信号与仓内已知噪音无法分诊）→对冻结资产做深度非广度的维护强化=主体面（守卫覆盖加深/性能基线/冻结资产代表性巡检，禁借机开新 API/新状态文件/新 workflow）→预备件严格三问筛（解锁后首周必用∧不依赖试点反馈∧假设被否定仍成立——任一否=不建；管道类件备而建不启用）→纯值守仅作底线不构成策略（值守义务续任非全部活动）；载体=allowed/deferred 清单成文约束，退出条件随行。
 _Avoid_: 冻结期/封存期（判据未达≠产品冻结）、空转（纯值守=隐性复利腐化非中立）、影子验证（内部/模拟仓证据充真实环境证据=shadow 反模式）
+
+
+**预声明验证包（Predeclared Validation Package）**:
+探测面修语义前的预声明工序（D-147 先例→D-177 一般化）：声明须物化于**先于变更 commit 落盘**的承载面——账行/审计报告节/独立预声明文件均合法（先落物化面=git 时序自证可第三方验；同 commit 原子落盘=声明与变更同时诞生，工件无法区分预声明与事后合理化，不满足证据强度）；声明红态诱导面=实跑必选义务——执行窗须留实跑读数（构造输入＋运行结果入报告/账行），未跑=包不闭环按缺件处置非静默放行；「审计窗补证」不得为预期兜底路径；环境不可当时实跑=按缺件挂起。D-147③ 原判例「声明钉账行→变更独立 commit」=新规特例续合法非被推翻。
+_Avoid_: 声明与变更同 commit 原子落盘（时序只能信作者自述）、声明诱导面未实跑（包缺件化）、强制独立声明 commit（超额工序——锚位物化即足）、追溯既往翻案（生效时点 D-148③）
 
 
 ### retired 类（退役守卫终态留档）

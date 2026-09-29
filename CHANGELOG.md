@@ -352,3 +352,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（R47 收口节 执行窗兑现小节；reports/2026-09-29-r48-exec-report.md）
 - impact: registry confirmations 111→113；33-check PASS 31/31 相容未破（readme-ci-badge ALARM 1→0 清除）；guard-all-run 60/60 红=0；D 面 175 条不变；CI cwd 修复后 main 下次 push 复绿路径开
+
+## [M-045] - 2026-09-29
+
+- milestone: R48 grill 收口批——四裁＋一处 scoped revised：D-176 macro-b-regression 死件处置包立法（本窗新发现 YAML 冒号病态→schedule 静默死亡；修＋双轨=46-check parse 档断言＋manual_watch liveness 哨五要件；未授权 workflow_dispatch 实跑另案）＋D-177 预声明验证包锚定义＋实跑必选立法（先落物化面=时序可证；同 commit 原子落盘不满足；红态诱导未实跑=缺件处置；不溯既往 7bd2e8e1）＋D-178 调研存档 reports/ 文件硬要求（ctx 索引=检索层；R48 (d) 面缺件补落义务）＋D-179 守卫伴生再生减负包（确定性种子化〔SOURCE_DATE_EPOCH 式 env 注入＋UUID 内容寻址〕＋volatile-fields 枚举豁免清单〔派生信号族禁入＋死项即红棘轮〕＋两跑零 diff 防退化自检；自动 discard 显式驳回）＋D-147 scoped revised（仅③款锚形态由 D-177 承载一般化）
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R48 收口节；reports/R48-Q{1,2,4}-atomcode-research.md 系列）
+- impact: D 面 179 条（163 current/15 revised/1 closed）；执行窗义务四件登记（死件处置包轮49 T1＋调研件补落文书批＋D-177 文书面落行＋种子化包 D-176 后排程）；CONTEXT +1 词条（预声明验证包）；macro-b schedule 回归覆盖缺口如实挂账（验收层开放面）
