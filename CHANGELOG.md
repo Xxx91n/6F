@@ -383,3 +383,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（轮50 执行窗兑现＋T3 哨兵读数）；reports/2026-09-30-r50-exec-report.md＋2026-09-30-r50-t1d-predecl.md；handoffs/2026-09-30-r50-t1-exec-handoff.md
 - impact: D 面 183 条不变（执行批只兑现不裁定）；registry 75 项不变（anysearch confirmations 3→4）；known-gaps +GAP-REP-01（accepted-risk）；docs/ra +upstream-representativeness-gap.md；F3/F4 源码面确认由轮49 LOOP 先行（c6cb5a33/36e4d264）；check-kit regex 字面量盲区记档为已知限制；收口口径=除已收编真实语义信号件外零 churn
+
+## [M-049] - 2026-09-30
+
+- milestone: 轮50 grill 收口批——R50 收口对账四裁全落地（D-184~D-187 全 current 零 revised）：check-kit regex 盲区分步处置（AR 五要件注册 GAP-CK-01＋迁入闸条文 §4.2.12＋根治排产轮51）＋开工对表第四条（D-185 §4.2.11-1）＋atomcode 降级形态立法（D-186 §4.2.3 扩条＋构成比登记首行 4/4=100%）＋换代哨兵字标盘点规程（D-187 §4.2.11-3/4＋保护区节钉死）
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-184~D-187＋第五十轮收口对账节）；docs/ra/check-kit-regex-literal-blindspot.md；reports/R50-Q{1,2,3,4}-{research-prompt,atomcode-research}.md 八件；handoffs/next-round.md 轮51 换代
+- impact: D 面 183→187 条（171 current／15 revised／1 closed）；known-gaps +GAP-CK-01（accepted-risk）；CONTEXT +4 词条（迁入闸／开工对表／降级形态／保搬区·哨兵字标盘点）＋轮50 封口行；WORKFLOW +2 节（§4.2.11/§4.2.12）＋§4.2.3 扩条；任务书换代首个钉清单盘点适用例（7 件 check 断言面分向核对在场）

@@ -27,6 +27,7 @@
 > 轮 47 grill（2026-09-29 完成）已封口 D-174 ~ D-175：F4 枚举键建制裁（window_state_enum 数据面补位——sibling-of-field 归位三态闭集；同容器枚举覆盖不对称=建制欠账〔install-manifest-spec 结构缺口 bug 修复先例〕；枚举键=值域声明约束既有字段非数据字段扩张，D-173③ 不破零 revised；跨字段流转断言可选叠加须 D-147 预声明验证包工序）＋等待期工作面序立法（临界路径外置段仓内合法面序：(b) 已触发欠账清零第一优先〔试点期失败信号与已知噪音隔离——Burndown 同构〕→(d) 冻结资产深度维护主体〔守卫覆盖/性能基线/代表性巡检；禁借机开新 API/状态文件/workflow〕→(c) 预备件三问筛〔解锁首周必用∧不赖试点反馈∧假设被否仍成立，任一否不建〕→(a) 纯值守仅底线不构成策略；落地载体=allowed/deferred 清单约束文件；shadow 边界重申——内部/模拟仓证据永不充真实仓〔D-062③ 同构〕）；调研档案 R47-Q{1,2} 系列存档 .scratch/macro-audit/reports/；本轮零 revised。
 > 轮 48 grill（2026-09-29 完成）已封口 D-176 ~ D-179：四裁——macro-b-regression 死件处置包（本窗新发现：YAML 未引号冒号→文件级解析失败→schedule 静默死亡 ~6 天；修＋双轨建制=parse 档闸归机检面 46-check＋liveness 哨归 manual_watch 五要件；分档判据=验证成本×失效频率×检测时延容忍，平台侧失效形态〔60 天自动停用/调度注册漂移〕只有哨兵可兜）＋预声明验证包锚定义＋实跑必选（声明锚=先落物化面即合法〔账行/报告节/独立文件〕，同 commit 原子落盘不满足证据强度；红态诱导实跑必选——未跑=缺件处置非静默放行；不溯既往——7bd2e8e1 维持实质合规）＋调研存档形态统一（reports/ 文件硬要求——ctx 索引=检索增强非等价持久件；R48 (d) 面缺件补落义务）＋守卫伴生再生减负包（确定性种子化主腿〔SOURCE_DATE_EPOCH 式 env 注入＋UUID 内容寻址〕＋volatile-fields 枚举豁免清单副腿〔三硬边界：枚举键级/派生信号族禁入/死项即红棘轮〕＋两跑零 diff 防退化自检；自动 discard 显式驳回——无先例且绕开 D-140② 记账面）；**D-147→revised**（仅③款锚形态——由 D-177 承载一般化，账行锚=新规特例）；调研档案 R48-Q{1,2,4} 系列存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-147③）。
 > 轮 49 grill（2026-09-30 完成）已封口 D-180 ~ D-183：四裁——收口 commit 对节奏（语义收口→立即再生→同窗独立 bundle＋口径改述「除已收编真实语义信号件外零 churn」；(ii)(iii) 显式驳回）＋扩面勘误通道（append-only 勘误节＋时点二分按可预见性＋IESG 命题变更测试分级＋commit-body 降为从证据；首例即定形）＋冻结包代表性衰减声明（声明入册项确认行＋S1 重校准缓行挂消费拉动＋缺口 AR 五要件注册＋哨兵续看；(iii)(iv) 显式驳回〔复审钩缺失=立法不成立〕）＋微修批建制（F3/F4 双修＋同型反模式普查＋等价性验证钉死——AR 缓挂=自我指涉悖论被支配）；零 revised。
+> 轮 50 grill（2026-09-30 完成）已封口 D-184 ~ D-187：check-kit regex 字面量盲区分步处置（迁入闸条文＋AR 注册→轮51 根治立项）＋开工对表声称态核实义务＋atomcode 调研降级形态立法（degraded_performance＋构成比复审钩）＋任务书换代哨兵字标盘点规程
 
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
@@ -414,6 +415,24 @@ _Avoid_: commit-body 单独充当重档通道（不满足 D-177 证据强度）�
 **代表性衰减声明（Representativeness Decay Declaration）**:
 冻结证据包对当前上游/世界状态代表性失效的账面声明（D-182——benchmark deprecation 三阶段框架〔assessment→reporting→notification〕＋BNC 快照语义〔代表性锚定冻结时点〕＋chain-of-custody 双轨〔完整性常驻机检/代表性周期盘查〕先例）：冻结件字节不动（历史证据语义不破）＋声明走册项确认行与账本注记；重校准不随声明自动执行——锚定「用途＋事件触发」消费拉动（计量学 event-driven/in-use 惯例：无第三种参照物演进自动重测）；缺口存续期按 AR 五要件注册非裸挂。
 _Avoid_: 声明前机械 regen（再生即失义 D-172①）、缓声明再观察（under-declaring 违触发器纪律——确认即 declare）、「永久不需要」无复审钩豁免（D-169 五要件缺失=静默丢弃态立法不成立）、对上游追责外联（drive-by 禁区）
+
+
+**迁入闸（Migration Gate）**:
+共享例程已知不正确输入类存续期的迁入前置判别闸（D-184——R39-Q2 手工豁免反形态机检化判例）：新消费位迁入 check-kit `stripComments` 前三条件判别（被扫面含 regex 字面量-引号形／歧义除号位／模板串内 regex→命中即阻断迁入＋D-181 勘误记档）；条文面先立（WORKFLOW §4.2.12），探测件机检化排产入执行批；根治落地即退役不永续化。
+_Avoid_: 探测件未落盘前放行迁入（条文冻结期穿透）、人工逐件判别充闸（R39-Q2 反形态）、闸永续化（过渡件不退役）、借闸条款动消费位断言语义
+
+**开工对表（Work-Start Claim Reconciliation）**:
+开工时对任务书声称态断言的存在性核实义务（D-185——航空 preflight／CMMS 状态机／OCC read-validate-commit／DoR bouncer／reproduce-first 五域收敛先例）：凡任务书声称「未实施/待做/未注册」类状态断言的源码面义务，开工 `git log`/`git show` 实证核实；失真→登记差异行（形态同 D-181 勘误节：失真描述＋发现时点＋实证 commit 指针）＋按剩余义务裁剪续工；时点锚=任务书书头时点（D-170③ 消费端执行义务——锚后漂移由开工者核实）；guideline 式非硬 gate（失真即阻断开工等书更新=stage-gate 化驳回形态）。
+_Avoid_: 逐字 diff 重活（对表=存在性核实非内容比对）、失真后静默照书施工、新建差异登记通道（走既有登记面）、义务外溢到非声称态条目、追溯既往批漏对表
+
+**降级形态（degraded_performance）**:
+atomcode 调研腿的合法降级状态（D-186——status page 分级语义〔available but impaired 非 outage〕＋circuit breaker open 态 serving fallback＋Netflix graceful degradation 先例）：交付物定义=「atomcode 载体返回的调研报告」非特定内部循环形态；内部组成（深调研循环回传／编排层直查合成／配额中断）升格报告必填字段；后台未归／载体内 fallback=合法降级非异常登记；配额耗尽=唯一不续跑例外；构成比逐轮登记，连续 3 轮 100% fallback 自动触发主通道地位复审票（workaround-hardening 防控——到期钩具体化非「以后再议」）。
+_Avoid_: 降级当免标注借口（组成标注义务反升必填）、假到期触发器（须具体计数阈值）、借降级废串行护栏/续跑锚定、追溯改写既往报告口径（append-only）、独证腿义务化（双倍配额税）
+
+**保搬区（Preserved Section）／哨兵字标盘点**:
+换代重写文件中守卫断言钉的集中存放节与换代核对工序（D-187——autojinja named-section 提取重插〔缺失即 abort〕＋Cog 标记区外原文通过＋gitlint/mdsmith/AWS CFGuard 禁含形态一等公民先例）：「历史票面闭环索引（守卫锚点留痕）」节规程化为保护区——整节保搬只增不删；换代前钉清单盘点步（枚举断言面＋在场钉/缺席钉**分向两列**——负向断言合规态=持续缺席）；新书落盘逐钉核对；守卫组兜底第二层不降级；新钉默认落节内，节外钉须普查清单显式登记防盲区化。
+_Avoid_: 保护区外静默新增钉（盲区化）、删节内在册钉（只增不删——D-146⑤ 同精神）、盘点清单做成自指 check 文件（断言换代行为的 check=fragile）、为分向承载另写断言解析器（D-184 学费在案——75a 适配缺口先核查）
+
 
 ### retired 类（退役守卫终态留档）
 
