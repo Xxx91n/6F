@@ -405,3 +405,15 @@
 - 勘误兑现 D-191：predecl §7 补钉行（`201935fc` 孤儿孪生→真身 `cb625c64521398306f914eb7986a4a505f95291a`）＋T3 `wmu`→`fe3271d891767890c4404ec759c01489521c75f5` 映射＋E-3 自首第三病灶（账行所记 40hex `cb625c6491895e…70b32` 实证为幻觉补全 bad object）。
 - 全量去向对账：current 179 条全闭合（既往在册 162 条＋D-042~D-052 十件历史断链补登＋本轮七裁去向登记）。
 - next-round.md 轮52 换代（D-187 钉清单盘点在场核对；保护区节整节保搬只增不删）。
+
+
+### M-052（2026-09-30 R52 T1-A 执行窗）
+
+- T1-A 指针守卫件落地（D-192⑤ 入列路径全链）：D-177 预声明先行（`037f64cbf47a987fc818c215599c043457913816`）→ 守卫＋册（`116a6594493b8127550d377515472841687de7ba`）→ 去无牙断言修（`ea6866a2d7bab4686b3c1192fd1e8fb496d44c75`）→ D-180 bundle 腿（`ebdf743fb4d671957d2be8a54f8474aebbf544b4`）。
+- `84-check.mjs` 落盘：严格层位形三通道（列头白名单 11 项／小节锚定／列表行标签）＋法定形断言＋baseline 册两级判级（册内 WARN／册外 FAIL）＋change-id 孪生分桶＋册护栏四断言；fixture F-01..F-11 十一态红绿分野内嵌实跑；portable tier 零三方依赖零反斜杠。
+- `known-pointer-violations.json` 首跑建册 17 条（6 文件／4 kind），条目三字段 file + 内容模式指纹（禁行号定位）＋errata_ref（逐条实物可解析）。
+- 首跑存量普查判级（D-191③）：扫描面 759 md／30 findings／册内 WARN 29 件／册外新增 FAIL 0 件／锚线不可达 1 件／孪生桶 1 族 2 成员／失配 0 件。
+- 新发现病灶第四型：`bbb3ba73`（r49 审计报告严格层「本窗读数」列）＝E-3 幻觉 hex 族第二例；另登记 R51 审计 F1 判定口径落差（8-hex 实名 ≠ D-188 法定形）与 T3 表 `wmu` 未回写。
+- 勘误 E-4~E-9 append-only 追加（不改写 E-1~E-3）。
+- T1-B T3 退役呈裁单落盘：提议 check-kit-regex-blindspot-watch 降级常规自检＋补 registry 条目（现 registry 零命中＝未注册触发器不算锚定）；显式驳回摘除（D-160⑥ 面未消亡）。
+- guard-all-run 63/63 全绿（动态枚举 62→63，新 check 自动入列，D-149④）；engine build BUNDLE-OK／package macro-audit-0.1.0.tgz 255.5 kB／selftest ok:true 5/5／smoke 23 件套全绿／check-dist 零 drift。

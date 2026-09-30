@@ -1684,3 +1684,98 @@ scoping（非裁面/执行边界如实登记）：
 
 - **裁定层：闭环**——轮51 七裁全有名分去向（立法条文面/勘误兑现/执行窗登记/显式驳回入去向表：Q1-(iii)(v)／Q2-(i)(iii)／Q3-(iii)(iv)(v)／Q4-(ii)(iii)(iv)／Q5-(ii)(iii)(iv)）；D-194→revised（D-195）；**无去向清单=空**（current 179 全闭合，含历史断链十件补登）。
 - **验收层：开放**——指针守卫件未实施（下轮执行窗＋D-177 预声明前置）＋atomcode 主通道构成比（5/7 fallback，复审计数 2/3——再一轮 100% 触发复审票）。
+
+
+## 第五十二轮执行批（R52 T1-A/R52 实施窗，2026-09-30，分支 `r52-t1a-pointer-guard`）
+
+> 任务书：next-round.md 轮 52｜覆盖：D-188④⑤／D-189③⑥／D-190③④⑥／D-191③／D-192①~⑤（T1-A 主体）＋D-149（入列）／D-177（预声明先行）／D-181（勘误 E-4~E-9）／D-160②⑥（T1-B 呈裁）／D-156③（T2 续挂）／D-180（收口对节奏）／D-185（开工对表）／D-148③（生效时点）
+
+### 1. T1-A 指针守卫件落地（D-192⑤ 入列路径全链兑现）
+
+- **(a) D-177 预声明先行**：`reports/D-192-pointer-guard-predeclaration.md`（R52 T1 commit `037f64cbf47a987fc818c215599c043457913816`）先于语义变更 commit `116a6594493b8127` 落盘——**时序可证**（`git log --oneline` 两 commit 前后相接，预声明在前）。声明面=扫描面封闭枚举 ＋ 严格层位形三通道 ＋ fixture F-01..F-10 期望 ＋ baseline 册三字段 schema ＋ 判级矩阵。
+- **(b) 守卫落盘**：`reports/84-check.mjs`（425 行，portable tier，零三方依赖，零反斜杠）＋ `reports/known-pointer-violations.json`（首跑册 17 条 / 6 文件 / 4 kind）。
+- **(c) 首跑存量普查判级**（D-191③）：`node reports/84-check.mjs --emit` 红态实跑读数 = **17 个唯一指纹** → 建册；主跑读数 `SURFACE files=759 findings=30 legal=1 baselineWarn=29 newFail=0 unreachable=1 twinBuckets=1 staleEntries=0`，`PASS-COUNT 25 FAIL-COUNT 0` exit 0。
+- **(d) 入列**：`node reports/guard-all-run.mjs` → **ran=63 green=63 skipped=0 group-skipped=0 red=0 registered=0 problems=0 allOk=true GUARD-ALL-RESULT: PASS**（D-149④ 升格判据，动态枚举 62→63 件，新 check 自动入列）。
+- **D-149 入列登记**：本项守卫入列账行＝D-192 执行窗登记（承 R51 收口节登记面）→ 本节即入列记录（owner=执行批；时点=R52 T1-A；复验=四态 fixture 红绿分野在场＋基线册三字段断言＋首跑判级输出账行＋D-149 入列）。
+
+### 2. 守卫件机检面实证（新增断言族）
+
+| 断言 | 语义 | 首跑读数 |
+|---|---|---|
+| `PV-A*` | 扫描面封闭枚举 `SURFACE_CLOSED=1` ＋ 五面 existsSync ＋ 非空 | 3 根 + 2 文件 / 759 md |
+| `PV-B-STRICT-ACTIVE` | 严格层机检在跑（自指正对照：合法形行零 finding） | kind=legal |
+| `PV-C-LEGAL-FORM` | 法定形指针逐个 `cat-file -t` = commit | legal 1 件 / 违例 0 |
+| `PV-D-ZERO-NEW-FAIL` | **册外新增 FAIL = 0**（D-192①④ 有牙齿判据） | newFail=0 |
+| `PV-D2-BASELINE-LOADED` | 册非空（防零册空跑假绿） | 17 条 |
+| `PV-E-TWIN-COVERAGE` | 严格层 SHA 16 件全取得 change-id ＋ 同 change-id 桶 1 族/2 成员 | 覆盖率 16/16 |
+| `PV-F10A/B/C/D` | 册护栏四断言（errata_ref 实物可解析／禁行号定位／面封闭性／失配自报不漏不重） | 17/17 可解析；行号形态 0 |
+| `PV-G-F01..F11` | fixture 十一态红绿分野内嵌实跑 | 全绿 |
+
+### 3. 首跑新发现病灶（指针病态第四型 + 审计判定口径落差）
+
+- **`bbb3ba73`**（`.scratch/macro-audit/reports/2026-09-29-r49-audit-report.md` 严格层「本窗读数」列）——`git cat-file -t` 空＝**不存在对象，E-3 幻觉 hex 族第二例**。R49 当时未察原因：七位短码形不可 `cat-file -e`，审计只核到「可 cat-file -e」位。已入册 PV-11 ＋ 勘误 E-6。
+- **R51 审计 F1 判定口径落差**（勘误 E-8）——F1 判「指针实名化」改写为 8-hex git 短 hash 即通过，但 D-188 法定形要求 ≥12hex ＋ `("subject")` 校验位。审计判定与立法条文面之间存在位形落差，如实登记。
+- **T3 表 `wmu` 未回写**（勘误 E-9）——E-2 只在账本勘误段给出映射，按 D-181 append-only 未回写 T3 表本体；`wmu` 仍在严格层。已入册 PV-07。
+
+### 4. T1-B T3 退役呈裁（D-160②⑥）
+
+- 呈裁单落盘：`reports/2026-09-30-r52-t3-retirement-proposal.md`。
+- **提议 (ii)**：`check-kit-regex-blindspot-watch` 降级为常规自检 ＋ 补 registry `manual_watch` 条目（现 registry 全文 `check-kit` 命中 **0**——未注册触发器不算锚定，per D-164-b）。
+- **显式驳回 (i) 摘除**：D-160⑥ 退役判据＝守护面消亡唯一合法路径；本面未消亡（`_lib/check-kit.mjs stripComments` regex 态为活跃共用面），且 `_retired/` 无归档实物 → 摘除将使 `75a-check M3` 转红。
+- 同窗随呈：孤儿孪生 `201935fc7764c3a3716a0400cd603a76ef5b5cec` ＋ 同 change-id 桶 `nktntvkkwqtrnqxwmtokzulttpowxnpp`（成员 2）——**均在册，判级 WARN，无需新裁**（D-190④ 既定 WARN 位）。
+
+### 5. T2 续挂账合规（未动工）
+
+- 75b §4／D-156③／D-169-a②：`batch2beta-open-triggers` 三事件锚本轮**全 no**（GAP-B2B-01~08 读数较基线零恶化；同型需求第二例未现；known-gaps 无新增命中批2-β 机制条目）→ 维持 deferred，未借 D-175(c) 预备件名义动工。
+
+### 6. T3 审计窗哨兵值守读数（2026-09-30 R52）
+
+| 哨兵 | 读数 | 去向 |
+|---|---|---|
+| check-kit-regex-blindspot-watch | 根治已落地（GAP-CK-01 closed）；registry 零条目 | 呈裁单已出，**待 T3 窗裁定** |
+| GAP-CK-01 status 重审 | **closed** 维持（五要件关档条件齐，R51 关档案在册） | 关档维持 |
+| protected-surface-death-watch | 63 件守卫 `PROTECTED_SURFACE` 自声明全绿（`75a T2` 断言） | 续守 |
+| frozen_evidence_packs | 01 系五件钉值机检在 `75a M5` PASS | 续守 |
+| GAP-B2B 八件 | 本轮未恶化（逐件 status 重审读数＝triaged 同态） | deferred 续挂 |
+| Stage-2 判据④ window_state | `not_started` 维持（start_event=null 零试点） | 续守 |
+| ci-workflow-liveness-watch | 下一真实 schedule run＝2026-10-05 03:17 UTC；本轮**未实跑 dispatch**（D-176 外触副作用面须用户单独授权） | 等待 |
+| anysearch-cli-intent-drift-watch | intent 8→1 退化标注在册；本轮无认领票坐实 | 续读 |
+| atomcode 降级构成比 | **本轮 0/0**（未开新调研题——D-192 守卫件为机检实现面，无新裁定题）；轮51 计数 1/3 维持，复审票**连续 2/3 未变**（未达 3 轮 100% 触发线） | 续录 |
+| 等待期序（D-175） | (b) 欠账清零→本轮 T1-A 即 (d) 深度维护主体（D-192 指针守卫件归此面）兑现；(c)/(a) 未越界 | 符合面序 |
+| 指针纪律生效 | 84-check 已落地，机检面接管；D-188⑥ 过渡面「人工抽查」职责**降级为残余宽层抽查**（严格层已全覆盖） | 面序切换 |
+
+**用户验收对照（原文：编译通过、打包通过、启动并测活软件进程；每个平台都要有 test 闭环，避免只引入却没做到）**：编译=`npm run build` → `BUNDLE-OK dist/cli.js`（tsc -p tsconfig.json 无错）；打包=`npm run package` → `macro-audit-0.1.0.tgz` 255.5 kB / 85 files；启动测活=`node dist/cli.js selftest` → `{"ok":true,...}` 5/5 checks pass；平台 test 闭环=`npm run smoke` 23 件套全绿（末两件 DIALECT-BOUNDARY 19/19 ＋ FILE-CARD 36/36），新守卫 portable tier 零 POSIX-only 依赖；生成物零 drift＝`node engine/scripts/check-dist.mjs` → `DIST-RATCHET PASS`（263151B / cap 289395B）＋ `but status` 工作面零变更。
+
+### 7. 开工对表差异行（D-185④）
+
+| # | 任务书声称态 | 实测 | 处置 |
+|---|---|---|---|
+| D-1 | 「指针守卫件未实施」 | 属实——reports/ 无 pointer/commit-ref check；registry 零命中 | 续工（本轮实施） |
+| D-2 | 「known-pointer-violations 基线册未建」 | 属实——文件不存在 | 续工（本轮建册） |
+| D-3 | 「§7 `201935fc`／T3 `wmu` 勘误已落」 | 属实——E-1~E-3 在册；`201935fc` 对象在库但 `is-ancestor main` 非零（孤儿孪生实证） | 无差异 |
+| D-4 | 「守卫 62 件」 | 属实——`*check.mjs` 61 ＋ `xfail-run.mjs` 1 = 62（入列后 63） | 无差异 |
+| D-5 | 「registry=75 项」 | 属实——`items.length=75` | 无差异 |
+| D-6 | 「D 面 195 条（179 current／16 非 current）」 | 唯一 ID 195 属实；**179/16 拆分未能独立复现**（账本状态列非行尾统一格式，正则口径不稳） | 按任务书口径沿用，不据以改向 |
+| D-7 | 「编年 max M-051」 | 属实——CHANGELOG `M-` 键 max=51 | 无差异 |
+| D-8 | 「CONTEXT 五词条」 | 属实——`commit 指针法定形`（实名非「法定指针形」）＋`严格层/宽层`＋`锚线`＋`已知违规清单`＋`孤儿孪生` 全在 | 无差异 |
+
+### 8. 执行窗登记（欠账三要素）
+
+| 义务 | owner | 时点 | 复验 |
+|---|---|---|---|
+| D-192⑤ 入列登记 | 执行批 | **本轮兑现**（84-check 入 guard-all-run 动态枚举，63/63 绿） | `guard-all-run.mjs` footer `ran=63 green=63 allOk=true` |
+| D-191③ 存量普查判级 | 守卫首跑 | **本轮兑现**（册内 WARN 29 件／零新增 FAIL） | `84-check.mjs` footer `baselineWarn=29 newFail=0` ＋ WARN 明细逐条在 stdout |
+| D-192① 首跑建册 | 守卫首跑 | **本轮兑现**（17 条 / 6 文件 / 4 kind） | `known-pointer-violations.json` `entries.length=17`；`PV-F10A` 逐条 errata_ref 实物可解析 |
+| D-160② T3 退役呈裁（check-kit-regex-blindspot-watch） | T3 审计窗 | 下轮审计窗 | 呈裁单 `2026-09-30-r52-t3-retirement-proposal.md` 在场 ＋ T3 表裁定行 |
+| D-192⑥ 扫描面扩列（若需） | 立法票 D-095 语义 | 未触发 | 本轮零扩面（`SURFACE_CLOSED=1` 硬断言在位） |
+
+### 9. 分层定稿（D-165/D-170 双行呈报）
+
+- **裁定层：闭环**——T1-A 四段（预声明／守卫＋册／首跑判级／入列）全兑现并机检可复跑；T1-B 呈裁单落盘含显式驳回；T2 续挂账合规未动工；T3 七项哨兵读数落账；开工对表八行差异登记；勘误 E-4~E-9 append-only 追加。
+- **验收层：开放**——①T3 窗对 check-kit-regex-blindspot-watch 的裁定（呈现裁单 (ii)，未执行）；②atomcode 主通道构成比复审票（连续 2/3，未达触发线）；③册内 17 条 WARN 需按 D-181 勘误通道逐件收敛（回写冻结声明件须独立勘误 commit，本轮不夹带）；④宽层残留由审计窗人工抽查（D-188⑥ 机检前过渡面职责，机检已接严格层后职责收窄）。
+
+### 10. Scoping 声明（非裁面登记）
+
+- 本轮无新裁定题——T1-A 为已立法 D-192⑤ 的执行实现面，故 **atomcode 调研题数 0**（构成比 0/0，非 fallback）。不新开调研题是为避免「为调研而调研」；若审计窗对守卫机检口径提出新裁定题，再按 D-186 降级形态建制派遣。
+- 变更面纪律：本轮 `engine/src`／`engine/dist` **未触碰**（仅跑 build/package/selftest/smoke 取验收证据），故 D-145① 的零 drift 前置闸未触发；实测 drift 为零（check-dist PASS ＋ 工作面零变更）。
+- 收口 commit 对节奏（D-180）：语义 commit `037f64cbf47a987fc818c215599c043457913816`（预声明）→ `116a6594493b8127`（守卫＋册＋勘误）→ `ea6866a2d7bab4686b3c1192fd1e8fb496d44c75`（去无牙断言修）→ 派生再生产 → `ebdf743fb4d671957d2be8a54f8474aebbf544b4`（bundle 腿）同窗收编；收口文书本 commit 为**语义收口 commit**，其后若守卫跑再生派生信号再起 bundle 腿。
