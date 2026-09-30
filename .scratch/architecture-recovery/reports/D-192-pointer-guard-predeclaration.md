@@ -139,7 +139,21 @@
 
 ## 7. 勘误（D-181 append-only——不改写上文原文）
 
-（空——落盘轮暂无）
+
+> **发现时点**：post-hoc（2026-09-30 R52 审计窗打回，报告 `reports/2026-09-30-r52-audit-report.md` §4 逐条实测）。以下九条为「实现已偏离本件声明」的逐项对照（D-181 append-only，不改写 §1~§6 原文）。**处置原则：P1/P2/P3/P7 回改实现贴合声明（守严不扩面）；P4/P5/P6/P8/P9 补勘误登记并附实现事实。**
+
+| # | 本件声明 | 实现事实 | 处置 |
+|---|---|---|---|
+| P1 | §2 通道 A 列头白名单 **11 项** | 实现 `STRICT_HEADERS` 曾为 12 项（多 `git hash`） | **已回改**＝11 项，删 `git hash`；`CHANGELOG` M-052 与 `next-round.md` 中「11 项」表述自此属实 |
+| P2 | §1 EXEMPT-DIR＝`node_modules/.git/dist/reports/_retired/reports/40-clone-cache`（`reports/` 路径锚定） | 实现曾为 `SKIP_DIRS` 6 项裸名（多 `repomix-output`，全仓不存在）＋裸名任意深度豁免（宽于声明） | **已回改**＝`SKIP_DIR_BARE`（`node_modules`/`.git`/`dist` 三项裸名）＋ `SKIP_DIR_ANCHORED`（`reports/_retired`、`reports/40-clone-cache` 两项路径锚定），删 `repomix-output` |
+| P3 | §4 schema 例 `anchor_decl.lines = ["HEAD","main"]` | 册实物为 `["main","HEAD"]`（序反转，语义无害） | **已回改**＝`["HEAD","main"]` |
+| P4 | §4 册 schema 顶层＝`version`/`policy`/`anchor_decl`/`entries` | 实现增 `first_run` 顶层字段（首跑溯源：轮次/守卫/预声明件/建册方法/勘误链） | **保留为 additive 偏离**——溯源价值高于 schema 洁净；顶层字段集以本勘误行为准（`version`/`policy`/`anchor_decl`/`first_run`/`entries`） |
+| P5 | §3 fixture F-01..F-10 | 实现为 F-01..F-**12**（增 `PV-G-F10-BOOK-KEY-ROUNDTRIP`、`PV-G-F11-KIND-REACHABLE`、`PV-G-F12-LINENO-DETECT`） | **保留为 additive 偏离**——F-11/F-12 为审计返工新增反例（kind→slug 对表／行号形态），登记后 fixture 面＝**F-01..F-12 十二态**；原「四态＋六衍生态」提法作废（4+6=10≠12），正确表述＝**四态＋八衍生态** |
+| P6 | §3 F-02 输入 `9f1234567890abcdef1234567890abcdef12345678` | 该串实测 **42 hex**（非 40），落不进 `/^[0-9a-f]{7,40}$/`；实现静默换用 `cb625c64521398306f914eb7986a4a505f95291b`（40 hex，`cat-file -t` 空） | **输入替换并登记**——原串因长度错写失效；替换后仍满足 F-02 命题（册外 40-hex 形 ＋ 对象不存在＝E-3 幻觉 hex 族）。**教训**：hex 长度不可凭直觉，全 hex 一律 `git rev-parse` 实证 |
+| P7 | §1 EXEMPT-SUB＝`*atomcode-research*.md`／`*research-prompt*.md`（文件名锚定） | 实现 `EXEMPT_SUB_RE=/(atomcode-research|research-prompt)/` 未锚扩展名与文件名——路径任意段命中即豁免（目录名同形亦豁免） | **已回改**＝`isExemptSub()`：`basename.endsWith('.md')` ∧ 词命中 |
+| P8 | §3 F-10 断言 B 禁行号**三形态**（`L<数字>`／`:行号`／`第 N 行`） | 实现正则缺 `file.md:123` 形（冒号行号）——**防大赦护栏实有漏检**；首版补入 `:[ ]?[0-9]+` 后误伤 schema 分隔符（`short-sha:201935fc` 中 `:2019` 命中） | **已回改为四形态**＝`[.](md|json|mjs):[ ]?[0-9]+`｜`L[0-9]+`｜`行号`｜`第[ ]?[0-9]+[ ]?行`；正则提至模块级 `LINENO_RE` 供 fixture F-12 反例共用 |
+| P9 | §3 F-07 期望「WARN slug=PV-UNREACHABLE——禁判 FAIL」 | fixture 原仅断 `anchorReach()` 返 null，**未路由 `judge()`** 证明不产 FAIL（实际因该指针 kind 恒非 FAIL 类而侥幸成立） | **已补**＝F-07 经 `judge()` 路由演练并断 `FAIL 0 ／WARN 1`；注：该 fixture 指针为 40-hex 无 subject，kind=`missing-subject`，册键须按该 kind 构造（原先按 `short-sha` 构造导致误红） |
+- **勘误链续**：本节后续追加见 `known-pointer-violations.json` 的 `errata_ref` 列（PV-01..PV-17 ↔ 账本 E-4..E-9）。
 
 ---
 
