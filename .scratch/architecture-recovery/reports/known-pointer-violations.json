@@ -4,8 +4,8 @@
   "anchor_decl": {
     "note": "默认锚线=文书落盘分支栈 tip（WORKFLOW §4.2.10-7）；跨线引用须具名声明。main 为主锚线（r51 起并入）；HEAD 为工作区 tip。主锚线可达性留人工复核非机检（D-190④，GitButler 虚拟栈 merge-base 语义不稳），守卫仅输出 WARN 披露。",
     "lines": [
-      "main",
-      "HEAD"
+      "HEAD",
+      "main"
     ]
   },
   "first_run": {
