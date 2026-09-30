@@ -2,7 +2,7 @@
 
 > 任务书=常驻交接物：新会话/子 Agent 读本件＋账本＋CONTEXT 即接续；执行窗义务带欠账三要素（具名 owner＋时点锚＋复验方式——D-170③）。
 > **换代自检注记（D-185②）**：本换代已对声称态条目核 git 实物——①「守卫 62 件」实测 `*-check.mjs` 61 ＋ `xfail-run.mjs` 1 = 62，R52 落 84-check 后 **63 件**（`guard-all-run` ran=63 green=63 allOk=true）；②「指针守卫件未实施」=**已不属实**（`reports/84-check.mjs` ＋ `reports/known-pointer-violations.json` 在册，本轮实施）；③「baseline 册未建」=**已不属实**（17 条在册）；④「编年 max M-051」实测 CHANGELOG `M-` 键 max=**52**（M-052 本轮落）。
-> **换代钉清单盘点（D-187①）**：断言面=**63 件 check ＋ 84-check 自身 25 条断言**。在册钉七组见「历史票面闭环索引」节整节保搬（逐钉核对见 §换代盘点）；**缺席钉一件**＝42-check F5（禁无 ✅ 的 `| T` 行含 #42）——本轮维持。**本轮新增断言面=84-check 的 25 条**（`PV-A*` 3 ＋ `PV-B` 1 ＋ `PV-C` 1 ＋ `PV-D*` 3 ＋ `PV-E*` 2 ＋ `PV-F10*` 4 ＋ `PV-G*` 11），其断言面入本盘点承接口径（首轮由 84-check 自身与 `guard-all-run` 动态枚举承接，下轮盘点逐钉核对）。
+> **换代钉清单盘点（D-187①）**：断言面=**63 件 check ＋ 84-check 自身 25 条断言**。在册钉七组见「历史票面闭环索引」节整节保搬（逐钉核对见 §换代盘点）；**缺席钉一件**＝42-check F5（禁无 ✅ 的 `| T` 行含 #42）——本轮维持。**本轮新增断言面=84-check 的 25 条**（`PV-A*` 3 ＋ `PV-B` 1 ＋ `PV-C` 1 ＋ `PV-D*` 3 ＋ `PV-E*` 2 ＋ `PV-F10*` 4 ＋ `PV-G*` **12**——审计返工新增 `PV-G-F12` 行号形态反例），其断言面入本盘点承接口径（首轮由 84-check 自身与 `guard-all-run` 动态枚举承接，下轮盘点逐钉核对）。
 
 ## 轮 25~52 留痕（已定，勿重复）
 
@@ -32,7 +32,7 @@
 | 5 | `43-check:D5` T14 ✅ | 在场 | ✅ 保护区节 `T14 #43 golden 重基线 ✅ DONE` 在位 |
 | 6 | `44-check:G6` `#77` ＋ 闭环词 ＋ `#78` | 在场 | ✅ 保护区节轮28 行在位 |
 | 7 | `45-check:H5` 含 `#45` 或 `demo` | 在场 | ✅ 保护区节 `#45 demo 三 scenario ✅` 在位 |
-| 8 | `84-check` 25 条断言（新增面） | 在场 | ✅ 自身实跑 PASS-COUNT 25 FAIL-COUNT 0；由 `guard-all-run` 动态枚举承接 |
+| 8 | `84-check` 25 条断言（新增面） | 在场 | ✅ 自身实跑 **PASS-COUNT 26 FAIL-COUNT 0**（小修批后）；由 `guard-all-run` 动态枚举承接 |
 
 **盘点兜底**：`node .scratch/architecture-recovery/reports/guard-all-run.mjs` → `ran=63 green=63 allOk=true`（七组在册钉逐条由其宿主 check 兑现；84-check 面由本件第 8 行登记承接口径）。
 
@@ -59,7 +59,7 @@
 
 - **T1-B′ check-kit-regex-blindspot-watch 裁定承接**：呈裁单 `.scratch/macro-audit/reports/2026-09-30-r52-t3-retirement-proposal.md` 在册（提议 (ii) 降级常规自检＋补 registry 条目；显式驳回 (i) 摘除，理由 D-160⑥ 面未消亡）。裁定归 T3 窗逐件窗（D-160②）。owner=审计窗；时点=下轮审计窗；复验=采纳 (ii) 时 registry 条目落盘＋`33-check` E 段绿／采纳 (i) 时 manifest retired 八要素＋`_retired/` 归档实物＋`75a M3` 绿。
 - **册内 17 条 WARN 收敛**：按 D-181 勘误通道逐件处置——**回写冻结声明件须独立勘误 commit**（禁夹带进语义批）。owner=审计窗/执行批；时点=按件；复验=每件收敛后对应册条目移除 ＋ `PV-F10D` 守恒断言复跑（失配数+命中数==册条目数）。
-- **宽层残留抽查**（D-188⑥ 职责收窄后仍须保留）：本仓现存 **6 个 12+hex 非对象 token**（含 E-3 自首的 `cb625c6491895e479a59ad5770d2748a8de70b32` 与 5 个历史遗留）均在宽层散文——机检不管，须人工抽查定性。owner=审计窗；时点=下轮审计窗；复验=抽查行在账本「宽层抽查读数」节。
+- **宽层残留抽查**（D-188⑥，机检管严格层后仍不可省）：基准已由「6 个」更正为审计普查读数——扫描面内极大 hex run（12~40）唯一 token **1076** 个，可解析 29／非对象 1047；剔除上游仓 SHA（~700）与审计指纹摘要（~200）与调研 synthetic 后，**仓内叙事文书层仍 ≥20 件**。奇长截断形（`0830a98300676210e2fca` 21h／`f2d85493b161c8dcc` 17h）优先定性。分四类登记（上游 SHA／证据摘要／stale 本仓 SHA／synthetic）逐件定性。owner=审计窗；时点=下轮审计窗；复验=抽查行在账本「宽层抽查读数」节。
 - registry manual_watch 复审枚举：batch2beta-techdebt-review／codebuddy-ide-gap-watch（RA 复审钩=min(IDE 会话,2026-12-27)）／codebuddy-f02-display-watch／guard-retirement-watch／ci-workflow-liveness-watch／anysearch-cli-intent-drift-watch。
 - **protected-surface-death-watch 随读**＋**frozen 豁免随读**（manifest 钉值机检＋intent-drift 读数续录）。
 - GAP-B2B 八件逐件 status 重审读数＋Stage-2 判据包四读数值守（window_state 机读）。
@@ -72,7 +72,7 @@
 
 ### T3 — 深度维护主体候选（(d) 面；D-175⑥ 呈用户裁量位）
 
-- **候选件**（呈用户裁量，本轮不预裁）：①指针守卫件扫描面扩列（现 5 面，`docs/` 其余面与 `engine/**` 未在列——扩面走立法票 D-095）；②baseline 册从 WARN 收敛为摘除的批量作业窗（须逐件勘误 commit）；③`PROTECTED_SURFACE` 与指针纪律面交叉声明（D-160③ 与 D-188 的守护面表述是否需对齐）。
+- **候选件**（呈用户裁量，本轮不预裁）：①指针守卫件扫描面扩列（现 5 面，`docs/` 其余面与 `engine/**` 未在列——扩面走立法票 D-095）；②baseline 册从 WARN 收敛为摘除的批量作业窗（须逐件勘误 commit）；③`PROTECTED_SURFACE` 与指针纪律面交叉声明（D-160③ 与 D-188 的守护面表述是否需对齐）；④**严格层列头枚举欠列**（账本 E-11：裸 `commit`／`SHA` 列头不在封闭枚举内，实测本批文书即在该盲区下放置指针；扩列走立法票 D-095）；⑤审计登记不罚三条的收紧票（`bareCodes` 英文三字母词误报面／`splitRow` 行尾 `|` 假设／空 subject 校验位）。
 
 ### 挂账常项（勿重复烤）
 

@@ -417,3 +417,12 @@
 - 勘误 E-4~E-9 append-only 追加（不改写 E-1~E-3）。
 - T1-B T3 退役呈裁单落盘：提议 check-kit-regex-blindspot-watch 降级常规自检＋补 registry 条目（现 registry 零命中＝未注册触发器不算锚定）；显式驳回摘除（D-160⑥ 面未消亡）。
 - guard-all-run 63/63 全绿（动态枚举 62→63，新 check 自动入列，D-149④）；engine build BUNDLE-OK／package macro-audit-0.1.0.tgz 255.5 kB／selftest ok:true 5/5／smoke 23 件套全绿／check-dist 零 drift。
+
+#### M-052 补记（同日审计返工小修批——append-only）
+
+- 审计裁定：功能面 PASS ＋ 文书面打回小修批（审计报告 `.scratch/macro-audit/reports/2026-09-30-r52-audit-report.md`，未 commit 时落盘）。
+- predecl §7 补登 P1~P9 冻结件内偏离勘误（D-181 append-only）；P1/P2/P3/P7 回改实现贴合声明，P4/P5/P6/P8/P9 登记并附实现事实。
+- 84-check 断言改实断 4 处：`PV-C-LEGAL-FORM`／`PV-D3-KIND-SLUG-TABLE`（原恒真，审计 Bond 判据命中）／`PV-E-TWIN-NEVER-FAILS`（去钉数，消除 WARN 态反噬 rc）／`PV-G-F07`（补 judge 路由）；新增 fixture `PV-G-F12` 行号形态反例。
+- 尾行回归修复（3 件）＋ 派生件 `63-assertion-inventory.json` 元数据随行。
+- 枚举盲区登记（账本 E-11）：裸 `commit`／`SHA` 列头不在 D-189⑧ 封闭枚举内；本批文书指针改法定形，扩列走立法票 D-095。
+- 复验：84-check `PASS-COUNT 26 FAIL-COUNT 0` exit 0；`guard-all-run` ran=63 green=63 allOk=true。
