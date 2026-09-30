@@ -1582,3 +1582,32 @@ scoping（非裁面/执行边界如实登记）：
 
 - **裁定层：闭环**——轮50 收口对账四候选全裁毕各有名分去向（立法＋执行窗登记＋显式驳回入去向表：Q1-(iii)(iv)／Q2-(iii)／Q3-(i)(iii)(iv)／Q4-(ii)(iii)(iv)）；零 revised。
 - **验收层：开放**——check-kit regex 盲区根治未实施（轮51 执行窗）＋迁入闸机检件未落盘（同上）＋macro-b 首次真跑未发生（外部观察窗）＋atomcode 深调研循环六连不归（降级形态在册，复审钩计数 1/3）。
+
+### D-184 兑现登记（2026-09-30 R51-T1A 执行批）
+
+- **T1-A 根治落地**：check-kit regex 态＋detectRegexHazards 探测件＋fixture 18/18＋golden 归因＋70-check 回迁＋勘误闭账＋迁入闸退役——六件齐（关档条件满足）。
+- **复验**：`node reports/check-kit-regex-check.mjs` PASS 13/13；`node reports/70-check.mjs` PASS 13/13；`node reports/guard-all-run.mjs` **PASS 62/62**。
+- **O6 顺删未触碰 40-check**（续挂账合规）。
+
+### D-187③ 核查结论（2026-09-30 R51-T1B）
+
+- **命题**：75a `--emit` 普查输出能否分向承载负向钉（缺席钉列）？
+- **实测**：`node 75a-check.mjs --emit` → 389 findings，字段集=`{key,file,kind,lno,excerpt}`；零 direction/absent/polarity 字段；kinds 全为在场钉族（date-literal/magic-floor/…/toothless）。
+- **结论**：**不能**分向承载缺席钉。换代盘点步负向列维持人工明文登记；**不另写解析器**（D-184 学费在案）。
+- **分向判定明文在案**：缺席钉列=人工清单；在场钉列=75a --emit 机读。
+
+### T3 审计窗哨兵读数（2026-09-30 R51）
+
+| 哨兵 | 读数 | 去向 |
+|---|---|---|
+| check-kit-regex-blindspot-watch | 根治已落地（wmu）；GAP-CK-01→closed；迁入闸退役 | 本项可摘除或降级为常规自检 |
+| GAP-CK-01 status 重审 | **closed**（五要件关档条件齐：fixture/golden/回迁/勘误/闸退役） | 关档 |
+| protected-surface-death-watch | 62 件守卫 PROTECTED_SURFACE 自声明全绿（75a T2 断言） | 续守 |
+| frozen_evidence_packs | 01 系五件钉值机检在 75a M5 PASS | 续守 |
+| GAP-B2B 八件 | 本轮未恶化；批2-β 开启触发器未点火 | deferred 续挂 |
+| Stage-2 判据④ window_state | not_started 维持 | 续守 |
+| ci-workflow-liveness-watch | 下一真实 schedule run=2026-10-05 03:17 UTC；本轮不实跑 dispatch | 等待 |
+| atomcode 降级构成比 | 本轮未开新调研题（0/0）；轮50 计数 1/3 维持 | 续录 |
+| 等待期序 | (b) 欠账清零→本轮 T1-A 根治即 (d) 深度维护主体完成 | 符合面序 |
+
+**用户验收对照**：编译=Node ESM 加载通过（check-kit/check-kit-regex-check/70-check/43-check）；打包=本仓无 npm 打包面（check 脚本即产物）；启动测活=guard-all-run 62/62 实跑；平台 test 闭环=43-check cp→fs.cpSync 修复 win 缺口＋全部 check 为 portable tier 无 POSIX-only 依赖（本轮新件）。

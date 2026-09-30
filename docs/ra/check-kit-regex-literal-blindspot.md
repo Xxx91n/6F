@@ -39,3 +39,13 @@
 ## 6. 关档条件（verify_method 呈裁条款）
 
 - 根治包落地：等价性 fixture 集红绿分野＋8 消费位被扫面 golden 对照零未归因差异＋70-check 回迁共用例程 PASS＋D-181 勘误闭账行＋WORKFLOW §4.2.12 迁入闸退役注记——五件齐→本档案关档＋GAP-CK-01 status→closed。
+
+## 7. 关档记录（2026-09-30 R51-T1A）
+
+- **根治包落地**：check-kit stripComments regex 态（js-tokens 前驱三分类＋行尾强制闭合＋歧义偏除号）——commit wmu
+- **等价性 fixture**：F-01..F-18 红绿分野 18/18＋KE-01..03 known-errors（安全向）——check-kit-regex-check.mjs
+- **golden 对照**：8 消费位，2 面差异（70/75a）归因=regex-引号形修复，零误删
+- **70-check 回迁**：本地 stripComments 退役→共用例程；E1 盘点 PASS 13/13
+- **勘误闭账**：D-177 预声明件 §6 勘误节三行
+- **迁入闸退役**：WORKFLOW §4.2.12 退役注记落盘
+- **关档条件五件齐** → 本档 status→closed；GAP-CK-01→closed

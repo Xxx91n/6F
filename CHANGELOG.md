@@ -391,3 +391,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（D-184~D-187＋第五十轮收口对账节）；docs/ra/check-kit-regex-literal-blindspot.md；reports/R50-Q{1,2,3,4}-{research-prompt,atomcode-research}.md 八件；handoffs/next-round.md 轮51 换代
 - impact: D 面 183→187 条（171 current／15 revised／1 closed）；known-gaps +GAP-CK-01（accepted-risk）；CONTEXT +4 词条（迁入闸／开工对表／降级形态／保搬区·哨兵字标盘点）＋轮50 封口行；WORKFLOW +2 节（§4.2.11/§4.2.12）＋§4.2.3 扩条；任务书换代首个钉清单盘点适用例（7 件 check 断言面分向核对在场）
+
+### M-050（2026-09-30 R51-T1A 执行批）
+
+- check-kit stripComments 补 regex 字面量态（js-tokens 前驱三分类＋行尾强制闭合＋歧义偏除号）；detectRegexHazards 迁入闸探测件。
+- D-177 预声明包先行（fixture F-01..18＋KE-01..03）；D-181 勘误闭账；70-check 回迁共用例程；迁入闸退役注记。
+- T1-B：75a --emit 不能分向承载缺席钉——负向列维持人工明文登记。
+- 43-check cp→fs.cpSync（win 平台 test 闭环）。
+- guard-all-run 62/62 PASS；GAP-CK-01/RA 档案关档。
