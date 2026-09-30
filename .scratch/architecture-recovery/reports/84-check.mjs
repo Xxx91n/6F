@@ -375,7 +375,9 @@ function mainRun() {
   const hitSet = new Set(verdicts.map((v) => bookKey(v.fd.file, v.fd.kind, v.fd.token)));
   const stale = entries.filter((e) => { const sp = splitPattern(e.pattern); return !hitSet.has(bookKey(e.file, sp[0], sp[1])); });
   for (const e of stale) warn('PV-STALE-ENTRY', e.id + ' 册项已无实物命中——可移除（ratchet 只减不增，禁判 FAIL）');
-  t('PV-F10D-STALE-REPORTED', true, '失配条目 ' + stale.length + ' 件已自报');
+  const entryKeys = entries.map((e) => { const sp = splitPattern(e.pattern); return bookKey(e.file, sp[0], sp[1]); });
+  const hitCount = entryKeys.filter((k) => hitSet.has(k)).length;
+  t('PV-F10D-STALE-REPORTED', entries.length > 0 && stale.length + hitCount === entries.length, '失配 ' + stale.length + ' 件已自报 ／命中 ' + hitCount + ' 件 ／册 ' + entries.length + ' 条（不漏不重）');
 
   for (const v of warns) warn('PV-BASELINE-HIT', v.fd.kind + String.fromCharCode(58) + v.fd.token + ' @ ' + v.fd.file + ' [' + v.fd.detail + ']');
   for (const v of fails) console.log('FAIL ' + v.slug + ' :: ' + v.fd.kind + String.fromCharCode(58) + v.fd.token + ' @ ' + v.fd.file + ':' + v.fd.line + ' [' + v.fd.detail + ']');
