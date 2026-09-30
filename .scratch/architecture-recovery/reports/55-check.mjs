@@ -11,6 +11,7 @@ import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { stripComments } from './_lib/check-kit.mjs';
 import { tmpdir } from 'node:os';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
@@ -80,7 +81,7 @@ rmSync(tmp, { recursive: true, force: true });
 const cite = txt(join(ENG, 'src', 'report', 'citation.ts'));
 const relType = (cite.match(/export type SupportRelation[^;]*;/) || [''])[0];
 t('D1 citation.ts SupportRelation 联合无 contradicts 成员（注释勘误不算残留）', relType.indexOf('SupportRelation') >= 0 && relType.indexOf('contradicts') < 0, relType.slice(0, 120));
-function stripComments(src) { return src.replace(/\/\*[\s\S]*?\*\//g, '').split(NL).filter(function (l) { return l.indexOf('//') < 0 || l.trim().indexOf('//') !== 0; }).map(function (l) { return l.split('//')[0]; }).join(NL); }
+// stripComments: 共用剥面 _lib/check-kit.mjs（D-183 普查命中修复——原手搓块注+split(//) 无字符串保护）
 const allSrc = ['cli.ts', 'audit/audit.ts', 'audit/macro-b.ts', 'demo/demo.ts', 'mcp-server.ts', 'report/generate.ts', 'report/citation.ts', 'fact/schema.ts', 'fact/store.ts', 'intake/intake.ts'].map(function (f) { try { return stripComments(txt(join(ENG, 'src', f))); } catch (e) { return ''; } }).join(NL);
 t('D2 src 代码面无 contradicts 消费残留（注释除外）', allSrc.indexOf('contradicts') < 0);
 

@@ -5,6 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { stripComments } from './_lib/check-kit.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '守卫：确定性采集器（A-022 / spec.md §R3-D3）';
@@ -25,12 +26,7 @@ const map = JSON.parse(readFileSync(MAP_JSON, 'utf8'));
 const S = await import(pathToFileURL(SCHEMA_TS).href);
 const C = await import(pathToFileURL(COLLECT_TS).href);
 const src = readFileSync(COLLECT_TS, 'utf8');
-function stripComments(text) {
-  return text.split(String.fromCharCode(10)).map(function (line) {
-    const i = line.indexOf('//');
-    return i >= 0 ? line.slice(0, i) : line;
-  }).join(String.fromCharCode(10));
-}
+// stripComments: 共用剥面 _lib/check-kit.mjs（D-183 普查命中修复——原手搓 indexOf(//) 截断无字符串保护）
 const code = stripComments(src);
 const codeLower = code.toLowerCase();
 
