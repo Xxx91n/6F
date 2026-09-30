@@ -176,3 +176,42 @@ git status --short   # 收口后须零 diff 或 bundle 同窗收编
 - 开工三件套：`D:\Aworker\6F\.scratch\macro-audit\handoffs\R51-open-checklist.md`
 - D-177 预声明：`D:\Aworker\6F\.scratch\architecture-recovery\reports\D-177-check-kit-regex-predeclaration.md`
 - 决策账本：`D:\Aworker\6F\.scratch\macro-audit\decision-ledger.md`
+
+
+---
+
+## 9. 复验记录（2026-09-30 返工后 LOOP——append-only）
+
+> 触发：修复窗 A 路径返工（cb625c64→3290f686→45b2597b）呈报复验。
+> 方法：同一套硬验收重跑 ＋ F1~F5 逐条实物复核。
+
+### 9.1 硬验收重跑（全绿）
+
+| 项 | 命令 | 实测 |
+|---|---|---|
+| 语法 | `node --check` ×4 | SYNTAX_OK 全过 |
+| regex 守卫 | `check-kit-regex-check.mjs` | **PASS 15/15**｜fixtures **19/19 含 F-09**｜legacyRed 1｜goldenChanged 2/8 |
+| 70-check | `70-check.mjs` | PASS 13/13 |
+| 43-check | `43-check.mjs` | PASS 28/28 |
+| guard-all | `guard-all-run.mjs` | **ran=62 green=62 GUARD-ALL-RESULT: PASS** |
+| engine | `npm run build` / `package` / `selftest` | BUNDLE-OK / macro-audit-0.1.0.tgz / ok:true 5/5 |
+| 工作区 | `git status --short` | **clean** |
+
+### 9.2 五件硬缺口复核
+
+| 缺口 | 修复证据（实测） | 判定 |
+|---|---|---|
+| F1 指针模糊 | 预声明 **§7 指针补钉表**：fe3271d8／da0c25a9／7d8d7c9f＋返工哈希；`git cat-file -e` 全过 | **合** |
+| F2 F-09 丢弃 | fixtures[] 含 `id:'F-09'`；A1=成员集断言（id 集==F-01..F-18∪KE-01，n=19）；实跑输出 `ids=...F-09...` | **合** |
+| F3 attributed 硬编码 | `isAttributedFix` 逐行归因＋标识符零丢失；D2=`g.attributed===true`；**D2b 注入未归因差异判 false（killable）** | **合** |
+| F4 打包口径 | 报告 **§9.4 更正**（append-only）：engine 打包面实存＋build/package/selftest 实跑读数 | **合** |
+| F5 D-180 缺腿 | §9.7 留痕：75a-census HEAD==worktree **residual=0**（×46 已由 f64f0eb6 收编）；W7 索引幻影已清 | **合** |
+
+### 9.3 残留观察（不阻断，登记待下轮）
+
+- **W8**：预声明 §7 返工行指针写 `201935fc`（孤儿孪生，同 subject 不同 SHA，不在 r51-t1-exec 主线）；主线返工 commit=`cb625c64`。二者 `cat-file -e` 均可验、内容同题。建议下轮勘误把主线 SHA 补进 §7（append-only 一行）。
+- **W4 已消**：预声明 §5 六钩全勾 `- [x]`。
+
+### 9.4 复验结论
+
+**审计通过。** 五件硬缺口全合，硬验收全绿，工作区 clean。本轮审计窗义务闭环；交接见 handoff 件。
