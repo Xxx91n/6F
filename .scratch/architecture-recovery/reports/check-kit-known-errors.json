@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "form": "known-errors-fixture",
+    "legislated_by": "D-184/D-177",
+    "note": "js-tokens } 歧义三组——本仓安全向=偏除号（误留可捕获 vs 误删静默漏扫）",
+    "created": "2026-09-30",
+    "round": "R51-T1A"
+  },
+  "entries": [
+    {
+      "id": "KE-01",
+      "input": "function f(){}\n/x/;",
+      "js_tokens": "may treat /x/ as regex after }",
+      "expected": "division",
+      "safe_toward": "residual-expression-not-swallowed"
+    },
+    {
+      "id": "KE-02",
+      "input": "if (a) {}\n/x/;",
+      "js_tokens": "may treat /x/ as regex after }",
+      "expected": "division",
+      "safe_toward": "residual-expression-not-swallowed"
+    },
+    {
+      "id": "KE-03",
+      "input": "{}/x/",
+      "js_tokens": "ambiguous }",
+      "expected": "division",
+      "safe_toward": "residual-expression-not-swallowed"
+    }
+  ]
+}
