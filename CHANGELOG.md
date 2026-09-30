@@ -375,3 +375,11 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（R49 收口节；reports/R49-Q{1,2,3,4}-research-prompt.md＋R49-Q{1,2,3,4}-atomcode-research.md 八件）
 - impact: D 面 183 条（167 current/15 revised/1 closed）；执行窗义务四件登记（D-180/181/182 文书批＋D-183 微修批——轮50）；CONTEXT +3 词条（收口 commit 对/扩面勘误/代表性衰减声明）；atomcode 回传通道异常四连如实登记（均未杀进程，落库后可补强）；轮49 审计四候选全裁毕零 revised
+
+## [M-048] - 2026-09-30
+
+- milestone: 轮50 T1 执行批——D-180/181/182/183 执行窗义务四件兑现（文书三件先行→微修批）：WORKFLOW §4.2.9/§4.2.10 落行＋预声明包B 首例勘误正式化（轻档/重档分级·post-hoc·首例即定形）＋registry decay-declared＋AR 五要件（GAP-REP-01）＋F3 等价性自证件＋同型普查 3 命中处置（21/55 迁 check-kit；70 维持本地·D-181 勘误）；guard-all-run 61/61 全绿
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（轮50 执行窗兑现＋T3 哨兵读数）；reports/2026-09-30-r50-exec-report.md＋2026-09-30-r50-t1d-predecl.md；handoffs/2026-09-30-r50-t1-exec-handoff.md
+- impact: D 面 183 条不变（执行批只兑现不裁定）；registry 75 项不变（anysearch confirmations 3→4）；known-gaps +GAP-REP-01（accepted-risk）；docs/ra +upstream-representativeness-gap.md；F3/F4 源码面确认由轮49 LOOP 先行（c6cb5a33/36e4d264）；check-kit regex 字面量盲区记档为已知限制；收口口径=除已收编真实语义信号件外零 churn

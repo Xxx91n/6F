@@ -1456,7 +1456,26 @@ scoping（非裁面/执行边界如实登记）：
 | D-177 工序文书面落行——D-177 | 执行批 | 轮49 文书批 | WORKFLOW 节或报告文书节条款存在＋口径与账条一致 |
 | 守卫伴生再生减负包（种子化＋豁免清单＋两跑零 diff 自检）——D-179 | 执行批 | 轮49+（D-176 后排程） | 两跑零 diff 自检绿＋伴生 churn 件数实测下降（12~14→0 或仅真实语义变化件）＋46-check 相容 |
 
-#### 分层定稿（D-165/D-170 双行呈报）
+#### 轮50 执行窗兑现（T1-A~D，2026-09-30）
+
+| 义务 | 兑现 | 证据锚 |
+|---|---|---|
+| D-180 文书落行 | **已兑现**——WORKFLOW §4.2.9 收口 commit 对节奏（紧邻对定义＋口径「除已收编真实语义信号件外零 churn」＋不溯既往＋收口模板随行）| WORKFLOW.md §4.2.9 机核在场；口径字样机核 OK |
+| D-181 文书面＋首例补勘误 | **已兑现**——WORKFLOW §4.2.10 勘误通道工序（勘误节建制/时点义务二分/命题变更测试/commit-body 从证据）；预声明包B append-only 正式化补录（①载体漂移=轻档②A5 熵源钉增项③锚语义=重档，post-hoc 标位＋首例即定形＋sha256 零改写自证 `966c7e7f…`）| predecl 包B「D-181 通道正式化补录」节；WORKFLOW §4.2.10 |
+| D-182 册项确认行＋AR 注册 | **已兑现**——registry anysearch-cli-intent-drift-watch confirmations + decay-declared 行（status=pending 续看不销项）；docs/ra/upstream-representativeness-gap.md 五要件；known-gaps GAP-REP-01；01 系五件 sha256 与 manifest 钉值全一致 | registry confirmations=4；RA 档案；GAP-REP-01 行 |
+| D-183 微修批 | **已兑现（部分由轮49 LOOP 先行）**——F3/F4 源码面=LOOP 包C/D 已落地（c6cb5a33/36e4d264）；本批补 F3 等价性自证件三面（A5 行为等值=true＋吞行红绿分野＋断言语义不变）；同型普查 59 件扫 3 命中：21/55 迁 check-kit（PASS 43/43、18/18）＋70 维持本地（迁移回退——check-kit regex 字面量盲区致 E1 漂移，回退后 PASS 13/13）走 D-181 勘误；guard-all-run 61/61 全绿 | 2026-09-30-r50-t1d-predecl.md 附录A＋勘误节；guard-all-run GUARD-ALL-RESULT: PASS |
+
+**分层定稿（轮50 执行批）**：裁定层=四件义务三要素齐备兑现；验收层=guard-all-run 全绿＋等价性自证件在场＋普查账行在场——**F3/F4 源码修由轮49 LOOP 先行落地（commit 指针在案），本批兑现验证面与普查面**（双行呈报——非单句已完成）。
+
+### T3 哨兵值守读数（轮50 执行批随读，2026-09-30）
+
+- manual_watch 在册 23 项：anysearch-cli-intent-drift-watch=pending（decay-declared 确认后续看）；ci-workflow-liveness-watch=pending（下次真实 schedule run=2026-10-05 03:17 UTC——盘查 run 列表读数下轮）；codebuddy-ide-gap-watch=pending（RA 钩=min(IDE 会话,2026-12-27)）；batch2beta-techdebt-review/open-triggers=pending（三问全否挂账续持）。
+- GAP-B2B 八件 status 全 triaged 同态较基线零恶化。
+- window_state=not_started 维持（零试点期窗未启动）。
+- frozen_evidence_packs 五件 sha256 钉值机检：01-corpora/01-align/01-spotcheck/01-report/01-fallback 全一致。
+- 「该退化无认领票」标注维持；intent-drift 读数续录。
+
+### 分层定稿（D-165/D-170 双行呈报）
 
 - **裁定层：闭环**——R48 审计呈报三候选（D-147 工序收严/调研存档形态/守卫再生减负）＋本窗新发现（macro-b 死件）全裁毕各有名分去向（兑现登记/显式驳回入去向表/scoped revised 规程）；P1/P5 信息级登记无裁点。
 - **验收层：部分开放**——guard-all-run 本窗 60/60 全绿（allOk=true）；macro-b-regression.yml 处死亡态存续中（schedule 面 D-046④ 回归覆盖缺口自 2026-09-23 起 ~6 天持续——处置包=D-176 执行窗义务轮49 兑现）；Stage-2 判据① DoR-b 阻塞维持＋判据④ window_state=not_started（零试点窗未启动）＋②③维持达标——分层定稿义：裁定层可闭环，验收层如实挂欠账。
