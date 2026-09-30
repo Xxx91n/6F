@@ -26,6 +26,7 @@
 > 轮 46 grill（2026-09-29 完成）已封口 D-173：Stage-2 判据④ A(a) 静默窗语义钉定——窗状态机显式化（not_started/running/satisfied_at；零试点⇒not_started，「计时中」非法读数）＋回流口径来源分级内外同权（能力面 findings 重置窗／hygiene 记 reset_log 披露不重置）＋重置锚=变更进入被验证制品事件非 finding 到达本体＋机读五件建制（start_event/start_at/prereq_check/reset_log/decision_date 复合测试「issue closure alone satisfies neither test」）＋registry 六次「计时中」读数链式更正为 not_started（D-146⑤）；**D-162→revised**（仅④款 A(a) 收窄）；调研档案 R46-Q1 存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-162④ A(a)）。
 > 轮 47 grill（2026-09-29 完成）已封口 D-174 ~ D-175：F4 枚举键建制裁（window_state_enum 数据面补位——sibling-of-field 归位三态闭集；同容器枚举覆盖不对称=建制欠账〔install-manifest-spec 结构缺口 bug 修复先例〕；枚举键=值域声明约束既有字段非数据字段扩张，D-173③ 不破零 revised；跨字段流转断言可选叠加须 D-147 预声明验证包工序）＋等待期工作面序立法（临界路径外置段仓内合法面序：(b) 已触发欠账清零第一优先〔试点期失败信号与已知噪音隔离——Burndown 同构〕→(d) 冻结资产深度维护主体〔守卫覆盖/性能基线/代表性巡检；禁借机开新 API/状态文件/workflow〕→(c) 预备件三问筛〔解锁首周必用∧不赖试点反馈∧假设被否仍成立，任一否不建〕→(a) 纯值守仅底线不构成策略；落地载体=allowed/deferred 清单约束文件；shadow 边界重申——内部/模拟仓证据永不充真实仓〔D-062③ 同构〕）；调研档案 R47-Q{1,2} 系列存档 .scratch/macro-audit/reports/；本轮零 revised。
 > 轮 48 grill（2026-09-29 完成）已封口 D-176 ~ D-179：四裁——macro-b-regression 死件处置包（本窗新发现：YAML 未引号冒号→文件级解析失败→schedule 静默死亡 ~6 天；修＋双轨建制=parse 档闸归机检面 46-check＋liveness 哨归 manual_watch 五要件；分档判据=验证成本×失效频率×检测时延容忍，平台侧失效形态〔60 天自动停用/调度注册漂移〕只有哨兵可兜）＋预声明验证包锚定义＋实跑必选（声明锚=先落物化面即合法〔账行/报告节/独立文件〕，同 commit 原子落盘不满足证据强度；红态诱导实跑必选——未跑=缺件处置非静默放行；不溯既往——7bd2e8e1 维持实质合规）＋调研存档形态统一（reports/ 文件硬要求——ctx 索引=检索增强非等价持久件；R48 (d) 面缺件补落义务）＋守卫伴生再生减负包（确定性种子化主腿〔SOURCE_DATE_EPOCH 式 env 注入＋UUID 内容寻址〕＋volatile-fields 枚举豁免清单副腿〔三硬边界：枚举键级/派生信号族禁入/死项即红棘轮〕＋两跑零 diff 防退化自检；自动 discard 显式驳回——无先例且绕开 D-140② 记账面）；**D-147→revised**（仅③款锚形态——由 D-177 承载一般化，账行锚=新规特例）；调研档案 R48-Q{1,2,4} 系列存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-147③）。
+> 轮 49 grill（2026-09-30 完成）已封口 D-180 ~ D-183：四裁——收口 commit 对节奏（语义收口→立即再生→同窗独立 bundle＋口径改述「除已收编真实语义信号件外零 churn」；(ii)(iii) 显式驳回）＋扩面勘误通道（append-only 勘误节＋时点二分按可预见性＋IESG 命题变更测试分级＋commit-body 降为从证据；首例即定形）＋冻结包代表性衰减声明（声明入册项确认行＋S1 重校准缓行挂消费拉动＋缺口 AR 五要件注册＋哨兵续看；(iii)(iv) 显式驳回〔复审钩缺失=立法不成立〕）＋微修批建制（F3/F4 双修＋同型反模式普查＋等价性验证钉死——AR 缓挂=自我指涉悖论被支配）；零 revised。
 
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
@@ -400,6 +401,19 @@ _Avoid_: 冻结期/封存期（判据未达≠产品冻结）、空转（纯值�
 探测面修语义前的预声明工序（D-147 先例→D-177 一般化）：声明须物化于**先于变更 commit 落盘**的承载面——账行/审计报告节/独立预声明文件均合法（先落物化面=git 时序自证可第三方验；同 commit 原子落盘=声明与变更同时诞生，工件无法区分预声明与事后合理化，不满足证据强度）；声明红态诱导面=实跑必选义务——执行窗须留实跑读数（构造输入＋运行结果入报告/账行），未跑=包不闭环按缺件处置非静默放行；「审计窗补证」不得为预期兜底路径；环境不可当时实跑=按缺件挂起。D-147③ 原判例「声明钉账行→变更独立 commit」=新规特例续合法非被推翻。
 _Avoid_: 声明与变更同 commit 原子落盘（时序只能信作者自述）、声明诱导面未实跑（包缺件化）、强制独立声明 commit（超额工序——锚位物化即足）、追溯既往翻案（生效时点 D-148③）
 
+
+
+**收口 commit 对（Closeout Commit-Pair）**:
+收口工序末尾的派生信号收编节奏（D-180——Kubebuilder/controller-tools 派生件随 commit 收编＋towncrier release 原子批紧邻＋K8s verify-diff 失真面显式命名先例）：语义收口 commit（账本/编年/CONTEXT/handoff）落盘→立即跑再生产生派生信号→独立 bundle commit 同窗收编——drift 不跨轮不过夜，上轮收口派生永不混进下轮语义变更 bundle；报告口径=「除已收编真实语义信号件外零 churn」（显式命名例外非宣称全局干净）。
+_Avoid_: 同 commit 原子落盘（撞 D-139/D-140② 分离纪律——允许的是紧邻 commit 对非同 commit）、次轮 bundle 收编（跨轮归属歧义＋检查点陈述永久失真）、派生信号塞 volatile 豁免（撞 D-179② derived_signal_banned 禁列族）、口径改述成「无 churn」抹掉信号存在事实
+
+**扩面勘误（Declaration Errata Channel）**:
+冻结声明件内执行中才发现的扩面的合规承认通道（D-181——FDA deviation/amendment 二分〔分界=可预见性非大小〕＋IESG RFC errata「符合原意」判据＋constructive change 事后补票时限纪律先例）：预声明文件设 append-only「勘误」节不改写原文——条目三字段=扩面描述＋发现时点（pre-commit/post-hoc 如实标）＋变更 commit 指针；时点义务按可预见性二分（变更前识别→勘误先行；执行中发现→变更后立即落勘误＋post-hoc 标位=D-177 严格时序的显式例外条款）；强度分级=命题变更测试（实落物改冻结声明钉住的被验证命题→重档独立勘误 commit／纯实现层名实缝→轻档 commit-body＋索引批注）；commit-body 永远只是从证据。
+_Avoid_: commit-body 单独充当重档通道（不满足 D-177 证据强度）、改写声明原文（append-only 链式追加）、post-hoc 伪装 pre-commit（顶格违规——诚实晚声明>伪装早声明）、勘误通道用于成片改写（超点状走 scoped revised 重冻结）、「琐碎扩面」豁免口
+
+**代表性衰减声明（Representativeness Decay Declaration）**:
+冻结证据包对当前上游/世界状态代表性失效的账面声明（D-182——benchmark deprecation 三阶段框架〔assessment→reporting→notification〕＋BNC 快照语义〔代表性锚定冻结时点〕＋chain-of-custody 双轨〔完整性常驻机检/代表性周期盘查〕先例）：冻结件字节不动（历史证据语义不破）＋声明走册项确认行与账本注记；重校准不随声明自动执行——锚定「用途＋事件触发」消费拉动（计量学 event-driven/in-use 惯例：无第三种参照物演进自动重测）；缺口存续期按 AR 五要件注册非裸挂。
+_Avoid_: 声明前机械 regen（再生即失义 D-172①）、缓声明再观察（under-declaring 违触发器纪律——确认即 declare）、「永久不需要」无复审钩豁免（D-169 五要件缺失=静默丢弃态立法不成立）、对上游追责外联（drive-by 禁区）
 
 ### retired 类（退役守卫终态留档）
 

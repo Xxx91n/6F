@@ -368,3 +368,10 @@
 - a_range: A-001 ~ A-099（无新增）
 - ledger_pointer: .scratch/macro-audit/decision-ledger.md（执行窗兑现 R48-impl 节；reports/2026-09-29-r49-predecl-verification-packs.md＋R48-d-face-atomcode-research.md）
 - impact: D 面 179 条不变（本批零新裁——执行批只兑现不裁定）；registry 74→75 项（ci-workflow-liveness-watch 入册）＋waiting-list 数据行 88→89；守卫件 60→61（d179-check 入列）；engine 源码零触碰（dist 未变）；分支 r49-t1-exec 栈于 r48-closeout（生成面依赖 kom bundle 基底）——未 push 未 merge
+## [M-047] - 2026-09-30
+
+- milestone: 轮49 grill 收口批——四裁全 current 零 revised：D-180 收口 commit 对节奏立法（F1 派生信号〔75a census ×42→×43 失钉=收口文书 commit 扩账本致派生摘录必然漂移——结构性次序缺口〕→语义收口→立即再生→同窗独立 bundle 收编＋口径改述「除已收编真实语义信号件外零 churn」；(ii) 跨轮收编/(iii) 派生豁免显式驳回）＋D-181 冻结声明件内扩面勘误通道（append-only 勘误节＋发现时点三字段＋时点义务二分按可预见性〔执行中发现→立即补勘误 post-hoc 如实标=D-177 严格时序显式例外条款〕＋IESG「命题变更测试」轻重分级＋commit-body 降为从证据——首例即定形：三缝隙补勘误）＋D-182 冻结包代表性衰减呈裁（anysearch-cli intent 8→1 持续坐实〔上游 bbb3ba73 README IA 重构自主改版无认领票〕→声明入册项确认行〔D-173 防双册〕＋S1 重校准缓行挂消费拉动〔计量学 event-driven/in-use 先例——无第三种参照物演进自动重测〕＋缺口 AR 五要件注册＋哨兵续看；(iii) 缓声明=under-declaring/(iv) 永不重校准=D-169 复审钩缺失立法不成立——显式驳回）＋D-183 微修批建制（F3 d179-check 手搓注释剥离吞行反模式必修〔false-green 危险向；AR 缓挂=自我指涉悖论＋≤90d 双锚成本≥修=被支配〕＋F4 A18 '#' 指标＋块标量跟踪〔名实缝=真实性缺陷非单纯误报〕＋同型反模式普查〔Sourcegraph 一次性肃清先例〕＋F3 等价性验证钉死）
+- adr_range: ADR-0001 ~ ADR-0024（不变）
+- a_range: A-001 ~ A-099（无新增）
+- ledger_pointer: .scratch/macro-audit/decision-ledger.md（R49 收口节；reports/R49-Q{1,2,3,4}-research-prompt.md＋R49-Q{1,2,3,4}-atomcode-research.md 八件）
+- impact: D 面 183 条（167 current/15 revised/1 closed）；执行窗义务四件登记（D-180/181/182 文书批＋D-183 微修批——轮50）；CONTEXT +3 词条（收口 commit 对/扩面勘误/代表性衰减声明）；atomcode 回传通道异常四连如实登记（均未杀进程，落库后可补强）；轮49 审计四候选全裁毕零 revised
