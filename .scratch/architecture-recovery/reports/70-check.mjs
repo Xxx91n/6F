@@ -18,10 +18,14 @@
 // ⑧ 断言级 id 盘点偿 D-071 欠账：live 解析 emit 调用点 vs 63-assertion-inventory.json 逐守卫对账（漂移→FAIL 附 regen 命令）
 // ⑨ 39-F2 留痕闭包：disposition=vacuous-deleted 在册＋守卫源无 t('F2 发射＋vacuous-deleted 注释在（不走 sealed/XFAIL）
 // 用法：node 70-check.mjs → 逐条 PASS/FAIL + VACUOUS-CAND 顶显；exit 0=结构完整，exit 1=有 FAIL
+// D-181 勘误（R51-T1A）：本地 stripComments 双轨已回迁 check-kit 共用例程——闭账行
+// 发现时点：pre-commit（D-177 预声明包已钉 golden）；变更 commit=本件
+
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { stripComments as stripCommentsKit } from './_lib/check-kit.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '#70 守卫——vacuous 恒真断言族制度面（D-079 / R23-Q1 调研落地）';
@@ -116,18 +120,9 @@ function innerExpr(text, openIdx) {
 }
 
 // 行注释剥离（// 出字符串态即截断——注释内 t()/sealed()/join()/const 均非发射点/引用物，防误计）
-function stripComments(src) {
-  return src.split('\n').map(line => {
-    let q = null;
-    for (let i = 0; i < line.length - 1; i++) {
-      const ch = line[i];
-      if (q) { if (ch === q && line[i - 1] !== '\\') q = null; continue; }
-      if (ch === "'" || ch === '"' || ch === '`') { q = ch; continue; }
-      if (ch === '/' && line[i + 1] === '/') return line.slice(0, i);
-    }
-    return line;
-  }).join('\n');
-}
+// 70-check 本地 stripComments 已回迁共用例程（D-184②④ 根治落地——R51-T1A d）
+// 原本地三态行级实现退役；regex 态由 check-kit 承担（golden 对照零未归因差异）
+const stripComments = stripCommentsKit;
 
 // 字符串掩码（字面量内容→空格，引号保留，长度不变——掩码位与原串位一一对应；检测走掩码、提取走原文）
 function maskStrings(src) {

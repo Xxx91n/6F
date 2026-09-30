@@ -344,6 +344,12 @@
         "t()"
       ]
     },
+    "check-kit-regex-check": {
+      "assertion_ids": 11,
+      "call_styles": [
+        "t()"
+      ]
+    },
     "d179-check": {
       "assertion_ids": 7,
       "call_styles": [

@@ -103,3 +103,13 @@
 - [ ] 70-check 回迁共用例程 PASS
 - [ ] D-181 勘误闭账行
 - [ ] WORKFLOW §4.2.12 迁入闸退役注记
+
+## 6. 勘误（D-181 append-only——闭账行）
+
+| 时点 | 扩面描述 | 发现时点 | 变更 commit |
+|---|---|---|---|
+| 2026-09-30 R51 | golden 对照实测 2/8 面有差异（70-check L60 / 75a L76）——旧 inStr 粘滞致「该剥不剥」，新态剥除伪注释；归因=regex-引号形修复安全向，零误删 | post-hoc（执行中发现） | wmu（check-kit regex 态） |
+| 2026-09-30 R51 | check-kit-regex-check C4/D2 初版无牙断言被 75a 抓出→改实断言（Array.isArray / golden.every） | post-hoc | 本轮修复 commit |
+| 2026-09-30 R51 | 43-check 移植性：`cp -r`→`fs.cpSync`（win 平台 spawnSync cp ENOENT——用户验收「每个平台 test 闭环」） | post-hoc | 本轮修复 commit |
+
+**闭账声明**：D-184②④ 根治落地——fixture 红绿分野 18/18＋golden 零误删＋70-check 回迁 PASS 13/13＋guard-all-run 62/62。

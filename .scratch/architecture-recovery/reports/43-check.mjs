@@ -9,7 +9,7 @@
 //   worktree add 仅写 .git/worktrees 管理目录（无对象/引用写入），C 段 finally 兜底移除。
 //   exit 0 + PASS N/N 为绿。
 import { createHash } from 'node:crypto';
-import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, cpSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -97,7 +97,7 @@ writeFileSync(join(tamperDir, FOUR[1]), bad.replace('RCP-', 'RPX-'), 'utf8');
 const redHits = FOUR.filter(f => readFileSync(join(tamperDir, f), 'utf8') !== readFileSync(join(FW, '.scratch', 'architecture-recovery', 'reports', f), 'utf8'));
 t('C3 误态：篡改一件 → 同一 diff 逻辑必检出（命中差异文件）', redHits.length === 1 && redHits[0] === FOUR[1], JSON.stringify(redHits));
 const goldCopy = join(tmp, 'golden-copy'); mkdirSync(goldCopy, { recursive: true });
-execFileSync('cp', ['-r', join(GOLDEN, 'happy-path'), goldCopy], { encoding: 'utf8' });
+cpSync(join(GOLDEN, 'happy-path'), join(goldCopy, 'happy-path'), { recursive: true }); // R51: portable cp (win/mac/linux)
 const gfile = join(goldCopy, 'happy-path', 'report.md');
 writeFileSync(gfile, readFileSync(gfile, 'utf8') + '\nTAMPERED\n', 'utf8');
 t('C4 误态：engine golden 篡改 → byte diff 逻辑必检出', readFileSync(gfile, 'utf8') !== readFileSync(join(GOLDEN, 'happy-path', 'report.md'), 'utf8'));

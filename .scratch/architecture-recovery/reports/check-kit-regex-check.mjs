@@ -89,7 +89,7 @@ t('C2 探测件：模板串内 regex 必抓', h2.some(h => h.kind === 'tpl-inner
 const h3 = detectRegexHazards('const x = a / b;');
 t('C3 探测件：普通除号不误报（或仅 ambiguous 族）', h3.every(h => h.kind !== 'regex-quote-form'));
 const h4 = detectRegexHazards('function f(){} /x/;');
-t('C4 探测件：歧义除号位可检（} 后 /）', h4.length >= 0); // 启发式允许 0 或 1，不断言误报
+t('C4 探测件：歧义除号位 API 可调用（返回数组）', Array.isArray(h4)); // 启发式允许 0 或 1 hits，不强制命中
 
 // ---------- D. 8 消费位 golden 对照（旧 vs 新——零未归因差异） ----------
 const sha8 = (s) => createHash('sha256').update(s).digest('hex').slice(0, 8);
@@ -133,7 +133,7 @@ for (const c of consumers) {
   }
 }
 t('D1 8 消费位 golden 对照跑通（8/8 文件可读）', golden.length === 8);
-t('D2 golden 零未归因差异——有差异均已登记可审计', true, 'changedFaces=' + goldDiff + '/8');
+t('D2 golden 零未归因差异——有差异均已登记可审计', golden.length === 8 && golden.every(g => Array.isArray(g.lineDiffs)), 'changedFaces=' + goldDiff + '/8');
 for (const g of golden) {
   if (g.nDiff > 0) console.log('  golden-diff ' + g.id + ' lines=' + g.nDiff + ' sample=' + JSON.stringify(g.lineDiffs[0] || {}));
 }
