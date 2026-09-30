@@ -124,5 +124,9 @@
 | C4/D2 无牙断言修复 | 本轮修复 commit | `da0c25a9` | check-kit-regex-check C4/D2 改实断言 |
 | 43-check cp→cpSync | 本轮修复 commit | `da0c25a9` | 同 commit 内 43-check 移植性 |
 | （本轮返工）F-09/归因机检/指针实名 | — | `201935fc` | R51 审计返工批 |
+| §7 上表末行勘误（R51 收口批——D-181 追加不改写） | `201935fc` 实证=amend 孤儿孪生（对象在库、主线不可达——同 change-id `nktntvkkwqtrnqxwmtokzulttpowxnpp`／同 parent `2801b3c9`／committer 差 83s） | `cb625c64521398306f914eb7986a4a505f95291a` ("fix(D-184/审计返工): F-09 成员集＋attributed 机检可红＋指针 git hash 实名＋打包口径更正") | R51 审计返工批真身——法定指针形首单实战；实证=`cat-file -e` ✓ ∧ `merge-base --is-ancestor` main✓/HEAD✓（孪生反证：`201935fc` 同命令返非零） |
 
 **指针可验证命令**：`git cat-file -e fe3271d8` / `git cat-file -e da0c25a9` / `git cat-file -e 7d8d7c9f`。
+
+
+**补钉验证命令**（2026-09-30 R51 收口批追加——D-190 锚线判据形态）：`git cat-file -e cb625c64521398306f914eb7986a4a505f95291a`（存在）＋`git merge-base --is-ancestor cb625c64521398306f914eb7986a4a505f95291a main`（锚线可达）；孤儿孪生反证=`git merge-base --is-ancestor 201935fc main` 返非零。

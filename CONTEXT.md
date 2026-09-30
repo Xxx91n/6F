@@ -433,6 +433,25 @@ _Avoid_: 降级当免标注借口（组成标注义务反升必填）、假到�
 换代重写文件中守卫断言钉的集中存放节与换代核对工序（D-187——autojinja named-section 提取重插〔缺失即 abort〕＋Cog 标记区外原文通过＋gitlint/mdsmith/AWS CFGuard 禁含形态一等公民先例）：「历史票面闭环索引（守卫锚点留痕）」节规程化为保护区——整节保搬只增不删；换代前钉清单盘点步（枚举断言面＋在场钉/缺席钉**分向两列**——负向断言合规态=持续缺席）；新书落盘逐钉核对；守卫组兜底第二层不降级；新钉默认落节内，节外钉须普查清单显式登记防盲区化。
 _Avoid_: 保护区外静默新增钉（盲区化）、删节内在册钉（只增不删——D-146⑤ 同精神）、盘点清单做成自指 check 文件（断言换代行为的 check=fragile）、为分向承载另写断言解析器（D-184 学费在案——75a 适配缺口先核查）
 
+**commit 指针法定形（formal commit pointer）**:
+文书面「定位一个 commit」字段的法定形态（D-188——kernel Fixes 标签双要素惯例）：git SHA ≥12 hex＋`("subject")` 人读校验位；写入时点须 `cat-file -e` 存在且锚线祖先集可达。GitButler change-id=辅证非指针（官方承认非唯一，amend 保 id 改 SHA）；but status 3 字母短码=per-session UI 便利码，全面禁当指针。
+_Avoid_: 短码或「本轮修复 commit」类模糊语入指针位、change-id 作消歧依据、裸 SHA 无 subject 校验位、以本规追溯改写既往文书（D-148③——存量走 D-181 勘误）
+
+**锚线（anchor line）【自造词】**:
+commit 指针合法性的可达性参照线（D-190——Gerrit refs/for/<branch> 具名线绑定同构先例）：默认=文书落盘分支栈 tip（同栈零标注）；跨线引用须具名声明（固定点 `A..B` 行／`(on <branch>)` 括注为法定声明位）；判据=`git merge-base --is-ancestor <sha> <锚线tip>`——读文书者单文档可复验，不依赖 but 会话态。
+_Avoid_: origin/main 唯一锚（把在途执行窗指针全判死）、文书 commit 自身祖先锚（误杀跨线引用＋同 commit 原子落盘自指不可能）、reflog/任一 ref 可达即合法（孤儿孪生合法化=W8 重演）
+
+**孤儿孪生（orphan twin）【自造词——对象态官方正名=unreachable/dangling commit】**:
+GitButler amend/rewrite 产生的同 change-id、同 parent、近邻 committer 时间的 commit 对象对（W8 实证：`201935fc` vs `cb625c64` 同 change-id `nktntvkkwqtrnqxwmtokzulttpowxnpp`／同 parent／差 83s）——旧侧对象可在库（reflog 可达）但主线不可达，`cat-file -e` 通过不构成指针合法性。本词是本仓自造关系态词；git 官方 glossary 的对象态正名=unreachable（reflog 过期后）/dangling commit，与 orphan branch（无父首提）不同物。
+_Avoid_: 对象在库即当合法指针、change-id 相同即视为同一 commit（同 id 多 SHA 无法消歧）、把「orphan」按 orphan-branch 语义误读
+
+**严格层／宽层（strict/broad pointer layer）【自造词】**:
+commit 引用的双层管制面（D-189——git trailer 结构位执法/散文自由先例）：严格层=职能上「唯一/首要定位一个 commit」的位形封闭枚举——勘误节指针列／登记表证据锚列／去向表指针位／审计固定点与返工链位／T3 表 commit 指代列／补钉表值位／唯一指代手段括注——受法定形全检；宽层=叙述段，SHA 提及自由，短码别名仅当同记录内有严格层合法指针承载同一指代。
+_Avoid_: 宽口径全文 SHA 形串入规（lint 误报淹没实证）、纯窄口径漏 T3 括注类结构位（W6 同型缺口永续）、位形枚举散文里悄悄长出（扩列须立法票 D-095）、裸短码单独承担定位（任何位置）
+
+**已知违规清单（known-pointer-violations baseline）【自造词】**:
+指针守卫的存量基线册（D-191③/D-192——PHPStan baseline 机制先例）：条目指纹=file＋内容模式＋关联勘误行号（禁行号定位——行漂移即失配）；册内存量违规=WARN／册外新增=FAIL／册项失配=守卫自报移除提示（ratchet 只减不增）；守卫首跑承接全存量普查（人工普查不另做）；条目无勘误引用=非法条目（防大赦名单化）。
+_Avoid_: blame/时点判定新老违规（amend 流下方向性错误——存量误判 FAIL 比漏判更危险）、纯增量/diff-only 扫描（存量永不现形）、WARN-only 过渡档（生效日形同虚设）、扫描面开放增长（扩面走立法票）
 
 ### retired 类（退役守卫终态留档）
 
