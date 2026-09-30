@@ -345,7 +345,7 @@
       ]
     },
     "check-kit-regex-check": {
-      "assertion_ids": 11,
+      "assertion_ids": 13,
       "call_styles": [
         "t()"
       ]

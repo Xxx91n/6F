@@ -1611,3 +1611,9 @@ scoping（非裁面/执行边界如实登记）：
 | 等待期序 | (b) 欠账清零→本轮 T1-A 根治即 (d) 深度维护主体完成 | 符合面序 |
 
 **用户验收对照**：编译=Node ESM 加载通过（check-kit/check-kit-regex-check/70-check/43-check）；打包=本仓无 npm 打包面（check 脚本即产物）；启动测活=guard-all-run 62/62 实跑；平台 test 闭环=43-check cp→fs.cpSync 修复 win 缺口＋全部 check 为 portable tier 无 POSIX-only 依赖（本轮新件）。
+
+
+### T3 打包口径更正＋审计返工读数（2026-09-30）
+
+- **更正**：原「本仓无 npm 打包面」不实——engine/package.json＋dist 实存。正确口径=本轮变更面未触碰 engine 打包链；`npm run build`（BUNDLE-OK）／`npm run package`（macro-audit-0.1.0.tgz）／`node dist/cli.js selftest`（ok:true 5/5）实跑全过。
+- 审计返工五件：F-09 补齐成员集／attributed 机检可红／指针 git hash 实名／打包口径改述＋实跑读数／D-180 bundle 腿补。

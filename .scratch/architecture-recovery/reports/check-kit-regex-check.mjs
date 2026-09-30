@@ -41,6 +41,7 @@ const fixtures = [
   { id: 'F-06', input: 'const o = {a:1} / 2; // m', must: ['const o = {a:1} / 2;'], mustNot: ['// m'] },
   { id: 'F-07', input: 'function f(){} /x/; // b', must: ['function f(){} /x/;'], mustNot: ['// b'] },
   { id: 'F-08', input: 'const e = {}; // n', must: ['const e = {};'], mustNot: ['// n'] },
+  { id: 'F-09', input: 'if (x) (/y/); // k', must: ['(/y/);'], mustNot: ['// k'] }, // )后/=除号安全向——残差入 KE
   { id: 'F-10', input: 'const re = /foo // not-comment', must: ['/foo'], mustNot: [] },
   { id: 'F-11', input: "const p = 'a//b'; // ok", must: ["const p = 'a//b';"], mustNot: ["// ok"] },
   { id: 'F-12', input: 'const re = /\\/\\*/; // x', must: ['const re ='], mustNot: ['// x'] },
@@ -68,7 +69,7 @@ for (const f of fixtures) {
   if (!lok && (f.id === 'F-01' || f.id === 'F-12')) legacyRed++;
   if (!ok) console.log('  fixture-FAIL ' + f.id + ' out=' + JSON.stringify(out) + ' ' + bad.join(';'));
 }
-t('A1 fixture 集 F-01..F-18/KE-01 全绿（' + fxPass + '/' + fixtures.length + ')', fxPass === fixtures.length);
+t('A1 fixture 成员集==预声明（F-01..F-18∪KE-01，非总数凑数）', (() => { const ids = fixtures.map(f => f.id); const need = ['F-01','F-02','F-03','F-04','F-05','F-06','F-07','F-08','F-09','F-10','F-11','F-12','F-13','F-14','F-15','F-16','F-17','F-18','KE-01']; return need.every(id => ids.includes(id)) && ids.length === need.length && fxPass === fixtures.length; })(), 'n=' + fixtures.length + ' ids=' + fixtures.map(f => f.id).join(','));
 t('A2 红绿分野：旧实现必在 regex-引号形/伪注释形上失败（legacyRed>=1）', legacyRed >= 1, 'legacyRed=' + legacyRed);
 
 // ---------- B. KE known-errors 安全向 ----------
@@ -105,43 +106,65 @@ const consumers = [
 ];
 const golden = [];
 let goldDiff = 0;
+// 归因判定：差异仅允许「旧 inStr 粘滞多留伪注释→新剥除」安全向；误删代码=未归因
+function isAttributedFix(aLine, bLine) {
+  if (aLine === bLine) return true;
+  const at = aLine.trimEnd(), bt = bLine.trimEnd();
+  if (at === bt) return true;
+  if (at.startsWith(bt) || bt.startsWith(at)) return true; // 尾注剥离/空行收
+  // 旧尾注未剥：a=code+//comment → b=code
+  const aStripTrail = at.replace(/\s+\/\/.*$/, '').replace(/\/\*[\s\S]*?\*\//g, '').trimEnd();
+  if (aStripTrail === bt) return true;
+  // 旧整行伪注释粘滞保留，新为空
+  if (bt === '') {
+    const aNoComment = at.replace(/\/\/.*$/, '').replace(/\/\*[\s\S]*?\*\//g, '').trim();
+    if (aNoComment === '') return true;
+  }
+  return false;
+}
 for (const c of consumers) {
   const raw = readFileSync(join(HERE, c.file), 'utf8');
   const a = stripCommentsLegacy(raw);
   const b = stripComments(raw);
   const ha = sha8(a), hb = sha8(b);
-  const same = ha === hb;
-  // 差异归因：若 diff 则仅允许「regex-引号形修复」类（旧 inStr 粘滞导致该剥不剥）
-  let attributed = same;
-  if (!same) {
-    // 检查旧输出是否在 regex 位置多留了注释/内容（误留修复——安全向）
-    const aLines = a.split('\n'), bLines = b.split('\n');
-    const lineDiffs = [];
-    for (let i = 0; i < Math.max(aLines.length, bLines.length); i++) {
-      if (aLines[i] !== bLines[i]) lineDiffs.push({ i: i + 1, a: (aLines[i] || '').slice(0, 60), b: (bLines[i] || '').slice(0, 60) });
-    }
-    // 归因判据：新输出不得比旧输出丢失非空白代码字符（误删禁止）；差异应为剥掉伪注释或字符串态修正
-    const aCode = a.replace(/\s/g, '');
-    const bCode = b.replace(/\s/g, '');
-    attributed = bCode.length <= aCode.length && aCode.indexOf(bCode.replace(/\s/g, '').slice(0, 20)) >= 0 || lineDiffs.length > 0;
-    // 更严：允许差异但必须记录——归因=旧粘滞修复（新剥更多注释/字符串边界修正）
-    attributed = true; // 差异登记后由 A1 fixture 保证语义正确；此处保证不崩且可审计
-    golden.push({ id: c.id, ha, hb, lineDiffs: lineDiffs.slice(0, 3), nDiff: lineDiffs.length });
-    if (lineDiffs.length > 0) goldDiff++;
-  } else {
-    golden.push({ id: c.id, ha, hb, lineDiffs: [], nDiff: 0 });
+  const aLines = a.split('\n'), bLines = b.split('\n');
+  const lineDiffs = [];
+  let attributed = true;
+  for (let i = 0; i < Math.max(aLines.length, bLines.length); i++) {
+    const al = aLines[i] || '', bl = bLines[i] || '';
+    if (al === bl) continue;
+    const ok = isAttributedFix(al, bl);
+    if (!ok) attributed = false;
+    lineDiffs.push({ i: i + 1, ok, a: al.slice(0, 60), b: bl.slice(0, 60) });
   }
+  // 零误删硬校验：新输出不得丢失旧输出中的标识符（仅允许剥注释）
+  const ids = (s) => (s.match(/[A-Za-z_$][\w$]*/g) || []);
+  const idA = new Set(ids(a)), idB = new Set(ids(b));
+  const lostIds = [...idB].filter(x => !idA.has(x));
+  // 新不应产生旧没有的标识符（安全向）；丢失=误删
+  // 注：剥注释可能去掉注释内标识符——lost 只计 b 有 a 无；误删计 a 的代码位标识符不在 b
+  const aNoCmt = a.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/\S/g, ' ')).replace(/\/\/[^\n]*/g, '');
+  const aCodeIds = new Set(ids(aNoCmt));
+  const missingCodeIds = [...aCodeIds].filter(x => !idB.has(x));
+  if (missingCodeIds.length > 0) attributed = false;
+  if (lineDiffs.some(d => !d.ok)) attributed = false;
+  golden.push({ id: c.id, ha, hb, lineDiffs: lineDiffs.slice(0, 5), nDiff: lineDiffs.length, attributed, missingCodeIds: missingCodeIds.slice(0, 5) });
+  if (lineDiffs.length > 0) goldDiff++;
 }
 t('D1 8 消费位 golden 对照跑通（8/8 文件可读）', golden.length === 8);
-t('D2 golden 零未归因差异——有差异均已登记可审计', golden.length === 8 && golden.every(g => Array.isArray(g.lineDiffs)), 'changedFaces=' + goldDiff + '/8');
+t('D2 golden 零未归因差异／零误删（逐行归因+代码标识符不丢）', golden.every(g => g.attributed === true), 'changedFaces=' + goldDiff + '/8 unattributed=' + golden.filter(g => !g.attributed).map(g => g.id).join(','));
+t('D2b 归因函数可红（注入未归因差异必判 false）', isAttributedFix('const x = 1; // keep', 'const y = 2;') === false);
 for (const g of golden) {
-  if (g.nDiff > 0) console.log('  golden-diff ' + g.id + ' lines=' + g.nDiff + ' sample=' + JSON.stringify(g.lineDiffs[0] || {}));
+  if (g.nDiff > 0) console.log('  golden-diff ' + g.id + ' attributed=' + g.attributed + ' lines=' + g.nDiff + ' sample=' + JSON.stringify(g.lineDiffs[0] || {}));
 }
 
 // ---------- E. 正对照：合成源注入探测器必抓 ----------
 const synSrc = 'const re = /[\']/g; const s = ' + String.fromCharCode(96) + String.fromCharCode(36) + '{/y/}' + String.fromCharCode(96) + ';';
 const syn = detectRegexHazards(synSrc);
 t('E1 正对照：合成源 regex-引号+模板内 regex 双族必抓', syn.some(h => h.kind === 'regex-quote-form') && syn.some(h => h.kind === 'tpl-inner-regex'));
+const ambSrc = 'function f(){} /x/;';
+const amb = detectRegexHazards(ambSrc);
+t('E2 正对照：歧义除号位探测件可调用（返回数组）', Array.isArray(amb));
 
 console.log('');
 console.log('KIT-REGEX: fixtures ' + fxPass + '/' + fixtures.length + ' | legacyRed ' + legacyRed + ' | goldenChanged ' + goldDiff + '/8');

@@ -97,12 +97,12 @@
 
 ## 5. 复验钩（变更后勾销）
 
-- [ ] fixture F-01..F-18 全绿（红绿分野：旧实现必有红集，新实现全绿）
-- [ ] KE-01..03 按安全向期望在 known-errors 注记
-- [ ] 8 消费位 golden 零未归因差异
-- [ ] 70-check 回迁共用例程 PASS
-- [ ] D-181 勘误闭账行
-- [ ] WORKFLOW §4.2.12 迁入闸退役注记
+- [x] fixture F-01..F-18 全绿（成员集断言 A1；含 F-09 补齐）
+- [x] KE-01..03 按安全向期望在 known-errors 注记
+- [x] 8 消费位 golden 零未归因差异（D2 机检归因闭合+零误删标识符）
+- [x] 70-check 回迁共用例程 PASS（13/13）
+- [x] D-181 勘误闭账行（§6＋§7 指针补钉）
+- [x] WORKFLOW §4.2.12 迁入闸退役注记
 
 ## 6. 勘误（D-181 append-only——闭账行）
 
@@ -113,3 +113,16 @@
 | 2026-09-30 R51 | 43-check 移植性：`cp -r`→`fs.cpSync`（win 平台 spawnSync cp ENOENT——用户验收「每个平台 test 闭环」） | post-hoc | 本轮修复 commit |
 
 **闭账声明**：D-184②④ 根治落地——fixture 红绿分野 18/18＋golden 零误删＋70-check 回迁 PASS 13/13＋guard-all-run 62/62。
+
+## 7. 勘误指针补钉（D-181 追认——append-only，不改写 §6 原文）
+
+> 发现时点：post-hoc（审计窗 F1 抓出）；本节为指针实名化补丁。
+
+| §6 行 | 原模糊指针 | **git 短 hash（可 cat-file -e）** | 对应变更 |
+|---|---|---|---|
+| golden 2/8 面差异 | wmu（check-kit regex 态） | `fe3271d8` | check-kit stripComments regex 态＋探测件 |
+| C4/D2 无牙断言修复 | 本轮修复 commit | `da0c25a9` | check-kit-regex-check C4/D2 改实断言 |
+| 43-check cp→cpSync | 本轮修复 commit | `da0c25a9` | 同 commit 内 43-check 移植性 |
+| （本轮返工）F-09/归因机检/指针实名 | — | `201935fc` | R51 审计返工批 |
+
+**指针可验证命令**：`git cat-file -e fe3271d8` / `git cat-file -e da0c25a9` / `git cat-file -e 7d8d7c9f`。
