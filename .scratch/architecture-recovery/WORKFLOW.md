@@ -288,6 +288,37 @@ Phase 之间到达 boundary 时，按本仓库偏好顺序选：
 3. 无既有账行锚的探测面变更：先落本包声明件再动语义面；有锚者（执行窗批/既有 ledger 条目）复用其锚
 4. 生效时点：自 D-177 落盘 commit 起对新行为生效（不溯既往，已验收的 7bd2e8e1 形态不重开）；落盘批自身豁免
 
+### 4.2.9 收口 commit 对节奏（per D-180——收口文书衍生派生信号处置）
+
+1. **紧邻对定义**：收口工序末尾钉死二元 commit 对——语义收口 commit（账本/编年/CONTEXT/handoff）落盘→**立即**跑再生产生派生信号→独立 bundle commit **同窗**收编（drift 不跨轮不过夜；上轮收口派生永不混进下轮语义变更 bundle，HEAD 恒净出发）。
+2. **口径改述**：报告/声明「零 diff」一律改述 **「除已收编真实语义信号件外零 churn」**——显式命名例外非宣称全局干净（禁裸「零 diff」；禁改述成「无 churn」抹掉信号存在事实）。
+3. **不溯既往**：自 D-180 落盘 commit 起对新行为生效（D-148③）——既往窗 bundle 时序不翻案。
+4. **负向**：禁把派生信号塞 volatile 豁免（D-179② derived_signal_banned）；禁同 commit 原子形态（D-139/D-140②——允许紧邻 commit 对非同 commit）；禁借本裁改 census 摘录口径或 check 断言。
+5. **收口模板（随行）**：
+
+```
+# 收口 commit 对（语义 → 派生，紧邻同窗）
+1) but commit -b <branch> -m "<语义收口 subject>" \
+     -m "- body bullets" \
+     -m "Ledger-Refs: D-xxx\nChronicle: M-xxx\nAdrs:" \
+     <file-ids...>
+2) node .scratch/architecture-recovery/reports/guard-all-run.mjs   # 再生产生派生信号
+3) but commit -b <branch> -m "bundle: <派生信号 subject>" \
+     -m "- 75a-census-findings 等派生件再基线（D-140②）" \
+     -m "Ledger-Refs: D-180\nChronicle: \nAdrs:" \
+     <derived-file-ids...>
+# 口径：除已收编真实语义信号件外零 churn
+```
+
+### 4.2.10 冻结声明件内扩面勘误通道（per D-181）
+
+1. **勘误节建制**：预声明文件设 append-only「勘误」节（D-146⑤ 链式追加不改写原文）。条目三字段=扩面描述＋**发现时点**（pre-commit / post-hoc 如实标）＋**变更 commit 指针**。
+2. **时点义务二分**（按可预见性非大小）：变更 commit 前已识别扩面→勘误 commit 先行；执行中才发现→变更后立即落勘误（同执行批/同窗）＋**post-hoc 如实标**——D-177 严格时序的显式例外，仅限执行中发现的扩面段。
+3. **强度分级判据=被验证命题变更测试**：实落物改变冻结声明钉住的命题（判据/锚语义/断言集）→**重档**=独立勘误 commit 强制；纯实现层名实缝（载体位置等不改命题）→**轻档**=commit-body 声明＋勘误节索引批注。
+4. **commit-body 从证据地位**：可写不禁止，但**单独永不满足 D-177 证据强度**。
+5. **边界**：成片改写仍走 D-147 scoped revised（两通道分层并存）；禁「发现时点」造假；禁为琐碎开豁免口（首例从严）。
+
+
 
 | 2026-09-11 | 起草本 WORKFLOW.md，初始化偏离点清单与 6 Phase | 首次把 ask-matt 主流程落到本仓库 | 用户拍板 10 条偏离点 + 6 Phase 结构 | ask-matt SKILL.md §Main Flow + §On-ramps |
 | 2026-09-11 | skill 冲突声明字面与用户原话不一致

@@ -2454,6 +2454,14 @@
           "decision": "drift-confirmed-escalate-to-ruling",
           "reason": "续读实测：同一提取逻辑（01-extract.mjs 谓词）复测上游 anysearch-cli intent 面计数=1（readme:h1）——对 frozen 锚=8 持续退化（与 c6fe0f8 读数=1 同签名）；归因=上游 r69-t2 README 登录页 IA 重构（定位 bullets 段消除）属上游自主改版非 6F 面漂移事件，「该退化无认领票」标注维持准确；按册项 verify_method 漂移坐实→呈裁冻结包代表性衰减声明＋S1 重校准有意图裁定（列入下轮 grill 方向候选）",
           "evidence": "01-extract.mjs extractIntent 复测 anysearch-cli intent=1＋frozen 01-corpora.json 锚 intent.len=8＋上游 commit bbb3ba73（r69-t2 README IA 重构）实物在史"
+        },
+        {
+          "at": "2026-09-30",
+          "by": "R50-T1 执行批（文书批）",
+          "criterion_version": "D-182①②③④",
+          "decision": "decay-declared",
+          "reason": "D-182 裁定兑现：「01 系冻结包对当前上游 anysearch-cli 的代表性已衰减」声明入册（as-of 快照历史证据语义——对冻结时点后上游代表性失效，BNC 快照语义）；S1 重校准=缓行挂消费拉动（触发锚=下次真实消费上游代表性校准的测量需求出现）；上游代表性缺口按 Accepted Risk 五要件注册（docs/ra/upstream-representativeness-gap.md）；册项保持 pending/manual_watch 续看不销项（D-182④）；冻结件字节零动（D-172①）",
+          "evidence": "decision-ledger.md D-182 裁条＋docs/ra/upstream-representativeness-gap.md 五要件＋known-gaps.md GAP-REP-01＋reports/R49-Q3-atomcode-research.md"
         }
       ],
       "bound_to": "#轮46 T1-E（D-172④）"
