@@ -3,23 +3,110 @@
 
 import { spawnSync } from 'node:child_process';
 
-// 剥 JS/TS 源码注释：行注 // 与块注 /* */（含字符串内 // 保护的保守形态——字符串字面量中的 // 不剥）
+// 剥 JS/TS 源码注释：行注 // 与块注 /* */（含字符串/regex/template 内 // 保护）
+// R51-T1A（D-184②④）：补 regex 字面量态——js-tokens 前驱 token 启发式＋行尾强制闭合；歧义全偏除号=安全向（Padolsey 实录）
+// 前驱三分类：identifier/数字/字符串尾/)/]/} 后 slash = 除号；其余 = regex
 export function stripComments(src) {
   const out = [];
-  let i = 0, inStr = null, inLine = false, inBlock = false;
+  let i = 0, inStr = null, inLine = false, inBlock = false, inRegex = false, inRegexClass = false, lastSig = '';
   while (i < src.length) {
     const c = src[i], n = src[i + 1];
     if (inLine) { if (c === '\n') { inLine = false; out.push(c); } i++; continue; }
     if (inBlock) { if (c === '*' && n === '/') { inBlock = false; i += 2; } else i++; continue; }
-    if (inStr) { out.push(c); if (c === '\\') { out.push(src[i + 1]); i += 2; continue; } if (c === inStr) inStr = null; i++; continue; }
+    if (inRegex) {
+      if (c === '\n' || c === '\r') { inRegex = false; inRegexClass = false; out.push(c); lastSig = ''; i++; continue; }
+      if (c === '\\') { out.push(c); if (i + 1 < src.length) { out.push(src[i + 1]); i += 2; continue; } i++; continue; }
+      if (c === '[') { inRegexClass = true; out.push(c); i++; continue; }
+      if (c === ']') { inRegexClass = false; out.push(c); i++; continue; }
+      if (c === '/' && !inRegexClass) {
+        inRegex = false;
+        out.push(c); i++;
+        while (i < src.length && /[a-z]/i.test(src[i])) { out.push(src[i]); i++; }
+        lastSig = '/';
+        continue;
+      }
+      out.push(c); i++;
+      continue;
+    }
+    if (inStr) {
+      if (inStr === '`' && c === '$' && n === '{') {
+        out.push(c); out.push(n); i += 2;
+        let depth = 1, j = i;
+        while (j < src.length && depth > 0) {
+          const ch = src[j];
+          if (ch === '\\') { j += 2; continue; }
+          if (ch === "'" || ch === '"' || ch === '`') {
+            const q = ch; j++;
+            while (j < src.length && src[j] !== q) { if (src[j] === '\\') j++; j++; }
+            j++; continue;
+          }
+          if (ch === '/' && src[j+1] === '/') { while (j < src.length && src[j] !== '\n') j++; continue; }
+          if (ch === '/' && src[j+1] === '*') { j += 2; while (j < src.length && !(src[j] === '*' && src[j+1] === '/')) j++; j += 2; continue; }
+          if (ch === '{') depth++;
+          else if (ch === '}') depth--;
+          j++;
+        }
+        const closeIdx = depth === 0 ? j - 1 : j;
+        const inner = src.slice(i, closeIdx);
+        out.push(stripComments(inner));
+        out.push('}');
+        i = closeIdx + 1;
+        continue;
+      }
+      out.push(c);
+      if (c === '\\') { out.push(src[i + 1]); i += 2; continue; }
+      if (c === inStr) inStr = null;
+      i++;
+      continue;
+    }
     if (c === '/' && n === '/') { inLine = true; i += 2; continue; }
     if (c === '/' && n === '*') { inBlock = true; i += 2; continue; }
-    if (c === "'" || c === '"' || c === '`') inStr = c;
-    out.push(c); i++;
+    if (c === "'" || c === '"' || c === '`') { inStr = c; out.push(c); lastSig = c; i++; continue; }
+    if (c === '/') {
+      const isPValue = lastSig === ')' || lastSig === ']' || lastSig === '}' ||
+        (lastSig && /[\w$]/.test(lastSig)) ||
+        lastSig === "'" || lastSig === '"' || lastSig === '`' ||
+        lastSig === '/';
+      if (isPValue) {
+        out.push(c); i++;
+        lastSig = '/';
+        continue;
+      }
+      inRegex = true; inRegexClass = false;
+      out.push(c); i++;
+      continue;
+    }
+    out.push(c);
+    if (!/\s/.test(c)) lastSig = c;
+    i++;
   }
   return out.join('');
 }
 
+// 迁入闸探测（D-184②——三形态命中即阻断）：regex-引号形／歧义除号位／模板串内 regex
+export function detectRegexHazards(src) {
+  const hits = [];
+  const lines = src.split('\n');
+  for (let li = 0; li < lines.length; li++) {
+    const line = lines[li];
+    // 模板串内 regex
+    if (/\$\{[^}]*\/.+\/[^}]*\}/.test(line)) {
+      hits.push({ kind: 'tpl-inner-regex', lno: li + 1, line: line.trim().slice(0, 80) });
+    }
+    // regex-引号形
+    const reQuote = /(?:^|[=(,\[{!&|?:;]\s*)\/(?:[^/\\\n]|\\.)*['][^/\\\n]*\/[gimsuy]*/;
+    const reQuote2 = /(?:^|[=(,\[{!&|?:;]\s*)\/(?:[^/\\\n]|\\.)*["][^/\\\n]*\/[gimsuy]*/;
+    if ((reQuote.test(line) || reQuote2.test(line)) && !/^\s*['"]/.test(line)) {
+      hits.push({ kind: 'regex-quote-form', lno: li + 1, line: line.trim().slice(0, 80) });
+    }
+    // 歧义除号位
+    if (/[\w$\)\]\}]\s*\/[^\s/*=]/.test(line) && line.indexOf('//') < 0 && line.indexOf('/*') < 0) {
+      const m = line.match(/([\w$\)\]\}])\s*\/([^\s/*=])/);
+      if (m) hits.push({ kind: 'ambiguous-div', lno: li + 1, line: line.trim().slice(0, 80), prev: m[1] });
+    }
+  }
+  return hits;
+}
 // 剥 Markdown/HTML 注释：<!-- -->（73-check A4 先例）
 export function stripMdComments(src) {
   return src.replace(/<!--[\s\S]*?-->/g, '');
