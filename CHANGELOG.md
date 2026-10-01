@@ -443,3 +443,8 @@
 - T1-C/T1-D：registry 76 项（check-kit-regex-blindspot-watch manual_watch 五要素＋事件锚 check-kit-stripcomments-signature-change）＋death-watch 口径补注（D-201③）；33-check 33/33＋verify-waiting-list rows=90 registry=76 live=64。
 - 反向闸首跑 census：存量十二格全收敛零 FAIL；恒 WARN 面 uniq=5（80-bench 跨仓 HEAD×2＋49-report run ID×3）如实登记零入册。
 - 63-assertion-inventory 派生再基线（62 守卫 1460 emit 位）；勘误 E-12/E-13 append-only 追加。
+
+#### M-054 补记（同日收口勘误批——append-only）
+
+- 收口勘误三笔：不透明载荷原则同族延伸（shaTokens/bareCodes 走剥 ("…") 引文可见面）＋F20 负例（断言面 33→34 终态）／报告/账本收口指针实指＋75a-census-register 补 PV-D2 existsSync 归因条目（layer-tagged/presence）／63-inventory（1461 emit 位）＋75a-census-findings（390 findings）派生再基线。
+- 终态读数：84-check PASS-COUNT 34 FAIL-COUNT 0；guard-all-run ran=63 green=63 allOk=true；75a-check 16/16（findings 390↔register 390）；70-check 13/13。

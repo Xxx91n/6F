@@ -1,8 +1,8 @@
 # next-round —— 轮 55 常驻任务书（轮 54 执行批四腿全兑现·册归零·指针守卫机检面批落地；执行批=审计窗批＋新断言面复验）
 >
 > 任务书=常驻交接物：新会话/子 Agent 读本件＋账本＋CONTEXT 即接续；执行窗义务带欠账三要素（具名 owner＋时点锚＋复验方式——D-170③）。
-> **换代自检注记（D-185②）**：本换代已对声称态条目核物——①守卫 **63 件**（`guard-all-run` 动态枚举）；②**84-check 33 断言**（26→33：F13~F19 反向闸/扩列/D5/D6/D7 fixture 红绿分野全绿）；③编年 max=**M-054**（本批落）；④账本唯一 ID=**209**（主表 current=**157** 全闭合＋R54 收口节登记）；⑤registry=**76 项**（check-kit-regex-blindspot-watch 条目＋事件锚 check-kit-stripcomments-signature-change 已落，D-196② 兑现）。
-> **换代钉清单盘点（D-187①）**：断言面=**63 件 check ＋ 84-check 自身 33 条断言**。在册钉七组见「历史票面闭环索引」节整节保搬；缺席钉一件=42-check F5 维持缺席。
+> **换代自检注记（D-185②）**：本换代已对声称态条目核物——①守卫 **63 件**（`guard-all-run` 动态枚举）；②**84-check 34 断言**（26→33 收口勘误前→34 终态：F13~F19＋F20 subject 引文不透明负例——fixture 红绿分野全绿）；③编年 max=**M-054**（本批落）；④账本唯一 ID=**209**（主表 current=**157** 全闭合＋R54 收口节登记）；⑤registry=**76 项**（check-kit-regex-blindspot-watch 条目＋事件锚 check-kit-stripcomments-signature-change 已落，D-196② 兑现）。
+> **换代钉清单盘点（D-187①）**：断言面=**63 件 check ＋ 84-check 自身 34 条断言**。在册钉七组见「历史票面闭环索引」节整节保搬；缺席钉一件=42-check F5 维持缺席。
 
 ## 轮 25~54 留痕（已定，勿重复）
 
@@ -33,7 +33,7 @@
 | 5 | `43-check:D5` T14 ✅ | 在场 | ✅ 保护区节 `T14 #43 golden 重基线 ✅ DONE` 在位 |
 | 6 | `44-check:G6` `#77` ＋ 闭环词 ＋ `#78` | 在场 | ✅ 保护区节轮28 行在位 |
 | 7 | `45-check:H5` 含 `#45` 或 `demo` | 在场 | ✅ 保护区节 `#45 demo 三 scenario ✅` 在位 |
-| 8 | `84-check` 33 条断言（R54 扩容：F13~F19＋F16 扩展） | 在场 | ✅ 实测 `PASS-COUNT 33 FAIL-COUNT 0`（反向闸/扩列/册归零语义全在跑）；`guard-all-run` 动态枚举承接 |
+| 8 | `84-check` 34 条断言（R54 扩容：F13~F19＋F16 扩展＋F20 收口勘误） | 在场 | ✅ 实测 `PASS-COUNT 33 FAIL-COUNT 0`（反向闸/扩列/册归零语义全在跑）；`guard-all-run` 动态枚举承接 |
 
 **盘点兜底**：`node .scratch/architecture-recovery/reports/guard-all-run.mjs` → 全量 ran=63 green=63 allOk=true。
 
