@@ -225,6 +225,10 @@
     "batch2beta-trigger-ignited": {
       "occurred": false,
       "at": null
+    },
+    "check-kit-stripcomments-signature-change": {
+      "occurred": false,
+      "note": "R54 T1-C（D-196②）登记：_lib/check-kit.mjs stripComments 新增 JS 语法形态或签名变更——check-kit-regex-blindspot-watch 触发锚（事件驱动非日历，D-164-b 钉事件非纯时间窗）"
     }
   },
   "items": [
@@ -2254,7 +2258,7 @@
       "review_at": "随审计窗随读 existence 普查义务（注册化零机件）；消亡判据事件发生即激活，不等窗",
       "status": "decided",
       "owner": "macro-audit 队列值守",
-      "verify_method": "T3 窗随读：各守卫 PROTECTED_SURFACE 引用物存在性人工普查（零机件——发射腿预建禁制：空转机件+假阳分诊实证负担 Optuna 28→11/203-unused）；事件发生时→D-160① 首件退役流程逐件呈报",
+      "verify_method": "T3 窗随读：各守卫 PROTECTED_SURFACE 引用物存在性人工普查（零机件——发射腿预建禁制：空转机件+假阳分诊实证负担 Optuna 28→11/203-unused）；事件发生时→D-160① 首件退役流程逐件呈报；指针纪律引用物=D-188~D-192 法定本体与严格层位形面，known-pointer-violations 册工件单列不纳入消亡普查（D-201③——册创建/收缩/归零/摘除/失配自报=例行收敛事件非 D-160① 消亡判据事件）",
       "review_event": "next-audit-window",
       "watch": "manual_watch",
       "confirmations": [
@@ -2305,6 +2309,14 @@
           "decision": "census-clean",
           "reason": "PROTECTED_SURFACE 引用物存在性普查：reports/ 守卫文件 61 件扫描（d179-check 新入列）61/61 声明非空＋guard-all-run 61/61 实跑全绿＝守护面全存活，零消亡判据事件",
           "evidence": "reports/ 全 *-check.mjs PROTECTED_SURFACE 常量机扫＋guard-all-run footer ran=61 green=61"
+        },
+        {
+          "at": "2026-10-02",
+          "by": "R54 T1-D 执行批",
+          "criterion_version": "D-201③",
+          "decision": "registered",
+          "reason": "verify_method 口径行补注——指针纪律引用物单列册工件不纳入消亡普查（判据澄清非通道剥夺，表述红线遵守）",
+          "evidence": "decision-ledger.md D-201③；WORKFLOW §4.2.10-12"
         }
       ],
       "bound_to": "guard-retirement-class（通道登记项；本项补消亡事件触发锚）"
@@ -2497,6 +2509,33 @@
           "decision": "sentinel-first-read-degradation-persists",
           "reason": "册项落地后首窗三读数实跑：①gh workflow list 实测 workflow 名=文件路径 .github/workflows/macro-b-regression.yml（name≠path 退化签名在案）＋gh run list 近 8 push 全 completed/failure 时长 0s（0s 败迹签名全对上）＋schedule 列 active 但死件态未注册触发——平台侧签名与 D-176 诊断逐字一致，复原待 r49-t1-exec push（D-176④ 外部事件锚）；②actionlint 本机未装（随读工具缺位——PyYAML 等值解析器代读三 workflow 全绿）；③46-check A18 读数在绿（files=3 零命中）。workflow_dispatch 实跑未授权不入哨义",
           "evidence": "gh workflow list/run list 实测输出＋PyYAML safe_load 三件全过＋46-check A18 PASS"
+        }
+      ]
+    },
+    {
+      "id": "check-kit-regex-blindspot-watch",
+      "family": "guard-baseline",
+      "title": "check-kit stripComments regex 盲区哨兵（D-196① 不摘除＋② 降级 manual_watch＋补注册）——stripComments 新增 JS 语法形态或签名变更事件驱动盘查",
+      "deadline_event": null,
+      "deadline": "无（事件驱动非日历——D-196② trigger 钉 stripComments 新增 JS 语法形态或签名变更）",
+      "trigger_event": "check-kit-stripcomments-signature-change",
+      "trigger": "_lib/check-kit.mjs stripComments 新增 JS 语法形态或签名变更（事件驱动非日历，D-196②）；触发即开立法/修复窗评估盲区面",
+      "review_at": "每审计窗随读（next-audit-window）——值守节律自逐窗亲跑降级低频盘查（维持≠免检，R22-Q4 先例措辞）",
+      "status": "pending",
+      "owner": "macro-audit 队列值守",
+      "verify_method": "每审计窗跑 reports/check-kit-regex-check.mjs 读数登记（A1~A5 断言面读数入 T3 哨兵表）；stripComments 签名/语法形态变更事件触发即时盘查",
+      "review_event": "next-audit-window",
+      "watch": "manual_watch",
+      "bound_to": "D-184②④、D-192",
+      "source": "账本 T3 表行（decision-ledger.md T3 审计窗哨兵读数 check-kit-regex-blindspot-watch 行）＋D-196② 裁定（显式驳回摘除/散文表维持）",
+      "confirmations": [
+        {
+          "at": "2026-10-02",
+          "by": "R54 T1-C 执行批",
+          "criterion_version": "D-196②",
+          "decision": "registered",
+          "reason": "哨兵降级 manual_watch＋补注册落盘（显式驳回摘除——D-160⑥ 守护面存续）；GAP-CK-01 已 closed＋迁入闸退役，残余值守面=stripComments 语法形态盲区事件驱动盘查",
+          "evidence": "decision-ledger.md D-196 行；reports/check-kit-regex-check.mjs 读数；WORKFLOW §4.2.10"
         }
       ]
     }
