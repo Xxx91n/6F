@@ -108,9 +108,9 @@
 
 | 时点 | 扩面描述 | 发现时点 | 变更 commit |
 |---|---|---|---|
-| 2026-09-30 R51 | golden 对照实测 2/8 面有差异（70-check L60 / 75a L76）——旧 inStr 粘滞致「该剥不剥」，新态剥除伪注释；归因=regex-引号形修复安全向，零误删 | post-hoc（执行中发现） | wmu（check-kit regex 态） |
-| 2026-09-30 R51 | check-kit-regex-check C4/D2 初版无牙断言被 75a 抓出→改实断言（Array.isArray / golden.every） | post-hoc | 本轮修复 commit |
-| 2026-09-30 R51 | 43-check 移植性：`cp -r`→`fs.cpSync`（win 平台 spawnSync cp ENOENT——用户验收「每个平台 test 闭环」） | post-hoc | 本轮修复 commit |
+| 2026-09-30 R51 | golden 对照实测 2/8 面有差异（70-check L60 / 75a L76）——旧 inStr 粘滞致「该剥不剥」，新态剥除伪注释；归因=regex-引号形修复安全向，零误删 | post-hoc（执行中发现） | `fe3271d891767890c4404ec759c01489521c75f5` ("feat(D-184): check-kit stripComments 补 regex 字面量态＋迁入闸探测件") |
+| 2026-09-30 R51 | check-kit-regex-check C4/D2 初版无牙断言被 75a 抓出→改实断言（Array.isArray / golden.every） | post-hoc | `da0c25a986266778cf72d2c72f3b30c9057c3e36` ("feat(D-184): 70-check 回迁共用例程＋43-check 移植性修复＋勘误闭账") |
+| 2026-09-30 R51 | 43-check 移植性：`cp -r`→`fs.cpSync`（win 平台 spawnSync cp ENOENT——用户验收「每个平台 test 闭环」） | post-hoc | `da0c25a986266778cf72d2c72f3b30c9057c3e36` ("feat(D-184): 70-check 回迁共用例程＋43-check 移植性修复＋勘误闭账") |
 
 **闭账声明**：D-184②④ 根治落地——fixture 红绿分野 18/18＋golden 零误删＋70-check 回迁 PASS 13/13＋guard-all-run 62/62。
 
@@ -120,13 +120,13 @@
 
 | §6 行 | 原模糊指针 | **git 短 hash（可 cat-file -e）** | 对应变更 |
 |---|---|---|---|
-| golden 2/8 面差异 | wmu（check-kit regex 态） | `fe3271d8` | check-kit stripComments regex 态＋探测件 |
-| C4/D2 无牙断言修复 | 本轮修复 commit | `da0c25a9` | check-kit-regex-check C4/D2 改实断言 |
-| 43-check cp→cpSync | 本轮修复 commit | `da0c25a9` | 同 commit 内 43-check 移植性 |
-| （本轮返工）F-09/归因机检/指针实名 | — | `201935fc` | R51 审计返工批 |
-| §7 上表末行勘误（R51 收口批——D-181 追加不改写） | `201935fc` 实证=amend 孤儿孪生（对象在库、主线不可达——同 change-id `nktntvkkwqtrnqxwmtokzulttpowxnpp`／同 parent `2801b3c9`／committer 差 83s） | `cb625c64521398306f914eb7986a4a505f95291a` ("fix(D-184/审计返工): F-09 成员集＋attributed 机检可红＋指针 git hash 实名＋打包口径更正") | R51 审计返工批真身——法定指针形首单实战；实证=`cat-file -e` ✓ ∧ `merge-base --is-ancestor` main✓/HEAD✓（孪生反证：`201935fc` 同命令返非零） |
+| golden 2/8 面差异 | 原首位裸短码（GitButler per-session UI 码——原词形与映射依据见账本 E-4） | `fe3271d891767890c4404ec759c01489521c75f5` ("feat(D-184): check-kit stripComments 补 regex 字面量态＋迁入闸探测件") | check-kit stripComments regex 态＋探测件 |
+| C4/D2 无牙断言修复 | 原模糊语（原词形见账本 E-4） | `da0c25a986266778cf72d2c72f3b30c9057c3e36` ("feat(D-184): 70-check 回迁共用例程＋43-check 移植性修复＋勘误闭账") | check-kit-regex-check C4/D2 改实断言 |
+| 43-check cp→cpSync | 原模糊语（原词形见账本 E-4） | `da0c25a986266778cf72d2c72f3b30c9057c3e36` ("feat(D-184): 70-check 回迁共用例程＋43-check 移植性修复＋勘误闭账") | 同 commit 内 43-check 移植性 |
+| （本轮返工）F-09/归因机检/指针实名 | — | 孤儿孪生标本不可达——真身法定形见下行（原 8-hex 见账本 E-1/E-4） | R51 审计返工批 |
+| §7 上表末行勘误（R51 收口批——D-181 追加不改写） | 原 8-hex 孤儿标本（非指针——锚线不可达即非法指针，D-188⑥；原词形见账本 E-1 与本行末格反证）——实证=amend 孤儿孪生（对象在库、主线不可达——同 change-id `nktntvkkwqtrnqxwmtokzulttpowxnpp`／同 parent commit 法定形见账本 E-4 实名行／committer 差 83s） | `cb625c64521398306f914eb7986a4a505f95291a` ("fix(D-184/审计返工): F-09 成员集＋attributed 机检可红＋指针 git hash 实名＋打包口径更正") | R51 审计返工批真身——法定指针形首单实战；实证=`cat-file -e` ✓ ∧ `merge-base --is-ancestor` main✓/HEAD✓（孪生反证：`201935fc` 同命令返非零） |
 
-**指针可验证命令**：`git cat-file -e fe3271d8` / `git cat-file -e da0c25a9` / `git cat-file -e 7d8d7c9f`。
+**指针可验证命令**：`git cat-file -e fe3271d891767890c4404ec759c01489521c75f5` / `git cat-file -e da0c25a986266778cf72d2c72f3b30c9057c3e36` / `git cat-file -e 7d8d7c9ffea187f3c22db7f8953e2cb6661c0635`。
 
 
 **补钉验证命令**（2026-09-30 R51 收口批追加——D-190 锚线判据形态）：`git cat-file -e cb625c64521398306f914eb7986a4a505f95291a`（存在）＋`git merge-base --is-ancestor cb625c64521398306f914eb7986a4a505f95291a main`（锚线可达）；孤儿孪生反证=`git merge-base --is-ancestor 201935fc main` 返非零。
