@@ -85,15 +85,15 @@ D-176①~④（macro-b-regression 死件处置包——修＋parse 档机检闸�
 
 | commit | 面 | 文件 |
 | --- | --- | --- |
-| vvp | 预声明（D-177） | .scratch/macro-audit/reports/2026-09-29-r49-predecl-verification-packs.md |
-| rtu | 死件修复（D-176①） | .github/workflows/macro-b-regression.yml |
-| zqq | 机检闸（D-176②）＋引号态修法 amend | .scratch/architecture-recovery/reports/46-check.mjs |
-| qkw | 册项（D-176③） | 33-gate-registry.json、update-33-ci-liveness-watch.mjs、waiting-allowed-deferred.md |
-| xlp | 调研物化（D-178③） | .scratch/macro-audit/reports/R48-d-face-atomcode-research.md |
-| rqr | 文书（D-177⑤） | .scratch/architecture-recovery/WORKFLOW.md（§4.2.8） |
-| zxu | 种子化建制（D-179①~④） | _lib/env-contract.mjs、48-micro-a-preview.mjs、56-checker-heldout-eval.mjs、volatile-fields.json、d179-check.mjs |
-| txn | 伴生再基线 bundle（D-140②） | 48-micro-a-golden-*×11、56-heldout-eval.json、63-assertion-inventory.json、75a-census-findings.json |
-| 本 commit | 收口文书 | decision-ledger.md、CHANGELOG.md（M-046）、WORKFLOW.md（Lessons 行）、本报告、handoff |
+| `c6849452db9bb14bf0d037038a41096c8b6a23ef` ("docs(轮49预声明): T1-B/T1-F 验证包锚物化（D-177 首个适用实例——先于变更 commit 落盘）") | .scratch/macro-audit/reports/2026-09-29-r49-predecl-verification-packs.md |
+| `0401d487c57fcb18f94b7d2e096d6c651bcc2899` ("fix(ci): macro-b-regression.yml L144 病态标量加引号——YAML 解析级死件复原（D-176①）") | .github/workflows/macro-b-regression.yml |
+| `3c769c0b4f1ff44f404afe018d2d9ec2d3c90fb9` ("test(guard): 46-check A18 workflows parse 档病态闸（D-176②——拦 macro-b 死件同型）") | .scratch/architecture-recovery/reports/46-check.mjs |
+| `46b91d11a6d6863cd31d1ab6e2464046dab799d4` ("feat(registry): ci-workflow-liveness-watch manual_watch 册项落地（D-176③——死件案活性哨兵五要件）") | 33-gate-registry.json、update-33-ci-liveness-watch.mjs、waiting-allowed-deferred.md |
+| `454c32259635d5660b5248fa4981bb8cd9a58402` ("docs(archive): R48 (d) 面 atomcode 调研物化补落 reports/（D-178③ 欠账兑现）") | .scratch/macro-audit/reports/R48-d-face-atomcode-research.md |
+| `9b076b66e7e146ce61adf597d5e21be08602e929` ("docs(workflow): §4.2.8 预声明验证包工序落行（D-177①②④⑤ 文书规定位）") | .scratch/architecture-recovery/WORKFLOW.md（§4.2.8） |
+| `0a68d41ad6dd0ec444734af595455bf52f3d875f` ("feat(guard): D-179 守卫伴生再生确定性建制——种子化＋volatile-fields 键级豁免枚举＋两跑零 diff 自检件") | _lib/env-contract.mjs、48-micro-a-preview.mjs、56-checker-heldout-eval.mjs、volatile-fields.json、d179-check.mjs |
+| `79cf046d9461a519244500cbcf197f5d8bae927c` ("bundle: 伴生再生物一次性确定性再基线（D-179 种子化首跑落定——语义零变）") | 48-micro-a-golden-*×11、56-heldout-eval.json、63-assertion-inventory.json、75a-census-findings.json |
+| `b1d6535947c332c5fb55b45cd5da5d66d385a393` ("docs(轮49收口): R48-impl 兑现批收口文书——账行增量↔编年随行＋报告＋交接＋任务书兑现标记") | decision-ledger.md、CHANGELOG.md（M-046）、WORKFLOW.md（Lessons 行）、本报告、handoff |
 
 ## 阻塞与待办
 
