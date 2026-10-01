@@ -1614,7 +1614,7 @@ scoping（非裁面/执行边界如实登记）：
 
 | 哨兵 | 读数 | 去向 |
 |---|---|---|
-| check-kit-regex-blindspot-watch | 根治已落地（wmu）；GAP-CK-01→closed；迁入闸退役 | 本项可摘除或降级为常规自检 |
+| check-kit-regex-blindspot-watch | 根治已落地——`fe3271d891767890c4404ec759c01489521c75f5` ("feat(D-184): check-kit stripComments 补 regex 字面量态＋迁入闸探测件")；GAP-CK-01→closed；迁入闸退役 | 本项可摘除或降级为常规自检 |
 | GAP-CK-01 status 重审 | **closed**（五要件关档条件齐：fixture/golden/回迁/勘误/闸退役） | 关档 |
 | protected-surface-death-watch | 62 件守卫 PROTECTED_SURFACE 自声明全绿（75a T2 断言） | 续守 |
 | frozen_evidence_packs | 01 系五件钉值机检在 75a M5 PASS | 续守 |
