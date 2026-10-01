@@ -1,6 +1,6 @@
 // 84-check.mjs — commit 指针纪律守卫（D-188~D-192 轮 52 T1-A 落盘）
-// 断言面：A 扫描面封闭枚举（C）→ B 严格层位形三通道机检 → C 法定形断言（cat-file 存在）
-//   → D baseline 册两级判级（册内 WARN／册外 FAIL）→ E 孪生 change-id 分桶 WARN → F 册护栏自断言 → G fixture 四态＋六衍生态红绿分野
+// 断言面：A 扫描面封闭枚举（C）→ B 严格层位形三通道机检＋内容驱动反向闸（D-197②）→ C 法定形断言（cat-file 存在）
+//   → D baseline 册两级判级（册内 WARN／册外 FAIL）→ E 孪生 change-id 分桶 WARN → F 册护栏自断言（册归零=合法终态 D-201②）→ G fixture 四态＋十三衍生态红绿分野（轮 54 T1-B：扩列 7 列头＋反向闸两 kind＋D5/D6/D7 收紧＋subject 引文不透明豁免——预声明 reports/D-197-pointer-surface-predeclaration.md）
 // 判级纪律（D-191③）：rc≠0 仅由「册外 FAIL 类」触发；可达性／孪生／豁免子面／册项失配恒 WARN 不影响 rc。
 // 零三方依赖；零反斜杠（正则一律字符类，per WORKFLOW lessons W2-#02/W3-#09 backslash 教训）。
 // 用法：node 84-check.mjs          → 逐条 PASS/WARN/FAIL；exit 0=无册外违规
@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 
 const TIER = 'portable';
-const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）';
+const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）；known-pointer-violations 为本守卫输入工件（baseline 册），其生命周期独立于面消亡判据（D-201②）';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
@@ -36,10 +36,14 @@ function isExemptSub(relPath) {
 const STRICT_HEADERS = [
   '变更 commit 指针', '变更 commit', '原模糊指针', '归属 commit', '分支/commit',
   'Test commit', 'Impl commit', '闭环 commit', 'commit 指针',
-  'git 短 hash（可 cat-file -e）', 'git 短 hash'
+  'git 短 hash（可 cat-file -e）', 'git 短 hash',
+  'commit', 'SHA', 'commit hash', 'commit SHA', '指针', 'SHA-1', 'hash'
 ];
 const SECTION_ANCHOR_RE = /T3 .*(?:哨兵|读数)/;
 const ROMAN = new Set(['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii','xiii','xiv','xv','xvi','xvii','xviii','xix','xx']);
+// 英文实词豁免集（D-200：ROMAN 同型——「真英语词非码」口径收编；高频虚词例同为误报源一并收录并已在预声明 §4 登记口径；wmu/kmk/qmw/rkm 非英语词不豁免）
+const WORDS = new Set(['the','and','for','not','but','you','all','can','her','was','one','our','out','day','get','has','him','his','how','man','new','now','old','see','two','way','who','did','its','let','put','say','she','too','use','that','this','with','from','have','will','your','what','when','are','been','were','run','set','end','add','age','ago','aim','air','app','arc','arm','art','ask','bad','bag','ban','bar','bat','bed','bet','bid','bit','box','bus','buy','cal','cap','car','cat','cup','cut','dad','den','dew','dig','dim','dip','dry','ear','eat','egg','ego','era','err','eve','eye','fan','fat','fig','fin','fit','fix','flu','fly','foe','fog','fox','gap','gas','gem','god','got','gum','gun','guy','gym','had','ham','hat','hay','hen','hew','hid','hit','hoe','hog','hot','hum','hut','ice','ill','imp','ink','inn','ion','ire','irk','jab','jam','jar','jaw','jet','job','jog','jot','joy','jug','keg','key','kid','kin','kit','lab','lad','lag','lap','law','lax','lay','leg','lid','lie','lip','lit','log','lot','low','mad','map','mar','mat','may','men','met','mid','mix','mob','mop','mud','mug','nab','nag','nap','nay','net','nip','nod','nor','nun','nut','oak','oar','oat','odd','off','oil','opt','orb','ore','owe','owl','own','pad','pal','pan','pap','par','pat','paw','pay','pea','peg','pen','pep','per','pet','pew','pie','pig','pin','pit','ply','pod','pop','pot','pro','pry','pub','pug','pun','pup','rag','ram','ran','rap','rat','raw','ray','red','ref','rib','rid','rig','rim','rip','rob','rod','rot','row','rub','rue','rug','rum','rut','rye','sad','sag','sap','sat','saw','sax','sea','sew','shy','sin','sip','sir','sit','six','ski','sky','son','sow','soy','spa','spy','sub','sun','tab','tad','tag','tan','tap','tar','tax','tea','ten','thy','tie','tin','tip','toe','ton','top','toy','try','tub','tug','van','vat','vex','via','vie','wad','wan','war','wax','web','wed','wet','wig','win','wit','woe','wok','won','wow','yak','yam','yap','yes','yet','yew','zag','zap','zed','zoo','git','cli','api','url','uri','sha','hex','mjs','css','dom','ipc','npm','e2e','tdd','llm','sdk','sql','ssl','tcp','udp','dns','png','jpg','svg','xml','jsx','tsx','esm','cjs','amd','umd','iso','oss','cpu','gpu','ram','jdk','jvm','gpt','awk','sed','dev','env','obj','val','var','len','idx','str','int','min','max','wip','poc','mvp','adr','dsl','lhs','rhs','src','dst','tmp','tpl','ctx','cfg','pkg','dep','ver','doc','msg','err','req','res']);
+const isWordish = (x) => ROMAN.has(x) || WORDS.has(x);
 // 模糊指针语（D-188④ 模糊语族；长形优先）
 const FUZZY = ['本轮修复 commit','本轮收口 commit','本轮变更 commit','本轮落地 commit','修复 commit','落地 commit','收口 commit','该 commit','本 commit','见 commit','同上 commit'];
 
@@ -86,7 +90,7 @@ function walk(dir, acc) {
   for (const e of ents) {
     const p = join(dir, e.name);
     if (e.isDirectory()) {
-      const relPosix = p.split('\\').join('/');
+      const relPosix = p.split(String.fromCharCode(92)).join('/');
       if (SKIP_DIR_BARE.indexOf(e.name) >= 0) continue;
       if (SKIP_DIR_ANCHORED.some((a) => relPosix.endsWith('/' + a) || relPosix === a)) continue;
       walk(p, acc);
@@ -101,7 +105,7 @@ function surfaceFiles() {
   for (const f of SCAN_FILES) abs.push(join(ROOT, f));
   return abs;
 }
-const rel = (p) => relative(ROOT, p).split('\\').join('/');
+const rel = (p) => relative(ROOT, p).split(String.fromCharCode(92)).join('/');
 
 // ---- 严格层抽取（通道 A 列头白名单／通道 B 小节锚定／通道 C 列表行标签）----
 function normHeader(h) {
@@ -115,7 +119,10 @@ function isSepRow(line) {
 }
 function splitRow(line) {
   const s = line.trim();
-  return s.slice(1, s.length - 1).split('|').map((c) => c.trim());
+  let body = s;
+  if (body.startsWith('|')) body = body.slice(1);
+  if (body.endsWith('|')) body = body.slice(0, body.length - 1);
+  return body.split('|').map((c) => c.trim());
 }
 function listLabelStrict(line) {
   const s = line.trim();
@@ -135,8 +142,12 @@ function listLabelStrict(line) {
 function strictCells(lines) {
   const out = [];
   let sectionHit = false;
+  let inFence = false;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    const ft = line.trim();
+    if (ft.startsWith('```') || ft.startsWith('~~~')) { inFence = !inFence; continue; }
+    if (inFence) continue;
     if (line.startsWith('#')) { sectionHit = SECTION_ANCHOR_RE.test(line); continue; }
     if (isSepRow(line) && i > 0 && lines[i - 1].trim().startsWith('|')) {
       const cols = splitRow(lines[i - 1]).map(normHeader);
@@ -146,8 +157,8 @@ function strictCells(lines) {
         for (let c = 0; c < cols.length; c++) {
           if (c >= cells.length) continue;
           const hit = sectionHit || STRICT_HEADERS.indexOf(cols[c]) >= 0;
-          if (hit && cells[c] && cells[c] !== '—' && cells[c] !== '-') {
-            out.push({ line: j + 1, col: c, header: cols[c], text: cells[c] });
+          if (cells[c] && cells[c] !== '—' && cells[c] !== '-') {
+            out.push({ line: j + 1, col: c, header: cols[c], text: cells[c], hit: hit });
           }
         }
         j++;
@@ -179,28 +190,50 @@ function bareCodes(cell) {
       const q = cell.indexOf(pr[1], p + 1);
       if (q < 0) break;
       const inner = cell.slice(p + 1, q).trim();
-      if (/^[a-z]{3}$/.test(inner) && !ROMAN.has(inner)) out.push(inner);
+      if (/^[a-z]{3}$/.test(inner) && !isWordish(inner)) out.push(inner);
       i = q + 1;
     }
   }
   // 首位裸短码（D-188③ GitButler 3 字母便利码单独承担定位；形如 wmu（…）／wmu …）
-  const lead = cell.replace(/^[*` ]+/, '').match(/^[a-z]{3}($|[^0-9A-Za-z_])/);
-  if (lead && !ROMAN.has(lead[0].slice(0, 3))) out.push(lead[0].slice(0, 3));
+  const stripped = cell.replace(/^[*` ]+/, '');
+  const leadM = stripped.match(/^([a-z]{3})/);
+  if (leadM && !isWordish(leadM[1])) {
+    const rest = stripped.slice(3);
+    const normRest = rest.replace(/[^0-9A-Za-z]/g, '');
+    if (rest.indexOf('（') === 0 || rest.indexOf('(') === 0 || normRest.length === 0) out.push(leadM[1]);
+  }
 
   for (const kw of ['commit ', '分支 ', 'branch ']) {
     let k = -1;
     while ((k = cell.indexOf(kw, k + 1)) >= 0) {
       const m = cell.slice(k + kw.length).match(/^[a-z]{3}([^0-9A-Za-z_]|$)/);
-      if (m && !ROMAN.has(m[1])) out.push(m[1]);
+      if (m && !isWordish(m[1])) out.push(m[1]);
     }
   }
   const seen = new Set();
   return out.filter((x) => (seen.has(x) ? false : (seen.add(x), true)));
 }
+function stripSubjectQuotes(cell) {
+  const DQc = String.fromCharCode(34);
+  const open = '(' + DQc;
+  const close = DQc + ')';
+  let out = '';
+  let rest = cell;
+  for (;;) {
+    const a = rest.indexOf(open);
+    if (a < 0) { out += rest; break; }
+    const b = rest.indexOf(close, a + 2);
+    if (b < 0) { out += rest; break; }
+    out += rest.slice(0, a + 2);
+    rest = rest.slice(b);
+  }
+  return out;
+}
 function fuzzyHits(cell) {
+  const body = stripSubjectQuotes(cell);
   const out = [];
   for (const p of FUZZY) {
-    if (cell.indexOf(p) < 0) continue;
+    if (body.indexOf(p) < 0) continue;
     if (out.some((q) => q.indexOf(p) >= 0)) continue;
     out.push(p);
   }
@@ -210,7 +243,26 @@ function hasSubject(cell, sha) {
   const i = cell.indexOf(sha);
   if (i < 0) return false;
   const after = cell.slice(i + sha.length);
-  return after.indexOf('("') >= 0 && after.indexOf('")') > after.indexOf('("');
+  const DQc = String.fromCharCode(34);
+  const open = '(' + DQc;
+  const a = after.indexOf(open);
+  if (a < 0) return false;
+  const b = after.indexOf(DQc + ')', a + 2);
+  if (b < 0) return false;
+  return after.slice(a + 2, b).trim().length > 0;
+}
+
+// ---- 反向闸负载判据（D-197②：格载荷即指针本身——剥反引号/空白后整体为 hex 或 hex+("subject")；混合散文格不判，宽层散文不背税 D-189②）----
+function normCellText(cell) {
+  return cell.split(String.fromCharCode(96)).join('').split(' ').join('').trim();
+}
+function pointerPayload(cell) {
+  const s = normCellText(cell);
+  if (/^[0-9a-f]{7,40}$/.test(s)) return { shape: 'bare', token: s };
+  const DQc = String.fromCharCode(34);
+  const m = s.match(new RegExp('^([0-9a-f]{7,40})[(]' + DQc + '[^' + DQc + ']*' + DQc + '[)]$'));
+  if (m) return { shape: 'subject', token: m[1] };
+  return null;
 }
 
 // ---- 文档扫描 → finding 集 ----
@@ -219,6 +271,15 @@ function scanDoc(file, text) {
   const lines = text.split(NL);
   const out = [];
   for (const cell of strictCells(lines)) {
+    if (!cell.hit) {
+      const p = pointerPayload(cell.text);
+      if (p) {
+        const full = resolveSha(p.token);
+        if (full === null || objectType(full) !== 'commit') out.push({ file, line: cell.line, kind: 'misplaced-unresolvable', token: p.token, detail: cell.header, exempt });
+        else out.push({ file, line: cell.line, kind: 'misplaced-pointer', token: p.token, sha: full, detail: cell.header, exempt });
+      }
+      continue;
+    }
     const codes = bareCodes(cell.text);
     for (const c of codes) out.push({ file, line: cell.line, kind: 'bare-shortcode', token: c, detail: cell.header, exempt });
     for (const p of fuzzyHits(cell.text)) out.push({ file, line: cell.line, kind: 'fuzzy-phrase', token: p, detail: cell.header, exempt });
@@ -281,11 +342,12 @@ function bookKeySet(book) {
 // ---- 判级（D-191③ 存量 WARN／册外新增 FAIL；可达性与孪生恒 WARN）----
 // PV-F10B 行号四形态（file.ext:N／L<n>／行号／第 N 行）——模块级供 fixture 反例共用
 const LINENO_RE = /[.](md|json|mjs):[ ]?[0-9]+|L[0-9]+|行号|第[ ]?[0-9]+[ ]?行/;
-const SLUG_BY_KIND = { 'bare-shortcode': 'PV-BARE-SHORTCODE', 'fuzzy-phrase': 'PV-FUZZY-PHRASE', 'short-sha': 'PV-SHORT-SHA', 'missing-subject': 'PV-MISSING-SUBJECT', 'nonexistent-sha': 'PV-NONEXISTENT-SHA' };
+const SLUG_BY_KIND = { 'bare-shortcode': 'PV-BARE-SHORTCODE', 'fuzzy-phrase': 'PV-FUZZY-PHRASE', 'short-sha': 'PV-SHORT-SHA', 'missing-subject': 'PV-MISSING-SUBJECT', 'nonexistent-sha': 'PV-NONEXISTENT-SHA', 'misplaced-pointer': 'PV-MISPLACED-POINTER', 'misplaced-unresolvable': 'PV-MISPLACED-UNRESOLVABLE' };
 function judge(findings, keys) {
   const out = [];
   for (const fd of findings) {
     if (fd.kind === 'legal') continue;
+    if (fd.kind === 'misplaced-unresolvable') { out.push({ fd: fd, level: 'WARN', slug: 'PV-MISPLACED-UNRESOLVABLE' }); continue; }
     const k = bookKey(fd.file, fd.kind, fd.token);
     if (keys.has(k)) out.push({ fd: fd, level: 'WARN', slug: 'PV-BASELINE-HIT' });
     else if (fd.exempt) out.push({ fd: fd, level: 'WARN', slug: 'PV-EXEMPT-SUBFACE' });
@@ -353,7 +415,7 @@ function mainRun() {
 
   // D baseline 册两级判级（D-191③）
   t('PV-D-ZERO-NEW-FAIL', fails.length === 0, '册外 FAIL ' + fails.length + ' 件（须零）；册内 WARN ' + warns.length + ' 件');
-  t('PV-D2-BASELINE-LOADED', entries.length > 0, '册条目 ' + entries.length + ' 件（首跑建册已落）');
+  t('PV-D2-BASELINE-LOADED', fs.existsSync(BOOK) && Array.isArray(entries), '册工件在位（existsSync＋entries 数组——归零=合法终态 D-201②）entries=' + entries.length + ' 件');
   const kindSet = new Set(all.map((x) => x.kind).filter((k) => k !== 'legal'));
   const unmapped = [...kindSet].filter((k) => !SLUG_BY_KIND[k]);
   t('PV-D3-KIND-SLUG-TABLE', kindSet.size > 0 && unmapped.length === 0, '违规 kind→slug 对表覆盖 ' + kindSet.size + ' 形态（legal 为非违规形态不入表）；未映射 ' + unmapped.length + '（新增违规 kind 未登记 SLUG_BY_KIND 即红）');
@@ -374,7 +436,7 @@ function mainRun() {
   t('PV-E2-ANCHOR-DECL', Array.isArray(anchors) && anchors.length > 0, '锚线声明 lines=' + JSON.stringify(anchors));
 
   // F 册护栏自断言（D-192④ 防大赦名单化）
-  let aOk = entries.length > 0;
+  let aOk = true;
   const aBad = [];
   for (const e of entries) {
     if (!e.errata_ref || !String(e.errata_ref).trim()) { aOk = false; aBad.push(e.id + ':空errata_ref'); continue; }
@@ -397,7 +459,7 @@ function mainRun() {
   for (const e of stale) warn('PV-STALE-ENTRY', e.id + ' 册项已无实物命中——可移除（ratchet 只减不增，禁判 FAIL）');
   const entryKeys = entries.map((e) => { const sp = splitPattern(e.pattern); return bookKey(e.file, sp[0], sp[1]); });
   const hitCount = entryKeys.filter((k) => hitSet.has(k)).length;
-  t('PV-F10D-STALE-REPORTED', entries.length > 0 && stale.length + hitCount === entries.length, '失配 ' + stale.length + ' 件已自报 ／命中 ' + hitCount + ' 件 ／册 ' + entries.length + ' 条（不漏不重）');
+  t('PV-F10D-STALE-REPORTED', stale.length + hitCount === entries.length, '失配 ' + stale.length + ' 件已自报 ／命中 ' + hitCount + ' 件 ／册 ' + entries.length + ' 条（不漏不重；归零态 0＋0==0 自洽 D-201②）');
 
   for (const v of warns) warn('PV-BASELINE-HIT', v.fd.kind + String.fromCharCode(58) + v.fd.token + ' @ ' + v.fd.file + ' [' + v.fd.detail + ']');
   for (const v of fails) console.log('FAIL ' + v.slug + ' :: ' + v.fd.kind + String.fromCharCode(58) + v.fd.token + ' @ ' + v.fd.file + ':' + v.fd.line + ' [' + v.fd.detail + ']');
@@ -458,6 +520,26 @@ function fixtureRun() {
   const linenoHit = LINENO_RE.test('short-sha:decision-ledger.md:1659');
   const linenoMiss = LINENO_RE.test('short-sha:da0c25a9');
   t('PV-G-F12-LINENO-DETECT', linenoHit && !linenoMiss, '行号形态反例：file.ext:N 必抓／kind:token 分隔符不误抓');
+  const FENCE = String.fromCharCode(96, 96, 96);
+  const hdrCommit = ['| commit | 说明 |', '|---|---|'].join(NL);
+  const hdrSha = ['| SHA | 说明 |', '|---|---|'].join(NL);
+  const p13a = scanDoc('__fixture__', hdrCommit + NL + cell(SHA_OK, true));
+  const p13b = scanDoc('__fixture__', hdrSha + NL + cell(SHA_OK, true));
+  t('PV-G-F13-STRICT-HEADERS-EXPANDED', p13a.length === 1 && p13a[0].kind === 'legal' && p13b.length === 1 && p13b[0].kind === 'legal', 'bare commit/SHA 列头收编后合法形 cell 判 legal（扩列在跑 D-197①）');
+  const p14 = judge(probe(['| 备注 | 说明 |', '|---|---|', '| ' + SHA_OK + ' | x |'].join(NL)), noKeys);
+  t('PV-G-F14-REVERSE-GATE', p14.length === 1 && p14[0].level === 'FAIL' && p14[0].slug === 'PV-MISPLACED-POINTER', '非白名单列头纯指针负载判 FAIL slug=' + (p14[0] ? p14[0].slug : 'none') + '（D-197② 反向闸）');
+  const p15 = judge(probe(['| 备注 | 说明 |', '|---|---|', '| ' + BT + 'cb625c64521398306f914eb7986a4a505f95291b' + BT + ' | x |'].join(NL)), noKeys);
+  t('PV-G-F15-REVERSE-GATE-UNRESOLVABLE', p15.length === 1 && p15[0].level === 'WARN' && p15[0].slug === 'PV-MISPLACED-UNRESOLVABLE', '不可解析 hex 负载恒 WARN slug=' + (p15[0] ? p15[0].slug : 'none') + '（禁判 FAIL——D-190④ 同族）');
+  const p16a = judge(probe(doc(['| (run) (the) 说明 |'])), noKeys);
+  const p16b = judge(probe(doc(['| the table 说明 |'])), noKeys);
+  const p16c = judge(probe(doc(['| zqq |'])), noKeys);
+  t('PV-G-F16-D5-WORDS-EXEMPT', p16a.length === 0 && p16b.length === 0 && p16c.length === 1 && p16c[0].slug === 'PV-BARE-SHORTCODE', '英文词豁免（括号内 run/the）＋首位三字词后随空格不判＋裸码独占格仍判（E-5 类不回归，slug=' + (p16c[0] ? p16c[0].slug : 'none') + '）');
+  const p17 = judge(probe(doc(['| ' + BT + 'da0c25a9' + BT + ' | 说明'])), noKeys);
+  t('PV-G-F17-D6-OPTIONAL-PIPE', p17.length === 1 && p17[0].fd.kind === 'short-sha', '行尾无管末格短 SHA 检出 kind=' + (p17[0] ? p17[0].fd.kind : 'none') + '（splitRow 首尾管可选——FN 修复自证）');
+  const p18 = judge(probe([FENCE + 'md', '| wmu（x） | 说明 |', '|---|---|', FENCE].join(NL)), noKeys);
+  t('PV-G-F18-D6-FENCE-EXCLUDED', p18.length === 0, '围栏内伪表违规行零 finding（fence 状态机排除）');
+  const p19 = judge(probe(doc(['| ' + BT + SHA_OK + BT + ' (' + DQc + DQc + ') | 说明 |'])), noKeys);
+  t('PV-G-F19-D7-EMPTY-SUBJECT', p19.length === 1 && p19[0].fd.kind === 'missing-subject', '空校验位拒收 kind=' + (p19[0] ? p19[0].fd.kind : 'none') + '（D-200 subject 非空白必填）');
 }
 
 const res = mainRun();
