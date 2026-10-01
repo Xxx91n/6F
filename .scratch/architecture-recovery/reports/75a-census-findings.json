@@ -2555,6 +2555,13 @@
   "excerpt": "83-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
  },
  {
+  "key": "84-check.mjs|existence-assert|527931a2",
+  "file": "84-check.mjs",
+  "kind": "existence-assert",
+  "lno": 419,
+  "excerpt": "t('PV-D2-BASELINE-LOADED', fs.existsSync(BOOK) && Array.isArray(entries), '册工件在位（existsSync＋entries 数组——归零=合法终"
+ },
+ {
   "key": "r14fix-check.mjs|date-literal|dd1a8ca5",
   "file": "r14fix-check.mjs",
   "kind": "date-literal",

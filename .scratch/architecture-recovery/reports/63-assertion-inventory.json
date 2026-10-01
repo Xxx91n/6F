@@ -345,7 +345,7 @@
       ]
     },
     "84-check": {
-      "assertion_ids": 33,
+      "assertion_ids": 34,
       "call_styles": [
         "t()"
       ]
