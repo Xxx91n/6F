@@ -28,12 +28,12 @@
 
 | 文件 | 变更 | 归属 commit |
 |---|---|---|
-| `CHANGELOG.md` | +M-013（轮34编年补录） | kmk |
-| `engine/src/fact/file-card.ts` | :39-40 词表收窄+行尾钉+上行注释更正 | qmw |
-| `.scratch/architecture-recovery/reports/83-check.mjs` | :43 B2 标签收窄 | qmw |
-| `.scratch/architecture-recovery/decision-ledger.md` | +A-093 行 | qmw |
-| `CHANGELOG.md` | +M-014（T1 编年） | qmw |
-| `engine/dist/fact/file-card.d.ts` | 收窄后词表再 emitted | rkm |
+| `CHANGELOG.md` | +M-013（轮34编年补录） | `7653bad3131a3e403bf11774997a6001619f06f6` ("chore(r35-t0): 守卫基线复绿——CHANGELOG 补 M-013 轮34编年（D-140~143/A-001~A-092/ADR-0001~0023）；r34 收口 commit 漏编年→41a-D7 红修（M-010/r32-t0 同型先例）") |
+| `engine/src/fact/file-card.ts` | :39-40 词表收窄+行尾钉+上行注释更正 | `07b505fbabe8d460f4c4ea9467d0ea1b0168d876` ("fix(r35-t1): R34 收口实施批——SuppressedFacetReason 收窄 {new_file,insufficient_history} 诚实可达集＋行尾钉「新失败枝须扩此集」（D-143②）＋83-check B2 标签收窄「本枝新增、pin 枝既有」对齐断言实义（D-143④）；上行注释「不含 ok」失实声明同步更正；编年随行 A-093＋M-014；83-check 19/19＋smoke 22 册＋守卫组 18 件全绿") |
+| `.scratch/architecture-recovery/reports/83-check.mjs` | :43 B2 标签收窄 | `07b505fbabe8d460f4c4ea9467d0ea1b0168d876` ("fix(r35-t1): R34 收口实施批——SuppressedFacetReason 收窄 {new_file,insufficient_history} 诚实可达集＋行尾钉「新失败枝须扩此集」（D-143②）＋83-check B2 标签收窄「本枝新增、pin 枝既有」对齐断言实义（D-143④）；上行注释「不含 ok」失实声明同步更正；编年随行 A-093＋M-014；83-check 19/19＋smoke 22 册＋守卫组 18 件全绿") |
+| `.scratch/architecture-recovery/decision-ledger.md` | +A-093 行 | `07b505fbabe8d460f4c4ea9467d0ea1b0168d876` ("fix(r35-t1): R34 收口实施批——SuppressedFacetReason 收窄 {new_file,insufficient_history} 诚实可达集＋行尾钉「新失败枝须扩此集」（D-143②）＋83-check B2 标签收窄「本枝新增、pin 枝既有」对齐断言实义（D-143④）；上行注释「不含 ok」失实声明同步更正；编年随行 A-093＋M-014；83-check 19/19＋smoke 22 册＋守卫组 18 件全绿") |
+| `CHANGELOG.md` | +M-014（T1 编年） | `07b505fbabe8d460f4c4ea9467d0ea1b0168d876` ("fix(r35-t1): R34 收口实施批——SuppressedFacetReason 收窄 {new_file,insufficient_history} 诚实可达集＋行尾钉「新失败枝须扩此集」（D-143②）＋83-check B2 标签收窄「本枝新增、pin 枝既有」对齐断言实义（D-143④）；上行注释「不含 ok」失实声明同步更正；编年随行 A-093＋M-014；83-check 19/19＋smoke 22 册＋守卫组 18 件全绿") |
+| `engine/dist/fact/file-card.d.ts` | 收窄后词表再 emitted | `2e39e906d58be95c214bec97ef81b793381be282` ("chore(bundle): dist 再生——file-card.d.ts 随 SuppressedFacetReason 收窄重 emitted（D-140② 独立 bundle commit 首用；cli.js 字节不变 257947B）") |
 
 ## 三、备注与观察项
 
