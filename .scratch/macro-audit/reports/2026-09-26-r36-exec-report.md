@@ -53,9 +53,9 @@ const suppressed = failure !== 'ok';   // 别名收窄真实生效
 
 | commit | 类型 | 面 |
 |---|---|---|
-| onl | docs(chronicle) | CHANGELOG.md 单件——补录 M-015（r35-closeout 漏编年 41a-D7 红修，M-013/M-010/r32-t0 同型先例） |
-| yty | fix(A-094) | file-card.ts（语义修）＋执行账本 A-094 行＋CHANGELOG M-016＋WORKFLOW §4 lessons 行——四件同批 |
-| lmp | chore(bundle) | engine/dist/cli.js＋dist/fact/file-card.js 仅两件（D-140② 独立 bundle commit——字节差发生义务触发） |
+| `1714e8b880191fdf45cf08dcad57319237a2d5f2` ("docs(chronicle): 补录 M-015 轮35 grill 封口编年——r35-closeout 漏编年致 41a-D7 红（M-013/M-010/r32-t0 同型补录先例；D-144~D-147 账行在 r35-closeout，落地须其先行或同批）") | docs(chronicle) | CHANGELOG.md 单件——补录 M-015（r35-closeout 漏编年 41a-D7 红修，M-013/M-010/r32-t0 同型先例） |
+| `7baec9390d45c899115cc9a4836fe1b7910ce6b6` ("fix(A-094): D-147 P4 as-cast 返工——file-card failure 注记收窄 ok…〔subject 原文含管符依法截断载校验位〕") | fix(A-094) | file-card.ts（语义修）＋执行账本 A-094 行＋CHANGELOG M-016＋WORKFLOW §4 lessons 行——四件同批 |
+| `54de6db05cf3a18748d04e7ffac6b0ea5b521939` ("chore(bundle): engine/dist 再生——file-card.js/cli.js 字节差 -49B（let+if-chain→const 三元结构性等价；A-094 随附，D-140② 独立 bundle commit）") | chore(bundle) | engine/dist/cli.js＋dist/fact/file-card.js 仅两件（D-140② 独立 bundle commit——字节差发生义务触发） |
 
 **落地顺序约束**：M-015 ledger_pointer 引用 D-144~D-147 账行在 r35-closeout 分支——本支栈于其上（栈序 qwp→onl→yty→lmp），落地须 r35-closeout 先行或同批（M-013 P2 同型先例）。未 push（逐次授权闸门）。
 
