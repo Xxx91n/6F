@@ -62,7 +62,7 @@
 
 | # | 扩面描述 | 强度分级 | 命题变更测试理由 | 变更 commit 指针 |
 |---|---|---|---|---|
-| ① | 载体漂移：声明 `_lib/check-kit.mjs` 增 `deterministicRunAt()`，实落 `_lib/env-contract.mjs` | **轻档**（索引批注） | 纯实现层名实缝——载体位置不改被验证命题 | `0a68d41a`（D-179 建制语义 commit） |
+| ① | 载体漂移：声明 `_lib/check-kit.mjs` 增 `deterministicRunAt()`，实落 `_lib/env-contract.mjs` | **轻档**（索引批注） | 纯实现层名实缝——载体位置不改被验证命题 | `0a68d41ad6dd0ec444734af595455bf52f3d875f` ("feat(guard): D-179 守卫伴生再生确定性建制——种子化＋volatile-fields 键级豁免枚举＋两跑零 diff 自检件")（D-179 建制语义 commit） |
 
 **「首例即定形」注记**（D-181⑤）：本批缝隙=扩面勘误通道首个自然适用例，分级判据与字段形态按本通道立法定形；原合规判定不翻案（D-148③）。后续扩面照此形：重档→独立勘误 commit；轻档→commit-body＋本节索引批注。
 
@@ -76,8 +76,8 @@
 
 | # | 扩面描述 | 强度分级 | 命题变更测试理由 | 变更 commit 指针 |
 |---|---|---|---|---|
-| ② | A5 熵源钉增项（声明 A1~A4+B1/B2，实落多 A5） | **重档** | 改被验证命题=断言集扩展（冻结声明钉住的断言集） | 0a68d41a + c6cb5a33（A5 换调 stripComments） |
-| ③ | prereg_commit 锚语义变更（运行时 HEAD→criteria 判据锚 3e588e02） | **重档** | 改被验证命题=锚语义 | 0a68d41a |
+| ② | A5 熵源钉增项（声明 A1~A4+B1/B2，实落多 A5） | **重档** | 改被验证命题=断言集扩展（冻结声明钉住的断言集） | `0a68d41ad6dd0ec444734af595455bf52f3d875f` ("feat(guard): D-179 守卫伴生再生确定性建制——种子化＋volatile-fields 键级豁免枚举＋两跑零 diff 自检件") + `c6cb5a33ad0bd722319262d2cfee2bbf263c98f1` ("fix(guard): d179-check A5 换调 check-kit stripComments＋snapDir 复用 shaFile＋deterministicRunAt 形参化简（F3/F5 兑现；包D 预声明锚=xwv）")（A5 换调 stripComments） |
+| ③ | prereg_commit 锚语义变更（运行时 HEAD→criteria 判据锚 3e588e02） | **重档** | 改被验证命题=锚语义 | `0a68d41ad6dd0ec444734af595455bf52f3d875f` ("feat(guard): D-179 守卫伴生再生确定性建制——种子化＋volatile-fields 键级豁免枚举＋两跑零 diff 自检件") |
 
 **post-hoc 标位**：两条款均在执行中/审计时发现，适用 D-181② 显式例外（变更后立即落勘误＋post-hoc 如实标）。
 
