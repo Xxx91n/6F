@@ -120,7 +120,7 @@
 | stage2-launch-criteria | ①capability 阻塞（DoR-b 缺真实仓 facts）②fresh-clone PASS 维持③GAP-HOST-01 RA-closed④window_state=not_started | status-unchanged 入册——Stage-2 维持关闭 |
 | protected-surface-death-watch | 61 件守卫 PROTECTED_SURFACE 全非空＋61/61 实跑绿 | census-clean 入册 |
 | guard-retirement-class | retired[] 空类＋_retired/README 在＋无提案 | channel-idle 入册 |
-| anysearch-cli-intent-drift-watch | 复测上游 intent=1（vs frozen 锚 8，与 c6fe0f8 退化读数同签名）；归因=上游 r69-t2 README IA 重构（bbb3ba73 实物在史）属自主改版；「该退化无认领票」标注维持 | drift-confirmed-escalate-to-ruling 入册——按册项规程呈裁冻结包代表性衰减声明（列 grill 方向候选） |
+| anysearch-cli-intent-drift-watch | 复测上游 intent=1（vs frozen 锚 8，与 `c6fe0f829e7366e9c27815693fd4baece7ce31bc` ("chore(guards): loop-2 复跑产物刷新——01/02/38/56 系再生成；01-corpora anysearch-cli intent 实测降为 1（环境性漂移，01-check D1/D5 失败随册记录）") 退化读数同签名）；归因=上游 r69-t2 README IA 重构（原引七位码经本仓 git cat-file -t 实证不存在——E-3 幻觉 hex 族第二例，勘误见账本 E-6；上游改版定位以 anysearch-cli 仓 r69-t2 提交记录为准）属自主改版；「该退化无认领票」标注维持 | drift-confirmed-escalate-to-ruling 入册——按册项规程呈裁冻结包代表性衰减声明（列 grill 方向候选） |
 | 等待期序首核对（D-175） | 批工位=(b) 清零序内 D-176 系列先行→(d) D-179 主体→(a) 仅册项值守；与 allowed/deferred 清单 41 行归位一致 | 首窗一致性核对 PASS（在册无专项确认行需求——读数入本报告） |
 | 本窗未读/外部锚 | macro-b push 后 name 复原/schedule 活性（未 push）；workflow_dispatch 实跑（未授权）；codebuddy-ide-gap/f02-display（宿主 IDE 面不可得）；fresh-clone-rerun（未做 clone 复跑）；actionlint（本机未装，PyYAML 等值代读） | 如实登记不入哨义读数——下窗续任 |
 
