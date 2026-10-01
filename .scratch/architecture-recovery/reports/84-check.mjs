@@ -280,10 +280,11 @@ function scanDoc(file, text) {
       }
       continue;
     }
-    const codes = bareCodes(cell.text);
+    const visible = stripSubjectQuotes(cell.text);
+    const codes = bareCodes(visible);
     for (const c of codes) out.push({ file, line: cell.line, kind: 'bare-shortcode', token: c, detail: cell.header, exempt });
-    for (const p of fuzzyHits(cell.text)) out.push({ file, line: cell.line, kind: 'fuzzy-phrase', token: p, detail: cell.header, exempt });
-    for (const s of shaTokens(cell.text)) {
+    for (const p of fuzzyHits(visible)) out.push({ file, line: cell.line, kind: 'fuzzy-phrase', token: p, detail: cell.header, exempt });
+    for (const s of shaTokens(visible)) {
       const full = resolveSha(s);
       if (full === null) { out.push({ file, line: cell.line, kind: 'nonexistent-sha', token: s, detail: cell.header, exempt }); continue; }
       if (objectType(full) !== 'commit') { out.push({ file, line: cell.line, kind: 'nonexistent-sha', token: s, detail: cell.header, exempt }); continue; }
@@ -540,6 +541,8 @@ function fixtureRun() {
   t('PV-G-F18-D6-FENCE-EXCLUDED', p18.length === 0, '围栏内伪表违规行零 finding（fence 状态机排除）');
   const p19 = judge(probe(doc(['| ' + BT + SHA_OK + BT + ' (' + DQc + DQc + ') | 说明 |'])), noKeys);
   t('PV-G-F19-D7-EMPTY-SUBJECT', p19.length === 1 && p19[0].fd.kind === 'missing-subject', '空校验位拒收 kind=' + (p19[0] ? p19[0].fd.kind : 'none') + '（D-200 subject 非空白必填）');
+  const p20 = scanDoc('__fixture__', doc(['| ' + BT + SHA_OK + BT + ' ("fix: 旧指针 c6fe0f8 已实名") | 说明 |']));
+  t('PV-G-F20-SUBJECT-QUOTE-OPAQUE', p20.length === 1 && p20[0].kind === 'legal', 'subject 引文内 token 不扫描（不透明载荷——kind=' + (p20[0] ? p20[0].kind : 'none') + '；shaTokens/bareCodes 走剥引文可见面）');
 }
 
 const res = mainRun();
