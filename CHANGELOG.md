@@ -435,3 +435,11 @@
 - 调研构成如实登记：atomcode 3/5 降级（Q1 载体降级／Q2、Q4 配额耗尽转合成；Q3、Q6 真回传）；Q5 未派遣属内部规程裁定非依赖题。
 - 勘误 E-10：D-200/D-201 落账位序更正（误插 T3 子节→迁主表尾，不改内容）。
 - next-round.md 轮 54 换代（执行批四腿任务书＋审计窗抽查面）。
+
+### M-054（2026-10-02 R54 T1 执行批——指针纪律四腿落地）
+
+- T1-A 册收敛窗（D-199）：baseline 册 17 条→0——六文件逐笔独立勘误 commit＋只删不增摘除 commit；22 个 per-session 短码/模糊语/8-hex 经 git log --all＋变更面比对解析实名化（kmk/qmw/rkm/vvp/rtu/zqq/qkw/xlp/rqr/zxu/txn/xul/pym/rzr/onl/yty/lmp 等）；bbb3ba73 幻觉 SHA 作废注记；201935fc 孤儿标本移出指针列；PV-F10D 守恒复跑归零态自洽。
+- T1-B 机检面批（D-197①②＋D-200＋D-201②）：STRICT_HEADERS 扩列 7 列头＋内容驱动反向闸（misplaced-pointer 两级/misplaced-unresolvable 恒 WARN）＋D5 首位收紧＋WORDS 豁免集＋D6 首尾管可选＋fence 排除＋D7 空 subject 拒收＋零反斜杠收尾＋fuzzy subject 引文不透明豁免＋册归零断言语义；84-check 26→33 断言全绿（F13~F19 红绿分野）；预声明 D-197-pointer-surface-predeclaration 先行＋D-181② 勘误三条。
+- T1-C/T1-D：registry 76 项（check-kit-regex-blindspot-watch manual_watch 五要素＋事件锚 check-kit-stripcomments-signature-change）＋death-watch 口径补注（D-201③）；33-check 33/33＋verify-waiting-list rows=90 registry=76 live=64。
+- 反向闸首跑 census：存量十二格全收敛零 FAIL；恒 WARN 面 uniq=5（80-bench 跨仓 HEAD×2＋49-report run ID×3）如实登记零入册。
+- 63-assertion-inventory 派生再基线（62 守卫 1460 emit 位）；勘误 E-12/E-13 append-only 追加。

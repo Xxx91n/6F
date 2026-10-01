@@ -1672,6 +1672,8 @@ scoping（非裁面/执行边界如实登记）：
 - **E-9 T3 哨兵读数表裸短码 `wmu` 未回写（W6 残留第二处——E-2 只映射账本勘误段，T3 表本体仍为短码）**：本账本「T3 审计窗哨兵读数（2026-09-30 R51）」表 check-kit-regex-blindspot-watch 行读数列值 `根治已落地（wmu）`。E-2 已给出映射 `fe3271d891767890c4404ec759c01489521c75f5` ("feat(D-184): check-kit stripComments 补 regex 字面量态＋迁入闸探测件") 但按 D-181 append-only 未回写表本体。R52 T1-A 首跑以通道 B（T3 表 commit 指代列＝全单元格严格层）命中。处置=入册 WARN（回写表本体须走 D-181 勘误 commit，本轮不夹带）。
 - **E-10 R52 执行批过程违规自纠（V1~V6——审计窗 `reports/2026-09-30-r52-audit-report.md` §5 逐条实测，post-hoc 同窗勘误）**：①**尾行回归**——`84-check.mjs`（新件）／`decision-ledger.md`／`CHANGELOG.md` 三件末字节被写丢（实测 `0x3b`／`0x82`／`0x82`），`git show r51-closeout:<f>` 同两件末字节为 `0x0a`；成因＝生成侧 `lines.join(NL)` 未补尾换行（`ctx_execute_file` 覆写路径）。已补回并回读断言（per AGENTS.md「禁 BOM＋保尾行」／WORKFLOW §4.2.2）。②**「零扩面」自述失真**——执行窗登记写「零扩面（SURFACE_CLOSED=1 在位）」，但审计实测列头 12→11 回改、豁免目录 6→5 回改均属扩面性变更，已由 predecl §7 P1/P2 勘误取代该自述。③**`--emit` 证据行不可复现**——r52 报告引「findings=0／uniq=0」，实测任何时点 `emitRun()` 输出≈`findings=30／uniq=17`（emitRun 不读册，其「0」来自建册前时点但未标注时点）；报告已改实测值。④**「84-check 425 行」读数漂移**——实测 440 行（`ea6866a2` 后未随行）；小修批后为 **467 行**，报告已改。⑤**宽层残留「6 个」计数不可复现**——审计普查读数＝扫描面内极大 hex run（12~40）唯一 token **1076** 个，可解析 29／非对象 1047；剔除上游仓 SHA（macro-b/c 分析档案 ~700）与审计指纹摘要（~200）与调研 synthetic 后，**仓内叙事文书层仍 ≥20 件**（`decision-ledger.md` 6／handoffs 4／r49-audit 2／r49-predecl 2／r46-exec 3／r24~r38 若干／`architecture-recovery/decision-ledger.md` 10）。原「6 个」偏小一个数量级。⑥**派生件元数据未随行**——`reports/63-assertion-inventory.json` 顶层 `updated`/`updated_by` 仍为 2026-09-19／`update-70-inventory.mjs`；已随 bundle 腿更新为 R52 小修批日期。
 - **E-11 指针守卫枚举盲区登记（D-189⑧ 封闭枚举欠列——本批文书自体利用该盲区，须留痕不得静默）**：审计实测本批两件文书在**非严格层列头**下放置 commit 指针而守卫未判违规——`reports/2026-09-30-r52-report.md` §6 变更文件清单表用 `| commit |` 列装 8-hex 无 subject 指针（`037f64cb`／`116a6594`／`ea6866a2`／`ebdf743f`）；OS temp 交接件 commit 序表用 `| SHA |` 列装 40-hex 无 subject 指针。按 D-189⑧ 职能定义（「表内唯一/首要定位一个 commit」）二者应属严格层；按封闭枚举字面则不在名单内——**枚举欠列，非合规**。处置＝①本批文书指针改法定形（≥12hex ＋ `("subject")`）；②裸 `commit`／`SHA` 列头入严格层须**走立法票扩列**（D-095 语义，per D-189⑧「枚举封闭，扩列走立法票」），本轮不擅自扩列；③盲区清单入下轮 T1 呈裁单。
+- **E-12 R54 T1-A baseline 册 17 条收敛勘误（D-199③——六文件逐笔独立勘误 commit，指针位形修缮命题面零变更）**：PV-01~PV-17 全数失配核销（册收敛至 0，只删不增独立 commit `a211fa56c585ee550112f48e53b4502a0e2b6ead`）。①`D-177-check-kit-regex-predeclaration.md`（PV-01~06）——wmu×2/模糊语×2/8-hex×4 补写法定形（fe3271d891767890c4404ec759c01489521c75f5/da0c25a986266778cf72d2c72f3b30c9057c3e36/2801b3c98733b85fcfd0a63737e9ca25f301f8da/7d8d7c9ffea187f3c22db7f8953e2cb6661c0635 全 40 位 git rev-parse 实证）；201935fc 孤儿标本移出指针列（锚线不可达即非法指针 D-188⑥，标本值留末格反证与 E-1）；commit `111d31c0b290d275d2967cd78de6191ccd69282e`。②账本 T3 哨兵表（PV-07）——(wmu) 回写法定形（E-9 预留勘误 commit 兑现）`82a405fe0f0201d27946ee41ce481e497b6b746a`。③r35 执行批报告（PV-08~10）——kmk/qmw/rkm per-session UI 码经 git log --all＋变更面逐文件比对解析：7653bad3131a3e403bf11774997a6001619f06f6=仅 CHANGELOG.md +8（M-013）／07b505fbabe8d460f4c4ea9467d0ea1b0168d876=恰四面（A-093＋M-014）／2e39e906d58be95c214bec97ef81b793381be282=仅 file-card.d.ts＋257947B 棘轮互证 `0037ba5f8fad4b9b3bed98af653e31213b9efcba`。④r49 审计报告（PV-11/12）——bbb3ba73 cat-file -t 实证不存在按 D-199② 作废注记（幻觉 hex 族第二例，定位改指上游仓记录）；c6fe0f8 补写法定形 `340bb127b4f12d715b048868041816aa01d2235f`。⑤r49 预声明验证包（PV-13/14）——0a68d41ad6dd0ec444734af595455bf52f3d875f/c6cb5a33ad0bd722319262d2cfee2bbf263c98f1 三处法定形 `f609b71afef53ffeff20d0079710d59bcd0ff9bb`。⑥r51 报告（PV-15~17）——fe3271d8/da0c25a9/7d8d7c9f 法定形＋验证命令随行 `58c822ead7dd6a72d052949c67765b663354be57`。
+- **E-13 R54 T1-B 反向闸首跑 census（D-197②④——扩列/收紧对真实面的存量全收敛，零 FAIL 零入册）**：实现 commit `47dfcfc198f80ae86cef3a6c2c8bc3739cc56d82`（预声明 reports/D-197-pointer-surface-predeclaration.md 先行 commit `231aec68cbe39f182f6d4417eee8126629b71308`；D-181② post-hoc 勘误三条随件 commit `b1bbc9157d72d631f2a66c022956610785c4cc8d`——①fuzzy 判定跳过 ("…") subject 引文（kmk 法定形补写实测假阳驱动）②首位规则精化=后随括号或格载荷纯短码（E-5 类不回归）③census 读数登记）。census 存量十二格全数勘误收敛：r52 报告指针列头 canonical 化＋三模糊格实指轮52收口 4e8fe0bfc54c2c593d4adff82cad8b70cdc184df（`5ca60885d3ec33ccc657a2fc5587509cff2ed289`）／r49 执行报告 commit 列九格短码实名化 vvp=c6849452…/rtu=0401d487…/zqq=3c769c0b…/qkw=46b91d11…/xlp=454c3225…/rqr=9b076b66…/zxu=0a68d41a…/txn=79cf046d…/本 commit=b1d6535947c332c5fb55b45cd5da5d66d385a393（stat 与报告行逐项吻合，`61e67964aa0619b4757ccec9318549f8a8d41383`）／r26 审计三格 xul/pym/rzr=8c41c48a…/016351a9…/720f071f…（`f40b4cb199a0d2d1475ca7fb2211cb506e4510dd`）／r36 执行三格 onl/yty/lmp=1714e8b8…/7baec939…/54de6db0…（yty subject 原文含管符依法截断载校验位——GFM 表格管不能裸载，全 sha 唯一性承载不变；`9d69a76ad29e0965b21e7f55a6c8a883ecde13ae`）。残余恒 WARN 面 uniq=5 零入册零 FAIL：80-bench-thresholds.md HEAD 列跨仓 40-hex×2（ba83908a…/9eb8f24b…试点仓 HEAD 钉——本仓对象库不可解析=D-190④ 人工复核面）＋49-report.md run 列 GitHub run ID×3（35168275692/35168560100/35169293448——纯数字假 payload 形态同位）。读数：SURFACE files=774 findings=50 legal=45 newFail=0 baselineWarn=5。
 
 ### Scoping 声明（非裁面登记）
 
@@ -1830,3 +1832,60 @@ scoping（非裁面/执行边界如实登记）：
 
 - **裁定层：闭环**——六裁全有名分去向（立法条文面/执行窗登记/显式驳回入去向表：Q1-(i)(iii)／Q2-(i)(iv)／Q3-(i)＋规则枚举形态／Q4-(ii)(iv)）；无去向清单=空。
 - **验收层：开放**——①执行批四腿义务未落地（T1-A 收敛窗／T1-B 扩列+反向闸+三收紧／T1-C 注册条目／D-201②声明补句）；②册内 17 条 WARN 存续待收敛；③宽层残留 ≥20 件待审计窗抽查；④atomcode 构成比 3/5 降级在册未达触发线。
+
+## 第五十四轮执行批（R54 T1 执行批——指针纪律四腿落地窗，2026-10-01~02，分支 `r54-t1-pointer-convergence`）
+
+> 任务书：next-round.md 轮 54｜覆盖：D-199（T1-A 册收敛）／D-197①②（T1-B 扩列＋反向闸）／D-200（D5/D6/D7 三收紧）／D-201②⑥（PROTECTED_SURFACE 补句＋册归零断言语义）／D-196②（T1-C registry）／D-201③（T1-D death-watch 口径）＋D-177（预声明先行）／D-181（勘误 E-12~E-13＋predecl 勘误节三条）／D-095（扩列通道）／D-148③（生效时点）／D-161④（三栏位）／D-180（对节奏）／D-185（开工对表）／D-187①（换代盘点）
+
+### 1. T1-A baseline 册收敛窗（D-199①~③ 全兑现——17 条/6 文件/4 kind → 0）
+
+- **(a) bare-shortcode 序**（解析路径实证 per D-199②，禁记忆补全）：`wmu` 映射在案（E-2/E-4）→法定形；`kmk/qmw/rkm` 经 git log --all＋变更面逐文件比对解析（7653bad3=仅 CHANGELOG M-013／07b505fb=恰四面 A-093+M-014／2e39e906=仅 .d.ts＋257947B 棘轮互证，main/HEAD 双可达）。
+- **(b) 作废注记序**：`bbb3ba73` cat-file -t 实证不存在→作废注记＋定位改指上游仓记录；fuzzy 模糊语格→法定形补写。
+- **(c) short-sha 序**（对象可达稳定最后做）：八 hex 全数补写 40 位＋subject；201935fc 孤儿孪生不可达＝非法指针移出指针列（标本留反证）。
+- **六文件独立勘误 commit**（D-199③，amend 归位后终 SHA 见 E-12）＋**册摘除独立 commit** `a211fa56c585ee550112f48e53b4502a0e2b6ead`（只删不增——entries 17→0，四键保留）。
+- **PV-F10D 守恒复跑**：勘误后 stale=17＋hit=0==17 → 摘除后 失配 0＋命中 0==册 0（归零态自洽 D-201②）；`node 84-check.mjs` → PASS-COUNT 33 FAIL-COUNT 0 staleEntries=0。
+
+### 2. T1-B 指针守卫机检面批（D-197①②＋D-200＋D-201②⑥——预声明先行＋实现＋读数）
+
+- **(a) 预声明**：`reports/D-197-pointer-surface-predeclaration.md`（`231aec68cbe39f182f6d4417eee8126629b71308`）先于实现 commit——变更面封闭枚举＋扩列 7 列头＋反向闸两 kind＋D5/D6/D7＋册归零断言语义＋fixture F13~F19 期望矩阵（D-177① 时序可证）。
+- **(b) 实现** `47dfcfc198f80ae86cef3a6c2c8bc3739cc56d82`——①STRICT_HEADERS 扩列 commit/SHA/commit hash/commit SHA/指针/SHA-1/hash（D-095 立法票）；②反向闸 misplaced-pointer 两级／misplaced-unresolvable 恒 WARN（负载判据=格载荷即指针本身）；③D5 首位收紧＋WORDS 豁免集；④D6 splitRow 首尾管可选＋fence 排除；⑤D7 空 subject 拒收＋零反斜杠收尾；⑥fuzzy 跳过 subject 引文（predecl 勘误三条）；⑦PV-D2/F10A/F10D 册归零=合法终态＋PROTECTED_SURFACE 补句（D-201②⑥）。
+- **(c) 读数**：fixture 红绿分野 PASS-COUNT 33 FAIL-COUNT 0（F13~F19 全 PASS＋F01~F12 回归零破）；census 见 E-13；bundle `3b42d4c406e9e8dc033c63b58f6b850fb0fb29d2`（63-inventory 派生再基线 26→33 断言，70-check E1 13/13）。
+
+### 3. T1-C＋T1-D（D-196②＋D-201③——registry 双腿同窗）
+
+- commit `2e434487f2a053dd161e973344de3282a285746c`——registry `check-kit-regex-blindspot-watch` manual_watch 条目（五要素齐备）＋新事件锚 `check-kit-stripcomments-signature-change`（fail-closed 在册）＋waiting-allowed-deferred 归位行＋头计数 75→76；death-watch verify_method 口径补注＋确认行（判据澄清非通道剥夺）。
+- 实测：33-check PASS 33/33（76 项/53 事件/ALARM 0/WARN 9）＋verify-waiting-list VERIFY-PASS（rows=90 registry=76 live=64）＋check-kit-regex-check 15/15。
+
+### 去向表（R53 执行窗登记行处置）
+
+| 义务行 | 处置 |
+|---|---|
+| D-199①~③ 册收敛窗（账行 1816） | ✅ 兑现——本节 §1（17→0＋每文件独立勘误 commit＋PV-F10D 守恒＋只删不增独立 commit） |
+| D-197① 扩列 STRICT_HEADERS（1817） | ✅ 兑现——§2(b)①（7 列头收编＋白名单断言同步） |
+| D-197② 内容驱动反向闸（1818） | ✅ 兑现——§2(b)②＋census 存量收敛零 FAIL＋恒 WARN 面 5 件披露（E-13） |
+| D-200 D5/D6/D7 三收紧（1819） | ✅ 兑现——§2(b)③④⑤（F16/F17/F18/F19 实证） |
+| D-201② PROTECTED_SURFACE 补句（1820） | ✅ 兑现——§2(b)⑦（声明行在场；75a-T2 普查复验随下轮审计窗） |
+| D-196② registry manual_watch 条目（1821） | ✅ 兑现——§3（33-check E 段绿＋五要素在场） |
+| D-201③ death-watch 口径（执行侧登记） | ✅ 兑现——§3（registry 口径行在场） |
+
+### Scoping 声明（非裁面登记）
+
+- atomcode 构成比（D-186②）：本轮 **0/0**——执行批四腿均为裁定内执行面（实施形态已由 D-199/D-197/D-200/D-201/D-196 条文钉死），无外部先例依赖新题，未派遣未合成；fallback 连续计数维持轮 50 起 2/3 不变。
+- **hunk 级 ID 误用自纠**：T1-A 首轮 commit 误传 hunk id 致 usx/ktl 两笔部分提交（3±3／28±4）——but amend 归位后全量（9±9／101±19）；amend 重写致实现腿 SHA 29b62889…→47dfcfc1…，predecl 勘误内指针随改（旧 SHA 不可达即非法指针——指针纪律对自体文书当场自纠）。
+- **subject 含管符先例**：yty git subject 原文含 `|`——GFM 表格管不能裸载，依法截断载校验位（全 sha 唯一性承载不变）；首例登记。
+
+### 执行窗登记（欠账三要素：owner/时点/复验）
+
+| 义务 | owner | 时点 | 复验 |
+|---|---|---|---|
+| T2 审计窗批——宽层残留抽查（D-188⑥：极大 hex run 唯一 token 1076 基准四分类登记） | 审计窗 | 下轮审计窗 | 账本「宽层抽查读数」节抽查行在场 |
+| T2 registry manual_watch 枚举六项随读 | 审计窗 | 同上 | 读数行在场 |
+| T2 反向闸 WARN 候选清单随读（D-197④——首个严格层义务逃逸案例=扩面立法票触发；当前基线 uniq=5） | 审计窗 | 同上 | 读数行在场 |
+| T2 protected-surface-death-watch 随读（按 D-201③ 新口径）＋frozen 豁免随读＋GAP-B2B 八件重审＋Stage-2 四读数 | 审计窗 | 同上 | 读数行在场 |
+| T2 macro-b liveness 续读（下一真实 schedule=2026-10-05 03:17 UTC；dispatch 实跑未授权不跑） | 审计窗 | 同上 | 读数行在场 |
+| 84-check 新断言面审计复验（F13~F19＋反向闸两级判级＋册归零语义） | 审计窗 | 同上 | LOOP 复验同套硬验收重跑 |
+
+### 分层定稿（D-165/D-170 双行呈报）
+
+- **裁定层：闭环**——四腿全兑现（D-196②/D-197①②/D-199/D-200/D-201②③ 全 current 无 revised）；无去向清单=空。
+- **验收层：开放**——执行批自证读数非验收；待下轮审计窗 LOOP 复验（同套硬验收重跑）＋75a-T2 普查对新断言面复验。
