@@ -79,3 +79,11 @@
 - 扫描面零扩列（D-198①）；反向闸 WARN 候选清单（首跑存量）处置随实测呈报不预设。
 - 本包不触碰 T1-A 六文件勘误面（D-181 通道另行逐文件独立 commit）。
 - registry 操作归 T1-C/T1-D 通道；册 entries 数随实测，本包不钉具体值。
+
+## 勘误（D-181 append-only——impl 实跑发现，post-hoc 同窗）
+
+| 时点 | 扩面描述 | 发现时点 | 变更 commit |
+|---|---|---|---|
+| 2026-10-02 R54 | §3 补充（fuzzy 判定）：fuzzy-phrase 匹配前剥离单元格内 ("…") subject 引文 span——git subject 原文含「收口 commit」等词形系历史叙述非模糊指针引用（kmk 法定形补写首例实测假阳驱动）；F06 裸模糊语负例不受影响 | post-hoc（impl 实跑 census） | `47dfcfc198f80ae86cef3a6c2c8bc3739cc56d82` ("feat(D-197): 指针守卫机检面批落地——STRICT_HEADERS 扩列 7 列头＋内容驱动反向闸＋D5/D6/D7 三收紧＋册归零断言语义") |
+| 2026-10-02 R54 | §4 补充（首位规则精化）：首位 `[a-z]{3}` 判定=后随 `（`/`(` **或格载荷=纯短码**（剥非字母数字后余空）——E-5 类裸码独占格不回归（r26/r36/r49 census 复检三文件十二格实证）；收紧仅去除「码＋空格＋散文」形态误报（the table 类） | post-hoc（impl 实跑 census） | 同上 |
+| 2026-10-02 R54 | §9 补充（census 读数）：反向闸首跑 uniq=5 恒 WARN 面=80-bench-thresholds.md HEAD 列跨仓 40-hex×2＋49-report.md run 列 GitHub run ID×3（纯数字假 payload 形态同位）——零 FAIL 零入册（不可解析恒 WARN 无需册承载，读数入账本 E-13）；yty subject 原文含管符依法截断载校验位（GFM 表格管不能裸载，全 sha 仍为唯一性承载） | post-hoc（impl 实跑 census） | 同上 |
