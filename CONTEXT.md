@@ -457,6 +457,13 @@ _Avoid_: blame/时点判定新老违规（amend 流下方向性错误——存�
 
 绿守卫**守护面消亡**（对象移除/上层吸收/更强更窄契约取代）经 T3 审计窗逐件呈报裁定后：守卫移出运行集、文件本体归档 `reports/_retired/`（考古面非删除）、`known-red-manifest.json` retired 类增八要素终态记录（id/guard/protected_surface/tier/retired_at/era/reason/decision_ref/archive_path——75a-M3 机检）。**断言量/年龄/通过史不作退役判据**（D-160⑥）；retired 终态化不设二次出口；与 D-094 三分类（红件）输入正交——VACUOUS 普查双通道（D-160③）。
 
+**列头反向闸（canonical-header reverse gate）【自造词】**:
+严格层指针守卫的闭世界补漏机检方向（D-197②——checkpatch signature_tags 白名单＋泛型形态告警双轨、k8s fieldValidation=Strict、protobuf 未知字段拒收同构先例）：表格单元格含 `cat-file -t`=commit 的 hex token 而其列头不在 STRICT_HEADERS 白名单→判「指针负载置于非 canonical 列头」违规（新增 FAIL／存量入册 WARN）——枚举欠列从「静默逃逸」转为「自报现形」；反向闸 WARN 面天然充当扩列票候选清单源。与法定形校验两层并存：反向闸判**位置**合法性，法定形判**指针形态**合法性，互不替代。
+_Avoid_: 替代白名单 canonical 纪律（双轨同构非替代）、扩检宽层散文（D-189② 宽层不背税不变）、把不可解析 token（文件 shasum）当 commit 指针误伤
+
+**守卫输入工件（guard input artifact）【自造词】**:
+守卫消费的独立生命周期数据面工件（D-201——PHPStan baseline／ESLint suppressions／OWASP suppression file／Jest snapshot／GRC exception-waiver 六域同构先例）：工件的创建→收缩→归零→摘除全部属册机制面例行事件（含 hygiene 信号=册面自检通道如 PV-F10D 守恒断言），**永不构成守护面消亡判据事件**；面消亡判据仅落 D-160① 全集（对象移除/上层吸收/更强更窄契约取代）且须 T3 呈裁通道。消亡判据落在「控制目标是否仍在/是否被吸收」，不落「台账是否为空」。
+_Avoid_: 册归零误触退役发射（过杀）、面真消亡误当册清理（漏警）、把工件状态写进 PROTECTED_SURFACE 消亡判据（混同两条路径）
 ### 暴露梯度（Stage-0/1/2 三段模型）
 
 外部真实用户暴露分三段（D-162）：
