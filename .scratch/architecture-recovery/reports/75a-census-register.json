@@ -4306,6 +4306,17 @@
       "added": "2026-09-27",
       "round": 37,
       "note": "结构/语料计数钉（tripwire：实物面数/样本数变化=有意知红；阈值语义票面在案）；R42（D-163②）行首增 groupProbe 门→键迁移重归因（同义延续非新finding）"
+    },
+    "84-check.mjs|existence-assert|527931a2": {
+      "guard": "84-check.mjs",
+      "kind": "existence-assert",
+      "excerpt": "t('PV-D2-BASELINE-LOADED', fs.existsSync(BOOK) && Array.isArray(entries), '册工件在位（existsSync＋entries 数组——归零=合法终",
+      "disposition": "layer-tagged",
+      "decision": "D-201②/R54 T1-B（predecl D-197-pointer-surface-predeclaration §7）",
+      "added": "2026-10-02",
+      "round": 54,
+      "note": "册工件在位存在性断言=presence 层（existsSync 只证在，不证可用——三层命名约定）；归零=合法终态语义适配（D-201② 册归零≠面消亡）",
+      "layer": "presence"
     }
   }
 }
