@@ -95,9 +95,9 @@
 
 | commit | 内容 |
 |---|---|
-| xul | chore(vcs): .code-tmp/ 断跟踪——kyy gitignore 对已跟踪面不生效；删在库 7 件（本地保留），index 残留同步清理后 check-ignore 命中 .gitignore:9 生效。参考面实证：validate-plugin 读写的 claude-validate-* 为运行态生成物（非在库项）；fixtures 同名串为数据非依赖 |
-| pym | fix(engine): F-01 store.ts 注释同步原生件族正则；F-02 narrative.test.mjs:62/86 子进程串 closeSync→closeDuckdb |
-| rzr | docs(r26): 收口文档面（报告/账本/census/任务书/56-heldout 再生成） |
+| `8c41c48a358e4dfd7baa3576ab28f8722eaaae49` ("chore(vcs): .code-tmp/ 断跟踪——kyy 仅入 gitignore 对已跟踪面不生效（锐评.txt 仍挂 M 实证）；删在库 7 件脚手架件（本地保留+gitignore 自此兜新文件）。参考面已核：validate-plugin 读写的 claude-validate-* 系运行态生成物非在库项；fixtures 同名串为数据非依赖") | chore(vcs): .code-tmp/ 断跟踪——kyy gitignore 对已跟踪面不生效；删在库 7 件（本地保留），index 残留同步清理后 check-ignore 命中 .gitignore:9 生效。参考面实证：validate-plugin 读写的 claude-validate-* 为运行态生成物（非在库项）；fixtures 同名串为数据非依赖 |
+| `016351a9422ee30579ccac8cf42a56c9af8aba47` ("fix(engine): r26 审计返工 F-01/F-02——store.ts 注释同步原生件族正则（.node/.so/.dylib/.dll 任一>1MB）；narrative.test 子进程串内 closeSync→closeDuckdb 补齐 D-097② 不变量") | fix(engine): F-01 store.ts 注释同步原生件族正则；F-02 narrative.test.mjs:62/86 子进程串 closeSync→closeDuckdb |
+| `720f071fb631036d3f62bd10fe5b86a63aefcc0e` ("docs(r26): 收口文档面提交——实施报告+账本 D-097 落册+literal-pin-census 普查产物+任务书进度块；56-heldout-eval 守卫再生成随附") | docs(r26): 收口文档面（报告/账本/census/任务书/56-heldout 再生成） |
 
 发现项处置更新：
 
