@@ -22,6 +22,15 @@
 - **gitbutler**：VC 唯一写面（file id 纪律；多栈并行）。
 - **handoff**：下轮收口同规程再生（D-187① 盘点先行；交接快照与终态对齐）。
 
+## 版本控制事件（用户指令执行记录，2026-10-02）
+
+用户指令：push 之后安全删除所有已经合并的分支。执行与核验如下：
+
+- Push 完成（but push，用户明示授权）：r53-closeout → origin/r53-closeout（随祖先）；r54-t1-pointer-convergence → origin/r54-t1-pointer-convergence（24 笔，含返工 docs 批 6fea875e＋bundle abea1db0）；r55-audit → origin/r55-audit（审计 yks＋复验 kuo）。
+- 已合并核验：`git branch --merged main`（本地）仅 main＋gitbutler/target；远端（-r）仅远端书签＋origin/main——零个工作分支被合并过（本轮及历史均无 merge 动作）。
+- 安全删除结论：可删集合为空，实际删除 0 个。r53-closeout／r54-t1-pointer-convergence／r55-audit（含远端对应分支）全部保留——均承载未合并工作，删之与“安全”相悖；旧栈（r51/r52 等）同样未合并，一并保留。
+- 下轮 grill 注意：若要收口清分支，须先做用户逐次授权的 merge 动作（ merge 本身未发生前任何删除都不安全）；.atomcode 两件仍在 zz 未动。
+
 ## 敏感信息
 
 - 无。
