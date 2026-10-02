@@ -6,13 +6,13 @@
 
 - 分支 `r54-t1-pointer-convergence`（叠 r53-closeout，未 push 未 merge——用户闸门）。
 - baseline 册 **17→0**（归零态合法终态 D-201②；84-check PV-D2/F10D 已适配）；反向闸恒 WARN 面 uniq=5（80-bench 跨仓 HEAD×2＋49-report run ID×3——账本 E-13）。
-- 84-check **33 断言**全绿（扩列 18 列头＋反向闸＋D5/D6/D7＋册归零语义＋F13~F19）；63-inventory 再基线（1460 emit 位）。
+- 84-check **34 断言**全绿（扩列 18 列头＋反向闸＋D5/D6/D7＋册归零语义＋F13~F19＋F20）；63-inventory 再基线（终态 1461 emit 位）。
 - registry **76 项**/53 事件（check-kit-regex-blindspot-watch＋事件锚；death-watch 口径已按 D-201③ 补注）——33-check 33/33＋verify-waiting-list rows=90。
 - 账本 E-12/E-13 append-only＋R54 收口节（去向 7 行全 ✅）；CHANGELOG M-054；报告 `D:/Aworker/6F/.scratch/macro-audit/reports/2026-10-02-r54-report.md`（每条声明附可复跑证据）。
 
 ## 下窗即刻注意（任务书未含的过程态）
 
-1. **amend 重写链**：实现腿终 SHA=47dfcfc198f80ae86cef3a6c2c8bc3739cc56d82（旧 29b62889 已不可达）；审计对表以 git log 实测为准，勿引用任务书/本交接之外的次源 SHA。
+1. **amend 重写链**：实现腿终 SHA=e5c00d102574ebe321a522f5b1a7ebd9794d37cc（旧 29b62889 已不可达）；审计对表以 git log 实测为准，勿引用任务书/本交接之外的次源 SHA。
 2. **but hunk id 教训**：but diff 行首 `xx:N`=hunk 级、裸字母=file 级——R54 曾因 hunk id 误用产生两笔部分提交（amend 归位，账本 Scoping 节留痕）。下窗批量提交一律先 but status -fv 取 file id。
 3. **反向闸 WARN 面是候选清单不是债务**：uniq=5 五件（跨仓 HEAD 钉×2＋GitHub run ID×3）恒 WARN 属 D-190④ 人工复核面——审计窗随读登记即可，禁扩 FAIL、禁预设豁免；若出现首个**严格层义务逃逸**（resolvable commit 指针逃逸机检）→按 D-198② 开定向扩面立法票。
 4. **subject 管符先例**：git subject 原文含 `|` 时表格内依法截断（yty 先例）——复验时勿判其为失真。

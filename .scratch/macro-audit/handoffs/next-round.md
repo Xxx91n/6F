@@ -33,7 +33,7 @@
 | 5 | `43-check:D5` T14 ✅ | 在场 | ✅ 保护区节 `T14 #43 golden 重基线 ✅ DONE` 在位 |
 | 6 | `44-check:G6` `#77` ＋ 闭环词 ＋ `#78` | 在场 | ✅ 保护区节轮28 行在位 |
 | 7 | `45-check:H5` 含 `#45` 或 `demo` | 在场 | ✅ 保护区节 `#45 demo 三 scenario ✅` 在位 |
-| 8 | `84-check` 34 条断言（R54 扩容：F13~F19＋F16 扩展＋F20 收口勘误） | 在场 | ✅ 实测 `PASS-COUNT 33 FAIL-COUNT 0`（反向闸/扩列/册归零语义全在跑）；`guard-all-run` 动态枚举承接 |
+| 8 | `84-check` 34 条断言（R54 扩容：F13~F19＋F16 扩展＋F20 收口勘误） | 在场 | ✅ 实测 `PASS-COUNT 34 FAIL-COUNT 0`（反向闸/扩列/册归零语义全在跑）；`guard-all-run` 动态枚举承接 |
 
 **盘点兜底**：`node .scratch/architecture-recovery/reports/guard-all-run.mjs` → 全量 ran=63 green=63 allOk=true。
 
@@ -58,6 +58,7 @@
 
 - **宽层残留抽查**（D-188⑥，机检管严格层后仍不可省）：账面基准=扫描面内极大 hex run 唯一 token 1076，可解析 29／非对象 1047；剔除上游 SHA/指纹摘要/synthetic 后叙事文书层仍 ≥20 件；奇长截断形优先定性；分四类登记（上游 SHA／证据摘要／stale 本仓 SHA／synthetic）。owner=审计窗；时点=本轮审计窗；复验=抽查行在账本「宽层抽查读数」节。
 - **84-check 新断言面 LOOP 复验**（R54 扩容面）：F13~F19 同套构造输入重跑＋反向闸两级判级抽查（misplaced-pointer 册内 WARN/册外 FAIL/misplaced-unresolvable 恒 WARN）＋册归零语义（PV-D2/F10A/F10D）＋扩列 7 列头扫描生效抽查＋fuzzy subject 引文豁免抽查。owner=审计窗；复验=同套硬验收重跑全绿＋抽查行在案。
+- **审计返工三向随读**（轮 55 审计窗 §4/§6 交接指示）：V-01 E-15 替换后零 dangling 残留回扫（`git log --all` 全量可达性核验；84-check「存在性不含可达性」盲区同批定性）＋F20 程序澄清（D-177 vs D-181 收口勘误场景适用序）＋63-inventory 顶层 updated 元数据随行断言（V-05 复发防再犯——bundle 工序或 63-check 加测）。
 - registry manual_watch 复审枚举：batch2beta-techdebt-review／codebuddy-ide-gap-watch（RA 复审钩=min(IDE 会话,2026-12-27)）／codebuddy-f02-display-watch／guard-retirement-watch／ci-workflow-liveness-watch（macro-b 下一真实 schedule=2026-10-05 03:17 UTC——dispatch 实跑未授权不跑）／anysearch-cli-intent-drift-watch／**check-kit-regex-blindspot-watch（新——首窗读数=check-kit-regex-check 读数登记，D-196②）**。
 - **protected-surface-death-watch 随读**（按 D-201③ 新口径——指针纪律引用物=D-188~D-192 法定本体与严格层位形面，册工件单列不纳入普查）＋**frozen 豁免随读**＋GAP-B2B 八件 status 重审＋Stage-2 判据包四读数（window_state 机读）。
 - **反向闸 WARN 候选清单随读**（D-197④，当前基线 uniq=5）——首个严格层义务逃逸案例=扩面立法票触发（D-198② 兑现路径）。

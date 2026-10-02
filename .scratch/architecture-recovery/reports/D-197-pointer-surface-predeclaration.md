@@ -84,8 +84,8 @@
 
 | 时点 | 扩面描述 | 发现时点 | 变更 commit |
 |---|---|---|---|
-| 2026-10-02 R54 | §3 补充（fuzzy 判定）：fuzzy-phrase 匹配前剥离单元格内 ("…") subject 引文 span——git subject 原文含「收口 commit」等词形系历史叙述非模糊指针引用（kmk 法定形补写首例实测假阳驱动）；F06 裸模糊语负例不受影响 | post-hoc（impl 实跑 census） | `47dfcfc198f80ae86cef3a6c2c8bc3739cc56d82` ("feat(D-197): 指针守卫机检面批落地——STRICT_HEADERS 扩列 7 列头＋内容驱动反向闸＋D5/D6/D7 三收紧＋册归零断言语义") |
+| 2026-10-02 R54 | §3 补充（fuzzy 判定）：fuzzy-phrase 匹配前剥离单元格内 ("…") subject 引文 span——git subject 原文含「收口 commit」等词形系历史叙述非模糊指针引用（kmk 法定形补写首例实测假阳驱动）；F06 裸模糊语负例不受影响 | post-hoc（impl 实跑 census） | `e5c00d102574ebe321a522f5b1a7ebd9794d37cc` ("feat(D-197): 指针守卫机检面批落地——STRICT_HEADERS 扩列 7 列头＋内容驱动反向闸＋D5/D6/D7 三收紧＋册归零断言语义") |
 | 2026-10-02 R54 | §4 补充（首位规则精化）：首位 `[a-z]{3}` 判定=后随 `（`/`(` **或格载荷=纯短码**（剥非字母数字后余空）——E-5 类裸码独占格不回归（r26/r36/r49 census 复检三文件十二格实证）；收紧仅去除「码＋空格＋散文」形态误报（the table 类） | post-hoc（impl 实跑 census） | 同上 |
 | 2026-10-02 R54 | §9 补充（census 读数）：反向闸首跑 uniq=5 恒 WARN 面=80-bench-thresholds.md HEAD 列跨仓 40-hex×2＋49-report.md run 列 GitHub run ID×3（纯数字假 payload 形态同位）——零 FAIL 零入册（不可解析恒 WARN 无需册承载，读数入账本 E-13）；yty subject 原文含管符依法截断载校验位（GFM 表格管不能裸载，全 sha 仍为唯一性承载） | post-hoc（impl 实跑 census） | 同上 |
 
-| 2026-10-02 R54 | §3 补全（不透明载荷原则同族延伸）：严格层 shaTokens/bareCodes 同样走剥 ("…") 引文可见面——340bb127 subject 原文引用被修旧码 c6fe0f8 实测假阳驱动（subject 引文=不透明载荷，引文内 token 系历史叙述文本非格级指针）；F20 负例新增（断言面 33→34） | post-hoc（收口实测） | `47dfcfc198f80ae86cef3a6c2c8bc3739cc56d82` 后续勘误 commit（随本轮收口 errata 落盘） |
+| 2026-10-02 R54 | §3 补全（不透明载荷原则同族延伸）：严格层 shaTokens/bareCodes 同样走剥 ("…") 引文可见面——6c85affb subject 原文引用被修旧码 c6fe0f8 实测假阳驱动（subject 引文=不透明载荷，引文内 token 系历史叙述文本非格级指针）；F20 负例新增（断言面 33→34） | post-hoc（收口实测） | `e5c00d102574ebe321a522f5b1a7ebd9794d37cc` 后续勘误 commit（随本轮收口 errata 落盘） |
