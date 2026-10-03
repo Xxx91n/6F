@@ -41,7 +41,7 @@
 
 - **轮 55 增补**：R55 审计窗批+返工 LOOP 复验全数核验通过 ✅ DONE 2026-10-02（V-01~V-05 全闭环；reloop 复验报告在案）。
 - **轮 56 增补**：R56 grill 收口深化面五枝全裁毕＋整理环节落盘 ✅ DONE 2026-10-03（D-202~D-210 落账九裁全 current＋去向全闭合；CONTEXT 四注入／spec #9/#10/#13 注记／BACKLOG #84~#87 立案／registry 78 项）。
-- **轮 57 增补**：R57 T1 执行批四腿兑现＋收口落账 ✅ DONE 2026-10-03（账本 R57 执行批收口节——执行窗登记六行全闭；census 归因 +11/−1；63-inventory 再生 64 守卫 1507 emit 位；registry env-gated 12 件；CHANGELOG M-056）
+- **轮 57 增补**：R57 T1 执行批四腿兑现＋收口落账 ✅ DONE 2026-10-03（账本 R57 执行批收口节——执行窗登记六行全闭；census 归因 +12/−1；63-inventory 再生 64 守卫 1507 emit 位；registry env-gated 12 件；CHANGELOG M-056；LOOP 返修闭环 2026-10-03——R58 审计 P1-1/P1-2/P1-3/P2-1/P2-2 全修，reports/2026-10-03-r57-rework-report.md）
 
 ## 口径基线（读前必知）
 

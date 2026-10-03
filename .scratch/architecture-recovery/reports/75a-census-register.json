@@ -4420,16 +4420,6 @@
    "round": 57,
    "disposition": "acknowledged-structural-probe",
    "note": "R57 T1 新守卫 A 组源面结构探针（SEMANTIC_DOMAIN_LABELS/常量标签在位）——readFileSync+indexOf 纯结构存在性查探非语义扫描，stripComments 不适用；presence 语义已按 layer 字段登记"
-  },
-  "82-check.mjs|multi-hit-probe|99831f54": {
-   "guard": "82-check.mjs",
-   "kind": "multi-hit-probe",
-   "excerpt": "DIST_CLI_SIZE_CAP_BYTES → .scratch\\macro-audit\\decision-ledger.md×2",
-   "disposition": "acknowledged-multi-hit",
-   "decision": "D-094②/D-144② R57",
-   "added": "2026-10-03",
-   "round": 57,
-   "note": "R57 棘轮抬限登记（D-129③ 显式裁定入账）使该常量名在账本出现两处（历史裁定行＋R57 过程登记行）——登记动作自然产物非断言弱化（P5-B2 型）；整改方向=点级锚"
   }
  }
 }

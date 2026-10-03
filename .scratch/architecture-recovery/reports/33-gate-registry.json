@@ -1977,7 +1977,7 @@
   {
    "id": "env-gated-guard-class",
    "family": "code-hygiene",
-   "title": "env-gated 守卫类登记（D-159①④/D-163）——十件 env-contract tier（sibling 三件＋engine-deps 七件含 asset/engine 混合面）；75a-T3 强制声明集↔本项 guards 对账（新增 env-contract 守卫须同窗更新本项）",
+   "title": "env-gated 守卫类登记（D-159①④/D-163）——十二件 env-contract tier（sibling 三件＋engine-deps 九件含 asset/engine 混合面）；75a-T3 强制声明集↔本项 guards 对账（新增 env-contract 守卫须同窗更新本项）",
    "deadline_event": null,
    "deadline": "无（登记项）",
    "trigger_event": "env-contract-tier-active",
