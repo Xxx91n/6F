@@ -229,6 +229,14 @@
     "check-kit-stripcomments-signature-change": {
       "occurred": false,
       "note": "R54 T1-C（D-196②）登记：_lib/check-kit.mjs stripComments 新增 JS 语法形态或签名变更——check-kit-regex-blindspot-watch 触发锚（事件驱动非日历，D-164-b 钉事件非纯时间窗）"
+    },
+    "supply-chain-unqueue": {
+      "occurred": false,
+      "note": "R56 收口登记（D-206）：①B6（per-layer GA 判据）议程前置——supply-chain 行成为某层 GA 判据消费面；②Macro-B 报告 supply-chain 行真实查询消费信号。任一发生即按预声明源判据（reports/R56-Q5）接线 Scorecard"
+    },
+    "baggage-inbound-recheck": {
+      "occurred": false,
+      "note": "R56 收口登记（D-208③）：①宿主侧可承载 trace context 的 MCP 契约面确立；②D-062 Macro-A DoR 达成。任一发生即重裁 inbound 注入——注入值不得占 trace_id/run_id 本体（D-108）"
     }
   },
   "items": [
@@ -2538,6 +2546,34 @@
           "evidence": "decision-ledger.md D-196 行；reports/check-kit-regex-check.mjs 读数；WORKFLOW §4.2.10"
         }
       ]
+    },
+    {
+      "id": "supply-chain-closure-trigger",
+      "family": "trigger-gated-closure",
+      "title": "supply-chain 象限解排触发器（D-206）：续排合法，双事件任一触发即按预声明源判据接线 Scorecard",
+      "deadline_event": null,
+      "deadline": "无（事件驱动非日历）",
+      "trigger_event": "supply-chain-unqueue",
+      "trigger": "双事件任一：①B6（per-layer GA 判据）议程前置——supply-chain 行成为某层 GA 判据消费面时；②Macro-B 报告 supply-chain 行出现真实查询消费信号（用户对 ⚠ 数据未接行的实际追问/分诊回流）",
+      "review_at": "触发越线",
+      "status": "deferred",
+      "watch": "event_bound",
+      "decision_ref": "D-206",
+      "note": "解排时源判据已预声明（reports/R56-Q5-atomcode-research.md）：API-first 主线 scorecard.dev REST＋Go binary 双轨逃生舱（非头部仓 miss 自动降级）；#2124 exit-0 吞错坑入 golden 断言；OSV/deps.dev=未接入知识储备不进象限语义"
+    },
+    {
+      "id": "baggage-inbound-recheck",
+      "family": "trigger-gated-closure",
+      "title": "baggage inbound 接受语义重裁册（D-208③）：inbound trace 注入合法性挂双事件重裁",
+      "deadline_event": null,
+      "deadline": "无（事件驱动非日历）",
+      "trigger_event": "baggage-inbound-recheck",
+      "trigger": "双事件任一：①宿主侧出现可承载 trace context 的 MCP 契约面（宿主 agent 受控通道确立）；②D-062 Macro-A DoR 达成（扇出关联消费方形态确立）",
+      "review_at": "触发越线",
+      "status": "deferred",
+      "watch": "event_bound",
+      "decision_ref": "D-208",
+      "note": "册内预声明重裁判据：届时 bazel 型 opt-in 注入是合法候选，但注入值不得占用 trace_id/run_id 本体（D-108 幂等键不动）——走独立列或 linkage 面；Macro-A linkage fact 义务=双向 id＋两侧执行时点留痕"
     }
   ]
 }

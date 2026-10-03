@@ -152,7 +152,7 @@ _Avoid_: 物化视图（数据库概念，缺语义）、派生数据（无独�
 _Avoid_: 联邦治理（暗示业务域自治）、分布式治理（暗示无中心）
 
 **Cross-Scale Correlation Key**:
-集成层观测性基础——5 scale 分析同一 commit/PR 时通过共享 trace_id / baggage_id 关联审计记录；OpenTelemetry Baggage 心智；spec 阶段需作为 fact table schema 前置字段设计。
+集成层观测性基础——5 scale 分析同一 commit/PR 时通过共享 trace_id / baggage_id 关联审计记录；OpenTelemetry Baggage 心智；spec 阶段需作为 fact table schema 前置字段设计。**传播拓扑**（D-208）：默认=进程内 OTel Context＋终端自生成（trace_id 单源、run_id 同值幂等键、baggage_id 维级派生）——外部注入值永不得占 trace_id/run_id 本体（D-108 幂等键不动，若日后启用 opt-in 注入须走独立列或 linkage 面，重裁挂 registry 触发器册）；四面定性=MCP 面暂非载体（宿主 trace-context 契约未立）／github-rest 出站禁注（baggage 出审计边界=纯泄漏面）／CLI 连跑=进程内 Context／Macro-A 扇出=触发器挂起，届时关联=双向 id（parent_trace_id＋child_run_id）＋两侧执行时点各留痕。
 _Avoid_: correlation id（缺多信号语义）、request id（仅 HTTP 语义）
 
 **Report Template (本产品用法)**:
@@ -236,7 +236,7 @@ _Avoid_: 误报原因（无留档凭证语义）、flaky（暗示随机性，不
 _Avoid_: TODO 提醒（无到期升级语义）、冻结（暗示永不解锁）
 
 **Release Preview（发布预览）**:
-产品的分级发布形态——「capability N of 5 · preview」标注 + 0.x 版本语义 + changelog 明示当前覆盖范围；preview 层必须自成完整价值单元（MMP 判据），未上架层只做文字披露 + roadmap 叙事、不交付预览性演示资产；build-scope（5 scale 全规划）与 release-sequence（分层暴露）为正交维度，preview 上架不构成 MVP 切片。
+产品的分级发布形态——「capability N of 5 · preview」标注 + 0.x 版本语义 + changelog 明示当前覆盖范围；preview 层必须自成完整价值单元（MMP 判据），未上架层只做文字披露 + roadmap 叙事、不交付预览性演示资产；build-scope（5 scale 全规划）与 release-sequence（分层暴露）为正交维度，preview 上架不构成 MVP 切片。**法理边界**（D-204）：preview=用户可达交付面——工件存在或内部脚本产出不构成 preview 标注依据；同面各能力行独立标注成熟度，demo 级行明示「not in plugin distribution」。**毕业三轴正交**（D-210）：层 GA=能力成熟度门（判据类目骨架六件=语料广度／披露清洁窗／象限完整度含明示永久豁免位／适配器确定性验收／schema 稳定窗／修订通道声明；阈值挂各层 GA 票面预声明）／产品 1.0=契约稳定性门（schema 冻结＋适配器确定性验收）／Stage-2=暴露门；永久 preview 是合法终态但须显式声明（never-graduate 先例）。
 _Avoid_: beta 滥用（无边框语义）、暗示全量能力、GA 姿态（未过逐层漏斗）
 
 **Trigger-gated Closure（触发器封口）**:
@@ -464,12 +464,17 @@ _Avoid_: 替代白名单 canonical 纪律（双轨同构非替代）、扩检宽
 **守卫输入工件（guard input artifact）【自造词】**:
 守卫消费的独立生命周期数据面工件（D-201——PHPStan baseline／ESLint suppressions／OWASP suppression file／Jest snapshot／GRC exception-waiver 六域同构先例）：工件的创建→收缩→归零→摘除全部属册机制面例行事件（含 hygiene 信号=册面自检通道如 PV-F10D 守恒断言），**永不构成守护面消亡判据事件**；面消亡判据仅落 D-160① 全集（对象移除/上层吸收/更强更窄契约取代）且须 T3 呈裁通道。消亡判据落在「控制目标是否仍在/是否被吸收」，不落「台账是否为空」。
 _Avoid_: 册归零误触退役发射（过杀）、面真消亡误当册清理（漏警）、把工件状态写进 PROTECTED_SURFACE 消亡判据（混同两条路径）
+
+**语义域（Semantic Domain）**:
+同一 measurement/facts 工件可被多个判读层消费（D-205）——structure 象限=形态测量层读数（标签 structure/shape），S3=预算归因层读数（标签 S3/budget-attribution），两者悬挂同一 measurement 引用、判读归属由各自消费位谓词决定（消费位判据同构）；facts 可共享、判读须带域标签。同名枚举值跨域不互映射（D-209）：stale_data_marker=报告级滞后 SLA 判级（政策量四态）vs drift=file-card 快照对 HEAD 位置对照（位置量三态）——fresh 同名=巧合非设计，禁 warn↔behind 映射、禁域间转换函数。机检闸只判 facts 层关系谓词（同源引用互等／枚举↔常量块互等），叙事级矛盾不可判定不入闸。
+_Avoid_: 同面两读未挂域标签（双口径失败模式）、枚举同名即合并、叙事级「不打架」断言（伪闸）、把判读层语义写回测量层常量（层次倒挂）
 ### 暴露梯度（Stage-0/1/2 三段模型）
 
 外部真实用户暴露分三段（D-162）：
 - **Stage-0 被动挂牌**——marketplace 公开零外联=D-051 公开决定既有事实的显式命名（追认即刻生效，语义命名非动作）；preview 标注诚实=ADR-0017 决策本体延伸（release≠launch 二分）；
 - **Stage-1 定向邀请试用**——逐案 charter 协议（D-151 形态：判据预声明＋not-run 记 N/A＋读数以安装树为准；findings 全程走摄入分诊四态）；宿主资格=逐案用户闸门（D-162⑤，用户主权不立机检）；
 - **Stage-2 公开推广**——预声明四判据全达标方启：①capability 5/5（Macro-A preview 上架；重查 D-031⑤ 悬置条款）②fresh clone 不红海（操作性定义=D-159 env-contract tier 判据）③GAP-HOST-01 关闭④试点 findings 无未分诊残留；加 30 日静默窗（判据④封闭后 30 日无新增回流——状态机/来源分级口径/事件锚重置语义见「静默窗」词条〔D-173〕；零试点期读数=not_started 非计时中）。判据包值守=registry `stage2-launch-criteria`（manual_watch）。
+- **三轴正交**（D-210）：层 GA=能力成熟度门（判据类目骨架六件，各层独立漏斗自走毕业判据——见 Release Preview 词条）／产品 1.0=契约稳定性门（versioning.md L9）／Stage-2=暴露门（本判据集）——三面不可互投影，capability 5/5 等判据不可单层化。
 
 ### 分层定稿（Two-Layer Closure）
 
