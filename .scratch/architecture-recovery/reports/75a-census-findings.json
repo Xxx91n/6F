@@ -2572,21 +2572,21 @@
   "key": "85-check.mjs|existence-assert|9ac2d236",
   "file": "85-check.mjs",
   "kind": "existence-assert",
-  "lno": 48,
+  "lno": 49,
   "excerpt": "t('B3 五工件齐备（Macro-B 同族 artifacts 契约）', ['report.md', 'report.json', 'audit-facts.jsonl', 'audit-measurements.j"
  },
  {
   "key": "85-check.mjs|existence-assert|a87a1c4d",
   "file": "85-check.mjs",
   "kind": "existence-assert",
-  "lno": 28,
+  "lno": 29,
   "excerpt": "t('A1 dist/audit/macro-c.js 在（build 产物入库）', existsSync(join(ENG, 'dist', 'audit', 'macro-c.js')));"
  },
  {
   "key": "85-check.mjs|existence-assert|fafb96dd",
   "file": "85-check.mjs",
   "kind": "existence-assert",
-  "lno": 32,
+  "lno": 33,
   "excerpt": "t('A5 fact-write.ts 同位共享核在（audit.ts 与 macro-c.ts 同消费）', existsSync(join(ENG, 'src', 'audit', 'fact-write.ts'))"
  },
  {
