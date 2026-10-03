@@ -5,7 +5,7 @@
 //   ③ manifest 条目对应守卫实测转绿 → 复绿告警（strict 同 XPASS 语义：确定性红常驻=教团队无视红，复绿必须人工摘除）；
 //   ④ manifest 指向不存在守卫文件 → 悬空条目 FAIL；
 //   ⑤ 册内守卫的实测失败 slug 集与条目 expected_slugs 漂移 → WARN（非致命；新 slug 族出现应走册修）。
-// 环境：子进程剥离 NODE_OPTIONS（宿主注入污染先例，R36 T2 坑位）；逐件 timeout 300s。
+// 环境：子进程剥离 NODE_OPTIONS（宿主注入污染先例，R36 T2 坑位）；逐件 timeout 600s（R57 上调——85-check 双重实跑臂超原 300s 预算 rc=124 一例；运行预算常数非判据，账本 R57 过程登记）。
 // 用法：node guard-all-run.mjs → 表格 + GUARD-ALL-RESULT 行；exit 0 = 判据满足。
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -14,7 +14,7 @@ import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const NL = String.fromCharCode(10);
-const TIMEOUT_MS = 300000;
+const TIMEOUT_MS = 600000;
 
 const SKIP_GROUP_RE = /^GUARD-RESULT:\s*SKIP-GROUP (\S+) group=(\S+) reason=(.+)$/;
 const manifest = JSON.parse(readFileSync(join(HERE, 'known-red-manifest.json'), 'utf8'));

@@ -457,3 +457,10 @@
 - 调研构成如实登记（D-186 口径）：Q1 真回传（题面前提勘误作废原推荐）／Q2~Q7+Q9 半降级（内部腿停滞→会话内三引擎＋tools 抢救物顶替）／Q8 全降级（MCP stdio 不可达）。
 - D-034③ 负向行效力实证留痕（R56-Q5 助理 (i) 推荐逐字撞禁条被调研驳回）；D-210 初落误挂文件尾已归位 D 序 L1015。
 - next-round.md 轮 57 换代（执行批四票＋审计窗随读任务书）。
+### M-056（2026-10-03 R57 T1 执行批——四票兑现窗 #84~#87）
+
+- T1-A #84 Macro-C 产线化（D-204②④）：38 管线移植 engine 一等面 `audit --scale Macro-C`＋file-card 同位发射（fact-write.ts 共享核）；anysearch-cli 原语料重校准差分对账 PASS（新守卫 85-check 26/26——编排层独立重算全等＋chainFact fact_id 全等）；audit.ts:304 not_in_preview 裁后修正；macro-c.test 23/23 入 smoke；bundle 棘轮帽 289,395→385,000B（D-129③ 显式裁定，predecl 勘误四）。
+- T1-B #85 Micro-A 收窄批（D-204③）：报告头/SKILL/披露三件套降 calibrated demo·not in plugin distribution＋适配器硬化面披露；README 双语/description/checklist/marketplace 链式收窄；守卫随改 48-E7/44-E4/41b-C2·C3·C5·C6；产线化票 #85② 立案（DoR-a Micro-A 分量维持不满足至闭环）。
+- T1-C #86 对账/认领票包（D-207②③＋D-209）：A-009 全数字表对账认领（认领非重议）＋stale_data_marker/drift 双语义域一行账本成文＋#13 核销确认；spec #9/#13 行一致。
+- T1-D #87 structure 摘帽接入（D-205②③）：ADR-0013 预声明先行（predecl §4）；SEMANTIC_DOMAIN_LABELS↔CONTEXT 词条互等；S3 族成对准入采集接线（六面全齐→derived，缺→not_applicable）；facts 层 golden 闸三断言（新守卫 86-check 18/18＋正负对照）；摘帽措辞 README 双语/SKILL 同窗；supply-chain 维持（D-206）。
+- 过程：but commit CHANGES 选择器本环境失效（五例实测）→commit-all＋committed-file 摘除整形，.atomcode 误收两度摘回；census 归因 400 条（+11/−1）；63-inventory 再生 64 守卫 1507 emit 位；registry env-gated 10→12 件；guard-all-run 65/65 全绿（新 85/86 动态入列）。

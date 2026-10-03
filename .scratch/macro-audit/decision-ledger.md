@@ -1936,3 +1936,87 @@ scoping（非裁面/执行边界如实登记）：
 | S3/structure 分层词条+facts 三断言守卫（ADR-0013 预声明） | 下轮执行批 | 预声明先行后接 T1 | 正负对照构造跑前声明命中方向 |
 | registry 双册：supply-chain 触发器+baggage inbound 重裁册 | 下轮执行批 | T1 窗 | 33-gate-registry.json items 增量机核 |
 | CONTEXT 词条批（preview 法理边界/分层语义/拓扑/三轴正交+类目骨架） | 下轮执行批 | T1 窗 | CONTEXT.md 词条在场机核 |
+
+## 第五十七轮执行批收口对账（R57 T1，2026-10-03）
+
+执行窗四票兑现（#84/#85/#86/#87——R56 去向表执行窗义务）；零新立法（无新 D-xxx，全窗以既有 current 裁为据）；D-177 预声明验证包先行（reports/2026-10-03-r57-t1-predecl.md，勘误一~四链式追加不改性）。
+
+### 执行批四腿兑现
+
+- **T1-A #84 Macro-C 产线化（D-204②④）✅**：38 管线移植 engine 一等面（`audit --scale Macro-C`——src/audit/macro-c.ts 编排逐段保真＋fact-write.ts file-card 同位发射共享核）；**名归位硬判据=anysearch-cli 原语料重校准断言复跑一致 PASS**（新守卫 85-check C 组差分对账：编排层独立重算 head/commit_count/adr_count/date_resolvable/lag/leg_dist 全等＋supersede 链十计数全等＋chainFact fact_id 全等＋六判据 band 对账——85-check 26/26）；audit.ts:304 not_in_preview 裁后修正=[Micro-A, Macro-A]（85-A4 机核）；D-062 DoR-a Macro-C 分量如实计入（README/engine README 措辞一致——85-A6）。CLI 命令面 6F 自审实测 exit 0（85-B 组）＋macro-c.test 23/23 入 smoke。
+- **T1-B #85 Micro-A 收窄批（D-204③）✅**：报告头/SKILL.md/披露三件套降「calibrated demo · not in plugin distribution」（48 生成器 capability_label/headline＋limitation 增 fetchDiffArtifact/cassetteFetcher 适配器硬化面披露；golden 再生随行，存档 REAL 五件不动——48-check D-e4 维持）；分发面链式收窄（README 双语状态句＋矩阵行＋sync 戳／description.md／credential-checklist §E／marketplace.json——唯一事实源纪律）；守卫随改 48-E7/44-E4/41b-C2·C3·C5·C6（48 45/45·44 59/59·41b 33/33）。**产线化票 #85② 立案**（BACKLOG #85 行载施工义务：48-micro-a-preview.mjs 移植＋ADR-0015 重校准断言同 85-check 形；产线化闭环前 D-062 DoR-a Micro-A 分量维持不满足）。
+- **T1-C #86 对账/认领票包（D-207②③＋D-209）✅**：见下节认领注记。
+- **T1-D #87 structure 摘帽接入（D-205②③）✅**：ADR-0013 预声明先行（predecl §4——正负对照命中方向跑前声明，谓词完备性三断言最小集呈用户审阅位=本收口报告）；SEMANTIC_DOMAIN_LABELS 常量落映射面（upstream-dimension-map.ts）↔CONTEXT 语义域词条枚举↔常量块互等（86-check A 组，71-check B1 同型）；S3 族六面成对准入采集接线（macro-b extraCodeloreFacets 并集——六面全齐零错→structure derived＋S3 维，任一缺席→not_applicable，单指标禁孤立入维 #51）；facts 层 golden 闸三断言（86-check 18/18：同源引用互等/opposing 成对/枚举互等＋正负对照自检）；摘帽措辞更新（audit.ts 象限 override_reason＋README 双语＋SKILL）与象限接入同窗（D-054② 绑定）；supply-chain 行维持（D-206 续排）。
+
+### T1-C 认领注记（#9 对账票＋#13 认领票——不改写数值）
+
+- **#9 对账票——A-009 全数字表对账认领**：A-009（W3 #09 done implemented，reports/09-stale-check.mjs 15 checks＋09-stale-marker-fields.json）数字表原样认领入本账本射程——SLA default 5s／warn 5s／error 15s（error_multiplier 契约）／3 周期去抖／6 周期迟滞清除／per-scale 表（MICRO-A 2,2,6→MACRO-A 300,300,900）／T1-T5 触发器集／T5 fail-closed unknown。**认领非重议**（D-207② 负向行）——数值改动须另题。
+- **D-209 双语义域一行成文（账本侧）**：stale_data_marker=报告级读模型滞后 SLA 判级（政策量四态 fresh/warn/stale/unknown——lag_seconds 对 sla_seconds 阈值分档）vs drift=file-card 事实快照对 HEAD 位置对照（位置量三态 fresh/behind/unknown——observed_head 对 current_head 等值比较无阈值）；两枚举各自独立语义域**不互映射**（禁 warn↔behind 映射、禁域间转换函数），fresh 同名=巧合非设计（K8s KEP-5067 分层先例；CONTEXT 语义域词条已落，本行=账本侧成文兑现）。
+- **#13 认领票——核销确认**：A-013 闭环事实对账认领（OTel Baggage 限 opaque baggage_id／AsyncAPI=契约治理／metrics=自研 metric_catalog／LangGraph 暂不默认）——spec-phase-tasks #13 行「R56 注→已对账」状态一致复核在案，本注记=账本侧核销落账。
+
+### 过程登记
+
+- **bundle 棘轮抬限（D-129③ 显式裁定）**：DIST_CLI_SIZE_CAP_BYTES 289,395→385,000B（Macro-C 一等面移植实测 +18.1KiB；x1.25 惯例；裁定载体=predecl 勘误四＋本行；实测终值 310,334B margin 74,666B PASS）。
+- **but commit CHANGES 选择失效事实**：本环境 but CLI 对 file/hunk id 选择器不生效（裸 id 与全 token 皆回退全量提交——wto/lkx 等五例实测）——整形改走 commit-all＋committed-file 摘除（but uncommit <commit>:<file>）路径，.atomcode 会话工件两度误收已全部摘回（wto 现存单件）。该偏差属工具事实非裁定，登记备审计窗复核。
+- **守卫随改登记**：53-check B2（implemented=[Macro-B, Macro-C]——predecl §5）/51-check E1（structure 摘帽措辞）/48-check E7/44-check E4/41b C2·C3·C5·C6（收窄口径）/78-check C11（D-115/D-116 接线断言随 §8 抽取迁 fact-write.ts——D-094(b) 合法演化）/audit.test S2~S4·R12（拒绝面改 Micro-A＋三态）。
+- **census 归因（D-094①）**：75a-census-register 400 条（+11 新检出归因：85/86 新守卫 existence-assert 带 layer=presence＋mhp/unstripped-scan 随窗注记；−1 悬空摘除 44-check|multi-hit-probe|ea0208c1——E4 收窄改判后探测消失）；63-assertion-inventory 再生（64 守卫 1507 emit 位）；registry env-gated-guard-class guards 10→12 件（85/86 入列——T3 对账同窗兑现）。
+- **atomcode 降级构成比（D-186②）**：本窗 0 调研题（执行窗零新裁定——不派遣不占额）；上轮=半降级 8/9＋全降级 1/9。
+- **guard-all-run 执行器预算常数上调**：TIMEOUT_MS 300→600s（85-check 双重实跑臂——B 组 6F CLI 自审＋C 组 anysearch 重校准——合计实测逼近原 300s 预算，guard-all 内 rc=124 超时一例；单跑可过=压线态）。该常数=执行器运行预算非判据/断言语义（D-149④ 执行器运维常数；对照 D-177 探测面语义修——不适用），如实登记备审计窗复核。
+
+### 执行窗登记闭合（对照 R56 欠账表）
+
+| 欠账（R56 表） | 处置 | 复验结果 |
+|---|---|---|
+| audit.ts:304 预览清单漂移修正 | ✅ 本窗 | 85-check A4 机核 PASS（枚举=[Micro-A, Macro-A]） |
+| Macro-C 产线化票＋Micro-A 收窄+产线化双票 | ✅ 本窗 | 85-check 26/26（重校准断言 PASS）＋收窄措辞机核（48-E7/44-E4）＋#85② 立案 BACKLOG |
+| #9 对账票＋#13 认领票 | ✅ 本窗 | 本节认领注记＋spec #9/#13 行状态一致 |
+| S3/structure 分层词条+facts 三断言守卫 | ✅ 本窗 | 86-check 18/18（预声明先行 vnm commit→后接 T1） |
+| registry 双册 | ✅（R56 已登记——本窗免做） | 33-check 33/33 |
+| CONTEXT 词条批在场机核 | ✅ 本窗 | 85-check A7 机核 PASS（四词条标记在场） |
+
+### 分层定稿（D-165/D-170 双行呈报）
+
+- **裁定层：闭环**——四票兑现各有去向（本节）；无新裁无去向清单缺口；predecl 勘误一~四链式在案。
+- **验收层：开放**——执行批自证读数非验收；待下轮审计窗 LOOP 复验（85/86 双新守卫＋收窄措辞面＋census 归因全量重跑）。
+
+## 第五十七轮执行批收口对账（R57 T1，2026-10-03）
+
+执行窗四票兑现（#84/#85/#86/#87——R56 去向表执行窗义务）；零新立法（无新 D-xxx，全窗以既有 current 裁为据）；D-177 预声明验证包先行（reports/2026-10-03-r57-t1-predecl.md，勘误一~四链式追加不改性）。
+
+### 执行批四腿兑现
+
+- **T1-A #84 Macro-C 产线化（D-204②④）✅**：38 管线移植 engine 一等面（`audit --scale Macro-C`——src/audit/macro-c.ts 编排逐段保真＋fact-write.ts file-card 同位发射共享核）；**名归位硬判据=anysearch-cli 原语料重校准断言复跑一致 PASS**（新守卫 85-check C 组差分对账：编排层独立重算 head/commit_count/adr_count/date_resolvable/lag/leg_dist 全等＋supersede 链十计数全等＋chainFact fact_id 全等＋六判据 band 对账——85-check 26/26）；audit.ts:304 not_in_preview 裁后修正=[Micro-A, Macro-A]（85-A4 机核）；D-062 DoR-a Macro-C 分量如实计入（README/engine README 措辞一致——85-A6）。CLI 命令面 6F 自审实测 exit 0（85-B 组）＋macro-c.test 23/23 入 smoke。
+- **T1-B #85 Micro-A 收窄批（D-204③）✅**：报告头/SKILL.md/披露三件套降「calibrated demo · not in plugin distribution」（48 生成器 capability_label/headline＋limitation 增 fetchDiffArtifact/cassetteFetcher 适配器硬化面披露；golden 再生随行，存档 REAL 五件不动——48-check D-e4 维持）；分发面链式收窄（README 双语状态句＋矩阵行＋sync 戳／description.md／credential-checklist §E／marketplace.json——唯一事实源纪律）；守卫随改 48-E7/44-E4/41b-C2·C3·C5·C6（48 45/45·44 59/59·41b 33/33）。**产线化票 #85② 立案**（BACKLOG #85 行载施工义务：48-micro-a-preview.mjs 移植＋ADR-0015 重校准断言同 85-check 形；产线化闭环前 D-062 DoR-a Micro-A 分量维持不满足）。
+- **T1-C #86 对账/认领票包（D-207②③＋D-209）✅**：见下节认领注记。
+- **T1-D #87 structure 摘帽接入（D-205②③）✅**：ADR-0013 预声明先行（predecl §4——正负对照命中方向跑前声明，谓词完备性三断言最小集呈用户审阅位=本收口报告）；SEMANTIC_DOMAIN_LABELS 常量落映射面（upstream-dimension-map.ts）↔CONTEXT 语义域词条枚举↔常量块互等（86-check A 组，71-check B1 同型）；S3 族六面成对准入采集接线（macro-b extraCodeloreFacets 并集——六面全齐零错→structure derived＋S3 维，任一缺席→not_applicable，单指标禁孤立入维 #51）；facts 层 golden 闸三断言（86-check 18/18：同源引用互等/opposing 成对/枚举互等＋正负对照自检）；摘帽措辞更新（audit.ts 象限 override_reason＋README 双语＋SKILL）与象限接入同窗（D-054② 绑定）；supply-chain 行维持（D-206 续排）。
+
+### T1-C 认领注记（#9 对账票＋#13 认领票——不改写数值）
+
+- **#9 对账票——A-009 全数字表对账认领**：A-009（W3 #09 done implemented，reports/09-stale-check.mjs 15 checks＋09-stale-marker-fields.json）数字表原样认领入本账本射程——SLA default 5s／warn 5s／error 15s（error_multiplier 契约）／3 周期去抖／6 周期迟滞清除／per-scale 表（MICRO-A 2,2,6→MACRO-A 300,300,900）／T1-T5 触发器集／T5 fail-closed unknown。**认领非重议**（D-207② 负向行）——数值改动须另题。
+- **D-209 双语义域一行成文（账本侧）**：stale_data_marker=报告级读模型滞后 SLA 判级（政策量四态 fresh/warn/stale/unknown——lag_seconds 对 sla_seconds 阈值分档）vs drift=file-card 事实快照对 HEAD 位置对照（位置量三态 fresh/behind/unknown——observed_head 对 current_head 等值比较无阈值）；两枚举各自独立语义域**不互映射**（禁 warn↔behind 映射、禁域间转换函数），fresh 同名=巧合非设计（K8s KEP-5067 分层先例；CONTEXT 语义域词条已落，本行=账本侧成文兑现）。
+- **#13 认领票——核销确认**：A-013 闭环事实对账认领（OTel Baggage 限 opaque baggage_id／AsyncAPI=契约治理／metrics=自研 metric_catalog／LangGraph 暂不默认）——spec-phase-tasks #13 行「R56 注→已对账」状态一致复核在案，本注记=账本侧核销落账。
+
+### 过程登记
+
+- **bundle 棘轮抬限（D-129③ 显式裁定）**：DIST_CLI_SIZE_CAP_BYTES 289,395→385,000B（Macro-C 一等面移植实测 +18.1KiB；x1.25 惯例；裁定载体=predecl 勘误四＋本行；实测终值 310,334B margin 74,666B PASS）。
+- **but commit CHANGES 选择失效事实**：本环境 but CLI 对 file/hunk id 选择器不生效（裸 id 与全 token 皆回退全量提交——wto/lkx 等五例实测）——整形改走 commit-all＋committed-file 摘除（but uncommit <commit>:<file>）路径，.atomcode 会话工件两度误收已全部摘回（wto 现存单件）。该偏差属工具事实非裁定，登记备审计窗复核。
+- **守卫随改登记**：53-check B2（implemented=[Macro-B, Macro-C]——predecl §5）/51-check E1（structure 摘帽措辞）/48-check E7/44-check E4/41b C2·C3·C5·C6（收窄口径）/78-check C11（D-115/D-116 接线断言随 §8 抽取迁 fact-write.ts——D-094(b) 合法演化）/audit.test S2~S4·R12（拒绝面改 Micro-A＋三态）。
+- **census 归因（D-094①）**：75a-census-register 400 条（+11 新检出归因：85/86 新守卫 existence-assert 带 layer=presence＋mhp/unstripped-scan 随窗注记；−1 悬空摘除 44-check|multi-hit-probe|ea0208c1——E4 收窄改判后探测消失）；63-assertion-inventory 再生（64 守卫 1507 emit 位）；registry env-gated-guard-class guards 10→12 件（85/86 入列——T3 对账同窗兑现）。
+- **atomcode 降级构成比（D-186②）**：本窗 0 调研题（执行窗零新裁定——不派遣不占额）；上轮=半降级 8/9＋全降级 1/9。
+
+### 执行窗登记闭合（对照 R56 欠账表）
+
+| 欠账（R56 表） | 处置 | 复验结果 |
+|---|---|---|
+| audit.ts:304 预览清单漂移修正 | ✅ 本窗 | 85-check A4 机核 PASS（枚举=[Micro-A, Macro-A]） |
+| Macro-C 产线化票＋Micro-A 收窄+产线化双票 | ✅ 本窗 | 85-check 26/26（重校准断言 PASS）＋收窄措辞机核（48-E7/44-E4）＋#85② 立案 BACKLOG |
+| #9 对账票＋#13 认领票 | ✅ 本窗 | 本节认领注记＋spec #9/#13 行状态一致 |
+| S3/structure 分层词条+facts 三断言守卫 | ✅ 本窗 | 86-check 18/18（预声明先行 vnm commit→后接 T1） |
+| registry 双册 | ✅（R56 已登记——本窗免做） | 33-check 33/33 |
+| CONTEXT 词条批在场机核 | ✅ 本窗 | 85-check A7 机核 PASS（四词条标记在场） |
+
+### 分层定稿（D-165/D-170 双行呈报）
+
+- **裁定层：闭环**——四票兑现各有去向（本节）；无新裁无去向清单缺口；predecl 勘误一~四链式在案。
+- **验收层：开放**——执行批自证读数非验收；待下轮审计窗 LOOP 复验（85/86 双新守卫＋收窄措辞面＋census 归因全量重跑）。
+

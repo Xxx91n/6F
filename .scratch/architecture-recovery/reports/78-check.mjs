@@ -64,7 +64,7 @@ t('C7 strict env 通道：cli flag>env precedence（STRICT_QUARANTINE_ENV+strict
 t('C8 D-115③ 错误码分流：AuditIoError+classifyWriteError+exit 4 类', store.indexOf('AuditIoError') >= 0 && store.indexOf('classifyWriteError') >= 0 && cli.indexOf('EXIT_IO_FAILURE') >= 0 && audit.indexOf('classifyWriteError') >= 0);
 t('C9 D-110③ 棘轮机化 ratchetIssues+strict 闸接线', quar.indexOf('ratchetIssues') >= 0 && audit.indexOf('ratchetIssues') >= 0);
 t('C10 D-117② raw_echo 截断谓词单点共享（rawEcho 导出+双消费面零裸字面量）', quar.indexOf('RAW_ECHO_CAP') >= 0 && quar.indexOf('export function rawEcho') >= 0 && audit.indexOf('rawEcho(e.raw)') >= 0 && txt(join(ENG, 'src', 'demo', 'demo.ts')).indexOf('rawEcho(e.raw)') >= 0);
-t('C11 D-115①/D-116① 逐 commit 事务+增量断言接线', audit.indexOf('per-commit-identity') >= 0 && audit.indexOf('FACT_WRITE_BATCH') >= 0);
+t('C11 D-115①/D-116① 逐 commit 事务+增量断言接线（#84 §8 抽取→fact-write.ts 同位共享核——audit/macro-c 同消费）', (function () { const fw = txt(join(ENG, 'src', 'audit', 'fact-write.ts')); return fw.indexOf('per-commit-identity') >= 0 && fw.indexOf('FACT_WRITE_BATCH') >= 0 && audit.indexOf('writeRunFactsAndEvents') >= 0 && txt(join(ENG, 'src', 'audit', 'macro-c.ts')).indexOf('writeRunFactsAndEvents') >= 0; })());
 t('C12 D-109② 工件 schema 三桶+run_context 关联键补齐', quar.indexOf('records_parsed') >= 0 && quar.indexOf('head_date') >= 0 && quar.indexOf('collector') >= 0 && quar.indexOf('countsFromStats') >= 0);
 t('C13 D-108④ NULL 语义呈现面双固化（报告节+接口注释）', gen.indexOf('recorded_at') >= 0 && gen.indexOf('时点不可得') >= 0);
 

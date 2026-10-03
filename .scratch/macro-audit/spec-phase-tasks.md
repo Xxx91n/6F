@@ -21,7 +21,7 @@
 |---|---|---|---|---|
 | 7 | DuckDB fact table 单写多读 vs 多写多读的并发与版本控制策略 | 高 | 集成层 schema | ~~CodeLore DuckDB schema 复审~~ **[stale，R5-D024 纠偏：类别错放——并发策略缺 Q2 行为证据，上游 schema 复审只给 Q1 契约证据]** 新前置：单写者域 = 首报 228 条冻结实测（R4-04 desk 草案＋置信域标注）；多写者域 = self-probe 自证探针项，复审时点 = 阶段 3 铺开多采集器后 |
 | 8 | Schema 版本演进规则（AsyncAPI 事件契约心智，schema 不可改、版本号演进） | 高 | 数据契约 | AsyncAPI 工具链选定 |
-| 9 | Read model 失效策略：陈旧读容忍度（事件已写、投影未更新）的 SLA 与触发条件 | 中 | 报告层一致性 | D-006 报告模板敲定 | D-006 报告模板敲定；**R56 注**：残余=对账票（A-009 全数字表对账认领＋双语义域成文 D-209）——字段面已在位，SLA 数字在 A-009 已定值，D-207② |
+| 9 | Read model 失效策略：陈旧读容忍度（事件已写、投影未更新）的 SLA 与触发条件 | 中 | 报告层一致性 | D-006 报告模板敲定 | D-006 报告模板敲定；**R56 注**：残余=对账票（A-009 全数字表对账认领＋双语义域成文 D-209）——字段面已在位，SLA 数字在 A-009 已定值，D-207②；**R57 注→已对账**：A-009 全数字表对账认领入 macro-audit 账本（认领非重议——D-207② 负向行）＋D-209 双语义域账本成文一行（政策量四态 vs 位置量三态不互映射）——账本 R57 执行批节 T1-C 认领注记在案 |
 | 10 | Cross-scale correlation key（trace_id / baggage_id）字段设计与 OpenTelemetry Baggage 集成 | 高 | 跨 scale 观测性 | OpenTelemetry SDK 语言栈选定 | OpenTelemetry SDK 语言栈选定；**R56 注**：字段面已在位（trace_id/baggage_id/run_id）；拓扑=D-208 裁（进程内 OTel Context 默认＋终端自生成＋inbound 挂 registry 触发器册）；Macro-A 扇出 linkage fact 义务随其设计树——D-207① |
 | 11 | LangGraph supervisor 与本仓库 hub 协调层的契合度评估（adopt vs 自研） | 中 | hub 实现路径 | 本仓库语言栈确定 |
 | 12 | Data mesh 三大失败模式（无人拥有 in-between / 静默断裂 / 重复劳动）对本仓库的逆推防线设计 | 中 | 集成层稳健性 | ADR-0005 锁定后开始 |
