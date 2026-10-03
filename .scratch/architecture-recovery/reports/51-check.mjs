@@ -72,7 +72,7 @@ t('D11 min_revs=5 预声明阈值写入切片字段', bq && bq.slice_fields.min_
 
 // ---------- E. 能力矩阵收窄 ----------
 const rd = txt(join(REPO, 'README.md'));
-t('E1 README 象限矩阵：strategy:active·behavior:preview·structure:queued·supply-chain:queued', /strategy:?\s*active/.test(rd) && /behavior:?\s*preview/.test(rd) && /structure:?\s*queued/.test(rd) && /supply-chain:?\s*queued/.test(rd));
+t('E1 README 象限矩阵：strategy:active·behavior:preview·structure 摘帽 preview(structure/shape 域,D-205 #87)·supply-chain:queued 维持', /strategy:?\s*active/.test(rd) && /behavior:?\s*preview/.test(rd) && /structure:?\s*preview/.test(rd) && rd.indexOf('structure/shape') >= 0 && /supply-chain:?\s*queued/.test(rd) && rd.indexOf('双口径风险暂缓') < 0);
 const skm = txt(join(ENG, 'skills', 'macro-audit', 'SKILL.md'));
 t('E2 SKILL.md 能力矩阵措辞同步收窄', /behavior=preview|behavior:?\s*preview/.test(skm) && /queued/.test(skm));
 const led = txt(join(AR, 'decision-ledger.md'));

@@ -44,7 +44,7 @@ t('A4 README 同票绑定：audit 签名 + SCALE-NOT-IMPLEMENTED + 双通道语�
 let r1 = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-A'], { encoding: 'utf8', cwd: ENG });
 let sj = null; try { sj = JSON.parse(r1.stderr); } catch (e) { }
 t('B1 --scale Macro-A → exit 2 + error=SCALE-NOT-IMPLEMENTED', r1.status === 2 && !!sj && sj.error === 'SCALE-NOT-IMPLEMENTED', 'status=' + r1.status);
-t('B2 拒绝 JSON 载 implemented/requested/layer_order', !!sj && JSON.stringify(sj.implemented) === JSON.stringify(['Macro-B']) && sj.requested === 'Macro-A' && typeof sj.layer_order === 'string');
+t('B2 拒绝 JSON 载 implemented/requested/layer_order（#84 产线化后 implemented=[Macro-B, Macro-C]）', !!sj && JSON.stringify(sj.implemented) === JSON.stringify(['Macro-B', 'Macro-C']) && sj.requested === 'Macro-A' && typeof sj.layer_order === 'string');
 t('B2b layer_order=ADR-0017③ 原文层序', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0 && sj.layer_order.indexOf('ADR-0017') >= 0, sj && sj.layer_order);
 // engine-deps 前置（D-163③）：audit 实跑需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
 if (groupProbe('53-check', 'B3', DEP53)) {

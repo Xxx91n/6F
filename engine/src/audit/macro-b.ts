@@ -13,6 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPositioning, sha256Hex, ADR_FIVE_PIECE } from '../collect/collectors.js';
 import type { CollectContext, CollectedFact } from '../collect/collectors.js';
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
+import type { CodeloreFacetSpec } from '../upstream/codelore.js';
 import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
 // %cI 契约=normalizeGitIsoDate 同族判定本体（契约层分类器 classifyGitIsoField 承载，见 quarantine.ts）
 // #81/D-128：git 版本方言（+00:00↔Z）由 absorbGitIsoDialect 在边界先行吸收——分类器只见规范流。
@@ -180,6 +181,7 @@ export interface MacroBCollectSpec {
   stopwords: readonly string[];
   topN: number;
   codelore: 'off' | 'auto';   // auto=resolveCodelore 决议→行为三面采集；缺席/不 pin→如实降级（resolution 事实留痕）
+  extraCodeloreFacets?: readonly CodeloreFacetSpec[];   // 附加面集（#87/D-205：S3 族六面——成对准入由消费位闸执行，采集层只做并集）
   fileLineage?: { mode: 'on' | 'off'; threshold?: string; runner?: RenameLogRunner };   // on=确定性 rename 检测（git log --name-status -z -M）→file.renamed 血缘事实；audit=on demo=off（保合成仓逐字节确定性）
   fixtureTag: string;         // PC/NC 夹具路径前缀（demo='45'/audit='AUDIT'）——进 subject_ref→fact_id 哈希，调用方各保自身前缀防两链漂移
   pc2Sha: string;             // PC-2 夹具 commit sha（入 gitlog 输入→lag 事实哈希，同源纪律同上）

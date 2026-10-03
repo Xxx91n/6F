@@ -60,7 +60,7 @@ t('R9 披露块 capability 1 of 5 · preview 在', md.indexOf('capability 1 of 5
 t('R10 快照时点披露行在（snapshot_fetched_at 进披露块）', md.indexOf('snapshot_fetched_at') >= 0);
 const side = existsSync(join(OUT, 'report.json')) ? JSON.parse(readFileSync(join(OUT, 'report.json'), 'utf8')) : null;
 t('R11 sidecar stability/capabilities 字段落机读面', !!side && side.stability === 'preview' && JSON.stringify(side.capabilities) === JSON.stringify(['macro-b']));
-t('R12 侧车四象限齐备（strategy 原生 + behavior 依 codelore 两态如实）', !!side && side.quadrants.length === 4 && side.quadrants[0].quadrant === 'strategy' && ['native', 'not_applicable'].indexOf(side.quadrants[1].applicability) >= 0);
+t('R12 侧车四象限齐备（strategy 原生 + structure 摘帽后三态如实——#87/D-205）', !!side && side.quadrants.length === 4 && side.quadrants[0].quadrant === 'strategy' && ['native', 'derived', 'not_applicable'].indexOf(side.quadrants[1].applicability) >= 0);
 const meas = existsSync(join(OUT, 'audit-measurements.json')) ? JSON.parse(readFileSync(join(OUT, 'audit-measurements.json'), 'utf8')) : null;
 t('R13 measurements.intake 快照披露三件（snapshot_fetched_at/cache_hit/refreshed）', !!meas && meas.intake && 'snapshot_fetched_at' in meas.intake && 'cache_hit' in meas.intake && 'refreshed' in meas.intake);
 const factsLines = existsSync(join(OUT, 'audit-facts.jsonl')) ? readFileSync(join(OUT, 'audit-facts.jsonl'), 'utf8').trim().split(NL) : [];
