@@ -9,6 +9,7 @@ import { readFileSync, existsSync, readdirSync, mkdtempSync, rmSync } from 'node
 import { spawnSync, execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { need, groupProbe, engineDepsOk, siblingPath } from './_lib/env-contract.mjs';
 
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
@@ -39,7 +40,7 @@ t('A9 本守卫自身无 BOM', noBom(join(HERE, '85-check.mjs')));
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
 const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
 if (groupProbe('85-check', 'B', DEPS_B)) {
-  const tmpB = mkdtempSync(join(HERE, '85-run-'));
+  const tmpB = mkdtempSync(join(tmpdir(), '85-run-'));
   const r = spawnSync('node', [join(ENG, 'dist', 'cli.js'), 'audit', '..', '--scale', 'Macro-C', '--out', join(tmpB, 'out')], { encoding: 'utf8', cwd: ENG, timeout: 420000 });
   t('B1 CLI audit --scale Macro-C exit 0（6F 自审实测）', r.status === 0, 'status=' + r.status + ' err=' + (r.stderr || '').slice(0, 200));
   let rec = null;
@@ -66,14 +67,21 @@ const DEPS_C = [
 if (groupProbe('85-check', 'C', DEPS_C)) {
   const MC = await import(pathToFileURL(join(ENG, 'dist', 'audit', 'macro-c.js')).href);
   const COL = await import(pathToFileURL(join(ENG, 'dist', 'collect', 'collectors.js')).href);
-  const tmpC = mkdtempSync(join(HERE, '85-recal-'));
-  // (a) engine 一等面实跑（sibling 语料）
-  const run = await MC.runMacroCAudit({ input: AS, outDir: join(tmpC, 'out') });
+  const tmpC = mkdtempSync(join(tmpdir(), '85-recal-'));
+  // 语料钉快照（R59 LOOP-1 TOCTOU 消除——predecl 2026-10-04-r59-loop-fix-predecl.md §1.1）：
+  // 活仓只读一次 rev-parse 钉取 SRC_HEAD→clone 至 OS temp→checkout 生成冻结面 AS_PIN；engine 实跑与 oracle 重算同读此一份，不再触碰活仓
+  const SRC_HEAD = execFileSync('git', ['-C', AS, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const AS_PIN = join(tmpC, 'corpus');
+  execFileSync('git', ['clone', AS, AS_PIN], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  execFileSync('git', ['-C', AS_PIN, 'checkout', SRC_HEAD], { encoding: 'utf8' });
+  function gitO(args) { return execFileSync('git', ['-C', AS_PIN].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }); }
+  const HEAD_SHA = gitO(['rev-parse', 'HEAD']).trim();
+  t('C0 语料钉快照一致：clone HEAD＝＝钉取 SRC_HEAD（TOCTOU 消除不变式）', HEAD_SHA === SRC_HEAD, 'pin=' + HEAD_SHA.slice(0, 12) + ' src=' + SRC_HEAD.slice(0, 12));
+  // (a) engine 一等面实跑（冻结面语料）
+  const run = await MC.runMacroCAudit({ input: AS_PIN, outDir: join(tmpC, 'out') });
   const meas = run.measurements;
   const side = JSON.parse(run.sidecar_json);
-  // (b) 编排层独立重算（38 §1/§2/§4 原逻辑逐行镜像——collectors 层与 38 同源 import dist，独立性边界=编排层）
-  function gitO(args) { return execFileSync('git', ['-C', AS].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }); }
-  const HEAD_SHA = gitO(['rev-parse', 'HEAD']).trim();
+  // (b) 编排层独立重算（38 §1/§2/§4 原逻辑逐行镜像——collectors 层与 38 同源 import dist，独立性边界=编排层；gitO 已在钉快照段定义并锁定 AS_PIN）
   const HEAD_DATE = gitO(['log', '-1', '--format=%cI']).trim();
   const COMMIT_COUNT = Number(gitO(['rev-list', '--count', 'HEAD']).trim());
   const rawLog = gitO(['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
@@ -85,7 +93,7 @@ if (groupProbe('85-check', 'C', DEPS_C)) {
     else if (cur && tk.length > 0) { cur.paths.push(tk); }
   }
   t('C-INV 38 §1 PROBE-INVARIANT：解析数==rev-list 数', commits.length === COMMIT_COUNT, commits.length + ' vs ' + COMMIT_COUNT);
-  const adrDirO = join(AS, 'docs', 'adr');
+  const adrDirO = join(AS_PIN, 'docs', 'adr');
   const adrFilesO = readdirSync(adrDirO).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort();
   const firstCommitOfO = function (rel) { let best = null; for (const c of commits) { if (c.paths.indexOf(rel) >= 0 && (best === null || c.date < best)) { best = c.date; } } return best; };
   const adrDocsO = adrFilesO.map(function (f) { const rel = 'docs/adr/' + f; return { path: rel, text: readFileSync(join(adrDirO, f), 'utf8'), first_commit_date: firstCommitOfO(rel) }; });
@@ -115,7 +123,7 @@ if (groupProbe('85-check', 'C', DEPS_C)) {
     adrsO.push({ file: d.path, num: num, whole_to: wholeTo, inline: inlineRefs, amends: amends, refs: refs, defers: defers, mentions: Array.from(new Set(Array.from(text.matchAll(/ADR-?(\d{3,})/gi)).map(function (x) { return x[1]; }))) });
   }
   const numSetO = new Set(adrsO.map(function (a) { return a.num; }));
-  const deferRegistryO = existsSync(join(AS, 'docs', 'deferred-registry.json'));
+  const deferRegistryO = existsSync(join(AS_PIN, 'docs', 'deferred-registry.json'));
   const edgesO = [];
   for (const a of adrsO) {
     if (a.whole_to) { edgesO.push({ from: a.num, to: a.whole_to, kind: 'whole-adr-status', evidence: a.file + ' status-line' }); }

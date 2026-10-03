@@ -7,6 +7,7 @@ import { readFileSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
@@ -62,7 +63,7 @@ t('A5 本守卫自身无 BOM', noBom(join(HERE, '86-check.mjs')));
 // ---------- B. facts 层 golden 闸（6F 自审实跑产物；engine-deps 组级闸） ----------
 const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
 if (groupProbe('86-check', 'B', DEPS_B)) {
-  const tmpB = mkdtempSync(join(HERE, '86-run-'));
+  const tmpB = mkdtempSync(join(tmpdir(), '86-run-'));
   const r = spawnSync('node', [join(ENG, 'dist', 'cli.js'), 'audit', '..', '--scale', 'Macro-B', '--out', join(tmpB, 'out')], { encoding: 'utf8', cwd: ENG, timeout: 420000 });
   t('B1 CLI audit --scale Macro-B exit 0（摘帽后实跑面）', r.status === 0, 'status=' + r.status + ' err=' + (r.stderr || '').slice(0, 200));
   const side = existsSync(join(tmpB, 'out', 'report.json')) ? JSON.parse(readFileSync(join(tmpB, 'out', 'report.json'), 'utf8')) : null;

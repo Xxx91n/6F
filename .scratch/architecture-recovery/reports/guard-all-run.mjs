@@ -14,7 +14,7 @@ import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const NL = String.fromCharCode(10);
-const TIMEOUT_MS = 600000;
+const TIMEOUT_MS = 900000; // R59 实测 85-check 单跑峰值 521s（87% of 600s）——上界登记 900s（predecl 2026-10-04-r59-loop-fix-predecl.md §1.4，D-149④ 执行器运维常数）
 
 const SKIP_GROUP_RE = /^GUARD-RESULT:\s*SKIP-GROUP (\S+) group=(\S+) reason=(.+)$/;
 const manifest = JSON.parse(readFileSync(join(HERE, 'known-red-manifest.json'), 'utf8'));

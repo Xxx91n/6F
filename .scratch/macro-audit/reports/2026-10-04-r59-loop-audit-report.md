@@ -52,8 +52,8 @@
 
 | commit | 性质 | 文件数 | `engine/dist` 件数 | 判定 |
 |---|---|---|---|---|
-| `vov` (`0d245068`) | 语义（docs(r57-loop-rework)） | 9 | **0** | ✅ 未搭车 |
-| `mlq` (`29bc05e2`) | bundle（守卫跑伴生派生再基线） | 1（仅 `75a-census-findings.json`） | 0 | ✅ 独立 |
+| `vov` (`0d245068fd85` ("docs(r57-loop-rework): R58 审计打回返修——P1-1 census 401/+12 勘正+P1-2 账本重复节删除+P1-3 预算补登报告+P2-1 predecl 勘误五+P2-2 registry 标题十二件")) | 语义（docs(r57-loop-rework)） | 9 | **0** | ✅ 未搭车 |
+| `mlq` (`29bc05e2efc9` ("bundle: 守卫跑伴生派生再基线——75a-census-findings(401→400, 82-check 族悬空摘除)随 R57 LOOP 返修(D-140②)")) | bundle（守卫跑伴生派生再基线） | 1（仅 `75a-census-findings.json`） | 0 | ✅ 独立 |
 
 `vov` 携带 `Ledger-Refs: D-094, D-181, D-149`／`Chronicle: M-056`／`Adrs: —` 三栏位齐备（D-161④）。`mlq` 主体标注 `(D-140②)`。**D-140② 满足。**
 
