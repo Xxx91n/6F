@@ -132,4 +132,4 @@ export interface MacroBEval {
 }
 export declare function evaluateMacroB(collect: MacroBCollect): MacroBEval;
 export declare function tcBand(v: string): 'supported' | 'unsupported' | 'insufficient';
-export declare function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string | null, headRaw?: string): CollectContext;
+export declare function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string | null, headRaw?: string, scale?: string): CollectContext;

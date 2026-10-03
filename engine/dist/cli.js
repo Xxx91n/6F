@@ -810,18 +810,18 @@ function probeUpstream() {
   const conf = process.platform === "win32" ? spawnSync2("cmd.exe", ["/d", "/s", "/c", "npm", "config", "get", "registry"], { encoding: "utf8", timeout: 1e4 }) : spawnSync2("npm", ["config", "get", "registry"], { encoding: "utf8", timeout: 1e4 });
   const configured = conf.status === 0 ? String(conf.stdout || "").trim() : "";
   const reg = /^https?:\/\//.test(configured) ? configured : "https://registry.npmjs.org/";
-  return new Promise(function(resolve5) {
+  return new Promise(function(resolve6) {
     const t0 = Date.now();
     const req = get(reg, { timeout: 5e3, method: "HEAD" }, function(res) {
       res.resume();
-      resolve5({ leg: "upstream", status: "ok", detail: reg + " " + String(res.statusCode) + " " + String(Date.now() - t0) + "ms" });
+      resolve6({ leg: "upstream", status: "ok", detail: reg + " " + String(res.statusCode) + " " + String(Date.now() - t0) + "ms" });
     });
     req.on("timeout", function() {
       req.destroy();
-      resolve5({ leg: "upstream", status: "degraded", detail: "registry HEAD timeout 5s\uFF08\u79BB\u7EBF\u9762\uFF1A\u81EA\u6108/\u4E0A\u6E38\u62C9\u53D6\u4E0D\u53EF\u7528\uFF0C\u672C\u5730\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF09" });
+      resolve6({ leg: "upstream", status: "degraded", detail: "registry HEAD timeout 5s\uFF08\u79BB\u7EBF\u9762\uFF1A\u81EA\u6108/\u4E0A\u6E38\u62C9\u53D6\u4E0D\u53EF\u7528\uFF0C\u672C\u5730\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF09" });
     });
     req.on("error", function(e) {
-      resolve5({ leg: "upstream", status: "degraded", detail: "registry unreachable: " + String(e && e.message || e).slice(0, 120) });
+      resolve6({ leg: "upstream", status: "degraded", detail: "registry unreachable: " + String(e && e.message || e).slice(0, 120) });
     });
   });
 }
@@ -2420,8 +2420,8 @@ function buildReceipt(args) {
   for (const e of args.adjudication.entries) {
     adjParts.push(e.criterion_id + "=" + e.band);
   }
-  const NL4 = String.fromCharCode(10);
-  const digestInput = JSON.stringify(args.adjudication.entries) + NL4 + JSON.stringify(args.adjudication.citation_checks);
+  const NL5 = String.fromCharCode(10);
+  const digestInput = JSON.stringify(args.adjudication.entries) + NL5 + JSON.stringify(args.adjudication.citation_checks);
   const contentDigest = createHash4("sha256").update(digestInput, "utf8").digest("hex");
   const payload = [
     "facts:" + sorted.join(","),
@@ -2435,7 +2435,7 @@ function buildReceipt(args) {
     "tree:" + args.tree_anchor,
     "gate_ref:" + args.gate_ref.prereg_commit + "|" + args.gate_ref.criteria_path + "|" + args.gate_ref.basis_path + "|" + args.gate_ref.criterion_ids.join(","),
     "degraded:" + (args.degraded ? "1" : "0")
-  ].join(NL4);
+  ].join(NL5);
   const chain = createHash4("sha256").update(payload, "utf8").digest("hex");
   const receiptId = "RCP-" + chain.slice(0, 16);
   let mark = "RECEIPT " + receiptId + " chain=" + chain.slice(0, 32) + " content=" + contentDigest.slice(0, 16) + " facts=" + args.fact_ids.length + " adjudications=" + args.adjudication.entries.length + " issued_at=" + args.issued_at + " commit=" + args.commit_anchor + " tree=" + args.tree_anchor.slice(0, 12);
@@ -3062,9 +3062,9 @@ function facetColumns(rows) {
 function collectCodeloreFacets(input, ctx) {
   const out = [];
   const bin = input.binary || "codelore";
-  const resolve5 = input.resolver || resolveCodelore;
+  const resolve6 = input.resolver || resolveCodelore;
   const runner = input.runner || runCodeloreAnalysis;
-  const res = resolve5(bin);
+  const res = resolve6(bin);
   pushResolutionFact(out, ctx, res);
   if (res.error || !res.pinned) {
     return out;
@@ -3323,6 +3323,230 @@ function reconcilePerFileVsAggregate(facts) {
     }
   }
   return { match: all, per_analysis: per };
+}
+var CODELORE_LLM_CALL_CAP_ENV = "MACRO_AUDIT_CODELORE_LLM_MAX_CALLS";
+var CODELORE_LLM_DEFAULT_CALL_CAP = 20;
+function resolveLlmGate(env) {
+  const has = (k) => typeof env[k] === "string" && env[k].trim().length > 0;
+  const explicit = has("CODELORE_LLM_PROVIDER") ? env.CODELORE_LLM_PROVIDER.trim() : null;
+  let provider;
+  let reason = "ok";
+  if (explicit !== null) {
+    if (explicit === "anthropic" || explicit === "openai-compat") {
+      provider = explicit;
+    } else {
+      provider = null;
+      reason = "unknown-provider";
+    }
+  } else {
+    provider = has("ANTHROPIC_API_KEY") ? "anthropic" : "openai-compat";
+  }
+  const missing = [];
+  if (provider === "anthropic" && !has("ANTHROPIC_API_KEY")) {
+    missing.push("ANTHROPIC_API_KEY");
+  }
+  if (provider === "openai-compat" && !has("CODELORE_LLM_MODEL")) {
+    missing.push("CODELORE_LLM_MODEL");
+  }
+  if (missing.length > 0) {
+    reason = "missing-env";
+  }
+  return {
+    env_family: "CODELORE_LLM_*",
+    provider,
+    configured: reason === "ok" && missing.length === 0,
+    missing_env: missing,
+    reason
+  };
+}
+var CODELORE_LLM_FACETS = [
+  { face: "explain-file" },
+  { face: "diff" }
+];
+function codeloreLlmArgs(spec, subject, repoRoot, llmRefresh) {
+  const args = spec.face === "explain-file" ? ["explain", subject, "--repo", repoRoot, "--llm"] : ["diff", subject, "--repo", repoRoot, "--format", "markdown", "--llm"];
+  if (llmRefresh) {
+    args.push("--llm-refresh");
+  }
+  return args;
+}
+function runCodeloreLlm(binary, args, cwd) {
+  const r = runText(binary, args, cwd);
+  return { ok: r.ok, status: r.status, stdout: r.stdout, stderrTail: r.stderr.slice(-400) };
+}
+function parseLlmNarrative(text) {
+  const marker = "LLM narrative (advisory)";
+  const idx = text.indexOf(marker);
+  if (idx < 0) {
+    return { base: text, narrative: null, stamp: null, model: null, grounded: null, uncited_claims: [] };
+  }
+  const lineStart = text.lastIndexOf("\n", idx) + 1;
+  const base = text.slice(0, lineStart);
+  const block = text.slice(lineStart);
+  const blockLines = block.split("\n");
+  let stampIdx = -1;
+  for (let i = blockLines.length - 1; i >= 0; i--) {
+    if (/^[*_~` ]*advisory\s+\S/.test(blockLines[i])) {
+      stampIdx = i;
+      break;
+    }
+  }
+  let stamp = null;
+  let model = null;
+  let grounded = null;
+  const claims = [];
+  if (stampIdx >= 0) {
+    stamp = blockLines[stampIdx].trim().replace(/^[*_~` ]+|[*_~` ]+$/g, "");
+    const g = stamp.match(/,\s*grounded\s*$/);
+    const u = stamp.match(/contains uncited claims:\s*(.*)$/);
+    if (g) {
+      grounded = true;
+      model = stamp.slice("advisory".length, stamp.length - g[0].length).trim();
+    } else if (u) {
+      grounded = false;
+      model = stamp.slice("advisory".length, stamp.indexOf("contains uncited claims")).trim().replace(/,\s*$/, "");
+      const claimsText = u[1].replace(/\s*\(\d+\s+more\)\s*$/i, "");
+      for (const c of claimsText.split(",")) {
+        const s = c.trim();
+        if (s) {
+          claims.push(s);
+        }
+      }
+    } else {
+      model = stamp.slice("advisory".length).trim().replace(/,\s*$/, "");
+    }
+  }
+  const narrative = blockLines.slice(1).join("\n").trim();
+  return { base, narrative: narrative.length > 0 ? narrative : null, stamp, model, grounded, uncited_claims: claims };
+}
+function estTokenUnits(chars) {
+  return Math.ceil(chars / 4);
+}
+function collectCodeloreLlm(input, ctx) {
+  const out = [];
+  const bin = input.binary || "codelore";
+  const env = input.env || process.env;
+  const resolve6 = input.resolver || resolveCodelore;
+  const runner = input.runner || runCodeloreLlm;
+  const res = resolve6(bin);
+  pushResolutionFact(out, ctx, res);
+  if (res.error || !res.pinned) {
+    return out;
+  }
+  const gate = resolveLlmGate(env);
+  const capFromEnv = Number(env[CODELORE_LLM_CALL_CAP_ENV]);
+  const capSource = input.maxLlmCalls !== void 0 ? "input" : Number.isFinite(capFromEnv) && capFromEnv > 0 ? "env" : "default";
+  const callCap = input.maxLlmCalls !== void 0 ? input.maxLlmCalls : capSource === "env" ? Math.floor(capFromEnv) : CODELORE_LLM_DEFAULT_CALL_CAP;
+  out.push(makeFact(ctx, CODELORE_DESCRIPTOR, "llm-gate", "env " + gate.env_family, "codelore.llm_gate", {
+    env_family: gate.env_family,
+    provider: gate.provider,
+    configured: gate.configured,
+    missing_env: gate.missing_env,
+    reason: gate.reason,
+    call_cap: callCap,
+    cap_source: capSource
+  }));
+  const facets = input.facets || CODELORE_LLM_FACETS;
+  const subjects = [];
+  for (const spec of facets) {
+    if (spec.face === "explain-file") {
+      for (const p of input.explainPaths || []) {
+        const pn = normalizeSubjectPath(p);
+        if (!pn.ok) {
+          out.push(makeFact(microBCtx(ctx), CODELORE_DESCRIPTOR, "explain-file", "codelore explain", "codelore.file_subject_skip", { analysis: "explain-file", group: null, raw_path: p, reason: pn.reason }));
+          continue;
+        }
+        subjects.push({ spec, subject: pn.subject });
+      }
+    } else {
+      subjects.push({ spec, subject: input.diffRange || "" });
+    }
+  }
+  const cost = { attempted: 0, succeeded: 0, failed: 0, capped: 0, narrative_chars: 0, est_token_units: 0 };
+  const gatedFaces = [];
+  const pushGated = (s, reason, extra) => {
+    gatedFaces.push(s.spec.face);
+    out.push(makeFact(ctx, CODELORE_DESCRIPTOR, s.subject || s.spec.face, "env " + gate.env_family, "codelore.llm_gated", {
+      face: s.spec.face,
+      reason,
+      missing_env: gate.missing_env,
+      provider: gate.provider,
+      call_cap: callCap,
+      calls_attempted: cost.attempted,
+      ...extra
+    }));
+  };
+  for (const s of subjects) {
+    if (!gate.configured) {
+      pushGated(s, "gate-" + gate.reason, {});
+      continue;
+    }
+    if (s.subject === "") {
+      pushGated(s, "param-missing:diff-range", {});
+      continue;
+    }
+    if (cost.attempted >= callCap) {
+      cost.capped++;
+      pushGated(s, "call-cap-reached", {});
+      continue;
+    }
+    const args = codeloreLlmArgs(s.spec, s.subject, input.repoRoot, !!input.llmRefresh);
+    const evidence = "codelore " + args.join(" ");
+    cost.attempted++;
+    const run = runner(bin, args, input.repoRoot);
+    if (!run.ok) {
+      cost.failed++;
+      out.push(makeFact(ctx, CODELORE_DESCRIPTOR, s.subject, evidence, "codelore.llm_error", {
+        face: s.spec.face,
+        status: run.status,
+        stderr_tail: run.stderrTail,
+        base_emitted: run.stdout.length > 0,
+        base_chars: run.stdout.length
+      }));
+      continue;
+    }
+    const parsed = parseLlmNarrative(run.stdout);
+    if (parsed.narrative === null) {
+      cost.failed++;
+      out.push(makeFact(ctx, CODELORE_DESCRIPTOR, s.subject, evidence, "codelore.llm_error", {
+        face: s.spec.face,
+        status: run.status,
+        stderr_tail: run.stderrTail,
+        base_emitted: parsed.base.length > 0,
+        base_chars: parsed.base.length,
+        detail: "narrative-marker-absent"
+      }));
+      continue;
+    }
+    cost.succeeded++;
+    cost.narrative_chars += parsed.narrative.length;
+    const units = estTokenUnits(parsed.base.length + parsed.narrative.length);
+    cost.est_token_units += units;
+    out.push(makeFact(ctx, CODELORE_DESCRIPTOR, s.subject, evidence, "codelore.llm_narrative", {
+      face: s.spec.face,
+      model: parsed.model,
+      grounded: parsed.grounded,
+      uncited_claims: parsed.uncited_claims,
+      stamp: parsed.stamp,
+      narrative: parsed.narrative,
+      narrative_chars: parsed.narrative.length,
+      base_chars: parsed.base.length,
+      est_token_units: units
+    }));
+  }
+  out.push(makeFact(ctx, CODELORE_DESCRIPTOR, "llm-cost", "adapter metering", "codelore.llm_cost", {
+    call_cap: callCap,
+    cap_source: capSource,
+    calls_attempted: cost.attempted,
+    calls_succeeded: cost.succeeded,
+    calls_failed: cost.failed,
+    calls_capped: cost.capped,
+    narrative_chars_total: cost.narrative_chars,
+    est_token_units_total: cost.est_token_units,
+    est_basis: "chars/4\uFF08\u4E0A\u6E38\u4E0D\u66B4\u9732 token \u8BA1\u6570\uFF0C\u6B64\u4E3A\u4F30\u7B97\u4F4D\u975E\u771F\u503C\uFF09",
+    gated_faces: Array.from(new Set(gatedFaces))
+  }));
+  return out;
 }
 
 // src/collect/file-lineage.ts
@@ -3747,13 +3971,13 @@ function tcBand(v) {
   }
   return "supported";
 }
-function macroBContext(runIdLabel, ctxLabel, headSha2, headDate, headRaw) {
+function macroBContext(runIdLabel, ctxLabel, headSha2, headDate, headRaw, scale = "Macro-B") {
   const anchor = headDate === null ? "quarantined:" + sha256Hex(headRaw === void 0 ? "" : headRaw) : headDate;
   return {
     runId: runIdLabel + "-" + headSha2.slice(0, 7),
     traceId: sha256Hex(ctxLabel + "|" + headSha2 + "|" + anchor).slice(0, 32),
     repoRef: ctxLabel + "@" + headSha2,
-    scale: "Macro-B",
+    scale,
     observedAt: headDate === null ? "quarantined(anchor_head_date_malformed)" : headDate
   };
 }
@@ -4041,8 +4265,13 @@ function runDemo(opts) {
 }
 
 // src/audit/audit.ts
-import { mkdirSync as mkdirSync5, writeFileSync as writeFileSync3, existsSync as existsSync6, unlinkSync, readFileSync as readFileSync6, mkdtempSync as mkdtempSync3, rmSync as rmSync4 } from "node:fs";
-import { basename, join as join9, resolve as resolve3 } from "node:path";
+import { mkdirSync as mkdirSync6, writeFileSync as writeFileSync4, existsSync as existsSync7, unlinkSync as unlinkSync2, readFileSync as readFileSync7, mkdtempSync as mkdtempSync4, rmSync as rmSync5 } from "node:fs";
+import { basename as basename2, join as join10, resolve as resolve4 } from "node:path";
+import { tmpdir as tmpdir4 } from "node:os";
+
+// src/audit/macro-c.ts
+import { readFileSync as readFileSync6, readdirSync as readdirSync3, existsSync as existsSync6, mkdtempSync as mkdtempSync3, mkdirSync as mkdirSync5, writeFileSync as writeFileSync3, rmSync as rmSync4, unlinkSync } from "node:fs";
+import { join as join9, resolve as resolve3 } from "node:path";
 import { tmpdir as tmpdir3 } from "node:os";
 
 // src/upstream/github-rest.ts
@@ -4129,10 +4358,646 @@ function projectUpstreamDimensions(facts) {
   return { map_version: UPSTREAM_DIMENSION_MAP_VERSION, map_review: UPSTREAM_DIMENSION_MAP_REVIEW, mapped, unmapped };
 }
 
-// src/audit/audit.ts
+// src/audit/fact-write.ts
+async function writeRunFactsAndEvents(writer, input) {
+  const FACT_WRITE_BATCH = 500;
+  const seen = /* @__PURE__ */ new Set();
+  let factsWritten = 0;
+  let eventsWritten = 0;
+  const crashCtx = function(sha) {
+    return { repo_ref: input.ctx.repoRef, run_id: input.ctx.traceId, commit_sha: sha, head_date: input.headDate, collector: input.collector };
+  };
+  const crashCounts = function() {
+    return countsFromStats(input.fieldStats, input.commitCount, factsWritten, eventsWritten);
+  };
+  try {
+    const commitShaSet = new Set(input.commits.map(function(c) {
+      return c.sha;
+    }));
+    const factsBySha = /* @__PURE__ */ new Map();
+    const restFacts = [];
+    for (const f of input.facts) {
+      if (commitShaSet.has(f.subject_ref)) {
+        const arr = factsBySha.get(f.subject_ref) || [];
+        arr.push(f);
+        factsBySha.set(f.subject_ref, arr);
+      } else {
+        restFacts.push(f);
+      }
+    }
+    const eventsBySha = /* @__PURE__ */ new Map();
+    for (const fe of input.fieldEvents) {
+      const arr = eventsBySha.get(fe.commit_sha) || [];
+      arr.push(fe);
+      eventsBySha.set(fe.commit_sha, arr);
+    }
+    const appendEvents = async function(evs) {
+      for (const fe of evs) {
+        await appendQuarantineEvent(writer, { run_id: input.ctx.traceId, commit_sha: fe.commit_sha, field_name: fe.field_name, disposition: fe.disposition, reason_code: fe.reason_code, raw: fe.raw, collector: input.collector, recorded_at: input.headDate });
+        eventsWritten += 1;
+      }
+    };
+    for (const c of input.commits) {
+      const cFacts = input.anchorQuarantined ? [] : factsBySha.get(c.sha) || [];
+      const cEvents = eventsBySha.get(c.sha) || [];
+      if (cFacts.length > 0 || cEvents.length > 0) {
+        await runInTransaction(writer, async function() {
+          for (const f of cFacts) {
+            if (!seen.has(f.fact_id)) {
+              seen.add(f.fact_id);
+              await appendFact(writer, f);
+              factsWritten += 1;
+            }
+          }
+          await appendEvents(cEvents);
+        });
+      }
+      const cn = await (await writer.run("SELECT COUNT(*) FROM quarantine_log WHERE run_id = ? AND commit_sha = ?", [input.ctx.traceId, c.sha])).getRows();
+      if (Number(cn[0][0]) !== cEvents.length) {
+        throw protocolCrashError("INTAKE-IDENTITY-MISMATCH", "\u9010 commit \u589E\u91CF\u6052\u7B49\u5F0F\u65AD\u8A00\u5931\u8D25\uFF1Asha=" + c.sha + " \u671F\u671B " + cEvents.length + " \u5E93\u5185 " + Number(cn[0][0]), { crash_location: input.crashSource + ":per-commit-identity", run_context: crashCtx(c.sha), counts: crashCounts() });
+      }
+    }
+    const orphanEvents = input.fieldEvents.filter(function(fe) {
+      return !commitShaSet.has(fe.commit_sha);
+    });
+    for (let i = 0; i < restFacts.length; i += FACT_WRITE_BATCH) {
+      const batch = restFacts.slice(i, i + FACT_WRITE_BATCH);
+      const lastChunk = i + FACT_WRITE_BATCH >= restFacts.length;
+      await runInTransaction(writer, async function() {
+        if (!input.anchorQuarantined) {
+          for (const f of batch) {
+            if (!seen.has(f.fact_id)) {
+              seen.add(f.fact_id);
+              await appendFact(writer, f);
+              factsWritten += 1;
+            }
+          }
+        }
+        if (lastChunk) {
+          await appendEvents(orphanEvents);
+        }
+      });
+    }
+    if (restFacts.length === 0 && orphanEvents.length > 0) {
+      await runInTransaction(writer, async function() {
+        await appendEvents(orphanEvents);
+      });
+    }
+  } catch (e) {
+    try {
+      closeDuckdb(writer);
+    } catch (_) {
+    }
+    if (isProtocolCrash(e)) {
+      throw e;
+    }
+    if (classifyWriteError(e) === "io") {
+      throw new AuditIoError("fact/quarantine \u5199 IO \u5931\u8D25\uFF08D-115\u2462 IO \u5931\u8D25\u7C7B\u9000\u51FA\u7C7B\u2014\u2014\u975E\u534F\u8BAE\u5D29\u6E83\uFF09\uFF1A" + String(e.message || e));
+    }
+    throw protocolCrashError("QUARANTINE-CONSTRAINT", "fact/quarantine \u4E8B\u52A1\u5199\u5931\u8D25\uFF08\u8BE5\u6279 ROLLBACK \u65E0\u534A\u622A\u5199\uFF09\uFF1A" + String(e.message || e), { crash_location: input.crashSource + ":fact-write-tx", run_context: crashCtx(null), counts: crashCounts() });
+  }
+  return { factsWritten, eventsWritten };
+}
+
+// src/audit/macro-c.ts
 var NL3 = String.fromCharCode(10);
-var AUDIT_SCALES_IMPLEMENTED = ["Macro-B"];
-var SCALE_LAYER_ORDER = "Macro-C\u2192Micro-A\u2192Micro-B\u2192Macro-A\uFF08ADR-0017\u2462 \u5C42\u5E8F\uFF0CMacro-B \u5DF2\u4E0A\u67B6 preview\uFF09";
+var MACRO_C_LAG_MIN_N = 30;
+var MACRO_C_CAPABILITY_LABEL = "capability 2 of 5 \xB7 preview";
+var MACRO_C_REPORT_ID_PREFIX = "MA-AUDIT-";
+var MACRO_C_NC_CANDIDATES = ["apps/cli/package.json", "package.json", "Cargo.toml", "pom.xml", "pyproject.toml", "go.mod", "README.md"];
+var MACRO_C_LLM_EXPLAIN_CANDIDATES = ["apps/cli/src/index.ts", "apps/cli/src/composition.ts", "src/index.ts", "src/main.ts"];
+var MACRO_C_SUPERSEDE_KINDS = ["whole-adr-status", "item-level-inline"];
+function scanSupersedeAdrs(adrDocs) {
+  const adrs = [];
+  for (const d of adrDocs) {
+    const num = d.path.split("/").pop().match(/^(\d+)/)[1];
+    const text = d.text;
+    const statusLine = (text.match(/^\s*[-*]?\s*status\s*[:：][^\n]*/im) || [""])[0].trim();
+    const wholeTo = (statusLine.match(/superseded\s+by\s+ADR-?(\d{3,})/i) || [])[1] || null;
+    const inlineRefs = [];
+    const lines = text.split(NL3);
+    lines.forEach(function(line, i) {
+      const sm = line.match(/superseded\s+by\s+ADR-?(\d{3,})/i) || line.match(/supersedes?\s+ADR-?(\d{3,})/i);
+      if (sm && !/^\s*[-*]?\s*status\s*[:：]/i.test(line)) {
+        const negated = /(does not|do not|not a|no longer|never)\s+supersede/i.test(line);
+        inlineRefs.push({ line: i + 1, to: sm[1], negated });
+      }
+    });
+    const amends = [];
+    const refs = [];
+    const defers = [];
+    text.split(NL3).forEach(function(line, i) {
+      if (!/^\s*(Amends|References)\s*[:：]/i.test(line)) {
+        return;
+      }
+      const isAmends = /^Amends/i.test(line.trim());
+      for (const mm of line.matchAll(/ADR-?(\d{3,})/gi)) {
+        (isAmends ? amends : refs).push({ line: i + 1, to: mm[1] });
+      }
+      for (const mm of line.matchAll(/defer-(\d{3,})/gi)) {
+        defers.push({ line: i + 1, to: "defer-" + mm[1] });
+      }
+    });
+    const mentions = Array.from(new Set(Array.from(text.matchAll(/ADR-?(\d{3,})/gi)).map(function(x) {
+      return x[1];
+    })));
+    adrs.push({ file: d.path, num, whole_to: wholeTo, inline: inlineRefs, amends, refs, defers, mentions });
+  }
+  return adrs;
+}
+function buildSupersedeChain(adrs, deferRegistryPresent) {
+  const numSet = new Set(adrs.map(function(a) {
+    return a.num;
+  }));
+  const edges = [];
+  for (const a of adrs) {
+    if (a.whole_to) {
+      edges.push({ from: a.num, to: a.whole_to, kind: "whole-adr-status", evidence: a.file + " status-line", resolved: false, back_reference: null });
+    }
+    for (const r of a.inline) {
+      edges.push({ from: a.num, to: r.to, kind: r.negated ? "explicit-non-supersede" : "item-level-inline", evidence: a.file + ":" + r.line, resolved: false, back_reference: null });
+    }
+    for (const r of a.amends) {
+      edges.push({ from: a.num, to: r.to, kind: "amends", evidence: a.file + ":" + r.line, resolved: false, back_reference: null });
+    }
+    for (const r of a.refs) {
+      edges.push({ from: a.num, to: r.to, kind: "references", evidence: a.file + ":" + r.line, resolved: false, back_reference: null });
+    }
+    for (const r of a.defers) {
+      edges.push({ from: a.num, to: r.to, kind: "defer-ref", evidence: a.file + ":" + r.line, resolved: false, back_reference: null });
+    }
+  }
+  for (const e of edges) {
+    if (e.from === e.to) {
+      e.kind = "self-quote-artifact";
+    }
+    if (e.kind === "defer-ref") {
+      e.resolved = deferRegistryPresent;
+    } else {
+      e.resolved = numSet.has(e.to);
+    }
+    if (e.kind !== "defer-ref" && e.resolved) {
+      const target = adrs.find(function(a) {
+        return a.num === e.to;
+      });
+      e.back_reference = target ? target.mentions.indexOf(e.from) >= 0 : false;
+    } else {
+      e.back_reference = null;
+    }
+  }
+  return {
+    edge_count: edges.length,
+    whole_adr_supersessions: edges.filter(function(e) {
+      return e.kind === "whole-adr-status";
+    }).length,
+    item_level_supersessions: edges.filter(function(e) {
+      return e.kind === "item-level-inline";
+    }).length,
+    amends_edges: edges.filter(function(e) {
+      return e.kind === "amends";
+    }).length,
+    references_edges: edges.filter(function(e) {
+      return e.kind === "references";
+    }).length,
+    defer_ref_edges: edges.filter(function(e) {
+      return e.kind === "defer-ref";
+    }).length,
+    explicit_non_supersedes: edges.filter(function(e) {
+      return e.kind === "explicit-non-supersede";
+    }).length,
+    self_quote_artifacts: edges.filter(function(e) {
+      return e.kind === "self-quote-artifact";
+    }).length,
+    unresolved_refs: edges.filter(function(e) {
+      return !e.resolved && e.kind !== "self-quote-artifact";
+    }).map(function(e) {
+      return e.from + "->" + e.to + " (" + e.kind + ", " + e.evidence + ")";
+    }),
+    missing_backrefs: edges.filter(function(e) {
+      return MACRO_C_SUPERSEDE_KINDS.indexOf(e.kind) >= 0 && e.resolved && e.back_reference === false;
+    }).map(function(e) {
+      return e.from + "->" + e.to + " (" + e.kind + ", " + e.evidence + ")";
+    })
+  };
+}
+function collectMacroC(repoRoot, probes, ctx, spec) {
+  const adrDir = join9(repoRoot, "docs", "adr");
+  const adrFiles = existsSync6(adrDir) ? readdirSync3(adrDir).filter(function(f) {
+    return /^\d{3,}.*\.md$/i.test(f);
+  }).sort() : [];
+  const firstCommitOf = function(relPath) {
+    let best = null;
+    for (const c of probes.commits) {
+      if (c.date !== null && c.paths.indexOf(relPath) >= 0 && (best === null || c.date < best)) {
+        best = c.date;
+      }
+    }
+    return best;
+  };
+  const adrDocs = adrFiles.map(function(f) {
+    const rel = "docs/adr/" + f;
+    return { path: rel, text: readFileSync6(join9(adrDir, f), "utf8"), first_commit_date: firstCommitOf(rel) };
+  });
+  const adrFacts = collectAdrStructureV2({ documents: adrDocs }, ctx);
+  const adrDateMap = {};
+  for (const f of adrFacts) {
+    if (f.metric === "adr.decision_date") {
+      const v = JSON.parse(f.value_json);
+      if (v.date) {
+        adrDateMap[f.subject_ref] = String(v.date).slice(0, 10);
+      }
+    }
+  }
+  const gitFacts = collectGitlog({ commits: probes.commits, paths: adrDocs.map(function(d) {
+    return d.path;
+  }), adrDates: adrDateMap }, ctx);
+  const codeloreFacts = collectCodeloreFacets({ repoRoot }, ctx);
+  const explainCandidates = spec && spec.llmExplainCandidates || MACRO_C_LLM_EXPLAIN_CANDIDATES;
+  const explainPaths = explainCandidates.filter(function(p) {
+    return existsSync6(join9(repoRoot, p));
+  }).slice(0, 2);
+  const llmFacts = collectCodeloreLlm({ repoRoot, explainPaths, diffRange: spec && spec.llmDiffRange || "HEAD~10..HEAD" }, ctx);
+  const llmGateFact = llmFacts.find(function(f) {
+    return f.metric === "codelore.llm_gate";
+  });
+  const llmGate = llmGateFact ? JSON.parse(llmGateFact.value_json) : { configured: false, reason: "no-gate-fact" };
+  const adrs = scanSupersedeAdrs(adrDocs);
+  const deferRegistryPresent = existsSync6(join9(repoRoot, "docs", "deferred-registry.json"));
+  const chain = buildSupersedeChain(adrs, deferRegistryPresent);
+  const chainFact = makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, "docs/adr/*", "docs/adr/* status+inline scan", "adr.supersede_chain_summary", chain);
+  const rawFacts = adrFacts.concat(gitFacts, codeloreFacts, llmFacts, [chainFact]);
+  const seenFactIds = /* @__PURE__ */ new Set();
+  const realFacts = [];
+  let dedupDropped = 0;
+  for (const f of rawFacts) {
+    if (seenFactIds.has(f.fact_id)) {
+      dedupDropped += 1;
+      continue;
+    }
+    seenFactIds.add(f.fact_id);
+    realFacts.push(f);
+  }
+  const resFact = codeloreFacts.find(function(f) {
+    return f.metric === "upstream.resolution";
+  });
+  let codeloreResolution = null;
+  if (resFact) {
+    const v = JSON.parse(resFact.value_json);
+    codeloreResolution = { version: v.version !== void 0 ? v.version : null, pinned: v.pinned === true, error: v.error !== void 0 ? v.error : null };
+  }
+  return { adrDocs, adrFacts, gitFacts, codeloreFacts, llmFacts, llmGate, chain, chainFact, realFacts, dedupDropped, codeloreResolution };
+}
+function evaluateMacroC(col, repoRoot, ctx, ncCandidates) {
+  const facetRowsFacts = col.codeloreFacts.filter(function(f) {
+    return f.metric === "codelore.facet_rows";
+  });
+  const facetErrFacts = col.codeloreFacts.filter(function(f) {
+    return f.metric === "codelore.facet_error" || f.metric === "codelore.facet_parse_error";
+  });
+  const lagFacts = col.gitFacts.filter(function(f) {
+    return f.metric === "git.adr_lag_days";
+  });
+  const dateFacts = col.adrFacts.filter(function(f) {
+    return f.metric === "adr.decision_date" && JSON.parse(f.value_json).date !== null;
+  });
+  const legDist = {};
+  for (const f of col.adrFacts) {
+    if (f.metric === "adr.header_field_present" || f.metric === "adr.decision_date") {
+      const v = JSON.parse(f.value_json);
+      const leg = v.leg || "miss";
+      legDist[leg] = (legDist[leg] || 0) + 1;
+    }
+  }
+  const pinned = col.codeloreResolution ? col.codeloreResolution.pinned === true : false;
+  const chain = col.chain;
+  const pcMc1 = pinned && facetRowsFacts.length === CODELORE_BATCH1_FACETS.length && facetErrFacts.length === 0 && col.adrFacts.length > 0;
+  const pcMc2 = col.gitFacts.filter(function(f) {
+    return f.metric === "git.first_commit";
+  }).length >= col.adrDocs.length - 2;
+  const tcMc1 = chain.edge_count >= 1 && chain.unresolved_refs.length === 0 && chain.missing_backrefs.length === 0;
+  const tcMc2 = lagFacts.length >= MACRO_C_LAG_MIN_N;
+  const tcMc3 = col.llmGate.configured === true && col.llmFacts.filter(function(f) {
+    return f.metric === "codelore.llm_narrative";
+  }).length >= 1;
+  const cands = ncCandidates || MACRO_C_NC_CANDIDATES;
+  let nc1Path = null;
+  let ncMc1 = false;
+  for (const c of cands) {
+    if (existsSync6(join9(repoRoot, c))) {
+      nc1Path = c;
+      break;
+    }
+  }
+  if (nc1Path !== null) {
+    const nc1Doc = { path: nc1Path, text: readFileSync6(join9(repoRoot, nc1Path), "utf8"), first_commit_date: null };
+    const nc1Facts = collectAdrStructureV2({ documents: [nc1Doc] }, ctx);
+    const nc1Five = nc1Facts.find(function(f) {
+      return f.metric === "adr.five_piece_completeness";
+    });
+    ncMc1 = !!nc1Five && JSON.parse(nc1Five.value_json).present === 0;
+  }
+  return { pcMc1, pcMc2, tcMc1, tcMc2, tcMc3, ncMc1, facetRowsFacts, facetErrFacts, lagFacts, dateFacts, legDist, llmGatedCount: col.llmFacts.filter(function(f) {
+    return f.metric === "codelore.llm_gated";
+  }).length, llmNarrativeCount: col.llmFacts.filter(function(f) {
+    return f.metric === "codelore.llm_narrative";
+  }).length, nc1Path };
+}
+function pickExcerpt2(absOrRelPath, tokens, base) {
+  const text = readFileSync6(base ? join9(base, absOrRelPath) : absOrRelPath, "utf8");
+  const lines = text.split(NL3);
+  if (tokens === null) {
+    return { line: 1, text: lines[0].trim() };
+  }
+  for (let i = 0; i < lines.length; i++) {
+    let all = true;
+    for (const tk of tokens) {
+      if (lines[i].indexOf(tk) < 0) {
+        all = false;
+      }
+    }
+    if (all) {
+      return { line: i + 1, text: lines[i].trim() };
+    }
+  }
+  throw new Error("EXCERPT-MISS: " + absOrRelPath + " tokens=" + String(tokens));
+}
+async function runMacroCAudit(opts) {
+  const cwd = opts.cwd || process.cwd();
+  const intake = repoAdd(opts.input, { cwd, refresh: opts.refresh === true });
+  const repoRoot = intake.resolved_root;
+  const NAME = auditRepoName(opts.input, repoRoot);
+  const probes = probeMacroBRepo(repoRoot, intake.head_sha);
+  const ctx = macroBContext("audit-macro-c-" + NAME, NAME, probes.headSha, probes.headDate, probes.headRaw, "Macro-C");
+  const HEAD_AT = probes.headDate === null ? "quarantined(anchor_head_date_malformed)" : probes.headDate;
+  const anchorQuarantined = probes.headDate === null;
+  const excludedCommits = probes.commits.filter(function(c) {
+    return c.date === null;
+  }).length;
+  if (opts.strictQuarantine === true) {
+    const violations = strictQuarantineViolations(probes.fieldEvents).concat(ratchetIssues(probes.fieldEvents));
+    if (violations.length > 0) {
+      const firstEv = probes.fieldEvents.filter(function(e) {
+        return e.disposition === "quarantined" && violations.join("|").indexOf(e.reason_code) >= 0;
+      })[0];
+      throw protocolCrashError("STRICT-QUARANTINE-VIOLATION", "reason_code \u8D8A\u4ED3\u7EA7\u57FA\u7EBF/\u68D8\u8F6E\u6EDE\u7559\uFF08strict \u6A21\u5F0F fail-closed\uFF09\uFF1A" + violations.join(","), {
+        raw: firstEv ? firstEv.raw : null,
+        crash_location: "macro-c.ts:strict-quarantine-gate",
+        run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: firstEv ? firstEv.commit_sha : null, head_date: probes.headDate, collector: "macro-audit audit(macro-c)" },
+        counts: countsFromStats(probes.fieldStats, probes.commitCount, 0, 0)
+      });
+    }
+  }
+  const col = collectMacroC(repoRoot, probes, ctx);
+  const ev = evaluateMacroC(col, repoRoot, ctx);
+  const chain = col.chain;
+  const persistOut = !!opts.outDir;
+  const outDir = opts.outDir ? resolve3(cwd, opts.outDir) : mkdtempSync3(join9(tmpdir3(), "macro-audit-run-"));
+  mkdirSync5(outDir, { recursive: true });
+  const MEAS_NAME = "audit-measurements.json";
+  const FACTS_NAME = "audit-facts.jsonl";
+  const fv = function(name) {
+    const f = ev.facetRowsFacts.find(function(x) {
+      return x.subject_ref === name;
+    });
+    return f ? JSON.parse(f.value_json).row_count : 0;
+  };
+  const facetRowsCount = {};
+  for (const f of ev.facetRowsFacts) {
+    const v = JSON.parse(f.value_json);
+    facetRowsCount[v.analysis] = v.row_count;
+  }
+  const measurements = {
+    repo: NAME,
+    root: repoRoot,
+    observed_at: HEAD_AT,
+    head_sha: probes.headSha,
+    tree_sha: probes.treeSha,
+    commit_count: probes.commitCount,
+    adr_count: col.adrDocs.length,
+    adr_date_resolvable: ev.dateFacts.length,
+    adr_leg_distribution: ev.legDist,
+    lag_judgeable_n: ev.lagFacts.length,
+    lag_min_n_threshold: MACRO_C_LAG_MIN_N,
+    codelore: { pinned: col.codeloreResolution ? col.codeloreResolution.pinned : false, version: col.codeloreResolution ? col.codeloreResolution.version : null, facet_rows: ev.facetRowsFacts.length, facet_rows_expected: CODELORE_BATCH1_FACETS.length, facet_errors: ev.facetErrFacts.map(function(f) {
+      return f.subject_ref + ":" + f.metric;
+    }), per_facet_rows: facetRowsCount },
+    llm_gate: col.llmGate,
+    llm_gated_count: ev.llmGatedCount,
+    llm_narrative_count: ev.llmNarrativeCount,
+    supersede_chain: col.chain,
+    fact_count: col.realFacts.length,
+    dedup_dropped: col.dedupDropped,
+    pipeline: { source: ".scratch/architecture-recovery/reports/38-macro-c-preview.mjs \u79FB\u690D\uFF08#84/D-204\u2461\uFF09", recalibration: "85-check \u5DEE\u5206\u5BF9\u8D26\uFF08anysearch-cli \u539F\u8BED\u6599\uFF1B\u7F16\u6392\u5C42\u72EC\u7ACB\u91CD\u7B97\uFF09", fact_emission: "file-card \u540C\u4F4D\uFF08fact-write.ts \u5171\u4EAB\u6838\uFF09" },
+    intake: { kind: intake.kind, url: intake.url, cloned: intake.cloned, cache_hit: intake.cache_hit, refreshed: intake.refreshed, snapshot_fetched_at: intake.snapshot_fetched_at, full_depth_verified: intake.full_depth_verified },
+    intake_quarantine: { wired_fields: ["committer_date", "head_date"], field_stats: probes.fieldStats, excluded_commits: excludedCommits, threshold_ratio: QUARANTINE_FIELD_RATIO_RED, strict_mode: opts.strictQuarantine === true, dialect_absorbed_total: probes.dialectAbsorptions.length },
+    collection_environment: { git_version: probeGitVersion() }
+  };
+  if (outDir) {
+    writeFileSync3(join9(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL3, "utf8");
+  }
+  const R = NAME.toUpperCase().split("-").join("").split("/").join("");
+  const RUN_CMD = "macro-audit audit " + opts.input + " --scale Macro-C" + (opts.outDir ? " --out " + opts.outDir : "");
+  const evidence = [];
+  function addEvidence(id, source, tokens, claim, base) {
+    const ex = pickExcerpt2(source, tokens, base);
+    evidence.push({ evidence_id: id, source, locator: "L" + ex.line, claim, grounded: true, collected_at: HEAD_AT, reproduce_cmd: RUN_CMD, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
+  }
+  addEvidence("EV-MC-" + R + "-01", MEAS_NAME, ['"fact_count"'], "\u672C\u6B21\u5B9E\u6D4B\uFF1A" + NAME + " Macro-C \u91C7\u96C6\u4E8B\u5B9E\u6570\uFF08dedup \u540E\uFF09", outDir);
+  addEvidence("EV-MC-" + R + "-02", MEAS_NAME, ['"supersede_chain"'], "\u672C\u6B21\u5B9E\u6D4B\uFF1Asupersede \u5F15\u7528\u7F51 " + chain.edge_count + " \u8FB9\uFF08\u65AD\u94FE " + chain.unresolved_refs.length + "\uFF0F\u7F3A\u56DE\u94FE " + chain.missing_backrefs.length + "\uFF09", outDir);
+  addEvidence("EV-MC-" + R + "-03", MEAS_NAME, ['"lag_judgeable_n"'], "\u672C\u6B21\u5B9E\u6D4B\uFF1AADR \u51B3\u7B56\u65E5 vs \u9996\u63D0\u4EA4 lag \u53EF\u5224\u5B9A\u6570\uFF08\u95E8\u69DB " + MACRO_C_LAG_MIN_N + "\uFF09", outDir);
+  addEvidence("EV-MC-" + R + "-04", MEAS_NAME, ['"facet_rows"'], "\u672C\u6B21\u5B9E\u6D4B\uFF1ACodeLore \u5951\u7EA6\u9762 " + ev.facetRowsFacts.length + "/" + CODELORE_BATCH1_FACETS.length + " facet_rows\uFF08error=" + ev.facetErrFacts.length + "\uFF09", outDir);
+  addEvidence("EV-MC-" + R + "-05", MEAS_NAME, ['"configured"'], "\u672C\u6B21\u5B9E\u6D4B\uFF1ALLM env \u95E8\u63A7=" + (col.llmGate.configured ? "open" : "closed\uFF08llm_gated \u964D\u7EA7\u62AB\u9732\uFF0C\u4E0D\u4F2A\u9020\u4E0D\u771F\u8C03\uFF09"), outDir);
+  addEvidence("EV-MC-" + R + "-06", MEAS_NAME, ['"snapshot_fetched_at"'], "\u5FEB\u7167\u65F6\u70B9\u62AB\u9732\uFF1Aintake snapshot_fetched_at=" + String(intake.snapshot_fetched_at) + "\uFF08cache_hit=" + intake.cache_hit + " refreshed=" + intake.refreshed + "\uFF09", outDir);
+  if (col.adrDocs.length > 0) {
+    addEvidence("EV-MC-" + R + "-07", col.adrDocs[0].path, null, NAME + " ADR \u8BED\u6599\u951A\uFF1A" + col.adrDocs[0].path + " \u5B9E\u7269\u5B58\u5728\uFF08\u8BED\u6599 " + col.adrDocs.length + " \u4EFD\uFF09", repoRoot);
+  }
+  const claims = [
+    { claim_id: "CL-MC-" + R + "-01", evidence_id: "EV-MC-" + R + "-01", required_tokens: ["fact_count"] },
+    { claim_id: "CL-MC-" + R + "-02", evidence_id: "EV-MC-" + R + "-02", required_tokens: ["supersede_chain"] },
+    { claim_id: "CL-MC-" + R + "-03", evidence_id: "EV-MC-" + R + "-03", required_tokens: ["lag_judgeable_n"] },
+    { claim_id: "CL-MC-" + R + "-04", evidence_id: "EV-MC-" + R + "-04", required_tokens: ["facet_rows"] },
+    { claim_id: "CL-MC-" + R + "-05", evidence_id: "EV-MC-" + R + "-05", required_tokens: ["configured"] },
+    { claim_id: "CL-MC-" + R + "-06", evidence_id: "EV-MC-" + R + "-06", required_tokens: ["snapshot_fetched_at"] }
+  ];
+  const facetFactIds = ev.facetRowsFacts.slice(0, 3).map(function(f) {
+    return f.fact_id;
+  });
+  const lagFactIds = ev.lagFacts.slice(0, 5).map(function(f) {
+    return f.fact_id;
+  });
+  const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, decided_at: HEAD_AT, audit_ref: "engine/src/audit/macro-c.ts" };
+  const adjudicationEntries = [
+    { criterion_id: "PC-MC-1", band: ev.pcMc1 ? "supported" : "insufficient", basis_refs: ["\u7BA1\u7EBF\u6D3B\u6027\u6B63\u5BF9\u7167"], anchored_fact_ids: (col.codeloreFacts.length > 0 ? [col.codeloreFacts[0].fact_id] : []).concat(facetFactIds), anchored_evidence_ids: ["EV-MC-" + R + "-04"], decided_at: HEAD_AT, rationale: ev.pcMc1 ? "codelore pin\uFF0B" + ev.facetRowsFacts.length + "/" + CODELORE_BATCH1_FACETS.length + " facet_rows\uFF0BADR \u8BED\u6599 " + col.adrDocs.length + " \u4EFD\u89E3\u6790" : "\u7BA1\u7EBF\u6D3B\u6027\u672A\u4E2D\uFF08pin/facet/\u8BED\u6599\u7F3A\uFF09\u2014\u2014\u7BA1\u7EBF\u6545\u969C P0" },
+    { criterion_id: "PC-MC-2", band: ev.pcMc2 ? "supported" : "insufficient", basis_refs: ["\u7BA1\u7EBF\u6D3B\u6027\u6B63\u5BF9\u7167"], anchored_fact_ids: lagFactIds.slice(0, 1), anchored_evidence_ids: ["EV-MC-" + R + "-03"], decided_at: HEAD_AT, rationale: ev.pcMc2 ? "gitlog \u65CF\u4EA7\u51FA ADR \u9996\u63D0\u4EA4/lag \u4E8B\u5B9E\uFF08first_commit \u2265 " + (col.adrDocs.length - 2) + "\uFF09" : "gitlog \u65CF\u672A\u4EA7\u51FA\u8DB3\u91CF\u9996\u63D0\u4EA4\u4E8B\u5B9E" },
+    { criterion_id: "TC-MC-1", band: ev.tcMc1 ? "supported" : "insufficient", basis_refs: ["\u6F14\u5316\u94FE\u5B8C\u6574\u6027"], anchored_fact_ids: [col.chainFact.fact_id], anchored_evidence_ids: ["EV-MC-" + R + "-02"], decided_at: HEAD_AT, rationale: "supersede \u5F15\u7528\u7F51 " + chain.edge_count + " \u8FB9\uFF1A\u65AD\u94FE " + chain.unresolved_refs.length + " / \u7F3A\u56DE\u94FE " + chain.missing_backrefs.length + "\uFF08\u5224\u636E=38 \xA78 \u5E38\u91CF\u6BB5\uFF0C\u91CD\u6821\u51C6\u80CC\u4E66 85-check\uFF09" },
+    { criterion_id: "TC-MC-2", band: ev.tcMc2 ? "supported" : "insufficient", basis_refs: ["\u65F6\u95F4\u7EF4\u4FE1\u53F7\u53EF\u5224\u5B9A\u6027"], anchored_fact_ids: lagFactIds, anchored_evidence_ids: ["EV-MC-" + R + "-03"], decided_at: HEAD_AT, rationale: "ADR \u51B3\u7B56\u65E5 vs \u9996\u63D0\u4EA4 lag \u53EF\u5224\u5B9A\u6570 " + ev.lagFacts.length + " / \u95E8\u69DB " + MACRO_C_LAG_MIN_N + "\uFF08v2 \u56DE\u9000\u94FE\u65E5\u671F\u89E3\u6790 " + ev.dateFacts.length + "/" + col.adrDocs.length + "\uFF09" },
+    { criterion_id: "TC-MC-3", band: ev.tcMc3 ? "supported" : "insufficient", basis_refs: ["S4 \u5047\u8BBE\u5931\u6548\u68C0\u6D4B\u6DF1\u68C0"], anchored_fact_ids: col.llmFacts.filter(function(f) {
+      return f.metric === "codelore.llm_gate";
+    }).map(function(f) {
+      return f.fact_id;
+    }), anchored_evidence_ids: ["EV-MC-" + R + "-05"], decided_at: HEAD_AT, rationale: ev.tcMc3 ? "LLM \u9762\u5DF2\u914D\u7F6E\u4E14\u4EA7\u51FA\u53D9\u4E8B" : "S4 \u5047\u8BBE\u5931\u6548\u68C0\u6D4B\u9762 llm_gated\uFF08CODELORE_LLM_* env \u95E8\u63A7\u5173\uFF09\u2192 \u6DF1\u68C0\u7EF4\u5EA6 " + UNVERIFIED_MARK + " \u964D\u7EA7\uFF0C\u4E0D\u4F2A\u9020\u4E0D\u771F\u8C03" },
+    { criterion_id: "NC-MC-1", band: ev.ncMc1 ? "supported" : "insufficient", basis_refs: ["\u8D1F\u5BF9\u7167\u7279\u5F02\u6027"], anchored_fact_ids: [], anchored_evidence_ids: ["EV-MC-" + R + "-04"], decided_at: HEAD_AT, rationale: ev.ncMc1 ? "\u8D1F\u5BF9\u7167\u9009\u6750 " + NAME + "/" + String(ev.nc1Path) + " \u4E94\u4EF6\u5957 0 \u547D\u4E2D\uFF08\u7279\u5F02\u6027\u6210\u7ACB\uFF09" : "\u8D1F\u5BF9\u7167\u547D\u4E2D\u6216\u9009\u6750\u7F3A\u5E2D \u2192 \u8F6C\u590D\u6838\u8DEF\u5F84" }
+  ];
+  const overallBand = deriveOverallBand(adjudicationEntries);
+  const quadrantSliceKeys = CODELORE_S3_FACETS;
+  const quadrants = [
+    { quadrant: "strategy", applicability: "native", verdict: overallBand, score: null, confidence: 0.55, dimensions: ["S2", "S4"], slice_fields: { adr_count: col.adrDocs.length, supersede_edges: chain.edge_count, supersede_unresolved: chain.unresolved_refs.length, supersede_missing_backrefs: chain.missing_backrefs.length, lag_judgeable_n: ev.lagFacts.length, adr_date_resolvable: ev.dateFacts.length, llm_gate: col.llmGate.configured ? "open" : "closed" }, verdict_gate: { protocol_version: GATE.protocol_version, decision: overallBand, evidence_flag: false, decided_at: HEAD_AT, override_reason: "S4 \u6DF1\u68C0\u9762 llm_gated\u2014\u2014\u6DF1\u68C0\u7EF4\u5EA6\u8BC1\u636E\u95E8\u69DB\u672A\u8FBE\uFF0Cpreview \u8BDA\u5B9E\u90E8\u5206\u88C1\u5B9A", audit_ref: GATE.audit_ref }, conflict_markers: ["single-repo-calibration"] },
+    { quadrant: "structure", applicability: "derived", verdict: "insufficient", score: null, confidence: 0.3, dimensions: ["S3"], slice_fields: (function() {
+      const sf = {};
+      for (const k of quadrantSliceKeys) {
+        sf[k] = fv(k);
+      }
+      return sf;
+    })(), verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: HEAD_AT, override_reason: "\u884D\u751F\u89C2\u6D4B\u4E0D\u88C1\u51B3\u2014\u2014\u65E0\u9884\u58F0\u660E\u9608\u503C\u57FA\u7EBF\uFF08preview \u6DF1\u5EA6\uFF0C\u89C2\u6D4B\u503C\u5982\u5B9E\u843D slice_fields\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["preview-derived-observation-only"] },
+    { quadrant: "behavior", applicability: "derived", verdict: "insufficient", score: null, confidence: 0.3, dimensions: ["S5"], slice_fields: { revisions_rows: fv("revisions"), abs_churn_rows: fv("abs-churn"), entity_churn_rows: fv("entity-churn"), hotspot_velocity_rows: fv("hotspot-velocity"), code_age_rows: fv("code-age"), lead_time_rows: fv("lead-time"), release_cadence_rows: fv("release-cadence"), ownership_rows: fv("ownership"), bus_factor_rows: fv("bus-factor") }, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: HEAD_AT, override_reason: "\u884D\u751F\u89C2\u6D4B\u4E0D\u88C1\u51B3\u2014\u2014\u540C\u4E0A", audit_ref: GATE.audit_ref }, conflict_markers: ["preview-derived-observation-only"] },
+    { quadrant: "supply_chain", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: HEAD_AT, override_reason: "\u26A0 \u6570\u636E\u672A\u63A5\u2014\u2014Scorecard/repomix \u6309\u5C42\u9700\u6C42\u961F\u5217\u63A5\u5165\u4E0D\u63D2\u961F\uFF08D-034\u2462\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["data-not-connected"] }
+  ];
+  const recommendations = [
+    { rec_id: "R-MC-1", priority: "P1", action: "\u914D\u7F6E CODELORE_LLM_PROVIDER/MODEL\uFF08\u6216 ANTHROPIC_API_KEY\uFF09\u6FC0\u6D3B S4 \u5047\u8BBE\u5931\u6548\u68C0\u6D4B\u9762\uFF0C\u590D\u8DD1\u672C audit", rationale: "TC-MC-3 \u56E0 env \u95E8\u63A7\u5173\u5224 insufficient\u2014\u2014S4 \u6F14\u5316\u65B9\u5411\u6DF1\u68C0\u662F\u5F53\u524D\u552F\u4E00\u672A\u9A8C\u8BC1\u7EF4\u5EA6", expected_impact: "TC-MC-3 \u7531 insufficient \u8F6C\u53EF\u5224\u5B9A\uFF0Coverall \u5177\u5347\u7EA7\u901A\u9053", effort: "S", verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + " / insufficient", evidence_refs: ["EV-MC-" + R + "-05"], degraded_note: null },
+    { rec_id: "R-MC-2", priority: "P1", action: "\u5F15\u5165 \u22651 \u975E\u81EA\u6709\u516C\u5F00\u4ED3\u7ECF URL opt-in \u8DD1 Macro-C\uFF08\u6CDB\u5316\u95F8\u524D\u7F6E\uFF09", rationale: "\u5355\u4ED3\u6821\u51C6\u5C5E dogfooding\u2014\u2014generative not evaluative\uFF08D-033\uFF09\uFF1B\u6CDB\u5316\u8BC1\u636E\u662F GA \u524D\u7F6E", expected_impact: "\u62AB\u9732\u5757\u7ED3\u6784\u6027\u9650\u5236\u9879\u2460\u83B7\u5F97\u5B9E\u8BC1\u95ED\u73AF", effort: "M", verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + " / insufficient", evidence_refs: ["EV-MC-" + R + "-02"], degraded_note: null },
+    { rec_id: "R-MC-3", priority: "P3", action: "\u4F9B\u5E94\u94FE\u8C61\u9650\u7EF4\u6301\u300C\u26A0 \u6570\u636E\u672A\u63A5\u300D\uFF0CScorecard \u63A2\u9488\u6309\u5C42\u9700\u6C42\u961F\u5217\u63A5\u5165\u4E0D\u63D2\u961F", rationale: "D-034\u2462 \u964D\u7EA7\u62AB\u9732\u5236\u5DF2\u7ACB\u6CD5\uFF1B\u89E3\u6392\u89E6\u53D1\u5668=registry supply-chain-closure-trigger\uFF08D-206\uFF09", expected_impact: "preview \u8BDA\u5B9E\u5F62\u6001\u4FDD\u6301", effort: "S", verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + " / insufficient", evidence_refs: ["EV-MC-" + R + "-02"], degraded_note: null }
+  ];
+  const HEADLINE = NAME + " Macro-C audit\uFF08capability 2 of 5 \xB7 preview\uFF09\uFF1A\u5168\u94FE\u5B9E\u8DD1\u2014\u2014codelore " + ev.facetRowsFacts.length + "/" + CODELORE_BATCH1_FACETS.length + " \u9762 + ADR " + col.adrDocs.length + " \u4EFD\uFF08\u65E5\u671F\u89E3\u6790 " + ev.dateFacts.length + "\uFF09+ supersede \u5F15\u7528\u7F51 " + chain.edge_count + " \u8FB9\uFF08\u65AD\u94FE " + chain.unresolved_refs.length + "\uFF0F\u7F3A\u56DE\u94FE " + chain.missing_backrefs.length + "\uFF09+ lag \u53EF\u5224\u5B9A " + ev.lagFacts.length + "\uFF1BS4 \u6DF1\u68C0\u9762 " + (col.llmGate.configured ? "open" : "llm_gated") + " \u2192 \u7EFC\u5408\u88C1\u5B9A " + overallBand + "\uFF08" + (ev.facetErrFacts.length === 0 ? "preview \u8BDA\u5B9E\u90E8\u5206\u88C1\u5B9A\uFF0C\u975E\u7BA1\u7EBF\u5931\u8D25" : "\u9762\u7EA7\u9519\u8BEF\u5982\u5B9E\u843D\u6570") + "\uFF09\u3002";
+  const disclosure = {
+    capability_label: MACRO_C_CAPABILITY_LABEL,
+    calibration_scope: NAME + " Macro-C audit\uFF08\u6F14\u5316\u8003\u53E4\u4E00\u7B49\u547D\u4EE4\u9762\uFF1B\u7BA1\u7EBF\u6821\u51C6=anysearch-cli \u539F\u8BED\u6599\u91CD\u6821\u51C6\u5DEE\u5206\u5BF9\u8D26\u2014\u201485-check \u80CC\u4E66\uFF09",
+    structural_limitations: [
+      "\u5355\u4ED3\u6821\u51C6\uFF08\u672C run \u5BF9\u8C61=" + NAME + "\uFF09\uFF1A\u4E0D\u6784\u6210\u6CDB\u5316\u8BC1\u636E\u2014\u2014dogfooding = generative not evaluative\uFF08D-033\uFF09\uFF0CGA \u524D\u7F6E\u987B \u22651 \u975E\u81EA\u6709\u516C\u5F00\u4ED3",
+      "LLM \u53D9\u4E8B\u9762 env \u95E8\u63A7" + (col.llmGate.configured ? "\u5F00" : "\u5173\uFF1AS4 \u5047\u8BBE\u5931\u6548\u68C0\u6D4B\u6DF1\u68C0\u7EF4\u5EA6\u964D\u7EA7 \u26A0 unverified\uFF08llm_gated \u660E\u793A\uFF0C\u4E0D\u4F2A\u9020\u4E0D\u771F\u8C03\uFF09"),
+      "\u4F9B\u5E94\u94FE\u8C61\u9650 \u26A0 \u6570\u636E\u672A\u63A5\uFF1AScorecard/repomix \u672A\u63A5\u4E0D\u63D2\u961F\uFF08D-034\u2462\uFF09",
+      "structure/behavior \u8C61\u9650\u4E3A\u884D\u751F\u89C2\u6D4B\uFF08\u65E0\u9884\u58F0\u660E\u9608\u503C\u57FA\u7EBF\uFF09\u2014\u2014\u89C2\u6D4B\u503C\u5982\u5B9E\u843D slice_fields \u4E0D\u88C1\u51B3\uFF08\u8BED\u4E49\u57DF\u6807\u7B7E\uFF1Astructure/shape \u6D4B\u91CF\u5C42 vs S3/budget-attribution \u5F52\u56E0\u5C42\uFF0CD-205\uFF09"
+    ],
+    not_in_preview: ["Micro-A", "Macro-A"]
+    // Micro-B file-card 进 preview（#80 步③）；Micro-A=calibrated demo 非 preview（D-204③）；Macro-C 本面产线化入 preview（#84/D-204②）
+  };
+  const quarantinedRows = probes.fieldEvents.filter(function(e) {
+    return e.disposition === "quarantined";
+  });
+  const intakeHealth = {
+    fields: probes.fieldStats.map(function(s) {
+      return { field_name: s.field_name, total: s.total, clean: s.clean, normalized: s.normalized, quarantined: s.quarantined };
+    }),
+    affected_commits: new Set(quarantinedRows.map(function(e) {
+      return e.commit_sha;
+    })).size,
+    excluded_commits: excludedCommits,
+    quarantined_rows: quarantinedRows.map(function(e) {
+      return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: e.raw };
+    }),
+    threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
+    escalation: "none",
+    recorded_at: probes.headDate
+  };
+  const reportInput = {
+    report_id: MACRO_C_REPORT_ID_PREFIX + R + "-MACRO-C",
+    stability: "preview",
+    capabilities: ["macro-c"],
+    scale: "Macro-C",
+    subject_ref: NAME + "@" + probes.headSha.slice(0, 12),
+    generated_at: HEAD_AT,
+    trace_id: ctx.traceId,
+    baggage_id: ctx.traceId,
+    headline: HEADLINE,
+    confidence: 0.55,
+    stale: { marker: "fresh", sla_seconds: 86400, lag_seconds: 0, read_model_version: REPORT_SKELETON_VERSION, fact_watermark_version: "1" },
+    fact_ids: col.realFacts.map(function(f) {
+      return f.fact_id;
+    }),
+    top_findings: ["EV-MC-" + R + "-02", "EV-MC-" + R + "-04", "EV-MC-" + R + "-05"],
+    evidence,
+    claims,
+    quadrants,
+    recommendations,
+    adjudication_entries: adjudicationEntries,
+    decided_at: HEAD_AT,
+    commit_anchor: probes.headSha,
+    tree_anchor: probes.treeSha,
+    gate_ref: { prereg_commit: "38-script-const", criteria_path: "reports/38-macro-c-preview.mjs \xA78", basis_path: ".scratch/macro-audit/decision-ledger.md D-034", criterion_ids: ["PC-MC-1", "PC-MC-2", "TC-MC-1", "TC-MC-2", "TC-MC-3", "NC-MC-1"] },
+    degraded: false,
+    degraded_reason: null,
+    preview_disclosure: disclosure,
+    intake_health: intakeHealth,
+    human: { status: "pending", adjudicator: "user", text: null, decided_at: null }
+  };
+  const dbPath = join9(outDir, "facts.duckdb");
+  if (existsSync6(dbPath)) {
+    unlinkSync(dbPath);
+  }
+  if (existsSync6(dbPath + ".wal")) {
+    unlinkSync(dbPath + ".wal");
+  }
+  const writer = await openWriter(dbPath);
+  const writeResult = await writeRunFactsAndEvents(writer, {
+    ctx: { repoRef: ctx.repoRef, traceId: ctx.traceId },
+    commits: probes.commits,
+    commitCount: probes.commitCount,
+    fieldEvents: probes.fieldEvents,
+    fieldStats: probes.fieldStats,
+    facts: col.realFacts,
+    headDate: probes.headDate,
+    anchorQuarantined,
+    collector: "macro-audit audit(macro-c)",
+    crashSource: "macro-c.ts"
+  });
+  const dbCounts = await queryQuarantineCounts(writer, ctx.traceId);
+  const identityIssues = intakeIdentityIssues(probes.fieldStats, dbCounts);
+  await writer.run("FORCE CHECKPOINT");
+  closeDuckdb(writer);
+  if (identityIssues.length > 0) {
+    throw protocolCrashError("INTAKE-IDENTITY-MISMATCH", "\u6052\u7B49\u5F0F\u65AD\u8A00\u5931\u8D25\uFF1A" + JSON.stringify(identityIssues), { crash_location: "macro-c.ts:intake-identity", run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: null, head_date: probes.headDate, collector: "macro-audit audit(macro-c)" }, counts: countsFromStats(probes.fieldStats, probes.commitCount, writeResult.factsWritten, writeResult.eventsWritten) });
+  }
+  const report = buildReport(reportInput);
+  const reportMd = renderMarkdown(report) + NL3;
+  const sidecarJson = renderSidecar(report) + NL3;
+  let artifacts = null;
+  writeFileSync3(join9(outDir, "report.md"), reportMd, "utf8");
+  writeFileSync3(join9(outDir, "report.json"), sidecarJson, "utf8");
+  writeFileSync3(join9(outDir, FACTS_NAME), anchorQuarantined ? "" : col.realFacts.map(function(f) {
+    return JSON.stringify(f);
+  }).join(NL3) + NL3, "utf8");
+  artifacts = persistOut ? { report_md: join9(outDir, "report.md"), report_json: join9(outDir, "report.json"), facts_jsonl: join9(outDir, FACTS_NAME), measurements: join9(outDir, MEAS_NAME), duckdb: dbPath } : null;
+  const resultOutDir = persistOut ? outDir : null;
+  if (!persistOut) {
+    rmSync4(outDir, { recursive: true, force: true });
+  }
+  return {
+    report_id: report.report_id,
+    receipt_id: report.receipt.receipt_id,
+    scale: report.scale,
+    stability: report.stability,
+    capabilities: report.capabilities,
+    overall_verdict: report.overall_verdict,
+    verdict: report.verdict,
+    intake_quarantine: { quarantined: intakeHealth.fields.reduce(function(s, f) {
+      return s + f.quarantined;
+    }, 0), normalized: intakeHealth.fields.reduce(function(s, f) {
+      return s + f.normalized;
+    }, 0), affected_commits: intakeHealth.affected_commits, escalation: intakeHealth.escalation, facts_persisted: !anchorQuarantined },
+    degraded_mode: report.degraded_mode,
+    head_sha: probes.headSha,
+    tree_sha: probes.treeSha,
+    commit_count: probes.commitCount,
+    adr_count: col.adrDocs.length,
+    fact_count: col.realFacts.length,
+    repo_name: NAME,
+    resolved_root: repoRoot,
+    intake_kind: intake.kind,
+    snapshot_fetched_at: intake.snapshot_fetched_at,
+    cache_hit: intake.cache_hit,
+    refreshed: intake.refreshed,
+    codelore: { resolved: col.codeloreResolution !== null, pinned: col.codeloreResolution ? col.codeloreResolution.pinned : false, version: col.codeloreResolution ? col.codeloreResolution.version : null },
+    out_dir: resultOutDir,
+    artifacts,
+    report_markdown: reportMd,
+    sidecar_json: sidecarJson,
+    measurements
+  };
+}
+
+// src/audit/audit.ts
+var NL4 = String.fromCharCode(10);
+var AUDIT_SCALES_IMPLEMENTED = ["Macro-B", "Macro-C"];
+var SCALE_LAYER_ORDER = "Macro-C\u2192Micro-A\u2192Micro-B\u2192Macro-A\uFF08ADR-0017\u2462 \u5C42\u5E8F\uFF0CMacro-B/Macro-C \u5DF2\u4E0A\u67B6 preview\uFF09";
 var SCALE_CANON = { "microa": "Micro-A", "microb": "Micro-B", "macroa": "Macro-A", "macrob": "Macro-B", "macroc": "Macro-C" };
 function isAuditScaleError(e) {
   return !!e && typeof e === "object" && e.code === "SCALE-NOT-IMPLEMENTED";
@@ -4163,13 +5028,13 @@ function auditRepoName(input, resolvedRoot) {
   if (/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(t)) {
     return t.split("/").pop() || t;
   }
-  return basename(resolve3(resolvedRoot)) || "repo";
+  return basename2(resolve4(resolvedRoot)) || "repo";
 }
 var AUDIT_INTENT_CANDIDATES = ["CONTEXT.md", "README.md", "AGENTS.md"];
 var AUDIT_NC1_CANDIDATES = ["package.json", "README.md", "README.adoc", "README.rst", "README", "Cargo.toml", "pom.xml", "build.gradle", "LICENSE", "LICENSE.txt", "pyproject.toml", "go.mod", "Makefile"];
-function pickExcerpt2(absOrRelPath, tokens, base) {
-  const text = readFileSync6(base ? join9(base, absOrRelPath) : absOrRelPath, "utf8");
-  const lines = text.split(NL3);
+function pickExcerpt3(absOrRelPath, tokens, base) {
+  const text = readFileSync7(base ? join10(base, absOrRelPath) : absOrRelPath, "utf8");
+  const lines = text.split(NL4);
   if (tokens === null) {
     return { line: 1, text: lines[0].trim() };
   }
@@ -4188,6 +5053,9 @@ function pickExcerpt2(absOrRelPath, tokens, base) {
 }
 async function runAudit(opts) {
   const scale = normalizeAuditScale(opts.scale);
+  if (scale === "Macro-C") {
+    return runMacroCAudit(opts);
+  }
   const cwd = opts.cwd || process.cwd();
   const intake = repoAdd(opts.input, { cwd, refresh: opts.refresh === true });
   const repoRoot = intake.resolved_root;
@@ -4266,8 +5134,8 @@ async function runAudit(opts) {
   const bhvNc1 = BHV_DEFERRED.length > 0;
   const behaviorBand = bhvRan ? bhvPc1 && bhvTc1 && bhvTc2 && bhvNc1 ? "supported" : "insufficient" : "insufficient";
   const persistOut = !!opts.outDir;
-  const outDir = opts.outDir ? resolve3(cwd, opts.outDir) : mkdtempSync3(join9(tmpdir3(), "macro-audit-run-"));
-  mkdirSync5(outDir, { recursive: true });
+  const outDir = opts.outDir ? resolve4(cwd, opts.outDir) : mkdtempSync4(join10(tmpdir4(), "macro-audit-run-"));
+  mkdirSync6(outDir, { recursive: true });
   const MEAS_NAME = "audit-measurements.json";
   const FACTS_NAME = "audit-facts.jsonl";
   const measurements = {
@@ -4342,13 +5210,13 @@ async function runAudit(opts) {
     }, 0), reconciliation: { match: facetRecon.match, per_analysis: facetRecon.per_analysis } }, codelore_version: col.codeloreResolution ? col.codeloreResolution.version : null } : { ran: false, reason: col.codeloreResolution ? "codelore binary \u672A\u89E3\u6790/\u4E0D pin\uFF08pinned=false\uFF09\u2014\u2014\u884C\u4E3A\u9762\u7F3A\u5E2D\u5982\u5B9E\u767B\u8BB0" : "codelore=off", deferred_faces: BHV_DEFERRED }
   };
   if (outDir) {
-    writeFileSync3(join9(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL3, "utf8");
+    writeFileSync4(join10(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL4, "utf8");
   }
   const evidence = [];
   const R = NAME.toUpperCase().split("-").join("").split("/").join("");
   const RUN_CMD = "macro-audit audit " + opts.input + (opts.outDir ? " --out " + opts.outDir : "");
   function addEvidence(id, source, tokens, claim, base) {
-    const ex = pickExcerpt2(source, tokens, base);
+    const ex = pickExcerpt3(source, tokens, base);
     evidence.push({ evidence_id: id, source, locator: "L" + ex.line, claim, grounded: true, collected_at: HEAD_AT, reproduce_cmd: RUN_CMD, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
   }
   const measBase = outDir;
@@ -4428,8 +5296,8 @@ async function runAudit(opts) {
     capability_label: "capability 1 of 5 \xB7 preview",
     calibration_scope: NAME + " Macro-B audit\uFF08audit \u4E00\u7B49\u547D\u4EE4\u9762\uFF1Bscale=Macro-B \u5DF2\u4E0A\u67B6\uFF09",
     structural_limitations: limitations,
-    not_in_preview: ["Micro-A", "Macro-C", "Macro-A"]
-    // Micro-B file-card 进 preview（#80 步③ 缝合落地）
+    not_in_preview: ["Micro-A", "Macro-A"]
+    // Micro-B file-card 进 preview（#80 步③）；Macro-C 产线化入 preview（#84/D-204②④）；Micro-A=calibrated demo 非 preview（D-204③）
   };
   const quarantinedRows = probes.fieldEvents.filter(function(e) {
     return e.disposition === "quarantined";
@@ -4481,129 +5349,46 @@ async function runAudit(opts) {
     human: { status: "pending", adjudicator: "user", text: null, decided_at: null }
   };
   const FACT_WRITE_BATCH = 500;
-  const dbPath = join9(outDir, "facts.duckdb");
-  if (existsSync6(dbPath)) {
-    unlinkSync(dbPath);
+  const dbPath = join10(outDir, "facts.duckdb");
+  if (existsSync7(dbPath)) {
+    unlinkSync2(dbPath);
   }
-  if (existsSync6(dbPath + ".wal")) {
-    unlinkSync(dbPath + ".wal");
+  if (existsSync7(dbPath + ".wal")) {
+    unlinkSync2(dbPath + ".wal");
   }
   const writer = await openWriter(dbPath);
-  const seen = /* @__PURE__ */ new Set();
-  let factsWritten = 0;
-  let eventsWritten = 0;
-  const crashCtx = function(sha) {
-    return { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: sha, head_date: probes.headDate, collector: "macro-audit audit" };
-  };
-  const crashCounts = function() {
-    return countsFromStats(probes.fieldStats, probes.commitCount, factsWritten, eventsWritten);
-  };
-  try {
-    const commitShaSet = new Set(probes.commits.map(function(c) {
-      return c.sha;
-    }));
-    const factsBySha = /* @__PURE__ */ new Map();
-    const restFacts = [];
-    for (const f of col.realFacts) {
-      if (commitShaSet.has(f.subject_ref)) {
-        const arr = factsBySha.get(f.subject_ref) || [];
-        arr.push(f);
-        factsBySha.set(f.subject_ref, arr);
-      } else {
-        restFacts.push(f);
-      }
-    }
-    const eventsBySha = /* @__PURE__ */ new Map();
-    for (const fe of probes.fieldEvents) {
-      const arr = eventsBySha.get(fe.commit_sha) || [];
-      arr.push(fe);
-      eventsBySha.set(fe.commit_sha, arr);
-    }
-    const appendEvents = async function(evs) {
-      for (const fe of evs) {
-        await appendQuarantineEvent(writer, { run_id: ctx.traceId, commit_sha: fe.commit_sha, field_name: fe.field_name, disposition: fe.disposition, reason_code: fe.reason_code, raw: fe.raw, collector: "macro-audit audit", recorded_at: probes.headDate });
-        eventsWritten += 1;
-      }
-    };
-    for (const c of probes.commits) {
-      const cFacts = anchorQuarantined ? [] : factsBySha.get(c.sha) || [];
-      const cEvents = eventsBySha.get(c.sha) || [];
-      if (cFacts.length > 0 || cEvents.length > 0) {
-        await runInTransaction(writer, async function() {
-          for (const f of cFacts) {
-            if (!seen.has(f.fact_id)) {
-              seen.add(f.fact_id);
-              await appendFact(writer, f);
-              factsWritten += 1;
-            }
-          }
-          await appendEvents(cEvents);
-        });
-      }
-      const cn = await (await writer.run("SELECT COUNT(*) FROM quarantine_log WHERE run_id = ? AND commit_sha = ?", [ctx.traceId, c.sha])).getRows();
-      if (Number(cn[0][0]) !== cEvents.length) {
-        throw protocolCrashError("INTAKE-IDENTITY-MISMATCH", "\u9010 commit \u589E\u91CF\u6052\u7B49\u5F0F\u65AD\u8A00\u5931\u8D25\uFF1Asha=" + c.sha + " \u671F\u671B " + cEvents.length + " \u5E93\u5185 " + Number(cn[0][0]), { crash_location: "audit.ts:per-commit-identity", run_context: crashCtx(c.sha), counts: crashCounts() });
-      }
-    }
-    const orphanEvents = probes.fieldEvents.filter(function(fe) {
-      return !commitShaSet.has(fe.commit_sha);
-    });
-    for (let i = 0; i < restFacts.length; i += FACT_WRITE_BATCH) {
-      const batch = restFacts.slice(i, i + FACT_WRITE_BATCH);
-      const lastChunk = i + FACT_WRITE_BATCH >= restFacts.length;
-      await runInTransaction(writer, async function() {
-        if (!anchorQuarantined) {
-          for (const f of batch) {
-            if (!seen.has(f.fact_id)) {
-              seen.add(f.fact_id);
-              await appendFact(writer, f);
-              factsWritten += 1;
-            }
-          }
-        }
-        if (lastChunk) {
-          await appendEvents(orphanEvents);
-        }
-      });
-    }
-    if (restFacts.length === 0 && orphanEvents.length > 0) {
-      await runInTransaction(writer, async function() {
-        await appendEvents(orphanEvents);
-      });
-    }
-  } catch (e) {
-    try {
-      closeDuckdb(writer);
-    } catch (_) {
-    }
-    if (isProtocolCrash(e)) {
-      throw e;
-    }
-    if (classifyWriteError(e) === "io") {
-      throw new AuditIoError("fact/quarantine \u5199 IO \u5931\u8D25\uFF08D-115\u2462 IO \u5931\u8D25\u7C7B\u9000\u51FA\u7C7B\u2014\u2014\u975E\u534F\u8BAE\u5D29\u6E83\uFF09\uFF1A" + String(e.message || e));
-    }
-    throw protocolCrashError("QUARANTINE-CONSTRAINT", "fact/quarantine \u4E8B\u52A1\u5199\u5931\u8D25\uFF08\u8BE5\u6279 ROLLBACK \u65E0\u534A\u622A\u5199\uFF09\uFF1A" + String(e.message || e), { crash_location: "audit.ts:fact-write-tx", run_context: crashCtx(null), counts: crashCounts() });
-  }
+  const writeResult = await writeRunFactsAndEvents(writer, {
+    ctx: { repoRef: ctx.repoRef, traceId: ctx.traceId },
+    commits: probes.commits,
+    commitCount: probes.commitCount,
+    fieldEvents: probes.fieldEvents,
+    fieldStats: probes.fieldStats,
+    facts: col.realFacts,
+    headDate: probes.headDate,
+    anchorQuarantined,
+    collector: "macro-audit audit",
+    crashSource: "audit.ts"
+  });
   const dbCounts = await queryQuarantineCounts(writer, ctx.traceId);
   const identityIssues = intakeIdentityIssues(probes.fieldStats, dbCounts);
   await writer.run("FORCE CHECKPOINT");
   closeDuckdb(writer);
   if (identityIssues.length > 0) {
-    throw protocolCrashError("INTAKE-IDENTITY-MISMATCH", "\u6052\u7B49\u5F0F\u65AD\u8A00\u5931\u8D25\uFF1A" + JSON.stringify(identityIssues), { crash_location: "audit.ts:intake-identity", run_context: crashCtx(null), counts: crashCounts() });
+    throw protocolCrashError("INTAKE-IDENTITY-MISMATCH", "\u6052\u7B49\u5F0F\u65AD\u8A00\u5931\u8D25\uFF1A" + JSON.stringify(identityIssues), { crash_location: "audit.ts:intake-identity", run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: null, head_date: probes.headDate, collector: "macro-audit audit" }, counts: countsFromStats(probes.fieldStats, probes.commitCount, writeResult.factsWritten, writeResult.eventsWritten) });
   }
   const report = buildReport(reportInput);
-  const reportMd = renderMarkdown(report) + NL3;
-  const sidecarJson = renderSidecar(report) + NL3;
+  const reportMd = renderMarkdown(report) + NL4;
+  const sidecarJson = renderSidecar(report) + NL4;
   let artifacts = null;
-  writeFileSync3(join9(outDir, "report.md"), reportMd, "utf8");
-  writeFileSync3(join9(outDir, "report.json"), sidecarJson, "utf8");
-  writeFileSync3(join9(outDir, FACTS_NAME), anchorQuarantined ? "" : col.realFacts.map(function(f) {
+  writeFileSync4(join10(outDir, "report.md"), reportMd, "utf8");
+  writeFileSync4(join10(outDir, "report.json"), sidecarJson, "utf8");
+  writeFileSync4(join10(outDir, FACTS_NAME), anchorQuarantined ? "" : col.realFacts.map(function(f) {
     return JSON.stringify(f);
-  }).join(NL3) + NL3, "utf8");
-  artifacts = persistOut ? { report_md: join9(outDir, "report.md"), report_json: join9(outDir, "report.json"), facts_jsonl: join9(outDir, FACTS_NAME), measurements: join9(outDir, MEAS_NAME), duckdb: dbPath } : null;
+  }).join(NL4) + NL4, "utf8");
+  artifacts = persistOut ? { report_md: join10(outDir, "report.md"), report_json: join10(outDir, "report.json"), facts_jsonl: join10(outDir, FACTS_NAME), measurements: join10(outDir, MEAS_NAME), duckdb: dbPath } : null;
   const resultOutDir = persistOut ? outDir : null;
   if (!persistOut) {
-    rmSync4(outDir, { recursive: true, force: true });
+    rmSync5(outDir, { recursive: true, force: true });
   }
   return {
     report_id: report.report_id,
@@ -4641,7 +5426,7 @@ async function runAudit(opts) {
 
 // src/audit/file-card.ts
 import { execFileSync as execFileSync2 } from "node:child_process";
-import { existsSync as existsSync7, mkdirSync as mkdirSync6 } from "node:fs";
+import { existsSync as existsSync8, mkdirSync as mkdirSync7 } from "node:fs";
 import { dirname as dirname6 } from "node:path";
 
 // src/fact/file-card.ts
@@ -5294,7 +6079,7 @@ async function runAuditFile(opts) {
   let emitted = 0;
   let skipped = 0;
   if (!pinned) {
-    const preCard = existsSync7(opts.db) ? await projectFileCard(opts.db, { repo: name, subject: opts.path, current_head_sha: headSha2 }) : null;
+    const preCard = existsSync8(opts.db) ? await projectFileCard(opts.db, { repo: name, subject: opts.path, current_head_sha: headSha2 }) : null;
     const setExists = preCard !== null && preCard.observation.head_sha === headSha2;
     const subjectHasFacts = preCard !== null && Object.keys(preCard.kernel.facet_rows).length > 0;
     if (!setExists || !subjectHasFacts) {
@@ -5302,7 +6087,7 @@ async function runAuditFile(opts) {
       const codeloreFn = opts.collectors && opts.collectors.codelore || defaultCodeloreCollect;
       const lineageFn = opts.collectors && opts.collectors.lineage || defaultLineageCollect;
       const batch = codeloreFn(ctx, repoRoot).concat(lineageFn(ctx, repoRoot));
-      mkdirSync6(dirname6(opts.db), { recursive: true });
+      mkdirSync7(dirname6(opts.db), { recursive: true });
       const writer = await openWriter(opts.db);
       try {
         emitted = await runInTransaction(writer, async function() {
@@ -5334,7 +6119,7 @@ async function runAuditFile(opts) {
       backfilled = true;
     }
   }
-  const card = existsSync7(opts.db) ? await projectFileCard(opts.db, {
+  const card = existsSync8(opts.db) ? await projectFileCard(opts.db, {
     repo: name,
     subject: opts.path,
     at: pinned ? opts.at : void 0,
@@ -5355,12 +6140,12 @@ async function runAuditFile(opts) {
 }
 
 // src/cli.ts
-import { writeFileSync as writeFileSync4, existsSync as existsSync9, mkdirSync as mkdirSync7 } from "node:fs";
-import { join as join10, resolve as resolve4 } from "node:path";
+import { writeFileSync as writeFileSync5, existsSync as existsSync10, mkdirSync as mkdirSync8 } from "node:fs";
+import { join as join11, resolve as resolve5 } from "node:path";
 
 // src/mcp-server.ts
 import { execFileSync as execFileSync3 } from "node:child_process";
-import { existsSync as existsSync8 } from "node:fs";
+import { existsSync as existsSync9 } from "node:fs";
 process.env.MACRO_AUDIT_MCP_STDIO = "1";
 var MCP_PROTOCOL_VERSION = "2024-11-05";
 var QUARANTINE_TOOL = {
@@ -5485,7 +6270,7 @@ async function handleRpcMessage(msg) {
       }
       const guidance = "macro-audit audit file " + (rp ? '"' + rp + '"' : "<repo-path>") + ' "' + path + '" --db ' + db2;
       try {
-        const card = existsSync8(db2) ? await projectFileCard(db2, {
+        const card = existsSync9(db2) ? await projectFileCard(db2, {
           repo,
           subject: path,
           at: asStr(a2.at),
@@ -5562,7 +6347,7 @@ async function serveMcpStdio(input, output) {
       output.write(JSON.stringify(r) + "\n");
     }
   };
-  await new Promise(function(resolve5) {
+  await new Promise(function(resolve6) {
     input.on("data", function(chunk) {
       buf += chunk;
       let idx = buf.indexOf("\n");
@@ -5586,10 +6371,10 @@ async function serveMcpStdio(input, output) {
       }
     });
     input.on("end", function() {
-      resolve5();
+      resolve6();
     });
     input.on("close", function() {
-      resolve5();
+      resolve6();
     });
     input.resume();
   });
@@ -5864,12 +6649,12 @@ async function main() {
         const payload = crashArtifactFromError(e);
         let artifact = null;
         try {
-          const dir = outDir ? resolve4(outDir) : resolve4(process.cwd());
-          if (!existsSync9(dir)) {
-            mkdirSync7(dir, { recursive: true });
+          const dir = outDir ? resolve5(outDir) : resolve5(process.cwd());
+          if (!existsSync10(dir)) {
+            mkdirSync8(dir, { recursive: true });
           }
-          artifact = join10(dir, "macro-audit-crash-" + String(payload.error_code) + "-" + String(Date.now()) + ".json");
-          writeFileSync4(artifact, JSON.stringify(payload, null, 2) + "\n", "utf8");
+          artifact = join11(dir, "macro-audit-crash-" + String(payload.error_code) + "-" + String(Date.now()) + ".json");
+          writeFileSync5(artifact, JSON.stringify(payload, null, 2) + "\n", "utf8");
         } catch (_) {
           artifact = null;
         }

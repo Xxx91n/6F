@@ -2,6 +2,7 @@
 // 签名：macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]
 // 链 = repoAdd 输入裁决（ADR-0009 三段式复用：本地路径/owner-repo 本地优先/URL opt-in 隔离 clone）
 //   → 共享管线 audit/macro-b.ts（probe→collectors＋codelore 面→facts→骨架渲染前置件，与 demo 同消费）
+//   Macro-C（#84/D-204②④）：scale=Macro-C dispatch→audit/macro-c.ts（38 管线移植一等面）
 //   → facts（audit-facts.jsonl＋facts.duckdb，同一 appendFact 追加路径）
 //   → 报告（buildReport + preview_disclosure「capability 1 of 5 · preview」＋报告头 stability/capabilities）
 // 纪律：被测仓只读；不自动 pull（--refresh 显式 opt-in 才 fetch）；--scale 未实装层诚实拒绝 exit 2；
@@ -12,14 +13,16 @@ import { tmpdir } from 'node:os';
 import { repoAdd } from '../intake/intake.js';
 import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, probeGitVersion, MACRO_B_STOPWORDS, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, TC3_TOPN } from './macro-b.js';
 import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, UNVERIFIED_MARK, firstFactIds } from '../report/generate.js';
-import { openWriter, appendFact, appendQuarantineEvent, runInTransaction, queryQuarantineCounts, closeDuckdb, AuditIoError, classifyWriteError } from '../fact/store.js';
-import { strictQuarantineViolations, ratchetIssues, intakeIdentityIssues, protocolCrashError, isProtocolCrash, intakeEscalation, countsFromStats, QUARANTINE_FIELD_RATIO_RED, rawEcho, GIT_ISO_DIALECT_RULES } from '../intake/quarantine.js';
+import { runMacroCAudit } from './macro-c.js';
+import { writeRunFactsAndEvents } from './fact-write.js';
+import { openWriter, queryQuarantineCounts, closeDuckdb } from '../fact/store.js';
+import { strictQuarantineViolations, ratchetIssues, intakeIdentityIssues, protocolCrashError, intakeEscalation, countsFromStats, QUARANTINE_FIELD_RATIO_RED, rawEcho, GIT_ISO_DIALECT_RULES } from '../intake/quarantine.js';
 import { projectUpstreamDimensions } from './upstream-dimension-map.js';
 import { reaggregateFileFacetRows, reconcilePerFileVsAggregate } from '../upstream/codelore.js';
 const NL = String.fromCharCode(10);
 // 已实现规模面（D-060③：--scale 缺省 Macro-B；其余层未实装 → 诚实拒绝 exit 2）
-export const AUDIT_SCALES_IMPLEMENTED = ['Macro-B'];
-const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（ADR-0017③ 层序，Macro-B 已上架 preview）';
+export const AUDIT_SCALES_IMPLEMENTED = ['Macro-B', 'Macro-C']; // Macro-C 产线化（#84/D-204②④）；层序不动（ADR-0017③）
+const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（ADR-0017③ 层序，Macro-B/Macro-C 已上架 preview）';
 const SCALE_CANON = { 'microa': 'Micro-A', 'microb': 'Micro-B', 'macroa': 'Macro-A', 'macrob': 'Macro-B', 'macroc': 'Macro-C' };
 export function isAuditScaleError(e) {
     return !!e && typeof e === 'object' && e.code === 'SCALE-NOT-IMPLEMENTED';
@@ -77,6 +80,9 @@ function pickExcerpt(absOrRelPath, tokens, base) {
 }
 export async function runAudit(opts) {
     const scale = normalizeAuditScale(opts.scale);
+    if (scale === 'Macro-C') {
+        return runMacroCAudit(opts);
+    } // #84/D-204②④：Macro-C 一等面（38 管线移植）
     const cwd = opts.cwd || process.cwd();
     // ---------- §1 intake（ADR-0009 三段式复用；不自动 pull，refresh 显式 opt-in） ----------
     const intake = repoAdd(opts.input, { cwd: cwd, refresh: opts.refresh === true });
@@ -251,7 +257,7 @@ export async function runAudit(opts) {
         capability_label: 'capability 1 of 5 · preview',
         calibration_scope: NAME + ' Macro-B audit（audit 一等命令面；scale=Macro-B 已上架）',
         structural_limitations: limitations,
-        not_in_preview: ['Micro-A', 'Macro-C', 'Macro-A'] // Micro-B file-card 进 preview（#80 步③ 缝合落地）
+        not_in_preview: ['Micro-A', 'Macro-A'] // Micro-B file-card 进 preview（#80 步③）；Macro-C 产线化入 preview（#84/D-204②④）；Micro-A=calibrated demo 非 preview（D-204③）
     };
     const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
     const intakeHealth = {
@@ -307,106 +313,25 @@ export async function runAudit(opts) {
         unlinkSync(dbPath + '.wal');
     }
     const writer = await openWriter(dbPath);
-    const seen = new Set();
-    let factsWritten = 0;
-    let eventsWritten = 0;
-    const crashCtx = function (sha) {
-        return { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: sha, head_date: probes.headDate, collector: 'macro-audit audit' };
-    };
-    const crashCounts = function () {
-        return countsFromStats(probes.fieldStats, probes.commitCount, factsWritten, eventsWritten);
-    };
-    try {
-        const commitShaSet = new Set(probes.commits.map(function (c) { return c.sha; }));
-        const factsBySha = new Map();
-        const restFacts = [];
-        for (const f of col.realFacts) {
-            if (commitShaSet.has(f.subject_ref)) {
-                const arr = factsBySha.get(f.subject_ref) || [];
-                arr.push(f);
-                factsBySha.set(f.subject_ref, arr);
-            }
-            else {
-                restFacts.push(f);
-            }
-        }
-        const eventsBySha = new Map();
-        for (const fe of probes.fieldEvents) {
-            const arr = eventsBySha.get(fe.commit_sha) || [];
-            arr.push(fe);
-            eventsBySha.set(fe.commit_sha, arr);
-        }
-        const appendEvents = async function (evs) {
-            for (const fe of evs) {
-                await appendQuarantineEvent(writer, { run_id: ctx.traceId, commit_sha: fe.commit_sha, field_name: fe.field_name, disposition: fe.disposition, reason_code: fe.reason_code, raw: fe.raw, collector: 'macro-audit audit', recorded_at: probes.headDate });
-                eventsWritten += 1;
-            }
-        };
-        for (const c of probes.commits) {
-            const cFacts = anchorQuarantined ? [] : (factsBySha.get(c.sha) || []);
-            const cEvents = eventsBySha.get(c.sha) || [];
-            if (cFacts.length > 0 || cEvents.length > 0) {
-                await runInTransaction(writer, async function () {
-                    for (const f of cFacts) {
-                        if (!seen.has(f.fact_id)) {
-                            seen.add(f.fact_id);
-                            await appendFact(writer, f);
-                            factsWritten += 1;
-                        }
-                    }
-                    await appendEvents(cEvents);
-                });
-            }
-            // 逐 commit 增量恒等式断言（D-116① 极简纯 COUNT 比较）：库内 (run_id,commit_sha) 行数=本 commit 事件数
-            const cn = await (await writer.run('SELECT COUNT(*) FROM quarantine_log WHERE run_id = ? AND commit_sha = ?', [ctx.traceId, c.sha])).getRows();
-            if (Number(cn[0][0]) !== cEvents.length) {
-                throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '逐 commit 增量恒等式断言失败：sha=' + c.sha + ' 期望 ' + cEvents.length + ' 库内 ' + Number(cn[0][0]), { crash_location: 'audit.ts:per-commit-identity', run_context: crashCtx(c.sha), counts: crashCounts() });
-            }
-        }
-        // 非 commit 粒度 facts 节拍批（500/批锚节拍非运行末单事务）；
-        // 孤儿事件（commit_sha∉commit 集——防御性兜底，head_date 锚事件 sha 理论上∈commits）随末节拍批同事务。
-        const orphanEvents = probes.fieldEvents.filter(function (fe) { return !commitShaSet.has(fe.commit_sha); });
-        for (let i = 0; i < restFacts.length; i += FACT_WRITE_BATCH) {
-            const batch = restFacts.slice(i, i + FACT_WRITE_BATCH);
-            const lastChunk = i + FACT_WRITE_BATCH >= restFacts.length;
-            await runInTransaction(writer, async function () {
-                if (!anchorQuarantined) {
-                    for (const f of batch) {
-                        if (!seen.has(f.fact_id)) {
-                            seen.add(f.fact_id);
-                            await appendFact(writer, f);
-                            factsWritten += 1;
-                        }
-                    }
-                }
-                if (lastChunk) {
-                    await appendEvents(orphanEvents);
-                }
-            });
-        }
-        if (restFacts.length === 0 && orphanEvents.length > 0) {
-            await runInTransaction(writer, async function () { await appendEvents(orphanEvents); });
-        }
-    }
-    catch (e) {
-        try {
-            closeDuckdb(writer);
-        }
-        catch (_) { /* 次生关闭错不盖主错 */ }
-        if (isProtocolCrash(e)) {
-            throw e;
-        }
-        if (classifyWriteError(e) === 'io') {
-            throw new AuditIoError('fact/quarantine 写 IO 失败（D-115③ IO 失败类退出类——非协议崩溃）：' + String(e.message || e));
-        }
-        throw protocolCrashError('QUARANTINE-CONSTRAINT', 'fact/quarantine 事务写失败（该批 ROLLBACK 无半截写）：' + String(e.message || e), { crash_location: 'audit.ts:fact-write-tx', run_context: crashCtx(null), counts: crashCounts() });
-    }
+    // file-card 同位发射（#84/D-204②）：fact-write.ts 共享核——同 emit 函数/同 grain/同恒等式（原 §8 内联体抽出）
+    const writeResult = await writeRunFactsAndEvents(writer, {
+        ctx: { repoRef: ctx.repoRef, traceId: ctx.traceId },
+        commits: probes.commits,
+        commitCount: probes.commitCount,
+        fieldEvents: probes.fieldEvents,
+        fieldStats: probes.fieldStats,
+        facts: col.realFacts,
+        headDate: probes.headDate,
+        anchorQuarantined: anchorQuarantined,
+        collector: 'macro-audit audit',
+        crashSource: 'audit.ts'
+    });
     const dbCounts = await queryQuarantineCounts(writer, ctx.traceId);
     const identityIssues = intakeIdentityIssues(probes.fieldStats, dbCounts);
     await writer.run('FORCE CHECKPOINT');
     closeDuckdb(writer);
     if (identityIssues.length > 0) {
-        throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '恒等式断言失败：' + JSON.stringify(identityIssues), { crash_location: 'audit.ts:intake-identity', run_context: crashCtx(null), counts: crashCounts() });
+        throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '恒等式断言失败：' + JSON.stringify(identityIssues), { crash_location: 'audit.ts:intake-identity', run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: null, head_date: probes.headDate, collector: 'macro-audit audit' }, counts: countsFromStats(probes.fieldStats, probes.commitCount, writeResult.factsWritten, writeResult.eventsWritten) });
     }
     const report = buildReport(reportInput);
     const reportMd = renderMarkdown(report) + NL;
