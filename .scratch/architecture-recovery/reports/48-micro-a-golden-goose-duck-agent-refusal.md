@@ -4,9 +4,9 @@
 > 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
 >
 > 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）
-> - capability: capability 3 of 5 · preview
+> - capability: capability 3 of 5 · calibrated demo · not in plugin distribution
 > - calibration_scope: 托管面资格闸拒绝件（failure 演示面）
-> - structural_limitations: golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计；拒绝语义：intake 阶段显式拒绝（D-033 硬约束逆用）——报告落 unsupported: 无托管 PR 面＋原因＋前置条件；票面前提漂移如实登记：anysearch-cli 票面撰写时无托管面（#37 实测 github_pr_total=0），本票复核托管枚举 merged=null——前提已漂移，failure 演示主体改取真负例 goose-duck-agent（merged=0）
+> - structural_limitations: golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计；拒绝语义：intake 阶段显式拒绝（D-033 硬约束逆用）——报告落 unsupported: 无托管 PR 面＋原因＋前置条件；票面前提漂移如实登记：anysearch-cli 票面撰写时无托管面（#37 实测 github_pr_total=0），本票复核托管枚举 merged=null——前提已漂移，failure 演示主体改取真负例 goose-duck-agent（merged=0）；适配器硬化面披露：宿主 API diff 工件依赖 fetchDiffArtifact/cassetteFetcher 适配器硬化——产线化前置义务（#85② 立案在途，D-204③④）
 > - not_in_preview: Micro-B / Macro-A
 
 ## C1 执行摘要

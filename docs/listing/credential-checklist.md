@@ -37,6 +37,6 @@
 ## E. 诚实披露（入 listing 前须知）
 
 - 发布未发生；不存在可安装 listing（README 口径）；
-- preview 为 capability 1-4 of 5（Macro-B/Macro-C/Micro-A/Micro-B）；Macro-A 层 Not yet in preview；
+- preview 为 Macro-B/Macro-C/Micro-B（capability 1/2/4 of 5）；Micro-A=calibrated demo · not in plugin distribution（D-204③）；Macro-A 层 Not yet in preview；
 - 生态无签名机制——listing 描述已写权限最小化/`defaultEnabled:false` 建议作差异化（竞品启示）。
 

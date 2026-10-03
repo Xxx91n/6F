@@ -556,14 +556,15 @@
     }
   ],
   "preview_disclosure": {
-    "capability_label": "capability 3 of 5 · preview",
+    "capability_label": "capability 3 of 5 · calibrated demo · not in plugin distribution",
     "calibration_scope": "同主试点仓 merged PR 最小集（env-manager×3 形态＋jiahao×1 全人基线；票面写死实例）",
     "structural_limitations": [
       "golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计",
       "同主确认偏差：试点仓与产品同主（Xxx91n）——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟不构成泛化证据",
       "判据范围收窄：preview 判据=证据完整性/托管面资格/选择性，非 PR 质量裁决——diff --llm 行级语义评审归 #50 叙事双轨（D-053）",
       "reviews/comments 面 planned 未接（锁表 github-rest 契约面）——评审语义不在 preview 内",
-      "supply_chain 象限 not_applicable：Scorecard 未接（D-034③）；dependabot PR 的供应链信号仅作事实落库"
+      "supply_chain 象限 not_applicable：Scorecard 未接（D-034③）；dependabot PR 的供应链信号仅作事实落库",
+      "适配器硬化面披露：宿主 API diff 工件依赖 fetchDiffArtifact/cassetteFetcher 适配器硬化——产线化前置义务（#85② 立案在途，D-204③④；产线化闭环前 D-062 DoR-a Micro-A 分量不满足）"
     ],
     "not_in_preview": [
       "Micro-B",

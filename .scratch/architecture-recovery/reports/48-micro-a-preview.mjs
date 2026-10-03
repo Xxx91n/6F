@@ -331,7 +331,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
     generated_at: RUN_AT,
     trace_id: collected.ctx.traceId,
     baggage_id: C.deriveBaggageId(collected.ctx, null),
-    headline: t.owner + '/' + t.repo + '#' + pin.n + ' Micro-A preview（capability 3 of 5）：form=' + formActual + ' diff_channel=' + (diff ? diff.channel : 'absent') + ' +' + String(diff ? diff.additions : 'n/a') + '/-' + String(diff ? diff.deletions : 'n/a') + ' f=' + String(diff ? diff.files_changed : 'n/a') + ' → ' + overall,
+    headline: t.owner + '/' + t.repo + '#' + pin.n + ' Micro-A calibrated demo（capability 3 of 5 · not in plugin distribution）：form=' + formActual + ' diff_channel=' + (diff ? diff.channel : 'absent') + ' +' + String(diff ? diff.additions : 'n/a') + '/-' + String(diff ? diff.deletions : 'n/a') + ' f=' + String(diff ? diff.files_changed : 'n/a') + ' → ' + overall,
     confidence: 0.6,
     stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: G.REPORT_SKELETON_VERSION, fact_watermark_version: '1' },
     fact_ids: [sumF, metaF, diffF].filter(Boolean).map(function (f) { return f.fact_id; }),
@@ -348,13 +348,14 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
     degraded: collected.res.degraded === true,
     degraded_reason: collected.res.degraded === true ? '无凭据降级（unauthenticated 60/h 限额）——事实面如实降级' : null,
     preview_disclosure: {
-      capability_label: 'capability 3 of 5 · preview',
+      capability_label: 'capability 3 of 5 · calibrated demo · not in plugin distribution',
       calibration_scope: '同主试点仓 merged PR 最小集（env-manager×3 形态＋jiahao×1 全人基线；票面写死实例）',
       structural_limitations: (opts.golden ? ['golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计'] : []).concat([
         '同主确认偏差：试点仓与产品同主（Xxx91n）——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟不构成泛化证据',
         '判据范围收窄：preview 判据=证据完整性/托管面资格/选择性，非 PR 质量裁决——diff --llm 行级语义评审归 #50 叙事双轨（D-053）',
         'reviews/comments 面 planned 未接（锁表 github-rest 契约面）——评审语义不在 preview 内',
-        'supply_chain 象限 not_applicable：Scorecard 未接（D-034③）；dependabot PR 的供应链信号仅作事实落库'
+        'supply_chain 象限 not_applicable：Scorecard 未接（D-034③）；dependabot PR 的供应链信号仅作事实落库',
+        '适配器硬化面披露：宿主 API diff 工件依赖 fetchDiffArtifact/cassetteFetcher 适配器硬化——产线化前置义务（#85② 立案在途，D-204③④；产线化闭环前 D-062 DoR-a Micro-A 分量不满足）'
       ]),
       not_in_preview: ['Micro-B', 'Macro-A']
     },
@@ -437,11 +438,12 @@ async function buildRefusalReport(gp, allGates, shared, opts) {
     degraded: false,
     degraded_reason: null,
     preview_disclosure: {
-      capability_label: 'capability 3 of 5 · preview',
+      capability_label: 'capability 3 of 5 · calibrated demo · not in plugin distribution',
       calibration_scope: '托管面资格闸拒绝件（failure 演示面）',
       structural_limitations: (opts.golden ? ['golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计'] : []).concat([
         '拒绝语义：intake 阶段显式拒绝（D-033 硬约束逆用）——报告落 unsupported: 无托管 PR 面＋原因＋前置条件',
-        '票面前提漂移如实登记：anysearch-cli 票面撰写时无托管面（#37 实测 github_pr_total=0），本票复核托管枚举 merged=' + (drift ? String(drift.merged_prs) : 'n/a') + '——前提已漂移，failure 演示主体改取真负例 goose-duck-agent（merged=0）'
+        '票面前提漂移如实登记：anysearch-cli 票面撰写时无托管面（#37 实测 github_pr_total=0），本票复核托管枚举 merged=' + (drift ? String(drift.merged_prs) : 'n/a') + '——前提已漂移，failure 演示主体改取真负例 goose-duck-agent（merged=0）',
+        '适配器硬化面披露：宿主 API diff 工件依赖 fetchDiffArtifact/cassetteFetcher 适配器硬化——产线化前置义务（#85② 立案在途，D-204③④）'
       ]),
       not_in_preview: ['Micro-B', 'Macro-A']
     },

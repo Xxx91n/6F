@@ -94,7 +94,7 @@ t('E5 BACKLOG #48 行回写 ✅', /\| #48[^\n]*✅/.test(bl));
 const wf = txt(join(REPO, '.scratch', 'architecture-recovery', 'WORKFLOW.md'));
 t('E6 WORKFLOW §4 lessons 含 #48 条目', /#48/.test(wf));
 const rd = txt(join(REPO, 'README.md'));
-t('E7 README 能力矩阵 Micro-A=capability 3 of 5 · preview', rd.indexOf('capability 3 of 5 · preview') >= 0 && /Micro-A PR diff \| \*\*capability 3 of 5/.test(rd));
+t('E7 README 能力矩阵 Micro-A 收窄=capability 3 of 5 · calibrated demo（D-204③——not in plugin distribution 在场）', rd.indexOf('capability 3 of 5 · calibrated demo') >= 0 && rd.indexOf('not in plugin distribution') >= 0 && /Micro-A PR diff \| \*\*capability 3 of 5/.test(rd) && rd.indexOf('capability 3 of 5 · preview') < 0);
 t('E8 票档三件套在', existsSync(join(REPO, '.scratch', 'architecture-recovery', 'issues', '48-micro-a-preview.md')) && existsSync(join(REPO, '.scratch', 'architecture-recovery', 'prompts', '48-micro-a-preview.md')) && existsSync(join(REPO, '.scratch', 'architecture-recovery', 'handoffs', '48-micro-a-preview.md')));
 t('E9 日报含 #48 窗口节', txt(join(REPO, '.scratch', 'macro-audit', 'reports', '2026-09-16-report.md')).indexOf('窗口：#48') >= 0);
 t('E10 48-report.md 在且六段齐备', existsSync(join(HERE, '48-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(function (x) { return txt(join(HERE, '48-report.md')).indexOf(x) >= 0; }));
