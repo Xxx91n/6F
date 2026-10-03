@@ -1719,7 +1719,7 @@
   "file": "48-check.mjs",
   "kind": "multi-hit-probe",
   "lno": null,
-  "excerpt": "not in plugin distribution → .scratch\\macro-audit\\decision-ledger.md×5"
+  "excerpt": "not in plugin distribution → .scratch\\macro-audit\\decision-ledger.md×4"
  },
  {
   "key": "48-check.mjs|unstripped-scan|6c045dd3",
@@ -2504,13 +2504,6 @@
   "kind": "multi-hit-probe",
   "lno": null,
   "excerpt": "actions/upload-artifact → .scratch\\architecture-recovery\\reports\\47-capture\\list-auth.json×59"
- },
- {
-  "key": "82-check.mjs|multi-hit-probe|99831f54",
-  "file": "82-check.mjs",
-  "kind": "multi-hit-probe",
-  "lno": null,
-  "excerpt": "DIST_CLI_SIZE_CAP_BYTES → .scratch\\macro-audit\\decision-ledger.md×2"
  },
  {
   "key": "82-check.mjs|multi-hit-probe|41314a8e",
