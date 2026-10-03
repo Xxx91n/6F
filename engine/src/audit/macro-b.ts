@@ -362,13 +362,13 @@ export function tcBand(v: string): 'supported' | 'unsupported' | 'insufficient' 
 // headDate=null（锚病态 quarantined）→ traceId 哈希改用锚字段原始字节（D-108①：锚病态哈希 raw bytes
 // 保持确定性）；observedAt 不落伪值——哨兵串 'quarantined(...)' 标记，audit_fact.observed_at
 // NOT NULL 无法满足故该 run 跳过 fact 落库（quarantine_log 行仍写，recorded_at=NULL 合法）。
-export function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string | null, headRaw?: string): CollectContext {
+export function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string | null, headRaw?: string, scale: string = 'Macro-B'): CollectContext {
   const anchor = headDate === null ? 'quarantined:' + sha256Hex(headRaw === undefined ? '' : headRaw) : headDate;
   return {
     runId: runIdLabel + '-' + headSha.slice(0, 7),
     traceId: sha256Hex(ctxLabel + '|' + headSha + '|' + anchor).slice(0, 32),
     repoRef: ctxLabel + '@' + headSha,
-    scale: 'Macro-B',
+    scale: scale,
     observedAt: headDate === null ? 'quarantined(anchor_head_date_malformed)' : headDate
   };
 }

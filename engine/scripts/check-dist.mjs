@@ -10,7 +10,9 @@ const CLI = join(root, "dist", "cli.js");
 
 // 棘轮上限（D-129③）：初值=dist/cli.js 实测 231,516B（#81 修复后 build）×1.25 起步=289,395B。
 // 抬限纪律=reviewed PR（改此常量须 PR 评审留痕）；棘轮管静默增速非绝对百分比叙事。
-export const DIST_CLI_SIZE_CAP_BYTES = 289395;
+// 抬限记录（显式裁定，本行即留痕）：2026-10-03 R57 T1-A（#84/D-204②④）Macro-C 一等面移植——
+// dist/cli.js 实测 307,980B（+18.1KiB），新帽=实测×1.25≈385,000B。裁定载体=预声明包 2026-10-03-r57-t1-predecl.md §5.1 勘误四＋feat commit Ledger-Refs D-204。
+export const DIST_CLI_SIZE_CAP_BYTES = 385000;
 
 if (!existsSync(CLI)) { console.error("DIST-RATCHET FAIL: dist/cli.js 缺席（先 npm run build）"); process.exit(1); }
 const size = statSync(CLI).size;

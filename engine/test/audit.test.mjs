@@ -32,12 +32,12 @@ const OUT = join(tmp, 'out');
 // ---------- S 签名/拒绝面 ----------
 let r0 = spawnSync('node', [CLI, 'audit'], { encoding: 'utf8' });
 t('S1 缺 input → usage + exit 非 0', r0.status !== 0 && r0.stderr.indexOf('usage: macro-audit audit') >= 0, 'status=' + r0.status);
-let r1 = spawnSync('node', [CLI, 'audit', REPO, '--scale', 'Macro-C'], { encoding: 'utf8' });
-t('S2 --scale Macro-C → exit 2 诚实拒绝（不假装能跑）', r1.status === 2, 'status=' + r1.status + ' stderr=' + r1.stderr.slice(0, 120));
+let r1 = spawnSync('node', [CLI, 'audit', REPO, '--scale', 'Micro-A'], { encoding: 'utf8' });
+t('S2 --scale Micro-A → exit 2 诚实拒绝（不假装能跑；Macro-C 已产线化——#84/D-204②）', r1.status === 2, 'status=' + r1.status + ' stderr=' + r1.stderr.slice(0, 120));
 let sj = null;
 try { sj = JSON.parse(r1.stderr); } catch (e) { }
 t('S3 拒绝载体=结构化 JSON error=SCALE-NOT-IMPLEMENTED', !!sj && sj.error === 'SCALE-NOT-IMPLEMENTED', r1.stderr.slice(0, 160));
-t('S4 implemented=[Macro-B]＋requested=Macro-C＋layer_order 在', !!sj && Array.isArray(sj.implemented) && sj.implemented[0] === 'Macro-B' && sj.requested === 'Macro-C' && typeof sj.layer_order === 'string');
+t('S4 implemented=[Macro-B, Macro-C]（#84 产线化后）＋requested=Micro-A＋layer_order 在', !!sj && Array.isArray(sj.implemented) && JSON.stringify(sj.implemented) === JSON.stringify(['Macro-B', 'Macro-C']) && sj.requested === 'Micro-A' && typeof sj.layer_order === 'string');
 t('S5 layer_order=ADR-0017③ 原文层序（Macro-C→Micro-A→Micro-B→Macro-A 起首，Macro-B 已上架不入剩余漏斗）', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0, sj && sj.layer_order);
 
 // ---------- R 实跑面（--out 双通道） ----------
