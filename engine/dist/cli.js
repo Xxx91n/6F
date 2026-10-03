@@ -4284,6 +4284,12 @@ var UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: "2026-09-19", next_review: 
 var CL = (surface, kind, dimension, lane, admission, note) => ({ adapter: "codelore", surface, surface_kind: kind, dimension, lane, admission, note });
 var CODELORE_EVOLUTION_FACETS = ["revisions", "abs-churn", "entity-churn", "author-churn", "hotspot-velocity", "code-age", "stale-code", "architecture-trend", "health-trend", "lead-time", "release-cadence", "messages"];
 var CODELORE_S3_FACETS = ["god-classes", "architecture-metrics", "dependency-cycles", "modularity-violations", "instability", "architecture-roles"];
+var SEMANTIC_DOMAIN_LABELS = {
+  structure: "structure/shape",
+  // structure 象限=形态测量层读数
+  s3: "S3/budget-attribution"
+  // S3=预算归因层读数（消费同面，判读归属由消费位谓词决定——ADR-0024）
+};
 var CODELORE_S5_FACETS = ["ownership", "entity-ownership", "bus-factor", "main-dev", "main-dev-by-revs", "main-dev-by-deletions", "knowledge-islands", "communication", "coordination-needs", "team-composition", "marginal-owner-risk", "pair-programming"];
 var CODELORE_EXPLAIN_SURFACES = ["explain-repo", "explain-brief", "explain-adr", "explain-query", "explain-resolve", "explain-execute", "explain-dryrun", "llm-narrative", "capability-check"];
 var CODELORE_BEHAVIOR_FACES = ["hotspots", "coupling", "function-hotspots"];
@@ -5090,6 +5096,10 @@ async function runAudit(opts) {
     // audit=实跑面：binary 缺席/不 pin → resolution 事实留痕＋behavior 象限如实 not_applicable
     fileLineage: { mode: "on" },
     // #80 步①：确定性 rename 检测→file.renamed 血缘事实（audit 实跑面；demo=off 保确定性）
+    extraCodeloreFacets: CODELORE_S3_FACETS.map(function(a) {
+      return { analysis: a, group: "s3", extraArgs: [] };
+    }),
+    // #87/D-205 structure 摘帽接入：S3 族六面形态测量（成对准入在象限位闸）
     fixtureTag: "AUDIT",
     pc2Sha: "pc2fixture000000000000000000000000000053audit"
   }, ctx, probes);
@@ -5269,13 +5279,30 @@ async function runAudit(opts) {
   }
   const strategyBand = deriveOverallBand(adjudicationEntries);
   const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: "engine/src/audit/audit.ts" };
+  const S3_FACES = CODELORE_S3_FACETS;
+  const s3FaceFacts = col.codeloreFacts.filter(function(f) {
+    return f.metric === "codelore.facet_rows" && S3_FACES.indexOf(f.subject_ref) >= 0;
+  });
+  const s3FaceErrs = col.codeloreFacts.filter(function(f) {
+    return /facet_(parse_)?error/.test(f.metric) && S3_FACES.indexOf(f.subject_ref) >= 0;
+  });
+  const s3Complete = bhvRan && s3FaceFacts.length === S3_FACES.length && s3FaceErrs.length === 0;
+  const structureSlice = {};
+  if (s3Complete) {
+    for (const k of S3_FACES) {
+      const f = s3FaceFacts.find(function(x) {
+        return x.subject_ref === k;
+      });
+      structureSlice[k] = f ? JSON.parse(f.value_json).row_count : 0;
+    }
+  }
   const hotTop = hRows.slice(0, 3).map(function(r) {
     return String(r.path) + "(revs=" + String(r.revisions) + ",score=" + Number(r.hotspot_score).toFixed(2) + ")";
   });
   const quadrants = [
     { quadrant: "strategy", applicability: "native", verdict: strategyBand, score: null, confidence: 0.6, dimensions: ["S1", "S2"], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === "RED", decided_at: HEAD_AT, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
     { quadrant: "behavior", applicability: bhvRan ? "native" : "not_applicable", verdict: behaviorBand, score: null, confidence: bhvRan ? 0.6 : 0, dimensions: [], slice_fields: bhvRan ? { faces: ["hotspots", "coupling", "function-hotspots"], face_row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, hotspot_top: hotTop, coupling_pairs: cRows.length, min_revs: BHV_MIN_REVS, sample_met: bhvTc1, deferred_faces: BHV_DEFERRED, quadrant_assignment: "slice-decision\uFF08facts \u5171\u4EAB quadrant=strategic/codelore \u65CF provenance \u4E0D\u6539\u5199\uFF1B\u8C61\u9650\u5F52\u5C5E=\u62A5\u544A\u5207\u7247\u51B3\u7B56 D-054\u2462\uFF09" } : {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: behaviorBand, evidence_flag: bhvPc1, decided_at: HEAD_AT, override_reason: bhvRan ? null : "codelore binary \u672A\u89E3\u6790/\u4E0D pin\u2014\u2014\u884C\u4E3A\u9762\u91C7\u96C6\u7F3A\u5E2D\uFF08resolution \u4E8B\u5B9E\u7559\u75D5\uFF0CD-054\u2462 \u964D\u7EA7\u975E\u9759\u9ED8\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: bhvRan ? [] : ["data-not-connected"] },
-    { quadrant: "structure", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: HEAD_AT, override_reason: "queued\uFF1A\u4E0E S3 \u65CF\u53CC\u53E3\u5F84\u98CE\u9669\u6682\u7F13\uFF08D-054\uFF09\u2014\u2014structure \u65E0\u91C7\u96C6\u5668", audit_ref: GATE.audit_ref }, conflict_markers: ["out-of-scope-stage1"] },
+    { quadrant: "structure", applicability: s3Complete ? "derived" : "not_applicable", verdict: "insufficient", score: null, confidence: s3Complete ? 0.3 : 0, dimensions: s3Complete ? ["S3"] : [], slice_fields: structureSlice, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: HEAD_AT, override_reason: s3Complete ? "structure=\u5F62\u6001\u6D4B\u91CF\u5C42\uFF08" + SEMANTIC_DOMAIN_LABELS.structure + " \u8BED\u4E49\u57DF\uFF0CD-205 \u6458\u5E3D #87\uFF09\u2014\u2014S3 \u65CF\u516D\u9762\u89C2\u6D4B\u5982\u5B9E\u843D slice_fields \u4E0D\u88C1\u51B3\uFF1B\u5224\u8BFB\u5C42=" + SEMANTIC_DOMAIN_LABELS.s3 + "\uFF08rubric/\u53D9\u4E8B\u9762\u6D88\u8D39\u4F4D\uFF09" : bhvRan ? "S3 \u65CF\u516D\u9762\u672A\u5168\u9F50\u96F6\u9519\uFF08\u5355\u6307\u6807\u7981\u5B64\u7ACB\u5165\u7EF4 #51/D-205\uFF09\u2014\u2014\u9762\u7EA7\u7F3A\u5E2D\u5982\u5B9E not_applicable" : "S3 \u91C7\u96C6\u9762\u7F3A\u5E2D\uFF08codelore \u672A\u8FD0\u884C\uFF09\u2014\u2014structure \u6D4B\u91CF\u5C42\u6570\u636E\u7F3A\u5E2D\u5982\u5B9E not_applicable\uFF08\u6458\u5E3D D-205 \u4E0D\u6539\u53D8\u6570\u636E\u7F3A\u5E2D\u4E8B\u5B9E\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: s3Complete ? ["preview-derived-observation-only"] : ["out-of-scope-stage1"] },
     { quadrant: "supply_chain", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: HEAD_AT, override_reason: "\u26A0 \u6570\u636E\u672A\u63A5\u2014\u2014Scorecard/repomix \u6309\u5C42\u9700\u6C42\u961F\u5217\u63A5\u5165\u4E0D\u63D2\u961F\uFF08D-034\u2462\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["data-not-connected"] }
   ];
   const recommendations = [
@@ -5286,7 +5313,7 @@ async function runAudit(opts) {
   const limitations = [
     "one-shot \u5FEB\u7167\u5BA1\u8BA1\uFF1A\u672C\u62A5\u544A\u88C1\u5B9A=\u5BF9 snapshot_fetched_at=" + String(intake.snapshot_fetched_at) + " \u65F6\u70B9\u5FEB\u7167\u7684\u5B9E\u6D4B\u2014\u2014" + (intake.cache_hit && !intake.refreshed ? "intake \u7F13\u5B58\u547D\u4E2D\u672A\u5237\u65B0\uFF0C\u8FDC\u7AEF\u65B0\u63D0\u4EA4\u4E0D\u53EF\u89C1\uFF08--refresh \u663E\u5F0F opt-in \u53EF\u5237\u65B0\uFF1B\u4E0D\u81EA\u52A8 pull \u4FDD\u9694\u79BB\u7EAA\u5F8B\uFF09" : "\u5FEB\u7167\u65F6\u70B9\u5982\u5B9E\u62AB\u9732"),
     "\u91C7\u96C6\u9762=strategy\uFF08S1+S2\uFF09" + (bhvRan ? "\uFF0Bbehavior\uFF08codelore \u884C\u4E3A\u4E09\u9762\uFF09" : "\uFF1Bbehavior \u8C61\u9650 codelore \u672A\u89E3\u6790\u5982\u5B9E not_applicable"),
-    "structure/supply_chain \u8C61\u9650 not_applicable\uFF08supply-chain: " + UNVERIFIED_MARK + "\u2014\u2014Scorecard \u672A\u63A5\u5165\uFF0CD-034\u2462\uFF09",
+    (s3Complete ? "structure \u8C61\u9650=\u5F62\u6001\u6D4B\u91CF\u5C42\u89C2\u6D4B\uFF08" + SEMANTIC_DOMAIN_LABELS.structure + "\uFF0CD-205 \u6458\u5E3D\u2014\u2014\u89C2\u6D4B\u503C\u843D slice_fields \u4E0D\u88C1\u51B3\uFF09" : "structure \u8C61\u9650\u6570\u636E\u7F3A\u5E2D\u5982\u5B9E not_applicable\uFF08D-205 \u6458\u5E3D\u4E0D\u6539\u53D8\u91C7\u96C6\u7F3A\u5E2D\u4E8B\u5B9E\uFF09") + ("\uFF1Bsupply_chain not_applicable\uFF08supply-chain: " + UNVERIFIED_MARK + "\u2014\u2014Scorecard \u672A\u63A5\u5165\uFF0CD-034\u2462\uFF09"),
     "\u53CD\u590D\u63A5\u53D7\u975E\u8DD1\u901A\uFF08D-033\uFF09\uFF1ATC \u4E09\u6863\u88C1\u5B9A supported/unsupported/insufficient \u5982\u5B9E\u843D\u6570\uFF0Cone-shot \u6821\u51C6+\u5192\u70DF\u4E0D\u6784\u6210\u6CDB\u5316\u8BC1\u636E"
   ];
   if (anchorQuarantined) {

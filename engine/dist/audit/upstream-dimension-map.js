@@ -24,6 +24,12 @@ export const UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: '2026-09-19', next
 const CL = (surface, kind, dimension, lane, admission, note) => ({ adapter: 'codelore', surface, surface_kind: kind, dimension, lane, admission, note });
 export const CODELORE_EVOLUTION_FACETS = ['revisions', 'abs-churn', 'entity-churn', 'author-churn', 'hotspot-velocity', 'code-age', 'stale-code', 'architecture-trend', 'health-trend', 'lead-time', 'release-cadence', 'messages'];
 export const CODELORE_S3_FACETS = ['god-classes', 'architecture-metrics', 'dependency-cycles', 'modularity-violations', 'instability', 'architecture-roles'];
+// 语义域标签常量（D-205①/#87）：同一 measurement 工件的多判读层域标签——CONTEXT「语义域」词条为文档单源，
+// 本常量=机检对账位（86-check 枚举↔常量块互等，71-check B1 同型）；标签属 dimension 枚举域非权重位（D-080④ A2）。
+export const SEMANTIC_DOMAIN_LABELS = {
+    structure: 'structure/shape', // structure 象限=形态测量层读数
+    s3: 'S3/budget-attribution' // S3=预算归因层读数（消费同面，判读归属由消费位谓词决定——ADR-0024）
+};
 export const CODELORE_S5_FACETS = ['ownership', 'entity-ownership', 'bus-factor', 'main-dev', 'main-dev-by-revs', 'main-dev-by-deletions', 'knowledge-islands', 'communication', 'coordination-needs', 'team-composition', 'marginal-owner-risk', 'pair-programming'];
 export const CODELORE_EXPLAIN_SURFACES = ['explain-repo', 'explain-brief', 'explain-adr', 'explain-query', 'explain-resolve', 'explain-execute', 'explain-dryrun', 'llm-narrative', 'capability-check'];
 export const CODELORE_BEHAVIOR_FACES = ['hotspots', 'coupling', 'function-hotspots'];

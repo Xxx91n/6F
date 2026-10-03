@@ -17,7 +17,7 @@ import { runMacroCAudit } from './macro-c.js';
 import { writeRunFactsAndEvents } from './fact-write.js';
 import { openWriter, queryQuarantineCounts, closeDuckdb } from '../fact/store.js';
 import { strictQuarantineViolations, ratchetIssues, intakeIdentityIssues, protocolCrashError, intakeEscalation, countsFromStats, QUARANTINE_FIELD_RATIO_RED, rawEcho, GIT_ISO_DIALECT_RULES } from '../intake/quarantine.js';
-import { projectUpstreamDimensions } from './upstream-dimension-map.js';
+import { projectUpstreamDimensions, CODELORE_S3_FACETS, SEMANTIC_DOMAIN_LABELS } from './upstream-dimension-map.js';
 import { reaggregateFileFacetRows, reconcilePerFileVsAggregate } from '../upstream/codelore.js';
 const NL = String.fromCharCode(10);
 // 已实现规模面（D-060③：--scale 缺省 Macro-B；其余层未实装 → 诚实拒绝 exit 2）
@@ -114,6 +114,7 @@ export async function runAudit(opts) {
         stopwords: MACRO_B_STOPWORDS, topN: TC3_TOPN,
         codelore: 'auto', // audit=实跑面：binary 缺席/不 pin → resolution 事实留痕＋behavior 象限如实 not_applicable
         fileLineage: { mode: 'on' }, // #80 步①：确定性 rename 检测→file.renamed 血缘事实（audit 实跑面；demo=off 保确定性）
+        extraCodeloreFacets: CODELORE_S3_FACETS.map(function (a) { return { analysis: a, group: 's3', extraArgs: [] }; }), // #87/D-205 structure 摘帽接入：S3 族六面形态测量（成对准入在象限位闸）
         fixtureTag: 'AUDIT', pc2Sha: 'pc2fixture000000000000000000000000000053audit'
     }, ctx, probes);
     const ev = evaluateMacroB(col);
@@ -232,11 +233,23 @@ export async function runAudit(opts) {
     const strategyBand = deriveOverallBand(adjudicationEntries);
     // ---------- §7 四象限（strategy 原生；behavior=codelore 实跑决定 native/not_applicable；余两象限如实披露） ----------
     const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'engine/src/audit/audit.ts' };
+    // ---------- structure 摘帽接入（#87/D-205②③）：S3 族成对准入（六面全齐零错→derived；任一缺席→not_applicable——单指标禁孤立入维 #51） ----------
+    const S3_FACES = CODELORE_S3_FACETS;
+    const s3FaceFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_rows' && S3_FACES.indexOf(f.subject_ref) >= 0; });
+    const s3FaceErrs = col.codeloreFacts.filter(function (f) { return /facet_(parse_)?error/.test(f.metric) && S3_FACES.indexOf(f.subject_ref) >= 0; });
+    const s3Complete = bhvRan && s3FaceFacts.length === S3_FACES.length && s3FaceErrs.length === 0;
+    const structureSlice = {};
+    if (s3Complete) {
+        for (const k of S3_FACES) {
+            const f = s3FaceFacts.find(function (x) { return x.subject_ref === k; });
+            structureSlice[k] = f ? JSON.parse(f.value_json).row_count : 0;
+        }
+    }
     const hotTop = hRows.slice(0, 3).map(function (r) { return String(r.path) + '(revs=' + String(r.revisions) + ',score=' + Number(r.hotspot_score).toFixed(2) + ')'; });
     const quadrants = [
         { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === 'RED', decided_at: HEAD_AT, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
         { quadrant: 'behavior', applicability: bhvRan ? 'native' : 'not_applicable', verdict: behaviorBand, score: null, confidence: bhvRan ? 0.6 : 0, dimensions: [], slice_fields: bhvRan ? { faces: ['hotspots', 'coupling', 'function-hotspots'], face_row_counts: { hotspots: hRows.length, coupling: cRows.length, function_hotspots: fhRows.length }, hotspot_top: hotTop, coupling_pairs: cRows.length, min_revs: BHV_MIN_REVS, sample_met: bhvTc1, deferred_faces: BHV_DEFERRED, quadrant_assignment: 'slice-decision（facts 共享 quadrant=strategic/codelore 族 provenance 不改写；象限归属=报告切片决策 D-054③）' } : {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: behaviorBand, evidence_flag: bhvPc1, decided_at: HEAD_AT, override_reason: bhvRan ? null : 'codelore binary 未解析/不 pin——行为面采集缺席（resolution 事实留痕，D-054③ 降级非静默）', audit_ref: GATE.audit_ref }, conflict_markers: bhvRan ? [] : ['data-not-connected'] },
-        { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_AT, override_reason: 'queued：与 S3 族双口径风险暂缓（D-054）——structure 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
+        { quadrant: 'structure', applicability: s3Complete ? 'derived' : 'not_applicable', verdict: 'insufficient', score: null, confidence: s3Complete ? 0.3 : 0, dimensions: s3Complete ? ['S3'] : [], slice_fields: structureSlice, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_AT, override_reason: s3Complete ? ('structure=形态测量层（' + SEMANTIC_DOMAIN_LABELS.structure + ' 语义域，D-205 摘帽 #87）——S3 族六面观测如实落 slice_fields 不裁决；判读层=' + SEMANTIC_DOMAIN_LABELS.s3 + '（rubric/叙事面消费位）') : (bhvRan ? 'S3 族六面未全齐零错（单指标禁孤立入维 #51/D-205）——面级缺席如实 not_applicable' : 'S3 采集面缺席（codelore 未运行）——structure 测量层数据缺席如实 not_applicable（摘帽 D-205 不改变数据缺席事实）'), audit_ref: GATE.audit_ref }, conflict_markers: s3Complete ? ['preview-derived-observation-only'] : ['out-of-scope-stage1'] },
         { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_AT, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
     ];
     const recommendations = [
@@ -247,7 +260,7 @@ export async function runAudit(opts) {
     const limitations = [
         'one-shot 快照审计：本报告裁定=对 snapshot_fetched_at=' + String(intake.snapshot_fetched_at) + ' 时点快照的实测——' + (intake.cache_hit && !intake.refreshed ? 'intake 缓存命中未刷新，远端新提交不可见（--refresh 显式 opt-in 可刷新；不自动 pull 保隔离纪律）' : '快照时点如实披露'),
         '采集面=strategy（S1+S2）' + (bhvRan ? '＋behavior（codelore 行为三面）' : '；behavior 象限 codelore 未解析如实 not_applicable'),
-        'structure/supply_chain 象限 not_applicable（supply-chain: ' + UNVERIFIED_MARK + '——Scorecard 未接入，D-034③）',
+        (s3Complete ? ('structure 象限=形态测量层观测（' + SEMANTIC_DOMAIN_LABELS.structure + '，D-205 摘帽——观测值落 slice_fields 不裁决）') : 'structure 象限数据缺席如实 not_applicable（D-205 摘帽不改变采集缺席事实）') + ('；supply_chain not_applicable（supply-chain: ' + UNVERIFIED_MARK + '——Scorecard 未接入，D-034③）'),
         '反复接受非跑通（D-033）：TC 三档裁定 supported/unsupported/insufficient 如实落数，one-shot 校准+冒烟不构成泛化证据'
     ];
     if (anchorQuarantined) {

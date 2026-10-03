@@ -1,4 +1,5 @@
 import type { CollectContext, CollectedFact } from '../collect/collectors.js';
+import type { CodeloreFacetSpec } from '../upstream/codelore.js';
 import type { FieldStatus, FieldEvent, FieldStat, DialectAbsorption } from '../intake/quarantine.js';
 export declare const TC1_LAG_DAYS = 90;
 export declare const TC1_RATIO_RED = 0.2;
@@ -46,6 +47,7 @@ export interface MacroBCollectSpec {
     stopwords: readonly string[];
     topN: number;
     codelore: 'off' | 'auto';
+    extraCodeloreFacets?: readonly CodeloreFacetSpec[];
     fileLineage?: {
         mode: 'on' | 'off';
         threshold?: string;

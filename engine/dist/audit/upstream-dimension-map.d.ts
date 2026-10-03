@@ -17,6 +17,10 @@ export interface UpstreamMapRow {
 }
 export declare const CODELORE_EVOLUTION_FACETS: readonly ["revisions", "abs-churn", "entity-churn", "author-churn", "hotspot-velocity", "code-age", "stale-code", "architecture-trend", "health-trend", "lead-time", "release-cadence", "messages"];
 export declare const CODELORE_S3_FACETS: readonly ["god-classes", "architecture-metrics", "dependency-cycles", "modularity-violations", "instability", "architecture-roles"];
+export declare const SEMANTIC_DOMAIN_LABELS: {
+    readonly structure: "structure/shape";
+    readonly s3: "S3/budget-attribution";
+};
 export declare const CODELORE_S5_FACETS: readonly ["ownership", "entity-ownership", "bus-factor", "main-dev", "main-dev-by-revs", "main-dev-by-deletions", "knowledge-islands", "communication", "coordination-needs", "team-composition", "marginal-owner-risk", "pair-programming"];
 export declare const CODELORE_EXPLAIN_SURFACES: readonly ["explain-repo", "explain-brief", "explain-adr", "explain-query", "explain-resolve", "explain-execute", "explain-dryrun", "llm-narrative", "capability-check"];
 export declare const CODELORE_BEHAVIOR_FACES: readonly ["hotspots", "coupling", "function-hotspots"];
