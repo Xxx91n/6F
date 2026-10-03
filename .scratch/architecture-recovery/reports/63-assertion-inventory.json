@@ -2,7 +2,7 @@
   "ticket": 63,
   "decision": "D-071",
   "created": "2026-09-18",
-  "updated": "2026-10-02",
+  "updated": "2026-09-19",
   "updated_by": "update-70-inventory.mjs（#70/D-079 引用物缺席普查顺带偿 D-071 欠账）",
   "note": "断言级稳定 id=断言名首词 token（A1/B5/G15 形），跨 t()/ok()/check()/w()/w58()/sealed()/x() 七签名族均在位——XFAIL/VACUOUS 协议按 <guard>:<slug> 键可寻址。assertion_ids=唯一 slug 数（同 slug 多发射路径按一计——73-check C2 t()/x() 双路实证，loop 族动态 slug 按调用点计一，sealed() 计入盘点不参评候选；检测经 stripComments+maskStrings 双轨，注释/字面量内伪调用不计）。",
   "guards": {
@@ -346,6 +346,18 @@
     },
     "84-check": {
       "assertion_ids": 34,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "85-check": {
+      "assertion_ids": 27,
+      "call_styles": [
+        "t()"
+      ]
+    },
+    "86-check": {
+      "assertion_ids": 19,
       "call_styles": [
         "t()"
       ]
