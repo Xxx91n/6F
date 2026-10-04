@@ -2028,3 +2028,43 @@ D-001~D-210 历轮去向表链条在案（L1051/L1462/L1534/L1569/L1650/L1811/L1
 - **裁定层：闭环**——两裁各有去向（上表）；无去向清单=空；零 revised；atomcode 2/2 真回传。
 - **验收层：开放**——#88/#89 断言自证非验收；待下轮审计窗 LOOP 复验（fresh-clone 复跑＋双层断言负对照诱导红＋census 再基线）。
 
+
+
+## 第六十三轮执行批收口对账（R63 T1，2026-10-05）
+
+R63 T1 执行批三票全兑现（#85② P0 第一＋#88/#89 随批——D-211④ 窗口序）；零新裁定（全走既立法面 D-204③④／D-211①②④／D-212／D-163①⑥／D-159②）；atomcode 构成比本轮 **0/0**（执行窗零新裁定题——不派遣不占额，D-186② 口径）。
+
+### 执行批三腿兑现
+
+- **T1-A #85② Micro-A 产线化（D-204③④，P0 第一）✅**：48-micro-a-preview.mjs 移植 engine 一等面 `audit --scale Micro-A`（src/audit/micro-a.ts §0~§10 逐段保真——input gate 结构化拒绝 MICRO-A-INPUT/SCOPE〔D-049③ 票面写死实例集〕＋托管面资格闸＋逐 PR 判据 PC-1/TC-1~4/NC-1＋拒绝件 D-033 硬约束逆用＋fact-write.ts 共享核零 commit grain）；**名归位硬判据=85-check E 组差分重校准 36/36**（引擎面 cassette 回放 vs 48 生成器 golden 存档——六判据 band 全等＋切片数值字段全等＋**fact_id 全等**〔E5——ctx 构造同字节，ADR-0015 移植值级保真〕＋双源切片契约互等＋正对照 E8 篡改必检）；分发面链式翻转（README 双语＋sync 戳 6e72603907ed／description／credential-checklist §E／marketplace／SKILL 四层在架；48 生成器旧列 [Micro-B,Macro-A]→[Macro-A] 本票法定修正＋golden 再生随行，REAL 五件存档不动 48-D-e4 维持）；audit.ts implemented=[Macro-B,Macro-C,Micro-A]＋not_in_preview=[Macro-A]（85-A4/B5 裁后机核）；micro-a.test 22/22 入 smoke（audit.test S2-S5／53-check B2 诚实拒绝面随改——失效三分类 b 合法演化改断言，53-B2 鲜克隆首读漏网经 LOOP 修正 amend rlm）；D-062 DoR-a Micro-A 分量如实计入（Macro-B/Macro-C/Micro-B/Micro-A 四层 preview 在架，Macro-A Not yet 维持）；bundle dist/cli.js 310,334B→373,105B（+62.8KB，帽 385,000B 内 margin 11,895B——check-dist PASS 免抬限）。预声明偏差①~⑦=reports/2026-10-05-r63-t1-predecl.md §1.2（D-177①③ 先于语义 commit 落盘——commit rzs 时序可证）。
+- **T1-B #88 reef#1 84-check 自足修（D-211①/D-163①②⑥/D-159②）✅**：修法=D-163① 首选零写入临时仓读法（执行批选定——mkdtemp＋GIT_ALTERNATE_OBJECT_DIRECTORIES 借主仓 objects，alternates 只读语义主仓零写入 D-074）；SHA_OK/SHA_TWIN 运行时物化（mktree 空树＋commit-tree×2＋update-ref HEAD；孪生桶同 change-id 注入语义保真），孤儿 commit 201935fc 字面钉废止（reef#1 鲜克隆红种源）；F01~F20 断言语义逐条不动唯 SHA 值来源换（本机 34/34）；PROTECTED_SURFACE portable 重声明（fixture 自足后方为真，D-159②）；CI 射程缺口勘误=engine-ci 增 portable 守卫段（84-check 入列起步，D-163 探测面扩列）；fresh clone 首读 84-check **GREEN**（见 T2 哨兵登记）。
+- **T1-C #89 A-3 账本节标题唯一性（D-212）✅**：41a-check H 组——H1 双账本 `##` 全局唯一＋H2 `###` 同父节内唯一（MD024 siblings_only 参数化层）**0 违例落地即绿**（与 D-212 前置实测同源）；正对照 H3（同父 `###` 整块复制切片必红——R57 P1-2 同机理重放 mutation-kill）＋H4（`##` 重复必红）跑前声明命中方向兑现（predecl §3.2）；负对照边界 H5（同字面 `###` 跨父节合法——轮次限定语内嵌惯例，去限定语化漏检面诚实留痕）＋H6（fenced code 跳过）；guard-meta PROTECTED_SURFACE 扩注（D-159②）；本机 47/47；84-check 防误读注记落（D-212①——账本文档面扫描维持不变）。
+- **R4-02 adr-structure detector v2【顺位不动】**：本窗未动（D-175 序——上游 dimension-map 消费面，不前置不并票）；O6 续挂（40-check 冗余断言摘除待该文件下次触碰窗）。
+
+### T2 哨兵随读登记
+
+- **ratchet-headroom-watch（D-211②）→触发兑现**：dist bundle 时点读数=373,105B／385,000B margin 11,895B——headroom=3.1%＜25% 警戒线（立法时点已 19.4% 越线，本窗 bundle 首读确认）→registry 转 triggered-bound＋**dist-ratchet-headroom-low 翻转**＋强制立分发形态重评票=**BACKLOG #90**（dist-in-repo-review 裁定面：拆仓／publish 渠道／体积治理／限值重推导；重评前须回读 D-181 立法时点 385,000B 推导论证）＋dist-in-repo-review 第四子事件 confirmation 并录。
+- **fresh-clone-rerun-watch（D-163⑥）**：#88 修复后独立 clone（HEAD=butler workspace 含六 commit）→engine npm ci→guard-all-run **首读**：ran=65 green=62 red=3（70-E1／75a-C1／53-B2）——三红全数归因中窗派生信号陈旧＋断言面合法演化漏网（70-E1/75a-C1=63-inventory/census 派生未再基线〔D-180 紧邻对本窗收口对兜住〕；53-B2=SCALE-NOT 载体钉漏网已修 amend rlm）；**84-check 本体鲜克隆 GREEN=本票验收判据过**；全绿复读欠账三要素：owner=本窗收口尾、时点锚=closeout census/63-inv 再基线 bundle 落盘后、复验=鲜克隆重 clone guard-all ran=65 allOk=true 读数（confirmation 随 registry 尾 commit 并录）。
+- 其余哨兵（ceremony-ratio-watch／dist-in-repo-review 前三子事件／bundle-retirement-trigger／duckdb-binary-watch／supply-chain 双事件册／protected-surface-death-watch／GAP-HOST-01）状态不动随读。
+
+### 执行窗登记闭合（对照 R62 欠账表）
+
+| 欠账（R62 表） | 处置 | 复验结果 |
+|---|---|---|
+| #85② Micro-A 产线化（P0 第一） | ✅ 本窗 | 85-check 36/36（E 组重校准 PASS＋E5 fact_id 全等）＋DoR-a Micro-A 分量计入＋48 生成器旧列修正 |
+| #88 reef#1 84-check 自足修（随批） | ✅ 本窗 | 84-check 鲜克隆 GREEN＋本机 34/34＋portable 重声明＋CI 扩列；全绿复读随 registry 尾 commit |
+| #89 A-3 断言票（随批顺位不动） | ✅ 本窗 | ADR-0013 预声明正负对照兑现＋41a-check 47/47＋75a census 再基线随收口对 |
+| R4-02 detector v2 | 顺位不动 | 本窗未动（D-175 序维持） |
+| T3 三件（A-6 .atomcode 归属／远端三分支删否／51-E2） | 用户主权面 | 未触碰（.atomcode 两件全程零 commit 入册——工作区实态保持） |
+
+### 过程登记
+
+- 提交链（but 分支 r63-t1-exec；**CHANGES 选择器本窗复验可用**——R57 五例失效未复现，六 commit 逐个 `but show` 核实收清单精确）：rzs 预声明（1 件）→uqx engine feat（17 件）→qpm bundle dist（6 件）→rlm 翻转面（16＋53-check amend=17 件）→xwq #88 fix（2 件）→yuy #89（1 件）→〔本收口 commit〕→census/63-inv 再基线 bundle 对（D-180）→registry 尾 commit。.atomcode 两件全程未入 commit（T3 用户主权）。
+- 实测读数：micro-a.test 22/22；smoke 全绿（SMOKE 6/6／COLLECTORS 14/14／CODELORE-ADAPTER 7/7／BATCH1 41/41／MICRO-B-EMIT 18/18／LLM 25/25／REPORT-PREVIEW 5/5／MACRO-C 23/23／MICRO-A 22/22／UPSTREAM-MAP 21/21／ZERO-WRITE 4/4／DEMO 38/38）；85-check 36/36；84-check 34/34（newFail=0 baselineWarn=5 uniq 基线维持）；41a-check 47/47；48-check 45/45；44-check 59/59；41b-check 33/33；53-check 25/25（LOOP 修正后）；check-dist 373,105B/cap 385,000B；selftest ok。
+- 棘轮预告兑现（predecl §1.5）：未越帽免抬限（D-129③ 帽不动）；余量 3.1%——重评票 #90 为下一分发动作前置（裁定主体=用户/裁定链主权面）。
+- 卫生留痕：写入全经 node/ctx fs.writeFileSync＋回读断言（无 BOM 保尾行）；zero-backslash 正则纪律（字符类/charCode）；追加类编辑逐次 residue 断言（R57 BACKLOG 事故防线）。
+
+### 分层定稿（D-165/D-170 双行呈报）
+
+- **裁定层：闭环**——三票各有去向（上表）；零新裁定零 revised；atomcode 0/0（执行窗免派遣）。
+- **验收层：开放**——断言自证非验收；待下轮审计窗 LOOP 复验（85-E 组复跑＋fresh-clone 复读全绿确认＋41a H 组负对照诱导红复验）。

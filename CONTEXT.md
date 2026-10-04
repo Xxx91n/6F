@@ -240,7 +240,7 @@ _Avoid_: 误报原因（无留档凭证语义）、flaky（暗示随机性，不
 _Avoid_: TODO 提醒（无到期升级语义）、冻结（暗示永不解锁）
 
 **Release Preview（发布预览）**:
-产品的分级发布形态——「capability N of 5 · preview」标注 + 0.x 版本语义 + changelog 明示当前覆盖范围；preview 层必须自成完整价值单元（MMP 判据），未上架层只做文字披露 + roadmap 叙事、不交付预览性演示资产；build-scope（5 scale 全规划）与 release-sequence（分层暴露）为正交维度，preview 上架不构成 MVP 切片。**法理边界**（D-204）：preview=用户可达交付面——工件存在或内部脚本产出不构成 preview 标注依据；同面各能力行独立标注成熟度，demo 级行明示「not in plugin distribution」。**毕业三轴正交**（D-210）：层 GA=能力成熟度门（判据类目骨架六件=语料广度／披露清洁窗／象限完整度含明示永久豁免位／适配器确定性验收／schema 稳定窗／修订通道声明；阈值挂各层 GA 票面预声明）／产品 1.0=契约稳定性门（schema 冻结＋适配器确定性验收）／Stage-2=暴露门；永久 preview 是合法终态但须显式声明（never-graduate 先例）。
+产品的分级发布形态——「capability N of 5 · preview」标注 + 0.x 版本语义 + changelog 明示当前覆盖范围；preview 层必须自成完整价值单元（MMP 判据），未上架层只做文字披露 + roadmap 叙事、不交付预览性演示资产；build-scope（5 scale 全规划）与 release-sequence（分层暴露）为正交维度，preview 上架不构成 MVP 切片。**法理边界**（D-204）：preview=用户可达交付面——工件存在或内部脚本产出不构成 preview 标注依据；同面各能力行独立标注成熟度，demo 级行明示「not in plugin distribution」。**毕业三轴正交**（D-210）：层 GA=能力成熟度门（判据类目骨架六件=语料广度／披露清洁窗／象限完整度含明示永久豁免位／适配器确定性验收／schema 稳定窗／修订通道声明；阈值挂各层 GA 票面预声明）／产品 1.0=契约稳定性门（schema 冻结＋适配器确定性验收）／Stage-2=暴露门；永久 preview 是合法终态但须显式声明（never-graduate 先例）。（勘误注记 2026-10-05，D-146⑤ 链式：Micro-A 经 #85② 产线化入 preview——audit --scale Micro-A 一等面＋85-check E 组重校准背书，D-204③ demo 态翻转，「demo 级行明示 not in plugin distribution」句对 Micro-A 不再适用；Macro-A 维持 Not yet。）
 _Avoid_: beta 滥用（无边框语义）、暗示全量能力、GA 姿态（未过逐层漏斗）
 
 **Trigger-gated Closure（触发器封口）**:
