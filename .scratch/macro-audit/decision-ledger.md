@@ -1013,6 +1013,8 @@ revised 链：本轮**零新 revised**——scoped 注记三处（D-123⑤「仅
 | D-208 | R56-Q7（调研后重呈）：baggage 拓扑声明——拓扑主件呈批＋inbound 接受语义岔口 (i) 终端自生成钉死／(ii) opt-in 入口注入现裁／(iii) 拓扑采纳+inbound 挂触发器册 | 采纳（2026-10-03，原话「采纳」＝采纳调研推荐=(iii) 锐化版；置信度高——账本一手+W3C 规范+CLI 先例三支柱互证） | 拓扑声明钉死四层：①默认形=进程内 OTel Context 语义＋终端自生成（ctx.traceId 单源、run_id 同值、baggage_id=deriveBaggageId(ctx,dimension) 维级派生；W3C front-gate restart 信任边界自生成=规范级惯例非非标）；②四面定性=D-207 案维持（MCP 暂非载体／github-rest 出站禁注——trace header 攻击者可控输入，fact 表即证据库注入=污染自身证据面／CLI 连跑=进程内／Macro-A 挂起）；③inbound 接受语义入 D-207 同一触发器册（宿主侧 MCP trace-context 契约出现 OR D-062 达成→随 Macro-A 设计树重裁），册内预声明重裁判据=届时 bazel 型 opt-in 注入是合法候选但**注入值不得占用 trace_id/run_id 本体**（D-108 幂等自然键不动，走独立列或 linkage 面）；④linkage fact 义务登记留 Macro-A 设计树=扇出关联双向 id（parent_trace_id+child_run_id）＋两侧执行时点各留痕（执行时点写入=contemporaneous 证据过 chain-of-custody 阈——断言短板以双留痕缓解，构造性绑定之缺如实承认） | 负向：显式驳回 (ii) 现裁=账本硬冲突三处显式点名（D-108 直接——注入=外部决定 run 身份击穿 UNIQUE(run_id,…) 幂等；A-010 分工——跨 run 关联职责已立法给 baggage_id 非 trace_id，「天然载体位」论据不成立；A-013 opaque 边界）——采 (ii) 须 revised D-108 本案拒绝；(i) 单独钉死驳回=linkage 断言短板未配缓解；禁任何外部 traceparent/baggage 头采信进 fact 表面（证据污染面，与 github-rest 禁注同型反向）；扇出拓扑定形=双层（parent linkage+child 自有 run 身份）禁单层混池（多智能体碎片化观测失败形态在案） | current | 2026-10-03 |
 | D-209 | R56-Q8（调研后重呈）：#9 对账票唯一裁定件——stale_data_marker 四态（fresh/warn/stale/unknown）↔file-card drift 三态（fresh/behind/unknown）枚举映射——(i) 双枚举保留各语义域／(ii) warn→behind 合并映射／(iii) 全统一四态 | 采纳（2026-10-03，原话「采纳」＝采纳调研推荐=(i)；置信度高——K8s KEP-5067 ObservedGeneration/Ready 正交分层官方先例（v1.35 GA 已落地，「carefully document to avoid confusion」治理手段同型）＋ACM Queue k-atomicity/Δ-atomicity 版本龄 vs 时间龄命名区分学术正典＋RFC 9457 草案「应用语义塞进有限状态码空间=语义耗竭牵强借用」警告——warn→behind 正是牵强借用同型） | (i) 钉死：两枚举各自独立语义域成文不互映射（对账票一行）——stale_data_marker=报告级读模型滞后 SLA 判级（政策量：lag_seconds vs sla_seconds 阈值分档；fresh 同名词在两域同义为巧合非设计）；drift=file-card 事实快照 vs HEAD 位置对照（位置量：observed_head vs current_head 等值比较无阈值）；正交实证=快照在 HEAD 可 lag 超 SLA（drift=fresh+marker=stale）／HEAD 前移可 lag 达标（drift=behind+marker=fresh）——两枚举测不同物；A-009 全数字表（SLA 5s 默认/warn5s error15s/3 去抖 6 迟滞/per-scale 表/T1-T5/T5 fail-closed unknown）对账认领入本账本 | 负向：显式驳回 (ii) warn→behind=RFC 9457 牵强借用同型＋收窄 A-009 枚举面＋behind 一词两义 homonym 反模式（K8s#119337 误报事故同型）；(iii) drift 升四态=破坏 D-126 三态契约＋Tyk 枚举冻结契约违例（加值即 breaking）＋触碰 D-136 卡面定界；禁未来任何 drift↔marker 映射函数（两域正交不可互相派生——派生即再造双口径） | current | 2026-10-03 |
 | D-210 | R56-Q9（B6 本体）：per-layer preview→GA 毕业判据框架形态？（ADR-0017 立了各层独立漏斗但出口端判据空位；atomcode 深调研 R56-Q9 半降级有抢救物：K8s KEP-1194/production-readiness.md 直读＋KEP 判据强制必填段先例＋Chrome/SOC2/SLO 三先例＋issue #4000，置信中高） | 采纳（2026-10-03，原话「采纳」＝采纳 (i) 类目先立＋阈值后填锐化版） | ①判据类目骨架六件：语料广度／披露清洁窗／象限完整度（含明示永久豁免位——K8s never-graduate 终态先例，永久 preview 合法但须显式声明）／适配器确定性验收／schema 稳定窗／修订通道声明（各层 GA 票可追加类目，显式呈裁非静默回填——KEP milestone struct 演化同型）；②三轴正交成文：层 GA=能力成熟度门／产品 1.0=契约稳定性门（versioning.md L9）／Stage-2=暴露门（D-162）——CONTEXT 暴露梯度词条加一行指向消混淆；③阈值挂各层 GA 票=D-049 式票面预声明验收序列，机检可断定类目优先（ADR-0015/D-205 继承），数值阈值随真实分布证据定；④显式驳回 (ii) Stage-2 投影（暴露门≠成熟度门＋capability 5/5 等判据不可单层化）／(iii) 取消层级 GA（撞 ADR-0017 字面＋无 per-product-only 先例）／(iv) 挂起（KEP 判据先于证据先例正面证伪——alpha 时点必填毕业判据段） | K8s KEP 正典=「类目框架强制＋判据内容逐特性自定＋PRR 外部评审闸」三层结构；判据先于证据是预声明本意（防 goal-post moving）；R56 决策树五枝全清（B3=D-204／B1=D-205／B2=D-206／B4=D-207~D-209／B6=本裁）；调研报告=R56-Q9-atomcode-research.md；执行时点=类目骨架成文进 CONTEXT/骨架文档＋各层 GA 票模板留判据段（执行窗） | current | 2026-10-03 |
+| D-211 | R62-Q1（调研后重呈）：第五轮锐评（.code-tmp/锐评.md，快照=HEAD 759de85）摄入后本轮裁定面路由——(i) 锐评处置为本轮工作面三暗礁逐题烤＋队列顺延／(ii) 分诊路由混合序（reef#1 执行票＋烤面聚焦 reef#2/3/窗口序）／(iii) 战略题先行开暴露轨窗／(iv) 全量登记不烤直续既有序（atomcode 真回传 R62-Q1：searches 12/angles 五类全/full reads 6 一手原文＋本地回顾 D-001~D-191+24ADR+CONTEXT，置信度高 ~85%；分诊前置实证：TWIN=201935fc 零 ref 孤儿+fixture 共享 fail 计数 rc=1+84-check 不在 CI 射程；dist=310,334B 棘轮余量耗 80.6%；158 commits src/dist 触碰 8 件） | 采纳（2026-10-04，原话「采纳」＝采纳调研修正版 (ii) 全案） | ①reef#1 转执行票随批不烤（修正 1——修法不预钉：票面只钉验收判据=fresh clone 全绿并入 D-163⑥ 哨兵读数＋env-contract/portable tier 重声明 D-159②＋CI 射程缺口勘误=engine-ci 止于 78-check 按 D-163 探测面扩列处置；unbundle 临时仓/commit-tree 合成皆合法，执行批按 D-163① 首选读法选定）；②reef#2 部分重开：D-181 单文件提交 bundle 本体维持（check-dist 官方同构+size-limit 棘轮惯例反向支持）；D-076④ 留痕三件——dist-in-repo-review 触发器补棘轮余量读数＋棘轮余量<25% 警戒线立法（触发即强制开一次分发形态重评票；棘轮管静默增长、警戒线管计划性到顶——size-limit 对称面）＋D-059⑨ 退役锚（Macro-B GA→clean-commit baseline）不动；③reef#3 双轨登记（修正 2）：automatable+无久存价值面（编年随行核对/派生摘录再基线——D-180/D-179 已立法机械化）=自动化工件续建挂 D-149/D-175 既有序；non-automatable 判断面（grill 拍板/ADR 门槛/预声明纪律）=登记为 Stage-2 前接受成本（Rust RFC substantial-only 先例，仪式仅对 substantial 决策开）；量化预算挂 registry manual_watch 触发器不立独立票（先计量再立上限勿照搬 50%）；④窗口序：#85② P0 第一、reef#1 执行票随批、A-3/R4-02 顺位不动（D-175 序：欠账清零→维护强化→预备件） | 负向：显式驳回 (i) 全量烤面（reef#2/3 未过 D-075 三要素受理边界无烤面资格＋顺延 #85② P0 违 D-175 欠账清零第一优先）；(iii) 战略题先行开暴露轨窗=tired-of-beta 反模式 D-168 已立法驳回（Stage-2 判据缺 3+＋静默窗 not_started=D-173，先裁暴露面=静默 waiver 判据包撞 ADR-0017 诚实本体）；(iv) 全量登记不烤=漏 D-076④ 批评→去向表留痕义务；调研冲突点名：题面「commit-tree 唯一正解」措辞 vs D-163① 首选零写入临时仓读法存在候选竞争——消解为执行批 impl 参数（D-163① 条款是首选非唯一，不判 revised；若后续欲预钉 commit-tree 单一修法须按 D-146⑤ 勘误注记文法加 scoped 行）；锐评终极策②「推向市场/Agent 生态」裁定=方向一致序列倒置（D-210 三轴下 Stage-2 判据 5 缺 3+），随 (iii) 驳回同链登记；reef#1 自指性留痕=该红恰违自家 Stage-2「fresh clone 无红海」判据（修复即判据铺路面）；执行时点=reef#1 票/警戒线立法/registry 三件随 R62 执行批同窗 | current | 2026-10-04 |
+| D-212 | R62-Q2（调研后重呈）：A-3 账本节标题唯一性守卫立法——归属＋断言范围：(i) 41a-check＋双层断言（`##` 全局唯一＋`###` 同父 `##` 节内唯一）＋双账本同扫／(ii) 41a＋`##` 全局唯一 only＋macro-audit 账本 only（审计窗原建议最小形）／(iii) 84-check 承载／(iv) 独立第 66 件 check（atomcode 真回传 R62-Q2：searches 6/angles 四类/full reads 3 一手原文＋MD024 官方文档已读＋本地解析 174 条 current 主表行＋跨会话知识库召回，置信高 ~0.85；前置实测：双账本 `##`/`###` 同父节内重名均 0 件） | 采纳（2026-10-04，原话「采纳」＝采纳调研修正版 (i) 全案） | ①归属=41a-check（账本结构不变量正主——D6 a_range 实物反推/D7 双账指针闭环/D7b 编年键覆盖集含 dMax/F 节账本行断言同族扩展；实测 41a 双账共读 aLedge+dLedge）；84-check 不新增账本专属断言，其对 decision-ledger 的文档面扫描（短码/模糊语/幻觉 SHA/孪生桶/可达性 WARN 面）维持不变不因本裁收窄（防误读注记）；②断言双层：`##` 全局唯一（MD024 默认层）＋`###` 同父 `##` 节内唯一（siblings_only 层——markdownlint MD024 官方参数化，GitLab cli changelog 类实战配置同型，该文档类型工业标准形非过度立法）；双账本同扫（macro-audit＋architecture-recovery），现违例 0 件落地即绿；③ADR-0013 预声明随立法落盘：正对照=重放 R57 P1-2 整块复制切片诱导红（mutation-kill 惯例防 immortal test——写好即绿≠断言真会咬）＋负对照=现行账本全绿＋负对照例加「同字面跨轮 `###` 变体」显式声明边界（`###` 同父唯一依赖轮次限定语内嵌惯例持续——去限定语化漏检面的诚实留痕）；④同走 75a-census 派生再基线＋guard-meta 自声明（tier+protected_surface，D-159②） | 负向：显式驳回 (ii) 最小形（只堵已发缺陷非同机理缺陷族——P1-2 机理=整块复制在 `###` 子节双份中同显形，且 A-ledger 是 D7b 编年键覆盖集已认领账本面——留盲违新增断言最小充分范围判据，仅可作 (i) 实现子集不单独立法）；(iii) 84-check 承载（判定面锚错层——违 ADR-0024 消费位锚定法理与 41a 词条已确立的账本不变量 owner 语义）；(iv) 独立新件（D-140④ 全套成员进出生命周期成本倒挂——rules_lint/GitHub rulesets 按保护面聚类扩展既有件先例）；冲突核查零 revised（D-007/D7b/D-159②/D-140④+ADR-0013/0019/0024 全顺承扩展）；调研报告=R62-Q2-atomcode-research.md；执行时点=R62 执行批随票（A-3 顺位不动 D-211④） | current | 2026-10-04 |
 
 ## 第三十四轮收口对账（R34 Grill，2026-09-25）
 
@@ -1981,3 +1983,48 @@ scoping（非裁面/执行边界如实登记）：
 
 - **裁定层：闭环**——四票兑现各有去向（本节）；无新裁无去向清单缺口；predecl 勘误一~四链式在案。
 - **验收层：开放**——执行批自证读数非验收；待下轮审计窗 LOOP 复验（85/86 双新守卫＋收窄措辞面＋census 归因全量重跑）。
+
+## 第六十二轮收口对账（R62 Grill，2026-10-04）
+
+R62 grill 两题全裁毕（第五轮锐评摄入分诊路由＋A-3 守卫立法）；新立 D-211~D-212 全 current，零 revised。atomcode 构成比本轮 **2/2 真回传**（Q1：searches 12/angles 5/full reads 6 一手原文；Q2：searches 6/angles 4/full reads 3 一手原文＋MD024 官方文档）——继 R56 降级潮后首次全真回传轮。
+
+### 去向表（本轮新裁 D-211~D-212）
+
+| ID | 去向 |
+|---|---|
+| D-211（锐评摄入分诊路由 (ii) 修正版） | ①reef#1→BACKLOG #88 执行票（验收判据=fresh clone 全绿并入 fresh-clone-rerun-watch 哨兵＋tier 重声明＋CI 射程缺口勘误；修法 impl 参数不预钉）；②reef#2→registry dist-in-repo-review 映射更新（棘轮余量第四子事件）＋新册 ratchet-headroom-watch（<25% 警戒线立法）＋bundle-retirement-trigger D-059⑨ 锚不动；③reef#3→registry ceremony-ratio-watch 册＋automatable 面挂 D-149/D-175 既有序＋non-automatable 判断面登记为 Stage-2 前接受成本=账本即落点；④窗口序→next-round.md R63（#85② P0 第一、#88 随批、A-3/R4-02 顺位不动）；⑤摄入分诊本体＋显式驳回 (i)/(iii)/(iv)＋终极策序列倒置裁定=账本即落点（D-142/D-146 去向表义务随本表兑现） |
+| D-212（A-3 账本节标题唯一性守卫立法） | BACKLOG #89 断言票（41a-check 承载 `##` 全局唯一＋`###` 同父节内唯一双账本同扫＋ADR-0013 预声明随票）；84-check 对账本文档面扫描维持不变注记=D-212 行内已载免再落 |
+
+D-001~D-210 历轮去向表链条在案（L1051/L1462/L1534/L1569/L1650/L1811/L1873/L1911＋R57 执行窗处置表）；**无去向记录清单=空**。
+
+### 勘误与留痕
+
+- D-211 题面「commit-tree 唯一正解」措辞 vs D-163① 首选零写入临时仓读法存在候选竞争——消解为执行批 impl 参数（D-163①=首选非唯一不 revised；若后续欲预钉 commit-tree 单一修法须按 D-146⑤ 勘误注记文法加 scoped 行）。
+- CONTEXT 头部 `> 轮 N` 封口行实物核查缺 R51/R53/R56 三轮（头部止于轮 50）——本轮整理环节随 R62 行一并补落四行（轮51=D-188~D-195／轮53=D-196~D-201／轮56=D-202~D-210／轮62=D-211~D-212）。
+- R61 closeout-handoff 文件自身未 commit（mz 态）随本批收编；next-round.md 仍 R57 旧书→本轮换代 R63；origin 远端 r53-closeout／r54-t1-pointer-convergence／r55-audit 三分支未删（R61 handoff 仅清理本地）——登记为用户主权面待裁。
+- 锐评摄入合规：.code-tmp/锐评.md 快照=当前 HEAD 759de85（分诊时点=HEAD，D-142/D-146 受理合规）；三暗礁＋终极策逐条裁决如上表；锐评机理描述（孤儿对象+共享 fail 计数+CI 未覆盖）逐点实物核实属实。
+- macro-b-regression workflow 9-29 三跑红系旧 SHA 历史件非 HEAD 态（HEAD 上 engine-ci＋golden-ci 全绿）——如实登记不立案。
+
+### 执行窗登记（欠账三要素）
+
+| 票 | owner | 时点锚 | 复验方式 |
+|---|---|---|---|
+| #85② Micro-A 产线化（P0 第一） | 下一执行窗 | R63 T1 | 85-check 形重校准断言＋DoR-a Micro-A 分量复评 |
+| #88 reef#1 84-check 自足修（随批） | 下一执行窗 | R63 T1 随批 | fresh clone 全绿并入 fresh-clone-rerun-watch 哨兵读数 |
+| #89 A-3 断言票 | 下一执行窗 | R63 T1 随批（顺位不动） | ADR-0013 预声明正负对照＋41a-check 复绿＋75a census 再基线 |
+| registry 三件（dist-in-repo-review 更新／双新册／事件锚） | 本窗 | 已落盘 | 33-check D/E 段 schema＋manual_watch 扫描 |
+| R4-02 adr-structure detector v2 | 下一执行窗 | 顺位不动（D-175 序） | 票面验收序列 |
+| T3 候选 51-E2／A-6 .atomcode 归属／远端三分支 | 用户主权面 | 用户裁定 | —— |
+
+### Scoping 声明（非裁面登记）
+
+- D-211②「棘轮余量 <25%」阈值=调研推荐值随包采纳的警戒线立法级——触发后重评票内再议准确阈；重评前须回读 D-181 立法时点 385,000B 推导论证（勿用锐评叙事倒推阈值——R62-Q1 缺口①已登记）。
+- D-212 `###` 同父唯一依赖轮次限定语内嵌惯例持续（负对照变体已声明边界）；未来 `###` 去限定语化后 siblings-only 漏检面=已知接受。
+- reef#3 接受成本登记界碑=「Stage-2 前」——Stage-2 判据包评审时自动到期复评（ceremony-ratio-watch 承载）。
+- 卫生三件套（未 commit handoff／旧书换代／远端分支）：前两件本窗兑现，远端分支删否=用户主权面非本裁面。
+
+### 分层定稿（D-165/D-170 双行呈报）
+
+- **裁定层：闭环**——两裁各有去向（上表）；无去向清单=空；零 revised；atomcode 2/2 真回传。
+- **验收层：开放**——#88/#89 断言自证非验收；待下轮审计窗 LOOP 复验（fresh-clone 复跑＋双层断言负对照诱导红＋census 再基线）。
+
