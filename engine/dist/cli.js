@@ -810,18 +810,18 @@ function probeUpstream() {
   const conf = process.platform === "win32" ? spawnSync2("cmd.exe", ["/d", "/s", "/c", "npm", "config", "get", "registry"], { encoding: "utf8", timeout: 1e4 }) : spawnSync2("npm", ["config", "get", "registry"], { encoding: "utf8", timeout: 1e4 });
   const configured = conf.status === 0 ? String(conf.stdout || "").trim() : "";
   const reg = /^https?:\/\//.test(configured) ? configured : "https://registry.npmjs.org/";
-  return new Promise(function(resolve6) {
+  return new Promise(function(resolve7) {
     const t0 = Date.now();
     const req = get(reg, { timeout: 5e3, method: "HEAD" }, function(res) {
       res.resume();
-      resolve6({ leg: "upstream", status: "ok", detail: reg + " " + String(res.statusCode) + " " + String(Date.now() - t0) + "ms" });
+      resolve7({ leg: "upstream", status: "ok", detail: reg + " " + String(res.statusCode) + " " + String(Date.now() - t0) + "ms" });
     });
     req.on("timeout", function() {
       req.destroy();
-      resolve6({ leg: "upstream", status: "degraded", detail: "registry HEAD timeout 5s\uFF08\u79BB\u7EBF\u9762\uFF1A\u81EA\u6108/\u4E0A\u6E38\u62C9\u53D6\u4E0D\u53EF\u7528\uFF0C\u672C\u5730\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF09" });
+      resolve7({ leg: "upstream", status: "degraded", detail: "registry HEAD timeout 5s\uFF08\u79BB\u7EBF\u9762\uFF1A\u81EA\u6108/\u4E0A\u6E38\u62C9\u53D6\u4E0D\u53EF\u7528\uFF0C\u672C\u5730\u547D\u4EE4\u4E0D\u53D7\u5F71\u54CD\uFF09" });
     });
     req.on("error", function(e) {
-      resolve6({ leg: "upstream", status: "degraded", detail: "registry unreachable: " + String(e && e.message || e).slice(0, 120) });
+      resolve7({ leg: "upstream", status: "degraded", detail: "registry unreachable: " + String(e && e.message || e).slice(0, 120) });
     });
   });
 }
@@ -2420,8 +2420,8 @@ function buildReceipt(args) {
   for (const e of args.adjudication.entries) {
     adjParts.push(e.criterion_id + "=" + e.band);
   }
-  const NL5 = String.fromCharCode(10);
-  const digestInput = JSON.stringify(args.adjudication.entries) + NL5 + JSON.stringify(args.adjudication.citation_checks);
+  const NL6 = String.fromCharCode(10);
+  const digestInput = JSON.stringify(args.adjudication.entries) + NL6 + JSON.stringify(args.adjudication.citation_checks);
   const contentDigest = createHash4("sha256").update(digestInput, "utf8").digest("hex");
   const payload = [
     "facts:" + sorted.join(","),
@@ -2435,7 +2435,7 @@ function buildReceipt(args) {
     "tree:" + args.tree_anchor,
     "gate_ref:" + args.gate_ref.prereg_commit + "|" + args.gate_ref.criteria_path + "|" + args.gate_ref.basis_path + "|" + args.gate_ref.criterion_ids.join(","),
     "degraded:" + (args.degraded ? "1" : "0")
-  ].join(NL5);
+  ].join(NL6);
   const chain = createHash4("sha256").update(payload, "utf8").digest("hex");
   const receiptId = "RCP-" + chain.slice(0, 16);
   let mark = "RECEIPT " + receiptId + " chain=" + chain.slice(0, 32) + " content=" + contentDigest.slice(0, 16) + " facts=" + args.fact_ids.length + " adjudications=" + args.adjudication.entries.length + " issued_at=" + args.issued_at + " commit=" + args.commit_anchor + " tree=" + args.tree_anchor.slice(0, 12);
@@ -3062,9 +3062,9 @@ function facetColumns(rows) {
 function collectCodeloreFacets(input, ctx) {
   const out = [];
   const bin = input.binary || "codelore";
-  const resolve6 = input.resolver || resolveCodelore;
+  const resolve7 = input.resolver || resolveCodelore;
   const runner = input.runner || runCodeloreAnalysis;
-  const res = resolve6(bin);
+  const res = resolve7(bin);
   pushResolutionFact(out, ctx, res);
   if (res.error || !res.pinned) {
     return out;
@@ -3426,9 +3426,9 @@ function collectCodeloreLlm(input, ctx) {
   const out = [];
   const bin = input.binary || "codelore";
   const env = input.env || process.env;
-  const resolve6 = input.resolver || resolveCodelore;
+  const resolve7 = input.resolver || resolveCodelore;
   const runner = input.runner || runCodeloreLlm;
-  const res = resolve6(bin);
+  const res = resolve7(bin);
   pushResolutionFact(out, ctx, res);
   if (res.error || !res.pinned) {
     return out;
@@ -3999,8 +3999,8 @@ function demoDisclosure() {
       "structure/behavior/supply_chain \u8C61\u9650 not_applicable\uFF1AMacro-B \u5DF2\u4E0A\u67B6\u91C7\u96C6\u9762\u4EC5 strategy\uFF08S1+S2\uFF09",
       "\u786E\u5B9A\u6027 fixture\uFF1A\u540C scenario \u91CD\u8DD1\u4EA7\u7269\u9010\u5B57\u8282\u4E00\u81F4\uFF08pin author/committer/date\uFF09\uFF1B\u4E34\u65F6\u76EE\u5F55\u751F\u6210\u8DD1\u5B8C\u5373\u5F03\u4E0D\u6C61\u67D3\u4ED3\u5185\u72B6\u6001"
     ],
-    not_in_preview: ["Micro-A", "Macro-A"]
-    // Micro-B file-card 进 preview（#80 步③ 缝合落地）
+    not_in_preview: ["Macro-A"]
+    // Micro-B file-card 进 preview（#80 步③）；Micro-A 产线化入 preview（#85②/D-204③④）
   };
 }
 function listScenarios() {
@@ -4265,9 +4265,9 @@ function runDemo(opts) {
 }
 
 // src/audit/audit.ts
-import { mkdirSync as mkdirSync6, writeFileSync as writeFileSync4, existsSync as existsSync7, unlinkSync as unlinkSync2, readFileSync as readFileSync7, mkdtempSync as mkdtempSync4, rmSync as rmSync5 } from "node:fs";
-import { basename as basename2, join as join10, resolve as resolve4 } from "node:path";
-import { tmpdir as tmpdir4 } from "node:os";
+import { mkdirSync as mkdirSync7, writeFileSync as writeFileSync5, existsSync as existsSync8, unlinkSync as unlinkSync3, readFileSync as readFileSync8, mkdtempSync as mkdtempSync5, rmSync as rmSync6 } from "node:fs";
+import { basename as basename2, join as join11, resolve as resolve5 } from "node:path";
+import { tmpdir as tmpdir5 } from "node:os";
 
 // src/audit/macro-c.ts
 import { readFileSync as readFileSync6, readdirSync as readdirSync3, existsSync as existsSync6, mkdtempSync as mkdtempSync3, mkdirSync as mkdirSync5, writeFileSync as writeFileSync3, rmSync as rmSync4, unlinkSync } from "node:fs";
@@ -4275,8 +4275,561 @@ import { join as join9, resolve as resolve3 } from "node:path";
 import { tmpdir as tmpdir3 } from "node:os";
 
 // src/upstream/github-rest.ts
+import { spawnSync as spawnSync6 } from "node:child_process";
+var GITHUB_REST_ADAPTER_ID = "github-rest-adapter@v1";
+var GITHUB_REST_FAMILY = "upstream-github-rest";
+var GITHUB_API_VERSION = "2022-11-28";
+var GITHUB_API_BASE = "https://api.github.com";
+var GITHUB_USER_AGENT = "macro-audit-6f";
+var UNAUTHENTICATED_HOURLY_LIMIT = 60;
+var DEFAULT_MAX_PAGES = 10;
+var DEFAULT_PER_PAGE = 100;
+var DEFAULT_MAX_RETRY_WAIT_SECONDS = 60;
+var GITHUB_REST_PLANNED_SURFACES = ["pulls.reviews", "pulls.comments", "issues.comments"];
+var GITHUB_REST_DESCRIPTOR = {
+  id: GITHUB_REST_ADAPTER_ID,
+  family: GITHUB_REST_FAMILY,
+  dimension: null,
+  // 防腐层故意留白（ADR-0014）——维度映射见 docs/upstream-dimension-map.md（D-078）
+  quadrant: "strategic"
+};
+function probeGhAuthToken(binary) {
+  const bin = binary || "gh";
+  const r = spawnSync6(bin, ["auth", "token"], { encoding: "utf8", timeout: 15e3, windowsHide: true });
+  if (r.error || r.status !== 0) {
+    return { available: false, token: null };
+  }
+  const t = (r.stdout || "").trim();
+  return { available: true, token: t.length > 0 ? t : null };
+}
+function resolveGithubCredential(env, ghProbe) {
+  const envTok = (env.GITHUB_TOKEN || "").trim();
+  if (envTok.length > 0) {
+    return { strategy: "env-token", token: envTok, degraded: false, disclosures: [] };
+  }
+  const gh = (ghProbe || probeGhAuthToken)();
+  if (gh.available && gh.token) {
+    return {
+      strategy: "gh-token",
+      token: gh.token,
+      degraded: false,
+      disclosures: ["gh \u5DF2\u8BA4\u8BC1\u6001\u53EA\u8BFB\u501F\u7528\u2014\u2014best-effort \u53EF\u9009\u56DE\u9000\uFF08\u975E\u4F9D\u8D56\u3001\u975E\u5951\u7EA6\u627F\u8BFA\uFF09"]
+    };
+  }
+  return {
+    strategy: "unauthenticated",
+    token: null,
+    degraded: true,
+    disclosures: [
+      "unauthenticated \u964D\u7EA7\uFF1A\u516C\u4ED3\u53EA\u8BFB " + UNAUTHENTICATED_HOURLY_LIMIT + "/hr \u9650\u6D41\u5982\u5B9E\u62AB\u9732",
+      "\u79C1\u4ED3\u573A\u666F = token \u5FC5\u9700\uFF08\u672C\u5F62\u6001\u65E0\u6CD5\u8BBF\u95EE\uFF09"
+    ]
+  };
+}
+var defaultSleeper = (ms) => new Promise((r) => setTimeout(r, ms));
+function realHttpFetcher(timeoutMs) {
+  const t = timeoutMs || 3e4;
+  return async (req) => {
+    const headers = {
+      "Accept": req.accept,
+      "X-GitHub-Api-Version": GITHUB_API_VERSION,
+      "User-Agent": GITHUB_USER_AGENT
+    };
+    if (req.token) {
+      headers["Authorization"] = "Bearer " + req.token;
+    }
+    const ac = new AbortController();
+    const timer = setTimeout(() => {
+      ac.abort();
+    }, t);
+    try {
+      const r = await fetch(req.url, { method: req.method, headers, signal: ac.signal });
+      const body = await r.text();
+      const h = {};
+      r.headers.forEach((v, k) => {
+        h[k.toLowerCase()] = v;
+      });
+      return { status: r.status, headers: h, body };
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+}
+function toIntOrNull(v) {
+  if (v === void 0) {
+    return null;
+  }
+  const n = parseInt(v, 10);
+  return isFinite(n) ? n : null;
+}
+function parseRateLimitHeaders(headers) {
+  const has = headers["x-ratelimit-limit"] !== void 0 || headers["x-ratelimit-remaining"] !== void 0;
+  if (!has) {
+    return null;
+  }
+  return {
+    limit: toIntOrNull(headers["x-ratelimit-limit"]),
+    remaining: toIntOrNull(headers["x-ratelimit-remaining"]),
+    used: toIntOrNull(headers["x-ratelimit-used"]),
+    reset_epoch: toIntOrNull(headers["x-ratelimit-reset"]),
+    resource: headers["x-ratelimit-resource"] || null,
+    retry_after_seconds: toIntOrNull(headers["retry-after"])
+  };
+}
+function createGithubRestClient(cred, opts) {
+  const fetcher = opts && opts.fetcher || realHttpFetcher();
+  const sleeper = opts && opts.sleeper || defaultSleeper;
+  const base = opts && opts.apiBase || GITHUB_API_BASE;
+  const maxWait = opts && opts.maxRetryWaitSeconds !== void 0 ? opts.maxRetryWaitSeconds : DEFAULT_MAX_RETRY_WAIT_SECONDS;
+  const log = [];
+  async function once(path, accept) {
+    let res;
+    try {
+      res = await fetcher({ method: "GET", url: base + path, accept, token: cred.token });
+    } catch (e) {
+      return { ok: false, status: 0, data: null, error_kind: "network", rate_limit: null, retried: false, detail: String(e.message || e) };
+    }
+    const rl = parseRateLimitHeaders(res.headers);
+    if (res.status >= 200 && res.status < 300) {
+      if (/json/i.test(res.headers["content-type"] || "") || /^\s*[\[{]/.test(res.body)) {
+        try {
+          return { ok: true, status: res.status, data: JSON.parse(res.body), error_kind: "none", rate_limit: rl, retried: false, detail: null };
+        } catch (e) {
+          return { ok: false, status: res.status, data: null, error_kind: "parse", rate_limit: rl, retried: false, detail: "json parse: " + String(e.message || e) };
+        }
+      }
+      return { ok: true, status: res.status, data: res.body, error_kind: "none", rate_limit: rl, retried: false, detail: null };
+    }
+    return { ok: false, status: res.status, data: null, error_kind: "http", rate_limit: rl, retried: false, detail: "http " + res.status };
+  }
+  function logAttempt(path, r, retried) {
+    const kind = r.status === 403 || r.status === 429 ? "rate-limited" : r.error_kind;
+    log.push({ path, status: r.status, rate_limit: r.rate_limit, retried, error_kind: kind });
+  }
+  async function call(path, accept) {
+    const acc = accept || "application/vnd.github+json";
+    let r = await once(path, acc);
+    logAttempt(path, r, false);
+    if (r.ok || r.status !== 403 && r.status !== 429) {
+      return r;
+    }
+    const rl = r.rate_limit;
+    if (rl && rl.remaining === 0) {
+      r.error_kind = "rate-limited";
+      r.detail = "primary rate limit exhausted (x-ratelimit-remaining=0); reset_epoch=" + (rl.reset_epoch === null ? "unknown" : String(rl.reset_epoch));
+      return r;
+    }
+    if (rl && rl.retry_after_seconds !== null && rl.retry_after_seconds <= maxWait) {
+      await sleeper(rl.retry_after_seconds * 1e3);
+      const r2 = await once(path, acc);
+      r2.retried = true;
+      logAttempt(path, r2, true);
+      if (!r2.ok && (r2.status === 403 || r2.status === 429)) {
+        r2.error_kind = "rate-limited";
+        r2.detail = "secondary rate limit persisted after single bounded retry (retry-after=" + String(rl.retry_after_seconds) + "s)";
+      }
+      return r2;
+    }
+    r.error_kind = "rate-limited";
+    r.detail = rl && rl.retry_after_seconds !== null ? "retry-after " + String(rl.retry_after_seconds) + "s exceeds bounded wait " + String(maxWait) + "s \u2014 stopped" : "secondary rate limit without retry-after (official >=60s wait exceeds bounded budget) \u2014 stopped";
+    return r;
+  }
+  return { call, callLog: log };
+}
+var GithubSchemaDrift = class extends Error {
+  missing;
+  constructor(where, missing) {
+    super("schema drift at " + where + ": missing " + missing.join(","));
+    this.name = "GithubSchemaDrift";
+    this.missing = missing;
+  }
+};
+function fieldAt(row, path) {
+  let cur = row;
+  for (const seg of path.split(".")) {
+    if (cur === null || typeof cur !== "object") {
+      return void 0;
+    }
+    cur = cur[seg];
+  }
+  return cur;
+}
+function collectMissing(row, required) {
+  const missing = [];
+  for (const p of required) {
+    if (fieldAt(row, p) === void 0) {
+      missing.push(p);
+    }
+  }
+  return missing;
+}
 var PR_SUMMARY_REQUIRED = ["number", "title", "state", "user.login", "user.type", "head.sha", "base.sha", "html_url"];
 var PR_DETAIL_REQUIRED = PR_SUMMARY_REQUIRED.concat(["merged", "merge_commit_sha", "additions", "deletions", "changed_files", "commits", "created_at"]);
+function num(v) {
+  return typeof v === "number" && isFinite(v) ? v : null;
+}
+function str(v) {
+  return typeof v === "string" ? v : null;
+}
+function boolOrNull(v) {
+  return typeof v === "boolean" ? v : null;
+}
+function platformDeclaredBot(login, userType) {
+  return userType === "Bot" && typeof login === "string" && /\[bot\]$/i.test(login);
+}
+function parsePrSummaryRow(row) {
+  const missing = collectMissing(row, PR_SUMMARY_REQUIRED);
+  if (missing.length > 0) {
+    throw new GithubSchemaDrift("pulls[]", missing);
+  }
+  const o = row;
+  const login = str(fieldAt(o, "user.login")) || "";
+  const utype = str(fieldAt(o, "user.type")) || "";
+  return {
+    number: num(o.number) || 0,
+    title: str(o.title) || "",
+    state: str(o.state) || "",
+    draft: boolOrNull(o.draft),
+    author_login: login,
+    author_type: utype,
+    bot_declared: platformDeclaredBot(login, utype),
+    bot_basis: "platform-declared:user.type==Bot&&login~[bot]",
+    merged_at: str(o.merged_at),
+    head_sha: str(fieldAt(o, "head.sha")) || "",
+    base_sha: str(fieldAt(o, "base.sha")) || "",
+    html_url: str(o.html_url) || ""
+  };
+}
+function parsePrDetail(row) {
+  const missing = collectMissing(row, PR_DETAIL_REQUIRED);
+  if (missing.length > 0) {
+    throw new GithubSchemaDrift("pulls/{n}", missing);
+  }
+  const base = parsePrSummaryRow(row);
+  const o = row;
+  return {
+    ...base,
+    merged: o.merged === true,
+    merge_commit_sha: str(o.merge_commit_sha),
+    additions: num(o.additions),
+    deletions: num(o.deletions),
+    changed_files: num(o.changed_files),
+    commits: num(o.commits),
+    comments: num(o.comments),
+    review_comments: num(o.review_comments),
+    created_at: str(o.created_at),
+    closed_at: str(o.closed_at),
+    merged_by_login: str(fieldAt(o, "merged_by.login")),
+    merged_by_type: str(fieldAt(o, "merged_by.type"))
+  };
+}
+var NULL_STATS = { files_changed: null, additions: null, deletions: null };
+function gitShaResolvable(repoRoot, sha) {
+  if (!sha) {
+    return false;
+  }
+  const r = spawnSync6("git", ["cat-file", "-e", sha + "^{commit}"], { cwd: repoRoot, encoding: "utf8", timeout: 3e4, windowsHide: true });
+  return !r.error && r.status === 0;
+}
+function parseNumstat(text) {
+  let files = 0, add = 0, del = 0, sawNum = false;
+  for (const line of text.split("\n")) {
+    const t = line.trim();
+    if (!t) {
+      continue;
+    }
+    const parts = t.split("	");
+    if (parts.length < 3) {
+      continue;
+    }
+    files++;
+    if (parts[0] !== "-" && parts[1] !== "-") {
+      const a = parseInt(parts[0], 10), d = parseInt(parts[1], 10);
+      if (isFinite(a) && isFinite(d)) {
+        add += a;
+        del += d;
+        sawNum = true;
+      }
+    }
+  }
+  return { files_changed: files, additions: sawNum ? add : null, deletions: sawNum ? del : null };
+}
+function localThreeDotDiff(repoRoot, baseSha, headSha2) {
+  const range = baseSha + "..." + headSha2;
+  const d = spawnSync6("git", ["diff", range], { cwd: repoRoot, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 12e4, windowsHide: true });
+  if (d.error || d.status !== 0) {
+    return { ok: false, text: "", stats: NULL_STATS, detail: "git diff " + range + " :: " + (d.error ? String(d.error) : (d.stderr || "").slice(-200)) };
+  }
+  const n = spawnSync6("git", ["diff", "--numstat", range], { cwd: repoRoot, encoding: "utf8", timeout: 6e4, windowsHide: true });
+  const stats = !n.error && n.status === 0 ? parseNumstat(n.stdout || "") : NULL_STATS;
+  return { ok: true, text: d.stdout || "", stats, detail: null };
+}
+async function resolvePrDiff(client, owner, repo, prNumber, baseSha, headSha2, repoRoot) {
+  if (repoRoot && gitShaResolvable(repoRoot, baseSha) && gitShaResolvable(repoRoot, headSha2)) {
+    const l = localThreeDotDiff(repoRoot, baseSha, headSha2);
+    if (l.ok) {
+      return { channel: "local-git", ok: true, text: l.text, stats: l.stats, detail: null, error_kind: null };
+    }
+    return { channel: "local-git", ok: false, text: "", stats: NULL_STATS, detail: "local-git diff failed: " + (l.detail || "unknown"), error_kind: "local-diff" };
+  }
+  return apiDiff(client, owner, repo, prNumber);
+}
+async function apiDiff(client, owner, repo, prNumber) {
+  const res = await client.call("/repos/" + owner + "/" + repo + "/pulls/" + String(prNumber), "application/vnd.github.diff");
+  if (!res.ok) {
+    return { channel: "api", ok: false, text: "", stats: NULL_STATS, detail: "api diff " + res.error_kind + " status=" + String(res.status), error_kind: res.error_kind };
+  }
+  return { channel: "api", ok: true, text: String(res.data), stats: NULL_STATS, detail: "api diff channel (base/head \u672C\u5730\u7F3A\u5E2D)", error_kind: null };
+}
+function parseGithubRepoRef(input) {
+  const s = (input || "").trim();
+  let m = s.match(/^https?:\/\/github\.com\/([A-Za-z0-9][A-Za-z0-9._-]*)\/([A-Za-z0-9][A-Za-z0-9._-]*?)(\.git)?\/?$/i);
+  if (m) {
+    return { ok: true, owner: m[1], repo: m[2] };
+  }
+  m = s.match(/^git@github\.com:([A-Za-z0-9][A-Za-z0-9._-]*)\/([A-Za-z0-9][A-Za-z0-9._-]*?)(\.git)?$/i);
+  if (m) {
+    return { ok: true, owner: m[1], repo: m[2] };
+  }
+  if (/^https?:\/\//i.test(s) || /^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:/.test(s)) {
+    return { ok: false, reason: "unsupported: \u6258\u7BA1\u9762\u975E github.com\uFF08\u65E0\u6258\u7BA1 PR \u9762\u9002\u914D\uFF09" };
+  }
+  m = s.match(/^([A-Za-z0-9][A-Za-z0-9._-]*)\/([A-Za-z0-9][A-Za-z0-9._-]*)$/);
+  if (m) {
+    return { ok: true, owner: m[1], repo: m[2] };
+  }
+  return { ok: false, reason: "unparseable repo ref" };
+}
+async function collectGithubPrFacts(owner, repo, opts, ctx) {
+  const out = [];
+  const env = opts.env || process.env;
+  const repoRef = owner + "/" + repo;
+  const cred = resolveGithubCredential(env, opts.ghTokenProbe);
+  const client = createGithubRestClient(cred, { fetcher: opts.fetcher, sleeper: opts.sleeper, apiBase: opts.apiBase, maxRetryWaitSeconds: opts.maxRetryWaitSeconds });
+  out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, "credential 3-level probe", "github_rest.resolution", {
+    strategy: cred.strategy,
+    degraded: cred.degraded,
+    disclosures: cred.disclosures,
+    api_version: GITHUB_API_VERSION,
+    api_base: opts.apiBase || GITHUB_API_BASE,
+    planned_surfaces: GITHUB_REST_PLANNED_SURFACES,
+    credential_storage: "none\uFF08\u5373\u7528\u5373\u6E05\uFF0C\u4E0D\u5EFA\u51ED\u636E\u5B58\u50A8\uFF09"
+  }));
+  let stopped = null;
+  const counters = { errors: 0, rate_limited: 0, schema_drift: 0, prs: 0, details: 0, diffs: 0, diffs_local: 0, diffs_api: 0 };
+  function emitCallLog(fromIdx) {
+    for (let li = fromIdx; li < client.callLog.length; li++) {
+      const le = client.callLog[li];
+      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, "GET " + le.path, "github_rest.rate_limit", {
+        path: le.path,
+        status: le.status,
+        limit: le.rate_limit ? le.rate_limit.limit : null,
+        remaining: le.rate_limit ? le.rate_limit.remaining : null,
+        used: le.rate_limit ? le.rate_limit.used : null,
+        reset_epoch: le.rate_limit ? le.rate_limit.reset_epoch : null,
+        resource: le.rate_limit ? le.rate_limit.resource : null,
+        retried: le.retried,
+        error_kind: le.error_kind
+      }));
+    }
+  }
+  function noteError(path, r) {
+    counters.errors++;
+    if (r.error_kind === "rate-limited") {
+      counters.rate_limited++;
+      stopped = r.detail || "rate-limited";
+      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, "GET " + path, "github_rest.rate_limited", {
+        path,
+        status: r.status,
+        detail: r.detail,
+        reset_epoch: r.rate_limit ? r.rate_limit.reset_epoch : null,
+        remaining: r.rate_limit ? r.rate_limit.remaining : null,
+        retried: r.retried,
+        policy: "backoff-bounded-single-retry / stop-on-exhausted\uFF08\u9000\u907F\u4E0D\u786C\u91CD\u8BD5\uFF0C\u89E6\u9876\u5373\u505C\uFF09"
+      }));
+    } else {
+      stopped = r.detail || "api error " + String(r.status);
+      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, "GET " + path, "github_rest.api_error", {
+        path,
+        status: r.status,
+        error_kind: r.error_kind,
+        detail: r.detail,
+        retried: r.retried
+      }));
+    }
+  }
+  const state = opts.state || "all";
+  const perPage = opts.perPage || DEFAULT_PER_PAGE;
+  const maxPages = opts.maxPages || DEFAULT_MAX_PAGES;
+  const summaries = [];
+  for (let page = 1; page <= maxPages; page++) {
+    const path = "/repos/" + repoRef + "/pulls?state=" + state + "&per_page=" + String(perPage) + "&page=" + String(page);
+    const logBefore = client.callLog.length;
+    const r = await client.call(path);
+    emitCallLog(logBefore);
+    if (!r.ok) {
+      noteError(path, r);
+      break;
+    }
+    let rows;
+    try {
+      if (!Array.isArray(r.data)) {
+        throw new GithubSchemaDrift("pulls", ["<root is not an array>"]);
+      }
+      rows = r.data;
+    } catch (e) {
+      counters.errors++;
+      counters.schema_drift++;
+      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, "GET " + path, "github_rest.schema_drift", {
+        path,
+        where: "pulls",
+        missing: e.missing || [String(e.message)]
+      }));
+      stopped = "schema-drift";
+      break;
+    }
+    for (const row of rows) {
+      let s;
+      try {
+        s = parsePrSummaryRow(row);
+      } catch (e) {
+        counters.errors++;
+        counters.schema_drift++;
+        out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, "GET " + path, "github_rest.schema_drift", {
+          path,
+          where: "pulls[]",
+          missing: e.missing || [String(e.message)]
+        }));
+        continue;
+      }
+      summaries.push(s);
+      counters.prs++;
+      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + "#" + String(s.number), "GET " + path, "github_rest.pr_summary", {
+        number: s.number,
+        title: s.title,
+        state: s.state,
+        draft: s.draft,
+        author_login: s.author_login,
+        author_type: s.author_type,
+        bot_declared: s.bot_declared,
+        bot_basis: s.bot_basis,
+        merged_at: s.merged_at,
+        head_sha: s.head_sha,
+        base_sha: s.base_sha,
+        html_url: s.html_url
+      }));
+    }
+    if (rows.length < perPage) {
+      break;
+    }
+  }
+  const byNumber = /* @__PURE__ */ new Map();
+  for (const s of summaries) {
+    byNumber.set(s.number, s);
+  }
+  if (!stopped) {
+    for (const n of opts.details || []) {
+      const path = "/repos/" + repoRef + "/pulls/" + String(n);
+      const logBefore = client.callLog.length;
+      const r = await client.call(path);
+      emitCallLog(logBefore);
+      if (!r.ok) {
+        noteError(path, r);
+        break;
+      }
+      try {
+        const d = parsePrDetail(r.data);
+        byNumber.set(d.number, d);
+        counters.details++;
+        out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + "#" + String(n), "GET " + path, "github_rest.pr_metadata", d));
+      } catch (e) {
+        counters.errors++;
+        counters.schema_drift++;
+        out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + "#" + String(n), "GET " + path, "github_rest.schema_drift", {
+          path,
+          where: "pulls/{n}",
+          missing: e.missing || [String(e.message)]
+        }));
+      }
+    }
+  }
+  if (!stopped) {
+    for (const n of opts.diffs || []) {
+      const meta = byNumber.get(n);
+      const baseSha = meta ? meta.base_sha : "";
+      const headSha2 = meta ? meta.head_sha : "";
+      const path = "/repos/" + repoRef + "/pulls/" + String(n);
+      const logBefore = client.callLog.length;
+      const d = await resolvePrDiff(client, owner, repo, n, baseSha, headSha2, opts.repoRoot || null);
+      emitCallLog(logBefore);
+      if (!d.ok) {
+        counters.errors++;
+        stopped = d.detail || "diff failed";
+        if (d.error_kind === "rate-limited") {
+          counters.rate_limited++;
+          const lastE = client.callLog[client.callLog.length - 1];
+          out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + "#" + String(n), "GET " + path + " (diff)", "github_rest.rate_limited", {
+            path,
+            status: lastE ? lastE.status : 0,
+            detail: d.detail,
+            reset_epoch: lastE && lastE.rate_limit ? lastE.rate_limit.reset_epoch : null,
+            remaining: lastE && lastE.rate_limit ? lastE.rate_limit.remaining : null,
+            retried: lastE ? lastE.retried : false,
+            channel: d.channel,
+            policy: "backoff-bounded-single-retry / stop-on-exhausted\uFF08\u9000\u907F\u4E0D\u786C\u91CD\u8BD5\uFF0C\u89E6\u9876\u5373\u505C\uFF09"
+          }));
+        } else {
+          out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + "#" + String(n), "GET " + path + " (diff)", "github_rest.api_error", {
+            path,
+            error_kind: d.error_kind || "http",
+            detail: d.detail,
+            channel: d.channel
+          }));
+        }
+        break;
+      }
+      counters.diffs++;
+      if (d.channel === "local-git") {
+        counters.diffs_local++;
+      } else {
+        counters.diffs_api++;
+      }
+      out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef + "#" + String(n), d.channel === "local-git" ? "git diff " + baseSha + "..." + headSha2 : "GET " + path + " (diff)", "github_rest.pr_diff", {
+        number: n,
+        channel: d.channel,
+        bytes: d.text.length,
+        files_changed: d.stats.files_changed,
+        additions: d.stats.additions,
+        deletions: d.stats.deletions,
+        detail: d.detail
+      }));
+    }
+  }
+  const lastLog = client.callLog.length > 0 ? client.callLog[client.callLog.length - 1] : null;
+  out.push(makeFact(ctx, GITHUB_REST_DESCRIPTOR, repoRef, "adapter run summary", "github_rest.run", {
+    strategy: cred.strategy,
+    degraded: cred.degraded,
+    calls: client.callLog.length,
+    errors: counters.errors,
+    rate_limited: counters.rate_limited,
+    schema_drift: counters.schema_drift,
+    prs_listed: counters.prs,
+    details: counters.details,
+    diffs: counters.diffs,
+    diffs_local_git: counters.diffs_local,
+    diffs_api: counters.diffs_api,
+    stopped_reason: stopped,
+    final_remaining: lastLog && lastLog.rate_limit ? lastLog.rate_limit.remaining : null
+  }));
+  return {
+    facts: out,
+    strategy: cred.strategy,
+    degraded: cred.degraded,
+    prs_listed: counters.prs,
+    calls: client.callLog.length,
+    stopped_reason: stopped
+  };
+}
 
 // src/audit/upstream-dimension-map.ts
 var UPSTREAM_DIMENSION_MAP_VERSION = "v1.0";
@@ -4476,7 +5029,7 @@ var MACRO_C_SUPERSEDE_KINDS = ["whole-adr-status", "item-level-inline"];
 function scanSupersedeAdrs(adrDocs) {
   const adrs = [];
   for (const d of adrDocs) {
-    const num = d.path.split("/").pop().match(/^(\d+)/)[1];
+    const num2 = d.path.split("/").pop().match(/^(\d+)/)[1];
     const text = d.text;
     const statusLine = (text.match(/^\s*[-*]?\s*status\s*[:：][^\n]*/im) || [""])[0].trim();
     const wholeTo = (statusLine.match(/superseded\s+by\s+ADR-?(\d{3,})/i) || [])[1] || null;
@@ -4507,7 +5060,7 @@ function scanSupersedeAdrs(adrDocs) {
     const mentions = Array.from(new Set(Array.from(text.matchAll(/ADR-?(\d{3,})/gi)).map(function(x) {
       return x[1];
     })));
-    adrs.push({ file: d.path, num, whole_to: wholeTo, inline: inlineRefs, amends, refs, defers, mentions });
+    adrs.push({ file: d.path, num: num2, whole_to: wholeTo, inline: inlineRefs, amends, refs, defers, mentions });
   }
   return adrs;
 }
@@ -4873,8 +5426,8 @@ async function runMacroCAudit(opts) {
       "\u4F9B\u5E94\u94FE\u8C61\u9650 \u26A0 \u6570\u636E\u672A\u63A5\uFF1AScorecard/repomix \u672A\u63A5\u4E0D\u63D2\u961F\uFF08D-034\u2462\uFF09",
       "structure/behavior \u8C61\u9650\u4E3A\u884D\u751F\u89C2\u6D4B\uFF08\u65E0\u9884\u58F0\u660E\u9608\u503C\u57FA\u7EBF\uFF09\u2014\u2014\u89C2\u6D4B\u503C\u5982\u5B9E\u843D slice_fields \u4E0D\u88C1\u51B3\uFF08\u8BED\u4E49\u57DF\u6807\u7B7E\uFF1Astructure/shape \u6D4B\u91CF\u5C42 vs S3/budget-attribution \u5F52\u56E0\u5C42\uFF0CD-205\uFF09"
     ],
-    not_in_preview: ["Micro-A", "Macro-A"]
-    // Micro-B file-card 进 preview（#80 步③）；Micro-A=calibrated demo 非 preview（D-204③）；Macro-C 本面产线化入 preview（#84/D-204②）
+    not_in_preview: ["Macro-A"]
+    // Micro-B file-card 进 preview（#80 步③）；Micro-A 产线化入 preview（#85②/D-204③④）；Macro-C 本面产线化入 preview（#84/D-204②）
   };
   const quarantinedRows = probes.fieldEvents.filter(function(e) {
     return e.disposition === "quarantined";
@@ -5000,10 +5553,658 @@ async function runMacroCAudit(opts) {
   };
 }
 
-// src/audit/audit.ts
+// src/audit/micro-a.ts
+import { readFileSync as readFileSync7, writeFileSync as writeFileSync4, existsSync as existsSync7, mkdirSync as mkdirSync6, mkdtempSync as mkdtempSync4, rmSync as rmSync5, unlinkSync as unlinkSync2 } from "node:fs";
+import { execFileSync as execFileSync2 } from "node:child_process";
+import { join as join10, resolve as resolve4, dirname as dirname6 } from "node:path";
+import { tmpdir as tmpdir4 } from "node:os";
+import { fileURLToPath as fileURLToPath3 } from "node:url";
 var NL4 = String.fromCharCode(10);
-var AUDIT_SCALES_IMPLEMENTED = ["Macro-B", "Macro-C"];
-var SCALE_LAYER_ORDER = "Macro-C\u2192Micro-A\u2192Micro-B\u2192Macro-A\uFF08ADR-0017\u2462 \u5C42\u5E8F\uFF0CMacro-B/Macro-C \u5DF2\u4E0A\u67B6 preview\uFF09";
+var MICRO_A_CAPABILITY_LABEL = "capability 3 of 5 \xB7 preview";
+var MICRO_A_REPORT_ID_PREFIX = "MA-48-";
+var MICRO_A_SLICE_FIELDS = [
+  "pr_number",
+  "pr_title",
+  "pr_state",
+  "merged",
+  "merged_at",
+  "author_login",
+  "author_type",
+  "bot_declared",
+  "bot_basis",
+  "author_form",
+  "head_sha",
+  "base_sha",
+  "merge_commit_sha",
+  "html_url",
+  "diff_channel",
+  "diff_files_changed",
+  "diff_additions",
+  "diff_deletions",
+  "diff_bytes",
+  "credential_strategy",
+  "credential_degraded",
+  "api_calls",
+  "rate_limit_remaining"
+];
+var RELEASE_TITLE = new RegExp("^chore[(][^)]*[)]: release [0-9]+[.][0-9]+[.][0-9]+");
+var CRITERIA_PATH = ".scratch/architecture-recovery/reports/48-micro-a-criteria.md";
+var CRITERION_IDS = ["PC-1", "TC-1", "TC-2", "TC-3", "TC-4", "NC-1"];
+var MICRO_A_PILOTS = [
+  { name: "env-manager", owner: "Xxx91n", repo: "env-manager", pins: [
+    { n: 64, form: "machine-generated/release-please" },
+    { n: 55, form: "platform-declared-bot/dependabot" },
+    { n: 51, form: "human" }
+  ] },
+  { name: "jiahao", owner: "Xxx91n", repo: "jiahao", pins: [{ n: 6, form: "human" }] }
+];
+function deterministicRunAt() {
+  const e = process.env.SOURCE_DATE_EPOCH;
+  if (e === void 0 || e === "") {
+    return (/* @__PURE__ */ new Date(0)).toISOString();
+  }
+  const n = Number(e);
+  if (!Number.isFinite(n)) {
+    throw new Error("SOURCE_DATE_EPOCH \u975E\u6CD5\u503C\uFF1A" + JSON.stringify(e) + "\uFF08\u987B\u4E3A\u79D2\u7EA7 unix epoch \u6570\u503C\uFF09");
+  }
+  return new Date(Math.trunc(n) * 1e3).toISOString();
+}
+function tryGit(root, args) {
+  try {
+    return execFileSync2("git", ["-C", root].concat(args), { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  } catch (e) {
+    return null;
+  }
+}
+function sourceRepoRoot() {
+  try {
+    let dir = dirname6(fileURLToPath3(import.meta.url));
+    for (let i = 0; i < 6; i++) {
+      if (existsSync7(join10(dir, ".git"))) {
+        return dir;
+      }
+      const up = dirname6(dir);
+      if (up === dir) {
+        break;
+      }
+      dir = up;
+    }
+  } catch (e) {
+    return null;
+  }
+  return null;
+}
+var PREREG_COMMIT = (function() {
+  const r = sourceRepoRoot();
+  return (r !== null ? tryGit(r, ["log", "-1", "--format=%h", "--", CRITERIA_PATH]) : null) || "unknown";
+})();
+function microACollectContext(t, headSha2, runAt) {
+  return {
+    runId: "r48-" + t.name + "-" + (headSha2 || "na").slice(0, 7),
+    traceId: sha256Hex(t.repo + "|" + (headSha2 || "na") + "|" + runAt).slice(0, 32),
+    repoRef: t.owner + "/" + t.repo,
+    scale: "Micro-A",
+    observedAt: runAt
+  };
+}
+async function collectMicroA(t, shared, diffsOverride, runAt) {
+  const headSha2 = t.root ? tryGit(t.root, ["rev-parse", "HEAD"]) : null;
+  const ctx = microACollectContext(t, headSha2, runAt);
+  const pins = t.pins;
+  const opts = { state: "all", details: pins.map(function(p) {
+    return p.n;
+  }), diffs: diffsOverride !== void 0 ? diffsOverride : pins.map(function(p) {
+    return p.n;
+  }), repoRoot: t.root };
+  if (shared.env) {
+    opts.env = shared.env;
+  }
+  if (shared.ghTokenProbe) {
+    opts.ghTokenProbe = shared.ghTokenProbe;
+  }
+  if (shared.fetcher) {
+    opts.fetcher = shared.fetcher;
+  }
+  const res = await collectGithubPrFacts(t.owner, t.repo, opts, ctx);
+  const summaries = res.facts.filter(function(f) {
+    return f.metric === "github_rest.pr_summary";
+  }).map(function(f) {
+    return JSON.parse(f.value_json);
+  });
+  const mergedCount = summaries.filter(function(s) {
+    return s.merged_at !== null;
+  }).length;
+  return { t, ctx, res, summaries, mergedCount, headSha: headSha2 };
+}
+async function fetchDiffArtifactMicroA(t, n, baseSha, headSha2, shared, outDir, outName) {
+  const cred = resolveGithubCredential(shared.env || process.env, shared.ghTokenProbe);
+  const client = createGithubRestClient(cred, shared.fetcher ? { fetcher: shared.fetcher } : {});
+  let d;
+  try {
+    d = await resolvePrDiff(client, t.owner, t.repo, n, baseSha || "", headSha2 || "", t.root);
+  } catch (e) {
+    return { ok: false, channel: "api", bytes: 0, stats: { files_changed: null, additions: null, deletions: null }, error: String(e.message || e).slice(0, 160) };
+  }
+  if (d.ok && d.text.length > 0 && outDir !== null) {
+    writeFileSync4(join10(outDir, outName), d.text, "utf8");
+  }
+  return { ok: d.ok, channel: d.channel, bytes: d.text.length, stats: d.stats, error: d.ok ? null : String(d.detail || d.error_kind || "unknown") };
+}
+function classifyForm(v) {
+  if (v.bot_declared === true && /dependabot/i.test(String(v.author_login))) {
+    return "platform-declared-bot/dependabot";
+  }
+  if (v.bot_declared === true && RELEASE_TITLE.test(String(v.title))) {
+    return "machine-generated/release-please";
+  }
+  if (v.bot_declared === true) {
+    return "platform-declared-bot/other";
+  }
+  return "human";
+}
+function skeletonIntersectionReport(sidecar, mdText) {
+  const missing = [];
+  const rename = { stale_data_marker: "stale.marker", staleness_sla_seconds: "stale.sla_seconds", read_model_lag_seconds: "stale.lag_seconds", read_model_version: "stale.read_model_version", fact_watermark_version: "stale.fact_watermark_version", evidence_items: "evidence" };
+  function has(obj, path) {
+    let cur = obj;
+    for (const p of path.split(".")) {
+      if (cur === null || typeof cur !== "object" || !(p in cur)) {
+        return false;
+      }
+      cur = cur[p];
+    }
+    return true;
+  }
+  const skeleton = REPORT_SKELETON;
+  for (const ch of skeleton) {
+    for (const f of ch.required_fields) {
+      const leaf = rename[f] || f;
+      if (ch.id === "C1") {
+        if (!has(sidecar, leaf) && (typeof mdText !== "string" || mdText.indexOf(f) < 0)) {
+          missing.push("C1." + f);
+        }
+      } else if (ch.id === "C2") {
+        if (f === "quadrants") {
+          if (!has(sidecar, "quadrants")) {
+            missing.push("C2.quadrants");
+          }
+        } else {
+          const qs = sidecar.quadrants || [];
+          let bad = qs.length === 0;
+          for (const q of qs) {
+            if (!has(q, f)) {
+              bad = true;
+            }
+          }
+          if (bad) {
+            missing.push("C2." + f);
+          }
+        }
+      } else if (ch.id === "C3") {
+        if (f === "evidence_items") {
+          if (!has(sidecar, "evidence")) {
+            missing.push("C3.evidence_items");
+          }
+        } else {
+          const es = sidecar.evidence || [];
+          let bad = es.length === 0;
+          for (const e of es) {
+            if (!has(e, f)) {
+              bad = true;
+            }
+          }
+          if (bad) {
+            missing.push("C3." + f);
+          }
+        }
+      } else if (ch.id === "C4") {
+        if (f === "recommendations") {
+          if (!has(sidecar, "recommendations")) {
+            missing.push("C4.recommendations");
+          }
+        } else {
+          const rs = sidecar.recommendations || [];
+          let bad = rs.length === 0;
+          for (const r of rs) {
+            if (!has(r, f)) {
+              bad = true;
+            }
+          }
+          if (bad) {
+            missing.push("C4." + f);
+          }
+        }
+      }
+    }
+  }
+  const qsAll = sidecar.quadrants || [];
+  const bq = qsAll.filter(function(q) {
+    return q.quadrant === "behavior";
+  })[0];
+  const slice = bq && bq.slice_fields;
+  for (const f of MICRO_A_SLICE_FIELDS) {
+    if (!slice || !(f in slice)) {
+      missing.push("slice." + f);
+    }
+  }
+  return { ok: missing.length === 0, missing };
+}
+function val(f) {
+  return JSON.parse(f.value_json);
+}
+function byMetric(facts, m) {
+  return facts.filter(function(f) {
+    return f.metric === m;
+  });
+}
+function prFact(facts, metric, n) {
+  const hit = facts.filter(function(f) {
+    return f.metric === metric && f.subject_ref.slice(-("#" + n).length) === "#" + n;
+  });
+  return hit.length > 0 ? hit[0] : null;
+}
+function pickExcerpt3(absOrRelPath, tokens, base) {
+  const text = readFileSync7(base ? join10(base, absOrRelPath) : absOrRelPath, "utf8");
+  const lines = text.split(NL4);
+  if (tokens === null) {
+    return { line: 1, text: lines[0].trim() };
+  }
+  for (let i = 0; i < lines.length; i++) {
+    let all = true;
+    for (const tk of tokens) {
+      if (lines[i].indexOf(tk) < 0) {
+        all = false;
+      }
+    }
+    if (all) {
+      return { line: i + 1, text: lines[i].trim() };
+    }
+  }
+  throw new Error("EXCERPT-MISS: " + absOrRelPath + " tokens=" + String(tokens));
+}
+async function buildPrReportMicroA(t, pin, collected, gate, shared, opts) {
+  const RUN_AT = collected.ctx.observedAt;
+  const NAME = t.name;
+  const R = NAME.toUpperCase().split("-").join("");
+  const PRE = opts.golden ? "micro-a-golden-" : "micro-a-";
+  const facts = collected.res.facts;
+  const sumF = prFact(facts, "github_rest.pr_summary", pin.n);
+  const metaF = prFact(facts, "github_rest.pr_metadata", pin.n);
+  const diffF = prFact(facts, "github_rest.pr_diff", pin.n);
+  const runF = byMetric(facts, "github_rest.run").slice(-1)[0] || null;
+  const sum = sumF ? val(sumF) : null;
+  const meta = metaF ? val(metaF) : null;
+  const diff = diffF ? val(diffF) : null;
+  const run = runF ? val(runF) : null;
+  const merged = meta !== null && meta.merged === true || sum !== null && sum.merged_at !== null && sum.state === "closed";
+  const formActual = meta !== null ? classifyForm(meta) : sum !== null ? classifyForm(sum) : "unknown";
+  const formMatch = formActual === pin.form;
+  const artName = PRE + NAME + "-pr" + pin.n + ".diff";
+  const art = await fetchDiffArtifactMicroA(t, pin.n, sum ? String(sum.base_sha) : "", sum ? String(sum.head_sha) : "", shared, opts.outDir, artName);
+  const tripleOk = sumF !== null && metaF !== null && diffF !== null && merged === true;
+  const numStatsOk = diff !== null && typeof diff.files_changed === "number" && typeof diff.additions === "number" && typeof diff.deletions === "number";
+  const channelOk = diff !== null && (diff.channel === "local-git" || diff.channel === "api") && typeof diff.bytes === "number" && diff.bytes > 0;
+  const tc2ok = channelOk && (diff !== null && diff.channel === "api" ? typeof diff.detail === "string" && diff.detail.length > 0 : numStatsOk);
+  const botFieldsOk = sum !== null && typeof sum.bot_declared === "boolean" && typeof sum.bot_basis === "string" && String(sum.bot_basis).indexOf("platform-declared") === 0;
+  const EV = function(k) {
+    return "EV-48-" + R + "-PR" + pin.n + "-0" + k;
+  };
+  const entries = [
+    { criterion_id: "PC-1", band: run !== null && run.prs_listed > 0 ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: runF ? [runF.fact_id] : [], anchored_evidence_ids: [EV(1)], decided_at: RUN_AT, rationale: run !== null && run.prs_listed > 0 ? "\u9002\u914D\u5668 run \u4E8B\u5B9E\u5728\u6848\uFF1Aprs_listed=" + String(run.prs_listed) + " calls=" + String(run.calls) + " strategy=" + String(run.strategy) + "\uFF08\u679A\u4E3E\u771F\u5B9E\u53D1\u751F\uFF09" : "\u679A\u4E3E\u672A\u53D1\u751F\u2014\u2014\u7BA1\u7EBF\u6545\u969C" },
+    { criterion_id: "TC-1", band: tripleOk ? "supported" : "insufficient", basis_refs: ["B2"], anchored_fact_ids: [sumF, metaF, diffF].filter(Boolean).map(function(f) {
+      return f.fact_id;
+    }), anchored_evidence_ids: [EV(3)], decided_at: RUN_AT, rationale: tripleOk ? "PR \u8BC1\u636E\u4E09\u8054\u9F50\u5907\uFF08summary\uFF0Bmetadata\uFF0Bdiff\uFF09\u4E14 merged=true" : "\u8BC1\u636E\u4E09\u8054\u7F3A\u817F\uFF1Asummary=" + (sumF ? "1" : "0") + " metadata=" + (metaF ? "1" : "0") + " diff=" + (diffF ? "1" : "0") + " merged=" + String(merged) },
+    { criterion_id: "TC-2", band: tc2ok ? "supported" : "insufficient", basis_refs: ["B2"], anchored_fact_ids: diffF ? [diffF.fact_id] : [], anchored_evidence_ids: [EV(2)], decided_at: RUN_AT, rationale: diff !== null ? "diff channel=" + String(diff.channel) + " files=" + String(diff.files_changed) + " +" + String(diff.additions) + "/-" + String(diff.deletions) + " bytes=" + String(diff.bytes) + (diff.channel === "api" ? "\uFF08api \u817F stats \u5951\u7EA6\u7F3A\u5E2D detail=" + String(diff.detail).slice(0, 40) + "\uFF09" : "") : "diff \u4E8B\u5B9E\u7F3A\u5E2D" },
+    { criterion_id: "TC-3", band: botFieldsOk ? "supported" : "insufficient", basis_refs: ["B2"], anchored_fact_ids: sumF ? [sumF.fact_id] : [], anchored_evidence_ids: [EV(3)], decided_at: RUN_AT, rationale: botFieldsOk ? "\u4F5C\u8005\u5F62\u6001\u62AB\u9732\u9F50\u5907\uFF1Abot_declared=" + String(sum === null ? "" : sum.bot_declared) + " basis=" + String(sum === null ? "" : sum.bot_basis) : "\u4F5C\u8005\u5F62\u6001\u5B57\u6BB5\u7F3A\u5E2D" },
+    { criterion_id: "TC-4", band: gate.merged_prs >= 1 ? "supported" : "unsupported", basis_refs: ["B2"], anchored_fact_ids: [], anchored_evidence_ids: [EV(1)], decided_at: RUN_AT, rationale: "\u6258\u7BA1\u9762\u8D44\u683C\u95F8\uFF1A" + NAME + " \u6258\u7BA1\u679A\u4E3E merged PR=" + String(gate.merged_prs) + "\uFF08>=1 \u5373 eligible\uFF1BD-033 \u786C\u7EA6\u675F\u9006\u7528\u5224\u636E\uFF09" },
+    { criterion_id: "NC-1", band: merged && formMatch ? "supported" : "unsupported", basis_refs: ["B4"], anchored_fact_ids: sumF ? [sumF.fact_id] : [], anchored_evidence_ids: [EV(3)], decided_at: RUN_AT, rationale: "\u8D1F\u5BF9\u7167\uFF1A\u5165\u9009\u5B9E\u4F8B " + pin.form + " \u7968\u9762\u5199\u6B7B\uFF1B\u5B9E\u6D4B form=" + formActual + " merged=" + String(merged) + "\uFF08closed-unmerged \u4E0D\u5165\u96C6\u3001\u5F62\u6001\u9519\u914D\u5373\u5224\u8D1F\uFF09" }
+  ];
+  const overall = deriveOverallBand(entries);
+  const sliceFields = {
+    pr_number: pin.n,
+    pr_title: sum ? String(sum.title) : "",
+    pr_state: sum ? String(sum.state) : "",
+    merged,
+    merged_at: meta && meta.merged_at || sum && sum.merged_at || null,
+    author_login: sum ? String(sum.author_login) : "",
+    author_type: sum ? String(sum.author_type) : "",
+    bot_declared: sum ? sum.bot_declared : null,
+    bot_basis: sum ? sum.bot_basis : null,
+    author_form: formActual,
+    head_sha: sum ? String(sum.head_sha) : "",
+    base_sha: sum ? String(sum.base_sha) : "",
+    merge_commit_sha: meta ? meta.merge_commit_sha : null,
+    html_url: sum ? String(sum.html_url) : "",
+    diff_channel: diff ? diff.channel : null,
+    diff_files_changed: diff ? diff.files_changed : null,
+    diff_additions: diff ? diff.additions : null,
+    diff_deletions: diff ? diff.deletions : null,
+    diff_bytes: diff ? diff.bytes : null,
+    credential_strategy: run ? String(run.strategy) : collected.res.strategy,
+    credential_degraded: run ? run.degraded : collected.res.degraded,
+    api_calls: run ? run.calls : null,
+    rate_limit_remaining: run ? run.final_remaining : null
+  };
+  const evidence = [];
+  function addEvidence(id, src, tokens, claim, repro, base) {
+    let ex = null;
+    try {
+      ex = pickExcerpt3(src, tokens, base);
+    } catch (e) {
+      evidence.push({ evidence_id: id, source: src, locator: "L0", claim, grounded: false, collected_at: RUN_AT, reproduce_cmd: repro, reproduce_absent_reason: "\u5F15\u6587\u6458\u53D6\u5931\u8D25\uFF1A" + String(e.message ? e.message : e).slice(0, 140), required_tokens: [], excerpt: "" });
+      return;
+    }
+    evidence.push({ evidence_id: id, source: src, locator: "L" + String(ex.line), claim, grounded: true, collected_at: RUN_AT, reproduce_cmd: repro, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
+  }
+  const RUN_CMD = "macro-audit audit " + t.owner + "/" + t.repo + " --scale Micro-A" + (opts.outDir ? " --out <dir>" : "");
+  addEvidence(EV(1), opts.measName, ["prs_listed"], "\u672C\u6B21\u5B9E\u6D4B\uFF1A" + NAME + " \u6258\u7BA1\u679A\u4E3E\u771F\u5B9E\u53D1\u751F\uFF08prs_listed=" + String(collected.res.prs_listed) + " merged=" + String(gate.merged_prs) + "\uFF09", RUN_CMD, opts.outDir);
+  if (art.ok) {
+    addEvidence(EV(2), artName, ["diff --git"], "\u672C\u6B21\u5B9E\u6D4B\uFF1A" + NAME + "#" + String(pin.n) + " diff \u5DE5\u4EF6\u884C\u7EA7\u951A\uFF08channel=" + art.channel + " bytes=" + String(art.bytes) + "\uFF09", RUN_CMD, opts.outDir);
+  } else {
+    evidence.push({ evidence_id: EV(2), source: artName, locator: "L0", claim: "" + NAME + "#" + String(pin.n) + " diff \u5DE5\u4EF6", grounded: false, collected_at: RUN_AT, reproduce_cmd: RUN_CMD, reproduce_absent_reason: "diff \u5DE5\u4EF6\u7F3A\u5E2D\uFF08" + String(art.error || "channel \u672A\u4EA7") + "\uFF09", required_tokens: [], excerpt: "" });
+  }
+  addEvidence(EV(3), opts.factsName, ["github_rest.pr_metadata", "#" + String(pin.n)], "\u672C\u6B21\u5B9E\u6D4B\uFF1A" + NAME + "#" + String(pin.n) + " \u5143\u6570\u636E\u4E8B\u5B9E\u843D\u5E93\uFF08merged=" + String(merged) + "\uFF09", RUN_CMD, opts.outDir);
+  const srcRoot = sourceRepoRoot();
+  addEvidence(EV(4), ".scratch/macro-audit/decision-ledger.md", ["D-049"], "\u7968\u9762\u6388\u6743\u951A\uFF1AD-049 Micro-A preview \u5355\u7968\u94FA\u5F00\u51B3\u7B56\u884C", "git -C <repo> show HEAD:.scratch/macro-audit/decision-ledger.md", srcRoot);
+  addEvidence(EV(5), CRITERIA_PATH, ["TC-4"], "\u5224\u636E\u9884\u58F0\u660E\u951A\uFF1A48-micro-a-criteria.md \u5224\u636E\u96C6\u5728\u6848\uFF08\u8DD1\u540E\u7981\u8C03\uFF09", "git -C <repo> show HEAD:" + CRITERIA_PATH, srcRoot);
+  const claims = [
+    { claim_id: "CL-48-" + R + "-PR" + String(pin.n) + "-01", evidence_id: EV(1), required_tokens: ["prs_listed"] },
+    { claim_id: "CL-48-" + R + "-PR" + String(pin.n) + "-02", evidence_id: EV(2), required_tokens: ["diff --git"] },
+    { claim_id: "CL-48-" + R + "-PR" + String(pin.n) + "-03", evidence_id: EV(3), required_tokens: ["github_rest.pr_metadata"] },
+    { claim_id: "CL-48-" + R + "-PR" + String(pin.n) + "-04", evidence_id: EV(4), required_tokens: ["D-049"] },
+    { claim_id: "CL-48-" + R + "-PR" + String(pin.n) + "-05", evidence_id: EV(5), required_tokens: ["TC-4"] }
+  ];
+  const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: "engine/src/audit/micro-a.ts" };
+  const isDep = formActual === "platform-declared-bot/dependabot";
+  const quadrants = [
+    { quadrant: "behavior", applicability: "native", verdict: overall, score: null, confidence: 0.6, dimensions: [], slice_fields: sliceFields, verdict_gate: { protocol_version: GATE.protocol_version, decision: overall, evidence_flag: tripleOk, decided_at: RUN_AT, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: isDep ? ["supply-chain-signal-unadjudicated"] : [] },
+    { quadrant: "structure", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: RUN_AT, override_reason: "Micro-A \u5207\u7247\u65E0\u7ED3\u6784\u91C7\u96C6\u9762\uFF08PR \u7C92\u5EA6\uFF1B\u7ED3\u6784\u8C61\u9650\u5F52 Macro-B \u4ED3\u7EA7\u91C7\u96C6\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["out-of-scope-micro-a"] },
+    { quadrant: "supply_chain", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: RUN_AT, override_reason: "\u26A0 \u6570\u636E\u672A\u63A5\u2014\u2014Scorecard \u672A\u63A5\uFF08\u6309\u5C42\u9700\u6C42\u961F\u5217\u4E0D\u63D2\u961F\uFF0CD-034\u2462\uFF09" + (isDep ? "\uFF1Bdependabot PR \u7684\u4F9B\u5E94\u94FE\u4FE1\u53F7\u4EC5\u4F5C\u4E8B\u5B9E\u843D\u5E93\u4E0D\u88C1\u51B3" : ""), audit_ref: GATE.audit_ref }, conflict_markers: isDep ? ["data-not-connected", "supply-chain-signal-unadjudicated"] : ["data-not-connected"] },
+    { quadrant: "strategy", applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: RUN_AT, override_reason: "Micro-A \u5207\u7247\u4E0D\u88C1\u4ED3\u7EA7\u6218\u7565\u53D9\u4E8B\uFF08\u6218\u7565\u8C61\u9650\u5728\u4ED3\u7EA7/\u8DE8\u4ED3\u5C42\u6295\u5F71\uFF09", audit_ref: GATE.audit_ref }, conflict_markers: ["out-of-scope-micro-a"] }
+  ];
+  const recommendations = [
+    { rec_id: "R-48-" + R + "-PR" + String(pin.n) + "-1", priority: "P1", action: "Micro-A preview \u9057\u7559\u9762\u6536\u53E3\uFF1Apulls.reviews/comments \u81EA planned \u62C9\u5165\uFF08\u9501\u8868 github-rest \u5951\u7EA6\u9762\uFF09\uFF0Bdiff --llm \u884C\u7EA7\u8BED\u4E49\u8BC4\u5BA1\u5F52 #50 \u53D9\u4E8B\u53CC\u8F68", rationale: "preview \u5224\u636E=\u8BC1\u636E\u5B8C\u6574\u6027/\u6258\u7BA1\u9762\u8D44\u683C/\u9009\u62E9\u6027\uFF0C\u975E PR \u8D28\u91CF\u88C1\u51B3\u2014\u2014\u884C\u7EA7\u8BC4\u5BA1\u53D9\u4E8B\u9762\u5C5E\u5BBF\u4E3B agent\uFF08D-053/D-058\uFF09\uFF0C\u672C preview \u4E0D\u542B", expected_impact: "Micro-A preview \u2192 GA \u6F0F\u6597\u7684\u53D9\u4E8B\u9762\u9F50\u5907", effort: "M", verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + " / " + overall, evidence_refs: [EV(4)], degraded_note: null },
+    { rec_id: "R-48-" + R + "-PR" + String(pin.n) + "-2", priority: "P2", action: "Micro-A GA \u524D\u7F6E\uFF1A>=1 \u975E\u81EA\u6709\u516C\u5F00\u4ED3\u771F\u5B9E PR \u8D70\u901A\u7528\u5316\u9A8C\u8BC1\uFF08Generalization Gate\uFF1B\u590D\u7528 URL opt-in \u8F93\u5165\u9762\uFF09", rationale: "\u540C\u4E3B\u786E\u8BA4\u504F\u5DEE\u5982\u5B9E\u62AB\u9732\u2014\u2014\u8BD5\u70B9\u4ED3\u4E0E\u4EA7\u54C1\u540C\u4E3B\uFF08Xxx91n\uFF09\uFF0C\u672C\u62A5\u544A\u5C5E\u6821\u51C6+\u5192\u70DF\u4E0D\u6784\u6210\u6CDB\u5316\u8BC1\u636E", expected_impact: "\u6CDB\u5316\u8BC1\u636E\u94FE\u8D77\u70B9", effort: "S", verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + " / " + overall, evidence_refs: [EV(4)], degraded_note: null }
+  ];
+  const mergeSha = meta && meta.merge_commit_sha ? String(meta.merge_commit_sha) : collected.headSha || "unanchored";
+  const treeSha = new RegExp("^[0-9a-f]{40}$").test(mergeSha) && t.root ? tryGit(t.root, ["rev-parse", mergeSha + "^{tree}"]) || "unresolved-tree" : "unanchored";
+  const disclosure = {
+    capability_label: MICRO_A_CAPABILITY_LABEL,
+    calibration_scope: "\u540C\u4E3B\u8BD5\u70B9\u4ED3 merged PR \u6700\u5C0F\u96C6\uFF08env-manager\xD73 \u5F62\u6001\uFF0Bjiahao\xD71 \u5168\u4EBA\u57FA\u7EBF\uFF1B\u7968\u9762\u5199\u6B7B\u5B9E\u4F8B\uFF09",
+    structural_limitations: (opts.golden ? ["golden \u56DE\u653E\uFF1A\u54CD\u5E94\u6765\u81EA cassette \u5F55\u5236\u975E\u5B9E\u65F6 API\u2014\u2014\u672C\u4EF6\u4E3A\u7BA1\u9053 golden \u4EA7\u7269\u975E\u771F\u5B9E\u5BA1\u8BA1"] : []).concat([
+      "\u540C\u4E3B\u786E\u8BA4\u504F\u5DEE\uFF1A\u8BD5\u70B9\u4ED3\u4E0E\u4EA7\u54C1\u540C\u4E3B\uFF08Xxx91n\uFF09\u2014\u2014dogfooding = generative not evaluative\uFF08D-033\uFF09\uFF0C\u672C\u62A5\u544A\u5C5E\u6821\u51C6+\u5192\u70DF\u4E0D\u6784\u6210\u6CDB\u5316\u8BC1\u636E",
+      "\u5224\u636E\u8303\u56F4\u6536\u7A84\uFF1Apreview \u5224\u636E=\u8BC1\u636E\u5B8C\u6574\u6027/\u6258\u7BA1\u9762\u8D44\u683C/\u9009\u62E9\u6027\uFF0C\u975E PR \u8D28\u91CF\u88C1\u51B3\u2014\u2014diff --llm \u884C\u7EA7\u8BED\u4E49\u8BC4\u5BA1\u5F52 #50 \u53D9\u4E8B\u53CC\u8F68\uFF08D-053\uFF09",
+      "reviews/comments \u9762 planned \u672A\u63A5\uFF08\u9501\u8868 github-rest \u5951\u7EA6\u9762\uFF09\u2014\u2014\u8BC4\u5BA1\u8BED\u4E49\u4E0D\u5728 preview \u5185",
+      "supply_chain \u8C61\u9650 not_applicable\uFF1AScorecard \u672A\u63A5\uFF08D-034\u2462\uFF09\uFF1Bdependabot PR \u7684\u4F9B\u5E94\u94FE\u4FE1\u53F7\u4EC5\u4F5C\u4E8B\u5B9E\u843D\u5E93",
+      "\u9002\u914D\u5668\u786C\u5316\u9762\u5DF2\u843D engine \u4E00\u7B49\u9762\uFF08#85\u2461 \u95ED\u73AF\uFF0CD-204\u2462\u2463\uFF09\uFF1A\u5BBF\u4E3B API diff \u5DE5\u4EF6\u53CC\u901A\u9053\uFF0Bcassette \u56DE\u653E\u89C1 engine/src/audit/micro-a.ts\uFF08\u91CD\u6821\u51C6\u80CC\u4E66=85-check E \u7EC4\uFF09"
+    ]),
+    not_in_preview: ["Macro-A"]
+    // Micro-A 产线化入 preview（#85②/D-204③④）；Macro-A 层序末位未启动
+  };
+  const reportInput = {
+    report_id: MICRO_A_REPORT_ID_PREFIX + R + "-PR" + String(pin.n) + "-PREVIEW",
+    stability: "preview",
+    capabilities: ["micro-a"],
+    scale: "Micro-A",
+    subject_ref: t.owner + "/" + t.repo + "#" + String(pin.n),
+    generated_at: RUN_AT,
+    trace_id: collected.ctx.traceId,
+    baggage_id: deriveBaggageId(collected.ctx, null),
+    headline: t.owner + "/" + t.repo + "#" + String(pin.n) + " Micro-A preview\uFF08capability 3 of 5\uFF09\uFF1Aform=" + formActual + " diff_channel=" + (diff ? String(diff.channel) : "absent") + " +" + String(diff ? diff.additions : "n/a") + "/-" + String(diff ? diff.deletions : "n/a") + " f=" + String(diff ? diff.files_changed : "n/a") + " \u2192 " + overall,
+    confidence: 0.6,
+    stale: { marker: "fresh", sla_seconds: 5, lag_seconds: 0, read_model_version: REPORT_SKELETON_VERSION, fact_watermark_version: "1" },
+    fact_ids: [sumF, metaF, diffF].filter(Boolean).map(function(f) {
+      return f.fact_id;
+    }),
+    top_findings: [EV(1), EV(2), EV(3)],
+    evidence,
+    claims,
+    quadrants,
+    recommendations,
+    adjudication_entries: entries,
+    decided_at: RUN_AT,
+    commit_anchor: mergeSha,
+    tree_anchor: treeSha,
+    gate_ref: { prereg_commit: PREREG_COMMIT, criteria_path: CRITERIA_PATH, basis_path: ".scratch/architecture-recovery/issues/48-micro-a-preview.md", criterion_ids: CRITERION_IDS },
+    degraded: collected.res.degraded === true,
+    degraded_reason: collected.res.degraded === true ? "\u65E0\u51ED\u636E\u964D\u7EA7\uFF08unauthenticated 60/h \u9650\u989D\uFF09\u2014\u2014\u4E8B\u5B9E\u9762\u5982\u5B9E\u964D\u7EA7" : null,
+    preview_disclosure: disclosure,
+    human: { status: "pending", adjudicator: "user", text: null, decided_at: null }
+  };
+  const report = buildReport(reportInput);
+  const mdName = PRE + NAME + "-pr" + String(pin.n) + ".md";
+  const jsonName = PRE + NAME + "-pr" + String(pin.n) + ".json";
+  const mdText = renderMarkdown(report) + NL4;
+  const scText = renderSidecar(report) + NL4;
+  const sidecarObj = JSON.parse(scText);
+  if (opts.outDir !== null) {
+    writeFileSync4(join10(opts.outDir, mdName), mdText, "utf8");
+    writeFileSync4(join10(opts.outDir, jsonName), scText, "utf8");
+  }
+  return {
+    pr: pin.n,
+    form_expected: pin.form,
+    form_actual: formActual,
+    form_match: formMatch,
+    merged,
+    overall,
+    receipt: report.receipt.receipt_id,
+    diff_channel: diff ? String(diff.channel) : null,
+    artifact: art,
+    skeleton: skeletonIntersectionReport(sidecarObj, mdText),
+    outputs: { md: mdName, sidecar: jsonName, diff: art.ok ? artName : null },
+    fact_ids: report.fact_ids
+  };
+}
+async function buildRefusalReportMicroA(g, shared, opts) {
+  const RUN_AT = g.ctx.observedAt;
+  const R = g.name.toUpperCase().split("-").join("");
+  const evidence = [];
+  function addEvidence(id, src, tokens, claim, repro, base) {
+    let ex = null;
+    try {
+      ex = pickExcerpt3(src, tokens, base);
+    } catch (e) {
+      evidence.push({ evidence_id: id, source: src, locator: "L0", claim, grounded: false, collected_at: RUN_AT, reproduce_cmd: repro, reproduce_absent_reason: "\u5F15\u6587\u6458\u53D6\u5931\u8D25\uFF1A" + String(e.message || e).slice(0, 140), required_tokens: [], excerpt: "" });
+      return;
+    }
+    evidence.push({ evidence_id: id, source: src, locator: "L" + String(ex.line), claim, grounded: true, collected_at: RUN_AT, reproduce_cmd: repro, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
+  }
+  const RUN_CMD = "macro-audit audit " + g.owner + "/" + g.repo + " --scale Micro-A";
+  addEvidence("EV-48-" + R + "-REF-01", opts.measName, [g.name], "\u672C\u6B21\u5B9E\u6D4B\uFF1A" + g.name + " \u6258\u7BA1\u679A\u4E3E merged PR=0\u2014\u2014\u65E0\u6258\u7BA1 PR \u9762", RUN_CMD, opts.outDir);
+  const srcRoot = sourceRepoRoot();
+  addEvidence("EV-48-" + R + "-REF-03", ".scratch/macro-audit/decision-ledger.md", ["\u65E0\u6258\u7BA1 PR \u9762"], "\u786C\u7EA6\u675F\u951A\uFF1AD-033/D-049\u300CPR \u5C42\u8BD5\u70B9\u4E0D\u5F97\u6307\u6D3E\u65E0\u6258\u7BA1 PR \u9762\u7684\u4ED3\u300D", "git -C <repo> show HEAD:.scratch/macro-audit/decision-ledger.md", srcRoot);
+  const runF = byMetric(g.facts, "github_rest.run").slice(-1)[0] || null;
+  const run = runF ? val(runF) : null;
+  const entries = [
+    { criterion_id: "PC-1", band: run !== null ? "supported" : "insufficient", basis_refs: ["B1"], anchored_fact_ids: runF ? [runF.fact_id] : [], anchored_evidence_ids: ["EV-48-" + R + "-REF-01"], decided_at: RUN_AT, rationale: run !== null ? "\u9002\u914D\u5668 run \u4E8B\u5B9E\u5728\u6848\uFF1Acalls=" + String(run.calls) + " strategy=" + String(run.strategy) + "\uFF08\u679A\u4E3E\u771F\u5B9E\u53D1\u751F\u2014\u2014\u62D2\u7EDD\u975E\u7BA1\u7EBF\u6545\u969C\uFF09" : "\u679A\u4E3E\u672A\u53D1\u751F" },
+    { criterion_id: "TC-4", band: "unsupported", basis_refs: ["B2"], anchored_fact_ids: byMetric(g.facts, "github_rest.pr_summary").map(function(f) {
+      return f.fact_id;
+    }), anchored_evidence_ids: ["EV-48-" + R + "-REF-01"], decided_at: RUN_AT, rationale: "\u6258\u7BA1\u9762\u8D44\u683C\u95F8\u672A\u8FC7\uFF1A" + g.name + " \u6258\u7BA1\u679A\u4E3E merged PR=0 \u2192 intake \u663E\u5F0F\u62D2\u7EDD\uFF08D-033 \u786C\u7EA6\u675F\u9006\u7528\uFF09\u3002\u539F\u56E0=\u65E0\u6258\u7BA1 PR \u9762\uFF08\u65E0\u53EF\u88C1 PR \u5BF9\u8C61\uFF09\uFF1B\u524D\u7F6E\u6761\u4EF6=\u4ED3\u63A5\u5165\u6258\u7BA1 PR \u6D41\u7A0B\u4E14\u4EA7\u51FA >=1 merged PR \u540E\u518D\u590D\u5BA1" }
+  ];
+  const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: "engine/src/audit/micro-a.ts" };
+  const quadrants = ["behavior", "structure", "supply_chain", "strategy"].map(function(q) {
+    return { quadrant: q, applicability: "not_applicable", verdict: "insufficient", score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: "insufficient", evidence_flag: false, decided_at: RUN_AT, override_reason: "intake \u62D2\u7EDD\u2014\u2014\u65E0 PR \u5BF9\u8C61\uFF0C\u8C61\u9650\u65E0\u53EF\u88C1\u9762", audit_ref: GATE.audit_ref }, conflict_markers: ["intake-refused"] };
+  });
+  const commitAnchor = g.headSha || "unanchored-no-local-clone";
+  const treeSha = new RegExp("^[0-9a-f]{40}$").test(commitAnchor) && g.root ? tryGit(g.root, ["rev-parse", commitAnchor + "^{tree}"]) || "unresolved-tree" : "unanchored";
+  const reportInput = {
+    report_id: MICRO_A_REPORT_ID_PREFIX + R + "-REFUSAL",
+    stability: "preview",
+    capabilities: ["micro-a"],
+    scale: "Micro-A",
+    subject_ref: g.owner + "/" + g.repo,
+    generated_at: RUN_AT,
+    trace_id: g.ctx.traceId,
+    baggage_id: deriveBaggageId(g.ctx, null),
+    headline: g.name + " Micro-A preview \u62D2\u7EDD\u4EF6\uFF1A\u6258\u7BA1\u679A\u4E3E merged PR=0\u2014\u2014\u65E0\u6258\u7BA1 PR \u9762\uFF0Cintake \u663E\u5F0F\u62D2\u7EDD\uFF08unsupported\uFF1B\u975E\u7BA1\u7EBF\u6545\u969C\uFF0C\u679A\u4E3E\u771F\u5B9E\u53D1\u751F\uFF09",
+    confidence: 0.9,
+    stale: { marker: "fresh", sla_seconds: 5, lag_seconds: 0, read_model_version: REPORT_SKELETON_VERSION, fact_watermark_version: "1" },
+    fact_ids: g.facts.map(function(f) {
+      return f.fact_id;
+    }),
+    top_findings: ["EV-48-" + R + "-REF-01", "EV-48-" + R + "-REF-03"],
+    evidence,
+    claims: [
+      { claim_id: "CL-48-" + R + "-REF-01", evidence_id: "EV-48-" + R + "-REF-01", required_tokens: [g.name] },
+      { claim_id: "CL-48-" + R + "-REF-03", evidence_id: "EV-48-" + R + "-REF-03", required_tokens: ["\u65E0\u6258\u7BA1 PR \u9762"] }
+    ],
+    quadrants,
+    recommendations: [
+      { rec_id: "R-48-" + R + "-REF-1", priority: "P1", action: "\u524D\u7F6E\u6761\u4EF6\uFF1A" + g.name + " \u63A5\u5165\u6258\u7BA1 PR \u6D41\u7A0B\u5E76\u4EA7\u51FA >=1 merged PR \u540E\uFF0CMicro-A \u6307\u6D3E\u590D\u5BA1\u518D\u5F00\uFF08D-033 capacity \u786C\u7EA6\u675F\uFF09", rationale: "\u65E0\u6258\u7BA1 PR \u9762\u4ED3\u4E0D\u5F97\u6307\u6D3E PR \u5C42\u8BD5\u70B9\u2014\u2014\u62D2\u7EDD\u662F\u5224\u636E\u6210\u7ACB\u5F62\u6001\u975E\u5931\u8D25", expected_impact: "Micro-A \u8BD5\u70B9\u6307\u6D3E\u7EAA\u5F8B\u5B88\u4F4F", effort: "XS", verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + " / unsupported", evidence_refs: ["EV-48-" + R + "-REF-03"], degraded_note: null }
+    ],
+    adjudication_entries: entries,
+    decided_at: RUN_AT,
+    commit_anchor: commitAnchor,
+    tree_anchor: treeSha,
+    gate_ref: { prereg_commit: PREREG_COMMIT, criteria_path: CRITERIA_PATH, basis_path: ".scratch/architecture-recovery/issues/48-micro-a-preview.md", criterion_ids: ["PC-1", "TC-4"] },
+    degraded: false,
+    degraded_reason: null,
+    preview_disclosure: {
+      capability_label: MICRO_A_CAPABILITY_LABEL,
+      calibration_scope: "\u6258\u7BA1\u9762\u8D44\u683C\u95F8\u62D2\u7EDD\u4EF6\uFF08failure \u6F14\u793A\u9762\uFF09",
+      structural_limitations: (opts.golden ? ["golden \u56DE\u653E\uFF1A\u54CD\u5E94\u6765\u81EA cassette \u5F55\u5236\u975E\u5B9E\u65F6 API\u2014\u2014\u672C\u4EF6\u4E3A\u7BA1\u9053 golden \u4EA7\u7269\u975E\u771F\u5B9E\u5BA1\u8BA1"] : []).concat([
+        "\u62D2\u7EDD\u8BED\u4E49\uFF1Aintake \u9636\u6BB5\u663E\u5F0F\u62D2\u7EDD\uFF08D-033 \u786C\u7EA6\u675F\u9006\u7528\uFF09\u2014\u2014\u62A5\u544A\u843D unsupported: \u65E0\u6258\u7BA1 PR \u9762\uFF0B\u539F\u56E0\uFF0B\u524D\u7F6E\u6761\u4EF6",
+        "\u9002\u914D\u5668\u786C\u5316\u9762\u5DF2\u843D engine \u4E00\u7B49\u9762\uFF08#85\u2461 \u95ED\u73AF\uFF0CD-204\u2462\u2463\uFF09\u2014\u2014\u62D2\u7EDD\u8DEF\u5F84\u4E0E\u771F\u8DD1\u8DEF\u5F84\u540C\u4E00\u7BA1\u7EBF"
+      ]),
+      not_in_preview: ["Macro-A"]
+    },
+    human: { status: "pending", adjudicator: "user", text: null, decided_at: null }
+  };
+  const report = buildReport(reportInput);
+  const mdName = "micro-a-" + g.name + "-refusal.md";
+  const jsonName = "micro-a-" + g.name + "-refusal.json";
+  if (opts.outDir !== null) {
+    writeFileSync4(join10(opts.outDir, mdName), renderMarkdown(report) + NL4, "utf8");
+    writeFileSync4(join10(opts.outDir, jsonName), renderSidecar(report) + NL4, "utf8");
+  }
+  return { refusal_for: g.name, overall: report.overall_verdict, receipt: report.receipt.receipt_id, outputs: { md: mdName, sidecar: jsonName } };
+}
+async function runMicroAAudit(opts) {
+  const ref = parseGithubRepoRef(opts.input);
+  const pilotList = MICRO_A_PILOTS.map(function(p) {
+    return p.owner + "/" + p.repo;
+  });
+  if (!ref.ok) {
+    throw { code: "MICRO-A-INPUT", message: "Micro-A \u8F93\u5165\u987B\u4E3A github \u6258\u7BA1\u4ED3 ref\uFF08owner/repo \u6216 github URL\uFF09\u2014\u2014" + ref.reason + "\uFF1B\u8BD5\u70B9\u540D\u518C=" + pilotList.join(","), pilots: pilotList, requested: opts.input };
+  }
+  const pilot = MICRO_A_PILOTS.find(function(p) {
+    return p.owner === ref.owner && p.repo === ref.repo;
+  });
+  if (!pilot) {
+    throw { code: "MICRO-A-SCOPE", message: "Micro-A scope=\u7968\u9762\u5199\u6B7B\u8BD5\u70B9\u5B9E\u4F8B\u96C6\uFF08D-049\u2462\uFF09\u2014\u2014\u975E\u8BD5\u70B9\u4ED3\u5F52 GA Generalization Gate\uFF08R-48-*-2 \u6CDB\u5316\u95F8\uFF0C\u672C preview \u4E0D\u542B\uFF09\uFF1B\u8BD5\u70B9\u540D\u518C=" + pilotList.join(","), pilots: pilotList, requested: opts.input };
+  }
+  const runAt = deterministicRunAt();
+  const persistOut = !!opts.outDir;
+  const cwd = opts.cwd || process.cwd();
+  const outDir = opts.outDir ? resolve4(cwd, opts.outDir) : mkdtempSync4(join10(tmpdir4(), "macro-audit-microa-"));
+  mkdirSync6(outDir, { recursive: true });
+  const MEAS_NAME = "audit-measurements.json";
+  const FACTS_NAME = "audit-facts.jsonl";
+  const shared = {};
+  const t = { name: pilot.name, owner: pilot.owner, repo: pilot.repo, root: null, pins: pilot.pins };
+  const collected = await collectMicroA(t, shared, void 0, runAt);
+  const gate = { merged_prs: collected.mergedCount, eligible: collected.mergedCount >= 1 };
+  const meas = {
+    repo: pilot.name,
+    owner: pilot.owner,
+    observed_at: runAt,
+    head_sha: collected.headSha,
+    strategy: collected.res.strategy,
+    degraded: collected.res.degraded,
+    calls: collected.res.calls,
+    prs_listed: collected.res.prs_listed,
+    merged_prs: gate.merged_prs,
+    eligible: gate.eligible,
+    stopped_reason: collected.res.stopped_reason,
+    fact_count: collected.res.facts.length,
+    per_pr: [],
+    pipeline: { source: "48-micro-a-preview.mjs \u79FB\u690D\uFF08#85\u2461/D-204\u2462\u2463\uFF09", recalibration: "85-check E \u7EC4\u5DEE\u5206\u5BF9\u8D26\uFF08golden cassette\uFF1A\u5F15\u64CE\u9762 vs 48 \u751F\u6210\u5668\u53CC\u901A\u9053\uFF09", fact_emission: "fact-write.ts \u5171\u4EAB\u6838\uFF08PR \u7C92\u5EA6\u96F6 commit grain\uFF0C\u8282\u62CD\u6279\uFF09" }
+  };
+  const perPr = meas.per_pr;
+  const prResults = [];
+  if (gate.eligible) {
+    for (const pin of pilot.pins) {
+      const r = await buildPrReportMicroA(t, pin, collected, gate, shared, { golden: false, outDir, measName: MEAS_NAME, factsName: FACTS_NAME });
+      prResults.push(r);
+      perPr.push({ n: r.pr, form_expected: r.form_expected, form_actual: r.form_actual, form_match: r.form_match, merged: r.merged, overall: r.overall, receipt: r.receipt, diff_channel: r.diff_channel, diff_artifact: r.outputs.diff, diff_bytes: r.artifact.bytes, skeleton_ok: r.skeleton.ok, skeleton_missing: r.skeleton.missing });
+    }
+  }
+  let refusalResult = null;
+  if (!gate.eligible) {
+    refusalResult = await buildRefusalReportMicroA({ name: pilot.name, owner: pilot.owner, repo: pilot.repo, headSha: collected.headSha, root: null, facts: collected.res.facts, ctx: collected.ctx }, shared, { golden: false, outDir, measName: MEAS_NAME });
+  }
+  const dbPath = join10(outDir, "facts.duckdb");
+  if (existsSync7(dbPath)) {
+    unlinkSync2(dbPath);
+  }
+  if (existsSync7(dbPath + ".wal")) {
+    unlinkSync2(dbPath + ".wal");
+  }
+  const writer = await openWriter(dbPath);
+  const writeResult = await writeRunFactsAndEvents(writer, {
+    ctx: { repoRef: collected.ctx.repoRef, traceId: collected.ctx.traceId },
+    commits: [],
+    commitCount: 0,
+    fieldEvents: [],
+    fieldStats: [],
+    facts: collected.res.facts,
+    headDate: null,
+    anchorQuarantined: false,
+    collector: "macro-audit audit(micro-a)",
+    crashSource: "micro-a.ts"
+  });
+  await writer.run("FORCE CHECKPOINT");
+  closeDuckdb(writer);
+  writeFileSync4(join10(outDir, FACTS_NAME), collected.res.facts.map(function(f) {
+    return JSON.stringify(f);
+  }).join(NL4) + NL4, "utf8");
+  writeFileSync4(join10(outDir, MEAS_NAME), JSON.stringify(meas, null, 2) + NL4, "utf8");
+  const primaryMdName = prResults.length > 0 ? prResults[0].outputs.md : refusalResult.outputs.md;
+  const primaryJsonName = prResults.length > 0 ? prResults[0].outputs.sidecar : refusalResult.outputs.sidecar;
+  const primaryMd = readFileSync7(join10(outDir, primaryMdName), "utf8");
+  const primarySc = readFileSync7(join10(outDir, primaryJsonName), "utf8");
+  const primarySidecar = JSON.parse(primarySc);
+  const artifacts = persistOut ? { report_md: join10(outDir, primaryMdName), report_json: join10(outDir, primaryJsonName), facts_jsonl: join10(outDir, FACTS_NAME), measurements: join10(outDir, MEAS_NAME), duckdb: dbPath } : null;
+  const resultOutDir = persistOut ? outDir : null;
+  if (!persistOut) {
+    rmSync5(outDir, { recursive: true, force: true });
+  }
+  void writeResult;
+  return {
+    report_id: String(primarySidecar.report_id),
+    receipt_id: String(primarySidecar.receipt.receipt_id),
+    scale: "Micro-A",
+    stability: "preview",
+    capabilities: ["micro-a"],
+    overall_verdict: String(primarySidecar.overall_verdict),
+    verdict: primarySidecar.verdict,
+    intake_quarantine: { quarantined: 0, normalized: 0, affected_commits: 0, escalation: "none", facts_persisted: true },
+    degraded_mode: primarySidecar.degraded === true,
+    head_sha: String(primarySidecar.commit_anchor || "unanchored"),
+    tree_sha: String(primarySidecar.tree_anchor || "unanchored"),
+    commit_count: 0,
+    adr_count: 0,
+    fact_count: collected.res.facts.length,
+    repo_name: pilot.name,
+    resolved_root: pilot.owner + "/" + pilot.repo + " (remote)",
+    intake_kind: "github-ref",
+    snapshot_fetched_at: null,
+    cache_hit: false,
+    refreshed: false,
+    codelore: { resolved: false, pinned: false, version: null },
+    out_dir: resultOutDir,
+    artifacts,
+    report_markdown: primaryMd,
+    sidecar_json: primarySc,
+    measurements: meas
+  };
+}
+
+// src/audit/audit.ts
+var NL5 = String.fromCharCode(10);
+var AUDIT_SCALES_IMPLEMENTED = ["Macro-B", "Macro-C", "Micro-A"];
+var SCALE_LAYER_ORDER = "Macro-C\u2192Micro-A\u2192Micro-B\u2192Macro-A\uFF08ADR-0017\u2462 \u5C42\u5E8F\uFF0CMacro-B/Macro-C/Micro-A \u5DF2\u4E0A\u67B6 preview\uFF09";
 var SCALE_CANON = { "microa": "Micro-A", "microb": "Micro-B", "macroa": "Macro-A", "macrob": "Macro-B", "macroc": "Macro-C" };
 function isAuditScaleError(e) {
   return !!e && typeof e === "object" && e.code === "SCALE-NOT-IMPLEMENTED";
@@ -5017,7 +6218,7 @@ function normalizeAuditScale(raw) {
   if (AUDIT_SCALES_IMPLEMENTED.indexOf(req) < 0) {
     throw {
       code: "SCALE-NOT-IMPLEMENTED",
-      message: "--scale " + req + " \u672A\u5B9E\u88C5\u2014\u2014audit \u73B0\u4EC5\u4E0A\u67B6 Macro-B\uFF08" + SCALE_LAYER_ORDER + "\uFF1B\u672C\u547D\u4EE4\u4E0D\u5047\u88C5\u80FD\u8DD1\u672A\u5B9E\u88C5\u5C42\uFF09",
+      message: "--scale " + req + " \u672A\u5B9E\u88C5\u2014\u2014audit \u5DF2\u4E0A\u67B6 Macro-B/Macro-C/Micro-A\uFF08" + SCALE_LAYER_ORDER + "\uFF1B\u672C\u547D\u4EE4\u4E0D\u5047\u88C5\u80FD\u8DD1\u672A\u5B9E\u88C5\u5C42\uFF09",
       implemented: AUDIT_SCALES_IMPLEMENTED,
       requested: req,
       layer_order: SCALE_LAYER_ORDER
@@ -5034,13 +6235,13 @@ function auditRepoName(input, resolvedRoot) {
   if (/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(t)) {
     return t.split("/").pop() || t;
   }
-  return basename2(resolve4(resolvedRoot)) || "repo";
+  return basename2(resolve5(resolvedRoot)) || "repo";
 }
 var AUDIT_INTENT_CANDIDATES = ["CONTEXT.md", "README.md", "AGENTS.md"];
 var AUDIT_NC1_CANDIDATES = ["package.json", "README.md", "README.adoc", "README.rst", "README", "Cargo.toml", "pom.xml", "build.gradle", "LICENSE", "LICENSE.txt", "pyproject.toml", "go.mod", "Makefile"];
-function pickExcerpt3(absOrRelPath, tokens, base) {
-  const text = readFileSync7(base ? join10(base, absOrRelPath) : absOrRelPath, "utf8");
-  const lines = text.split(NL4);
+function pickExcerpt4(absOrRelPath, tokens, base) {
+  const text = readFileSync8(base ? join11(base, absOrRelPath) : absOrRelPath, "utf8");
+  const lines = text.split(NL5);
   if (tokens === null) {
     return { line: 1, text: lines[0].trim() };
   }
@@ -5061,6 +6262,9 @@ async function runAudit(opts) {
   const scale = normalizeAuditScale(opts.scale);
   if (scale === "Macro-C") {
     return runMacroCAudit(opts);
+  }
+  if (scale === "Micro-A") {
+    return runMicroAAudit(opts);
   }
   const cwd = opts.cwd || process.cwd();
   const intake = repoAdd(opts.input, { cwd, refresh: opts.refresh === true });
@@ -5144,8 +6348,8 @@ async function runAudit(opts) {
   const bhvNc1 = BHV_DEFERRED.length > 0;
   const behaviorBand = bhvRan ? bhvPc1 && bhvTc1 && bhvTc2 && bhvNc1 ? "supported" : "insufficient" : "insufficient";
   const persistOut = !!opts.outDir;
-  const outDir = opts.outDir ? resolve4(cwd, opts.outDir) : mkdtempSync4(join10(tmpdir4(), "macro-audit-run-"));
-  mkdirSync6(outDir, { recursive: true });
+  const outDir = opts.outDir ? resolve5(cwd, opts.outDir) : mkdtempSync5(join11(tmpdir5(), "macro-audit-run-"));
+  mkdirSync7(outDir, { recursive: true });
   const MEAS_NAME = "audit-measurements.json";
   const FACTS_NAME = "audit-facts.jsonl";
   const measurements = {
@@ -5220,13 +6424,13 @@ async function runAudit(opts) {
     }, 0), reconciliation: { match: facetRecon.match, per_analysis: facetRecon.per_analysis } }, codelore_version: col.codeloreResolution ? col.codeloreResolution.version : null } : { ran: false, reason: col.codeloreResolution ? "codelore binary \u672A\u89E3\u6790/\u4E0D pin\uFF08pinned=false\uFF09\u2014\u2014\u884C\u4E3A\u9762\u7F3A\u5E2D\u5982\u5B9E\u767B\u8BB0" : "codelore=off", deferred_faces: BHV_DEFERRED }
   };
   if (outDir) {
-    writeFileSync4(join10(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL4, "utf8");
+    writeFileSync5(join11(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL5, "utf8");
   }
   const evidence = [];
   const R = NAME.toUpperCase().split("-").join("").split("/").join("");
   const RUN_CMD = "macro-audit audit " + opts.input + (opts.outDir ? " --out " + opts.outDir : "");
   function addEvidence(id, source, tokens, claim, base) {
-    const ex = pickExcerpt3(source, tokens, base);
+    const ex = pickExcerpt4(source, tokens, base);
     evidence.push({ evidence_id: id, source, locator: "L" + ex.line, claim, grounded: true, collected_at: HEAD_AT, reproduce_cmd: RUN_CMD, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
   }
   const measBase = outDir;
@@ -5323,8 +6527,8 @@ async function runAudit(opts) {
     capability_label: "capability 1 of 5 \xB7 preview",
     calibration_scope: NAME + " Macro-B audit\uFF08audit \u4E00\u7B49\u547D\u4EE4\u9762\uFF1Bscale=Macro-B \u5DF2\u4E0A\u67B6\uFF09",
     structural_limitations: limitations,
-    not_in_preview: ["Micro-A", "Macro-A"]
-    // Micro-B file-card 进 preview（#80 步③）；Macro-C 产线化入 preview（#84/D-204②④）；Micro-A=calibrated demo 非 preview（D-204③）
+    not_in_preview: ["Macro-A"]
+    // Micro-B file-card 进 preview（#80 步③）；Macro-C 产线化入 preview（#84/D-204②④）；Micro-A 产线化入 preview（#85②/D-204③④）
   };
   const quarantinedRows = probes.fieldEvents.filter(function(e) {
     return e.disposition === "quarantined";
@@ -5376,12 +6580,12 @@ async function runAudit(opts) {
     human: { status: "pending", adjudicator: "user", text: null, decided_at: null }
   };
   const FACT_WRITE_BATCH = 500;
-  const dbPath = join10(outDir, "facts.duckdb");
-  if (existsSync7(dbPath)) {
-    unlinkSync2(dbPath);
+  const dbPath = join11(outDir, "facts.duckdb");
+  if (existsSync8(dbPath)) {
+    unlinkSync3(dbPath);
   }
-  if (existsSync7(dbPath + ".wal")) {
-    unlinkSync2(dbPath + ".wal");
+  if (existsSync8(dbPath + ".wal")) {
+    unlinkSync3(dbPath + ".wal");
   }
   const writer = await openWriter(dbPath);
   const writeResult = await writeRunFactsAndEvents(writer, {
@@ -5404,18 +6608,18 @@ async function runAudit(opts) {
     throw protocolCrashError("INTAKE-IDENTITY-MISMATCH", "\u6052\u7B49\u5F0F\u65AD\u8A00\u5931\u8D25\uFF1A" + JSON.stringify(identityIssues), { crash_location: "audit.ts:intake-identity", run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: null, head_date: probes.headDate, collector: "macro-audit audit" }, counts: countsFromStats(probes.fieldStats, probes.commitCount, writeResult.factsWritten, writeResult.eventsWritten) });
   }
   const report = buildReport(reportInput);
-  const reportMd = renderMarkdown(report) + NL4;
-  const sidecarJson = renderSidecar(report) + NL4;
+  const reportMd = renderMarkdown(report) + NL5;
+  const sidecarJson = renderSidecar(report) + NL5;
   let artifacts = null;
-  writeFileSync4(join10(outDir, "report.md"), reportMd, "utf8");
-  writeFileSync4(join10(outDir, "report.json"), sidecarJson, "utf8");
-  writeFileSync4(join10(outDir, FACTS_NAME), anchorQuarantined ? "" : col.realFacts.map(function(f) {
+  writeFileSync5(join11(outDir, "report.md"), reportMd, "utf8");
+  writeFileSync5(join11(outDir, "report.json"), sidecarJson, "utf8");
+  writeFileSync5(join11(outDir, FACTS_NAME), anchorQuarantined ? "" : col.realFacts.map(function(f) {
     return JSON.stringify(f);
-  }).join(NL4) + NL4, "utf8");
-  artifacts = persistOut ? { report_md: join10(outDir, "report.md"), report_json: join10(outDir, "report.json"), facts_jsonl: join10(outDir, FACTS_NAME), measurements: join10(outDir, MEAS_NAME), duckdb: dbPath } : null;
+  }).join(NL5) + NL5, "utf8");
+  artifacts = persistOut ? { report_md: join11(outDir, "report.md"), report_json: join11(outDir, "report.json"), facts_jsonl: join11(outDir, FACTS_NAME), measurements: join11(outDir, MEAS_NAME), duckdb: dbPath } : null;
   const resultOutDir = persistOut ? outDir : null;
   if (!persistOut) {
-    rmSync5(outDir, { recursive: true, force: true });
+    rmSync6(outDir, { recursive: true, force: true });
   }
   return {
     report_id: report.report_id,
@@ -5452,9 +6656,9 @@ async function runAudit(opts) {
 }
 
 // src/audit/file-card.ts
-import { execFileSync as execFileSync2 } from "node:child_process";
-import { existsSync as existsSync8, mkdirSync as mkdirSync7 } from "node:fs";
-import { dirname as dirname6 } from "node:path";
+import { execFileSync as execFileSync3 } from "node:child_process";
+import { existsSync as existsSync9, mkdirSync as mkdirSync8 } from "node:fs";
+import { dirname as dirname7 } from "node:path";
 
 // src/fact/file-card.ts
 var FILE_CARD_SCHEMA_VERSION = "file-card@v1";
@@ -6068,7 +7272,7 @@ function isAuditFileError(e) {
   return e instanceof AuditFileError || typeof e === "object" && e !== null && typeof e.code === "string" && String(e.code).indexOf("AUDIT-FILE-") === 0;
 }
 function gitOut(root, args) {
-  return execFileSync2("git", ["-C", root].concat(args), { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 }).trim();
+  return execFileSync3("git", ["-C", root].concat(args), { encoding: "utf8", maxBuffer: 256 * 1024 * 1024 }).trim();
 }
 function defaultCodeloreCollect(ctx, repoRoot) {
   return collectCodeloreFacets({ repoRoot, facets: CODELORE_BEHAVIOR_FACETS }, ctx);
@@ -6106,7 +7310,7 @@ async function runAuditFile(opts) {
   let emitted = 0;
   let skipped = 0;
   if (!pinned) {
-    const preCard = existsSync8(opts.db) ? await projectFileCard(opts.db, { repo: name, subject: opts.path, current_head_sha: headSha2 }) : null;
+    const preCard = existsSync9(opts.db) ? await projectFileCard(opts.db, { repo: name, subject: opts.path, current_head_sha: headSha2 }) : null;
     const setExists = preCard !== null && preCard.observation.head_sha === headSha2;
     const subjectHasFacts = preCard !== null && Object.keys(preCard.kernel.facet_rows).length > 0;
     if (!setExists || !subjectHasFacts) {
@@ -6114,7 +7318,7 @@ async function runAuditFile(opts) {
       const codeloreFn = opts.collectors && opts.collectors.codelore || defaultCodeloreCollect;
       const lineageFn = opts.collectors && opts.collectors.lineage || defaultLineageCollect;
       const batch = codeloreFn(ctx, repoRoot).concat(lineageFn(ctx, repoRoot));
-      mkdirSync7(dirname6(opts.db), { recursive: true });
+      mkdirSync8(dirname7(opts.db), { recursive: true });
       const writer = await openWriter(opts.db);
       try {
         emitted = await runInTransaction(writer, async function() {
@@ -6146,7 +7350,7 @@ async function runAuditFile(opts) {
       backfilled = true;
     }
   }
-  const card = existsSync8(opts.db) ? await projectFileCard(opts.db, {
+  const card = existsSync9(opts.db) ? await projectFileCard(opts.db, {
     repo: name,
     subject: opts.path,
     at: pinned ? opts.at : void 0,
@@ -6167,12 +7371,12 @@ async function runAuditFile(opts) {
 }
 
 // src/cli.ts
-import { writeFileSync as writeFileSync5, existsSync as existsSync10, mkdirSync as mkdirSync8 } from "node:fs";
-import { join as join11, resolve as resolve5 } from "node:path";
+import { writeFileSync as writeFileSync6, existsSync as existsSync11, mkdirSync as mkdirSync9 } from "node:fs";
+import { join as join12, resolve as resolve6 } from "node:path";
 
 // src/mcp-server.ts
-import { execFileSync as execFileSync3 } from "node:child_process";
-import { existsSync as existsSync9 } from "node:fs";
+import { execFileSync as execFileSync4 } from "node:child_process";
+import { existsSync as existsSync10 } from "node:fs";
 process.env.MACRO_AUDIT_MCP_STDIO = "1";
 var MCP_PROTOCOL_VERSION = "2024-11-05";
 var QUARANTINE_TOOL = {
@@ -6287,7 +7491,7 @@ async function handleRpcMessage(msg) {
       const rp = asStr(a2.repo_path);
       if (rp) {
         try {
-          const out = execFileSync3("git", ["-C", rp, "rev-parse", "HEAD"], { encoding: "utf8", timeout: 15e3 }).trim();
+          const out = execFileSync4("git", ["-C", rp, "rev-parse", "HEAD"], { encoding: "utf8", timeout: 15e3 }).trim();
           if (/^[0-9a-f]{40}$/i.test(out)) {
             currentHead = out;
           }
@@ -6297,7 +7501,7 @@ async function handleRpcMessage(msg) {
       }
       const guidance = "macro-audit audit file " + (rp ? '"' + rp + '"' : "<repo-path>") + ' "' + path + '" --db ' + db2;
       try {
-        const card = existsSync9(db2) ? await projectFileCard(db2, {
+        const card = existsSync10(db2) ? await projectFileCard(db2, {
           repo,
           subject: path,
           at: asStr(a2.at),
@@ -6374,7 +7578,7 @@ async function serveMcpStdio(input, output) {
       output.write(JSON.stringify(r) + "\n");
     }
   };
-  await new Promise(function(resolve6) {
+  await new Promise(function(resolve7) {
     input.on("data", function(chunk) {
       buf += chunk;
       let idx = buf.indexOf("\n");
@@ -6398,10 +7602,10 @@ async function serveMcpStdio(input, output) {
       }
     });
     input.on("end", function() {
-      resolve6();
+      resolve7();
     });
     input.on("close", function() {
-      resolve6();
+      resolve7();
     });
     input.resume();
   });
@@ -6676,12 +7880,12 @@ async function main() {
         const payload = crashArtifactFromError(e);
         let artifact = null;
         try {
-          const dir = outDir ? resolve5(outDir) : resolve5(process.cwd());
-          if (!existsSync10(dir)) {
-            mkdirSync8(dir, { recursive: true });
+          const dir = outDir ? resolve6(outDir) : resolve6(process.cwd());
+          if (!existsSync11(dir)) {
+            mkdirSync9(dir, { recursive: true });
           }
-          artifact = join11(dir, "macro-audit-crash-" + String(payload.error_code) + "-" + String(Date.now()) + ".json");
-          writeFileSync5(artifact, JSON.stringify(payload, null, 2) + "\n", "utf8");
+          artifact = join12(dir, "macro-audit-crash-" + String(payload.error_code) + "-" + String(Date.now()) + ".json");
+          writeFileSync6(artifact, JSON.stringify(payload, null, 2) + "\n", "utf8");
         } catch (_) {
           artifact = null;
         }
