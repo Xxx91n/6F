@@ -7,11 +7,12 @@
 //       node 84-check.mjs --emit   → 仅打印首跑普查候选清单（建册用，不判级）
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 
 const TIER = 'portable';
-const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）；known-pointer-violations 为本守卫输入工件（baseline 册），其生命周期独立于面消亡判据（D-201②）';
+const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）；known-pointer-violations 为本守卫输入工件（baseline 册），其生命周期独立于面消亡判据（D-201②）；#88 fixture 自足重声明（2026-10-05，D-163① 零写入临时仓读法/D-159②）——fixture SHA_OK/SHA_TWIN 运行时物化，零依赖未推送对象，主仓零写入，portable tier fresh-clone 可跑重申';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
@@ -22,6 +23,7 @@ const NL = String.fromCharCode(10);
 const SURFACE_CLOSED = 1;
 const SCAN_ROOTS = ['.scratch/macro-audit', '.scratch/architecture-recovery', 'docs/adr'];
 const SCAN_FILES = ['CONTEXT.md', 'AGENTS.md'];
+// D-212① 防误读注记（2026-10-05）：本守卫对 decision-ledger 的文档面扫描（短码/模糊语/幻觉 SHA/孪生桶/可达性 WARN 面）维持不变不因 D-212 收窄——账本 ##/### 节标题唯一性断言 owner=41a-check（#89）。
 // P2 勘误后回改贴合预声明 §1 EXEMPT-DIR：裸目录名三项（任意深度）＋ reports/ 路径锚定两项
 const SKIP_DIR_BARE = ['node_modules', '.git', 'dist'];
 const SKIP_DIR_ANCHORED = ['reports/_retired', 'reports/40-clone-cache'];
@@ -57,10 +59,14 @@ const warn = (name, extra) => console.log('WARN ' + name + (extra ? ' :: ' + ext
 
 // ---- git 机件（带缓存——2520 文件面下严禁每候选一次 spawn）----
 const gcache = new Map();
+let GIT_CWD = ROOT;          // fixtureRun 运行时物化窗口内指向临时仓（#88），其余恒 ROOT
+let GIT_ALT_OBJECTS = null;  // fixture 窗口内借主仓 objects（alternates 只读——主仓零写入 D-074）
 function git(args) {
-  const k = args.join(' ');
+  const k = GIT_CWD + '::' + args.join(' ');
   if (gcache.has(k)) return gcache.get(k);
-  const r = spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
+  const spawnOpts = { cwd: GIT_CWD, encoding: 'utf8' };
+  if (GIT_ALT_OBJECTS) spawnOpts.env = Object.assign({}, process.env, { GIT_ALTERNATE_OBJECT_DIRECTORIES: GIT_ALT_OBJECTS });
+  const r = spawnSync('git', args, spawnOpts);
   const v = { out: String(r.stdout || '').trim(), err: String(r.stderr || ''), rc: r.status };
   gcache.set(k, v);
   return v;
@@ -475,8 +481,27 @@ function fixtureRun() {
   const keys = bookKeySet(book);
   const BT = String.fromCharCode(96);
   const DQc = String.fromCharCode(34);
-  const SHA_OK = 'cb625c64521398306f914eb7986a4a505f95291a';
-  const SHA_TWIN = '201935fc7764c3a3716a0400cd603a76ef5b5cec';
+  // #88 fixture 自足修（D-163① 首选零写入临时仓读法——predecl 2026-10-05-r63-t1-predecl.md §2.1）：
+  //   SHA_OK/SHA_TWIN 运行时物化——mkdtemp 临时仓自足＋GIT_ALTERNATE_OBJECT_DIRECTORIES 借主仓 objects（alternates 只读，主仓零写入 D-074）；
+  //   孤儿 commit 201935fc 字面钉废止——零依赖未推送对象，fresh clone 可跑（portable 重申 D-159②）；断言面 F01~F20 语义逐条不动。
+  const fxDir = fs.mkdtempSync(join(tmpdir(), '84-fixture-'));
+  const gcdOut = git(['rev-parse', '--git-common-dir']).out || '.git';
+  const mainObjects = fs.existsSync(join(ROOT, gcdOut, 'objects')) ? join(ROOT, gcdOut, 'objects') : join(gcdOut, 'objects');
+  const FX_ENV = Object.assign({}, process.env, { GIT_ALTERNATE_OBJECT_DIRECTORIES: mainObjects, GIT_AUTHOR_NAME: '84-fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid', GIT_COMMITTER_NAME: '84-fixture', GIT_COMMITTER_EMAIL: 'fixture@example.invalid', GIT_AUTHOR_DATE: '2026-01-01T00:00:00Z', GIT_COMMITTER_DATE: '2026-01-01T00:00:00Z' });
+  const fxInit = spawnSync('git', ['init', '-q', fxDir], { encoding: 'utf8' });
+  if (fxInit.status !== 0) throw new Error('84-fixture: temp repo init failed ' + String(fxInit.stderr || ''));
+  const fxTree = spawnSync('git', ['-C', fxDir, 'mktree'], { encoding: 'utf8', input: '', env: FX_ENV });
+  if (fxTree.status !== 0) throw new Error('84-fixture: mktree failed ' + String(fxTree.stderr || ''));
+  const TREE_SHA = String(fxTree.stdout || '').trim();
+  const fxOk = spawnSync('git', ['-C', fxDir, 'commit-tree', TREE_SHA, '-m', 'fixture: reachable ok subject', '-m', 'change-id 84fixtureok0000'], { encoding: 'utf8', env: FX_ENV });
+  if (fxOk.status !== 0) throw new Error('84-fixture: commit-tree ok failed ' + String(fxOk.stderr || ''));
+  const SHA_OK = String(fxOk.stdout || '').trim();   // 运行时物化：update-ref HEAD 后=锚线可达
+  spawnSync('git', ['-C', fxDir, 'update-ref', 'HEAD', SHA_OK], { encoding: 'utf8', env: FX_ENV });
+  const fxTwin = spawnSync('git', ['-C', fxDir, 'commit-tree', TREE_SHA, '-p', SHA_OK, '-m', 'fixture: twin subject', '-m', 'change-id 84fixtureok0000'], { encoding: 'utf8', env: FX_ENV });
+  if (fxTwin.status !== 0) throw new Error('84-fixture: commit-tree twin failed ' + String(fxTwin.stderr || ''));
+  const SHA_TWIN = String(fxTwin.stdout || '').trim();   // 运行时物化：零 ref=锚线不可达孪生（同 change-id 注入→孪生桶语义保真）
+  const ROOT_CWD_BAK = GIT_CWD; const ALT_BAK = GIT_ALT_OBJECTS;
+  GIT_CWD = fxDir; GIT_ALT_OBJECTS = mainObjects; gcache.clear();
   const subj = (sha) => git(['log', '-1', '--format=%s', sha]).out;
   const hdr = ['| 变更 commit | 说明 |', '|---|---|'].join(NL);
   const cell = (sha, withSubj) => '| ' + BT + sha + BT + (withSubj ? ' (' + DQc + subj(sha) + DQc + ')' : '') + ' | 说明 |';
@@ -543,6 +568,8 @@ function fixtureRun() {
   t('PV-G-F19-D7-EMPTY-SUBJECT', p19.length === 1 && p19[0].fd.kind === 'missing-subject', '空校验位拒收 kind=' + (p19[0] ? p19[0].fd.kind : 'none') + '（D-200 subject 非空白必填）');
   const p20 = scanDoc('__fixture__', doc(['| ' + BT + SHA_OK + BT + ' ("fix: 旧指针 c6fe0f8 已实名") | 说明 |']));
   t('PV-G-F20-SUBJECT-QUOTE-OPAQUE', p20.length === 1 && p20[0].kind === 'legal', 'subject 引文内 token 不扫描（不透明载荷——kind=' + (p20[0] ? p20[0].kind : 'none') + '；shaTokens/bareCodes 走剥引文可见面）');
+  GIT_CWD = ROOT_CWD_BAK; GIT_ALT_OBJECTS = ALT_BAK; gcache.clear();
+  fs.rmSync(fxDir, { recursive: true, force: true });
 }
 
 const res = mainRun();
