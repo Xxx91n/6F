@@ -1403,6 +1403,14 @@
      "decision": "registered",
      "reason": "第五轮锐评 dist 310KB 批评部分重开留痕三件之一——批评吸收映射：棘轮余量读数入值守面为第四子事件；D-181 单文件提交 bundle 本体维持（check-dist 官方同构＋size-limit 棘轮惯例反向支持）",
      "evidence": "decision-ledger.md D-211②＋reports/R62-Q1-atomcode-research.md"
+    },
+    {
+     "at": "2026-10-05",
+     "by": "R63 T1 执行批（D-211② 第四子事件）",
+     "criterion_version": "D-076②+D-211②",
+     "decision": "sub-event-fired",
+     "reason": "第四子事件=棘轮余量越线实测发生（373,105B/cap 385,000B，headroom 3.1%＜25%）——分发形态重评票 #90 已立案；重评裁定（拆仓/publish/体积治理/限值重推导）待用户/裁定链主权面，前三子事件（publish 激活/pack 过阈/官方弃指引）未发生",
+     "evidence": "registry ratchet-headroom-watch triggered confirmation＋BACKLOG #90＋check-dist 实测读数"
     }
    ]
   },
@@ -2280,6 +2288,14 @@
      "decision": "standby-read",
      "reason": "随读：84-check fixtureRun 硬钉孤儿 commit 201935fc 致 fresh-clone 红（共享 fail 计数→rc=1）——判据② 新违例面登记；已立 #88 自足修票（修法 impl 参数不预钉），修复后复跑读数并入本哨兵；另留痕 84-check 不在任何 CI workflow 射程（engine-ci 止于 78-check）=覆盖缺口按 D-163 探测面扩列归 #88 票面",
      "evidence": "decision-ledger.md D-211①＋84-check.mjs L478-503/L548-552"
+    },
+    {
+     "at": "2026-10-05",
+     "by": "R63 T1 执行批（#88 修复后哨兵读数——D-211①/D-163⑥）",
+     "criterion_version": "D-163⑥+D-159②",
+     "decision": "fresh-clone-green",
+     "reason": "#88 fixture 自足修后鲜克隆双读数：首读（六 commit 中窗）ran=65 green=62 red=3（70-E1/75a-C1=派生未再基线＋53-B2=合法演化漏网——84-check 本体 GREEN 票面判据过，三红归因在账本 R63 收口节）；复读（closeout bundle 后干净 HEAD 09c73858）ran=65 green=65 red=0 problems=0＋唯一 group-skip 40-B（asset:40-clone-cache 环境缺席带三段 reason）——未册化红=0＋SKIP 全带 reason 判据满，判据② 操作性读数维持 pass 态",
+     "evidence": "decision-ledger.md R63 收口节 T2 哨兵登记＋两轮 guard-all-run footer（首读 allOk=false problems=3／复读 GUARD-ALL-RESULT: PASS problems=0）"
     }
    ],
    "bound_to": "stage2-launch-criteria 判据② 操作性复验动作"
@@ -2614,7 +2630,7 @@
    "trigger": "DIST-RATCHET margin 读数：headroom=1−size/DIST_CLI_SIZE_CAP_BYTES < 25%（现 cap=385,000B，现耗 80.6%）实测越线即翻 dist-ratchet-headroom-low",
    "review_at": "每次 dist/cli.js bundle commit 时点＋每收口窗清点（check-dist.mjs 输出 margin 即读数面）",
    "review_event": "dist-ratchet-headroom-low",
-   "status": "pending",
+   "status": "triggered-bound",
    "watch": "manual_watch",
    "owner": "macro-audit 队列值守",
    "verify_method": "读 check-dist.mjs DIST-RATCHET 行 margin；<25%→本项转 triggered-bound＋强制立分发形态重评票（落入 dist-in-repo-review 裁定面：拆仓/publish/体积治理/限值重推导——重评前须回读 D-181 立法时点 385,000B 推导论证，勿用锐评叙事倒推阈值）",
@@ -2626,6 +2642,14 @@
      "decision": "registered",
      "reason": "第五轮锐评 dist 310KB 批评部分重开留痕三件之二——警戒线立法（size-limit 对称面先例）；D-181 本体维持",
      "evidence": "decision-ledger.md D-211②＋reports/R62-Q1-atomcode-research.md"
+    },
+    {
+     "at": "2026-10-05",
+     "by": "R63 T1 执行批（D-211② 触发兑现）",
+     "criterion_version": "D-211②",
+     "decision": "triggered",
+     "reason": "dist bundle commit（#85② 产线化 +62.8KB）时点读数=373,105B/cap 385,000B margin 11,895B——headroom=3.1%＜25% 警戒线（立法时点已知 19.4% 越线，本窗 bundle 首读确认翻转 dist-ratchet-headroom-low）；强制立分发形态重评票=BACKLOG #90（dist-in-repo-review 裁定面四选；重评前回读 D-181 385,000B 推导论证）",
+     "evidence": "engine/scripts/check-dist.mjs DIST-RATCHET PASS 373105B/cap 385000B margin 11895B＋decision-ledger.md R63 收口节＋BACKLOG #90"
     }
    ]
   },
