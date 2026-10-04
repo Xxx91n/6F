@@ -31,3 +31,5 @@
 - `node .scratch/architecture-recovery/reports/guard-all-run.mjs`——期望 ran=65 green=65 allOk=true。
 - 钉件：75a（findings=400 预期）／33／41a／84／86 全绿。
 - 验收电池八项：build／pack／selftest／doctor／npm test／check-dist／Macro-C 独立实跑——同审计 §6 口径。
+
+- 预算链全史（chain-append，D-146⑤；补记 R59 审计 A-4 之问）：dist 执行器预算 `guard-all-run.mjs TIMEOUT_MS` 三段演进——①**300s**（#82/D-129③ 初值＝实测 231,516B 旁的运行预算基线）→②**600s**（R57 T1-A 收口，因 85-check 双重实跑臂逼近 300s、guard-all 内 rc=124 一例；D-149④ 显式登记于账本 R57 过程登记 L1964，未入 predecl 载体）→③**900s**（R59 LOOP 返修，本包 §1.4 第 4 项覆盖；R59 实测峰值 521s／修复后 343s，占用率降至约 38%）。②③之间为**执行器运维常数**非断言语义（D-149④ 同型），本条仅补记载体侧历史，**不改写** §1.4 现行声明。
