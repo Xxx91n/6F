@@ -4420,6 +4420,36 @@
    "round": 57,
    "disposition": "acknowledged-structural-probe",
    "note": "R57 T1 新守卫 A 组源面结构探针（SEMANTIC_DOMAIN_LABELS/常量标签在位）——readFileSync+indexOf 纯结构存在性查探非语义扫描，stripComments 不适用；presence 语义已按 layer 字段登记"
+  },
+  "84-check.mjs|date-literal|acf941a4": {
+   "guard": "84-check.mjs",
+   "kind": "date-literal",
+   "excerpt": "const FX_ENV = Object.assign({}, process.env, { GIT_ALTERNATE_OBJECT_DIRECTORIES: mainObjects, GIT_AUTHOR_NAME: 84-fixture ... GIT_AUTHOR_DATE/COMMITTER_DATE: 2026-01-01T00:00:00Z ...",
+   "disposition": "legit-literal",
+   "decision": "D-094②/D-144②",
+   "added": "2026-10-05",
+   "round": 63,
+   "note": "#88 fixture 运行时物化 determinism 常量（GIT_*_DATE 钉固定值令 SHA_OK/SHA_TWIN 确定性——非日期字面钉，语义惰性）"
+  },
+  "84-check.mjs|date-literal|a497477f": {
+   "guard": "84-check.mjs",
+   "kind": "date-literal",
+   "excerpt": "const PROTECTED_SURFACE = D-188~D-192 commit 指针纪律严格层机检（...）；#88 fixture 自足重声明（2026-10-05，D-163① 零写入临时仓读法/D-159②）...",
+   "disposition": "legit-literal",
+   "decision": "D-094②/D-144②",
+   "added": "2026-10-05",
+   "round": 63,
+   "note": "portable 重声明 dated 注记（声明时点日期非日期钉——D-159② 重声明本体带时点锚）"
+  },
+  "85-check.mjs|multi-hit-probe|3edff2b7": {
+   "guard": "85-check.mjs",
+   "kind": "multi-hit-probe",
+   "excerpt": "not_in_preview: ['Macro-A'] → engine/src/audit/micro-a.ts×2",
+   "disposition": "legit-literal",
+   "decision": "D-094②/D-144②",
+   "added": "2026-10-05",
+   "round": 63,
+   "note": "A4 裁后常量静噪钉合法多命中——micro-a.ts 双披露位点（pr 报告＋refusal 报告同一语义源 D-204③④；85-A4 静态钉本体即该字面）——与已册 ea0208c1（capability 2 of 5 · preview）同类"
   }
  }
 }
