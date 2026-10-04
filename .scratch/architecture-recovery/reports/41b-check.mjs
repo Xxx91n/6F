@@ -61,11 +61,11 @@ const desc = txt(join(REPO, 'docs', 'listing', 'description.md'));
 const cl = txt(join(REPO, 'docs', 'listing', 'credential-checklist.md'));
 const readmeHas4 = rd.includes('capability 4 of 5');
 t('C1 README 口径 = capability 1-4 of 5 preview（#80 步③ Micro-B 上架后口径）', readmeHas4 && rd.includes('capability 1 of 5') && rd.includes('capability 2 of 5') && rd.includes('capability 3 of 5'));
-t('C2 marketplace description 口径同步（三层在架＋Micro-A calibrated demo——#85 收窄 D-204③）', mk.plugins[0].description.includes('capability 4 of 5') && mk.plugins[0].description.includes('calibrated demo'));
-t('C3 description.md 口径同步（Micro-A calibrated demo 行＋1/2/4 of 5——#85 收窄）', desc.includes('calibrated demo') && desc.includes('Micro-A PR diff') && desc.includes('capability 3 of 5 · calibrated demo') && !desc.includes('capability 1-4 of 5'));
+t('C2 marketplace description 口径同步（四层在架＋Micro-A preview——#85② 产线化 D-204③④）', mk.plugins[0].description.includes('capability 4 of 5') && mk.plugins[0].description.includes('Micro-A=audit --scale Micro-A') === false && mk.plugins[0].description.indexOf('Micro-A') >= 0 && mk.plugins[0].description.indexOf('calibrated demo') < 0);
+t('C3 description.md 口径同步（Micro-A preview 行＋1/2/3/4 of 5——#85② 产线化）', desc.includes('Micro-A PR diff') && desc.includes('capability 3 of 5 · preview') && !desc.includes('capability 1-4 of 5') && !desc.includes('calibrated demo'));
 t('C4 description.md license 段 = Apache-2.0（UNLICENSED 阻塞语已清）', desc.includes('`Apache-2.0`') && !desc.includes('UNLICENSED'));
-t('C5 credential-checklist §E 口径同步（calibrated demo 口径）', cl.includes('calibrated demo') && !cl.includes('capability 1-4 of 5'));
-t('C6 无残留旧 preview 口径（1-3 of 5 老句＋Micro-A · preview 旧标注——#85 收窄后 Micro-A 禁 · preview）', !desc.includes('1-2 of 5') && !desc.includes('capability 1-3 of 5') && !desc.includes('capability 3 of 5 · preview') && !mk.plugins[0].description.includes('capability 2 of 5') && !cl.includes('1-2 of 5') && !cl.includes('capability 1-3 of 5') && !cl.includes('capability 3 of 5 · preview'));
+t('C5 credential-checklist §E 口径同步（Micro-A preview 口径——#85②）', cl.includes('Micro-A') && cl.indexOf('calibrated demo') < 0 && !cl.includes('capability 1-4 of 5'));
+t('C6 无残留旧收窄口径（1-3 of 5 老句＋calibrated demo 旧标注——#85② 产线化后禁旧态）', !desc.includes('1-2 of 5') && !desc.includes('capability 1-3 of 5') && !desc.includes('capability 3 of 5 · calibrated demo') && !mk.plugins[0].description.includes('capability 2 of 5') && !mk.plugins[0].description.includes('calibrated demo') && !cl.includes('1-2 of 5') && !cl.includes('capability 1-3 of 5') && !cl.includes('capability 3 of 5 · calibrated demo'));
 
 // ---------- D. 诚实披露与闸门 ----------
 t('D1 credential-checklist §C 用户专属动作未勾（提交=用户闸门）', /- \[ \] 6F 远端 push 授权确认/.test(cl) && /- \[ \] 若走路径 B：表单提交点击/.test(cl));

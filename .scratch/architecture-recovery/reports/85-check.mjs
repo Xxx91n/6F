@@ -5,7 +5,7 @@
 //     预声明包 2026-10-03-r57-t1-predecl.md §2：等值集封闭＋fact_id 全等（chainFact）＋活语料非存档等值）
 //   → D 自检组（正负对照：构造偏差必须检出——§2.4 命中方向跑前声明）
 // 纪律：只读断言＋临时目录写运行产物（跑完即弃）；sibling 只读 git 命令（D-074 零写入）；exit 0 + PASS N/N 绿。
-import { readFileSync, existsSync, readdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -14,7 +14,7 @@ import { need, groupProbe, engineDepsOk, siblingPath } from './_lib/env-contract
 
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
-const PROTECTED_SURFACE = '#84 Macro-C 产线化一等面守卫（D-204②④）——静态契约+CLI 测活+anysearch-cli 差分重校准';
+const PROTECTED_SURFACE = '#84 Macro-C＋#85② Micro-A 产线化一等面守卫（D-204②③④）——静态契约+CLI 测活+anysearch-cli 差分重校准+Micro-A cassette 差分重校准';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
@@ -28,10 +28,10 @@ const srcC = readFileSync(join(ENG, 'src', 'audit', 'macro-c.ts'), 'utf8');
 const srcA = readFileSync(join(ENG, 'src', 'audit', 'audit.ts'), 'utf8');
 t('A1 dist/audit/macro-c.js 在（build 产物入库）', existsSync(join(ENG, 'dist', 'audit', 'macro-c.js')));
 t('A2 capability_label 常量=capability 2 of 5 · preview（38 存档同款——44-check E6 文档↔产物同源）', srcC.indexOf("export const MACRO_C_CAPABILITY_LABEL = 'capability 2 of 5 · preview'") >= 0);
-t('A3 audit.ts implemented=[Macro-B, Macro-C]', srcA.indexOf("['Macro-B', 'Macro-C']") >= 0);
-t('A4 audit.ts not_in_preview 裁后=[Micro-A, Macro-A]（Macro-C 摘出）', srcA.indexOf("not_in_preview: ['Micro-A', 'Macro-A']") >= 0 && srcA.indexOf("not_in_preview: ['Micro-A', 'Macro-C'") < 0);
+t('A3 audit.ts implemented=[Macro-B, Macro-C, Micro-A]', srcA.indexOf("['Macro-B', 'Macro-C', 'Micro-A']") >= 0);
+t('A4 audit.ts not_in_preview 裁后=[Macro-A]（Macro-C 摘出＋Micro-A 产线化 #85②）', srcA.indexOf("not_in_preview: ['Macro-A']") >= 0 && srcA.indexOf("not_in_preview: ['Micro-A'") < 0);
 t('A5 fact-write.ts 同位共享核在（audit.ts 与 macro-c.ts 同消费）', existsSync(join(ENG, 'src', 'audit', 'fact-write.ts')) && srcA.indexOf('writeRunFactsAndEvents') >= 0 && srcC.indexOf('writeRunFactsAndEvents') >= 0);
-t('A6 engine/README scale 行已上架两层（Macro-B · Macro-C）', readFileSync(join(ENG, 'README.md'), 'utf8').indexOf('`Macro-B` · `Macro-C`') >= 0);
+t('A6 engine/README scale 行已上架三层（Macro-B · Macro-C · Micro-A）', readFileSync(join(ENG, 'README.md'), 'utf8').indexOf('`Macro-B` · `Macro-C` · `Micro-A`') >= 0);
 const ctxDoc = readFileSync(join(REPO, 'CONTEXT.md'), 'utf8');
 t('A7 CONTEXT 词条在场机核四件（R56 注入——Release Preview 法理边界/语义域/Cross-Scale/暴露梯度三轴）', ['preview=用户可达交付面', 'structure/shape', 'S3/budget-attribution', '三轴正交'].every(function (k) { return ctxDoc.indexOf(k) >= 0; }));
 t('A8 bundle 棘轮帽已显式抬限（385000——勘误四裁定留痕）', readFileSync(join(ENG, 'scripts', 'check-dist.mjs'), 'utf8').indexOf('385000') >= 0);
@@ -50,7 +50,7 @@ if (groupProbe('85-check', 'B', DEPS_B)) {
   const md = existsSync(join(tmpB, 'out', 'report.md')) ? readFileSync(join(tmpB, 'out', 'report.md'), 'utf8') : '';
   t('B4 报告 capability 2 of 5 · preview + 演化考古措辞在', md.indexOf('capability 2 of 5 · preview') >= 0 && md.indexOf('Macro-C') >= 0);
   const side = existsSync(join(tmpB, 'out', 'report.json')) ? JSON.parse(readFileSync(join(tmpB, 'out', 'report.json'), 'utf8')) : null;
-  t('B5 侧车 not_in_preview=[Micro-A, Macro-A]（D-204 裁后状态机）', !!side && JSON.stringify(side.preview_disclosure.not_in_preview) === JSON.stringify(['Micro-A', 'Macro-A']), JSON.stringify(side && side.preview_disclosure && side.preview_disclosure.not_in_preview));
+  t('B5 侧车 not_in_preview=[Macro-A]（D-204 裁后状态机——Micro-A 产线化 #85②）', !!side && JSON.stringify(side.preview_disclosure.not_in_preview) === JSON.stringify(['Macro-A']), JSON.stringify(side && side.preview_disclosure && side.preview_disclosure.not_in_preview));
   t('B6 侧车六判据齐＋band 三档枚举域', !!side && ['PC-MC-1', 'PC-MC-2', 'TC-MC-1', 'TC-MC-2', 'TC-MC-3', 'NC-MC-1'].every(function (c) { return side.adjudication.entries.some(function (e) { return e.criterion_id === c && ['supported', 'unsupported', 'insufficient'].indexOf(e.band) >= 0; }); }));
   const meas = existsSync(join(tmpB, 'out', 'audit-measurements.json')) ? JSON.parse(readFileSync(join(tmpB, 'out', 'audit-measurements.json'), 'utf8')) : null;
   t('B7 measurements 移植溯源＋fact_count>0＋supersede_chain 在', !!meas && meas.fact_count > 0 && !!meas.supersede_chain && String(meas.pipeline && meas.pipeline.recalibration || '').indexOf('85-check') >= 0, meas && meas.fact_count);
@@ -193,6 +193,52 @@ if (groupProbe('85-check', 'C', DEPS_C)) {
   t('D3 正对照：chain 篡改 → 检出（红）', compareMetrics(base, Object.assign({}, base, { chain: { edge_count: 8, unresolved: [] } })).indexOf('chain') >= 0);
 })();
 
+
+// ---------- E. Micro-A 差分重校准（#85②/ADR-0015——引擎面 cassette 回放 vs 48 生成器 golden 存档；predecl 2026-10-05-r63-t1-predecl.md §1.3 等值集） ----------
+const DEPS_E = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
+if (groupProbe('85-check', 'E', DEPS_E)) {
+  const MAM = await import(pathToFileURL(join(ENG, 'dist', 'audit', 'micro-a.js')).href);
+  const MOD48 = await import(pathToFileURL(join(HERE, '48-micro-a-preview.mjs')).href);
+  const NL_E = String.fromCharCode(10);
+  const tmpE = mkdtempSync(join(tmpdir(), '85-recal-microa-'));
+  // 引擎面 cassette 回放（48 goldenMain 同构注入——离线零网络）
+  const casE = JSON.parse(readFileSync(join(REPO, 'engine', 'test', 'fixtures', 'github-rest', 'authenticated.cassette.json'), 'utf8'));
+  const casAugE = { name: casE.name + '+85e', recorded: 'derived', calls: casE.calls.concat([casE.calls[3]]) };
+  const capE = [];
+  function cassetteFetcherE(cas, cap) { let i = 0; return async function (req) { cap.push(req); if (i >= cas.calls.length) { throw new Error('cassette exhausted at ' + req.url); } const c = cas.calls[i++]; if (req.method !== c.request.method) { throw new Error('method mismatch'); } if (!req.url.endsWith(c.request.path)) { throw new Error('path mismatch'); } const acc = c.request.accept || 'application/vnd.github+json'; if (req.accept !== acc) { throw new Error('accept mismatch'); } return { status: c.response.status, headers: c.response.headers || {}, body: typeof c.response.body === 'string' ? c.response.body : JSON.stringify(c.response.body) }; }; }
+  const sharedE = { env: { GITHUB_TOKEN: 'GOLDEN-PLACEHOLDER' }, ghTokenProbe: function () { return { available: false, token: null }; }, fetcher: cassetteFetcherE(casAugE, capE) };
+  const runAtE = MAM.deterministicRunAt();
+  const t1E = { name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', root: null, pins: MAM.MICRO_A_GOLDEN_PRS };
+  const collectedE = await MAM.collectMicroA(t1E, sharedE, MAM.MICRO_A_GOLDEN_DIFFS, runAtE);
+  const measNameE = 'audit-measurements.json';
+  const factsNameE = 'audit-facts.jsonl';
+  writeFileSync(join(tmpE, measNameE), JSON.stringify({ repos: ['env-manager'], prs_listed: collectedE.res.prs_listed }, null, 2) + NL_E, 'utf8');
+  writeFileSync(join(tmpE, factsNameE), collectedE.res.facts.map(function (f) { return JSON.stringify(f); }).join(NL_E) + NL_E, 'utf8');
+  const gateE = { merged_prs: collectedE.mergedCount, eligible: true };
+  const e64 = await MAM.buildPrReportMicroA(t1E, { n: 64, form: 'machine-generated/release-please' }, collectedE, gateE, sharedE, { golden: true, outDir: tmpE, measName: measNameE, factsName: factsNameE });
+  const e51 = await MAM.buildPrReportMicroA(t1E, { n: 51, form: 'human' }, collectedE, gateE, sharedE, { golden: true, outDir: tmpE, measName: measNameE, factsName: factsNameE });
+  // oracle=48 生成器 golden 存档（48-check B1 同窗再生实物）
+  const g64 = JSON.parse(readFileSync(join(HERE, '48-micro-a-golden-env-manager-pr64.json'), 'utf8'));
+  const g51 = JSON.parse(readFileSync(join(HERE, '48-micro-a-golden-env-manager-pr51.json'), 'utf8'));
+  const e64sc = JSON.parse(readFileSync(join(tmpE, e64.outputs.sidecar), 'utf8'));
+  const e51sc = JSON.parse(readFileSync(join(tmpE, e51.outputs.sidecar), 'utf8'));
+  function bandMap(sc) { const m = {}; for (const e of sc.adjudication.entries) { m[e.criterion_id] = e.band; } return m; }
+  function diffKeys(a, b) { const v = []; for (const k of Object.keys(a)) { if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) { v.push(k); } } return v; }
+  t('E0 切片字段契约双源互等（engine micro-a.ts vs 48 生成器导出——禁手抄漂移）', JSON.stringify(MAM.MICRO_A_SLICE_FIELDS) === JSON.stringify(MOD48.MICRO_A_SLICE_FIELDS));
+  const b64E = bandMap(e64sc); const b64G = bandMap(g64);
+  t('E1 pr64 六判据 band 全等（引擎面 vs 48 golden 存档）', JSON.stringify(b64E) === JSON.stringify(b64G), JSON.stringify({ e: b64E, g: b64G }));
+  t('E2 pr51 六判据 band 全等', JSON.stringify(bandMap(e51sc)) === JSON.stringify(bandMap(g51)), JSON.stringify({ e: bandMap(e51sc), g: bandMap(g51) }));
+  function sliceOf(sc) { const q = sc.quadrants.filter(function (x) { return x.quadrant === 'behavior'; })[0]; const pick = {}; for (const k of ['author_form', 'merged', 'diff_channel', 'diff_files_changed', 'diff_additions', 'diff_deletions', 'diff_bytes', 'credential_strategy', 'credential_degraded', 'api_calls', 'rate_limit_remaining']) { pick[k] = q.slice_fields[k]; } return pick; }
+  t('E3 pr64 切片数值字段全等', diffKeys(sliceOf(e64sc), sliceOf(g64)).length === 0, JSON.stringify(diffKeys(sliceOf(e64sc), sliceOf(g64))));
+  t('E4 pr51 切片数值字段全等', diffKeys(sliceOf(e51sc), sliceOf(g51)).length === 0, JSON.stringify(diffKeys(sliceOf(e51sc), sliceOf(g51))));
+  t('E5 fact_id 全等（pr64 三联＋pr51 双件——ctx 构造同字节）', JSON.stringify(e64sc.fact_ids) === JSON.stringify(g64.fact_ids) && JSON.stringify(e51sc.fact_ids) === JSON.stringify(g51.fact_ids), JSON.stringify({ e64: e64sc.fact_ids, g64: g64.fact_ids }));
+  t('E6 披露块翻转双侧全等（capability 3 of 5 · preview＋not_in_preview=[Macro-A]）', e64sc.preview_disclosure.capability_label === g64.preview_disclosure.capability_label && JSON.stringify(e64sc.preview_disclosure.not_in_preview) === JSON.stringify(g64.preview_disclosure.not_in_preview) && e64sc.preview_disclosure.capability_label === 'capability 3 of 5 · preview', JSON.stringify(e64sc.preview_disclosure.not_in_preview));
+  t('E7 token 进 wire 不入 fact（双通道同纪律）', capE.every(function (q) { return q.token === 'GOLDEN-PLACEHOLDER'; }) && JSON.stringify(collectedE.res.facts).indexOf('GOLDEN-PLACEHOLDER') < 0);
+  // 正对照（mutation-kill——比较器构造偏差必须检出）
+  const tampered = Object.assign({}, b64G, { 'TC-1': 'insufficient' });
+  t('E8 正对照：band 篡改必须检出（红）', diffKeys(b64G, tampered).indexOf('TC-1') >= 0);
+  try { rmSync(tmpE, { recursive: true, force: true }); } catch (e) { }
+}
 console.log('---');
 console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));
 process.exit(fail === 0 ? 0 : 1);
