@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
-const PROTECTED_SURFACE = '#41a 分发收尾·仓内文档面守卫（R6-03 / A-051 / D-030·D-031·D-032·D-038·D-039·D-040）';
+const PROTECTED_SURFACE = '#41a 分发收尾·仓内文档面守卫（R6-03 / A-051 / D-030·D-031·D-032·D-038·D-039·D-040）＋#89 A-3 账本节标题唯一性双层断言（D-212——## 全局唯一＋### 同父 siblings_only，双账本同扫）';
 
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -44,7 +44,7 @@ t('B6 preview_disclosure 时点差如实注（四件早于披露块契约，非�
 const readme = txt(join(REPO, 'README.md'));
 t('C1 「capability 1 of 5 · preview」标注在（Macro-B，与披露块契约同一语义源）', readme.indexOf('capability 1 of 5 · preview') >= 0);
 t('C2 「capability 2 of 5 · preview」标注在（Macro-C，与 #38 披露块印记一致）', readme.indexOf('capability 2 of 5 · preview') >= 0);
-t('C3 未上架三层「Not yet in preview」标注＋Micro-A/Micro-B/Macro-A 逐名', readme.indexOf('Not yet in preview') >= 0 && ['Micro-A', 'Micro-B', 'Macro-A'].every(s => readme.indexOf(s) >= 0));
+t('C3 未上架层「Not yet in preview」标注＋Micro-B/Macro-A 逐名（Micro-A 产线化 #85② 出列）', readme.indexOf('Not yet in preview') >= 0 && ['Micro-B', 'Macro-A'].every(s => readme.indexOf(s) >= 0));
 t('C4 build-scope ≠ release-sequence 划界＋ADR-0017 引用在', readme.indexOf('build-scope ≠ release-sequence') >= 0 && readme.indexOf('ADR-0017') >= 0);
 t('C5 0.x 语义在（单调递增＋1.0 退出条件＋versioning.md 指针）', readme.indexOf('0.x') >= 0 && readme.indexOf('单调递增') >= 0 && readme.indexOf('退出条件') >= 0 && readme.indexOf('docs/versioning.md') >= 0);
 t('C6 「Try on a real repository」节在', readme.indexOf('Try on a real repository') >= 0);
@@ -123,6 +123,69 @@ const newFiles = [
   join(REPO, 'docs', 'decisions', 'README.md')
 ].concat(FOUR.map(f => join(EX, f)));
 t('G1 全部新增/改动文件无 BOM', newFiles.every(noBom));
+// ---------- H. 账本节标题唯一性（#89/D-212——`##` 全局唯一＋`###` 同父 `##` 节内唯一（MD024 siblings_only 参数化层）；双账本同扫） ----------
+// 解析规则（predecl 2026-10-05-r63-t1-predecl.md §3.1）：ATX 形态；fenced code 块跳过；setext 不在断言域（诚实边界）。
+// 正对照（§3.2 跑前声明命中方向——mutation-kill 防 immortal test）：(a) 同父 `###` 整块复制（R57 P1-2 同机理重放）→ 必红；(b) `##` 重复 → 必红；运行时构造不写真实账本。
+// 负对照（§3.3）：现行双账本 0 违例落地即绿；边界=同字面 `###` 跨不同 `##` 父节合法（轮次限定语内嵌惯例——去限定语化漏检面诚实留痕）。
+function headingViolations(text) {
+  const NLh = String.fromCharCode(10);
+  const FENCE = String.fromCharCode(96, 96, 96);
+  const lines = text.split(NLh);
+  let inFence = false;
+  const seenH2 = new Map();
+  const dupsH2 = [];
+  let curH2 = null;
+  const seenH3ByParent = new Map();
+  const dupsH3 = [];
+  lines.forEach(function (line, i) {
+    if (line.trim().indexOf(FENCE) === 0) { inFence = !inFence; return; }
+    if (inFence) { return; }
+    const h2 = line.match(/^## (?!#)(.*)$/);
+    if (h2) {
+      const name = h2[1].trim();
+      if (seenH2.has(name)) { dupsH2.push({ text: name, first: seenH2.get(name), at: i + 1 }); } else { seenH2.set(name, i + 1); }
+      curH2 = name;
+      return;
+    }
+    const h3 = line.match(/^### (?!#)(.*)$/);
+    if (h3) {
+      const name = h3[1].trim();
+      if (!seenH3ByParent.has(curH2)) { seenH3ByParent.set(curH2, new Map()); }
+      const m = seenH3ByParent.get(curH2);
+      if (m.has(name)) { dupsH3.push({ parent: curH2, text: name, first: m.get(name), at: i + 1 }); } else { m.set(name, i + 1); }
+    }
+  });
+  return { dupsH2: dupsH2, dupsH3: dupsH3 };
+}
+const ledgersH = [
+  { name: 'macro-audit', path: join(REPO, '.scratch', 'macro-audit', 'decision-ledger.md') },
+  { name: 'architecture-recovery', path: join(REPO, '.scratch', 'architecture-recovery', 'decision-ledger.md') }
+];
+for (const LG of ledgersH) {
+  const v = headingViolations(txt(LG.path));
+  t('H1 ' + LG.name + ' 账本 `##` 全局唯一（0 重复）', v.dupsH2.length === 0, JSON.stringify(v.dupsH2.slice(0, 3)));
+  t('H2 ' + LG.name + ' 账本 `###` 同父节内唯一（siblings_only——0 重复）', v.dupsH3.length === 0, JSON.stringify(v.dupsH3.slice(0, 3)));
+}
+{
+  const dupSlice = ['## 第N轮 Grill', '', '### 原问题一', '正文 A。', '', '### 原问题一', '正文 A。'].join(String.fromCharCode(10));
+  const vd = headingViolations(dupSlice);
+  t('H3 正对照(a)：同父 `###` 整块复制切片 → 检出（红——R57 P1-2 同机理）', vd.dupsH3.length === 1 && vd.dupsH3[0].text === '原问题一', JSON.stringify(vd.dupsH3));
+}
+{
+  const dupH2 = ['## 第N轮 Grill', '', '## 第N轮 Grill'].join(String.fromCharCode(10));
+  const vh = headingViolations(dupH2);
+  t('H4 正对照(b)：`##` 重复 → 检出（红）', vh.dupsH2.length === 1, JSON.stringify(vh.dupsH2));
+}
+{
+  const crossParent = ['## 第一轮 Grill', '', '### 背景与目标', 'x。', '', '## 第二轮 Grill', '', '### 背景与目标', 'y。'].join(String.fromCharCode(10));
+  const vc = headingViolations(crossParent);
+  t('H5 负对照边界：同字面 `###` 跨父节合法（绿——轮次限定语内嵌惯例）', vc.dupsH3.length === 0 && vc.dupsH2.length === 0, JSON.stringify(vc.dupsH3));
+}
+{
+  const fenced = ['## A 节', '', String.fromCharCode(96, 96, 96), '## 不在断言域', String.fromCharCode(96, 96, 96)].join(String.fromCharCode(10));
+  const vf = headingViolations(fenced);
+  t('H6 fenced code 内伪标题跳过', vf.dupsH2.length === 0);
+}
 
 console.log('---');
 console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));
