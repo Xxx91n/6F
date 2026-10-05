@@ -78,3 +78,34 @@
 - 待 grill（非执行窗裁定面）：①验收形态选取立法；②git-history 探测面入 D-163 分类（`git-history:full` need 首用，SSOT FIX 模板化待裁）；③欠账↔闭环互斥断言；④P0-1 修法组合与判据修订追认。
 - T3 主权面不动：`.atomcode` 两件 staged-A 原样（未入任何 commit）；#90 dist 形态重评票仍待用户/裁定链。
 - 过程小事故（自曝）：BACKLOG 行尾追加首版用 `/\|\s*$/` 锚而该表行以 `）` 结尾——replace 静默 no-op 且 hit 标志误置，产生一次「写=原文」的假成功读数；复改改用 endsWith('）') 定位＋写后 grep 复验，+312B 落定。教训=行尾锚先验形态、hit 标志必须由 replace 命中驱动。
+
+## ⑥ 返修二段（R64-LOOP 复审 🟡 有条件通过后——P0-2/P1-2 闭环，2026-10-05）
+
+R64-LOOP 审计窗（`2026-10-05-r64-loop-audit-report.md`）确认 P0-1 根治＋其余 findings 闭环，但实证两点：**P0-2**——本报告 ①P2-1(c) 的「序无关判别臂」是**死代码**（JS `[^]]` 中 `[^]`=任意字符，永不匹配；端到端注入真回归守卫假绿）；**P1-2**——DOCSCAN 组级 SKIP 覆盖面比声明宽（浅克隆注入非法指针仍全绿）。处置：
+
+### P0-2 → 闭环（修正＋活性自证）
+- 正则 `[^]]`→`[^\]]`（正则层预验：6/6 位形方向正确＋real audit.ts=false 不误红）。
+- **判别臂活性正对照内嵌 A4**（NIP_ROGUE_RE 对合成违规串 `x = { not_in_preview: ['Macro-C'] };` 必须命中）——臂死亡即红，把「改了必须验」固化为守卫自断言；无新 t id（37 不变，63-inventory 无 churn）。
+- **端到端 8 行变异矩阵**（全克隆 HEAD=90f4c60，85-check 免 npm ci——A4 属静态 A 面，B/C/E 组 duckdb 缺席组级 SKIP 不影响）：
+
+```
+VIOLATION ['Micro-A']                      → rc=1 A4-KILLED
+VIOLATION ['Macro-A', 'Micro-A']           → rc=1 A4-KILLED   （序无关性本体）
+VIOLATION ['Macro-C', 'Macro-A']           → rc=1 A4-KILLED
+VIOLATION ['Micro-A','Macro-C']            → rc=1 A4-KILLED
+VIOLATION ['Macro-B','Macro-A','Macro-C']  → rc=1 A4-KILLED
+NEGATIVE  无 rogue 基线（N1+N3）            → rc=0
+NEGATIVE  rogue ['Macro-A','Macro-B']（N2） → rc=0   （Macro-B 不在本臂管辖域）
+NEGATIVE  implemented 含 Micro-A（现状态）   → rc=0
+```
+
+### P1-2 → 闭环（窄化 skip＋声明修正——审计三选项取 1+3 组合）
+- 扫描恒跑：纯位形 kind（bare-shortcode/fuzzy-phrase）照常判级**可判红**；需 cat-file 的 kind 浅克隆重路由 `env-unresolvable`→**PV-ENV-UNRESOLVABLE 恒 WARN 披露**（真实历史与幻觉 SHA 同形不可分，禁判 FAIL 防 born-red 复发）；PV-D/D3/prints 照跑；PV-C/E-TWIN/F10D 入 **HISTREACH** 组 SKIP（need git-history:full 不变）；PROTECTED_SURFACE/注释声明面同窗改准。
+- **浅克隆探针实测**：clean=31 PASS/0 FAIL＋`envUnresolvable=77`＋rc=0；注入 bare-shortcode→`FAIL PV-BARE-SHORTCODE`＋册外 FAIL 1→**rc=1**；注入 fuzzy→`FAIL PV-FUZZY-PHRASE`→rc=1；注入 40hex→rc=0 但 **envUnresolvable 77→78**（+1 计数可见——非静默全绿）；全克隆回归 **34/34**。
+- 不可判边界如实声明：浅克隆下幻觉 40hex 与真历史 40hex 不可分（SHA=内容哈希，irreducible）——以恒 WARN 计数披露代判红；CI 路径 fetch-depth:0 全量免疫。
+
+### P3-3 → 登记（跨窗议题）
+- 63-inventory 85-check 静态计数 live+1 既存偏移（R63 即如此，70-check E1 口径容忍）——账本登记，不建议本窗处理。
+
+### 转呈 grill
+①验收形态选取立法；②git-history 探测面入 D-163 分类；③**守卫断言「已修复」是否必须附变异击杀读数**（优先级最高）；④「否定字符类内 `]` 必须转义」成文规则——注意本窗 P0-2 恰为规避既有 zero-backslash 纪律所生，两纪律需合流裁定。
