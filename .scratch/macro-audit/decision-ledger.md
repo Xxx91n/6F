@@ -2068,3 +2068,17 @@ R63 T1 执行批三票全兑现（#85② P0 第一＋#88/#89 随批——D-211�
 
 - **裁定层：闭环**——三票各有去向（上表）；零新裁定零 revised；atomcode 0/0（执行窗免派遣）。
 - **验收层：开放**——断言自证非验收；待下轮审计窗 LOOP 复验（85-E 组复跑＋fresh-clone 复读全绿确认＋41a H 组负对照诱导红复验）。
+## 第六十四轮返修批收口对账（R64-LOOP 打回返工，2026-10-05）
+
+- **输入**：R64 T1 审计窗裁定「不通过·打回原修复窗返工」（报告=.scratch/macro-audit/reports/2026-10-05-r64-audit-report.md；handoff=2026-10-05-r64-audit-handoff.md）；用户指令「重新 LOOP 修复，严肃以第一性原则修复」。findings 全集=P0-1（84-check CI 浅克隆 born-red）＋P1-1（fresh-clone 记账矛盾）＋P2-1（三处守卫弱化）＋P2-2（predecl §1.3 overall band 缺席）＋P3-1（两新文件缺尾行）＋P3-2（版本未递增，存疑）＋过程违规①②③④。
+- **P0-1 修法落地（执行裁量，报 grill 追认）**：审计三选项中「选项 2=SHA1 运行时物化」单独不足以根治——PV-C/PV-D 面校验的 72 件「合法指针」是真账本引用的真历史 commit（SHA=内容哈希不可物化），浅克隆下**环境性不可判**。落地组合=①engine-ci.yml checkout `fetch-depth: 0`（选项 1 止血，golden-ci.yml:41/macro-b-regression.yml:86 先例同型）＋②B 面探针（cb625c64 废止→FX.SHA_OK）与 F 面短钉（da0c25a9→SHA_OK 8hex 前缀）运行时物化（选项 2 可达子集）＋③浅克隆检出→C/D/E-TWIN/F10D 面**组级 SKIP 带因**（DOCSCAN group，D-159⑥ env-contract `need git-history:full`，40-check:B 同型；幻觉探针 …91b 保留原义）。**验收判据修订声明**：审计重跑清单期望「浅克隆 84-check 34/34」不可达（72 件历史对象），改判据=浅克隆 0 FAIL＋SKIP 带因＋全克隆 34/34——已在返修报告声明并留痕。
+- **engine-ci 触发面**：paths 增 `.scratch/**`＋`docs/adr/**`＋`CONTEXT.md`＋`AGENTS.md`（84-check SURFACE_CLOSED 全部扫描根——守卫输入变更入 CI 射程；审计要求 `.scratch/**`，本窗扩至完整扫描面，成本=文档类 commit 触发 engine CI，正确性优先）。
+- **P1-1**：r63-report ②欠账①/⑥表行勘误销账（registry fresh-clone-rerun-watch 第 5 confirmation=闭环实物）＋#88 CI 面欠账重开（本窗即闭，读数见返修报告）——欠账↔闭环互斥性修复；「欠账三要素互斥断言是否立法」留 grill。
+- **P2-1**：41a-C3 逐名实现位改行级实物（Status 行四层逐名＋Macro-A 矩阵行）；85-A4 判别臂改序无关正则（任一位形禁回列 Micro-A/Macro-C）；41b-C2 恒真臂（`includes(...)===false`）删除换判别臂（四层在架＋capability 4 of 5＋Macro-A 未上架）。
+- **P2-2**：85-check 新增 **E9** overall_verdict＋structural_limitations 双侧全等（pr64＋pr51）——predecl §1.3 等值集补位；审计建议的偏差⑦措辞覆盖一并落地（实测 engine PR 面 structural_limitations 与 48 生成器/golden 字节同文，全等断言成立）。
+- **P3-1/P3-2**：micro-a.ts/micro-a.test.mjs 补尾行（**dist 零 drift**——tsc 产物本就带尾行，仅源缺失；无 bundle commit）；版本 0.1.0→**0.2.0**（docs/versioning.md §1 minor=契约变更，#84 Macro-C＋#85② Micro-A 两批合并追补；SSOT=manifest.meta.json×2→`npm run gen` 再生成 plugin.json×2＋versions aligned PASS；marketplace/package/package-lock 直改；engine/CHANGELOG [0.2.0] 节；preview tag 留 push 授权窗补挂；r14fix C10 标题随改、断言逻辑不动）。
+- **过程违规③（index 中间态）**：本窗开工即修——`git reset -- engine/dist`（仅 index 条目复位；staged-D×2＋pre-R63 stale blob 清除；.atomcode 两件 staged-A **原样保留**=T3 主权）；修后 sha256 双侧核等。
+- **过程违规①回应（验收形态选取缺失）**：本窗验收含 CI 形态——返修 commit 后 `--no-local --depth 1` 浅克隆实跑（born-red 原场景）＋全克隆对照，读数入返修报告。「探测面验收是否必须含消费环境真实形态」立法题留 grill（handoff 下一轮 grill 方向①）。「--depth/对象可达性入 D-163 探测面分类」同留 grill（方向②）——本窗 need 名 `git-history:full` 为首用，SSOT FIX 模板化待裁。
+- **guard-meta 重声明（D-159②）**：84-check PROTECTED_SURFACE 扩注 R64 返修面（同行扩注，census register 行哈希 a497477f→4efaa0fe 原位换键，归因 legit-literal/D-094②/D-144② 不变）；85-check/41a/41b 断言题字随改（id 不变，E9 新增）。
+- **派生信号再基线（D-180）**：63-assertion-inventory 1523→**1524** emit sites（update-70-inventory.mjs 唯一路径；70-check E1 live↔inventory 复验绿）；75a-census findings=403↔register=403（75a-check 16/0）；33-check 33/33。
+- **分层定稿（D-165/D-170 双行呈报）**：裁定层=执行窗按审计修复要求落地（P0-1 修法组合与判据修订为执行裁量，提请下轮 grill 追认；零新立法）；验收层=本窗自证闭环（build/check-dist/selftest/smoke 24 套件/快守卫 15 件/克隆双形态），终局归下轮审计窗 LOOP 复核。

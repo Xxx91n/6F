@@ -31,6 +31,7 @@
 - **轮 58~61 增补**：R58 审计窗 LOOP 闭环＋R59 predecl 链追＋R60 放行＋R61 小修合并推送分支清理 ✅ DONE 2026-10-04（main=759de85=origin；engine-ci＋golden-ci@HEAD 绿；A-3 移交 grill 已落 D-212；A-6/T3 候选项留用户面——closeout-handoff 在案）。
 - **轮 62 增补**：R62 grill 两裁＋整理环节落盘 ✅ DONE 2026-10-04（D-211~D-212 落账全 current＋去向全闭合；BACKLOG #88/#89 立案；registry 80 项/56 事件；CONTEXT 补四轮封口行；M-057；R61 handoff 收编；本任务书 R63 换代）。
 - **轮 63 增补**：R63 T1 执行批三腿兑现＋收口落账 ✅ DONE 2026-10-05（#85② 产线化——engine 一等面 `audit --scale Micro-A`＋85-check E 组 36/36 fact_id 全等＋分发面四层在架＋48 生成器旧列修正；#88 自足修——D-163① 零写入临时仓读法＋portable 重声明＋CI 扩列；#89 H 组双层断言 47/47；D-211② 触发兑现——dist-ratchet-headroom-low 翻转＋BACKLOG #90 重评票立案；CHANGELOG M-058；registry 尾 commit 三 confirmation；本任务书 R64 换代）。
+- **轮 64 增补（R64-LOOP 打回→返工窗闭环，2026-10-05）**：T1 审计窗已执行——verdict=**不通过·打回返工**（报告=reports/2026-10-05-r64-audit-report.md；P0-1 born-red＋P1-1 记账矛盾＋P2-1/P2-2/P3）；返工窗同日闭环（报告=reports/2026-10-05-r64-rework-report.md）：84-check B/F 面运行时物化＋浅克隆 DOCSCAN 组级 SKIP＋engine-ci fetch-depth:0/paths 扩列＋85-E9 补位＋三处弱化修复＋版本 0.2.0＋尾行＋index 中间态修复；**T2 随读批与 T3 呈裁不变（#90 重评票在列）**。
 
 ## 换代盘点（D-187①——枚举断言面 ＋ 在场/缺席钉分向两列 → 逐钉核对）
 
@@ -45,7 +46,7 @@
 | 7 | `45-check:H5` 含 `#45` 或 `demo` | 在场 | ✅ 保护区节 `#45 demo 三 scenario ✅` 在位 |
 | 8 | `84-check` 34 条断言（F 组 SHA 运行时物化——#88） | 在场 | ✅ `guard-all-run` 动态枚举承接；F01~F20 语义逐条在位（鲜克隆 GREEN 实证） |
 | 9 | `41a-check:H1/H2` 双账本 `##`/`###` 标题唯一性 0 违例（D-212/#89） | 在场 | ✅ R63 落地即绿（47/47）——**R63 新増在册钉** |
-| 10 | `85-check:A3/A4/E0~E8` Micro-A 产线化机核（D-204③④） | 在场 | ✅ R63 落地（36/36——E5 fact_id 全等）——**R63 新増在册钉** |
+| 10 | `85-check:A3/A4/E0~E9` Micro-A 产线化机核（D-204③④） | 在场 | ✅ R63 落地 36/36→R64 返修补 E9（overall_verdict＋structural_limitations 等值——审计 P2-2）后 37——**R63 新増在册钉＋R64 扩列** |
 
 ## 口径基线（读前必知）
 
