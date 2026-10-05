@@ -2565,21 +2565,21 @@
   "key": "84-check.mjs|date-literal|acf941a4",
   "file": "84-check.mjs",
   "kind": "date-literal",
-  "lno": 490,
+  "lno": 509,
   "excerpt": "const FX_ENV = Object.assign({}, process.env, { GIT_ALTERNATE_OBJECT_DIRECTORIES: mainObjects, GIT_AUTHOR_NAME"
  },
  {
-  "key": "84-check.mjs|date-literal|a497477f",
+  "key": "84-check.mjs|date-literal|4efaa0fe",
   "file": "84-check.mjs",
   "kind": "date-literal",
-  "lno": 15,
+  "lno": 16,
   "excerpt": "const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）；"
  },
  {
   "key": "84-check.mjs|existence-assert|527931a2",
   "file": "84-check.mjs",
   "kind": "existence-assert",
-  "lno": 425,
+  "lno": 441,
   "excerpt": "t('PV-D2-BASELINE-LOADED', fs.existsSync(BOOK) && Array.isArray(entries), '册工件在位（existsSync＋entries 数组——归零=合法终"
  },
  {
