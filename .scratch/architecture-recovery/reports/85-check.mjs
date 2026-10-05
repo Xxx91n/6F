@@ -29,7 +29,7 @@ const srcA = readFileSync(join(ENG, 'src', 'audit', 'audit.ts'), 'utf8');
 t('A1 dist/audit/macro-c.js 在（build 产物入库）', existsSync(join(ENG, 'dist', 'audit', 'macro-c.js')));
 t('A2 capability_label 常量=capability 2 of 5 · preview（38 存档同款——44-check E6 文档↔产物同源）', srcC.indexOf("export const MACRO_C_CAPABILITY_LABEL = 'capability 2 of 5 · preview'") >= 0);
 t('A3 audit.ts implemented=[Macro-B, Macro-C, Micro-A]', srcA.indexOf("['Macro-B', 'Macro-C', 'Micro-A']") >= 0);
-t('A4 audit.ts not_in_preview 裁后=[Macro-A]（Macro-C 摘出＋Micro-A 产线化 #85②）', srcA.indexOf("not_in_preview: ['Macro-A']") >= 0 && srcA.indexOf("not_in_preview: ['Micro-A'") < 0);
+t('A4 audit.ts not_in_preview 裁后=[Macro-A]（Macro-C 摘出＋Micro-A 产线化 #85②——判别臂序无关：任一位形不得回列 Micro-A/Macro-C，R64 返修 P2-1）', srcA.indexOf("not_in_preview: ['Macro-A']") >= 0 && !/not_in_preview:[ ]*\[[^]]*'(Micro-A|Macro-C)'/.test(srcA));
 t('A5 fact-write.ts 同位共享核在（audit.ts 与 macro-c.ts 同消费）', existsSync(join(ENG, 'src', 'audit', 'fact-write.ts')) && srcA.indexOf('writeRunFactsAndEvents') >= 0 && srcC.indexOf('writeRunFactsAndEvents') >= 0);
 t('A6 engine/README scale 行已上架三层（Macro-B · Macro-C · Micro-A）', readFileSync(join(ENG, 'README.md'), 'utf8').indexOf('`Macro-B` · `Macro-C` · `Micro-A`') >= 0);
 const ctxDoc = readFileSync(join(REPO, 'CONTEXT.md'), 'utf8');
@@ -237,6 +237,7 @@ if (groupProbe('85-check', 'E', DEPS_E)) {
   // 正对照（mutation-kill——比较器构造偏差必须检出）
   const tampered = Object.assign({}, b64G, { 'TC-1': 'insufficient' });
   t('E8 正对照：band 篡改必须检出（红）', diffKeys(b64G, tampered).indexOf('TC-1') >= 0);
+  t('E9 overall_verdict＋structural_limitations 双侧全等（pr64＋pr51——predecl §1.3 等值集补位，R64 审计返修 P2-2）', e64sc.overall_verdict === g64.overall_verdict && e51sc.overall_verdict === g51.overall_verdict && JSON.stringify(e64sc.preview_disclosure.structural_limitations) === JSON.stringify(g64.preview_disclosure.structural_limitations) && JSON.stringify(e51sc.preview_disclosure.structural_limitations) === JSON.stringify(g51.preview_disclosure.structural_limitations), JSON.stringify({ e: e64sc.overall_verdict, g: g64.overall_verdict }));
   try { rmSync(tmpE, { recursive: true, force: true }); } catch (e) { }
 }
 console.log('---');

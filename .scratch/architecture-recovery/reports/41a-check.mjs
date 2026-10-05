@@ -44,7 +44,7 @@ t('B6 preview_disclosure 时点差如实注（四件早于披露块契约，非�
 const readme = txt(join(REPO, 'README.md'));
 t('C1 「capability 1 of 5 · preview」标注在（Macro-B，与披露块契约同一语义源）', readme.indexOf('capability 1 of 5 · preview') >= 0);
 t('C2 「capability 2 of 5 · preview」标注在（Macro-C，与 #38 披露块印记一致）', readme.indexOf('capability 2 of 5 · preview') >= 0);
-t('C3 未上架层「Not yet in preview」标注＋Micro-B/Macro-A 逐名（Micro-A 产线化 #85② 出列）', readme.indexOf('Not yet in preview') >= 0 && ['Micro-B', 'Macro-A'].every(s => readme.indexOf(s) >= 0));
+t('C3 未上架层「Not yet in preview」标注＋在架四层 Status 行逐名＋Macro-A 矩阵行实物（#85② 出列——逐名实现位=行级实物非全文名词汇，R64 返修 P2-1）', readme.indexOf('Macro-B / Macro-C / Micro-B / Micro-A are in preview') >= 0 && readme.indexOf('| Macro-A cross-repo strategy | Not yet in preview |') >= 0 && readme.indexOf('Not yet in preview') >= 0);
 t('C4 build-scope ≠ release-sequence 划界＋ADR-0017 引用在', readme.indexOf('build-scope ≠ release-sequence') >= 0 && readme.indexOf('ADR-0017') >= 0);
 t('C5 0.x 语义在（单调递增＋1.0 退出条件＋versioning.md 指针）', readme.indexOf('0.x') >= 0 && readme.indexOf('单调递增') >= 0 && readme.indexOf('退出条件') >= 0 && readme.indexOf('docs/versioning.md') >= 0);
 t('C6 「Try on a real repository」节在', readme.indexOf('Try on a real repository') >= 0);
