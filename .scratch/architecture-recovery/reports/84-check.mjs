@@ -13,7 +13,7 @@ import { dirname, join, relative } from 'node:path';
 import { need, groupProbe } from './_lib/env-contract.mjs';   // D-159⑥ env-contract SSOT（first-party 本仓件——非三方依赖）
 
 const TIER = 'portable';
-const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）；known-pointer-violations 为本守卫输入工件（baseline 册），其生命周期独立于面消亡判据（D-201②）；#88 fixture 自足重声明（2026-10-05，D-163① 零写入临时仓读法/D-159②）——fixture SHA_OK/SHA_TWIN 运行时物化，零依赖未推送对象，主仓零写入，portable tier fresh-clone 可跑重申；R64 审计返修 P0-1：B 面探针（cb625c64 历史字面钉废止→FX.SHA_OK）＋F 面短钉（da0c25a9→SHA_OK 8hex 前缀）改运行时物化，浅克隆检出→C/D 面组级 SKIP（DOCSCAN，env-contract need git-history:full）——零历史依赖面全自足';
+const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）；known-pointer-violations 为本守卫输入工件（baseline 册），其生命周期独立于面消亡判据（D-201②）；#88 fixture 自足重声明（2026-10-05，D-163① 零写入临时仓读法/D-159②）——fixture SHA_OK/SHA_TWIN 运行时物化，零依赖未推送对象，主仓零写入，portable tier fresh-clone 可跑重申；R64 审计返修 P0-1：B 面探针（cb625c64 历史字面钉废止→FX.SHA_OK）＋F 面短钉（da0c25a9→SHA_OK 8hex 前缀）改运行时物化，浅克隆检出→历史可达性子面组级 SKIP（HISTREACH，env-contract need git-history:full——需 cat-file 判定不可分）；纯位形面照跑可判红、需解析 kind 重路由 PV-ENV-UNRESOLVABLE 恒 WARN 披露（LOOP P1-2 窄化）——零历史依赖面全自足';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
@@ -350,11 +350,12 @@ function bookKeySet(book) {
 // ---- 判级（D-191③ 存量 WARN／册外新增 FAIL；可达性与孪生恒 WARN）----
 // PV-F10B 行号四形态（file.ext:N／L<n>／行号／第 N 行）——模块级供 fixture 反例共用
 const LINENO_RE = /[.](md|json|mjs):[ ]?[0-9]+|L[0-9]+|行号|第[ ]?[0-9]+[ ]?行/;
-const SLUG_BY_KIND = { 'bare-shortcode': 'PV-BARE-SHORTCODE', 'fuzzy-phrase': 'PV-FUZZY-PHRASE', 'short-sha': 'PV-SHORT-SHA', 'missing-subject': 'PV-MISSING-SUBJECT', 'nonexistent-sha': 'PV-NONEXISTENT-SHA', 'misplaced-pointer': 'PV-MISPLACED-POINTER', 'misplaced-unresolvable': 'PV-MISPLACED-UNRESOLVABLE' };
+const SLUG_BY_KIND = { 'bare-shortcode': 'PV-BARE-SHORTCODE', 'fuzzy-phrase': 'PV-FUZZY-PHRASE', 'short-sha': 'PV-SHORT-SHA', 'missing-subject': 'PV-MISSING-SUBJECT', 'nonexistent-sha': 'PV-NONEXISTENT-SHA', 'misplaced-pointer': 'PV-MISPLACED-POINTER', 'misplaced-unresolvable': 'PV-MISPLACED-UNRESOLVABLE', 'env-unresolvable': 'PV-ENV-UNRESOLVABLE' };
 function judge(findings, keys) {
   const out = [];
   for (const fd of findings) {
     if (fd.kind === 'legal') continue;
+    if (fd.kind === 'env-unresolvable') { out.push({ fd: fd, level: 'WARN', slug: 'PV-ENV-UNRESOLVABLE' }); continue; }
     if (fd.kind === 'misplaced-unresolvable') { out.push({ fd: fd, level: 'WARN', slug: 'PV-MISPLACED-UNRESOLVABLE' }); continue; }
     const k = bookKey(fd.file, fd.kind, fd.token);
     if (keys.has(k)) out.push({ fd: fd, level: 'WARN', slug: 'PV-BASELINE-HIT' });
@@ -399,26 +400,30 @@ function mainRun(FX) {
   t('PV-A2-ROOTS-EXIST', rootsOk, '五面逐件 existsSync');
   t('PV-A3-SURFACE-NONEMPTY', files.length > 0, 'files=' + files.length);
 
-  // R64 审计返修 P0-1（born-red 修复——审计窗 CI 浅克隆实证 72 件级联误红）：C/D 面逐件 cat-file 校验
-  //   真账本引用的历史 commit 指针，浅克隆（--depth 1）对象库不含历史=环境性不可判——组级 SKIP 带因降级
-  //   （40-check:B env-contract 同型，D-159⑥ SSOT need()）；B/G 面已零历史依赖（运行时物化）照跑。
-  //   CI 侧 engine-ci.yml checkout fetch-depth: 0 全量覆盖（golden-ci.yml:41 先例同型）。
+  // R64 审计返修 P0-1（born-red 修复）＋R64-LOOP P1-2 窄化：浅克隆（--depth 1）对象库不含历史——
+  //   需 cat-file 的历史可达性判定（PV-C legal 校验/孪生分桶/册失配对账）环境性不可判→组级 SKIP 带因（D-159⑥ SSOT need()）；
+  //   纯位形面（裸短码/模糊语）照跑可判红，需解析 kind 重路由 PV-ENV-UNRESOLVABLE 恒 WARN 披露（禁静默全绿）；
+  //   B/G 面零历史依赖（运行时物化）照跑；CI 侧 engine-ci.yml checkout fetch-depth: 0 全量覆盖（golden-ci.yml:41 先例同型）。
   const IS_SHALLOW = git(['rev-parse', '--is-shallow-repository']).out === 'true';
-  const DOCSCAN_OK = !IS_SHALLOW;
-  if (!DOCSCAN_OK) groupProbe('84-check', 'DOCSCAN', [need('git-history:full', false, '原因：84-check C/D 面逐件 cat-file 校验真账本引用的历史 commit 指针，浅克隆对象库不含历史（R64 返修 P0-1 实证 72 件级联误红）；手动修复：完整克隆或 CI checkout 加 fetch-depth: 0（engine-ci.yml 已配）；无网影响面：全量历史本地即在零联网，SKIP 期间 B/G 面（运行时物化自足）照跑')]);
+  const HIST_OK = !IS_SHALLOW;
+  if (!HIST_OK) groupProbe('84-check', 'HISTREACH', [need('git-history:full', false, '原因：浅克隆对象库不含历史——需 cat-file 的历史可达性判定（法定形 legal 校验/孪生分桶/册失配对账）环境性不可判，真实历史 commit 与幻觉 SHA 同形不可分（SHA=内容哈希；R64-LOOP P1-2 窄化）；手动修复：完整克隆或 CI checkout 加 fetch-depth: 0（engine-ci.yml 已配）；无网影响面：纯位形面（裸短码/模糊语）照跑可判红，需解析 kind 重路由 PV-ENV-UNRESOLVABLE 恒 WARN 披露非静默')]);
   let all = [], verdicts = [], fails = [], warns = [], legalList = [], twins = [], stale = [];
   const uniqU = new Map();
-  if (DOCSCAN_OK) {
-    for (const f of files) {
-      let text;
-      try { text = fs.readFileSync(f, 'utf8'); } catch { continue; }
-      for (const fd of scanDoc(rel(f), text)) all.push(fd);
-    }
-    verdicts = judge(all, keys);
-    fails = verdicts.filter((v) => v.level === 'FAIL');
-    warns = verdicts.filter((v) => v.level === 'WARN');
-    legalList = all.filter((x) => x.kind === 'legal');
+  for (const f of files) {
+    let text;
+    try { text = fs.readFileSync(f, 'utf8'); } catch { continue; }
+    for (const fd of scanDoc(rel(f), text)) all.push(fd);
   }
+  if (!HIST_OK) {
+    // R64-LOOP P1-2 窄化：纯位形 kind（bare-shortcode/fuzzy-phrase）照常判级可判红；需 cat-file 的 kind
+    //   在浅克隆重路由 env-unresolvable（恒 WARN 披露——真实历史与幻觉不可分，禁判 FAIL 防 born-red 复发）
+    const GIT_DEP = { 'short-sha': 1, 'missing-subject': 1, 'nonexistent-sha': 1, 'misplaced-pointer': 1, 'misplaced-unresolvable': 1 };
+    for (const fd of all) { if (GIT_DEP[fd.kind]) fd.kind = 'env-unresolvable'; }
+  }
+  verdicts = judge(all, keys);
+  fails = verdicts.filter((v) => v.level === 'FAIL');
+  warns = verdicts.filter((v) => v.level === 'WARN');
+  legalList = all.filter((x) => x.kind === 'legal');
 
   // B 严格层机检确在跑（自指正对照：合法形行零 finding）——R64 审计返修 P0-1：探针 SHA 由历史字面钉
   //   （cb625c64…，浅克隆不可达→PV-B born-red）改 FX.SHA_OK 运行时物化——探针语义不动（合法形行判 legal），零历史依赖
@@ -430,23 +435,20 @@ function mainRun(FX) {
   GIT_CWD = bakCwd; GIT_ALT_OBJECTS = bakAlt; gcache.clear();
   t('PV-B-STRICT-ACTIVE', legalProbe.length === 1 && legalProbe[0].kind === 'legal', '合法形行探针 kind=' + (legalProbe[0] ? legalProbe[0].kind : 'none') + '（零违规命中即机检在跑；探针件=fixture 运行时物化零历史依赖）');
 
-  if (DOCSCAN_OK) {
-    // C 法定形断言（历史依赖面——浅克隆组级 SKIP，见 P0-1 注记）
+  if (HIST_OK) {
+    // C 法定形断言（历史可达性面——浅克隆 HISTREACH 组 SKIP；legal 判定需 cat-file，浅克隆下 legal 恒空）
     const badShape = legalList.filter((x) => !(x.len >= 12 && x.subj === true && objectType(x.sha) === 'commit'));
     t('PV-C-LEGAL-FORM', legalList.length > 0 && badShape.length === 0, 'legal 指针 ' + legalList.length + ' 件逐件断：位形≥12hex ∧ 带 subject 校验位 ∧ cat-file -t=commit；违例 ' + badShape.length);
-
-    // D baseline 册两级判级（D-191③）
-    t('PV-D-ZERO-NEW-FAIL', fails.length === 0, '册外 FAIL ' + fails.length + ' 件（须零）；册内 WARN ' + warns.length + ' 件');
   }
+  // D baseline 册两级判级（D-191③）——P1-2 窄化后浅克隆照跑（位形 kind 判 FAIL；env kind 恒 WARN 不入 FAIL）
+  t('PV-D-ZERO-NEW-FAIL', fails.length === 0, '册外 FAIL ' + fails.length + ' 件（须零）；册内 WARN ' + warns.length + ' 件' + (HIST_OK ? '' : '（浅克隆：历史可达性面 SKIP——env kind 恒 WARN 披露）'));
   t('PV-D2-BASELINE-LOADED', fs.existsSync(BOOK) && Array.isArray(entries), '册工件在位（existsSync＋entries 数组——归零=合法终态 D-201②）entries=' + entries.length + ' 件');
-  if (DOCSCAN_OK) {
-    const kindSet = new Set(all.map((x) => x.kind).filter((k) => k !== 'legal'));
-    const unmapped = [...kindSet].filter((k) => !SLUG_BY_KIND[k]);
-    t('PV-D3-KIND-SLUG-TABLE', kindSet.size > 0 && unmapped.length === 0, '违规 kind→slug 对表覆盖 ' + kindSet.size + ' 形态（legal 为非违规形态不入表）；未映射 ' + unmapped.length + '（新增违规 kind 未登记 SLUG_BY_KIND 即红）');
-  }
+  const kindSet = new Set(all.map((x) => x.kind).filter((k) => k !== 'legal'));
+  const unmapped = [...kindSet].filter((k) => !SLUG_BY_KIND[k]);
+  t('PV-D3-KIND-SLUG-TABLE', kindSet.size > 0 && unmapped.length === 0, '违规 kind→slug 对表覆盖 ' + kindSet.size + ' 形态（legal 为非违规形态不入表）；未映射 ' + unmapped.length + '（新增违规 kind 未登记 SLUG_BY_KIND 即红）');
 
-  // E 锚线可达性 + 孪生分桶（恒 WARN，不影响 rc）——历史依赖面（fd.sha 来自真账本解析），浅克隆随 DOCSCAN 组 SKIP
-  if (DOCSCAN_OK) {
+  // E 锚线可达性 + 孪生分桶（恒 WARN，不影响 rc）——历史依赖面（fd.sha 来自真账本解析），浅克隆随 HISTREACH 组 SKIP
+  if (HIST_OK) {
     for (const fd of all) { if (fd.sha && !anchorReach(fd.sha, anchors)) uniqU.set(fd.file + String.fromCharCode(124) + fd.sha, fd); }
     twins = twinBuckets(all);
     for (const fd of uniqU.values()) warn('PV-UNREACHABLE', fd.file + ' :: ' + fd.sha.slice(0, 8) + ' 锚线未达（人工复核面 D-190④）');
@@ -480,7 +482,7 @@ function mainRun(FX) {
   const lineno = entries.filter((e) => LINENO_RE.test(String(e.pattern)));
   t('PV-F10B-NO-LINENO', lineno.length === 0, 'pattern 无行号定位形态（四形态：file.ext:N／L<n>／行号／第 N 行；' + entries.length + ' 条）');
   t('PV-F10C-SURFACE-CLOSED', SURFACE_CLOSED === 1, '扫描面封闭性硬断言');
-  if (DOCSCAN_OK) {
+  if (HIST_OK) {
     const hitSet = new Set(verdicts.map((v) => bookKey(v.fd.file, v.fd.kind, v.fd.token)));
     stale = entries.filter((e) => { const sp = splitPattern(e.pattern); return !hitSet.has(bookKey(e.file, sp[0], sp[1])); });
     for (const e of stale) warn('PV-STALE-ENTRY', e.id + ' 册项已无实物命中——可移除（ratchet 只减不增，禁判 FAIL）');
@@ -489,12 +491,10 @@ function mainRun(FX) {
     t('PV-F10D-STALE-REPORTED', stale.length + hitCount === entries.length, '失配 ' + stale.length + ' 件已自报 ／命中 ' + hitCount + ' 件 ／册 ' + entries.length + ' 条（不漏不重；归零态 0＋0==0 自洽 D-201②）');
   }
 
-  if (DOCSCAN_OK) {
-    for (const v of warns) warn('PV-BASELINE-HIT', v.fd.kind + String.fromCharCode(58) + v.fd.token + ' @ ' + v.fd.file + ' [' + v.fd.detail + ']');
-    for (const v of fails) console.log('FAIL ' + v.slug + ' :: ' + v.fd.kind + String.fromCharCode(58) + v.fd.token + ' @ ' + v.fd.file + ':' + v.fd.line + ' [' + v.fd.detail + ']');
-  }
-  console.log('SURFACE files=' + files.length + ' findings=' + all.length + ' legal=' + legalList.length + ' baselineWarn=' + warns.length + ' newFail=' + fails.length + ' unreachable=' + uniqU.size + ' twinBuckets=' + twins.length + ' staleEntries=' + stale.length + (DOCSCAN_OK ? '' : ' docscan=SKIP(shallow)'));
-  return { all: all, files: files, fails: fails, warns: warns, twins: twins, stale: stale, docscanSkipped: !DOCSCAN_OK };
+  for (const v of warns) warn('PV-BASELINE-HIT', v.fd.kind + String.fromCharCode(58) + v.fd.token + ' @ ' + v.fd.file + ' [' + v.fd.detail + ']');
+  for (const v of fails) console.log('FAIL ' + v.slug + ' :: ' + v.fd.kind + String.fromCharCode(58) + v.fd.token + ' @ ' + v.fd.file + ':' + v.fd.line + ' [' + v.fd.detail + ']');
+  console.log('SURFACE files=' + files.length + ' findings=' + all.length + ' legal=' + legalList.length + ' baselineWarn=' + warns.length + ' newFail=' + fails.length + ' unreachable=' + uniqU.size + ' twinBuckets=' + twins.length + ' staleEntries=' + stale.length + (HIST_OK ? '' : ' histreach=SKIP(shallow) envUnresolvable=' + all.filter((x) => x.kind === 'env-unresolvable').length));
+  return { all: all, files: files, fails: fails, warns: warns, twins: twins, stale: stale, histreachSkipped: !HIST_OK };
 }
 
 
@@ -610,5 +610,5 @@ try {
   try { fs.rmSync(FX.fxDir, { recursive: true, force: true }); } catch (_) { }
 }
 console.log('PASS-COUNT ' + pass + ' FAIL-COUNT ' + fail);
-console.log('GUARD-RESULT: 84-check ' + (fail === 0 ? 'PASS' : 'FAIL') + ' newFail=' + res.fails.length + ' baselineWarn=' + res.warns.length + ' twinBuckets=' + res.twins.length + (res.docscanSkipped ? ' docscan=SKIP(shallow)' : ''));
+console.log('GUARD-RESULT: 84-check ' + (fail === 0 ? 'PASS' : 'FAIL') + ' newFail=' + res.fails.length + ' baselineWarn=' + res.warns.length + ' twinBuckets=' + res.twins.length + (res.histreachSkipped ? ' histreach=SKIP(shallow)' : ''));
 process.exit(fail === 0 ? 0 : 1);
