@@ -4,10 +4,20 @@ on:
     paths:
       - "engine/**"
       - ".github/workflows/engine-ci.yml"
+      # R64 审计返修 P0-1：守卫本体/守卫扫描面变更入 CI 射程（.scratch=守卫住址＋84-check 扫描根；docs/adr/CONTEXT/AGENTS 同为扫描面）
+      - ".scratch/**"
+      - "docs/adr/**"
+      - "CONTEXT.md"
+      - "AGENTS.md"
   pull_request:
     paths:
       - "engine/**"
       - ".github/workflows/engine-ci.yml"
+      # R64 审计返修 P0-1：守卫本体/守卫扫描面变更入 CI 射程（.scratch=守卫住址＋84-check 扫描根；docs/adr/CONTEXT/AGENTS 同为扫描面）
+      - ".scratch/**"
+      - "docs/adr/**"
+      - "CONTEXT.md"
+      - "AGENTS.md"
 permissions:
   contents: read
 jobs:
@@ -23,6 +33,10 @@ jobs:
         working-directory: engine
     steps:
       - uses: actions/checkout@v4
+        with:
+          # R64 审计返修 P0-1：84-check B/C 面逐件校验真账本引用的历史 commit——浅克隆对象库不含历史必红（72 件级联实证）；
+          # golden-ci.yml:41 / macro-b-regression.yml:86 同例——对象位于历史深处，fetch-depth: 0 全量取回
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
