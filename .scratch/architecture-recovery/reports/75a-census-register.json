@@ -4441,15 +4441,15 @@
       "round": 63,
       "note": "A4 裁后常量静噪钉合法多命中——micro-a.ts 双披露位点（pr 报告＋refusal 报告同一语义源 D-204③④；85-A4 静态钉本体即该字面）——与已册 ea0208c1（capability 2 of 5 · preview）同类"
     },
-    "84-check.mjs|date-literal|4efaa0fe": {
+    "84-check.mjs|date-literal|8b657d7c": {
       "guard": "84-check.mjs",
       "kind": "date-literal",
-      "excerpt": "const PROTECTED_SURFACE = D-188~D-192 commit 指针纪律严格层机检（...）；#88 fixture 自足重声明（2026-10-05，D-163① 零写入临时仓读法/D-159②）——...（R64 返修扩注）...",
+      "excerpt": "const PROTECTED_SURFACE = D-188~D-192 commit 指针纪律严格层机检（...）；#88 fixture 自足重声明（2026-10-05，D-163① 零写入临时仓读法/D-159②）——...（R64-LOOP P1-2 窄化再扩注）...",
       "disposition": "legit-literal",
       "decision": "D-094②/D-144②",
       "added": "2026-10-05",
       "round": 63,
-      "note": "portable 重声明 dated 注记（声明时点日期非日期钉——D-159② 重声明本体带时点锚）；R64 返修窗（P0-1）同行扩注 B/F 面运行时物化＋DOCSCAN SKIP 后行哈希 a497477f→4efaa0fe——同一 dated 重声明行的演化改写，归因（legit-literal/D-094②/D-144②）与判据不变"
+      "note": "portable 重声明 dated 注记（声明时点日期非日期钉——D-159② 重声明本体带时点锚）；R64 返修窗（P0-1）同行扩注 B/F 面运行时物化＋DOCSCAN SKIP 后行哈希 a497477f→4efaa0fe——同一 dated 重声明行的演化改写，归因（legit-literal/D-094②/D-144②）与判据不变；R64-LOOP 复审窗（P1-2 窄化）同行再扩注 HISTREACH 窄化面后行哈希 4efaa0fe→8b657d7c——同一 dated 重声明行演化改写，归因（legit-literal/D-094②/D-144②）与判据不变"
     }
   }
 }

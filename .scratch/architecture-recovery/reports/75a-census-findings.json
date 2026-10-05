@@ -2569,7 +2569,7 @@
   "excerpt": "const FX_ENV = Object.assign({}, process.env, { GIT_ALTERNATE_OBJECT_DIRECTORIES: mainObjects, GIT_AUTHOR_NAME"
  },
  {
-  "key": "84-check.mjs|date-literal|4efaa0fe",
+  "key": "84-check.mjs|date-literal|8b657d7c",
   "file": "84-check.mjs",
   "kind": "date-literal",
   "lno": 16,
@@ -2579,14 +2579,14 @@
   "key": "84-check.mjs|existence-assert|527931a2",
   "file": "84-check.mjs",
   "kind": "existence-assert",
-  "lno": 441,
+  "lno": 445,
   "excerpt": "t('PV-D2-BASELINE-LOADED', fs.existsSync(BOOK) && Array.isArray(entries), '册工件在位（existsSync＋entries 数组——归零=合法终"
  },
  {
   "key": "85-check.mjs|existence-assert|9ac2d236",
   "file": "85-check.mjs",
   "kind": "existence-assert",
-  "lno": 49,
+  "lno": 50,
   "excerpt": "t('B3 五工件齐备（Macro-B 同族 artifacts 契约）', ['report.md', 'report.json', 'audit-facts.jsonl', 'audit-measurements.j"
  },
  {
@@ -2600,7 +2600,7 @@
   "key": "85-check.mjs|existence-assert|fafb96dd",
   "file": "85-check.mjs",
   "kind": "existence-assert",
-  "lno": 33,
+  "lno": 34,
   "excerpt": "t('A5 fact-write.ts 同位共享核在（audit.ts 与 macro-c.ts 同消费）', existsSync(join(ENG, 'src', 'audit', 'fact-write.ts'))"
  },
  {
