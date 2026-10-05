@@ -28,6 +28,10 @@
 > 轮 48 grill（2026-09-29 完成）已封口 D-176 ~ D-179：四裁——macro-b-regression 死件处置包（本窗新发现：YAML 未引号冒号→文件级解析失败→schedule 静默死亡 ~6 天；修＋双轨建制=parse 档闸归机检面 46-check＋liveness 哨归 manual_watch 五要件；分档判据=验证成本×失效频率×检测时延容忍，平台侧失效形态〔60 天自动停用/调度注册漂移〕只有哨兵可兜）＋预声明验证包锚定义＋实跑必选（声明锚=先落物化面即合法〔账行/报告节/独立文件〕，同 commit 原子落盘不满足证据强度；红态诱导实跑必选——未跑=缺件处置非静默放行；不溯既往——7bd2e8e1 维持实质合规）＋调研存档形态统一（reports/ 文件硬要求——ctx 索引=检索增强非等价持久件；R48 (d) 面缺件补落义务）＋守卫伴生再生减负包（确定性种子化主腿〔SOURCE_DATE_EPOCH 式 env 注入＋UUID 内容寻址〕＋volatile-fields 枚举豁免清单副腿〔三硬边界：枚举键级/派生信号族禁入/死项即红棘轮〕＋两跑零 diff 防退化自检；自动 discard 显式驳回——无先例且绕开 D-140② 记账面）；**D-147→revised**（仅③款锚形态——由 D-177 承载一般化，账行锚=新规特例）；调研档案 R48-Q{1,2,4} 系列存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-147③）。
 > 轮 49 grill（2026-09-30 完成）已封口 D-180 ~ D-183：四裁——收口 commit 对节奏（语义收口→立即再生→同窗独立 bundle＋口径改述「除已收编真实语义信号件外零 churn」；(ii)(iii) 显式驳回）＋扩面勘误通道（append-only 勘误节＋时点二分按可预见性＋IESG 命题变更测试分级＋commit-body 降为从证据；首例即定形）＋冻结包代表性衰减声明（声明入册项确认行＋S1 重校准缓行挂消费拉动＋缺口 AR 五要件注册＋哨兵续看；(iii)(iv) 显式驳回〔复审钩缺失=立法不成立〕）＋微修批建制（F3/F4 双修＋同型反模式普查＋等价性验证钉死——AR 缓挂=自我指涉悖论被支配）；零 revised。
 > 轮 50 grill（2026-09-30 完成）已封口 D-184 ~ D-187：check-kit regex 字面量盲区分步处置（迁入闸条文＋AR 注册→轮51 根治立项）＋开工对表声称态核实义务＋atomcode 调研降级形态立法（degraded_performance＋构成比复审钩）＋任务书换代哨兵字标盘点规程
+> 轮 51 grill（2026-09-30 完成）已封口 D-188 ~ D-195：commit 指针法定形立法——≥12hex＋(subject) 双要素校验位／严格层宽层划界／锚线声明制／存量两级判级／baseline 册设计／载体落点分工（D-194② 款经 D-195 撤销→revised，余款存续）。
+> 轮 53 grill（2026-10-01 完成）已封口 D-196 ~ D-201：R52 T3 五候选＋T1-B′ 哨兵承接裁定——扩面勘误通道／列头反向闸／subject 规范化形必填／严格层扩充列头／册自报失配机制。
+> 轮 56 grill（2026-10-02~03 完成）已封口 D-202 ~ D-210：四层收口深化面五枝全裁——preview 法理边界（Macro-C 产线化／Micro-A 收窄+立票）／structure 分层语义域／supply-chain 续排+源判据预声明／baggage 拓扑+双枚举保留／per-layer preview→GA 判据六类骨架。
+> 轮 62 grill（2026-10-04 完成）已封口 D-211 ~ D-212：第五轮锐评摄入分诊路由＋A-3 守卫立法——(ii) 修正版全案（reef#1 执行票／reef#2 部分重开＋棘轮余量<25% 警戒线／reef#3 双轨登记／窗口序 #85② P0 第一）＋41a-check 账本节标题双层唯一性断言（`##` 全局＋`###` 同父 siblings_only，双账本）。
 
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。

@@ -237,6 +237,10 @@
   "baggage-inbound-recheck": {
    "occurred": false,
    "note": "R56 收口登记（D-208③）：①宿主侧可承载 trace context 的 MCP 契约面确立；②D-062 Macro-A DoR 达成。任一发生即重裁 inbound 注入——注入值不得占 trace_id/run_id 本体（D-108）"
+  },
+  "dist-ratchet-headroom-low": {
+   "occurred": false,
+   "note": "R62 收口登记（D-211②）：dist/cli.js 棘轮余量 <25%（棘轮余量读数<0.25，现 cap=385,000B——常量名见 ratchet-headroom-watch.trigger）实测越线即翻——ratchet-headroom-watch 转 triggered-bound＋强制分发形态重评票"
   }
  },
  "items": [
@@ -1373,16 +1377,16 @@
   {
    "id": "dist-in-repo-review",
    "family": "distribution",
-   "title": "dist 入库复审触发器（D-076②）——npm publish 激活/pack 体积过阈/官方惯例反转时重评制品随源进仓",
+   "title": "dist 入库复审触发器（D-076②＋D-211② 映射更新）——npm publish 激活/pack 体积过阈/官方惯例反转/棘轮余量<25% 越线时重评制品随源进仓",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "dist-in-repo-superseded",
-   "trigger": "D-038 npm publish 激活（账本状态变更即触发），或 pack 体积过阈（阈值以 153.6KB bundle 实测定锚），或 GitHub 官方文档弃 dist-in-repo 指引",
+   "trigger": "D-038 npm publish 激活（账本状态变更即触发），或 pack 体积过阈（阈值以 153.6KB bundle 实测定锚），或 GitHub 官方文档弃 dist-in-repo 指引，或 dist 棘轮余量 <25% 越线（机检哨=ratchet-headroom-watch 册翻 dist-ratchet-headroom-low——R62-D-211② 吸收映射新增第四子事件）",
    "review_at": "D-038 决策状态变更即触发（判定者=账本）；体积阈值机检挂 build-bundle 后 stat 断言；惯例反转以 docs.github.com actions 原文 diff 为锚；一年无子事件转 manual_watch 复述",
    "status": "pending",
    "watch": "event_bound",
    "owner": "macro-audit 队列值守",
-   "verify_method": "核验三子事件任一；触发→重裁 dist 入库形态（拆仓/publish 渠道/体积治理）",
+   "verify_method": "核验四子事件任一；触发→重裁 dist 入库形态（拆仓/publish 渠道/体积治理/限值重推导——重评前须回读 D-181 立法时点 385,000B 推导论证）",
    "confirmations": [
     {
      "at": "2026-09-18",
@@ -1391,6 +1395,14 @@
      "decision": "registered",
      "reason": "锐评立场批评零新增实证不满足 D-075 revised 受理边界——决策维持、观察价值转写为可证伪复审触发器",
      "evidence": "decision-ledger.md D-076＋R22-Q4 报告 ③dist-in-repo-superseded"
+    },
+    {
+     "at": "2026-10-04",
+     "by": "R62 grill D-211②",
+     "criterion_version": "D-211②",
+     "decision": "registered",
+     "reason": "第五轮锐评 dist 310KB 批评部分重开留痕三件之一——批评吸收映射：棘轮余量读数入值守面为第四子事件；D-181 单文件提交 bundle 本体维持（check-dist 官方同构＋size-limit 棘轮惯例反向支持）",
+     "evidence": "decision-ledger.md D-211②＋reports/R62-Q1-atomcode-research.md"
     }
    ]
   },
@@ -2260,6 +2272,14 @@
      "decision": "standby-read",
      "reason": "随读：env-contract 泛化探测面（git-object:/engine-deps:/asset:）未落地→复跑义务未激活；本机全量守卫跑绿＋未册化红=0（判据②读数并入 stage2-launch-criteria）",
      "evidence": "registry env-contract-generalization-landed occurred=false＋本批全量守卫读数"
+    },
+    {
+     "at": "2026-10-04",
+     "by": "R62 grill D-211①",
+     "criterion_version": "D-211①",
+     "decision": "standby-read",
+     "reason": "随读：84-check fixtureRun 硬钉孤儿 commit 201935fc 致 fresh-clone 红（共享 fail 计数→rc=1）——判据② 新违例面登记；已立 #88 自足修票（修法 impl 参数不预钉），修复后复跑读数并入本哨兵；另留痕 84-check 不在任何 CI workflow 射程（engine-ci 止于 78-check）=覆盖缺口按 D-163 探测面扩列归 #88 票面",
+     "evidence": "decision-ledger.md D-211①＋84-check.mjs L478-503/L548-552"
     }
    ],
    "bound_to": "stage2-launch-criteria 判据② 操作性复验动作"
@@ -2583,6 +2603,56 @@
    "watch": "event_bound",
    "decision_ref": "D-208",
    "note": "册内预声明重裁判据：届时 bazel 型 opt-in 注入是合法候选，但注入值不得占用 trace_id/run_id 本体（D-108 幂等键不动）——走独立列或 linkage 面；Macro-A linkage fact 义务=双向 id＋两侧执行时点留痕"
+  },
+  {
+   "id": "ratchet-headroom-watch",
+   "family": "distribution",
+   "title": "dist 棘轮余量警戒线值守（D-211②）——余量 <25% 强制开一次分发形态重评票（棘轮管静默增长、警戒线管计划性到顶）",
+   "deadline_event": null,
+   "deadline": "无（值守项——越线即强制重评票，非静默增长通道）",
+   "trigger_event": null,
+   "trigger": "DIST-RATCHET margin 读数：headroom=1−size/DIST_CLI_SIZE_CAP_BYTES < 25%（现 cap=385,000B，现耗 80.6%）实测越线即翻 dist-ratchet-headroom-low",
+   "review_at": "每次 dist/cli.js bundle commit 时点＋每收口窗清点（check-dist.mjs 输出 margin 即读数面）",
+   "review_event": "dist-ratchet-headroom-low",
+   "status": "pending",
+   "watch": "manual_watch",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "读 check-dist.mjs DIST-RATCHET 行 margin；<25%→本项转 triggered-bound＋强制立分发形态重评票（落入 dist-in-repo-review 裁定面：拆仓/publish/体积治理/限值重推导——重评前须回读 D-181 立法时点 385,000B 推导论证，勿用锐评叙事倒推阈值）",
+   "confirmations": [
+    {
+     "at": "2026-10-04",
+     "by": "R62 grill D-211②",
+     "criterion_version": "D-211②",
+     "decision": "registered",
+     "reason": "第五轮锐评 dist 310KB 批评部分重开留痕三件之二——警戒线立法（size-limit 对称面先例）；D-181 本体维持",
+     "evidence": "decision-ledger.md D-211②＋reports/R62-Q1-atomcode-research.md"
+    }
+   ]
+  },
+  {
+   "id": "ceremony-ratio-watch",
+   "family": "process-governance",
+   "title": "工程仪式时间占比观察册（D-211③）——non-automatable 判断面登记为 Stage-2 前接受成本，实测越线再立量化预算（先计量不照搬 50% 外部数字）",
+   "deadline_event": null,
+   "deadline": "无（观察册——占比实测越线或新贡献者可读性信号出现再裁定）",
+   "trigger_event": null,
+   "trigger": "仪式类 commit 占比实测越过共识线（共识线触发时再议，先计量）／新贡献者首批反馈出现可读性痛点",
+   "review_at": "随 T3 审计窗普查捎读＋Stage-2 判据包评审窗＋first-external-contributor 事件先到者",
+   "review_event": "first-external-contributor",
+   "status": "pending",
+   "watch": "manual_watch",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "commit 成分分类抽测（git log --name-only：前缀分类＋触碰面 engine/src·test·dist vs .scratch/docs 文书——基线读数=R62 实测 d46094c..759de85 158 commits 中 src/dist 触碰 8 件≈5%，docs 桶含 .scratch 守卫码须剔除再判）；越线→转 triggered-bound 立量化预算票（SRE toil 文法：automatable 面续建挂 D-149/D-175 既有序、non-automatable 判断面=Stage-2 前接受成本）",
+   "confirmations": [
+    {
+     "at": "2026-10-04",
+     "by": "R62 grill D-211③",
+     "criterion_version": "D-211③",
+     "decision": "registered",
+     "reason": "第五轮锐评「80% 元治理」批评双轨登记——non-automatable 判断面=Stage-2 前接受成本（Rust RFC substantial-only 先例）；量化预算待实测不照搬外部数字",
+     "evidence": "decision-ledger.md D-211③＋reports/R62-Q1-atomcode-research.md"
+    }
+   ]
   }
  ]
 }

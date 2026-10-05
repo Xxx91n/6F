@@ -1,18 +1,19 @@
-# next-round —— 轮 57 常驻任务书（R57 T1 执行批四票兑现毕；下窗=T2 审计窗随读批＋残余票面）
+# next-round —— 轮 63 常驻任务书（R62 grill 收口毕；下窗=T1 执行批 #85② P0 第一＋#88/#89 随批）
 >
 > 任务书=常驻交接物：新会话/子 Agent 读本件＋账本＋CONTEXT 即接续；执行窗义务带欠账三要素（具名 owner＋时点锚＋复验方式——D-170③）。
-> **换代自检注记（D-185②）**：本换代已对声称态条目核物——①守卫 **65 件**（`guard-all-run` 动态枚举；85-check/86-check 本窗新落实测绿入列）；②**84-check 34 断言**（R54 终态不变）；③编年 max=**M-056**（本批落）；④账本唯一 ID=**210**（主表 current=**166** 全闭合——R57 执行批零新裁定，收口节登记）；⑤registry=**78 项**（env-gated-guard-class guards 10→12 件；双 event_bound 册 R56 已落）。
+> **换代自检注记（D-185②）**：本换代已对声称态条目核物——①守卫 **65 件**（`guard-all-run` 动态枚举；#89 断言票未施工，41a-check 断言数未变）；②**84-check 34 断言**（不变）；③编年 max=**M-057**（本批落）；④账本唯一 ID=**212**（主表 current≈168——R57 基线 166＋D-211/D-212 两增零 revised）；⑤registry=**80 项/56 事件**（dist-in-repo-review 映射更新＋ratchet-headroom-watch/ceremony-ratio-watch 双新册＋dist-ratchet-headroom-low 事件锚）。
 > **换代钉清单盘点（D-187①）**：断言面=**65 件 check ＋ 84-check 自身 34 条断言**。在册钉七组见「历史票面闭环索引」节整节保搬；缺席钉一件=42-check F5 维持缺席。
 
-## 轮 25~56 留痕（已定，勿重复）
+## 轮 25~62 留痕（已定，勿重复）
 
 - 轮 25~43：详见历轮收口节——字面钉三分类/quarantine 建制/Micro-B 设计树/四轮锐评辩证处置/守卫组升格触发器登记/第五轮锐评终局六裁＋分层定稿立法。
 - 轮 44~50：GAP-HOST-01 关档／D-171~D-172 RA 到期与冻结重钉／registry stage2 字段化／D-174/D-175 静默窗与等待期序／R48 四裁（D-176~D-179）／R49 四裁（D-180~D-183）＋执行批全兑现／R50 四裁（D-184~D-187）。
 - 轮 51~54：R51 七裁（D-188~D-195 指针纪律立法全链）＋T1-A check-kit regex 根治＋R52 指针守卫件落盘（84-check 26→33 断言）＋R53 六裁（D-196~D-201）＋R54 四腿全兑现（册归零＋扩列/反向闸/三收紧＋registry 双腿）。
 - **轮 55**：审计窗批＋R54 返工 LOOP 复验（uum＋myq 两笔全数核验通过，V-01~V-05 闭环）。
-- **轮 56 grill（2026-10-02~03，收口深化面五枝全裁毕，D-202~D-210 全 current 零 revised）**：B3 preview 法理边界（D-204=Macro-C 产线化＋Micro-A 收窄+产线化立票＋preview=用户可达交付面入词条）→B1 structure 解排（D-205=分层语义域＋facts 三断言闸＋摘帽同票立票）→B2 supply-chain 续排（D-206=D-034③ 负向行逐字生效＋源判据预声明存档＋触发器双事件册）→B4 三行（D-207~D-209：#10 拓扑=进程内终端自生成＋inbound 挂册／#9 对账票＋stale_data_marker vs drift 双语义域／#13 已对账）→B6 preview→GA 判据框架（D-210=类目骨架六件＋三轴正交＋阈值挂各层 GA 票）。整理环节：CONTEXT 四注入＋spec #9/#10/#13 注记＋BACKLOG #84~#87 立案＋registry 78 项。atomcode 构成比=Q1 真回传（前提勘误）／Q2~Q7+Q9 半降级／Q8 全降级。
-
-- **轮 57 执行批（2026-10-03，四票兑现窗全闭）**：T1-A #84 Macro-C 产线化（engine 一等面 audit --scale Macro-C＋fact-write.ts 同位共享核＋85-check 26/26 anysearch-cli 重校准 PASS＋棘轮抬限 385000B）→T1-D #87 structure 摘帽接入（SEMANTIC_DOMAIN_LABELS↔词条互等＋S3 成对准入＋facts 三断言 86-check 18/18）→T1-B #85 Micro-A 收窄批（calibrated demo·not in plugin distribution 三件套＋分发面链式收窄＋#85② 立案）→T1-C #86 对账认领（A-009 认领非重议＋D-209 账本成文＋#13 核销）；预声明先行（predecl 勘误一~四）；guard-all-run 65/65；报告=reports/2026-10-03-r57-report.md。
+- **轮 56 grill（2026-10-02~03，收口深化面五枝全裁毕，D-202~D-210 全 current 零 revised）**：B3 preview 法理边界→B1 structure 解排→B2 supply-chain 续排→B4 三行→B6 preview→GA 判据框架；整理环节 CONTEXT 四注入＋spec 注记＋BACKLOG #84~#87＋registry 78 项。
+- **轮 57 执行批（2026-10-03，四票兑现窗全闭）**：T1-A #84 Macro-C 产线化→T1-D #87 structure 摘帽接入→T1-B #85 Micro-A 收窄批→T1-C #86 对账认领；guard-all-run 65/65；报告=reports/2026-10-03-r57-report.md。
+- **轮 58~61**：R58 审计窗（LOOP 复验 R57 四批＋P1-1/P1-2/P1-3/P2-1/P2-2 findings 返修闭环＋A-3 账本节标题守卫呈报移交 grill＋A-6 .atomcode 归属留用户面）；R59 predecl 链式追加预算链全史 300s→600s→900s；R60 放行；R61 小修闭合＋合并推送＋分支清理（main=759de85=origin）＋closeout-handoff 成文——零新裁定期。
+- **轮 62 grill（2026-10-04，两裁全定 D-211~D-212 全 current 零 revised）**：第五轮锐评摄入分诊路由=(ii) 修正版（reef#1 84-check 孤儿 fixture 鲜克隆红→#88 执行票／reef#2 dist 310KB→D-181 维持＋棘轮余量<25% 警戒线＋dist-in-repo-review 第四子事件／reef#3 仪式占比→SRE toil 双轨＋ceremony-ratio-watch 册／窗口序 #85② P0 第一）＋A-3 守卫立法（41a-check `##` 全局＋`###` 同父 siblings_only 双账本＋ADR-0013 预声明随票→#89 票）；atomcode 2/2 真回传；整理环节 registry 80/56＋CONTEXT 补 R51/R53/R56/R62 四行＋M-057。
 
 ## 历史票面闭环索引（守卫锚点留痕——保护区节，D-187②：整节保搬只增不删）
 
@@ -23,6 +24,11 @@
 - **轮 52 增补**：`#84` 指针纪律守卫落盘 ✅ DONE 2026-09-30（84-check 26 断言 PASS＋`guard-all-run` 63/63 入列）。
 - **轮 53 增补**：指针纪律立法延伸六裁 ✅ DONE 2026-10-01（D-196~D-201 落账＋去向全闭合）。
 - **轮 54 增补**：指针纪律四腿落地 ✅ DONE 2026-10-02（册归零＋扩列/反向闸/三收紧＋registry 双腿——84-check 33 断言全绿）。
+- **轮 55 增补**：R55 审计窗批+返工 LOOP 复验全数核验通过 ✅ DONE 2026-10-02（V-01~V-05 全闭环；reloop 复验报告在案）。
+- **轮 56 增补**：R56 grill 收口深化面五枝全裁毕＋整理环节落盘 ✅ DONE 2026-10-03（D-202~D-210 落账九裁全 current＋去向全闭合；CONTEXT 四注入／spec #9/#10/#13 注记／BACKLOG #84~#87 立案／registry 78 项）。
+- **轮 57 增补**：R57 T1 执行批四腿兑现＋收口落账 ✅ DONE 2026-10-03（账本 R57 执行批收口节——执行窗登记六行全闭；census 归因 +12/−1；63-inventory 再生 64 守卫 1507 emit 位；registry env-gated 12 件；CHANGELOG M-056；LOOP 返修闭环 2026-10-03——R58 审计 P1-1/P1-2/P1-3/P2-1/P2-2 全修，reports/2026-10-03-r57-rework-report.md）。
+- **轮 58~61 增补**：R58 审计窗 LOOP 闭环＋R59 predecl 链追＋R60 放行＋R61 小修合并推送分支清理 ✅ DONE 2026-10-04（main=759de85=origin；engine-ci＋golden-ci@HEAD 绿；A-3 移交 grill 已落 D-212；A-6/T3 候选项留用户面——closeout-handoff 在案）。
+- **轮 62 增补**：R62 grill 两裁＋整理环节落盘 ✅ DONE 2026-10-04（D-211~D-212 落账全 current＋去向全闭合；BACKLOG #88/#89 立案；registry 80 项/56 事件；CONTEXT 补四轮封口行；M-057；R61 handoff 收编；本任务书 R63 换代）。
 
 ## 换代盘点（D-187①——枚举断言面 ＋ 在场/缺席钉分向两列 → 逐钉核对）
 
@@ -35,41 +41,47 @@
 | 5 | `43-check:D5` T14 ✅ | 在场 | ✅ 保护区节 `T14 #43 golden 重基线 ✅ DONE` 在位 |
 | 6 | `44-check:G6` `#77` ＋ 闭环词 ＋ `#78` | 在场 | ✅ 保护区节轮28 行在位 |
 | 7 | `45-check:H5` 含 `#45` 或 `demo` | 在场 | ✅ 保护区节 `#45 demo 三 scenario ✅` 在位 |
-| 8 | `84-check` 34 条断言（R54 扩容：F13~F19＋F16 扩展＋F20 收口勘误） | 在场 | ✅ 实测 `PASS-COUNT 34 FAIL-COUNT 0`（反向闸/扩列/册归零语义全在跑）；`guard-all-run` 动态枚举承接 |
-
-**盘点兜底**：`node .scratch/architecture-recovery/reports/guard-all-run.mjs` → 全量 ran=63 green=63 allOk=true。
-
-- **轮 55 增补**：R55 审计窗批+返工 LOOP 复验全数核验通过 ✅ DONE 2026-10-02（V-01~V-05 全闭环；reloop 复验报告在案）。
-- **轮 56 增补**：R56 grill 收口深化面五枝全裁毕＋整理环节落盘 ✅ DONE 2026-10-03（D-202~D-210 落账九裁全 current＋去向全闭合；CONTEXT 四注入／spec #9/#10/#13 注记／BACKLOG #84~#87 立案／registry 78 项）。
-- **轮 57 增补**：R57 T1 执行批四腿兑现＋收口落账 ✅ DONE 2026-10-03（账本 R57 执行批收口节——执行窗登记六行全闭；census 归因 +12/−1；63-inventory 再生 64 守卫 1507 emit 位；registry env-gated 12 件；CHANGELOG M-056；LOOP 返修闭环 2026-10-03——R58 审计 P1-1/P1-2/P1-3/P2-1/P2-2 全修，reports/2026-10-03-r57-rework-report.md）
+| 8 | `84-check` 34 条断言（R54 扩容：F13~F19＋F16 扩展＋F20 收口勘误） | 在场 | ✅ `guard-all-run` 动态枚举承接；**本批登记 F04/F07 鲜克隆红隐患→#88 修票（R62-D-211①）** |
 
 ## 口径基线（读前必知）
 
-- 账本：D 面唯一 ID **210**（主表 current **166** 全闭合）；A 面 max A-099；编年 max **M-056**。
+- 账本：D 面唯一 ID **212**（主表 current≈168 全闭合）；A 面 max A-099；编年 max **M-057**。
 - **守卫判据**：收口前跑 `node .scratch/architecture-recovery/reports/guard-all-run.mjs`（动态枚举全量——**65 件**）＋红集⊆`known-red-manifest.json`＋册件复绿 strict 告警。
-- **册内红=0**；**pointer 册=0（归零态合法终态 D-201②）**；**反向闸 WARN 面 uniq=5 基线**；**commit 指针纪律**（D-188~D-201 全链；册归零≠面消亡）。
-- **preview 裁后状态机（D-204）**：Macro-B/Macro-C/Micro-B=preview（Macro-C=engine 一等面 `audit --scale Macro-C`——#84 产线化；Micro-B=file-card）；**Micro-A=calibrated demo · not in plugin distribution**（#85② 产线化票在途——闭环前 D-062 DoR-a Micro-A 分量不满足）；Macro-A=Not yet。preview=用户可达交付面（工件存在不构成标注依据——CONTEXT Release Preview 词条）。
-- **语义域**（D-205/D-209，CONTEXT 词条＋engine SEMANTIC_DOMAIN_LABELS 常量——86-check 互等机检）：structure=形态测量层（structure/shape）vs S3=预算归因层（S3/budget-attribution）悬挂同一 measurement；同名枚举跨域不互映射（stale_data_marker 政策量四态 vs drift 位置量三态——禁 warn↔behind、禁域间转换函数）；机检闸只判 facts 层关系谓词（同源引用互等/opposing 成对/枚举互等——86-check）不判叙事矛盾。
-- **baggage 拓扑**（D-208，CONTEXT Cross-Scale Correlation Key 词条）：进程内 OTel Context＋终端自生成默认；github-rest 出站禁注；外部注入值永不得占 trace_id/run_id 本体（D-108）；inbound 重裁挂 registry `baggage-inbound-recheck` 双事件册；Macro-A 扇出关联=双向 id＋两侧执行时点留痕。
-- **preview→GA 判据框架**（D-210）：三轴正交；类目骨架六件；阈值挂各层 GA 票面预声明（D-049 式）；supply-chain 解排触发器=registry `supply-chain-closure-trigger`（D-206）。
-- **atomcode 降级形态**（D-186）：轮 57=0 调研题（执行窗零新裁定不派遣）；上轮=半降级 8/9＋全降级 1/9。
-- **收口 commit 对节奏**（D-180）＋**收口前置**（D-144①④/D-145①——engine 触碰→npm run build＋check-dist 零 drift）；**提交信息三栏位**（D-161④）；**but commit CHANGES 选择器本环境失效**（五例实测静默回退全量——整形走 commit-all＋committed-file 摘除，每 commit 后 `but show <id>` 核实收清单）。
-- **Frozen 证据包**（D-172②＋D-182）；**RA 到期二分**（D-171）＋**静默窗状态机**（D-173）；**等待期工作面序**（D-175）。**R58 序**：T1 审计窗随读批（R57 执行批 LOOP 复验）＋T2 深度维护候选。
+- **册内红=0**；**pointer 册=0（归零态合法终态 D-201②）**；**反向闸 WARN 面 uniq=5 基线**；**commit 指针纪律**（D-188~D-201 全链）。
+- **preview 裁后状态机（D-204）**：Macro-B/Macro-C/Micro-B=preview；**Micro-A=calibrated demo · not in plugin distribution**（#85② 产线化票=本窗 P0 第一——闭环前 D-062 DoR-a Micro-A 分量不满足）；Macro-A=Not yet。preview=用户可达交付面。
+- **语义域**（D-205/D-209）：structure=形态测量层 vs S3=预算归因层；同名枚举跨域不互映射；86-check 只判 facts 层关系谓词。
+- **baggage 拓扑**（D-208）：进程内 OTel Context＋终端自生成默认；github-rest 出站禁注；外部注入值永不得占 trace_id/run_id 本体（D-108）；inbound 重裁挂 registry `baggage-inbound-recheck` 双事件册。
+- **preview→GA 判据框架**（D-210）：三轴正交＋类目骨架六件＋阈值挂各层 GA 票面预声明；supply-chain 解排触发器=`supply-chain-closure-trigger`（D-206）。
+- **锐评处置终态**（D-211）：reef#1→#88 票／reef#2→棘轮余量<25% 警戒线（`ratchet-headroom-watch`＋`dist-ratchet-headroom-low` 事件）＋`dist-in-repo-review` 第四子事件／reef#3→`ceremony-ratio-watch` 册＋Stage-2 前接受成本登记；**Stage-2 判据包未动**（D-173 静默窗 not_started——tired-of-beta 禁反模式 D-168）。
+- **账本结构不变量新增立法**（D-212）：41a-check 承载 `##` 全局唯一＋`###` 同父节内唯一（MD024 siblings_only）双账本同扫——#89 票施工；84-check 对账本文档面扫描维持不变。
+- **atomcode 构成比**（D-186）：R62=**2/2 真回传**（继 R56 降级潮后首次全真回传轮）。
+- **收口 commit 对节奏**（D-180）＋**收口前置**（D-144①④/D-145①）；**提交信息三栏位**（D-161④）；**but commit CHANGES 选择器本环境失效**（五例实测静默回退全量——整形走 commit-all＋committed-file 摘除，每 commit 后 `but show <id>` 核实收清单）。
+- **Frozen 证据包**（D-172②＋D-182）；**RA 到期二分**（D-171）＋**静默窗状态机**（D-173）；**等待期工作面序**（D-175）。**R63 序**：T1 执行批（#85② P0→#88/#89 随批→R4-02 顺位）＋T2 审计窗随读批。
 
 ## 任务序列
 
-### T1 — 审计窗随读批（常态三向＋本窗新面）
+### T1 — 执行批（优先级已立法=D-211④／D-175 序）
 
-- **R57 执行批 LOOP 复验**（D-144①④/D-180② 口径）：四腿全量重跑——85-check 26/26（重校准差分对账：anysearch-cli 活语料注意两次读数间 HEAD 漂移为合法态）/86-check 18/18（facts 三断言）/收窄措辞面（48-E7/44-E4/41b）/53-B2/51-E1/78-C11 随改件；**85/86 双新守卫受 D-177 预声明约束复核**（正负对照命中方向 vs predecl §2.4/§4.4 声明一致性）。
-- **census/registry 增量复核**：75a register R57 归因 11 条（85/86 existence-assert layer=presence 注记＋mhp/unstripped-scan 注记）逐条对照源码实测；33-gate-registry env-gated 12 件声明集↔registry 对账（75a-T3）。
-- **宽层残留抽查**（D-188⑥ 续挂）＋**反向闸 WARN 候选清单随读**（uniq=5 基线，D-197④）；protected-surface-death-watch（D-201③）＋frozen 豁免随读＋GAP-HOST-01。
-- **atomcode 降级构成比续录**（D-186②，本窗=0/0）。
+- **#85② Micro-A 产线化【P0 第一】**（覆盖 D-204、D-211④）：48-micro-a-preview.mjs 移植 fetchDiffArtifact/cassetteFetcher 硬化面＋ADR-0015 重校准断言同 85-check 形；闭环后 D-062 DoR-a Micro-A 分量如实计入；**48 生成器 not_in_preview=[Micro-B, Macro-A] 旧列随该窗一并修正**。
+- **#88 reef#1 84-check 自足修【随批】**（覆盖 D-211①、D-163①②⑥、D-159②）：验收判据=fresh clone 全绿（并入 `fresh-clone-rerun-watch` 哨兵）＋env-contract→portable tier 重声明＋CI 射程缺口勘误（engine-ci 止于 78-check，按 D-163 探测面扩列处置）；**修法 impl 参数不预钉**——D-163① 首选零写入临时仓读法（mkdtemp unbundle／GIT_ALTERNATE_OBJECT_DIRECTORIES）vs `git commit-tree` 运行时合成确定 SHA 孪生，执行批选定（欲预钉单一修法须 D-163① scoped 勘误注记 D-146⑤）；fixture 自足原则=SHA_OK/SHA_TWIN 对均运行时物化，不依赖未推送对象。
+- **#89 A-3 账本节标题唯一性守卫【随批，顺位不动】**（覆盖 D-212）：41a-check 承载 `##` 全局唯一＋`###` 同父 `##` 节内唯一（MD024 siblings_only 参数化，GitLab changelog 类先例）；双账本同扫（macro-audit＋architecture-recovery，现违例 0 件落地即绿）；**ADR-0013 预声明先行**——正对照=重放 R57 P1-2 整块复制切片诱导红（mutation-kill 防 immortal test）＋负对照=现行账本全绿＋「同字面跨轮 `###` 变体」边界声明；随票 75a-census 再基线＋guard-meta 自声明（D-159②）。
+- **R4-02 adr-structure detector v2 接线【顺位不动】**（P0 开放行——上游 dimension-map 消费面；不前置不并票）；**O6 续挂**：40-check 冗余断言摘除待该文件下次触碰窗。
 
-### T2 — 深度维护主体候选（(d) 面）
+### T2 — 审计窗随读批（常态三向＋本窗新面）
 
-- **#85② Micro-A 产线化票**（R57 立案——48-micro-a-preview.mjs 移植 fetchDiffArtifact/cassetteFetcher 硬化面＋ADR-0015 重校准断言同 85-check 形；闭环后 D-062 DoR-a Micro-A 分量如实计入）；**48 生成器 not_in_preview=[Micro-B, Macro-A] 旧列随该窗一并修正**。
-- **R4-02 adr-structure detector v2 接线**（P0 开放行——上游 dimension-map 消费面）。**O6 续挂**：40-check 冗余断言摘除待该文件下次触碰窗。
-- T3 面候选呈裁：51-E2 SKILL.md /queued/ 断言收紧（structure 摘帽后 E2 未同步收紧——supply-chain=queued 维持其绿，收窄走立法票判据复核）。
+- **`fresh-clone-rerun-watch`**：#88 修复后复跑读数并入（D-211①——判据② 新违例面已登记 confirmations）。
+- **`ratchet-headroom-watch`**：每次 dist bundle commit 读 `check-dist.mjs` DIST-RATCHET margin；<25%→翻 `dist-ratchet-headroom-low`＋强制分发形态重评票（D-211②；重评前须回读 D-181 立法时点 385,000B 推导论证，勿用锐评叙事倒推阈值）。
+- **`ceremony-ratio-watch`**：T3 审计窗捎读 commit 成分占比（基线=R62 实测 158 commits 中 src/dist 触碰 8 件≈5%；docs 桶剔除 .scratch 守卫码再判）；越线→量化预算票（SRE toil 文法）（D-211③）。
+- **`dist-in-repo-review`**：四子事件值守——publish 激活／pack 过阈／官方弃指引／棘轮余量越线（D-076②＋D-211②）。
+- **census/registry 随读**＋**宽层残留抽查**（D-188⑥ 续挂）＋**反向闸 WARN 候选随读**（uniq=5 基线，D-197④）＋protected-surface-death-watch（D-201③）＋frozen 豁免随读＋GAP-HOST-01。
+- **`bundle-retirement-trigger`（D-059⑨）／`duckdb-binary-watch`／supply-chain 双事件册（D-206）**：状态不动随读。
+- **atomcode 降级构成比续录**（D-186②）。
+
+### T3 — 用户主权面（禁自动裁决，呈裁待用户）
+
+- **A-6 `.atomcode/artifacts/3fdbe1691749d90a`＋`560c767e95d42daf` 归属定性**：提交／永久忽略——用户裁定。
+- **origin 远端 `r53-closeout`／`r54-t1-pointer-convergence`／`r55-audit` 三分支删否**：R61 仅清理本地——用户裁定。
+- **T3 候选 `51-E2` SKILL.md /queued/ 断言收紧**：structure 摘帽后 E2 未同步收紧——收窄走立法票判据复核，待用户澄清再议。
 
 ## 挂账常项（勿重复烤）
 
@@ -77,11 +89,12 @@
 
 ## Suggested skills
 
-- **implement / tdd**：#85② 产线化票施工窗——移植＋重校准断言预声明先行（同 R57 85-check 形）。
-- **diagnosing-bugs**：审计窗返工分诊（85/86 差分对账面的语料漂移态判读——活语料 HEAD 移动非移植缺陷）。
+- **implement / tdd**：#85② 产线化＋#88 fixture 改造＋#89 断言施工——预声明先行（ADR-0013／D-177）。
+- **diagnosing-bugs**：fresh-clone 复跑定位（#88 验收面）；审计窗返工分诊。
 - **atomcode-research**：新裁定题调研入口（串行配额纪律；存档义务=reports/ 硬文件 D-178；降级形态在册 D-186）。
-- **gitbutler**：VC 唯一写面——trailer 三栏位；**commit 后 `but show <id>` 核实收清单（本机 CHANGES 选择器失效——R57 五例实证）**；hunk id 与 file id 分辨。
-- **handoff**：下轮收口同规程再生——**换代钉清单盘点步先行**（D-187①）。
+- **gitbutler**：VC 唯一写面——trailer 三栏位；**commit 后 `but show <id>` 核实收清单（本机 CHANGES 选择器失效——R57 五例实证）**。
+- **handoff**：下轮收口同规程再生——**换代钉清单盘点步先行**（D-187①）＋保护区节整节保搬（D-187②）。
+- **domain-modeling / neat-freak**：收口整理环节面。
 
 ## 窗口边界纪律（D-101 精神沿用）
 
