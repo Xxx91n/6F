@@ -10,8 +10,8 @@
     {
       "name": "6f",
       "source": "./engine",
-      "description": "宏观+微观工程内容审计（Agent Plugin；5 scale：Macro-A/B・Macro-C・Micro-A/B；Hub-of-Facts + 联邦裁定。preview 阶段：Macro-B/Macro-C/Micro-B 三层在架（层位至 capability 4 of 5 漏斗）；Micro-A=calibrated demo · not in plugin distribution（D-204③）；Macro-A 未上架）",
-      "version": "0.1.0",
+      "description": "宏观+微观工程内容审计（Agent Plugin；5 scale：Macro-A/B・Macro-C・Micro-A/B；Hub-of-Facts + 联邦裁定。preview 阶段：Macro-B/Macro-C/Micro-B/Micro-A 四层在架（层位至 capability 4 of 5 漏斗——Micro-A 产线化 #85②，D-204③④）；Macro-A 未上架）",
+      "version": "0.2.0",
       "author": {
         "name": "Xxx91n",
         "email": "xxx91n@duck.com",

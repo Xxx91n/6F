@@ -4,10 +4,20 @@ on:
     paths:
       - "engine/**"
       - ".github/workflows/engine-ci.yml"
+      # R64 审计返修 P0-1：守卫本体/守卫扫描面变更入 CI 射程（.scratch=守卫住址＋84-check 扫描根；docs/adr/CONTEXT/AGENTS 同为扫描面）
+      - ".scratch/**"
+      - "docs/adr/**"
+      - "CONTEXT.md"
+      - "AGENTS.md"
   pull_request:
     paths:
       - "engine/**"
       - ".github/workflows/engine-ci.yml"
+      # R64 审计返修 P0-1：守卫本体/守卫扫描面变更入 CI 射程（.scratch=守卫住址＋84-check 扫描根；docs/adr/CONTEXT/AGENTS 同为扫描面）
+      - ".scratch/**"
+      - "docs/adr/**"
+      - "CONTEXT.md"
+      - "AGENTS.md"
 permissions:
   contents: read
 jobs:
@@ -23,6 +33,10 @@ jobs:
         working-directory: engine
     steps:
       - uses: actions/checkout@v4
+        with:
+          # R64 审计返修 P0-1：84-check B/C 面逐件校验真账本引用的历史 commit——浅克隆对象库不含历史必红（72 件级联实证）；
+          # golden-ci.yml:41 / macro-b-regression.yml:86 同例——对象位于历史深处，fetch-depth: 0 全量取回
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
@@ -83,3 +97,10 @@ jobs:
         # 本步跑仓根 .scratch 守卫——job 默认 working-directory=engine 致相对路径错寻（MODULE_NOT_FOUND 全平台红），显式覆盖回仓根
         working-directory: ${{ github.workspace }}
         run: node .scratch/architecture-recovery/reports/78-check.mjs
+
+      # #88/D-163⑥ CI 射程缺口勘误（predecl 2026-10-05-r63-t1-predecl.md §2.4）：portable 守卫入 CI 射程——84-check 起步，
+      # 后续 portable 件随 D-163 探测面扩列通道增量（fixture 自足修后零依赖未推送对象，fresh clone 可跑）
+      - name: portable 守卫段（#88 射程扩列起步——84-check commit 指针纪律）
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        run: node .scratch/architecture-recovery/reports/84-check.mjs

@@ -1705,14 +1705,14 @@
   "file": "48-check.mjs",
   "kind": "multi-hit-probe",
   "lno": null,
-  "excerpt": "capability 3 of 5 · calibrated demo → .scratch\\architecture-recovery\\reports\\48-check.mjs×2"
+  "excerpt": "capability 3 of 5 · calibrated demo → .scratch\\architecture-recovery\\reports\\41b-check.mjs×2"
  },
  {
   "key": "48-check.mjs|multi-hit-probe|b2c1b8e4",
   "file": "48-check.mjs",
   "kind": "multi-hit-probe",
   "lno": null,
-  "excerpt": "capability 3 of 5 · preview → .scratch\\architecture-recovery\\reports\\48-check.mjs×3"
+  "excerpt": "capability 3 of 5 · preview → .scratch\\architecture-recovery\\reports\\48-check.mjs×4"
  },
  {
   "key": "48-check.mjs|multi-hit-probe|38f8c051",
@@ -2244,7 +2244,7 @@
   "file": "72-check.mjs",
   "kind": "multi-hit-probe",
   "lno": null,
-  "excerpt": "github_rest.pr_summary → .scratch\\architecture-recovery\\reports\\48-micro-a-preview.mjs×3"
+  "excerpt": "github_rest.pr_summary → engine\\src\\audit\\micro-a.ts×3"
  },
  {
   "key": "72-check.mjs|multi-hit-probe|e2b7b303",
@@ -2562,17 +2562,31 @@
   "excerpt": "83-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）"
  },
  {
+  "key": "84-check.mjs|date-literal|acf941a4",
+  "file": "84-check.mjs",
+  "kind": "date-literal",
+  "lno": 509,
+  "excerpt": "const FX_ENV = Object.assign({}, process.env, { GIT_ALTERNATE_OBJECT_DIRECTORIES: mainObjects, GIT_AUTHOR_NAME"
+ },
+ {
+  "key": "84-check.mjs|date-literal|8b657d7c",
+  "file": "84-check.mjs",
+  "kind": "date-literal",
+  "lno": 16,
+  "excerpt": "const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）；"
+ },
+ {
   "key": "84-check.mjs|existence-assert|527931a2",
   "file": "84-check.mjs",
   "kind": "existence-assert",
-  "lno": 419,
+  "lno": 445,
   "excerpt": "t('PV-D2-BASELINE-LOADED', fs.existsSync(BOOK) && Array.isArray(entries), '册工件在位（existsSync＋entries 数组——归零=合法终"
  },
  {
   "key": "85-check.mjs|existence-assert|9ac2d236",
   "file": "85-check.mjs",
   "kind": "existence-assert",
-  "lno": 49,
+  "lno": 50,
   "excerpt": "t('B3 五工件齐备（Macro-B 同族 artifacts 契约）', ['report.md', 'report.json', 'audit-facts.jsonl', 'audit-measurements.j"
  },
  {
@@ -2586,7 +2600,7 @@
   "key": "85-check.mjs|existence-assert|fafb96dd",
   "file": "85-check.mjs",
   "kind": "existence-assert",
-  "lno": 33,
+  "lno": 34,
   "excerpt": "t('A5 fact-write.ts 同位共享核在（audit.ts 与 macro-c.ts 同消费）', existsSync(join(ENG, 'src', 'audit', 'fact-write.ts'))"
  },
  {
@@ -2595,6 +2609,13 @@
   "kind": "multi-hit-probe",
   "lno": null,
   "excerpt": "capability 2 of 5 · preview → .scratch\\architecture-recovery\\reports\\38-check.mjs×4"
+ },
+ {
+  "key": "85-check.mjs|multi-hit-probe|3edff2b7",
+  "file": "85-check.mjs",
+  "kind": "multi-hit-probe",
+  "lno": null,
+  "excerpt": "not_in_preview: ['Macro-A'] → engine\\src\\audit\\micro-a.ts×2"
  },
  {
   "key": "85-check.mjs|multi-hit-probe|b1b02316",

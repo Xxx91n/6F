@@ -2028,3 +2028,65 @@ D-001~D-210 历轮去向表链条在案（L1051/L1462/L1534/L1569/L1650/L1811/L1
 - **裁定层：闭环**——两裁各有去向（上表）；无去向清单=空；零 revised；atomcode 2/2 真回传。
 - **验收层：开放**——#88/#89 断言自证非验收；待下轮审计窗 LOOP 复验（fresh-clone 复跑＋双层断言负对照诱导红＋census 再基线）。
 
+
+
+## 第六十三轮执行批收口对账（R63 T1，2026-10-05）
+
+R63 T1 执行批三票全兑现（#85② P0 第一＋#88/#89 随批——D-211④ 窗口序）；零新裁定（全走既立法面 D-204③④／D-211①②④／D-212／D-163①⑥／D-159②）；atomcode 构成比本轮 **0/0**（执行窗零新裁定题——不派遣不占额，D-186② 口径）。
+
+### 执行批三腿兑现
+
+- **T1-A #85② Micro-A 产线化（D-204③④，P0 第一）✅**：48-micro-a-preview.mjs 移植 engine 一等面 `audit --scale Micro-A`（src/audit/micro-a.ts §0~§10 逐段保真——input gate 结构化拒绝 MICRO-A-INPUT/SCOPE〔D-049③ 票面写死实例集〕＋托管面资格闸＋逐 PR 判据 PC-1/TC-1~4/NC-1＋拒绝件 D-033 硬约束逆用＋fact-write.ts 共享核零 commit grain）；**名归位硬判据=85-check E 组差分重校准 36/36**（引擎面 cassette 回放 vs 48 生成器 golden 存档——六判据 band 全等＋切片数值字段全等＋**fact_id 全等**〔E5——ctx 构造同字节，ADR-0015 移植值级保真〕＋双源切片契约互等＋正对照 E8 篡改必检）；分发面链式翻转（README 双语＋sync 戳 6e72603907ed／description／credential-checklist §E／marketplace／SKILL 四层在架；48 生成器旧列 [Micro-B,Macro-A]→[Macro-A] 本票法定修正＋golden 再生随行，REAL 五件存档不动 48-D-e4 维持）；audit.ts implemented=[Macro-B,Macro-C,Micro-A]＋not_in_preview=[Macro-A]（85-A4/B5 裁后机核）；micro-a.test 22/22 入 smoke（audit.test S2-S5／53-check B2 诚实拒绝面随改——失效三分类 b 合法演化改断言，53-B2 鲜克隆首读漏网经 LOOP 修正 amend rlm）；D-062 DoR-a Micro-A 分量如实计入（Macro-B/Macro-C/Micro-B/Micro-A 四层 preview 在架，Macro-A Not yet 维持）；bundle dist/cli.js 310,334B→373,105B（+62.8KB，帽 385,000B 内 margin 11,895B——check-dist PASS 免抬限）。预声明偏差①~⑦=reports/2026-10-05-r63-t1-predecl.md §1.2（D-177①③ 先于语义 commit 落盘——commit rzs 时序可证）。
+- **T1-B #88 reef#1 84-check 自足修（D-211①/D-163①②⑥/D-159②）✅**：修法=D-163① 首选零写入临时仓读法（执行批选定——mkdtemp＋GIT_ALTERNATE_OBJECT_DIRECTORIES 借主仓 objects，alternates 只读语义主仓零写入 D-074）；SHA_OK/SHA_TWIN 运行时物化（mktree 空树＋commit-tree×2＋update-ref HEAD；孪生桶同 change-id 注入语义保真），孤儿 commit 201935fc 字面钉废止（reef#1 鲜克隆红种源）；F01~F20 断言语义逐条不动唯 SHA 值来源换（本机 34/34）；PROTECTED_SURFACE portable 重声明（fixture 自足后方为真，D-159②）；CI 射程缺口勘误=engine-ci 增 portable 守卫段（84-check 入列起步，D-163 探测面扩列）；fresh clone 首读 84-check **GREEN**（见 T2 哨兵登记）。
+- **T1-C #89 A-3 账本节标题唯一性（D-212）✅**：41a-check H 组——H1 双账本 `##` 全局唯一＋H2 `###` 同父节内唯一（MD024 siblings_only 参数化层）**0 违例落地即绿**（与 D-212 前置实测同源）；正对照 H3（同父 `###` 整块复制切片必红——R57 P1-2 同机理重放 mutation-kill）＋H4（`##` 重复必红）跑前声明命中方向兑现（predecl §3.2）；负对照边界 H5（同字面 `###` 跨父节合法——轮次限定语内嵌惯例，去限定语化漏检面诚实留痕）＋H6（fenced code 跳过）；guard-meta PROTECTED_SURFACE 扩注（D-159②）；本机 47/47；84-check 防误读注记落（D-212①——账本文档面扫描维持不变）。
+- **R4-02 adr-structure detector v2【顺位不动】**：本窗未动（D-175 序——上游 dimension-map 消费面，不前置不并票）；O6 续挂（40-check 冗余断言摘除待该文件下次触碰窗）。
+
+### T2 哨兵随读登记
+
+- **ratchet-headroom-watch（D-211②）→触发兑现**：dist bundle 时点读数=373,105B／385,000B margin 11,895B——headroom=3.1%＜25% 警戒线（立法时点已 19.4% 越线，本窗 bundle 首读确认）→registry 转 triggered-bound＋**dist-ratchet-headroom-low 翻转**＋强制立分发形态重评票=**BACKLOG #90**（dist-in-repo-review 裁定面：拆仓／publish 渠道／体积治理／限值重推导；重评前须回读 D-181 立法时点 385,000B 推导论证）＋dist-in-repo-review 第四子事件 confirmation 并录。
+- **fresh-clone-rerun-watch（D-163⑥）**：#88 修复后独立 clone（HEAD=butler workspace 含六 commit）→engine npm ci→guard-all-run **首读**：ran=65 green=62 red=3（70-E1／75a-C1／53-B2）——三红全数归因中窗派生信号陈旧＋断言面合法演化漏网（70-E1/75a-C1=63-inventory/census 派生未再基线〔D-180 紧邻对本窗收口对兜住〕；53-B2=SCALE-NOT 载体钉漏网已修 amend rlm）；**84-check 本体鲜克隆 GREEN=本票验收判据过**；全绿复读欠账三要素：owner=本窗收口尾、时点锚=closeout census/63-inv 再基线 bundle 落盘后、复验=鲜克隆重 clone guard-all ran=65 allOk=true 读数（confirmation 随 registry 尾 commit 并录）。
+- 其余哨兵（ceremony-ratio-watch／dist-in-repo-review 前三子事件／bundle-retirement-trigger／duckdb-binary-watch／supply-chain 双事件册／protected-surface-death-watch／GAP-HOST-01）状态不动随读。
+
+### 执行窗登记闭合（对照 R62 欠账表）
+
+| 欠账（R62 表） | 处置 | 复验结果 |
+|---|---|---|
+| #85② Micro-A 产线化（P0 第一） | ✅ 本窗 | 85-check 36/36（E 组重校准 PASS＋E5 fact_id 全等）＋DoR-a Micro-A 分量计入＋48 生成器旧列修正 |
+| #88 reef#1 84-check 自足修（随批） | ✅ 本窗 | 84-check 鲜克隆 GREEN＋本机 34/34＋portable 重声明＋CI 扩列；全绿复读随 registry 尾 commit |
+| #89 A-3 断言票（随批顺位不动） | ✅ 本窗 | ADR-0013 预声明正负对照兑现＋41a-check 47/47＋75a census 再基线随收口对 |
+| R4-02 detector v2 | 顺位不动 | 本窗未动（D-175 序维持） |
+| T3 三件（A-6 .atomcode 归属／远端三分支删否／51-E2） | 用户主权面 | 未触碰（.atomcode 两件全程零 commit 入册——工作区实态保持） |
+
+### 过程登记
+
+- 提交链（but 分支 r63-t1-exec；**CHANGES 选择器本窗复验可用**——R57 五例失效未复现，六 commit 逐个 `but show` 核实收清单精确）：rzs 预声明（1 件）→uqx engine feat（17 件）→qpm bundle dist（6 件）→rlm 翻转面（16＋53-check amend=17 件）→xwq #88 fix（2 件）→yuy #89（1 件）→〔本收口 commit〕→census/63-inv 再基线 bundle 对（D-180）→registry 尾 commit。.atomcode 两件全程未入 commit（T3 用户主权）。
+- 实测读数：micro-a.test 22/22；smoke 全绿（SMOKE 6/6／COLLECTORS 14/14／CODELORE-ADAPTER 7/7／BATCH1 41/41／MICRO-B-EMIT 18/18／LLM 25/25／REPORT-PREVIEW 5/5／MACRO-C 23/23／MICRO-A 22/22／UPSTREAM-MAP 21/21／ZERO-WRITE 4/4／DEMO 38/38）；85-check 36/36；84-check 34/34（newFail=0 baselineWarn=5 uniq 基线维持）；41a-check 47/47；48-check 45/45；44-check 59/59；41b-check 33/33；53-check 25/25（LOOP 修正后）；check-dist 373,105B/cap 385,000B；selftest ok。
+- 棘轮预告兑现（predecl §1.5）：未越帽免抬限（D-129③ 帽不动）；余量 3.1%——重评票 #90 为下一分发动作前置（裁定主体=用户/裁定链主权面）。
+- 卫生留痕：写入全经 node/ctx fs.writeFileSync＋回读断言（无 BOM 保尾行）；zero-backslash 正则纪律（字符类/charCode）；追加类编辑逐次 residue 断言（R57 BACKLOG 事故防线）。
+
+### 分层定稿（D-165/D-170 双行呈报）
+
+- **裁定层：闭环**——三票各有去向（上表）；零新裁定零 revised；atomcode 0/0（执行窗免派遣）。
+- **验收层：开放**——断言自证非验收；待下轮审计窗 LOOP 复验（85-E 组复跑＋fresh-clone 复读全绿确认＋41a H 组负对照诱导红复验）。
+## 第六十四轮返修批收口对账（R64-LOOP 打回返工，2026-10-05）
+
+- **输入**：R64 T1 审计窗裁定「不通过·打回原修复窗返工」（报告=.scratch/macro-audit/reports/2026-10-05-r64-audit-report.md；handoff=2026-10-05-r64-audit-handoff.md）；用户指令「重新 LOOP 修复，严肃以第一性原则修复」。findings 全集=P0-1（84-check CI 浅克隆 born-red）＋P1-1（fresh-clone 记账矛盾）＋P2-1（三处守卫弱化）＋P2-2（predecl §1.3 overall band 缺席）＋P3-1（两新文件缺尾行）＋P3-2（版本未递增，存疑）＋过程违规①②③④。
+- **P0-1 修法落地（执行裁量，报 grill 追认）**：审计三选项中「选项 2=SHA1 运行时物化」单独不足以根治——PV-C/PV-D 面校验的 72 件「合法指针」是真账本引用的真历史 commit（SHA=内容哈希不可物化），浅克隆下**环境性不可判**。落地组合=①engine-ci.yml checkout `fetch-depth: 0`（选项 1 止血，golden-ci.yml:41/macro-b-regression.yml:86 先例同型）＋②B 面探针（cb625c64 废止→FX.SHA_OK）与 F 面短钉（da0c25a9→SHA_OK 8hex 前缀）运行时物化（选项 2 可达子集）＋③浅克隆检出→C/D/E-TWIN/F10D 面**组级 SKIP 带因**（DOCSCAN group，D-159⑥ env-contract `need git-history:full`，40-check:B 同型；幻觉探针 …91b 保留原义）。**验收判据修订声明**：审计重跑清单期望「浅克隆 84-check 34/34」不可达（72 件历史对象），改判据=浅克隆 0 FAIL＋SKIP 带因＋全克隆 34/34——已在返修报告声明并留痕。
+- **engine-ci 触发面**：paths 增 `.scratch/**`＋`docs/adr/**`＋`CONTEXT.md`＋`AGENTS.md`（84-check SURFACE_CLOSED 全部扫描根——守卫输入变更入 CI 射程；审计要求 `.scratch/**`，本窗扩至完整扫描面，成本=文档类 commit 触发 engine CI，正确性优先）。
+- **P1-1**：r63-report ②欠账①/⑥表行勘误销账（registry fresh-clone-rerun-watch 第 5 confirmation=闭环实物）＋#88 CI 面欠账重开（本窗即闭，读数见返修报告）——欠账↔闭环互斥性修复；「欠账三要素互斥断言是否立法」留 grill。
+- **P2-1**：41a-C3 逐名实现位改行级实物（Status 行四层逐名＋Macro-A 矩阵行）；85-A4 判别臂改序无关正则（任一位形禁回列 Micro-A/Macro-C）；41b-C2 恒真臂（`includes(...)===false`）删除换判别臂（四层在架＋capability 4 of 5＋Macro-A 未上架）。
+- **P2-2**：85-check 新增 **E9** overall_verdict＋structural_limitations 双侧全等（pr64＋pr51）——predecl §1.3 等值集补位；审计建议的偏差⑦措辞覆盖一并落地（实测 engine PR 面 structural_limitations 与 48 生成器/golden 字节同文，全等断言成立）。
+- **P3-1/P3-2**：micro-a.ts/micro-a.test.mjs 补尾行（**dist 零 drift**——tsc 产物本就带尾行，仅源缺失；无 bundle commit）；版本 0.1.0→**0.2.0**（docs/versioning.md §1 minor=契约变更，#84 Macro-C＋#85② Micro-A 两批合并追补；SSOT=manifest.meta.json×2→`npm run gen` 再生成 plugin.json×2＋versions aligned PASS；marketplace/package/package-lock 直改；engine/CHANGELOG [0.2.0] 节；preview tag 留 push 授权窗补挂；r14fix C10 标题随改、断言逻辑不动）。
+- **过程违规③（index 中间态）**：本窗开工即修——`git reset -- engine/dist`（仅 index 条目复位；staged-D×2＋pre-R63 stale blob 清除；.atomcode 两件 staged-A **原样保留**=T3 主权）；修后 sha256 双侧核等。
+- **过程违规①回应（验收形态选取缺失）**：本窗验收含 CI 形态——返修 commit 后 `--no-local --depth 1` 浅克隆实跑（born-red 原场景）＋全克隆对照，读数入返修报告。「探测面验收是否必须含消费环境真实形态」立法题留 grill（handoff 下一轮 grill 方向①）。「--depth/对象可达性入 D-163 探测面分类」同留 grill（方向②）——本窗 need 名 `git-history:full` 为首用，SSOT FIX 模板化待裁。
+- **guard-meta 重声明（D-159②）**：84-check PROTECTED_SURFACE 扩注 R64 返修面（同行扩注，census register 行哈希 a497477f→4efaa0fe 原位换键，归因 legit-literal/D-094②/D-144② 不变）；85-check/41a/41b 断言题字随改（id 不变，E9 新增）。
+- **派生信号再基线（D-180）**：63-assertion-inventory 1523→**1524** emit sites（update-70-inventory.mjs 唯一路径；70-check E1 live↔inventory 复验绿）；75a-census findings=403↔register=403（75a-check 16/0）；33-check 33/33。
+- **分层定稿（D-165/D-170 双行呈报）**：裁定层=执行窗按审计修复要求落地（P0-1 修法组合与判据修订为执行裁量，提请下轮 grill 追认；零新立法）；验收层=本窗自证闭环（build/check-dist/selftest/smoke 24 套件/快守卫 15 件/克隆双形态），终局归下轮审计窗 LOOP 复核。
+### 返修二段（R64-LOOP 复审 🟡 有条件通过后，2026-10-05）
+
+- **输入**：R64-LOOP 审计窗（报告=.scratch/macro-audit/reports/2026-10-05-r64-loop-audit-report.md）——P0-1 根治确认＋P1-1/P2-2/P3-1/P3-2/过程违规③闭环确认；新 findings=**P0-2**（85-A4 上轮「序无关判别臂」是死代码：JS `[^]]` 中 `[^]` 解析为任意字符——端到端变异放行、85-check 假绿）＋**P1-2**（DOCSCAN 组级 SKIP 覆盖面比声明宽：浅克隆注入非法指针守卫仍全绿）＋**P3-3**（63-inventory 85-check 计数 live+1 既存偏移，仅登记）。
+- **P0-2 修法（审计一行要求＋超出一行的防线）**：正则 `[^\]]` 转义修正（正则层预验 6/6 位形＋real audit.ts=false 不误红）＋**判别臂活性正对照内嵌 A4**（NIP_ROGUE_RE 对合成违规串必须命中——臂死亡即红，无新 t id 计数 37 不变）。超出一行的理由=审计 ⑦-1「改了、报告写了、但没做端到端变异验证」第三次同型复发，把击杀验证固化为守卫自断言而非一次性读数（grill 第三题「已修复是否必须附变异击杀读数」的执行窗预演，立法权留 grill）。**端到端 8 行变异矩阵（全克隆 HEAD=90f4c60，B/C/E 组 duckdb 缺席自动 SKIP 不影响 A 静态面）**：5 违规位形（[Micro-A]／[Macro-A,Micro-A]／[Macro-C,Macro-A]／[Micro-A,Macro-C]／[Macro-B,Macro-A,Macro-C]）rc=1 且 A4-KILLED 5/5；3 负对照（无 rogue 基线／rogue [Macro-A,Macro-B]／implemented 含 Micro-A）rc=0 3/3。
+- **P1-2 修法（审计三选项——选 1 窄化＋3 声明修正组合，最贴原意）**：扫描恒跑；纯位形 kind（bare-shortcode/fuzzy-phrase）照常判级**可判红**；需 cat-file 的 kind（short-sha/missing-subject/nonexistent-sha/misplaced-*）浅克隆重路由 **env-unresolvable→PV-ENV-UNRESOLVABLE 恒 WARN 披露**（真实历史与幻觉 SHA 同形不可分——SHA=内容哈希，禁判 FAIL 防 born-red 复发）；PV-D/D3/prints 浅克隆照跑，PV-C/E-TWIN/F10D 入 **HISTREACH** 组 SKIP 带因（need git-history:full 不变）。**浅克隆探针实测**：clean=31 PASS/0 FAIL＋envUnresolvable=77＋rc=0；注入 bare-shortcode→FAIL PV-BARE-SHORTCODE＋册外 FAIL 1→**node rc=1**；注入 fuzzy→FAIL PV-FUZZY-PHRASE→rc=1；注入 40hex→rc=0 但 **envUnresolvable 77→78 非静默**（+1 计数披露——不可判边界如实声明）；全克隆回归 34/34。边界声明：浅克隆下幻觉 40hex 与真历史 40hex 不可分（irreducible），以恒 WARN 计数披露代判红——CI 路径 fetch-depth:0 免疫。
+- **P3-3**：登记不处理（跨窗议题——update-70-inventory 静态计数 vs live 既存 +1，70-check E1 口径容忍）。
+- **转呈 grill 三题（handoff 已列）**：①验收形态选取立法；②git-history 探测面入 D-163 分类（need 首用后 SSOT FIX 模板化）；③**守卫断言「已修复」是否必须附变异击杀读数**（优先级最高——P0-2 直接教训）；另 Standards 轴建议「否定字符类内 `]` 必须转义」成文规则（现 zero-backslash 纪律未覆盖此形态，且本窗教训恰为规避 backslash 纪律所生——两纪律需合流裁定）。
+- **过程自曝**：浅克隆探针首跑的 rc=$? 被管道 grep 吃掉误报 rc=0——复跑裸 rc 捕获（注入=1/clean=0）修正读数；FAIL-COUNT 行本已自证红态，读数纪律仍以裸 rc 补齐。

@@ -7,11 +7,13 @@
 //       node 84-check.mjs --emit   → 仅打印首跑普查候选清单（建册用，不判级）
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
+import { need, groupProbe } from './_lib/env-contract.mjs';   // D-159⑥ env-contract SSOT（first-party 本仓件——非三方依赖）
 
 const TIER = 'portable';
-const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）；known-pointer-violations 为本守卫输入工件（baseline 册），其生命周期独立于面消亡判据（D-201②）';
+const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）；known-pointer-violations 为本守卫输入工件（baseline 册），其生命周期独立于面消亡判据（D-201②）；#88 fixture 自足重声明（2026-10-05，D-163① 零写入临时仓读法/D-159②）——fixture SHA_OK/SHA_TWIN 运行时物化，零依赖未推送对象，主仓零写入，portable tier fresh-clone 可跑重申；R64 审计返修 P0-1：B 面探针（cb625c64 历史字面钉废止→FX.SHA_OK）＋F 面短钉（da0c25a9→SHA_OK 8hex 前缀）改运行时物化，浅克隆检出→历史可达性子面组级 SKIP（HISTREACH，env-contract need git-history:full——需 cat-file 判定不可分）；纯位形面照跑可判红、需解析 kind 重路由 PV-ENV-UNRESOLVABLE 恒 WARN 披露（LOOP P1-2 窄化）——零历史依赖面全自足';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
@@ -22,6 +24,7 @@ const NL = String.fromCharCode(10);
 const SURFACE_CLOSED = 1;
 const SCAN_ROOTS = ['.scratch/macro-audit', '.scratch/architecture-recovery', 'docs/adr'];
 const SCAN_FILES = ['CONTEXT.md', 'AGENTS.md'];
+// D-212① 防误读注记（2026-10-05）：本守卫对 decision-ledger 的文档面扫描（短码/模糊语/幻觉 SHA/孪生桶/可达性 WARN 面）维持不变不因 D-212 收窄——账本 ##/### 节标题唯一性断言 owner=41a-check（#89）。
 // P2 勘误后回改贴合预声明 §1 EXEMPT-DIR：裸目录名三项（任意深度）＋ reports/ 路径锚定两项
 const SKIP_DIR_BARE = ['node_modules', '.git', 'dist'];
 const SKIP_DIR_ANCHORED = ['reports/_retired', 'reports/40-clone-cache'];
@@ -57,10 +60,14 @@ const warn = (name, extra) => console.log('WARN ' + name + (extra ? ' :: ' + ext
 
 // ---- git 机件（带缓存——2520 文件面下严禁每候选一次 spawn）----
 const gcache = new Map();
+let GIT_CWD = ROOT;          // fixtureRun 运行时物化窗口内指向临时仓（#88），其余恒 ROOT
+let GIT_ALT_OBJECTS = null;  // fixture 窗口内借主仓 objects（alternates 只读——主仓零写入 D-074）
 function git(args) {
-  const k = args.join(' ');
+  const k = GIT_CWD + '::' + args.join(' ');
   if (gcache.has(k)) return gcache.get(k);
-  const r = spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
+  const spawnOpts = { cwd: GIT_CWD, encoding: 'utf8' };
+  if (GIT_ALT_OBJECTS) spawnOpts.env = Object.assign({}, process.env, { GIT_ALTERNATE_OBJECT_DIRECTORIES: GIT_ALT_OBJECTS });
+  const r = spawnSync('git', args, spawnOpts);
   const v = { out: String(r.stdout || '').trim(), err: String(r.stderr || ''), rc: r.status };
   gcache.set(k, v);
   return v;
@@ -343,11 +350,12 @@ function bookKeySet(book) {
 // ---- 判级（D-191③ 存量 WARN／册外新增 FAIL；可达性与孪生恒 WARN）----
 // PV-F10B 行号四形态（file.ext:N／L<n>／行号／第 N 行）——模块级供 fixture 反例共用
 const LINENO_RE = /[.](md|json|mjs):[ ]?[0-9]+|L[0-9]+|行号|第[ ]?[0-9]+[ ]?行/;
-const SLUG_BY_KIND = { 'bare-shortcode': 'PV-BARE-SHORTCODE', 'fuzzy-phrase': 'PV-FUZZY-PHRASE', 'short-sha': 'PV-SHORT-SHA', 'missing-subject': 'PV-MISSING-SUBJECT', 'nonexistent-sha': 'PV-NONEXISTENT-SHA', 'misplaced-pointer': 'PV-MISPLACED-POINTER', 'misplaced-unresolvable': 'PV-MISPLACED-UNRESOLVABLE' };
+const SLUG_BY_KIND = { 'bare-shortcode': 'PV-BARE-SHORTCODE', 'fuzzy-phrase': 'PV-FUZZY-PHRASE', 'short-sha': 'PV-SHORT-SHA', 'missing-subject': 'PV-MISSING-SUBJECT', 'nonexistent-sha': 'PV-NONEXISTENT-SHA', 'misplaced-pointer': 'PV-MISPLACED-POINTER', 'misplaced-unresolvable': 'PV-MISPLACED-UNRESOLVABLE', 'env-unresolvable': 'PV-ENV-UNRESOLVABLE' };
 function judge(findings, keys) {
   const out = [];
   for (const fd of findings) {
     if (fd.kind === 'legal') continue;
+    if (fd.kind === 'env-unresolvable') { out.push({ fd: fd, level: 'WARN', slug: 'PV-ENV-UNRESOLVABLE' }); continue; }
     if (fd.kind === 'misplaced-unresolvable') { out.push({ fd: fd, level: 'WARN', slug: 'PV-MISPLACED-UNRESOLVABLE' }); continue; }
     const k = bookKey(fd.file, fd.kind, fd.token);
     if (keys.has(k)) out.push({ fd: fd, level: 'WARN', slug: 'PV-BASELINE-HIT' });
@@ -379,7 +387,7 @@ function twinBuckets(findings) {
 }
 
 // ---- 主跑 ----
-function mainRun() {
+function mainRun(FX) {
   const book = loadBook();
   const keys = bookKeySet(book);
   const anchors = (book.anchor_decl && book.anchor_decl.lines) || ['HEAD'];
@@ -392,48 +400,67 @@ function mainRun() {
   t('PV-A2-ROOTS-EXIST', rootsOk, '五面逐件 existsSync');
   t('PV-A3-SURFACE-NONEMPTY', files.length > 0, 'files=' + files.length);
 
-  const all = [];
+  // R64 审计返修 P0-1（born-red 修复）＋R64-LOOP P1-2 窄化：浅克隆（--depth 1）对象库不含历史——
+  //   需 cat-file 的历史可达性判定（PV-C legal 校验/孪生分桶/册失配对账）环境性不可判→组级 SKIP 带因（D-159⑥ SSOT need()）；
+  //   纯位形面（裸短码/模糊语）照跑可判红，需解析 kind 重路由 PV-ENV-UNRESOLVABLE 恒 WARN 披露（禁静默全绿）；
+  //   B/G 面零历史依赖（运行时物化）照跑；CI 侧 engine-ci.yml checkout fetch-depth: 0 全量覆盖（golden-ci.yml:41 先例同型）。
+  const IS_SHALLOW = git(['rev-parse', '--is-shallow-repository']).out === 'true';
+  const HIST_OK = !IS_SHALLOW;
+  if (!HIST_OK) groupProbe('84-check', 'HISTREACH', [need('git-history:full', false, '原因：浅克隆对象库不含历史——需 cat-file 的历史可达性判定（法定形 legal 校验/孪生分桶/册失配对账）环境性不可判，真实历史 commit 与幻觉 SHA 同形不可分（SHA=内容哈希；R64-LOOP P1-2 窄化）；手动修复：完整克隆或 CI checkout 加 fetch-depth: 0（engine-ci.yml 已配）；无网影响面：纯位形面（裸短码/模糊语）照跑可判红，需解析 kind 重路由 PV-ENV-UNRESOLVABLE 恒 WARN 披露非静默')]);
+  let all = [], verdicts = [], fails = [], warns = [], legalList = [], twins = [], stale = [];
+  const uniqU = new Map();
   for (const f of files) {
     let text;
     try { text = fs.readFileSync(f, 'utf8'); } catch { continue; }
     for (const fd of scanDoc(rel(f), text)) all.push(fd);
   }
-  const verdicts = judge(all, keys);
-  const fails = verdicts.filter((v) => v.level === 'FAIL');
-  const warns = verdicts.filter((v) => v.level === 'WARN');
-  const legalList = all.filter((x) => x.kind === 'legal');
+  if (!HIST_OK) {
+    // R64-LOOP P1-2 窄化：纯位形 kind（bare-shortcode/fuzzy-phrase）照常判级可判红；需 cat-file 的 kind
+    //   在浅克隆重路由 env-unresolvable（恒 WARN 披露——真实历史与幻觉不可分，禁判 FAIL 防 born-red 复发）
+    const GIT_DEP = { 'short-sha': 1, 'missing-subject': 1, 'nonexistent-sha': 1, 'misplaced-pointer': 1, 'misplaced-unresolvable': 1 };
+    for (const fd of all) { if (GIT_DEP[fd.kind]) fd.kind = 'env-unresolvable'; }
+  }
+  verdicts = judge(all, keys);
+  fails = verdicts.filter((v) => v.level === 'FAIL');
+  warns = verdicts.filter((v) => v.level === 'WARN');
+  legalList = all.filter((x) => x.kind === 'legal');
 
-  // B 严格层机检确在跑（自指正对照：合法形行零 finding）
-  const SHA1 = 'cb625c64521398306f914eb7986a4a505f95291a';
-  const subj1 = git(['log', '-1', '--format=%s', SHA1]).out;
-  const legalLine = ['| 变更 commit | 说明 |', '|---|---|', '| ' + String.fromCharCode(96) + SHA1 + String.fromCharCode(96) + ' (' + DQ + subj1 + DQ + ') | 说明 |'].join(NL);
+  // B 严格层机检确在跑（自指正对照：合法形行零 finding）——R64 审计返修 P0-1：探针 SHA 由历史字面钉
+  //   （cb625c64…，浅克隆不可达→PV-B born-red）改 FX.SHA_OK 运行时物化——探针语义不动（合法形行判 legal），零历史依赖
+  const bakCwd = GIT_CWD, bakAlt = GIT_ALT_OBJECTS;
+  GIT_CWD = FX.fxDir; GIT_ALT_OBJECTS = FX.mainObjects; gcache.clear();
+  const subj1 = git(['log', '-1', '--format=%s', FX.SHA_OK]).out;
+  const legalLine = ['| 变更 commit | 说明 |', '|---|---|', '| ' + String.fromCharCode(96) + FX.SHA_OK + String.fromCharCode(96) + ' (' + DQ + subj1 + DQ + ') | 说明 |'].join(NL);
   const legalProbe = scanDoc('__probe__', legalLine);
-  t('PV-B-STRICT-ACTIVE', legalProbe.length === 1 && legalProbe[0].kind === 'legal', '合法形行探针 kind=' + (legalProbe[0] ? legalProbe[0].kind : 'none') + '（零违规命中即机检在跑）');
+  GIT_CWD = bakCwd; GIT_ALT_OBJECTS = bakAlt; gcache.clear();
+  t('PV-B-STRICT-ACTIVE', legalProbe.length === 1 && legalProbe[0].kind === 'legal', '合法形行探针 kind=' + (legalProbe[0] ? legalProbe[0].kind : 'none') + '（零违规命中即机检在跑；探针件=fixture 运行时物化零历史依赖）');
 
-  // C 法定形断言
-  const badShape = legalList.filter((x) => !(x.len >= 12 && x.subj === true && objectType(x.sha) === 'commit'));
-  t('PV-C-LEGAL-FORM', legalList.length > 0 && badShape.length === 0, 'legal 指针 ' + legalList.length + ' 件逐件断：位形≥12hex ∧ 带 subject 校验位 ∧ cat-file -t=commit；违例 ' + badShape.length);
-
-  // D baseline 册两级判级（D-191③）
-  t('PV-D-ZERO-NEW-FAIL', fails.length === 0, '册外 FAIL ' + fails.length + ' 件（须零）；册内 WARN ' + warns.length + ' 件');
+  if (HIST_OK) {
+    // C 法定形断言（历史可达性面——浅克隆 HISTREACH 组 SKIP；legal 判定需 cat-file，浅克隆下 legal 恒空）
+    const badShape = legalList.filter((x) => !(x.len >= 12 && x.subj === true && objectType(x.sha) === 'commit'));
+    t('PV-C-LEGAL-FORM', legalList.length > 0 && badShape.length === 0, 'legal 指针 ' + legalList.length + ' 件逐件断：位形≥12hex ∧ 带 subject 校验位 ∧ cat-file -t=commit；违例 ' + badShape.length);
+  }
+  // D baseline 册两级判级（D-191③）——P1-2 窄化后浅克隆照跑（位形 kind 判 FAIL；env kind 恒 WARN 不入 FAIL）
+  t('PV-D-ZERO-NEW-FAIL', fails.length === 0, '册外 FAIL ' + fails.length + ' 件（须零）；册内 WARN ' + warns.length + ' 件' + (HIST_OK ? '' : '（浅克隆：历史可达性面 SKIP——env kind 恒 WARN 披露）'));
   t('PV-D2-BASELINE-LOADED', fs.existsSync(BOOK) && Array.isArray(entries), '册工件在位（existsSync＋entries 数组——归零=合法终态 D-201②）entries=' + entries.length + ' 件');
   const kindSet = new Set(all.map((x) => x.kind).filter((k) => k !== 'legal'));
   const unmapped = [...kindSet].filter((k) => !SLUG_BY_KIND[k]);
   t('PV-D3-KIND-SLUG-TABLE', kindSet.size > 0 && unmapped.length === 0, '违规 kind→slug 对表覆盖 ' + kindSet.size + ' 形态（legal 为非违规形态不入表）；未映射 ' + unmapped.length + '（新增违规 kind 未登记 SLUG_BY_KIND 即红）');
 
-  // E 锚线可达性 + 孪生分桶（恒 WARN，不影响 rc）
-  const uniqU = new Map();
-  for (const fd of all) { if (fd.sha && !anchorReach(fd.sha, anchors)) uniqU.set(fd.file + String.fromCharCode(124) + fd.sha, fd); }
-  const twins = twinBuckets(all);
-  for (const fd of uniqU.values()) warn('PV-UNREACHABLE', fd.file + ' :: ' + fd.sha.slice(0, 8) + ' 锚线未达（人工复核面 D-190④）');
-  for (const b of twins) warn('PV-TWIN-BUCKET', 'change-id ' + b.cid.slice(0, 12) + ' 桶成员 ' + b.members.length + ': ' + b.members.map((x) => x.slice(0, 8)).join(' / '));
-  let cidCovered = 0, cidTotal = 0;
-  for (const fd of all) { if (!fd.sha) continue; cidTotal++; if (changeIdOf(fd.sha)) cidCovered++; }
-  const bucketed = twins.reduce((a, b) => a + b.members.length, 0);
-  warn('PV-TWIN-COVERAGE-INFO', '严格层 SHA ' + cidTotal + ' 件／取得 change-id ' + cidCovered + ' 件（覆盖率仅披露，不作判据）；同 change-id 桶 ' + twins.length + ' 族／' + bucketed + ' 成员');
-  const twinInFail = fails.filter((v) => v.slug.indexOf('TWIN') >= 0 || v.slug.indexOf('UNREACHABLE') >= 0);
-  const allBucketsGt1 = twinBuckets(all).every((b) => b.members.length > 1);
-  t('PV-E-TWIN-NEVER-FAILS', allBucketsGt1 && twinInFail.length === 0, '孪生/不可达恒 WARN 不入 FAIL 集（判级矩阵 D-192①④）；FAIL 集内孪生相关 ' + twinInFail.length + ' 件');
+  // E 锚线可达性 + 孪生分桶（恒 WARN，不影响 rc）——历史依赖面（fd.sha 来自真账本解析），浅克隆随 HISTREACH 组 SKIP
+  if (HIST_OK) {
+    for (const fd of all) { if (fd.sha && !anchorReach(fd.sha, anchors)) uniqU.set(fd.file + String.fromCharCode(124) + fd.sha, fd); }
+    twins = twinBuckets(all);
+    for (const fd of uniqU.values()) warn('PV-UNREACHABLE', fd.file + ' :: ' + fd.sha.slice(0, 8) + ' 锚线未达（人工复核面 D-190④）');
+    for (const b of twins) warn('PV-TWIN-BUCKET', 'change-id ' + b.cid.slice(0, 12) + ' 桶成员 ' + b.members.length + ': ' + b.members.map((x) => x.slice(0, 8)).join(' / '));
+    let cidCovered = 0, cidTotal = 0;
+    for (const fd of all) { if (!fd.sha) continue; cidTotal++; if (changeIdOf(fd.sha)) cidCovered++; }
+    const bucketed = twins.reduce((a, b) => a + b.members.length, 0);
+    warn('PV-TWIN-COVERAGE-INFO', '严格层 SHA ' + cidTotal + ' 件／取得 change-id ' + cidCovered + ' 件（覆盖率仅披露，不作判据）；同 change-id 桶 ' + twins.length + ' 族／' + bucketed + ' 成员');
+    const twinInFail = fails.filter((v) => v.slug.indexOf('TWIN') >= 0 || v.slug.indexOf('UNREACHABLE') >= 0);
+    const allBucketsGt1 = twinBuckets(all).every((b) => b.members.length > 1);
+    t('PV-E-TWIN-NEVER-FAILS', allBucketsGt1 && twinInFail.length === 0, '孪生/不可达恒 WARN 不入 FAIL 集（判级矩阵 D-192①④）；FAIL 集内孪生相关 ' + twinInFail.length + ' 件');
+  }
   t('PV-E2-ANCHOR-DECL', Array.isArray(anchors) && anchors.length > 0, '锚线声明 lines=' + JSON.stringify(anchors));
 
   // F 册护栏自断言（D-192④ 防大赦名单化）
@@ -455,19 +482,46 @@ function mainRun() {
   const lineno = entries.filter((e) => LINENO_RE.test(String(e.pattern)));
   t('PV-F10B-NO-LINENO', lineno.length === 0, 'pattern 无行号定位形态（四形态：file.ext:N／L<n>／行号／第 N 行；' + entries.length + ' 条）');
   t('PV-F10C-SURFACE-CLOSED', SURFACE_CLOSED === 1, '扫描面封闭性硬断言');
-  const hitSet = new Set(verdicts.map((v) => bookKey(v.fd.file, v.fd.kind, v.fd.token)));
-  const stale = entries.filter((e) => { const sp = splitPattern(e.pattern); return !hitSet.has(bookKey(e.file, sp[0], sp[1])); });
-  for (const e of stale) warn('PV-STALE-ENTRY', e.id + ' 册项已无实物命中——可移除（ratchet 只减不增，禁判 FAIL）');
-  const entryKeys = entries.map((e) => { const sp = splitPattern(e.pattern); return bookKey(e.file, sp[0], sp[1]); });
-  const hitCount = entryKeys.filter((k) => hitSet.has(k)).length;
-  t('PV-F10D-STALE-REPORTED', stale.length + hitCount === entries.length, '失配 ' + stale.length + ' 件已自报 ／命中 ' + hitCount + ' 件 ／册 ' + entries.length + ' 条（不漏不重；归零态 0＋0==0 自洽 D-201②）');
+  if (HIST_OK) {
+    const hitSet = new Set(verdicts.map((v) => bookKey(v.fd.file, v.fd.kind, v.fd.token)));
+    stale = entries.filter((e) => { const sp = splitPattern(e.pattern); return !hitSet.has(bookKey(e.file, sp[0], sp[1])); });
+    for (const e of stale) warn('PV-STALE-ENTRY', e.id + ' 册项已无实物命中——可移除（ratchet 只减不增，禁判 FAIL）');
+    const entryKeys = entries.map((e) => { const sp = splitPattern(e.pattern); return bookKey(e.file, sp[0], sp[1]); });
+    const hitCount = entryKeys.filter((k) => hitSet.has(k)).length;
+    t('PV-F10D-STALE-REPORTED', stale.length + hitCount === entries.length, '失配 ' + stale.length + ' 件已自报 ／命中 ' + hitCount + ' 件 ／册 ' + entries.length + ' 条（不漏不重；归零态 0＋0==0 自洽 D-201②）');
+  }
 
   for (const v of warns) warn('PV-BASELINE-HIT', v.fd.kind + String.fromCharCode(58) + v.fd.token + ' @ ' + v.fd.file + ' [' + v.fd.detail + ']');
   for (const v of fails) console.log('FAIL ' + v.slug + ' :: ' + v.fd.kind + String.fromCharCode(58) + v.fd.token + ' @ ' + v.fd.file + ':' + v.fd.line + ' [' + v.fd.detail + ']');
-  console.log('SURFACE files=' + files.length + ' findings=' + all.length + ' legal=' + legalList.length + ' baselineWarn=' + warns.length + ' newFail=' + fails.length + ' unreachable=' + uniqU.size + ' twinBuckets=' + twins.length + ' staleEntries=' + stale.length);
-  return { all: all, files: files, fails: fails, warns: warns, twins: twins, stale: stale };
+  console.log('SURFACE files=' + files.length + ' findings=' + all.length + ' legal=' + legalList.length + ' baselineWarn=' + warns.length + ' newFail=' + fails.length + ' unreachable=' + uniqU.size + ' twinBuckets=' + twins.length + ' staleEntries=' + stale.length + (HIST_OK ? '' : ' histreach=SKIP(shallow) envUnresolvable=' + all.filter((x) => x.kind === 'env-unresolvable').length));
+  return { all: all, files: files, fails: fails, warns: warns, twins: twins, stale: stale, histreachSkipped: !HIST_OK };
 }
 
+
+// ---- fixture 运行时物化（R64 审计返修 P0-1 提升为主跑前共享件——B 面探针与 G 面同源）----
+// #88 fixture 自足修（D-163① 首选零写入临时仓读法——predecl 2026-10-05-r63-t1-predecl.md §2.1）：
+//   SHA_OK/SHA_TWIN 运行时物化——mkdtemp 临时仓自足＋GIT_ALTERNATE_OBJECT_DIRECTORIES 借主仓 objects（alternates 只读，主仓零写入 D-074）；
+//   孤儿 commit 201935fc 字面钉废止——零依赖未推送对象，fresh clone 可跑（portable 重申 D-159②）；断言面 F01~F20 语义逐条不动。
+function materializeFixture() {
+  const fxDir = fs.mkdtempSync(join(tmpdir(), '84-fixture-'));
+  const gcdOut = git(['rev-parse', '--git-common-dir']).out || '.git';
+  const mainObjects = fs.existsSync(join(ROOT, gcdOut, 'objects')) ? join(ROOT, gcdOut, 'objects') : join(gcdOut, 'objects');
+  const FX_ENV = Object.assign({}, process.env, { GIT_ALTERNATE_OBJECT_DIRECTORIES: mainObjects, GIT_AUTHOR_NAME: '84-fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid', GIT_COMMITTER_NAME: '84-fixture', GIT_COMMITTER_EMAIL: 'fixture@example.invalid', GIT_AUTHOR_DATE: '2026-01-01T00:00:00Z', GIT_COMMITTER_DATE: '2026-01-01T00:00:00Z' });
+  const fxInit = spawnSync('git', ['init', '-q', fxDir], { encoding: 'utf8' });
+  if (fxInit.status !== 0) throw new Error('84-fixture: temp repo init failed ' + String(fxInit.stderr || ''));
+  const fxTree = spawnSync('git', ['-C', fxDir, 'mktree'], { encoding: 'utf8', input: '', env: FX_ENV });
+  if (fxTree.status !== 0) throw new Error('84-fixture: mktree failed ' + String(fxTree.stderr || ''));
+  const TREE_SHA = String(fxTree.stdout || '').trim();
+  const fxOk = spawnSync('git', ['-C', fxDir, 'commit-tree', TREE_SHA, '-m', 'fixture: reachable ok subject', '-m', 'change-id 84fixtureok0000'], { encoding: 'utf8', env: FX_ENV });
+  if (fxOk.status !== 0) throw new Error('84-fixture: commit-tree ok failed ' + String(fxOk.stderr || ''));
+  const SHA_OK = String(fxOk.stdout || '').trim();   // 运行时物化：update-ref HEAD 后=锚线可达
+  spawnSync('git', ['-C', fxDir, 'update-ref', 'HEAD', SHA_OK], { encoding: 'utf8', env: FX_ENV });
+  const fxTwin = spawnSync('git', ['-C', fxDir, 'commit-tree', TREE_SHA, '-p', SHA_OK, '-m', 'fixture: twin subject', '-m', 'change-id 84fixtureok0000'], { encoding: 'utf8', env: FX_ENV });
+  if (fxTwin.status !== 0) throw new Error('84-fixture: commit-tree twin failed ' + String(fxTwin.stderr || ''));
+  const SHA_TWIN = String(fxTwin.stdout || '').trim();   // 运行时物化：零 ref=锚线不可达孪生（同 change-id 注入→孪生桶语义保真）
+  return { fxDir: fxDir, mainObjects: mainObjects, SHA_OK: SHA_OK, SHA_TWIN: SHA_TWIN };
+}
+const FX = materializeFixture();
 
 // ---- G fixture 四态＋六衍生态红绿分野（D-192⑤ 预声明 §3；rc 隔离自断言）----
 function fixtureRun() {
@@ -475,8 +529,10 @@ function fixtureRun() {
   const keys = bookKeySet(book);
   const BT = String.fromCharCode(96);
   const DQc = String.fromCharCode(34);
-  const SHA_OK = 'cb625c64521398306f914eb7986a4a505f95291a';
-  const SHA_TWIN = '201935fc7764c3a3716a0400cd603a76ef5b5cec';
+  const fxDir = FX.fxDir, mainObjects = FX.mainObjects, SHA_OK = FX.SHA_OK, SHA_TWIN = FX.SHA_TWIN;
+  const ROOT_CWD_BAK = GIT_CWD; const ALT_BAK = GIT_ALT_OBJECTS;
+  GIT_CWD = fxDir; GIT_ALT_OBJECTS = mainObjects; gcache.clear();
+  const SHORT_OK = SHA_OK.slice(0, 8);   // R64 审计返修 P0-1：short-sha 探针件由历史短钉（da0c25a9，浅克隆不可达）改 SHA_OK 运行时缩位——判据原义（<12hex 判 short-sha）不动
   const subj = (sha) => git(['log', '-1', '--format=%s', sha]).out;
   const hdr = ['| 变更 commit | 说明 |', '|---|---|'].join(NL);
   const cell = (sha, withSubj) => '| ' + BT + sha + BT + (withSubj ? ' (' + DQc + subj(sha) + DQc + ')' : '') + ' | 说明 |';
@@ -487,7 +543,7 @@ function fixtureRun() {
   t('PV-G-F01-LEGAL-PASS', j0.length === 0, '合法形行零违规（rc 不受影响）');
   const j1 = judge(probe(doc([cell('cb625c64521398306f914eb7986a4a505f95291b', true)])), noKeys);
   t('PV-G-F02-NEW-FAIL', j1.length === 1 && j1[0].level === 'FAIL' && j1[0].slug === 'PV-NONEXISTENT-SHA', '册外幻觉 SHA 判 FAIL slug=' + (j1[0] ? j1[0].slug : 'none') + '（40hex 形但对象不存在＝E-3 幻觉 hex 族）');
-  const j2 = judge(probe(doc([cell('da0c25a9', false)])), new Set([bookKey('__fixture__', 'short-sha', 'da0c25a9')]));
+  const j2 = judge(probe(doc([cell(SHORT_OK, false)])), new Set([bookKey('__fixture__', 'short-sha', SHORT_OK)]));
   t('PV-G-F03-BASELINE-HIT', j2.length === 1 && j2[0].level === 'WARN' && j2[0].slug === 'PV-BASELINE-HIT', '册内短 SHA 判 WARN slug=' + (j2[0] ? j2[0].slug : 'none'));
   const tb = twinBuckets(probe(doc([cell(SHA_TWIN, false), cell(SHA_OK, true)])));
   t('PV-G-F04-TWIN-BUCKET', tb.length === 1 && tb[0].members.length === 2, '同 change-id 桶成员 ' + (tb[0] ? tb[0].members.length : 0) + '（>1 触发 WARN）');
@@ -501,7 +557,7 @@ function fixtureRun() {
   const f7Fail = j7f.filter((v) => v.level === 'FAIL');
   const f7Warn = j7f.filter((v) => v.level === 'WARN');
   t('PV-G-F07-UNREACHABLE-WARN-ONLY', reachOK !== null && reachBad === null && f7Fail.length === 0 && f7Warn.length === 1, '可达=' + reachOK + ' ／不可达=' + reachBad + '；judge 路由：FAIL ' + f7Fail.length + ' ／WARN ' + f7Warn.length + '（不可达禁判 FAIL——D-190④）');
-  const exHits = scanDoc('__fixture__/R51-Q5-atomcode-research.md', doc([cell('da0c25a9', false)]));
+  const exHits = scanDoc('__fixture__/R51-Q5-atomcode-research.md', doc([cell(SHORT_OK, false)]));
   const j6 = judge(exHits, noKeys);
   t('PV-G-F08-EXEMPT-SUBFACE', j6.length === 1 && j6[0].level === 'WARN' && j6[0].slug === 'PV-EXEMPT-SUBFACE', '豁免子面降 WARN slug=' + (j6[0] ? j6[0].slug : 'none'));
   const staleKey = bookKey('__nowhere__', 'short-sha', 'zzzzzzz');
@@ -512,7 +568,7 @@ function fixtureRun() {
   const kindProbe = [
     ['bare-shortcode', doc(['| wmu（x） | 说明 |'])],
     ['fuzzy-phrase', doc(['| 本轮修复 commit | 说明 |'])],
-    ['short-sha', doc(['| da0c25a9 | 说明 |'])],
+    ['short-sha', doc(['| ' + SHORT_OK + ' | 说明 |'])],
     ['missing-subject', doc(['| ' + BT + SHA_OK + BT + ' | 说明 |'])],
     ['nonexistent-sha', doc(['| ' + BT + 'cb625c64521398306f914eb7986a4a505f95291b' + BT + ' | 说明 |'])]
   ];
@@ -535,7 +591,7 @@ function fixtureRun() {
   const p16b = judge(probe(doc(['| the table 说明 |'])), noKeys);
   const p16c = judge(probe(doc(['| zqq |'])), noKeys);
   t('PV-G-F16-D5-WORDS-EXEMPT', p16a.length === 0 && p16b.length === 0 && p16c.length === 1 && p16c[0].slug === 'PV-BARE-SHORTCODE', '英文词豁免（括号内 run/the）＋首位三字词后随空格不判＋裸码独占格仍判（E-5 类不回归，slug=' + (p16c[0] ? p16c[0].slug : 'none') + '）');
-  const p17 = judge(probe(doc(['| ' + BT + 'da0c25a9' + BT + ' | 说明'])), noKeys);
+  const p17 = judge(probe(doc(['| ' + BT + SHORT_OK + BT + ' | 说明'])), noKeys);
   t('PV-G-F17-D6-OPTIONAL-PIPE', p17.length === 1 && p17[0].fd.kind === 'short-sha', '行尾无管末格短 SHA 检出 kind=' + (p17[0] ? p17[0].fd.kind : 'none') + '（splitRow 首尾管可选——FN 修复自证）');
   const p18 = judge(probe([FENCE + 'md', '| wmu（x） | 说明 |', '|---|---|', FENCE].join(NL)), noKeys);
   t('PV-G-F18-D6-FENCE-EXCLUDED', p18.length === 0, '围栏内伪表违规行零 finding（fence 状态机排除）');
@@ -543,10 +599,16 @@ function fixtureRun() {
   t('PV-G-F19-D7-EMPTY-SUBJECT', p19.length === 1 && p19[0].fd.kind === 'missing-subject', '空校验位拒收 kind=' + (p19[0] ? p19[0].fd.kind : 'none') + '（D-200 subject 非空白必填）');
   const p20 = scanDoc('__fixture__', doc(['| ' + BT + SHA_OK + BT + ' ("fix: 旧指针 c6fe0f8 已实名") | 说明 |']));
   t('PV-G-F20-SUBJECT-QUOTE-OPAQUE', p20.length === 1 && p20[0].kind === 'legal', 'subject 引文内 token 不扫描（不透明载荷——kind=' + (p20[0] ? p20[0].kind : 'none') + '；shaTokens/bareCodes 走剥引文可见面）');
+  GIT_CWD = ROOT_CWD_BAK; GIT_ALT_OBJECTS = ALT_BAK; gcache.clear();
 }
 
-const res = mainRun();
-fixtureRun();
+let res;
+try {
+  res = mainRun(FX);
+  fixtureRun();
+} finally {
+  try { fs.rmSync(FX.fxDir, { recursive: true, force: true }); } catch (_) { }
+}
 console.log('PASS-COUNT ' + pass + ' FAIL-COUNT ' + fail);
-console.log('GUARD-RESULT: 84-check ' + (fail === 0 ? 'PASS' : 'FAIL') + ' newFail=' + res.fails.length + ' baselineWarn=' + res.warns.length + ' twinBuckets=' + res.twins.length);
+console.log('GUARD-RESULT: 84-check ' + (fail === 0 ? 'PASS' : 'FAIL') + ' newFail=' + res.fails.length + ' baselineWarn=' + res.warns.length + ' twinBuckets=' + res.twins.length + (res.histreachSkipped ? ' histreach=SKIP(shallow)' : ''));
 process.exit(fail === 0 ? 0 : 1);

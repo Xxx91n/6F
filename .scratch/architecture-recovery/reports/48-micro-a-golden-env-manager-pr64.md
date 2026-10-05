@@ -4,10 +4,10 @@
 > 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
 >
 > 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）
-> - capability: capability 3 of 5 · calibrated demo · not in plugin distribution
+> - capability: capability 3 of 5 · preview
 > - calibration_scope: 同主试点仓 merged PR 最小集（env-manager×3 形态＋jiahao×1 全人基线；票面写死实例）
-> - structural_limitations: golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计；同主确认偏差：试点仓与产品同主（Xxx91n）——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟不构成泛化证据；判据范围收窄：preview 判据=证据完整性/托管面资格/选择性，非 PR 质量裁决——diff --llm 行级语义评审归 #50 叙事双轨（D-053）；reviews/comments 面 planned 未接（锁表 github-rest 契约面）——评审语义不在 preview 内；supply_chain 象限 not_applicable：Scorecard 未接（D-034③）；dependabot PR 的供应链信号仅作事实落库；适配器硬化面披露：宿主 API diff 工件依赖 fetchDiffArtifact/cassetteFetcher 适配器硬化——产线化前置义务（#85② 立案在途，D-204③④；产线化闭环前 D-062 DoR-a Micro-A 分量不满足）
-> - not_in_preview: Micro-B / Macro-A
+> - structural_limitations: golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计；同主确认偏差：试点仓与产品同主（Xxx91n）——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟不构成泛化证据；判据范围收窄：preview 判据=证据完整性/托管面资格/选择性，非 PR 质量裁决——diff --llm 行级语义评审归 #50 叙事双轨（D-053）；reviews/comments 面 planned 未接（锁表 github-rest 契约面）——评审语义不在 preview 内；supply_chain 象限 not_applicable：Scorecard 未接（D-034③）；dependabot PR 的供应链信号仅作事实落库；适配器硬化面已落 engine 一等面（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts（重校准背书=85-check E 组）
+> - not_in_preview: Macro-A
 
 ## C1 执行摘要
 
@@ -19,7 +19,7 @@
 - correlation_key: trace_id=e7d54d368784ea3f02b9bdd9424b8ec5 baggage_id=b48f14d63db2bca095fcb730d4d4d666
 - overall_verdict: supported
 - confidence: 0.6
-- headline: Xxx91n/env-manager#64 Micro-A calibrated demo（capability 3 of 5 · not in plugin distribution）：form=machine-generated/release-please diff_channel=api +null/-null f=null → supported
+- headline: Xxx91n/env-manager#64 Micro-A preview（capability 3 of 5）：form=machine-generated/release-please diff_channel=api +null/-null f=null → supported
 - degraded_mode: false
 - stale_data_marker: fresh（SLA 5s / 实测延迟 0s）
 - read_model_version: 1.2.0 · fact_watermark_version: 1

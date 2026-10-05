@@ -471,3 +471,10 @@
 - 整理环节落盘：registry 80 项（dist-in-repo-review 映射更新＋ratchet-headroom-watch/ceremony-ratio-watch 双新册＋dist-ratchet-headroom-low 事件锚）＋CONTEXT 头部补 R51/R53/R56/R62 四行封口＋BACKLOG #88/#89＋R61 closeout-handoff 收编＋next-round.md R63 换代。
 - 调研构成如实登记（D-186 口径）：R62-Q1/Q2 **二连真回传**（Q1 searches 12/angles 5/full reads 6；Q2 searches 6/angles 4/full reads 3＋MD024 官方文档）——继 R56 降级潮后首次全真回传轮。
 - 卫生留痕：origin 远端 r53/r54/r55 三分支未删（用户主权面）；锐评快照=HEAD 759de85 摄入合规；macro-b-regression 9-29 三红系旧 SHA 历史件非 HEAD 态。
+
+### M-058（2026-10-05 R63 T1 执行批——#85②/#88/#89 三票兑现窗）
+
+- T1-A #85② Micro-A 产线化（D-204③④）：48 管线移植 engine 一等面 `audit --scale Micro-A`（src/audit/micro-a.ts §0~§10 逐段保真＋fact-write 共享核零 commit grain）；名归位硬判据=85-check E 组差分重校准 36/36（引擎面 cassette 回放 vs 48 生成器 golden——fact_id 全等）；not_in_preview 全家翻转=[Macro-A]＋分发面四层在架（README 双语 sync 戳 6e72603907ed／description／credential-checklist §E／marketplace／SKILL）＋48 生成器旧列修正；micro-a.test 22/22 入 smoke；D-062 DoR-a Micro-A 分量如实计入；dist 310,334B→373,105B（帽内 margin 11,895B——headroom 3.1%＜25% 警戒线触发 dist-ratchet-headroom-low，强制重评票 BACKLOG #90）。
+- T1-B #88 84-check 自足修（D-211①/D-163①⑥）：D-163① 零写入临时仓读法选定——SHA_OK/SHA_TWIN 运行时物化（孤儿 commit 201935fc 字面钉废止）＋portable 重声明（D-159②）＋engine-ci portable 段扩列（CI 射程缺口勘误）；鲜克隆首读 84-check GREEN。
+- T1-C #89 A-3 标题唯一性（D-212）：41a-check H 组双层断言（`##` 全局＋`###` 同父 siblings_only 双账本）0 违例落地即绿＋正对照 H3/H4 mutation-kill＋H5 边界声明＋guard-meta 扩注；ADR-0013 预声明随票（predecl §3）。
+- 过程：预声明包先于语义 commit（D-177①③——rzs）；but CHANGES 选择器本窗复验可用（六 commit 收清单逐个 but show 核实）；53-check B2 鲜克隆漏网 LOOP 修正 amend rlm；.atomcode 两件全程未入 commit（T3 用户主权）；atomcode 构成比 0/0（执行窗零调研——D-186② 口径）。
