@@ -2,9 +2,9 @@
   "ticket": 63,
   "decision": "D-071",
   "created": "2026-09-18",
-  "updated": "2026-09-19",
-  "updated_by": "update-70-inventory.mjs（#70/D-079 引用物缺席普查顺带偿 D-071 欠账）",
-  "note": "断言级稳定 id=断言名首词 token（A1/B5/G15 形），跨 t()/ok()/check()/w()/w58()/sealed()/x() 七签名族均在位——XFAIL/VACUOUS 协议按 <guard>:<slug> 键可寻址。assertion_ids=唯一 slug 数（同 slug 多发射路径按一计——73-check C2 t()/x() 双路实证，loop 族动态 slug 按调用点计一，sealed() 计入盘点不参评候选；检测经 stripComments+maskStrings 双轨，注释/字面量内伪调用不计）。",
+  "updated": "2026-10-08",
+  "updated_by": "update-70-inventory.mjs（#93/D-218 emit 计量修复——定义行排除谓词同源双拷贝同修，纯减法 1528→1497 emit 位）",
+  "note": "断言级稳定 id=断言名首词 token（A1/B5/G15 形），跨 t()/ok()/check()/w()/w58()/sealed()/x() 七签名族均在位——XFAIL/VACUOUS 协议按 <guard>:<slug> 键可寻址。assertion_ids=唯一 slug 数（同 slug 多发射路径按一计——73-check C2 t()/x() 双路实证，loop 族动态 slug 按调用点计一，sealed() 计入盘点不参评候选；检测经 stripComments+maskStrings 双轨，注释/字面量内伪调用不计）。〔D-218 口径修复勘误 2026-10-08：抽取谓词排除定义行形态（function <sig>(／const <sig> = (…) =>）——emit 位回归头注已声明「调用点」口径；旧读数 1528 emit 位含 31 件幻影（定义行伪 slug=签名名/收尾 PASS 字面，与真实断言 slug 零交集）系仪器误差非主体病态，纯减法归因表见 R67 #93 报告；本行链式追加不改写历史读数（D-146⑤）。〕",
   "guards": {
     "01-check": {
       "assertion_ids": 0,
@@ -33,7 +33,7 @@
       ]
     },
     "15-slice-check": {
-      "assertion_ids": 14,
+      "assertion_ids": 13,
       "call_styles": [
         "check()"
       ]
@@ -49,19 +49,19 @@
       ]
     },
     "21-collectors-check": {
-      "assertion_ids": 44,
+      "assertion_ids": 43,
       "call_styles": [
         "check()"
       ]
     },
     "22-criteria-check": {
-      "assertion_ids": 18,
+      "assertion_ids": 17,
       "call_styles": [
         "check()"
       ]
     },
     "23-first-report-check": {
-      "assertion_ids": 31,
+      "assertion_ids": 30,
       "call_styles": [
         "check()"
       ]
@@ -73,7 +73,7 @@
       ]
     },
     "25-check": {
-      "assertion_ids": 23,
+      "assertion_ids": 22,
       "call_styles": [
         "check()"
       ]
@@ -160,38 +160,38 @@
       ]
     },
     "40-check": {
-      "assertion_ids": 53,
+      "assertion_ids": 52,
       "call_styles": [
         "t()"
       ]
     },
     "41a-check": {
-      "assertion_ids": 48,
+      "assertion_ids": 47,
       "call_styles": [
         "sealed()",
         "t()"
       ]
     },
     "41b-check": {
-      "assertion_ids": 37,
+      "assertion_ids": 36,
       "call_styles": [
         "t()"
       ]
     },
     "42-check": {
-      "assertion_ids": 44,
+      "assertion_ids": 43,
       "call_styles": [
         "t()"
       ]
     },
     "43-check": {
-      "assertion_ids": 29,
+      "assertion_ids": 28,
       "call_styles": [
         "t()"
       ]
     },
     "44-check": {
-      "assertion_ids": 60,
+      "assertion_ids": 59,
       "call_styles": [
         "t()",
         "w()",
@@ -199,74 +199,74 @@
       ]
     },
     "45-check": {
-      "assertion_ids": 52,
+      "assertion_ids": 51,
       "call_styles": [
         "t()"
       ]
     },
     "46-check": {
-      "assertion_ids": 32,
+      "assertion_ids": 31,
       "call_styles": [
         "t()"
       ]
     },
     "47-check": {
-      "assertion_ids": 41,
+      "assertion_ids": 40,
       "call_styles": [
         "t()"
       ]
     },
     "48-check": {
-      "assertion_ids": 43,
+      "assertion_ids": 42,
       "call_styles": [
         "t()"
       ]
     },
     "49-check": {
-      "assertion_ids": 23,
+      "assertion_ids": 22,
       "call_styles": [
         "t()"
       ]
     },
     "50-check": {
-      "assertion_ids": 39,
+      "assertion_ids": 38,
       "call_styles": [
         "sealed()",
         "t()"
       ]
     },
     "51-check": {
-      "assertion_ids": 39,
+      "assertion_ids": 38,
       "call_styles": [
         "t()"
       ]
     },
     "52a-check": {
-      "assertion_ids": 23,
+      "assertion_ids": 22,
       "call_styles": [
         "t()"
       ]
     },
     "53-check": {
-      "assertion_ids": 26,
+      "assertion_ids": 25,
       "call_styles": [
         "t()"
       ]
     },
     "54-check": {
-      "assertion_ids": 19,
+      "assertion_ids": 18,
       "call_styles": [
         "t()"
       ]
     },
     "55-check": {
-      "assertion_ids": 19,
+      "assertion_ids": 18,
       "call_styles": [
         "t()"
       ]
     },
     "56-check": {
-      "assertion_ids": 25,
+      "assertion_ids": 24,
       "call_styles": [
         "t()"
       ]
@@ -315,7 +315,7 @@
       ]
     },
     "78-check": {
-      "assertion_ids": 40,
+      "assertion_ids": 39,
       "call_styles": [
         "t()"
       ]
@@ -327,13 +327,13 @@
       ]
     },
     "81-check": {
-      "assertion_ids": 20,
+      "assertion_ids": 19,
       "call_styles": [
         "t()"
       ]
     },
     "82-check": {
-      "assertion_ids": 16,
+      "assertion_ids": 15,
       "call_styles": [
         "t()"
       ]
@@ -351,13 +351,13 @@
       ]
     },
     "85-check": {
-      "assertion_ids": 38,
+      "assertion_ids": 37,
       "call_styles": [
         "t()"
       ]
     },
     "86-check": {
-      "assertion_ids": 19,
+      "assertion_ids": 18,
       "call_styles": [
         "t()"
       ]
@@ -375,21 +375,20 @@
       ]
     },
     "r14fix-check": {
-      "assertion_ids": 25,
+      "assertion_ids": 24,
       "call_styles": [
-        "ok()",
         "t()"
       ]
     },
     "t8-check": {
-      "assertion_ids": 18,
+      "assertion_ids": 17,
       "call_styles": [
         "sealed()",
         "t()"
       ]
     },
     "t9-check": {
-      "assertion_ids": 18,
+      "assertion_ids": 17,
       "call_styles": [
         "t()"
       ]
