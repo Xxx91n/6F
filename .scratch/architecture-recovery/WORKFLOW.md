@@ -249,6 +249,7 @@ Phase 之间到达 boundary 时，按本仓库偏好顺序选：
 - 每个 Agent session 必须有独立 `but` branch，不动他人分支
 - 禁止 git write 命令（`git add` / `git commit` / `git push` / `git checkout` / `git merge` / `git rebase` / `git stash` / `git cherry-pick`）；worktree / git checkout / git branch 等字样禁止出现在启动器
 - 例外：`but` 报"linked worktrees unsupported"时，工作树内允许 `git commit` 单条命令
+- 例外（D-216 EOF-only hunk scoped git 兜底，R67 #94 立法）：机检双判据 AND 满足——①恰一文本文件；②numstat 增删各≤1；③hunk 仅末行且带 `\ No newline at end of file` 标记（EOF-only 尾行变更，无实质内容改动）→允许 `git add <file> && git commit` 直路，commit message **强制标注串**「GitButler EOF-only 工具限制兜底〔R65 实证〕」；同文件混实质变更须先拆分再走本通道；值守=`gitbutler-eof-hunk-watch`（R66 新册）双通道收回钩（but 版本升级重放 R65 复现探针转绿即收回授权注销本项）。本例外为形态判据非扩权——生成物再生独立 commit 义务由 D-140②/D-218④ 既有纪律承接。
 
 ### 4.2.2 文件写入
 - 所有 .md / .json / .txt 写入走 `mcp__context-mode__ctx_execute` (language=javascript, fs.writeFileSync)
