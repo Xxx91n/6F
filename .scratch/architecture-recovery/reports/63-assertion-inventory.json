@@ -173,7 +173,7 @@
       ]
     },
     "41b-check": {
-      "assertion_ids": 34,
+      "assertion_ids": 37,
       "call_styles": [
         "t()"
       ]
@@ -303,7 +303,7 @@
       ]
     },
     "75a-check": {
-      "assertion_ids": 16,
+      "assertion_ids": 17,
       "call_styles": [
         "t()"
       ]
