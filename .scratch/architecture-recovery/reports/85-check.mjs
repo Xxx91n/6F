@@ -14,6 +14,8 @@ import { need, groupProbe, engineDepsOk, siblingPath } from './_lib/env-contract
 
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
+// D-214① consumption_forms（多形态消费方——B/C/E 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→对应组 SKIP，仓内段照跑）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#84 Macro-C＋#85② Micro-A 产线化一等面守卫（D-204②③④）——静态契约+CLI 测活+anysearch-cli 差分重校准+Micro-A cassette 差分重校准';
 
 const HERE = dirname(fileURLToPath(import.meta.url));

@@ -17,6 +17,8 @@ const NL = '\n';
 const REPO = join(HERE, '..', '..', '..');
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
+// D-214① consumption_forms（多形态消费方——B/C4 组级 need sibling:jiahao）：dev-full=完整克隆＋sibling jiahao 工作树在位全断言面；ci-shallow=CI 浅克隆（sibling 缺席→B/C4 组 SKIP，A/D/E 仓内段照跑）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '46 回归 CI 迁回面（6F workflow 契约＋jiahao 撤除＋46-out 工件）';
 const JIAHAO = siblingPath('jiahao');
 // 组级前置（D-164-a②；R42 审计 O3 收窄）：B 组与 C4 挂 sibling:jiahao；A/C1~C3/D/E 零需 portable 段不因 sibling 缺席连坐

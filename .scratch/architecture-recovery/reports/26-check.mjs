@@ -9,6 +9,8 @@ import { commitsByGrep, touchedPaths, lastChangeSha } from './_lib/check-kit.mjs
 import { need, groupProbe, gitObjectNeedOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
+// D-214① consumption_forms（多形态消费方——C 组级 need git-object:）：dev-full=完整克隆全断言面；ci-shallow=CI 浅克隆（冻结对象借仓内 bundle 临时仓零写入物化，主仓零写）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = 'R4-01 量测审计守卫：真值表完整性 + v1 冻结集复跑一致性 + 纯文档零构建断言';
 
 

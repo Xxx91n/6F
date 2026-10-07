@@ -245,6 +245,14 @@
   "gitbutler-eof-hunk-obsolete": {
    "occurred": false,
    "note": "R66 收口登记（D-216⑤）：GitButler EOF-only hunk 复现探针转绿（上游修复）→兜底授权收回＋watch 注销——gitbutler-eof-hunk-watch 值守项的双通道收回钩之一（另一=审计窗例行复审）"
+  },
+  "consumption-forms-enumeration-active": {
+   "occurred": true,
+   "note": "R67 T1 #91 登记（D-214①）：consumption_forms 枚举面落地当轮即点火——十八件多形态消费方守卫声明集↔registry consumption-forms-multi-consumer-class guards 对账同窗兑现（75a-T4）"
+  },
+  "consumption-form-change-detected": {
+   "occurred": false,
+   "note": "R67 T1 #91 登记（D-214③）：外部 clone 方式变更／CI checkout fetch-depth 配置变更／sibling 消费方式变更任一发生即点火——触发被消费守卫 consumption_forms 复审（engine-ci.yml fetch-depth 变更=同族先例实锤）"
   }
  },
  "items": [
@@ -2712,6 +2720,76 @@
      "decision": "registered",
      "reason": "EOF-only hunk scoped git 兜底授权的收回钩——双通道（版本升级探针＋审计窗例行复审）；R65 实证 but 对 EOF-only hunk 不可生成/应用（上游 #5758 独立佐证）",
      "evidence": "decision-ledger.md D-216＋.scratch/macro-audit/reports/R66-Q4-atomcode-research.md"
+    }
+   ]
+  },
+  {
+   "id": "consumption-forms-multi-consumer-class",
+   "family": "code-hygiene",
+   "title": "consumption_forms 多形态消费方守卫类登记（D-214①）——十八件带组级 need() 前置的守卫（groupProbe 十七件＋整件 envProbe 一件 37-check）；75a-T4 强制声明集↔本项 guards 对账（新增多形态消费方守卫须同窗更新本项）",
+   "deadline_event": null,
+   "deadline": "无（登记项）",
+   "trigger_event": "consumption-forms-enumeration-active",
+   "trigger": "D-214① consumption_forms 枚举面落地当轮即登记（与 tier 自声明 D-159② 同 commit、同 T 组机检「未声明=红」）",
+   "review_at": "新增/摘除多形态消费方守卫时（75a-T4 对账强制同窗）＋每审计窗复核",
+   "status": "decided",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "75a-check.mjs T4 断言：全量 -check.mjs 中 const CONSUMPTION_FORMS 声明集==本项 guards 集（漂移即红，双向对账防事后标签漂移）",
+   "review_event": "stage3-close",
+   "guards": [
+    "23-first-report-check.mjs",
+    "26-check.mjs",
+    "27-check.mjs",
+    "28-check.mjs",
+    "37-check.mjs",
+    "38-check.mjs",
+    "39-check.mjs",
+    "40-check.mjs",
+    "43-check.mjs",
+    "46-check.mjs",
+    "50-check.mjs",
+    "53-check.mjs",
+    "78-check.mjs",
+    "80-check.mjs",
+    "83-check.mjs",
+    "84-check.mjs",
+    "85-check.mjs",
+    "86-check.mjs"
+   ],
+   "confirmations": [
+    {
+     "at": "2026-10-08",
+     "by": "R67 T1 执行批 #91（D-214①）",
+     "criterion_version": "D-214①",
+     "decision": "registered",
+     "reason": "consumption_forms 枚举面首建：多形态消费方=带组级 need() 前置守卫（groupProbe 十七件 23/26/27/28/38/39/40/43/46/50/53/78/80/83/84/85/86＋整件 envProbe 一件 37-check），逐件声明 ['dev-full','ci-shallow']；单 dev 消费方守卫（余 47 件）不强制枚举不设枚举税（D-214① 粒度收窄）",
+     "evidence": "reports/84-check.mjs HISTREACH groupProbe git-history:full＋_lib/env-contract.mjs groupProbe/envProbe＋各 check groupProbe 调用点"
+    }
+   ],
+   "bound_to": "#91 探测面立法落地批（D-214① consumption_forms 枚举面首建）"
+  },
+  {
+   "id": "consumption-form-change-watch",
+   "family": "code-hygiene",
+   "title": "新增消费形态触发器（D-214③）——外部 clone 方式变更／CI checkout 配置变更（fetch-depth）／sibling 消费方式变更→触发被消费守卫 consumption_forms 复审",
+   "deadline_event": null,
+   "deadline": "无（事件驱动）",
+   "trigger_event": "consumption-form-change-detected",
+   "trigger": "任一消费形态载体变更（engine-ci.yml fetch-depth 变更=同族先例实锤；新 sibling 仓接入；clone 深度策略调整）即点火",
+   "review_at": "触发事件发生当轮（D-211② 棘轮警戒线「先计量再立闸」同型）＋每审计窗例行",
+   "status": "pending",
+   "watch": "event_bound",
+   "owner": "macro-audit 队列值守",
+   "verify_method": "点火后逐件核被消费守卫 consumption_forms 声明是否仍覆盖真实消费形态；漏枚=75a-T4 对账红或人工补声明",
+   "review_event": "next-audit-window",
+   "confirmations": [
+    {
+     "at": "2026-10-08",
+     "by": "R67 T1 执行批 #91（D-214③）",
+     "criterion_version": "D-214③",
+     "decision": "registered",
+     "reason": "消费形态静默变更同型更早期标本=checkout@v2 默认浅克隆致全网失效；不修触发器则仍靠人记（原 (a) 缺陷）——engine-ci fetch-depth 变更已配为同族先例实锤",
+     "evidence": "decision-ledger.md D-214③＋.scratch/macro-audit/reports/R66-Q2-atomcode-research.md"
     }
    ]
   }

@@ -1247,6 +1247,10 @@ T1 CodeBuddy 试用关窗核认＋批2-β 探测面硬化三裁＋登记处置�
   - O2 53-check `const OUTA` 四块重复上提一次（Duplicated Code 收敛）；
   - O3 46-check 闸粒度收窄：原 'B/C' 整闸连坐 C1~C3 仓内 46-out 断言→改 B＋C4 双闸（C1~C3 脱连坐照跑）——clone 组级跳行 46 由 `B/C` 一行变为 `B`＋`C4` 两行，fresh-clone 读数 group-skipped 3→4（fresh-clone-rerun-watch criterion-met 原确认行保持史实有效，本行载变更后读数）；
   - O5 47-check 普查结论入 registry 机读行（env-gated-guard-class confirmations 增 census-registered）。
+
+### D-163① 四类→五类勘误登记（D-215② scoped，链式追加不改写原条目）
+
+- **D-163①「四类前置探测」→「五类」**（D-215② scoped 勘误注记三同窗之账本摘录段，2026-10-08 落盘）：R66 grill Q3 裁 `git-history:<spec>` 入 FIX 名册第五类（浅克隆历史可达性子面前置——portable 守卫组级 need 非整件 env-contract 前置〔D-215③〕；修复面禁主仓 fetch〔D-074〕）。本条链式追加指回上节去向表 D-163 行「四类前置探测（git-object:/engine-deps:/asset:/sibling:）」与执行窗兑现行「四类 need」两处原文——**原记录不改写**（semver additive 惯例=注记不改写枚举历史）；同步落点=_lib/env-contract.mjs 头注＋need() 头注（三处同窗，D-160③ 双字段同窗纪律同型）。
 ## 第四十三轮收口对账（R43 Grill，2026-09-28）
 
 轮43 口径=第五轮锐评「辩证看待——完成了没」终局复验：R41 裁定→R42 执行+审计 LOOP PASS（判据② 翻绿实证）之后的处置链终局判定。四裁＋定稿裁全调研先行、逐题拍板；一处 revised（D-148②→D-169）按规程字面路径履行。

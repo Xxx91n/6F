@@ -1,9 +1,10 @@
 // 41b-check.mjs — #41b listing 资产核对留痕守卫（D-051/D-052/D-042 / A-060）
 // 断言面：A 三 manifest 字段值 = D-052 拍板值 → B license=Apache-2.0 全链一致
 //   → C capability 口径 = README 单一事实源（1-3 of 5 preview）→ D 诚实披露/闸门 → E 文档 → F BOM
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { stripComments, detectDangerousRegexForms } from './_lib/check-kit.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '#41b listing 资产核对留痕守卫（D-051/D-052/D-042 / A-060）';
@@ -86,6 +87,24 @@ t('E6 WORKFLOW lessons 含 #41b', txt(join(AR, 'WORKFLOW.md')).includes('#41b'))
 // ---------- F. BOM ----------
 const allF = [join(REPO, 'engine', 'plugin.json'), join(REPO, 'engine', '.claude-plugin', 'plugin.json'), join(REPO, '.claude-plugin', 'marketplace.json'), join(REPO, 'docs', 'listing', 'description.md'), join(REPO, 'docs', 'listing', 'credential-checklist.md'), join(HERE, '41b-check.mjs'), join(HERE, '41b-report.md')];
 t('F1 全部相关文件无 BOM', allF.every(function (f) { return !existsSync(f) || noBom(f); }));
+
+// ---------- G. D-213① 危险正则形态机检（zero-backslash 纪律边界成文伴生断言） ----------
+//   适用域=字符串/模板串写入语境；正则字符类内部豁免零反斜杠（[^\]]/[^\x5D] 物理必需）。
+//   两误语义形态=红：[^] 起头（否定空字符类）／否定字符类内裸 ]（提前闭合）。
+const gBad = detectDangerousRegexForms(stripComments("const r = /[^]/;"));
+t('G1 正对照：合成 [^] 否定空字符类必抓（negated-empty-class——P0-2 死正则事故形态）', gBad.some(function (h) { return h.kind === 'negated-empty-class'; }), JSON.stringify(gBad.map(function (h) { return h.kind; })));
+const gGood = detectDangerousRegexForms(stripComments("const e = /[^\\]]/; const h = /[^\\x5D]/; const n = /[^abc]/; const m = /[^=]/;"));
+t('G2 负对照：合法 [^\\]]/[^\\x5D]/普通否定类/单成员否定类不误报（正则字符类内部零反斜杠豁免——物理必需转义不中；[^a] 单成员否定类非危险形态）', gGood.length === 0, JSON.stringify(gGood.map(function (h) { return h.kind; })));
+// 同型普查（D-183 通道）：有界扫全 NN-check 断言面 regex 字面量找同型死形态，命中即红
+//   排除本件自身（G1 正对照合成串含 [^] 系探测器自指非守卫断言面）
+const gFiles = readdirSync(HERE).filter(function (f) { return /-check\.mjs$/.test(f) || f === 'xfail-run.mjs'; });
+let gCensusHits = [];
+for (const gf of gFiles) {
+  if (gf === '41b-check.mjs') continue; // 自指豁免：G1 合成正对照串非守卫断言面
+  const gs = stripComments(readFileSync(join(HERE, gf), 'utf8'));
+  for (const gh of detectDangerousRegexForms(gs)) gCensusHits.push(gf + ':' + gh.lno + ' ' + gh.kind);
+}
+t('G3 同型普查：全 NN-check 断言面零危险正则形态（命中即红——D-183 同型普查＋零命中登记；本件自指豁免已注记）', gCensusHits.length === 0, gCensusHits.slice(0, 5).join(' | '));
 
 console.log('---');
 console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));

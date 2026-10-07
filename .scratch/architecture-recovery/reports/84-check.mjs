@@ -13,6 +13,9 @@ import { dirname, join, relative } from 'node:path';
 import { need, groupProbe } from './_lib/env-contract.mjs';   // D-159⑥ env-contract SSOT（first-party 本仓件——非三方依赖）
 
 const TIER = 'portable';
+// D-214① consumption_forms 消费形态枚举（多形态消费方——HISTREACH 组级 need git-history:full）：
+//   dev-full=完整克隆开发机（全断言面）；ci-shallow=CI fetch-depth:0 浅克隆（历史可达性子面组级 SKIP，纯位形面照跑）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = 'D-188~D-192 commit 指针纪律严格层机检（法定形断言＋known-pointer-violations 册两级判级＋孪生 change-id 分桶）；known-pointer-violations 为本守卫输入工件（baseline 册），其生命周期独立于面消亡判据（D-201②）；#88 fixture 自足重声明（2026-10-05，D-163① 零写入临时仓读法/D-159②）——fixture SHA_OK/SHA_TWIN 运行时物化，零依赖未推送对象，主仓零写入，portable tier fresh-clone 可跑重申；R64 审计返修 P0-1：B 面探针（cb625c64 历史字面钉废止→FX.SHA_OK）＋F 面短钉（da0c25a9→SHA_OK 8hex 前缀）改运行时物化，浅克隆检出→历史可达性子面组级 SKIP（HISTREACH，env-contract need git-history:full——需 cat-file 判定不可分）；纯位形面照跑可判红、需解析 kind 重路由 PV-ENV-UNRESOLVABLE 恒 WARN 披露（LOOP P1-2 窄化）——零历史依赖面全自足';
 
 const HERE = dirname(fileURLToPath(import.meta.url));

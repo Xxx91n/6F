@@ -12,6 +12,8 @@ import { tmpdir } from 'node:os';
 import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
+// D-214① consumption_forms（多形态消费方——E/F 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→对应组 SKIP，仓内段照跑）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#78 quarantine 引擎验收闸（ADR-0022 / D-103~D-120）';
 
 

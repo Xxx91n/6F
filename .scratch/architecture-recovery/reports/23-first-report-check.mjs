@@ -9,6 +9,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
+// D-214① consumption_forms（多形态消费方——R-anchor 组级 need git-object:）：dev-full=完整克隆全断言面；ci-shallow=CI 浅克隆（冻结对象借仓内 bundle 临时仓零写入物化，主仓零写）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '守卫：23 首报全链与三层闸门（A-026 / A-027 / spec §R3-D5 / ADR-0013）';
 
 

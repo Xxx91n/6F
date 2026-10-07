@@ -1351,23 +1351,6 @@
       "note": "存在性断言=presence 层（liveness=可解析+关键字段，readiness=可服务——三层命名约定）",
       "layer": "presence"
     },
-    "41b-check.mjs|unstripped-scan|4ea146a5": {
-      "guard": "41b-check.mjs",
-      "kind": "unstripped-scan",
-      "excerpt": "41b-check.mjs 源文扫描未过剥注释面（名↔检通用化登记项）",
-      "disposition": "convention-registered",
-      "decision": "D-094②/D-144②",
-      "added": "2026-09-27",
-      "round": 37,
-      "note": "历史上文扫描原文面——名↔检剥注释通用化落点=_lib/check-kit.mjs（73-A4/20-A5/54-B 先例）；该守卫存量断言保留原文扫描位，新增断言须过剥注释面；豁免判据=剥后消费位（ADR-0024）",
-      "recheck_log": [
-        {
-          "at": "2026-09-28",
-          "ref": "D-158①",
-          "result": "谓词收紧重测仍命中——字符串/属性名/标识符提名不豁免下存活（realConsumption 判据）；分诊=D-094(b) 语义保持零迁移"
-        }
-      ]
-    },
     "42-check.mjs|date-literal|a0ec6308": {
       "guard": "42-check.mjs",
       "kind": "date-literal",

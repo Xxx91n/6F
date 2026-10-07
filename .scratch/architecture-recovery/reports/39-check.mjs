@@ -16,6 +16,8 @@ const ROOT = join(here, '..', '..', '..');
 const ENG = join(ROOT, 'engine');
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
+// D-214① consumption_forms（多形态消费方——B 组级 need sibling:／D 组级 need engine-deps:）：dev-full=完整克隆＋sibling 工作树＋engine deps 在位全断言面；ci-shallow=CI 浅克隆（sibling/deps 缺席→对应组 SKIP，仓内段照跑）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '39-macro-b 三仓 one-shot 面（产物/证据锚/registry 翻转/self-probe）';
 const REPOS = { 'env-manager': siblingPath('env-manager'), 'anysearch-cli': siblingPath('anysearch-cli'), 'jiahao': siblingPath('jiahao') };
 const NAMES = Object.keys(REPOS);

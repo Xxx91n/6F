@@ -7,6 +7,8 @@ import { spawnSync } from 'node:child_process';
 import { need, groupProbe, gitObjectNeedOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
+// D-214① consumption_forms（多形态消费方——C2 组级 need git-object:）：dev-full=完整克隆全断言面；ci-shallow=CI 浅克隆（冻结对象借仓内 bundle 临时仓零写入物化，主仓零写）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = 'R4-02 守卫：预注册→重跑次序 + v1 留档复现 + v2 golden 对照 + 双读数并列';
 
 

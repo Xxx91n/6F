@@ -9,6 +9,8 @@ import { createHash } from 'node:crypto';
 import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
+// D-214① consumption_forms（多形态消费方——B 组级 need asset:40-clone-cache／D13 组级 need engine-deps:）：dev-full=完整克隆＋clone-cache 播种＋engine deps 在位全断言面；ci-shallow=CI 浅克隆（asset/deps 缺席→对应组 SKIP，仓内段照跑）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#40 非自有公开仓 URL opt-in 泛化验证守卫（R5-09 / A-045）';
 
 
