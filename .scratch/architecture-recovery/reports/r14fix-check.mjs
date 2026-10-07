@@ -49,7 +49,7 @@ t('C5 degradeReport 宿主叙事保留重盖章（hostKept 段在）', gen.inclu
 t('C6 --limit NaN 闸（Number.isFinite）', cli.includes('Number.isFinite'));
 t('C7 CLI 严格面：未知 flag/缺值/bogus 子命令 exit 2', cli.includes('unknown flag') && cli.includes('missing value') && cli.includes("usage: macro-audit mcp [facts"));
 t('C8 narrative.test G1 改名对齐实义', txt(join(ENG, 'test', 'narrative.test.mjs')).includes('四字段断言一致'));
-t('C10 engine CHANGELOG Unreleased 单 Added 段（双段合并）', (chgE.split('## [0.1.0]')[0].match(/### Added/g) || []).length === 1);
+t('C10 engine CHANGELOG [0.1.0] 前区单 Added 段（双段合并纪律延续——版节化后为最新版节区，R64 P3-2 版本递增随改标题）', (chgE.split('## [0.1.0]')[0].match(/### Added/g) || []).length === 1);
 t('C11 registry faces=21＋function-coupling 出 faces 留 face_criteria', (function () { const reg = JSON.parse(txt(join(REPO, '.scratch', 'architecture-recovery', 'reports', '33-gate-registry.json'))); const df = reg.items.find(i => i.id === 'codelore-deferred-faces'); return df.faces.length === 21 && !df.faces.includes('function-coupling') && df.faces.includes('function-*') && df.face_criteria['function-coupling']; })());
 t('C9+C12 账本 A-064 裁定注记在', txt(join(REPO, '.scratch', 'architecture-recovery', 'decision-ledger.md')).includes('A-064') && txt(join(REPO, '.scratch', 'architecture-recovery', 'decision-ledger.md')).includes('1.1.0'));
 

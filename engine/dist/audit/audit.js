@@ -14,6 +14,7 @@ import { repoAdd } from '../intake/intake.js';
 import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, probeGitVersion, MACRO_B_STOPWORDS, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, TC3_TOPN } from './macro-b.js';
 import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, UNVERIFIED_MARK, firstFactIds } from '../report/generate.js';
 import { runMacroCAudit } from './macro-c.js';
+import { runMicroAAudit } from './micro-a.js';
 import { writeRunFactsAndEvents } from './fact-write.js';
 import { openWriter, queryQuarantineCounts, closeDuckdb } from '../fact/store.js';
 import { strictQuarantineViolations, ratchetIssues, intakeIdentityIssues, protocolCrashError, intakeEscalation, countsFromStats, QUARANTINE_FIELD_RATIO_RED, rawEcho, GIT_ISO_DIALECT_RULES } from '../intake/quarantine.js';
@@ -21,8 +22,8 @@ import { projectUpstreamDimensions, CODELORE_S3_FACETS, SEMANTIC_DOMAIN_LABELS }
 import { reaggregateFileFacetRows, reconcilePerFileVsAggregate } from '../upstream/codelore.js';
 const NL = String.fromCharCode(10);
 // 已实现规模面（D-060③：--scale 缺省 Macro-B；其余层未实装 → 诚实拒绝 exit 2）
-export const AUDIT_SCALES_IMPLEMENTED = ['Macro-B', 'Macro-C']; // Macro-C 产线化（#84/D-204②④）；层序不动（ADR-0017③）
-const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（ADR-0017③ 层序，Macro-B/Macro-C 已上架 preview）';
+export const AUDIT_SCALES_IMPLEMENTED = ['Macro-B', 'Macro-C', 'Micro-A']; // Macro-C 产线化（#84/D-204②④）＋Micro-A 产线化（#85②/D-204③④）；层序不动（ADR-0017③）
+const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（ADR-0017③ 层序，Macro-B/Macro-C/Micro-A 已上架 preview）';
 const SCALE_CANON = { 'microa': 'Micro-A', 'microb': 'Micro-B', 'macroa': 'Macro-A', 'macrob': 'Macro-B', 'macroc': 'Macro-C' };
 export function isAuditScaleError(e) {
     return !!e && typeof e === 'object' && e.code === 'SCALE-NOT-IMPLEMENTED';
@@ -36,7 +37,7 @@ export function normalizeAuditScale(raw) {
     if (AUDIT_SCALES_IMPLEMENTED.indexOf(req) < 0) {
         throw {
             code: 'SCALE-NOT-IMPLEMENTED',
-            message: '--scale ' + req + ' 未实装——audit 现仅上架 Macro-B（' + SCALE_LAYER_ORDER + '；本命令不假装能跑未实装层）',
+            message: '--scale ' + req + ' 未实装——audit 已上架 Macro-B/Macro-C/Micro-A（' + SCALE_LAYER_ORDER + '；本命令不假装能跑未实装层）',
             implemented: AUDIT_SCALES_IMPLEMENTED,
             requested: req,
             layer_order: SCALE_LAYER_ORDER
@@ -83,6 +84,9 @@ export async function runAudit(opts) {
     if (scale === 'Macro-C') {
         return runMacroCAudit(opts);
     } // #84/D-204②④：Macro-C 一等面（38 管线移植）
+    if (scale === 'Micro-A') {
+        return runMicroAAudit(opts);
+    } // #85②/D-204③④：Micro-A 一等面（48 管线移植）
     const cwd = opts.cwd || process.cwd();
     // ---------- §1 intake（ADR-0009 三段式复用；不自动 pull，refresh 显式 opt-in） ----------
     const intake = repoAdd(opts.input, { cwd: cwd, refresh: opts.refresh === true });
@@ -270,7 +274,7 @@ export async function runAudit(opts) {
         capability_label: 'capability 1 of 5 · preview',
         calibration_scope: NAME + ' Macro-B audit（audit 一等命令面；scale=Macro-B 已上架）',
         structural_limitations: limitations,
-        not_in_preview: ['Micro-A', 'Macro-A'] // Micro-B file-card 进 preview（#80 步③）；Macro-C 产线化入 preview（#84/D-204②④）；Micro-A=calibrated demo 非 preview（D-204③）
+        not_in_preview: ['Macro-A'] // Micro-B file-card 进 preview（#80 步③）；Macro-C 产线化入 preview（#84/D-204②④）；Micro-A 产线化入 preview（#85②/D-204③④）
     };
     const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
     const intakeHealth = {

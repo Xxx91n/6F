@@ -358,7 +358,7 @@ export async function runMacroCAudit(opts) {
             '供应链象限 ⚠ 数据未接：Scorecard/repomix 未接不插队（D-034③）',
             'structure/behavior 象限为衍生观测（无预声明阈值基线）——观测值如实落 slice_fields 不裁决（语义域标签：structure/shape 测量层 vs S3/budget-attribution 归因层，D-205）'
         ],
-        not_in_preview: ['Micro-A', 'Macro-A'] // Micro-B file-card 进 preview（#80 步③）；Micro-A=calibrated demo 非 preview（D-204③）；Macro-C 本面产线化入 preview（#84/D-204②）
+        not_in_preview: ['Macro-A'] // Micro-B file-card 进 preview（#80 步③）；Micro-A 产线化入 preview（#85②/D-204③④）；Macro-C 本面产线化入 preview（#84/D-204②）
     };
     const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
     const intakeHealth = {

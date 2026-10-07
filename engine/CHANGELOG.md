@@ -7,7 +7,11 @@ Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-05
+
 ### Changed
+- 产品版本 0.1.0 → 0.2.0（docs/versioning.md §1：minor=契约变更——#84 Macro-C＋#85② Micro-A 两批产线化契约变更合并追补；R64 审计返修 P3-2 裁定补办，preview tag 随 push 授权窗补挂）
+- #85② Micro-A 产线化一等面（D-204③④/ADR-0015）：`48-micro-a-preview.mjs` 移植 `audit --scale Micro-A`（`src/audit/micro-a.ts` §0~§10 逐段保真——input gate 结构化拒绝 MICRO-A-INPUT/SCOPE＋托管面资格闸＋判据 PC-1/TC-1~4/NC-1＋拒绝件 D-033＋fact-write.ts 共享核零 commit grain）；`implemented=[Macro-B,Macro-C,Micro-A]`＋`not_in_preview=[Macro-A]`；85-check E 组差分重校准（引擎面 cassette 回放 vs 48 生成器 golden——fact_id 全等）；`micro-a.test` 22/22 入 smoke；`not_in_preview` 全家翻转（macro-c/demo/demo golden）；dist/cli.js 373,105B（棘轮帽 385,000B 内——headroom 3.1% 触发 dist-ratchet-headroom-low，重评票 #90）
 - #59 kernel 自包含分发（D-067/D-038/A-069）：插件根 `.mcp.json` 契约 bare `macro-audit`+PATH → `node`＋`args:["${CLAUDE_PLUGIN_ROOT}/dist/cli.js","mcp"]`（变量放 args 不放 command；gen-manifests 单源生成；`mcp.json` 兄弟文件保留 npm 消费者面 bare 不动）；`engine/dist/` 40 件随源进仓（`.gitignore` 放开 dist/；`dist/cli.js`=esbuild 0.28.2 单文件 bundle 153,604B，build=tsc+`scripts/build-bundle.mjs`）；`src/fact/store.ts` duckdb 改懒加载降级（git-clone 无 node_modules 时握手/selftest/repo-add 零依赖可用，facts/audit/demo 报 `DUCKDB-UNAVAILABLE` 结构化错非崩溃）；`src/demo/demo.ts` fixtures 锚 `metaPath()`（bundle/tsc 两形态同构）；engine-ci.yml rebuild-diff 守卫（`git status --porcelain -- dist/` 非空即红）＋`npm ci`＋`permissions: contents: read`＋paths 含自身；锁表新增 `esbuild` 行（kind=node-lib，active/exact-version 0.28.2——upstream-lock.yaml diff）
 - upstream-lock repomix-gitingest planned→retired（D-056：宿主 agent 恒在抽空打包用途；retired 行留档＋重开触发器 registry repomix-reopen-trigger）
 - 插件对外名 macro-audit → `6f`（D-052；双 manifest 由 manifest.meta.json 单源再生成）；license UNLICENSED → Apache-2.0（D-051/ADR-0021，LICENSE 换文）

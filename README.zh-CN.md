@@ -1,5 +1,5 @@
 <!-- canonical: README.md | owner: Xxx91n -->
-<!-- sync: 436fd419ff2a -->
+<!-- sync: 6e72603907ed -->
 > ⚠ **本文件为中文译文（derived 工件）——英文版 [README.md](README.md) 为权威版本（canonical 权威源）；如有不一致以英文版为准。** 译文可暂时落后，但不假装新鲜（sync 戳与英文版内容指纹绑定）。
 
 <p align="center">
@@ -35,7 +35,7 @@
 
 
 > [!NOTE]
-> 当前状态（2026-09-20）：**preview 形态**（能力边界见下节矩阵）——Macro-B / Macro-C / Micro-B 三层 preview；Micro-A 为 **calibrated demo**（not in plugin distribution——D-204③）；Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。插件可经 marketplace 安装（`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`，安装/验收口径见 [engine/README.md](engine/README.md)；B 轨官方目录未提交、走用户闸门）；「发布未发生·不存在可安装 listing」旧态已由 marketplace 上架终结。表中标注「planned」的上游尚未接入，请勿据本页认为产品已完成。产品语面（审计报告、listing 文案）以中文为主；本文件是 [README.md](README.md) 的派生译文。
+> 当前状态（2026-10-05）：**preview 形态**（能力边界见下节矩阵）——Macro-B / Macro-C / Micro-B / Micro-A 四层 preview（Micro-A 产线化——#85②，D-204③④）；Macro-A 为 **Not yet in preview**（roadmap 叙事非可用承诺）。插件可经 marketplace 安装（`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`，安装/验收口径见 [engine/README.md](engine/README.md)；B 轨官方目录未提交、走用户闸门）；「发布未发生·不存在可安装 listing」旧态已由 marketplace 上架终结。表中标注「planned」的上游尚未接入，请勿据本页认为产品已完成。产品语面（审计报告、listing 文案）以中文为主；本文件是 [README.md](README.md) 的派生译文。
 
 <a id="capability-matrix"></a>
 ## 能力矩阵 {#capability-matrix}
@@ -46,7 +46,7 @@
 |---|---|
 | Macro-B 仓库级四象限 | **capability 1 of 5 · preview**（自审首报样例见 [examples/first-report/](examples/first-report/)）；象限面矩阵：**strategy: active**（S1+S2 采集面已上架）· **behavior: preview**（codelore churn/hotspot/coupling 切片，#51）· **structure: preview**（S3 族形态观测——structure/shape 语义域，derived 观测不裁决，D-205）· **supply-chain: queued**（D-034③ Scorecard 不插队） |
 | Macro-C 演化考古 | **capability 2 of 5 · preview**（单仓校准披露口径） |
-| Micro-A PR diff | **capability 3 of 5 · calibrated demo**——not in plugin distribution（托管 API 适配器消费侧，同主试点仓 4-PR 校准口径；适配器硬化=产线化票 #85② 在途，D-204③） |
+| Micro-A PR diff | **capability 3 of 5 · preview**（托管 API 适配器消费侧，同主试点仓 4-PR 校准口径；适配器硬化面已落 engine 一等面——#85② 闭环，D-204③④） |
 | Micro-B file level | **capability 4 of 5 · preview**（file-audit card；试点集=同主双仓 jiahao＋env-manager 血缘缝合/校准；advisory-only 结构性隔离） |
 | Macro-A 跨仓战略 | Not yet in preview |
 

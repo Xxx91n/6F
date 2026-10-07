@@ -19,7 +19,7 @@
 
 ## CLI 命令面
 - `macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]` —— 一等审计命令（#53/D-060）：实仓审计。链 = repoAdd 输入裁决（ADR-0009 三段式）→ 共享管线（`src/audit/macro-b.ts` 策略面 + codelore 行为面，与 demo 同消费；`src/audit/macro-c.ts` Macro-C 演化考古面——#84/D-204②④，38 管线移植＋anysearch-cli 原语料重校准差分对账）→ 骨架报告 + facts.duckdb。
-  - `--scale` 缺省 `Macro-B`（已上架：`Macro-B` · `Macro-C`）；未实装层不假装——结构化 `SCALE-NOT-IMPLEMENTED` + exit 2。
+  - `--scale` 缺省 `Macro-B`（已上架：`Macro-B` · `Macro-C` · `Micro-A`——#85②/D-204③④）；未实装层不假装——结构化 `SCALE-NOT-IMPLEMENTED` + exit 2。
   - 省略 `--out`：报告 md 走 stdout；`--json` 改走 sidecar JSON；`--out <dir>` 双写（`report.md`/`report.json`/`audit-facts.jsonl`/`audit-measurements.json`/`facts.duckdb`）后 stdout 打印回执 JSON。
   - `--refresh`：intake URL 缓存显式刷新 opt-in（#55/D-059⑦；不自动 pull）；快照时点/缓存命中披露落 measurements.intake + 报告披露块。
 - `macro-audit repo add <path|owner/repo|url> [--cache <dir>] [--refresh]` —— repo 输入裁决（本地路径 | owner/repo 本地优先 | URL opt-in 隔离 clone；远程配置执行恒定 disabled、浅仓拒绝、hooks noop、protocol.ext.allow=never）。
