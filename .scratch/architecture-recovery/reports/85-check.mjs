@@ -37,7 +37,7 @@ t('A5 fact-write.ts 同位共享核在（audit.ts 与 macro-c.ts 同消费）', 
 t('A6 engine/README scale 行已上架三层（Macro-B · Macro-C · Micro-A）', readFileSync(join(ENG, 'README.md'), 'utf8').indexOf('`Macro-B` · `Macro-C` · `Micro-A`') >= 0);
 const ctxDoc = readFileSync(join(REPO, 'CONTEXT.md'), 'utf8');
 t('A7 CONTEXT 词条在场机核四件（R56 注入——Release Preview 法理边界/语义域/Cross-Scale/暴露梯度三轴）', ['preview=用户可达交付面', 'structure/shape', 'S3/budget-attribution', '三轴正交'].every(function (k) { return ctxDoc.indexOf(k) >= 0; }));
-t('A8 bundle 棘轮帽已显式抬限（385000——勘误四裁定留痕）', readFileSync(join(ENG, 'scripts', 'check-dist.mjs'), 'utf8').indexOf('385000') >= 0);
+t('A8 bundle 棘轮帽已显式重推导（371342——D-217 minify 治理后实测×1.25 向下重推导，D-129③ scoped 双向注记留痕）', readFileSync(join(ENG, 'scripts', 'check-dist.mjs'), 'utf8').indexOf('371342') >= 0);
 t('A9 本守卫自身无 BOM', noBom(join(HERE, '85-check.mjs')));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
