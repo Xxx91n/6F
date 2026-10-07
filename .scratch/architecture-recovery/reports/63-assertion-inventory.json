@@ -3,7 +3,7 @@
   "decision": "D-071",
   "created": "2026-09-18",
   "updated": "2026-10-08",
-  "updated_by": "update-70-inventory.mjs（#93/D-218 emit 计量修复——定义行排除谓词同源双拷贝同修，纯减法 1528→1497 emit 位）",
+  "updated_by": "update-70-inventory.mjs（#93/D-218 emit 计量修复——定义行排除谓词同源双拷贝同修，纯减法 1528→1497 emit 位；#92 A8 slug 换钉 385000→371342 计数不变）",
   "note": "断言级稳定 id=断言名首词 token（A1/B5/G15 形），跨 t()/ok()/check()/w()/w58()/sealed()/x() 七签名族均在位——XFAIL/VACUOUS 协议按 <guard>:<slug> 键可寻址。assertion_ids=唯一 slug 数（同 slug 多发射路径按一计——73-check C2 t()/x() 双路实证，loop 族动态 slug 按调用点计一，sealed() 计入盘点不参评候选；检测经 stripComments+maskStrings 双轨，注释/字面量内伪调用不计）。〔D-218 口径修复勘误 2026-10-08：抽取谓词排除定义行形态（function <sig>(／const <sig> = (…) =>）——emit 位回归头注已声明「调用点」口径；旧读数 1528 emit 位含 31 件幻影（定义行伪 slug=签名名/收尾 PASS 字面，与真实断言 slug 零交集）系仪器误差非主体病态，纯减法归因表见 R67 #93 报告；本行链式追加不改写历史读数（D-146⑤）。〕",
   "guards": {
     "01-check": {
