@@ -181,6 +181,8 @@ function extractAssertions(origLines, maskedLines, namePos) {
   const assertions = [];
   origLines.forEach((l, i) => {
     const ml = maskedLines[i] || '';
+    // D-218①：排除定义行形态（同源双拷贝同修——update-70-inventory.mjs 与 70-check §1 单改一处=同源失步新同型缺陷）
+    if (/^\s*(?:function\s+(?:t|ok|check|w|w58|x)\s*\(|const\s+(?:t|ok|check|w|w58|x)\s*=\s*(?:function\s*\(|[^=(].*=>))/m.test(ml)) return;
     for (const mm of ml.matchAll(/\b(t|ok|check|w|w58|sealed|x)\s*\(/g)) {
       const fn = mm[1];
       const pos = namePos[fn] || 0;
