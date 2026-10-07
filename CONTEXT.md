@@ -28,6 +28,11 @@
 > 轮 48 grill（2026-09-29 完成）已封口 D-176 ~ D-179：四裁——macro-b-regression 死件处置包（本窗新发现：YAML 未引号冒号→文件级解析失败→schedule 静默死亡 ~6 天；修＋双轨建制=parse 档闸归机检面 46-check＋liveness 哨归 manual_watch 五要件；分档判据=验证成本×失效频率×检测时延容忍，平台侧失效形态〔60 天自动停用/调度注册漂移〕只有哨兵可兜）＋预声明验证包锚定义＋实跑必选（声明锚=先落物化面即合法〔账行/报告节/独立文件〕，同 commit 原子落盘不满足证据强度；红态诱导实跑必选——未跑=缺件处置非静默放行；不溯既往——7bd2e8e1 维持实质合规）＋调研存档形态统一（reports/ 文件硬要求——ctx 索引=检索增强非等价持久件；R48 (d) 面缺件补落义务）＋守卫伴生再生减负包（确定性种子化主腿〔SOURCE_DATE_EPOCH 式 env 注入＋UUID 内容寻址〕＋volatile-fields 枚举豁免清单副腿〔三硬边界：枚举键级/派生信号族禁入/死项即红棘轮〕＋两跑零 diff 防退化自检；自动 discard 显式驳回——无先例且绕开 D-140② 记账面）；**D-147→revised**（仅③款锚形态——由 D-177 承载一般化，账行锚=新规特例）；调研档案 R48-Q{1,2,4} 系列存档 .scratch/macro-audit/reports/；本轮 revised 一件（D-147③）。
 > 轮 49 grill（2026-09-30 完成）已封口 D-180 ~ D-183：四裁——收口 commit 对节奏（语义收口→立即再生→同窗独立 bundle＋口径改述「除已收编真实语义信号件外零 churn」；(ii)(iii) 显式驳回）＋扩面勘误通道（append-only 勘误节＋时点二分按可预见性＋IESG 命题变更测试分级＋commit-body 降为从证据；首例即定形）＋冻结包代表性衰减声明（声明入册项确认行＋S1 重校准缓行挂消费拉动＋缺口 AR 五要件注册＋哨兵续看；(iii)(iv) 显式驳回〔复审钩缺失=立法不成立〕）＋微修批建制（F3/F4 双修＋同型反模式普查＋等价性验证钉死——AR 缓挂=自我指涉悖论被支配）；零 revised。
 > 轮 50 grill（2026-09-30 完成）已封口 D-184 ~ D-187：check-kit regex 字面量盲区分步处置（迁入闸条文＋AR 注册→轮51 根治立项）＋开工对表声称态核实义务＋atomcode 调研降级形态立法（degraded_performance＋构成比复审钩）＋任务书换代哨兵字标盘点规程
+> 轮 51 grill（2026-09-30 完成）已封口 D-188 ~ D-195：commit 指针法定形立法——≥12hex＋(subject) 双要素校验位／严格层宽层划界／锚线声明制／存量两级判级／baseline 册设计／载体落点分工（D-194② 款经 D-195 撤销→revised，余款存续）。
+> 轮 53 grill（2026-10-01 完成）已封口 D-196 ~ D-201：R52 T3 五候选＋T1-B′ 哨兵承接裁定——扩面勘误通道／列头反向闸／subject 规范化形必填／严格层扩充列头／册自报失配机制。
+> 轮 56 grill（2026-10-02~03 完成）已封口 D-202 ~ D-210：四层收口深化面五枝全裁——preview 法理边界（Macro-C 产线化／Micro-A 收窄+立票）／structure 分层语义域／supply-chain 续排+源判据预声明／baggage 拓扑+双枚举保留／per-layer preview→GA 判据六类骨架。
+> 轮 62 grill（2026-10-04 完成）已封口 D-211 ~ D-212：第五轮锐评摄入分诊路由＋A-3 守卫立法——(ii) 修正版全案（reef#1 执行票／reef#2 部分重开＋棘轮余量<25% 警戒线／reef#3 双轨登记／窗口序 #85② P0 第一）＋41a-check 账本节标题双层唯一性断言（`##` 全局＋`###` 同父 siblings_only，双账本）。
+> 轮 66 grill（2026-10-06~07 完成）已封口 D-213 ~ D-220：R65 移交四题＋挂账面五件全裁——zero-backslash 适用域成文×修复性断言变异击杀分级／consumption_forms 消费形态枚举验收立法／git-history: 第五类 FIX 名册／EOF-only hunk scoped git 兜底授权／#90 dist 重评=形态维持+minify 治理+帽下修／P3-3 emit 仪器误差通道／生成器 EOL 哨兵字节级闭环／主权批 .atomcode 豁免+远端三分支删。
 
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
@@ -236,7 +241,7 @@ _Avoid_: 误报原因（无留档凭证语义）、flaky（暗示随机性，不
 _Avoid_: TODO 提醒（无到期升级语义）、冻结（暗示永不解锁）
 
 **Release Preview（发布预览）**:
-产品的分级发布形态——「capability N of 5 · preview」标注 + 0.x 版本语义 + changelog 明示当前覆盖范围；preview 层必须自成完整价值单元（MMP 判据），未上架层只做文字披露 + roadmap 叙事、不交付预览性演示资产；build-scope（5 scale 全规划）与 release-sequence（分层暴露）为正交维度，preview 上架不构成 MVP 切片。**法理边界**（D-204）：preview=用户可达交付面——工件存在或内部脚本产出不构成 preview 标注依据；同面各能力行独立标注成熟度，demo 级行明示「not in plugin distribution」。**毕业三轴正交**（D-210）：层 GA=能力成熟度门（判据类目骨架六件=语料广度／披露清洁窗／象限完整度含明示永久豁免位／适配器确定性验收／schema 稳定窗／修订通道声明；阈值挂各层 GA 票面预声明）／产品 1.0=契约稳定性门（schema 冻结＋适配器确定性验收）／Stage-2=暴露门；永久 preview 是合法终态但须显式声明（never-graduate 先例）。
+产品的分级发布形态——「capability N of 5 · preview」标注 + 0.x 版本语义 + changelog 明示当前覆盖范围；preview 层必须自成完整价值单元（MMP 判据），未上架层只做文字披露 + roadmap 叙事、不交付预览性演示资产；build-scope（5 scale 全规划）与 release-sequence（分层暴露）为正交维度，preview 上架不构成 MVP 切片。**法理边界**（D-204）：preview=用户可达交付面——工件存在或内部脚本产出不构成 preview 标注依据；同面各能力行独立标注成熟度，demo 级行明示「not in plugin distribution」。**毕业三轴正交**（D-210）：层 GA=能力成熟度门（判据类目骨架六件=语料广度／披露清洁窗／象限完整度含明示永久豁免位／适配器确定性验收／schema 稳定窗／修订通道声明；阈值挂各层 GA 票面预声明）／产品 1.0=契约稳定性门（schema 冻结＋适配器确定性验收）／Stage-2=暴露门；永久 preview 是合法终态但须显式声明（never-graduate 先例）。（勘误注记 2026-10-05，D-146⑤ 链式：Micro-A 经 #85② 产线化入 preview——audit --scale Micro-A 一等面＋85-check E 组重校准背书，D-204③ demo 态翻转，「demo 级行明示 not in plugin distribution」句对 Micro-A 不再适用；Macro-A 维持 Not yet。）
 _Avoid_: beta 滥用（无边框语义）、暗示全量能力、GA 姿态（未过逐层漏斗）
 
 **Trigger-gated Closure（触发器封口）**:
@@ -452,6 +457,15 @@ _Avoid_: 宽口径全文 SHA 形串入规（lint 误报淹没实证）、纯窄�
 **已知违规清单（known-pointer-violations baseline）【自造词】**:
 指针守卫的存量基线册（D-191③/D-192——PHPStan baseline 机制先例）：条目指纹=file＋内容模式＋关联勘误行号（禁行号定位——行漂移即失配）；册内存量违规=WARN／册外新增=FAIL／册项失配=守卫自报移除提示（ratchet 只减不增）；守卫首跑承接全存量普查（人工普查不另做）；条目无勘误引用=非法条目（防大赦名单化）。
 _Avoid_: blame/时点判定新老违规（amend 流下方向性错误——存量误判 FAIL 比漏判更危险）、纯增量/diff-only 扫描（存量永不现形）、WARN-only 过渡档（生效日形同虚设）、扫描面开放增长（扩面走立法票）
+
+
+**Zero-backslash 纪律适用域（Scoped No-Backslash Rule）【自造词】**:
+Node 写入卫生纪律「字符串/模板串写入语境优先字符类或 charCode 避反斜杠嵌套吞义」的适用域=**字符串字面量与模板串语境**（D-213①）——**不适用于正则字符类内部**（否定字符类排除 `]` 物理上必须 `[^\]]`/`[^\x5D]` 转义——R64 P0-2 `[^]` 空类陷阱事故实证：为守纪律写出的判别臂死亡）。伴生机检=危险正则形态（`[^]`/否定类内裸 `]`）扫描即红；**修复性断言变异击杀分级**（D-213②）：P0/P1 修复断言内嵌活性正对照（合成违规串必命中——判别臂活着的自证）／P2+ 预声明读数可代但须含判别臂存活证据／正则·模式匹配类不分级皆强制内嵌——「类 P0-2 正则陷阱适用域不可枚举」不设分级豁免。
+_Avoid_: 纪律外推到正则类内部（语义反转陷阱）、形态扩张到全量转义矩阵、有判别臂的断言无击杀证据（假绿面）、自造词豁免漏登本条目
+
+**消费形态枚举（consumption_forms）【自造词】**:
+探测面守卫「谁在什么环境形态下消费我」的声明面（D-214）——与 need() 降级机制两层互补非竞争：consumption_forms 管消费声明枚举（守卫作者声明＋75a-T3 式声明↔登记双单向对账，**仅对真实多形态消费方的守卫强制枚举**——单 dev 消费方登记 `[dev-full]` 一行闭环不设枚举税；枚举值域可含 need 类型名），need() 管前置缺席时优雅降级（SKIP 三态管道）。tier 差异化验收证据：portable=全克隆实测＋浅克隆**合成物化**读数（`--depth 1` 临时克隆复跑留痕，D-163① 同族；合成的是消费形态载体非断言对象，commit 图在浅克隆真实存在/不存在故不触 fixture 化禁令）；env-contract=need 声明集结构验证＋SKIP 契约结构验证（SKIP 面宿主缺席时不可实跑绿，强推实跑=越 D-177⑤ 域）。**新增消费形态=registry 触发器**（clone/CI checkout/sibling 消费方式变更→被消费守卫复审——防靠人记）。工业先例=Pact `can-i-deploy` 对账矩阵／Bazel 环境声明／tox env_list／GHA matrix／TF_ACC 临时物化。
+_Avoid_: 枚举税滥用（单形态消费方强设枚举）、tier 字段与形态面混读（tier 管验收证据档位非消费枚举）、形态变更靠记忆不传触发器、浅克隆形态要求真实常驻克隆（无消费方建闸）、SKIP 面强推实跑（born-red 复辟）
 
 ### retired 类（退役守卫终态留档）
 

@@ -464,3 +464,29 @@
 - T1-C #86 对账/认领票包（D-207②③＋D-209）：A-009 全数字表对账认领（认领非重议）＋stale_data_marker/drift 双语义域一行账本成文＋#13 核销确认；spec #9/#13 行一致。
 - T1-D #87 structure 摘帽接入（D-205②③）：ADR-0013 预声明先行（predecl §4）；SEMANTIC_DOMAIN_LABELS↔CONTEXT 词条互等；S3 族成对准入采集接线（六面全齐→derived，缺→not_applicable）；facts 层 golden 闸三断言（新守卫 86-check 18/18＋正负对照）；摘帽措辞 README 双语/SKILL 同窗；supply-chain 维持（D-206）。
 - 过程：but commit CHANGES 选择器本环境失效（五例实测）→commit-all＋committed-file 摘除整形，.atomcode 误收两度摘回；census 归因 400 条（+11/−1）；63-inventory 再生 64 守卫 1507 emit 位；registry env-gated 10→12 件；guard-all-run 65/65 全绿（新 85/86 动态入列）。
+
+### M-057（2026-10-04 R62 grill 收口批＋整理环节）
+
+- 两裁落账（D-211~D-212 全 current，零 revised）：第五轮锐评摄入分诊路由=(ii) 修正版——reef#1 84-check 孤儿 fixture 鲜克隆红→#88 执行票（修法 impl 参数不预钉）／reef#2 dist 310KB→D-181 本体维持＋棘轮余量<25% 警戒线立法＋dist-in-repo-review 第四子事件／reef#3 仪式占比→SRE toil 双轨登记＋ceremony-ratio-watch 册／窗口序 #85② P0 第一；A-3 账本节标题唯一性守卫立法→#89 票（41a-check `##` 全局＋`###` 同父 siblings_only 双账本＋ADR-0013 预声明随票）。
+- 整理环节落盘：registry 80 项（dist-in-repo-review 映射更新＋ratchet-headroom-watch/ceremony-ratio-watch 双新册＋dist-ratchet-headroom-low 事件锚）＋CONTEXT 头部补 R51/R53/R56/R62 四行封口＋BACKLOG #88/#89＋R61 closeout-handoff 收编＋next-round.md R63 换代。
+- 调研构成如实登记（D-186 口径）：R62-Q1/Q2 **二连真回传**（Q1 searches 12/angles 5/full reads 6；Q2 searches 6/angles 4/full reads 3＋MD024 官方文档）——继 R56 降级潮后首次全真回传轮。
+- 卫生留痕：origin 远端 r53/r54/r55 三分支未删（用户主权面）；锐评快照=HEAD 759de85 摄入合规；macro-b-regression 9-29 三红系旧 SHA 历史件非 HEAD 态。
+
+### M-058（2026-10-05 R63 T1 执行批——#85②/#88/#89 三票兑现窗）
+
+- T1-A #85② Micro-A 产线化（D-204③④）：48 管线移植 engine 一等面 `audit --scale Micro-A`（src/audit/micro-a.ts §0~§10 逐段保真＋fact-write 共享核零 commit grain）；名归位硬判据=85-check E 组差分重校准 36/36（引擎面 cassette 回放 vs 48 生成器 golden——fact_id 全等）；not_in_preview 全家翻转=[Macro-A]＋分发面四层在架（README 双语 sync 戳 6e72603907ed／description／credential-checklist §E／marketplace／SKILL）＋48 生成器旧列修正；micro-a.test 22/22 入 smoke；D-062 DoR-a Micro-A 分量如实计入；dist 310,334B→373,105B（帽内 margin 11,895B——headroom 3.1%＜25% 警戒线触发 dist-ratchet-headroom-low，强制重评票 BACKLOG #90）。
+- T1-B #88 84-check 自足修（D-211①/D-163①⑥）：D-163① 零写入临时仓读法选定——SHA_OK/SHA_TWIN 运行时物化（孤儿 commit 201935fc 字面钉废止）＋portable 重声明（D-159②）＋engine-ci portable 段扩列（CI 射程缺口勘误）；鲜克隆首读 84-check GREEN。
+- T1-C #89 A-3 标题唯一性（D-212）：41a-check H 组双层断言（`##` 全局＋`###` 同父 siblings_only 双账本）0 违例落地即绿＋正对照 H3/H4 mutation-kill＋H5 边界声明＋guard-meta 扩注；ADR-0013 预声明随票（predecl §3）。
+- 过程：预声明包先于语义 commit（D-177①③——rzs）；but CHANGES 选择器本窗复验可用（六 commit 收清单逐个 but show 核实）；53-check B2 鲜克隆漏网 LOOP 修正 amend rlm；.atomcode 两件全程未入 commit（T3 用户主权）；atomcode 构成比 0/0（执行窗零调研——D-186② 口径）。
+
+### M-059（补记 2026-10-05 R64-LOOP 返修批＋R64-LOOP2 审计窗＋R65 收口交接——append-only 链式补记，R66 收口工序前置核对时发现编年缺口填补）
+
+- **R64-LOOP 返修批**（审计打回返工窗）：P0-1=84-check 浅克隆 born-red 根治（B/F 面 SHA 运行时物化＋浅克隆 DOCSCAN 组级 SKIP＋engine-ci `fetch-depth:0`/paths 扩列）＋P1-1 欠账互斥修复＋P2-1 三处守卫弱化修复＋P2-2 85-check E9 等值集补位＋P3-1 尾行/P3-2 版本 0.1.0→0.2.0＋index 中间态清除；**返修二段**（LOOP 复审有条件通过→二段）：P0-2=85-A4 死正则 `[^]]` 空类陷阱修正→`[^\]]` 转义＋判别臂活性正对照内嵌（端到端 8 行变异 5 杀 3 负对照）＋P1-2=skip 窄化 HISTREACH（env-unresolvable 恒 WARN 披露）；commits 链=yrr/ynl/mok/qpu/rtt/snv/zmv/klz/nsl→merge `3a11416a`（R63+R64 并入 main）。
+- **R64-LOOP2 审计窗**：审计报告与交接入库（`9f88ebba`/`nuz`，审计通过）→merge `cd5392fd`；findings 全闭环（P0-1/P0-2/P1-1/P1-2/P2-1/P2-2/P3-1/P3-2＋过程违规③④）；P3-3 登记留跨窗议题→R66 转裁（D-218）。
+- **R65 收口交接批**：closeout-handoff 成文（`4efa85ca`）＋三线 --no-ff 合并推送 main=`cd5392fd`=origin（用户授权 push 窗）→`fd98d12b` R65 收口交接并入；移交 R66 grill 四题＋挂账面五件成文。**零新裁定**（审计/收口窗）。
+
+### M-060（2026-10-07 R66 grill 收口批＋整理环节落盘）
+
+- **R66 grill 八裁全定**（D-213~D-220 全 current 零 revised；atomcode 7/7 真回传，Q8 主权批豁免派遣登记）：zero-backslash 适用域成文×修复性断言变异击杀分级（D-213，R64 P0-2 事故立法化）／consumption_forms 消费形态枚举验收立法（D-214）／git-history:&lt;spec&gt; 入 FIX 名册第五类（D-215）／EOF-only hunk scoped git 兜底授权（D-216——4.2 例外行文法＋message 标注串＋双通道收回钩）／#90 dist 形态重评=分发形态维持＋minify 治理＋帽向下重推导（D-217）／P3-3 emit 计数仪器误差通道（D-218——同源双拷贝同修＋纯减法归因判据）／生成器 EOL＋哨兵字节级闭环（D-219——四件产物含 .mcp.json 题面修正）／主权批（D-220——.atomcode 永久豁免立法＋远端三分支 origin 删除一次性授权执行毕）。
+- **整理环节落盘**：账本 R66 收口节（去向表 D-213~D-220 全闭合＋主表 current 唯一 ID=204〔194 裸＋10 注记〕＋revised 16=220 全号段无洞）＋BACKLOG #91~#94 立案＋#90 裁定面注记＋registry **81 项**（gitbutler-eof-hunk-watch 新册）＋ratchet-headroom-watch 裁定落地 confirmation＋CONTEXT 轮66 封口行＋两新词条（Zero-backslash 纪律适用域／消费形态枚举）＋next-round.md R67 换代＋调研题面/报告十四件入库（R66-Q1~Q7 双件）。
+- **过程**：账本 EOF 回归随本批实质触碰搭车修复（D-216⑥ 合法面）；D-218 行谓词裸 `\|` 撑裂列结构→`\|` 转义修复；R66-Q7 题面 `\n` 逃逸断行→修复后派遣；远端三分支 `r53-closeout`/`r54-t1-pointer-convergence`/`r55-audit` origin 删除执行毕（D-220②）。
