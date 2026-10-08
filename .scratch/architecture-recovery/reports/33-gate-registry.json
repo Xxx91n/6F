@@ -2728,6 +2728,14 @@
      "decision": "registered",
      "reason": "EOF-only hunk scoped git 兜底授权的收回钩——双通道（版本升级探针＋审计窗例行复审）；R65 实证 but 对 EOF-only hunk 不可生成/应用（上游 #5758 独立佐证）",
      "evidence": "decision-ledger.md D-216＋.scratch/macro-audit/reports/R66-Q4-atomcode-research.md"
+    },
+    {
+     "at": "2026-10-08",
+     "by": "R67 T1 执行批（#94/D-216 兜底通道首用核验）",
+     "criterion_version": "D-216①",
+     "decision": "confirmed",
+     "reason": "D-216 EOF-only hunk 兜底通道首用落地——产物三件＋census-register＋frozen 件共 5 次单文件兜底 commit 均满足机检双判据与强制标注串；GitButler 工具限制依然存在，兜底通道维持开放，watch 维持 pending",
+     "evidence": "commits 047463ec, 113630ae, b4717211, eb73705c, 30d8665d＋.scratch/macro-audit/reports/2026-10-08-r67-t1-exec-report.md"
     }
    ]
   },

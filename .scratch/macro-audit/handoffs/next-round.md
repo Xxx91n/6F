@@ -1,4 +1,4 @@
-# next-round —— 轮 68 常驻任务书（R67 T1 执行批四票全闭；下窗=T2 随读批＋T3 主权面＋收口整理）
+# next-round —— 轮 68 常驻任务书（R67 T1 执行批四票全闭＋收口整理全额闭环；下窗=R68 Grill 窗＋T2 随读＋T3 主权面）
 >
 > 任务书=常驻交接物：新会话/子 Agent 读本件＋账本＋CONTEXT 即接续；执行窗义务带欠账三要素（具名 owner＋时点锚＋复验方式——D-170③）。
 > **换代自检注记（D-185②）**：本换代已对声称态条目核物——①守卫 **65 件**（`guard-all-run` 动态枚举；R67 #91 新增断言面 41b G 组×3／75a T4×1，件数不变断言面增）；②**84-check 34 断言**（不变）；③编年 max=**M-064**（R67 落 M-061~M-064 四窗——#91=M-061/#93=M-062/#94=M-063/#92=M-064；CHANGELOG 待收口整理环节补 M-061~M-064 节）；④账本唯一 ID=**220**（主表 current 唯一 ID=**204**〔194 裸态＋10 注记变体〕＋revised 16=全号段无洞——R67 零新裁定，八裁 D-213~D-220 维持 current）；⑤registry=**83 项**（R67 #91 +2=`consumption-forms-multi-consumer-class` decided＋`consumption-form-change-watch` pending/event_bound）/59 事件（+2=`consumption-forms-enumeration-active` occurred=true／`consumption-form-change-detected` occurred=false）；⑥断言面增量=R67 #91 落地（41b 33→36／75a 16→17）＋#92 85-A8 slug 换钉（计数不变）。
@@ -39,12 +39,14 @@
 - **T3 候选 `51-E2` SKILL.md /queued/ 断言收紧**：待用户澄清再议（沿 R63 挂账）。
 - **B 轨官方目录提交**（D-042 收窄义）／**preview tag 挂**（R64 留 push 授权窗）：push/发布面逐次授权。
 
-### 收口整理环节（R67 遗留文书面）
+### 收口整理环节（R67 遗留文书面——✅ 2026-10-08 已全额闭环）
 
-- **CHANGELOG M-061~M-064 补记**：R67 四窗编年节（#91=M-061/#93=M-062/#94=M-063/#92=M-064）待收口整理环节落 CHANGELOG（commit trailer 已先行引用，CHANGELOG 正文待补）。
-- **BACKLOG #91~#94 闭环标记**：四票兑现窗全闭，BACKLOG 对应行标 ✅ DONE 2026-10-08。
-- **registry confirmation 随登**：`ratchet-headroom-watch` triggered-bound→pending 回退 confirmation；`gitbutler-eof-hunk-watch` 首用读数 confirmation。
-- **lessons 候选三件入 WORKFLOW lessons**（R67 报告 §6）：①85-check A8 字面钉 cap 值须随 cap 变更同步；②update-70-inventory regen 覆写 63-inventory metadata 须 regen 后补回 errata；③manifest.meta.json 题面「四件」与实际再生面（三件）不符如实呈报。
+- **CHANGELOG M-061~M-065 补记 ✅**：R67 四窗编年节＋返工复审节（#91=M-061/#93=M-062/#94=M-063/#92=M-064/返工=M-065）已全量落盘 CHANGELOG.md。
+- **BACKLOG #91~#94 闭环标记 ✅**：四票兑现窗全闭，BACKLOG 对应行标 ✅ DONE 2026-10-08。#90 重评票核销。
+- **registry confirmation 随登 ✅**：`ratchet-headroom-watch` pending 回退 confirmation＋`gitbutler-eof-hunk-watch` 首用读数 confirmation 全额入册。
+- **lessons 三件入 WORKFLOW lessons ✅**：85-check A8 cap 随行、update-70 metadata 治理、manifest.meta.json 题面四件 vs 生成三件口径失配全入 WORKFLOW §4。
+- **predecl 勘误节补充 ✅**：2026-10-08-r67-t1b-predecl.md 补齐 D-181 append-only 勘误节（A8 cap 随行说明）。
+- **manifest.meta.json 尾行补齐 ✅**：971B→972B（+\n）补齐 EOF hygiene。
 
 ## 挂账常项（勿重复烤）
 
