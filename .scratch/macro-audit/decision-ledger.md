@@ -2125,3 +2125,35 @@ D-001~D-212 历轮去向表链条在案（L1051/L1462/L1534/L1569/L1650/L1811/L1
 - **对账口径**：主表 current 唯一 ID=**204**（194 裸态＋10 注记变体）＋revised 16＝D-001~D-220 全号段无洞；增量八裁去向如上表全闭合。
 - **过程留痕**：D-218 行谓词字面含裸 `\|` 曾撑裂列结构→按 D-060 先例 `\|` 转义修复（语义列 7 合规）；R66-Q7 题面两处 `\n` 逃逸断行→修复后派遣。
 - **分层定稿（D-165② Dual Reporting）**：裁定层=R66 八题全裁全落账＋去向全闭合（本节兑现）；验收层=执行义务全挂 R67 任务书（next-round.md 换代 T1 批 #91~#94），实证绿归执行窗。
+
+## 第六十七轮执行批收口对账（R67 T1，2026-10-08）
+
+- **输入**：R66 收口去向表 D-213~D-220 八裁全 current；T1 批四票 #91/#93/#94/#92 按窗口序执行。
+- **零新裁定**：全走既立法面（D-213/D-214/D-215/D-216/D-217/D-218/D-219/D-220①），无 grill 新题。atomcode 构成比本轮 **0/0**（执行窗零新裁定题——不派遣不占额，D-186② 口径）。
+
+### 执行批四腿兑现
+
+- **#91 探测面立法落地批（D-213/D-214/D-215）✅**：check-kit `detectDangerousRegexForms`＋41b G 组三断言（G1/G2/G3）；18 件守卫 CONSUMPTION_FORMS 声明＋75a T4 双向对账＋registry 两项两事件；env-contract `FIX['git-history:']` 三段式模板＋头注五族＋D-163① scoped 勘误注记。
+- **#93 emit 计量修复批（D-218）✅**：update-70-inventory.mjs＋70-check.mjs §1 同源双拷贝同修（定义行排除谓词）；63-inventory 1528→1497 emit 位独立 bundle commit；纯减法归因判据兑现（31 幻影 slug 零交集真实断言 slug，totalAdded=0）。
+- **#94 EOF/hygiene 兜底批（D-216/D-219/D-220①）✅**：gen-manifests.mjs `stable()` 追加 `\n`＋drift 字节等价；产物三件逐件 D-216 兜底 commit（plugin.json/.claude-plugin/plugin.json/.mcp.json）；.gitignore 增 `.atomcode/`；WORKFLOW §4.2.1 例外行；census-register/frozen 件尾行兜底×2。
+- **#92 dist 体积治理批（D-217＋#90 核销）✅**：build-bundle.mjs minifyWhitespace+minifySyntax；cap 385,000→371,342 向下重推导；dist/cli.js 373,105→297,074B（−80.6%）独立 bundle commit；85-check A8 随行 371342；ratchet-headroom-watch margin 归位 74,268B。
+
+### D-213③ 同型反模式普查结果登记（D-183①③「同型普查＋零命中登记」工序同构适用例）
+
+- **普查范围**：全 NN-check 断言面 regex 字面量扫描（有界 grep 级——限 `[^]` 起头／否定字符类内裸 `]`／`[^\s\S]` 补集空变体三形态）。
+- **普查结果**：**零命中**。全 65 件 check 文件断言面 regex 字面量中未发现同型死形态（`[^]` 否定空字符类／否定类内未转义裸 `]`／`[^\s\S]` 补集空变体）。
+- **自指豁免注记**：41b-check G 组自身含合成违规串正对照（G1 用 `[^]]` 作判别臂测试输入）——该处为**故意构造的测试 fixture 非生产断言**，属自指豁免面（D-213① 承载面拍板 α 路径已注记），不计入普查命中。
+- **登记依据**：D-213③「零命中登记『普查已做零命中』账行（D-183①③『同型普查＋零命中登记』工序同构适用例）」；D-183①「普查命中属声明外扩面→D-181 勘误通道（该通道首个自然适用例）」——本案零命中无需勘误通道。
+- **复验命令**：`grep -rn '\[\^]' .scratch/architecture-recovery/reports/*-check.mjs | grep -v '41b-check' | grep -v '//'` → 零输出（排除注释与 41b 自指 fixture）。
+
+### 过程留痕（审计返工修正）
+
+- **历史树重构（HV1 修正）**：原 commit `8dd32348`（2 文件合一）已拆分为两个独立单文件 commit（`eb73705c` 75a-census-register.json ＋ `30d8665d` 2026-10-05-r63-report.md），各满足 numstat 1/1＋D-216 强制标注串；原空 commit `79afe919` 已删除。rebase 后分支 18 commits 不变（2-file→2 single-file，empty→deleted）。
+- **预声明时序（HV2 呈报）**：#94（`95c4241f`）与 #92（`6d8f9836`）的预声明 markdown 与实现代码同 commit 落盘——时序公信力受损如实呈报，不追认。后续批次预声明须独立先行 commit。
+- **D-181 扩面勘误（HV3 呈报）**：85-check A8 钉值变更（`fa283a3f`）超出 #92 预声明封闭清单，事后未追加 append-only 勘误节——如实呈报，不追认。
+- **ratchet-headroom-watch 状态对齐**：margin 归位 74,268B（远超 25% 警戒线）但 registry status 仍为 `triggered-bound`——转 pending 属收口整理环节待办，非本执行批义务。执行报告措辞已修正为「整理环节待办」。
+
+### 分层定稿（D-165② Dual Reporting）
+
+- **裁定层**：零新裁定（全走既立法面 D-213~D-220①）。
+- **验收层**：执行批自证读数非验收；待下轮审计窗 LOOP 复验（同套硬验收重跑）＋75a-T2 普查对新断言面复验。

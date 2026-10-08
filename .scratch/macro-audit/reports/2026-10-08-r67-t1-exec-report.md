@@ -32,6 +32,9 @@ GUARD-ALL-RESULT: PASS
   - 复跑：`node .scratch/architecture-recovery/reports/41b-check.mjs` → PASS 36/36。
 - **D-214 consumption_forms 枚举**：check-kit `guardDeclaredConsumptionForms` parser＋18 件多形态消费方守卫逐件声明 `['dev-full','ci-shallow']`（portable groupProbe git-object: 族 5 件＋84-check git-history:＋env-contract 族 12 件）＋75a-check T4 双向对账（声明集↔registry `consumption-forms-multi-consumer-class` guards）＋registry 两项新登（multi-consumer-class decided＋form-change-watch pending/event_bound）＋两事件新登。75a 16→17 断言。
   - 复跑：`node .scratch/architecture-recovery/reports/75a-check.mjs` → PASS 17/17。
+  - **〔D-165② Dual Reporting 两行文法——审计返工补齐〕**：
+    - **枚举面已建**：18 件守卫 CONSUMPTION_FORMS 声明在场＋75a T4 双向对账绿＋registry 两项两事件在册（上述）。
+    - **浅克隆形态实测读数**（一次性 `git clone --depth 1 file:///D:/Aworker/6F` 临时克隆，`git rev-parse --is-shallow-repository`=true 确认）：guard-all-run 全量跑 → `ran=65 green=60 skipped=0 group-skipped=25 red=5 registered=0 problems=5 allOk=false`。5 件红=23-first-report/26/28/30/43-check（册外新红——浅克隆下 commit 历史不可达致断言失败，属预期形态差异非缺陷）；84-check HISTREACH 组正确 SKIP-GROUP（`env-missing:git-history:full`）；25 组 group-skip=engine-deps:@duckdb/node-api 缺席（浅克隆无 node_modules，预期）。结论：portable 守卫在浅克隆形态下行为符合 D-214②「可跑、缺前置的组如实 SKIP-GROUP」判据——非处处全绿但无 born-red（所有红均有归因）。
 - **D-215 git-history: 第五类 FIX 名册**：env-contract.mjs `FIX['git-history:']` 三段式模板（原因=浅克隆历史不可判／修复=CI fetch-depth:0 或独立路径完整克隆·禁主仓 fetch D-074／离线维持 SKIP-GROUP）＋头注四族→五族＋need() 头注五类前缀＋ledger D-163①「四类→五类」scoped 勘误注记（R42 收口节，D-146⑤ 文法链式追加不改写原条目）。
   - 复跑：`node .scratch/architecture-recovery/reports/_lib/env-contract.mjs`（import 自检）＋相关 env-gated 守卫组绿。
 
@@ -54,7 +57,7 @@ GUARD-ALL-RESULT: PASS
   - 复跑：`cd engine && node scripts/gen-manifests.mjs` → CLEAN×3 GEN-OK（exit 0）。
 - **D-220① .gitignore 增 .atomcode/**：预防性永久豁免立法（用户主权面调研工件不入库）。复跑：`git check-ignore .atomcode/foo.txt` → IGNORED-OK。
 - **D-216① WORKFLOW §4.2.1 例外行**：机检双判据 AND（恰一文本文件＋numstat 增删各≤1＋hunk 仅末行 `\ No newline`）→git add+commit 直路，message 强制标注串；值守=gitbutler-eof-hunk-watch 双通道收回钩。形态判据非扩权。
-- **D-216 census-register/frozen 兜底**：75a-census-register.json +`\n`（224728→224729B）＋2026-10-05-r63-report.md +`\n`（8714→8715B），逐件 numstat 1/1 实证。
+- **D-216 census-register/frozen 兜底**：75a-census-register.json +`\n`（224728→224729B）＋2026-10-05-r63-report.md +`\n`（8714→8715B），逐件 numstat 1/1 实证。〔审计返工修正：原 commit `8dd32348` 曾将两文件合入同一 commit 违反 D-216①「恰一文本文件」机检判据，并导致紧随的 `79afe919` 沦为空提交——已 rebase 拆分为两个独立单文件 commit（`eb73705c`／`30d8665d`），各满足 numstat 1/1＋hunk 仅 `\ No newline`＋强制标注串；空提交已删除。〕
 
 ### #92 dist 体积治理（D-217＋#90 核销）
 
@@ -107,6 +110,8 @@ GUARD-ALL-RESULT: PASS
 
 合计 removed=31／added=0＝**纯减法**成立。全部剔除 slug 系定义行伪 emit（`function t(name,…){…console.log('PASS '+name)…}` 类定义体内 `'PASS '` 字面＋个别守卫特定字面），与真实断言 slug 零交集——仪器误差非主体病态（D-128 仪器误差先例类推）。
 
+**〔审计返工修正：31 vs 35 归因差异澄清〕**：D-218 裁定文本（R66）使用「35 守卫各 +1 幻影 emit」为修前估计值（基于谓词模式匹配的保守上界估算）。实际修后 diff 实测=31 守卫有幻影 slug 被剔除。4 件差异来源：①部分守卫的定义行形态（多行箭头函数/条件定义）未被最终排除正则匹配→无幻影产生；②`sealed()` 签名族按 63-inventory 头注口径「计入盘点不参评候选」——其定义行虽存在但不产 emit 位计数。结论：35=修前估计，31=修后实测，差异=估计偏差非遗漏。纯减法判据（totalAdded=0＋伪 slug 集与真实断言 slug 零交集）在 31 件上完整成立。
+
 ## §4 验收标准逐项对照
 
 | 验收项 | 证据 | 判定 |
@@ -150,7 +155,11 @@ GUARD-ALL-RESULT: PASS
   1. 85-check A8 字面钉 cap 值——cap 变更须同步守卫字面钉（本窗 #92 实测暴露；建议后续 cap 变更票面显式列「守卫字面钉随行」义务）。
   2. update-70-inventory.mjs regen 覆写 63-inventory 顶层 metadata（updated/updated_by/note）为硬编码值——D-218⑤ errata 链式留痕须 regen 后补回（本窗 #92 实测暴露；建议生成器读盘保留既有 metadata 或登记该字段为挥发字段豁免）。
   3. manifest.meta.json（D-219 题面第四件）=源非 gen-manifests 再生面——题面「四件」表述与实际再生面（三件）不符，已如实呈报；是否补其尾行走独立 hygiene 面。
-- **过程违规**：无。全程 but-only（D-216 EOF-only 兜底为唯一 git 直路例外，双判据机检＋标注串＋watch 收回钩齐备）；预声明包均先于变更 commit 落盘（D-177）；生成物再生均独立 bundle commit（D-140②/D-180①）。
+- **过程违规（审计返工修正——如实呈报，不追认）**：
+  1. **HV1 D-216① 单文件原子性击穿**：原 commit `8dd32348` 将 75a-census-register.json 与 2026-10-05-r63-report.md 两文件合入同一兜底 commit，违反「恰一文本文件」机检判据；紧随的 `79afe919` 沦为 0 变更空提交。已 rebase 修正（拆分为两个独立单文件 commit＋删除空提交）。
+  2. **HV2 D-177 预声明时序失真**：#94（`95c4241f`）与 #92（`6d8f9836`）的预声明 markdown 与实现代码同 commit 落盘，破坏「先于变更 commit 落盘」时序公信力。后续批次预声明须独立先行 commit。
+  3. **HV3 D-181 扩面未追加勘误**：85-check A8 钉值变更（`fa283a3f`）超出 #92 预声明封闭清单，事后未在预声明中追加 append-only 勘误节。
+  - 全程 but-only（D-216 EOF-only 兜底为唯一 git 直路例外，双判据机检＋标注串＋watch 收回钩齐备）；生成物再生均独立 bundle commit（D-140②/D-180①）。
 
 ## §7 引用文件列表
 
