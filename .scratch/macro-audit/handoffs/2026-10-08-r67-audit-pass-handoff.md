@@ -61,8 +61,10 @@ R67 T1 执行批（#91/#93/#94/#92）四票兑现窗全部通过审计硬体验�
 - Macro-A preview 上架（语料待用户备齐）
 - 51-E2 断言收紧
 
-## 仓库状态记录
+## 仓库状态记录（收口合并与推送完成）
 
-- 工作区当前位于 `r67-t1-exec` 分支（HEAD: `b75c7326`），共 19 commits 基于 `r66-closeout`。
-- 工作区当前干净，无未暂存文件。
-- 未执行 `git push`（遵守不擅自 push 纪律）。
+- 分支合并：`r67-t1-exec` 与 `r66-closeout` 已全量 --no-ff 合并入 `main` 分支（Merge commit `4a6705f0`）。
+- 远端推送：经用户显式指令授权，已执行 `git push origin main` 成功推送至 GitHub 远端（`fd98d12b..4a6705f0`）。
+- 分支清理：本地临时与历史合并分支（`r67-t1-exec`、`r66-closeout`、`r67-t1-audit`、`r67-t1-exec-backup-20261008`）已全部安全删除。
+- 守卫状态：主分支合并后亲跑 `guard-all-run.mjs`，65/65 GREEN 全绿通过（ran=65 green=65 red=0 allOk=true）。
+- 工作区当前干净，统一改口径，随时可开启 R68 Grill 轮次。
