@@ -10,6 +10,8 @@ import { dirname, join } from 'node:path';
 import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
+// D-214① consumption_forms（多形态消费方——G8 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→G8 组 SKIP）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#80 Micro-B 步①守卫（per-file 一等事实发射 + facet_rows raw 证据位 + file_renamed 血缘 ';
 
 

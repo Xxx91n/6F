@@ -9,6 +9,8 @@ import { siblingPath, envProbe, need } from './_lib/env-contract.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
+// D-214① consumption_forms（多形态消费方——整件 need sibling:）：dev-full=完整克隆＋sibling 工作树在位全断言面；ci-shallow=CI 浅克隆（sibling 缺席→整件 SKIP-with-reason）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '37-pilot 三仓实测面（measurements 字段齐备＋证据锚回查＋快照钉复测）';
 const ROOTS = { 'env-manager': siblingPath('env-manager'), 'anysearch-cli': siblingPath('anysearch-cli'), 'jiahao': siblingPath('jiahao') };
 const REPO_NAMES = Object.keys(ROOTS);

@@ -14,6 +14,8 @@ import { need, groupProbe, engineDepsOk, siblingPath } from './_lib/env-contract
 
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
+// D-214① consumption_forms（多形态消费方——B/C/E 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→对应组 SKIP，仓内段照跑）。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#84 Macro-C＋#85② Micro-A 产线化一等面守卫（D-204②③④）——静态契约+CLI 测活+anysearch-cli 差分重校准+Micro-A cassette 差分重校准';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -35,7 +37,7 @@ t('A5 fact-write.ts 同位共享核在（audit.ts 与 macro-c.ts 同消费）', 
 t('A6 engine/README scale 行已上架三层（Macro-B · Macro-C · Micro-A）', readFileSync(join(ENG, 'README.md'), 'utf8').indexOf('`Macro-B` · `Macro-C` · `Micro-A`') >= 0);
 const ctxDoc = readFileSync(join(REPO, 'CONTEXT.md'), 'utf8');
 t('A7 CONTEXT 词条在场机核四件（R56 注入——Release Preview 法理边界/语义域/Cross-Scale/暴露梯度三轴）', ['preview=用户可达交付面', 'structure/shape', 'S3/budget-attribution', '三轴正交'].every(function (k) { return ctxDoc.indexOf(k) >= 0; }));
-t('A8 bundle 棘轮帽已显式抬限（385000——勘误四裁定留痕）', readFileSync(join(ENG, 'scripts', 'check-dist.mjs'), 'utf8').indexOf('385000') >= 0);
+t('A8 bundle 棘轮帽已显式重推导（371342——D-217 minify 治理后实测×1.25 向下重推导，D-129③ scoped 双向注记留痕）', readFileSync(join(ENG, 'scripts', 'check-dist.mjs'), 'utf8').indexOf('371342') >= 0);
 t('A9 本守卫自身无 BOM', noBom(join(HERE, '85-check.mjs')));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------

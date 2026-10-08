@@ -16,6 +16,10 @@ try {
     format: 'esm',
     packages: 'external',
     target: 'node20',
+    // D-217② minify 分层立法：whitespace+syntax 档保函数名/变量名/错误消息（stack trace 仍可定位，只失行号列号）；
+    //   禁 minifyIdentifiers（标识符改写留后续选项另裁）＋禁 sourcemap 入 dist（Claude Code 泄漏事故教训——map 翻倍体积且构成源码外泄面）。
+    minifyWhitespace: true,
+    minifySyntax: true,
     outfile: join(root, 'dist', 'cli.js'),
     logLevel: 'warning'
   });

@@ -32,6 +32,7 @@
 > 轮 53 grill（2026-10-01 完成）已封口 D-196 ~ D-201：R52 T3 五候选＋T1-B′ 哨兵承接裁定——扩面勘误通道／列头反向闸／subject 规范化形必填／严格层扩充列头／册自报失配机制。
 > 轮 56 grill（2026-10-02~03 完成）已封口 D-202 ~ D-210：四层收口深化面五枝全裁——preview 法理边界（Macro-C 产线化／Micro-A 收窄+立票）／structure 分层语义域／supply-chain 续排+源判据预声明／baggage 拓扑+双枚举保留／per-layer preview→GA 判据六类骨架。
 > 轮 62 grill（2026-10-04 完成）已封口 D-211 ~ D-212：第五轮锐评摄入分诊路由＋A-3 守卫立法——(ii) 修正版全案（reef#1 执行票／reef#2 部分重开＋棘轮余量<25% 警戒线／reef#3 双轨登记／窗口序 #85② P0 第一）＋41a-check 账本节标题双层唯一性断言（`##` 全局＋`###` 同父 siblings_only，双账本）。
+> 轮 66 grill（2026-10-06~07 完成）已封口 D-213 ~ D-220：R65 移交四题＋挂账面五件全裁——zero-backslash 适用域成文×修复性断言变异击杀分级／consumption_forms 消费形态枚举验收立法／git-history: 第五类 FIX 名册／EOF-only hunk scoped git 兜底授权／#90 dist 重评=形态维持+minify 治理+帽下修／P3-3 emit 仪器误差通道／生成器 EOL 哨兵字节级闭环／主权批 .atomcode 豁免+远端三分支删。
 
 > spec 阶段任务清单见 [.scratch/macro-audit/spec-phase-tasks.md](.scratch/macro-audit/spec-phase-tasks.md)（18 项），决策层 ledger 见 [.scratch/macro-audit/decision-ledger.md](.scratch/macro-audit/decision-ledger.md)。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
@@ -456,6 +457,15 @@ _Avoid_: 宽口径全文 SHA 形串入规（lint 误报淹没实证）、纯窄�
 **已知违规清单（known-pointer-violations baseline）【自造词】**:
 指针守卫的存量基线册（D-191③/D-192——PHPStan baseline 机制先例）：条目指纹=file＋内容模式＋关联勘误行号（禁行号定位——行漂移即失配）；册内存量违规=WARN／册外新增=FAIL／册项失配=守卫自报移除提示（ratchet 只减不增）；守卫首跑承接全存量普查（人工普查不另做）；条目无勘误引用=非法条目（防大赦名单化）。
 _Avoid_: blame/时点判定新老违规（amend 流下方向性错误——存量误判 FAIL 比漏判更危险）、纯增量/diff-only 扫描（存量永不现形）、WARN-only 过渡档（生效日形同虚设）、扫描面开放增长（扩面走立法票）
+
+
+**Zero-backslash 纪律适用域（Scoped No-Backslash Rule）【自造词】**:
+Node 写入卫生纪律「字符串/模板串写入语境优先字符类或 charCode 避反斜杠嵌套吞义」的适用域=**字符串字面量与模板串语境**（D-213①）——**不适用于正则字符类内部**（否定字符类排除 `]` 物理上必须 `[^\]]`/`[^\x5D]` 转义——R64 P0-2 `[^]` 空类陷阱事故实证：为守纪律写出的判别臂死亡）。伴生机检=危险正则形态（`[^]`/否定类内裸 `]`）扫描即红；**修复性断言变异击杀分级**（D-213②）：P0/P1 修复断言内嵌活性正对照（合成违规串必命中——判别臂活着的自证）／P2+ 预声明读数可代但须含判别臂存活证据／正则·模式匹配类不分级皆强制内嵌——「类 P0-2 正则陷阱适用域不可枚举」不设分级豁免。
+_Avoid_: 纪律外推到正则类内部（语义反转陷阱）、形态扩张到全量转义矩阵、有判别臂的断言无击杀证据（假绿面）、自造词豁免漏登本条目
+
+**消费形态枚举（consumption_forms）【自造词】**:
+探测面守卫「谁在什么环境形态下消费我」的声明面（D-214）——与 need() 降级机制两层互补非竞争：consumption_forms 管消费声明枚举（守卫作者声明＋75a-T3 式声明↔登记双单向对账，**仅对真实多形态消费方的守卫强制枚举**——单 dev 消费方登记 `[dev-full]` 一行闭环不设枚举税；枚举值域可含 need 类型名），need() 管前置缺席时优雅降级（SKIP 三态管道）。tier 差异化验收证据：portable=全克隆实测＋浅克隆**合成物化**读数（`--depth 1` 临时克隆复跑留痕，D-163① 同族；合成的是消费形态载体非断言对象，commit 图在浅克隆真实存在/不存在故不触 fixture 化禁令）；env-contract=need 声明集结构验证＋SKIP 契约结构验证（SKIP 面宿主缺席时不可实跑绿，强推实跑=越 D-177⑤ 域）。**新增消费形态=registry 触发器**（clone/CI checkout/sibling 消费方式变更→被消费守卫复审——防靠人记）。工业先例=Pact `can-i-deploy` 对账矩阵／Bazel 环境声明／tox env_list／GHA matrix／TF_ACC 临时物化。
+_Avoid_: 枚举税滥用（单形态消费方强设枚举）、tier 字段与形态面混读（tier 管验收证据档位非消费枚举）、形态变更靠记忆不传触发器、浅克隆形态要求真实常驻克隆（无消费方建闸）、SKIP 面强推实跑（born-red 复辟）
 
 ### retired 类（退役守卫终态留档）
 

@@ -12,7 +12,7 @@ import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { stripComments, realConsumption, guardDeclaredTier, guardDeclaredSurface } from './_lib/check-kit.mjs';
+import { stripComments, realConsumption, guardDeclaredTier, guardDeclaredSurface, guardDeclaredConsumptionForms } from './_lib/check-kit.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '#75批1 失效断言三分类建制守卫（D-094②③④ / D-144② / D-149④ / P5-B2 同名断言普查落点）';
@@ -199,6 +199,15 @@ const reg33 = JSON.parse(readFileSync(join(HERE, '33-gate-registry.json'), 'utf8
 const envRegItem = reg33.items.find((i) => i.id === 'env-gated-guard-class');
 const envReg = ((envRegItem && envRegItem.guards) || []).slice().sort();
 t('T3 env-contract 声明集 ↔ registry env-gated 类对账（声明≠登记即红——防事后标签漂移）', JSON.stringify(envDeclared) === JSON.stringify(envReg), 'decl=' + envDeclared.join(',') + ' reg=' + envReg.join(','));
+
+// T4（R67 #91 D-214①：consumption_forms 枚举面双单向对账——与 tier 同 commit、同「未声明=红」机检；
+//   粒度收窄=仅多形态消费方守卫强制枚举，单 dev 消费方不强制不设枚举税）
+const cfMap = new Map();
+for (const f of checkFiles) { const srcCf = readFileSync(join(HERE, f), 'utf8'); cfMap.set(f, guardDeclaredConsumptionForms(srcCf)); }
+const cfDeclared = checkFiles.filter((f) => Array.isArray(cfMap.get(f))).sort();
+const cfRegItem = reg33.items.find((i) => i.id === 'consumption-forms-multi-consumer-class');
+const cfReg = ((cfRegItem && cfRegItem.guards) || []).slice().sort();
+t('T4 consumption_forms 声明集 ↔ registry 多形态消费方类双向对账（声明≠登记红、登记≠声明红——防事后标签漂移）', JSON.stringify(cfDeclared) === JSON.stringify(cfReg), 'decl=' + cfDeclared.length + '/' + cfReg.length + ' diff=' + cfDeclared.filter((x) => cfReg.indexOf(x) < 0).concat(cfReg.filter((x) => cfDeclared.indexOf(x) < 0)).join(','));
 
 writeFileSync(join(HERE, '75a-census-findings.json'), JSON.stringify(findings.map((f) => ({ key: keyOf(f.file, f.kind, f.line), file: f.file, kind: f.kind, lno: f.lno, excerpt: ((f.line || '').trim().slice(0, 110) + (f.note ? ' → ' + f.note : '')) })), null, 1) + NL, 'utf8');
 

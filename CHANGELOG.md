@@ -478,3 +478,36 @@
 - T1-B #88 84-check 自足修（D-211①/D-163①⑥）：D-163① 零写入临时仓读法选定——SHA_OK/SHA_TWIN 运行时物化（孤儿 commit 201935fc 字面钉废止）＋portable 重声明（D-159②）＋engine-ci portable 段扩列（CI 射程缺口勘误）；鲜克隆首读 84-check GREEN。
 - T1-C #89 A-3 标题唯一性（D-212）：41a-check H 组双层断言（`##` 全局＋`###` 同父 siblings_only 双账本）0 违例落地即绿＋正对照 H3/H4 mutation-kill＋H5 边界声明＋guard-meta 扩注；ADR-0013 预声明随票（predecl §3）。
 - 过程：预声明包先于语义 commit（D-177①③——rzs）；but CHANGES 选择器本窗复验可用（六 commit 收清单逐个 but show 核实）；53-check B2 鲜克隆漏网 LOOP 修正 amend rlm；.atomcode 两件全程未入 commit（T3 用户主权）；atomcode 构成比 0/0（执行窗零调研——D-186② 口径）。
+
+### M-059（补记 2026-10-05 R64-LOOP 返修批＋R64-LOOP2 审计窗＋R65 收口交接——append-only 链式补记，R66 收口工序前置核对时发现编年缺口填补）
+
+- **R64-LOOP 返修批**（审计打回返工窗）：P0-1=84-check 浅克隆 born-red 根治（B/F 面 SHA 运行时物化＋浅克隆 DOCSCAN 组级 SKIP＋engine-ci `fetch-depth:0`/paths 扩列）＋P1-1 欠账互斥修复＋P2-1 三处守卫弱化修复＋P2-2 85-check E9 等值集补位＋P3-1 尾行/P3-2 版本 0.1.0→0.2.0＋index 中间态清除；**返修二段**（LOOP 复审有条件通过→二段）：P0-2=85-A4 死正则 `[^]]` 空类陷阱修正→`[^\]]` 转义＋判别臂活性正对照内嵌（端到端 8 行变异 5 杀 3 负对照）＋P1-2=skip 窄化 HISTREACH（env-unresolvable 恒 WARN 披露）；commits 链=yrr/ynl/mok/qpu/rtt/snv/zmv/klz/nsl→merge `3a11416a`（R63+R64 并入 main）。
+- **R64-LOOP2 审计窗**：审计报告与交接入库（`9f88ebba`/`nuz`，审计通过）→merge `cd5392fd`；findings 全闭环（P0-1/P0-2/P1-1/P1-2/P2-1/P2-2/P3-1/P3-2＋过程违规③④）；P3-3 登记留跨窗议题→R66 转裁（D-218）。
+- **R65 收口交接批**：closeout-handoff 成文（`4efa85ca`）＋三线 --no-ff 合并推送 main=`cd5392fd`=origin（用户授权 push 窗）→`fd98d12b` R65 收口交接并入；移交 R66 grill 四题＋挂账面五件成文。**零新裁定**（审计/收口窗）。
+
+### M-060（2026-10-07 R66 grill 收口批＋整理环节落盘）
+
+- **R66 grill 八裁全定**（D-213~D-220 全 current 零 revised；atomcode 7/7 真回传，Q8 主权批豁免派遣登记）：zero-backslash 适用域成文×修复性断言变异击杀分级（D-213，R64 P0-2 事故立法化）／consumption_forms 消费形态枚举验收立法（D-214）／git-history:&lt;spec&gt; 入 FIX 名册第五类（D-215）／EOF-only hunk scoped git 兜底授权（D-216——4.2 例外行文法＋message 标注串＋双通道收回钩）／#90 dist 形态重评=分发形态维持＋minify 治理＋帽向下重推导（D-217）／P3-3 emit 计数仪器误差通道（D-218——同源双拷贝同修＋纯减法归因判据）／生成器 EOL＋哨兵字节级闭环（D-219——四件产物含 .mcp.json 题面修正）／主权批（D-220——.atomcode 永久豁免立法＋远端三分支 origin 删除一次性授权执行毕）。
+- **整理环节落盘**：账本 R66 收口节（去向表 D-213~D-220 全闭合＋主表 current 唯一 ID=204〔194 裸＋10 注记〕＋revised 16=220 全号段无洞）＋BACKLOG #91~#94 立案＋#90 裁定面注记＋registry **81 项**（gitbutler-eof-hunk-watch 新册）＋ratchet-headroom-watch 裁定落地 confirmation＋CONTEXT 轮66 封口行＋两新词条（Zero-backslash 纪律适用域／消费形态枚举）＋next-round.md R67 换代＋调研题面/报告十四件入库（R66-Q1~Q7 双件）。
+- **过程**：账本 EOF 回归随本批实质触碰搭车修复（D-216⑥ 合法面）；D-218 行谓词裸 `\|` 撑裂列结构→`\|` 转义修复；R66-Q7 题面 `\n` 逃逸断行→修复后派遣；远端三分支 `r53-closeout`/`r54-t1-pointer-convergence`/`r55-audit` origin 删除执行毕（D-220②）。
+### M-061（2026-10-08 R67 T1 执行批——#91 探测面立法落地批）
+
+- **#91 探测面立法落地**（D-213/D-214/D-215）：check-kit `detectDangerousRegexForms`＋41b G 组三断言（G1/G2/G3，覆盖否定字符类反斜杠、裸右方括号、补集空变体）；18 件守卫 CONSUMPTION_FORMS 显式声明＋75a-check T4 双向对账＋registry 两项两事件（`consumption-forms-multi-consumer-class` decided＋`consumption-form-change-watch` pending）；env-contract.mjs `FIX['git-history:']` 三段式模板＋头注五族＋D-163① scoped 勘误注记。
+- **守卫面**：41b-check 33→36 断言；75a-check 16→17 断言。
+
+### M-062（2026-10-08 R67 T1 执行批——#93 emit 计量修复批）
+
+- **#93 emit 计量修复**（D-218）：update-70-inventory.mjs＋70-check.mjs 同源双拷贝同修（定义行排除谓词 `isDefinitionLine`）；63-assertion-inventory 1528→1497 emit 位独立 bundle commit；纯减法归因判据兑现（31 幻影 slug 零交集真实断言 slug，totalAdded=0）。
+
+### M-063（2026-10-08 R67 T1 执行批——#94 生成器 EOL 与尾行兜底批）
+
+- **#94 生成器 EOL 与尾行兜底**（D-216/D-219/D-220①）：gen-manifests.mjs `stable()` 追加 `\n`＋drift 字节等价；产物三件逐件 D-216 兜底 commit（plugin.json/.claude-plugin/plugin.json/.mcp.json）；.gitignore 增 `.atomcode/`（D-220① 调研工件永久豁免立法）；WORKFLOW §4.2.1 增 D-216 EOF-only 例外行；census-register 与 frozen 件尾行兜底。
+
+### M-064（2026-10-08 R67 T1 执行批——#92 dist 体积治理批）
+
+- **#92 dist 体积治理**（D-217＋#90 核销）：build-bundle.mjs 启用 minifyWhitespace＋minifySyntax（禁 identifiers/sourcemap）；cap 385,000→371,342 向下重推导；dist/cli.js 373,105→297,074B（−80.6%）独立 bundle commit；85-check A8 随行 371342；ratchet-headroom-watch margin 归位 74,268B（远超警戒线）；#90 顺利核销。
+
+### M-065（2026-10-08 R67 T1 审计返工与 LOOP 通过批）
+
+- **审计返工整改**：HV1 历史树重构（rebase 拆分 8dd32348→eb73705c+30d8665d 满足单文件 1/1＋删除空提交 79afe919）；D-213③ 普查零命中账行落盘（decision-ledger R67 收口节）；D-214② 浅克隆实测读数（ran=65 green=60 red=5 5红归因历史不可达预期形态差异）＋Dual Reporting 两行文法补齐；registry ratchet-headroom-watch triggered-bound→pending 回退＋confirmation 录入；D-218 31vs35 澄清（修前估计 vs 修后实测）；执行报告过程违规（HV1/HV2/HV3）如实呈报不代追认；2026-10-08-r67-t1b-predecl.md 补齐 D-181 append-only 勘误节。
+- **LOOP 复验审计通过**：硬验收 7 项亲跑全绿（build/check-dist/smoke/doctor/gen-manifests/CLI-smoke/guard-all 65/65）；审计报告与通过交接落盘。

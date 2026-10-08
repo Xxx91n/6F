@@ -249,6 +249,7 @@ Phase 之间到达 boundary 时，按本仓库偏好顺序选：
 - 每个 Agent session 必须有独立 `but` branch，不动他人分支
 - 禁止 git write 命令（`git add` / `git commit` / `git push` / `git checkout` / `git merge` / `git rebase` / `git stash` / `git cherry-pick`）；worktree / git checkout / git branch 等字样禁止出现在启动器
 - 例外：`but` 报"linked worktrees unsupported"时，工作树内允许 `git commit` 单条命令
+- 例外（D-216 EOF-only hunk scoped git 兜底，R67 #94 立法）：机检双判据 AND 满足——①恰一文本文件；②numstat 增删各≤1；③hunk 仅末行且带 `\ No newline at end of file` 标记（EOF-only 尾行变更，无实质内容改动）→允许 `git add <file> && git commit` 直路，commit message **强制标注串**「GitButler EOF-only 工具限制兜底〔R65 实证〕」；同文件混实质变更须先拆分再走本通道；值守=`gitbutler-eof-hunk-watch`（R66 新册）双通道收回钩（but 版本升级重放 R65 复现探针转绿即收回授权注销本项）。本例外为形态判据非扩权——生成物再生独立 commit 义务由 D-140②/D-218④ 既有纪律承接。
 
 ### 4.2.2 文件写入
 - 所有 .md / .json / .txt 写入走 `mcp__context-mode__ctx_execute` (language=javascript, fs.writeFileSync)
@@ -409,6 +410,10 @@ Phase 之间到达 boundary 时，按本仓库偏好顺序选：
 | 2026-09-27 | 轮 37 T1/#75批1：失效三分类建制+守卫升格（D-094②③④/D-144②/D-149④/D-071⑨）——12 件静默红全过三分类门（0 欺诈/死面）；11 件合法漂移改断言〔porcelain→票面 commit 集/SQL 词表→语句形态/活仓等值→钉快照+单调含件/字面钉→结构不变量〕＋1 件入 known-red 册带锚；升格判据落地=60 件全跑红集⊆册 | ①字面钉换代判据=行级匹配（标记序不取）——「编年行含 X」=同行共现非序位钉；②裸词词表撞 JS API（Map.delete）→SQL 语句形态正则；③porcelain 断言在合成索引下永失真——钉票面 commit 集+冻结 SHA 是时代域等价面；④普查+注册表=归因注记制（检出≠红，悬空条目=须摘除） | D-094/D-144②/D-149④ + R37 T1 报告 |
 | 2026-09-27 | 轮 38 T2/#75批2-α：r37 呈报七件实修（A-099）——38-F2 枚举域钉回补＋25-C5c 末格豁免登记＋37-C2b 快照界欠数检出＋20-A5 _lib 剥注释自消费＋26/28/30 机件收编＋manifest 笔误＋01-spotcheck 尾行 | ①收窄断言按弱化判据审——回补钉词表出处（output_states 常量集）可核；②快照界钉（reachable@head ⊆ stored）=欠数检出与活仓增长兼容的双向形态；③豁免位不剥离而登记（LAST_CELL_EXEMPT 有名例外集——新增命中即红）；④批内自产库不自消费即呈报面 | D-094 + A-099 + R37 审计 §5 |
 | 2026-09-29 | 轮49 T1-B 46-check A18 落地引爆 stripComments 剥面引号态吞行：正则字面量内裸单/双引号骗过守卫共用剥注释机的简朴字符串态，吞掉插入点之后 60+ 行——46-check 四条已注册 findings 悬空、75a-check C2 当场红 | 影响：新断言源码=普查剥面双重消费者，落地后只跑本件 31/31 不够——须随跑 75a-check 验剥面注册表零悬空 | 解法：charCode 数值集判定替 char-class 引号字面量（39/34/124/62/91/93/123/125/38/42/33/37/64/96），源码零裸引号后剥面 134 行全保＋findings 389↔389 零悬空 | D-176②+75a-check 实测 |
+
+| 2026-10-08 | R67 #92 dist 治理：85-check A8 字面钉 cap 变更随行遗漏 | check-dist.mjs cap 更新时 85-check A8 字面钉未同步在预声明清单，致 D-181 扩面 | 凡 cap 变更票面必须显式列「守卫字面钉随行」义务，或改用常量引用消除重复字面量 | D-217 + R67 执行 |
+| 2026-10-08 | R67 #93 inventory 再生：update-70-inventory regen 覆写 metadata | 生成器 regenerate 硬编码覆写 63-assertion-inventory.json 顶层 metadata（updated/updated_by/note），抹掉链式勘误留痕 | 生成器应保留既有 metadata 或将 metadata 字段显式声明为挥发字段豁免 | D-218 + R67 执行 |
+| 2026-10-08 | R67 #94 生成器 EOL：manifest.meta.json 题面四件 vs 实际生成三件口径失配 | D-219 题面称生成器再生「四件」，实际 gen-manifests.mjs 仅输出三件（manifest.meta.json 为源文件非生成物） | 题面口径须先核生成器 exports 清单；源文件尾行通过独立 hygiene 补齐 | D-219 + R67 执行 |
 
 ### 4.2.11 开工对表＋任务书换代规程（per D-185／D-187）
 

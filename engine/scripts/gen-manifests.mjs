@@ -5,7 +5,9 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const meta = JSON.parse(readFileSync(join(root, "manifest.meta.json"), "utf8"));
 
-function stable(o) { return JSON.stringify(o, null, 2); }
+// D-219：产物尾行哨兵——JSON 生成物统一 LF 尾行（POSIX 3.206 文本文件定义＋工业三源唯一口径）；
+//   stable() 追加 \n，drift 比对改字节等价（去双侧 .trim()——trim 对 EOL 差异结构性失明，哨兵对自身缺陷自载盲区）。
+function stable(o) { return JSON.stringify(o, null, 2) + "\n"; }
 
 const AP_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
 
@@ -24,7 +26,8 @@ for (const t of targets) {
   const full = join(root, rel);
   const expected = stable(t[1]);
   if (existsSync(full)) {
-    if (readFileSync(full, "utf8").trim() !== expected.trim()) { console.log("DRIFT " + rel); drift++; }
+    // D-219：字节等价比对（去 .trim()——EOL 差异不再结构性隐形；哨兵对自身尾行盲区天然闭环）
+    if (readFileSync(full, "utf8") !== expected) { console.log("DRIFT " + rel); drift++; }
     else { console.log("CLEAN " + rel); }
   } else { console.log("NEW   " + rel); }
   mkdirSync(dirname(full), { recursive: true });

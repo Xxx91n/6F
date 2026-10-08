@@ -107,7 +107,26 @@ export function detectRegexHazards(src) {
   }
   return hits;
 }
-// 剥 Markdown/HTML 注释：<!-- -->（73-check A4 先例）
+
+// D-213① 危险正则形态机检（zero-backslash 纪律边界成文伴生断言）：
+//   「[^]」起头＝JS 否定空字符类语义陷阱（[^]=任意字符＋字面 ]，P0-2 死正则事故形态）。
+//   适用域=字符串/模板串写入语境；正则字符类内部豁免零反斜杠纪律（[^\]]/[^\x5D] 物理必需）。
+//   扫描面以误语义高风险形态为限不做完整转义矩阵立法（防滑向过度立法）——「[^]」是唯一无歧义可机检的死形态
+//   （ESLint no-empty-character-class＋Biome negated-empty-class＋eslint-plugin-regexp 三重先例同构）；
+//   「否定字符类内裸 ]」在合法 [^a]/[^abc] 单成员否定类下不可与误用区分（须完整 regex 解析），超出本探测器有界范围。
+//   入参=剥注释后源码（stripComments 产物）；返回 hits 数组（kind/lno/line）。合法 [^\]] 因 \] 转义不中（负对照钉住）。
+export function detectDangerousRegexForms(strippedSrc) {
+  const hits = [];
+  const lines = strippedSrc.split('\n');
+  for (let li = 0; li < lines.length; li++) {
+    const line = lines[li];
+    // [^] 起头（否定空字符类——JS 中 [^] 匹配任意字符，其后 ] 为字面成员非闭合；P0-2 死正则事故形态）
+    if (/\[\^\]/.test(line)) {
+      hits.push({ kind: 'negated-empty-class', lno: li + 1, line: line.trim().slice(0, 80) });
+    }
+  }
+  return hits;
+}
 export function stripMdComments(src) {
   return src.replace(/<!--[\s\S]*?-->/g, '');
 }
@@ -151,6 +170,10 @@ export function guardSkip(guardName, reasons) {
 // 自声明解析（75a-T 组与 runner 共用——声明形态钉死利于普查）
 export function guardDeclaredTier(src) { const m = src.match(/^const TIER = '(portable|env-contract)';$/m); return m ? m[1] : null; }
 export function guardDeclaredSurface(src) { const m = src.match(/^const PROTECTED_SURFACE = '([^'\n]+)';$/m); return m ? m[1] : null; }
+// D-214① consumption_forms 消费形态枚举自声明解析（与 tier 同 commit、同 T 组机检「未声明=红」）。
+//   声明形态：const CONSUMPTION_FORMS = ['dev-full', ...]; ——单 dev 消费方守卫登记 ['dev-full'] 一行即闭环（不设枚举税），
+//   多形态消费方（groupProbe 组级 need 守卫）须枚举真实消费形态。返回数组或 null（未声明）。
+export function guardDeclaredConsumptionForms(src) { const m = src.match(/^const CONSUMPTION_FORMS = \[([^\]]*)\];$/m); if (!m) return null; const inner = m[1].trim(); if (inner === '') return []; return inner.split(',').map((s) => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean); }
 
 // blankStrings：剥除字符串/模板字面量内容的遮罩——引号串内容抹为空格（保引号边界），模板体抹空格而 ${...} 内代码递归保留，全长/行号不动
 // 面态判定专用：字符串内容/属性名/标识符内提名不构成消费位；注释剥离仍由 stripComments 担纲

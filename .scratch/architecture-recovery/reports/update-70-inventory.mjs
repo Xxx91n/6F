@@ -71,6 +71,9 @@ function extractAssertions(origLines, maskedLines, namePos) {
   const assertions = [];
   origLines.forEach((l, i) => {
     const ml = maskedLines[i] || '';
+    // D-218①：排除定义行形态（function <sig>(／const <sig> = (…) =>／const <sig> = function(）——
+    //   头注声明口径=emit 调用点，定义行不产生可寻址断言（三生态零先例：Istanbul/SCIP/SonarQube 定义点≠调用点）
+    if (/^\s*(?:function\s+(?:t|ok|check|w|w58|x)\s*\(|const\s+(?:t|ok|check|w|w58|x)\s*=\s*(?:function\s*\(|[^=(].*=>))/m.test(ml)) return;
     for (const mm of ml.matchAll(/\b(t|ok|check|w|w58|sealed|x)\s*\(/g)) {
       const fn = mm[1];
       const pos = namePos[fn] || 0;
