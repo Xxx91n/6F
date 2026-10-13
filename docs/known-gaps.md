@@ -2,7 +2,7 @@
 
 > 立法出处：D-100⑤「新 reason code=契约覆盖缺口信号登记 known-gaps 台账」+ D-113① 台账形态字段集。
 > 分工（D-113② 单向权威）：本册=缺口语义唯一权威（gap_id/reason_code/证据链/status/owner/review_by）；
->   `.scratch/architecture-recovery/reports/33-gate-registry.json`=立法触发器册（只持五要素触发器字段，
+>   `engine/test/fixtures/contracts/33-gate-registry.json`（冻结留存件）=立法触发器册（只持五要素触发器字段，
 >   禁复制缺口语义；trigger_id 单向外链 registry，registry 不反写本册）。
 > 检测面（D-113③）：quarantine_log SQL 派生信号（UNCLASSIFIED_FIELD_ANOMALY 出现/新码首见）→ 人审登记——
 >   自动信号≠台账条目（自动 intake→人审→裁决登记三层）。

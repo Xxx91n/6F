@@ -46,7 +46,7 @@ Release cadence = **graded preview releases** (ADR-0017): **build-scope ≠ rele
 
 Honest preview labeling is a decision, not decoration (ADR-0017): report headers and sidecars carry a `preview_disclosure` block (capability tag + calibration scope + structural limits + not_in_preview list) sourced from the same semantics as the table above; degraded output carries a `⚠ unverified` mark, unwired evidence domains carry a "⚠ data not connected" note, and synthetic fixtures carry a `synthetic` mark — they never impersonate real audits.
 
-**0.x semantics**: 0.x 单调递增、号不复用 (versions increase monotonically, never reused); minor = contract change, patch = fix, no patches backported to older lines. The 1.0 退出条件 (exit condition) = report schema frozen + every wired upstream adapter passing deterministic acceptance — not calendar-driven. Full policy in [docs/versioning.md](docs/versioning.md); product version history lives in [engine/CHANGELOG.md](engine/CHANGELOG.md), repo-level milestones/decision chronicle in [CHANGELOG.md](CHANGELOG.md).
+**0.x semantics**: 0.x 单调递增、号不复用 (versions increase monotonically, never reused); minor = contract change, patch = fix, no patches backported to older lines. The 1.0 退出条件 (exit condition) = report schema frozen + every wired upstream adapter passing deterministic acceptance — not calendar-driven. Full policy in [docs/versioning.md](docs/versioning.md); product version history lives in [engine/CHANGELOG.md](engine/CHANGELOG.md).
 
 ## Install
 
@@ -140,9 +140,8 @@ flowchart LR
 | [docs/adr/](docs/adr/) | architecture decision records — 生成式索引 [docs/adr/README.md](docs/adr/README.md)（do not edit by hand；regen: cd engine && npm run gen） |
 | [engine/](engine/) | kernel CLI + Agent Plugin five-layer box (build / command details in [engine/README.md](engine/README.md)) |
 | [examples/first-report/](examples/first-report/) | release sample assets: 6F self-audit Macro-B first report, four files (happy + failure pair, disclosure regime) |
-| [CHANGELOG.md](CHANGELOG.md) | 仓级里程碑/决策编年 (repo-level milestone & decision chronicle; pointer-based; product version ledger = engine/CHANGELOG.md) |
-| .scratch/macro-audit/ | decision ledger D-series (`.scratch/macro-audit/decision-ledger.md`) + spec-phase tasks + research reports |
-| .scratch/architecture-recovery/ | execution-round ledger A-series (`.scratch/architecture-recovery/decision-ledger.md`) + tickets / guards / first-report artifacts |
+| [engine/CHANGELOG.md](engine/CHANGELOG.md) | product version ledger |
+| .scratch/ | local-only untracked zone — governance archive + one-off artifacts (not shipped; decision authority = docs/spec.md + docs/adr/) |
 
 ## Demo and examples
 

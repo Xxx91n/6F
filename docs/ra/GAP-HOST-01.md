@@ -16,7 +16,7 @@
 
 - Stage-2 公开推广判据包 **判据③**（D-162③；registry `stage2-launch-criteria.verify_method`）：「GAP-HOST-01 关闭（IDE 面实证 verified 或按 accepted-risk 五要件齐备关闭）」。
 - 缺口条目：docs/known-gaps.md `GAP-HOST-01`（reason_code=`host_surface_unverified`；CLI=verified／IDE=observed-unverified）。
-- 证据链：.scratch/macro-audit/trials/codebuddy-r38-report.md（CodeBuddy CLI 2.151.0，C1/C2/C3 三判据 hit；IDE 形态 not-run 如实留痕）。
+- 证据链：（证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/trials/codebuddy-r38-report.md）（CodeBuddy CLI 2.151.0，C1/C2/C3 三判据 hit；IDE 形态 not-run 如实留痕）。
 
 ## 2. justification（不修/不可自力理由）
 
