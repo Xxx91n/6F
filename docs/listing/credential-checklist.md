@@ -31,7 +31,7 @@
 
 - listing 文案草稿 `docs/listing/description.md`（边界文案=README 冻结口径）
 - 图标 `docs/listing/icon.svg`（自绘 SVG，无版权负担）
-- 字段查证 `.scratch/macro-audit/reports/41b-marketplace-fields.md`
+- 字段查证记录已随治理工件退役（git 历史可查 `.scratch/macro-audit/reports/41b-marketplace-fields.md`）
 - plugin.json/manifest.meta.json 已对齐 Agent Plugins 1.0.0（#34 已闭环）
 
 ## E. 诚实披露（入 listing 前须知）

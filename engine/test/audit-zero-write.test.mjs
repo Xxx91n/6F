@@ -1,5 +1,5 @@
 // audit-zero-write.test.mjs —— D-074③ fixture 承接面（#65）：「审计管线对被测仓零写入」工具不变量
-// 承接的 sealed 断言（attestation=.scratch/architecture-recovery/reports/acceptance-probe-attestation.jsonl）：
+// 承接的 sealed 断言（attestation 册务件已随治理工件退役，git 历史可查 .scratch/architecture-recovery/reports/acceptance-probe-attestation.jsonl）：
 //   ap-38-h4（38-check H4 anysearch-cli 零写入）/ ap-39-i1（env-manager）/ ap-39-i2（anysearch-cli）
 //   ——1:1 迁移对应表写入 attestation 行 migrated_to 字段。
 // 机制（hermetic 处方）：fs.mkdtemp 玩具仓（cassette 化抽样真实 sibling 结构：docs/adr+CONTEXT.md+package.json+src，

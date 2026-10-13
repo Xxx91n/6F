@@ -1,5 +1,5 @@
 <!-- canonical: README.md | owner: Xxx91n -->
-<!-- sync: 6e72603907ed -->
+<!-- sync: 2f2c835b6424 -->
 > ⚠ **本文件为中文译文（derived 工件）——英文版 [README.md](README.md) 为权威版本（canonical 权威源）；如有不一致以英文版为准。** 译文可暂时落后，但不假装新鲜（sync 戳与英文版内容指纹绑定）。
 
 <p align="center">
@@ -52,7 +52,7 @@
 
 preview 标注诚实是决策本体非装饰（ADR-0017）：报告头/侧车 `preview_disclosure` 披露块（capability 标注＋校准范围＋结构性限制＋not_in_preview 清单）与上表为同一语义源；降级产出带 `⚠ unverified` 印记，未接证据域带「⚠ 数据未接」标注，合成 fixture 带「synthetic」印记且不冒充真实审计。
 
-**0.x 语义**：版本号 0.x 单调递增、号不复用；minor = 契约变更、patch = 修复、不回退发旧线补丁；1.0 退出条件 = 报告 schema 冻结＋已接上游适配器全过确定性验收（非日历触发）。口径全文见 [docs/versioning.md](docs/versioning.md)；产品版本变更以 [engine/CHANGELOG.md](engine/CHANGELOG.md) 为准，仓级里程碑/决策编年见 [CHANGELOG.md](CHANGELOG.md)。
+**0.x 语义**：版本号 0.x 单调递增、号不复用；minor = 契约变更、patch = 修复、不回退发旧线补丁；1.0 退出条件 = 报告 schema 冻结＋已接上游适配器全过确定性验收（非日历触发）。口径全文见 [docs/versioning.md](docs/versioning.md)；产品版本变更以 [engine/CHANGELOG.md](engine/CHANGELOG.md) 为准。
 
 <a id="install"></a>
 ## 安装 {#install}
@@ -155,9 +155,8 @@ flowchart LR
 | [docs/adr/](docs/adr/) | 架构决策记录——生成式索引 [docs/adr/README.md](docs/adr/README.md)（勿手改；regen: cd engine && npm run gen） |
 | [engine/](engine/) | 内核 CLI + Agent Plugin 五层盒子（构建 / 命令细节见 [engine/README.md](engine/README.md)） |
 | [examples/first-report/](examples/first-report/) | 发布样例资产：6F 自审 Macro-B 首报四件（happy + failure 双对，披露制） |
-| [CHANGELOG.md](CHANGELOG.md) | 仓级里程碑/决策编年（指针制；产品版本账以 engine/CHANGELOG.md 为准） |
-| .scratch/macro-audit/ | 决策账本 D 系列（`.scratch/macro-audit/decision-ledger.md`）+ spec 阶段任务 + 调研报告 |
-| .scratch/architecture-recovery/ | 执行轮账本 A 系列（`.scratch/architecture-recovery/decision-ledger.md`）+ 票据 / 守卫 / 首报产物 |
+| [engine/CHANGELOG.md](engine/CHANGELOG.md) | 产品版本账 |
+| .scratch/ | 本地未追踪区——治理档案与一次性工件（不入库；决策权威 = docs/spec.md + docs/adr/） |
 
 <a id="demo-and-examples"></a>
 ## 演示与样例 {#demo-and-examples}

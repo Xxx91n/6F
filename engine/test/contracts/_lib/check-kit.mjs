@@ -1,0 +1,239 @@
+// check-kit.mjs — 守卫共用工具包（#75批1 / D-094③「名↔检剥注释」通用化落点；73-check A4 / 20-check A5 先例收敛）
+// 约定：零三方依赖；本目录仅放共享纯函数，不参与 *-check.mjs 命名枚举（70-check/75a 普查枚举面豁免）。
+
+import { spawnSync } from 'node:child_process';
+
+// 剥 JS/TS 源码注释：行注 // 与块注 /* */（含字符串/regex/template 内 // 保护）
+// R51-T1A（D-184②④）：补 regex 字面量态——js-tokens 前驱 token 启发式＋行尾强制闭合；歧义全偏除号=安全向（Padolsey 实录）
+// 前驱三分类：identifier/数字/字符串尾/)/]/} 后 slash = 除号；其余 = regex
+export function stripComments(src) {
+  const out = [];
+  let i = 0, inStr = null, inLine = false, inBlock = false, inRegex = false, inRegexClass = false, lastSig = '';
+  while (i < src.length) {
+    const c = src[i], n = src[i + 1];
+    if (inLine) { if (c === '\n') { inLine = false; out.push(c); } i++; continue; }
+    if (inBlock) { if (c === '*' && n === '/') { inBlock = false; i += 2; } else i++; continue; }
+    if (inRegex) {
+      if (c === '\n' || c === '\r') { inRegex = false; inRegexClass = false; out.push(c); lastSig = ''; i++; continue; }
+      if (c === '\\') { out.push(c); if (i + 1 < src.length) { out.push(src[i + 1]); i += 2; continue; } i++; continue; }
+      if (c === '[') { inRegexClass = true; out.push(c); i++; continue; }
+      if (c === ']') { inRegexClass = false; out.push(c); i++; continue; }
+      if (c === '/' && !inRegexClass) {
+        inRegex = false;
+        out.push(c); i++;
+        while (i < src.length && /[a-z]/i.test(src[i])) { out.push(src[i]); i++; }
+        lastSig = '/';
+        continue;
+      }
+      out.push(c); i++;
+      continue;
+    }
+    if (inStr) {
+      if (inStr === '`' && c === '$' && n === '{') {
+        out.push(c); out.push(n); i += 2;
+        let depth = 1, j = i;
+        while (j < src.length && depth > 0) {
+          const ch = src[j];
+          if (ch === '\\') { j += 2; continue; }
+          if (ch === "'" || ch === '"' || ch === '`') {
+            const q = ch; j++;
+            while (j < src.length && src[j] !== q) { if (src[j] === '\\') j++; j++; }
+            j++; continue;
+          }
+          if (ch === '/' && src[j+1] === '/') { while (j < src.length && src[j] !== '\n') j++; continue; }
+          if (ch === '/' && src[j+1] === '*') { j += 2; while (j < src.length && !(src[j] === '*' && src[j+1] === '/')) j++; j += 2; continue; }
+          if (ch === '{') depth++;
+          else if (ch === '}') depth--;
+          j++;
+        }
+        const closeIdx = depth === 0 ? j - 1 : j;
+        const inner = src.slice(i, closeIdx);
+        out.push(stripComments(inner));
+        out.push('}');
+        i = closeIdx + 1;
+        continue;
+      }
+      out.push(c);
+      if (c === '\\') { out.push(src[i + 1]); i += 2; continue; }
+      if (c === inStr) inStr = null;
+      i++;
+      continue;
+    }
+    if (c === '/' && n === '/') { inLine = true; i += 2; continue; }
+    if (c === '/' && n === '*') { inBlock = true; i += 2; continue; }
+    if (c === "'" || c === '"' || c === '`') { inStr = c; out.push(c); lastSig = c; i++; continue; }
+    if (c === '/') {
+      const isPValue = lastSig === ')' || lastSig === ']' || lastSig === '}' ||
+        (lastSig && /[\w$]/.test(lastSig)) ||
+        lastSig === "'" || lastSig === '"' || lastSig === '`' ||
+        lastSig === '/';
+      if (isPValue) {
+        out.push(c); i++;
+        lastSig = '/';
+        continue;
+      }
+      inRegex = true; inRegexClass = false;
+      out.push(c); i++;
+      continue;
+    }
+    out.push(c);
+    if (!/\s/.test(c)) lastSig = c;
+    i++;
+  }
+  return out.join('');
+}
+
+// 迁入闸探测（D-184②——三形态命中即阻断）：regex-引号形／歧义除号位／模板串内 regex
+export function detectRegexHazards(src) {
+  const hits = [];
+  const lines = src.split('\n');
+  for (let li = 0; li < lines.length; li++) {
+    const line = lines[li];
+    // 模板串内 regex
+    if (/\$\{[^}]*\/.+\/[^}]*\}/.test(line)) {
+      hits.push({ kind: 'tpl-inner-regex', lno: li + 1, line: line.trim().slice(0, 80) });
+    }
+    // regex-引号形
+    const reQuote = /(?:^|[=(,\[{!&|?:;]\s*)\/(?:[^/\\\n]|\\.)*['][^/\\\n]*\/[gimsuy]*/;
+    const reQuote2 = /(?:^|[=(,\[{!&|?:;]\s*)\/(?:[^/\\\n]|\\.)*["][^/\\\n]*\/[gimsuy]*/;
+    if ((reQuote.test(line) || reQuote2.test(line)) && !/^\s*['"]/.test(line)) {
+      hits.push({ kind: 'regex-quote-form', lno: li + 1, line: line.trim().slice(0, 80) });
+    }
+    // 歧义除号位
+    if (/[\w$\)\]\}]\s*\/[^\s/*=]/.test(line) && line.indexOf('//') < 0 && line.indexOf('/*') < 0) {
+      const m = line.match(/([\w$\)\]\}])\s*\/([^\s/*=])/);
+      if (m) hits.push({ kind: 'ambiguous-div', lno: li + 1, line: line.trim().slice(0, 80), prev: m[1] });
+    }
+  }
+  return hits;
+}
+
+// D-213① 危险正则形态机检（zero-backslash 纪律边界成文伴生断言）：
+//   「[^]」起头＝JS 否定空字符类语义陷阱（[^]=任意字符＋字面 ]，P0-2 死正则事故形态）。
+//   适用域=字符串/模板串写入语境；正则字符类内部豁免零反斜杠纪律（[^\]]/[^\x5D] 物理必需）。
+//   扫描面以误语义高风险形态为限不做完整转义矩阵立法（防滑向过度立法）——「[^]」是唯一无歧义可机检的死形态
+//   （ESLint no-empty-character-class＋Biome negated-empty-class＋eslint-plugin-regexp 三重先例同构）；
+//   「否定字符类内裸 ]」在合法 [^a]/[^abc] 单成员否定类下不可与误用区分（须完整 regex 解析），超出本探测器有界范围。
+//   入参=剥注释后源码（stripComments 产物）；返回 hits 数组（kind/lno/line）。合法 [^\]] 因 \] 转义不中（负对照钉住）。
+export function detectDangerousRegexForms(strippedSrc) {
+  const hits = [];
+  const lines = strippedSrc.split('\n');
+  for (let li = 0; li < lines.length; li++) {
+    const line = lines[li];
+    // [^] 起头（否定空字符类——JS 中 [^] 匹配任意字符，其后 ] 为字面成员非闭合；P0-2 死正则事故形态）
+    if (/\[\^\]/.test(line)) {
+      hits.push({ kind: 'negated-empty-class', lno: li + 1, line: line.trim().slice(0, 80) });
+    }
+  }
+  return hits;
+}
+export function stripMdComments(src) {
+  return src.replace(/<!--[\s\S]*?-->/g, '');
+}
+
+// ---- git 票面机件（R38/#75批2，r37 审计 P-5 收编：26/28/30-check「git log --grep + show --name-only 触及面」机件三份复制去重） ----
+// spawnSync argv 形态无 shell 拼接面；统一 -c core.quotePath=false（非 ASCII 路径不引号逃逸——28 原 execSync 串已带此参，26/30 原 argv 缺此为潜在漏洞顺带补齐）。
+export function gitOut(root, args) {
+  const r = spawnSync('git', ['-c', 'core.quotePath=false'].concat(args), { cwd: root, encoding: 'utf8' });
+  return r.stdout || '';
+}
+export function commitsByGrep(root, pattern) {
+  return gitOut(root, ['log', '--all', '--format=%H', '--grep', pattern]).split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+}
+export function pathsTouchedBy(root, sha) {
+  return gitOut(root, ['show', '--name-only', '--format=', sha]).split('\n').map(function (p) { return p.trim(); }).filter(Boolean);
+}
+export function touchedPaths(root, shas) {
+  const s = new Set();
+  for (const sha of shas) { pathsTouchedBy(root, sha).forEach(function (p) { s.add(p); }); }
+  return s;
+}
+export function lastChangeSha(root, relPath) {
+  return gitOut(root, ['log', '-1', '--format=%H', '--', relPath]).trim();
+}
+// ---- 守卫自声明 + skip 三态原语（R40-T1：D-159②③ tier 自声明强制＋SKIP 呈现契约＋D-160③ protected_surface 双字段） ----
+// tier 自声明形态（每件守卫文件头声明；未声明=红——75a-T 组普查断言）：
+//   const TIER = 'portable' | 'env-contract';
+//   const PROTECTED_SURFACE = '<守护面描述>';
+export const GUARD_TIERS = ['portable', 'env-contract'];
+
+// skip 原语：环境缺席→SKIP-with-reason 三态退出（exit 0；GUARD-RESULT: SKIP 行供 guard-all-run 分类——
+// skip 不进 allOk 禁折 pass、禁门禁计数〔kit #518/startaitools 实证〕；skip≠xfail 不可混标——
+// 环境没有=skip、该工作但物不在=xfail/known-red，混标丢环境修复后自动转红的哨兵价值）
+export function guardSkip(guardName, reasons) {
+  const rs = (Array.isArray(reasons) ? reasons : [reasons]).join('; ');
+  console.log('SKIP ' + guardName + ' | ' + rs);
+  console.log('GUARD-RESULT: SKIP ' + guardName + ' reason=' + rs);
+  process.exit(0);
+}
+
+// 自声明解析（75a-T 组与 runner 共用——声明形态钉死利于普查）
+export function guardDeclaredTier(src) { const m = src.match(/^const TIER = '(portable|env-contract)';$/m); return m ? m[1] : null; }
+export function guardDeclaredSurface(src) { const m = src.match(/^const PROTECTED_SURFACE = '([^'\n]+)';$/m); return m ? m[1] : null; }
+// D-214① consumption_forms 消费形态枚举自声明解析（与 tier 同 commit、同 T 组机检「未声明=红」）。
+//   声明形态：const CONSUMPTION_FORMS = ['dev-full', ...]; ——单 dev 消费方守卫登记 ['dev-full'] 一行即闭环（不设枚举税），
+//   多形态消费方（groupProbe 组级 need 守卫）须枚举真实消费形态。返回数组或 null（未声明）。
+export function guardDeclaredConsumptionForms(src) { const m = src.match(/^const CONSUMPTION_FORMS = \[([^\]]*)\];$/m); if (!m) return null; const inner = m[1].trim(); if (inner === '') return []; return inner.split(',').map((s) => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean); }
+
+// blankStrings：剥除字符串/模板字面量内容的遮罩——引号串内容抹为空格（保引号边界），模板体抹空格而 ${...} 内代码递归保留，全长/行号不动
+// 面态判定专用：字符串内容/属性名/标识符内提名不构成消费位；注释剥离仍由 stripComments 担纲
+export function blankStrings(src) {
+  let out = '', i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (c === "'" || c === '"') {
+      const q = c;
+      let j = i + 1;
+      while (j < src.length && src[j] !== q) {
+        if (src[j] === '\\') j++;
+        j++;
+      }
+      out += q + ' '.repeat(Math.max(0, j - i - 1)) + (j < src.length ? q : '');
+      i = j + 1;
+      continue;
+    }
+    if (c === '`') {
+      let j = i + 1;
+      let body = '';
+      while (j < src.length) {
+        if (src[j] === '\\') { body += src[j] + src[j + 1]; j += 2; continue; }
+        if (src[j] === '`') break;
+        if (src[j] === '$' && src[j + 1] === '{') {
+          const close = findMatchingBrace(src, j + 2);
+          body += '${' + blankStrings(src.slice(j + 2, close)) + '}';
+          j = close + 1;
+          continue;
+        }
+        body += ' ';
+        j++;
+      }
+      out += '`' + body + (j < src.length ? '`' : '');
+      i = j + 1;
+      continue;
+    }
+    out += c;
+    i++;
+  }
+  return out;
+}
+
+function findMatchingBrace(src, open) {
+  let depth = 0;
+  for (let i = open; i < src.length; i++) {
+    if (src[i] === '{') depth++;
+    else if (src[i] === '}') { depth--; if (depth === 0) return i; }
+    else if (src[i] === '\\') i++;
+  }
+  return src.length - 1;
+}
+
+// realConsumption：真消费形态判定——仅认 import/require 具名引入 或 stripComments(/stripMdComments( 调用位
+//   （含成员调用 x.stripComments(——D-158① 原文「调用位」无「裸」字；声明位 {stripComments:…} 无左括号不中）
+// 字符串/属性名/标识符内提名不豁免（先剥字符串再判）；调用位用左括号锚定而非词缀（ADR-0024 判据）
+export function realConsumption(strippedNoComments) {
+  const noStr = blankStrings(strippedNoComments);
+  const importBind = /\bimport\b[^'"\n]*\b(?:stripComments|stripMdComments)\b[^'"\n]*\bfrom\b\s*['"]/;
+  const requireBind = /\{[^}\n]*\b(?:stripComments|stripMdComments)\b[^}\n]*\}\s*=\s*require\s*\(/;
+  const callForm = /(?:^|[^\w$])(?:stripComments|stripMdComments)\s*\(/;
+  return importBind.test(noStr) || requireBind.test(noStr) || callForm.test(noStr);
+}

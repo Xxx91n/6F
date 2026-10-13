@@ -21,15 +21,15 @@ on:
     paths:
       - "engine/**"
       - "examples/first-report/**"
-      - ".scratch/architecture-recovery/reports/23-frozen-fc00d458.bundle"
-      - ".scratch/architecture-recovery/reports/23-frozen-readme-overlay.md"
+      - "engine/test/fixtures/frozen/23-frozen-fc00d458.bundle"
+      - "engine/test/fixtures/frozen/23-frozen-readme-overlay.md"
       - ".github/workflows/golden-ci.yml"
   pull_request:
     paths:
       - "engine/**"
       - "examples/first-report/**"
-      - ".scratch/architecture-recovery/reports/23-frozen-fc00d458.bundle"
-      - ".scratch/architecture-recovery/reports/23-frozen-readme-overlay.md"
+      - "engine/test/fixtures/frozen/23-frozen-fc00d458.bundle"
+      - "engine/test/fixtures/frozen/23-frozen-readme-overlay.md"
       - ".github/workflows/golden-ci.yml"
 permissions:
   contents: read
@@ -75,12 +75,12 @@ jobs:
       # （经 23-facts.jsonl 逐 keyword intent_count 复原 top-20 签名，实测四件逐字节一致）。
       - name: materialize frozen worktree (fc00d458 via in-repo bundle)
         run: |
-          git bundle unbundle .scratch/architecture-recovery/reports/23-frozen-fc00d458.bundle
+          git bundle unbundle engine/test/fixtures/frozen/23-frozen-fc00d458.bundle
           git worktree add .frozen-first-report fc00d458e215cc9a7a26af81626dec8712622821
           mkdir -p .frozen-first-report/engine/src/report
           git show e39468c9c53d32694f2ef9153b79eae018ea6b44:engine/src/report/generate.ts > .frozen-first-report/engine/src/report/generate.ts
           git show e39468c9c53d32694f2ef9153b79eae018ea6b44:.scratch/architecture-recovery/reports/23-first-report.mjs > .frozen-first-report/.scratch/architecture-recovery/reports/23-first-report.mjs
-          cp .scratch/architecture-recovery/reports/23-frozen-readme-overlay.md .frozen-first-report/.scratch/architecture-recovery/README.md
+          cp engine/test/fixtures/frozen/23-frozen-readme-overlay.md .frozen-first-report/.scratch/architecture-recovery/README.md
       - name: re-render examples/first-report (verbatim README command)
         working-directory: .frozen-first-report
         run: node .scratch/architecture-recovery/reports/23-first-report.mjs

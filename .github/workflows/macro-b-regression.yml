@@ -84,7 +84,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: engine-repo
-          fetch-depth: 0          # one-shot 证据锚读 .scratch 仓内文件；全量对象与 #39 先例一致
+          fetch-depth: 0          # one-shot 证据锚读仓内文档（docs/spec.md）；全量对象与 #39 先例一致
 
       - uses: actions/setup-node@v4
         with:
@@ -123,7 +123,7 @@ jobs:
           MACRO_AUDIT_STRICT_QUARANTINE: '0'
         run: |
           set +e
-          node engine-repo/.scratch/architecture-recovery/reports/39-macro-b-one-shot.mjs \
+          node engine-repo/engine/scripts/39-macro-b-one-shot.mjs \
             --repo "$REPO_NAME" \
             --root "$GITHUB_WORKSPACE/audited-repo" \
             --out "$GITHUB_WORKSPACE/macro-b-artifacts"

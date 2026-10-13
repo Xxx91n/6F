@@ -7,7 +7,6 @@ Architecture decision records — generated index (navigation surface; not an au
 | ADR | title | status | date |
 | --- | --- | --- | --- |
 | [ADR-0001](0001-five-scale-scope.md) | 5 scale scope（宏观+微观=5 audit scales） | accepted | 2026-09-12 |
-| [ADR-0002](0002-no-mvp-slice.md) | No MVP slice（spec-level 完整规划） | superseded by ADR-0010（2026-09-12） |  |
 | [ADR-0003](0003-boundary-product-and-usage.md) | 规划边界 = 产品本体 + 使用方法（商业层排除） | accepted | 2026-09-12 |
 | [ADR-0004](0004-strategic-quadrant-five-dims.md) | 战略 quadrant = 5 维 S1-S5 | accepted | 2026-09-12 |
 | [ADR-0005](0005-hub-of-facts-with-federated-adjudication.md) | 集成架构 = Hub-of-Facts with Federated Adjudication（C+A 合成） | accepted | 2026-09-12 |
@@ -15,12 +14,10 @@ Architecture decision records — generated index (navigation surface; not an au
 | [ADR-0007](0007-ten-demo-paths.md) | 演示场景 = 10 路径（5 scale × 关键+失败） | accepted | 2026-09-12 |
 | [ADR-0008](0008-agent-plugin-five-layer-box.md) | 分发形态 = Agent Plugin 五层盒子（双 manifest） | accepted |  |
 | [ADR-0009](0009-intake-local-first-url-optin.md) | 输入面 = 本地路径默认 + 远程 URL 配置可达 | accepted |  |
-| [ADR-0010](0010-spec-repo-and-engineering-repo-split.md) | spec 仓角色正式化 + 工程实现迁移至工程仓（supersede ADR-0002） | superseded by ADR-0011（2026-09-12）｜Supersedes: ADR-0002 |  |
 | [ADR-0011](0011-single-repo-subdir-but-branches.md) | 单仓 + 子目录 + but 分支（更正 ADR-0010 的「另起工程仓」） | accepted（2026-09-12）｜Supersedes: ADR-0010 |  |
 | [ADR-0012](0012-value-validation-loop-first.md) | 主干方向 = 端到端价值验证闭环先行（Value Validation Loop First） | accepted | 2026-09-12 |
 | [ADR-0013](0013-three-layer-acceptance-gates.md) | 首报验收 = 三层闸门 + 预声明判据（Three-Layer Acceptance Gates） | accepted | 2026-09-12 |
 | [ADR-0014](0014-upstream-integration-dual-track.md) | 上游组件引入方式 = 适配器双轨制 + vendor 逃生舱（Upstream Integration Dual-Track） | accepted | 2026-09-14 |
-| [ADR-0015](0015-serial-calibration-measurement-validity-first.md) | 阶段 2 = 序列化校准（量测效度先行：R4-01 真值表 → v2∥治理 → 2a → 2b） | accepted | 2026-09-15 |
 | [ADR-0016](0016-distribution-channel-agent-plugins-only.md) | 分发渠道方向 = 纯 Agent Plugins 生态（通用市场不进入、不占位、不注册） | accepted | 2026-09-15 |
 | [ADR-0017](0017-preview-release-model.md) | 发布节奏模型 = Preview 分级发布（单层先行 + 逐层漏斗；build-scope ≠ release-sequence） | accepted | 2026-09-15 |
 | [ADR-0018](0018-versioning-and-chronicle-discipline.md) | 版本与编年制度化 = 0.x 单调纪律＋上游锁表＋报告契约独立版本化／双层 CHANGELOG 分工 | accepted | 2026-09-15 |

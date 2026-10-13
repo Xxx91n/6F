@@ -1,19 +1,38 @@
 # AGENTS.md
 
-## 用户协作偏好
+## 项目定位
 
-- **输出文件路径一律给完整绝对路径**：凡输出用户需要复制/打开的文件路径（如 `.scratch/macro-audit/handoffs/next-round.md` 这类任务书/报告/handoff），一律写全绝对路径（`D:\Aworker\6F\...`），不要只给仓库相对路径。
+**macro-audit（6F）**——宏观+微观工程内容审计产品，面向 Git 记录健全的项目；分发形态 = Agent Plugin（engine/）。
 
-## 项目环境速查
+## 怎么跑
 
-- 决策账本：`.scratch/macro-audit/decision-ledger.md`（D 系列）与 `.scratch/architecture-recovery/decision-ledger.md`（A 系列）
-- 文件写入用 Node.js（`ctx_execute(language:"javascript")` 或 node 脚本），写后回读断言、禁 BOM＋保尾行
-- **格式化-only／机械重缩进变更禁搭车语义提交**——须独立 format commit 先行（大范围 reformat 登记 `.git-blame-ignore-revs`）；NO-OP 例外=被触碰文件内的顺手整理可搭车（R32 审计 V1 先例/D-139）
-- **生成物再生禁搭车语义提交**——`engine/dist/` 产物（tsc+esbuild 输出）变更须独立 bundle commit；bundle-only SHA 可登记 `.git-blame-ignore-revs`（D-140②，D-139 同型扩展）
-- **外部评审摄入先分诊再裁定**：钉评审快照 SHA＋逐条对照当前 HEAD——「快照属实/现状已修」不进裁定链（去向表照登）；仍开放→裁定链（D-075 三要素受理）；无法核实→pending+复审时点（入 registry 须走 manual_watch 五要素）；「可核实且证伪」→标「快照不属实」**附核实依据**显式驳回不进裁定链（去向表照登——摄入分诊封闭处置态，非第四值守态）（D-142/D-146）
-- **收口工序前置核对**：账行增量↔编年随行核对＋收口前跑守卫组——「本轮无账行增量」可显式声明豁免（D-144①④）；`engine/src` 或 `engine/dist` 触碰→前置 `npm run build`＋`node scripts/check-dist.mjs` 核对零 drift 再 commit（D-145①；守卫组/CI 层硬闸不降级）
-- **守卫组指称**（D-149①②）：「收口前跑守卫组」=基线 18 件枚举——`33/39/40/41a/43/44/45/70/71/72/73/77/78/80/81/82/83-check.mjs`＋`xfail-run.mjs`（reports/ 下全绿判据；41a 编行随行钉在账行增量 commit 落盘前许可中途红）——成员进出：新 check 落盘轮登记＋实测绿入列，出列=T3 分诊门处置；升格触发器=T3 manifest 产出当轮改「58 件全跑＋红集⊆manifest＋manifest 件复绿告警」（registry `guard-baseline-upgrade-trigger`）——**已触发（A-097/轮37）**：升格后判据=`node .scratch/architecture-recovery/reports/guard-all-run.mjs` 全量跑（动态枚举含新入列 check）＋红集⊆`known-red-manifest.json`＋册件复绿 strict 告警；18 件枚举为升格前基线历史快照存证
-- **规程生效时点**（D-148③）：checklist/规程自其落盘 commit 起对新行为生效，落盘 commit 自身豁免（grandfather/lint 存量豁免同构）——豁免对象=新规程，落盘时点已生效的旧守卫仍全额适用
-- **审计 finding 处置**（D-169 取代 D-148②；D-171 收窄②款）：Accepted Risk 封闭处置态须五要件齐备——判据引用＋不修理由＋可验证补偿控制＋具名裁者（起草人≠批准人）＋到期日+复审钩；缺任一=finding 静默丢弃。到期形态二分（D-171）：补偿控制存续承载件→强制 min(事件先到,≤90d)；wontfix 恒久类（接受=事实判据不依赖存续控制）→事件制合法双条件=在册可核验 sentinel＋低频盘查钩（T3 普查）；分类判据钉控制存续承载性非名义标签。活跃档到期缺失/已过禁续期须按新标重立项（wontfix≠裸标；false-positive=finding 不存在语义非处置档）
-- 版本控制用 `but`（GitButler），不 push 除非用户明示
-- 本机验证用守卫脚本 `node .scratch/architecture-recovery/reports/NN-check.mjs`（exit 0 + PASS/FAIL）
+- 构建：`cd engine && npm ci && npm run build`
+- 测试：`cd engine && npm test`（= gen + build + smoke 全链）
+- CLI：`node engine/dist/cli.js --help`
+
+## 技术栈
+
+Node ≥20 / TypeScript / esbuild 打包 / DuckDB（@duckdb/node-api）事实存储 / 测试为直跑式 .test.mjs 脚本。
+
+## 目录约定
+
+- `engine/` 产品内核（src / dist / test / scripts / skills / fixtures）
+- `docs/` 权威文档区：`spec.md`（产品决策总源）、`adr/`（架构决策记录）、`ra/`（验收风险档案）、`known-gaps.md`、`upstream-dimension-map.md`、`versioning.md`
+- `CONTEXT.md` 领域词汇唯一权威
+- `examples/` 演示与 golden 对照件；`.claude-plugin/` 插件 manifest；`.github/workflows/` CI
+- `.scratch/` 本地未追踪区（治理档案与一次性工件，非产品面，不入库）
+
+## Issue tracker
+
+产品级未决问题：`.scratch/gov-audit/backlog.md`（本地）；代码内 GAP 编号见 `docs/known-gaps.md`。
+
+## 领域文档指针
+
+docs/spec.md（产品决策）→ docs/adr/（难逆转架构决策）→ CONTEXT.md（术语）。
+
+## 协作与 VCS 纪律
+
+- 输出给用户的路径一律写完整绝对路径（`D:\Aworker\6F\...`）。
+- 版本控制一律 `but`（GitButler）；未经用户明示不 push。
+- 写文件用 Node.js；写后回读校验、禁 BOM、保尾行。
+- 触碰 `engine/src` 或 `engine/dist` → commit 前跑 `npm run build` + `node scripts/check-dist.mjs` 确认零 drift。

@@ -16,7 +16,7 @@ const S = await import(pathToFileURL(join(root, 'dist', 'fact', 'store.js')).hre
 const FC = await import(pathToFileURL(join(root, 'dist', 'fact', 'file-card.js')).href);
 
 // ── 预登记阈值（ms）——实测预登记制：先测后写锁票面，target=正常达成档 danger=病态上限档
-//   登记值见 .scratch/macro-audit/reports/80-bench-thresholds.md（同票）
+//   登记值档已随治理工件退役（git 历史可查 .scratch/macro-audit/reports/80-bench-thresholds.md）
 const THRESHOLDS = {
   small:  { target: 200,  danger: 800   },   // <5k facts（实测基线 p95≤72ms——target≈3×基线留异机余量）
   medium: { target: 800,  danger: 3000  },   // 5k~50k facts
@@ -35,8 +35,8 @@ function parseArgs(argv) {
   for (const db of o.dbs) { if (!existsSync(db)) { throw new Error('BENCH-ARGS --db 不存在：' + db); } }
   if (o.dbs.length === 0) {
     o.dbs = [
-      join(root, '..', '.scratch', 'macro-audit', 'audits', 'r36', 'jiahao-facts.duckdb'),
-      join(root, '..', '.scratch', 'macro-audit', 'audits', 'r36', 'env-manager-facts.duckdb')
+      join(root, 'test', 'fixtures', 'contracts', 'r36', 'jiahao-facts.duckdb'),
+      join(root, 'test', 'fixtures', 'contracts', 'r36', 'env-manager-facts.duckdb')
     ];
   }
   return o;
