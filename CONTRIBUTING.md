@@ -37,7 +37,7 @@ Read these first:
 
 Safe to skip unless you are working on them:
 
-- `.scratch/` — local untracked zone (not shipped); retired governance archive lives in git history. Decision authority: `docs/spec.md` + `docs/adr/` + `CONTEXT.md`.
+- `.scratch/` — local untracked zone (not shipped); retired governance archive lives in git history. Authority: decisions in `docs/spec.md` + `docs/adr/`; vocabulary in `CONTEXT.md`.
 - `engine/dist/` — checked-in build output; do not review its diffs line by line — correctness is enforced by the rebuild-diff CI guard, not human diff inspection.
 - Closed decisions and past audit rounds — they explain the path, not the current state.
 

@@ -1,6 +1,6 @@
 # macro-audit — 工程内容审计
 
-> 决策编年：逐轮裁定 ledger 已退役为本地档案（历史见 git）；决策权威 = docs/spec.md 与 docs/adr/。
+> 决策编年：逐轮裁定 ledger 已退役为本地档案（历史见 git）；决策权威 = docs/spec.md + docs/adr/；术语以本文件为准。
 > 本文件不含实现细节（domain-modeling 规则）；实现决策走 docs/adr/，术语锐利化在本文件 ## Language。
 
 ## Language

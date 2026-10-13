@@ -1,4 +1,4 @@
-# .scratch 整体本地区——治理档案与一次性工件区，决策权威在 docs/spec.md + docs/adr/ + CONTEXT.md（治理庭 C5）
+# .scratch 整体本地区——治理档案与一次性工件区；决策权威 = docs/spec.md + docs/adr/，术语 = CONTEXT.md
 .scratch/
 # duckdb 写句柄残留——守卫一律 openReader 后不再产出；.tmp 为防御位
 *.duckdb.wal

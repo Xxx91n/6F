@@ -1,5 +1,5 @@
 <!-- canonical: README.md | owner: Xxx91n -->
-<!-- sync: 2f2c835b6424 -->
+<!-- sync: 51bdccf8aed6 -->
 > ⚠ **本文件为中文译文（derived 工件）——英文版 [README.md](README.md) 为权威版本（canonical 权威源）；如有不一致以英文版为准。** 译文可暂时落后，但不假装新鲜（sync 戳与英文版内容指纹绑定）。
 
 <p align="center">
@@ -156,7 +156,7 @@ flowchart LR
 | [engine/](engine/) | 内核 CLI + Agent Plugin 五层盒子（构建 / 命令细节见 [engine/README.md](engine/README.md)） |
 | [examples/first-report/](examples/first-report/) | 发布样例资产：6F 自审 Macro-B 首报四件（happy + failure 双对，披露制） |
 | [engine/CHANGELOG.md](engine/CHANGELOG.md) | 产品版本账 |
-| .scratch/ | 本地未追踪区——治理档案与一次性工件（不入库；决策权威 = docs/spec.md + docs/adr/） |
+| .scratch/ | 本地未追踪区——治理档案与一次性工件（不入库；权威：决策=docs/spec.md + docs/adr/，术语=CONTEXT.md） |
 
 <a id="demo-and-examples"></a>
 ## 演示与样例 {#demo-and-examples}

@@ -141,7 +141,7 @@ flowchart LR
 | [engine/](engine/) | kernel CLI + Agent Plugin five-layer box (build / command details in [engine/README.md](engine/README.md)) |
 | [examples/first-report/](examples/first-report/) | release sample assets: 6F self-audit Macro-B first report, four files (happy + failure pair, disclosure regime) |
 | [engine/CHANGELOG.md](engine/CHANGELOG.md) | product version ledger |
-| .scratch/ | local-only untracked zone — governance archive + one-off artifacts (not shipped; decision authority = docs/spec.md + docs/adr/) |
+| .scratch/ | local-only untracked zone — governance archive + one-off artifacts (not shipped; authority: decisions in docs/spec.md + docs/adr/, vocabulary in CONTEXT.md) |
 
 ## Demo and examples
 
