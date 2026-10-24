@@ -1,4 +1,4 @@
-// intake/quarantine.ts — 字段级病态 quarantine 契约层（ADR-0022 / D-103~D-120 / #78）
+// intake/quarantine.ts — 字段级病态 quarantine 契约层（协议级 fail-fast / 字段级隔离；D-103~D-120 / #78）
 // 判定/处置硬分界（D-103③）：本模块只产出诊断——字段实例→三态＋reason_code＋raw 诊断结构，
 // 永不 throw；null 置位/⚠印记/计数/恒等式/裁定全归消费面与报告层。
 // 两级违约分流（D-100③）：协议级（行形状/分隔符/记录定界坏）仍由 intake.ts 契约 fail-fast；

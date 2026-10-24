@@ -1,4 +1,4 @@
-// dialect-boundary.test.mjs —— #81 quarantine 方言归一缺陷修回归册（D-128 / ADR-0022 §4b）
+// dialect-boundary.test.mjs —— #81 quarantine 方言归一缺陷修回归册（D-128；字段级病态三态分流）
 // A=边界吸收器纯契约（确定性枚举面）/ B=dormant 防御纵深（分类器直接收 +00:00 仍留痕）
 // C=gitRunner 注入缝集成：合成 +00:00/Z 双语料→跨方言计数一致＋吸收事件独立面
 // D=真机探针：本仓实跑——跨宿主 stats 归 clean（缺陷实证面）

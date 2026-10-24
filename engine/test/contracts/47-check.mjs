@@ -1,4 +1,4 @@
-// 47-check.mjs — #47 托管平台 API 适配器守卫（R8-01 / A-055 / D-048 / ADR-0020）
+// 47-check.mjs — #47 托管平台 API 适配器守卫（R8-01 / A-055 / D-048；GitHub REST+env token 主路、gh 认证态可选回退）
 // 断言面：A 适配器源+dist 产物标记 → B 五 cassette（存在/recorded 标注/token 泄漏扫描/关键响应头）
 //   → C 测试在 smoke 链且实跑 PASS → D dist 模块契约语义（三级探测/Bot 双检/仓引用/限流）
 //   → E 锁表 github-rest→active＋README/CHANGELOG 同源 → F 文档账本回写 → G BOM

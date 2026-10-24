@@ -1,4 +1,4 @@
-// ---------- 上游适配器：CodeLore（ADR-0014 / D-020 双轨制主线） ----------
+// ---------- 上游适配器：CodeLore（适配器双轨制主线 / D-020） ----------
 // 反腐层纪律：本文件只做「进程调用 + 原始输出解析」——退出码、字节解析、pin 校验在此；
 // 业务规则（判据/阈值/裁决）禁止进入本层；上游 raw 语义不出本层（以结构化 fact 传出）。
 // 运行时解析策略 = 二进制发现（binary discovery）：codelore 经 PATH 解析 + --version 校验 pin。
@@ -13,7 +13,7 @@ export const CODELORE_PINNED_VERSION = '0.28.0';
 export const CODELORE_DESCRIPTOR = {
     id: CODELORE_ADAPTER_ID,
     family: CODELORE_FAMILY,
-    dimension: null, // 防腐层故意留白（ADR-0014）——维度映射见 docs/upstream-dimension-map.md（D-078）
+    dimension: null, // 防腐层故意留白（上游适配层禁业务语义）——维度映射见 docs/upstream-dimension-map.md（D-078）
     quadrant: 'strategic'
 };
 export function resolveCodelore(binary) {

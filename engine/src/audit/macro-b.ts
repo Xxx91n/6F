@@ -86,7 +86,7 @@ export interface MacroBProbes {
 }
 
 // git 探针＋log 解析（PROBE-INVARIANT：解析完整性先断言）。
-// %cI 两级分流（ADR-0022/D-100③）：记录形状坏（__R__ 行 ≠3 字段——嵌定界符/截断行）=协议级违约
+// %cI 两级分流（协议级 fail-fast / 字段级 quarantine；D-100③）：记录形状坏（__R__ 行 ≠3 字段——嵌定界符/截断行）=协议级违约
 //   fail-fast 落崩溃桶工件；字段值语义非法=字段级病态 → classifyGitIsoField 三态（永不 throw）
 //   → quarantined 置 null＋事件留痕，管线继续。normalizeGitIsoDate 判定本体同族（抛型回执留给旧调用方）。
 // 边界归一（#81/D-128②）：git 版本方言 +00:00↔Z 由 absorbGitIsoDialect 在分类器上游吸收——

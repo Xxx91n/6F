@@ -43,7 +43,7 @@ const QUARANTINE_TOOL = {
   }
 };
 
-// #80 步②（D-122/D-126/ADR-0023）：file_card=Micro-B 文件级审计卡只读投影——MCP 面永不写：
+// #80 步②（D-122/D-126；Micro-B 文件卡=预采集投影×per-file subject×血缘事实）：file_card=Micro-B 文件级审计卡只读投影——MCP 面永不写：
 //   miss→显式态＋cli_guidance 指向 CLI audit file 补采（lazy 补采唯一入口在 CLI）。
 const FILE_CARD_TOOL = {
   name: 'file_card',

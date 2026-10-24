@@ -1,4 +1,4 @@
-// fact/subject.ts — Subject Canonical Form 归一器（#80 / D-124 / D-125 / ADR-0023）
+// fact/subject.ts — Subject Canonical Form 归一器（#80 / D-124 / D-125；Micro-B 文件卡=预采集投影×per-file subject×血缘事实）
 // 纯逻辑模块：不读 fs、不起子进程——symlink/regular-file 判定由调用面注入 probe。
 // 规范化形=SCIP relative_path 五规则＋NFC 显式归一（71fa8d2 实证不依赖 git config）：
 //   仓根相对 / '/' 分隔（含 Windows 反斜杠输入归一）/ 无 '//' '.' '..' 空段 /

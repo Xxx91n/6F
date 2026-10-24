@@ -30,7 +30,7 @@
 
 ## 红线
 
-叙事段**只带 citation 盖章，不得携带裁决 band**（D-053/ADR-0013/D-026）：
+叙事段**只带 citation 盖章，不得携带裁决 band**（D-053；C 层人裁 / D-026）：
 - 禁：维度 band 赋值（`S1: supported`）、裁决字段名（verdict/verdict_gate/overall_verdict/band=）、中文裁定句式（裁定为/判红/判绿）；
 - 叙事可以写「证据显示…」「引文见 EV-x」——不可写「所以本维判 supported」。
 - 违规段 seal=rejected，违规明细 band_violations 如实入报告。

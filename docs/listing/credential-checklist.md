@@ -17,7 +17,7 @@
 - [x] `author.name` / `owner.name` = **Xxx91n**（D-052）
 - [x] `author.email` / `owner.email` = **xxx91n@duck.com**（D-052）
 - [x] `author.url` / `owner.url` = **https://github.com/Xxx91n**（D-052；repository/homepage=https://github.com/Xxx91n/6F）
-- [x] **license 拍板 = Apache-2.0**（D-051/ADR-0021；engine/LICENSE 已换文＋manifest/package.json 同步）
+- [x] **license 拍板 = Apache-2.0**（D-051；出站 license=Apache-2.0；engine/LICENSE 已换文＋manifest/package.json 同步）
 - [x] marketplace `name` = **xxx91n**；plugin `name` = **6f**（D-052；安装引用=6f@xxx91n；.claude-plugin/marketplace.json 已建）
 
 ## C. 用户专属动作清单（agent 不代触）

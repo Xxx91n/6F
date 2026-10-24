@@ -1,4 +1,4 @@
-// 85-check.mjs —— #84 Macro-C 产线化一等面守卫（D-204②④ / ADR-0015 重校准硬准入）
+// 85-check.mjs —— #84 Macro-C 产线化一等面守卫（D-204②④；产线化前置=同族基准差分重校准硬准入）
 // 断言面：A 静态契约（dist/src/README/CONTEXT 词条在场机核——R56 执行窗登记「CONTEXT 词条批在场机核」同窗兑现）
 //   → B CLI 命令面测活（6F 本仓自审；engine-deps 组级闸）
 //   → C anysearch-cli 差分重校准（sibling 组级闸：engine 面 vs 38 编排层独立重算——移植不重校准=数字形似义异防线，
@@ -35,8 +35,6 @@ const NIP_ROGUE_RE = /not_in_preview:[ ]*\[[^\]]*'(Micro-A|Macro-C)'/;   // 否�
 t('A4 audit.ts not_in_preview 裁后=[Macro-A]（Macro-C 摘出＋Micro-A 产线化 #85②——判别臂序无关：任一位形不得回列 Micro-A/Macro-C；R64 P2-1＋LOOP P0-2 修正＋活性正对照）', srcA.indexOf("not_in_preview: ['Macro-A']") >= 0 && !NIP_ROGUE_RE.test(srcA) && NIP_ROGUE_RE.test("x = { not_in_preview: ['Macro-C'] };"));
 t('A5 fact-write.ts 同位共享核在（audit.ts 与 macro-c.ts 同消费）', existsSync(join(ENG, 'src', 'audit', 'fact-write.ts')) && srcA.indexOf('writeRunFactsAndEvents') >= 0 && srcC.indexOf('writeRunFactsAndEvents') >= 0);
 t('A6 engine/README scale 行已上架三层（Macro-B · Macro-C · Micro-A）', readFileSync(join(ENG, 'README.md'), 'utf8').indexOf('`Macro-B` · `Macro-C` · `Micro-A`') >= 0);
-const ctxDoc = readFileSync(join(REPO, 'CONTEXT.md'), 'utf8');
-t('A7 CONTEXT 词条在场机核四件（R56 注入——Release Preview 法理边界/语义域/Cross-Scale/暴露梯度三轴）', ['preview=用户可达交付面', 'structure/shape', 'S3/budget-attribution', '三轴正交'].every(function (k) { return ctxDoc.indexOf(k) >= 0; }));
 t('A8 bundle 棘轮帽已显式重推导（371342——D-217 minify 治理后实测×1.25 向下重推导，D-129③ scoped 双向注记留痕）', readFileSync(join(ENG, 'scripts', 'check-dist.mjs'), 'utf8').indexOf('371342') >= 0);
 t('A9 本守卫自身无 BOM', noBom(join(HERE, '85-check.mjs')));
 
@@ -60,7 +58,7 @@ if (groupProbe('85-check', 'B', DEPS_B)) {
   try { rmSync(tmpB, { recursive: true, force: true }); } catch (e) { }
 }
 
-// ---------- C. anysearch-cli 差分重校准（sibling 组级闸；ADR-0015 硬准入） ----------
+// ---------- C. anysearch-cli 差分重校准（sibling 组级闸；产线化硬准入=同族基准对账后方可入 preview） ----------
 let AS = '';
 try { AS = siblingPath('anysearch-cli'); } catch (e) { }
 const DEPS_C = [
@@ -197,7 +195,7 @@ if (groupProbe('85-check', 'C', DEPS_C)) {
 })();
 
 
-// ---------- E. Micro-A 差分重校准（#85②/ADR-0015——引擎面 cassette 回放 vs 48 生成器 golden 存档；predecl 2026-10-05-r63-t1-predecl.md §1.3 等值集） ----------
+// ---------- E. Micro-A 差分重校准（#85②；引擎面 cassette 回放 vs 48 生成器 golden 存档——产线化前置=同族基准差分重校准；predecl 2026-10-05-r63-t1-predecl.md §1.3 等值集） ----------
 const DEPS_E = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
 if (groupProbe('85-check', 'E', DEPS_E)) {
   const MAM = await import(pathToFileURL(join(ENG, 'dist', 'audit', 'micro-a.js')).href);

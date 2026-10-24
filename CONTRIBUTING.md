@@ -15,15 +15,15 @@ PRs are welcome, with two honest caveats:
 1. **Review latency** — single maintainer; expect days, not hours. Draft PRs for large changes are appreciated so direction can be confirmed early.
 2. **Scope discipline** — this repository is a walking-skeleton methodology exercise: capabilities ship behind explicit preview labels, and "not yet implemented" is recorded rather than hidden. PRs that add claims faster than evidence will be asked to narrow.
 
-Before opening a PR, please work through the checklist in the PR template: guard scripts green, decision-ledger updated for decisions, bilingual README sync stamp reviewed if `README.md` changed, and `engine/dist` rebuilt if `engine/src` changed.
+Before opening a PR, please work through the checklist in the PR template: guard scripts green, decisions recorded in `docs/spec.md`, bilingual README sync stamp reviewed if `README.md` changed, and `engine/dist` rebuilt if `engine/src` changed.
 
 ## Ground rules (pointers, not duplicated)
 
 - [AGENTS.md](AGENTS.md) — working agreements for humans and agents in this repo.
 - [engine/README.md](engine/README.md) — build / test / package commands (`npm test` = gen + build + smoke).
 - [docs/versioning.md](docs/versioning.md) — 0.x semantics and upstream lock discipline.
-- [docs/adr/](docs/adr/) — architecture decision records; ledger IDs (D-xxx / A-xxx) are the source of truth.
-- [CONTEXT.md](CONTEXT.md) — domain glossary.
+- [docs/spec.md](docs/spec.md) — product decisions; the single authority.
+- [GLOSSARY.md](GLOSSARY.md) — domain glossary.
 
 ## Reading map — where to start, what to skip
 
@@ -32,12 +32,10 @@ This repository carries a large paper trail on purpose — the product audits en
 Read these first:
 
 1. [README.md](README.md) — what the product is, the five audit scales, current capability status.
-2. [CONTEXT.md](CONTEXT.md) — the domain glossary; terms used elsewhere are defined here.
-3. [docs/adr/README.md](docs/adr/README.md) — the generated architecture-decision index (always current; do not edit by hand).
+2. [GLOSSARY.md](GLOSSARY.md) — the domain glossary; terms used elsewhere are defined here.
 
 Safe to skip unless you are working on them:
 
-- `.scratch/` — local untracked zone (not shipped); retired governance archive lives in git history. Authority: decisions in `docs/spec.md` + `docs/adr/`; vocabulary in `CONTEXT.md`.
 - `engine/dist/` — checked-in build output; do not review its diffs line by line — correctness is enforced by the rebuild-diff CI guard, not human diff inspection.
 - Closed decisions and past audit rounds — they explain the path, not the current state.
 

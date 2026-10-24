@@ -19,11 +19,11 @@ Macro + micro engineering-content audit for git-healthy repositories — a **Cla
 
 ## Highlights
 
-- **Facts** — one append-only fact table collects every claim (Hub-of-Facts, ADR-0005).
-- **Federation** — a federated verdict-gate protocol adjudicates every verdict (ADR-0005).
+- **Facts** — one append-only fact table collects every claim (Hub-of-Facts: one shared fact table with federated adjudication).
+- **Federation** — a federated verdict-gate protocol adjudicates every verdict under the shared Hub-of-Facts architecture.
 - **Forensics** — evolution archaeology digs repository history into evidence (Macro-C).
-- **Five scales** — five audit granularities share that one fact base (ADR-0001).
-- **Frankness** — preview, degraded, and `synthetic` marks label themselves (ADR-0017).
+- **Five scales** — five audit granularities share that one fact base; five scales are the full plan, not an MVP slice.
+- **Frankness** — preview, degraded, and `synthetic` marks label themselves under the graded preview release model.
 - **Fingerprints** — every verdict ships a dual-anchored, verifiable receipt.
 
 <img src="https://img.shields.io/badge/status-preview-f59e0b" alt="Status: preview"/>
@@ -34,7 +34,7 @@ Macro + micro engineering-content audit for git-healthy repositories — a **Cla
 
 ## Capability matrix
 
-Release cadence = **graded preview releases** (ADR-0017): **build-scope ≠ release-sequence** — five audit scales are the full plan (ADR-0001 standing), each layer moves through its own preview→GA funnel, and a preview form is not an MVP slice.
+Release cadence = **graded preview releases**: **build-scope ≠ release-sequence** — five audit scales are the full plan (the five-scale scope stands), each layer moves through its own preview→GA funnel, and a preview form is not an MVP slice.
 
 | scale | status |
 |---|---|
@@ -44,7 +44,7 @@ Release cadence = **graded preview releases** (ADR-0017): **build-scope ≠ rele
 | Micro-B file level | **capability 4 of 5 · preview** (file-audit card; same-owner pilot set=jiahao＋env-manager two-repo stitching/calibration — 同主偏差如实: both pilot repos share one maintainer; advisory-only structural isolation, advisory verdicts never reach gates) |
 | Macro-A cross-repo strategy | Not yet in preview |
 
-Honest preview labeling is a decision, not decoration (ADR-0017): report headers and sidecars carry a `preview_disclosure` block (capability tag + calibration scope + structural limits + not_in_preview list) sourced from the same semantics as the table above; degraded output carries a `⚠ unverified` mark, unwired evidence domains carry a "⚠ data not connected" note, and synthetic fixtures carry a `synthetic` mark — they never impersonate real audits.
+Honest preview labeling is a decision, not decoration: report headers and sidecars carry a `preview_disclosure` block (capability tag + calibration scope + structural limits + not_in_preview list) sourced from the same semantics as the table above; degraded output carries a `⚠ unverified` mark, unwired evidence domains carry a "⚠ data not connected" note, and synthetic fixtures carry a `synthetic` mark — they never impersonate real audits.
 
 **0.x semantics**: 0.x 单调递增、号不复用 (versions increase monotonically, never reused); minor = contract change, patch = fix, no patches backported to older lines. The 1.0 退出条件 (exit condition) = report schema frozen + every wired upstream adapter passing deterministic acceptance — not calendar-driven. Full policy in [docs/versioning.md](docs/versioning.md); product version history lives in [engine/CHANGELOG.md](engine/CHANGELOG.md).
 
@@ -106,7 +106,7 @@ The distribution layer (CLI, skills shell, MCP surface) consumes the self-built 
 
 > **Status column = 机读权威绑定 (machine-readable binding)**: 唯一权威 = [`engine/upstream-lock.yaml`](engine/upstream-lock.yaml)（D-037③）——本表为人读形态，状态映射 = 已接入→active／规划中→planned／评估中→evaluating（retired rows are omitted; the lock file also carries evaluating row `codelore-sqlite-dump`）. Lock discipline: 禁 range/浮动 tag/latest，更新走手动窗口＋golden 回归护航 ([docs/versioning.md](docs/versioning.md) §3-4).
 
-Integration follows ADR-0014: adapter + external CLI/library is the main line; library-form upstreams are pinned via package-manager lockfile hashes; vendoring source into the repo is an escape hatch reserved for air-gapped distribution or abandoned upstreams.
+Integration follows the dual-track adapter rule: adapter + external CLI/library is the main line; library-form upstreams are pinned via package-manager lockfile hashes; vendoring source into the repo is an escape hatch reserved for air-gapped distribution or abandoned upstreams.
 
 ## Runtime view
 
@@ -136,12 +136,11 @@ flowchart LR
 
 | path | contents |
 |---|---|
-| [CONTEXT.md](CONTEXT.md) | glossary (domain language) |
-| [docs/adr/](docs/adr/) | architecture decision records — 生成式索引 [docs/adr/README.md](docs/adr/README.md)（do not edit by hand；regen: cd engine && npm run gen） |
+| [GLOSSARY.md](GLOSSARY.md) | glossary (domain language) |
+| [docs/spec.md](docs/spec.md) | product decisions — single authority (gaps: docs/known-gaps.md; RA: docs/ra/) |
 | [engine/](engine/) | kernel CLI + Agent Plugin five-layer box (build / command details in [engine/README.md](engine/README.md)) |
 | [examples/first-report/](examples/first-report/) | release sample assets: 6F self-audit Macro-B first report, four files (happy + failure pair, disclosure regime) |
 | [engine/CHANGELOG.md](engine/CHANGELOG.md) | product version ledger |
-| .scratch/ | local-only untracked zone — governance archive + one-off artifacts (not shipped; authority: decisions in docs/spec.md + docs/adr/, vocabulary in CONTEXT.md) |
 
 ## Demo and examples
 

@@ -1,4 +1,4 @@
-// 81-check.mjs —— #81 quarantine 方言归一缺陷修验收闸（D-128 / D-100② scoped / ADR-0022 §4b）
+// 81-check.mjs —— #81 quarantine 方言归一缺陷修验收闸（D-128 / D-100② scoped；字段级病态三态分流）
 // 断言面：A=契约层边界吸收器导出+枚举面 / B=micro-b 探针接线序（吸收在分类器上游）
 //   C=披露载体=run 元数据独立面（禁入 Intake Health/golden/⚠） / D=回归测试册在链
 //   E=dialect-boundary.test.mjs 实跑 / F=真机探针跨宿主 clean

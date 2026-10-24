@@ -121,7 +121,7 @@ async function main(): Promise<void> {
       errExit('usage: macro-audit mcp [facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n] | quarantine [--db <path>] [--run <run_id>] [--field <name>] [--limit n]]\n', 2);
     }
   } else if (cmd === 'repo') {
-    // Repo Intake（ADR-0009 / D-013）：repo add <path|owner/repo|url> [--cache <dir>] [--refresh]
+    // Repo Intake（本地默认/owner-repo 本地优先/URL opt-in / D-013）：repo add <path|owner/repo|url> [--cache <dir>] [--refresh]
     // clone 仅经 CLI/配置文件入口可达；kernel MCP 查询面保持只读。
     // --refresh=显式刷新 opt-in（#55/D-059⑦）：仅 url 面缓存命中时 fetch --prune＋复位 origin/HEAD；绝不自动 pull。
     const sub = process.argv[3];

@@ -1,4 +1,4 @@
-// audit/macro-c.ts —— Macro-C（演化考古）一等面（#84 / D-204②④ / ADR-0015 重校准硬准入）
+// audit/macro-c.ts —— Macro-C（演化考古）一等面（#84 / D-204②④；产线化前置=同族基准差分重校准硬准入）
 // .scratch/architecture-recovery/reports/38-macro-c-preview.mjs 移植：编排语义逐段保真——
 //   38 §0 触发→§1 gitlog→§2 ADR 语料→§3 codelore 30 面＋LLM 门控→§4 supersede 链→§5 fact 同位发射
 //   →§6 measurements→§7 证据→§8 判据（跑前写死常量段）→§9 报告装配。
@@ -23,7 +23,7 @@ import { openWriter, queryQuarantineCounts, closeDuckdb } from '../fact/store.js
 import { strictQuarantineViolations, ratchetIssues, protocolCrashError, intakeIdentityIssues, countsFromStats, QUARANTINE_FIELD_RATIO_RED } from '../intake/quarantine.js';
 import { writeRunFactsAndEvents } from './fact-write.js';
 const NL = String.fromCharCode(10);
-// ---------- 判据常量（38 §8 跑前写死段移植——ADR-0013 判据先于实跑） ----------
+// ---------- 判据常量（38 §8 跑前写死段移植——A/B/C 三层闸门：判据先于实跑、跑后禁调） ----------
 export const MACRO_C_LAG_MIN_N = 30; // TC-MC-2 可判定数门槛
 export const MACRO_C_CAPABILITY_LABEL = 'capability 2 of 5 · preview';
 export const MACRO_C_REPORT_ID_PREFIX = 'MA-AUDIT-';
@@ -118,7 +118,7 @@ export function buildSupersedeChain(adrs, deferRegistryPresent) {
     };
 }
 export function collectMacroC(repoRoot, probes, ctx, spec) {
-    // §2 ADR 语料（docs/adr 编号文件；first_commit=含该文件的最早 dated commit——D-100② 毒值跳过同构 38）
+    // §2 ADR 语料（被审计仓的 ADR 目录；first_commit=含该文件的最早 dated commit——D-100② 毒值跳过同构 38）
     const adrDir = join(repoRoot, 'docs', 'adr');
     const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
     const firstCommitOf = function (relPath) {
@@ -152,7 +152,7 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
     const llmFacts = collectCodeloreLlm({ repoRoot: repoRoot, explainPaths: explainPaths, diffRange: (spec && spec.llmDiffRange) || 'HEAD~10..HEAD' }, ctx);
     const llmGateFact = llmFacts.find(function (f) { return f.metric === 'codelore.llm_gate'; });
     const llmGate = llmGateFact ? JSON.parse(llmGateFact.value_json) : { configured: false, reason: 'no-gate-fact' };
-    // §4 supersede 链（38 逐行移植）＋链摘要 fact（同族 metric，evidence=docs/adr 扫描）
+    // §4 supersede 链（38 逐行移植）＋链摘要 fact（同族 metric，evidence=被审计仓 ADR 目录扫描）
     const adrs = scanSupersedeAdrs(adrDocs);
     const deferRegistryPresent = existsSync(join(repoRoot, 'docs', 'deferred-registry.json'));
     const chain = buildSupersedeChain(adrs, deferRegistryPresent);
@@ -237,7 +237,7 @@ function pickExcerpt(absOrRelPath, tokens, base) {
 }
 export async function runMacroCAudit(opts) {
     const cwd = opts.cwd || process.cwd();
-    // ---------- §1 intake（ADR-0009 三段式；不自动 pull，refresh 显式 opt-in） ----------
+    // ---------- §1 intake（本地默认/owner-repo 本地优先/URL opt-in；不自动 pull，refresh 显式 opt-in） ----------
     const intake = repoAdd(opts.input, { cwd: cwd, refresh: opts.refresh === true });
     const repoRoot = intake.resolved_root;
     const NAME = auditRepoName(opts.input, repoRoot);

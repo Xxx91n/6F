@@ -1,6 +1,6 @@
 # macro-audit — engine（6F 单仓子目录 · walking skeleton）
 
-> 位于 6F 单仓的 engine/ 子目录（per ADR-0011：单仓 + 子目录 + but 分支）。spec/契约来源：.scratch/architecture-recovery/spec.md ## R2。
+> 位于 6F 单仓的 engine/ 子目录（单仓 + 子目录 + but 分支）。spec/契约来源：docs/spec.md 与 engine/test/contracts/。
 > kernel 代号注记：`macro-audit` 为 kernel 技术标识（CLI/bin、MCP 服务名 `macro-audit-kernel`、skills 路径保留不动）；门面品牌名 = **6F**（双名分层 D-093——内部名故意不同于营销名=纪律非债）。
 
 ## 结构（Agent Plugin 五层盒子）
@@ -18,7 +18,7 @@
 - npm test         # gen + build + smoke
 
 ## CLI 命令面
-- `macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]` —— 一等审计命令（#53/D-060）：实仓审计。链 = repoAdd 输入裁决（ADR-0009 三段式）→ 共享管线（`src/audit/macro-b.ts` 策略面 + codelore 行为面，与 demo 同消费；`src/audit/macro-c.ts` Macro-C 演化考古面——#84/D-204②④，38 管线移植＋anysearch-cli 原语料重校准差分对账）→ 骨架报告 + facts.duckdb。
+- `macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]` —— 一等审计命令（#53/D-060）：实仓审计。链 = repoAdd 输入裁决（本地默认/owner-repo 本地优先/URL opt-in）→ 共享管线（`src/audit/macro-b.ts` 策略面 + codelore 行为面，与 demo 同消费；`src/audit/macro-c.ts` Macro-C 演化考古面——#84/D-204②④，38 管线移植＋anysearch-cli 原语料重校准差分对账）→ 骨架报告 + facts.duckdb。
   - `--scale` 缺省 `Macro-B`（已上架：`Macro-B` · `Macro-C` · `Micro-A`——#85②/D-204③④）；未实装层不假装——结构化 `SCALE-NOT-IMPLEMENTED` + exit 2。
   - 省略 `--out`：报告 md 走 stdout；`--json` 改走 sidecar JSON；`--out <dir>` 双写（`report.md`/`report.json`/`audit-facts.jsonl`/`audit-measurements.json`/`facts.duckdb`）后 stdout 打印回执 JSON。
   - `--refresh`：intake URL 缓存显式刷新 opt-in（#55/D-059⑦；不自动 pull）；快照时点/缓存命中披露落 measurements.intake + 报告披露块。
@@ -52,5 +52,5 @@ marketplace 安装 = git clone 无构建步——可运行体 `dist/cli.js`（es
 ## 验收
 编译通过 / 打包通过 / 启动并测活；每平台 test 闭环 = 仓根 .github/workflows/engine-ci.yml（paths: engine/**），需 push 后以 CI run 结果为准。
 
-## provenance（per ADR-0008 / R2-04）
+## provenance（Agent Plugin 分发形态 / R2-04）
 - LICENSE ✓ / CHANGELOG ✓ / PROVENANCE.md（签名收据 + SLSA 显式降级声明）

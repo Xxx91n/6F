@@ -1,4 +1,4 @@
-// file-card.test.mjs — #80 步② 文件级审计卡投影+查询语义契约测试（D-122/D-123/D-126/ADR-0023）
+// file-card.test.mjs — #80 步② 文件级审计卡投影+查询语义契约测试（D-122/D-123/D-126；预采集投影×per-file subject×血缘事实）
 // 断言面：A kernel 逐字段直投+citation 锚 / B derived 确定性派生（percentile/top_n/priority_band 规则版本）/
 //   C 失败三态（new_file/insufficient_history→derived 抑制；not_applicable 不出空卡）/ D miss 四类显式态 /
 //   E at:<sha> pin+staleness 双字段（E3 前缀歧义验重） / F narrative 键存在性校验 / G projectFileCard DuckDB 投影层 /

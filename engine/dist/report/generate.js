@@ -1,7 +1,7 @@
 // report/generate.ts - 首报生成器纯逻辑（A-026 / A-027 / spec.md §R3-D5）
 // 单模块约束：只依赖 node: 内建（node:crypto）；守卫脚本可用 Node 类型剥离直接 import（承 #21 教训）。
-// 契约继承：ADR-0006 四章锁定（骨架 1.2.0，上源 reports/14-skeleton-fields.json#skeleton）；
-//           ADR-0013 C 层四条款 B1-B5；A-027 agent 可消费性；A-018 降级不改骨架；A-010 correlation key 前置。
+// 契约继承：报告模板=共享骨架（章序锁定）+ scale 切片（骨架 1.2.0，上源 reports/14-skeleton-fields.json#skeleton）；
+//           首报验收 A/B/C 三层闸门的 C 层四条款 B1-B5；A-027 agent 可消费性；A-018 降级不改骨架；A-010 correlation key 前置。
 // 纯逻辑约束：输入一律注入；不读 fs、不起子进程、不发网络请求、不接 LLM（D-016）。
 import { createHash } from 'node:crypto';
 import { intakeEscalation, deriveReasonClass, VERDICT_REASON_CLASSES } from '../intake/quarantine.js';

@@ -1,4 +1,4 @@
-// fact/file-card.ts — Micro-B 文件级审计卡投影（#80 步② / D-123/D-126 / ADR-0023）
+// fact/file-card.ts — Micro-B 文件级审计卡投影（#80 步② / D-123/D-126；预采集投影×per-file subject×血缘事实）
 // 纯逻辑：输入=已取事实行＋注入观测（current_head_sha 由调用面探针供给）；不读 fs、不起子进程。
 // 三层卡契约（D-123）：
 //   kernel 层=已契约实体面逐字段直投（facet_rows 按 analysis 归组，逐行带 citation 锚 fact_ref/observed_at/evidence_ref）；

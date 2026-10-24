@@ -1,4 +1,4 @@
-// micro-b-emit.test.mjs — #80 步① per-file 一等事实发射契约测试（D-124/D-125/ADR-0023）
+// micro-b-emit.test.mjs — #80 步① per-file 一等事实发射契约测试（D-124/D-125；Micro-B 文件卡=预采集投影×per-file subject×血缘事实）
 // 断言面：A subject 归一器五规则+NFC+禁折叠 / B per-file 发射（行对象形态+role 标记+skip 披露+
 //   case-only 冲突告警+成对端点双发射）/ C file_renamed 血缘（-z 解析+载荷五字段+e2e 真 git 可复算）/
 //   D facet_rows raw 证据位+对账判据 / E golden 骨架锁（字段骨架非内容值）。

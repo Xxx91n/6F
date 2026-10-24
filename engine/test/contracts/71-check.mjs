@@ -4,7 +4,7 @@
 //    运行时常量（dist 模块为真值）——演化主干 12→S4／s3 族 6→S3 opposing／s5 族 12→S5／
 //    explain 族→S4 env 门控／behavior 族→QuadrantEntry／暂缓面集不映射；行级漂移=FAIL
 // ③ COLLECTOR 注册面：UPSTREAM_COLLECTOR_REGISTRY 含 codelore-adapter@v1（registered，opt_in=binary+pin）
-//    ＋descriptor dimension:null 保留（ADR-0014 双保留）
+//    ＋descriptor dimension:null 保留（适配层禁业务语义，双保留）
 // ④ Macro-B 归位：audit.ts 消费 projectUpstreamDimensions→measurements.upstream_dimension_projection
 // ⑤ 「engine/skills/ 不引 docs/」断言（D-083⑤ F1 悬空指针防御——docs 不随包分发；注释指针豁免 A15 同构）
 // ⑥ 引擎测试闭环：upstream-map.test.mjs 入 smoke 链＋实跑绿（test 闭环非只引入）

@@ -1,6 +1,6 @@
 // audit/audit.ts — `macro-audit audit` 一等命令装配层（#53 / D-060）
 // 签名：macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]
-// 链 = repoAdd 输入裁决（ADR-0009 三段式复用：本地路径/owner-repo 本地优先/URL opt-in 隔离 clone）
+// 链 = repoAdd 输入裁决（本地路径默认/owner-repo 本地优先/URL 显式 opt-in 隔离 clone）
 //   → 共享管线 audit/macro-b.ts（probe→collectors＋codelore 面→facts→骨架渲染前置件，与 demo 同消费）
 //   Macro-C（#84/D-204②④）：scale=Macro-C dispatch→audit/macro-c.ts（38 管线移植一等面）
 //   → facts（audit-facts.jsonl＋facts.duckdb，同一 appendFact 追加路径）
@@ -22,7 +22,7 @@ import { projectUpstreamDimensions, CODELORE_S3_FACETS, SEMANTIC_DOMAIN_LABELS }
 import { reaggregateFileFacetRows, reconcilePerFileVsAggregate } from '../upstream/codelore.js';
 const NL = String.fromCharCode(10);
 // 已实现规模面（D-060③：--scale 缺省 Macro-B；其余层未实装 → 诚实拒绝 exit 2）
-export const AUDIT_SCALES_IMPLEMENTED = ['Macro-B', 'Macro-C', 'Micro-A']; // Macro-C 产线化（#84/D-204②④）＋Micro-A 产线化（#85②/D-204③④）；层序不动（ADR-0017③）
+export const AUDIT_SCALES_IMPLEMENTED = ['Macro-B', 'Macro-C', 'Micro-A']; // Macro-C 产线化（#84/D-204②④）＋Micro-A 产线化（#85②/D-204③④）；层序不动（Preview 分级发布层序 Macro-C→Micro-A→Micro-B→Macro-A）
 const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（ADR-0017③ 层序，Macro-B/Macro-C/Micro-A 已上架 preview）';
 const SCALE_CANON = { 'microa': 'Micro-A', 'microb': 'Micro-B', 'macroa': 'Macro-A', 'macrob': 'Macro-B', 'macroc': 'Macro-C' };
 export function isAuditScaleError(e) {
@@ -88,7 +88,7 @@ export async function runAudit(opts) {
         return runMicroAAudit(opts);
     } // #85②/D-204③④：Micro-A 一等面（48 管线移植）
     const cwd = opts.cwd || process.cwd();
-    // ---------- §1 intake（ADR-0009 三段式复用；不自动 pull，refresh 显式 opt-in） ----------
+    // ---------- §1 intake（本地默认/owner-repo 本地优先/URL 显式 opt-in；不自动 pull，refresh 显式 opt-in） ----------
     const intake = repoAdd(opts.input, { cwd: cwd, refresh: opts.refresh === true });
     const repoRoot = intake.resolved_root;
     const NAME = auditRepoName(opts.input, repoRoot);
