@@ -28,7 +28,7 @@ const QUARANTINE_TOOL = {
 //   miss→显式态＋cli_guidance 指向 CLI audit file 补采（lazy 补采唯一入口在 CLI）。
 const FILE_CARD_TOOL = {
     name: 'file_card',
-    description: 'read-only Micro-B 文件级审计卡投影（#80 步②/D-123/D-126/ADR-0023）：三层卡契约（kernel facet_rows 逐字段直投带 fact_ref 锚＋derived 确定性派生 hotspot_priority_v1＋narrative 键存在性校验）＋advisory:true 结构性隔离（无 verdict/gate-consumable 字段）＋miss 四类显式态（never_collected 附 CLI 补采指引／not_tracked_at_sha／not_applicable／renamed_to 条件跳转+revalidated）＋at:<sha> pin＋staleness 双字段（observed/current head）',
+    description: 'read-only Micro-B 文件级审计卡投影（#80 步②）：三层卡契约（kernel facet_rows 逐字段直投带 fact_ref 锚＋derived 确定性派生 hotspot_priority_v1＋narrative 键存在性校验）＋advisory:true 结构性隔离（无 verdict/gate-consumable 字段）＋miss 四类显式态（never_collected 附 CLI 补采指引／not_tracked_at_sha／not_applicable／renamed_to 条件跳转+revalidated）＋at:<sha> pin＋staleness 双字段（observed/current head）',
     inputSchema: {
         type: 'object',
         required: ['repo', 'path'],

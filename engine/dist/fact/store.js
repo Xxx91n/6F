@@ -254,7 +254,7 @@ export async function openWriter(dbPath) {
     await connection.run('CREATE SEQUENCE IF NOT EXISTS ' + FACT_SEQ_NAME + ' START 1');
     await connection.run('CREATE SEQUENCE IF NOT EXISTS ' + QUARANTINE_SEQ_NAME + ' START 1');
     await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 1, 'Registered', 'FULL', 'schema v0 append-only fact table' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 1)");
-    await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 2, 'Registered', 'BACKWARD', 'quarantine_log added: field-level pathology disposition ledger (#78 / ADR-0022 / D-106)' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 2)");
+    await connection.run("INSERT INTO schema_registry (version, change_event, compatibility, description) SELECT 2, 'Registered', 'BACKWARD', 'quarantine_log added: field-level pathology disposition ledger (#78)' WHERE NOT EXISTS (SELECT 1 FROM schema_registry WHERE version = 2)");
     return connection;
 }
 export async function openReader(dbPath) {

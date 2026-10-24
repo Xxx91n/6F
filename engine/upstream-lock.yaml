@@ -120,3 +120,13 @@ upstreams:
     adapter: "engine/scripts/validate-plugin.mjs（双触发消费位：CI event_bound＋npm run validate:plugin 手动窗口）＋34-check.mjs G19/advisory 段"
     last_reviewed: 2026-09-18
     next_review: 2026-10-18
+  - id: anysearch-cli-adr-corpus
+    kind: data-export
+    version: "770d25495a67bb1e6b1c421a9b40c04259950ddf"
+    pin_type: commit-sha
+    contract: "85-check C 组（Macro-C 差分重校准）基准语料钉＝同级仓 anysearch-cli 一枚不可变 commit-sha（ADR 删除提交的父提交，2026-10-22，tree 含 docs/adr/*.md 104 件）；pin 已定版（pin_type=commit-sha，禁 range/浮动 HEAD）；消费纪律=sibling 只读 git 命令（clone 至 OS temp＋checkout 钉值后对账，D-074 零写入语料仓）；钉值唯一权威=本行 version（85-check.mjs 默认读本行，GUARD_ANYSEARCH_SHA 仅临时覆写不留档）；禁浮动：活仓 HEAD 随 GitButler 虚拟分支漂移（工作树 docs/adr 可归 0），取 HEAD 即静默无基准；改钉=手动窗口重跑 C0~C3 值级全等断言（两侧同源于钉提交运行时重算，非 golden 手抄）"
+    status: planned
+    adapter: "engine/test/contracts/85-check.mjs C 组（SRC_HEAD 钉值读取位 lockPinSha）"
+    risk_note: "status=planned 是枚举位妥协非接入态：本行实为已生效消费中的守卫基准语料（85-check C 组默认读本行）。active 集是 README 致谢面闭账域（gen-acknowledgments.mjs TEMPLATES 双向差集，77-check A2/A3 enforce），anysearch-cli=被审同级基准仓非产品上游，不入致谢面；version 已定值（禁浮动 pin）与表头「planned 行 version=null」约定同属该妥协的连带偏差，语义以本行 contract 文本为准"
+    last_reviewed: 2026-10-24
+    next_review: 2026-11-24

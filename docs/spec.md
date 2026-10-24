@@ -2,7 +2,6 @@
 
 > 来源：架构报告 spec-phase-tasks.md 18 项（治理工件已退役，原文见 git 历史）
 > 决策 ledger：decision-ledger.md A-001 ~ A-048（治理工件已退役，原文见 git 历史）
-> WORKFLOW 引用：[WORKFLOW.md](WORKFLOW.md) §4.2 通用规则
 
 ## Problem Statement
 
@@ -10,7 +9,7 @@
 
 ## Solution
 
-把架构报告（spec-phase-tasks.md）的 18 项摩擦点全部登记为决策 ledger（A-001 ~ A-018），按"决策簇 D-004 / D-005 / D-006 / D-007"分组展开为 Implementation Decisions，每条 Decision 显式声明覆盖的 A-xxx；按依赖关系切成 18 张 issue / 18 份 handoff / 18 份启动器；并行波次由 issue 的 Blocked by 字段推导，写入 README.md。
+把架构报告（spec-phase-tasks.md）的 18 项摩擦点全部登记为决策 ledger（A-001 ~ A-018），按"战略判据 / 集成架构 / 报告模板 / 演示路径"四个决策簇分组展开为 Implementation Decisions，每条 Decision 显式声明覆盖的 A-xxx；按依赖关系切成 18 张 issue / 18 份 handoff / 18 份启动器；并行波次由 issue 的 Blocked by 字段推导，写入 README.md。
 
 ## User Stories
 
@@ -25,7 +24,7 @@
 
 每条 Decision 必须引用至少一个 A-xxx。无去向记录清单非空时禁止立票。
 
-### D-004 Cluster: 战略 quadrant S1-S5 全文判据
+### Cluster: 战略 quadrant S1-S5 全文判据
 
 #### Decision 4.1 — S1 定位收敛语义度量方法
 - **覆盖 A-001**
@@ -45,7 +44,7 @@
 #### Decision 4.4 — S5 单人仓判据降权规则
 - **覆盖 A-004**
 - 团队规模归一化曲线（单作者模块占比 vs 团队规模的分桶阈值）
-- 报告模板显式标注"信号不足"时的回退路径（per D-004 约束）
+- 报告模板显式标注"信号不足"时的回退路径（按战略判据簇的约束）
 
 #### Decision 4.5 — 25 采集单元矩阵
 - **覆盖 A-005**
@@ -56,7 +55,7 @@
 - **覆盖 A-006**
 - 推迟：低优先级；spec 阶段交付"评估框架"（指标定义 + 取样方法），实际评估待 AI 代码生成主流化
 
-### D-005 Cluster: 集成架构 = Hub-of-Facts with Federated Adjudication 落地
+### Cluster: 集成架构 = Hub-of-Facts with Federated Adjudication 落地
 
 #### Decision 5.1 — DuckDB fact table 写入策略
 - **覆盖 A-007**
@@ -71,7 +70,7 @@
 #### Decision 5.3 — Read model 失效策略
 - **覆盖 A-009**
 - 陈旧读容忍度 SLA（默认 5 秒）+ 触发条件（投影延迟 > SLA 时报警）
-- 与 D-006 报告模板的"陈旧数据标记"字段对齐
+- 与报告模板的"陈旧数据标记"字段对齐
 
 #### Decision 5.4 — Cross-scale correlation key
 - **覆盖 A-010**
@@ -80,7 +79,7 @@
 
 #### Decision 5.5 — LangGraph supervisor 适配评估
 - **覆盖 A-011**
-- adopt vs 自研 hub 协调层；评估产物 = 决策矩阵（语言契合度 / 学习曲线 / 与 D-005 SSOT 心智冲突面）
+- adopt vs 自研 hub 协调层；评估产物 = 决策矩阵（语言契合度 / 学习曲线 / 与 Hub-of-Facts SSOT 心智冲突面）
 
 #### Decision 5.6 — Data mesh 失败模式防线设计
 - **覆盖 A-012**
@@ -90,7 +89,7 @@
 - **覆盖 A-013**
 - metrics layer / OpenTelemetry baggage / AsyncAPI / LangGraph 与本仓库语言栈契合度评估矩阵
 
-### D-006 Cluster: 报告模板 = 共享骨架 + scale 切片
+### Cluster: 报告模板 = 共享骨架 + scale 切片
 
 #### Decision 6.1 — 共享骨架最大公约数
 - **覆盖 A-014**
@@ -105,7 +104,7 @@
 - **覆盖 A-016**
 - spec 锁结构 + 字段；demo 锁样式（避免 spec 越界到 UI）
 
-### D-007 Cluster: 演示场景 = 10 路径
+### Cluster: 演示场景 = 10 路径
 
 #### Decision 7.1 — 路径成本 / 价值权衡
 - **覆盖 A-017**
@@ -147,8 +146,8 @@
 ## Out of Scope
 
 - 不写任何实现代码（Phase 4 才进入实施）
-- 不引入商业层（D-003 已封口）；不引入具体工具选型（D-005 决策后由 Phase 4 落地）
-- 不写 ADR（D-001 ~ D-007 已固化）
+- 不引入商业层（已封口）；不引入具体工具选型（集成架构决策后由 Phase 4 落地）
+- 不写 ADR（决策已固化）
 
 ## Further Notes
 
@@ -157,12 +156,12 @@
 
 ---
 
-## R2 — 产品定义补完（来源 D-008 ~ D-013，2026-09-12 grill 轮 2）
+## R2 — 产品定义补完（2026-09-12 grill 轮 2）
 
-> 来源：spec-phase-tasks.md 第二轮（R2-01 ~ R2-05）；对应裁定 D-008 ~ D-013（治理工件已退役，原文见 git 历史）。
-> 与轮 1（D-004 ~ D-007 / A-001 ~ A-018）共用本 spec 结构；R2 覆盖表见文末。
-> D-008 为流程导航决策（方向 = 补完产品定义），内容由 R2-01 ~ R2-05 承接，不单独立条。
-> 边界（已更新 2026-09-12）：工程实现已启动并位于 6F/engine/（单仓 + engine/ 子目录；ledger D-014 revised / D-015 current）。
+> 来源：spec-phase-tasks.md 第二轮（R2-01 ~ R2-05）；对应裁定已随治理工件退役，原文见 git 历史。
+> 与轮 1（A-001 ~ A-018）共用本 spec 结构；R2 覆盖表见文末。
+> 流程导航决策（方向 = 补完产品定义）由 R2-01 ~ R2-05 承接，不单独立条。
+> 边界（已更新 2026-09-12）：工程实现已启动并位于 6F/engine/（单仓 + engine/ 子目录）。
 
 ### User Stories（R2 增量）
 
@@ -173,7 +172,7 @@
 
 ### R2-01 — 目标用户四类全集（persona 段落）
 
-**覆盖 D-009**｜**负向约束**：禁止收窄为单一用户类；不做用户间优先级排序与时序切片（与 D-002 拒绝 MVP 切片同风格）。
+**负向约束**：禁止收窄为单一用户类；不做用户间优先级排序与时序切片（与拒绝 MVP 切片的既有决策同风格）。
 
 #### Persona A — 技术决策者（CTO / 架构师 / 尽调人）
 - **何时用**：尽调或架构决策前的一次性审视；需对外部仓库/组合给出可追溯判定。
@@ -201,7 +200,7 @@
 
 ### R2-02 — 使用场景并集 + mode 枚举配置面
 
-**覆盖 D-010**｜**负向约束**：默认模式必须单一（不许多默认并存）；非默认模式必须配置可达，禁止降为二等或砍掉。
+**负向约束**：默认模式必须单一（不许多默认并存）；非默认模式必须配置可达，禁止降为二等或砍掉。
 
 #### 场景并集（4 类用户 × 时刻 × scale 归属，允许重叠）
 
@@ -230,7 +229,7 @@
 
 ### R2-03 — 默认模式开箱路径契约
 
-**覆盖 D-011 / D-012 / D-013 细则⑤**
+**覆盖：默认模式开箱路径 / Agent Plugin 契约群 / 输入面契约**
 
 - **默认模式**：C 类用户在 agent 工作流内嵌时刻触发的 Macro-B 仓库级四象限评审；开箱零配置（不需 CI / hook / 团队准备）。
 - **“零配置”精确语义** = 一次 install 命令 + 首次 MCP 工具授权（非零交互）。
@@ -238,14 +237,14 @@
   1. 安装 Agent Plugin（plugin.json + skills/ + mcp.json + 扩展目录 + 内核 CLI）；
   2. 首次启动 kernel MCP（stdio）→ 客户端弹出 MCP 工具授权；
   3. 首次读取本地仓库路径 → 本地文件读取授权；
-  4. （远程输入时）“远程 clone + 网络 + 本地 git 凭据使用”为一个授权事件（D-013 细则⑤）；
+  4. （远程输入时）“远程 clone + 网络 + 本地 git 凭据使用”为一个授权事件（输入面契约的远程授权细则）；
   5. 首次写 DuckDB 事实表 / 缓存目录 → 本地写入授权。
 - **校验点**：默认模式必须与分发渠道同形（marketplace 一键装 → 零配置首跑）；默认体验不得需要 CI / hook 配置才能跑通（否则与一键安装渠道自相矛盾）。
 - **风险登记**：默认体验绑死“agent 会话内发起”——宿主不支持 plugin 形态时默认模式不可达（宿主支持矩阵属实现期调研，spec 层只声明前提）。
 
 ### R2-04 — Agent Plugin 契约群
 
-**覆盖 D-012**
+**覆盖：Agent Plugin 契约群**
 
 - **plugin.json**：标准 Agent Plugins 1.0.0 schema（closed schema，$schema 常量 URI；客户端不得运行时拉取 schema）；字段含 name / version / description / skills / mcp / commands 等（字段级 schema 待通读规范全文后定稿，见信息缺口）。
 - **mcp.json**：kernel MCP 只读证据查询面；stdio 传输，指向 DuckDB 事实表；严格只读（同 GitHub Copilot code review MCP 强制 readOnlyHint 口径）。
@@ -257,7 +256,7 @@
 
 ### R2-05 — 输入面契约
 
-**覆盖 D-013**
+**覆盖：输入面契约**
 
 - **repo add 命令面**：repo add <path|owner/repo|url>；clone 只走 CLI 与配置文件，不暴露为 MCP 工具。
 - **消歧规则**：显式本地路径 → owner/repo 形态本地优先消歧（./ 前缀强制本地）→ 显式 URL（https / git@）才 clone。
@@ -268,24 +267,24 @@
 
 ### R2 Coverage（对账）
 
-| 来源 D-xxx | 覆盖的 R2 Decision |
+| 来源决策 | 覆盖的 R2 Decision |
 |---|---|
-| D-008 | （流程导航，由 R2-01 ~ R2-05 承接） |
-| D-009 | R2-01 |
-| D-010 | R2-02 |
-| D-011 | R2-03 |
-| D-012 | R2-03 / R2-04 |
-| D-013 | R2-03 / R2-05 |
+| 流程导航（补完产品定义） | （由 R2-01 ~ R2-05 承接） |
+| 目标用户四类全集 | R2-01 |
+| 使用场景并集 + mode 枚举 | R2-02 |
+| 默认模式开箱路径 | R2-03 |
+| Agent Plugin 契约群 | R2-03 / R2-04 |
+| 输入面契约 | R2-03 / R2-05 |
 
 ### R2 Out of Scope / 信息缺口
 
-- 工程实现边界已变更：单仓 + engine/ 子目录；ledger D-014 revised / D-015 current。
+- 工程实现边界已变更：单仓 + engine/ 子目录。
 - 待通读 Agent Plugins 1.0.0 规范全文后定稿 plugin.json / mcp.json 字段级 schema。
 - 双 manifest 生成脚本无直接先例，属自研范围。
 
-## R3 — 验证协议（来源 D-016 ~ D-018，2026-09-12 grill 轮 3）
+## R3 — 验证协议（2026-09-12 grill 轮 3）
 
-> 本段为指针段：决策全文以本文件的 R3-01/R3-02 段为准（原裁定 D-016 ~ D-018 与执行计划 R3-01 ~ R3-07 已随治理工件退役，见 git 历史）。
+> 本段为指针段：决策全文以本文件的 R3-01/R3-02 段为准（原裁定与执行计划 R3-01 ~ R3-07 已随治理工件退役，见 git 历史）。
 
 ### R3-01 — 建设主干：端到端价值验证闭环
 四阶段串行：阶段 0（push+CI 实跑 / fact table schema v0 含 correlation key / 确定性采集器不接 LLM）→ 阶段 1（6F 自身 Macro-B happy path，S2+S1 起手，产出首份带引文+Receipt 真报告，覆盖一条失败路径）→ 阶段 2（实测锚回流扫 16 缺口）→ 阶段 3（铺开+分发收尾）。性质为实现级 tracer bullet，非产品级 MVP 切片。
@@ -294,9 +293,9 @@
 A 形式达标（骨架+引文+Receipt）→ B 内容非平凡（预声明 kill criterion：2 正对照 + 3 真判据 + 1 负对照；真判据未命中=合法实验数据）→ C 信任裁决（三档裁定、依据预入库防 HARKing、锚定 B 产物、回写账本）。三级措辞：前置管线健康闸 / 主前提证伪闸 / 反向红条。
 
 ### R3 Coverage（对账）
-- D-016 → R3-01 + 端到端价值验证闭环 + 计划表 R3 全段 + CONTEXT（Value Validation Loop）；
-- D-017 → R3-02 + 三层验收闸门 + 计划表 R3-04/05 + CONTEXT（Acceptance Gate / Kill Criterion）；
-- D-018 → R3-02 + 三层验收闸门 + 计划表 R3-04 + CONTEXT（Positive Control）。
+- 端到端价值验证闭环 → R3-01 + 计划表 R3 全段 + CONTEXT（Value Validation Loop）；
+- 三层验收闸门 → R3-02 + 计划表 R3-04/05 + CONTEXT（Acceptance Gate / Kill Criterion）；
+- Positive Control → R3-02 + 计划表 R3-04 + CONTEXT（Positive Control）。
 
 ### Implementation Decisions（R3 执行轮，来源 A-019 ~ A-030，2026-09-12）
 
@@ -321,28 +320,28 @@ DuckDB fact table schema v0：字段级清单含 correlation key 前置字段；
 用首报实测锚补 CodeScene/GitClear 定向调研与 B 层迁移有效性多仓复核；定向调研只作校准输入不阻塞首报。
 
 **R3-D7 铺开与分发收尾**（覆盖 A-030｜计划 R3-07｜issue 25）
-分发收尾前置清单清点（BACKLOG B1/B2/B3 立票、plugin 上架条件、演示资产范围）当时逐项待拍板——B 票据已随治理工件退役；B4.1 已被 D-015 取代不立项。
+分发收尾前置清单清点（BACKLOG B1/B2/B3 立票、plugin 上架条件、演示资产范围）当时逐项待拍板——B 票据已随治理工件退役；B4.1 已被单仓 + engine/ 子目录的架构决策取代不立项。
 
 #### R3 对账（2026-09-12）
 
 - A-019 ~ A-030 共 12 条 → R3-D1:2 / R3-D2:1 / R3-D3:1 / R3-D4:4 / R3-D5:2 / R3-D6:1 / R3-D7:1 = 12 覆盖，无去向记录清单 = 空。
-## R4 — 序列化校准（来源 D-022 ~ D-028，2026-09-15 grill 轮 5）
+## R4 — 序列化校准（2026-09-15 grill 轮 5）
 
-> 本段为指针段：决策全文以本文件 R4 段为准（原裁定 D-022 ~ D-028 与执行计划 R4-01 ~ R4-05 已随治理工件退役，见 git 历史）。
+> 本段为指针段：决策全文以本文件 R4 段为准（原裁定与执行计划 R4-01 ~ R4-05 已随治理工件退役，见 git 历史）。
 
-### R4-01 — 阶段 1.5 量测审计（D-025）
+### R4-01 — 阶段 1.5 量测审计
 14 份 ADR 人工真值表 + 逐份 delta 表模板：区分 detector 漏认（内联 Nygard 格式）vs 真实缺失；产物 = R4-02 验收 golden set + 原 TC-2 RED 记 invalid 的逐份可归属原因（Assignable Cause）。先于一切 v2 代码；纯文档零构建。
 
-### R4-02 — 判据 v2 追加（D-025）
+### R4-02 — 判据 v2 追加
 adr-structure detector 接线 A-002 回退链（YAML 头 → 内联 Nygard → git 首提交）；v1 留档禁改；验收 = 与 R4-01 人工真值表一致率；对冻结首报数据重跑 → 并列读数 + 勘误披露（重测次数与判定规则事先写死，禁 testing into compliance）。
 
-### R4-03 — ADR 治理卫生票（D-025）
+### R4-03 — ADR 治理卫生票
 6F 真实五件套缺失清零：准入范围 = R4-01 人工读数中真实缺失分解；验收独立于 R4-02——两票互为引用、互不为完成条件。
 
-### R4-04 — 阶段 2a 冻结校准（D-023/D-024）
+### R4-04 — 阶段 2a 冻结校准
 10 项 desk 清单（任务 2/4/8/9/10/11/12/13/14/15/16 + 任务 5 已锚行 + 任务 7 单写者域草案）；草案全部标注置信域（单写者证据禁外推多写者）；待探针占位带「满足判据 + 复审时点」两字段。
 
-### R4-05 — 阶段 2b CodeLore 单上游探针（D-023/D-024/D-020 派生）
+### R4-05 — 阶段 2b CodeLore 单上游探针
 前置 = 运行时解析策略判定（容器捆绑 vs 二进制发现）+ 读 Agent Plugins 1.0.0 plugin schema 原文（P1 预核对 baseline 顺手做）；适配器 + 锁版本 + golden 契约测试（适配器双轨制：适配层禁业务规则）；重跑 6F 首报同仓 + 同 spec 版本 diff；provenance 锚定（commit pin + spec 版本 + data fingerprint）；产物 = 数据源漂移报告 + 任务 1/3 实测锚 + README 上游清单 CodeLore 行状态更新（不虚报）。
 
 ### Implementation Decisions（R4 执行轮，来源 A-031 ~ A-036，2026-09-15）
@@ -372,17 +371,17 @@ T1~T3 结题后按 CAPA reopen 惯例补记 disposition：architecture-recovery 
 - A-031 ~ A-036 共 6 条 → R4-D1~D6 各覆盖 1 条 = 6 覆盖，无去向记录清单 = 空。
 - 波次序列化（per 任务书）：#26 → (#27 ∥ #28) → #29 → #30 → #31；唯一并行对 = #27/#28 且验收互不引用为完成条件。
 
-## R5 — 阶段 3 铺开（来源 D-029 ~ D-036，2026-09-15 grill 轮 6）
+## R5 — 阶段 3 铺开（2026-09-15 grill 轮 6）
 
-> 本段为指针段：决策全文以本文件 R5 段为准（原裁定 D-029 ~ D-036、执行计划 R5-01 ~ R5-12 与 BACKLOG 票据包 #32~#43 已随治理工件退役，见 git 历史）。
-> 阶段 3 串行骨架（D-034）：扩面 → Macro-C → Micro-A → Micro-B → Macro-A；横切项挂触发器、非前置门禁。上架动作未授权（D-026/D-027 用户闸门）；preview 标注诚实是决策本体（Preview 分级发布）。
+> 本段为指针段：决策全文以本文件 R5 段为准（原裁定、执行计划 R5-01 ~ R5-12 与 BACKLOG 票据包 #32~#43 已随治理工件退役，见 git 历史）。
+> 阶段 3 串行骨架：扩面 → Macro-C → Micro-A → Micro-B → Macro-A；横切项挂触发器、非前置门禁。上架动作未授权（用户闸门）；preview 标注诚实是决策本体（Preview 分级发布）。
 
 ### Implementation Decisions（R5 执行轮，来源 A-037 ~ A-048，2026-09-15）
 
 > 对账闸：A-037 ~ A-048 每条至少被本节一个 R5-Dn 覆盖；无去向记录清单非空时禁止立票（当前：空）。
 
 **R5-D1 B1.2 落地（31 份 prompts 黑体块）**（覆盖 A-037｜计划 R5-01｜issue 32）
-31 份 prompts/NN-*.md「## 收尾」段首黑体强提示块，措辞逐字 = D-029；范围 = 现存 31 份全量；handoffs 不加；未来新票由 WORKFLOW §4.2.6-6 模板纪律继承。已于轮 6 整理环节执行完毕。
+31 份 prompts/NN-*.md「## 收尾」段首黑体强提示块，措辞逐字 = 轮 6 整理时定的强提示块文本；范围 = 现存 31 份全量；handoffs 不加；未来新票由 WORKFLOW §4.2.6-6 模板纪律继承。已于轮 6 整理环节执行完毕。
 
 **R5-D2 T7 挂门机检化 guard**（覆盖 A-038｜计划 R5-02｜issue 33）
 统一 guard 扫描全部挂门项三字段（最迟拍板时点 / 触发事件 / 复审时点）到期报警；输入四族 = 25-checklist 挂门行 + 账本两字段登记项 + CodeLore 暂缓面集复审时点 + 多写者三触发器；值守规则 = 触发未拍 1 工作日升级 / 硬到期重组改绑一次 / 再到期升级用户。
@@ -400,16 +399,16 @@ explain 族 env 门控（CODELORE_LLM_*）＋成本验收面；S4 ADR 假设抽�
 env-manager / anysearch-cli / jiahao 三仓只读实测：PR 人/机比、supersede 链完整度、托管面有无；产出 层×仓 capacity 矩阵（Pilot-surface Audit 三问）。
 
 **R5-D7 Macro-C preview（第二能力层）**（覆盖 A-043｜计划 R5-07｜issue 38）
-anysearch-cli 为校准语料（56 ADR＋supersede 链）；报告强制披露「单仓校准（anysearch-cli）」结构性限制；完成定义含该层 happy+failure 演示双件（D-032 DoD 准入件）。
+anysearch-cli 为校准语料（56 ADR＋supersede 链）；报告强制披露「单仓校准（anysearch-cli）」结构性限制；完成定义含该层 happy+failure 演示双件（DoD 准入件）。
 
 **R5-D8 Macro-B 三仓 one-shot＋jiahao 回归**（覆盖 A-044｜计划 R5-08｜issue 39）
-Macro-B 对三试点仓各跑一次 one-shot 泛化验证；jiahao 持续回归接入 CI——接入即触发多写者 self-probe 实测封口（D-034④a，衔接 #33）。
+Macro-B 对三试点仓各跑一次 one-shot 泛化验证；jiahao 持续回归接入 CI——接入即触发多写者 self-probe 实测封口（衔接 #33）。
 
 **R5-D9 非自有仓泛化验证**（覆盖 A-045｜计划 R5-09｜issue 40）
-≥1 非自有公开仓经 URL opt-in（D-013 首实用户）跑通 Macro-B；Macro-B GA 前置条件。
+≥1 非自有公开仓经 URL opt-in（首实用户）跑通 Macro-B；Macro-B GA 前置条件。
 
 **R5-D10 分发收尾**（覆盖 A-046｜计划 R5-10｜issue 41）
-五子项：examples/first-report/ 复制四件＋披露 README／README·marketplace preview 标注＋0.x 语义＋changelog／listing 资产（未上架层「Not yet in preview」披露块）／Agent Plugins preview 字段查证＋竞品占位扫描（前置子任务）／凭据申请（D-026③ 已触发）。上架动作停用户闸门。
+五子项：examples/first-report/ 复制四件＋披露 README／README·marketplace preview 标注＋0.x 语义＋changelog／listing 资产（未上架层「Not yet in preview」披露块）／Agent Plugins preview 字段查证＋竞品占位扫描（前置子任务）／凭据申请（已触发）。上架动作停用户闸门。
 
 **R5-D11 上游队列值守**（覆盖 A-047｜计划 R5-11｜issue 42）
 Scorecard/repomix 探针按层需求拉动不插队；CodeLore sqlite/parquet dump 对照评估（采纳须另立 ADR）；Macro-B preview 供应链象限维持「⚠ 数据未接」披露。
@@ -420,11 +419,11 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 #### R5 对账（2026-09-15）
 
 - A-037 ~ A-048 共 12 条 → R5-D1~D12 各覆盖 1 条 = 12 覆盖，无去向记录清单 = 空。
-- 波次序列化（per 任务书/D-036）：#33 最优先 → #34/#35 并行首票 → #36/#37/#41 → #38/#39/#43 → #40；#42 触发器拉动不占波次；#32 已于轮 6 整理环节闭环。
+- 波次序列化（按任务书分波）：#33 最优先 → #34/#35 并行首票 → #36/#37/#41 → #38/#39/#43 → #40；#42 触发器拉动不占波次；#32 已于轮 6 整理环节闭环。
 
-## R7 — W14 收口裁决包（来源 D-042 ~ D-047，2026-09-16 grill 轮 8）
+## R7 — W14 收口裁决包（2026-09-16 grill 轮 8）
 
-> 本段为指针段：决策全文以本文件 R7 段为准（原裁定 D-042 ~ D-047、执行计划 R7-01 ~ R7-06 与 BACKLOG #41b/#46 已随治理工件退役，见 git 历史）。
+> 本段为指针段：决策全文以本文件 R7 段为准（原裁定、执行计划 R7-01 ~ R7-06 与 BACKLOG #41b/#46 已随治理工件退役，见 git 历史）。
 
 - #41b 上架面授权至提交前一刻（资产/查证/凭据申请随 DoR 开工，提交=用户闸门）；
 - 多写者域按判据意图读法闭环：SWMR 单写者门面成文、fail-fast 准入、L0→L3 升级阶梯（SWMR 单写者门面 + fail-fast + L0→L3 升级阶梯）；

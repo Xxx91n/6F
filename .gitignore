@@ -7,3 +7,6 @@
 
 # atomcode 调研工件（研究进程本地落盘——用户主权面，永久豁免不入库；D-220① 立法）
 .atomcode/
+
+# 本地一次性治理/守卫产物（golden-ci 也会在 frozen worktree 里落 .scratch）
+.scratch/

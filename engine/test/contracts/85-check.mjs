@@ -24,6 +24,15 @@ const ENG = join(REPO, 'engine');
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + String(detail).slice(0, 300) : '')); } }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
+// upstream-lock.yaml 钉值读取（形制约=两空格 `- id:` ＋四空格 `version:`，与 44-check/gen-acknowledgments 同源解析形制，无依赖 yaml 子集）
+function lockPinSha(id) {
+  let cur = null;
+  for (const line of readFileSync(join(ENG, 'upstream-lock.yaml'), 'utf8').split(/\r?\n/)) {
+    const mi = line.match(/^ {2}- id: (\S+)/); if (mi) { cur = mi[1]; continue; }
+    if (cur === id) { const mv = line.match(/^ {4}version: "?([0-9a-f]{7,40})"?/); if (mv) return mv[1]; }
+  }
+  return null;
+}
 
 // ---------- A. 静态契约 ----------
 const srcC = readFileSync(join(ENG, 'src', 'audit', 'macro-c.ts'), 'utf8');
@@ -61,8 +70,23 @@ if (groupProbe('85-check', 'B', DEPS_B)) {
 // ---------- C. anysearch-cli 差分重校准（sibling 组级闸；产线化硬准入=同族基准对账后方可入 preview） ----------
 let AS = '';
 try { AS = siblingPath('anysearch-cli'); } catch (e) { }
+// 语料钉值唯一权威=engine/upstream-lock.yaml anysearch-cli-adr-corpus 行 version（pin_type=commit-sha）；
+// GUARD_ANYSEARCH_SHA 仅本地临时覆写不留档。活仓 rev-parse HEAD 随 GitButler 虚拟分支漂移→不再作默认值（#30 尾波）。
+const AS_PIN_SHA = process.env.GUARD_ANYSEARCH_SHA || lockPinSha('anysearch-cli-adr-corpus');
+// C 组消费的是钉提交 tree 内的 ADR 语料，不是同级仓工作树现状（虚拟分支可把工作树 docs/adr 掏空为 0）。
+// 前置＝钉 sha 在 sibling 对象库可解析且其 tree 含 docs/adr/*.md；不满足按既有 SKIP-GROUP 语义跳过，
+// 不让 clone/checkout 或 readdirSync 以未捕获 ENOENT 拉红整条 contracts-run（#30）。
+const AS_ADR_OK = (function () {
+  try {
+    if (!AS || !AS_PIN_SHA) { return false; }
+    const listed = execFileSync('git', ['-C', AS, 'ls-tree', '-r', '--name-only', AS_PIN_SHA, '--', 'docs/adr'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    return /\.md$/im.test(listed);
+  } catch (e) { return false; }
+})();
+const PIN12 = (AS_PIN_SHA || '').slice(0, 12);
 const DEPS_C = [
   need('sibling:anysearch-cli', !!AS && existsSync(AS)),
+  need('asset:anysearch-cli/docs/adr', AS_ADR_OK, '原因：同级仓 anysearch-cli 对象库内钉提交 ' + (PIN12 || '(无钉值)') + ' 不可解析或其 tree 无 docs/adr/*.md——Macro-C 差分重校准无基准；手动修复：钉值以 engine/upstream-lock.yaml anysearch-cli-adr-corpus 行为准，令该 sibling 对象库可达此提交（或 export GUARD_SIBLING_ROOT=<该仓所在父目录>），临时换钉=export GUARD_ANYSEARCH_SHA=<含 docs/adr 的不可变 commit-sha>；无网影响面：本地对象库只读前置零联网（sibling 本体缺席则须联网 clone 一次）'),
   need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))
 ];
 if (groupProbe('85-check', 'C', DEPS_C)) {
@@ -70,8 +94,10 @@ if (groupProbe('85-check', 'C', DEPS_C)) {
   const COL = await import(pathToFileURL(join(ENG, 'dist', 'collect', 'collectors.js')).href);
   const tmpC = mkdtempSync(join(tmpdir(), '85-recal-'));
   // 语料钉快照（R59 LOOP-1 TOCTOU 消除——predecl 2026-10-04-r59-loop-fix-predecl.md §1.1）：
-  // 活仓只读一次 rev-parse 钉取 SRC_HEAD→clone 至 OS temp→checkout 生成冻结面 AS_PIN；engine 实跑与 oracle 重算同读此一份，不再触碰活仓
-  const SRC_HEAD = execFileSync('git', ['-C', AS, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  // 钉值来自 upstream-lock.yaml（pin_type=commit-sha）→clone 至 OS temp→checkout 生成冻结面 AS_PIN；
+  // engine 实跑与 oracle 重算同读此一份，不再触碰活仓工作树。
+  // 不取活仓 HEAD 作钉——GitButler 虚拟分支会让 HEAD 连同其 tree 漂移，基准静默消失即组级 SKIP（#30）。
+  const SRC_HEAD = AS_PIN_SHA;
   const AS_PIN = join(tmpC, 'corpus');
   execFileSync('git', ['clone', AS, AS_PIN], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   execFileSync('git', ['-C', AS_PIN, 'checkout', SRC_HEAD], { encoding: 'utf8' });
