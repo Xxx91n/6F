@@ -1,7 +1,7 @@
-// ---------- 上游适配器：GitHub REST（ADR-0020 / D-048 / #47）----------
+// ---------- 上游适配器：GitHub REST（GitHub REST+env token 主路、gh 认证态可选回退 / D-048 / #47）----------
 // 反腐层纪律（同 codelore.ts）：本文件只做「HTTP 调用 + 原始响应解析」——状态码、限流头解析、
 // schema 校验在此；业务规则（判据/阈值/裁决）禁止进入本层；raw 上游响应不出本层（以结构化类型/fact 传出）。
-// 路径钉死（ADR-0020）：REST 直连＋X-GitHub-Api-Version pin 主路；gh 已认证态只读借用 = 可选回退
+// 路径钉死：REST 直连＋X-GitHub-Api-Version pin 主路；gh 已认证态只读借用 = 可选回退
 // （best-effort 非依赖、非 git-cli 先例延伸——git 为产品硬依赖、gh 为额外二进制）；
 // 无认证 = 显式降级（公仓 60/hr 如实披露）；凭据三级探测即用即清，不建凭据存储、不引 OAuth。
 // 最小契约 = PR 枚举（平台声明 Bot 判读：user.type==Bot ＋ login [bot] 后缀双检）＋PR 元数据
@@ -32,7 +32,7 @@ export const GITHUB_REST_PLANNED_SURFACES: readonly string[] = ['pulls.reviews',
 export const GITHUB_REST_DESCRIPTOR: CollectorDescriptor = {
   id: GITHUB_REST_ADAPTER_ID,
   family: GITHUB_REST_FAMILY,
-  dimension: null, // 防腐层故意留白（ADR-0014）——维度映射见 docs/upstream-dimension-map.md（D-078）
+  dimension: null, // 防腐层故意留白（上游适配层禁业务语义）——维度映射见 docs/upstream-dimension-map.md（D-078）
   quadrant: 'strategic'
 };
 

@@ -5,7 +5,7 @@ description: 宏观+微观工程内容审计。在 agent 工作流内触发 Macr
 
 # macro-audit — 方法论壳（只读）
 
-## 只读隔离纪律（per ADR-0008）
+## 只读隔离纪律（Agent Plugin 内核只读边界）
 - 本壳只读：允许读取 rubric 与证据、调用 kernel MCP 只读查询面。
 - 禁止在本壳内做判定 / 写库 / 出报告 —— 一律由内核 CLI 环境外执行。
 

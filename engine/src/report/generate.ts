@@ -1,7 +1,7 @@
 // report/generate.ts - 首报生成器纯逻辑（A-026 / A-027 / spec.md §R3-D5）
 // 单模块约束：只依赖 node: 内建（node:crypto）；守卫脚本可用 Node 类型剥离直接 import（承 #21 教训）。
-// 契约继承：ADR-0006 四章锁定（骨架 1.2.0，上源 reports/14-skeleton-fields.json#skeleton）；
-//           ADR-0013 C 层四条款 B1-B5；A-027 agent 可消费性；A-018 降级不改骨架；A-010 correlation key 前置。
+// 契约继承：报告模板=共享骨架（章序锁定）+ scale 切片（骨架 1.2.0，上源 reports/14-skeleton-fields.json#skeleton）；
+//           首报验收 A/B/C 三层闸门的 C 层四条款 B1-B5；A-027 agent 可消费性；A-018 降级不改骨架；A-010 correlation key 前置。
 // 纯逻辑约束：输入一律注入；不读 fs、不起子进程、不发网络请求、不接 LLM（D-016）。
 
 import { createHash } from 'node:crypto';
@@ -226,7 +226,7 @@ export interface ReportStale {
   fact_watermark_version: string;
 }
 
-// preview 披露块（ADR-0017：preview 标注诚实是决策本体；D-037② 报告头字段统一契约面——
+// preview 披露块（Preview 分级发布：preview 标注诚实是决策本体；D-037② 报告头字段统一契约面——
 // 与 #45 演示披露块同一契约源，禁止两处手抄漂移）。可选字段：非 preview 报告为 null，骨架 1.2.0 不变。
 export interface PreviewDisclosure {
   capability_label: string;
@@ -235,7 +235,7 @@ export interface PreviewDisclosure {
   not_in_preview: readonly string[];
 }
 
-// ---------- Intake Health（#78 / ADR-0022 / D-114）：摄入健康节固定渲染 ----------
+// ---------- Intake Health（#78 / 两级处置契约 / D-114）：摄入健康节固定渲染 ----------
 export interface IntakeFieldStatRow { field_name: string; total: number; clean: number; normalized: number; quarantined: number }
 export interface IntakeHealthRow { commit_sha: string; field_name: string; reason_code: string; raw_echo: string }
 export interface IntakeHealth {

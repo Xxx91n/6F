@@ -32,7 +32,7 @@ function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] ==
 const intake = txt(join(ENG, 'src', 'intake', 'intake.ts'));
 const quar = txt(join(ENG, 'src', 'intake', 'quarantine.ts'));
 t('A1 normalizeGitIsoDate 导出在', /export function normalizeGitIsoDate\(/.test(intake));
-// #78/ADR-0022：归一规则＋严格形状判定迁入 intake/quarantine.ts 契约层（classifyGitIsoField 单源）；
+// #78：归一规则＋严格形状判定迁入 intake/quarantine.ts 契约层（classifyGitIsoField 单源；字段级病态三态分流、永不 throw）；
 // intake.ts 侧 normalizeGitIsoDate=抛型回执委托——两级违约分流钉锚。
 t('A2 +00:00→Z 归一规则在契约层', quar.indexOf("replace(/\\+00:00$/") >= 0 && quar.indexOf("'Z'") >= 0);
 t('A3 严格 ISO 形状断言（Z 或 ±HH:MM 秒精度）在契约层', /GIT_ISO_STRICT_RE = \/\^\\d\{4\}-/.test(quar));
@@ -41,7 +41,7 @@ t('A4 形状违例抛 GITCLI-OUTPUT-CONTRACT（不静默放行；quarantined 经
 // ---------- B. %cI 消费点全走归一化（#53 提炼后位在 audit/macro-b.ts——demo 经共享链同消费） ----------
 const demo = txt(join(ENG, 'src', 'demo', 'demo.ts'));
 const mb = txt(join(ENG, 'src', 'audit', 'macro-b.ts'));
-// #78/ADR-0022：%cI 两级分流——协议级（字段不可定界）fail-fast，字段级病态→classifyGitIsoField 三态桶
+// #78：%cI 两级分流——协议级（字段不可定界）fail-fast，字段级病态→classifyGitIsoField 三态桶
 // R37/#75批1（D-094(b) 调用点锚漂移 + D-094③ 剥注释名检）：#78 吸收层加挂后链路=raw→absorbGitIsoDialect→classifyGitIsoField——锚改钉吸收后分类调用形态；源码面剥注释再匹配。
 const mbCode = stripComments(mb);
 const demoCode = stripComments(demo);

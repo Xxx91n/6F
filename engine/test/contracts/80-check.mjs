@@ -116,8 +116,6 @@ t('F1 新增源/测试/fixture 文件无 BOM', (() => {
   const files = ['src/fact/subject.ts', 'src/collect/file-lineage.ts', 'src/fact/file-card.ts', 'src/fact/projection.ts', 'src/fact/store.ts', 'src/audit/file-card.ts', 'src/mcp-server.ts', 'src/cli.ts', 'test/micro-b-emit.test.mjs', 'test/file-card.test.mjs', 'scripts/gen-micro-b-emission-golden.mjs', 'test/fixtures/micro-b/emission-input.json', 'test/fixtures/micro-b/rename-log.ztxt', 'test/fixtures/micro-b/manifest.json', 'test/fixtures/micro-b/emission-skeleton.golden.json'];
   return files.every(f => { const b = fs.readFileSync(join(ENG, f)); return b[0] !== 0xEF; });
 })());
-const adr = txt(join(ROOT, 'docs', 'adr', '0023-micro-b-file-card-architecture.md'));
-t('F3 ADR-0023 在案（D-121~D-127 总成——步①实装对象）', /D-12[1-7]/.test(adr), '');
 
 console.log('');
 console.log((fail === 0 ? 'PASS' : 'FAIL') + ' ' + pass + '/' + (pass + fail));

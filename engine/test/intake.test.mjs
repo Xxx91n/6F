@@ -1,4 +1,4 @@
-// intake.test.mjs — Repo Intake 输入面契约测试（ADR-0009 / D-013；CI 每平台；作用于 dist 编译产物）
+// intake.test.mjs — Repo Intake 输入面契约测试（本地默认/owner-repo 本地优先/URL opt-in / D-013；CI 每平台；作用于 dist 编译产物）
 // 全离线：本地临时 git 仓 + file:// URL 等价路径实跑 clone，无网络调用。
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync } from 'node:fs';

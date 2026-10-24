@@ -1,5 +1,5 @@
 # upstream-lock.yaml — 上游版本锁定表（机读权威 / single source of truth）
-# 制度来源：D-037（轮 7 Q1 拍板）＋ ADR-0018 §D-1 ＋ docs/versioning.md §3；票 #44 / A-049 落盘
+# 制度来源：D-037（轮 7 Q1 拍板）＋ 版本与编年制度 §D-1 ＋ docs/versioning.md §3；票 #44 / A-049 落盘
 #
 # 字段契约（D-037③ 逐字）：id / kind / version / pin_type(exact-version|commit-sha|digest|api-version※) /
 #   contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review
@@ -68,10 +68,10 @@ upstreams:
     kind: cli-or-pip
     version: null
     pin_type: null
-    contract: "（已退役 D-056）原用途=仓库内容打包摘要喂 LLM 叙事层——宿主 agent 恒在（ADR-0016）＋叙事面=宿主 agent 经 MCP 读 facts（D-053）抽空原用途；repomix 官方已 MCP 化按需查询、D-050 目标仓全超 ~10k 文件上限。repo 文件面由宿主 agent 原生访问承担，产品不提供 repo 文本打包面。属 D-045 判据「无价值」分支（消费前提结构性消失≠可算但暂缓面），非弃用从严破例。重开触发器=registry repomix-reopen-trigger"
+    contract: "（已退役 D-056）原用途=仓库内容打包摘要喂 LLM 叙事层——宿主 agent 恒在（分发渠道=纯 Agent Plugins 生态）＋叙事面=宿主 agent 经 MCP 读 facts（D-053）抽空原用途；repomix 官方已 MCP 化按需查询、D-050 目标仓全超 ~10k 文件上限。repo 文件面由宿主 agent 原生访问承担，产品不提供 repo 文本打包面。属 D-045 判据「无价值」分支（消费前提结构性消失≠可算但暂缓面），非弃用从严破例。重开触发器=registry repomix-reopen-trigger"
     status: retired
     adapter: null
-    risk_note: "retired 行不删、provenance 可反查（D-037③/ADR-0018）；重开条件=审计证据导出包/Macro-A 跨仓打包实证需求出现→另立需求票重评估，接入仍须先定 pin＋golden 契约"
+    risk_note: "retired 行不删、provenance 可反查（D-037③/版本与编年制度）；重开条件=审计证据导出包/Macro-A 跨仓打包实证需求出现→另立需求票重评估，接入仍须先定 pin＋golden 契约"
     last_reviewed: 2026-09-17
     next_review: 2027-09-17
   - id: codelore-sqlite-dump
@@ -81,14 +81,14 @@ upstreams:
     contract: "CodeLore sqlite dump 对照评估（#42 上游队列拉动）。首轮对照评估已落文=reports/42-dump-comparison.md，呈报结论=维持逐面契约路径不采纳为事实输入面；采纳须另立 ADR 并先定 pin（exact-version 或 digest）；评估期禁止接入事实链/verdict 输入面"
     status: evaluating
     adapter: null
-    risk_note: "dump 格式随 codelore 版本漂移——若采纳将成为审计口径输入面；首轮评估（42-dump-comparison.md）三轴裁定：契约字段覆盖 0/30 层级错位／语义翻译面爆炸须复刻上游分析引擎（结构性违反 ADR-0014）／golden 只能钉内部 schema_v8 非契约面；dump 合法域=诊断调研原料不进 verdict 输入；采纳前置=ADR 拍板＋pin 落定＋golden 回归"
+    risk_note: "dump 格式随 codelore 版本漂移——若采纳将成为审计口径输入面；首轮评估（42-dump-comparison.md）三轴裁定：契约字段覆盖 0/30 层级错位／语义翻译面爆炸须复刻上游分析引擎（结构性违反上游适配层禁业务语义）／golden 只能钉内部 schema_v8 非契约面；dump 合法域=诊断调研原料不进 verdict 输入；采纳前置=ADR 拍板＋pin 落定＋golden 回归"
     last_reviewed: 2026-09-16
     next_review: 2026-10-16
   - id: github-rest
     kind: remote-api
     version: "2022-11-28"
     pin_type: api-version
-    contract: "Micro-A PR 数据面（D-048／#47）：PR 枚举（含平台声明 Bot 判读=user.type==Bot+[bot] 后缀双检）＋PR 元数据＋diff 兜底（本地 git base...head 优先，API diff 仅在 base/head 本地缺席时使用）；X-GitHub-Api-Version 头 pin；限流=读 x-ratelimit-* 头＋Retry-After＋余额写事实库，耗尽即确定性降级/停止；凭据三级探测=GITHUB_TOKEN env→gh 已认证态只读借用（可选优化非依赖）→无认证显式降级；不建凭据存储、不引 OAuth；raw 上游响应不出适配器边界（ADR-0014）；review/comment 面=planned 不入 Micro-A 最小契约"
+    contract: "Micro-A PR 数据面（D-048／#47）：PR 枚举（含平台声明 Bot 判读=user.type==Bot+[bot] 后缀双检）＋PR 元数据＋diff 兜底（本地 git base...head 优先，API diff 仅在 base/head 本地缺席时使用）；X-GitHub-Api-Version 头 pin；限流=读 x-ratelimit-* 头＋Retry-After＋余额写事实库，耗尽即确定性降级/停止；凭据三级探测=GITHUB_TOKEN env→gh 已认证态只读借用（可选优化非依赖）→无认证显式降级；不建凭据存储、不引 OAuth；raw 上游响应不出适配器边界（上游适配层禁业务语义）；review/comment 面=planned 不入 Micro-A 最小契约"
     status: active
     adapter: "engine/src/upstream/github-rest.ts（GITHUB_REST_ADAPTER_ID=github-rest-adapter@v1，API 版本常量 GITHUB_API_VERSION 同源）"
     last_reviewed: 2026-09-16
@@ -120,3 +120,13 @@ upstreams:
     adapter: "engine/scripts/validate-plugin.mjs（双触发消费位：CI event_bound＋npm run validate:plugin 手动窗口）＋34-check.mjs G19/advisory 段"
     last_reviewed: 2026-09-18
     next_review: 2026-10-18
+  - id: anysearch-cli-adr-corpus
+    kind: data-export
+    version: "770d25495a67bb1e6b1c421a9b40c04259950ddf"
+    pin_type: commit-sha
+    contract: "85-check C 组（Macro-C 差分重校准）基准语料钉＝同级仓 anysearch-cli 一枚不可变 commit-sha（ADR 删除提交的父提交，2026-10-22，tree 含 docs/adr/*.md 104 件）；pin 已定版（pin_type=commit-sha，禁 range/浮动 HEAD）；消费纪律=sibling 只读 git 命令（clone 至 OS temp＋checkout 钉值后对账，D-074 零写入语料仓）；钉值唯一权威=本行 version（85-check.mjs 默认读本行，GUARD_ANYSEARCH_SHA 仅临时覆写不留档）；禁浮动：活仓 HEAD 随 GitButler 虚拟分支漂移（工作树 docs/adr 可归 0），取 HEAD 即静默无基准；改钉=手动窗口重跑 C0~C3 值级全等断言（两侧同源于钉提交运行时重算，非 golden 手抄）"
+    status: planned
+    adapter: "engine/test/contracts/85-check.mjs C 组（SRC_HEAD 钉值读取位 lockPinSha）"
+    risk_note: "status=planned 是枚举位妥协非接入态：本行实为已生效消费中的守卫基准语料（85-check C 组默认读本行）。active 集是 README 致谢面闭账域（gen-acknowledgments.mjs TEMPLATES 双向差集，77-check A2/A3 enforce），anysearch-cli=被审同级基准仓非产品上游，不入致谢面；version 已定值（禁浮动 pin）与表头「planned 行 version=null」约定同属该妥协的连带偏差，语义以本行 contract 文本为准"
+    last_reviewed: 2026-10-24
+    next_review: 2026-11-24

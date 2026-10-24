@@ -5,16 +5,14 @@ on:
       - "engine/**"
       - ".github/workflows/engine-ci.yml"
       - "engine/test/contracts/**"
-      - "docs/adr/**"
-      - "CONTEXT.md"
+      - "GLOSSARY.md"
       - "AGENTS.md"
   pull_request:
     paths:
       - "engine/**"
       - ".github/workflows/engine-ci.yml"
       - "engine/test/contracts/**"
-      - "docs/adr/**"
-      - "CONTEXT.md"
+      - "GLOSSARY.md"
       - "AGENTS.md"
 permissions:
   contents: read

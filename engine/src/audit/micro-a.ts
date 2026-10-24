@@ -1,4 +1,4 @@
-// audit/micro-a.ts —— Micro-A（PR diff）一等面（#85② / D-204③④ / ADR-0015 重校准硬准入）
+// audit/micro-a.ts —— Micro-A（PR diff）一等面（#85② / D-204③④；产线化前置=同族基准差分重校准硬准入）
 // .scratch/architecture-recovery/reports/48-micro-a-preview.mjs 移植：编排语义逐段保真——
 //   48 §0 切片契约 → §1 票面写死实例 → §2 工具/形态分类 → §3 骨架交集 → §4 采集（枚举＋元数据＋diff 双通道）
 //   → §5 diff 工件（local-git 优先 / api 兜底）→ §6 单 PR 报告 → §7 拒绝件 → §8 事实落盘 → §9-10 编排。
@@ -27,7 +27,7 @@ import type { AuditOptions, AuditResult } from './audit.js';
 
 const NL = String.fromCharCode(10);
 
-// ---------- 判据常量（48 §0/§1/§2 跑前写死段移植——ADR-0013 判据先于实跑，跑后禁调） ----------
+// ---------- 判据常量（48 §0/§1/§2 跑前写死段移植——A/B/C 三层闸门：判据先于实跑，跑后禁调） ----------
 export const MICRO_A_CAPABILITY_LABEL = 'capability 3 of 5 · preview';   // #85② 产线化翻转（D-204③④）；48 存档 D-e4 历史值另册不随动
 export const MICRO_A_REPORT_ID_PREFIX = 'MA-48-';
 export const MICRO_A_SLICE_FIELDS = [

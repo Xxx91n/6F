@@ -55,7 +55,7 @@ function normalizeFactRow(names: string[]): (r: unknown[]) => FactEvent {
   };
 }
 
-// ---------- file_card 只读投影（#80 步② / D-126 / ADR-0023） ----------
+// ---------- file_card 只读投影（#80 步② / D-126；预采集投影×per-file subject×血缘事实） ----------
 // 观测集语义：repo_ref=<name>@<head_sha> 天然成集；默认=最新已采集观测集（MAX(observed_at) 平手按 repo_ref 字典序钉死）；
 // at:<sha>=显式 opt-in pin——精确匹配或 ≥7 字符唯一前缀（常量纪律：不做模糊解析）。
 // 本面只读：miss→never_collected 显式态＋CLI 指引（lazy 补采唯一入口=CLI audit file，MCP 永不写）。

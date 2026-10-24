@@ -1,4 +1,4 @@
-// ---------- Repo Intake 输入面（ADR-0009 / D-013） ----------
+// ---------- Repo Intake 输入面（本地默认/owner-repo 本地优先/URL opt-in / D-013） ----------
 // 裁决顺序：显式本地路径 → owner/repo 形态本地优先消歧（./ 前缀强制本地）→ 显式 URL（https/git@）才 clone。
 // clone 纪律：隔离缓存 <cache>/repos/<sha256(url)[:16]>/；全深度（不传 --depth/fetch-depth 0）；
 // .git 完整性校验；浅 clone 显式拒绝 SHALLOW-CLONE-REJECTED；禁远程配置执行（不递归子模块、
@@ -84,7 +84,7 @@ export function isGitRepo(dir: string, timeoutMs = 30000): boolean {
 // 击穿 traceId→fact_id→receipt→report 逐字节确定性链。处置=解析边界归一化 '+00:00'→'Z'
 // （非 UTC 偏移如 +08:00 两版一致不动）＋严格形状断言：归一化后不符即拒，不静默放行。
 // %cI 严格形状正则=quarantine.ts GIT_ISO_STRICT_RE（契约层自持，判定单源）
-// 归一化判定本体=契约层 classifyGitIsoField（ADR-0022/D-103：字段级病态三态分流，永不 throw）。
+// 归一化判定本体=契约层 classifyGitIsoField（字段级病态三态分流、永不 throw；D-103）。
 // 本函数为既有调用方保留的「抛型回执」：clean/normalized 返回合法值；quarantined 仍抛
 // GITCLI-OUTPUT-CONTRACT（调用方要走隔离桶时须直接消费 classifyGitIsoField）。
 export function normalizeGitIsoDate(raw: string): string {

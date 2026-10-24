@@ -1,7 +1,7 @@
-// report/narrative.ts — 叙事双轨 kernel 面（D-053 / A-057 / ADR-0013 band 红线）
+// report/narrative.ts — 叙事双轨 kernel 面（D-053 / A-057；band 归 C 层人裁的红线）
 // 职责边界（D-058）：叙事生成归宿主 agent（概率面，模型驱动）；kernel 只做确定性盖章——
 //   ① sealNarrative：逐 claim 走 checkAllCitations（grounded / 未引证＋失败明细 token↔evidence）；
-//   ② band 红线机检：叙事段不得携带裁决 band（S1-S5 band 判定渗入叙事即违规——ADR-0013/D-026）；
+//   ② band 红线机检：叙事段不得携带裁决 band（S1-S5 band 判定渗入叙事即违规——首报验收 C 层人裁 / D-026）；
 //   ③ renderTemplateNarrative：kernel 模板叙事=degraded 兜底位（复用 UNVERIFIED_MARK，永不得冒充正式叙事）；
 //   ④ model id 可溯：host-agent 叙事必记 model_id（D-053⑤，CodeLore stamp 同款纪律）。
 // 纯逻辑约束同 generate.ts：输入一律注入、无 fs/子进程/网络/LLM。

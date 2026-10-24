@@ -1,4 +1,4 @@
-// github-rest.test.mjs — GitHub REST 适配器 golden cassette 契约测试（ADR-0014 同款回放模式 / D-048 / #47）
+// github-rest.test.mjs — GitHub REST 适配器 golden cassette 契约测试（适配器双轨制同款回放模式 / D-048 / #47）
 // 全离线：cassette 回放真实录制响应（fixtures/github-rest/），不打真网络；占位 token 断言永不进 fact。
 // 覆盖 D-048 五面：认证态 / 无认证降级 / 限流耗尽 / schema 漂移 / 平台声明 Bot + diff 双通道 + 凭据三级探测。
 import assert from 'node:assert/strict';

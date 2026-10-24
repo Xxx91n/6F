@@ -1,6 +1,6 @@
 // upstream-map.test.mjs — upstream→dimension 接线契约 seam 测试（#71/#72 接线票 / D-080④）
 // seam=裁决面映射常量块（audit/upstream-dimension-map.ts）：resolver 准入判定＋collector 注册面＋投影双通道
-// 断言纪律：descriptor dimension:null 保留（ADR-0014）；pending(event_bound)≠已裁维（D-081③）；权重不在本面（D-084）
+// 断言纪律：descriptor dimension:null 保留（上游适配层禁业务语义）；pending(event_bound)≠已裁维（D-081③）；权重不在本面（D-084）
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

@@ -1,4 +1,4 @@
-// 78-check.mjs —— #78 quarantine 引擎验收闸（ADR-0022 / D-103~D-120）
+// 78-check.mjs —— #78 quarantine 引擎验收闸（协议级 fail-fast / 字段级隔离；D-103~D-120）
 // load-bearing: 独立对账守卫——承载性冗余（独立代码路径自持 SQL+git 重放恒等式，禁当重复代码删除；D-116②）。已挂载 engine-ci.yml。
 // 断言面：A=契约层导出+intake 委托 / B=schema+store 持久化面 / C=macro-b+audit+report 接线
 //   D=39/40 one-shot 同口径 / E=quarantine.test.mjs 实跑 / F=病态仓双通道 disposition parity 独立对账

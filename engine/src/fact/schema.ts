@@ -120,7 +120,7 @@ export function buildCreateTableSql(table: string, fields: readonly FactField[],
 export const AUDIT_FACT_DDL: string = buildCreateTableSql('audit_fact', AUDIT_FACT_FIELDS);
 export const SCHEMA_REGISTRY_DDL: string = buildCreateTableSql('schema_registry', SCHEMA_REGISTRY_FIELDS);
 
-// ---- quarantine_log（#78 / ADR-0022 / D-106·D-108·D-112·D-115·D-117·D-119）----
+// ---- quarantine_log（#78 / 病态输入两级处置=协议级 fail-fast、字段级 quarantine / D-106·D-108·D-112·D-115·D-117·D-119）----
 // 字段级病态处置事件台账——逐字段处置事件行（normalized 留痕不告警 / quarantined 隔离）。
 // 幂等自然键（D-108②+D-112④ 扩展）：UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)
 //   ——重跑同 run 重复写=插入幂等（ON CONFLICT DO NOTHING），崩溃后重跑自愈。

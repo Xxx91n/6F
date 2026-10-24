@@ -1,7 +1,7 @@
-// #72 守卫——github-rest 接线票·批2（D-080③ sibling 次票／ADR-0020 最小契约边界）
+// #72 守卫——github-rest 接线票·批2（D-080③ sibling 次票；GitHub REST+env token 主路的最小契约边界）
 // ① opt-in 注册：UPSTREAM_COLLECTOR_REGISTRY 含 github-rest-adapter@v1（registered，opt_in=token+network）
 //    ＋skipped 语义字段在——凭据缺席环境显式报告 skipped 不算 PASS（D-080③ 防假绿）
-// ② 凭据三级探测保真（env token→gh auth token→unauthenticated 显式降级——ADR-0009 opt-in 纪律）
+// ② 凭据三级探测保真（env token→gh auth token→unauthenticated 显式降级——本地默认/URL opt-in 的输入纪律）
 //    ＋token 不进 facts/logs（cassette 断言面已锁——复述守卫不重复断言语义只查机制在位）
 // ③ §② github-rest 表行 ⇔ 常量逐行对账：pr_summary→S4／merge lead time→S4 仅人类 PR／
 //    Bot 占比→S5 平台声明措辞锁／review 覆盖→pending(event_bound) 非双挂二选一／

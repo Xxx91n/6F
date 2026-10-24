@@ -1,4 +1,4 @@
-// ---------- 上游适配器：CodeLore（ADR-0014 / D-020 双轨制主线） ----------
+// ---------- 上游适配器：CodeLore（适配器双轨制主线 / D-020） ----------
 // 反腐层纪律：本文件只做「进程调用 + 原始输出解析」——退出码、字节解析、pin 校验在此；
 // 业务规则（判据/阈值/裁决）禁止进入本层；上游 raw 语义不出本层（以结构化 fact 传出）。
 // 运行时解析策略 = 二进制发现（binary discovery）：codelore 经 PATH 解析 + --version 校验 pin。
@@ -17,7 +17,7 @@ export const CODELORE_PINNED_VERSION = '0.28.0';
 export const CODELORE_DESCRIPTOR: CollectorDescriptor = {
   id: CODELORE_ADAPTER_ID,
   family: CODELORE_FAMILY,
-  dimension: null, // 防腐层故意留白（ADR-0014）——维度映射见 docs/upstream-dimension-map.md（D-078）
+  dimension: null, // 防腐层故意留白（上游适配层禁业务语义）——维度映射见 docs/upstream-dimension-map.md（D-078）
   quadrant: 'strategic'
 };
 
@@ -321,7 +321,7 @@ export function collectCodeloreFacets(input: CodeloreFacetsInput, ctx: CollectCo
   return out;
 }
 
-// ---------- per-file 一等事实发射（#80 步① / D-124 / D-125 / ADR-0023） ----------
+// ---------- per-file 一等事实发射（#80 步① / D-124 / D-125；Micro-B 文件卡=预采集投影×per-file subject×血缘事实） ----------
 // subject 归一单点=本发射边界：行对象 path/entity 字段经 normalizeSubjectPath 规范化（SCIP 五规则+NFC）。
 // 文件粒度行字段=path/entity（实物钉：entity 字段值=仓内相对路径，35-check cassette 实证）；
 //   entity_a/entity_b=成对端点行（coupling/modularity-violations 族）→双端各发一条 per-path-face 行对象（peer 互指）；

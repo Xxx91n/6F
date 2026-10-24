@@ -1,4 +1,4 @@
-// report-preview.test.mjs — preview 披露块契约测试（#38/A-043/ADR-0017/D-037②）
+// report-preview.test.mjs — preview 披露块契约测试（#38/A-043；Preview 分级发布：标注诚实是决策本体/D-037②）
 // 断言面 = preview_disclosure 报告头块渲染 + 侧车机器可读字段 + degradeReport 降级保留
 //        + 非 preview 报告零污染（骨架/侧车形态不变）+ 骨架 C1-C4 顺序不漂。
 // 纯逻辑测试：只 import dist/report/generate.js，不起子进程不读仓外文件。

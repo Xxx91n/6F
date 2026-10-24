@@ -1,6 +1,6 @@
 // 23-first-report.mjs — 首报全链执行（采集 → fact → 叙事 → 裁决 → 报告）
 // 用法：node engine/test/contracts/23-first-report.mjs
-// 覆盖 A-026 / A-027｜spec §R3-D5｜ADR-0012 阶段 1｜ADR-0013 三层闸门
+// 覆盖 A-026 / A-027｜spec §R3-D5｜主干=端到端价值验证闭环先行｜A/B/C 三层验收闸门
 // 依赖：零三方包；直接 import engine/src/collect/collectors.ts 与 engine/src/report/generate.ts（Node 类型剥离）。
 // 纪律：B 层阈值全部读自 22-criteria-pre-registration.md 对应的预声明常量，跑后禁调（§7）。
 

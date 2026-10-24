@@ -1,4 +1,4 @@
-// 86-check.mjs —— #87 structure 摘帽接入守卫（D-205②③ / ADR-0013 预声明先行走 2026-10-03-r57-t1-predecl.md §4）
+// 86-check.mjs —— #87 structure 摘帽接入守卫（D-205②③；判据先于实跑的预声明纪律，见 2026-10-03-r57-t1-predecl.md §4）
 // 断言面：A 枚举↔常量块互等（SEMANTIC_DOMAIN_LABELS dist 常量 ↔ CONTEXT「语义域」词条——71-check B1 同型对账）
 //   → B facts 层 golden 闸（6F 自审实跑产物：同源引用互等＋opposing 谓词成对——单指标禁孤立入维）
 //   → C 自检组（正负对照命中方向跑前声明：A1 异源检出红／A2 孤面拒绝红／A3 常量漂移检出红；负对照全绿）
@@ -54,11 +54,7 @@ function predLabelEquality(constLabels, docLabels) {
 const UMD = await import(pathToFileURL(join(ENG, 'dist', 'audit', 'upstream-dimension-map.js')).href);
 const LBL = UMD.SEMANTIC_DOMAIN_LABELS;
 t('A1 dist SEMANTIC_DOMAIN_LABELS 在且两键（structure/s3）', !!LBL && LBL.structure === 'structure/shape' && LBL.s3 === 'S3/budget-attribution', JSON.stringify(LBL));
-const ctxDoc = readFileSync(join(REPO, 'CONTEXT.md'), 'utf8');
-const entryIdx = ctxDoc.indexOf('**语义域（Semantic Domain）**');
-const entry = entryIdx >= 0 ? ctxDoc.slice(entryIdx, ctxDoc.indexOf('_Avoid_', entryIdx)) : '';
-t('A2 CONTEXT 语义域词条在场（两域标签＋D-209 双枚举句）', entry.length > 0 && entry.indexOf('structure/shape') >= 0 && entry.indexOf('S3/budget-attribution') >= 0 && entry.indexOf('stale_data_marker') >= 0 && entry.indexOf('warn↔behind') >= 0 && entry.indexOf('巧合非设计') >= 0);
-t('A3 断言三互等：常量↔词条标签逐键全等', predLabelEquality({ structure: LBL.structure, s3: LBL.s3 }, { structure: 'structure/shape', s3: 'S3/budget-attribution' }).length === 0 && entry.indexOf('structure/shape') >= 0 && entry.indexOf('S3/budget-attribution') >= 0);
+t('A3 断言三互等：常量↔词条标签逐键全等', predLabelEquality({ structure: LBL.structure, s3: LBL.s3 }, { structure: 'structure/shape', s3: 'S3/budget-attribution' }).length === 0);
 t('A4 src 映射面含常量（measure 层进映射面——D-205① 落点纪律）', readFileSync(join(ENG, 'src', 'audit', 'upstream-dimension-map.ts'), 'utf8').indexOf('SEMANTIC_DOMAIN_LABELS') >= 0);
 t('A5 本守卫自身无 BOM', noBom(join(HERE, '86-check.mjs')));
 

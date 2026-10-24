@@ -1,4 +1,4 @@
-# Provenance（per ADR-0008 / R2-04）
+# Provenance（Agent Plugin 分发形态 / R2-04）
 
 | 项 | 状态 | 说明 |
 |---|---|---|

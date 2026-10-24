@@ -1,7 +1,7 @@
 // macro-c.test.mjs —— #84 Macro-C 一等面端到端断言（D-204②④ 产线化）
 // 覆盖：CLI 实跑（audit --scale Macro-C）/回执契约/报告头+披露块/四象限形态/supersede 链扫描单元
 //   （whole/item/self-quote/unresolved/defer 五态）/facts.duckdb 同位写入/LLM 门控诚实披露。
-// 被测仓=临时合成 git 仓（docs/adr supersede 对 + package.json 负对照），跑完即弃。
+// 被测仓=临时合成 git 仓（被审计仓的 ADR 目录 supersede 对 + package.json 负对照），跑完即弃。
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -15,7 +15,7 @@ const NL = String.fromCharCode(10);
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
 
-// ---- 合成被测仓（git env 钉时戳；ADR-001 supersedes ADR-002 成对 + ADR-003 断链 + package.json 负对照） ----
+// ---- 合成被测仓（git env 钉时戳；被审计仓 ADR 目录：两条互相 supersede 的 ADR + 一条断链 ADR + package.json 负对照） ----
 const tmp = mkdtempSync(join(tmpdir(), 'macro-c-test-'));
 const REPO = join(tmp, 'tgt');
 mkdirSync(join(REPO, 'docs', 'adr'), { recursive: true });

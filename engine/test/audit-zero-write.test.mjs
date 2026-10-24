@@ -2,7 +2,7 @@
 // 承接的 sealed 断言（attestation 册务件已随治理工件退役，git 历史可查 .scratch/architecture-recovery/reports/acceptance-probe-attestation.jsonl）：
 //   ap-38-h4（38-check H4 anysearch-cli 零写入）/ ap-39-i1（env-manager）/ ap-39-i2（anysearch-cli）
 //   ——1:1 迁移对应表写入 attestation 行 migrated_to 字段。
-// 机制（hermetic 处方）：fs.mkdtemp 玩具仓（cassette 化抽样真实 sibling 结构：docs/adr+CONTEXT.md+package.json+src，
+// 机制（hermetic 处方）：fs.mkdtemp 玩具仓（cassette 化抽样真实 sibling 结构：被审计仓的 ADR 目录+CONTEXT.md+package.json+src，
 //   仿 fixtures/github-rest cassette 先例）→ node dist/cli.js audit <repo> --out <tmp>/out → git status --porcelain 断言空 → 清理。
 //   ephemeral 每次新建不 clone 真实 sibling（真实仓内容漂移违反 hermetic）；自检「审计确实产出 facts」防 vacuous pass。
 //   原验收时点真实仓实测证据承接历史性（attestation evidence 字段），本测试承接持续性（挂 smoke 链每次实跑）。

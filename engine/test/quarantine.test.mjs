@@ -1,4 +1,4 @@
-// quarantine.test.mjs —— #78 quarantine 引擎测试册（ADR-0022 / D-103~D-120）
+// quarantine.test.mjs —— #78 quarantine 引擎测试册（协议级 fail-fast / 字段级隔离；D-103~D-120）
 // A=分类器纯契约（永不 throw 三态）/ B=raw_bytes 指纹+截断边界 / C=strict 门禁基线
 // D=恒等式 / E=quarantine_log DDL / F=store e2e（幂等自然键·事务回滚·未列码崩）
 // G=合成病态 git fixture 全链 e2e（hash-object --literally 病态 commit 对象）/ H=MCP quarantine 只读投影

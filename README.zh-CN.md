@@ -1,5 +1,5 @@
 <!-- canonical: README.md | owner: Xxx91n -->
-<!-- sync: 51bdccf8aed6 -->
+<!-- sync: 88efdc5c3100 -->
 > ⚠ **本文件为中文译文（derived 工件）——英文版 [README.md](README.md) 为权威版本（canonical 权威源）；如有不一致以英文版为准。** 译文可暂时落后，但不假装新鲜（sync 戳与英文版内容指纹绑定）。
 
 <p align="center">
@@ -24,11 +24,11 @@
 <a id="highlights"></a>
 ## 亮点 {#highlights}
 
-- **Facts（事实）** — 一张只追加事实表收纳全部声明（Hub-of-Facts，ADR-0005）。
-- **Federation（联邦）** — 联邦 verdict-gate 协议裁决每条裁定（ADR-0005）。
+- **Facts（事实）** — 一张只追加事实表收纳全部声明（Hub-of-Facts：共享事实表＋联邦裁决）。
+- **Federation（联邦）** — 联邦 verdict-gate 协议裁决每条裁定（共享 Hub-of-Facts 架构）。
 - **Forensics（考古）** — 演化考古把仓库历史挖成证据（Macro-C）。
-- **Five scales（五尺度）** — 五档审计粒度共用同一事实底座（ADR-0001）。
-- **Frankness（诚实）** — preview／降级／`synthetic` 印记自我标注（ADR-0017）。
+- **Five scales（五尺度）** — 五档审计粒度共用同一事实底座；五尺度是全规划、不做 MVP 切片。
+- **Frankness（诚实）** — preview／降级／`synthetic` 印记自我标注（Preview 分级发布模型）。
 - **Fingerprints（指纹）** — 每条裁定随附双锚可核验回执。
 
 <img src="https://img.shields.io/badge/status-preview-f59e0b" alt="Status: preview"/>
@@ -40,7 +40,7 @@
 <a id="capability-matrix"></a>
 ## 能力矩阵 {#capability-matrix}
 
-发布节奏 = **Preview 分级发布**（ADR-0017）：**build-scope ≠ release-sequence**——5 档审计粒度为全规划（ADR-0001 standing），各层独立走 preview→GA 漏斗，preview 形态不构成 MVP 切片。
+发布节奏 = **Preview 分级发布**：**build-scope ≠ release-sequence**——5 档审计粒度为全规划（五尺度范围成立），各层独立走 preview→GA 漏斗，preview 形态不构成 MVP 切片。
 
 | scale | 状态 |
 |---|---|
@@ -50,7 +50,7 @@
 | Micro-B file level | **capability 4 of 5 · preview**（file-audit card；试点集=同主双仓 jiahao＋env-manager 血缘缝合/校准；advisory-only 结构性隔离） |
 | Macro-A 跨仓战略 | Not yet in preview |
 
-preview 标注诚实是决策本体非装饰（ADR-0017）：报告头/侧车 `preview_disclosure` 披露块（capability 标注＋校准范围＋结构性限制＋not_in_preview 清单）与上表为同一语义源；降级产出带 `⚠ unverified` 印记，未接证据域带「⚠ 数据未接」标注，合成 fixture 带「synthetic」印记且不冒充真实审计。
+preview 标注诚实是决策本体非装饰：报告头/侧车 `preview_disclosure` 披露块（capability 标注＋校准范围＋结构性限制＋not_in_preview 清单）与上表为同一语义源；降级产出带 `⚠ unverified` 印记，未接证据域带「⚠ 数据未接」标注，合成 fixture 带「synthetic」印记且不冒充真实审计。
 
 **0.x 语义**：版本号 0.x 单调递增、号不复用；minor = 契约变更、patch = 修复、不回退发旧线补丁；1.0 退出条件 = 报告 schema 冻结＋已接上游适配器全过确定性验收（非日历触发）。口径全文见 [docs/versioning.md](docs/versioning.md)；产品版本变更以 [engine/CHANGELOG.md](engine/CHANGELOG.md) 为准。
 
@@ -117,7 +117,7 @@ CI 闭环见 [.github/workflows/engine-ci.yml](.github/workflows/engine-ci.yml)�
 
 > **状态列 = 机读权威绑定**：唯一权威 = [`engine/upstream-lock.yaml`](engine/upstream-lock.yaml)（D-037③）——本表为人读形态，状态映射 = 已接入→active／规划中→planned／评估中→evaluating（retired 行不出本表；锁表另含评估中条目 `codelore-sqlite-dump`）。锁定纪律：禁 range/浮动 tag/latest，更新走手动窗口＋golden 回归护航（[docs/versioning.md](docs/versioning.md) §3-4）。
 
-引入方式按 ADR-0014：适配器 + 外部 CLI/库为主线，库形态上游走包管理器 lockfile hash pinning，vendor 源码进仓仅在气隙分发或上游废弃两种情况逃生。
+引入方式按适配器双轨制：适配器 + 外部 CLI/库为主线，库形态上游走包管理器 lockfile hash pinning，vendor 源码进仓仅在气隙分发或上游废弃两种情况逃生。
 
 <a id="runtime-view"></a>
 ## Runtime View {#runtime-view}
@@ -151,12 +151,11 @@ flowchart LR
 
 | 路径 | 内容 |
 |---|---|
-| [CONTEXT.md](CONTEXT.md) | 术语表（领域唯一语言） |
-| [docs/adr/](docs/adr/) | 架构决策记录——生成式索引 [docs/adr/README.md](docs/adr/README.md)（勿手改；regen: cd engine && npm run gen） |
+| [GLOSSARY.md](GLOSSARY.md) | 术语表（领域唯一语言） |
+| [docs/spec.md](docs/spec.md) | 产品决策——唯一权威（缺口：docs/known-gaps.md；RA：docs/ra/） |
 | [engine/](engine/) | 内核 CLI + Agent Plugin 五层盒子（构建 / 命令细节见 [engine/README.md](engine/README.md)） |
 | [examples/first-report/](examples/first-report/) | 发布样例资产：6F 自审 Macro-B 首报四件（happy + failure 双对，披露制） |
 | [engine/CHANGELOG.md](engine/CHANGELOG.md) | 产品版本账 |
-| .scratch/ | 本地未追踪区——治理档案与一次性工件（不入库；权威：决策=docs/spec.md + docs/adr/，术语=CONTEXT.md） |
 
 <a id="demo-and-examples"></a>
 ## 演示与样例 {#demo-and-examples}

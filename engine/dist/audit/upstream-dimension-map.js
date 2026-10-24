@@ -3,7 +3,7 @@
 // 口径锚点（D-080④）：「文档单源真值＋裁决面映射常量配置块」——
 //   语义源 = 仓内文书 docs/upstream-dimension-map.md v1.0（不随 tgz 分发、不供宿主 agent 叙事消费，D-083）
 //   本文件 = 该表的运行时派生物（constants derived from doc）；NN-check 守卫逐行对账防漂移（71/72-check）
-//   adapter descriptor 保留 dimension:null（ADR-0014 防腐层禁业务语义）——映射只住本裁决面
+//   adapter descriptor 保留 dimension:null（上游适配层禁业务语义）——映射只住本裁决面
 //   权重不住本文件（D-084——映射表不加权重列，权重归 rubric/聚合判据面另立案）
 //
 // 归位规则快照（对应 docs/upstream-dimension-map.md v1.0 表行）：
@@ -28,7 +28,7 @@ export const CODELORE_S3_FACETS = ['god-classes', 'architecture-metrics', 'depen
 // 本常量=机检对账位（86-check 枚举↔常量块互等，71-check B1 同型）；标签属 dimension 枚举域非权重位（D-080④ A2）。
 export const SEMANTIC_DOMAIN_LABELS = {
     structure: 'structure/shape', // structure 象限=形态测量层读数
-    s3: 'S3/budget-attribution' // S3=预算归因层读数（消费同面，判读归属由消费位谓词决定——ADR-0024）
+    s3: 'S3/budget-attribution' // S3=预算归因层读数（消费同面，判读归属由消费位谓词决定——先剥注释再判、注释内提名不豁免）
 };
 export const CODELORE_S5_FACETS = ['ownership', 'entity-ownership', 'bus-factor', 'main-dev', 'main-dev-by-revs', 'main-dev-by-deletions', 'knowledge-islands', 'communication', 'coordination-needs', 'team-composition', 'marginal-owner-risk', 'pair-programming'];
 export const CODELORE_EXPLAIN_SURFACES = ['explain-repo', 'explain-brief', 'explain-adr', 'explain-query', 'explain-resolve', 'explain-execute', 'explain-dryrun', 'llm-narrative', 'capability-check'];

@@ -14,7 +14,7 @@
 ## B. 「证据不足→经 MCP 补查」程序段（D-057④——补查回路归宿主 agent，kernel 只判 insufficient 不建 reround）
 
 当叙事需要的证据面缺口出现：
-1. **先查投影**：`macro-audit mcp facts --db <duckdb> [--scale X] [--repo R] [--subject S] [--limit N]`——facts 只读投影是取数主路（不经 CodeLore 适配层，ADR-0014 防腐边界）；
+1. **先查投影**：`macro-audit mcp facts --db <duckdb> [--scale X] [--repo R] [--subject S] [--limit N]`——facts 只读投影是取数主路（不经 CodeLore 适配层，适配层防腐边界）；
 2. **缺口仍在**：叙事段如实标 `⚠ 数据未接`（不复述不存在的证据、不把 planned 上游写成已接）；
 3. **kernel 判 insufficient 后不回灌**：kernel 不发起补查；补查轮由宿主 agent 编排（发起 GapRequest 是 agent 面行为）；
 4. 补查所得新证据**重新走收集通道入库**，叙事侧只读投影不直写。
@@ -28,4 +28,4 @@
 
 ## D. band 红线（复述，见 report-template.md §红线）
 
-叙事段只带 citation 盖章，**不得携带裁决 band**：不写「S2=supported」/「象限裁定：insufficient」/verdict 字段名——band 归 C 层人裁定（ADR-0013/D-026），渗入即 seal=rejected。
+叙事段只带 citation 盖章，**不得携带裁决 band**：不写「S2=supported」/「象限裁定：insufficient」/verdict 字段名——band 归 C 层人裁定（C 层人裁 / D-026），渗入即 seal=rejected。

@@ -1,7 +1,7 @@
 // audit.test.mjs —— #53 `macro-audit audit` 一等命令端到端断言（D-060 八要素）
 // 覆盖：签名/exit 2 诚实拒绝/--out 双通道/回执契约/报告头 stability+capabilities/
 //   快照时点披露/codelore 行为面诚实（解析与否两态如实）/audit 不携叙事职责。
-// 被测仓=临时合成 git 仓（docs/adr + CONTEXT.md + package.json 负对照），跑完即弃。
+// 被测仓=临时合成 git 仓（被审计仓的 ADR 目录 + CONTEXT.md + package.json 负对照），跑完即弃。
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
