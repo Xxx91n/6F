@@ -48,7 +48,7 @@ const TARGETS = ARGS.repo ? [{ repo: ARGS.repo, root: resolve(ARGS.root || '.') 
 const OUTDIR = resolve(ARGS.out);
 if (!existsSync(OUTDIR)) { mkdirSync(OUTDIR, { recursive: true }); }
 
-// ---------- 崩溃桶等位 catch 包体（#78/D-109① 双通道第二腿）：try 覆盖 §1~出口——协议崩=结构化工件+stderr+exit 2 ----------
+// ---------- 崩溃桶等位 catch 包体（#78/D-109① 双通道第二腿）：try 覆盖 §1~出口——协议崩=结构化工件+stderr；exit 2 仅限解析分歧 ----------
 try {
 // ---------- §1 预声明阈值（与 22-criteria-pre-registration.md 逐字对齐，跑后禁调） ----------
 const PRE_REG = 'engine/test/fixtures/contracts/22-criteria-pre-registration.md';
@@ -434,7 +434,6 @@ process.exit(0);
   // 崩溃桶等位落盘（D-109①/②）：error_code 取 e.code 或消息首词；工件写失败=证据丢失=工业上界如实（D-109③ 不设兜底）
   const msg = String((e && e.message) || e);
   const code = (e && e.code) || ((/^[A-Z][A-Z0-9-]+:/).test(msg) ? msg.match(/^([A-Z][A-Z0-9-]+):/)[1] : 'ONESHOT-UNCAUGHT');
-  const isProto = Q.isProtocolCrash(e) || (/^[A-Z][A-Z0-9-]+:/).test(msg);
   let artifactPath = null;
   try {
     const art = Q.isProtocolCrash(e)
@@ -444,6 +443,8 @@ process.exit(0);
     writeFileSync(artifactPath, JSON.stringify(art, null, 2) + NL, 'utf8');
   } catch (_) { artifactPath = null; }
   console.error(JSON.stringify({ error: code, message: msg.slice(0, 400), crash_artifact: artifactPath, strict_quarantine: STRICT_Q }));
-  // D-111① 退出码同 cli 语义：协议崩溃=2；其余（IO/未知）=4
-  process.exit(isProto ? 2 : 4);
+  // #42 复审：仅畸形输入解析分歧（GITCLI-OUTPUT-CONTRACT）走 workflow 预期分歧格 exit 2；
+  // 探针不变量/环境失败与其余错误=exit 4（阻断，工件仍在）。
+  const isDivergence = code === 'GITCLI-OUTPUT-CONTRACT';
+  process.exit(isDivergence ? 2 : 4);
 }
