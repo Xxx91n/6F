@@ -1,0 +1,16 @@
+fact sheet for src/demo.ts
+
+[code-health]
+  score = 80.5
+  band = green
+  structural_risk = 0.2
+
+[ownership]
+  main_author = alice
+  total_revs = 9
+  fractal_value = 0.8
+
+## LLM narrative (advisory)
+The file is healthy: code-health score is 80.5 with band green. Ownership is concentrated: alice authored 9 revisions.
+
+advisory fixture-model-0, grounded

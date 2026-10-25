@@ -1,0 +1,98 @@
+{
+  "note": "21 fixture：三族采集器守卫输入。PC-1 覆盖 adr-structure + positioning；PC-2 覆盖 gitlog（与 adr-structure 交叉，事后补写 delta_days > 0）。",
+  "context": {
+    "runId": "run-21-fixture",
+    "traceId": "0123456789abcdef0123456789abcdef",
+    "repoRef": "6F",
+    "scale": "Macro-B",
+    "observedAt": "2026-09-13T00:00:00Z"
+  },
+  "adr": {
+    "documents": [
+      {
+        "path": "docs/adr/0013-fixture-complete.md",
+        "text": "# ADR-0013: fixture complete\n- Status: accepted\n- Date: 2026-09-12\n- Deciders: user\n- Ledger: D-017\n\n## Context\n\nfixture context\n\n## Decision\n\nfixture decision\n\n## Consequences\n\nfixture consequences\n\nSupersedes ADR-0012.\n"
+      },
+      {
+        "path": "docs/adr/0014-fixture-partial.md",
+        "text": "# ADR-0014: fixture partial\n- Status: proposed\n\n## Context\n\nonly context here\n"
+      }
+    ]
+  },
+  "positioning": {
+    "intentDocs": [
+      {
+        "path": "README.md",
+        "text": "macro audit engine 定位 收敛 采集器 架构 审计"
+      }
+    ],
+    "deliveryDocs": [
+      {
+        "path": "CHANGELOG.md",
+        "text": "engine 采集器 架构 已落地；定位 未提及"
+      }
+    ],
+    "topN": 8,
+    "stopwords": [
+      "the",
+      "and"
+    ]
+  },
+  "gitlog": {
+    "commits": [
+      {
+        "sha": "aaa111",
+        "author": "alice",
+        "date": "2026-08-01",
+        "paths": [
+          "docs/adr/0013-fixture-complete.md"
+        ]
+      },
+      {
+        "sha": "bbb222",
+        "author": "bob",
+        "date": "2026-08-20",
+        "paths": [
+          "docs/adr/0013-fixture-complete.md",
+          "docs/adr/0014-fixture-partial.md"
+        ]
+      },
+      {
+        "sha": "ccc333",
+        "author": "alice",
+        "date": "2026-08-05",
+        "paths": [
+          "docs/adr/0014-fixture-partial.md"
+        ]
+      }
+    ],
+    "paths": [
+      "docs/adr/0013-fixture-complete.md",
+      "docs/adr/0014-fixture-partial.md"
+    ]
+  },
+  "expect": {
+    "completePath": "docs/adr/0013-fixture-complete.md",
+    "partialPath": "docs/adr/0014-fixture-partial.md",
+    "completeFivePiecePresent": 5,
+    "completeFivePieceRatio": 1,
+    "partialMissing": [
+      "Date",
+      "Decision",
+      "Consequences"
+    ],
+    "completeSupersedePresent": true,
+    "partialSupersedePresent": false,
+    "completeDecisionDate": "2026-09-12",
+    "partialDecisionDate": null,
+    "positioningKeywords": 8,
+    "completeFirstCommitSha": "aaa111",
+    "completeFirstCommitDate": "2026-08-01",
+    "completeCommitCount": 2,
+    "partialFirstCommitSha": "ccc333",
+    "partialCommitCount": 2,
+    "lagAdrDate": "2026-09-12",
+    "lagFirstCommitDate": "2026-08-01",
+    "lagDeltaDays": 42
+  }
+}

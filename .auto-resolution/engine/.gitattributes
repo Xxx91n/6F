@@ -1,0 +1,16 @@
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.png binary
+*.jpg binary
+*.gif binary
+*.zip binary
+*.gz binary
+*.exe binary
+*.dll binary
+# frozen git bundle（基准语料，ADR-0026/#33）：必须单列且写在本目录——根 .gitattributes 的 `*.{...}` 花括号
+# 是无效语法（git 不展开 brace，实测落 text: auto），且深层目录规则优先于浅层，故本条只能放这里。
+*.bundle binary -text
+# Generated artifacts (D-140): trust source = rebuild-diff CI guard, not human diff review
+dist/** linguist-generated gitlab-generated -diff

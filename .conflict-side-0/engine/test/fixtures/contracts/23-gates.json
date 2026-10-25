@@ -1,0 +1,416 @@
+{
+  "run": {
+    "head_sha": "fc00d458e215cc9a7a26af81626dec8712622821",
+    "observed_at": "2026-09-13T14:31:09+08:00",
+    "commit_count": 67,
+    "adr_count": 13,
+    "fact_count": 228
+  },
+  "preflight": {
+    "t19_ci_run_ids": [
+      "34736927344",
+      "34737204262"
+    ],
+    "t19_ci_result": "engine-ci 6/6 job 全绿（票 19 闭环）",
+    "t22_prereg_commit": "7395495",
+    "t22_prereg_path": ".scratch/architecture-recovery/reports/22-criteria-pre-registration.md",
+    "t22_c_basis_path": ".scratch/architecture-recovery/reports/22-c-adjudication-basis.md"
+  },
+  "A": {
+    "skeleton_happy": [
+      "C1 执行摘要",
+      "C2 四象限与裁决",
+      "C3 证据",
+      "C4 行动建议"
+    ],
+    "skeleton_failure": [
+      "C1 执行摘要",
+      "C2 四象限与裁决",
+      "C3 证据",
+      "C4 行动建议"
+    ],
+    "receipt": {
+      "receipt_id": "RCP-9d20125ad0976c86",
+      "chain_hash": "9d20125ad0976c869df132e8f25e99c7ae3cdd260f15f3304e62ad2c81cbd4ff",
+      "issued_at": "2026-09-13T14:31:09+08:00",
+      "commit_anchor": "fc00d458e215cc9a7a26af81626dec8712622821",
+      "tree_anchor": "6f405cfc2ce51ea395dc66d282d86b77631f7db7",
+      "content_digest": {
+        "algo": "sha256",
+        "value": "bede7a40f82865818baa4068add971bb8c1ad55cb85014663dfcb31ffb5d7af1",
+        "canonicalization": "json_utf8_entries_then_citation_checks"
+      },
+      "gate_ref": {
+        "prereg_commit": "7395495",
+        "criteria_path": ".scratch/architecture-recovery/reports/22-criteria-pre-registration.md",
+        "basis_path": ".scratch/architecture-recovery/reports/22-c-adjudication-basis.md",
+        "criterion_ids": [
+          "PC-1",
+          "PC-2",
+          "TC-1",
+          "TC-2",
+          "TC-3",
+          "NC-1"
+        ]
+      },
+      "fact_count": 228,
+      "adjudication_count": 6,
+      "degraded": false,
+      "mark": "RECEIPT RCP-9d20125ad0976c86 chain=9d20125ad0976c869df132e8f25e99c7 content=bede7a40f8286581 facts=228 adjudications=6 issued_at=2026-09-13T14:31:09+08:00 commit=fc00d458e215cc9a7a26af81626dec8712622821 tree=6f405cfc2ce5"
+    },
+    "evidence_count": 11,
+    "citation_checks": [
+      {
+        "claim_id": "CL-001",
+        "evidence_id": "EV-006",
+        "support": "supports",
+        "matched_tokens": [
+          "mean_ratio_4",
+          "0.2462"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-002",
+        "evidence_id": "EV-007",
+        "support": "supports",
+        "matched_tokens": [
+          "judgeable_n",
+          "2"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-003",
+        "evidence_id": "EV-008",
+        "support": "supports",
+        "matched_tokens": [
+          "lowest_ratio_4",
+          "0.6000"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-004",
+        "evidence_id": "EV-001",
+        "support": "supports",
+        "matched_tokens": [
+          "0.2462"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-005",
+        "evidence_id": "EV-002",
+        "support": "supports",
+        "matched_tokens": [
+          "INCONCLUSIVE",
+          "可判定数"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-006",
+        "evidence_id": "EV-003",
+        "support": "supports",
+        "matched_tokens": [
+          "AMBER",
+          "0.6000"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-007",
+        "evidence_id": "EV-004",
+        "support": "supports",
+        "matched_tokens": [
+          "阶段 1 = Macro-B"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-008",
+        "evidence_id": "EV-005",
+        "support": "supports",
+        "matched_tokens": [
+          "A→B→C"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-009",
+        "evidence_id": "EV-009",
+        "support": "supports",
+        "matched_tokens": [
+          "five_piece_present",
+          "0"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-010",
+        "evidence_id": "EV-010",
+        "support": "supports",
+        "matched_tokens": [
+          "golden_supersede_hit_s",
+          "true"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      },
+      {
+        "claim_id": "CL-011",
+        "evidence_id": "EV-011",
+        "support": "supports",
+        "matched_tokens": [
+          "delta_days_s",
+          "255"
+        ],
+        "missing_tokens": [],
+        "reason": "全部支撑锚在引文原文中逐字命中"
+      }
+    ]
+  },
+  "B": {
+    "pc1": {
+      "adr_fact_count": 11,
+      "pos_fact_count": 20,
+      "five_piece_present": 5,
+      "supersede_present": true,
+      "pass": true,
+      "golden_five_present_s": "5/5",
+      "golden_supersede_hit_s": "true"
+    },
+    "pc2": {
+      "fact_count": 4,
+      "lag_fact_count": 1,
+      "delta_days": 255,
+      "pass": true,
+      "delta_days_s": "255"
+    },
+    "tc1": {
+      "judgeable_n": 2,
+      "backfill_n": 0,
+      "ratio_4": "0.0000",
+      "verdict": "INCONCLUSIVE",
+      "threshold": {
+        "lag_days": 90,
+        "ratio_red": 0.2,
+        "min_n": 5
+      }
+    },
+    "tc2": {
+      "total": 13,
+      "mean_ratio_4": "0.2462",
+      "missing_counts": {
+        "Status": 11,
+        "Date": 11,
+        "Context": 9,
+        "Decision": 9,
+        "Consequences": 9
+      },
+      "missing_ratio_4": {
+        "Status": 0.8462,
+        "Date": 0.8462,
+        "Context": 0.6923,
+        "Decision": 0.6923,
+        "Consequences": 0.6923
+      },
+      "cond_a": true,
+      "cond_b": true,
+      "verdict": "RED",
+      "threshold": {
+        "mean_red": 0.6,
+        "field_missing_red": 0.5
+      }
+    },
+    "tc3": {
+      "per_source": [
+        {
+          "path": ".scratch/architecture-recovery/README.md",
+          "hit": 13,
+          "keywords": 20,
+          "ratio_4": "0.6500",
+          "missed": [
+            "a-xxx",
+            "全部",
+            "branch",
+            "architecture-recovery",
+            "张票",
+            "覆盖",
+            "阻塞"
+          ]
+        },
+        {
+          "path": "CONTEXT.md",
+          "hit": 12,
+          "keywords": 20,
+          "ratio_4": "0.6000",
+          "missed": [
+            "avoid_",
+            "暗示",
+            "战略",
+            "本产",
+            "共享",
+            "失败",
+            "而非",
+            "叙事"
+          ]
+        }
+      ],
+      "lowest_path": "CONTEXT.md",
+      "lowest_ratio_4": "0.6000",
+      "verdict": "AMBER",
+      "threshold": {
+        "red": 0.5,
+        "green": 0.7,
+        "top_n": 20
+      }
+    },
+    "nc1": {
+      "path": "engine/src/fact/schema.ts",
+      "fact_count": 11,
+      "five_piece_present": 0,
+      "supersede_present": false,
+      "pass": true
+    }
+  },
+  "C": {
+    "overall": "unsupported",
+    "entries": [
+      {
+        "criterion_id": "PC-1",
+        "band": "supported",
+        "basis_refs": [
+          "B1"
+        ],
+        "anchored_fact_ids": [
+          "7422653a-2067-f5f9-9637-0c51faeb80fe",
+          "a2839c74-41d2-acfa-098a-e457092cc33e"
+        ],
+        "anchored_evidence_ids": [
+          "EV-010"
+        ],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "adr-structure 与 positioning 两族均产出非空事实，golden ADR 五件套 5/5 且 supersede 链命中"
+      },
+      {
+        "criterion_id": "PC-2",
+        "band": "supported",
+        "basis_refs": [
+          "B1"
+        ],
+        "anchored_fact_ids": [
+          "5f2a307d-663b-1076-3798-19af7819f369"
+        ],
+        "anchored_evidence_ids": [
+          "EV-011"
+        ],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "gitlog 族检出事后补写 delta_days = 255"
+      },
+      {
+        "criterion_id": "TC-1",
+        "band": "insufficient",
+        "basis_refs": [
+          "B2"
+        ],
+        "anchored_fact_ids": [
+          "8a3fa62d-aafb-c4f8-0f5b-71d4e87fe40a",
+          "0198eb60-6731-e7ee-c150-707e7cc809f6"
+        ],
+        "anchored_evidence_ids": [
+          "EV-002",
+          "EV-007"
+        ],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "可判定数 2 < 门槛 5，判 INCONCLUSIVE（不等于绿，仅记数据缺口）"
+      },
+      {
+        "criterion_id": "TC-2",
+        "band": "unsupported",
+        "basis_refs": [
+          "B2"
+        ],
+        "anchored_fact_ids": [
+          "fea167e0-8c1f-c1f8-b520-92bf5b492327",
+          "73ea67e1-2165-8ce3-3770-8729e3f9bbff",
+          "98dcc4f0-e40a-f14c-46c1-2d954cf143e1",
+          "f4d74111-abb6-eb25-7d50-aeacf0e8d635",
+          "b8adf319-7ed9-898c-ec8f-307409ebb1c8",
+          "d352355c-7d72-b5de-a418-1c025fe2f753",
+          "ae21cc49-df42-833e-ba86-9a48acd2e8eb",
+          "264f9648-4800-9607-6b60-9267d01dc579",
+          "88fa1ae5-5ccf-5ed5-0764-299d1482a858",
+          "fdf3fe09-ccd6-9e5b-55a7-3125812c3e6b",
+          "2009ebe1-092d-b689-08d6-002551433116",
+          "06abc2f9-efc8-3652-67aa-7ede3e1d0ef3",
+          "ed35866b-0534-5e8c-543d-6156ba68044b"
+        ],
+        "anchored_evidence_ids": [
+          "EV-001",
+          "EV-006"
+        ],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "mean_ratio 0.2462 与 Status/Date 缺失率，判 RED"
+      },
+      {
+        "criterion_id": "TC-3",
+        "band": "supported",
+        "basis_refs": [
+          "B2"
+        ],
+        "anchored_fact_ids": [
+          "dabe05b7-c213-217f-d9f5-5fa1766414ec",
+          "a315c0a0-a568-b76f-535a-7905c672e12f"
+        ],
+        "anchored_evidence_ids": [
+          "EV-003",
+          "EV-008"
+        ],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "最低覆盖率 0.6000（CONTEXT.md），判 AMBER"
+      },
+      {
+        "criterion_id": "NC-1",
+        "band": "supported",
+        "basis_refs": [
+          "B4"
+        ],
+        "anchored_fact_ids": [
+          "1ddb991f-eac0-6d54-38f9-b2cd71127c6e"
+        ],
+        "anchored_evidence_ids": [
+          "EV-009"
+        ],
+        "decided_at": "2026-09-13T14:31:09+08:00",
+        "rationale": "负对照选材 engine/src/fact/schema.ts 五件套 0 命中、supersede 0 命中、fact_count = 11"
+      }
+    ],
+    "human": {
+      "status": "pending",
+      "adjudicator": "user",
+      "text": null,
+      "decided_at": null
+    }
+  },
+  "outputs": {
+    "happy_md": ".scratch/architecture-recovery/reports/23-first-report.md",
+    "happy_sidecar": ".scratch/architecture-recovery/reports/23-first-report.json",
+    "failure_md": ".scratch/architecture-recovery/reports/23-first-report-failure.md",
+    "failure_sidecar": ".scratch/architecture-recovery/reports/23-first-report-failure.json",
+    "facts_jsonl": ".scratch/architecture-recovery/reports/23-facts.jsonl",
+    "facts_insert_sql": ".scratch/architecture-recovery/reports/23-facts-insert.sql",
+    "measurements": ".scratch/architecture-recovery/reports/23-measurements.json",
+    "fixtures": ".scratch/architecture-recovery/reports/23-fixtures.json"
+  }
+}

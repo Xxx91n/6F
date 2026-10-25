@@ -1,0 +1,30 @@
+{
+  "repo": "jiahao",
+  "owner": "Xxx91n",
+  "observed_at": "2026-09-16T22:42:33.409Z",
+  "head_sha": "a5b10d58ba7888fbbdf91c081bbb42767f136426",
+  "strategy": "gh-token",
+  "degraded": false,
+  "calls": 2,
+  "prs_listed": 7,
+  "merged_prs": 7,
+  "eligible": true,
+  "stopped_reason": null,
+  "fact_count": 13,
+  "per_pr": [
+    {
+      "n": 6,
+      "form_expected": "human",
+      "form_actual": "human",
+      "form_match": true,
+      "merged": true,
+      "overall": "supported",
+      "receipt": "RCP-967747d62c8f8b50",
+      "diff_channel": "local-git",
+      "diff_artifact": "48-micro-a-jiahao-pr6.diff",
+      "diff_bytes": 50628,
+      "skeleton_ok": true,
+      "skeleton_missing": []
+    }
+  ]
+}

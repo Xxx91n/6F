@@ -1,0 +1,103 @@
+// 41b-check.mjs — #41b listing 资产核对留痕守卫（D-051/D-052/D-042 / A-060）
+// 断言面：A 三 manifest 字段值 = D-052 拍板值 → B license=Apache-2.0 全链一致
+//   → C capability 口径 = README 单一事实源（1-3 of 5 preview）→ D 诚实披露/闸门 → E 文档 → F BOM
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import { stripComments, detectDangerousRegexForms } from './_lib/check-kit.mjs';
+// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+const TIER = 'portable';
+const PROTECTED_SURFACE = '#41b listing 资产核对留痕守卫（D-051/D-052/D-042 / A-060）';
+
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const REPO = join(HERE, '..', '..', '..');
+
+let pass = 0, fail = 0;
+function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
+function txt(p) { return readFileSync(p, 'utf8'); }
+function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
+function json(p) { return JSON.parse(txt(p)); }
+
+const pj = json(join(REPO, 'engine', 'plugin.json'));
+const cc = json(join(REPO, 'engine', '.claude-plugin', 'plugin.json'));
+const mk = json(join(REPO, '.claude-plugin', 'marketplace.json'));
+const mcp = json(join(REPO, 'engine', '.mcp.json'));
+const pk = json(join(REPO, 'engine', 'package.json'));
+
+// ---------- A. D-052 字段值 ----------
+t('A1 engine/plugin.json name=6f', pj.name === '6f');
+t('A2 plugin.json author 三件 = D-052 值', pj.author && pj.author.name === 'Xxx91n' && pj.author.email === 'xxx91n@duck.com' && pj.author.url === 'https://github.com/Xxx91n');
+t('A3 plugin.json homepage/repository = Xxx91n/6F', pj.homepage === 'https://github.com/Xxx91n/6F' && pj.repository === 'https://github.com/Xxx91n/6F');
+const mcpSrv = mcp.mcpServers && mcp.mcpServers['macro-audit-kernel'];
+t('A4 .claude-plugin/plugin.json name=6f + skills 路径形＋.mcp.json 自动发现位（node+${CLAUDE_PLUGIN_ROOT} 自包含，#59/D-067）', cc.name === '6f' && Array.isArray(cc.skills) && cc.skills.includes('./skills/macro-audit') && mcpSrv && mcpSrv.command === 'node' && Array.isArray(mcpSrv.args) && mcpSrv.args[0] === '${CLAUDE_PLUGIN_ROOT}/dist/cli.js' && mcpSrv.args[1] === 'mcp');
+t('A5 marketplace.json name=xxx91n + plugins[0].name=6f source=./engine strict', mk.name === 'xxx91n' && mk.plugins && mk.plugins[0] && mk.plugins[0].name === '6f' && mk.plugins[0].source === './engine' && mk.plugins[0].strict === true);
+t('A6 marketplace owner = D-052 值', mk.owner && mk.owner.name === 'Xxx91n' && mk.owner.email === 'xxx91n@duck.com');
+t('A7 插件名 6f 合法（2 字符小写字母数字首尾）', /^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(pj.name) && pj.name.length >= 2);
+
+
+// ---------- A+. #58/D-066 manifest 契约链扩（34-check G15~G17 同族断言） ----------
+const schema58 = json(join(REPO,'engine','test','fixtures','contracts','58-claude-code-plugin-manifest.schema.json'));
+const wl58 = Object.keys(schema58.properties || {}).concat(['$schema']);
+const ccKeys58 = Object.keys(cc);
+const ccUnk58 = ccKeys58.filter(function (k) { return wl58.indexOf(k) < 0; });
+const skillPath58 = function (s) { return typeof s === 'string' && s.indexOf('./') === 0; };
+t('A8 两份 plugin.json skills 值 ^\./ 路径形（裸名 fail）', (!('skills' in pj) || (Array.isArray(pj.skills) && pj.skills.every(skillPath58))) && Array.isArray(cc.skills) && cc.skills.every(skillPath58), 'cc.skills=' + JSON.stringify(cc.skills));
+t('A9 claude manifest 无 mcp 裸字段（事故②钉死 FAIL；白名单=SchemaStore props∪$schema）', ccKeys58.indexOf('mcp') < 0, 'unknown=' + ccUnk58.join(','));
+if (ccUnk58.filter(function (k) { return k !== 'mcp'; }).length > 0) { console.log('WARN A9w unknown-field（白名单外字段——勿照搬 fatal 口径，与 34-check G16c 同源）: ' + ccUnk58.join(',')); }
+t('A10 单一 .mcp.json 自动发现位＋无兄弟 mcp.json 同位遮蔽（cursor#252 教训）', existsSync(join(REPO, 'engine', '.mcp.json')) && !existsSync(join(REPO, 'engine', 'mcp.json')));
+
+// ---------- B. license=Apache-2.0 全链 ----------
+const lic = txt(join(REPO, 'engine', 'LICENSE'));
+t('B1 engine/LICENSE = Apache-2.0 全文（头/APPENDIX/尾）', lic.includes('Apache License') && lic.includes('Version 2.0, January 2004') && lic.includes('END OF TERMS AND CONDITIONS') && lic.includes('APPENDIX: How to apply the Apache License') && lic.trimEnd().endsWith('limitations under the License.'));
+t('B2 plugin.json license=Apache-2.0', pj.license === 'Apache-2.0');
+t('B3 cc-plugin.json license=Apache-2.0', cc.license === 'Apache-2.0');
+t('B4 marketplace plugins[0].license=Apache-2.0', mk.plugins[0].license === 'Apache-2.0');
+t('B5 package.json license=Apache-2.0', pk.license === 'Apache-2.0');
+
+// ---------- C. capability 口径 = README 单一事实源 ----------
+const rd = txt(join(REPO, 'README.md'));
+const desc = txt(join(REPO, 'docs', 'listing', 'description.md'));
+const cl = txt(join(REPO, 'docs', 'listing', 'credential-checklist.md'));
+const readmeHas4 = rd.includes('capability 4 of 5');
+t('C1 README 口径 = capability 1-4 of 5 preview（#80 步③ Micro-B 上架后口径）', readmeHas4 && rd.includes('capability 1 of 5') && rd.includes('capability 2 of 5') && rd.includes('capability 3 of 5'));
+t('C2 marketplace description 口径同步（四层在架＋capability 4 of 5＋Macro-A 未上架＋Micro-A 在册——#85② 产线化 D-204③④；R64 返修 P2-1 恒真臂换判别臂）', mk.plugins[0].description.includes('capability 4 of 5') && mk.plugins[0].description.includes('四层在架') && mk.plugins[0].description.includes('Macro-A 未上架') && mk.plugins[0].description.indexOf('Micro-A') >= 0 && mk.plugins[0].description.indexOf('calibrated demo') < 0);
+t('C3 description.md 口径同步（Micro-A preview 行＋1/2/3/4 of 5——#85② 产线化）', desc.includes('Micro-A PR diff') && desc.includes('capability 3 of 5 · preview') && !desc.includes('capability 1-4 of 5') && !desc.includes('calibrated demo'));
+t('C4 description.md license 段 = Apache-2.0（UNLICENSED 阻塞语已清）', desc.includes('`Apache-2.0`') && !desc.includes('UNLICENSED'));
+t('C5 credential-checklist §E 口径同步（Micro-A preview 口径——#85②）', cl.includes('Micro-A') && cl.indexOf('calibrated demo') < 0 && !cl.includes('capability 1-4 of 5'));
+t('C6 无残留旧收窄口径（1-3 of 5 老句＋calibrated demo 旧标注——#85② 产线化后禁旧态）', !desc.includes('1-2 of 5') && !desc.includes('capability 1-3 of 5') && !desc.includes('capability 3 of 5 · calibrated demo') && !mk.plugins[0].description.includes('capability 2 of 5') && !mk.plugins[0].description.includes('calibrated demo') && !cl.includes('1-2 of 5') && !cl.includes('capability 1-3 of 5') && !cl.includes('capability 3 of 5 · calibrated demo'));
+
+// ---------- D. 诚实披露与闸门 ----------
+t('D1 credential-checklist §C 用户专属动作未勾（提交=用户闸门）', /- \[ \] 6F 远端 push 授权确认/.test(cl) && /- \[ \] 若走路径 B：表单提交点击/.test(cl));
+t('D2 description.md 含 defaultEnabled:false 建议与 preview 披露', desc.includes('defaultEnabled:false') && /Not yet in preview/.test(desc));
+t('D4 icon.svg 在', existsSync(join(REPO, 'docs', 'listing', 'icon.svg')));
+t('D5 description.md 无截图伪造（截图挂门注记在）', desc.includes('不伪造') || desc.includes('真实 UI'));
+
+// ---------- E. 文档 ----------
+t('E5 41b-report.md 在', existsSync(join(REPO,'engine','test','fixtures','contracts','41b-report.md')));
+
+// ---------- F. BOM ----------
+const allF = [join(REPO, 'engine', 'plugin.json'), join(REPO, 'engine', '.claude-plugin', 'plugin.json'), join(REPO, '.claude-plugin', 'marketplace.json'), join(REPO, 'docs', 'listing', 'description.md'), join(REPO, 'docs', 'listing', 'credential-checklist.md'), join(HERE, '41b-check.mjs'), join(REPO,'engine','test','fixtures','contracts','41b-report.md')];
+t('F1 全部相关文件无 BOM', allF.every(function (f) { return !existsSync(f) || noBom(f); }));
+
+// ---------- G. D-213① 危险正则形态机检（zero-backslash 纪律边界成文伴生断言） ----------
+//   适用域=字符串/模板串写入语境；正则字符类内部豁免零反斜杠（[^\]]/[^\x5D] 物理必需）。
+//   两误语义形态=红：[^] 起头（否定空字符类）／否定字符类内裸 ]（提前闭合）。
+const gBad = detectDangerousRegexForms(stripComments("const r = /[^]/;"));
+t('G1 正对照：合成 [^] 否定空字符类必抓（negated-empty-class——P0-2 死正则事故形态）', gBad.some(function (h) { return h.kind === 'negated-empty-class'; }), JSON.stringify(gBad.map(function (h) { return h.kind; })));
+const gGood = detectDangerousRegexForms(stripComments("const e = /[^\\]]/; const h = /[^\\x5D]/; const n = /[^abc]/; const m = /[^=]/;"));
+t('G2 负对照：合法 [^\\]]/[^\\x5D]/普通否定类/单成员否定类不误报（正则字符类内部零反斜杠豁免——物理必需转义不中；[^a] 单成员否定类非危险形态）', gGood.length === 0, JSON.stringify(gGood.map(function (h) { return h.kind; })));
+// 同型普查（D-183 通道）：有界扫全 NN-check 断言面 regex 字面量找同型死形态，命中即红
+//   排除本件自身（G1 正对照合成串含 [^] 系探测器自指非守卫断言面）
+const gFiles = readdirSync(HERE).filter(function (f) { return /-check\.mjs$/.test(f) || f === 'xfail-run.mjs'; });
+let gCensusHits = [];
+for (const gf of gFiles) {
+  if (gf === '41b-check.mjs') continue; // 自指豁免：G1 合成正对照串非守卫断言面
+  const gs = stripComments(readFileSync(join(HERE, gf), 'utf8'));
+  for (const gh of detectDangerousRegexForms(gs)) gCensusHits.push(gf + ':' + gh.lno + ' ' + gh.kind);
+}
+t('G3 同型普查：全 NN-check 断言面零危险正则形态（命中即红——D-183 同型普查＋零命中登记；本件自指豁免已注记）', gCensusHits.length === 0, gCensusHits.slice(0, 5).join(' | '));
+
+console.log('---');
+console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));
+process.exit(fail === 0 ? 0 : 1);

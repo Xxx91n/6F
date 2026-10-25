@@ -1,0 +1,14 @@
+fact sheet for src/risky.ts
+
+[code-health]
+  score = 41.25
+  band = yellow
+
+[hotspots]
+  rank = 3
+  hotspot_score = 17.5
+
+## LLM narrative (advisory)
+This file is risky because it was copied from elsewhere and abandoned last week.
+
+advisory fixture-model-0 contains uncited claims: copied from elsewhere, abandoned last week (2 more)

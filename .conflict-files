@@ -1,0 +1,3 @@
+ancestorEntries = ["docs/spec.md"]
+ourEntries = ["docs/spec.md"]
+theirEntries = ["docs/spec.md"]

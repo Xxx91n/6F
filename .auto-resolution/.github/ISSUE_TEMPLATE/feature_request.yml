@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest a capability or improvement for macro-audit
+title: "[feat]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Capability boundaries are recorded honestly — check the README capability matrix first. Macro-B / Macro-C / Micro-A are in preview; Micro-B / Macro-A are **Not yet in preview** (roadmap, not a usable promise).
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: The audit or evaluation task you cannot do today
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: What should the plugin do? Include expected outputs if relevant.
+    validations:
+      required: true
+  - type: dropdown
+    id: scale
+    attributes:
+      label: Which audit scale does this touch?
+      options:
+        - Macro-B (repo quadrant)
+        - Macro-C (evolution archaeology)
+        - Micro-A (PR diff)
+        - Micro-B (file level — not yet in preview)
+        - Macro-A (cross-repo — not yet in preview)
+        - Not sure / cross-cutting
+    validations:
+      required: false

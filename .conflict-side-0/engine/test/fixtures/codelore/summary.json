@@ -1,0 +1,18 @@
+[
+  {
+    "metric": "commits",
+    "value": 90
+  },
+  {
+    "metric": "changes",
+    "value": 430
+  },
+  {
+    "metric": "entities",
+    "value": 681
+  },
+  {
+    "metric": "authors",
+    "value": 1
+  }
+]

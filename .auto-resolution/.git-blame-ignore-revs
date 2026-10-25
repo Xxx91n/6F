@@ -1,0 +1,16 @@
+# .git-blame-ignore-revs —— 大范围机械重缩进混入语义 commit 的事后认账登记
+#
+# 纪律来源：AGENTS.md「格式化-only／机械重缩进禁搭车语义 commit——须独立 format
+# commit 先行；大范围 reformat 登记 .git-blame-ignore-revs」（D-139/D-140②）。
+# R41 审计 F-1 呈报 → 认账登记路径（两选项①登记/豁免中采①；处置面见
+# reports/2026-09-28-r41-t1-audit-report.md §6）。
+#
+# 注意：git blame 忽略粒度=整 commit 非单文件——下列两件为混载 commit，
+# 登记后其语义行在 blame 中同样被跳过归因，请结合 commit 信息读史。
+#
+# 64f0ae74（r40-t1 B 批）：33-gate-registry.json 整文件 4sp→2sp 重缩进搭车
+#   （diff 3558 行，有效语义仅 46 行——env-gated 条目＋kr-01 confirmations）
+64f0ae74a202736a1d366ee1911f7f99756898c6
+# 6d62d16a（r40-t1 A 批）：75a-census-register.json / 75a-census-findings.json
+#   1sp→2sp 整文件重缩进搭车（register diff 8329 行，有效≈369 行=41×recheck_log）
+6d62d16afbee8dd710d760d5df1dad6319b747c2

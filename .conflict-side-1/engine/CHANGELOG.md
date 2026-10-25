@@ -1,0 +1,40 @@
+# Changelog
+
+All notable changes to this project are documented here.
+Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
+
+> 仓级里程碑/决策编年见仓根 `CHANGELOG.md`（里程碑编年指针制，本账为产品版本账唯一权威；仓根实体已于 #41a 落盘——D-039② 指针闭环）。
+
+## [Unreleased]
+
+### Changed
+- #33 Macro-C 基准语料自持（ADR-0026；同窗兑现 #32 锁表分离＋GAP-CI-01 收口）：基准钉从「同级仓 anysearch-cli 的 dangling 提交」改为「仓内 frozen bundle」——`engine/test/fixtures/frozen/anysearch-cli-770d2549.bundle`（14961055B≈14.3 MiB，HEAD=770d2549，全历史 822 提交、零 prerequisite、`git bundle verify` 自证完整），`85-check` C 组改 `git clone <bundle>` 只读物化至 OS temp（`_lib/env-contract.mjs` 新增 `cloneBundleWorktree`；主仓对象库零写，D-074），组级闸 `sibling:anysearch-cli`＋`asset:anysearch-cli/docs/adr` 摘除，只留 `engine-deps:@duckdb/node-api`（真环境面），制品内容面改红断言 `C-GATE`（list-heads 唯一项＝钉值＋**空仓** `git bundle verify`——带 prerequisite 即红，不因 duckdb 缺席降级为 SKIP），无 sibling 的机器（含 CI）C-GATE/C0/C-INV/C1~C6 实跑（无 sibling 环境实测 PASS 41/41、118s）；新建 `engine/baseline-lock.yaml` 为基准语料唯一权威（三元钉 version＋bundle_sha256＋bundle_bytes，status=active 直言已生效态，不再借 `planned` 位；字段正文单源在 docs/versioning.md §3，本表不随 tgz），`upstream-lock.yaml` 摘除 anysearch 行回归纯产品上游语义；守卫新增 A10~A13（锁表字段齐备／制品字节＋sha256 完整性／基准活跃路径无本机绝对路径／上游锁表零 anysearch 且正对照 kind 归位）；`docs/known-gaps.md` GAP-CI-01 triaged→closed；`engine/.gitattributes` 增 `*.bundle binary -text`（根 .gitattributes 的 `*.{...}` 花括号是无效语法，对 .bundle 零效果）。制品体量勘误：ADR-0026 原记「144KB」系 ADR 语料 gzip 量级误记，实测 14.3 MiB——路径限定包虽仅 53KB，但 `git clone` 传输校验要求包内连通，不可减（勘误记于该 ADR 后果段）（baseline-lock.yaml 新增＋upstream-lock.yaml diff）
+- #36 Node 支持面下限 20 → 22.18：`engines.node` 改 `>=22.18`，engine-ci 矩阵 `[20,22]`→`[22,24]`。根因=`20-fact-schema-check`/`21-collectors-check`/`43-check` 三条守卫直读 `.ts` 源做结构断言，依赖**免 flag** 的类型剥离——该能力 22.6.0 以 `--experimental-strip-types` 引入、22.18.0 才默认开启（23.6.0 同步解禁），故下限取 22.18 而非 22.6：22.6–22.17 区间仍抛 `ERR_UNKNOWN_FILE_EXTENSION`，取 22.6 只是把本缺陷缩小范围未消除。Node 20 已于 2026-04-30 EOL。同步面：README×2（badge＋安装前置＋源码自举）、`engine/README.md`、`skills/macro-audit/SKILL.md` Prerequisites、`macro-b-regression.yml` 注释口径。不保留 Node 20 的版本闸 SKIP 分支（跳过不算红会再次成为盲区）
+- #43 逾期上游复审盘点（逐行处置，禁批量刷新日期）：`engine/upstream-lock.yaml` 10 逾期行分两类收口——8 行实跑复核通过→刷新窗口（`last_reviewed` 2026-10-25／`next_review` 2026-11-24＝≤30 天到期，登记日取 UTC 日——先按 +08 本地日 2026-10-26 登记被 `44-check` C3 在 CI 六腿判成「未来登记」红，勘误规则已立进 docs/versioning.md §4）＋回填 `review_evidence` 实跑读数（codelore 0.28.0 三方同值／duckdb-node-api＋bindings 1.5.5-r.5 含 duckdb.dll 36,724,520B 完整性面／git 2.56.0 `%cI` 实物经 normalizeGitIsoDate 归一／github-rest `2022-11-28` api-version 常量同源／esbuild 0.28.2／SchemaStore 快照独立重算 sha256==digest pin／claude 2.1.251）；2 行无实跑面→写 `review_deferred`（原因＋重核触发）并**保留原逾期日期**（openssf-scorecard=planned 无 pin 无制品可跑、codelore-sqlite-dump=首轮评估产物已随 .scratch 收敛出仓）。pin 版本零改动（手动窗口外禁改 pin，AC3 由 `git diff` version/pin_type 行计数=0 自证）。同步面：`docs/upstream-dimension-map.md` 复审字段＋§⑤ 逐行结论（v1.0 映射面零改动，接线票未立）与 `engine/src/audit/upstream-dimension-map.ts` 常量同源（71-check A1 漂移失配即 FAIL）、registry `upstream-probes-scorecard-repomix` 追加 `deferred-no-runtime-surface` 留痕。守卫：44-check C5 由 10 行逾期收敛至 2 行（advisory 段不转 enforce，仍逐行点名）（upstream-lock.yaml diff）
+
+## [0.2.0] - 2026-10-05
+
+### Changed
+- 产品版本 0.1.0 → 0.2.0（docs/versioning.md §1：minor=契约变更——#84 Macro-C＋#85② Micro-A 两批产线化契约变更合并追补；R64 审计返修 P3-2 裁定补办，preview tag 随 push 授权窗补挂）
+- #85② Micro-A 产线化一等面（D-204③④；产线化前置=同族基准差分重校准）：`48-micro-a-preview.mjs` 移植 `audit --scale Micro-A`（`src/audit/micro-a.ts` §0~§10 逐段保真——input gate 结构化拒绝 MICRO-A-INPUT/SCOPE＋托管面资格闸＋判据 PC-1/TC-1~4/NC-1＋拒绝件 D-033＋fact-write.ts 共享核零 commit grain）；`implemented=[Macro-B,Macro-C,Micro-A]`＋`not_in_preview=[Macro-A]`；85-check E 组差分重校准（引擎面 cassette 回放 vs 48 生成器 golden——fact_id 全等）；`micro-a.test` 22/22 入 smoke；`not_in_preview` 全家翻转（macro-c/demo/demo golden）；dist/cli.js 373,105B（棘轮帽 385,000B 内——headroom 3.1% 触发 dist-ratchet-headroom-low，重评票 #90）
+- #59 kernel 自包含分发（D-067/D-038/A-069）：插件根 `.mcp.json` 契约 bare `macro-audit`+PATH → `node`＋`args:["${CLAUDE_PLUGIN_ROOT}/dist/cli.js","mcp"]`（变量放 args 不放 command；gen-manifests 单源生成；`mcp.json` 兄弟文件保留 npm 消费者面 bare 不动）；`engine/dist/` 40 件随源进仓（`.gitignore` 放开 dist/；`dist/cli.js`=esbuild 0.28.2 单文件 bundle 153,604B，build=tsc+`scripts/build-bundle.mjs`）；`src/fact/store.ts` duckdb 改懒加载降级（git-clone 无 node_modules 时握手/selftest/repo-add 零依赖可用，facts/audit/demo 报 `DUCKDB-UNAVAILABLE` 结构化错非崩溃）；`src/demo/demo.ts` fixtures 锚 `metaPath()`（bundle/tsc 两形态同构）；engine-ci.yml rebuild-diff 守卫（`git status --porcelain -- dist/` 非空即红）＋`npm ci`＋`permissions: contents: read`＋paths 含自身；锁表新增 `esbuild` 行（kind=node-lib，active/exact-version 0.28.2——upstream-lock.yaml diff）
+- upstream-lock repomix-gitingest planned→retired（D-056：宿主 agent 恒在抽空打包用途；retired 行留档＋重开触发器 registry repomix-reopen-trigger）
+- 插件对外名 macro-audit → `6f`（D-052；双 manifest 由 manifest.meta.json 单源再生成）；license UNLICENSED → Apache-2.0（D-051；出站 license=Apache-2.0，LICENSE 换文）
+
+### Added
+- #50 叙事双轨落地（D-053/D-057④/A-057）：`src/report/narrative.ts`（sealNarrative 三态盖章 sealed/sealed-with-gaps/rejected＋BAND_PATTERNS band 红线机检＋model_id 必录＋renderTemplateNarrative degraded 兜底）＋`src/fact/projection.ts`＋cli `mcp facts` 只读投影（固定 SELECT 形/READ_ONLY 实例/参数绑定/limit≤500——宿主 agent 叙事面取数主路）＋generate.ts 叙事段接入（narrative_sections→C2 渲染＋侧车＋degradeReport 模板注入）＋skills/macro-audit/references/ 三件＋SKILL.md 加载条件节；test/narrative.test.mjs 25 断言入 smoke；R2-Q7 违规 #4（frontmatter）/#5（rubric 产物缺）闭环
+- manifest author/homepage/repository 字段（D-052；gen-manifests 透传扩展）；upstream-lock github-rest planned 行（kind=remote-api，D-048/#47）
+- #47 托管平台 API 适配器（D-048；GitHub REST+env token 主路，A-055）：`src/upstream/github-rest.ts`——GitHub REST 直连主路＋`X-GitHub-Api-Version` pin（2022-11-28）＋凭据三级探测（`GITHUB_TOKEN` env → gh 已认证态只读借读 → 无认证 60/hr 显式降级，即用即清不建存储）＋PR 枚举/元数据/diff 双通道（本地 git `base...head` 优先，REST diff 兜底）＋`x-ratelimit-*`+`Retry-After` 有界退避触顶即停＋余额写事实库；golden cassette×5 离线回放（authenticated/无认证降级=env-manager 实录制；限流耗尽=按官方语义合成；schema 漂移/平台 Bot=实录制派生）；锁表 `github-rest` planned→active（upstream-lock.yaml）
+- `upstream-lock.yaml` 机读权威上游锁定表（D-037③ / 版本与编年制度 §D-1 / docs/versioning.md §3；#44/A-049）：种子行 codelore=active exact-version 0.28.0＋`--version` pin 契约／duckdb-node-api=active（package-lock 精确锁定）／git-cli=active（随宿主环境·输出解析为契约）／openssf-scorecard·repomix-gitingest=planned／codelore-sqlite-dump=evaluating（risk_note）；禁 range/浮动 tag/latest，retired 行不删，更新走手动窗口＋golden 回归
+- #80 步③ 文件级卡血缘缝合落地（D-137/A-095）：`src/fact/file-card.ts` file.renamed 边池反向多跳显式图遍历＋环检测＋64 名祖先硬帽（`resolveLineageAncestors`）→旧名 era 事实并入新名卡（`lineage` 账本块披露 stitched_from/edges/cycle_detected/truncated；facet_rows 行级 `subject_ref` 溯源键）；`src/fact/projection.ts` 跨观测集血缘解析（边池=选中集∪祖先观测集 file.renamed 行，observed_at 序沿 at:sha 引用层纪律）＋`FILE_CARD_LINEAGE_EDGE_CAP` 硬帽；`scripts/bench-file-card.mjs` p95 分档 benchmark（target/danger 双阈值机器可裁决，阈值预登记票面=.scratch/macro-audit/reports/80-bench-thresholds.md）；peer 分布被取代旧名去重（同一文件新旧名只计新名）。披露同步：能力矩阵 Micro-B→capability 4 of 5 · preview（试点集=jiahao＋env-manager 双仓实跑），audit/demo `not_in_preview` 去 Micro-B
+
+### Fixed
+- 轮 14 审计返工（A-064）：A1 degradeReport 模板叙事改引降级后对象（原输出「降级原因：未声明」与真值并存）；A2 buildReport degraded:true 直建路径补模板注入（D-053① 通用兜底）；A3 裸 `mcp` 实现最小 JSON-RPC 2.0 stdio 握手（initialize/tools/list/tools/call，NDJSON 行帧——mcp.json 注册面名实相符）；A4 package-lock 根 license UNLICENSED→Apache-2.0；C1 引文核验抽入 citation.ts 破 generate↔narrative 循环 import；C5 已盖章宿主叙事降级后不丢弃（重盖章留痕）；C6/C7 CLI 严格参数面（NaN limit 闸/未知 flag 拒/裸 mcp 子命令显式）
+
+## [0.1.0] - 2026-09-12
+### Added
+- Walking skeleton: Agent Plugin 五层盒子（plugin.json / mcp.json / skills / extensions / kernel CLI）
+- 双 manifest 单一元数据源生成（manifest.meta.json -> plugin.json + .claude-plugin/plugin.json），含防漂移校验（先比后写）
+- kernel CLI（--version / selftest / mcp stub / --help）
+- smoke 测活测试 + CI matrix（ubuntu/windows/macos × node 20/22），workflow 位于仓根（paths: engine/**）
+- provenance：LICENSE / CHANGELOG / PROVENANCE.md

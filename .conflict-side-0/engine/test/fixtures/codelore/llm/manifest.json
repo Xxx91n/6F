@@ -1,0 +1,23 @@
+{
+  "codelore_version": "0.28.0",
+  "pinned_version": "0.28.0",
+  "synthetic": true,
+  "note": "synthetic cassette——真实 --llm 输出需 LLM 端点（CODELORE_LLM_* 环境族），本仓无真实输出可录；结构依据 0.28.0 二进制字符串（\"## LLM narrative (advisory)\" 段标 + advisory stamp 行）与 explain/diff --help 实物（36-probe 存档）。两形态 golden：gate-off=llm_gated 披露（runner 零调用）；gate-on=注入 runner 回放本件。",
+  "files": {
+    "explain-llm-golden.txt": {
+      "file": "explain-llm-golden.txt",
+      "sha256": "6c222fc19a095861276c86f1b493ae2b12ab3e8342f0ccd4c4e49ad0d5dfb610",
+      "bytes": 354
+    },
+    "explain-llm-uncited.txt": {
+      "file": "explain-llm-uncited.txt",
+      "sha256": "9c350ac9d61ba3b2527da0e5201fad92d2feba85e7579f4e76828cb4dcf38036",
+      "bytes": 334
+    },
+    "diff-llm-golden.txt": {
+      "file": "diff-llm-golden.txt",
+      "sha256": "f3fba11e2a91b6c7e092fa6930c5d257daeb4040d208a761bae7988b4c85a941",
+      "bytes": 218
+    }
+  }
+}

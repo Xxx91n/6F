@@ -1,0 +1,47 @@
+{
+  "scenario": "degraded-incomplete",
+  "kind": "fixture-definition",
+  "schema_version": "1.0.0",
+  "synthetic": true,
+  "description": "降级变体二：语料不完整（2 份残缺 ADR + 无意图面文档 + 无 merge 历史）——采集域证据不完整确定性触发 GapRequest 降级产出 ⚠ unverified",
+  "generator": "fixture-generator@1.0.0",
+  "repo": {
+    "name": "fixture-degraded-incomplete",
+    "default_branch": "main",
+    "steps": [
+      {
+        "type": "commit",
+        "date": "2026-01-05T09:00:00+00:00",
+        "message": "init: sparse fixture base",
+        "files": [
+          { "path": "package.json", "content": "{\n  \"name\": \"fixture-degraded-incomplete\",\n  \"version\": \"0.0.1\",\n  \"private\": true\n}\n" },
+          { "path": "src/app.ts", "content": "export function main(): string {\n  return 'synthetic fixture incomplete';\n}\n" },
+          { "path": "docs/notes.md", "content": "# Notes\n\nincomplete synthetic fixture notes.\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-02-02T10:00:00+00:00",
+        "message": "adr 001: partial record",
+        "files": [
+          { "path": "docs/adr/001-partial-record.md", "content": "# ADR-0001: partial record\n\n- Status: accepted\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context; date header intentionally absent (incomplete corpus).\n\n## Decision\n\nsynthetic fixture decision recorded partially.\n" }
+        ]
+      },
+      {
+        "type": "commit",
+        "date": "2026-03-02T10:00:00+00:00",
+        "message": "adr 002: thin record",
+        "files": [
+          { "path": "docs/adr/002-thin-record.md", "content": "# ADR-0002: thin record\n\n- Deciders: fixture-bot\n- Ledger: D-000\n\n## Context\n\nsynthetic fixture context; status and date headers intentionally absent.\n\n## Decision\n\nsynthetic fixture decision recorded thin.\n\n## Consequences\n\nsynthetic fixture consequences recorded partially.\n" }
+        ]
+      },
+      { "type": "branch", "name": "wip/incomplete" },
+      { "type": "tag", "name": "v0.0.1" }
+    ]
+  },
+  "failure": {
+    "trigger": "evidence-incomplete",
+    "reason": "FP-45-2 采集域证据不完整：docs/adr 语料仅 2 份且字段残缺、意图面文档缺失 → 主前提不可裁定，发起 GapRequest 降级产出"
+  },
+  "expect": { "overall_verdict": "insufficient", "degraded_mode": true, "degraded_reason_marker": "不完整" }
+}

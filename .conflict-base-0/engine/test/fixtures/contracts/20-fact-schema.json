@@ -1,0 +1,433 @@
+{
+  "ticket": 20,
+  "a_xxx": "A-021",
+  "decision": "spec.md §R3-D2",
+  "spec_ref": "R3-01 阶段 0 / R3-02",
+  "created": "2026-09-13",
+  "status": "v0-frozen",
+  "ddl_frozen": true,
+  "ddl_freeze_note": "v0 建表即声明全部 CHECK/FK。承接 A-008 教训：DuckDB 的 ALTER TABLE ADD CONSTRAINT 仅部分支持，DDL 冻结后无法补约束，故引用完整性必须在建表前一次性声明完。",
+  "engine_target": "D:/Aworker/6F/engine",
+  "node_min": 20,
+  "binding": {
+    "selected": "@duckdb/node-api",
+    "pinned_version": "1.5.5-r.4",
+    "pin_rationale": "官方主推 + 月级发布 + 2026-09-12 仍在 push + SLSA/OIDC 加固；2025-09 供应链投毒事件波及 1.3.3（已删除、1.3.4 起修复），故锁版本并校验 provenance。",
+    "exclusive": true,
+    "install_command": "npm i @duckdb/node-api@1.5.5-r.4 --save-exact",
+    "access_mode_reader": "READ_ONLY",
+    "access_mode_writer": "READ_WRITE",
+    "writer_count": 1,
+    "reader_count": "n"
+  },
+  "candidates": [
+    {
+      "id": "A",
+      "npm": "@duckdb/node-api",
+      "maintainer": "DuckDB Labs（官方，repo duckdb/duckdb-node-neo）",
+      "version": "1.5.5-r.4",
+      "released": "2026-08-11",
+      "install_size_bytes": 71564503,
+      "install_size_human": "68.2 MiB（API 包 586,386 B + linux-x64 平台二进制 70,978,117 B）",
+      "api_surface": {
+        "sync_and_async": true,
+        "prepared_statement": true,
+        "appender": true,
+        "chunk_stream_read": true,
+        "arrow": false,
+        "arrow_note": "Arrow API 仍在官方 Roadmap，未完成"
+      },
+      "maintenance": {
+        "official": true,
+        "stars": 196,
+        "last_push": "2026-09-12",
+        "release_cadence": "月级",
+        "open_issues": 37,
+        "archived": false,
+        "deprecated": false
+      },
+      "verdict": "selected"
+    },
+    {
+      "id": "B",
+      "npm": "duckdb",
+      "maintainer": "DuckDB Labs（官方旧绑定，repo duckdb/duckdb-node）",
+      "version": "1.4.4",
+      "released": "2026-01-30",
+      "install_size_bytes": 61204393,
+      "install_size_human": "58.4 MiB（61,204,393 B）",
+      "api_surface": {
+        "sync_and_async": false,
+        "prepared_statement": true,
+        "appender": false,
+        "chunk_stream_read": false,
+        "arrow": true,
+        "arrow_note": "register_buffer，带 Windows 限制"
+      },
+      "maintenance": {
+        "official": true,
+        "stars": 91,
+        "last_push": "2026-01-30",
+        "release_cadence": "已停（止步 1.4.x）",
+        "open_issues": 57,
+        "archived": false,
+        "deprecated": true
+      },
+      "verdict": "rejected",
+      "rejected_reason": "官方明文 deprecated：duckdb-node 只为 DuckDB 1.4.x 系列最后一次发布，明确不再为 1.5.x 发布。选 B 意味着永久停在 1.4.x，拿不到 1.5/2.0 新特性，且与官方文档指引直接冲突。"
+    },
+    {
+      "id": "C",
+      "npm": "duckdb-async",
+      "maintainer": "MotherDuck（motherduckdb/duckdb-async，原作者 y-- 转交）",
+      "version": "1.4.2",
+      "released": "2025-11-13",
+      "install_size_bytes": 61269180,
+      "install_size_human": "58.4 MiB（自身 64,787 B + 依赖 B 的 61,204,393 B）",
+      "api_surface": {
+        "sync_and_async": true,
+        "prepared_statement": true,
+        "appender": false,
+        "chunk_stream_read": false,
+        "arrow": true
+      },
+      "maintenance": {
+        "official": false,
+        "stars": 156,
+        "last_push": "2025-11-13",
+        "release_cadence": "随 B 同步 EOL",
+        "open_issues": null,
+        "archived": false,
+        "deprecated": false
+      },
+      "verdict": "rejected",
+      "rejected_reason": "不是独立候选项：dependencies 固定为 duckdb 1.4.2，完整继承 B 的 EOL；其唯一历史价值（给回调式 B 提供 Promise）已被 A 原生消灭；官方 Neo README 明示 no need for separate duckdb-async wrapper。"
+    },
+    {
+      "id": "D",
+      "npm": "node-duckdb",
+      "maintainer": "DeepCrawl（deepcrawl/node-duckdb）",
+      "version": "0.0.79",
+      "released": "2021-12-15",
+      "install_size_bytes": null,
+      "install_size_human": "约 0.47 MB（registry unpackedSize 抓取被截断），且 install 脚本需自编译旧源码",
+      "size_note": "该包体积小是假象：install 会 curl DuckDB 0.2.6 时代源码本地编译，真实体积与编译耗时不可比，故不给出可比的 unpacked 数值。",
+      "api_surface": {
+        "sync_and_async": false,
+        "prepared_statement": false,
+        "appender": false,
+        "chunk_stream_read": true,
+        "arrow": false
+      },
+      "maintenance": {
+        "official": false,
+        "stars": null,
+        "last_push": "2021-12-15",
+        "release_cadence": "5 年无发布",
+        "open_issues": null,
+        "archived": false,
+        "deprecated": true
+      },
+      "verdict": "rejected",
+      "rejected_reason": "技术债陷阱：绑定 DuckDB 0.2.6 时代自编译源码，5 年无发布，Node 版本目标停在 >=12.17，无法支撑 engine 的 Node 20/22 CI 矩阵，且无现代 API 面。"
+    }
+  ],
+  "rewrite_blacklist": [
+    "UPDATE",
+    "DELETE",
+    "DROP",
+    "ALTER",
+    "TRUNCATE",
+    "INSERT OR REPLACE",
+    "ON CONFLICT DO UPDATE",
+    "MERGE INTO",
+    "COPY"
+  ],
+  "statement_allowlist": [
+    "SELECT",
+    "INSERT",
+    "CREATE TABLE",
+    "ATTACH",
+    "PRAGMA",
+    "DESCRIBE",
+    "WITH"
+  ],
+  "facade_api": [
+    "appendFact",
+    "queryFacts",
+    "openReader",
+    "openWriter",
+    "closeFactStore"
+  ],
+  "tables": [
+    {
+      "name": "audit_fact",
+      "purpose": "审计事实表（SSOT）。事件只追加、不可改写；5 scale 共享读、各自投影。",
+      "append_only": true,
+      "inherits_primary": [
+        "A-007",
+        "A-008",
+        "A-010"
+      ],
+      "columns": [
+        {
+          "name": "fact_seq",
+          "type": "UBIGINT",
+          "nullable": false,
+          "role": "identity",
+          "constraints": [
+            "NOT NULL",
+            "PRIMARY KEY"
+          ],
+          "inherits": "A-007",
+          "note": "单调追加序号。A-007 单写多读决议使写者唯一，故序列可严格单调；等价 EventStoreDB expectedVersion 的乐观并发心智。"
+        },
+        {
+          "name": "fact_id",
+          "type": "VARCHAR(36)",
+          "nullable": false,
+          "role": "identity",
+          "constraints": [
+            "NOT NULL",
+            "UNIQUE"
+          ],
+          "inherits": "ADR-0005",
+          "note": "事件 UUID。ADR-0005 事件单向写入心智下每次采集一条事件。"
+        },
+        {
+          "name": "schema_version",
+          "type": "INTEGER",
+          "nullable": false,
+          "role": "governance",
+          "constraints": [
+            "NOT NULL",
+            "CHECK(schema_version >= 1)",
+            "REFERENCES schema_registry(version)"
+          ],
+          "inherits": "A-008",
+          "note": "A-008 版本演进：schema 不可改、版本号演进。FK 在建表时声明（承接 A-008 教训：DDL 冻结后 ALTER TABLE ADD CONSTRAINT 不可补）。"
+        },
+        {
+          "name": "trace_id",
+          "type": "CHAR(32)",
+          "nullable": false,
+          "role": "correlation",
+          "constraints": [
+            "NOT NULL",
+            "CHECK(regexp_matches(trace_id, '^[0-9a-f]{32}$'))"
+          ],
+          "inherits": "A-010",
+          "note": "A-010 correlation key 前置字段。W3C TraceContext trace-id，32 位小写 hex。"
+        },
+        {
+          "name": "baggage_id",
+          "type": "CHAR(32)",
+          "nullable": false,
+          "role": "correlation",
+          "constraints": [
+            "NOT NULL",
+            "CHECK(regexp_matches(baggage_id, '^[0-9a-f]{32}$'))"
+          ],
+          "inherits": "A-010",
+          "note": "A-010 correlation key 前置字段。OTel Baggage 关联键，32 位小写 hex，用于跨 5 scale 同一 commit/PR 的审计记录关联。"
+        },
+        {
+          "name": "scale",
+          "type": "VARCHAR(8)",
+          "nullable": false,
+          "role": "classification",
+          "constraints": [
+            "NOT NULL",
+            "CHECK(scale IN ('Macro-A','Macro-B','Macro-C','Micro-A','Micro-B'))"
+          ],
+          "inherits": "CONTEXT",
+          "note": "CONTEXT.md 术语 Scale：5 档枚举，禁止 tier/level。"
+        },
+        {
+          "name": "quadrant",
+          "type": "VARCHAR(16)",
+          "nullable": false,
+          "role": "classification",
+          "constraints": [
+            "NOT NULL",
+            "CHECK(quadrant IN ('structure','behavior','supply-chain','strategic'))"
+          ],
+          "inherits": "CONTEXT",
+          "note": "CONTEXT.md 术语 Strategic Quadrant：结构/行为/供应链/战略。"
+        },
+        {
+          "name": "dimension",
+          "type": "VARCHAR(2)",
+          "nullable": true,
+          "role": "classification",
+          "constraints": [
+            "NULL",
+            "CHECK(dimension IS NULL OR dimension IN ('S1','S2','S3','S4','S5'))"
+          ],
+          "inherits": "CONTEXT",
+          "note": "CONTEXT.md S1-S5 战略维。非战略象限的事实为 NULL，第五维在单人仓须降权由消费层处理，不在 schema 层表达。"
+        },
+        {
+          "name": "collector_id",
+          "type": "VARCHAR(64)",
+          "nullable": false,
+          "role": "provenance",
+          "constraints": [
+            "NOT NULL"
+          ],
+          "inherits": "R3-D3",
+          "note": "R3-D3 确定性采集器标识（adr-structure / positioning-material / git-log）。正对照与真判据共享同族 detector。"
+        },
+        {
+          "name": "repo_ref",
+          "type": "VARCHAR(256)",
+          "nullable": false,
+          "role": "provenance",
+          "constraints": [
+            "NOT NULL"
+          ],
+          "inherits": "CONTEXT",
+          "note": "CONTEXT.md 术语 Repo Intake：被审计仓库引用。"
+        },
+        {
+          "name": "subject_ref",
+          "type": "VARCHAR(512)",
+          "nullable": false,
+          "role": "provenance",
+          "constraints": [
+            "NOT NULL"
+          ],
+          "inherits": "ADR-0005",
+          "note": "事实主体（文件路径 / commit SHA / ADR 编号），SSOT 定位键。"
+        },
+        {
+          "name": "evidence_ref",
+          "type": "VARCHAR(512)",
+          "nullable": false,
+          "role": "provenance",
+          "constraints": [
+            "NOT NULL"
+          ],
+          "inherits": "CONTEXT",
+          "note": "CONTEXT.md 术语 Evidence Gate：引文锚（file:line / sha），支撑 Receipt 可核验回执。"
+        },
+        {
+          "name": "metric",
+          "type": "VARCHAR(128)",
+          "nullable": false,
+          "role": "payload",
+          "constraints": [
+            "NOT NULL"
+          ],
+          "inherits": "A-005",
+          "note": "A-005 矩阵 metric 名，跨票字段名对齐硬断言的落点。"
+        },
+        {
+          "name": "value_json",
+          "type": "VARCHAR",
+          "nullable": false,
+          "role": "payload",
+          "constraints": [
+            "NOT NULL",
+            "CHECK(json_valid(value_json))"
+          ],
+          "inherits": "A-005",
+          "note": "度量值 JSON 文本。用 VARCHAR + json_valid 而非 JSON 类型，保证 @duckdb/node-api Appender 写入路径稳定。"
+        },
+        {
+          "name": "observed_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "role": "provenance",
+          "constraints": [
+            "NOT NULL"
+          ],
+          "inherits": "R3-D3",
+          "note": "观测时刻，由采集器给定（确定性，可重放）。不设 DEFAULT。"
+        },
+        {
+          "name": "ingested_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "role": "provenance",
+          "constraints": [
+            "NOT NULL",
+            "DEFAULT current_timestamp"
+          ],
+          "inherits": "A-007",
+          "note": "入库时刻，由唯一写者权威赋值，防止调用方伪造写入时间。"
+        }
+      ]
+    },
+    {
+      "name": "schema_registry",
+      "purpose": "A-008 混合式注册中心的 DuckDB 元数据表。为使 audit_fact.schema_version 的 FK 能在 DDL 冻结前声明，v0 一并建表；事件同样只追加。",
+      "append_only": true,
+      "inherits_primary": [
+        "A-008"
+      ],
+      "columns": [
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "nullable": false,
+          "role": "identity",
+          "constraints": [
+            "NOT NULL",
+            "PRIMARY KEY",
+            "CHECK(version >= 1)"
+          ],
+          "inherits": "A-008",
+          "note": "A-008 单调序号版本语义（不装 SemVer）。"
+        },
+        {
+          "name": "change_event",
+          "type": "VARCHAR(16)",
+          "nullable": false,
+          "role": "governance",
+          "constraints": [
+            "NOT NULL",
+            "CHECK(change_event IN ('Registered','Rejected','Deprecated'))"
+          ],
+          "inherits": "A-008",
+          "note": "A-008 三变更事件。"
+        },
+        {
+          "name": "compatibility",
+          "type": "VARCHAR(24)",
+          "nullable": false,
+          "role": "governance",
+          "constraints": [
+            "NOT NULL",
+            "CHECK(compatibility IN ('BACKWARD','FORWARD','FULL','BACKWARD_TRANSITIVE','FORWARD_TRANSITIVE','FULL_TRANSITIVE','NONE'))"
+          ],
+          "inherits": "A-008",
+          "note": "A-008 写侧闸门：BACKWARD_TRANSITIVE 为默认。"
+        },
+        {
+          "name": "description",
+          "type": "VARCHAR(512)",
+          "nullable": false,
+          "role": "payload",
+          "constraints": [
+            "NOT NULL"
+          ],
+          "inherits": "A-008",
+          "note": "变更说明。"
+        },
+        {
+          "name": "registered_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "role": "provenance",
+          "constraints": [
+            "NOT NULL",
+            "DEFAULT current_timestamp"
+          ],
+          "inherits": "A-008",
+          "note": "登记时刻。"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "scenario": "happy-path",
+  "synthetic": true,
+  "generator": "fixture-generator@1.0.0",
+  "observed_at": "2026-04-13T10:00:00Z",
+  "head_sha": "4f9b0b567d3dd47be141c10f867bbbac877c1f94",
+  "tree_sha": "d0fb585754c7f84a85bb88d41fc26063cc903aac",
+  "commit_count": 9,
+  "merge_commits": 1,
+  "branches": [
+    "feature/adr-hygiene",
+    "main"
+  ],
+  "tags": [
+    "v0.1.0"
+  ],
+  "adr_count": 6,
+  "intent_docs": [
+    "CONTEXT.md",
+    "README.md"
+  ],
+  "fact_count": 129,
+  "intake": {
+    "kind": "local",
+    "shallow": false,
+    "full_depth_verified": true,
+    "remote_config_execution": "disabled",
+    "credentials": "local-git-credential-chain",
+    "cloned": false
+  },
+  "tc1": {
+    "judgeable_n": 6,
+    "backfill_n": 0,
+    "ratio_4": "0.0000",
+    "verdict": "NOT_RED",
+    "threshold": {
+      "lag_days": 90,
+      "ratio_red": 0.2,
+      "min_n": 5
+    }
+  },
+  "tc2": {
+    "total": 6,
+    "mean_ratio_4": "1.0000",
+    "missing_counts": {
+      "Status": 0,
+      "Date": 0,
+      "Context": 0,
+      "Decision": 0,
+      "Consequences": 0
+    },
+    "missing_ratio_4": {
+      "Status": 0,
+      "Date": 0,
+      "Context": 0,
+      "Decision": 0,
+      "Consequences": 0
+    },
+    "cond_a": false,
+    "cond_b": false,
+    "verdict": "NOT_RED",
+    "threshold": {
+      "mean_red": 0.6,
+      "field_missing_red": 0.5
+    }
+  },
+  "tc3": {
+    "per_source": [
+      {
+        "path": "CONTEXT.md",
+        "hit": 20,
+        "keywords": 20,
+        "ratio_4": "1.0000"
+      },
+      {
+        "path": "README.md",
+        "hit": 9,
+        "keywords": 15,
+        "ratio_4": "0.6000"
+      }
+    ],
+    "lowest_path": "README.md",
+    "lowest_ratio_4": "0.6000",
+    "verdict": "AMBER",
+    "threshold": {
+      "red": 0.5,
+      "green": 0.7,
+      "top_n": 20
+    }
+  },
+  "nc1": {
+    "path": "package.json",
+    "fact_count": 11,
+    "five_piece_present": 0,
+    "supersede_present": false,
+    "pass": true
+  },
+  "pc1": {
+    "pass": true
+  },
+  "pc2": {
+    "pass": true,
+    "delta_days": 255
+  },
+  "failure_trigger": null,
+  "expect": {
+    "overall_verdict": "supported",
+    "degraded_mode": false
+  }
+}

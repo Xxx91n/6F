@@ -1,0 +1,22 @@
+{
+  "run_at": "2026-09-16T23:50:06.764Z",
+  "repo": "Xxx91n/env-manager",
+  "codelore_version": "0.28.0",
+  "fact_count": 4,
+  "facet_rows": 3,
+  "facet_errors": 0,
+  "rows": {
+    "hotspots": 116,
+    "coupling": 241,
+    "function_hotspots": 41
+  },
+  "criteria": {
+    "PC1": true,
+    "TC1": true,
+    "TC2": true,
+    "NC1": true
+  },
+  "verdict": "supported",
+  "min_revs_threshold": 5,
+  "hotspot_min_revisions": 5
+}

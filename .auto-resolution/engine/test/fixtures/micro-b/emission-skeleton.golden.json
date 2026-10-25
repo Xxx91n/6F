@@ -1,0 +1,159 @@
+{
+  "metrics": {
+    "upstream.resolution": 1,
+    "codelore.file_facet_row": 11,
+    "codelore.file_subject_skip": 2,
+    "codelore.facet_rows": 5,
+    "codelore.subject_case_conflict": 1,
+    "file.renamed": 1,
+    "file.lineage_scan": 1
+  },
+  "subjects": [
+    "Src/A.ts",
+    "docs/adr/x.md",
+    "docs/y.md",
+    "real/z.ts",
+    "src/UTF8-café.ts",
+    "src/a.ts",
+    "src/alpha.ts",
+    "src/beta.ts"
+  ],
+  "value_keys": {
+    "upstream.resolution": [
+      "binary",
+      "error",
+      "pinned",
+      "pinned_version",
+      "strategy",
+      "version"
+    ],
+    "codelore.file_facet_row": [
+      "analysis",
+      "entity",
+      "group",
+      "path",
+      "peer",
+      "role",
+      "row",
+      "via"
+    ],
+    "codelore.file_subject_skip": [
+      "analysis",
+      "group",
+      "raw_path",
+      "reason"
+    ],
+    "codelore.facet_rows": [
+      "analysis",
+      "columns",
+      "format",
+      "group",
+      "per_file_emitted",
+      "role",
+      "row_count",
+      "rows"
+    ],
+    "codelore.subject_case_conflict": [
+      "host_platform",
+      "note",
+      "pairs"
+    ],
+    "file.renamed": [
+      "commit_sha",
+      "detector_version",
+      "from",
+      "git_version",
+      "head_sha",
+      "similarity",
+      "threshold",
+      "to"
+    ],
+    "file.lineage_scan": [
+      "commits_with_renames",
+      "detector_version",
+      "edges",
+      "git_version",
+      "head_sha",
+      "skipped",
+      "threshold"
+    ]
+  },
+  "roles": {
+    "codelore.file_facet_row": "first_class",
+    "codelore.facet_rows": "raw_evidence"
+  },
+  "skips": [
+    {
+      "raw_path": "docs/../evil.md",
+      "reason": "dotdot-segment"
+    },
+    {
+      "raw_path": "link/dangling.ts",
+      "reason": "non-regular-path"
+    }
+  ],
+  "conflicts": [
+    [
+      "Src/A.ts",
+      "src/a.ts"
+    ]
+  ],
+  "reconciliation": {
+    "match": true,
+    "per_analysis": {
+      "hotspots": {
+        "file_bearing": 9,
+        "skipped": 2,
+        "per_file": 7,
+        "match": true
+      },
+      "coupling": {
+        "file_bearing": 1,
+        "skipped": 0,
+        "per_file": 1,
+        "match": true
+      },
+      "function-hotspots": {
+        "file_bearing": 1,
+        "skipped": 0,
+        "per_file": 1,
+        "match": true
+      },
+      "revisions": {
+        "file_bearing": 1,
+        "skipped": 0,
+        "per_file": 1,
+        "match": true
+      },
+      "lead-time": {
+        "file_bearing": 0,
+        "skipped": 0,
+        "per_file": 0,
+        "match": true
+      }
+    }
+  },
+  "lineage": {
+    "edges": 1,
+    "payload_keys": [
+      "commit_sha",
+      "detector_version",
+      "from",
+      "git_version",
+      "head_sha",
+      "similarity",
+      "threshold",
+      "to"
+    ],
+    "scan": {
+      "edges": 1,
+      "threshold": "50%",
+      "detector_version": "rename-detector@v1"
+    }
+  },
+  "fact_scale": {
+    "file_facet_row": true,
+    "file_renamed": true,
+    "aggregate_kept_macro_b": true
+  }
+}

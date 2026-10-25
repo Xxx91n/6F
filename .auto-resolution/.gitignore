@@ -1,0 +1,12 @@
+# duckdb 写句柄残留——守卫一律 openReader 后不再产出；.tmp 为防御位
+*.duckdb.wal
+*.duckdb.tmp
+
+# 会话级脚手架（node20 便携件/守卫输出/调试点副本）——非产物面
+.code-tmp/
+
+# atomcode 调研工件（研究进程本地落盘——用户主权面，永久豁免不入库；D-220① 立法）
+.atomcode/
+
+# 本地一次性治理/守卫产物（golden-ci 也会在 frozen worktree 里落 .scratch）
+.scratch/

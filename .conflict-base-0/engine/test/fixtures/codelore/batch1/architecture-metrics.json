@@ -1,0 +1,74 @@
+[
+  {
+    "metric": "propagation_cost",
+    "value": "0.0247"
+  },
+  {
+    "metric": "acd",
+    "value": "1.19"
+  },
+  {
+    "metric": "nccd",
+    "value": "0.25"
+  },
+  {
+    "metric": "dependency_cycles",
+    "value": "0"
+  },
+  {
+    "metric": "largest_cycle",
+    "value": "0"
+  },
+  {
+    "metric": "files",
+    "value": "48"
+  },
+  {
+    "metric": "architecture_type",
+    "value": "hierarchical"
+  },
+  {
+    "metric": "import_resolution_rate",
+    "value": "0.0662"
+  },
+  {
+    "metric": "first_party_import_share",
+    "value": "0.0662"
+  },
+  {
+    "metric": "resolution_rate_first_party",
+    "value": "1.0000"
+  },
+  {
+    "metric": "wildcard_import_share",
+    "value": "0.0000"
+  },
+  {
+    "metric": "corpus_percentile:propagation_cost",
+    "value": "0.51"
+  },
+  {
+    "metric": "corpus_percentile:propagation_cost:ci_low",
+    "value": "0.41"
+  },
+  {
+    "metric": "corpus_percentile:propagation_cost:ci_high",
+    "value": "0.60"
+  },
+  {
+    "metric": "corpus_percentile:cycle_file_share",
+    "value": "0.05"
+  },
+  {
+    "metric": "corpus_percentile:cycle_file_share:ci_low",
+    "value": "0.02"
+  },
+  {
+    "metric": "corpus_percentile:cycle_file_share:ci_high",
+    "value": "0.11"
+  },
+  {
+    "metric": "corpus_n",
+    "value": "99"
+  }
+]

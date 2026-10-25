@@ -1,0 +1,19 @@
+fact sheet for engine/src/cli.ts
+
+[code-health]
+  score = 98.989899
+  band = green
+  structural_risk = 0
+  percentile = 0
+  corpus_percentile = 0.972
+  corpus_percentile_ci = 0.971647–0.972348
+  cognitive = 7
+
+[hotspots]
+  rank = 286
+  hotspot_score = 0
+
+[ownership]
+  main_author = iz0ms@Euiop1.oi
+  total_revs = 1
+  fractal_value = 0
