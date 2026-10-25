@@ -1,8 +1,8 @@
 import type { CollectorDescriptor, CollectedFact } from '../collect/collectors.js';
 export declare const UPSTREAM_DIMENSION_MAP_VERSION = "v1.0";
 export declare const UPSTREAM_DIMENSION_MAP_REVIEW: {
-    readonly last_reviewed: "2026-09-19";
-    readonly next_review: "2026-10-19";
+    readonly last_reviewed: "2026-10-26";
+    readonly next_review: "2026-11-25";
 };
 export type UpstreamDimension = 'S3' | 'S4' | 'S5';
 export type UpstreamLane = 'Micro-A' | 'Macro-B-QuadrantEntry' | 'deferred' | 'excluded' | 'pending-event_bound';
