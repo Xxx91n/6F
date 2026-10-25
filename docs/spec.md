@@ -431,3 +431,70 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 - CodeLore 残余 4 面裁决清零：entity-effort→后续批次，architecture-violations/defect-validation/finding-hotspot-overlap→暂缓面集（逐项判据＋复审时点）；
 - Macro-B 回归 CI 迁回 6F 自有 CI（URL opt-in 公仓 clone，零 token），jiahao 仅留审计对象角色；
 - Micro-A preview 试点集 = {env-manager, jiahao}＋经典公开仓第三槽（挂托管 API 适配器前置）。
+
+---
+
+## R8 — 2026-09-16 之后的产品级决策（2026-10-26 治理轮补记，tracker #41）
+
+> 本段由治理票 tracker #41 追加，记录 R7 之后的产品级决策；架构级细节只在 `docs/adr/`（如 ADR-0017 / 0020 / 0023 / 0026 / 0027），本段不复制正文。
+> 来源指针 = ADR / issue（一律写 `tracker #N`，指 GitHub 现行 tracker）/ commit / 现行文件；本段不新增 D-code。
+> 编号只在本文件内有效：退役 `spec-phase-tasks.md`（已移出版本控制，见 git 历史）的 R8-01 ~ R8-04 是历史指纹，不指本段。
+> 本段为文末追加：R1–R7 字节零动。
+
+### R8-1 — Macro-C 产线化（capability 2 of 5 · preview）
+
+- **决策**：Macro-C 从退役脚本管线移植为 `audit --scale Macro-C` 一等面；产线化前置 = 同族基准差分重校准（85-check C 组值级全等），未通过不进 preview。
+- **事实发射**：与 Micro-B 文件卡共享同一发射核（同 grain、同恒等式），不另起一套 fact 写法。
+- **校准披露**：校准语料 = anysearch-cli 单仓；单仓校准的结构性限制必须在报告披露（承 R5-D7）。
+- **基准**：基准语料自持为仓内 frozen bundle ＋ 独立 `baseline-lock`（ADR-0026）；落地由 tracker #33 / tracker #32 / tracker #34 承担——本段记录决策，不把未落地面写成已落地。
+- **来源**：commit `10252bc0`（产线化）、commit `6626d08d`（基准钉改为不可变提交）、`engine/src/audit/macro-c.ts`、`engine/CHANGELOG.md` §0.2.0、ADR-0026。
+
+### R8-2 — Micro-A 产线化（capability 3 of 5 · preview）
+
+- **决策**：Micro-A 从 48 管线移植为 `audit --scale Micro-A` 一等面（仓内生成器 `engine/test/contracts/48-micro-a-preview.mjs`）；产线化前置 = 同族基准差分重校准（85-check E 组：引擎面 cassette 回放 vs 48 生成器 golden，fact_id 值级等值）。
+- **输入契约**：只接受 GitHub 托管仓 ref；本地路径与名册外仓结构化拒绝（`MICRO-A-INPUT` / `MICRO-A-SCOPE`，exit 2），不静默降级。
+- **试点校准**：同主双仓 env-manager + jiahao 的 4 条 merged PR 钉（release-please / 声明式 bot / human 三种形态）；PR 粒度不产生 commit grain；数据面主路 = 托管 API 适配器（GitHub REST＋凭据三级探测，无认证显式降级；架构见 ADR-0020）。
+- **来源**：commits `29c31fba`（产线化）、`2066d412`（preview 翻转）、`engine/src/audit/micro-a.ts`、`engine/CHANGELOG.md` §0.2.0、ADR-0020。
+
+### R8-3 — Micro-B 文件卡（capability 4 of 5 · preview）
+
+- **决策**：Micro-B 的 preview 形态 = 文件级审计卡（file-audit card，只读投影），不是 verdict 面：卡面显式 `advisory: true`，无 verdict / gate-consumable 字段；advisory 卡永不进入 gate。
+- **试点与披露**：试点集 = 同主双仓 jiahao + env-manager；同主偏差与 advisory-only 结构性隔离必须在矩阵与报告披露。
+- **入口**：`audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]`（lazy 补采唯一写入口，MCP 面永不写）；`audit --scale Micro-B` 不实装，返回结构化 `SCALE-NOT-IMPLEMENTED` + exit 2。卡契约（三层卡、miss 四类、血缘缝合规约）见 ADR-0023，本段不复制。
+- **来源**：commits `652ebc9d`（文件卡投影）、`81a3ef87`（血缘缝合＋preview 翻转）、`engine/src/fact/file-card.ts`、`engine/src/audit/file-card.ts`、`engine/CHANGELOG.md` §0.2.0、ADR-0023。
+
+### R8-4 — 能力矩阵状态（五层全计划，逐层 preview→GA）
+
+- **决策**：五档是完整计划，不是 MVP 切片；build-scope ≠ release-sequence，每层独立走 preview→GA 漏斗（ADR-0017）。报告 `preview_disclosure` 与能力矩阵同语义源；矩阵是发布状态的人读展示面。
+- **状态快照（0.2.0 发布面）**：Macro-B = `capability 1 of 5 · preview`（象限切片：strategy active／behavior preview／structure preview／supply-chain queued）；Macro-C = 2 of 5 preview（单仓校准披露）；Micro-A = 3 of 5 preview；Micro-B = 4 of 5 preview（advisory-only）；Macro-A = Not yet in preview（roadmap 叙事，不是可用承诺）。当前值以矩阵为准，本段记录分层决策。
+- **命令面**：已上架 `--scale` = Macro-B / Macro-C / Micro-A；未实装层不假装（`SCALE-NOT-IMPLEMENTED` + exit 2）。Micro-B 走文件卡入口（R8-3），不是第四种 `--scale`。
+- **层序**：扩面 → Macro-C → Micro-A → Micro-B → Macro-A 的 preview 推进顺序不变（承 R5 阶段 3 骨架）。
+- **来源**：`README.md` / `README.zh-CN.md` §Capability matrix、`engine/src/audit/audit.ts`（`AUDIT_SCALES_IMPLEMENTED`）、commits `2066d412` / `81a3ef87`、ADR-0017、GLOSSARY（Release Preview / Generalization Gate）。
+
+### R8-5 — 0.2.0 → 0.3.0 的支持面变化
+
+- **决策**：产品版本升到 0.3.0（不是 0.2.1）——支持面是用户可见契约，不能用 patch 藏掉（`docs/versioning.md` §1：minor = 契约变更；版本纪律见 ADR-0018）。
+- **Node 支持面**：下限从 ≥20 提到 ≥22.6（三条守卫直接 import `.ts`，需要类型剥离）；engine-ci 矩阵从 Node 20/22 改为 [22, 24]（三 OS 六腿）；不保留 Node 20 的 SKIP 分支，不宣称已 EOL 的版本（Node 20 于 2026-04-30 EOL）。
+- **同步面**：`engines.node`、CI 矩阵、版本号（package / manifest / 双 plugin.json / README 徽章）、README×2、engine/README、SKILL.md 的 Prerequisites 必须同源一致。落地票 = tracker #36（Node 面）＋ tracker #45（版本与文本）；本段只记决策，落地前 HEAD 上仍可见旧版本号与 ≥20 属待清偿文本，不是第二口径。
+- **来源**：ADR-0027、父票 tracker #38（Node 支持面 / 版本 0.3.0）、`docs/versioning.md` §1、ADR-0018。
+
+### R8-6 — preview 披露规则
+
+- **决策**：preview 标注是决策本体，不是装饰。报告头/侧车必须携带 `preview_disclosure` 四字段：`capability_label` / `calibration_scope` / `structural_limitations` / `not_in_preview`；报告头另带 `stability: preview` + `capabilities: [...]`。披露块与能力矩阵同语义源，禁止两处手抄（`docs/versioning.md` §2）。
+- **三印记**：降级产出 `⚠ unverified`；未接证据域「⚠ 数据未接」；合成 fixture `synthetic`。三者不得互相冒充，也不得冒充真实审计。
+- **未上架层**：分发面统一标 "Not yet in preview"；锁表 `planned` 行不得被读成已接入。
+- **来源**：`engine/src/report/generate.ts`（`PreviewDisclosure` / `stability` / `capabilities`）、`engine/src/audit/audit.ts`、README §Capability matrix + §Honesty notes、`docs/versioning.md` §2、ADR-0017、GLOSSARY（Release Preview / Demo Fixture）。
+
+### R8 Coverage（对账）
+
+| tracker #41 决策项 | 覆盖的 R8 Decision |
+|---|---|
+| Macro-C 产线化 | R8-1 |
+| Micro-A 产线化 | R8-2 |
+| Micro-B 文件卡 | R8-3 |
+| 能力矩阵状态 | R8-4 |
+| 0.2.0 → 0.3.0 支持面变化 | R8-5 |
+| preview 披露规则 | R8-6 |
+
+- 对账：6/6 覆盖，无去向记录清单 = 空；来源指针见各 R8-n 的「来源」行。
+- 边界：架构正文只在 `docs/adr/`，本段不复制；本段不新增 D-code / ADR 编号；产品级决策不迁往 README、ADR 或归档。
