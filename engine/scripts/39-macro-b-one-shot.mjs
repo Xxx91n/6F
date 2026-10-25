@@ -24,6 +24,7 @@ const G = await import(pathToFileURL(join(DIST, 'report', 'generate.js')).href);
 const S = await import(pathToFileURL(join(DIST, 'fact', 'schema.js')).href);
 const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
 const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同口径防跨版本漂移
+const MB = await import(pathToFileURL(join(DIST, 'audit', 'macro-b.js')).href); // #42：探针同源 audit.ts（字段级分类/事件面）
 const Q = await import(pathToFileURL(join(DIST, 'intake', 'quarantine.js')).href);   // #78/D-109①：崩溃桶构造器同构复用——只引 crash 族导出（分类器/写库面禁引=SoD 对照物零分类逻辑，D-118④）
 const STRICT_Q = process.env[Q.STRICT_QUARANTINE_ENV] === '1';   // #78/D-110④：env 只传开关——对照物无 quarantine 桶（病态恒硬崩=strict 恒真语义），env 值进证据面供 CI 对账
 
@@ -111,9 +112,17 @@ async function runOneShot(target) {
   const NAME = target.repo;
   const ROOT = target.root;
   const HEAD_SHA = git(ROOT, ['rev-parse', 'HEAD']).trim();
-  const HEAD_DATE = I.normalizeGitIsoDate(git(ROOT, ['log', '-1', '--format=%cI']).trim());
-  const TREE_SHA = git(ROOT, ['rev-parse', 'HEAD^{tree}']).trim();
-  const COMMIT_COUNT = Number(git(ROOT, ['rev-list', '--count', 'HEAD']).trim());
+  // #42：探针同源 audit.ts——probeMacroBRepo 内走 git log --format=%cI 并逐字段分类；
+  // HEAD 严格回执仍走 normalizeGitIsoDate（病态即抛＝对照物「解析失败」分歧类的可观测代理）。
+  const probes = MB.probeMacroBRepo(ROOT, HEAD_SHA);
+  const HEAD_DATE = I.normalizeGitIsoDate(probes.headRaw);
+  // 对照物无 quarantine 桶（SoD）：字段级病态=解析失败——首个 quarantined 原文交严格回执抛错，
+  // 病态仓落「解析失败」分歧格（D-118④），与引擎 quarantine 路径天然两格。
+  const firstQuarantined = probes.fieldEvents.find(function (e) { return e.disposition === 'quarantined'; });
+  if (firstQuarantined) { I.normalizeGitIsoDate(firstQuarantined.raw); }
+  const TREE_SHA = probes.treeSha;
+  const COMMIT_COUNT = probes.commitCount;
+  const commits = probes.commits;
   const ctx = {
     runId: 'r39-' + NAME + '-' + HEAD_SHA.slice(0, 7),
     traceId: C.sha256Hex(NAME + '|' + HEAD_SHA + '|' + HEAD_DATE).slice(0, 32),
@@ -122,21 +131,7 @@ async function runOneShot(target) {
     observedAt: HEAD_DATE
   };
 
-  // -- 采集：gitlog（PROBE-INVARIANT：解析完整性先断言） --
-  const rawLog = git(ROOT, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
-  const commits = [];
-  let cur = null;
-  for (const line of rawLog.split(NL)) {
-    const t = line.trim();
-    if (t.indexOf('__R__') === 0) {
-      const parts = t.slice(5).split('|');
-      cur = { sha: parts[0], author: parts[1], date: I.normalizeGitIsoDate(parts[2]), paths: [] };
-      commits.push(cur);
-    } else if (cur && t.length > 0) {
-      cur.paths.push(t);
-    }
-  }
-  if (commits.length !== COMMIT_COUNT) { throw new Error('PROBE-INVARIANT-FAIL[' + NAME + ']: parsed ' + commits.length + ' != git rev-list ' + COMMIT_COUNT); }
+  // -- 采集：gitlog（PROBE-INVARIANT 由共享探针断言：解析数==rev-list 数） --
 
   // -- 采集：ADR 语料（adr-structure@v2 回退链） --
   const adrDir = join(ROOT, 'docs', 'adr');
@@ -167,7 +162,7 @@ async function runOneShot(target) {
     const p = join(ROOT, cand);
     if (existsSync(p)) { intentDocs.push({ path: cand, text: readFileSync(p, 'utf8') }); }
   }
-  const subjects = git(ROOT, ['log', '--pretty=format:%s']).split(NL);
+  const subjects = probes.subjects;
   const deliveryDocs = [{ path: 'git log subjects @ ' + HEAD_SHA.slice(0, 7), text: subjects.join(NL) }];
   const posFacts = intentDocs.length > 0
     ? C.collectPositioning({ intentDocs: intentDocs, deliveryDocs: deliveryDocs, topN: TC3_TOPN, stopwords: STOPWORDS }, ctx)
@@ -310,6 +305,19 @@ async function runOneShot(target) {
   ];
   const HEADLINE = NAME + ' Macro-B one-shot（capability 1 of 5 · preview）：' + COMMIT_COUNT + ' commits / ADR ' + tc2Total + ' 份 / facts ' + realFacts.length + '——TC-1 ' + tc1Verdict + '（n=' + tc1Judgeable + '）、TC-2 ' + tc2Verdict + '（mean=' + meas.tc2.mean_ratio_4 + '）、TC-3 ' + tc3Verdict + '（' + meas.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '（反复接受非跑通：三档如实落数）。';
 
+  // -- Intake Health（#42：与 audit.ts 同源投影 probes；workflow 契约要求 fields 恒为数组） --
+  const excludedCommits = commits.filter(function (c) { return c.date === null; }).length;
+  const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
+  const intakeHealth = {
+    fields: probes.fieldStats.map(function (s) { return { field_name: s.field_name, total: s.total, clean: s.clean, normalized: s.normalized, quarantined: s.quarantined }; }),
+    affected_commits: new Set(quarantinedRows.map(function (e) { return e.commit_sha; })).size,
+    excluded_commits: excludedCommits,
+    quarantined_rows: quarantinedRows.map(function (e) { return { commit_sha: e.commit_sha, field_name: e.field_name, reason_code: e.reason_code, raw_echo: Q.rawEcho(e.raw) }; }),
+    threshold_ratio: Q.QUARANTINE_FIELD_RATIO_RED,
+    escalation: Q.intakeEscalation(probes.fieldStats),
+    recorded_at: probes.headDate
+  };
+
   const reportInput = {
     report_id: 'MA-39-' + NAME.toUpperCase().split('-').join('') + '-MACRO-B-ONESHOT',
     scale: 'Macro-B',
@@ -344,6 +352,7 @@ async function runOneShot(target) {
       ],
       not_in_preview: ['Micro-A', 'Micro-B', 'Macro-A']
     },
+    intake_health: intakeHealth,
     human: { status: 'pending', adjudicator: 'user', text: null, decided_at: null }
   };
   const report = G.buildReport(reportInput);
