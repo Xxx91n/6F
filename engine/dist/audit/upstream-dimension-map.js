@@ -19,7 +19,7 @@
 import { CODELORE_DESCRIPTOR } from '../upstream/codelore.js';
 import { GITHUB_REST_DESCRIPTOR } from '../upstream/github-rest.js';
 export const UPSTREAM_DIMENSION_MAP_VERSION = 'v1.0';
-export const UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: '2026-10-26', next_review: '2026-11-25' };
+export const UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: '2026-10-25', next_review: '2026-11-24' };
 // ---------- codelore 行集（docs/upstream-dimension-map.md v1.0 表行派生） ----------
 const CL = (surface, kind, dimension, lane, admission, note) => ({ adapter: 'codelore', surface, surface_kind: kind, dimension, lane, admission, note });
 export const CODELORE_EVOLUTION_FACETS = ['revisions', 'abs-churn', 'entity-churn', 'author-churn', 'hotspot-velocity', 'code-age', 'stale-code', 'architecture-trend', 'health-trend', 'lead-time', 'release-cadence', 'messages'];

@@ -939,12 +939,12 @@
      "evidence": "README 能力矩阵 preview 口径＋engine/upstream-lock.yaml＋t8-watch-review.md"
     },
     {
-     "at": "2026-10-26",
+     "at": "2026-10-25",
      "by": "#43 逾期上游复审盘点",
      "criterion_version": "#43 逾期逐行处置纪律（docs/versioning.md §4 立法＋44-check C5 advisory 段；D-037④ 仅指手动窗口既有纪律，不承载新规则）",
      "decision": "deferred-no-runtime-surface",
      "reason": "openssf-scorecard 行 next_review 2026-10-16 逾期，由本项代持显式 deferred：planned 行 version/pin_type=null＝无 pin 无制品可实跑，仓内零 Scorecard 消费位（supply_chain 象限维持 ⚠ 数据未接，D-034③ 禁插队）；层需求未拉动→本项 status=pending 维持、锁表逾期日期不刷新（禁无证据批量刷新）；转接入票时按 verify_method 先定 pin_type+version＋golden 契约三前置再同步本行",
-     "evidence": "engine/upstream-lock.yaml openssf-scorecard 行 review_deferred＋2026-10-26 实跑 44-check C5 overdue=[openssf-scorecard,codelore-sqlite-dump]"
+     "evidence": "engine/upstream-lock.yaml openssf-scorecard 行 review_deferred＋2026-10-25 实跑 44-check C5 overdue=[openssf-scorecard,codelore-sqlite-dump]"
     }
    ],
    "review_event": "stage3-close"

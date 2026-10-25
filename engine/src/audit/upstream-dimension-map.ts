@@ -22,7 +22,7 @@ import { GITHUB_REST_DESCRIPTOR } from '../upstream/github-rest.js';
 import type { CollectorDescriptor, CollectedFact } from '../collect/collectors.js';
 
 export const UPSTREAM_DIMENSION_MAP_VERSION = 'v1.0';
-export const UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: '2026-10-26', next_review: '2026-11-25' } as const;
+export const UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: '2026-10-25', next_review: '2026-11-24' } as const;
 
 // ---------- 归位值域 ----------
 
