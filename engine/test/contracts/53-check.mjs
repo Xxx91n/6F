@@ -101,15 +101,14 @@ if (groupProbe('53-check', 'E', DEP53)) {
     const sAu = JSON.parse(txt(join(OUTA, 'report.json')));
     const k39 = Object.keys(s39).sort();
     const kAu = Object.keys(sAu).sort();
-    // #42：39 已按 audit.ts 同源供 intake_health——豁免收窄为 verdict.reason_class（39 无 verdict 三面投影）
-    const PARITY_EXEMPT_PREFIX = ['verdict.reason_class'];
-    const missing = kAu.filter(function (k) { return k39.indexOf(k) < 0 && PARITY_EXEMPT_PREFIX.indexOf(k) < 0; });
-    t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段∪豁免集（漂移即报警；intake_health 已回 39 契约面）', missing.length === 0, 'extra=' + missing.join(','));
+    // #42：intake_health 已回 39 契约面——两侧字段面同全集（39 的 verdict 三面投影由 buildReport 恒供，豁免已无依据）
+    const missing = kAu.filter(function (k) { return k39.indexOf(k) < 0; });
+    t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段（漂移即报警；无豁免）', missing.length === 0, 'extra=' + missing.join(','));
     function paths(o, pre, acc) { for (const k of Object.keys(o)) { const v = o[k]; const p = pre ? pre + '.' + k : k; acc.push(p); if (v && typeof v === 'object' && !Array.isArray(v)) { paths(v, p, acc); } } return acc; }
     const p39 = paths(s39, '', []).sort();
     const pAu = paths(sAu, '', []).sort();
-    const drift = pAu.filter(function (p) { return p39.indexOf(p) < 0 && PARITY_EXEMPT_PREFIX.every(function (x) { return p !== x && p.indexOf(x + '.') !== 0; }); });
-    t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径∪豁免集（verdict.reason_class=39 无 verdict 三面投影）', drift.length === 0, 'drift=' + drift.slice(0, 6).join(','));
+    const drift = pAu.filter(function (p) { return p39.indexOf(p) < 0; });
+    t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径（漂移即报警；无豁免）', drift.length === 0, 'drift=' + drift.slice(0, 6).join(','));
     const q39keys = s39.quadrants.length ? Object.keys(s39.quadrants[0]).sort() : [];
     const qDrift = (sAu.quadrants || []).filter(function (q) { return Object.keys(q).some(function (k) { return q39keys.indexOf(k) < 0; }); });
     t('E3 audit 象限条目字段 ⊆ 39 象限条目字段', qDrift.length === 0);
@@ -118,7 +117,7 @@ if (groupProbe('53-check', 'E', DEP53)) {
     const core = ['repo', 'root', 'observed_at', 'head_sha', 'tree_sha', 'commit_count', 'adr_count', 'intent_docs', 'fact_count', 'tc1', 'tc2', 'tc3', 'nc1', 'pc1', 'pc2'];
     const coreMiss = core.filter(function (k) { return !(k in mAu); });
     t('E4 audit measurements 含 39 全部核心字段（39 集合 ⊆ audit 集合；audit 扩展项=intake/behavior 披露面）', coreMiss.length === 0, 'miss=' + coreMiss.join(','));
-    t('E5 39 侧车 intake_health.fields 为数组（#42 workflow 断言同源守卫，非 null）', !!s39.intake_health && Array.isArray(s39.intake_health.fields) && s39.intake_health.fields.length > 0, 'intake_health=' + JSON.stringify(s39.intake_health));
+    t('E5 39 侧车 intake_health.fields 为数组且非空（#42 workflow 断言同源守卫）', !!s39.intake_health && Array.isArray(s39.intake_health.fields) && s39.intake_health.fields.length > 0, 'fields=' + (s39.intake_health && Array.isArray(s39.intake_health.fields) ? s39.intake_health.fields.length : 'absent/null'));
   } else {
     t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段（漂移即报警）', false, '39 复跑或 audit 产物缺席');
     t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径', false, '跳过');

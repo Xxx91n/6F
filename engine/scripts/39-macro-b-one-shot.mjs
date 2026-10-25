@@ -25,7 +25,7 @@ const S = await import(pathToFileURL(join(DIST, 'fact', 'schema.js')).href);
 const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
 const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同口径防跨版本漂移
 const MB = await import(pathToFileURL(join(DIST, 'audit', 'macro-b.js')).href); // #42：探针同源 audit.ts（字段级分类/事件面）
-const Q = await import(pathToFileURL(join(DIST, 'intake', 'quarantine.js')).href);   // #78/D-109①：崩溃桶构造器同构复用——只引 crash 族导出（分类器/写库面禁引=SoD 对照物零分类逻辑，D-118④）
+const Q = await import(pathToFileURL(join(DIST, 'intake', 'quarantine.js')).href);   // #78/D-109①：崩溃桶构造器复用——Q 只取崩溃/投影聚合导出（分类器/写库面禁引，D-118④）
 const STRICT_Q = process.env[Q.STRICT_QUARANTINE_ENV] === '1';   // #78/D-110④：env 只传开关——对照物无 quarantine 桶（病态恒硬崩=strict 恒真语义），env 值进证据面供 CI 对账
 
 // ---------- §0 参数：默认三仓全跑；--repo/--root/--out = 单仓 CI 形态 ----------
@@ -112,12 +112,10 @@ async function runOneShot(target) {
   const NAME = target.repo;
   const ROOT = target.root;
   const HEAD_SHA = git(ROOT, ['rev-parse', 'HEAD']).trim();
-  // #42：探针同源 audit.ts——probeMacroBRepo 内走 git log --format=%cI 并逐字段分类；
-  // HEAD 严格回执仍走 normalizeGitIsoDate（病态即抛＝对照物「解析失败」分歧类的可观测代理）。
+  // #42：probe 同源 audit.ts（probeMacroBRepo 内走 git log --format=%cI）；HEAD 病态仍走 normalizeGitIsoDate 抛型回执。
   const probes = MB.probeMacroBRepo(ROOT, HEAD_SHA);
-  const HEAD_DATE = I.normalizeGitIsoDate(probes.headRaw);
-  // 对照物无 quarantine 桶（SoD）：字段级病态=解析失败——首个 quarantined 原文交严格回执抛错，
-  // 病态仓落「解析失败」分歧格（D-118④），与引擎 quarantine 路径天然两格。
+  const HEAD_DATE = probes.headDate === null ? I.normalizeGitIsoDate(probes.headRaw) : probes.headDate;
+  // 对照物无 quarantine 桶：首个字段级病态原文交严格回执抛错＝「解析失败」预期分歧格（D-118④）。
   const firstQuarantined = probes.fieldEvents.find(function (e) { return e.disposition === 'quarantined'; });
   if (firstQuarantined) { I.normalizeGitIsoDate(firstQuarantined.raw); }
   const TREE_SHA = probes.treeSha;
@@ -138,7 +136,7 @@ async function runOneShot(target) {
   const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
   const firstCommitOf = (p) => {
     let best = null;
-    for (const c of commits) { if (c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) { best = c.date; } }
+    for (const c of commits) { if (c.date !== null && c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) { best = c.date; } }
     return best;
   };
   const adrDocs = adrFiles.map(function (f) {
