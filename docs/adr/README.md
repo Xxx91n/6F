@@ -14,7 +14,7 @@ Architecture decision records — generated index (navigation surface; not an au
 | [ADR-0007](0007-ten-demo-paths.md) | 演示场景 = 10 路径（5 scale × 关键+失败） | accepted | 2026-09-12 |
 | [ADR-0008](0008-agent-plugin-five-layer-box.md) | 分发形态 = Agent Plugin 五层盒子（双 manifest） | accepted |  |
 | [ADR-0009](0009-intake-local-first-url-optin.md) | 输入面 = 本地路径默认 + 远程 URL 配置可达 | accepted |  |
-| [ADR-0011](0011-single-repo-subdir-but-branches.md) | 单仓 + 子目录 + but 分支（更正 ADR-0010 的「另起工程仓」） | accepted（2026-09-12）｜Supersedes: ADR-0010 |  |
+| [ADR-0011](0011-single-repo-subdir-but-branches.md) | 单仓 + 子目录 + but 分支（更正 ADR-0010 的「另起工程仓」） | accepted（2026-09-12）｜Supersedes: ADR-0010 | 2026-09-12 |
 | [ADR-0012](0012-value-validation-loop-first.md) | 主干方向 = 端到端价值验证闭环先行（Value Validation Loop First） | accepted | 2026-09-12 |
 | [ADR-0013](0013-three-layer-acceptance-gates.md) | 首报验收 = 三层闸门 + 预声明判据（Three-Layer Acceptance Gates） | accepted | 2026-09-12 |
 | [ADR-0014](0014-upstream-integration-dual-track.md) | 上游组件引入方式 = 适配器双轨制 + vendor 逃生舱（Upstream Integration Dual-Track） | accepted | 2026-09-14 |

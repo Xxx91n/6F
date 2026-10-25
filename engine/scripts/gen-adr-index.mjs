@@ -20,7 +20,9 @@ for (const f of files) {
   const stLine = head.find(l => /Status[:：]/i.test(l)) || "";
   const status = stLine.replace(/^[\s>*-]*/, "").replace(/^Status[:：]\s*/i, "").replace(/\*+/g, "").trim();
   const dtLine = head.find(l => /^-\s*Date[:：]/i.test(l)) || "";
-  const date = dtLine.replace(/^-\s*Date[:：]\s*/i, "").trim();
+  let date = dtLine.replace(/^-\s*Date[:：]\s*/i, "").trim();
+  // 回退：无专用 - Date: 行时从 status 文本抽内联 ISO 日期（先例 ADR-0011「Status: accepted（2026-09-12）｜…」）——不改恢复件本身
+  if (!date) { const m = status.match(/\d{4}-\d{2}-\d{2}/); if (m) date = m[0]; }
   rows.push({ file: f, id: "ADR-" + f.slice(0, 4), title, status, date });
 }
 

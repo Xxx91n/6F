@@ -5,6 +5,8 @@
 - Deciders: 用户（grill 轮 28 Q1~Q18，逐问 atomcode 深调研后拍板「采纳」×18）
 - Ledger: D-103~D-120（全 current）；承 D-100（两级处置立案）／D-059①（revised：仅协议级保留「不符即拒」）／D-101（B 窗独立验证）／ADR-0014（raw 不出适配层）／ADR-0020（上游数据面）
 
+> 澄清补记（PR #50 评审，2026-10-26）：「unclassified 永不可入」的宾语是 accepted_reason_codes **基线**——兜底码 `unclassified_field_anomaly`（D-104②，属 D-119 词表的合法码域）永不可进基线（D-110②；quarantine.ts `baselineIssues` 以「baseline 禁载 unclassified_field_anomaly」硬校验）；「门禁与裁定面」的 v1 种子是 reason_code **词表**种子（分类器可发出的码域），与 strict 基线是两个面——词表加码非破坏、基线棘轮只减不增。strict 模式下基线外 reason_code 或基线滞留码 → 协议级硬崩（STRICT-QUARANTINE-VIOLATION，fail-closed，非零 exit＋crash artifact；audit.ts:strict-quarantine-gate）。决策正文未改写。
+
 ## Context
 
 审计产品的上游是真实 git 历史，病态实例必然存在（git/git 的「 INDIA」badDate 为观测先例）。D-059①「归一化后不符即拒」在字段级病态上过强——一个病态 commit 否决百万行审计不可接受。须建制：哪些违约 fail-fast、哪些隔离续审、证据如何留痕、裁定如何对外表达、缺口如何回流立法。本 ADR 总成轮 28 十八裁。
