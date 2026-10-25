@@ -1,16 +1,19 @@
 // 85-check.mjs —— #84 Macro-C 产线化一等面守卫（D-204②④；产线化前置=同族基准差分重校准硬准入）
 // 断言面：A 静态契约（dist/src/README/CONTEXT 词条在场机核——R56 执行窗登记「CONTEXT 词条批在场机核」同窗兑现）
 //   → B CLI 命令面测活（6F 本仓自审；engine-deps 组级闸）
-//   → C anysearch-cli 差分重校准（sibling 组级闸：engine 面 vs 38 编排层独立重算——移植不重校准=数字形似义异防线，
+//   → C anysearch-cli 差分重校准（基准自持组级闸：engine 面 vs 38 编排层独立重算——移植不重校准=数字形似义异防线，
 //     预声明包 2026-10-03-r57-t1-predecl.md §2：等值集封闭＋fact_id 全等（chainFact）＋活语料非存档等值）
+//     语料来源＝仓内 frozen bundle（ADR-0026/#33）→ 无 sibling 依赖，CI 可达；钉值唯一权威=engine/baseline-lock.yaml
 //   → D 自检组（正负对照：构造偏差必须检出——§2.4 命中方向跑前声明）
-// 纪律：只读断言＋临时目录写运行产物（跑完即弃）；sibling 只读 git 命令（D-074 零写入）；exit 0 + PASS N/N 绿。
+// 纪律：只读断言＋临时目录写运行产物（跑完即弃）；bundle 物化走 `git clone <bundle>` 至 OS temp（主仓对象库零写，D-074）；
+//   exit 0 + PASS N/N 绿。
 import { readFileSync, existsSync, readdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync, execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { need, groupProbe, engineDepsOk, siblingPath } from './_lib/env-contract.mjs';
+import { need, groupProbe, engineDepsOk, cloneBundleWorktree } from './_lib/env-contract.mjs';
 
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
@@ -24,15 +27,30 @@ const ENG = join(REPO, 'engine');
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + String(detail).slice(0, 300) : '')); } }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
-// upstream-lock.yaml 钉值读取（形制约=两空格 `- id:` ＋四空格 `version:`，与 44-check/gen-acknowledgments 同源解析形制，无依赖 yaml 子集）
-function lockPinSha(id) {
-  let cur = null;
-  for (const line of readFileSync(join(ENG, 'upstream-lock.yaml'), 'utf8').split(/\r?\n/)) {
-    const mi = line.match(/^ {2}- id: (\S+)/); if (mi) { cur = mi[1]; continue; }
-    if (cur === id) { const mv = line.match(/^ {4}version: "?([0-9a-f]{7,40})"?/); if (mv) return mv[1]; }
+// baseline-lock.yaml 行读取（形制＝两空格 `- id:` ＋四空格 `key: value`，与 upstream-lock 同源解析形制，无依赖 yaml 子集）
+// 基准语料钉的唯一权威＝engine/baseline-lock.yaml（ADR-0026）；upstream-lock.yaml 只承载产品上游，不再有基准行。
+const BASELINE_LOCK = join(ENG, 'baseline-lock.yaml');
+function baselineRow(id) {
+  if (!existsSync(BASELINE_LOCK)) { return null; }
+  const rows = {}; let cur = null;
+  for (const line of readFileSync(BASELINE_LOCK, 'utf8').split(/\r?\n/)) {
+    const mi = line.match(/^ {2}- id: (\S+)/);
+    if (mi) { cur = { id: mi[1] }; rows[mi[1]] = cur; continue; }
+    if (!cur) { continue; }
+    const mk = line.match(/^ {4}([a-z0-9_]+):\s*(.*)$/);
+    if (mk) { cur[mk[1]] = mk[2].trim().replace(/^"(.*)"$/, '$1'); }
   }
-  return null;
+  return rows[id] || null;
 }
+const BASE_ROW = baselineRow('anysearch-cli-adr-corpus');
+const BASE_FIELDS = ['id', 'kind', 'version', 'pin_type', 'status', 'contract', 'adapter', 'materialization', 'bundle', 'bundle_bytes', 'bundle_sha256', 'last_reviewed', 'next_review'];
+const BUNDLE_REL = (BASE_ROW && BASE_ROW.bundle) || 'engine/test/fixtures/frozen/anysearch-cli-770d2549.bundle';
+const BUNDLE = join(REPO, BUNDLE_REL);
+// 15MB 制品只读一遍（A11 的字节数与 sha256 同源一次读，不重复 readFileSync 三次）
+const BUNDLE_BUF = existsSync(BUNDLE) ? readFileSync(BUNDLE) : null;
+const BUNDLE_SHA = BUNDLE_BUF ? createHash('sha256').update(BUNDLE_BUF).digest('hex') : null;
+// 本机绝对路径探针（D-012 活跃路径禁盘符锚：基准面须可移植）
+const ABS_PATH_RE = /(^|[\s"'(])([A-Za-z]:[\\/]|\/(Users|home)\/)/m;
 
 // ---------- A. 静态契约 ----------
 const srcC = readFileSync(join(ENG, 'src', 'audit', 'macro-c.ts'), 'utf8');
@@ -46,6 +64,23 @@ t('A5 fact-write.ts 同位共享核在（audit.ts 与 macro-c.ts 同消费）', 
 t('A6 engine/README scale 行已上架三层（Macro-B · Macro-C · Micro-A）', readFileSync(join(ENG, 'README.md'), 'utf8').indexOf('`Macro-B` · `Macro-C` · `Micro-A`') >= 0);
 t('A8 bundle 棘轮帽已显式重推导（371342——D-217 minify 治理后实测×1.25 向下重推导，D-129③ scoped 双向注记留痕）', readFileSync(join(ENG, 'scripts', 'check-dist.mjs'), 'utf8').indexOf('371342') >= 0);
 t('A9 本守卫自身无 BOM', noBom(join(HERE, '85-check.mjs')));
+// A10–A13 基准语料自持面（ADR-0026／#33；#32 锁表分离同窗兑现）
+t('A10 engine/baseline-lock.yaml 在位＋无 BOM＋lock_version=1＋anysearch-cli-adr-corpus 行十三字段齐备（status=active／pin_type=commit-sha／version=40 位 sha）',
+  existsSync(BASELINE_LOCK) && noBom(BASELINE_LOCK)
+  && readFileSync(BASELINE_LOCK, 'utf8').indexOf('lock_version: 1') >= 0
+  && !!BASE_ROW && BASE_FIELDS.every(function (f) { return BASE_ROW[f] !== undefined && BASE_ROW[f] !== ''; })
+  && BASE_ROW.status === 'active' && BASE_ROW.pin_type === 'commit-sha' && /^[0-9a-f]{40}$/.test(BASE_ROW.version || '')
+  && BASE_ROW.materialization === 'frozen-bundle',
+  BASE_ROW ? 'missing=' + BASE_FIELDS.filter(function (f) { return !BASE_ROW[f]; }).join(',') + ' status=' + BASE_ROW.status + ' pin=' + BASE_ROW.pin_type : 'baseline-lock.yaml 缺席');
+t('A11 仓内 frozen bundle 制品完整性：在位＋字节数==bundle_bytes＋sha256==bundle_sha256（制品级钉，防静默替换）',
+  !!BUNDLE_BUF && !!BASE_ROW && String(BUNDLE_BUF.length) === String(BASE_ROW.bundle_bytes) && BUNDLE_SHA === BASE_ROW.bundle_sha256,
+  BUNDLE_BUF ? 'bytes=' + BUNDLE_BUF.length + '/' + (BASE_ROW && BASE_ROW.bundle_bytes) + ' sha256=' + String(BUNDLE_SHA).slice(0, 12) + '/' + String(BASE_ROW && BASE_ROW.bundle_sha256).slice(0, 12) : 'bundle 缺席: ' + BUNDLE_REL);
+t('A12 基准活跃路径无本机绝对路径（baseline-lock.yaml＋本守卫自身；#34 可移植性前提，报告输出面归 #34）',
+  existsSync(BASELINE_LOCK) && !ABS_PATH_RE.test(readFileSync(BASELINE_LOCK, 'utf8')) && !ABS_PATH_RE.test(readFileSync(join(HERE, '85-check.mjs'), 'utf8')));
+// A13 双向：上游锁表侧零残留（否定）＋基准锁表侧确有一枚 repo-corpus 行（正对照——行改名或表被掏空即红）
+const UPSTREAM_TXT = readFileSync(join(ENG, 'upstream-lock.yaml'), 'utf8');
+t('A13 upstream-lock.yaml 已摘除基准语料行（零 anysearch 且零 kind: repo-corpus；正对照=该 kind 只在 baseline-lock）',
+  UPSTREAM_TXT.indexOf('anysearch') < 0 && UPSTREAM_TXT.indexOf('kind: repo-corpus') < 0 && !!BASE_ROW && BASE_ROW.kind === 'repo-corpus');
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
 const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
@@ -67,26 +102,18 @@ if (groupProbe('85-check', 'B', DEPS_B)) {
   try { rmSync(tmpB, { recursive: true, force: true }); } catch (e) { }
 }
 
-// ---------- C. anysearch-cli 差分重校准（sibling 组级闸；产线化硬准入=同族基准对账后方可入 preview） ----------
-let AS = '';
-try { AS = siblingPath('anysearch-cli'); } catch (e) { }
-// 语料钉值唯一权威=engine/upstream-lock.yaml anysearch-cli-adr-corpus 行 version（pin_type=commit-sha）；
-// GUARD_ANYSEARCH_SHA 仅本地临时覆写不留档。活仓 rev-parse HEAD 随 GitButler 虚拟分支漂移→不再作默认值（#30 尾波）。
-const AS_PIN_SHA = process.env.GUARD_ANYSEARCH_SHA || lockPinSha('anysearch-cli-adr-corpus');
-// C 组消费的是钉提交 tree 内的 ADR 语料，不是同级仓工作树现状（虚拟分支可把工作树 docs/adr 掏空为 0）。
-// 前置＝钉 sha 在 sibling 对象库可解析且其 tree 含 docs/adr/*.md；不满足按既有 SKIP-GROUP 语义跳过，
-// 不让 clone/checkout 或 readdirSync 以未捕获 ENOENT 拉红整条 contracts-run（#30）。
-const AS_ADR_OK = (function () {
-  try {
-    if (!AS || !AS_PIN_SHA) { return false; }
-    const listed = execFileSync('git', ['-C', AS, 'ls-tree', '-r', '--name-only', AS_PIN_SHA, '--', 'docs/adr'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-    return /\.md$/im.test(listed);
-  } catch (e) { return false; }
-})();
+// ---------- C. anysearch-cli 差分重校准（基准自持组级闸；产线化硬准入=同族基准对账后方可入 preview） ----------
+// 语料来源＝仓内 frozen bundle（ADR-0026/#33）：钉值唯一权威=engine/baseline-lock.yaml anysearch-cli-adr-corpus 行
+// version（pin_type=commit-sha），语料随 bundle 入库，**不再依赖同级仓**——无 sibling 的机器（含 CI）同样实跑 C1/C2/C3。
+// 换钉＝手动窗口重打 bundle→改 baseline-lock（version/bundle_bytes/bundle_sha256 三值同窗）→重跑 C0~C6。
+const AS_PIN_SHA = BASE_ROW ? BASE_ROW.version : null;
 const PIN12 = (AS_PIN_SHA || '').slice(0, 12);
+// 组级闸语义＝「冻结对象经在仓 bundle 可达」——need 族取 git-object:（幽灵钉：非任何分支祖先，clone 不携带；
+//   本仓即用仓内 frozen bundle 物化），不是 asset:（该族=gitignored 外部资产，与本制品在仓的事实相反）。
+const BUNDLE_HEADS = (function () { try { return execFileSync('git', ['bundle', 'list-heads', BUNDLE], { encoding: 'utf8' }).trim().split(/\r?\n/).filter(Boolean); } catch (e) { return []; } })();
+const BUNDLE_OK = !!BUNDLE_BUF && BUNDLE_HEADS.length === 1 && BUNDLE_HEADS[0].indexOf(AS_PIN_SHA || '\u0000') === 0;
 const DEPS_C = [
-  need('sibling:anysearch-cli', !!AS && existsSync(AS)),
-  need('asset:anysearch-cli/docs/adr', AS_ADR_OK, '原因：同级仓 anysearch-cli 对象库内钉提交 ' + (PIN12 || '(无钉值)') + ' 不可解析或其 tree 无 docs/adr/*.md——Macro-C 差分重校准无基准；手动修复：钉值以 engine/upstream-lock.yaml anysearch-cli-adr-corpus 行为准，令该 sibling 对象库可达此提交（或 export GUARD_SIBLING_ROOT=<该仓所在父目录>），临时换钉=export GUARD_ANYSEARCH_SHA=<含 docs/adr 的不可变 commit-sha>；无网影响面：本地对象库只读前置零联网（sibling 本体缺席则须联网 clone 一次）'),
+  need('git-object:' + (AS_PIN_SHA || 'anysearch-cli-adr-corpus'), BUNDLE_OK, '原因：仓内基准语料 bundle ' + BUNDLE_REL + ' 不在位、或它的 list-heads 不唯一指向 baseline-lock 钉值 ' + (PIN12 || '(baseline-lock 无钉值)') + '（Macro-C 差分重校准无基准）；手动修复：`git -C engine bundle verify ../' + BUNDLE_REL + '` 自证完整、`git bundle list-heads ../' + BUNDLE_REL + '` 核对唯一位＝钉值，缺失则从基线恢复该制品（换钉须同窗更新 version／bundle_bytes／bundle_sha256 三值）；无网影响面：bundle 在仓自足零联网，离线可修'),
   need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))
 ];
 if (groupProbe('85-check', 'C', DEPS_C)) {
@@ -94,16 +121,23 @@ if (groupProbe('85-check', 'C', DEPS_C)) {
   const COL = await import(pathToFileURL(join(ENG, 'dist', 'collect', 'collectors.js')).href);
   const tmpC = mkdtempSync(join(tmpdir(), '85-recal-'));
   // 语料钉快照（R59 LOOP-1 TOCTOU 消除——predecl 2026-10-04-r59-loop-fix-predecl.md §1.1）：
-  // 钉值来自 upstream-lock.yaml（pin_type=commit-sha）→clone 至 OS temp→checkout 生成冻结面 AS_PIN；
-  // engine 实跑与 oracle 重算同读此一份，不再触碰活仓工作树。
-  // 不取活仓 HEAD 作钉——GitButler 虚拟分支会让 HEAD 连同其 tree 漂移，基准静默消失即组级 SKIP（#30）。
+  // 钉值来自 baseline-lock.yaml（pin_type=commit-sha）→ 仓内 frozen bundle `git clone` 至 OS temp 生成冻结面 AS_PIN；
+  // engine 实跑与 oracle 重算同读此一份。clone 源是 bundle 文件而非任何活仓——工作树/HEAD 漂移与基准彻底解耦（#30/#33）。
+  // 只读边界（D-074）：clone 只写 OS temp，主仓对象库零写；bundle 不 unbundle 进主仓。
   const SRC_HEAD = AS_PIN_SHA;
   const AS_PIN = join(tmpC, 'corpus');
-  execFileSync('git', ['clone', AS, AS_PIN], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-  execFileSync('git', ['-C', AS_PIN, 'checkout', SRC_HEAD], { encoding: 'utf8' });
+  // 只读物化（env-contract cloneBundleWorktree）：`git clone <bundle>` 只写 OS 临时目录，
+  // 主仓对象库零写、零 fetch、零 unbundle 进主仓（D-074）。
+  if (!cloneBundleWorktree(BUNDLE, AS_PIN)) {
+    t('C0 语料钉快照一致：bundle 物化 HEAD＝＝baseline-lock 钉值（TOCTOU 消除不变式）', false, 'git clone <bundle> 失败（bundle 损坏或 git 不可用）: ' + BUNDLE_REL);
+    throw new Error('85-check/C 中止：bundle 物化失败——A11 已过而 clone 失败，属环境面故障（git 不可用/临时目录不可写）');
+  }
   function gitO(args) { return execFileSync('git', ['-C', AS_PIN].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }); }
   const HEAD_SHA = gitO(['rev-parse', 'HEAD']).trim();
-  t('C0 语料钉快照一致：clone HEAD＝＝钉取 SRC_HEAD（TOCTOU 消除不变式）', HEAD_SHA === SRC_HEAD, 'pin=' + HEAD_SHA.slice(0, 12) + ' src=' + SRC_HEAD.slice(0, 12));
+  t('C0 语料钉快照一致：bundle 物化 HEAD＝＝baseline-lock 钉值（TOCTOU 消除不变式）', HEAD_SHA === SRC_HEAD, 'pin=' + HEAD_SHA.slice(0, 12) + ' src=' + String(SRC_HEAD).slice(0, 12));
+  // C0b bundle 自证完整＋list-heads 唯一位即钉值（防「换了包但钉值没换」的静默漂移；C0 看物化结果，本条看制品声明）
+  const bundleVerify = (function () { try { const r = spawnSync('git', ['-C', AS_PIN, 'bundle', 'verify', BUNDLE], { encoding: 'utf8' }); return r.status === 0; } catch (e) { return false; } })();
+  t('C0b 仓内 bundle 自证完整（git bundle verify）＋list-heads 唯一项＝钉值', bundleVerify && BUNDLE_HEADS.length === 1 && BUNDLE_HEADS[0].indexOf(SRC_HEAD) === 0, 'verify=' + bundleVerify + ' heads=' + JSON.stringify(BUNDLE_HEADS));
   // (a) engine 一等面实跑（冻结面语料）
   const run = await MC.runMacroCAudit({ input: AS_PIN, outDir: join(tmpC, 'out') });
   const meas = run.measurements;
