@@ -39,7 +39,7 @@ export const MICRO_A_SLICE_FIELDS = [
 ];
 const RELEASE_TITLE = new RegExp('^chore[(][^)]*[)]: release [0-9]+[.][0-9]+[.][0-9]+');   // release-please 产物签名（#37 教训：收窄到产物形态非主题词；字符类正则零反斜杠纪律）
 const CRITERIA_PATH = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
-// Design: 证据锚须为仓内可解析坐标（归档只读档案），禁指已退役 .scratch — ADR-0027
+// Design: 证据锚须为仓内可解析坐标，禁指已退役 .scratch — ADR-0027
 const LEDGER_PATH = 'docs/archive/decisions/macro-audit-ledger.md';
 const LEDGER_REPRO = 'git -C <repo> show HEAD:' + LEDGER_PATH;
 const CRITERION_IDS = ['PC-1', 'TC-1', 'TC-2', 'TC-3', 'TC-4', 'NC-1'];

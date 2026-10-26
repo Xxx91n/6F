@@ -139,9 +139,9 @@ const walkCode = (dir) => {
 };
 walkCode(join(ENG, 'src'));
 walkCode(join(ENG, 'skills'));
-t('E1 engine/{src,skills} 无指向本仓 docs/ 树的可解析引用（upstream-dimension-map 引用仅限注释指针——D-083⑤；#29 收窄豁免 docs/archive/decisions/ 引文坐标）',
+t('E1 engine/{src,skills} 无指向本仓 docs/ 树的引用与读写（upstream-dimension-map 引用仅限注释指针——D-083⑤；#29 收窄豁免 docs/archive/decisions/ 引文坐标，读写与 import 仍红——ADR-0025 归档只读）',
   docRefViolations.length === 0, docRefViolations.slice(0, 8).join(' '));
-// E1-P 判别臂活性（正/负对照——豁免收窄后必须仍然能红）：判定函数对五类样本的判色
+// E1-P 判别臂活性（正/负对照——豁免收窄后必须仍然能红）：判定函数对八类样本的判色
 const E1_PROBES = [
   ["const p = 'docs/spec.md';", true, '其余 docs/ 路径仍红'],
   ["const p = '../docs/spec.md';", true, '相对路径仍红'],
