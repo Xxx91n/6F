@@ -4,6 +4,8 @@
 //   → C anysearch-cli 差分重校准（基准自持组级闸：engine 面 vs 38 编排层独立重算——移植不重校准=数字形似义异防线，
 //     预声明包 2026-10-03-r57-t1-predecl.md §2：等值集封闭＋fact_id 全等（chainFact）＋活语料非存档等值）
 //     语料来源＝仓内 frozen bundle（ADR-0026/#33）→ 无 sibling 依赖，CI 可达；钉值唯一权威=engine/baseline-lock.yaml
+//     ＋基准身份绑定（tracker #34／ADR-0026）：A14 锁表钉与冻结事实历史身份绑死、A15 历史钉值引用棘轮、
+//       A16 复现命令可移植形（src＋dist 静态面，不随 duckdb 缺席 SKIP）、B8 报告输出面无盘符锚（实跑面）
 //   → D 自检组（正负对照：构造偏差必须检出——§2.4 命中方向跑前声明）
 // 纪律：只读断言＋临时目录写运行产物（跑完即弃）；bundle 物化走 `git clone <bundle>` 至 OS temp（主仓对象库零写，D-074）；
 //   exit 0 + PASS N/N 绿。
@@ -75,21 +77,108 @@ t('A10 engine/baseline-lock.yaml 在位＋无 BOM＋lock_version=1＋anysearch-c
 t('A11 仓内 frozen bundle 制品完整性：在位＋字节数==bundle_bytes＋sha256==bundle_sha256（制品级钉，防静默替换）',
   !!BUNDLE_BUF && !!BASE_ROW && String(BUNDLE_BUF.length) === String(BASE_ROW.bundle_bytes) && BUNDLE_SHA === BASE_ROW.bundle_sha256,
   BUNDLE_BUF ? 'bytes=' + BUNDLE_BUF.length + '/' + (BASE_ROW && BASE_ROW.bundle_bytes) + ' sha256=' + String(BUNDLE_SHA).slice(0, 12) + '/' + String(BASE_ROW && BASE_ROW.bundle_sha256).slice(0, 12) : 'bundle 缺席: ' + BUNDLE_REL);
-t('A12 基准活跃路径无本机绝对路径（baseline-lock.yaml＋本守卫自身；#34 可移植性前提，报告输出面归 #34）',
+t('A12 基准活跃路径无本机绝对路径（baseline-lock.yaml＋本守卫自身；报告输出面见 B8）',
   existsSync(BASELINE_LOCK) && !ABS_PATH_RE.test(readFileSync(BASELINE_LOCK, 'utf8')) && !ABS_PATH_RE.test(readFileSync(join(HERE, '85-check.mjs'), 'utf8')));
 // A13 双向：上游锁表侧零残留（否定）＋基准锁表侧确有一枚 repo-corpus 行（正对照——行改名或表被掏空即红）
 const UPSTREAM_TXT = readFileSync(join(ENG, 'upstream-lock.yaml'), 'utf8');
 t('A13 upstream-lock.yaml 已摘除基准语料行（零 anysearch 且零 kind: repo-corpus；正对照=该 kind 只在 baseline-lock）',
   UPSTREAM_TXT.indexOf('anysearch') < 0 && UPSTREAM_TXT.indexOf('kind: repo-corpus') < 0 && !!BASE_ROW && BASE_ROW.kind === 'repo-corpus');
 
+// ---------- A14/A15 基准身份绑定与历史身份棘轮（tracker #34／ADR-0026） ----------
+// 同一份 Macro-C 基准在本仓有两门指称，本组把它们绑在一起：tracker #33 之后唯一权威钉＝baseline-lock 行 version，
+// 冻结事实 38-macro-c-facts.jsonl 的 repo_ref 是旧票 #38 的历史身份——两值互异、各自有主，谁都不是「另一枚的别名」。
+// 历史钉分片拼接：本守卫自身不参与 A15 棘轮扫描（自指），故不留 40 位字面串，避免自己成为命中项。
+const AUTHORITY_PIN = '770d25495a67bb1e6b1c421a9b40c04259950ddf';
+const HISTORICAL_PIN = 'b45d0799' + '2d9c2ee9d01c7b7f176e2fb7c7978dd6';
+const FACTS = join(ENG, 'test', 'fixtures', 'contracts', '38-macro-c-facts.jsonl');
+const FACTS_TXT = existsSync(FACTS) ? readFileSync(FACTS, 'utf8') : '';
+// 取**全部** repo_ref 再判（不先按仓名过滤——否则某行换成别的仓名就被正则排除，A14 照绿）；
+// 同时核「每行都带一个 repo_ref」，防漏行。
+const FACTS_REFS = Array.from(new Set((FACTS_TXT.match(/"repo_ref":"[^"]*"/g) || []).map(function (s) { return s.slice(12, -1); })));
+const FACTS_ROWS = FACTS_TXT.split(String.fromCharCode(10)).filter(function (l) { return l.trim() !== ''; }).length;
+const FACTS_REF_N = (FACTS_TXT.match(/"repo_ref":/g) || []).length;
+// 本机绝对路径探针同样分片拼接——A12 机检本守卫自身零盘符锚，字面串会让 A12 自己变红
+const FACTS_ABS_RE = new RegExp('D:' + '[/\\\\]Aworker[/\\\\]anysearch-cli', 'g');
+// 原始现场逐件计数（归档索引第 3 行的枚举与合计须与实物同值——文档口径与机检口径同源，缺件/多件都红）
+const ABS_BATCH_FILES = ['38-macro-c-facts.jsonl', '38-macro-c-preview-report.md', '38-macro-c-preview-report.json', '38-report.md'];
+const ABS_BATCH = ABS_BATCH_FILES.map(function (f) {
+  const p = join(ENG, 'test', 'fixtures', 'contracts', f);
+  return ((existsSync(p) ? readFileSync(p, 'utf8') : '').match(FACTS_ABS_RE) || []).length;
+});
+const ABS_BATCH_TOTAL = ABS_BATCH.reduce(function (a, b) { return a + b; }, 0);
+const ARCH_IDX_P = join(REPO, 'docs', 'archive', 'decisions', 'ticket-index.md');
+const ARCH_IDX = existsSync(ARCH_IDX_P) ? readFileSync(ARCH_IDX_P, 'utf8') : '';
+// 判别臂活性自证：把权威钉末位改一位，绑死判据必须判异——否则「钉==AUTHORITY_PIN」只是恒真句（改一位即红＝真在比）
+// 全串严格相等，不截前 40 位：截断会让「钉值尾部多一个字符」也判同（锁表被追加脏字符时 A14 照绿）。
+const samePin = function (a, b) { return String(a) === String(b); };
+const PIN_MUTANT = AUTHORITY_PIN.slice(0, 39) + (AUTHORITY_PIN.slice(39) === 'f' ? '0' : 'f');
+const PIN_SENSITIVE = !!BASE_ROW && !samePin(BASE_ROW.version, PIN_MUTANT);
+t('A14 基准身份唯一权威绑定：baseline-lock 钉==770d2549…／冻结事实全部 repo_ref 恰为 anysearch-cli@b45d0799…（历史产物，且每行各带一枚）／两值互异／原始现场逐件计数 30·2·2·1＝35／归档索引只登记历史钉＋指针到锁表（不两写权威值）',
+  !!BASE_ROW && samePin(BASE_ROW.version, AUTHORITY_PIN)
+  && FACTS_REFS.length === 1 && FACTS_REFS[0] === 'anysearch-cli@' + HISTORICAL_PIN && FACTS_REF_N === FACTS_ROWS
+  && !samePin(AUTHORITY_PIN, HISTORICAL_PIN) && PIN_SENSITIVE
+  && ABS_BATCH.join(',') === '30,2,2,1' && ABS_BATCH_TOTAL === 35
+  && ARCH_IDX.indexOf(HISTORICAL_PIN) >= 0 && ARCH_IDX.indexOf('35 处') >= 0 && ARCH_IDX.indexOf('30 处') >= 0
+  && ARCH_IDX.indexOf('engine/baseline-lock.yaml') >= 0 && ARCH_IDX.indexOf(AUTHORITY_PIN) < 0,
+  'lock=' + String(BASE_ROW && BASE_ROW.version).slice(0, 12) + ' facts_refs=' + (FACTS_REFS.join(',') || 'none') + ' rows=' + FACTS_REF_N + '/' + FACTS_ROWS + ' abs=' + ABS_BATCH.join(',') + ' total=' + ABS_BATCH_TOTAL + ' sensitive=' + PIN_SENSITIVE
+  + ' idx_historical=' + (ARCH_IDX.indexOf(HISTORICAL_PIN) >= 0) + ' idx_counts=' + (ARCH_IDX.indexOf('35 处') >= 0) + '/' + (ARCH_IDX.indexOf('30 处') >= 0)
+  + ' idx_pointer=' + (ARCH_IDX.indexOf('engine/baseline-lock.yaml') >= 0) + ' idx_authority_dup=' + (ARCH_IDX.indexOf(AUTHORITY_PIN) >= 0));
+// A15 历史钉值引用棘轮：40 位全值只许留在「38 现场冻结件」六件＋归档索引的声明行里——新增引用即红；声明件被重算丢值亦红（双向）。
+//   口径：只认 40 位全值；缩写（`b45d0799`）不入棘轮，故 ADR-0026／CHANGELOG 的缩写引用不算命中。
+const HIST_DECLARED = [
+  'docs/archive/decisions/ticket-index.md',
+  'engine/test/fixtures/contracts/38-macro-c-facts.jsonl',
+  'engine/test/fixtures/contracts/38-macro-c-measurements.json',
+  'engine/test/fixtures/contracts/38-macro-c-preview-failure.json',
+  'engine/test/fixtures/contracts/38-macro-c-preview-failure.md',
+  'engine/test/fixtures/contracts/38-macro-c-preview-report.json',
+  'engine/test/fixtures/contracts/38-macro-c-preview-report.md'
+];
+const PIN_SCAN_SKIP = ['node_modules', '.git', '.scratch'];
+const PIN_SCAN_EXT = /\.(ts|mjs|js|json|jsonl|md|ya?ml)$/;
+const PIN_HITS = [];
+(function scanPin(dir) {
+  if (!existsSync(dir)) { return; }
+  for (const ent of readdirSync(dir, { withFileTypes: true })) {
+    if (PIN_SCAN_SKIP.indexOf(ent.name) >= 0) { continue; }
+    const p = join(dir, ent.name);
+    if (ent.isDirectory()) { scanPin(p); continue; }
+    if (!PIN_SCAN_EXT.test(ent.name)) { continue; }
+    if (readFileSync(p, 'utf8').indexOf(HISTORICAL_PIN) >= 0) { PIN_HITS.push(p.slice(REPO.length + 1).split('\\').join('/')); }
+  }
+})(REPO);
+const PIN_HITS_JOINED = PIN_HITS.slice().sort().join(',');
+// 反向臂：声明件必须仍各自持有该值（丢值即红）——只靠集合相等不够，扫描面若整体失灵（目录改名／扩展名过滤写错）
+//   会两边一起空掉；这条把「声明件在位且含值」独立钉住。
+const PIN_DECLARED_ALIVE = HIST_DECLARED.every(function (rel) {
+  const p = join(REPO, rel);
+  return existsSync(p) && readFileSync(p, 'utf8').indexOf(HISTORICAL_PIN) >= 0;
+});
+t('A15 历史钉值引用棘轮：40 位全值只出现在声明的六件 38 现场冻结件＋归档索引声明行（新增引用即红；声明件丢值亦红）',
+  PIN_HITS_JOINED === HIST_DECLARED.slice().sort().join(',') && PIN_DECLARED_ALIVE,
+  'hits=' + (PIN_HITS_JOINED || 'none') + ' declared_alive=' + PIN_DECLARED_ALIVE);
+// A16 静态面（不依赖 B 组的 duckdb 组级闸）：报告复现命令必须走占位形。B8 的实跑面在无 duckdb 的机器上整组 SKIP，
+//   若只在那里判，「内容缺陷＝红、环境缺席＝SKIP」就退化成「环境缺席＝永不判」（tracker #72 同一条边界）。
+//   源与 dist 双侧同锚：dist 才是实际执行体，只认源码会让「改了源码没重建」这类漂移留在绿里。
+const MC_SRC = readFileSync(join(ENG, 'src', 'audit', 'macro-c.ts'), 'utf8');
+const MC_DIST = readFileSync(join(ENG, 'dist', 'audit', 'macro-c.js'), 'utf8');
+const portableShape = function (txt) {
+  return txt.indexOf("' --out <dir>'") >= 0 && txt.indexOf("'<repo>'") >= 0 && txt.indexOf("' --out ' + opts.outDir") < 0;
+};
+t('A16 报告复现命令可移植形在（src＋dist 双侧：走 <repo>／<dir> 双占位，本地与否取 intake 判定而非字面猜）',
+  portableShape(MC_SRC) && portableShape(MC_DIST) && MC_SRC.indexOf('portableReproduceCmd(opts.input, opts.outDir, intake.kind)') >= 0,
+  'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
+
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
 const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
 if (groupProbe('85-check', 'B', DEPS_B)) {
   const tmpB = mkdtempSync(join(tmpdir(), '85-run-'));
-  const r = spawnSync('node', [join(ENG, 'dist', 'cli.js'), 'audit', '..', '--scale', 'Macro-C', '--out', join(tmpB, 'out')], { encoding: 'utf8', cwd: ENG, timeout: 420000 });
+  // B1 预算 720s：本机实测 audit 单跑 478s（2026-10-26，tracker #34 窗口），原 420s 已不足——机器变慢/仓变大都会踩，
+  //   踩中时 B2~B8 会级联红，读起来像实现回归。runner 级 300s 单件上限属另一层缺陷，归 tracker #54，不在本守卫内处置。
+  const r = spawnSync('node', [join(ENG, 'dist', 'cli.js'), 'audit', '..', '--scale', 'Macro-C', '--out', join(tmpB, 'out')], { encoding: 'utf8', cwd: ENG, timeout: 720000 });
   // 超时与失败必须可分辨：spawnSync 超时时 status=null，与「真失败」同形会误导成回归（#33 复盘实测踩过）
   const bTimedOut = !!(r.error && r.error.code === 'ETIMEDOUT');
-  t('B1 CLI audit --scale Macro-C exit 0（6F 自审实测）', r.status === 0, bTimedOut ? 'TIMEOUT(420s)——并发负载下会超时，先查机器负载再判回归' : 'status=' + r.status + ' err=' + (r.stderr || '').slice(0, 200));
+  t('B1 CLI audit --scale Macro-C exit 0（6F 自审实测）', r.status === 0, bTimedOut ? 'TIMEOUT(720s)——并发负载下会超时，先查机器负载再判回归' : 'status=' + r.status + ' err=' + (r.stderr || '').slice(0, 200));
   let rec = null;
   try { rec = JSON.parse(r.stdout); } catch (e) { }
   t('B2 回执 scale=Macro-C + capabilities=[macro-c] + report_id -MACRO-C 收尾', !!rec && rec.scale === 'Macro-C' && JSON.stringify(rec.capabilities) === JSON.stringify(['macro-c']) && /-MACRO-C$/.test(rec.report_id || ''), rec && rec.report_id);
@@ -101,6 +190,16 @@ if (groupProbe('85-check', 'B', DEPS_B)) {
   t('B6 侧车六判据齐＋band 三档枚举域', !!side && ['PC-MC-1', 'PC-MC-2', 'TC-MC-1', 'TC-MC-2', 'TC-MC-3', 'NC-MC-1'].every(function (c) { return side.adjudication.entries.some(function (e) { return e.criterion_id === c && ['supported', 'unsupported', 'insufficient'].indexOf(e.band) >= 0; }); }));
   const meas = existsSync(join(tmpB, 'out', 'audit-measurements.json')) ? JSON.parse(readFileSync(join(tmpB, 'out', 'audit-measurements.json'), 'utf8')) : null;
   t('B7 measurements 移植溯源＋fact_count>0＋supersede_chain 在', !!meas && meas.fact_count > 0 && !!meas.supersede_chain && String(meas.pipeline && meas.pipeline.recalibration || '').indexOf('85-check') >= 0, meas && meas.fact_count);
+  // B8 报告输出面（tracker #34／ADR-0026）：reproduce_cmd 记 <repo>／<dir> 占位，报告两件不得落本机盘符锚。
+  //   正对照＝探针必须能命中一条真实盘符锚——否则「零命中」只说明探针死了，不说明报告干净。
+  //   正对照样本分片拼接：A12 机检本守卫自身零盘符锚，字面串会让 A12 自己变红。
+  const ABS_PROBE_CTRL = 'macro-audit audit <repo> --scale Macro-C --out ' + ['D:', '/Aworker/6F/out'].join('');
+  const sideRaw = existsSync(join(tmpB, 'out', 'report.json')) ? readFileSync(join(tmpB, 'out', 'report.json'), 'utf8') : '';
+  t('B8 报告输出面无本机绝对路径且 reproduce_cmd 为占位形（report.md＋report.json；tracker #34／ADR-0026 可移植性）',
+    md !== '' && sideRaw !== '' && !ABS_PATH_RE.test(md) && !ABS_PATH_RE.test(sideRaw)
+    && md.indexOf('reproduce_cmd: macro-audit audit <repo> --scale Macro-C --out <dir>') >= 0
+    && ABS_PATH_RE.test(ABS_PROBE_CTRL),
+    'md_hit=' + ABS_PATH_RE.test(md) + ' json_hit=' + ABS_PATH_RE.test(sideRaw) + ' placeholder=' + (md.indexOf('reproduce_cmd: macro-audit audit <repo>') >= 0) + ' probe=' + ABS_PATH_RE.test(ABS_PROBE_CTRL));
   try { rmSync(tmpB, { recursive: true, force: true }); } catch (e) { }
 }
 

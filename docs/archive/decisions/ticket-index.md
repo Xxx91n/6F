@@ -463,7 +463,15 @@ git show 2e6061be:.scratch/macro-audit/decision-ledger.md
 
 ## 6. 冻结事实的可移植性注记
 
-`engine/test/fixtures/contracts/38-macro-c-facts.jsonl`（旧票 #38 的 Macro-C 冻结事实）内含 **30 处本机绝对路径**（全部形如 `D:/Aworker/anysearch-cli`），属原始采集现场，**不可移植**、不作为基准锚。该文件字节零动；基准钉的现行权威面由治理轮 GitHub issue #33/#34 承接，本档案不裁。
+Macro-C 基准语料在本仓历史上有**两枚不同的提交身份**，本节按 ADR-0026 的裁定登记**历史那一枚**与原始现场，现行那一枚只留指针（`85-check` A14 机检下表内值与指针、第 3 行的逐件计数；A15 机检 40 位全值在文本面的引用棘轮）。本节只登记事实与出处，裁定正文在 ADR-0026——本档案非权威、只读：
+
+| 身份 | 值 | 载体 | 地位 |
+|---|---|---|---|
+| 基准钉（唯一权威） | **不在此登记**——见 [`engine/baseline-lock.yaml`](../../../engine/baseline-lock.yaml) `anysearch-cli-adr-corpus` 行 `version`（三元钉 version＋`bundle_sha256`＋`bundle_bytes`） | 同左；`85-check` C 组按它物化仓内 frozen bundle | 现行基准。值单源在锁表，本档案只留指针（同一事实不两写） |
+| 历史产物 | `b45d07992d9c2ee9d01c7b7f176e2fb7c7978dd6` | `38-macro-c-facts.jsonl` 的 `repo_ref`／同批报告件的 `head_sha` 与 `commit_anchor` | 旧票 #38 的采集现场冻结，按 ADR-0026 标为历史产物，不作基准锚 |
+| 原始现场（不可移植） | 合计 **35 处**本机绝对路径（全部形如 `D:/Aworker/anysearch-cli`）：`38-macro-c-facts.jsonl` 30 处、`38-macro-c-preview-report.md` 2 处、`38-macro-c-preview-report.json` 2 处、`38-report.md` 1 处；另有同现场二进制件 `38-audit-facts.duckdb`（不入文本棘轮） | 同左四件文本件＋一枚 duckdb | 采集当刻的机器目录，换机／换 CI／同级仓换父目录即不可解析——不可移植，只作现场留痕 |
+
+上表所列文件**字节零动**（`tracker #34` 的交付面只做声明与机检，不改写任何冻结件；重算这批 golden 不在本票范围）。Macro-C 报告输出面已按 ADR-0026 去掉盘符锚（`85-check` A16 静态面＋B8 实跑面），Macro-B（`audit.ts`）的复现命令不在本票范围。A15 的棘轮面另含三件只带历史 sha、不带盘符锚的冻结件（`38-macro-c-preview-failure.{md,json}`、`38-macro-c-measurements.json`），故其声明集与本节第 3 行不同——两处口径互不替代。
 
 ## 7. 解析断点清单
 
