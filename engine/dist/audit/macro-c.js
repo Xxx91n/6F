@@ -30,6 +30,13 @@ export const MACRO_C_REPORT_ID_PREFIX = 'MA-AUDIT-';
 export const MACRO_C_NC_CANDIDATES = ['apps/cli/package.json', 'package.json', 'Cargo.toml', 'pom.xml', 'pyproject.toml', 'go.mod', 'README.md'];
 export const MACRO_C_LLM_EXPLAIN_CANDIDATES = ['apps/cli/src/index.ts', 'apps/cli/src/composition.ts', 'src/index.ts', 'src/main.ts'];
 export const MACRO_C_SUPERSEDE_KINDS = ['whole-adr-status', 'item-level-inline'];
+// reproduce_cmd 可移植化：本地输入记 `<repo>`、出目录记 `<dir>`（形制同 micro-a.ts），报告输出面不得出现本机绝对路径（ADR-0026）。
+// 本地与否以 intake 的判定为准，不靠字面猜——`projects/demo` 这类相对路径会被 slug 正则误判成 owner/repo，从而依赖原工作目录；
+// `file://` 在 intake 里归 url（URL_SCHEMES），但它承载的正是本机绝对路径，同样要换成占位。
+function portableReproduceCmd(input, outDir, kind) {
+    const local = kind === 'local' || /^file:\/\//i.test(input);
+    return 'macro-audit audit ' + (local ? '<repo>' : input) + ' --scale Macro-C' + (outDir ? ' --out <dir>' : '');
+}
 export function scanSupersedeAdrs(adrDocs) {
     const adrs = [];
     for (const d of adrDocs) {
@@ -297,7 +304,7 @@ export async function runMacroCAudit(opts) {
     }
     // ---------- §5 证据＋结论→引文锚（多 token 全命中；源=运行目录工件相对名） ----------
     const R = NAME.toUpperCase().split('-').join('').split('/').join('');
-    const RUN_CMD = 'macro-audit audit ' + opts.input + ' --scale Macro-C' + (opts.outDir ? ' --out ' + opts.outDir : '');
+    const RUN_CMD = portableReproduceCmd(opts.input, opts.outDir, intake.kind);
     const evidence = [];
     function addEvidence(id, source, tokens, claim, base) {
         const ex = pickExcerpt(source, tokens, base);
