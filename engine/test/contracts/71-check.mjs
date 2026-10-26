@@ -115,8 +115,7 @@ function stripLineComments(line) {
   }
   return line;
 }
-// 违规面=指向本仓 docs/ 树（不随包分发）的引用；豁免=主题仓采集面、`docs/adr`、`docs/archive/decisions` 的引文坐标。
-// Design: 归档豁免只放行出处坐标，运行时读写与 import 仍红 — ADR-0027
+// Design: 归档豁免只放行出处坐标——字面量形态的 docs/ 读写与 import 仍红，经变量传入的引文摘取不归本守卫管 — ADR-0027
 const DOCREF_RE = /docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr|archive\/decisions\/)/;
 const DOCIO_RE = /\b(readFileSync|readdirSync|existsSync|createReadStream|openSync|writeFileSync|appendFileSync|copyFileSync|renameSync|mkdirSync|rmSync|unlinkSync)\s*\([^)]*['"`]docs\/|^\s*(import|export)\b[^;]*from\s*['"`]docs\//;
 const docRefViolation = (line) => DOCREF_RE.test(line) || DOCIO_RE.test(line);

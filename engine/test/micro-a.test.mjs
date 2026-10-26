@@ -67,8 +67,7 @@ t('R8 报告文件双件在', existsSync(join(outDir, r64.outputs.md)) && exists
 const r51 = await MA.buildPrReportMicroA(t1, { n: 51, form: 'human' }, collected, gateOK, shared, { golden: true, outDir: outDir, measName: measName, factsName: factsName });
 t('R9 pr51 判据构建＋overall 三档域', ['supported', 'unsupported', 'insufficient'].indexOf(r51.overall) >= 0, r51.overall);
 t('R10 pr51 form=human', r51.form_actual === 'human' && r51.form_match === true, r51.form_actual);
-// R11/R12 溯源串可解析（#29／ADR-0027：报告溯源串改指仓内 contract fixtures 与归档索引）——
-//   gate_ref 两路径必须是本仓现行文件、且证据源零 .scratch；golden 再生见 48 契约件（48-check B4 齐备腿）。
+// Design: gate_ref 两路径须为本仓现行文件、证据源零 .scratch——溯源串落点与 golden 同窗对账 — ADR-0027
 const SELF = join(HERE, '..', '..');
 const sc64 = JSON.parse(readFileSync(join(outDir, r64.outputs.sidecar), 'utf8'));
 const gr64 = sc64.gate_ref || (sc64.receipt && sc64.receipt.gate_ref);
@@ -98,8 +97,8 @@ t('F1 gate 闸 merged=0 eligible=false', gp.merged_prs === 0 && gp.eligible === 
 const rf = await MA.buildRefusalReportMicroA({ name: gp.name, owner: gp.owner, repo: gp.repo, headSha: gp.headSha, root: null, facts: gp.facts, ctx: gp.ctx }, sharedZ, { golden: false, outDir: outDir, measName: measName });
 t('F2 拒绝件 overall=unsupported', rf.overall === 'unsupported', rf.overall);
 t('F3 拒绝件语义（无托管 PR 面＋前置条件＋intake-refused 象限标记）', (function () { const md = readFileSync(join(outDir, rf.outputs.md), 'utf8'); const sc = JSON.parse(readFileSync(join(outDir, rf.outputs.sidecar), 'utf8')); return md.indexOf('无托管 PR 面') >= 0 && md.indexOf('前置条件') >= 0 && sc.quadrants.every(function (q) { return q.conflict_markers.indexOf('intake-refused') >= 0; }) && sc.adjudication.entries.some(function (e) { return e.criterion_id === 'TC-4' && e.band === 'unsupported'; }); })());
-// REF-03 是「硬约束锚」：claim 引的那句在 D-033 立法行；单 token '无托管 PR 面' 命中的是 D-049 行（不含该句）
-t('F4 REF-03 硬约束锚引文=D-033 决策行本体且含被引约束句', (function () { const sc = JSON.parse(readFileSync(join(outDir, rf.outputs.sidecar), 'utf8')); const e = (sc.evidence || []).filter(function (x) { return /-REF-03$/.test(x.evidence_id); })[0]; if (!e) { return false; } const cells = String(e.excerpt).split('|'); return cells[1] !== undefined && cells[1].trim() === 'D-033' && String(e.excerpt).indexOf('不得指派无托管 PR 面') >= 0; })(), 'REF-03 absent 或落错行');
+// REF-03 是「硬约束锚」：claim 引的约束句在 D-033 立法行；原单 token '无托管 PR 面' 首先命中的 D-049 行不含该句
+t('F4 REF-03 硬约束锚落在 D-033 决策行本体', (function () { const sc = JSON.parse(readFileSync(join(outDir, rf.outputs.sidecar), 'utf8')); const e = (sc.evidence || []).filter(function (x) { return /-REF-03$/.test(x.evidence_id); })[0]; if (!e) { return false; } const cells = String(e.excerpt).split('|'); return cells[1] !== undefined && cells[1].trim() === 'D-033'; })(), 'REF-03 absent 或首格非 D-033');
 
 // ---------- C CLI 接线（离线安全面：input gate／scope gate 先于网络） ----------
 const c1 = spawnSync('node', [CLI, 'audit', join(tmp, 'local-path'), '--scale', 'Micro-A'], { encoding: 'utf8' });
