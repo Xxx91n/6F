@@ -115,6 +115,15 @@ function stripLineComments(line) {
   }
   return line;
 }
+// 违规面=指向本仓 docs/ 树（不随包分发）的可解析引用：
+//   ①docs/upstream-* 路径或 .md 文档名引用 ②../docs/ 相对路径 ③join(自仓基座, 'docs'...)
+// 豁免：主题仓 join(repoRoot/subject,'docs','adr') 采集面＋同名 .ts/.js 模块 import（非文档路径）
+//   ＋`docs/archive/decisions/` 的**引文坐标**（#29：ADR-0027 点名的归档索引是报告溯源串的仓内解析入口）。
+// 豁免只覆盖"字符串坐标"，**不覆盖运行时读取**——`readFileSync('docs/archive/decisions/…')` 仍红（见 READ 腿），
+// 否则放行面会与该守卫的立法理由（禁依赖与读取）背离。
+const DOCREF_RE = /docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr|archive\/decisions\/)/;
+const DOCREAD_RE = /\b(readFileSync|readdirSync|existsSync|createReadStream|openSync|import)\s*\([^)]*['"]docs\//;
+const docRefViolation = (line) => DOCREF_RE.test(line) || DOCREAD_RE.test(line);
 const docRefViolations = [];
 const walkCode = (dir) => {
   if (!fs.existsSync(dir)) return;
@@ -126,12 +135,7 @@ const walkCode = (dir) => {
     lines.forEach((l, i) => {
       const isMd = /\.md$/.test(e.name);
       const stripped = isMd ? l : stripLineComments(l);
-      // 违规面=指向本仓 docs/ 树（不随包分发）的可解析引用：
-      //   ①docs/upstream-* 路径或 .md 文档名引用 ②../docs/ 相对路径 ③join(自仓基座, 'docs'...)
-      // 豁免：主题仓 join(repoRoot/subject,'docs','adr') 采集面＋同名 .ts/.js 模块 import（非文档路径）
-      //   ＋`docs/archive/decisions/`（#29 收窄豁免：ADR-0027 点名的「归档索引」是报告溯源串的仓内解析入口，
-      //     属报告输出面的出处字符串，非引擎运行时读取——禁的是依赖与读取，不是引文坐标。ADR-0027 勘误在案）
-      if (/docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr|archive\/decisions\/)/.test(stripped)) {
+      if (docRefViolation(stripped)) {
         docRefViolations.push(p.replace(ROOT + '\\', '') + ':' + (i + 1));
       }
     });
@@ -139,8 +143,20 @@ const walkCode = (dir) => {
 };
 walkCode(join(ENG, 'src'));
 walkCode(join(ENG, 'skills'));
-t('E1 engine/{src,skills} 无指向本仓 docs/ 树的可解析引用（upstream-dimension-map 引用仅限注释指针——D-083⑤；#29 收窄豁免 docs/archive/decisions/ 溯源串）',
+t('E1 engine/{src,skills} 无指向本仓 docs/ 树的可解析引用（upstream-dimension-map 引用仅限注释指针——D-083⑤；#29 收窄豁免 docs/archive/decisions/ 引文坐标）',
   docRefViolations.length === 0, docRefViolations.slice(0, 8).join(' '));
+// E1-P 判别臂活性（正/负对照——豁免收窄后必须仍然能红）：判定函数对五类样本的判色
+const E1_PROBES = [
+  ["const p = 'docs/spec.md';", true, '其余 docs/ 路径仍红'],
+  ["const p = '../docs/spec.md';", true, '相对路径仍红'],
+  ["readFileSync('docs/archive/decisions/macro-audit-ledger.md');", true, '归档目录的运行时读取仍红（豁免只给坐标）'],
+  ["const p = 'docs/archive/decisions/macro-audit-ledger.md';", false, '归档目录的引文坐标放行'],
+  ["const p = 'docs/adr/0027-x.md';", false, 'ADR 指针放行']
+];
+const e1Red = E1_PROBES.filter(function (x) { return docRefViolation(x[0]) !== x[1]; });
+t('E1-P 判别臂活性：五类样本判色全对（红/绿两侧均非空——收窄后仍能红，豁免不吞掉运行时读取）',
+  e1Red.length === 0 && E1_PROBES.some(function (x) { return x[1]; }) && E1_PROBES.some(function (x) { return !x[1]; }),
+  e1Red.map(function (x) { return x[2]; }).join(' '));
 
 // ---------- F. 引擎测试闭环 ----------
 const pkg = JSON.parse(txt(join(ENG, 'package.json')));

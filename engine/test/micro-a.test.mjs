@@ -77,10 +77,12 @@ t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 
   !!gr64 && !/\.scratch/.test(String(gr64.criteria_path) + String(gr64.basis_path))
   && existsSync(join(SELF, grPath(gr64.criteria_path))) && existsSync(join(SELF, grPath(gr64.basis_path))),
   JSON.stringify(gr64));
-t('R12 证据源零退役 .scratch 且授权锚 grounded（EV(4)/EV(5) 引文摘取成功）',
-  sc64.evidence.every(function (e) { return String(e.source).indexOf('.scratch') < 0 && String(e.reproduce_cmd).indexOf('.scratch') < 0; })
-  && sc64.evidence.filter(function (e) { return /-(04|05)$/.test(e.evidence_id); }).every(function (e) { return e.grounded === true; }),
-  JSON.stringify(sc64.evidence.filter(function (e) { return e.grounded !== true; }).map(function (e) { return e.evidence_id + ':' + e.reproduce_absent_reason; })));
+// 授权锚=EV(4) 票面授权锚＋EV(5) 判据预声明锚；条数钉死（filter 落空会让 .every 恒真——空集不构成正对照）
+const anchors = sc64.evidence.filter(function (e) { return /-(04|05)$/.test(e.evidence_id); });
+t('R12 证据源零退役 .scratch 且授权锚 grounded（EV(4)/EV(5) 恰两条，引文摘取成功）',
+  anchors.length === 2 && anchors.every(function (e) { return e.grounded === true; })
+  && sc64.evidence.every(function (e) { return String(e.source).indexOf('.scratch') < 0 && String(e.reproduce_cmd).indexOf('.scratch') < 0; }),
+  JSON.stringify({ anchors: anchors.length, ungrounded: sc64.evidence.filter(function (e) { return e.grounded !== true; }).map(function (e) { return e.evidence_id + ':' + e.reproduce_absent_reason; }) }));
 
 // ---------- F 拒绝件（48 §7 同构——zero-pr synthetic cassette） ----------
 const zeroCas = { name: 'zero-pr-synthetic', recorded: 'synthetic', calls: [{ request: { method: 'GET', path: '/repos/Xxx91n/goose-duck-agent/pulls?state=all&per_page=100&page=1' }, response: { status: 200, headers: { 'x-ratelimit-limit': '60', 'x-ratelimit-remaining': '59', 'x-ratelimit-used': '1', 'x-ratelimit-reset': '0', 'x-ratelimit-resource': 'core' }, body: [] } }] };
