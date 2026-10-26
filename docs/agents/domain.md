@@ -4,9 +4,12 @@ How the engineering skills should consume this repo's domain documentation when 
 
 ## Before exploring, read these
 
-- **`GLOSSARY.md`** at the repo root: the single authority for domain vocabulary.
-- **`docs/spec.md`**: the authority for product decisions.
-- **`docs/known-gaps.md`**: code-level coverage gaps already registered.
+Where a decision or a term belongs is stated once, in **[`docs/authority.md`](../authority.md)**. Read the files below for content:
+
+- **`GLOSSARY.md`** at the repo root — domain vocabulary.
+- **`docs/spec.md`** — product decisions.
+- **`docs/adr/`** — architecture decisions (Context / options / consequences).
+- **`docs/known-gaps.md`** — code-level coverage gaps already registered.
 
 If any of these files don't exist, proceed silently. Don't flag their absence.
 
@@ -18,7 +21,9 @@ Single-context repo:
 /
 ├── GLOSSARY.md
 ├── docs/
+│   ├── authority.md
 │   ├── spec.md
+│   ├── adr/
 │   └── known-gaps.md
 └── engine/
 ```
@@ -31,6 +36,7 @@ If the concept you need isn't in the glossary yet, that's a signal: either you'r
 
 ## Flag decision conflicts
 
-If your output contradicts a recorded product decision in `docs/spec.md`, surface it explicitly rather than silently overriding:
+If your output contradicts a recorded decision, surface it explicitly rather than silently overriding (`docs/authority.md` says which carrier holds it):
 
 > _Contradicts docs/spec.md §…, but worth reopening because…_
+> _Contradicts docs/adr/00NN-…, but worth reopening because…_

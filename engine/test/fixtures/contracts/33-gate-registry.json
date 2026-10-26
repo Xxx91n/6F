@@ -2758,15 +2758,15 @@
   {
    "id": "consumption-forms-multi-consumer-class",
    "family": "code-hygiene",
-   "title": "consumption_forms 多形态消费方守卫类登记（D-214①）——十八件带组级 need() 前置的守卫（groupProbe 十七件＋整件 envProbe 一件 37-check）；75a-T4 强制声明集↔本项 guards 对账（新增多形态消费方守卫须同窗更新本项）",
+   "title": "consumption_forms 多形态消费方守卫类登记（D-214①）——十七件多形态消费方守卫（groupProbe 十六件＋整件 envProbe 一件 37-check＋组级闸改红断言一件 43-check：#72 后其准入从 groupProbe 改为红的 B5-GATE，但两形态行为仍不同，故留类）；声明集↔本项 guards 对账现由**人工同窗维护**（75a-T4 已退役，无自动断言；新增/摘除多形态消费方守卫须同窗更新本项）",
    "deadline_event": null,
    "deadline": "无（登记项）",
    "trigger_event": "consumption-forms-enumeration-active",
    "trigger": "D-214① consumption_forms 枚举面落地当轮即登记（与 tier 自声明 D-159② 同 commit、同 T 组机检「未声明=红」）",
-   "review_at": "新增/摘除多形态消费方守卫时（75a-T4 对账强制同窗）＋每审计窗复核",
+   "review_at": "新增/摘除多形态消费方守卫时（人工同窗对账——75a-T4 已退役）＋每审计窗复核",
    "status": "decided",
    "owner": "macro-audit 队列值守",
-   "verify_method": "75a-check.mjs T4 断言：全量 -check.mjs 中 const CONSUMPTION_FORMS 声明集==本项 guards 集（漂移即红，双向对账防事后标签漂移）",
+   "verify_method": "人工同窗对账（原 75a-check.mjs T4 断言已随该守卫退役）：全量 -check.mjs 的 const CONSUMPTION_FORMS 声明集须等于本项 guards 集——无自动红，靠本项 review_at 触发人工复核",
    "review_event": "stage3-close",
    "guards": [
     "23-first-report-check.mjs",
@@ -2796,7 +2796,14 @@
      "decision": "registered",
      "reason": "consumption_forms 枚举面首建：多形态消费方=带组级 need() 前置守卫（groupProbe 十七件 23/26/27/28/38/39/40/43/46/50/53/78/80/83/84/85/86＋整件 envProbe 一件 37-check），逐件声明 ['dev-full','ci-shallow']；单 dev 消费方守卫（余 47 件）不强制枚举不设枚举税（D-214① 粒度收窄）",
      "evidence": "reports/84-check.mjs HISTREACH groupProbe git-history:full＋_lib/env-contract.mjs groupProbe/envProbe＋各 check groupProbe 调用点"
-    }
+    },
+    {
+     "at": "2026-10-26",
+     "by": "#72（43-check 组级闸改红断言）",
+     "criterion_version": "D-214①",
+     "decision": "rescoped",
+     "reason": "43-check 的 B5/C 准入由 groupProbe(git-object:) 改为红断言 B5-GATE（在仓冻结件缺陷＝仓库面，不该退化成 SKIP）。该类仍保留 43-check——两种消费形态下行为依旧不同（浅克隆走 bundle 物化、全克隆短路），只是不再有组级 need 前置；计数由「十八件（groupProbe 十七件）」改为「十七件（groupProbe 十六件＋envProbe 一件＋红闸一件）」。75a-T4 已退役，本项现由人工同窗维护。",
+     "evidence": "engine/test/contracts/43-check.mjs B5-GATE／T0；engine/test/contracts-run.mjs SKIP-GROUPS=0"}
    ],
    "bound_to": "#91 探测面立法落地批（D-214① consumption_forms 枚举面首建）"
   },

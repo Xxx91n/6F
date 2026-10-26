@@ -27,6 +27,28 @@ When set to `yes`, PRs run through the same labels and states as issues, using t
 
 GitHub shares one number space across issues and PRs, so a bare `#42` may be either: resolve with `gh pr view 42` and fall back to `gh issue view 42`.
 
+## Merging PRs created by GitButler
+
+Merging is an outward action — do it only once the user has explicitly asked for that merge (`AGENTS.md`).
+
+GitButler publishes *native* GitHub stacked pull requests when the repo is enrolled in GitHub's stacked-PR preview and the PR uses same-repo branches; otherwise (preview not enabled, fork-based, or `but config forge github-stacks disable`) it falls back to an *ordinary* PR whose description carries the stack info.
+
+- **Ordinary (fallback) PR** — the regular path works: `gh pr merge "$PR_NUMBER" --squash` (#65 in this repo merged this way).
+- **Native stacked PR** — the regular paths all reject it, with different messages: `gh pr merge` fails with a GraphQL error ("This pull request is part of a stack and must be merged using the asynchronous merge REST API"), while `PUT /repos/{owner}/{repo}/pulls/$PR_NUMBER/merge` returns 403 "Merging stacked PRs via this endpoint is not supported". Use the asynchronous merge API below. Once merge is already authorized, either failure is the signal to switch paths; never probe before authorization, since a successful probe *is* a merge.
+
+```bash
+PR_NUMBER=123
+# Enqueue → 202 carries details.uuid; 200 means it was already merged/enqueued (no uuid — skip the poll)
+UUID=$(gh api -X PUT "repos/{owner}/{repo}/pulls/$PR_NUMBER/merge-async" \
+  -F merge_method=squash -F merge_action=direct_merge --jq '.details.uuid // empty')
+# Poll only when enqueue actually returned a uuid (200 = already merged/enqueued, no uuid)
+if [ -n "$UUID" ]; then
+  gh api "repos/{owner}/{repo}/pulls/$PR_NUMBER/merge-async/$UUID"   # pending | merged (details.sha) | failed
+fi
+```
+
+- **Note**: closing keywords in the PR body are not processed on this path — close linked issues explicitly after the merge lands.
+
 ## When a skill says "publish to the issue tracker"
 
 Create a GitHub issue.

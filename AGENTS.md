@@ -8,9 +8,11 @@ macro-audit（6F）——宏观+微观工程内容审计产品，分发形态=Ag
 - 测试：`cd engine && npm test`（gen + build + smoke 全链）
 - CLI：`node engine/dist/cli.js --help`
 
+## 权威
+- 决策与术语分别落在哪：唯一成文处是 [`docs/authority.md`](docs/authority.md)，门面文书只留指针。
+
 ## 别改
 - `engine/dist/` 是生成物：改 `engine/src` 后必须 `npm run build`，提交前跑 `cd engine && node scripts/check-dist.mjs` 确认零 drift。
-- `docs/spec.md` 是产品决策唯一权威；`GLOSSARY.md` 是术语唯一权威。
 
 ## 坑
 - DuckDB 用 `@duckdb/node-api` 原生绑定；测试是直跑式 `.test.mjs`，不用测试框架。
@@ -29,4 +31,4 @@ The five canonical triage roles, with label strings equal to their names. See `d
 
 ### Domain docs
 
-Single-context: `GLOSSARY.md` plus `docs/spec.md` at the repo root. See `docs/agents/domain.md`.
+Single-context repo. See `docs/agents/domain.md`.

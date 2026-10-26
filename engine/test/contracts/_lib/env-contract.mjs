@@ -91,9 +91,12 @@ export function gitObjectOk(repoRoot, sha) {
 //   只读命令即见冻结对象（alternates 语义天然只读，主仓 object store 零写）。
 export function materializeGitObjects(repoRoot, bundlePath) {
   if (!existsSync(bundlePath)) return null;
-  const tmp = mkdtempSync(join(tmpdir(), 'env-contract-gobj-'));
-  const cleanup = () => { try { rmSync(tmp, { recursive: true, force: true }); } catch (_) { /* best-effort */ } };
+  // 临时目录创建也必须在失败路径内：mkdtempSync 抛出的异常若逃出去，调用方（如 43-check 的 B5-GATE）
+  //   就没机会把它报成一条 FAIL，整条 contracts-run 会被栈回溯拉红——与「bundle 缺席」同型（#72）。
+  let tmp = null;
+  const cleanup = () => { if (!tmp) { return; } try { rmSync(tmp, { recursive: true, force: true }); } catch (_) { /* best-effort */ } };
   try {
+    tmp = mkdtempSync(join(tmpdir(), 'env-contract-gobj-'));
     const gcd = spawnSync('git', ['-C', repoRoot, 'rev-parse', '--git-common-dir'], { encoding: 'utf8' });
     const gcdPath = gcd.status === 0 ? gcd.stdout.trim() : '';
     const mainObjects = join(gcdPath ? (isAbsolute(gcdPath) ? gcdPath : join(repoRoot, gcdPath)) : join(repoRoot, '.git'), 'objects');
