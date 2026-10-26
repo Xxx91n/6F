@@ -62,6 +62,15 @@ const meas = existsSync(join(OUT, 'audit-measurements.json')) ? JSON.parse(readF
 t('R8 measurements.supersede_chain：item-level=1 + self-quote=0 + unresolved=1（ADR-003→999）', !!meas && meas.supersede_chain.item_level_supersessions >= 1 && meas.supersede_chain.unresolved_refs.length === 1, JSON.stringify(meas && { e: meas.supersede_chain.edge_count, u: meas.supersede_chain.unresolved_refs.length }));
 t('R9 measurements.llm_gate 门控态在（configured 布尔——不伪造不真调）', !!meas && meas.llm_gate && typeof meas.llm_gate.configured === 'boolean');
 t('R10 measurements.pipeline 移植溯源在（source+recalibration）', !!meas && !!meas.pipeline && String(meas.pipeline.source).indexOf('38-macro-c-preview.mjs') >= 0 && String(meas.pipeline.recalibration).indexOf('85-check') >= 0);
+// R11 溯源串可解析（#29／ADR-0027：报告溯源串改指仓内 contract fixtures 与归档索引）——
+//   gate_ref 两路径必须是本仓现行文件；已退役 .scratch 前缀回潮即红（golden 再生见 38/48 契约件）。
+const SELF = join(HERE, '..', '..');
+const gr = side && (side.gate_ref || (side.receipt && side.receipt.gate_ref));
+const grPath = function (s) { return String(s || '').split(' ')[0]; };
+t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 .scratch）',
+  !!gr && !/\.scratch/.test(String(gr.criteria_path) + String(gr.basis_path))
+  && existsSync(join(SELF, grPath(gr.criteria_path))) && existsSync(join(SELF, grPath(gr.basis_path))),
+  JSON.stringify(gr));
 
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);

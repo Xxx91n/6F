@@ -1,5 +1,5 @@
 # MA-48-ENVMANAGER-PR64-PREVIEW — Micro-A 首报（Xxx91n/env-manager#64）
-> RECEIPT RCP-968032b090a8e16a chain=968032b090a8e16a9dcd959dd990937a content=254026e6e169b4c6 facts=3 adjudications=6 issued_at=1970-01-01T00:00:00.000Z commit=f5423020e02a0369730c360b8238a234730be85c tree=unanchored
+> RECEIPT RCP-7e24e34509c88523 chain=7e24e34509c88523cfc6d33c59b2f204 content=254026e6e169b4c6 facts=3 adjudications=6 issued_at=1970-01-01T00:00:00.000Z commit=f5423020e02a0369730c360b8238a234730be85c tree=unanchored
 >
 > 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
 >
@@ -72,31 +72,31 @@
 ### EV-48-ENVMANAGER-PR64-01 — 48-micro-a-golden-env-manager-measurements.json @ L9
 - claim: 本次实测：env-manager 托管枚举真实发生（prs_listed=62 merged=17）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
+- reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
 - 引文原文: "prs_listed": 62,
 
 ### EV-48-ENVMANAGER-PR64-02 — 48-micro-a-golden-env-manager-pr64.diff @ L1
 - claim: 本次实测：env-manager#64 diff 工件行级锚（channel=api bytes=1549）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
+- reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
 - 引文原文: diff --git a/.release-please-manifest.json b/.release-please-manifest.json
 
 ### EV-48-ENVMANAGER-PR64-03 — 48-micro-a-golden-env-manager-facts.jsonl @ L66
 - claim: 本次实测：env-manager#64 元数据事实落库（merged=true）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
+- reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
 - 引文原文: {"fact_seq":66,"fact_id":"556a2e89-e493-bb4b-150b-d088e3e90566","schema_version":1,"trace_id":"e7d54d368784ea3f02b9bdd9424b8ec5","baggage_id":"b48f14d63db2bca095fcb730d4d4d666","scale":"Micro-A","quadrant":"strategic","dimension":null,"collector_id":"github-rest-adapter@v1","repo_ref":"Xxx91n/env-manager","subject_ref":"Xxx91n/env-manager#64","evidence_ref":"GET /repos/Xxx91n/env-manager/pulls/64","metric":"github_rest.pr_metadata","value_json":"{\"number\":64,\"title\":\"chore(main): release 0.12.1\",\"state\":\"closed\",\"draft\":false,\"author_login\":\"github-actions[bot]\",\"author_type\":\"Bot\",\"bot_declared\":true,\"bot_basis\":\"platform-declared:user.type==Bot&&login~[bot]\",\"merged_at\":\"2026-09-14T17:14:23Z\",\"head_sha\":\"4d601a66f390146ea105c0dc12313fc716ae5afc\",\"base_sha\":\"17038beff45d132395475a050dbf454af15a7f1a\",\"html_url\":\"https://github.com/Xxx91n/env-manager/pull/64\",\"merged\":true,\"merge_commit_sha\":\"f5423020e02a0369730c360b8238a234730be85c\",\"additions\":11,\"deletions\":1,\"changed_files\":2,\"commits\":1,\"comments\":1,\"review_comments\":0,\"created_at\":\"2026-09-14T04:58:33Z\",\"closed_at\":\"2026-09-14T17:14:23Z\",\"merged_by_login\":\"Xxx91n\",\"merged_by_type\":\"User\"}","observed_at":"1970-01-01T00:00:00.000Z","ingested_at":"1970-01-01T00:00:00.000Z"}
 
-### EV-48-ENVMANAGER-PR64-04 — .scratch/macro-audit/decision-ledger.md @ L40
+### EV-48-ENVMANAGER-PR64-04 — docs/archive/decisions/macro-audit-ledger.md @ L40
 - claim: 票面授权锚：D-049 Micro-A preview 单票铺开决策行
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: git -C D:\Aworker\6F show HEAD:.scratch/macro-audit/decision-ledger.md
+- reproduce_cmd: git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md
 - 引文原文: - 增量去向：D-048→BACKLOG #47＋spec-phase-tasks R8-01＋upstream-lock github-rest planned 行（kind 词表扩 remote-api）＋README §3 行＋versioning 种子行＋ADR-0020；D-049→BACKLOG #48＋R8-02；D-050→BACKLOG #49＋R8-03（#46 行选定补记于 #49 行内）；D-051→BACKLOG #41b 行＋engine/LICENSE 换文＋manifest/package/marketplace license 字段＋ADR-0021＋checklist §B 勾销；D-052→manifest.meta.json（单源）→双 manifest 重生成（GEN-OK）＋.claude-plugin/marketplace.json 新建＋description.md/checklist 同步＋CONTEXT 双词
 
-### EV-48-ENVMANAGER-PR64-05 — .scratch/architecture-recovery/reports/48-micro-a-criteria.md @ L15
+### EV-48-ENVMANAGER-PR64-05 — engine/test/fixtures/contracts/48-micro-a-criteria.md @ L15
 - claim: 判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: git -C D:\Aworker\6F show HEAD:.scratch/architecture-recovery/reports/48-micro-a-criteria.md
+- reproduce_cmd: git -C <repo> show HEAD:engine/test/fixtures/contracts/48-micro-a-criteria.md
 - 引文原文: | TC-4 | 真判据（托管面资格闸） | 托管枚举 merged PR ≥1 → eligible；=0 → intake 显式拒绝（D-033 硬约束逆用） | supported | merged=0 → unsupported（拒绝成立） |
 
 #### 引文→结论支持关系校验

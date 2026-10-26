@@ -1,5 +1,5 @@
 # MA-48-ENVMANAGER-PR51-PREVIEW — Micro-A 首报（Xxx91n/env-manager#51）
-> RECEIPT RCP-8beb154fa1b6310e chain=8beb154fa1b6310e45f7f036ae67f7fc content=88d7b79964803202 facts=2 adjudications=6 issued_at=1970-01-01T00:00:00.000Z commit=92764cb14e7178cb2fa39232208c9fd86a899705 tree=unanchored
+> RECEIPT RCP-3af53cfb74045087 chain=3af53cfb740450876c40c1ccf68153a1 content=88d7b79964803202 facts=2 adjudications=6 issued_at=1970-01-01T00:00:00.000Z commit=92764cb14e7178cb2fa39232208c9fd86a899705 tree=unanchored
 >
 > 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
 >
@@ -72,31 +72,31 @@
 ### EV-48-ENVMANAGER-PR51-01 — 48-micro-a-golden-env-manager-measurements.json @ L9
 - claim: 本次实测：env-manager 托管枚举真实发生（prs_listed=62 merged=17）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
+- reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
 - 引文原文: "prs_listed": 62,
 
 ### EV-48-ENVMANAGER-PR51-02 — 48-micro-a-golden-env-manager-pr51.diff @ L0
 - claim: env-manager#51 diff 工件
 - grounded: false · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
+- reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
 - 引文原文: （缺失 —— ⚠ unverified）
 
 ### EV-48-ENVMANAGER-PR51-03 — 48-micro-a-golden-env-manager-facts.jsonl @ L68
 - claim: 本次实测：env-manager#51 元数据事实落库（merged=true）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
+- reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
 - 引文原文: {"fact_seq":68,"fact_id":"13ebbfc1-6801-134b-7b63-b68108a86970","schema_version":1,"trace_id":"e7d54d368784ea3f02b9bdd9424b8ec5","baggage_id":"b48f14d63db2bca095fcb730d4d4d666","scale":"Micro-A","quadrant":"strategic","dimension":null,"collector_id":"github-rest-adapter@v1","repo_ref":"Xxx91n/env-manager","subject_ref":"Xxx91n/env-manager#51","evidence_ref":"GET /repos/Xxx91n/env-manager/pulls/51","metric":"github_rest.pr_metadata","value_json":"{\"number\":51,\"title\":\"fix(release): add workflow_dispatch trigger to release-please for manual re-runs (ticket 30 drill finding)\",\"state\":\"closed\",\"draft\":false,\"author_login\":\"Xxx91n\",\"author_type\":\"User\",\"bot_declared\":false,\"bot_basis\":\"platform-declared:user.type==Bot&&login~[bot]\",\"merged_at\":\"2026-09-06T03:20:26Z\",\"head_sha\":\"b0641b787a3823cba03030847d9d31e30483ece0\",\"base_sha\":\"a8f2dd2a4c0dfab43ff40baf92a545f6610aede3\",\"html_url\":\"https://github.com/Xxx91n/env-manager/pull/51\",\"merged\":true,\"merge_commit_sha\":\"92764cb14e7178cb2fa39232208c9fd86a899705\",\"additions\":3,\"deletions\":0,\"changed_files\":1,\"commits\":1,\"comments\":0,\"review_comments\":0,\"created_at\":\"2026-09-06T03:08:09Z\",\"closed_at\":\"2026-09-06T03:20:27Z\",\"merged_by_login\":\"Xxx91n\",\"merged_by_type\":\"User\"}","observed_at":"1970-01-01T00:00:00.000Z","ingested_at":"1970-01-01T00:00:00.000Z"}
 
-### EV-48-ENVMANAGER-PR51-04 — .scratch/macro-audit/decision-ledger.md @ L40
+### EV-48-ENVMANAGER-PR51-04 — docs/archive/decisions/macro-audit-ledger.md @ L40
 - claim: 票面授权锚：D-049 Micro-A preview 单票铺开决策行
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: git -C D:\Aworker\6F show HEAD:.scratch/macro-audit/decision-ledger.md
+- reproduce_cmd: git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md
 - 引文原文: - 增量去向：D-048→BACKLOG #47＋spec-phase-tasks R8-01＋upstream-lock github-rest planned 行（kind 词表扩 remote-api）＋README §3 行＋versioning 种子行＋ADR-0020；D-049→BACKLOG #48＋R8-02；D-050→BACKLOG #49＋R8-03（#46 行选定补记于 #49 行内）；D-051→BACKLOG #41b 行＋engine/LICENSE 换文＋manifest/package/marketplace license 字段＋ADR-0021＋checklist §B 勾销；D-052→manifest.meta.json（单源）→双 manifest 重生成（GEN-OK）＋.claude-plugin/marketplace.json 新建＋description.md/checklist 同步＋CONTEXT 双词
 
-### EV-48-ENVMANAGER-PR51-05 — .scratch/architecture-recovery/reports/48-micro-a-criteria.md @ L15
+### EV-48-ENVMANAGER-PR51-05 — engine/test/fixtures/contracts/48-micro-a-criteria.md @ L15
 - claim: 判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: git -C D:\Aworker\6F show HEAD:.scratch/architecture-recovery/reports/48-micro-a-criteria.md
+- reproduce_cmd: git -C <repo> show HEAD:engine/test/fixtures/contracts/48-micro-a-criteria.md
 - 引文原文: | TC-4 | 真判据（托管面资格闸） | 托管枚举 merged PR ≥1 → eligible；=0 → intake 显式拒绝（D-033 硬约束逆用） | supported | merged=0 → unsupported（拒绝成立） |
 
 #### 引文→结论支持关系校验

@@ -32,3 +32,4 @@
 - 文档改动进入 CI 门禁；新增一个单腿 workflow，不占用 engine-ci 六腿。
 - 三个新/重建守卫：docs-authority、registry 一致性、23-first-report。
 - 版本 0.3.0；不打 tag、不 push，发布动作仍走用户闸门。
+- **勘误（2026-10-26 / #29）**：本 ADR Decision 的「报告溯源串改指仓内 contract fixtures 与归档索引」一条与 D-083⑤（`71-check` E1：`engine/{src,skills}` 禁指本仓 `docs/` 树，理由=`docs/` 不随包分发）互斥——成文时未与该守卫对账，落地即红。裁定：该守卫禁的是**依赖与运行时读取**，不是**引文坐标**；溯源串是给读者解析出处的字符串，引擎不 deref 它。故 `71-check` E1 的豁免收窄放行 `docs/archive/decisions/` 一处，其余 `docs/` 仍禁；账本行（`D-034`／`D-049`）因此仍作一手出处，不降级为契约件里的二次引用。

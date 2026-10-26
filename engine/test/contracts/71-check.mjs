@@ -129,7 +129,9 @@ const walkCode = (dir) => {
       // 违规面=指向本仓 docs/ 树（不随包分发）的可解析引用：
       //   ①docs/upstream-* 路径或 .md 文档名引用 ②../docs/ 相对路径 ③join(自仓基座, 'docs'...)
       // 豁免：主题仓 join(repoRoot/subject,'docs','adr') 采集面＋同名 .ts/.js 模块 import（非文档路径）
-      if (/docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr)/.test(stripped)) {
+      //   ＋`docs/archive/decisions/`（#29 收窄豁免：ADR-0027 点名的「归档索引」是报告溯源串的仓内解析入口，
+      //     属报告输出面的出处字符串，非引擎运行时读取——禁的是依赖与读取，不是引文坐标。ADR-0027 勘误在案）
+      if (/docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr|archive\/decisions\/)/.test(stripped)) {
         docRefViolations.push(p.replace(ROOT + '\\', '') + ':' + (i + 1));
       }
     });
@@ -137,7 +139,7 @@ const walkCode = (dir) => {
 };
 walkCode(join(ENG, 'src'));
 walkCode(join(ENG, 'skills'));
-t('E1 engine/{src,skills} 无指向本仓 docs/ 树的可解析引用（upstream-dimension-map 引用仅限注释指针——D-083⑤）',
+t('E1 engine/{src,skills} 无指向本仓 docs/ 树的可解析引用（upstream-dimension-map 引用仅限注释指针——D-083⑤；#29 收窄豁免 docs/archive/decisions/ 溯源串）',
   docRefViolations.length === 0, docRefViolations.slice(0, 8).join(' '));
 
 // ---------- F. 引擎测试闭环 ----------

@@ -16,8 +16,8 @@
     "baggage_id": "b48f14d63db2bca095fcb730d4d4d666"
   },
   "receipt": {
-    "receipt_id": "RCP-968032b090a8e16a",
-    "chain_hash": "968032b090a8e16a9dcd959dd990937a8cf37d5f88de6a04e7b5be80b2f2c66e",
+    "receipt_id": "RCP-7e24e34509c88523",
+    "chain_hash": "7e24e34509c88523cfc6d33c59b2f2043f2e4823153a018d87c822f5db2392d6",
     "issued_at": "1970-01-01T00:00:00.000Z",
     "commit_anchor": "f5423020e02a0369730c360b8238a234730be85c",
     "tree_anchor": "unanchored",
@@ -27,9 +27,9 @@
       "canonicalization": "json_utf8_entries_then_citation_checks"
     },
     "gate_ref": {
-      "prereg_commit": "3e588e02",
-      "criteria_path": ".scratch/architecture-recovery/reports/48-micro-a-criteria.md",
-      "basis_path": ".scratch/architecture-recovery/issues/48-micro-a-preview.md",
+      "prereg_commit": "e356581e",
+      "criteria_path": "engine/test/fixtures/contracts/48-micro-a-criteria.md",
+      "basis_path": "engine/test/fixtures/contracts/48-micro-a-preview-issue.md",
       "criterion_ids": [
         "PC-1",
         "TC-1",
@@ -42,7 +42,7 @@
     "fact_count": 3,
     "adjudication_count": 6,
     "degraded": false,
-    "mark": "RECEIPT RCP-968032b090a8e16a chain=968032b090a8e16a9dcd959dd990937a content=254026e6e169b4c6 facts=3 adjudications=6 issued_at=1970-01-01T00:00:00.000Z commit=f5423020e02a0369730c360b8238a234730be85c tree=unanchored",
+    "mark": "RECEIPT RCP-7e24e34509c88523 chain=7e24e34509c88523cfc6d33c59b2f204 content=254026e6e169b4c6 facts=3 adjudications=6 issued_at=1970-01-01T00:00:00.000Z commit=f5423020e02a0369730c360b8238a234730be85c tree=unanchored",
     "verdict": {
       "band": "supported",
       "reason_class": "none"
@@ -373,7 +373,7 @@
       "claim": "本次实测：env-manager 托管枚举真实发生（prs_listed=62 merged=17）",
       "grounded": true,
       "collected_at": "1970-01-01T00:00:00.000Z",
-      "reproduce_cmd": "node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden",
+      "reproduce_cmd": "node engine/test/contracts/48-micro-a-preview.mjs --golden",
       "reproduce_absent_reason": null,
       "required_tokens": [],
       "excerpt": "\"prs_listed\": 62,"
@@ -385,7 +385,7 @@
       "claim": "本次实测：env-manager#64 diff 工件行级锚（channel=api bytes=1549）",
       "grounded": true,
       "collected_at": "1970-01-01T00:00:00.000Z",
-      "reproduce_cmd": "node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden",
+      "reproduce_cmd": "node engine/test/contracts/48-micro-a-preview.mjs --golden",
       "reproduce_absent_reason": null,
       "required_tokens": [],
       "excerpt": "diff --git a/.release-please-manifest.json b/.release-please-manifest.json"
@@ -397,31 +397,31 @@
       "claim": "本次实测：env-manager#64 元数据事实落库（merged=true）",
       "grounded": true,
       "collected_at": "1970-01-01T00:00:00.000Z",
-      "reproduce_cmd": "node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden",
+      "reproduce_cmd": "node engine/test/contracts/48-micro-a-preview.mjs --golden",
       "reproduce_absent_reason": null,
       "required_tokens": [],
       "excerpt": "{\"fact_seq\":66,\"fact_id\":\"556a2e89-e493-bb4b-150b-d088e3e90566\",\"schema_version\":1,\"trace_id\":\"e7d54d368784ea3f02b9bdd9424b8ec5\",\"baggage_id\":\"b48f14d63db2bca095fcb730d4d4d666\",\"scale\":\"Micro-A\",\"quadrant\":\"strategic\",\"dimension\":null,\"collector_id\":\"github-rest-adapter@v1\",\"repo_ref\":\"Xxx91n/env-manager\",\"subject_ref\":\"Xxx91n/env-manager#64\",\"evidence_ref\":\"GET /repos/Xxx91n/env-manager/pulls/64\",\"metric\":\"github_rest.pr_metadata\",\"value_json\":\"{\\\"number\\\":64,\\\"title\\\":\\\"chore(main): release 0.12.1\\\",\\\"state\\\":\\\"closed\\\",\\\"draft\\\":false,\\\"author_login\\\":\\\"github-actions[bot]\\\",\\\"author_type\\\":\\\"Bot\\\",\\\"bot_declared\\\":true,\\\"bot_basis\\\":\\\"platform-declared:user.type==Bot&&login~[bot]\\\",\\\"merged_at\\\":\\\"2026-09-14T17:14:23Z\\\",\\\"head_sha\\\":\\\"4d601a66f390146ea105c0dc12313fc716ae5afc\\\",\\\"base_sha\\\":\\\"17038beff45d132395475a050dbf454af15a7f1a\\\",\\\"html_url\\\":\\\"https://github.com/Xxx91n/env-manager/pull/64\\\",\\\"merged\\\":true,\\\"merge_commit_sha\\\":\\\"f5423020e02a0369730c360b8238a234730be85c\\\",\\\"additions\\\":11,\\\"deletions\\\":1,\\\"changed_files\\\":2,\\\"commits\\\":1,\\\"comments\\\":1,\\\"review_comments\\\":0,\\\"created_at\\\":\\\"2026-09-14T04:58:33Z\\\",\\\"closed_at\\\":\\\"2026-09-14T17:14:23Z\\\",\\\"merged_by_login\\\":\\\"Xxx91n\\\",\\\"merged_by_type\\\":\\\"User\\\"}\",\"observed_at\":\"1970-01-01T00:00:00.000Z\",\"ingested_at\":\"1970-01-01T00:00:00.000Z\"}"
     },
     {
       "evidence_id": "EV-48-ENVMANAGER-PR64-04",
-      "source": ".scratch/macro-audit/decision-ledger.md",
+      "source": "docs/archive/decisions/macro-audit-ledger.md",
       "locator": "L40",
       "claim": "票面授权锚：D-049 Micro-A preview 单票铺开决策行",
       "grounded": true,
       "collected_at": "1970-01-01T00:00:00.000Z",
-      "reproduce_cmd": "git -C D:\\Aworker\\6F show HEAD:.scratch/macro-audit/decision-ledger.md",
+      "reproduce_cmd": "git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md",
       "reproduce_absent_reason": null,
       "required_tokens": [],
       "excerpt": "- 增量去向：D-048→BACKLOG #47＋spec-phase-tasks R8-01＋upstream-lock github-rest planned 行（kind 词表扩 remote-api）＋README §3 行＋versioning 种子行＋ADR-0020；D-049→BACKLOG #48＋R8-02；D-050→BACKLOG #49＋R8-03（#46 行选定补记于 #49 行内）；D-051→BACKLOG #41b 行＋engine/LICENSE 换文＋manifest/package/marketplace license 字段＋ADR-0021＋checklist §B 勾销；D-052→manifest.meta.json（单源）→双 manifest 重生成（GEN-OK）＋.claude-plugin/marketplace.json 新建＋description.md/checklist 同步＋CONTEXT 双词"
     },
     {
       "evidence_id": "EV-48-ENVMANAGER-PR64-05",
-      "source": ".scratch/architecture-recovery/reports/48-micro-a-criteria.md",
+      "source": "engine/test/fixtures/contracts/48-micro-a-criteria.md",
       "locator": "L15",
       "claim": "判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）",
       "grounded": true,
       "collected_at": "1970-01-01T00:00:00.000Z",
-      "reproduce_cmd": "git -C D:\\Aworker\\6F show HEAD:.scratch/architecture-recovery/reports/48-micro-a-criteria.md",
+      "reproduce_cmd": "git -C <repo> show HEAD:engine/test/fixtures/contracts/48-micro-a-criteria.md",
       "reproduce_absent_reason": null,
       "required_tokens": [],
       "excerpt": "| TC-4 | 真判据（托管面资格闸） | 托管枚举 merged PR ≥1 → eligible；=0 → intake 显式拒绝（D-033 硬约束逆用） | supported | merged=0 → unsupported（拒绝成立） |"
