@@ -27,6 +27,14 @@ When set to `yes`, PRs run through the same labels and states as issues, using t
 
 GitHub shares one number space across issues and PRs, so a bare `#42` may be either: resolve with `gh pr view 42` and fall back to `gh issue view 42`.
 
+## Merging PRs created by GitButler
+
+PRs created via `but pr new` carry stack metadata. The regular merge paths all reject them (`gh pr merge`, `but pr auto-merge`, `PUT /repos/{owner}/{repo}/pulls/{n}/merge` → 403 "Merging stacked PRs via this endpoint is not supported"). Use the asynchronous merge API:
+
+- **Enqueue**: `gh api -X PUT repos/{owner}/{repo}/pulls/{n}/merge-async -F merge_method=squash -F merge_action=direct_merge` → `202` with `details.uuid` (or `200` immediately if already merged/enqueued).
+- **Poll**: `gh api repos/{owner}/{repo}/pulls/{n}/merge-async/<uuid>` → `pending` | `merged` (with `details.sha`) | `failed`.
+- **Note**: closing keywords in the PR body are not processed on this path — close linked issues explicitly after the merge lands.
+
 ## When a skill says "publish to the issue tracker"
 
 Create a GitHub issue.
