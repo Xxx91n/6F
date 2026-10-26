@@ -69,7 +69,8 @@ try {
 } catch (e) { preregCommit = ''; }
 // R37 返工 F1（D-094(b) 短 SHA 字面钉脆性）：%h auto-abbrev 随对象库 7→8 跳变——钉钉=commit 存在性（%H 前缀等值）非显示宽度
 check('P2', preregCommit.length > 0 && preregCommit.startsWith(gates.preflight.t22_prereg_commit), '票 22 预声明已 commit：' + preregCommit + '（预期 ' + gates.preflight.t22_prereg_commit + '）');
-check('P3', existsSync(C_BASIS) && cBasisText.indexOf('B1') >= 0 && cBasisText.indexOf('B5') >= 0, 'C 层裁定依据预入库文件可指认：22-c-adjudication-basis.md 含 B1-B5');
+const cBasisMissing = ['B1', 'B2', 'B3', 'B4', 'B5'].filter(function (s) { return cBasisText.indexOf(s) < 0; });
+check('P3', existsSync(C_BASIS) && cBasisMissing.length === 0, 'C 层裁定依据预入库文件可指认：22-c-adjudication-basis.md 五段齐备（要求 B1-B5）' + (cBasisMissing.length ? '，缺 ' + cBasisMissing.join(', ') : ''));
 
 // ---------- A 闸：形式达标（骨架 + 引文 + Receipt） ----------
 const skHappy = G.skeletonOf(mdHappy);
@@ -130,8 +131,11 @@ for (const ch of G.REPORT_SKELETON) {
 check('B1', gates.B.pc1.pass === true && gates.B.pc2.pass === true, '正对照 2/2 命中（PC-1 ' + gates.B.pc1.adr_fact_count + '/' + gates.B.pc1.pos_fact_count + ' 事实，PC-2 delta_days=' + gates.B.pc2.delta_days + '）');
 const ids = carHappy.adjudication.entries.map(function (e) { return e.criterion_id; });
 const firstTc = ids.findIndex(function (x) { return x.indexOf('TC-') === 0; });
-const lastPc = Math.max(ids.indexOf('PC-1'), ids.indexOf('PC-2'));
-check('B2', lastPc >= 0 && firstTc >= 0 && lastPc < firstTc, '执行顺序不可倒：正对照先于真判据（lastPC 索引 ' + lastPc + ' < firstTC 索引 ' + firstTc + '）');
+const pc1Idx = ids.indexOf('PC-1');
+const pc2Idx = ids.indexOf('PC-2');
+// 两枚正对照都必须真在条目里且先于首个真判据——取 max 会让缺席的那枚（indexOf=-1）被另一枚掩护掉
+const lastPc = Math.max(pc1Idx, pc2Idx);
+check('B2', pc1Idx >= 0 && pc2Idx >= 0 && firstTc >= 0 && lastPc < firstTc, '执行顺序不可倒（两枚 PC 均须索引 >=0 且 < firstTC）：PC-1 索引 ' + pc1Idx + '、PC-2 索引 ' + pc2Idx + '、firstTC 索引 ' + firstTc);
 check('B3-TC1', gates.B.tc1.verdict === 'INCONCLUSIVE', 'TC-1 判 ' + gates.B.tc1.verdict + '（可判定数 ' + gates.B.tc1.judgeable_n + ' < 门槛 ' + gates.B.tc1.threshold.min_n + '）');
 check('B3-TC2', gates.B.tc2.verdict === 'RED', 'TC-2 判 RED（mean ' + gates.B.tc2.mean_ratio_4 + ' < ' + gates.B.tc2.threshold.mean_red + '）');
 check('B3-TC3', gates.B.tc3.verdict === 'AMBER', 'TC-3 判 ' + gates.B.tc3.verdict + '（最低 ' + gates.B.tc3.lowest_ratio_4 + '）');
