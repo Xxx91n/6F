@@ -121,8 +121,9 @@ t('F1 新增源/测试/fixture 文件无 BOM', (() => {
 // F2/F3（#33 复盘）：need 族语义与 gitattributes 语义的机检——两者都是「写错了不会有东西红」的静默失效型。
 //   F2 的由来：C 组曾把**在仓** frozen bundle 挂进 groupProbe，于是「换钉不一致」退化成 SKIP＝套件仍绿；
 //   asset: 族的语义就是「gitignored 外部资产」，拿它承载在仓制品即违约，而族义是 SSOT，形状错了族义就废了。
-// 只认字面量（末尾紧跟 `+` 的是拼接形态，静态不可判——如 43-check 的 `'git-object:' + FROZEN_SHA`，跳过）
-const NEED_LIT_RE = /need\(\s*'(sibling|asset|git-object|engine-deps|git-history):([^']*)'(?!\s*\+)/g;
+// 只认字面量（末尾紧跟 `+` 的是拼接形态，静态不可判——如 43-check 的 `'git-object:' + FROZEN_SHA`，跳过）；
+// 单双引号都收：只认单引号时，双引号写法的 asset 声明会静默漏检，而漏检的表现是「扫不到」＝全绿。
+const NEED_LIT_RE = /need\(\s*(['"])(sibling|asset|git-object|engine-deps|git-history):([^'"]*)\1(?!\s*\+)/g;
 function needShapeViolations(entries, isTracked) {
   const bad = [];
   for (const e of entries) {
@@ -141,23 +142,35 @@ function needShapeViolations(entries, isTracked) {
 const f2 = (() => {
   const needEntries = [];
   for (const f of fs.readdirSync(HERE).filter(x => /-check\.mjs$/.test(x))) {
-    for (const m of txt(join(HERE, f)).matchAll(NEED_LIT_RE)) { needEntries.push({ file: f, family: m[1], spec: m[2] }); }
+    for (const m of txt(join(HERE, f)).matchAll(NEED_LIT_RE)) { needEntries.push({ file: f, family: m[2], spec: m[3] }); }
   }
   const tracked = spec => spawnSync('git', ['-C', ROOT, 'ls-files', '--', spec], { encoding: 'utf8' }).stdout.trim().length > 0;
   const real = needShapeViolations(needEntries, tracked);
-  // 判别臂活性自证：合成样本必须全部检出（扫描器死掉也全绿的假面要防）
+  // 判别臂活性自证一：抽取面——单引号、双引号都要抽到，拼接形态必须跳过（漏抽＝扫不到＝全绿）
+  //   探针串用字符码拼装：本文件也在扫描范围内，写成字面量会被自己当成真声明抓出来（自指）
+  const q1 = String.fromCharCode(39), q2 = String.fromCharCode(34);
+  const probeSrc = ['need(', q1, 'engine-deps:@a/b', q1, ', x); need(', q2, 'asset:engine/baseline-lock.yaml', q2, ', y); need(', q1, 'git-object:', q1, ' + SHA, z);'].join('');
+  const probeHits = Array.from(probeSrc.matchAll(NEED_LIT_RE)).map(m => m[2] + ':' + m[3]);
+  const extractOk = probeHits.length === 2 && probeHits[0] === 'engine-deps:@a/b' && probeHits[1] === 'asset:engine/baseline-lock.yaml';
+  // 判别臂活性自证二：判据面——三条合成违规必须全检出
   const synthetic = needShapeViolations([
     { file: 'x', family: 'asset', spec: 'baseline-bundle' },
     { file: 'x', family: 'asset', spec: 'engine/baseline-lock.yaml' },
     { file: 'x', family: 'git-object', spec: '770d2549' },
   ], spec => spec === 'engine/baseline-lock.yaml');
-  return { ok: real.length === 0 && synthetic.length === 3, detail: real.length ? real.join('; ') : 'scanned=' + needEntries.length + ' synthetic=' + synthetic.length };
+  return { ok: real.length === 0 && extractOk && synthetic.length === 3, detail: real.length ? real.join('; ') : 'scanned=' + needEntries.length + ' extract=' + JSON.stringify(probeHits) + ' synthetic=' + synthetic.length };
 })();
 t('F2 need 族名称形状合法（asset: 须仓库外路径且未被 git 跟踪／git-object: 须 40 位 sha／engine-deps: 须包名）', f2.ok, f2.detail);
 const f3 = (() => {
   const attrFiles = [join(ROOT, '.gitattributes'), join(ENG, '.gitattributes')].filter(f => exists(f));
   const noBrace = attrFiles.every(f => txt(f).split(/\r?\n/).every(l => !l.trim() || l.trim().startsWith('#') || l.indexOf('{') < 0));
-  const probes = ['docs/x.png', 'x.dll', 'x.zip', 'x.exe', 'engine/x.png', 'engine/x.bundle', 'engine/x.dll'];
+  // 探针覆盖根 .gitattributes 的**全部**二进制后缀（少探一个＝删了那条规则也不会红），外加 engine/ 深层三件
+  const probes = [
+    'docs/x.png', 'x.ico', 'x.icns', 'x.jpg', 'x.jpeg', 'x.gif', 'x.webp',
+    'x.exe', 'x.dll', 'x.node', 'x.pdb', 'x.msi', 'x.so', 'x.dylib',
+    'x.bin', 'x.zip', 'x.gz', 'x.tar', 'x.7z',
+    'engine/x.png', 'engine/x.bundle', 'engine/x.dll',
+  ];
   const set = probes.filter(p => /binary: set/.test(spawnSync('git', ['-C', ROOT, 'check-attr', 'binary', '--', p], { encoding: 'utf8' }).stdout || ''));
   return { ok: noBrace && set.length === probes.length, detail: 'noBrace=' + noBrace + ' binary-set=' + set.length + '/' + probes.length };
 })();
