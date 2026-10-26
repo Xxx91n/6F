@@ -14,6 +14,8 @@ let fails = 0;
 let skipGroups = 0;
 for (const f of files) {
   const r = spawnSync('node', [join(DIR, f)], { encoding: 'utf8', timeout: 300000 });
+  // 超时与失败必须可分辨：spawnSync 超时时 status=null，`FAIL(null)` 读起来像脚本崩溃（#33 复盘实测踩过）
+  const timedOut = !!(r.error && r.error.code === 'ETIMEDOUT');
   const out = ((r.stdout || '') + (r.stderr || '')).trim();
   const lines = out.split(String.fromCharCode(10));
   // 组级 SKIP 行由 check 在跑动前打印——「尾 2 行」窗口必截掉它，整组没跑却在汇总里显示干净＝假绿面，
@@ -23,7 +25,7 @@ for (const f of files) {
   skipGroups += lines.filter(l => /^GUARD-RESULT: SKIP-GROUP\b/.test(l)).length;
   const tail = lines.filter(l => /PASS|FAIL|SKIP|WARN|error/i.test(l)).slice(-2).join(' | ');
   if (r.status === 0) { console.log('PASS  ' + f + (tail ? '  — ' + tail.slice(0, 140) : '')); }
-  else { fails++; console.log('FAIL(' + r.status + ') ' + f + '  — ' + (tail || out.slice(-200)).slice(0, 200)); }
+  else { fails++; console.log('FAIL(' + (timedOut ? 'TIMEOUT' : r.status) + ') ' + f + '  — ' + (timedOut ? '超时 300s（并发负载下会触发，先查机器负载再判回归）' : (tail || out.slice(-200))).slice(0, 200)); }
 }
 console.log('---');
 console.log((fails === 0 ? 'PASS' : 'FAIL') + ' ' + (files.length - fails) + '/' + files.length + ' contract checks' + ' SKIP-GROUPS=' + skipGroups);
