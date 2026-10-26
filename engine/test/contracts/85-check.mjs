@@ -87,7 +87,9 @@ const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/
 if (groupProbe('85-check', 'B', DEPS_B)) {
   const tmpB = mkdtempSync(join(tmpdir(), '85-run-'));
   const r = spawnSync('node', [join(ENG, 'dist', 'cli.js'), 'audit', '..', '--scale', 'Macro-C', '--out', join(tmpB, 'out')], { encoding: 'utf8', cwd: ENG, timeout: 420000 });
-  t('B1 CLI audit --scale Macro-C exit 0（6F 自审实测）', r.status === 0, 'status=' + r.status + ' err=' + (r.stderr || '').slice(0, 200));
+  // 超时与失败必须可分辨：spawnSync 超时时 status=null，与「真失败」同形会误导成回归（#33 复盘实测踩过）
+  const bTimedOut = !!(r.error && r.error.code === 'ETIMEDOUT');
+  t('B1 CLI audit --scale Macro-C exit 0（6F 自审实测）', r.status === 0, bTimedOut ? 'TIMEOUT(420s)——并发负载下会超时，先查机器负载再判回归' : 'status=' + r.status + ' err=' + (r.stderr || '').slice(0, 200));
   let rec = null;
   try { rec = JSON.parse(r.stdout); } catch (e) { }
   t('B2 回执 scale=Macro-C + capabilities=[macro-c] + report_id -MACRO-C 收尾', !!rec && rec.scale === 'Macro-C' && JSON.stringify(rec.capabilities) === JSON.stringify(['macro-c']) && /-MACRO-C$/.test(rec.report_id || ''), rec && rec.report_id);
