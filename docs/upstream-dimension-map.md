@@ -2,7 +2,7 @@
 
 - **版本**：v1.0 定稿——版本化走 PR 评审（同 #50 quadrant-rubric 先例），改动须经评审＋决策账本留痕。
 - **裁决**：D-078（2026-09-18 采纳 (c) 设计先行、实施排后）＋轮 23 定稿链 D-080~D-084（双挂→event_bound 锚化／Bot→S5 终裁／落点→docs/ 独立终裁／LFX 权重→不加列移交 rubric 判据面）；本表合入=后续「接线票」（COLLECTOR_DESCRIPTORS 注册＋Macro-B 消费归位）的票间依赖（「合入」=本地定稿，非 push/merge——D-080② 勘误注记在案）。
-- **复审**：last_reviewed 2026-09-19 ／ next_review 2026-10-19（D-024 两字段纪律；接线票立票触发先到者亦复审）。
+- **复审**：last_reviewed 2026-10-25 ／ next_review 2026-11-24（D-024 两字段纪律；接线票立票触发先到者亦复审；登记日取 UTC 日——见 docs/versioning.md §4）。本轮逐行复审结论见 §⑤。
 
 ## ① 定位与边界
 
@@ -44,7 +44,8 @@
 
 ## ⑤ 复审与接线
 
-- **复审时点**：next_review 2026-10-19，或接线票立票触发先到者。
+- **复审时点**：next_review 见文首「复审」字段（唯一日期源，本行不钉字面值防漂移），或接线票立票触发先到者。
+- **#43 2026-10-25 逐行复审结论=v1.0 定稿面零改动**：codelore 四族枚举（演化主干 12／s3 族 6／s5 族 12／explain 族 9）⇔ 裁决面常量逐行对账绿（71-check 16/16，含 B7 反向无幽灵映射）；github-rest §② 9 类 fact 面⇔常量绿（72-check 16/16，含 C1 `pulls.reviews` 仍在 PLANNED_SURFACES⇔review 覆盖行仍 pending）；暂缓面集行仍 deferred 不映射（registry `codelore-deferred-faces` status=pending，71-check B6）；descriptor `dimension: null` 双保留未被改写（44-check A14/A15）。接线票（#71/#72 后续批2）未立＝「立票触发先到者」未发生，本轮按到期复审过目、映射行与准入列零改动；本文档复审日期与 `engine/src/audit/upstream-dimension-map.ts` 常量同源（71-check A1 漂移失配即 FAIL）。
 - **接线票**（后续实施轮，D-080③ 两张 sibling 票）：批1=codelore 注册＋Macro-B 归位＋「映射常量与表逐行对账」守卫（#71）；批2=github-rest opt-in 注册＋消费（#72，无 token 环境**显式报告 skipped 不算 PASS**）——以本表 v1.0 本地定稿为票间依赖。
 - **消费机制（D-080②）**：文档单源真值＋裁决面映射常量配置块（运行时输入，本表派生物）＋NN-check 逐行对账守卫防 drift；descriptor `dimension: null` 双保留。
 - **留票销项**（D-078⑤ 追问留票全销）：落点 vs quadrant-rubric 并面→**已销**（D-083 docs/ 独立终裁）／Bot 占比 S5 vs S4 备选→**已销**（D-082 S5 终裁＋封边）／LFX 权重列补读→**已销**（D-084 本表无权重列——权重/强度语义属判据面（quadrant-rubric＋C 层人裁），不属接线路由契约；LFX 原文印证：权重仅存 Health Score 聚合面（v2=40/35/25），分类页零权重列）／#47 九类事实原文复核→**已毕**（轮 23 立票 gate：github-rest 实产 9 类 fact 本表 §② 全覆盖）／GitHub REST 适配器契约全文复读→**已毕**（轮 23 立票 gate：最小契约=PR 枚举+元数据+diff 双通道，review/comment 面仍 planned）。

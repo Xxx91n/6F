@@ -15,11 +15,11 @@
 //             Bot 参与密度→S5（措辞锁「平台声明的 Bot 身份」）／review 覆盖→pending(event_bound)
 //             pr_diff→Micro-A lane 不直采 Macro-B／rate_limit/api_error/schema_drift/run/resolution→永久排除出 S 维
 //
-// last_reviewed=2026-09-19 next_review=2026-10-19（映射表复审纪律——同步 docs/upstream-dimension-map.md）
+// 复审两字段＝下方 UPSTREAM_DIMENSION_MAP_REVIEW 常量（唯一日期源，⇔ docs/upstream-dimension-map.md 文首「复审」字段；71-check A1 漂移失配即 FAIL）
 import { CODELORE_DESCRIPTOR } from '../upstream/codelore.js';
 import { GITHUB_REST_DESCRIPTOR } from '../upstream/github-rest.js';
 export const UPSTREAM_DIMENSION_MAP_VERSION = 'v1.0';
-export const UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: '2026-09-19', next_review: '2026-10-19' };
+export const UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: '2026-10-25', next_review: '2026-11-24' };
 // ---------- codelore 行集（docs/upstream-dimension-map.md v1.0 表行派生） ----------
 const CL = (surface, kind, dimension, lane, admission, note) => ({ adapter: 'codelore', surface, surface_kind: kind, dimension, lane, admission, note });
 export const CODELORE_EVOLUTION_FACETS = ['revisions', 'abs-churn', 'entity-churn', 'author-churn', 'hotspot-velocity', 'code-age', 'stale-code', 'architecture-trend', 'health-trend', 'lead-time', 'release-cadence', 'messages'];

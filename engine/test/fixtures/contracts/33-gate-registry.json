@@ -937,6 +937,14 @@
      "decision": "reviewed-stay-pending",
      "reason": "Macro-B/Micro-A preview 均无供应链象限数据面刚需（Macro-B 维持 ⚠ 数据未接 披露制，D-034③）；scorecard=planned 不动、repomix=retired 不动（D-056）；下一复审锚=stage3-close",
      "evidence": "README 能力矩阵 preview 口径＋engine/upstream-lock.yaml＋t8-watch-review.md"
+    },
+    {
+     "at": "2026-10-25",
+     "by": "#43 逾期上游复审盘点",
+     "criterion_version": "#43 逾期逐行处置纪律（docs/versioning.md §4 立法＋44-check C5 advisory 段；D-037④ 仅指手动窗口既有纪律，不承载新规则）",
+     "decision": "deferred-no-runtime-surface",
+     "reason": "openssf-scorecard 行 next_review 2026-10-16 逾期，由本项代持显式 deferred：planned 行 version/pin_type=null＝无 pin 无制品可实跑，仓内零 Scorecard 消费位（supply_chain 象限维持 ⚠ 数据未接，D-034③ 禁插队）；层需求未拉动→本项 status=pending 维持、锁表逾期日期不刷新（禁无证据批量刷新）；转接入票时按 verify_method 先定 pin_type+version＋golden 契约三前置再同步本行",
+     "evidence": "engine/upstream-lock.yaml openssf-scorecard 行 review_deferred＋2026-10-25 实跑 44-check C5 overdue=[openssf-scorecard,codelore-sqlite-dump]"
     }
    ],
    "review_event": "stage3-close"
@@ -1431,7 +1439,7 @@
    "family": "upstream-dimension-map",
    "title": "review 覆盖切片 S5↔S4 归属裁定（D-081 双挂行事件锚化）",
    "deadline_event": null,
-   "deadline": "无硬到期——纯事件驱动（次锚=映射表 next_review 2026-10-19 复审照常过目）",
+   "deadline": "无硬到期——纯事件驱动（次锚=映射表 next_review，日期以 docs/upstream-dimension-map.md 复审字段为唯一权威、本行不钉字面值防漂移）",
    "trigger_event": "github-rest-reviews-active",
    "trigger": "pulls.reviews 移出 GITHUB_REST_PLANNED_SURFACES（review 面 fact 实产）",
    "review_at": "接线票立项时按采集数据裁定（D-078④ 原文；候选对 S5↔S4 无偏好序）",
@@ -1444,7 +1452,7 @@
    "family": "quadrant-rubric",
    "title": "权重语义 rubric 层立案——「quadrant-rubric 初版参数起草」触发（D-084④：映射表无权重列，权重/强弱语义归判据面）",
    "deadline_event": null,
-   "deadline": "无硬到期——纯事件驱动（次锚=映射表 next_review 2026-10-19 复审照常过目）",
+   "deadline": "无硬到期——纯事件驱动（次锚=映射表 next_review，日期以 docs/upstream-dimension-map.md 复审字段为唯一权威、本行不钉字面值防漂移）",
    "trigger_event": "quadrant-rubric-params-draft",
    "trigger": "「quadrant-rubric 初版参数起草」票立项（本项仅登记不提前开工——D-084④）",
    "review_at": "立案时带 LFX v2「人气≠健康」启示一句（Health Score 聚合面 40/35/25——权重仅存聚合层，分类/映射页零权重列）",
@@ -2064,6 +2072,14 @@
      "criterion_version": "D-159①④/D-163",
      "decision": "registered",
      "reason": "85-check（#84 Macro-C 一等面守卫，sibling+engine-deps 组级闸）与 86-check（#87 摘帽守卫，engine-deps 组级闸）落盘实测绿入列——T3 对账同窗兑现"
+    },
+    {
+     "at": "2026-10-26",
+     "by": "#33／ADR-0026（基准语料自持）",
+     "criterion_version": "D-159①④/D-163②/D-074",
+     "decision": "rescoped",
+     "reason": "85-check C 组组级闸换轨：`sibling:anysearch-cli`＋`asset:anysearch-cli/docs/adr` 摘除，改为红断言 `C-GATE`（在仓 frozen bundle 的 list-heads 唯一项＝钉值＋空仓 verify；钉值唯一权威迁至 engine/baseline-lock.yaml 三元钉）＋组级闸只留 `engine-deps:@duckdb/node-api`。tier 仍 env-contract、guards 集不变（十二件／sibling 三件＝37/39/46 不变）；C 组不再依赖同级仓工作树，无 sibling 的机器（含 CI 六腿）C-GATE/C0/C-INV/C1~C6 实跑，GAP-CI-01 由 ci_surface_unreachable 转 closed",
+     "evidence": "engine/baseline-lock.yaml（version＋bundle_sha256＋bundle_bytes）＋engine/test/fixtures/frozen/anysearch-cli-770d2549.bundle；85-check A10~A13 机检（锁表结构/制品完整性/活跃路径无本机绝对路径/上游锁表零 anysearch）；实测 `git bundle list-heads`＝770d2549… HEAD 唯一位、clone 后 rev-list --count=822、docs/adr=104 件"
     }
    ],
    "bound_to": "#R40-T1 执行窗（D-159 环境契约分层立法兑现）"
@@ -2806,6 +2822,14 @@
      "decision": "registered",
      "reason": "消费形态静默变更同型更早期标本=checkout@v2 默认浅克隆致全网失效；不修触发器则仍靠人记（原 (a) 缺陷）——engine-ci fetch-depth 变更已配为同族先例实锤",
      "evidence": "decision-ledger.md D-214③＋.scratch/macro-audit/reports/R66-Q2-atomcode-research.md"
+    },
+    {
+     "at": "2026-10-26",
+     "by": "#33／ADR-0026（基准语料自持）",
+     "criterion_version": "D-214③",
+     "decision": "fired",
+     "reason": "sibling 消费方式变更实锤点火：85-check C 组由「同级仓 anysearch-cli 工作树 clone」改为「仓内 frozen bundle clone」，被消费守卫 consumption_forms 复审结论=声明不变仍成立（`['dev-full','ci-shallow']` 两形态照跑：dev-full 全断言面、ci-shallow 由 engine-deps 组级闸兜 duckdb 原生绑定），且 C 组首次真正进入 ci-shallow 形态（原无 sibling 只能 SKIP-GROUP）；engine-ci checkout fetch-depth 未变（仍 0），clone 深度策略未变",
+     "evidence": "engine/test/contracts/85-check.mjs CONSUMPTION_FORMS＋DEPS_C（engine-deps 单闸）＋C-GATE 红断言（内容缺陷不退化成 SKIP）；engine/baseline-lock.yaml 三元钉；无 sibling 环境（GUARD_SIBLING_ROOT 指向不存在目录）实跑 C-GATE/C0/C-INV/C1~C6 全绿"
     }
    ]
   }

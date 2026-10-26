@@ -120,6 +120,19 @@ export function gitObjectNeedOk(repoRoot, sha, bundlePath) {
 }
 process.on('exit', () => { for (const c of _gobjCleanups) { try { c(); } catch (_) { /* best-effort */ } } });
 
+// ---------- 基准语料 bundle 的只读物化（ADR-0026／#33；D-074 边界） ----------
+// 与 materializeGitObjects 的分工：后者补「主仓对象库里没有的冻结对象」（借 alternates 只读反借，
+//   目标是让主仓的只读 git 命令看得见该对象）；本条补「本仓根本不持有的外部仓语料」——钉的是另一座仓的提交，
+//   对象永不进主仓对象库，且消费方要的是可 walk 的工作树（docs/adr/*.md 等实物），不是对象可见性。
+// 读法：`git clone <bundle> <dest>` 只写 dest（调用方给 OS 临时目录），bundle 作为 URL 由 git 自己解包，
+//   主仓 objects 零写、零 fetch、零 unbundle 进主仓；bundle 自足（零 prerequisite）故零联网。
+// 返回 bool（失败不抛——由调用方判红并留 reason，避免未捕获异常拉红整条 contracts-run）。
+export function cloneBundleWorktree(bundlePath, destDir) {
+  if (!existsSync(bundlePath)) return false;
+  const r = spawnSync('git', ['clone', '--quiet', bundlePath, destDir], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  return r.status === 0;
+}
+
 // ---------- engine-deps 探测（D-163③：真 require 加载测试，非仅目录存在） ----------
 export function engineDepsOk(engRoot, spec) {
   try {

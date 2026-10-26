@@ -11,7 +11,7 @@
 - src/cli.ts（内核 CLI；四外壳为规划目标，当前仅 CLI 外壳落地）
 
 ## 命令
-- npm run gen      # 生成双 manifest + 防漂移校验（先比后写）
+- npm run gen      # 生成双 manifest（先比后写）+ docs/adr/README.md 索引
 - npm run build    # tsc 编译 + build-bundle（dist/cli.js=esbuild 单文件 bundle 覆写，dist 随源进仓 #59/D-067）
 - npm run package  # npm pack --dry-run
 - npm run smoke    # 启动并测活（进程存活 + 最小 e2e）
@@ -29,7 +29,7 @@
 
 ## 插件安装（Claude Code · git-clone 分发 · #59/D-067）
 
-**Prerequisites**：Node.js ≥ 20（`node --version` 自检）；Claude Code 2.x。
+**Prerequisites**：Node.js ≥ 22.18（`node --version` 自检；22.18 起内置 TypeScript 类型剥离无需 flag，`test/contracts/` 三条守卫直读 `.ts` 源依赖此项）；Claude Code 2.x。
 
 ```text
 /plugin marketplace add Xxx91n/6F
