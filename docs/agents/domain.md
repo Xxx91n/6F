@@ -34,6 +34,14 @@ When your output names a domain concept (in an issue title, a refactor proposal,
 
 If the concept you need isn't in the glossary yet, that's a signal: either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
 
+## Reviewing the authority surface
+
+When a diff touches `docs/authority.md`, `GLOSSARY.md`, or the files that point at it, apply each of these:
+
+- **A pointer points.** It names the target and stops there; the carrier→decision-type mapping is written once, in `docs/authority.md`.
+- **A term definition defines.** What the term is, in domain language. Mechanics (fields, paths, materialization) stay with the ADR or spec that owns them.
+- **A count is either an invariant or a snapshot.** A number read off a moving target (tracker range, entry tally) is stated as a direction ("只增不减") or replaced by the rule it was meant to encode.
+
 ## Flag decision conflicts
 
 If your output contradicts a recorded decision, surface it explicitly rather than silently overriding (`docs/authority.md` says which carrier holds it):
