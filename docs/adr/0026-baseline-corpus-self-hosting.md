@@ -28,7 +28,7 @@
 ## Consequences
 
 - 仓内多一枚 14.3 MiB 制品；基准变更走手动窗口：重打 bundle、改 baseline-lock、跑 C 组全等断言。
-  - **勘误（2026-10-26，#33 落地实测）**：本文原记「144KB」不成立——该数量级是 `docs/adr` 104 件语料的 gzip 量级，不是 bundle 体量。全历史自足 bundle（822 提交、HEAD=钉值）实测 **14961055 B**：`git clone <bundle>` 的传输校验要求包内连通（提交↔全树↔全 blob），路径限定包（仅 `docs/adr` 等）实测 53 KB 但 `git clone` 直接 `remote transport reported error`，故不可减；可减的只有「不保真」路线（合成单提交仓），那会让 `git.adr_lag_days` 等历史派生指标退化，违背本文「同一份基准」的前提。代价按 14.3 MiB 记账，制品三元钉（version／bundle_sha256／bundle_bytes）在 `engine/baseline-lock.yaml` 机检。
-- GAP-CI-01 从"CI 不可达"改为已解；85-check C 组不再依赖 sibling。
+  - **勘误（2026-10-26，#33 落地实测）**：本文原记「144KB」不成立——该数量级是 `docs/adr` 104 件语料的 gzip 量级，不是 bundle 体量。全历史自足 bundle（822 提交、HEAD=钉值）实测 **14961055 B**：`git clone <bundle>` 的传输校验要求包内连通（提交↔全树↔全 blob），路径限定包（仅 `docs/adr` 等）实测 53 KB 但 `git clone` 直接 `remote transport reported error`，故不可减；可减的只有「不保真」路线（合成单提交仓），那会让 `git.adr_lag_days` 等历史派生指标退化，违背本文「同一份基准」的前提。代价按 14.3 MiB 记账；制品三元钉（version／bundle_sha256／bundle_bytes）登记在 `engine/baseline-lock.yaml`，由 `85-check` A10~A13 与 C-GATE 机检——**锁表与守卫随 #33 落地，本 ADR 只记决策**（落地前这两样在本树尚不存在，故这里是「落地后由…机检」而非现状陈述）。
+- GAP-CI-01 从"CI 不可达"改为已解；85-check C 组不再依赖 sibling（两者都是 #33 落地后的状态——落地前本树仍是 sibling 方案，缺口仍开着）。
 - #32/#33/#34 一并收口；`docs/known-gaps.md` 中相关行的状态与复审时点随票更新。
 - 架构决策记录：基准语料不是产品上游，属于"被审计的同级基准仓"，其生命周期与上游锁不同。
