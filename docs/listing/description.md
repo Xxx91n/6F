@@ -34,7 +34,7 @@
 
 ## version
 
-`0.1.0`（0.x 单调递增语义；preview 表达路径 = 0.x 版本号＋CHANGELOG＋description 文明示——两生态均无 preview 专用字段，查证见 41b-marketplace-fields.md §2.4）
+`0.3.0`（0.x 单调递增语义；preview 表达路径 = 0.x 版本号＋CHANGELOG＋description 文明示——两生态均无 preview 专用字段，查证见 41b-marketplace-fields.md §2.4）
 
 ## keywords / category / tags
 
