@@ -17,7 +17,7 @@ import { tmpdir } from 'node:os';
 import { gitObjectNeedOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
-// D-214① consumption_forms（多形态消费方——B5/C 依赖冻结对象物化）：dev-full=完整克隆全断言面；ci-shallow=CI 浅克隆（冻结对象借仓内 bundle 临时仓零写入物化，主仓零写）。两种形态都实跑；准入是红断言 B5-GATE，不是 SKIP 闸（#72）。
+// D-214① consumption_forms（多形态消费方）：dev-full=完整克隆（对象在库，短路）；ci-shallow=CI 浅克隆（冻结对象借仓内 bundle 临时仓零写入物化，主仓零写）。两形态行为仍不同，故留在该类；但准入已从组级 need 改成红断言 B5-GATE（#72），不再有 SKIP 闸。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#43 样例 golden CI 守卫（R5-12 / A-048 / D-030③）';
 
@@ -75,7 +75,7 @@ t('B4 overlay README 等签名重构：top-20 关键词计数与 golden 签名�
 //   bundle 不含该对象、临时目录不可写——全是仓库面缺陷，不是「本机环境缺什么」；按 D-159③ 那该红，不该 SKIP。
 const FROZEN_OK = gitObjectNeedOk(REPO, FROZEN_SHA, BUNDLE);
 t('B5-GATE 冻结对象可解析（幽灵钉 fc00d458 经仓内 bundle 临时仓物化，主仓零写）', FROZEN_OK,
-  'gitObjectNeedOk=false：核对 engine/test/fixtures/frozen/23-frozen-fc00d458.bundle 在位且含该对象（B1/B2 已分别断言位与 heads），以及临时目录可写');
+  'gitObjectNeedOk=false：核对 engine/test/fixtures/frozen/23-frozen-fc00d458.bundle 在位且含该对象（B1/B2 已分别断言位与 heads），以及临时目录可写；本行红时 B5＋C1~C4 共 5 条未跑（分母 23→18）');
 // 红路径下 B5／C1~C4 如实不跑：分母会静默缩水，故显式留一行，与「断言被删」区分（评审意见）
 if (!FROZEN_OK) { console.log('NOTE B5-GATE 红 → B5＋C1~C4 共 5 条未跑（分母 23→18；本行即「跳过」的机读位）'); }
 else if (!tmp) { console.log('NOTE T0 红 → C1~C4 共 4 条未跑（分母 23→19；本行即「跳过」的机读位）'); }
