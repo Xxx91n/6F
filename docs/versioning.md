@@ -27,7 +27,7 @@
 
 - **禁 Renovate 式自动升级**——detector 版本变化 = 审计口径变更。手动窗口：每 release 前一次，bump 必须全量 golden 回归护航。
 - **逾期逐行处置（#43 盘点纪律）**：`next_review` 到期行只能二选一——①实跑复核该行自己的契约面（守卫/单测/命令读数）通过→刷新 `last_reviewed`＋`next_review`（新窗=每 release 前或 ≤30 天先到者）并回填 `review_evidence`；②确无实跑面→写 `review_deferred` 保留原逾期日期。**禁无证据批量刷新日期**；复审只动日期与留痕字段，pin 版本改动一律走手动窗口＋全量 golden 回归。
-- **登记日取 UTC 日**（#43 CI 勘误）：`44-check` C3「全行 `last_reviewed` ≤ today」在 CI 侧用 runner 本地（=UTC）日判，业务时钟的 `.scratch` 日报输入在 CI 缺席；+08 等超前宿主在凌晨按本地日登记会把六腿全打成「未来登记」红（2026-10-26 本地凌晨实证）。C5 逾期判定同受此基准影响，故刷新窗口一律以 UTC 日为起点。
+- **登记日取 UTC 日**（#43 CI 勘误）：CI runner 没有业务时钟的 `.scratch` 日报输入，`44-check` 的日期判定在 CI 侧退化为 runner 本地（=UTC）日；+08 等超前宿主在凌晨按本地日登记会把六腿全打成「未来登记」红（2026-10-26 本地凌晨实证）。两条断言各自承接：**C3（非未来登记）** 上界＝「业务时钟 ∩ UTC 日」之较严者，失败行输出 `upper/biz/utc/bad` 三个时钟读数——超前宿主的本地日登记在本机即红，不再只在 CI 暴露；**C5（逾期报警）** 语义与基准未动，仍按业务时钟判 `next_review`（advisory 段）。纪律侧以 UTC 日为登记起点：`last_reviewed` 只能 ≤ UTC 今日，`next_review` 由该起点推 ≤30 天。
 - 漂移检出语义：报告不作废而「换戳」——重跑生成新戳报告，旧报告归档＋`superseded_by` 互链。
 
 ## 5. 门禁（advisory → enforce 两段式）
