@@ -34,11 +34,11 @@ Merging is an outward action — do it only once the user has explicitly asked f
 GitButler publishes *native* GitHub stacked pull requests when the repo is enrolled in GitHub's stacked-PR preview and the PR uses same-repo branches; otherwise (preview not enabled, fork-based, or `but config forge github-stacks disable`) it falls back to an *ordinary* PR whose description carries the stack info.
 
 - **Ordinary (fallback) PR** — the regular path works: `gh pr merge "$PR_NUMBER" --squash` (#65 in this repo merged this way).
-- **Native stacked PR** — the regular paths all reject it (`gh pr merge`, `but pr auto-merge`, `PUT /repos/{owner}/{repo}/pulls/{n}/merge` → 403 "Merging stacked PRs via this endpoint is not supported"). Use the asynchronous merge API below. Once merge is already authorized, a 403 from `gh pr merge` is the signal to switch paths; never probe before authorization, since a successful probe *is* a merge.
+- **Native stacked PR** — the regular paths all reject it, with different messages: `gh pr merge` fails with a GraphQL error ("This pull request is part of a stack and must be merged using the asynchronous merge REST API"), while `PUT /repos/{owner}/{repo}/pulls/$PR_NUMBER/merge` returns 403 "Merging stacked PRs via this endpoint is not supported". Use the asynchronous merge API below. Once merge is already authorized, either failure is the signal to switch paths; never probe before authorization, since a successful probe *is* a merge.
 
 ```bash
 PR_NUMBER=123
-# Enqueue → 202 with details.uuid (or 200 when already merged/enqueued); capture it in one pass
+# Enqueue → 202 carries details.uuid; 200 means it was already merged/enqueued (no uuid — skip the poll)
 UUID=$(gh api -X PUT "repos/{owner}/{repo}/pulls/$PR_NUMBER/merge-async" \
   -F merge_method=squash -F merge_action=direct_merge --jq '.details.uuid')
 # Poll → pending | merged (with details.sha) | failed
