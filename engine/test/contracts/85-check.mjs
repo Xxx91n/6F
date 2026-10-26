@@ -113,14 +113,17 @@ const ARCH_IDX = existsSync(ARCH_IDX_P) ? readFileSync(ARCH_IDX_P, 'utf8') : '';
 const samePin = function (a, b) { return String(a) === String(b); };
 const PIN_MUTANT = AUTHORITY_PIN.slice(0, 39) + (AUTHORITY_PIN.slice(39) === 'f' ? '0' : 'f');
 const PIN_SENSITIVE = !!BASE_ROW && !samePin(BASE_ROW.version, PIN_MUTANT);
+// 第二判别臂：尾部追加脏字符（前 40 位仍相同）必须判异——只测末位改一位的话，退回截前 40 位比较仍能通过。
+const PIN_TRAILING = AUTHORITY_PIN + '0';
+const PIN_TAIL_SENSITIVE = !samePin(PIN_TRAILING, AUTHORITY_PIN);
 t('A14 基准身份唯一权威绑定：baseline-lock 钉==770d2549…／冻结事实全部 repo_ref 恰为 anysearch-cli@b45d0799…（历史产物，且每行各带一枚）／两值互异／原始现场逐件计数 30·2·2·1＝35／归档索引只登记历史钉＋指针到锁表（不两写权威值）',
   !!BASE_ROW && samePin(BASE_ROW.version, AUTHORITY_PIN)
   && FACTS_REFS.length === 1 && FACTS_REFS[0] === 'anysearch-cli@' + HISTORICAL_PIN && FACTS_REF_N === FACTS_ROWS
-  && !samePin(AUTHORITY_PIN, HISTORICAL_PIN) && PIN_SENSITIVE
+  && !samePin(AUTHORITY_PIN, HISTORICAL_PIN) && PIN_SENSITIVE && PIN_TAIL_SENSITIVE
   && ABS_BATCH.join(',') === '30,2,2,1' && ABS_BATCH_TOTAL === 35
   && ARCH_IDX.indexOf(HISTORICAL_PIN) >= 0 && ARCH_IDX.indexOf('35 处') >= 0 && ARCH_IDX.indexOf('30 处') >= 0
   && ARCH_IDX.indexOf('engine/baseline-lock.yaml') >= 0 && ARCH_IDX.indexOf(AUTHORITY_PIN) < 0,
-  'lock=' + String(BASE_ROW && BASE_ROW.version).slice(0, 12) + ' facts_refs=' + (FACTS_REFS.join(',') || 'none') + ' rows=' + FACTS_REF_N + '/' + FACTS_ROWS + ' abs=' + ABS_BATCH.join(',') + ' total=' + ABS_BATCH_TOTAL + ' sensitive=' + PIN_SENSITIVE
+  'lock=' + String(BASE_ROW && BASE_ROW.version).slice(0, 12) + ' facts_refs=' + (FACTS_REFS.join(',') || 'none') + ' rows=' + FACTS_REF_N + '/' + FACTS_ROWS + ' abs=' + ABS_BATCH.join(',') + ' total=' + ABS_BATCH_TOTAL + ' sensitive=' + PIN_SENSITIVE + '/' + PIN_TAIL_SENSITIVE
   + ' idx_historical=' + (ARCH_IDX.indexOf(HISTORICAL_PIN) >= 0) + ' idx_counts=' + (ARCH_IDX.indexOf('35 处') >= 0) + '/' + (ARCH_IDX.indexOf('30 处') >= 0)
   + ' idx_pointer=' + (ARCH_IDX.indexOf('engine/baseline-lock.yaml') >= 0) + ' idx_authority_dup=' + (ARCH_IDX.indexOf(AUTHORITY_PIN) >= 0));
 // A15 历史钉值引用棘轮：40 位全值只许留在「38 现场冻结件」六件＋归档索引的声明行里——新增引用即红；声明件被重算丢值亦红（双向）。
@@ -165,9 +168,14 @@ const MC_DIST = readFileSync(join(ENG, 'dist', 'audit', 'macro-c.js'), 'utf8');
 const portableShape = function (txt) {
   return txt.indexOf("' --out <dir>'") >= 0 && txt.indexOf("'<repo>'") >= 0 && txt.indexOf("' --out ' + opts.outDir") < 0;
 };
-t('A16 报告复现命令可移植形在（src＋dist 双侧：走 <repo>／<dir> 双占位，本地与否取 intake 判定而非字面猜）',
-  portableShape(MC_SRC) && portableShape(MC_DIST) && MC_SRC.indexOf('portableReproduceCmd(opts.input, opts.outDir, intake.kind)') >= 0,
-  'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
+// `file://` 在 intake 里归 url，但它承载的正是本机绝对路径——只判 kind==='local' 会让 file:///home/u/repo 原样落进报告。
+// 判别臂：只认 kind 的旧写法必须判否，否则这条断言测不出「file:// 那条臂被删掉」。
+const portableFileLocal = function (txt) { return txt.indexOf("kind === 'local'") >= 0 && txt.indexOf('/^file:') >= 0; };
+const FILE_LOCAL_DEAD_FORM = "kind === 'local' ? '<repo>' : input";
+t('A16 报告复现命令可移植形在（src＋dist 双侧：走 <repo>／<dir> 双占位，本地与否取 intake 判定且 file:// 同判本地）',
+  portableShape(MC_SRC) && portableShape(MC_DIST) && portableFileLocal(MC_SRC) && portableFileLocal(MC_DIST) && !portableFileLocal(FILE_LOCAL_DEAD_FORM)
+  && MC_SRC.indexOf('portableReproduceCmd(opts.input, opts.outDir, intake.kind)') >= 0,
+  'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' file_local=' + portableFileLocal(MC_SRC) + '/' + portableFileLocal(MC_DIST) + ' file_arm_live=' + !portableFileLocal(FILE_LOCAL_DEAD_FORM) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
 const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
