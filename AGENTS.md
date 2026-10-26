@@ -8,9 +8,11 @@ macro-audit（6F）——宏观+微观工程内容审计产品，分发形态=Ag
 - 测试：`cd engine && npm test`（gen + build + smoke 全链）
 - CLI：`node engine/dist/cli.js --help`
 
+## 权威
+- 决策与术语分别落在哪：唯一成文处是 [`docs/authority.md`](docs/authority.md)，门面文书只留指针。
+
 ## 别改
 - `engine/dist/` 是生成物：改 `engine/src` 后必须 `npm run build`，提交前跑 `cd engine && node scripts/check-dist.mjs` 确认零 drift。
-- 决策与术语分别落在哪：唯一成文处是 [`docs/authority.md`](docs/authority.md)，门面文书只留指针。
 
 ## 坑
 - DuckDB 用 `@duckdb/node-api` 原生绑定；测试是直跑式 `.test.mjs`，不用测试框架。

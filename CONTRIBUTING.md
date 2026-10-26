@@ -15,16 +15,16 @@ PRs are welcome, with two honest caveats:
 1. **Review latency** — single maintainer; expect days, not hours. Draft PRs for large changes are appreciated so direction can be confirmed early.
 2. **Scope discipline** — this repository is a walking-skeleton methodology exercise: capabilities ship behind explicit preview labels, and "not yet implemented" is recorded rather than hidden. PRs that add claims faster than evidence will be asked to narrow.
 
-Before opening a PR, please work through the checklist in the PR template: guard scripts green, decisions recorded in the carrier [`docs/authority.md`](docs/authority.md) names for that decision type, bilingual README sync stamp reviewed if `README.md` changed, and `engine/dist` rebuilt if `engine/src` changed.
+Before opening a PR, please work through the checklist in the PR template: guard scripts green, decisions recorded where [`docs/authority.md`](docs/authority.md) says they belong, bilingual README sync stamp reviewed if `README.md` changed, and `engine/dist` rebuilt if `engine/src` changed.
 
 ## Ground rules (pointers, not duplicated)
 
 - [AGENTS.md](AGENTS.md) — working agreements for humans and agents in this repo.
-- [docs/authority.md](docs/authority.md) — where a decision or term lands; the single written authority for that question.
+- [docs/authority.md](docs/authority.md) — where a decision or a term lands; this is stated only here.
 - [engine/README.md](engine/README.md) — build / test / package commands (`npm test` = gen + build + smoke).
 - [docs/versioning.md](docs/versioning.md) — 0.x semantics and upstream lock discipline.
-- [docs/spec.md](docs/spec.md) — the product-decision carrier.
-- [GLOSSARY.md](GLOSSARY.md) — the terminology carrier.
+- [docs/spec.md](docs/spec.md) — product decisions.
+- [GLOSSARY.md](GLOSSARY.md) — domain glossary.
 
 ## Reading map — where to start, what to skip
 

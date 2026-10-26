@@ -4,11 +4,12 @@ How the engineering skills should consume this repo's domain documentation when 
 
 ## Before exploring, read these
 
-- **[`docs/authority.md`](../authority.md)**: the single written statement of where a decision or a term lands — everything below is a carrier it points at.
-- **`GLOSSARY.md`** at the repo root: the terminology carrier.
-- **`docs/spec.md`**: the product-decision carrier.
-- **`docs/adr/`**: the architecture-decision carrier (Context / options / consequences).
-- **`docs/known-gaps.md`**: code-level coverage gaps already registered.
+Where a decision or a term belongs is stated once, in **[`docs/authority.md`](../authority.md)**. Read the files below for content:
+
+- **`GLOSSARY.md`** at the repo root — domain vocabulary.
+- **`docs/spec.md`** — product decisions.
+- **`docs/adr/`** — architecture decisions (Context / options / consequences).
+- **`docs/known-gaps.md`** — code-level coverage gaps already registered.
 
 If any of these files don't exist, proceed silently. Don't flag their absence.
 
