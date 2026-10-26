@@ -29,10 +29,23 @@ GitHub shares one number space across issues and PRs, so a bare `#42` may be eit
 
 ## Merging PRs created by GitButler
 
-PRs created via `but pr new` carry stack metadata. The regular merge paths all reject them (`gh pr merge`, `but pr auto-merge`, `PUT /repos/{owner}/{repo}/pulls/{n}/merge` → 403 "Merging stacked PRs via this endpoint is not supported"). Use the asynchronous merge API:
+**First, tell which kind of PR it is.** GitButler publishes *native* GitHub stacked pull requests when the repo is enrolled in GitHub's stacked-PR preview and the PR uses same-repo branches; otherwise (preview not enabled, fork-based, or `but config forge github-stacks disable`) it falls back to an *ordinary* PR that carries the stack info in its description.
 
-- **Enqueue**: `gh api -X PUT repos/{owner}/{repo}/pulls/{n}/merge-async -F merge_method=squash -F merge_action=direct_merge` → `202` with `details.uuid` (or `200` immediately if already merged/enqueued).
-- **Poll**: `gh api repos/{owner}/{repo}/pulls/{n}/merge-async/<uuid>` → `pending` | `merged` (with `details.sha`) | `failed`.
+- **Ordinary (fallback) PR** — merge normally: `gh pr merge <n> --squash` (#65 and #71 in this repo are of this kind).
+- **Native stacked PR** — the regular paths all reject it (`gh pr merge`, `but pr auto-merge`, `PUT /repos/{owner}/{repo}/pulls/{n}/merge` → 403 "Merging stacked PRs via this endpoint is not supported"). Use the asynchronous merge API. If unsure which kind you have, just try `gh pr merge`: a 403 means native stack.
+
+```bash
+PR_NUMBER=123                    # target PR number
+UUID='paste-details.uuid-here'   # details.uuid returned by enqueue
+
+# Enqueue → 202 with details.uuid (or 200 when already merged/enqueued)
+gh api -X PUT repos/{owner}/{repo}/pulls/"$PR_NUMBER"/merge-async \
+  -F merge_method=squash -F merge_action=direct_merge
+
+# Poll → pending | merged (with details.sha) | failed
+gh api repos/{owner}/{repo}/pulls/"$PR_NUMBER"/merge-async/"$UUID"
+```
+
 - **Note**: closing keywords in the PR body are not processed on this path — close linked issues explicitly after the merge lands.
 
 ## When a skill says "publish to the issue tracker"
