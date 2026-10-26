@@ -13,7 +13,8 @@
 #   kind 词表：repo-corpus（被审计仓的语料快照；后续新增基准按此登记）
 #   status 词表：active（已被守卫实跑消费）／retired（不再消费，行不删以留溯源）
 #   三元钉：version（提交 sha）＋bundle_sha256（制品哈希）＋bundle_bytes（制品字节）——三者须同窗更新，
-#     85-check A11 机检制品完整性，C0/C0b 机检物化后 HEAD 与 list-heads 同值。
+#     85-check A11 机检字节数与 sha256，C-GATE 机检 list-heads 唯一项与空仓 verify（带 prerequisite 即红），
+#     C0 机检物化后 HEAD 与钉值同值。
 #   复审节奏同 §4：next_review=手动窗口到期日（每 release 前或 ≤30 天先到者）。
 #
 # 分发面：本表**不随 tgz**（engine/package.json files 无此条目）——消费方是仓内守卫，语料 bundle 在

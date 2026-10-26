@@ -107,16 +107,29 @@ if (groupProbe('85-check', 'B', DEPS_B)) {
 // version（pin_type=commit-sha），语料随 bundle 入库，**不再依赖同级仓**——无 sibling 的机器（含 CI）同样实跑 C1/C2/C3。
 // 换钉＝手动窗口重打 bundle→改 baseline-lock（version/bundle_bytes/bundle_sha256 三值同窗）→重跑 C0~C6。
 const AS_PIN_SHA = BASE_ROW ? BASE_ROW.version : null;
-const PIN12 = (AS_PIN_SHA || '').slice(0, 12);
-// 组级闸语义＝「冻结对象经在仓 bundle 可达」——need 族取 git-object:（幽灵钉：非任何分支祖先，clone 不携带；
-//   本仓即用仓内 frozen bundle 物化），不是 asset:（该族=gitignored 外部资产，与本制品在仓的事实相反）。
+// 制品面为什么是断言而不是 need 族（git-object:／asset: 都不用）：need 族表达的是「本机环境缺什么」，
+//   缺了按 D-159③ 三态纪律走 SKIP——而 bundle 在仓、由本仓维护，缺失／损坏／换钉不一致全是仓库缺陷，
+//   必须红。族义也对不上：git-object: 指「主仓对象库里没有的冻结对象」，asset: 指 gitignored 外部资产。
 const BUNDLE_HEADS = (function () { try { return execFileSync('git', ['bundle', 'list-heads', BUNDLE], { encoding: 'utf8' }).trim().split(/\r?\n/).filter(Boolean); } catch (e) { return []; } })();
-const BUNDLE_OK = !!BUNDLE_BUF && BUNDLE_HEADS.length === 1 && BUNDLE_HEADS[0].indexOf(AS_PIN_SHA || '\u0000') === 0;
+const BUNDLE_HEAD_OK = !!BUNDLE_BUF && BUNDLE_HEADS.length === 1 && BUNDLE_HEADS[0].indexOf(AS_PIN_SHA || '\u0000') === 0;
+// 制品自证：必须在**新建空仓**里 verify——prerequisite 在空仓一律不可满足，带前置的增量包当场露馅；
+//   在 clone 出来的语料仓里 verify 是假绿（对象已在库中，prerequisite 自然满足）。
+const BUNDLE_VERIFY = (function () {
+  const empty = mkdtempSync(join(tmpdir(), '85-bundle-gate-'));
+  try {
+    if (spawnSync('git', ['init', '-q', empty], { encoding: 'utf8' }).status !== 0) { return false; }
+    return spawnSync('git', ['-C', empty, 'bundle', 'verify', BUNDLE], { encoding: 'utf8' }).status === 0;
+  } catch (e) { return false; } finally { try { rmSync(empty, { recursive: true, force: true }); } catch (e) { } }
+})();
+// 边界：内容缺陷＝红，环境缺席＝SKIP。bundle 在仓、由本仓维护——缺失／损坏／换钉不一致都是**仓库缺陷**，
+//   不是环境缺失，故走断言而非组级闸（组级闸只留 engine-deps：duckdb 原生绑定缺席才是环境面）。
+//   这条边界正是 #33 要修的病：跳过不等于红。
+t('C-GATE 基准语料 bundle 内容面：list-heads 唯一项＝钉值＋空仓 verify 通过（带 prerequisite 即红；不因 duckdb 缺席降级为 SKIP）',
+  BUNDLE_HEAD_OK && BUNDLE_VERIFY, 'head_ok=' + BUNDLE_HEAD_OK + ' verify=' + BUNDLE_VERIFY + ' heads=' + JSON.stringify(BUNDLE_HEADS));
 const DEPS_C = [
-  need('git-object:' + (AS_PIN_SHA || 'anysearch-cli-adr-corpus'), BUNDLE_OK, '原因：仓内基准语料 bundle ' + BUNDLE_REL + ' 不在位、或它的 list-heads 不唯一指向 baseline-lock 钉值 ' + (PIN12 || '(baseline-lock 无钉值)') + '（Macro-C 差分重校准无基准）；手动修复：`git -C engine bundle verify ../' + BUNDLE_REL + '` 自证完整、`git bundle list-heads ../' + BUNDLE_REL + '` 核对唯一位＝钉值，缺失则从基线恢复该制品（换钉须同窗更新 version／bundle_bytes／bundle_sha256 三值）；无网影响面：bundle 在仓自足零联网，离线可修'),
   need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))
 ];
-if (groupProbe('85-check', 'C', DEPS_C)) {
+if (BUNDLE_HEAD_OK && BUNDLE_VERIFY && groupProbe('85-check', 'C', DEPS_C)) {
   const MC = await import(pathToFileURL(join(ENG, 'dist', 'audit', 'macro-c.js')).href);
   const COL = await import(pathToFileURL(join(ENG, 'dist', 'collect', 'collectors.js')).href);
   const tmpC = mkdtempSync(join(tmpdir(), '85-recal-'));
@@ -135,9 +148,8 @@ if (groupProbe('85-check', 'C', DEPS_C)) {
   function gitO(args) { return execFileSync('git', ['-C', AS_PIN].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }); }
   const HEAD_SHA = gitO(['rev-parse', 'HEAD']).trim();
   t('C0 语料钉快照一致：bundle 物化 HEAD＝＝baseline-lock 钉值（TOCTOU 消除不变式）', HEAD_SHA === SRC_HEAD, 'pin=' + HEAD_SHA.slice(0, 12) + ' src=' + String(SRC_HEAD).slice(0, 12));
-  // C0b bundle 自证完整＋list-heads 唯一位即钉值（防「换了包但钉值没换」的静默漂移；C0 看物化结果，本条看制品声明）
-  const bundleVerify = (function () { try { const r = spawnSync('git', ['-C', AS_PIN, 'bundle', 'verify', BUNDLE], { encoding: 'utf8' }); return r.status === 0; } catch (e) { return false; } })();
-  t('C0b 仓内 bundle 自证完整（git bundle verify）＋list-heads 唯一项＝钉值', bundleVerify && BUNDLE_HEADS.length === 1 && BUNDLE_HEADS[0].indexOf(SRC_HEAD) === 0, 'verify=' + bundleVerify + ' heads=' + JSON.stringify(BUNDLE_HEADS));
+  // 制品声明面（list-heads／空仓 verify）由上方 C-GATE 承载——此处不再复述同一条真理：
+  //   clone 出来的语料仓里 verify 是假绿（对象已在库中，prerequisite 自然满足），故 verify 只认空仓那一处。
   // (a) engine 一等面实跑（冻结面语料）
   const run = await MC.runMacroCAudit({ input: AS_PIN, outDir: join(tmpC, 'out') });
   const meas = run.measurements;
