@@ -20,7 +20,7 @@ Before opening a PR, please work through the checklist in the PR template: guard
 ## Ground rules (pointers, not duplicated)
 
 - [AGENTS.md](AGENTS.md) — working agreements for humans and agents in this repo.
-- [docs/authority.md](docs/authority.md) — where a decision or a term lands; this is stated only here.
+- [docs/authority.md](docs/authority.md) — which file a decision or a term belongs in.
 - [engine/README.md](engine/README.md) — build / test / package commands (`npm test` = gen + build + smoke).
 - [docs/versioning.md](docs/versioning.md) — 0.x semantics and upstream lock discipline.
 - [docs/spec.md](docs/spec.md) — product decisions.

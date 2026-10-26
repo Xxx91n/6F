@@ -1,28 +1,28 @@
 # GLOSSARY — macro-audit（6F）
 
-> 术语载体——领域唯一语言在此定义，词条不写实现细节。决策与术语分别落在哪，以 [`docs/authority.md`](docs/authority.md) 为唯一成文处。
+> 术语载体——领域唯一语言在此定义，词条不写实现细节。「决策与术语分别落在哪」只在 [`docs/authority.md`](docs/authority.md) 成文。
 
 ## 治理与载体
 
-**Decision Carrier（决策载体）**：承载某一类决策正文的仓库文件；三载体的划分与落点见 `docs/authority.md`。
+**Decision Carrier（决策载体）**：承载某一类决策正文的仓库文件。
 _Avoid_: 把同一决策复制进代码注释、README 或归档。
 
-**Authority Surface（权威面）**："决策与术语分别在哪"的声明面；唯一成文处=`docs/authority.md`，其余门面文书只留指针。
+**Authority Surface（权威面）**：「决策与术语分别在哪」的声明面——仓内只允许一处成文。
 _Avoid_: 在多个文件各写一套权威声明。
 
-**Design Pointer（Design 指针）**：写在约束点上、把读者指回决策载体的单行注释；只指路，不复制正文。格式以 `docs/authority.md` 为准。
+**Design Pointer（Design 指针）**：写在约束点上、把读者指回决策载体的单行注释；格式以 `docs/authority.md` 为准。
 _Avoid_: 把完整决策理由写进注释。
 
-**Historical Fingerprint（历史指纹）**：只用于历史溯源的编号，如 `D-NNN`、`A-NNN` 与旧 BACKLOG 票号；可在决策归档里解析，不是现行权威，不得新增。
+**Historical Fingerprint（历史指纹）**：只用于历史溯源、不承载现行权威的编号，如 `D-NNN`、`A-NNN` 与旧 BACKLOG 票号。
 _Avoid_: 用历史编号承载新决策。
 
 **Baseline Corpus（基准语料）**：用于差分重校准的不可变外部语料，按版本钉持有；它不是产品上游依赖。
-_Avoid_: 把基准语料的钉与产品上游混记同一册，或让它的可执行性依赖同级仓工作树。
+_Avoid_: 把基准语料当成产品上游依赖。
 
 **Live Contract（活契约）**：运行期被守卫消费、其可执行引用必须能解析的登记表或夹具；与只保历史字节的 Frozen Artifact 相对。
 _Avoid_: 让活契约静默积累死引用。
 
-**Frozen Artifact（冻结件）**：字节冻结的历史产物，只保证可回查、不再作为现行基准；是否属原始现场由归档处声明。
+**Frozen Artifact（冻结件）**：字节冻结的历史产物，只保证可回查、不再作为现行基准。
 _Avoid_: 把冻结件当现行契约断言。
 
 ## 审计与尺度
@@ -87,7 +87,7 @@ _Avoid_: 把冻结件当现行契约断言。
 
 **Cross-Scale Correlation Key**：跨 scale 关联同一 commit/PR 的 trace_id / baggage_id。
 
-**Semantic Domain（语义域）**：同一批事实的判读归属层；`structure/shape`=形态测量读数，`S3/budget-attribution`=预算归因读数。同一面可被两层消费，判读归属看消费位，不看采集层。
+**Semantic Domain（语义域）**：同一批事实的判读归属层；`structure/shape`=形态测量读数，`S3/budget-attribution`=预算归因读数。同一面可被两层读，归属由读它的那一层决定，不由采集它的那一层决定。
 _Avoid_: 把 structure 观测直接当 S3 裁决。
 
 **Report Template**：共享骨架 + scale-specific 切片；骨架章序=执行摘要→四象限/裁决→证据→行动建议。

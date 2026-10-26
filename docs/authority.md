@@ -26,11 +26,11 @@
 
 | 位置 | 专题口径 |
 |---|---|
-| [`docs/versioning.md`](versioning.md) | 0.x 版本语义与上游锁定纪律的成文口径 |
+| [`docs/versioning.md`](versioning.md) | 0.x 版本语义、上游锁定与复审节奏的成文口径 |
 | [`engine/upstream-lock.yaml`](../engine/upstream-lock.yaml) | 产品上游版本钉的机读权威（README 上游表状态列与之同源） |
-| [`engine/baseline-lock.yaml`](../engine/baseline-lock.yaml) | 基准语料（Baseline Corpus）钉的权威登记，不并入产品上游锁表 |
+| [`engine/baseline-lock.yaml`](../engine/baseline-lock.yaml) | 基准语料（Baseline Corpus）钉的登记处 |
 | [`docs/known-gaps.md`](known-gaps.md) | 缺口（gap）语义的权威登记册 |
-| [`docs/upstream-dimension-map.md`](upstream-dimension-map.md) | upstream→dimension 映射表本体及其复审日期字段（`last_reviewed` / `next_review`） |
+| [`docs/upstream-dimension-map.md`](upstream-dimension-map.md) | upstream→dimension 映射表本体（逐行 `last_reviewed` / `next_review` 的登记位；节奏与字段口径归 `docs/versioning.md`） |
 | [`docs/ra/`](ra/) | Accepted-Risk 呈批档案（已批准风险的现场，具名裁者=用户） |
 | [`engine/test/fixtures/contracts/`](../engine/test/fixtures/contracts/) | 现行判据与契约冻结件的所在目录 |
 | [`engine/CHANGELOG.md`](../engine/CHANGELOG.md) | 产品版本账 |
@@ -42,6 +42,7 @@
 
 - 它们只用于历史溯源，可由 [`docs/archive/decisions/`](archive/decisions/)（账本原文 + 索引）逐号解析；解析入口≠裁决依据。
 - **新决策不再使用 `D-NNN` / `A-NNN`**：产品决策落 `docs/spec.md` 的 `R<n>-<m>` 条目，架构决策落 `ADR-NNNN`。既有账本号只作历史引用，不追加新号。
+  [`ADR-0025`](adr/0025-authority-carriers-and-historical-fingerprints.md) 原文写的是"改用 ADR 号或 spec A-code"——spec 的现行编号形态是 `R<n>-<m>`，`A-NNN` 账本已封账不再增号，故本文件按实际形态落定；该措辞待 ADR-0025 勘误补记。
 - 代码注释、workflow 注释与历史文档里的历史指纹**保留原样**，不做现代化清洗；逐字节冻结的账本与冻结件（Frozen Artifact）允许保留原始现场（含本机绝对路径），前提是归档处已声明其为历史产物。
 - `CONTEXT.md` 已退役（`6626d08d` 删除），术语归 [`GLOSSARY.md`](../GLOSSARY.md)；历史文书（含 ADR 正文与账本行）里对 `CONTEXT.md` 的提法按历史指纹读，不作为现行落点。
 - **撞号警示**：GitHub issue/PR 与旧 BACKLOG 票号共用同一串号——旧 BACKLOG 覆盖 `#32`–`#94`，GitHub 号只增不减，两段区间重叠。新写的一律按 [`docs/spec.md`](spec.md) R8 的口径把 GitHub 引用写成 `tracker #N`；历史文本里的裸 `#NN`（代码注释、`NN-check` 脚本名、账本行）按 [`ticket-index.md` §撞号警示](archive/decisions/ticket-index.md#撞号警示) 消歧，不改写。

@@ -36,7 +36,7 @@ If the concept you need isn't in the glossary yet, that's a signal: either you'r
 
 ## Flag decision conflicts
 
-If your output contradicts a recorded decision, surface it explicitly rather than silently overriding — product decisions live in `docs/spec.md`, architecture decisions in `docs/adr/`:
+If your output contradicts a recorded decision, surface it explicitly rather than silently overriding (`docs/authority.md` says which carrier holds it):
 
 > _Contradicts docs/spec.md §…, but worth reopening because…_
 > _Contradicts docs/adr/00NN-…, but worth reopening because…_
