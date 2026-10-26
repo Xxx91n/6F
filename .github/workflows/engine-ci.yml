@@ -22,8 +22,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        # #36：下限 22.18——20-fact-schema-check / 21-collectors-check / 43-check 三条守卫直读 .ts，
-        # 依赖免 flag 的类型剥离（22.18+/23.6+）；Node 20 抛 ERR_UNKNOWN_FILE_EXTENSION，已 2026-04-30 EOL。
+        # #36：下限 22.18——20-fact-schema-check / 21-collectors-check / 43-check / 23-first-report-check
+        # 四条守卫直读 .ts，依赖免 flag 的类型剥离（22.18+/23.6+）；Node 20 抛 ERR_UNKNOWN_FILE_EXTENSION，已 2026-04-30 EOL。
         node: [22, 24]
     runs-on: ${{ matrix.os }}
     defaults:
