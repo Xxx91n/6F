@@ -5,7 +5,7 @@
 // 两段式（D-037⑤ deterministic-deps 模式，本票按任务书写明哪段已 enforce）：
 //   ENFORCE 段（本票已 enforce，FAIL 即 exit 1）=
 //     A 锁表结构/种子行/枚举/禁 range·浮动、B binary 可解析时版本断言三方同值、
-//     C 日期格式/mtime 断言、D README §3 绑定、E 三处 preview 标注同源、F 编年指针、
+//     C 日期格式/mtime/非未来登记上界（业务时钟∩UTC 较严者）断言、D README §3 绑定、E 三处 preview 标注同源、F 编年指针、
 //     G 文档账本、H BOM。
 //   ADVISORY 段（WARN 报警非失败，不 exit 1）=
 //     C5 锁表新鲜度逾期（next_review<today）、B4/B5 binary 不在 PATH 环境位。
@@ -45,6 +45,10 @@ if (existsSync(_repDir)) {
   }
 }
 const TODAY = REPO_TODAY;
+// 非未来登记的上界＝业务时钟与 UTC 日之较严者：CI runner 没有 .scratch 日报输入，判的是 UTC 日；
+// 超前宿主（+08）在凌晨按本地日登记会「本地绿、CI 六腿红」（#43 实证）。上界收到两者之小，本机即复现那条红。
+const UTC_TODAY = _d.toISOString().slice(0, 10);
+const REVIEW_UPPER = TODAY < UTC_TODAY ? TODAY : UTC_TODAY;
 
 // ---------- 锁表解析（yaml 子集解析器：本表格式受控——顶层标量 + upstreams: 行组，行内零嵌套） ----------
 function parseScalar(v) {
@@ -134,7 +138,7 @@ const lockStat = statSync(LOCK);
 t('C1 锁表 mtime 断言：非未来时戳（mtime ≤ now）', lockStat.mtimeMs <= Date.now() + 60000, 'mtime=' + lockStat.mtime.toISOString());
 const ISO_D = /^\d{4}-\d{2}-\d{2}$/;
 t('C2 全行 last_reviewed/next_review ISO 日期格式', lock.upstreams.every(r => ISO_D.test(r.last_reviewed || '') && ISO_D.test(r.next_review || '')));
-t('C3 全行 last_reviewed ≤ today（非未来登记）', lock.upstreams.every(r => r.last_reviewed <= TODAY));
+t('C3 全行 last_reviewed ≤ 登记日上界（非未来登记；上界=业务时钟∩UTC 较严者）', lock.upstreams.every(r => r.last_reviewed <= REVIEW_UPPER), 'upper=' + REVIEW_UPPER + ' biz=' + TODAY + ' utc=' + UTC_TODAY + ' bad=' + JSON.stringify(lock.upstreams.filter(r => r.last_reviewed > REVIEW_UPPER).map(r => r.id)));
 t('C4 全行 last_reviewed ≤ next_review（窗口方向正确）', lock.upstreams.every(r => r.last_reviewed <= r.next_review));
 const overdue = lock.upstreams.filter(r => r.next_review < TODAY);
 w('C5 锁表新鲜度：next_review 全行未逾期（逾期→advisory 报警；转 enforce 挂首发 tag 手动窗口 D-037④）', overdue.length === 0, 'overdue=' + JSON.stringify(overdue.map(r => r.id)));
