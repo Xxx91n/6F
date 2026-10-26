@@ -13,7 +13,7 @@
 
 基准语料自持，并与产品上游分离：
 
-- 把 anysearch-cli 的 `770d2549` 打成 frozen bundle 入库（实测 144KB），经 `env-contract` 的只读路径物化；守卫运行期不在主仓对象库写入。
+- 把 anysearch-cli 的 `770d2549` 打成 frozen bundle 入库（原文记「实测 144KB」——**该数量级不成立**，实测 14961055 B ≈ 14.3 MiB，勘误与原因见后果段），经 `env-contract` 的只读路径物化；守卫运行期不在主仓对象库写入。
 - 新建 `engine/baseline-lock.yaml`，作为基准语料的唯一权威；`upstream-lock.yaml` 移除 anysearch 行，保持纯产品上游语义与致谢闭账口径。
 - `85-check` C 组改读 `baseline-lock.yaml` 并物化仓内 bundle；无 sibling 的机器上 C1/C2/C3 值级断言实跑，`SKIP-GROUPS` 归零。
 - 唯一权威钉 = `770d2549`；`38-macro-c-facts.jsonl` 的 `b45d0799` 标为历史产物，不再当基准；冻结件字节零动，本机绝对路径在归档索引注明属原始现场。
@@ -27,7 +27,8 @@
 
 ## Consequences
 
-- 仓内多一枚 144KB 制品；基准变更走手动窗口：重打 bundle、改 baseline-lock、跑 C 组全等断言。
+- 仓内多一枚 14.3 MiB 制品；基准变更走手动窗口：重打 bundle、改 baseline-lock、跑 C 组全等断言。
+  - **勘误（2026-10-26，#33 落地实测）**：本文原记「144KB」不成立——该数量级是 `docs/adr` 104 件语料的 gzip 量级，不是 bundle 体量。全历史自足 bundle（822 提交、HEAD=钉值）实测 **14961055 B**：`git clone <bundle>` 的传输校验要求包内连通（提交↔全树↔全 blob），路径限定包（仅 `docs/adr` 等）实测 53 KB 但 `git clone` 直接 `remote transport reported error`，故不可减；可减的只有「不保真」路线（合成单提交仓），那会让 `git.adr_lag_days` 等历史派生指标退化，违背本文「同一份基准」的前提。代价按 14.3 MiB 记账，制品三元钉（version／bundle_sha256／bundle_bytes）在 `engine/baseline-lock.yaml` 机检。
 - GAP-CI-01 从"CI 不可达"改为已解；85-check C 组不再依赖 sibling。
 - #32/#33/#34 一并收口；`docs/known-gaps.md` 中相关行的状态与复审时点随票更新。
 - 架构决策记录：基准语料不是产品上游，属于"被审计的同级基准仓"，其生命周期与上游锁不同。
