@@ -29,21 +29,20 @@ GitHub shares one number space across issues and PRs, so a bare `#42` may be eit
 
 ## Merging PRs created by GitButler
 
-**First, tell which kind of PR it is.** GitButler publishes *native* GitHub stacked pull requests when the repo is enrolled in GitHub's stacked-PR preview and the PR uses same-repo branches; otherwise (preview not enabled, fork-based, or `but config forge github-stacks disable`) it falls back to an *ordinary* PR that carries the stack info in its description.
+Merging is an outward action — do it only once the user has explicitly asked for that merge (`AGENTS.md`).
 
-- **Ordinary (fallback) PR** — merge normally: `gh pr merge <n> --squash` (#65 and #71 in this repo are of this kind).
-- **Native stacked PR** — the regular paths all reject it (`gh pr merge`, `but pr auto-merge`, `PUT /repos/{owner}/{repo}/pulls/{n}/merge` → 403 "Merging stacked PRs via this endpoint is not supported"). Use the asynchronous merge API. If unsure which kind you have, just try `gh pr merge`: a 403 means native stack.
+GitButler publishes *native* GitHub stacked pull requests when the repo is enrolled in GitHub's stacked-PR preview and the PR uses same-repo branches; otherwise (preview not enabled, fork-based, or `but config forge github-stacks disable`) it falls back to an *ordinary* PR whose description carries the stack info.
+
+- **Ordinary (fallback) PR** — the regular path works: `gh pr merge "$PR_NUMBER" --squash` (#65 in this repo merged this way).
+- **Native stacked PR** — the regular paths all reject it (`gh pr merge`, `but pr auto-merge`, `PUT /repos/{owner}/{repo}/pulls/{n}/merge` → 403 "Merging stacked PRs via this endpoint is not supported"). Use the asynchronous merge API below. Once merge is already authorized, a 403 from `gh pr merge` is the signal to switch paths; never probe before authorization, since a successful probe *is* a merge.
 
 ```bash
-PR_NUMBER=123                    # target PR number
-UUID='paste-details.uuid-here'   # details.uuid returned by enqueue
-
-# Enqueue → 202 with details.uuid (or 200 when already merged/enqueued)
-gh api -X PUT repos/{owner}/{repo}/pulls/"$PR_NUMBER"/merge-async \
-  -F merge_method=squash -F merge_action=direct_merge
-
+PR_NUMBER=123
+# Enqueue → 202 with details.uuid (or 200 when already merged/enqueued); capture it in one pass
+UUID=$(gh api -X PUT "repos/{owner}/{repo}/pulls/$PR_NUMBER/merge-async" \
+  -F merge_method=squash -F merge_action=direct_merge --jq '.details.uuid')
 # Poll → pending | merged (with details.sha) | failed
-gh api repos/{owner}/{repo}/pulls/"$PR_NUMBER"/merge-async/"$UUID"
+gh api "repos/{owner}/{repo}/pulls/$PR_NUMBER/merge-async/$UUID"
 ```
 
 - **Note**: closing keywords in the PR body are not processed on this path — close linked issues explicitly after the merge lands.
