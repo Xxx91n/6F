@@ -69,7 +69,10 @@ try {
 } catch (e) { preregCommit = ''; }
 // R37 返工 F1（D-094(b) 短 SHA 字面钉脆性）：%h auto-abbrev 随对象库 7→8 跳变——钉钉=commit 存在性（%H 前缀等值）非显示宽度
 check('P2', preregCommit.length > 0 && preregCommit.startsWith(gates.preflight.t22_prereg_commit), '票 22 预声明已 commit：' + preregCommit + '（预期 ' + gates.preflight.t22_prereg_commit + '）');
-const cBasisMissing = ['B1', 'B2', 'B3', 'B4', 'B5'].filter(function (s) { return cBasisText.indexOf(s) < 0; });
+// 认段落形制（表首列的行标签 `| Bn |`），不认标签的任意子串——正文顺带提到 B3 不算该段存在
+const cBasisMissing = ['B1', 'B2', 'B3', 'B4', 'B5'].filter(function (s) {
+  return !new RegExp('^\\|\\s*' + s + '\\s*\\|', 'm').test(cBasisText);
+});
 check('P3', existsSync(C_BASIS) && cBasisMissing.length === 0, 'C 层裁定依据预入库文件可指认：22-c-adjudication-basis.md 五段齐备（要求 B1-B5）' + (cBasisMissing.length ? '，缺 ' + cBasisMissing.join(', ') : ''));
 
 // ---------- A 闸：形式达标（骨架 + 引文 + Receipt） ----------
@@ -153,7 +156,9 @@ check('B6', gates.B.tc2.total > 0 && gates.B.tc3.per_source.length === 2 && gate
 
 // ---------- C 闸：信任裁决（依据预入库 + 三档 + 锚定 + agent 可消费） ----------
 const bands = ['supported', 'unsupported', 'insufficient'];
-check('C1', cBasisText.indexOf('supported') >= 0 && cBasisText.indexOf('unsupported') >= 0 && cBasisText.indexOf('insufficient') >= 0, '裁定依据预入库文件含三档定义（看报告前已存在）');
+// `supported` 是 `unsupported` 的子串——裸 indexOf 会让第一档永真（有 unsupported 就必过）。认整词，前后非字母才算该档定义在场。
+const cBandsMissing = bands.filter(function (b) { return !new RegExp('(^|[^A-Za-z])' + b + '($|[^A-Za-z])').test(cBasisText); });
+check('C1', cBandsMissing.length === 0, '裁定依据预入库文件含三档定义（看报告前已存在）' + (cBandsMissing.length ? '，缺 ' + cBandsMissing.join(', ') : ''));
 check('C2', bands.indexOf(carHappy.overall_verdict) >= 0, '综合裁定 ' + carHappy.overall_verdict + ' 属三档之一');
 const unanchored = carHappy.adjudication.entries.filter(function (e) { return !e.criterion_id || (e.anchored_fact_ids.length === 0 && e.anchored_evidence_ids.length === 0); });
 check('C3', unanchored.length === 0, '裁定条目逐条锚定 B 产物（' + carHappy.adjudication.entries.length + ' 条，无锚 ' + unanchored.length + ' 条）');
@@ -193,4 +198,3 @@ console.log(results.length + ' checks, ' + (results.length - failed) + ' pass, '
 if (failed > 0) { process.exit(1); }
 console.log('23-first-report-check: PASS (exit 0)');
 process.exit(0);
-
