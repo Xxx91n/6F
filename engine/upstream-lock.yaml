@@ -19,6 +19,8 @@
 #     engine/test/contracts/44-check.mjs 新鲜度断言报警（advisory 段）。
 #   - 逾期逐行处置纪律＋review_evidence/review_deferred 留痕字段契约＝docs/versioning.md §3-4
 #     （#43 立法；正文只在那一处，本表逐行只填值不复制规则）。
+#   - 本表只承载产品上游。基准语料（被审计同级仓的冻结快照）不在本表——见 engine/baseline-lock.yaml
+#     （ADR-0026／#33 分册：基准不是上游，其 status 枚举与致谢面闭账口径不同）。
 lock_version: 1
 upstreams:
   - id: codelore
@@ -129,16 +131,6 @@ upstreams:
     contract: "真校验器 advisory 工具链（D-066②③⑤）：`claude --version` 输出首段须恰等于 pin 值（三方同值断言=binary↔本表↔34-check G19 CLAUDE_CLI_PINNED 常量）；`claude plugin validate engine --strict` advisory 位 WARN 不红；cli-absent→SKIP(claude-validate) 计入 WARN＋连续 SKIP 升格顶显；转 enforce 判据=registry claude-validate-promotion-watch（advisory 满 2 版本窗口无 SKIP 污染）"
     status: active
     adapter: "engine/scripts/validate-plugin.mjs（双触发消费位：CI event_bound＋npm run validate:plugin 手动窗口）＋34-check.mjs G19/advisory 段"
-    last_reviewed: 2026-10-26
-    next_review: 2026-11-25
-    review_evidence: "#43 2026-10-26 实跑：`claude --version`=2.1.251 (Claude Code) 首段 2.1.251 三方同值==本行 version==34-check G19 CLAUDE_CLI_PINNED（G19a/G19b PASS）；34-check PASS 23/23 含 advisory 位 `claude plugin validate engine --strict` 干净（无 cli-absent SKIP）；转 enforce 判据=registry claude-validate-promotion-watch 满 2 版本窗口——本窗为单次观测不满足该判据，advisory 位维持不翻（pin 值零改动）"
-  - id: anysearch-cli-adr-corpus
-    kind: data-export
-    version: "770d25495a67bb1e6b1c421a9b40c04259950ddf"
-    pin_type: commit-sha
-    contract: "85-check C 组（Macro-C 差分重校准）基准语料钉＝同级仓 anysearch-cli 一枚不可变 commit-sha（ADR 删除提交的父提交，2026-10-22，tree 含 docs/adr/*.md 104 件）；pin 已定版（pin_type=commit-sha，禁 range/浮动 HEAD）；消费纪律=sibling 只读 git 命令（clone 至 OS temp＋checkout 钉值后对账，D-074 零写入语料仓）；钉值唯一权威=本行 version（85-check.mjs 默认读本行，GUARD_ANYSEARCH_SHA 仅临时覆写不留档）；禁浮动：活仓 HEAD 随 GitButler 虚拟分支漂移（工作树 docs/adr 可归 0），取 HEAD 即静默无基准；改钉=手动窗口重跑 C0~C3 值级全等断言（两侧同源于钉提交运行时重算，非 golden 手抄）"
-    status: planned
-    adapter: "engine/test/contracts/85-check.mjs C 组（SRC_HEAD 钉值读取位 lockPinSha）"
-    risk_note: "status=planned 是枚举位妥协非接入态：本行实为已生效消费中的守卫基准语料（85-check C 组默认读本行）。active 集是 README 致谢面闭账域（gen-acknowledgments.mjs TEMPLATES 双向差集，77-check A2/A3 enforce），anysearch-cli=被审同级基准仓非产品上游，不入致谢面；version 已定值（禁浮动 pin）与表头「planned 行 version=null」约定同属该妥协的连带偏差，语义以本行 contract 文本为准"
-    last_reviewed: 2026-10-24
+    last_reviewed: 2026-10-25
     next_review: 2026-11-24
+    review_evidence: "#43 2026-10-25 实跑：`claude --version`=2.1.251 (Claude Code) 首段 2.1.251 三方同值==本行 version==34-check G19 CLAUDE_CLI_PINNED（G19a/G19b PASS）；34-check PASS 23/23 含 advisory 位 `claude plugin validate engine --strict` 干净（无 cli-absent SKIP）；转 enforce 判据=registry claude-validate-promotion-watch 满 2 版本窗口——本窗为单次观测不满足该判据，advisory 位维持不翻（pin 值零改动）"

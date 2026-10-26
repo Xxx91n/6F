@@ -2072,6 +2072,14 @@
      "criterion_version": "D-159①④/D-163",
      "decision": "registered",
      "reason": "85-check（#84 Macro-C 一等面守卫，sibling+engine-deps 组级闸）与 86-check（#87 摘帽守卫，engine-deps 组级闸）落盘实测绿入列——T3 对账同窗兑现"
+    },
+    {
+     "at": "2026-10-26",
+     "by": "#33／ADR-0026（基准语料自持）",
+     "criterion_version": "D-159①④/D-163②/D-074",
+     "decision": "rescoped",
+     "reason": "85-check C 组组级闸换轨：`sibling:anysearch-cli`＋`asset:anysearch-cli/docs/adr` 摘除，改为红断言 `C-GATE`（在仓 frozen bundle 的 list-heads 唯一项＝钉值＋空仓 verify；钉值唯一权威迁至 engine/baseline-lock.yaml 三元钉）＋组级闸只留 `engine-deps:@duckdb/node-api`。tier 仍 env-contract、guards 集不变（十二件／sibling 三件＝37/39/46 不变）；C 组不再依赖同级仓工作树，无 sibling 的机器（含 CI 六腿）C-GATE/C0/C-INV/C1~C6 实跑，GAP-CI-01 由 ci_surface_unreachable 转 closed",
+     "evidence": "engine/baseline-lock.yaml（version＋bundle_sha256＋bundle_bytes）＋engine/test/fixtures/frozen/anysearch-cli-770d2549.bundle；85-check A10~A13 机检（锁表结构/制品完整性/活跃路径无本机绝对路径/上游锁表零 anysearch）；实测 `git bundle list-heads`＝770d2549… HEAD 唯一位、clone 后 rev-list --count=822、docs/adr=104 件"
     }
    ],
    "bound_to": "#R40-T1 执行窗（D-159 环境契约分层立法兑现）"
@@ -2814,6 +2822,14 @@
      "decision": "registered",
      "reason": "消费形态静默变更同型更早期标本=checkout@v2 默认浅克隆致全网失效；不修触发器则仍靠人记（原 (a) 缺陷）——engine-ci fetch-depth 变更已配为同族先例实锤",
      "evidence": "decision-ledger.md D-214③＋.scratch/macro-audit/reports/R66-Q2-atomcode-research.md"
+    },
+    {
+     "at": "2026-10-26",
+     "by": "#33／ADR-0026（基准语料自持）",
+     "criterion_version": "D-214③",
+     "decision": "fired",
+     "reason": "sibling 消费方式变更实锤点火：85-check C 组由「同级仓 anysearch-cli 工作树 clone」改为「仓内 frozen bundle clone」，被消费守卫 consumption_forms 复审结论=声明不变仍成立（`['dev-full','ci-shallow']` 两形态照跑：dev-full 全断言面、ci-shallow 由 engine-deps 组级闸兜 duckdb 原生绑定），且 C 组首次真正进入 ci-shallow 形态（原无 sibling 只能 SKIP-GROUP）；engine-ci checkout fetch-depth 未变（仍 0），clone 深度策略未变",
+     "evidence": "engine/test/contracts/85-check.mjs CONSUMPTION_FORMS＋DEPS_C（engine-deps 单闸）＋C-GATE 红断言（内容缺陷不退化成 SKIP）；engine/baseline-lock.yaml 三元钉；无 sibling 环境（GUARD_SIBLING_ROOT 指向不存在目录）实跑 C-GATE/C0/C-INV/C1~C6 全绿"
     }
    ]
   }
