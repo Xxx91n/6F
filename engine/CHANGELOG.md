@@ -7,6 +7,9 @@ Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
 
 ## [Unreleased]
 
+### Changed
+- #36 Node 支持面下限 20 → 22.18：`engines.node` 改 `>=22.18`，engine-ci 矩阵 `[20,22]`→`[22,24]`。根因=`20-fact-schema-check`/`21-collectors-check`/`43-check` 三条守卫直读 `.ts` 源做结构断言，依赖**免 flag** 的类型剥离——该能力 22.6.0 以 `--experimental-strip-types` 引入、22.18.0 才默认开启（23.6.0 同步解禁），故下限取 22.18 而非 22.6：22.6–22.17 区间仍抛 `ERR_UNKNOWN_FILE_EXTENSION`，取 22.6 只是把本缺陷缩小范围未消除。Node 20 已于 2026-04-30 EOL。同步面：README×2（badge＋安装前置＋源码自举）、`engine/README.md`、`skills/macro-audit/SKILL.md` Prerequisites、`macro-b-regression.yml` 注释口径。不保留 Node 20 的版本闸 SKIP 分支（跳过不算红会再次成为盲区）
+
 ## [0.2.0] - 2026-10-05
 
 ### Changed

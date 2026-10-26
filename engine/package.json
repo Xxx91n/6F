@@ -33,7 +33,7 @@
     "validate:plugin": "node scripts/validate-plugin.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.18"
   },
   "dependencies": {
     "@duckdb/node-api": "1.5.5-r.5"

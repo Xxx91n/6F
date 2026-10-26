@@ -8,7 +8,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-38bdf8" alt="License: Apache-2.0"/></a>
   <img src="https://img.shields.io/badge/version-0.1.0-f59e0b" alt="Version: 0.1.0"/>
-  <img src="https://img.shields.io/badge/node-%E2%89%A520-38bdf8" alt="Node: &ge;20"/>
+  <img src="https://img.shields.io/badge/node-%E2%89%A522.18-38bdf8" alt="Node: &ge;22.18"/>
   <a href="#install"><img src="https://img.shields.io/badge/marketplace-installable-f59e0b" alt="Marketplace: installable"/></a>
   <a href="https://github.com/Xxx91n/6F/actions/workflows/engine-ci.yml"><img src="https://github.com/Xxx91n/6F/actions/workflows/engine-ci.yml/badge.svg?branch=main" alt="engine-ci: main"/></a>
 </p>
@@ -50,7 +50,7 @@ Honest preview labeling is a decision, not decoration: report headers and sideca
 
 ## Install
 
-**Prerequisites**: Node.js ≥ 20 (`node --version` to check) and Claude Code 2.x.
+**Prerequisites**: Node.js ≥ 22.18 (`node --version` to check; 22.18 is the release where built-in TypeScript type stripping became available without a flag, which the contract guards rely on) and Claude Code 2.x.
 
 ```text
 /plugin marketplace add Xxx91n/6F
@@ -75,7 +75,7 @@ Excerpt from a real self-audit of this repository ([examples/first-report/23-fir
 
 ## Quick verification
 
-From source (Node ≥ 20):
+From source (Node ≥ 22.18):
 
 ```bash
 cd engine

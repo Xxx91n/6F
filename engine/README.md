@@ -29,7 +29,7 @@
 
 ## 插件安装（Claude Code · git-clone 分发 · #59/D-067）
 
-**Prerequisites**：Node.js ≥ 20（`node --version` 自检）；Claude Code 2.x。
+**Prerequisites**：Node.js ≥ 22.18（`node --version` 自检；22.18 起内置 TypeScript 类型剥离无需 flag，`test/contracts/` 三条守卫直读 `.ts` 源依赖此项）；Claude Code 2.x。
 
 ```text
 /plugin marketplace add Xxx91n/6F
