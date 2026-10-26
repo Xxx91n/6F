@@ -115,15 +115,11 @@ function stripLineComments(line) {
   }
   return line;
 }
-// 违规面=指向本仓 docs/ 树（不随包分发）的可解析引用：
-//   ①docs/upstream-* 路径或 .md 文档名引用 ②../docs/ 相对路径 ③join(自仓基座, 'docs'...)
-// 豁免：主题仓 join(repoRoot/subject,'docs','adr') 采集面＋同名 .ts/.js 模块 import（非文档路径）
-//   ＋`docs/archive/decisions/` 的**引文坐标**（#29：ADR-0027 点名的归档索引是报告溯源串的仓内解析入口）。
-// 豁免只覆盖"字符串坐标"，**不覆盖运行时读取**——`readFileSync('docs/archive/decisions/…')` 仍红（见 READ 腿），
-// 否则放行面会与该守卫的立法理由（禁依赖与读取）背离。
+// 违规面=指向本仓 docs/ 树（不随包分发）的引用；豁免=主题仓采集面、`docs/adr`、`docs/archive/decisions` 的引文坐标。
+// Design: docs/archive/decisions 只放行出处坐标，运行时读取与 import 仍红 — ADR-0027
 const DOCREF_RE = /docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr|archive\/decisions\/)/;
-const DOCREAD_RE = /\b(readFileSync|readdirSync|existsSync|createReadStream|openSync|import)\s*\([^)]*['"]docs\//;
-const docRefViolation = (line) => DOCREF_RE.test(line) || DOCREAD_RE.test(line);
+const DOCIO_RE = /\b(readFileSync|readdirSync|existsSync|createReadStream|openSync|import|writeFileSync|appendFileSync|mkdirSync|rmSync|unlinkSync|copyFileSync|renameSync)\s*\([^)]*['"`]docs\/|^\s*(import|export)\b[^;]*from\s*['"`]docs\//;
+const docRefViolation = (line) => DOCREF_RE.test(line) || DOCIO_RE.test(line);
 const docRefViolations = [];
 const walkCode = (dir) => {
   if (!fs.existsSync(dir)) return;
@@ -150,11 +146,14 @@ const E1_PROBES = [
   ["const p = 'docs/spec.md';", true, '其余 docs/ 路径仍红'],
   ["const p = '../docs/spec.md';", true, '相对路径仍红'],
   ["readFileSync('docs/archive/decisions/macro-audit-ledger.md');", true, '归档目录的运行时读取仍红（豁免只给坐标）'],
+  ["readFileSync(`docs/archive/decisions/macro-audit-ledger.md`);", true, '模板字面量的运行时读取仍红'],
+  ["import x from 'docs/archive/decisions/macro-audit-ledger.md';", true, '静态 import 归档目录仍红'],
+  ["writeFileSync('docs/archive/decisions/macro-audit-ledger.md', '');", true, '写归档目录仍红（归档只读）'],
   ["const p = 'docs/archive/decisions/macro-audit-ledger.md';", false, '归档目录的引文坐标放行'],
   ["const p = 'docs/adr/0027-x.md';", false, 'ADR 指针放行']
 ];
 const e1Red = E1_PROBES.filter(function (x) { return docRefViolation(x[0]) !== x[1]; });
-t('E1-P 判别臂活性：五类样本判色全对（红/绿两侧均非空——收窄后仍能红，豁免不吞掉运行时读取）',
+t('E1-P 判别臂活性：八类样本判色全对（红/绿两侧均非空——收窄后仍能红，豁免不吞掉读写、import 与模板字面量）',
   e1Red.length === 0 && E1_PROBES.some(function (x) { return x[1]; }) && E1_PROBES.some(function (x) { return !x[1]; }),
   e1Red.map(function (x) { return x[2]; }).join(' '));
 
