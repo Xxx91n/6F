@@ -937,6 +937,14 @@
      "decision": "reviewed-stay-pending",
      "reason": "Macro-B/Micro-A preview 均无供应链象限数据面刚需（Macro-B 维持 ⚠ 数据未接 披露制，D-034③）；scorecard=planned 不动、repomix=retired 不动（D-056）；下一复审锚=stage3-close",
      "evidence": "README 能力矩阵 preview 口径＋engine/upstream-lock.yaml＋t8-watch-review.md"
+    },
+    {
+     "at": "2026-10-25",
+     "by": "#43 逾期上游复审盘点",
+     "criterion_version": "#43 逾期逐行处置纪律（docs/versioning.md §4 立法＋44-check C5 advisory 段；D-037④ 仅指手动窗口既有纪律，不承载新规则）",
+     "decision": "deferred-no-runtime-surface",
+     "reason": "openssf-scorecard 行 next_review 2026-10-16 逾期，由本项代持显式 deferred：planned 行 version/pin_type=null＝无 pin 无制品可实跑，仓内零 Scorecard 消费位（supply_chain 象限维持 ⚠ 数据未接，D-034③ 禁插队）；层需求未拉动→本项 status=pending 维持、锁表逾期日期不刷新（禁无证据批量刷新）；转接入票时按 verify_method 先定 pin_type+version＋golden 契约三前置再同步本行",
+     "evidence": "engine/upstream-lock.yaml openssf-scorecard 行 review_deferred＋2026-10-25 实跑 44-check C5 overdue=[openssf-scorecard,codelore-sqlite-dump]"
     }
    ],
    "review_event": "stage3-close"
@@ -1431,7 +1439,7 @@
    "family": "upstream-dimension-map",
    "title": "review 覆盖切片 S5↔S4 归属裁定（D-081 双挂行事件锚化）",
    "deadline_event": null,
-   "deadline": "无硬到期——纯事件驱动（次锚=映射表 next_review 2026-10-19 复审照常过目）",
+   "deadline": "无硬到期——纯事件驱动（次锚=映射表 next_review，日期以 docs/upstream-dimension-map.md 复审字段为唯一权威、本行不钉字面值防漂移）",
    "trigger_event": "github-rest-reviews-active",
    "trigger": "pulls.reviews 移出 GITHUB_REST_PLANNED_SURFACES（review 面 fact 实产）",
    "review_at": "接线票立项时按采集数据裁定（D-078④ 原文；候选对 S5↔S4 无偏好序）",
@@ -1444,7 +1452,7 @@
    "family": "quadrant-rubric",
    "title": "权重语义 rubric 层立案——「quadrant-rubric 初版参数起草」触发（D-084④：映射表无权重列，权重/强弱语义归判据面）",
    "deadline_event": null,
-   "deadline": "无硬到期——纯事件驱动（次锚=映射表 next_review 2026-10-19 复审照常过目）",
+   "deadline": "无硬到期——纯事件驱动（次锚=映射表 next_review，日期以 docs/upstream-dimension-map.md 复审字段为唯一权威、本行不钉字面值防漂移）",
    "trigger_event": "quadrant-rubric-params-draft",
    "trigger": "「quadrant-rubric 初版参数起草」票立项（本项仅登记不提前开工——D-084④）",
    "review_at": "立案时带 LFX v2「人气≠健康」启示一句（Health Score 聚合面 40/35/25——权重仅存聚合层，分类/映射页零权重列）",

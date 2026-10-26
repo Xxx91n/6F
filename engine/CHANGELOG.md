@@ -9,6 +9,7 @@ Format: Keep a Changelog (keepachangelog.com). Versioning: SemVer.
 
 ### Changed
 - #36 Node 支持面下限 20 → 22.18：`engines.node` 改 `>=22.18`，engine-ci 矩阵 `[20,22]`→`[22,24]`。根因=`20-fact-schema-check`/`21-collectors-check`/`43-check` 三条守卫直读 `.ts` 源做结构断言，依赖**免 flag** 的类型剥离——该能力 22.6.0 以 `--experimental-strip-types` 引入、22.18.0 才默认开启（23.6.0 同步解禁），故下限取 22.18 而非 22.6：22.6–22.17 区间仍抛 `ERR_UNKNOWN_FILE_EXTENSION`，取 22.6 只是把本缺陷缩小范围未消除。Node 20 已于 2026-04-30 EOL。同步面：README×2（badge＋安装前置＋源码自举）、`engine/README.md`、`skills/macro-audit/SKILL.md` Prerequisites、`macro-b-regression.yml` 注释口径。不保留 Node 20 的版本闸 SKIP 分支（跳过不算红会再次成为盲区）
+- #43 逾期上游复审盘点（逐行处置，禁批量刷新日期）：`engine/upstream-lock.yaml` 10 逾期行分两类收口——8 行实跑复核通过→刷新窗口（`last_reviewed` 2026-10-26／`next_review` 2026-11-25＝≤30 天到期）＋回填 `review_evidence` 实跑读数（codelore 0.28.0 三方同值／duckdb-node-api＋bindings 1.5.5-r.5 含 duckdb.dll 36,724,520B 完整性面／git 2.56.0 `%cI` 实物经 normalizeGitIsoDate 归一／github-rest `2022-11-28` api-version 常量同源／esbuild 0.28.2／SchemaStore 快照独立重算 sha256==digest pin／claude 2.1.251）；2 行无实跑面→写 `review_deferred`（原因＋重核触发）并**保留原逾期日期**（openssf-scorecard=planned 无 pin 无制品可跑、codelore-sqlite-dump=首轮评估产物已随 .scratch 收敛出仓）。pin 版本零改动（手动窗口外禁改 pin，AC3 由 `git diff` version/pin_type 行计数=0 自证）。同步面：`docs/upstream-dimension-map.md` 复审字段＋§⑤ 逐行结论（v1.0 映射面零改动，接线票未立）与 `engine/src/audit/upstream-dimension-map.ts` 常量同源（71-check A1 漂移失配即 FAIL）、registry `upstream-probes-scorecard-repomix` 追加 `deferred-no-runtime-surface` 留痕。守卫：44-check C5 由 10 行逾期收敛至 2 行（advisory 段不转 enforce，仍逐行点名）（upstream-lock.yaml diff）
 
 ## [0.2.0] - 2026-10-05
 
