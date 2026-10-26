@@ -15,7 +15,7 @@ macro-audit（6F）——宏观+微观工程内容审计产品，分发形态=Ag
 ## 坑
 - DuckDB 用 `@duckdb/node-api` 原生绑定；测试是直跑式 `.test.mjs`，不用测试框架。
 - 叙事段不得携带裁决 band；band 归 C 层人裁。
-- 未经用户明示不 push。
+- 版本操作走 `but`：workspace 拒绝裸 `git commit`；`but commit` 必须带本票文件 ID（未提交区可能含并发 agent 改动）；push / tag / merge 等外显动作等用户明令。
 
 ## Agent skills
 
