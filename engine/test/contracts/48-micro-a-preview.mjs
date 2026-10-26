@@ -296,8 +296,12 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
     evidence.push({ evidence_id: EV(2), source: artName, locator: 'L0', claim: '' + NAME + '#' + pin.n + ' diff 工件', grounded: false, collected_at: RUN_AT, reproduce_cmd: RUN_CMD, reproduce_absent_reason: 'diff 工件缺席（' + (art.error || 'channel 未产') + '）', required_tokens: [], excerpt: '' });
   }
   addEvidence(EV(3), opts.factsName, ['github_rest.pr_metadata', '#' + pin.n + ''], '本次实测：' + NAME + '#' + pin.n + ' 元数据事实落库（merged=' + merged + '）', RUN_CMD, OUTDIR);
-  addEvidence(EV(4), 'docs/spec.md', 'D-049', '票面授权锚：D-049 Micro-A preview 单票铺开决策行', 'git -C ' + REPO + ' show HEAD:docs/spec.md', REPO);
-  addEvidence(EV(5), CRITERIA_PATH, 'TC-4', '判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）', 'git -C ' + REPO + ' show HEAD:' + CRITERIA_PATH, REPO);
+  // 决策账本落点＝#40 归档进仓的只读档案（#29／ADR-0027：报告溯源串改指仓内 contract fixtures 与归档索引）。
+  // 原 'docs/spec.md' 锚不含 D-049 字面（spec 现行编号形态是 R<n>-<m>）→ 摘取必失败、证据恒 grounded=false。
+  // reproduce_cmd 一律 `<repo>` 占位（与 engine micro-a.ts 同款）——写死 REPO 会把本机绝对路径烤进 golden，
+  // 换机即不可复现（#29 判据「出处可复现」）。
+  addEvidence(EV(4), 'docs/archive/decisions/macro-audit-ledger.md', 'D-049', '票面授权锚：D-049 Micro-A preview 单票铺开决策行', 'git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md', REPO);
+  addEvidence(EV(5), CRITERIA_PATH, 'TC-4', '判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）', 'git -C <repo> show HEAD:' + CRITERIA_PATH, REPO);
 
   const claims = [
     { claim_id: 'CL-48-' + R + '-PR' + pin.n + '-01', evidence_id: EV(1), required_tokens: ['prs_listed'] },
@@ -395,7 +399,7 @@ async function buildRefusalReport(gp, allGates, shared, opts) {
   const RUN_CMD = 'node engine/test/contracts/48-micro-a-preview.mjs' + (opts.golden ? ' --golden' : '');
   addEvidence('EV-48-' + R + '-REF-01', opts.measName, 'goose-duck-agent', '本次实测：' + gp.name + ' 托管枚举 merged PR=0——无托管 PR 面', RUN_CMD, OUTDIR);
   addEvidence('EV-48-' + R + '-REF-02', opts.measName, 'anysearch-cli', '前提漂移锚：anysearch-cli 票面撰写时无托管面（#37 实测 pr=0），本票复核托管枚举 merged=' + (drift ? drift.merged_prs : 'n/a'), RUN_CMD, OUTDIR);
-  addEvidence('EV-48-' + R + '-REF-03', 'docs/spec.md', '无托管 PR 面', '硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」', 'git -C ' + REPO + ' show HEAD:docs/spec.md', REPO);
+  addEvidence('EV-48-' + R + '-REF-03', 'docs/archive/decisions/macro-audit-ledger.md', '无托管 PR 面', '硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」', 'git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md', REPO);
   const runF = byMetric(gp.facts, 'github_rest.run').slice(-1)[0] || null;
   const run = runF ? val(runF) : null;
   const entries = [

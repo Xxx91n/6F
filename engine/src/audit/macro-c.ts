@@ -293,7 +293,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
     llm_gate: col.llmGate, llm_gated_count: ev.llmGatedCount, llm_narrative_count: ev.llmNarrativeCount,
     supersede_chain: col.chain,
     fact_count: col.realFacts.length, dedup_dropped: col.dedupDropped,
-    pipeline: { source: '.scratch/architecture-recovery/reports/38-macro-c-preview.mjs 移植（#84/D-204②）', recalibration: '85-check 差分对账（anysearch-cli 原语料；编排层独立重算）', fact_emission: 'file-card 同位（fact-write.ts 共享核）' },
+    pipeline: { source: 'engine/test/fixtures/contracts/38-macro-c-preview-report.json（移植保真基准；历史脚本 38-macro-c-preview.mjs 移植，#84/D-204②）', recalibration: '85-check 差分对账（anysearch-cli 原语料；编排层独立重算）', fact_emission: 'file-card 同位（fact-write.ts 共享核）' },
     intake: { kind: intake.kind, url: intake.url, cloned: intake.cloned, cache_hit: intake.cache_hit, refreshed: intake.refreshed, snapshot_fetched_at: intake.snapshot_fetched_at, full_depth_verified: intake.full_depth_verified },
     intake_quarantine: { wired_fields: ['committer_date', 'head_date'], field_stats: probes.fieldStats, excluded_commits: excludedCommits, threshold_ratio: QUARANTINE_FIELD_RATIO_RED, strict_mode: opts.strictQuarantine === true, dialect_absorbed_total: probes.dialectAbsorptions.length },
     collection_environment: { git_version: probeGitVersion() }
@@ -394,7 +394,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
     decided_at: HEAD_AT,
     commit_anchor: probes.headSha,
     tree_anchor: probes.treeSha,
-    gate_ref: { prereg_commit: '38-script-const', criteria_path: 'reports/38-macro-c-preview.mjs §8', basis_path: '.scratch/macro-audit/decision-ledger.md D-034', criterion_ids: ['PC-MC-1', 'PC-MC-2', 'TC-MC-1', 'TC-MC-2', 'TC-MC-3', 'NC-MC-1'] },
+    gate_ref: { prereg_commit: '38-script-const', criteria_path: 'engine/test/fixtures/contracts/38-report.md §4.1', basis_path: 'docs/archive/decisions/macro-audit-ledger.md D-034', criterion_ids: ['PC-MC-1', 'PC-MC-2', 'TC-MC-1', 'TC-MC-2', 'TC-MC-3', 'NC-MC-1'] },
     degraded: false,
     degraded_reason: null,
     preview_disclosure: disclosure,

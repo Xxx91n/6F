@@ -32,7 +32,11 @@ export const MICRO_A_SLICE_FIELDS = [
     'credential_strategy', 'credential_degraded', 'api_calls', 'rate_limit_remaining'
 ];
 const RELEASE_TITLE = new RegExp('^chore[(][^)]*[)]: release [0-9]+[.][0-9]+[.][0-9]+'); // release-please 产物签名（#37 教训：收窄到产物形态非主题词；字符类正则零反斜杠纪律）
-const CRITERIA_PATH = '.scratch/architecture-recovery/reports/48-micro-a-criteria.md';
+const CRITERIA_PATH = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
+// 决策账本落点＝#40 归档进仓的只读档案（ADR-0027：报告溯源串改指仓内 contract fixtures 与归档索引）。
+// 原 .scratch/macro-audit/decision-ledger.md 已退役，路径在 HEAD 不可解析 → 证据恒 grounded=false。
+const LEDGER_PATH = 'docs/archive/decisions/macro-audit-ledger.md';
+const LEDGER_REPRO = 'git -C <repo> show HEAD:' + LEDGER_PATH;
 const CRITERION_IDS = ['PC-1', 'TC-1', 'TC-2', 'TC-3', 'TC-4', 'NC-1'];
 export const MICRO_A_GOLDEN_PRS = [{ n: 64, form: 'machine-generated/release-please' }, { n: 51, form: 'human' }];
 export const MICRO_A_GOLDEN_DIFFS = [64];
@@ -356,7 +360,7 @@ export async function buildPrReportMicroA(t, pin, collected, gate, shared, opts)
     }
     addEvidence(EV(3), opts.factsName, ['github_rest.pr_metadata', '#' + String(pin.n)], '本次实测：' + NAME + '#' + String(pin.n) + ' 元数据事实落库（merged=' + String(merged) + '）', RUN_CMD, opts.outDir);
     const srcRoot = sourceRepoRoot();
-    addEvidence(EV(4), '.scratch/macro-audit/decision-ledger.md', ['D-049'], '票面授权锚：D-049 Micro-A preview 单票铺开决策行', 'git -C <repo> show HEAD:.scratch/macro-audit/decision-ledger.md', srcRoot);
+    addEvidence(EV(4), LEDGER_PATH, ['D-049'], '票面授权锚：D-049 Micro-A preview 单票铺开决策行', LEDGER_REPRO, srcRoot);
     addEvidence(EV(5), CRITERIA_PATH, ['TC-4'], '判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）', 'git -C <repo> show HEAD:' + CRITERIA_PATH, srcRoot);
     const claims = [
         { claim_id: 'CL-48-' + R + '-PR' + String(pin.n) + '-01', evidence_id: EV(1), required_tokens: ['prs_listed'] },
@@ -414,7 +418,7 @@ export async function buildPrReportMicroA(t, pin, collected, gate, shared, opts)
         decided_at: RUN_AT,
         commit_anchor: mergeSha,
         tree_anchor: treeSha,
-        gate_ref: { prereg_commit: PREREG_COMMIT, criteria_path: CRITERIA_PATH, basis_path: '.scratch/architecture-recovery/issues/48-micro-a-preview.md', criterion_ids: CRITERION_IDS },
+        gate_ref: { prereg_commit: PREREG_COMMIT, criteria_path: CRITERIA_PATH, basis_path: 'engine/test/fixtures/contracts/48-micro-a-preview-issue.md', criterion_ids: CRITERION_IDS },
         degraded: collected.res.degraded === true,
         degraded_reason: collected.res.degraded === true ? '无凭据降级（unauthenticated 60/h 限额）——事实面如实降级' : null,
         preview_disclosure: disclosure,
@@ -457,7 +461,7 @@ export async function buildRefusalReportMicroA(g, shared, opts) {
     const RUN_CMD = 'macro-audit audit ' + g.owner + '/' + g.repo + ' --scale Micro-A';
     addEvidence('EV-48-' + R + '-REF-01', opts.measName, [g.name], '本次实测：' + g.name + ' 托管枚举 merged PR=0——无托管 PR 面', RUN_CMD, opts.outDir);
     const srcRoot = sourceRepoRoot();
-    addEvidence('EV-48-' + R + '-REF-03', '.scratch/macro-audit/decision-ledger.md', ['无托管 PR 面'], '硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」', 'git -C <repo> show HEAD:.scratch/macro-audit/decision-ledger.md', srcRoot);
+    addEvidence('EV-48-' + R + '-REF-03', LEDGER_PATH, ['无托管 PR 面'], '硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」', LEDGER_REPRO, srcRoot);
     const runF = byMetric(g.facts, 'github_rest.run').slice(-1)[0] || null;
     const run = runF ? val(runF) : null;
     const entries = [
@@ -497,7 +501,7 @@ export async function buildRefusalReportMicroA(g, shared, opts) {
         decided_at: RUN_AT,
         commit_anchor: commitAnchor,
         tree_anchor: treeSha,
-        gate_ref: { prereg_commit: PREREG_COMMIT, criteria_path: CRITERIA_PATH, basis_path: '.scratch/architecture-recovery/issues/48-micro-a-preview.md', criterion_ids: ['PC-1', 'TC-4'] },
+        gate_ref: { prereg_commit: PREREG_COMMIT, criteria_path: CRITERIA_PATH, basis_path: 'engine/test/fixtures/contracts/48-micro-a-preview-issue.md', criterion_ids: ['PC-1', 'TC-4'] },
         degraded: false,
         degraded_reason: null,
         preview_disclosure: {
