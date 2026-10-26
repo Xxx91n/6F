@@ -1,5 +1,5 @@
 <!-- canonical: README.md | owner: Xxx91n -->
-<!-- sync: aa3cc0fd710e -->
+<!-- sync: 8cdb5b33e15d -->
 > ⚠ **本文件为中文译文（derived 工件）——英文版 [README.md](README.md) 为权威版本（canonical 权威源）；如有不一致以英文版为准。** 译文可暂时落后，但不假装新鲜（sync 戳与英文版内容指纹绑定）。
 
 <p align="center">
@@ -151,8 +151,10 @@ flowchart LR
 
 | 路径 | 内容 |
 |---|---|
+| [docs/authority.md](docs/authority.md) | 决策与术语分别落在哪——唯一成文处 |
 | [GLOSSARY.md](GLOSSARY.md) | 术语表（领域唯一语言） |
-| [docs/spec.md](docs/spec.md) | 产品决策——唯一权威（缺口：docs/known-gaps.md；RA：docs/ra/） |
+| [docs/spec.md](docs/spec.md) | 产品决策（缺口：docs/known-gaps.md；RA：docs/ra/） |
+| [docs/adr/](docs/adr/) | 架构决策（Context / 替代方案 / 后果） |
 | [engine/](engine/) | 内核 CLI + Agent Plugin 五层盒子（构建 / 命令细节见 [engine/README.md](engine/README.md)） |
 | [examples/first-report/](examples/first-report/) | 发布样例资产：6F 自审 Macro-B 首报四件（happy + failure 双对，披露制） |
 | [engine/CHANGELOG.md](engine/CHANGELOG.md) | 产品版本账 |

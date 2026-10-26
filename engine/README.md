@@ -1,6 +1,6 @@
 # macro-audit — engine（6F 单仓子目录 · walking skeleton）
 
-> 位于 6F 单仓的 engine/ 子目录（单仓 + 子目录 + but 分支）。spec/契约来源：docs/spec.md 与 engine/test/contracts/。
+> 位于 6F 单仓的 engine/ 子目录（单仓 + 子目录 + but 分支）。决策与术语的落点见 [`docs/authority.md`](../docs/authority.md)（唯一成文处）；现行判据冻结件在 `engine/test/fixtures/contracts/`，守卫在 `engine/test/contracts/`。
 > kernel 代号注记：`macro-audit` 为 kernel 技术标识（CLI/bin、MCP 服务名 `macro-audit-kernel`、skills 路径保留不动）；门面品牌名 = **6F**（双名分层 D-093——内部名故意不同于营销名=纪律非债）。
 
 ## 结构（Agent Plugin 五层盒子）
