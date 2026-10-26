@@ -67,7 +67,7 @@ t('R8 报告文件双件在', existsSync(join(outDir, r64.outputs.md)) && exists
 const r51 = await MA.buildPrReportMicroA(t1, { n: 51, form: 'human' }, collected, gateOK, shared, { golden: true, outDir: outDir, measName: measName, factsName: factsName });
 t('R9 pr51 判据构建＋overall 三档域', ['supported', 'unsupported', 'insufficient'].indexOf(r51.overall) >= 0, r51.overall);
 t('R10 pr51 form=human', r51.form_actual === 'human' && r51.form_match === true, r51.form_actual);
-// Design: gate_ref 两路径须为本仓现行文件、证据源零 .scratch——溯源串落点与 golden 同窗对账 — ADR-0027
+// Design: 溯源串落点＝仓内 contract fixtures 与归档索引，受影响 golden 同窗再生 — ADR-0027
 const SELF = join(HERE, '..', '..');
 const sc64 = JSON.parse(readFileSync(join(outDir, r64.outputs.sidecar), 'utf8'));
 const gr64 = sc64.gate_ref || (sc64.receipt && sc64.receipt.gate_ref);
