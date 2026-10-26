@@ -136,8 +136,10 @@ flowchart LR
 
 | path | contents |
 |---|---|
+| [docs/authority.md](docs/authority.md) | where decisions and terminology live — the single written authority |
 | [GLOSSARY.md](GLOSSARY.md) | glossary (domain language) |
-| [docs/spec.md](docs/spec.md) | product decisions — single authority (gaps: docs/known-gaps.md; RA: docs/ra/) |
+| [docs/spec.md](docs/spec.md) | product decisions (gaps: docs/known-gaps.md; RA: docs/ra/) |
+| [docs/adr/](docs/adr/) | architecture decisions (Context / options / consequences) |
 | [engine/](engine/) | kernel CLI + Agent Plugin five-layer box (build / command details in [engine/README.md](engine/README.md)) |
 | [examples/first-report/](examples/first-report/) | release sample assets: 6F self-audit Macro-B first report, four files (happy + failure pair, disclosure regime) |
 | [engine/CHANGELOG.md](engine/CHANGELOG.md) | product version ledger |
