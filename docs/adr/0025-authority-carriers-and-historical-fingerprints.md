@@ -32,5 +32,6 @@
 
 - 读者可以从 `docs/authority.md` 一处找到决策与术语的落点。
 - `docs/archive/decisions/` 只承担历史可解析性，不参与现行裁决；新决策不得写入该目录。
+  - **勘误（2026-10-27 / #29）**：上一条「不参与现行裁决」需按层分写才与现状同名。band 层成立——六条判据的 `anchored_evidence_ids` 实测只引 EV(1)/(2)/(3)，无一条引 EV(4)/(5)；claim 支撑层不成立——Micro-A 的 EV(4)/EV(5) 在运行时 deref 归档账本取引文，该引文经 `citation.ts` 参与 claim 支撑评级（机理与边界见 [`ADR-0027`](0027-verification-surface-node-floor-and-docs-authority-guard.md) 的勘误二与口径补记）。归档目录仍不写新决策、仍不承载判据。
 - 文档权威需要机器守卫（见 ADR-0027），否则同一漂移会复发。
 - 本轮新增 ADR-0025 / 0026 / 0027，编号接在恢复的 0024 之后。
