@@ -88,7 +88,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24   # 对齐 golden-ci 同仓 CI 惯例（engine engines>=20 无碍；engine-ci 矩阵另覆盖 20/22）
+          node-version: 24   # 对齐 golden-ci 同仓 CI 惯例（engine engines>=22.18 无碍；engine-ci 矩阵另覆盖 22/24）
           cache: npm
           cache-dependency-path: engine-repo/engine/package-lock.json
 
