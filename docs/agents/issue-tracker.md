@@ -40,9 +40,11 @@ GitButler publishes *native* GitHub stacked pull requests when the repo is enrol
 PR_NUMBER=123
 # Enqueue → 202 carries details.uuid; 200 means it was already merged/enqueued (no uuid — skip the poll)
 UUID=$(gh api -X PUT "repos/{owner}/{repo}/pulls/$PR_NUMBER/merge-async" \
-  -F merge_method=squash -F merge_action=direct_merge --jq '.details.uuid')
-# Poll → pending | merged (with details.sha) | failed
-gh api "repos/{owner}/{repo}/pulls/$PR_NUMBER/merge-async/$UUID"
+  -F merge_method=squash -F merge_action=direct_merge --jq '.details.uuid // empty')
+# Poll only when enqueue actually returned a uuid (200 = already merged/enqueued, no uuid)
+if [ -n "$UUID" ]; then
+  gh api "repos/{owner}/{repo}/pulls/$PR_NUMBER/merge-async/$UUID"   # pending | merged (details.sha) | failed
+fi
 ```
 
 - **Note**: closing keywords in the PR body are not processed on this path — close linked issues explicitly after the merge lands.
