@@ -32,7 +32,7 @@
 | [`docs/known-gaps.md`](known-gaps.md) | 缺口（gap）语义的权威登记册 |
 | [`docs/upstream-dimension-map.md`](upstream-dimension-map.md) | upstream→dimension 映射表本体（逐行 `last_reviewed` / `next_review` 的登记位；节奏与字段口径归 `docs/versioning.md`） |
 | [`docs/ra/`](ra/) | Accepted-Risk 呈批档案（已批准风险的现场，具名裁者=用户） |
-| [`engine/test/fixtures/contracts/`](../engine/test/fixtures/contracts/) | 现行判据与契约冻结件的所在目录 |
+| [`engine/test/fixtures/contracts/`](../engine/test/fixtures/contracts/) | 同一目录两类身份并存：被守卫运行期消费的**活契约**（Live Contract，如 `33-gate-registry.json`）与字节冻结、只保证可回查的**冻结件**（Frozen Artifact，如 `23-frozen-fc00d458.bundle`、`38-macro-c-facts.jsonl`）；两者不得互当现行基准 |
 | [`engine/CHANGELOG.md`](../engine/CHANGELOG.md) | 产品版本账 |
 | [`docs/archive/decisions/`](archive/decisions/) | 历史指纹的解析入口——**非权威、只读** |
 
