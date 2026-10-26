@@ -17,7 +17,7 @@ import { tmpdir } from 'node:os';
 import { gitObjectNeedOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
-// D-214① consumption_forms（多形态消费方——B5/C 依赖冻结对象物化）：dev-full=完整克隆全断言面；ci-shallow=CI 浅克隆（冻结对象借仓内 bundle 临时仓零写入物化，主仓零写）。两种形态都实跑，无组级闸（#72）。
+// D-214① consumption_forms（多形态消费方——B5/C 依赖冻结对象物化）：dev-full=完整克隆全断言面；ci-shallow=CI 浅克隆（冻结对象借仓内 bundle 临时仓零写入物化，主仓零写）。两种形态都实跑；准入是红断言 B5-GATE，不是 SKIP 闸（#72）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#43 样例 golden CI 守卫（R5-12 / A-048 / D-030③）';
 
@@ -35,9 +35,13 @@ const FOUR = ['23-first-report.md', '23-first-report.json', '23-first-report-fai
 const GOLDEN_FILES = ['report.md', 'report.json', 'demo-measurements.json', 'demo-facts.jsonl'];
 const SCENARIOS = ['happy-path', 'degraded-supply', 'degraded-incomplete'];
 
-const tmp = mkdtempSync(join(tmpdir(), '43-check-'));
+// 临时目录同样必须在失败路径内：mkdtempSync 抛出的异常若逃出去，本守卫会在第一条断言之前就崩，
+//   连 B5-GATE 都没机会打印（评审实测：TEMP 指向不存在目录 → ENOENT at 43-check.mjs:38）。
+let tmp = null, tmpErr = '';
+try { tmp = mkdtempSync(join(tmpdir(), '43-check-')); } catch (e) { tmpErr = e.code || e.message; }
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
+t('T0 临时目录可建（C 组实跑前置——不可写时本守卫须报红而不是崩溃）', !!tmp, tmpErr);
 function git(args) { return execFileSync('git', args, { cwd: REPO, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }); }
 function sha(p) { return createHash('sha256').update(readFileSync(p)).digest('hex'); }
 function tokenize(text) { const lower = text.toLowerCase(); const out = []; const ascii = lower.match(/[a-z][a-z0-9_+-]*/g) || []; for (const w of ascii) { if (w.length >= 2) { out.push(w); } } const cjk = lower.match(/[一-鿿]+/g) || []; for (const run of cjk) { for (let i = 0; i + 1 < run.length; i++) { out.push(run.slice(i, i + 2)); } } return out; }
@@ -57,8 +61,8 @@ t('A8 单平台裁定理由注释在位（矩阵/平台 关键词）', wf.indexO
 
 // ---------- B. 传输与资产面 ----------
 t('B1 冻结 bundle 在位且 verify 通过', existsSync(BUNDLE) && ((() => { const r = spawnSync('git', ['bundle', 'verify', BUNDLE], { cwd: REPO, encoding: 'utf8' }); return r.status === 0 && (r.stdout + r.stderr).indexOf('is okay') >= 0; })()));
-// list-heads 用 try 兜住：bundle 缺失时 git 抛 ENOENT 会以未捕获异常拉红整条 contracts-run，
-//   而「bundle 缺席」本该是 B2 的一条 FAIL（#72 变异实测踩到）
+// list-heads 用 try 兜住：bundle 缺席时 `git bundle list-heads` 以 status=1 退出（stderr `could not open …`），
+//   execFileSync 会把它抛成异常、以栈回溯拉红整条 contracts-run，而「bundle 缺席」本该只是 B2 的一条 FAIL（#72 变异实测）
 const heads = (function () { try { return git(['bundle', 'list-heads', BUNDLE]); } catch (e) { return ''; } })();
 t('B2 bundle 头 = refs/frozen/first-report @ fc00d458 + 前置 200b344 在仓内', heads.indexOf(FROZEN_SHA + ' refs/frozen/first-report') >= 0 && (() => { try { git(['cat-file', '-e', '200b344ded9573c372ffa4a56baf35ecc433dd98^{commit}']); return true; } catch (e) { return false; } })());
 t('B3 生成时点入库 commit e39468c 为 HEAD 祖先（overlay 源可达）', (() => { try { git(['merge-base', '--is-ancestor', GEN_COMMIT, 'HEAD']); return true; } catch (e) { return false; } })());
@@ -72,6 +76,9 @@ t('B4 overlay README 等签名重构：top-20 关键词计数与 golden 签名�
 const FROZEN_OK = gitObjectNeedOk(REPO, FROZEN_SHA, BUNDLE);
 t('B5-GATE 冻结对象可解析（幽灵钉 fc00d458 经仓内 bundle 临时仓物化，主仓零写）', FROZEN_OK,
   'gitObjectNeedOk=false：核对 engine/test/fixtures/frozen/23-frozen-fc00d458.bundle 在位且含该对象（B1/B2 已分别断言位与 heads），以及临时目录可写');
+// 红路径下 B5／C1~C4 如实不跑：分母会静默缩水，故显式留一行，与「断言被删」区分（评审意见）
+if (!FROZEN_OK) { console.log('NOTE B5-GATE 红 → B5＋C1~C4 共 5 条未跑（分母 23→18；本行即「跳过」的机读位）'); }
+else if (!tmp) { console.log('NOTE T0 红 → C1~C4 共 4 条未跑（分母 23→19；本行即「跳过」的机读位）'); }
 if (FROZEN_OK) {
 const raw = JSON.parse(git(['show', FROZEN_SHA + ':.scratch/architecture-recovery/reports/22-threshold-raw.json']));
 const stop = new Set(raw.tc3_s1_coverage.stopwords.map(s => s.toLowerCase()));
@@ -87,7 +94,7 @@ t('B7 engine golden manifest sha256 与实物一致（3 场景×4 件）', SCENA
 // ---------- C. 本机模拟 diff 正误两态 ----------
 // 物化走上方 B5-GATE 的冻结对象前置（D-163②/D-074）：临时仓 unbundle＋alternates 反借——主仓 object store
 // 零写（unbundle 不再入主仓；worktree add 仅写 .git/worktrees 管理目录，无对象/引用写入）。
-if (FROZEN_OK) {
+if (FROZEN_OK && tmp) {
 const FW = join(tmp, 'frozen');
 try {
 execFileSync('git', ['worktree', 'add', FW, FROZEN_SHA], { cwd: REPO, encoding: 'utf8' });
@@ -120,7 +127,7 @@ execFileSync('git', ['worktree', 'remove', '--force', FW], { cwd: REPO, encoding
 t('D7 examples README 含 CI 校验与更新纪律节', exReadme.indexOf('更新只走 PR 审查') >= 0 && exReadme.indexOf('golden-ci.yml') >= 0);
 t('D8 43-report.md 在位且六段齐备', existsSync(join(REPO,'engine','test','fixtures','contracts','43-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(m => readFileSync(join(REPO,'engine','test','fixtures','contracts','43-report.md'), 'utf8').indexOf(m) >= 0));
 
-rmSync(tmp, { recursive: true, force: true });
+if (tmp) { rmSync(tmp, { recursive: true, force: true }); }
 console.log('---');
 console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));
 process.exit(fail === 0 ? 0 : 1);
