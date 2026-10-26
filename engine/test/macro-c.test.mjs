@@ -62,8 +62,7 @@ const meas = existsSync(join(OUT, 'audit-measurements.json')) ? JSON.parse(readF
 t('R8 measurements.supersede_chain：item-level=1 + self-quote=0 + unresolved=1（ADR-003→999）', !!meas && meas.supersede_chain.item_level_supersessions >= 1 && meas.supersede_chain.unresolved_refs.length === 1, JSON.stringify(meas && { e: meas.supersede_chain.edge_count, u: meas.supersede_chain.unresolved_refs.length }));
 t('R9 measurements.llm_gate 门控态在（configured 布尔——不伪造不真调）', !!meas && meas.llm_gate && typeof meas.llm_gate.configured === 'boolean');
 t('R10 measurements.pipeline 移植溯源在（source+recalibration）', !!meas && !!meas.pipeline && String(meas.pipeline.source).indexOf('38-macro-c-preview.mjs') >= 0 && String(meas.pipeline.recalibration).indexOf('85-check') >= 0);
-// R11/R12 溯源串可解析（#29／ADR-0027：报告溯源串改指仓内 contract fixtures 与归档索引）——
-//   gate_ref 两路径与 pipeline.source 首段路径必须是本仓现行文件；已退役 .scratch 回潮即红。
+// Design: 溯源串里的每个仓内路径段都须 existsSync，fixtures 与归档索引两类载体同权 — ADR-0027
 const SELF = join(HERE, '..', '..');
 const gr = side && (side.gate_ref || (side.receipt && side.receipt.gate_ref));
 const grPath = function (s) { return String(s || '').split(' ')[0]; };
@@ -72,9 +71,10 @@ t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 
   && existsSync(join(SELF, grPath(gr.criteria_path))) && existsSync(join(SELF, grPath(gr.basis_path))),
   JSON.stringify(gr));
 const pipeSrc = String((meas && meas.pipeline && meas.pipeline.source) || '');
-const pipePath = (pipeSrc.match(/^(engine\/[A-Za-z0-9_./-]+)/) || [])[1] || '';
-t('R12 pipeline.source 首段路径为仓内现行文件且零 .scratch（R10 只查历史脚本名，拦不住回潮）',
-  pipePath !== '' && pipeSrc.indexOf('.scratch') < 0 && existsSync(join(SELF, pipePath)), pipeSrc);
+const pipePaths = pipeSrc.match(/(?:engine|docs)\/[A-Za-z0-9_./-]+/g) || [];
+t('R12 pipeline.source 内全部仓内路径段现行可解析且零 .scratch（R10 只查历史脚本名，拦不住回潮）',
+  pipePaths.length >= 2 && pipeSrc.indexOf('.scratch') < 0 && pipePaths.every(function (p) { return existsSync(join(SELF, p)); }),
+  JSON.stringify({ paths: pipePaths, src: pipeSrc.slice(0, 130) }));
 
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
