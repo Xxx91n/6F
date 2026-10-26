@@ -14,10 +14,10 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { need, groupProbe, gitObjectNeedOk } from './_lib/env-contract.mjs';
+import { gitObjectNeedOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
-// D-214① consumption_forms（多形态消费方——B5/C 组级 need git-object:）：dev-full=完整克隆全断言面；ci-shallow=CI 浅克隆（冻结对象借仓内 bundle 临时仓零写入物化，主仓零写）。
+// D-214① consumption_forms（多形态消费方——B5/C 依赖冻结对象物化）：dev-full=完整克隆全断言面；ci-shallow=CI 浅克隆（冻结对象借仓内 bundle 临时仓零写入物化，主仓零写）。两种形态都实跑，无组级闸（#72）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#43 样例 golden CI 守卫（R5-12 / A-048 / D-030③）';
 
@@ -57,16 +57,22 @@ t('A8 单平台裁定理由注释在位（矩阵/平台 关键词）', wf.indexO
 
 // ---------- B. 传输与资产面 ----------
 t('B1 冻结 bundle 在位且 verify 通过', existsSync(BUNDLE) && ((() => { const r = spawnSync('git', ['bundle', 'verify', BUNDLE], { cwd: REPO, encoding: 'utf8' }); return r.status === 0 && (r.stdout + r.stderr).indexOf('is okay') >= 0; })()));
-const heads = git(['bundle', 'list-heads', BUNDLE]);
+// list-heads 用 try 兜住：bundle 缺失时 git 抛 ENOENT 会以未捕获异常拉红整条 contracts-run，
+//   而「bundle 缺席」本该是 B2 的一条 FAIL（#72 变异实测踩到）
+const heads = (function () { try { return git(['bundle', 'list-heads', BUNDLE]); } catch (e) { return ''; } })();
 t('B2 bundle 头 = refs/frozen/first-report @ fc00d458 + 前置 200b344 在仓内', heads.indexOf(FROZEN_SHA + ' refs/frozen/first-report') >= 0 && (() => { try { git(['cat-file', '-e', '200b344ded9573c372ffa4a56baf35ecc433dd98^{commit}']); return true; } catch (e) { return false; } })());
 t('B3 生成时点入库 commit e39468c 为 HEAD 祖先（overlay 源可达）', (() => { try { git(['merge-base', '--is-ancestor', GEN_COMMIT, 'HEAD']); return true; } catch (e) { return false; } })());
 const ov = existsSync(OVERLAY) ? readFileSync(OVERLAY, 'utf8') : '';
 const SIG = { md: 192, prompts: 64, handoffs: 53, issues: 53, blocked: 20, by: 20, mjs: 20, 'a-xxx': 19, '全部': 19, w3: 18, branch: 17, pass: 17, w2: 17, workflow: 17, 'architecture-recovery': 16, '复核': 16, '守卫': 16, '张票': 16, '覆盖': 16, '阻塞': 16 };
 const oc = {}; for (const tk of tokenize(ov)) { oc[tk] = (oc[tk] || 0) + 1; }
 t('B4 overlay README 等签名重构：top-20 关键词计数与 golden 签名逐项一致', existsSync(OVERLAY) && Object.keys(SIG).every(k => oc[k] === SIG[k]));
-// git-object 前置（D-163②）：fc00d458 幽灵钉非分支祖先 clone 不携带——缺席借仓内 bundle 临时仓零写入物化
-const GO43 = [need('git-object:' + FROZEN_SHA, gitObjectNeedOk(REPO, FROZEN_SHA, BUNDLE))];
-if (groupProbe('43-check', 'B5', GO43)) {
+// 冻结对象可解析性＝**红断言**，不是组级闸（#72；边界与 #33 的 C-GATE 同一条）：fc00d458 幽灵钉非分支祖先，
+//   clone 不携带，靠仓内 bundle 临时仓零写入物化（D-163②/D-074）。物化失败的三条成因——bundle 缺失/损坏、
+//   bundle 不含该对象、临时目录不可写——全是仓库面缺陷，不是「本机环境缺什么」；按 D-159③ 那该红，不该 SKIP。
+const FROZEN_OK = gitObjectNeedOk(REPO, FROZEN_SHA, BUNDLE);
+t('B5-GATE 冻结对象可解析（幽灵钉 fc00d458 经仓内 bundle 临时仓物化，主仓零写）', FROZEN_OK,
+  'gitObjectNeedOk=false：核对 engine/test/fixtures/frozen/23-frozen-fc00d458.bundle 在位且含该对象（B1/B2 已分别断言位与 heads），以及临时目录可写');
+if (FROZEN_OK) {
 const raw = JSON.parse(git(['show', FROZEN_SHA + ':.scratch/architecture-recovery/reports/22-threshold-raw.json']));
 const stop = new Set(raw.tc3_s1_coverage.stopwords.map(s => s.toLowerCase()));
 const keys = Object.keys(oc).filter(k => !stop.has(k));
@@ -79,9 +85,9 @@ const man = JSON.parse(readFileSync(join(GOLDEN, 'manifest.json'), 'utf8'));
 t('B7 engine golden manifest sha256 与实物一致（3 场景×4 件）', SCENARIOS.every(s => GOLDEN_FILES.every(f => man.scenarios[s].sha256[f] === sha(join(GOLDEN, s, f)))));
 
 // ---------- C. 本机模拟 diff 正误两态 ----------
-// 物化走上方 git-object 前置（D-163②/D-074）：临时仓 unbundle＋alternates 反借——主仓 object store
+// 物化走上方 B5-GATE 的冻结对象前置（D-163②/D-074）：临时仓 unbundle＋alternates 反借——主仓 object store
 // 零写（unbundle 不再入主仓；worktree add 仅写 .git/worktrees 管理目录，无对象/引用写入）。
-if (groupProbe('43-check', 'C', GO43)) {
+if (FROZEN_OK) {
 const FW = join(tmp, 'frozen');
 try {
 execFileSync('git', ['worktree', 'add', FW, FROZEN_SHA], { cwd: REPO, encoding: 'utf8' });
