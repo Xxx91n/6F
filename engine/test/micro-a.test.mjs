@@ -85,8 +85,9 @@ t('R12 证据源零退役 .scratch 且授权锚 grounded（EV(4)/EV(5) 恰两条
   JSON.stringify({ anchors: anchors.length, ungrounded: sc64.evidence.filter(function (e) { return e.grounded !== true; }).map(function (e) { return e.evidence_id + ':' + e.reproduce_absent_reason; }) }));
 // 锚落在决策行本体而非「增量去向」条的顺带提及——grounded 只证明摘到了一行，不证明是授权那一行（单 token 'D-049' 命中的是索引条）
 const ev04 = anchors.filter(function (e) { return /-04$/.test(e.evidence_id); })[0];
+const ev04Cells = String((ev04 && ev04.excerpt) || '').split('|');
 t('R13 EV(4) 票面授权锚引文=归档账本 D-049 决策行本体',
-  !!ev04 && String(ev04.excerpt).split('|')[1].trim() === 'D-049',
+  !!ev04 && ev04Cells[1] !== undefined && ev04Cells[1].trim() === 'D-049',
   ev04 ? ev04.locator + ' :: ' + String(ev04.excerpt).slice(0, 60) : 'EV(4) absent');
 
 // ---------- F 拒绝件（48 §7 同构——zero-pr synthetic cassette） ----------
@@ -97,6 +98,8 @@ t('F1 gate 闸 merged=0 eligible=false', gp.merged_prs === 0 && gp.eligible === 
 const rf = await MA.buildRefusalReportMicroA({ name: gp.name, owner: gp.owner, repo: gp.repo, headSha: gp.headSha, root: null, facts: gp.facts, ctx: gp.ctx }, sharedZ, { golden: false, outDir: outDir, measName: measName });
 t('F2 拒绝件 overall=unsupported', rf.overall === 'unsupported', rf.overall);
 t('F3 拒绝件语义（无托管 PR 面＋前置条件＋intake-refused 象限标记）', (function () { const md = readFileSync(join(outDir, rf.outputs.md), 'utf8'); const sc = JSON.parse(readFileSync(join(outDir, rf.outputs.sidecar), 'utf8')); return md.indexOf('无托管 PR 面') >= 0 && md.indexOf('前置条件') >= 0 && sc.quadrants.every(function (q) { return q.conflict_markers.indexOf('intake-refused') >= 0; }) && sc.adjudication.entries.some(function (e) { return e.criterion_id === 'TC-4' && e.band === 'unsupported'; }); })());
+// REF-03 是「硬约束锚」：claim 引的那句在 D-033 立法行；单 token '无托管 PR 面' 命中的是 D-049 行（不含该句）
+t('F4 REF-03 硬约束锚引文=D-033 决策行本体且含被引约束句', (function () { const sc = JSON.parse(readFileSync(join(outDir, rf.outputs.sidecar), 'utf8')); const e = (sc.evidence || []).filter(function (x) { return /-REF-03$/.test(x.evidence_id); })[0]; if (!e) { return false; } const cells = String(e.excerpt).split('|'); return cells[1] !== undefined && cells[1].trim() === 'D-033' && String(e.excerpt).indexOf('不得指派无托管 PR 面') >= 0; })(), 'REF-03 absent 或落错行');
 
 // ---------- C CLI 接线（离线安全面：input gate／scope gate 先于网络） ----------
 const c1 = spawnSync('node', [CLI, 'audit', join(tmp, 'local-path'), '--scale', 'Micro-A'], { encoding: 'utf8' });
