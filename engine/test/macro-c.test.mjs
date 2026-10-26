@@ -71,10 +71,17 @@ t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 
   && existsSync(join(SELF, grPath(gr.criteria_path))) && existsSync(join(SELF, grPath(gr.basis_path))),
   JSON.stringify(gr));
 const pipeSrc = String((meas && meas.pipeline && meas.pipeline.source) || '');
-const pipePaths = pipeSrc.match(/(?:engine|docs)\/[A-Za-z0-9_./-]+/g) || [];
-t('R12 pipeline.source 内全部仓内路径段现行可解析且零 .scratch（R10 只查历史脚本名，拦不住回潮）',
-  pipePaths.length >= 2 && pipeSrc.indexOf('.scratch') < 0 && pipePaths.every(function (p) { return existsSync(join(SELF, p)); }),
-  JSON.stringify({ paths: pipePaths, src: pipeSrc.slice(0, 130) }));
+const PIPE_CARRIERS = ['engine/test/fixtures/contracts/38-macro-c-preview-report.json', 'docs/archive/decisions/ticket-index.md'];
+t('R12 pipeline.source 两类载体具名齐备且现行可解析、零 .scratch（R10 只查历史脚本名，拦不住回潮）',
+  pipeSrc.indexOf('.scratch') < 0 && PIPE_CARRIERS.every(function (p) { return pipeSrc.indexOf(p) >= 0 && existsSync(join(SELF, p)); })
+  && (pipeSrc.match(/(?:engine|docs)\/[A-Za-z0-9_./-]+/g) || []).every(function (p) { return existsSync(join(SELF, p)); }),
+  pipeSrc.slice(0, 150));
+// commit 是裸字面量，路径正则看不见——索引换钉而报告串不动就会绿着过期，故与索引行逐字对账
+const idxTxt = existsSync(join(SELF, PIPE_CARRIERS[1])) ? readFileSync(join(SELF, PIPE_CARRIERS[1]), 'utf8') : '';
+const idxCommit = (idxTxt.match(/^\| #38 \| `([0-9a-f]{7,40})`/m) || [])[1] || '';
+t('R13 血缘 commit 与归档索引 #38 行同值（索引换钉即红，报告出处不各自过期）',
+  idxCommit !== '' && (pipeSrc.match(/[0-9a-f]{7,40}/g) || []).indexOf(idxCommit) >= 0,
+  JSON.stringify({ index: idxCommit, inSource: pipeSrc.match(/[0-9a-f]{7,40}/g) || [] }));
 
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
