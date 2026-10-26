@@ -36,6 +36,19 @@
 | [`engine/CHANGELOG.md`](../engine/CHANGELOG.md) | 产品版本账 |
 | [`docs/archive/decisions/`](archive/decisions/) | 历史指纹的解析入口——**非权威、只读** |
 
+### 2.1 生成面的再生命令
+
+这里登记「哪个文件由谁再生、失同步由谁判红」——命令的完整形态看 `engine/package.json` 的 scripts，别在此抄参数。手写生成面＝与生成器失同步；判红列写实的，没有守卫就写没有。
+
+| 生成面 | 再生者 | 失同步由谁判红 |
+|---|---|---|
+| `engine/dist/**` | `npm run build`（tsc 逐文件输出保留注释，所以**只改 `engine/src` 的注释也会动 dist**；`dist/cli.js` 另经 esbuild 压缩） | engine-ci 的 rebuild-diff 步（`DIST-DRIFT`）。注意 `check-dist.mjs` 只管 `dist/cli.js` 的**体积棘轮**，不查内容 drift |
+| `docs/adr/README.md` | `npm run gen`（`gen-adr-index.mjs`，无只读模式，跑即写） | **暂无守卫**——手写会在下次 gen 被静默覆盖，CI 不因它红；守卫在档待落（tracker #53 与 tracker #47 二选一，不建第二套） |
+| `engine/plugin.json`、`.claude-plugin/plugin.json`、`.mcp.json` | `npm run gen`（`gen-manifests.mjs` 先比后写） | 生成器自身：检出 drift 即 `GEN-FAIL`，`npm run gen` 当场红 |
+| README 双语对的致谢锚段与 `<!-- sync: … -->` 戳 | `node scripts/gen-acknowledgments.mjs`（写双文件并按 EN 内容重算 sync 戳） | `77-check` A3（**手改戳位即红**）＋ `73-check` C 组 |
+
+文档面的只读自检（零写入）：`cd engine && npm run check:docs` = acknowledgments `--check` + `73-check` + `77-check`。
+
 ## 3. 历史指纹政策
 
 仓内大量存在、但**不再新增**的三类编号：`D-NNN`（产品决策账）、`A-NNN`（架构恢复账本）与旧 BACKLOG 票号 `#32`–`#94`。
