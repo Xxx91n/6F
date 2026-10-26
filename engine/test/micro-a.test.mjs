@@ -83,6 +83,11 @@ t('R12 证据源零退役 .scratch 且授权锚 grounded（EV(4)/EV(5) 恰两条
   anchors.length === 2 && anchors.every(function (e) { return e.grounded === true; })
   && sc64.evidence.every(function (e) { return String(e.source).indexOf('.scratch') < 0 && String(e.reproduce_cmd).indexOf('.scratch') < 0; }),
   JSON.stringify({ anchors: anchors.length, ungrounded: sc64.evidence.filter(function (e) { return e.grounded !== true; }).map(function (e) { return e.evidence_id + ':' + e.reproduce_absent_reason; }) }));
+// 锚落在决策行本体而非「增量去向」条的顺带提及——grounded 只证明摘到了一行，不证明是授权那一行（单 token 'D-049' 命中的是索引条）
+const ev04 = anchors.filter(function (e) { return /-04$/.test(e.evidence_id); })[0];
+t('R13 EV(4) 票面授权锚引文=归档账本 D-049 决策行本体',
+  !!ev04 && String(ev04.excerpt).split('|')[1].trim() === 'D-049',
+  ev04 ? ev04.locator + ' :: ' + String(ev04.excerpt).slice(0, 60) : 'EV(4) absent');
 
 // ---------- F 拒绝件（48 §7 同构——zero-pr synthetic cassette） ----------
 const zeroCas = { name: 'zero-pr-synthetic', recorded: 'synthetic', calls: [{ request: { method: 'GET', path: '/repos/Xxx91n/goose-duck-agent/pulls?state=all&per_page=100&page=1' }, response: { status: 200, headers: { 'x-ratelimit-limit': '60', 'x-ratelimit-remaining': '59', 'x-ratelimit-used': '1', 'x-ratelimit-reset': '0', 'x-ratelimit-resource': 'core' }, body: [] } }] };

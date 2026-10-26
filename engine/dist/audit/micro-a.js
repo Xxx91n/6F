@@ -359,7 +359,7 @@ export async function buildPrReportMicroA(t, pin, collected, gate, shared, opts)
     }
     addEvidence(EV(3), opts.factsName, ['github_rest.pr_metadata', '#' + String(pin.n)], '本次实测：' + NAME + '#' + String(pin.n) + ' 元数据事实落库（merged=' + String(merged) + '）', RUN_CMD, opts.outDir);
     const srcRoot = sourceRepoRoot();
-    addEvidence(EV(4), LEDGER_PATH, ['D-049'], '票面授权锚：D-049 Micro-A preview 单票铺开决策行', LEDGER_REPRO, srcRoot);
+    addEvidence(EV(4), LEDGER_PATH, ['D-049', '票面形态'], '票面授权锚：D-049 Micro-A preview 单票铺开决策行', LEDGER_REPRO, srcRoot);
     addEvidence(EV(5), CRITERIA_PATH, ['TC-4'], '判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）', 'git -C <repo> show HEAD:' + CRITERIA_PATH, srcRoot);
     const claims = [
         { claim_id: 'CL-48-' + R + '-PR' + String(pin.n) + '-01', evidence_id: EV(1), required_tokens: ['prs_listed'] },

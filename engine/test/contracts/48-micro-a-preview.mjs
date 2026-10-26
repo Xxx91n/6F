@@ -297,7 +297,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
   }
   addEvidence(EV(3), opts.factsName, ['github_rest.pr_metadata', '#' + pin.n + ''], '本次实测：' + NAME + '#' + pin.n + ' 元数据事实落库（merged=' + merged + '）', RUN_CMD, OUTDIR);
   // Design: 证据锚须为仓内可解析坐标，reproduce_cmd 用 <repo> 占位禁本机绝对路径 — ADR-0027
-  addEvidence(EV(4), 'docs/archive/decisions/macro-audit-ledger.md', 'D-049', '票面授权锚：D-049 Micro-A preview 单票铺开决策行', 'git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md', REPO);
+  addEvidence(EV(4), 'docs/archive/decisions/macro-audit-ledger.md', ['D-049', '票面形态'], '票面授权锚：D-049 Micro-A preview 单票铺开决策行', 'git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md', REPO);
   addEvidence(EV(5), CRITERIA_PATH, 'TC-4', '判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）', 'git -C <repo> show HEAD:' + CRITERIA_PATH, REPO);
 
   const claims = [
