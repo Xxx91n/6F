@@ -396,7 +396,7 @@ async function buildRefusalReport(gp, allGates, shared, opts) {
   const RUN_CMD = 'node engine/test/contracts/48-micro-a-preview.mjs' + (opts.golden ? ' --golden' : '');
   addEvidence('EV-48-' + R + '-REF-01', opts.measName, 'goose-duck-agent', '本次实测：' + gp.name + ' 托管枚举 merged PR=0——无托管 PR 面', RUN_CMD, OUTDIR);
   addEvidence('EV-48-' + R + '-REF-02', opts.measName, 'anysearch-cli', '前提漂移锚：anysearch-cli 票面撰写时无托管面（#37 实测 pr=0），本票复核托管枚举 merged=' + (drift ? drift.merged_prs : 'n/a'), RUN_CMD, OUTDIR);
-  addEvidence('EV-48-' + R + '-REF-03', 'docs/archive/decisions/macro-audit-ledger.md', '无托管 PR 面', '硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」', 'git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md', REPO);
+  addEvidence('EV-48-' + R + '-REF-03', 'docs/archive/decisions/macro-audit-ledger.md', ['| D-033 |', '不得指派无托管 PR 面'], '硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」', 'git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md', REPO);
   const runF = byMetric(gp.facts, 'github_rest.run').slice(-1)[0] || null;
   const run = runF ? val(runF) : null;
   const entries = [

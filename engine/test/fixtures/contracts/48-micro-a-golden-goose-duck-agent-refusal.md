@@ -1,5 +1,5 @@
 # MA-48-GOOSEDUCKAGENT-REFUSAL — Micro-A 首报（Xxx91n/goose-duck-agent）
-> RECEIPT RCP-2b2f73f8164053db chain=2b2f73f8164053db301ed22998b12d6f content=3255ca6e1c339f47 facts=3 adjudications=2 issued_at=1970-01-01T00:00:00.000Z commit=unanchored-no-local-clone tree=unanchored
+> RECEIPT RCP-47855f19017680f3 chain=47855f19017680f3e1d59a20ec64b18f content=abcc5d4877749285 facts=3 adjudications=2 issued_at=1970-01-01T00:00:00.000Z commit=unanchored-no-local-clone tree=unanchored
 >
 > 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
 >
@@ -77,11 +77,11 @@
 - reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
 - 引文原文: "name": "anysearch-cli",
 
-### EV-48-GOOSEDUCKAGENT-REF-03 — docs/archive/decisions/macro-audit-ledger.md @ L54
+### EV-48-GOOSEDUCKAGENT-REF-03 — docs/archive/decisions/macro-audit-ledger.md @ L88
 - claim: 硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
 - reproduce_cmd: git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md
-- 引文原文: | D-049 | Q2（轮11）：Micro-A preview 铺开票（拟 #48）票面形态如何定义？（W15③；前置 #47 已凭 D-048 立案；desk-task15 判据=「≥1 条 Micro-A 真实 PR 报告产出且字段清单满足骨架交集」重绑 micro-a-preview-prep；atomcode 深调研 R11-Q2：11 查询×5 角度／6 原文核验，置信高） | 采纳（2026-09-16，原话「采纳」＝采纳修正后推荐全项） | ① #48 单票铺开=适配器消费侧管道（PR intake→facts→共享骨架 Micro-A 切片渲染）＋双仓试点实跑＋报告双件＋披露三件套，一票闭环对齐 ADR-0017 层自成完整价值单元与 #38/#39 双先例；② 票内验收序列写死：a. golden 契约驱动管道段 PASS → b. env-manager 三形态实跑 → c. jiahao 全人基线 → d. failure 件 → e. 披露三件套 → f. desk-task15 判据核验＋micro-a-preview-prep 事件闭环；③ PR 选取最小充分集=恰 4 条具体实例：env-manager×3（dependabot×1＋release-please×1＋人类×1）＋jiahao×1（全人 merged 对照），硬判据=已 merged＋diff 规模适中（非单行非巨型重写，票面写死实例不给通用公式）；④ failure 演示件=anysearch-cli 无托管面诚实拒绝（D-033 硬约束逆用：intake 阶段显式拒绝→报告落 unsupported: 无托管 PR 面＋原因＋前置条件，复刻 A-044 先例）；token 缺席降级=degraded 通道 golden cassette 占位不混测；⑤ desk-task15 验证=字段断言脚本化进 NN-check.mjs：字段清单从 ADR-0006 骨架∩Micro-A 切片机械导出（禁手抄漂移），happy 正向 ⊇ 断言＋failure 反向拒绝语义断言；golden 只锁字段骨架不锁内容值（内容级 golden 归 GA 收口）；⑥ 披露三件套=preview 标注（capability N of M 措辞对齐 D-031 先例）＋同主确认偏差（happy 件报告头部醒目位置非脚注）＋「平台声明的 Bot 身份」措辞 | 票面引用 D-047 口径不得回引 D-033 原文（原判已被 #37 实测证伪）；happy 件=真实审计产物（D-030 provenance 披露制），fixture 仅用于管道 golden 段——票面写明两通道口径防「真实报告被误标 fixture」；骨架字段与真实 PR 数据不适配时不得在 #48 内静默改骨架（走 D-025 勘误双读数，骨架改动另立决策）；机器 PR 审计结果不得被读作人类代码质量结论（反向失真红线）；票面叙事写「试点集」不得写「覆盖面」（2 仓 4 PR 是形态覆盖非统计样本）；实跑凭据走主路或 gh 回退须如实披露；#47 未落地前 #48 不并行抢工（票面显式声明前置）；冲突核查 41 current 零冲突零 revised；执行时点=整理环节立案（BACKLOG #48＋spec-phase-tasks 注记），实现落执行窗 | current（⑤款「骨架」定义以 D-132 澄清为准=字段键集＋语义不变量定点值——同源措辞注记防再争议） |
+- 引文原文: | D-033 | Q5（轮7）：#25-B4.2 与 jiahao / anysearch-cli / env-manager 三试点仓对接的产品方向与优先级？ | OK（2026-09-15，原话「OK」＝采纳推荐全项；基于 atomcode 取证：6 searches/7 全文核验，角色框架高置信、多仓排序法中置信=a16z design-partner 框架迁移；缺口：各仓 PR 人/机比与 supersede 链完整度未实测） | 对接方向=试点仓角色绑定能力层而非仓：① 角色分配=anysearch-cli→Macro-C 校准语料（56 ADR＋supersede 链稀缺素材）／env-manager→Micro-A 唯一合格试点＋泛化验证（唯一托管 PR 面，含 dependabot/release-please 非人类 PR 边缘形态）／jiahao→Micro-B·Macro-B 回归＋下限测试（纯本地仓测「git 健全无托管」下限）／三仓并跑→Macro-A 泛化冒烟（需≥2仓天然最后）；② 时序=Macro-B 已上架层立即对三仓各跑一次 one-shot 泛化验证，jiahao 挂 Macro-B 持续回归（阶段3 CI 票），其余层试点随各 preview 漏斗；③ 前置票=试点面可用性审计脚本（PR 人/机比、supersede 链完整度实测）；④ 拆票=可用性审计→Macro-B 三仓 one-shot→各层试点→回归接入，不立大票 | 结构性限制入规：三仓同主属确认偏差面（dogfooding=generative not evaluative，OCLint 官方口径只给信心不证泛化），试点定位=校准＋冒烟；泛化验证必须引≥1 非自有公开仓（D-013 URL opt-in 首实用户），登记为 Macro-B GA 前置条件；持续回归仅限已上架层；试点成功度量=反复接受非跑通；PR 层试点不得指派无托管 PR 面的仓（capacity 硬约束）；冲突核查 26 条 current 无 revised；执行时点=grill 定稿后整理环节；整理环节更新 #25-checklist B4.2 行=decided-now | current |
 
 #### 引文→结论支持关系校验
 - CL-48-GOOSEDUCKAGENT-REF-01 -> EV-48-GOOSEDUCKAGENT-REF-01: supports（matched=goose-duck-agent missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）

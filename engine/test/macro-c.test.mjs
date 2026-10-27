@@ -88,9 +88,36 @@ t('R11-P 负对照：缺字段／空串／.scratch 三态各只差一维即判�
   && gateRefOk({ criteria_path: SCRATCHY, basis_path: EXIST_ANCHOR }) === false       // 仅因 .scratch 判红
   && grPath(EXIST_ANCHOR + ' D-1') === EXIST_ANCHOR);
 const pipeSrc = String((meas && meas.pipeline && meas.pipeline.source) || '');
-const pipePath = (pipeSrc.match(/^(engine\/[A-Za-z0-9_./-]+)/) || [])[1] || '';
-t('R12 pipeline.source 首段路径为仓内现行文件且零 .scratch（R10 只查历史脚本名，拦不住回潮）',
-  pipePath !== '' && pipeSrc.indexOf('.scratch') < 0 && existsSync(join(SELF, pipePath)), pipeSrc);
+const PIPE_CARRIERS = ['engine/test/fixtures/contracts/38-macro-c-preview-report.json', 'docs/archive/decisions/ticket-index.md'];
+t('R12 pipeline.source 两类载体具名齐备且现行可解析、零 .scratch（R10 只查历史脚本名，拦不住回潮）',
+  pipeSrc.indexOf('.scratch') < 0 && PIPE_CARRIERS.every(function (p) { return pipeSrc.indexOf(p) >= 0 && existsSync(join(SELF, p)); })
+  && (pipeSrc.match(/(?:engine|docs)\/[A-Za-z0-9_./-]+/g) || []).every(function (p) { return existsSync(join(SELF, p)); }),
+  pipeSrc.slice(0, 150));
+// commit 是裸字面量，路径腿看不见——索引换钉而报告串不动会绿着过期，故与归档索引 #38 行逐字对账
+const idxTxt = existsSync(join(SELF, PIPE_CARRIERS[1])) ? readFileSync(join(SELF, PIPE_CARRIERS[1]), 'utf8') : '';
+const idxCommit = (idxTxt.match(/^\| #38 \| `([0-9a-f]{7,40})`/m) || [])[1] || '';
+const namedCommit = function (label) { const m = pipeSrc.match(new RegExp(label + ' commit ([0-9a-f]{7,40})')); return m ? m[1] : ''; };
+const lineageIdx = namedCommit('记号首次出现'), lineageScript = namedCommit('脚本引入');
+// 「脚本引入」不许凭「与索引值不同」就放行（`0000000` 也算不同），也不许拿 `%h` 字面量跨环境比相等——
+// 本仓 D-094(b) 已实证 `%h` auto-abbrev 随对象库在 7↔8 跳变（23-first-report-check 的 R37 返修注记，
+// 本条曾被它在 CI 上打红 12 腿：git 给 `04adb24`、串里写 `04adb24d`）。故预言机取 `%H` 全值。
+let scriptTruth = '';
+try { scriptTruth = execFileSync('git', ['log', '--all', '--diff-filter=A', '--format=%H', '-1', '--', '.scratch/architecture-recovery/reports/38-macro-c-preview.mjs'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { scriptTruth = ''; }
+// 两侧都先解析成完整 commit 再比——前缀等值本身有洞：`84f571a60` 以 `84f571a6` 开头，
+// 却指向不存在的 commit（真值起于 `84f571a6d`）。`rev-parse --verify <v>^{commit}` 同时解决
+// 三件事：宽度无关（7 字/8 字/40 位解析到同一对象）、编造不可解析、对调可比出。
+const resolveCommit = function (v) {
+  if (v === '') { return ''; }
+  try { return execFileSync('git', ['rev-parse', '--verify', '-q', v + '^{commit}'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { return ''; }
+};
+const truthFull = resolveCommit(scriptTruth);
+const idxFull = resolveCommit(idxCommit), lineageIdxFull = resolveCommit(lineageIdx);
+const scriptFull = resolveCommit(lineageScript);
+let shallowHist = 'unknown';
+try { shallowHist = execFileSync('git', ['rev-parse', '--is-shallow-repository'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { shallowHist = 'unknown'; }
+t('R13 血缘两枚 commit 各归其名——两侧均解析为完整 commit 后比全值：索引腿＝#38 行对象，脚本腿＝git 新增该脚本的对象（不可解析、对调、指错真值皆红；宽度差不红）',
+  idxFull !== '' && lineageIdxFull === idxFull && scriptFull !== '' && truthFull !== '' && scriptFull === truthFull && scriptFull !== idxFull,
+  JSON.stringify({ index: idxCommit, script: lineageScript, idxFull: idxFull.slice(0, 12), scriptFull: scriptFull.slice(0, 12), truthFull: truthFull.slice(0, 12), shallow: shallowHist }));
 
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
