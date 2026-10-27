@@ -1,4 +1,5 @@
 // ---------- Repo Intake 输入面（本地默认/owner-repo 本地优先/URL opt-in / D-013） ----------
+// Design: 本地路径默认、远程 URL 显式 opt-in，clone 到隔离缓存 — ADR-0009
 // 裁决顺序：显式本地路径 → owner/repo 形态本地优先消歧（./ 前缀强制本地）→ 显式 URL（https/git@）才 clone。
 // clone 纪律：隔离缓存 <cache>/repos/<sha256(url)[:16]>/；全深度（不传 --depth/fetch-depth 0）；
 // .git 完整性校验；浅 clone 显式拒绝 SHALLOW-CLONE-REJECTED；禁远程配置执行（不递归子模块、

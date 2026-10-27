@@ -1,4 +1,5 @@
 // report/narrative.ts — 叙事双轨 kernel 面（D-053 / A-057；band 归 C 层人裁的红线）
+// Design: 叙事段不携带裁决 band，band 判定归 C 层人裁 — ADR-0013
 // 职责边界（D-058）：叙事生成归宿主 agent（概率面，模型驱动）；kernel 只做确定性盖章——
 //   ① sealNarrative：逐 claim 走 checkAllCitations（grounded / 未引证＋失败明细 token↔evidence）；
 //   ② band 红线机检：叙事段不得携带裁决 band（S1-S5 band 判定渗入叙事即违规——首报验收 C 层人裁 / D-026）；

@@ -23,6 +23,7 @@ import type { FieldStatus, FieldEvent, FieldStat, DialectAbsorption } from '../i
 const NL = String.fromCharCode(10);
 
 // ---------- 预声明阈值（与 reports/22-criteria-pre-registration.md 逐字同源，跑后禁调） ----------
+// Design: 首报验收=A/B/C 三层闸门，判据阈值跑前写死、跑后禁调 — ADR-0013
 export const TC1_LAG_DAYS = 90;
 export const TC1_RATIO_RED = 0.20;
 export const TC1_MIN_N = 5;

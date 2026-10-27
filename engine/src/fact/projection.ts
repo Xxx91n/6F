@@ -1,4 +1,5 @@
 // fact/projection.ts — MCP facts 只读投影（D-053④ / A-057）
+// Design: 报告聚合走独立 read model，不抓取事实层或 UI — ADR-0005
 // 宿主 agent 叙事面的唯一取数主路：固定 SELECT 形（不接裸 SQL——stub 面收窄防注入）；
 // 连接=openReader（READ_ONLY 实例，SWMR 读者位，A-007）；投影列=FactEvent 十三列。
 import { openReader, closeDuckdb } from './store.js';

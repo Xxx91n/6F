@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process';
 // 剥 JS/TS 源码注释：行注 // 与块注 /* */（含字符串/regex/template 内 // 保护）
 // R51-T1A（D-184②④）：补 regex 字面量态——js-tokens 前驱 token 启发式＋行尾强制闭合；歧义全偏除号=安全向（Padolsey 实录）
 // 前驱三分类：identifier/数字/字符串尾/)/]/} 后 slash = 除号；其余 = regex
+// Design: 豁免判据落在剥注释后的消费位，注释提名不豁免 — ADR-0024
 export function stripComments(src) {
   const out = [];
   let i = 0, inStr = null, inLine = false, inBlock = false, inRegex = false, inRegexClass = false, lastSig = '';

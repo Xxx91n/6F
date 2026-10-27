@@ -1,4 +1,6 @@
 // DuckDB fact store — 绑定：@duckdb/node-api（唯一选型，锁版本 1.5.5-r.5；D-075④ F4 升版——win32-arm64 官方包实存接入）
+// Design: 跨 scale 事实共享单一 DuckDB fact table，事件单向写入、按需投影 — ADR-0005
+// Design: 单写者门面——本模块是唯一写入口，读者只走 READ_ONLY — ADR-0019
 // 连接拓扑：唯一写者（READ_WRITE）+ 任意读者（READ_ONLY），承接 A-007 单写多读 SWMR。
 // 本模块是 engine 对外唯一写入口：只暴露 appendFact / queryFacts，不暴露裸 SQL 写接口。
 // 本机不安装原生绑定、不构建；构建与测试一律走 CI（prompt 专属 delta 第 3 条）。
@@ -301,6 +303,7 @@ export interface QuarantineEventInput {
   recorded_at: string | null;
 }
 
+// Design: quarantine_log 是独立字段级处置账本，与 fact 同事务写入 — ADR-0022
 // 自然键幂等：UNIQUE(run_id,commit_sha,field_name,reason_code,disposition) + ON CONFLICT DO NOTHING
 const QUARANTINE_INSERT_SQL =
   'INSERT INTO quarantine_log (q_seq, run_id, commit_sha, field_name, disposition, reason_code, ' +

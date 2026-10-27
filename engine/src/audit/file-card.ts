@@ -1,4 +1,5 @@
 // audit/file-card.ts — `audit file` lazy 补采编排（#80 步② / D-122/D-126；Micro-B 文件卡=预采集投影×per-file subject×血缘事实）
+// Design: lazy 补采走与批量相同的 per-file 发射管线，MCP 面永不写 — ADR-0023
 // 双触发面之 CLI 面：miss→仓级管线重跑产新观测集 append 非覆盖（同构发射管线——与批量同一 emit 函数、
 //   同 grain 同 fact_id 规则；lazy 是发射时机非 grain/身份决策）。MCP 面永不写。
 // 资格检查=目标 SHA 对象库可达（git rev-parse HEAD）；脏工作区零感知（只读 git 观测，不 stat 工作树）。

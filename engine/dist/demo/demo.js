@@ -19,6 +19,7 @@ import { repoAdd } from '../intake/intake.js';
 import { generateFixtureRepo, FIXTURE_GENERATOR_ID } from './fixture-generator.js';
 import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, TC3_TOPN, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, MACRO_B_STOPWORDS } from '../audit/macro-b.js';
 import { intakeEscalation, QUARANTINE_FIELD_RATIO_RED, rawEcho } from '../intake/quarantine.js';
+// Design: 演示按 scale 的关键/失败路径成对设计，共用同一报告模板 — ADR-0007
 export const DEMO_SCENARIOS = ['happy-path', 'degraded-supply', 'degraded-incomplete'];
 const NL = String.fromCharCode(10);
 // #59/D-067：fixtures 锚定引擎根（metaPath 的 dirname）而非本文件相对层级——

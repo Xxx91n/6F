@@ -16,8 +16,10 @@ import type { EvidenceItem, ClaimAnchor, CitationCheck, SupportRelation } from '
 export { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations };
 export type { EvidenceItem, ClaimAnchor, CitationCheck, SupportRelation };
 
+// Design: 5 scale 共享报告骨架＋scale 切片，章节顺序锁定 — ADR-0006
 export const REPORT_SKELETON_VERSION = '1.2.0';
 export const REPORT_SKELETON_SOURCE = 'reports/14-skeleton-fields.json#skeleton';
+// Design: 首报验收=A/B/C 三层闸门，C 层裁定由人做 — ADR-0013
 export const ADJUDICATION_PROTOCOL_VERSION = 'ADR-0013-C/v1';
 
 export interface SkeletonChapter {
@@ -226,6 +228,7 @@ export interface ReportStale {
   fact_watermark_version: string;
 }
 
+// Design: preview 能力边界如实披露，5 scale 仅作 roadmap — ADR-0017
 // preview 披露块（Preview 分级发布：preview 标注诚实是决策本体；D-037② 报告头字段统一契约面——
 // 与 #45 演示披露块同一契约源，禁止两处手抄漂移）。可选字段：非 preview 报告为 null，骨架 1.2.0 不变。
 export interface PreviewDisclosure {
@@ -284,6 +287,7 @@ export interface ReportInput {
 
 export interface Report {
   report_id: string;
+  // Design: report_schema 独立版本化，报告头 stability/capabilities 固定字段 — ADR-0018
   schema_version: string;
   stability: 'preview' | 'ga' | null;
   capabilities: string[];
