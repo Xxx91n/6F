@@ -65,11 +65,23 @@ t('R10 measurements.pipeline 移植溯源在（source+recalibration）', !!meas 
 // Design: 溯源串落点＝仓内 contract fixtures 与归档索引两类载体，受影响 golden 同窗再生 — ADR-0027
 const SELF = join(HERE, '..', '..');
 const gr = side && (side.gate_ref || (side.receipt && side.receipt.gate_ref));
-const grPath = function (s) { return String(s || '').split(' ')[0]; };
-t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 .scratch）',
-  !!gr && !/\.scratch/.test(String(gr.criteria_path) + String(gr.basis_path))
-  && existsSync(join(SELF, grPath(gr.criteria_path))) && existsSync(join(SELF, grPath(gr.basis_path))),
-  JSON.stringify(gr));
+// 空串／缺字段必须判红：`join(SELF, '')` 命中仓库根，existsSync 会把缺锚放行成通过
+const grPath = function (s) { const p = String(s || '').split(' ')[0]; return p === '' ? null : p; };
+const gateRefOk = function (g) {
+  if (!g) { return false; }
+  const cp = grPath(g.criteria_path), bp = grPath(g.basis_path);
+  return cp !== null && bp !== null && !/\.scratch/.test(String(g.criteria_path) + String(g.basis_path))
+    && existsSync(join(SELF, cp)) && existsSync(join(SELF, bp));
+};
+t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 .scratch；缺字段即红）', gateRefOk(gr), JSON.stringify(gr));
+// 负对照喂接线后的判定函数本体，不喂 helper——否则删掉前置判空无人知晓
+t('R11-P 负对照：缺 gate_ref、缺 criteria_path、空串、.scratch 回潮四态均判红',
+  gateRefOk(null) === false
+  && gateRefOk({ basis_path: 'docs/adr/0027-x.md' }) === false
+  && gateRefOk({ criteria_path: '', basis_path: 'docs/adr/0027-x.md' }) === false
+  && gateRefOk({ criteria_path: '.scratch/a.md', basis_path: 'docs/adr/0027-x.md' }) === false
+  && grPath('docs/x.md D-1') === 'docs/x.md' && grPath('') === null,
+  JSON.stringify({ null: gateRefOk(null), noCrit: gateRefOk({ basis_path: 'docs/adr/0027-x.md' }) }));
 const pipeSrc = String((meas && meas.pipeline && meas.pipeline.source) || '');
 const PIPE_CARRIERS = ['engine/test/fixtures/contracts/38-macro-c-preview-report.json', 'docs/archive/decisions/ticket-index.md'];
 t('R12 pipeline.source 两类载体具名齐备且现行可解析、零 .scratch（R10 只查历史脚本名，拦不住回潮）',
