@@ -2,7 +2,7 @@
 // 单模块约束：不含任何相对 import，使守卫脚本可用 Node 自带类型剥离直接 import（Node 22.18+）。
 // 纯逻辑约束：输入一律注入；不读 fs、不起子进程、不发网络请求、不接 LLM。
 // 决议继承：D-016/D-017（确定性、不接 LLM）· D-018（正对照与真判据同族）· A-010（correlation key 前置）· A-021（schema v0）
-// Design: 采集器确定性、不接 LLM，事实逐字节可复算 — ADR-0012
+// Design: 价值验证闭环阶段 0 要求确定性采集器，不接 LLM — ADR-0012
 import { createHash } from 'node:crypto';
 export function sha256Hex(input) {
     return createHash('sha256').update(input, 'utf8').digest('hex');
