@@ -1,4 +1,5 @@
 // collect/file-lineage.ts — file_renamed 血缘一等事实发射（#80 步① / D-125；Micro-B 文件卡=预采集投影×per-file subject×血缘事实）
+// Design: 改名血缘是一等事实，漏判诚实分裂不编造 — ADR-0023
 // 纯逻辑约束：git 字节输入经参数注入；不读 fs、不起子进程。
 // 检测=git log --name-status -z --find-renames=<threshold>（git diffcore -M 先例；
 //   -z 原字节路径不 C-quote——非 ASCII/NFC 判定不交 git quotepath 而交 subject 归一器）。

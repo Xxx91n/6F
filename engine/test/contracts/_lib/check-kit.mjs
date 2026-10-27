@@ -230,6 +230,7 @@ function findMatchingBrace(src, open) {
 // realConsumption：真消费形态判定——仅认 import/require 具名引入 或 stripComments(/stripMdComments( 调用位
 //   （含成员调用 x.stripComments(——D-158① 原文「调用位」无「裸」字；声明位 {stripComments:…} 无左括号不中）
 // 字符串/属性名/标识符内提名不豁免（先剥字符串再判）；调用位用左括号锚定而非词缀（探测判定锚消费位：先剥注释再判，注释内提名不豁免）
+// Design: 豁免判据落在剥注释后的消费位，注释提名不豁免 — ADR-0024
 export function realConsumption(strippedNoComments) {
   const noStr = blankStrings(strippedNoComments);
   const importBind = /\bimport\b[^'"\n]*\b(?:stripComments|stripMdComments)\b[^'"\n]*\bfrom\b\s*['"]/;

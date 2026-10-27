@@ -1,4 +1,5 @@
 // upstream-dimension-map.ts — upstream fact→dimension 接线契约运行时映射常量块（#71/#72 接线票）
+// Design: 战略 quadrant 固定 S1-S5 五维，映射不得增减维度 — ADR-0004
 //
 // 口径锚点（D-080④）：「文档单源真值＋裁决面映射常量配置块」——
 //   语义源 = 仓内文书 docs/upstream-dimension-map.md v1.0（不随 tgz 分发、不供宿主 agent 叙事消费，D-083）

@@ -1,4 +1,6 @@
 // ---------- 上游适配器：GitHub REST（GitHub REST+env token 主路、gh 认证态可选回退 / D-048 / #47）----------
+// Design: 托管平台适配器主路=GitHub REST＋env token，gh 仅可选回退 — ADR-0020
+// Design: raw 上游响应不出适配器边界，业务判据不进本层 — ADR-0014
 // 反腐层纪律（同 codelore.ts）：本文件只做「HTTP 调用 + 原始响应解析」——状态码、限流头解析、
 // schema 校验在此；业务规则（判据/阈值/裁决）禁止进入本层；raw 上游响应不出本层（以结构化类型/fact 传出）。
 // 路径钉死：REST 直连＋X-GitHub-Api-Version pin 主路；gh 已认证态只读借用 = 可选回退

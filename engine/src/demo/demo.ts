@@ -24,6 +24,7 @@ import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, 
 import { intakeEscalation, QUARANTINE_FIELD_RATIO_RED , rawEcho } from '../intake/quarantine.js';
 import type { IntakeHealth } from '../report/generate.js';
 
+// Design: 5 scale 各配关键/失败两条演示路径 — ADR-0007
 export const DEMO_SCENARIOS: readonly string[] = ['happy-path', 'degraded-supply', 'degraded-incomplete'];
 const NL = String.fromCharCode(10);
 // #59/D-067：fixtures 锚定引擎根（metaPath 的 dirname）而非本文件相对层级——

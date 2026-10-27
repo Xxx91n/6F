@@ -22,6 +22,8 @@ import { projectUpstreamDimensions, CODELORE_S3_FACETS, SEMANTIC_DOMAIN_LABELS }
 import { reaggregateFileFacetRows, reconcilePerFileVsAggregate } from '../upstream/codelore.js';
 const NL = String.fromCharCode(10);
 // 已实现规模面（D-060③：--scale 缺省 Macro-B；其余层未实装 → 诚实拒绝 exit 2）
+// Design: 5 档 scale 全规划覆盖（build-scope） — ADR-0001
+// Design: preview 按层序逐层上架，未上架层只披露不承诺 — ADR-0017
 export const AUDIT_SCALES_IMPLEMENTED = ['Macro-B', 'Macro-C', 'Micro-A']; // Macro-C 产线化（#84/D-204②④）＋Micro-A 产线化（#85②/D-204③④）；层序不动（Preview 分级发布层序 Macro-C→Micro-A→Micro-B→Macro-A）
 const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（ADR-0017③ 层序，Macro-B/Macro-C/Micro-A 已上架 preview）';
 const SCALE_CANON = { 'microa': 'Micro-A', 'microb': 'Micro-B', 'macroa': 'Macro-A', 'macrob': 'Macro-B', 'macroc': 'Macro-C' };

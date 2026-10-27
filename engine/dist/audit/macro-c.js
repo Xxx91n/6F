@@ -30,6 +30,7 @@ export const MACRO_C_REPORT_ID_PREFIX = 'MA-AUDIT-';
 export const MACRO_C_NC_CANDIDATES = ['apps/cli/package.json', 'package.json', 'Cargo.toml', 'pom.xml', 'pyproject.toml', 'go.mod', 'README.md'];
 export const MACRO_C_LLM_EXPLAIN_CANDIDATES = ['apps/cli/src/index.ts', 'apps/cli/src/composition.ts', 'src/index.ts', 'src/main.ts'];
 export const MACRO_C_SUPERSEDE_KINDS = ['whole-adr-status', 'item-level-inline'];
+// Design: 报告输出面不得出现本机绝对路径 — ADR-0026
 // reproduce_cmd 可移植化：本地输入记 `<repo>`、出目录记 `<dir>`（形制同 micro-a.ts），报告输出面不得出现本机绝对路径（ADR-0026）。
 // 本地与否以 intake 的判定为准，不靠字面猜——`projects/demo` 这类相对路径会被 slug 正则误判成 owner/repo，从而依赖原工作目录；
 // `file://` 在 intake 里归 url（URL_SCHEMES），但它承载的正是本机绝对路径，同样要换成占位。
