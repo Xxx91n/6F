@@ -244,6 +244,11 @@ for (const tok of whitelist) {
   if (looksLikeFile) { const base = tok.split('/').pop(); if (base && base !== '**' && !base.includes('*')) { whitelistMatch.add(base); } }
 }
 const lineMatchesWhitelist = (line) => [...whitelistMatch].some(tok => line.includes(tok));
+// 取「唯一权威 = <值>」里的完整断言值；不能只看同句是否出现 authority.md 或白名单子串。
+function assertedAuthority(line) {
+  const m = line.match(/唯一权威\s*[=＝]\s*(?:\[[^\]]+\]\(([^)\s]+)\)|`([^`]+)`|([^\s；;，,。)）]+))/);
+  return m ? (m[1] || m[2] || m[3] || null) : null;
+}
 function selfClaimHit(line) {
   // 只认「主语 + 系词 + 权威」的自称；「本文件首行指针所列的权威载体」是引用，不是自称。
   const claim = /(本文件|本文|本册|本目录|this (?:file|document))\s*(?:本身)?\s*(?:是|为|作为|即|is)\s*(?:唯一|the)?\s*(?:权威|authority)/i;
@@ -255,9 +260,10 @@ for (const p of facade) {
   const s = safeTxt(p);
   if (s === null) { continue; }
   s.split('\n').forEach((line, i) => {
-    const viaAuthority = line.includes('authority.md');
-    const viaWhitelist = lineMatchesWhitelist(line);
-    if (line.includes('唯一权威') && !viaAuthority && !viaWhitelist) { selfClaim.push(p + ':' + (i + 1) + ' 唯一权威无 §2 落点'); }
+    const viaAuthority = authorityPointer(p, line);
+    const asserted = assertedAuthority(line);
+    const viaWhitelist = asserted !== null && whitelistMatch.has(asserted);
+    if (line.includes('唯一权威') && !viaWhitelist) { selfClaim.push(p + ':' + (i + 1) + ' 唯一权威无 §2 落点'); }
     if (line.includes('唯一成文处') && !viaAuthority) { selfClaim.push(p + ':' + (i + 1) + ' 自称唯一成文处'); }
     if (selfClaimHit(line) && !viaAuthority) { selfClaim.push(p + ':' + (i + 1) + ' 自称权威'); }
   });
@@ -270,10 +276,13 @@ t('F1b §2 白名单只取 §2 表（不含 §2.1 生成面）',
 t('F1c 白名单不含通配 token（** 不得让任意粗体行通过）',
   [...whitelistMatch].every(tok => !tok.includes('*')));
 t('F1d 粗体不构成白名单命中（** 不再放行任意行）',
-  !lineMatchesWhitelist('**唯一权威** = somewhere-else') && lineMatchesWhitelist('唯一权威 = engine/upstream-lock.yaml'));
+  !whitelistMatch.has(assertedAuthority('**唯一权威** = somewhere-else') || '') &&
+  whitelistMatch.has(assertedAuthority('唯一权威 = engine/upstream-lock.yaml') || ''));
+t('F1e 伪权威值不因同句 authority.md 链接而通过',
+  !whitelistMatch.has(assertedAuthority('唯一权威 = other/engine/upstream-lock.yaml；参见 [authority.md](docs/authority.md)') || ''));
 t('F2 门面文书不得自称权威；专题唯一权威须命中 §2 白名单', selfClaim.length === 0, selfClaim.join(' | '));
 t('F3 README 上游表「唯一权威=upstream-lock」属合法命中（不得洗红）',
-  readmeAuthorityLine.includes('upstream-lock.yaml') && lineMatchesWhitelist(readmeAuthorityLine));
+  whitelistMatch.has(assertedAuthority(readmeAuthorityLine) || ''));
 t('F4 自称权威探测器负对照：本文件是权威口径命中，本目录是非权威不命中', // NEGATIVE-CONTROL
   selfClaimHit('本文件是权威口径') && !selfClaimHit('本目录是非权威、只读')); // NEGATIVE-CONTROL
 
@@ -319,7 +328,26 @@ t('G4 docs-ci 复用 check:docs（单一步骤，不建第二套 README/戳位�
   runSteps.length === 1 && runSteps[0] === 'npm run check:docs', 'runs=' + runSteps.join(' | '));
 t('G5 docs-ci permissions contents: read', /permissions:[\s\S]*?contents:\s*read/.test(docsCi));
 t('G6 docs-ci working-directory: engine', /working-directory:\s*engine/.test(docsCi));
-t('G7 docs-ci checkout 不持久化凭据（persist-credentials: false）', /persist-credentials:\s*false/.test(docsCi));
+// checkout 步骤是否仍持久化凭据：只看 actions/checkout 步骤内的键，跳过注释行；
+// 注释掉的 persist-credentials: false 仍按默认（持久化）判。
+function checkoutPersistsCredentials(wf) {
+  const lines = wf.split('\n');
+  const start = lines.findIndex(l => /^\s*-\s+uses:\s*actions\/checkout@/.test(l));
+  if (start < 0) { return true; }
+  for (let i = start + 1; i < lines.length; i++) {
+    const l = lines[i];
+    if (/^\s*-\s+/.test(l)) { break; }
+    if (/^\s*#/.test(l)) { continue; }
+    if (/^\s*persist-credentials:\s*['"]?false['"]?\s*(?:#.*)?$/.test(l)) { return false; }
+    if (/^\s*persist-credentials:\s*/.test(l)) { return true; }
+  }
+  return true;
+}
+t('G7 docs-ci checkout 不持久化凭据（persist-credentials: false）', !checkoutPersistsCredentials(docsCi));
+const goodCheckout = '- uses: actions/checkout@v4\n  with:\n    persist-credentials: false\n';
+const badCheckout = '- uses: actions/checkout@v4\n  with:\n    # persist-credentials: false\n';
+t('G7b checkout 凭据判据负对照：真设置不持久，注释掉仍算持久',
+  !checkoutPersistsCredentials(goodCheckout) && checkoutPersistsCredentials(badCheckout));
 
 // ---------- H. engine-ci 矩阵/路径边界 ----------
 const engineCi = txt('.github/workflows/engine-ci.yml');
