@@ -10,7 +10,7 @@
   "watch_schema": "watch 三态：event_bound（默认——须 trigger_event 或 deadline_event 至少一锚）/ manual_watch（五要素：标记=watch 字段值本身＋责任人 owner＋复审时点 review_at prose＋review_event 机读锚＋验证方法 verify_method＋确认留痕 confirmations[]）/ risk_accepted（三要素：acceptor＋reason＋expires_at——翻转权属人工裁决，守卫仅输出 RISK-ACCEPTED-CANDIDATE 候选名单不自动改 status）",
   "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签",
   "reference_resolution": {
-   "rule": "registry 内每个 .mjs 引用按 resolution_roots 逐根解析，只认 git 已跟踪文件；解析失败者必须在 historical 逐条登记（kind＋reason），否则 87-check 判红。historical 是历史登记，不代表该脚本仍可执行；guards[]/verify_method 中的 historical 引用按历史留痕读，现行载体见各条 reason 与 registry 的 watch_rule。historical 条目须仍被本表引用且在工作树不可解析——复活即红。reports/* 归档路径 kind=archived-path，已删脚本 kind=retired-script。通配/占位写法（*-check.mjs、NN-check.mjs）不是文件引用，不参与解析。本守卫只判可执行引用（.mjs）；非执行证据路径（.json/.md 等）不在判定面。",
+   "rule": "registry 内每个 .mjs 引用按 resolution_roots 逐根解析，只认 git 已跟踪文件；解析失败者必须在 historical 逐条登记（kind＋reason），否则 87-check 判红。historical 是历史登记，不代表该脚本仍可执行；guards[]/verify_method 中的 historical 引用按历史留痕读，现行载体见各条 reason 与 registry 的 watch_rule。historical 条目须仍被本表引用且在工作树不可解析——复活即红。reports/* 归档路径 kind=archived-path，已删脚本 kind=retired-script。通配/占位写法（*-check.mjs、NN-check.mjs）不是文件引用，不参与解析。本守卫只判可执行引用（.mjs）；非执行证据路径（.json/.md 等）不在判定面。historical reason 内的 .mjs 替代指针同样参与解析对账；D3 的「仍被引用」只认声明面之外的引用（防自证）。",
    "resolution_roots": [
     "<repo>",
     "engine",
@@ -253,7 +253,7 @@
   },
   "github-rest-reviews-active": {
    "occurred": false,
-   "note": "D-081②：pulls.reviews 移出 GITHUB_REST_PLANNED_SURFACES（engine/src/upstream/github-rest.ts 导出常量；review 面激活、fact 实产）之日=事件发生；机检=33-check H2 对导出常量做成员断言"
+    "note": "D-081②：pulls.reviews 移出 GITHUB_REST_PLANNED_SURFACES（engine/src/upstream/github-rest.ts 导出常量；review 面激活、fact 实产）之日=事件发生；机检=72-check C1/C2 对导出常量做成员断言（原 33-check H2 已退役）"
   },
   "quadrant-rubric-params-draft": {
    "occurred": false,
@@ -1561,7 +1561,7 @@
    "review_at": "接线票立项时按采集数据裁定（D-078④ 原文；候选对 S5↔S4 无偏好序）",
    "status": "pending",
    "watch": "event_bound",
-   "verify_method": "33-check H2 事件成员断言（PLANNED_SURFACES 成员↔occurred 一致性）＋接线票立项审计清点：映射行 pending→decided 为该票票间依赖"
+   "verify_method": "72-check C1/C2 事件成员断言（PLANNED_SURFACES 成员↔occurred 一致性；原 33-check H2 镜像已退役）＋接线票立项审计清点：映射行 pending→decided 为该票票间依赖"
   },
   {
    "id": "rubric-weight-drafting",
@@ -1574,7 +1574,7 @@
    "review_at": "立案时带 LFX v2「人气≠健康」启示一句（Health Score 聚合面 40/35/25——权重仅存聚合层，分类/映射页零权重列）",
    "status": "pending",
    "watch": "event_bound",
-   "verify_method": "33-check 值守面复核＋立案票审计清点：权重行进 quadrant-rubric 判据面不进映射表/路由层（71-check A2 常量无权重断言同向执哨）"
+   "verify_method": "人工值守面复核（原 33-check 值守面复核已退役）＋立案票审计清点：权重行进 quadrant-rubric 判据面不进映射表/路由层（71-check A2 常量无权重断言同向执哨）"
   },
   {
    "id": "readme-ci-badge",
@@ -1588,7 +1588,7 @@
    "status": "decided",
    "watch": "event_bound",
    "owner": "macro-audit 队列值守",
-   "verify_method": "gh run list --workflow engine-ci.yml --branch main --limit 1 读 conclusion；未绿前 README 不得出现 workflow/actions 徽标（33-check H4 grep 机检）",
+   "verify_method": "gh run list --workflow engine-ci.yml --branch main --limit 1 读 conclusion；未绿前 README 不得出现 workflow/actions 徽标（原 33-check H4 grep 机检已退役；occurred↔在场互等按审计窗人工复核）",
    "confirmations": [
     {
      "at": "2026-09-20",

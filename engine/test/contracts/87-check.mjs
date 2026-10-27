@@ -30,10 +30,11 @@ function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } 
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 
 // ---------- 抽取与判定（F 组负对照直接复用） ----------
-function extractRefs(root) {
+function extractRefs(root, includePolicy) {
   const refs = new Map();
   (function walk(v, path) {
-    if (path === 'meta.reference_resolution') return; // 声明面不是引用面：防 historical 自证/自我放大
+    // 声明面默认不进 D3 外部引用面（防 historical 自证）；C1 用 includePolicy=true 把 reason 内的替代指针一并解析。
+    if (!includePolicy && path === 'meta.reference_resolution') return;
     if (typeof v === 'string') {
       for (const m of v.matchAll(REF_RE)) {
         const ref = m[1];
@@ -109,18 +110,22 @@ t('A3 已跟踪文件面非空（解析只认 git ls-files——untracked 残留
 
 // ---------- B. 抽取规则自证 ----------
 const sample = 'reports/33-check.mjs、38-check.mjs＋_lib/check-kit.mjs；*-check.mjs 与 NN-check.mjs 不是引用；*.test.mjs 也不截。';
-const sampleRefs = [...extractRefs({ s: sample }).keys()].sort();
+const sampleRefs = [...extractRefs({ s: sample }, true).keys()].sort();
 const sampleWant = ['38-check.mjs', '_lib/check-kit.mjs', 'reports/33-check.mjs'];
 t('B1 抽取规则：路径/裸名/_lib 命中，通配与占位不抽取', JSON.stringify(sampleRefs) === JSON.stringify(sampleWant), JSON.stringify(sampleRefs));
+const policySample = { meta: { reference_resolution: { historical: { 'dead.mjs': { kind: 'retired-script', reason: '现行承载为 engine/test/contracts-run.mjs' } } } } };
+t('B2 声明面 reason 内的 .mjs 纳入 C1 全量对账、不纳入 D3 外部引用面（防自证）',
+  extractRefs(policySample, true).has('engine/test/contracts-run.mjs') && !extractRefs(policySample, false).has('engine/test/contracts-run.mjs'));
 
 // ---------- C. 全量对账 ----------
-const refs = extractRefs(reg);
+const refs = extractRefs(reg, false);
+const refsAll = extractRefs(reg, true);
 const historical = (policy && policy.historical) || {};
-const violations = classify(refs, historical, function (r) { return resolveRef(r, roots); });
-const liveRefs = [...refs.keys()].filter(function (r) { return resolveRef(r, roots); });
-t('C1 每条 .mjs 引用可解析，或逐条登记 historical（零未登记死引用）', violations.length === 0, violations.join(' ;; '));
-t('C2 对账面非空（refs>0 且 live>0——historical 清零属收敛态，不判红）', refs.size > 0 && liveRefs.length > 0,
-  'refs=' + refs.size + ' live=' + liveRefs.length + ' historical=' + Object.keys(historical).length);
+const violations = classify(refsAll, historical, function (r) { return resolveRef(r, roots); });
+const liveRefs = [...refsAll.keys()].filter(function (r) { return resolveRef(r, roots); });
+t('C1 每条 .mjs 引用可解析，或逐条登记 historical（零未登记死引用；含 historical reason 内替代指针）', violations.length === 0, violations.join(' ;; '));
+t('C2 对账面非空（refs>0 且 live>0——historical 清零属收敛态，不判红）', refsAll.size > 0 && liveRefs.length > 0,
+  'refs=' + refsAll.size + ' live=' + liveRefs.length + ' historical=' + Object.keys(historical).length);
 
 // ---------- D. 反向对账 ----------
 const histKeys = Object.keys(historical);
@@ -144,7 +149,7 @@ const guardLive = [...guardRefs.keys()].filter(function (r) { return resolveRef(
 const confLive = [...confRefs.keys()].filter(function (r) { return resolveRef(r, roots); });
 t('E1 guards[] 面有可解析引用（字段改名后守卫不得空转）', guardRefs.size > 0 && guardLive.length > 0,
   'n=' + guardRefs.size + ' live=' + guardLive.length);
-t('E2 confirmations[] 面有可解析引用（evidence/reason 双字段）', confRefs.size > 0 && confLive.length > 0,
+t('E2 confirmations[] 面有可解析引用（evidence/reason 合并抽取）', confRefs.size > 0 && confLive.length > 0,
   'n=' + confRefs.size + ' live=' + confLive.length);
 
 // ---------- F. 判别臂负对照（合成样本，不读仓内状态） ----------
