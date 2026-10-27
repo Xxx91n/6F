@@ -98,13 +98,15 @@ const idxTxt = existsSync(join(SELF, PIPE_CARRIERS[1])) ? readFileSync(join(SELF
 const idxCommit = (idxTxt.match(/^\| #38 \| `([0-9a-f]{7,40})`/m) || [])[1] || '';
 const namedCommit = function (label) { const m = pipeSrc.match(new RegExp(label + ' commit ([0-9a-f]{7,40})')); return m ? m[1] : ''; };
 const lineageIdx = namedCommit('记号首次出现'), lineageScript = namedCommit('脚本引入');
-// 「脚本引入」不许凭「与索引值不同」就放行——`0000000` 也算不同。改用 git 自身当独立预言机：
-// 新增该历史脚本的那个 commit（`--diff-filter=A`，路径已退役故取全历史）
+// 「脚本引入」不许凭「与索引值不同」就放行（`0000000` 也算不同），也不许拿 `%h` 字面量跨环境比相等——
+// 本仓 D-094(b) 已实证 `%h` auto-abbrev 随对象库在 7↔8 跳变（23-first-report-check 的 R37 返修注记）。
+// 取 `%H` 全值做**前缀等值**：钉的是「这个 commit 存在且就是它」，不是显示宽度。
 let scriptTruth = '';
-try { scriptTruth = execFileSync('git', ['log', '--all', '--diff-filter=A', '--format=%h', '-1', '--', '.scratch/architecture-recovery/reports/38-macro-c-preview.mjs'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { scriptTruth = ''; }
-t('R13 血缘两枚 commit 各归其名——「记号首次出现」＝归档索引 #38 行值，「脚本引入」＝git 新增该脚本的 commit（编造值或对调即红）',
-  idxCommit !== '' && lineageIdx === idxCommit && scriptTruth !== '' && lineageScript === scriptTruth && lineageScript !== idxCommit,
-  JSON.stringify({ index: idxCommit, asLineage: lineageIdx, asScript: lineageScript, gitTruth: scriptTruth }));
+try { scriptTruth = execFileSync('git', ['log', '--all', '--diff-filter=A', '--format=%H', '-1', '--', '.scratch/architecture-recovery/reports/38-macro-c-preview.mjs'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { scriptTruth = ''; }
+const commitEq = function (a, b) { return a !== '' && b !== '' && (a.indexOf(b) === 0 || b.indexOf(a) === 0); };
+t('R13 血缘两枚 commit 各归其名——「记号首次出现」＝归档索引 #38 行值，「脚本引入」＝git 新增该脚本的 commit（前缀等值钉 %H；编造值、对调、宽度差各自判红）',
+  idxCommit !== '' && commitEq(lineageIdx, idxCommit) && scriptTruth !== '' && commitEq(lineageScript, scriptTruth) && !commitEq(lineageScript, idxCommit),
+  JSON.stringify({ index: idxCommit, asLineage: lineageIdx, asScript: lineageScript, gitTruth: scriptTruth.slice(0, 12) }));
 
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
