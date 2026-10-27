@@ -3,12 +3,128 @@
   "ticket": 33,
   "a_xxx": "A-038",
   "created": "2026-09-15",
-  "purpose": "全挂门项机读登记表——三字段（最迟拍板时点/触发事件/复审时点）统一索引，由 33-check.mjs 扫描到期报警",
+  "purpose": "全挂门项机读登记表——三字段（最迟拍板时点/触发事件/复审时点）统一索引；到期复审纪律见 watch_rule（D-026⑤）。可执行引用一致性由 87-check.mjs 机检；33-check 退役后的历史引用逐条登记在 meta.reference_resolution.historical",
   "binding_table": "../macro-audit/reports/R5-Q5-atomcode-research.md §3",
   "watch_rule": "触发已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次；再到期升级用户（D-026⑤）",
   "extended": "A-053（2026-09-16）#33-ext：manual_watch 五要素齐备化（owner/review_event/verify_method 补齐＋confirmations 字段归一）＋micro-a-preview-prep 事件登记＋守卫 fail-closed 事件引用/event_bound 覆盖率/risk_accepted 候选名单扩展——round8-35-audit W6 补洞",
   "watch_schema": "watch 三态：event_bound（默认——须 trigger_event 或 deadline_event 至少一锚）/ manual_watch（五要素：标记=watch 字段值本身＋责任人 owner＋复审时点 review_at prose＋review_event 机读锚＋验证方法 verify_method＋确认留痕 confirmations[]）/ risk_accepted（三要素：acceptor＋reason＋expires_at——翻转权属人工裁决，守卫仅输出 RISK-ACCEPTED-CANDIDATE 候选名单不自动改 status）",
-  "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签"
+  "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签",
+  "reference_resolution": {
+   "rule": "registry 内每个 .mjs 引用按 resolution_roots 逐根解析，只认 git 已跟踪文件；解析失败者必须在 historical 逐条登记（kind＋reason），否则 87-check 判红。historical 是历史登记，不代表该脚本仍可执行；guards[]/verify_method 中的 historical 引用按历史留痕读，现行载体见各条 reason 与 registry 的 watch_rule。historical 条目须仍被本表引用且在工作树不可解析——复活即红。reports/* 归档路径 kind=archived-path，已删脚本 kind=retired-script。通配/占位写法（*-check.mjs、NN-check.mjs）不是文件引用，不参与解析。本守卫只判可执行引用（.mjs）；非执行证据路径（.json/.md 等）不在判定面。historical reason 内的 .mjs 替代指针同样参与解析对账；D3 的「仍被引用」只认声明面之外的引用（防自证）。",
+   "resolution_roots": [
+    "<repo>",
+    "engine",
+    "engine/test",
+    "engine/test/contracts",
+    "engine/scripts"
+   ],
+   "historical": {
+    "01-check.mjs": {
+     "kind": "retired-script",
+     "reason": "01 语料提取守卫已退役（语料治理迁出 .scratch 后无同名守卫；最后读数见 item 61 的 82/82 历史确认）"
+    },
+    "01-extract.mjs": {
+     "kind": "retired-script",
+     "reason": "01 语料提取器为历史复测载体（item 73 记录其 extractIntent 读数），现无同名脚本"
+    },
+    "26-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 git-object 族守卫已退役；item 65 明载「26-check 幽灵钉归 D-094 普查通道不拉回」"
+    },
+    "27-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 git-object 族守卫已退役（与 26-check 同批；item 65 明载不留回）"
+    },
+    "28-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 git-object 族守卫已退役（与 26-check 同批；item 65 明载不留回）"
+    },
+    "37-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+    },
+    "38-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+    },
+    "39-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+    },
+    "39-mw-child.mjs": {
+     "kind": "retired-script",
+     "reason": "#39 多写者 self-probe 的一次性探针脚本，随实验退役（结论已留 item 16 的 confirmation）"
+    },
+    "39-mw-self-probe.mjs": {
+     "kind": "retired-script",
+     "reason": "#39 多写者 self-probe 的一次性探针脚本，随实验退役（结论已留 item 16 的 confirmation）"
+    },
+    "40-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+    },
+    "75a-check.mjs": {
+     "kind": "retired-script",
+     "reason": "75a-check 守卫普查器已退役（75a-T3/T4/M1/M3 对账均无自动断言，改人工同窗维护）；本引用为历史登记"
+    },
+    "84-check.mjs": {
+     "kind": "retired-script",
+     "reason": "84-check 多形态消费方守卫已退役；item 81 的 84-check 引用为历史登记证据"
+    },
+    "guard-all-run.mjs": {
+     "kind": "retired-script",
+     "reason": "全量守卫运行器已退役；现行入口为 engine/test/contracts-run.mjs"
+    },
+    "reports/01-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/33-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；33-check 的 manual_watch 自动扫描已无现行载体，复审按 watch_rule/review_event 人工执行（#40 归档后该路径不在工作树，ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/37-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/46-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/47-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/48-micro-a-preview.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/50-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/75a-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/84-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/_lib/env-contract.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/check-kit-regex-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；原机检脚本随 reports/ 归档退役，现行=每审计窗人工盘查（见 item 75 的 review_at/review_event）（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "xfail-run.mjs": {
+     "kind": "retired-script",
+     "reason": "xfail 三态运行器已退役（D-071 建制期产物；known-red 机制换代后不再运行）"
+    }
+   }
+  }
  },
  "events": {
   "stage2-double-closeout": {
@@ -137,7 +253,7 @@
   },
   "github-rest-reviews-active": {
    "occurred": false,
-   "note": "D-081②：pulls.reviews 移出 GITHUB_REST_PLANNED_SURFACES（engine/src/upstream/github-rest.ts 导出常量；review 面激活、fact 实产）之日=事件发生；机检=33-check H2 对导出常量做成员断言"
+    "note": "D-081②：pulls.reviews 移出 GITHUB_REST_PLANNED_SURFACES（engine/src/upstream/github-rest.ts 导出常量；review 面激活、fact 实产）之日=事件发生；机检=72-check C1/C2 对导出常量做成员断言（原 33-check H2 已退役）"
   },
   "quadrant-rubric-params-draft": {
    "occurred": false,
@@ -549,7 +665,7 @@
    "confirmations": [],
    "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=4].probe——阶段 3 收口窗口清点承接）",
    "review_event": "stage3-close",
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=4].probe.satisfaction 判据清点（工业界小团队分布数据可得性）"
+   "verify_method": "人工复审窗按 review_at/review_event 核对确认留痕（原机检载体 reports/33-check.mjs E 段已退役，历史照存）＋30-desk-calibration.json items[task=4].probe.satisfaction 判据清点（工业界小团队分布数据可得性）"
   },
   {
    "id": "desk-task5",
@@ -604,7 +720,7 @@
    "confirmations": [],
    "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=9].probe——阶段 3 收口窗口清点承接）",
    "review_event": "stage3-close",
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=9].probe.satisfaction 判据清点（调度/增量形态引入信号）"
+   "verify_method": "人工复审窗按 review_at/review_event 核对确认留痕（原机检载体 reports/33-check.mjs E 段已退役，历史照存）＋30-desk-calibration.json items[task=9].probe.satisfaction 判据清点（调度/增量形态引入信号）"
   },
   {
    "id": "desk-task10",
@@ -634,7 +750,7 @@
    "confirmations": [],
    "owner": "收口窗口指派（登记位：30-desk-calibration.json items[task=11].probe——阶段 3 收口窗口清点承接）",
    "review_event": "stage3-close",
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋30-desk-calibration.json items[task=11].probe.satisfaction 判据清点（语言栈变更信号——非登记事件，复审机读锚取 stage3-close，prose 复审时点保留「/ 语言栈变更时」提前触发语义）"
+   "verify_method": "人工复审窗按 review_at/review_event 核对确认留痕（原机检载体 reports/33-check.mjs E 段已退役，历史照存）＋30-desk-calibration.json items[task=11].probe.satisfaction 判据清点（语言栈变更信号——非登记事件，复审机读锚取 stage3-close，prose 复审时点保留「/ 语言栈变更时」提前触发语义）"
   },
   {
    "id": "desk-task13",
@@ -757,7 +873,7 @@
    ],
    "owner": "收口窗口指派（登记位：macro-audit decision-ledger D-035④ 暂缓面集——层 preview 票承接）",
    "review_event": "stage3-close",
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋层 preview 开工审计清点（该层契约面清单 vs faces[] 交集——有拉动即 golden 契约补齐转 bound）",
+   "verify_method": "人工复审窗按 review_at/review_event 核对确认留痕（原机检载体 reports/33-check.mjs E 段已退役，历史照存）＋层 preview 开工审计清点（该层契约面清单 vs faces[] 交集——有拉动即 golden 契约补齐转 bound）",
    "face_criteria": {
     "architecture-violations": "满足判据=目标仓存在 .codelore-arch-rules.toml（或我方起草规则集）；复审=Macro-B preview 结构象限拉动时",
     "defect-validation": "满足判据=defects.calib.json 前置工件票＋SZZ 噪声披露（Herbold 2022：bug-fix 标签约半数为真）；复审=S4/ADR 假设抽取层拉动时",
@@ -860,7 +976,7 @@
     "micro-a-preview-prep",
     "stage3-close"
    ],
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋收口窗口清点 faces[] 4 面去向（登记入暂缓面集/划归后续批次/显式弃用）并落 D-xxx 原文",
+   "verify_method": "人工复审窗按 review_at/review_event 核对确认留痕（原机检载体 reports/33-check.mjs E 段已退役，历史照存）＋收口窗口清点 faces[] 4 面去向（登记入暂缓面集/划归后续批次/显式弃用）并落 D-xxx 原文",
    "decision": "D-045",
    "dispositions": {
     "entity-effort": "后续批次（随 S5 ownership 族一并契约化；纯 git 零外部输入）",
@@ -905,7 +1021,7 @@
    "source": "36-llm-faces-reconciliation.json（#36 A-041：MCP 传输形态出 spawnSync 适配层范围，登记防静默丢失）",
    "owner": "收口窗口指派（登记位：36-llm-faces-reconciliation.json——Micro-A preview 票承接）",
    "review_event": "stage3-close",
-   "verify_method": "reports/33-check.mjs E 段 manual_watch 扫描（复审逾期/确认缺失）＋Micro-A preview 前置清点（CONTEXT.md Micro-A 数据源含 CodeLore diff --llm——MCP 同族面契约补齐，golden 两形态+env 门控复用 #36 契约）"
+   "verify_method": "人工复审窗按 review_at/review_event 核对确认留痕（原机检载体 reports/33-check.mjs E 段已退役，历史照存）＋Micro-A preview 前置清点（CONTEXT.md Micro-A 数据源含 CodeLore diff --llm——MCP 同族面契约补齐，golden 两形态+env 门控复用 #36 契约）"
   },
   {
    "id": "upstream-probes-scorecard-repomix",
@@ -1445,7 +1561,7 @@
    "review_at": "接线票立项时按采集数据裁定（D-078④ 原文；候选对 S5↔S4 无偏好序）",
    "status": "pending",
    "watch": "event_bound",
-   "verify_method": "33-check H2 事件成员断言（PLANNED_SURFACES 成员↔occurred 一致性）＋接线票立项审计清点：映射行 pending→decided 为该票票间依赖"
+   "verify_method": "72-check C1/C2 事件成员断言（PLANNED_SURFACES 成员↔occurred 一致性；原 33-check H2 镜像已退役）＋接线票立项审计清点：映射行 pending→decided 为该票票间依赖"
   },
   {
    "id": "rubric-weight-drafting",
@@ -1458,7 +1574,7 @@
    "review_at": "立案时带 LFX v2「人气≠健康」启示一句（Health Score 聚合面 40/35/25——权重仅存聚合层，分类/映射页零权重列）",
    "status": "pending",
    "watch": "event_bound",
-   "verify_method": "33-check 值守面复核＋立案票审计清点：权重行进 quadrant-rubric 判据面不进映射表/路由层（71-check A2 常量无权重断言同向执哨）"
+   "verify_method": "人工值守面复核（原 33-check 值守面复核已退役）＋立案票审计清点：权重行进 quadrant-rubric 判据面不进映射表/路由层（71-check A2 常量无权重断言同向执哨）"
   },
   {
    "id": "readme-ci-badge",
@@ -1472,7 +1588,7 @@
    "status": "decided",
    "watch": "event_bound",
    "owner": "macro-audit 队列值守",
-   "verify_method": "gh run list --workflow engine-ci.yml --branch main --limit 1 读 conclusion；未绿前 README 不得出现 workflow/actions 徽标（33-check H4 grep 机检）",
+   "verify_method": "gh run list --workflow engine-ci.yml --branch main --limit 1 读 conclusion；未绿前 README 不得出现 workflow/actions 徽标（原 33-check H4 grep 机检已退役；occurred↔在场互等按审计窗人工复核）",
    "confirmations": [
     {
      "at": "2026-09-20",
@@ -1838,7 +1954,7 @@
    "source": "reports/known-red-manifest.json entries[id=kr-01-corpus-regen]",
    "owner": "收口窗口指派（登记位：known-red-manifest.json kr-01-corpus-regen 条目）",
    "review_event": "stage3-close",
-   "verify_method": "guard-all-run.mjs 册件复绿告警（strict 摘除制）＋75a-check M1 schema 校验；复绿即摘条目",
+   "verify_method": "人工复审窗按 review_at/review_event 核对 manifest 摘除/复绿记录（原机检载体 guard-all-run.mjs＋75a-check.mjs 均已退役，历史照存）；复绿即摘条目",
    "confirmations": [
     {
      "at": "2026-09-28",
@@ -2017,15 +2133,15 @@
   {
    "id": "env-gated-guard-class",
    "family": "code-hygiene",
-   "title": "env-gated 守卫类登记（D-159①④/D-163）——十二件 env-contract tier（sibling 三件＋engine-deps 九件含 asset/engine 混合面）；75a-T3 强制声明集↔本项 guards 对账（新增 env-contract 守卫须同窗更新本项）",
+   "title": "env-gated 守卫类登记（D-159①④/D-163）——十二件 env-contract tier 历史登记（37/38/39/40 已退役，现行 8 件；sibling 三件＋engine-deps 九件含 asset/engine 混合面原计数）；声明集↔本项 guards 对账现由人工同窗维护（75a-T3 已随 75a-check 退役；新增/摘除 env-contract 守卫须同窗更新本项）",
    "deadline_event": null,
    "deadline": "无（登记项）",
    "trigger_event": "env-contract-tier-active",
    "trigger": "tier 自声明建制落地当轮即登记（D-149④ manifest 机制延伸声明形态）",
-   "review_at": "新增/摘除 env-contract 声明守卫时（75a-T3 对账强制同窗）＋每审计窗复核",
+   "review_at": "新增/摘除 env-contract 声明守卫时（人工同窗对账——75a-T3 已退役）＋每审计窗复核",
    "status": "decided",
    "owner": "macro-audit 队列值守",
-   "verify_method": "75a-check.mjs T3 断言：全量 -check.mjs 中 const TIER=env-contract 声明集==本项 guards 集（漂移即红）",
+   "verify_method": "人工同窗对账（75a-T3 已随 75a-check.mjs 退役，无自动断言）：全量 -check.mjs 的 const TIER=env-contract 声明集须等于本项 guards 中的现行项（37/38/39/40 已退役，按 historical 登记，不计入现行集）；新增/摘除时同窗更新",
    "review_event": "stage3-close",
    "guards": [
     "37-check.mjs",
@@ -2095,7 +2211,7 @@
    "review_at": "每审计窗复核（退役提案经 T3 逐件呈报——本项为通道登记非判据本体）",
    "status": "decided",
    "owner": "macro-audit 队列值守",
-   "verify_method": "75a-check.mjs M3 断言：manifest retired 类八要素齐备＋归档实物存在＋原守卫出运行集（空类 vacuous 通过）",
+   "verify_method": "人工按 D-160 清单核对（75a-check.mjs M3 已随该守卫退役）：manifest retired 类八要素齐备＋归档实物存在＋原守卫出运行集（空类 vacuous 通过）",
    "review_event": "next-audit-window",
    "watch": "manual_watch",
    "confirmations": [
@@ -2604,7 +2720,7 @@
    "review_at": "每审计窗随读（next-audit-window）——值守节律自逐窗亲跑降级低频盘查（维持≠免检，R22-Q4 先例措辞）",
    "status": "pending",
    "owner": "macro-audit 队列值守",
-   "verify_method": "每审计窗跑 reports/check-kit-regex-check.mjs 读数登记（A1~A5 断言面读数入 T3 哨兵表）；stripComments 签名/语法形态变更事件触发即时盘查",
+   "verify_method": "每审计窗人工盘查 stripComments 语法形态并登记读数（原机检脚本 reports/check-kit-regex-check.mjs 已随 reports/ 归档退役；A1~A5 断言面读数入 T3 哨兵表）；stripComments 签名/语法形态变更事件触发即时盘查",
    "review_event": "next-audit-window",
    "watch": "manual_watch",
    "bound_to": "D-184②④、D-192",
@@ -2819,7 +2935,7 @@
    "status": "pending",
    "watch": "event_bound",
    "owner": "macro-audit 队列值守",
-   "verify_method": "点火后逐件核被消费守卫 consumption_forms 声明是否仍覆盖真实消费形态；漏枚=75a-T4 对账红或人工补声明",
+   "verify_method": "点火后逐件核被消费守卫 consumption_forms 声明是否仍覆盖真实消费形态；漏枚=人工同窗核对（75a-T4 已退役，无自动断言）或人工补声明",
    "review_event": "next-audit-window",
    "confirmations": [
     {
