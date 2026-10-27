@@ -1,5 +1,5 @@
 # MA-48-ENVMANAGER-PR64-PREVIEW — Micro-A 首报（Xxx91n/env-manager#64）
-> RECEIPT RCP-968032b090a8e16a chain=968032b090a8e16a9dcd959dd990937a content=254026e6e169b4c6 facts=3 adjudications=6 issued_at=1970-01-01T00:00:00.000Z commit=f5423020e02a0369730c360b8238a234730be85c tree=unanchored
+> RECEIPT RCP-6de209b26f79e013 chain=6de209b26f79e0130595dfb8ef1a87ec content=1be64ee5bcba4cec facts=3 adjudications=6 issued_at=1970-01-01T00:00:00.000Z commit=f5423020e02a0369730c360b8238a234730be85c tree=unanchored
 >
 > 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
 >
@@ -72,31 +72,31 @@
 ### EV-48-ENVMANAGER-PR64-01 — 48-micro-a-golden-env-manager-measurements.json @ L9
 - claim: 本次实测：env-manager 托管枚举真实发生（prs_listed=62 merged=17）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
+- reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
 - 引文原文: "prs_listed": 62,
 
 ### EV-48-ENVMANAGER-PR64-02 — 48-micro-a-golden-env-manager-pr64.diff @ L1
 - claim: 本次实测：env-manager#64 diff 工件行级锚（channel=api bytes=1549）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
+- reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
 - 引文原文: diff --git a/.release-please-manifest.json b/.release-please-manifest.json
 
 ### EV-48-ENVMANAGER-PR64-03 — 48-micro-a-golden-env-manager-facts.jsonl @ L66
 - claim: 本次实测：env-manager#64 元数据事实落库（merged=true）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: node .scratch/architecture-recovery/reports/48-micro-a-preview.mjs --golden
+- reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
 - 引文原文: {"fact_seq":66,"fact_id":"556a2e89-e493-bb4b-150b-d088e3e90566","schema_version":1,"trace_id":"e7d54d368784ea3f02b9bdd9424b8ec5","baggage_id":"b48f14d63db2bca095fcb730d4d4d666","scale":"Micro-A","quadrant":"strategic","dimension":null,"collector_id":"github-rest-adapter@v1","repo_ref":"Xxx91n/env-manager","subject_ref":"Xxx91n/env-manager#64","evidence_ref":"GET /repos/Xxx91n/env-manager/pulls/64","metric":"github_rest.pr_metadata","value_json":"{\"number\":64,\"title\":\"chore(main): release 0.12.1\",\"state\":\"closed\",\"draft\":false,\"author_login\":\"github-actions[bot]\",\"author_type\":\"Bot\",\"bot_declared\":true,\"bot_basis\":\"platform-declared:user.type==Bot&&login~[bot]\",\"merged_at\":\"2026-09-14T17:14:23Z\",\"head_sha\":\"4d601a66f390146ea105c0dc12313fc716ae5afc\",\"base_sha\":\"17038beff45d132395475a050dbf454af15a7f1a\",\"html_url\":\"https://github.com/Xxx91n/env-manager/pull/64\",\"merged\":true,\"merge_commit_sha\":\"f5423020e02a0369730c360b8238a234730be85c\",\"additions\":11,\"deletions\":1,\"changed_files\":2,\"commits\":1,\"comments\":1,\"review_comments\":0,\"created_at\":\"2026-09-14T04:58:33Z\",\"closed_at\":\"2026-09-14T17:14:23Z\",\"merged_by_login\":\"Xxx91n\",\"merged_by_type\":\"User\"}","observed_at":"1970-01-01T00:00:00.000Z","ingested_at":"1970-01-01T00:00:00.000Z"}
 
-### EV-48-ENVMANAGER-PR64-04 — .scratch/macro-audit/decision-ledger.md @ L40
+### EV-48-ENVMANAGER-PR64-04 — docs/archive/decisions/macro-audit-ledger.md @ L54
 - claim: 票面授权锚：D-049 Micro-A preview 单票铺开决策行
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: git -C D:\Aworker\6F show HEAD:.scratch/macro-audit/decision-ledger.md
-- 引文原文: - 增量去向：D-048→BACKLOG #47＋spec-phase-tasks R8-01＋upstream-lock github-rest planned 行（kind 词表扩 remote-api）＋README §3 行＋versioning 种子行＋ADR-0020；D-049→BACKLOG #48＋R8-02；D-050→BACKLOG #49＋R8-03（#46 行选定补记于 #49 行内）；D-051→BACKLOG #41b 行＋engine/LICENSE 换文＋manifest/package/marketplace license 字段＋ADR-0021＋checklist §B 勾销；D-052→manifest.meta.json（单源）→双 manifest 重生成（GEN-OK）＋.claude-plugin/marketplace.json 新建＋description.md/checklist 同步＋CONTEXT 双词
+- reproduce_cmd: git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md
+- 引文原文: | D-049 | Q2（轮11）：Micro-A preview 铺开票（拟 #48）票面形态如何定义？（W15③；前置 #47 已凭 D-048 立案；desk-task15 判据=「≥1 条 Micro-A 真实 PR 报告产出且字段清单满足骨架交集」重绑 micro-a-preview-prep；atomcode 深调研 R11-Q2：11 查询×5 角度／6 原文核验，置信高） | 采纳（2026-09-16，原话「采纳」＝采纳修正后推荐全项） | ① #48 单票铺开=适配器消费侧管道（PR intake→facts→共享骨架 Micro-A 切片渲染）＋双仓试点实跑＋报告双件＋披露三件套，一票闭环对齐 ADR-0017 层自成完整价值单元与 #38/#39 双先例；② 票内验收序列写死：a. golden 契约驱动管道段 PASS → b. env-manager 三形态实跑 → c. jiahao 全人基线 → d. failure 件 → e. 披露三件套 → f. desk-task15 判据核验＋micro-a-preview-prep 事件闭环；③ PR 选取最小充分集=恰 4 条具体实例：env-manager×3（dependabot×1＋release-please×1＋人类×1）＋jiahao×1（全人 merged 对照），硬判据=已 merged＋diff 规模适中（非单行非巨型重写，票面写死实例不给通用公式）；④ failure 演示件=anysearch-cli 无托管面诚实拒绝（D-033 硬约束逆用：intake 阶段显式拒绝→报告落 unsupported: 无托管 PR 面＋原因＋前置条件，复刻 A-044 先例）；token 缺席降级=degraded 通道 golden cassette 占位不混测；⑤ desk-task15 验证=字段断言脚本化进 NN-check.mjs：字段清单从 ADR-0006 骨架∩Micro-A 切片机械导出（禁手抄漂移），happy 正向 ⊇ 断言＋failure 反向拒绝语义断言；golden 只锁字段骨架不锁内容值（内容级 golden 归 GA 收口）；⑥ 披露三件套=preview 标注（capability N of M 措辞对齐 D-031 先例）＋同主确认偏差（happy 件报告头部醒目位置非脚注）＋「平台声明的 Bot 身份」措辞 | 票面引用 D-047 口径不得回引 D-033 原文（原判已被 #37 实测证伪）；happy 件=真实审计产物（D-030 provenance 披露制），fixture 仅用于管道 golden 段——票面写明两通道口径防「真实报告被误标 fixture」；骨架字段与真实 PR 数据不适配时不得在 #48 内静默改骨架（走 D-025 勘误双读数，骨架改动另立决策）；机器 PR 审计结果不得被读作人类代码质量结论（反向失真红线）；票面叙事写「试点集」不得写「覆盖面」（2 仓 4 PR 是形态覆盖非统计样本）；实跑凭据走主路或 gh 回退须如实披露；#47 未落地前 #48 不并行抢工（票面显式声明前置）；冲突核查 41 current 零冲突零 revised；执行时点=整理环节立案（BACKLOG #48＋spec-phase-tasks 注记），实现落执行窗 | current（⑤款「骨架」定义以 D-132 澄清为准=字段键集＋语义不变量定点值——同源措辞注记防再争议） |
 
-### EV-48-ENVMANAGER-PR64-05 — .scratch/architecture-recovery/reports/48-micro-a-criteria.md @ L15
+### EV-48-ENVMANAGER-PR64-05 — engine/test/fixtures/contracts/48-micro-a-criteria.md @ L15
 - claim: 判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
-- reproduce_cmd: git -C D:\Aworker\6F show HEAD:.scratch/architecture-recovery/reports/48-micro-a-criteria.md
+- reproduce_cmd: git -C <repo> show HEAD:engine/test/fixtures/contracts/48-micro-a-criteria.md
 - 引文原文: | TC-4 | 真判据（托管面资格闸） | 托管枚举 merged PR ≥1 → eligible；=0 → intake 显式拒绝（D-033 硬约束逆用） | supported | merged=0 → unsupported（拒绝成立） |
 
 #### 引文→结论支持关系校验

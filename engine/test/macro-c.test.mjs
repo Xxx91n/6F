@@ -62,6 +62,35 @@ const meas = existsSync(join(OUT, 'audit-measurements.json')) ? JSON.parse(readF
 t('R8 measurements.supersede_chain：item-level=1 + self-quote=0 + unresolved=1（ADR-003→999）', !!meas && meas.supersede_chain.item_level_supersessions >= 1 && meas.supersede_chain.unresolved_refs.length === 1, JSON.stringify(meas && { e: meas.supersede_chain.edge_count, u: meas.supersede_chain.unresolved_refs.length }));
 t('R9 measurements.llm_gate 门控态在（configured 布尔——不伪造不真调）', !!meas && meas.llm_gate && typeof meas.llm_gate.configured === 'boolean');
 t('R10 measurements.pipeline 移植溯源在（source+recalibration）', !!meas && !!meas.pipeline && String(meas.pipeline.source).indexOf('38-macro-c-preview.mjs') >= 0 && String(meas.pipeline.recalibration).indexOf('85-check') >= 0);
+// R11/R12 溯源串可解析（#29／ADR-0027：报告溯源串改指仓内 contract fixtures 与归档索引）——
+//   gate_ref 两路径与 pipeline.source 首段路径必须是本仓现行文件；已退役 .scratch 回潮即红。
+const SELF = join(HERE, '..', '..');
+const gr = side && (side.gate_ref || (side.receipt && side.receipt.gate_ref));
+// 空串／缺字段必须判红：`join(SELF, '')` 会命中仓库根，existsSync 会把缺锚放行成通过
+const grPath = function (s) { const p = String(s || '').split(' ')[0]; return p === '' ? null : p; };
+const gateRefOk = function (g) {
+  if (!g) return false;
+  const a = grPath(g.criteria_path), b = grPath(g.basis_path);
+  return !!a && !!b && !/\.scratch/.test(String(g.criteria_path) + String(g.basis_path))
+    && existsSync(join(SELF, a)) && existsSync(join(SELF, b));
+};
+t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 .scratch；缺字段即红）', gateRefOk(gr), JSON.stringify(gr));
+// 负对照喂的是**接线后的判定函数**（不是 helper）：缺 criteria_path／空串／已退役 .scratch 三态必须判红
+// 反例必须**只差一个维度**：basis 用真实存在的锚，否则「路径不存在」会把断言替死（删掉被测断言仍绿）
+const EXIST_ANCHOR = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
+const SCRATCHY = './.scratch/../' + EXIST_ANCHOR;   // 字符串含 .scratch，归一化后仍指向该存在文件
+t('R11-P 负对照：缺字段／空串／.scratch 三态各只差一维即判红（删任一断言此条即红）',
+  gateRefOk({ criteria_path: EXIST_ANCHOR, basis_path: EXIST_ANCHOR }) === true      // 正对照：两锚干净时放行
+  && gateRefOk(null) === false
+  && gateRefOk({ basis_path: EXIST_ANCHOR }) === false                               // 仅缺 criteria_path
+  && gateRefOk({ criteria_path: '', basis_path: EXIST_ANCHOR }) === false             // 仅 criteria 为空串
+  && existsSync(join(SELF, SCRATCHY))                                                // 该路径真实可解析
+  && gateRefOk({ criteria_path: SCRATCHY, basis_path: EXIST_ANCHOR }) === false       // 仅因 .scratch 判红
+  && grPath(EXIST_ANCHOR + ' D-1') === EXIST_ANCHOR);
+const pipeSrc = String((meas && meas.pipeline && meas.pipeline.source) || '');
+const pipePath = (pipeSrc.match(/^(engine\/[A-Za-z0-9_./-]+)/) || [])[1] || '';
+t('R12 pipeline.source 首段路径为仓内现行文件且零 .scratch（R10 只查历史脚本名，拦不住回潮）',
+  pipePath !== '' && pipeSrc.indexOf('.scratch') < 0 && existsSync(join(SELF, pipePath)), pipeSrc);
 
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
