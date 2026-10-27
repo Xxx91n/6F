@@ -56,7 +56,7 @@
 
 - 它们只用于历史溯源，可由 [`docs/archive/decisions/`](archive/decisions/)（账本原文 + 索引）逐号解析；解析入口≠裁决依据。
 - **新决策不再使用 `D-NNN` / `A-NNN`**：产品决策落 `docs/spec.md` 的 `R<n>-<m>` 条目，架构决策落 `ADR-NNNN`。既有账本号只作历史引用，不追加新号。
-  [`ADR-0025`](adr/0025-authority-carriers-and-historical-fingerprints.md) 原文写的是"改用 ADR 号或 spec A-code"——spec 的现行编号形态是 `R<n>-<m>`，`A-NNN` 账本已封账不再增号，故本文件按实际形态落定；该措辞已由 ADR-0025 的勘误补记更正。
+  [`ADR-0025`](adr/0025-authority-carriers-and-historical-fingerprints.md) 原文写的是"改用 ADR 号或 spec A-code"——spec 的现行编号形态是 `R<n>-<m>`，`A-NNN` 账本已封账不再增号，故本文件按实际形态落定；该措辞的现行读法见 ADR-0025 的勘误补记（原文未改写）。
 - 代码注释、workflow 注释与历史文档里的历史指纹**保留原样**，不做现代化清洗；逐字节冻结的账本与冻结件（Frozen Artifact）允许保留原始现场（含本机绝对路径），前提是归档处已声明其为历史产物。
 - `CONTEXT.md` 已退役（`6626d08d` 删除），术语归 [`GLOSSARY.md`](../GLOSSARY.md)；历史文书（含 ADR 正文与账本行）里对 `CONTEXT.md` 的提法按历史指纹读，不作为现行落点。
 - **撞号警示**：GitHub issue/PR 与旧 BACKLOG 票号共用同一串号——旧 BACKLOG 覆盖 `#32`–`#94`，GitHub 号只增不减，两段区间重叠。新写的一律按 [`docs/spec.md`](spec.md) R8 的口径把 GitHub 引用写成 `tracker #N`；历史文本里的裸 `#NN`（代码注释、`NN-check` 脚本名、账本行）按 [`ticket-index.md` §撞号警示](archive/decisions/ticket-index.md#撞号警示) 消歧，不改写。
