@@ -66,11 +66,22 @@ t('R10 measurements.pipeline 移植溯源在（source+recalibration）', !!meas 
 //   gate_ref 两路径与 pipeline.source 首段路径必须是本仓现行文件；已退役 .scratch 回潮即红。
 const SELF = join(HERE, '..', '..');
 const gr = side && (side.gate_ref || (side.receipt && side.receipt.gate_ref));
-const grPath = function (s) { return String(s || '').split(' ')[0]; };
-t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 .scratch）',
-  !!gr && !/\.scratch/.test(String(gr.criteria_path) + String(gr.basis_path))
-  && existsSync(join(SELF, grPath(gr.criteria_path))) && existsSync(join(SELF, grPath(gr.basis_path))),
-  JSON.stringify(gr));
+// 空串／缺字段必须判红：`join(SELF, '')` 会命中仓库根，existsSync 会把缺锚放行成通过
+const grPath = function (s) { const p = String(s || '').split(' ')[0]; return p === '' ? null : p; };
+const gateRefOk = function (g) {
+  if (!g) return false;
+  const a = grPath(g.criteria_path), b = grPath(g.basis_path);
+  return !!a && !!b && !/\.scratch/.test(String(g.criteria_path) + String(g.basis_path))
+    && existsSync(join(SELF, a)) && existsSync(join(SELF, b));
+};
+t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 .scratch；缺字段即红）', gateRefOk(gr), JSON.stringify(gr));
+// 负对照喂的是**接线后的判定函数**（不是 helper）：缺 criteria_path／空串／已退役 .scratch 三态必须判红
+t('R11-P 负对照：缺 criteria_path、空串、.scratch 回潮三态均判红（删掉 R11 的前置判空此条即红）',
+  gateRefOk(null) === false
+  && gateRefOk({ basis_path: 'docs/x.md' }) === false
+  && gateRefOk({ criteria_path: '', basis_path: 'docs/x.md' }) === false
+  && gateRefOk({ criteria_path: '.scratch/a.md', basis_path: 'docs/x.md' }) === false
+  && grPath('docs/x.md D-1') === 'docs/x.md');
 const pipeSrc = String((meas && meas.pipeline && meas.pipeline.source) || '');
 const pipePath = (pipeSrc.match(/^(engine\/[A-Za-z0-9_./-]+)/) || [])[1] || '';
 t('R12 pipeline.source 首段路径为仓内现行文件且零 .scratch（R10 只查历史脚本名，拦不住回潮）',

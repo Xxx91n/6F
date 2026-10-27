@@ -117,8 +117,8 @@ function stripLineComments(line) {
 }
 // 违规面=指向本仓 docs/ 树（不随包分发）的引用；豁免=主题仓采集面、`docs/adr`、`docs/archive/decisions` 的引文坐标。
 // Design: docs/archive/decisions 只放行出处坐标，运行时读取与 import 仍红 — ADR-0027
-const DOCREF_RE = /docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr|archive\/decisions\/)/;
-const DOCIO_RE = /\b(readFileSync|readdirSync|existsSync|createReadStream|openSync|import|writeFileSync|appendFileSync|mkdirSync|rmSync|unlinkSync|copyFileSync|renameSync)\s*\([^)]*['"`]docs\/|^\s*(import|export)\b[^;]*from\s*['"`]docs\//;
+const DOCREF_RE = /docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr(?:\/|['"])|archive\/decisions\/)/;
+const DOCIO_RE = /\b(?:(?:fs\s*\.\s*promises|fsp|promises|fs)\s*\.\s*[A-Za-z]+|readFile|writeFile|appendFile|readdir|mkdir|rm|unlink|copyFile|rename|stat|access|open|import|readFileSync|readdirSync|existsSync|createReadStream|openSync|writeFileSync|appendFileSync|mkdirSync|rmSync|unlinkSync|copyFileSync|renameSync)\s*\([^)]*['"`]docs\/|^\s*(import|export)\b[^;]*from\s*['"`]docs\//;
 const docRefViolation = (line) => DOCREF_RE.test(line) || DOCIO_RE.test(line);
 const docRefViolations = [];
 const walkCode = (dir) => {
@@ -141,7 +141,7 @@ walkCode(join(ENG, 'src'));
 walkCode(join(ENG, 'skills'));
 t('E1 engine/{src,skills} 无指向本仓 docs/ 树的引用与读写（upstream-dimension-map 引用仅限注释指针——D-083⑤；#29 收窄豁免 docs/archive/decisions/ 引文坐标，读写与 import 仍红——ADR-0025 归档只读）',
   docRefViolations.length === 0, docRefViolations.slice(0, 8).join(' '));
-// E1-P 判别臂活性（正/负对照——豁免收窄后必须仍然能红）：判定函数对八类样本的判色
+// E1-P 判别臂活性（正/负对照——豁免收窄后必须仍然能红）：判定函数对十三类样本的判色
 const E1_PROBES = [
   ["const p = 'docs/spec.md';", true, '其余 docs/ 路径仍红'],
   ["const p = '../docs/spec.md';", true, '相对路径仍红'],
@@ -149,11 +149,16 @@ const E1_PROBES = [
   ["readFileSync(`docs/archive/decisions/macro-audit-ledger.md`);", true, '模板字面量的运行时读取仍红'],
   ["import x from 'docs/archive/decisions/macro-audit-ledger.md';", true, '静态 import 归档目录仍红'],
   ["writeFileSync('docs/archive/decisions/macro-audit-ledger.md', '');", true, '写归档目录仍红（归档只读）'],
+  ["fs.promises.readFile('docs/archive/decisions/macro-audit-ledger.md');", true, '异步读取归档目录仍红（promises 面）'],
+  ["await fs.promises.writeFile('docs/archive/decisions/x.md', '');", true, '异步写归档目录仍红（promises 面）'],
+  ["import fsp from 'node:fs/promises'; fsp.readFile('docs/archive/decisions/x.md');", true, 'node:fs/promises 别名读取仍红'],
+  ["readFile('docs/archive/decisions/x.md');", true, '解构自 fs/promises 的裸 readFile 仍红'],
+  ["const p = 'docs/adr-other/file.md';", true, '`adr` 前缀目录（非 docs/adr 本体）仍红——豁免按目录边界不按前缀'],
   ["const p = 'docs/archive/decisions/macro-audit-ledger.md';", false, '归档目录的引文坐标放行'],
   ["const p = 'docs/adr/0027-x.md';", false, 'ADR 指针放行']
 ];
 const e1Red = E1_PROBES.filter(function (x) { return docRefViolation(x[0]) !== x[1]; });
-t('E1-P 判别臂活性：八类样本判色全对（红/绿两侧均非空——收窄后仍能红，豁免不吞掉读写、import 与模板字面量）',
+t('E1-P 判别臂活性：十三类样本判色全对（红/绿两侧均非空——收窄后仍能红；豁免按目录边界，异步读写不逃逸）',
   e1Red.length === 0 && E1_PROBES.some(function (x) { return x[1]; }) && E1_PROBES.some(function (x) { return !x[1]; }),
   e1Red.map(function (x) { return x[2]; }).join(' '));
 
