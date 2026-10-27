@@ -89,7 +89,10 @@ const FACADE_FIXED = [
   'AGENTS.md', 'README.md', 'README.zh-CN.md', 'CONTRIBUTING.md',
   'engine/README.md', '.github/PULL_REQUEST_TEMPLATE.md', 'docs/archive/decisions/README.md',
 ];
-const LANDING_MARK = /唯一成文处|门面文书|决策与术语|只留指针|authority\.md|authority surface|where a decision or a term belongs|指回/;
+// 门面标记只认「决策与术语落点」语义或指向 authority.md 的 markdown 链接；
+// `指回` 与裸 `docs/authority.md` 在 workflow/registry/CHANGELOG 正文里也常见（#91），
+// 单靠它们会把 §2 从属专题文书误收进门面域。
+const LANDING_MARK = /唯一成文处|门面文书|决策与术语|只留指针|authority surface|where a decision or a term belongs|\]\([^)\s]*authority\.md\)/;
 const facade = TRACKED.filter(p => {
   if (!/\.md$/i.test(p)) { return false; }
   if (CARRIER.some(r => r.test(p))) { return false; }
@@ -112,6 +115,8 @@ function authorityPointer(p, text) {
 const facadeMissing = facade.filter(p => !authorityPointer(p, safeTxt(p) || ''));
 t('B1 固定门面文书全部入域且带落点声明（域按内容派生，非计数硬编码）', missingFixed.length === 0, 'missing=' + missingFixed.join(','));
 t('B2 每份门面文书都以 markdown 链接指回 docs/authority.md 本体', facadeMissing.length === 0, 'missing=' + facadeMissing.join(','));
+t('B1b §2 从属专题文书（engine/CHANGELOG.md）不因「指回」误入门面域',
+  !facade.includes('engine/CHANGELOG.md'));
 
 // ---------- C. ADR-NNNN 与 docs/adr 链接可解析 ----------
 const ADR_NUMBERS = new Set(TRACKED
