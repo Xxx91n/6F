@@ -1,3 +1,0 @@
-ancestorEntries = ["engine/dist/audit/macro-c.js", "engine/dist/cli.js", "engine/src/audit/macro-c.ts"]
-ourEntries = ["engine/dist/audit/macro-c.js", "engine/dist/cli.js", "engine/src/audit/macro-c.ts"]
-theirEntries = ["engine/dist/audit/macro-c.js", "engine/dist/cli.js", "engine/src/audit/macro-c.ts"]

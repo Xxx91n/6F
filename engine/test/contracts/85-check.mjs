@@ -99,7 +99,7 @@ const FACTS_ROWS = FACTS_TXT.split(String.fromCharCode(10)).filter(function (l) 
 const FACTS_REF_N = (FACTS_TXT.match(/"repo_ref":/g) || []).length;
 // 本机绝对路径探针同样分片拼接——A12 机检本守卫自身零盘符锚，字面串会让 A12 自己变红
 const FACTS_ABS_RE = new RegExp('D:' + '[/\\\\]Aworker[/\\\\]anysearch-cli', 'g');
-// 同批四件里的第二族锚：本仓自身目录 `D:\Aworker\6F`（同属原始现场，不属 D12 的「30 处」口径但同样不可移植）
+// 同批四件里的第二族锚：本仓自身目录（`D:` + 本仓名，即下面 REPO_ABS_RE 所指）——同属原始现场，不属 D12 的「30 处」口径但同样不可移植
 const REPO_ABS_RE = new RegExp('D:' + '[/\\\\]+Aworker[/\\\\]+6F', 'g');
 // 原始现场逐件计数（归档索引第 3 行的枚举与合计须与实物同值——文档口径与机检口径同源，缺件/多件都红）
 const ABS_BATCH_FILES = ['38-macro-c-facts.jsonl', '38-macro-c-preview-report.md', '38-macro-c-preview-report.json', '38-report.md'];
@@ -121,8 +121,9 @@ const samePin = function (a, b) { return String(a) === String(b); };
 const PIN_MUTANT = AUTHORITY_PIN.slice(0, 39) + (AUTHORITY_PIN.slice(39) === 'f' ? '0' : 'f');
 const PIN_SENSITIVE = !!BASE_ROW && !samePin(BASE_ROW.version, PIN_MUTANT);
 // 第二判别臂：尾部追加脏字符（前 40 位仍相同）必须判异——只测末位改一位的话，退回截前 40 位比较仍能通过。
-const PIN_TRAILING = AUTHORITY_PIN + '0';
-const PIN_TAIL_SENSITIVE = !samePin(PIN_TRAILING, AUTHORITY_PIN);
+// 在**真实读到的锁表值**上做变异（不是两个常量自比）：常量自比只能证明常量不等常量，与锁表内容无关。
+const PIN_TRAILING = (BASE_ROW ? String(BASE_ROW.version) : AUTHORITY_PIN) + '0';
+const PIN_TAIL_SENSITIVE = !samePin(PIN_TRAILING, BASE_ROW ? BASE_ROW.version : AUTHORITY_PIN);
 t('A14 基准身份唯一权威绑定：baseline-lock 钉==770d2549…／冻结事实全部 repo_ref 恰为 anysearch-cli@b45d0799…（历史产物，且每行各带一枚）／两值互异／原始现场两族锚逐件计数 30·2·2·1＝35＋0·1·1·1＝3／归档索引只登记历史钉＋指针到锁表（不两写权威值）',
   !!BASE_ROW && samePin(BASE_ROW.version, AUTHORITY_PIN)
   && FACTS_REFS.length === 1 && FACTS_REFS[0] === 'anysearch-cli@' + HISTORICAL_PIN && FACTS_REF_N === FACTS_ROWS
@@ -182,14 +183,19 @@ const portableShape = function (txt) {
   return txt.indexOf("' --out <dir>'") >= 0 && txt.indexOf("'<repo>'") >= 0 && txt.indexOf("' --out ' + opts.outDir") < 0;
 };
 // `file://` 在 intake 里归 url，但它承载的正是本机绝对路径；`owner-repo` 形态的相对路径（projects/demo）同样落在本机目录。
-// 故判据只能取 intake 的解析结果（url===null），不能取 kind——判别臂就落在「以 kind 判定」这个已被证实会漏的写法上。
-const portableLocalArm = function (txt) { return txt.indexOf("remoteUrl === null") >= 0 && txt.indexOf('/^file:') >= 0; };
-const KIND_DEAD_FORM = "const local = kind === 'local'";
+// 判据只能取 intake 的解析结果（url===null），不能取 kind。两条判别臂都落在「会在真实代码里出现的写法」上：
+//   ①kind 旧写法若回到 src/dist 即判否（那是已被证实的漏判形态）；②`/^file:` 臂被删即判否。
+//   负对照不拿凭空造的字面串自己比自己——那只能证明常量不等常量。
+const portableLocalArm = function (txt) { return txt.indexOf("remoteUrl === null") >= 0; };
+const portableFileArm = function (txt) { return txt.indexOf('/^file:') >= 0; };
+const KIND_DEAD_FORM = "function portableReproduceCmd(input, outDir, kind) {\n    const local = kind === 'local';";
 const CALL_SITE = 'portableReproduceCmd(opts.input, opts.outDir, intake.url)';
-t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> 双占位＋本地判定取 intake 解析结果＋调用点同形）',
-  portableShape(MC_SRC) && portableShape(MC_DIST) && portableLocalArm(MC_SRC) && portableLocalArm(MC_DIST) && !portableLocalArm(KIND_DEAD_FORM)
+t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> 双占位＋本地判定取 intake 解析结果＋file 臂＋调用点同形）',
+  portableShape(MC_SRC) && portableShape(MC_DIST)
+  && portableLocalArm(MC_SRC) && portableLocalArm(MC_DIST) && portableFileArm(MC_SRC) && portableFileArm(MC_DIST)
+  && !portableLocalArm(KIND_DEAD_FORM) && !portableFileArm(KIND_DEAD_FORM)
   && MC_SRC.indexOf(CALL_SITE) >= 0 && MC_DIST.indexOf(CALL_SITE) >= 0,
-  'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' local_arm=' + portableLocalArm(MC_SRC) + '/' + portableLocalArm(MC_DIST) + ' kind_arm_dead=' + !portableLocalArm(KIND_DEAD_FORM) + ' call=' + (MC_SRC.indexOf(CALL_SITE) >= 0) + '/' + (MC_DIST.indexOf(CALL_SITE) >= 0) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
+  'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' local=' + portableLocalArm(MC_SRC) + '/' + portableLocalArm(MC_DIST) + ' file=' + portableFileArm(MC_SRC) + '/' + portableFileArm(MC_DIST) + ' deadform_negative=' + (!portableLocalArm(KIND_DEAD_FORM) && !portableFileArm(KIND_DEAD_FORM)) + ' call=' + (MC_SRC.indexOf(CALL_SITE) >= 0) + '/' + (MC_DIST.indexOf(CALL_SITE) >= 0) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
 const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
