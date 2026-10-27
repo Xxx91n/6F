@@ -46,6 +46,7 @@
 | `docs/adr/README.md` | `npm run gen`（`gen-adr-index.mjs`，无只读模式，跑即写） | **暂无守卫**——手写会在下次 gen 被静默覆盖，CI 不因它红；守卫在档待落（tracker #53 与 tracker #47 二选一，不建第二套） |
 | `engine/plugin.json`、`.claude-plugin/plugin.json`、`.mcp.json` | `npm run gen`（`gen-manifests.mjs` 先比后写） | 生成器自身：检出 drift 即 `GEN-FAIL`，`npm run gen` 当场红 |
 | README 双语对的致谢锚段与 `<!-- sync: … -->` 戳 | `node scripts/gen-acknowledgments.mjs`（写双文件并按 EN 内容重算 sync 戳） | `77-check` A3（**手改戳位即红**）＋ `73-check` C 组 |
+| `engine/test/fixtures/contracts/48-micro-a-golden-*`（八件） | `node engine/test/contracts/48-micro-a-preview.mjs --golden --out engine/test/fixtures/contracts`（cassette 离线回放，确定性可重算） | **部分**：`85-check` E1~E9 只逐值比 pr64／pr51 两件 JSON 侧车的 band／切片数值／fact_ids／披露块／overall_verdict，`48-check` B4 只判八件在场不比内容——`.md`、拒绝件、assertions、measurements 的正文**暂无逐值守卫**（缺口如实登记，勿当成全量对账）；CI 不回写，golden 更新随 PR 审查 |
 
 文档面的只读自检（零写入）：`cd engine && npm run check:docs` = acknowledgments `--check` + `73-check` + `77-check`。
 
