@@ -99,14 +99,23 @@ const idxCommit = (idxTxt.match(/^\| #38 \| `([0-9a-f]{7,40})`/m) || [])[1] || '
 const namedCommit = function (label) { const m = pipeSrc.match(new RegExp(label + ' commit ([0-9a-f]{7,40})')); return m ? m[1] : ''; };
 const lineageIdx = namedCommit('记号首次出现'), lineageScript = namedCommit('脚本引入');
 // 「脚本引入」不许凭「与索引值不同」就放行（`0000000` 也算不同），也不许拿 `%h` 字面量跨环境比相等——
-// 本仓 D-094(b) 已实证 `%h` auto-abbrev 随对象库在 7↔8 跳变（23-first-report-check 的 R37 返修注记）。
-// 取 `%H` 全值做**前缀等值**：钉的是「这个 commit 存在且就是它」，不是显示宽度。
+// 本仓 D-094(b) 已实证 `%h` auto-abbrev 随对象库在 7↔8 跳变（23-first-report-check 的 R37 返修注记，
+// 本条曾被它在 CI 上打红 12 腿：git 给 `04adb24`、串里写 `04adb24d`）。故预言机取 `%H` 全值。
 let scriptTruth = '';
 try { scriptTruth = execFileSync('git', ['log', '--all', '--diff-filter=A', '--format=%H', '-1', '--', '.scratch/architecture-recovery/reports/38-macro-c-preview.mjs'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { scriptTruth = ''; }
-const commitEq = function (a, b) { return a !== '' && b !== '' && (a.indexOf(b) === 0 || b.indexOf(a) === 0); };
-t('R13 血缘两枚 commit 各归其名——「记号首次出现」＝归档索引 #38 行值，「脚本引入」＝git 新增该脚本的 commit（前缀等值钉 %H；编造值、对调、宽度差各自判红）',
-  idxCommit !== '' && commitEq(lineageIdx, idxCommit) && scriptTruth !== '' && commitEq(lineageScript, scriptTruth) && !commitEq(lineageScript, idxCommit),
-  JSON.stringify({ index: idxCommit, asLineage: lineageIdx, asScript: lineageScript, gitTruth: scriptTruth.slice(0, 12) }));
+// 两侧都先解析成完整 commit 再比——前缀等值本身有洞：`84f571a60` 以 `84f571a6` 开头，
+// 却指向不存在的 commit（真值起于 `84f571a6d`）。`rev-parse --verify <v>^{commit}` 同时解决
+// 三件事：宽度无关（7 字/8 字/40 位解析到同一对象）、编造不可解析、对调可比出。
+const resolveCommit = function (v) {
+  if (v === '') { return ''; }
+  try { return execFileSync('git', ['rev-parse', '--verify', '-q', v + '^{commit}'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { return ''; }
+};
+const truthFull = resolveCommit(scriptTruth);
+const idxFull = resolveCommit(idxCommit), lineageIdxFull = resolveCommit(lineageIdx);
+const scriptFull = resolveCommit(lineageScript);
+t('R13 血缘两枚 commit 各归其名——两侧均解析为完整 commit 后比全值：索引腿＝#38 行对象，脚本腿＝git 新增该脚本的对象（不可解析、对调、指错真值皆红；宽度差不红）',
+  idxFull !== '' && lineageIdxFull === idxFull && scriptFull !== '' && truthFull !== '' && scriptFull === truthFull && scriptFull !== idxFull,
+  JSON.stringify({ index: idxCommit, script: lineageScript, idxFull: idxFull.slice(0, 12), scriptFull: scriptFull.slice(0, 12), truthFull: truthFull.slice(0, 12) }));
 
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
