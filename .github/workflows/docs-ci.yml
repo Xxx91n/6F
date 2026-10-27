@@ -1,0 +1,49 @@
+name: docs-ci
+
+# tracker #47：文档权威守卫的专用单腿门禁。
+# 与 engine-ci 分工：engine-ci 的矩阵/路径不动（[22,24] 六腿 + engine/** 触发）；
+# 本 workflow 只在文档面变化时跑 ubuntu/node24 单腿，复用 engine 的只读快道
+# `npm run check:docs`（致谢锚段只读比对 + 73 + 77 + docs-authority），不建第二套校验。
+on:
+  push:
+    paths:
+      - "docs/**"
+      - "README*"
+      - "CONTRIBUTING.md"
+      - "AGENTS.md"
+      - "GLOSSARY.md"
+      - "engine/README.md"
+      - "engine/package.json"
+      - "engine/test/contracts/docs-authority-check.mjs"
+      - ".github/PULL_REQUEST_TEMPLATE.md"
+      - ".github/workflows/docs-ci.yml"
+  pull_request:
+    paths:
+      - "docs/**"
+      - "README*"
+      - "CONTRIBUTING.md"
+      - "AGENTS.md"
+      - "GLOSSARY.md"
+      - "engine/README.md"
+      - "engine/package.json"
+      - "engine/test/contracts/docs-authority-check.mjs"
+      - ".github/PULL_REQUEST_TEMPLATE.md"
+      - ".github/workflows/docs-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: engine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # 只读快道：全部脚本只用 node 内置模块，无需 npm ci；不跑全链 smoke。
+      - name: docs authority guard + document self-checks (read-only)
+        run: npm run check:docs
