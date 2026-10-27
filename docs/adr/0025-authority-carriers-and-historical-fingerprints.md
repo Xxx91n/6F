@@ -3,6 +3,8 @@
 - Date: 2026-10-26
 - Status: accepted
 
+> 勘误补记（tracker #77 / #98，2026-10-28）：Decision 正文的「改用 ADR 号或 spec A-code」按现行编号口径读——架构决策落 `ADR-NNNN`，产品决策落 [`docs/spec.md`](../spec.md) 的 `R<n>-<m>` 条目；`A-NNN` 与 `D-NNN` 账本均已封账，不追加新号。原文未改写。
+
 ## Context
 
 `6626d08d` 删除了 `CONTEXT.md` 与 21 份现行 ADR（合计 896 行），提交信息声称"ADR 决策折进源码注释"，但 `engine/src` 实际只改了 +39/−39 行，全仓 `Design:` 注释 0 条。`docs/spec.md` 作为 AGENTS/README/CONTRIBUTING 共同声明的产品决策唯一权威，最后一节停在 2026-09-16（R7）。
