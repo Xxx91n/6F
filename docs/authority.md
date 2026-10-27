@@ -43,12 +43,12 @@
 | 生成面 | 再生者 | 失同步由谁判红 |
 |---|---|---|
 | `engine/dist/**` | `npm run build`（tsc 逐文件输出保留注释，所以**只改 `engine/src` 的注释也会动 dist**；`dist/cli.js` 另经 esbuild 压缩） | engine-ci 的 rebuild-diff 步（`DIST-DRIFT`）。注意 `check-dist.mjs` 只管 `dist/cli.js` 的**体积棘轮**，不查内容 drift |
-| `docs/adr/README.md` | `npm run gen`（`gen-adr-index.mjs`，无只读模式，跑即写） | **暂无守卫**——手写会在下次 gen 被静默覆盖，CI 不因它红；守卫在档待落（tracker #53 与 tracker #47 二选一，不建第二套） |
+| `docs/adr/README.md` | `npm run gen`（`gen-adr-index.mjs`，无只读模式，跑即写） | **暂无守卫**——手写会在下次 gen 被静默覆盖，CI 不因它红；tracker #53 待落（tracker #47 的 docs-authority 已落，但不含索引 drift 校验，不建第二套） |
 | `engine/plugin.json`、`.claude-plugin/plugin.json`、`.mcp.json` | `npm run gen`（`gen-manifests.mjs` 先比后写） | 生成器自身：检出 drift 即 `GEN-FAIL`，`npm run gen` 当场红 |
 | README 双语对的致谢锚段与 `<!-- sync: … -->` 戳 | `node scripts/gen-acknowledgments.mjs`（写双文件并按 EN 内容重算 sync 戳） | `77-check` A3（**手改戳位即红**）＋ `73-check` C 组 |
 | `engine/test/fixtures/contracts/48-micro-a-golden-*`（在册**十二件**） | `node engine/test/contracts/48-micro-a-preview.mjs --golden --out engine/test/fixtures/contracts`（cassette 离线回放，确定性可重算；实写十二件） | **部分**：`85-check` E1~E9 只逐值比 pr64／pr51 **两件 JSON 侧车**的 band／切片数值／fact_ids／披露块／overall_verdict；`48-check` B4 只判**十件在场**不比内容，`48-micro-a-golden-assertions.json` 自身由 `--golden` 现算——其余 `.md`、拒绝件、facts、gate-probes、measurements 的正文**暂无逐值守卫**（缺口如实登记，勿当成全量对账）；CI 不回写，golden 更新随 PR 审查 |
 
-文档面的只读自检（零写入）：`cd engine && npm run check:docs` = acknowledgments `--check` + `73-check` + `77-check`。
+文档面的只读自检（零写入）：`cd engine && npm run check:docs`。
 
 ## 3. 历史指纹政策
 
@@ -79,4 +79,4 @@ Design: <一句话约束> — ADR-NNNN
 
 - 要改"权威口径"本身：改本文件，并检查门面文书的指针仍指向这里；不要在门面文书里追加解释。
 - 本文件与三载体不一致时，以三载体的正文为准，本文件随之修正——本文件只登记落点，不承载决策内容。
-- 本口径的机检面（指针存在性、`docs/adr/NNNN` 可解析、仓内 `D-NNN` 引用 ⊆ 归档索引、`D-NNN` 集合只减不增）设计记于 [`ADR-0027`](adr/0027-verification-surface-node-floor-and-docs-authority-guard.md)；守卫与 docs-ci 单腿尚未落地，在档待执行，不得当作已通过机检。
+- 本口径的机检面设计记于 [`ADR-0027`](adr/0027-verification-surface-node-floor-and-docs-authority-guard.md)（tracker #47 复盘增补见该 ADR 的 Consequences）；执行面见 [`engine/test/contracts/docs-authority-check.mjs`](../engine/test/contracts/docs-authority-check.mjs)，CI 单腿见 [`.github/workflows/docs-ci.yml`](../.github/workflows/docs-ci.yml)；守卫运行通过才算机检通过，不以"跑过"代替"绿灯"。
