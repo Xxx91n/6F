@@ -96,9 +96,11 @@ t('R12 pipeline.source 两类载体具名齐备且现行可解析、零 .scratch
 // commit 是裸字面量，路径腿看不见——索引换钉而报告串不动会绿着过期，故与归档索引 #38 行逐字对账
 const idxTxt = existsSync(join(SELF, PIPE_CARRIERS[1])) ? readFileSync(join(SELF, PIPE_CARRIERS[1]), 'utf8') : '';
 const idxCommit = (idxTxt.match(/^\| #38 \| `([0-9a-f]{7,40})`/m) || [])[1] || '';
-t('R13 血缘 commit 与归档索引 #38 行同值（索引换钉即红，报告出处不各自过期）',
-  idxCommit !== '' && (pipeSrc.match(/[0-9a-f]{7,40}/g) || []).indexOf(idxCommit) >= 0,
-  JSON.stringify({ index: idxCommit, inSource: pipeSrc.match(/[0-9a-f]{7,40}/g) || [] }));
+const namedCommit = function (label) { const m = pipeSrc.match(new RegExp(label + ' commit ([0-9a-f]{7,40})')); return m ? m[1] : ''; };
+const lineageIdx = namedCommit('记号首次出现'), lineageScript = namedCommit('脚本引入');
+t('R13 血缘两枚 commit 各归其名——「记号首次出现」值＝归档索引 #38 行，「脚本引入」须为另一枚不同值（对调或缺名即红）',
+  idxCommit !== '' && lineageIdx === idxCommit && lineageScript !== '' && lineageScript !== idxCommit,
+  JSON.stringify({ index: idxCommit, asLineage: lineageIdx, asScript: lineageScript }));
 
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
