@@ -34,7 +34,7 @@ function git(args) { return execFileSync('git', ['-C', REPO].concat(args), { enc
 // ---------- 普查面：tracked 文本，排除归档/产物/冻结夹具 ----------
 const TRACKED = git(['ls-files']).split('\n').filter(Boolean);
 const TEXT_RE = /\.(md|markdown|txt|ts|tsx|js|mjs|cjs|json|jsonl|ya?ml|yml|toml)$/i;
-const EXCLUDED_DIRS = ['docs/archive/', 'engine/dist/', 'engine/test/fixtures/', 'engine/fixtures/', 'node_modules/'];
+const EXCLUDED_DIRS = ['docs/archive/', 'engine/dist/', 'engine/test/fixtures/', 'engine/fixtures/golden/', 'node_modules/'];
 function excluded(p) {
   if (EXCLUDED_DIRS.some(d => p.startsWith(d))) { return true; }
   if (/\.bundle$/i.test(p)) { return true; }           // 逐字节冻结件
@@ -94,7 +94,7 @@ const facade = TRACKED.filter(p => {
   if (excluded(p)) { return false; }
   return LANDING_MARK.test(txt(p));
 });
-const missingFixed = FACADE_FIXED.filter(p => !facade.includes(p));
+const missingFixed = FACADE_FIXED.filter(p => !facade.includes(p) || !LANDING_MARK.test(txt(p)));
 // 指针必须解析到 docs/authority.md 本体；`[x](../nope/authority.md)` 这类伪指针不算。
 function authorityPointer(p, text) {
   const dir = posix.dirname(p);
@@ -106,7 +106,7 @@ function authorityPointer(p, text) {
   return false;
 }
 const facadeMissing = facade.filter(p => !authorityPointer(p, txt(p)));
-t('B1 固定门面文书全部入域（域按声明落点内容派生，非计数硬编码）', missingFixed.length === 0, 'missing=' + missingFixed.join(','));
+t('B1 固定门面文书全部入域且带落点声明（域按内容派生，非计数硬编码）', missingFixed.length === 0, 'missing=' + missingFixed.join(','));
 t('B2 每份门面文书都以 markdown 链接指回 docs/authority.md 本体', facadeMissing.length === 0, 'missing=' + facadeMissing.join(','));
 
 // ---------- C. ADR-NNNN 与 docs/adr 链接可解析 ----------
@@ -122,11 +122,15 @@ const ADR_DELETED = new Set(deletedLine.match(/\b\d{4}\b/g) || []);
 const ADR_SENTINELS = new Set(['ADR-0000', 'ADR-9999']);
 // 只允许 engine 代码/测试；engine/README.md 是门面，引用哨兵仍按死锚判红。
 const ADR_SENTINEL_PATH = /^engine\/(?:src|scripts|test)\//;
+// engine/fixtures/definitions/*.json 是手写合成夹具（不是冻结件），其 ADR 头是 fixture 数据，
+// 不是落点；D-code 与死锚仍照常扫描。
+const ADR_SYNTHETIC_PATH = /^engine\/fixtures\/definitions\//;
 const badAdr = [];
 let adrRefCount = 0;
 for (const { path, text } of CORPUS) {
   for (const code of adrRefs(text)) {
     adrRefCount++;
+    if (ADR_SYNTHETIC_PATH.test(path)) { continue; }
     if (ADR_SENTINELS.has(code) && ADR_SENTINEL_PATH.test(path)) { continue; }
     const n = code.slice(4);
     if (ADR_NUMBERS.has(n)) { continue; }
@@ -183,10 +187,10 @@ function parseFalsePositives(text) {
   return out;
 }
 const FP_CODES = parseFalsePositives(indexText);
-// §4 的散文假阳性是固定五项（归档 README 同文）；表可读，但集合必须与已知五项逐一相等，
+// §4 的散文假阳性是固定五项（归档 README 同文）；表可读，但集合必须与归档 README 的五项逐一相等，
 // 防止「往 §4 加一行」把任意新 D-code 洗成假阳性（棘轮旁路）。
-// FP_KNOWN 是测试 oracle（钉住不可扩），不是第二套成文源。
-const FP_KNOWN = ['D-000', 'D-391', 'D-393', 'D-394', 'D-403'];
+const fpLine = archiveReadme.split('\n').find(l => l.includes('5 个形似') && l.includes('D-000')) || '';
+const FP_KNOWN = [...new Set(fpLine.match(/D-\d{3}/g) || [])];
 
 const currentCodes = new Set();
 for (const { text } of CORPUS) {
@@ -199,7 +203,9 @@ t('D0 现行 D-code 集合非空（棘轮不空转）', currentCodes.size > 0);
 t('D1 现行 D-NNN 引用 ⊆ 归档索引（散文假阳性表例外）', notIndexed.length === 0, 'not-indexed=' + notIndexed.join(','));
 t('D2 冻结账本 blob 钉未变（锚取自归档 README）', !!LEDGER_ANCHOR && ledgerBlob === LEDGER_ANCHOR, 'got=' + ledgerBlob + ' want=' + (LEDGER_ANCHOR || '<unparsed>'));
 t('D3 现行 D-NNN 集合 ⊆ 冻结账本∪散文假阳性（只减不增）', overRatchet.length === 0, 'new=' + overRatchet.join(','));
-t('D4 §4 散文假阳性表与已知五项逐一相等（不可扩）', FP_CODES.size === FP_KNOWN.length && FP_KNOWN.every(c => FP_CODES.has(c)), 'fp=' + [...FP_CODES].join(','));
+t('D4 §4 散文假阳性表与归档 README 五项逐一相等（不可扩）',
+  FP_KNOWN.length === 5 && FP_CODES.size === FP_KNOWN.length && FP_KNOWN.every(c => FP_CODES.has(c)),
+  'known=' + FP_KNOWN.join(',') + ' fp=' + [...FP_CODES].join(','));
 
 // ---------- E. §D-NNN / §A-NNN 死锚 ----------
 const dead = [];
@@ -212,7 +218,8 @@ t('E2 死锚探测器负对照：§D-004/§A-123/§D-99 命中，ADR-0018 §D-1 
 
 // ---------- F. 门面文书不得自称权威（§2 白名单单源） ----------
 function section2Whitelist(text) {
-  const m = text.match(/^## 2\.[^\n]*\n([\s\S]*?)^## 3\./m);
+  // 只取 §2 表：到下一个二级/三级标题（即 §2.1）即止，不把生成面的再生命令当从属口径。
+  const m = text.match(/^## 2\.[^\n]*\n([\s\S]*?)^(?:##|###)\s/m);
   if (!m) { return new Set(); }
   const out = new Set();
   for (const line of m[1].split('\n')) {
@@ -224,12 +231,15 @@ function section2Whitelist(text) {
   return out;
 }
 const whitelist = section2Whitelist(authorityText);
-// 行内引用可能只写 basename（README 上游表写 engine/upstream-lock.yaml），故同时登记 basename。
+// 行内引用可能只写 basename（README 上游表写 engine/upstream-lock.yaml），故同时登记 basename；
+// 但只对文件形 token 做 basename，且拒绝通配/空白 token（`**` 若入集会让任意粗体行通过）。
 const whitelistMatch = new Set();
 for (const tok of whitelist) {
   whitelistMatch.add(tok);
-  if (!tok.endsWith('/')) { const base = tok.split('/').pop(); if (base) { whitelistMatch.add(base); } }
+  const looksLikeFile = !tok.endsWith('/') && !tok.includes('*') && !/\s/.test(tok) && tok.includes('.');
+  if (looksLikeFile) { const base = tok.split('/').pop(); if (base && base !== '**' && !base.includes('*')) { whitelistMatch.add(base); } }
 }
+const lineMatchesWhitelist = (line) => [...whitelistMatch].some(tok => line.includes(tok));
 function selfClaimHit(line) {
   // 只认「主语 + 系词 + 权威」的自称；「本文件首行指针所列的权威载体」是引用，不是自称。
   const claim = /(本文件|本文|本册|本目录|this (?:file|document))\s*(?:本身)?\s*(?:是|为|作为|即|is)\s*(?:唯一|the)?\s*(?:权威|authority)/i;
@@ -240,7 +250,7 @@ const selfClaim = [];
 for (const p of facade) {
   txt(p).split('\n').forEach((line, i) => {
     const viaAuthority = line.includes('authority.md');
-    const viaWhitelist = [...whitelistMatch].some(tok => line.includes(tok));
+    const viaWhitelist = lineMatchesWhitelist(line);
     if (line.includes('唯一权威') && !viaAuthority && !viaWhitelist) { selfClaim.push(p + ':' + (i + 1) + ' 唯一权威无 §2 落点'); }
     if (line.includes('唯一成文处') && !viaAuthority) { selfClaim.push(p + ':' + (i + 1) + ' 自称唯一成文处'); }
     if (selfClaimHit(line) && !viaAuthority) { selfClaim.push(p + ':' + (i + 1) + ' 自称权威'); }
@@ -249,9 +259,15 @@ for (const p of facade) {
 const readmeAuthorityLine = txt('README.md').split('\n').find(l => l.includes('唯一权威')) || '';
 t('F1 §2 从属口径白名单可从 authority.md 单源解析（upstream-lock.yaml 正对照）',
   [...whitelistMatch].includes('upstream-lock.yaml'), 'tokens=' + [...whitelist].join(','));
+t('F1b §2 白名单只取 §2 表（不含 §2.1 生成面）',
+  !whitelist.has('engine/dist/**') && !whitelist.has('.mcp.json') && !whitelist.has('engine/plugin.json'));
+t('F1c 白名单不含通配 token（** 不得让任意粗体行通过）',
+  [...whitelistMatch].every(tok => !tok.includes('*')));
+t('F1d 粗体不构成白名单命中（** 不再放行任意行）',
+  !lineMatchesWhitelist('**唯一权威** = somewhere-else') && lineMatchesWhitelist('唯一权威 = engine/upstream-lock.yaml'));
 t('F2 门面文书不得自称权威；专题唯一权威须命中 §2 白名单', selfClaim.length === 0, selfClaim.join(' | '));
 t('F3 README 上游表「唯一权威=upstream-lock」属合法命中（不得洗红）',
-  readmeAuthorityLine.includes('upstream-lock.yaml') && [...whitelistMatch].some(tok => readmeAuthorityLine.includes(tok)));
+  readmeAuthorityLine.includes('upstream-lock.yaml') && lineMatchesWhitelist(readmeAuthorityLine));
 t('F4 自称权威探测器负对照：本文件是权威口径命中，本目录是非权威不命中', // NEGATIVE-CONTROL
   selfClaimHit('本文件是权威口径') && !selfClaimHit('本目录是非权威、只读')); // NEGATIVE-CONTROL
 
@@ -278,7 +294,7 @@ function yamlPaths(wf, event) {
   return out;
 }
 const REQUIRED_PATHS = [
-  'docs/**', 'README*', 'CONTRIBUTING.md', 'AGENTS.md',
+  'docs/**', 'README*', 'CONTRIBUTING.md', 'AGENTS.md', 'SECURITY.md', 'CODE_OF_CONDUCT.md',
   'GLOSSARY.md', 'engine/README.md', 'engine/package.json',
   '.github/PULL_REQUEST_TEMPLATE.md',
   'engine/test/contracts/docs-authority-check.mjs', '.github/workflows/docs-ci.yml',
