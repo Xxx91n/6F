@@ -147,10 +147,11 @@ const HIST_DECLARED = [
   'engine/test/fixtures/contracts/38-macro-c-preview-report.md'
 ];
 const PIN_SCAN_SKIP = ['node_modules', '.git', '.scratch'];
+// 扫描域＝文本件。`38-audit-facts.duckdb` 同属原始现场且含此值，但二进制不入文本棘轮（归档索引第 3 行同口径）。
+//   它靠扩展名过滤排出，但排除必须**可证**：下面断言该件在位且确实含值——件被删/改名/换成不含值的空壳即红，
+//   否则「排除了一个含值的件」这句话本身无从验证，等于一句注释。
 const PIN_SCAN_EXT = /\.(ts|mjs|js|json|jsonl|md|ya?ml)$/;
-// 显式声明的非文本件：`38-audit-facts.duckdb` 同属原始现场且含该值，但二进制不入文本棘轮（归档索引第 3 行同口径）。
-//   不靠扩展名过滤「顺手」排掉——那会让未来某个 .duckdb 读取器被无声放行。
-const PIN_SCAN_SKIP_FILES = ['engine/test/fixtures/contracts/38-audit-facts.duckdb'];
+const BIN_SITE_FILES = ['engine/test/fixtures/contracts/38-audit-facts.duckdb'];
 const PIN_HITS = [];
 (function scanPin(dir) {
   if (!existsSync(dir)) { return; }
@@ -159,7 +160,6 @@ const PIN_HITS = [];
     const p = join(dir, ent.name);
     if (ent.isDirectory()) { scanPin(p); continue; }
     const rel = p.slice(REPO.length + 1).split('\\').join('/');
-    if (PIN_SCAN_SKIP_FILES.indexOf(rel) >= 0) { continue; }
     if (!PIN_SCAN_EXT.test(ent.name)) { continue; }
     if (readFileSync(p, 'utf8').indexOf(HISTORICAL_PIN) >= 0) { PIN_HITS.push(rel); }
   }
@@ -171,9 +171,14 @@ const PIN_DECLARED_ALIVE = HIST_DECLARED.every(function (rel) {
   const p = join(REPO, rel);
   return existsSync(p) && readFileSync(p, 'utf8').indexOf(HISTORICAL_PIN) >= 0;
 });
-t('A15 历史钉值引用棘轮：40 位全值只出现在声明的六件 38 现场冻结件＋归档索引声明行（新增引用即红；声明件丢值亦红）',
-  PIN_HITS_JOINED === HIST_DECLARED.slice().sort().join(',') && PIN_DECLARED_ALIVE,
-  'hits=' + (PIN_HITS_JOINED || 'none') + ' declared_alive=' + PIN_DECLARED_ALIVE);
+// 二进制枚的排除必须可证：该件在位且确实含此值（二进制按原始字节检索）。否则「排除一个含值的件」只是注释。
+const BIN_SITE_ALIVE = BIN_SITE_FILES.every(function (rel) {
+  const p = join(REPO, rel);
+  return existsSync(p) && readFileSync(p).indexOf(HISTORICAL_PIN) >= 0;
+});
+t('A15 历史钉值引用棘轮：40 位全值只出现在声明的六件 38 现场冻结件＋归档索引声明行（新增引用即红；声明件丢值亦红；二进制枚排除可证）',
+  PIN_HITS_JOINED === HIST_DECLARED.slice().sort().join(',') && PIN_DECLARED_ALIVE && BIN_SITE_ALIVE,
+  'hits=' + (PIN_HITS_JOINED || 'none') + ' declared_alive=' + PIN_DECLARED_ALIVE + ' bin_site=' + BIN_SITE_ALIVE);
 // A16 静态面（不依赖 B 组的 duckdb 组级闸）：报告复现命令必须走占位形。B8 的实跑面在无 duckdb 的机器上整组 SKIP，
 //   若只在那里判，「内容缺陷＝红、环境缺席＝SKIP」就退化成「环境缺席＝永不判」（tracker #72 同一条边界）。
 //   源与 dist 双侧同锚：dist 才是实际执行体，只认源码会让「改了源码没重建」这类漂移留在绿里。
@@ -183,19 +188,16 @@ const portableShape = function (txt) {
   return txt.indexOf("' --out <dir>'") >= 0 && txt.indexOf("'<repo>'") >= 0 && txt.indexOf("' --out ' + opts.outDir") < 0;
 };
 // `file://` 在 intake 里归 url，但它承载的正是本机绝对路径；`owner-repo` 形态的相对路径（projects/demo）同样落在本机目录。
-// 判据只能取 intake 的解析结果（url===null），不能取 kind。两条判别臂都落在「会在真实代码里出现的写法」上：
-//   ①kind 旧写法若回到 src/dist 即判否（那是已被证实的漏判形态）；②`/^file:` 臂被删即判否。
-//   负对照不拿凭空造的字面串自己比自己——那只能证明常量不等常量。
-const portableLocalArm = function (txt) { return txt.indexOf("remoteUrl === null") >= 0; };
+// 判据只能取 intake 的解析结果（url===null），不能取 kind。判别力由正向臂提供：两臂各自必须在 src＋dist 双侧成立——
+// 任一臂被删（或退回只认 kind）这两处就地判否。不另设「拿字面串自比」的负对照：那种臂不读文件，恒为常量真。
+const portableLocalArm = function (txt) { return txt.indexOf('remoteUrl === null') >= 0; };
 const portableFileArm = function (txt) { return txt.indexOf('/^file:') >= 0; };
-const KIND_DEAD_FORM = "function portableReproduceCmd(input, outDir, kind) {\n    const local = kind === 'local';";
 const CALL_SITE = 'portableReproduceCmd(opts.input, opts.outDir, intake.url)';
 t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> 双占位＋本地判定取 intake 解析结果＋file 臂＋调用点同形）',
   portableShape(MC_SRC) && portableShape(MC_DIST)
   && portableLocalArm(MC_SRC) && portableLocalArm(MC_DIST) && portableFileArm(MC_SRC) && portableFileArm(MC_DIST)
-  && !portableLocalArm(KIND_DEAD_FORM) && !portableFileArm(KIND_DEAD_FORM)
   && MC_SRC.indexOf(CALL_SITE) >= 0 && MC_DIST.indexOf(CALL_SITE) >= 0,
-  'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' local=' + portableLocalArm(MC_SRC) + '/' + portableLocalArm(MC_DIST) + ' file=' + portableFileArm(MC_SRC) + '/' + portableFileArm(MC_DIST) + ' deadform_negative=' + (!portableLocalArm(KIND_DEAD_FORM) && !portableFileArm(KIND_DEAD_FORM)) + ' call=' + (MC_SRC.indexOf(CALL_SITE) >= 0) + '/' + (MC_DIST.indexOf(CALL_SITE) >= 0) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
+  'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' local=' + portableLocalArm(MC_SRC) + '/' + portableLocalArm(MC_DIST) + ' file=' + portableFileArm(MC_SRC) + '/' + portableFileArm(MC_DIST) + ' call=' + (MC_SRC.indexOf(CALL_SITE) >= 0) + '/' + (MC_DIST.indexOf(CALL_SITE) >= 0) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
 const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
