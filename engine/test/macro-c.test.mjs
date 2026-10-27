@@ -98,9 +98,13 @@ const idxTxt = existsSync(join(SELF, PIPE_CARRIERS[1])) ? readFileSync(join(SELF
 const idxCommit = (idxTxt.match(/^\| #38 \| `([0-9a-f]{7,40})`/m) || [])[1] || '';
 const namedCommit = function (label) { const m = pipeSrc.match(new RegExp(label + ' commit ([0-9a-f]{7,40})')); return m ? m[1] : ''; };
 const lineageIdx = namedCommit('记号首次出现'), lineageScript = namedCommit('脚本引入');
-t('R13 血缘两枚 commit 各归其名——「记号首次出现」值＝归档索引 #38 行，「脚本引入」须为另一枚不同值（对调或缺名即红）',
-  idxCommit !== '' && lineageIdx === idxCommit && lineageScript !== '' && lineageScript !== idxCommit,
-  JSON.stringify({ index: idxCommit, asLineage: lineageIdx, asScript: lineageScript }));
+// 「脚本引入」不许凭「与索引值不同」就放行——`0000000` 也算不同。改用 git 自身当独立预言机：
+// 新增该历史脚本的那个 commit（`--diff-filter=A`，路径已退役故取全历史）
+let scriptTruth = '';
+try { scriptTruth = execFileSync('git', ['log', '--all', '--diff-filter=A', '--format=%h', '-1', '--', '.scratch/architecture-recovery/reports/38-macro-c-preview.mjs'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { scriptTruth = ''; }
+t('R13 血缘两枚 commit 各归其名——「记号首次出现」＝归档索引 #38 行值，「脚本引入」＝git 新增该脚本的 commit（编造值或对调即红）',
+  idxCommit !== '' && lineageIdx === idxCommit && scriptTruth !== '' && lineageScript === scriptTruth && lineageScript !== idxCommit,
+  JSON.stringify({ index: idxCommit, asLineage: lineageIdx, asScript: lineageScript, gitTruth: scriptTruth }));
 
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
