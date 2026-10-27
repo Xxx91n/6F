@@ -1,0 +1,27 @@
+{
+  "probe": "48-micro-a-preview.mjs gate",
+  "generated_at": "2026-09-16T22:42:33.409Z",
+  "criterion": "TC-4",
+  "probes": [
+    {
+      "name": "anysearch-cli",
+      "merged_prs": 6,
+      "prs_listed": 7,
+      "eligible": true,
+      "strategy": "gh-token",
+      "degraded": false,
+      "calls": 1,
+      "stopped_reason": null
+    },
+    {
+      "name": "goose-duck-agent",
+      "merged_prs": 0,
+      "prs_listed": 0,
+      "eligible": false,
+      "strategy": "gh-token",
+      "degraded": false,
+      "calls": 1,
+      "stopped_reason": null
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "repo": "jiahao",
+  "root": "D:\\Aworker\\jiahao",
+  "observed_at": "2026-09-16T14:39:52+08:00",
+  "head_sha": "8a8422e952269b474220e68ae30ee11e6fc11e15",
+  "tree_sha": "04fe15bf4867267ad124482810e44a85e4ef8c80",
+  "commit_count": 265,
+  "adr_count": 69,
+  "intent_docs": [
+    "CONTEXT.md",
+    "README.md",
+    "AGENTS.md"
+  ],
+  "fact_count": 1101,
+  "tc1": {
+    "judgeable_n": 69,
+    "backfill_n": 1,
+    "ratio_4": "0.0145",
+    "verdict": "NOT_RED",
+    "threshold": {
+      "lag_days": 90,
+      "ratio_red": 0.2,
+      "min_n": 5
+    }
+  },
+  "tc2": {
+    "total": 69,
+    "mean_ratio_4": "0.9449",
+    "missing_counts": {
+      "Status": 18,
+      "Date": 0,
+      "Context": 0,
+      "Decision": 0,
+      "Consequences": 1
+    },
+    "missing_ratio_4": {
+      "Status": 0.2609,
+      "Date": 0,
+      "Context": 0,
+      "Decision": 0,
+      "Consequences": 0.0145
+    },
+    "cond_a": false,
+    "cond_b": false,
+    "verdict": "NOT_RED",
+    "threshold": {
+      "mean_red": 0.6,
+      "field_missing_red": 0.5
+    }
+  },
+  "tc3": {
+    "per_source": [
+      {
+        "path": "CONTEXT.md",
+        "hit": 19,
+        "keywords": 20,
+        "ratio_4": "0.9500"
+      },
+      {
+        "path": "README.md",
+        "hit": 20,
+        "keywords": 20,
+        "ratio_4": "1.0000"
+      },
+      {
+        "path": "AGENTS.md",
+        "hit": 17,
+        "keywords": 20,
+        "ratio_4": "0.8500"
+      }
+    ],
+    "lowest_path": "AGENTS.md",
+    "lowest_ratio_4": "0.8500",
+    "verdict": "GREEN",
+    "threshold": {
+      "red": 0.5,
+      "green": 0.7,
+      "top_n": 20
+    }
+  },
+  "nc1": {
+    "path": "package.json",
+    "fact_count": 11,
+    "five_piece_present": 0,
+    "supersede_present": false,
+    "pass": true
+  },
+  "pc1": {
+    "pass": true
+  },
+  "pc2": {
+    "pass": true,
+    "delta_days": 255
+  }
+}

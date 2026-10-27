@@ -1,0 +1,650 @@
+[
+  {
+    "entity": ".scratch/architecture-recovery/decision-ledger.md",
+    "matches": 12
+  },
+  {
+    "entity": ".scratch/architecture-recovery/WORKFLOW.md",
+    "matches": 4
+  },
+  {
+    "entity": ".scratch/architecture-recovery/spec.md",
+    "matches": 4
+  },
+  {
+    "entity": ".scratch/macro-audit/decision-ledger.md",
+    "matches": 4
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/next-round.md",
+    "matches": 4
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/2026-09-12-report.md",
+    "matches": 4
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/2026-09-12-r2q7-engineering-handoff.md",
+    "matches": 3
+  },
+  {
+    "entity": ".scratch/macro-audit/spec-phase-tasks.md",
+    "matches": 3
+  },
+  {
+    "entity": "CONTEXT.md",
+    "matches": 3
+  },
+  {
+    "entity": "docs/adr/0010-spec-repo-and-engineering-repo-split.md",
+    "matches": 3
+  },
+  {
+    "entity": "engine/scripts/gen-manifests.mjs",
+    "matches": 3
+  },
+  {
+    "entity": "engine/skills/macro-audit/SKILL.md",
+    "matches": 3
+  },
+  {
+    "entity": ".github/workflows/engine-ci.yml",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/BACKLOG.md",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/README.md",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/33-gate-watch-guard.md",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/34-plugin-json-compliance.md",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/04-report.md",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/06-report.md",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/13-report.md",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/25-rollout-checklist.md",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/33-check.mjs",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/33-gate-registry.json",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/2026-09-12-report-engineering.md",
+    "matches": 2
+  },
+  {
+    "entity": "README.md",
+    "matches": 2
+  },
+  {
+    "entity": "docs/adr/0011-single-repo-subdir-but-branches.md",
+    "matches": 2
+  },
+  {
+    "entity": "engine/CHANGELOG.md",
+    "matches": 2
+  },
+  {
+    "entity": "engine/README.md",
+    "matches": 2
+  },
+  {
+    "entity": "engine/manifest.meta.json",
+    "matches": 2
+  },
+  {
+    "entity": "engine/package-lock.json",
+    "matches": 2
+  },
+  {
+    "entity": "engine/package.json",
+    "matches": 2
+  },
+  {
+    "entity": "engine/plugin.json",
+    "matches": 2
+  },
+  {
+    "entity": "engine/src/selftest.ts",
+    "matches": 2
+  },
+  {
+    "entity": "engine/test/smoke.test.mjs",
+    "matches": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/32-prompts-closeout-block.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/33-gate-watch-guard.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/34-plugin-json-compliance.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/35-codelore-expansion-batch1.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/36-codelore-llm-faces.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/37-pilot-surface-audit.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/38-macro-c-preview.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/39-macro-b-three-repo.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/40-external-repo-generalization.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/41-distribution-closeout.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/42-upstream-queue.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/43-sample-golden-ci.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/audit-round7-w1-2026-09-15.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/closeout-2026-09-13.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/closeout-2026-09-14.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/03-s4-adr-assumption-extraction.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/10-cross-scale-correlation-key.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/11-langgraph-eval.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/12-data-mesh-defense.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/13-tool-alignment.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/14-shared-skeleton-design.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/17-path-cost-value.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/32-prompts-closeout-block.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/35-codelore-expansion-batch1.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/36-codelore-llm-faces.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/37-pilot-surface-audit.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/38-macro-c-preview.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/39-macro-b-three-repo.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/40-external-repo-generalization.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/41-distribution-closeout.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/42-upstream-queue.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/43-sample-golden-ci.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/01-s1-semantic-measurement.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/02-s2-adr-timestamp-check.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/03-s4-adr-assumption-extraction.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/04-s5-ownership-single-author.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/05-25-unit-matrix.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/06-ai-agent-adr-impact.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/07-duckdb-write-strategy.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/08-schema-versioning.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/09-read-model-staleness.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/10-cross-scale-correlation-key.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/11-langgraph-eval.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/12-data-mesh-defense.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/13-tool-alignment.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/14-shared-skeleton-design.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/15-scale-slice-boundaries.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/16-rendering-split.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/17-path-cost-value.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/18-failure-path-detail.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/19-push-ci-activation.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/20-fact-schema-v0.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/21-deterministic-collectors.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/22-b-criteria-prereg.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/23-first-report-e2e.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/24-gap-sweep-anchors.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/25-rollout-distribution.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/26-adr-measurement-audit.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/27-criteria-v2-fallback-chain.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/28-adr-hygiene-sweep.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/29-c-disposition-reopen.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/30-frozen-calibration-desk.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/31-codelore-probe.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/32-prompts-closeout-block.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/33-gate-watch-guard.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/34-plugin-json-compliance.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/35-codelore-expansion-batch1.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/36-codelore-llm-faces.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/37-pilot-surface-audit.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/38-macro-c-preview.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/39-macro-b-three-repo.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/40-external-repo-generalization.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/41-distribution-closeout.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/42-upstream-queue.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/43-sample-golden-ci.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/03-extraction-cases.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/03-extraction-prompt.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/03-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/03-reusability.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/03-spotcheck-checklist.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/04-downweight-check.mjs",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/04-downweight.json",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/07-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/08-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/09-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/10-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/11-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/12-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/14-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/14-skeleton-check.mjs",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/14-skeleton-fields.json",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/14-skeleton.schema.json",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/17-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/19-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/32-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/33-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/34-check.mjs",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/34-plugin.schema.json",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/34-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/2026-09-12-r2q7-handoff.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/2026-09-12-round-close-handoff.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/2026-09-15-r7-window1.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/2026-09-12-audit-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/2026-09-15-report.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R2-Q7-atomcode-research.md",
+    "matches": 1
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R2-Q7-research-prompt.md",
+    "matches": 1
+  },
+  {
+    "entity": "AGENTS.md",
+    "matches": 1
+  },
+  {
+    "entity": "docs/adr/0002-no-mvp-slice.md",
+    "matches": 1
+  },
+  {
+    "entity": "docs/adr/0008-agent-plugin-five-layer-box.md",
+    "matches": 1
+  },
+  {
+    "entity": "docs/adr/0009-intake-local-first-url-optin.md",
+    "matches": 1
+  },
+  {
+    "entity": "docs/adr/0017-preview-release-model.md",
+    "matches": 1
+  },
+  {
+    "entity": "docs/adr/0018-versioning-and-chronicle-discipline.md",
+    "matches": 1
+  },
+  {
+    "entity": "docs/decisions/2026-09-13-r3-execution-summary.md",
+    "matches": 1
+  },
+  {
+    "entity": "docs/decisions/2026-09-14-r3-execution-closeout.md",
+    "matches": 1
+  },
+  {
+    "entity": "docs/decisions/README.md",
+    "matches": 1
+  },
+  {
+    "entity": "docs/versioning.md",
+    "matches": 1
+  },
+  {
+    "entity": "engine/.claude-plugin/plugin.json",
+    "matches": 1
+  },
+  {
+    "entity": "engine/.gitattributes",
+    "matches": 1
+  },
+  {
+    "entity": "engine/.gitignore",
+    "matches": 1
+  },
+  {
+    "entity": "engine/LICENSE",
+    "matches": 1
+  },
+  {
+    "entity": "engine/PROVENANCE.md",
+    "matches": 1
+  },
+  {
+    "entity": "engine/extensions/com.macroaudit.hooks/README.md",
+    "matches": 1
+  },
+  {
+    "entity": "engine/mcp.json",
+    "matches": 1
+  },
+  {
+    "entity": "engine/src/cli.ts",
+    "matches": 1
+  },
+  {
+    "entity": "engine/src/index.ts",
+    "matches": 1
+  },
+  {
+    "entity": "engine/src/manifest.ts",
+    "matches": 1
+  },
+  {
+    "entity": "engine/tsconfig.json",
+    "matches": 1
+  }
+]

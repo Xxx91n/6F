@@ -1,0 +1,54 @@
+name: Bug report
+description: Report a reproducible problem with the macro-audit plugin or CLI
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. This project is in **preview** — honest reproduction details matter more than completeness.
+  - type: input
+    id: host
+    attributes:
+      label: Host environment
+      description: Which host runs the plugin? (e.g. Claude Code 2.x, or plain Node CLI)
+      placeholder: "Claude Code 2.x on Windows 11 / Node 22 CLI"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Plugin / CLI version
+      description: Output of `node dist/cli.js --version` (or the version shown by /plugin)
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "Windows 11 / macOS 15 / Ubuntu 24.04"
+    validations:
+      required: true
+  - type: textarea
+    id: selftest
+    attributes:
+      label: selftest output
+      description: Run `node dist/cli.js selftest` in the plugin directory and paste the output
+      placeholder: "selftest 5/5 ..."
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened vs. what you expected
+      description: Reproduction steps, observed behavior, expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / receipts
+      description: Command output, receipt JSON, or report excerpts. Redact tokens — the adapter is designed to keep credentials out of facts and logs.
+    validations:
+      required: false

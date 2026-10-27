@@ -1,0 +1,108 @@
+{
+  "observed_at": "2026-09-13T14:31:09+08:00",
+  "head_sha": "fc00d458e215cc9a7a26af81626dec8712622821",
+  "commit_count": 67,
+  "adr_count": 13,
+  "tc1": {
+    "judgeable_n": 2,
+    "backfill_n": 0,
+    "ratio_4": "0.0000",
+    "verdict": "INCONCLUSIVE",
+    "threshold": {
+      "lag_days": 90,
+      "ratio_red": 0.2,
+      "min_n": 5
+    }
+  },
+  "tc2": {
+    "total": 13,
+    "mean_ratio_4": "0.2462",
+    "missing_counts": {
+      "Status": 11,
+      "Date": 11,
+      "Context": 9,
+      "Decision": 9,
+      "Consequences": 9
+    },
+    "missing_ratio_4": {
+      "Status": 0.8462,
+      "Date": 0.8462,
+      "Context": 0.6923,
+      "Decision": 0.6923,
+      "Consequences": 0.6923
+    },
+    "cond_a": true,
+    "cond_b": true,
+    "verdict": "RED",
+    "threshold": {
+      "mean_red": 0.6,
+      "field_missing_red": 0.5
+    }
+  },
+  "tc3": {
+    "per_source": [
+      {
+        "path": ".scratch/architecture-recovery/README.md",
+        "hit": 13,
+        "keywords": 20,
+        "ratio_4": "0.6500",
+        "missed": [
+          "a-xxx",
+          "全部",
+          "branch",
+          "architecture-recovery",
+          "张票",
+          "覆盖",
+          "阻塞"
+        ]
+      },
+      {
+        "path": "CONTEXT.md",
+        "hit": 12,
+        "keywords": 20,
+        "ratio_4": "0.6000",
+        "missed": [
+          "avoid_",
+          "暗示",
+          "战略",
+          "本产",
+          "共享",
+          "失败",
+          "而非",
+          "叙事"
+        ]
+      }
+    ],
+    "lowest_path": "CONTEXT.md",
+    "lowest_ratio_4": "0.6000",
+    "verdict": "AMBER",
+    "threshold": {
+      "red": 0.5,
+      "green": 0.7,
+      "top_n": 20
+    }
+  },
+  "nc1": {
+    "path": "engine/src/fact/schema.ts",
+    "fact_count": 11,
+    "five_piece_present": 0,
+    "supersede_present": false,
+    "pass": true
+  },
+  "pc1": {
+    "adr_fact_count": 11,
+    "pos_fact_count": 20,
+    "five_piece_present": 5,
+    "supersede_present": true,
+    "pass": true,
+    "golden_five_present_s": "5/5",
+    "golden_supersede_hit_s": "true"
+  },
+  "pc2": {
+    "fact_count": 4,
+    "lag_fact_count": 1,
+    "delta_days": 255,
+    "pass": true,
+    "delta_days_s": "255"
+  }
+}

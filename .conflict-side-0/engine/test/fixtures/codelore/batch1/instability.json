@@ -1,0 +1,290 @@
+[
+  {
+    "path": "engine/src/manifest.ts",
+    "ca": 3,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": "engine/src/selftest.ts",
+    "ca": 2,
+    "ce": 1,
+    "instability": 0.3333333333333333
+  },
+  {
+    "path": "engine/src/fact/schema.ts",
+    "ca": 2,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": "engine/src/fact/store.ts",
+    "ca": 1,
+    "ce": 1,
+    "instability": 0.5
+  },
+  {
+    "path": "engine/src/collect/collectors.ts",
+    "ca": 1,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": "engine/src/cli.ts",
+    "ca": 0,
+    "ce": 2,
+    "instability": 1.0
+  },
+  {
+    "path": "engine/src/fact/index.ts",
+    "ca": 0,
+    "ce": 2,
+    "instability": 1.0
+  },
+  {
+    "path": "engine/src/index.ts",
+    "ca": 0,
+    "ce": 2,
+    "instability": 1.0
+  },
+  {
+    "path": "engine/src/upstream/codelore.ts",
+    "ca": 0,
+    "ce": 1,
+    "instability": 1.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-align.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-extract.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-spotcheck.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/02-adr-fallback.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/02-adr-header-scan.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/04-downweight-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/05-matrix-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/09-stale-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/14-skeleton-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/15-slice-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/16-render-split-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/18-failure-demo.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/20-fact-schema-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/21-collectors-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/22-criteria-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/22-threshold-probe.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-first-report-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-first-report.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/24-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/25-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/26-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/27-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/27-rerun.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/28-apply.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/28-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/29-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/30-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/31-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/31-codelore-probe.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/32-t0-verify.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/32-t0-verify2.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/33-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/34-check.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": "engine/scripts/gen-manifests.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": "engine/src/report/generate.ts",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": "engine/test/codelore-adapter.test.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": "engine/test/collectors.test.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  },
+  {
+    "path": "engine/test/smoke.test.mjs",
+    "ca": 0,
+    "ce": 0,
+    "instability": 0.0
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "kind": "micro-b-emission-fixture",
+  "schema_version": "1.0.0",
+  "generator": "scripts/gen-micro-b-emission-golden.mjs",
+  "note": "#80 步① golden=发射产出骨架锁（字段骨架非内容值——metric 集/subject 规范化形/value_json 键集/role 标记/skip reason/冲突对/血缘载荷键集）；内容值漂移不锁。",
+  "inputs": {
+    "emission": "emission-input.json",
+    "rename_log": "rename-log.ztxt"
+  },
+  "golden": "emission-skeleton.golden.json"
+}

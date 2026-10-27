@@ -1,0 +1,95 @@
+{
+  "scenario": "degraded-incomplete",
+  "synthetic": true,
+  "generator": "fixture-generator@1.0.0",
+  "observed_at": "2026-03-02T10:00:00Z",
+  "head_sha": "d757d4cd3046ac0d6251b5c3f0e5cb8884647012",
+  "tree_sha": "40cd22aae62f4da8a4585f82761b30c253dad0f4",
+  "commit_count": 3,
+  "merge_commits": 0,
+  "branches": [
+    "main",
+    "wip/incomplete"
+  ],
+  "tags": [
+    "v0.0.1"
+  ],
+  "adr_count": 2,
+  "intent_docs": [],
+  "fact_count": 30,
+  "intake": {
+    "kind": "local",
+    "shallow": false,
+    "full_depth_verified": true,
+    "remote_config_execution": "disabled",
+    "credentials": "local-git-credential-chain",
+    "cloned": false
+  },
+  "tc1": {
+    "judgeable_n": 2,
+    "backfill_n": 0,
+    "ratio_4": "0.0000",
+    "verdict": "INCONCLUSIVE",
+    "threshold": {
+      "lag_days": 90,
+      "ratio_red": 0.2,
+      "min_n": 5
+    }
+  },
+  "tc2": {
+    "total": 2,
+    "mean_ratio_4": "0.8000",
+    "missing_counts": {
+      "Status": 1,
+      "Date": 0,
+      "Context": 0,
+      "Decision": 0,
+      "Consequences": 1
+    },
+    "missing_ratio_4": {
+      "Status": 0.5,
+      "Date": 0,
+      "Context": 0,
+      "Decision": 0,
+      "Consequences": 0.5
+    },
+    "cond_a": false,
+    "cond_b": false,
+    "verdict": "NOT_RED",
+    "threshold": {
+      "mean_red": 0.6,
+      "field_missing_red": 0.5
+    }
+  },
+  "tc3": {
+    "per_source": [],
+    "lowest_path": null,
+    "lowest_ratio_4": "0.0000",
+    "verdict": "INCONCLUSIVE",
+    "threshold": {
+      "red": 0.5,
+      "green": 0.7,
+      "top_n": 20
+    }
+  },
+  "nc1": {
+    "path": "package.json",
+    "fact_count": 11,
+    "five_piece_present": 0,
+    "supersede_present": false,
+    "pass": true
+  },
+  "pc1": {
+    "pass": true
+  },
+  "pc2": {
+    "pass": true,
+    "delta_days": 255
+  },
+  "failure_trigger": "evidence-incomplete",
+  "expect": {
+    "overall_verdict": "insufficient",
+    "degraded_mode": true,
+    "degraded_reason_marker": "不完整"
+  }
+}

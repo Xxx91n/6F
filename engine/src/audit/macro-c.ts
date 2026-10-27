@@ -14,7 +14,7 @@ import { readFileSync, readdirSync, existsSync, mkdtempSync, mkdirSync, writeFil
 import { basename, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { repoAdd } from '../intake/intake.js';
-import type { RepoAddResult, RepoInputKind } from '../intake/intake.js';
+import type { RepoAddResult } from '../intake/intake.js';
 import { probeMacroBRepo, macroBContext, probeGitVersion } from './macro-b.js';
 import type { MacroBProbes } from './macro-b.js';
 import { auditRepoName } from './audit.js';
@@ -302,7 +302,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
   if (outDir) { writeFileSync(join(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL, 'utf8'); }
   // ---------- §5 证据＋结论→引文锚（多 token 全命中；源=运行目录工件相对名） ----------
   const R = NAME.toUpperCase().split('-').join('').split('/').join('');
-  const RUN_CMD = portableReproduceCmd(opts.input, opts.outDir, intake.kind);
+  const RUN_CMD = portableReproduceCmd(opts.input, opts.outDir, intake.url);
   const evidence: EvidenceItem[] = [];
   function addEvidence(id: string, source: string, tokens: readonly string[] | null, claim: string, base: string | null) {
     const ex = pickExcerpt(source, tokens, base);

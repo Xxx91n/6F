@@ -1,0 +1,79 @@
+[
+  {
+    "entity": ".scratch/architecture-recovery/README.md",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 16,
+    "total": 16,
+    "ownership": 1.0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/WORKFLOW.md",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 3,
+    "total": 3,
+    "ownership": 1.0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/decision-ledger.md",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 53,
+    "total": 53,
+    "ownership": 1.0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/25-rollout-checklist.md",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 38,
+    "total": 38,
+    "ownership": 1.0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/spec.md",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 6,
+    "total": 6,
+    "ownership": 1.0
+  },
+  {
+    "entity": ".scratch/macro-audit/decision-ledger.md",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 4,
+    "total": 4,
+    "ownership": 1.0
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/next-round.md",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 164,
+    "total": 164,
+    "ownership": 1.0
+  },
+  {
+    "entity": ".scratch/macro-audit/spec-phase-tasks.md",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 10,
+    "total": 10,
+    "ownership": 1.0
+  },
+  {
+    "entity": "CONTEXT.md",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 1,
+    "total": 1,
+    "ownership": 1.0
+  },
+  {
+    "entity": "README.md",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 12,
+    "total": 12,
+    "ownership": 1.0
+  },
+  {
+    "entity": "engine/package.json",
+    "main_dev": "iz0ms@Euiop1.oi",
+    "metric": 8,
+    "total": 8,
+    "ownership": 1.0
+  }
+]

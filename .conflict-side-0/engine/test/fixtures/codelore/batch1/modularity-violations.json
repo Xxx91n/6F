@@ -1,0 +1,23 @@
+[
+  {
+    "entity_a": ".scratch/architecture-recovery/WORKFLOW.md",
+    "entity_b": ".scratch/architecture-recovery/decision-ledger.md",
+    "shared": 14,
+    "degree": 62.22222222222222,
+    "fisher_p": 2.132300491557455e-7
+  },
+  {
+    "entity_a": ".scratch/architecture-recovery/README.md",
+    "entity_b": ".scratch/architecture-recovery/WORKFLOW.md",
+    "shared": 7,
+    "degree": 45.16129032258065,
+    "fisher_p": 0.0015954198815811122
+  },
+  {
+    "entity_a": ".scratch/architecture-recovery/README.md",
+    "entity_b": ".scratch/architecture-recovery/decision-ledger.md",
+    "shared": 9,
+    "degree": 42.857142857142854,
+    "fisher_p": 0.0018366202169102553
+  }
+]

@@ -1,0 +1,3632 @@
+[
+  {
+    "path": ".code-tmp/02-repos.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".code-tmp/26-truth-raw.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.010757101243548941,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".code-tmp/memory.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".code-tmp/research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".gitattributes",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".github/workflows/engine-ci.yml",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03227130373064682,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/BACKLOG.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.021514202487097882,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": ".scratch/architecture-recovery/HANDOFF-2026-09-12-round-close.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/README.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.15674633240599883,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 16
+  },
+  {
+    "path": ".scratch/architecture-recovery/WORKFLOW.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.1459892311624499,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 20
+  },
+  {
+    "path": ".scratch/architecture-recovery/decision-ledger.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.1920910936348025,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 30
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/01-s1-semantic-measurement.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/02-s2-adr-timestamp-check.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/03-s4-adr-assumption-extraction.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/04-s5-ownership-single-author.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/05-25-unit-matrix.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/06-ai-agent-adr-impact.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/07-duckdb-write-strategy.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/08-schema-versioning.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/09-read-model-staleness.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/10-cross-scale-correlation-key.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/11-langgraph-eval.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/12-data-mesh-defense.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/13-tool-alignment.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/14-shared-skeleton-design.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/15-scale-slice-boundaries.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/16-rendering-split.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/17-path-cost-value.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/18-failure-path-detail.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/19-push-ci-activation.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/20-fact-schema-v0.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/21-deterministic-collectors.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/22-b-criteria-prereg.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/23-first-report-e2e.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/24-gap-sweep-anchors.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/25-rollout-distribution.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/26-adr-measurement-audit.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/27-criteria-v2-fallback-chain.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/28-adr-hygiene-sweep.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/29-c-disposition-reopen.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/30-frozen-calibration-desk.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/31-codelore-probe.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/32-prompts-closeout-block.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/33-gate-watch-guard.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01690401623986262,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/34-plugin-json-compliance.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/35-codelore-expansion-batch1.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/36-codelore-llm-faces.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/37-pilot-surface-audit.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/38-macro-c-preview.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/39-macro-b-three-repo.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/40-external-repo-generalization.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/41-distribution-closeout.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/42-upstream-queue.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/43-sample-golden-ci.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/audit-round6-2026-09-15.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/audit-round7-w1-2026-09-15.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/closeout-2026-09-13.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/closeout-2026-09-14.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/handoffs/closeout-2026-09-15.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/01-s1-semantic-measurement.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/02-s2-adr-timestamp-check.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/03-s4-adr-assumption-extraction.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/04-s5-ownership-single-author.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/05-25-unit-matrix.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/06-ai-agent-adr-impact.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/07-duckdb-write-strategy.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/08-schema-versioning.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/09-read-model-staleness.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/10-cross-scale-correlation-key.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/11-langgraph-eval.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/12-data-mesh-defense.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/13-tool-alignment.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/14-shared-skeleton-design.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/15-scale-slice-boundaries.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/16-rendering-split.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/17-path-cost-value.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/18-failure-path-detail.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/19-push-ci-activation.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/20-fact-schema-v0.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/21-deterministic-collectors.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/22-b-criteria-prereg.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/23-first-report-e2e.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/24-gap-sweep-anchors.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/25-rollout-distribution.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/26-adr-measurement-audit.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/27-criteria-v2-fallback-chain.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/28-adr-hygiene-sweep.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/29-c-disposition-reopen.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/30-frozen-calibration-desk.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/31-codelore-probe.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/32-prompts-closeout-block.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/33-gate-watch-guard.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01690401623986262,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/34-plugin-json-compliance.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.010757101243548941,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/35-codelore-expansion-batch1.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/36-codelore-llm-faces.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/37-pilot-surface-audit.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/38-macro-c-preview.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/39-macro-b-three-repo.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/40-external-repo-generalization.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/41-distribution-closeout.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/42-upstream-queue.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/issues/43-sample-golden-ci.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/01-s1-semantic-measurement.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/02-s2-adr-timestamp-check.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/03-s4-adr-assumption-extraction.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/04-s5-ownership-single-author.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/05-25-unit-matrix.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/06-ai-agent-adr-impact.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/07-duckdb-write-strategy.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/08-schema-versioning.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/09-read-model-staleness.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/10-cross-scale-correlation-key.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/11-langgraph-eval.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/12-data-mesh-defense.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/13-tool-alignment.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/14-shared-skeleton-design.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/15-scale-slice-boundaries.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/16-rendering-split.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/17-path-cost-value.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/18-failure-path-detail.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/19-push-ci-activation.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/20-fact-schema-v0.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/21-deterministic-collectors.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/22-b-criteria-prereg.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/23-first-report-e2e.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/24-gap-sweep-anchors.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/25-rollout-distribution.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/26-adr-measurement-audit.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/27-criteria-v2-fallback-chain.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/28-adr-hygiene-sweep.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/29-c-disposition-reopen.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/30-frozen-calibration-desk.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/31-codelore-probe.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/32-prompts-closeout-block.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/33-gate-watch-guard.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/34-plugin-json-compliance.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/35-codelore-expansion-batch1.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/36-codelore-llm-faces.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/37-pilot-surface-audit.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/38-macro-c-preview.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/39-macro-b-three-repo.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/40-external-repo-generalization.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/41-distribution-closeout.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/42-upstream-queue.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/prompts/43-sample-golden-ci.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-align.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-align.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-corpora.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-extract.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-fallback.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-research-prompt.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-spotcheck.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/01-spotcheck.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/02-adr-fallback.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/02-adr-fallback.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/02-adr-header-scan.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/02-adr-header-scan.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/02-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/03-extraction-cases.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/03-extraction-prompt.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/03-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/03-reusability.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/03-spotcheck-checklist.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/04-downweight-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/04-downweight.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/04-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/05-matrix-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/05-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/05-unit-matrix.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/05-unit-matrix.schema.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/06-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/07-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/08-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/09-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/09-stale-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/09-stale-marker-fields.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/10-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/11-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/12-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/13-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/14-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/14-skeleton-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/14-skeleton-fields.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/14-skeleton.schema.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/15-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/15-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/15-research-prompt.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/15-slice-boundaries.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/15-slice-boundaries.schema.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/15-slice-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/16-render-split-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/16-render-split.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/16-render-split.schema.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/16-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/17-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/18-demo-fixture.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/18-demo-output.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/18-demo-output.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/18-failure-demo.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/18-failure-paths.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/18-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/19-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/20-fact-schema-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/20-fact-schema.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/20-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/20-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/21-collector-map.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/21-collectors-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/21-collectors-fixture.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/21-collectors.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/21-guard-run.log",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/21-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/21-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/22-c-adjudication-basis.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/22-criteria-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/22-criteria-pre-registration.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/22-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/22-threshold-probe.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/22-threshold-raw.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-atomcode-prompt.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00614691499631368,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00614691499631368,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-facts-insert.sql",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-facts.jsonl",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-first-report-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01690401623986262,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-first-report-failure.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-first-report-failure.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-first-report.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-first-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-first-report.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-fixtures.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-gates.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-measurements.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/23-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/24-atomcode-prompt.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/24-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/24-calibration-map.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/24-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/24-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/25-atomcode-prompt.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/25-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/25-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/25-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/25-rollout-checklist.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.04149167622511734,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 6
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/26-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.010757101243548941,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/26-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.010757101243548941,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/26-truth-table.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.010757101243548941,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/26-truth-table.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.010757101243548941,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/27-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/27-dual-readings.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/27-dual-readings.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/27-prereg.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/27-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/27-rerun.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/28-apply.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0230509312361763,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/28-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0230509312361763,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/28-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0230509312361763,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/29-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00614691499631368,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/29-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00614691499631368,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/30-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/30-desk-calibration.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/30-desk-calibration.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/30-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/31-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/31-codelore-probe.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/31-probe-measurements.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/31-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/31-upstream-drift.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/31-upstream-facts.jsonl",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/32-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/32-t0-verify.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01690401623986262,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/32-t0-verify2.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01690401623986262,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/33-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/33-gate-registry.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/33-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01690401623986262,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/34-check.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/34-plugin.schema.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.010757101243548941,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/34-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/round6-audit.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/round6-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00614691499631368,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/round7-w1-audit.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/architecture-recovery/spec.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.09988736869009732,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 10
+  },
+  {
+    "path": ".scratch/architecture-recovery/verify-build-2026-09-12.log",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/decision-ledger.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.04917531997050944,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 11
+  },
+  {
+    "path": ".scratch/macro-audit/handoffs/2026-09-12-r2q7-engineering-handoff.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": ".scratch/macro-audit/handoffs/2026-09-12-r2q7-handoff.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/handoffs/2026-09-12-round-close-handoff.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/handoffs/2026-09-15-r7-window1.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/handoffs/next-round.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03995494747603892,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 8
+  },
+  {
+    "path": ".scratch/macro-audit/reports/2026-09-12-audit-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/reports/2026-09-12-report-engineering.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/macro-audit/reports/2026-09-12-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 4
+  },
+  {
+    "path": ".scratch/macro-audit/reports/2026-09-15-report.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": ".scratch/macro-audit/reports/R2-Q7-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/reports/R2-Q7-research-prompt.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0046101862472352605,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/reports/R3-Q1-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/reports/R3-Q2-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/reports/R3-Q3-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/reports/R4-Q1-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/reports/R5-Q3-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/reports/R5-Q4-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/reports/R5-Q5-atomcode-research.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": ".scratch/macro-audit/spec-phase-tasks.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.07222625120668574,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 7
+  },
+  {
+    "path": "AGENTS.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "CONTEXT.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03995494747603892,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 7
+  },
+  {
+    "path": "README.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.05839569246497996,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 7
+  },
+  {
+    "path": "docs/adr/0001-five-scale-scope.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0230509312361763,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/adr/0002-no-mvp-slice.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": "docs/adr/0003-boundary-product-and-usage.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0230509312361763,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/adr/0004-strategic-quadrant-five-dims.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0230509312361763,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/adr/0005-hub-of-facts-with-federated-adjudication.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0230509312361763,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/adr/0006-shared-skeleton-scale-slice.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0230509312361763,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/adr/0007-ten-demo-paths.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0230509312361763,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/adr/0008-agent-plugin-five-layer-box.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02919784623248998,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/adr/0009-intake-local-first-url-optin.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02919784623248998,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/adr/0010-spec-repo-and-engineering-repo-split.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.009220372494470521,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": "docs/adr/0011-single-repo-subdir-but-branches.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/adr/0012-value-validation-loop-first.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "docs/adr/0013-three-layer-acceptance-gates.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "docs/adr/0014-upstream-integration-dual-track.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02766111748341156,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/adr/0015-serial-calibration-measurement-validity-first.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "docs/adr/0016-distribution-channel-agent-plugins-only.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "docs/adr/0017-preview-release-model.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "docs/adr/0018-versioning-and-chronicle-discipline.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.021514202487097882,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "docs/decisions/2026-09-13-r3-execution-summary.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0076836437453921,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "docs/decisions/2026-09-14-r3-execution-closeout.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.00307345749815684,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "docs/decisions/README.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.021514202487097882,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "docs/versioning.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.021514202487097882,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/.claude-plugin/plugin.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02766111748341156,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/.gitattributes",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02766111748341156,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/.gitignore",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02766111748341156,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/CHANGELOG.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "engine/LICENSE",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/PROVENANCE.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/README.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03227130373064682,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "engine/extensions/com.macroaudit.hooks/README.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02766111748341156,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/manifest.meta.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "engine/mcp.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02766111748341156,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/package-lock.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "engine/package.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.07837316620299942,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 6
+  },
+  {
+    "path": "engine/plugin.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03534476122880366,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "engine/scripts/gen-manifests.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03995494747603892,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": "engine/skills/macro-audit/SKILL.md",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03227130373064682,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": "engine/src/cli.ts",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02766111748341156,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/src/collect/collectors.ts",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02612438873433314,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 3
+  },
+  {
+    "path": "engine/src/fact/index.ts",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/src/fact/schema.ts",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/src/fact/store.ts",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/src/index.ts",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02766111748341156,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/src/manifest.ts",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02766111748341156,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/src/report/generate.ts",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.01383055874170578,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/src/selftest.ts",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03227130373064682,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "engine/src/upstream/codelore.ts",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/test/codelore-adapter.test.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/test/collectors.test.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.0153672874907842,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "engine/test/fixtures/codelore/explain-cli.ts.txt",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/test/fixtures/codelore/explain-collectors.ts.txt",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/test/fixtures/codelore/summary.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/test/fixtures/codelore/version.txt",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02458765998525472,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  },
+  {
+    "path": "engine/test/smoke.test.mjs",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.03227130373064682,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 2
+  },
+  {
+    "path": "engine/tsconfig.json",
+    "authors": 1,
+    "fragmentation": 0.0,
+    "interleave": 0.0,
+    "cochange_entropy": 0.02766111748341156,
+    "tier": "single",
+    "health_band": "unknown",
+    "total_commits": 1
+  }
+]

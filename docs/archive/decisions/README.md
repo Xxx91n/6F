@@ -30,7 +30,7 @@ git rev-parse 2e6061be:.scratch/architecture-recovery/decision-ledger.md
 1. **`D-NNN` / `A-NNN`** → 查 [`ticket-index.md` §1 / §3](ticket-index.md) 取引入 commit、账本行状态与去向，再到对应账本原文读该行全文。带圈号后缀（如 `D-053①`）是同一决策的子项，按主干号解析。`D-002`／`D-008`／`D-014`／`D-019`／`D-022` 五条例外：§1 载体列对它们只给机械解析（含已删 ADR），现行去向按 [ticket-index.md §7.1](ticket-index.md) 的解析表读。
 2. **裸 `#NN`** → 先看 **[撞号警示](ticket-index.md#撞号警示)**。`#32`–`#94` 在本档案语境指 **旧 BACKLOG 票号**；`#38`–`#47` 现在同时是治理轮的 GitHub issue 号，语义完全不同。代码注释、workflow 注释、`NN-check` 与 `.scratch` 路径旁的 `#NN` 属旧 BACKLOG；治理轮文书里的 `#NN` 属 GitHub issue。
 3. **`.scratch/...` 路径** → 该目录已于 `e356581e` 移出版本控制并加入 `.gitignore`，工作树里没有。逐票档案按 `git show 2e6061be:<旧路径>` 取回，口径见 [ticket-index.md §5](ticket-index.md)。
-4. **冻结件里的本机绝对路径** → 见 [ticket-index.md §6](ticket-index.md)：`engine/test/fixtures/contracts/38-macro-c-facts.jsonl` 的 30 处 `D:/Aworker/...` 属原始采集现场，不可移植，不作基准锚。
+4. **冻结件里的本机绝对路径** → 见 [ticket-index.md §6](ticket-index.md)：`engine/test/fixtures/contracts/` 下 38 期冻结件含原始采集现场的本机盘符锚，不可移植、不作基准锚。逐件口径只在 §6 登记，本节不复述计数（同一事实不两写）。
 
 ## 边界
 

@@ -1,0 +1,8 @@
+{
+  "pc1_golden_adr": "# ADR-9999: PC-1 golden fixture\n\n- Status: accepted\n- Date: 2026-09-13\n- Deciders: fixture\n- Ledger: D-000\n\n## Context\n\nfixture context.\n\n## Decision\n\nfixture decision.\n\n## Consequences\n\nfixture consequences; this supersedes ADR-0000.",
+  "pc1_positioning": "macro audit positioning convergence determinism traceability provenance fact table skeleton slice quadrant scale verdict gate receipt citation anchor",
+  "pc2_path": "fixtures/23-pc2-lag-adr.md",
+  "pc2_first_commit_date": "2026-01-01T00:00:00+08:00",
+  "pc2_adr_date": "2026-09-13",
+  "nc1_path": "engine/src/fact/schema.ts"
+}

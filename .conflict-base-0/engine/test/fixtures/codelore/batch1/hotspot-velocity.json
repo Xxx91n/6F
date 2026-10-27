@@ -1,0 +1,90 @@
+[
+  {
+    "path": ".scratch/architecture-recovery/decision-ledger.md",
+    "revs_recent": 30,
+    "revs_baseline": 0,
+    "recent_per_week": 7.0,
+    "baseline_per_week": 0.0,
+    "acceleration": 7.0
+  },
+  {
+    "path": ".scratch/architecture-recovery/WORKFLOW.md",
+    "revs_recent": 20,
+    "revs_baseline": 0,
+    "recent_per_week": 4.666666666666667,
+    "baseline_per_week": 0.0,
+    "acceleration": 4.666666666666667
+  },
+  {
+    "path": ".scratch/architecture-recovery/README.md",
+    "revs_recent": 16,
+    "revs_baseline": 0,
+    "recent_per_week": 3.7333333333333334,
+    "baseline_per_week": 0.0,
+    "acceleration": 3.7333333333333334
+  },
+  {
+    "path": ".scratch/macro-audit/decision-ledger.md",
+    "revs_recent": 11,
+    "revs_baseline": 0,
+    "recent_per_week": 2.566666666666667,
+    "baseline_per_week": 0.0,
+    "acceleration": 2.566666666666667
+  },
+  {
+    "path": ".scratch/architecture-recovery/spec.md",
+    "revs_recent": 10,
+    "revs_baseline": 0,
+    "recent_per_week": 2.3333333333333335,
+    "baseline_per_week": 0.0,
+    "acceleration": 2.3333333333333335
+  },
+  {
+    "path": ".scratch/macro-audit/handoffs/next-round.md",
+    "revs_recent": 8,
+    "revs_baseline": 0,
+    "recent_per_week": 1.8666666666666667,
+    "baseline_per_week": 0.0,
+    "acceleration": 1.8666666666666667
+  },
+  {
+    "path": ".scratch/macro-audit/spec-phase-tasks.md",
+    "revs_recent": 7,
+    "revs_baseline": 0,
+    "recent_per_week": 1.6333333333333333,
+    "baseline_per_week": 0.0,
+    "acceleration": 1.6333333333333333
+  },
+  {
+    "path": "CONTEXT.md",
+    "revs_recent": 7,
+    "revs_baseline": 0,
+    "recent_per_week": 1.6333333333333333,
+    "baseline_per_week": 0.0,
+    "acceleration": 1.6333333333333333
+  },
+  {
+    "path": "README.md",
+    "revs_recent": 7,
+    "revs_baseline": 0,
+    "recent_per_week": 1.6333333333333333,
+    "baseline_per_week": 0.0,
+    "acceleration": 1.6333333333333333
+  },
+  {
+    "path": ".scratch/architecture-recovery/reports/25-rollout-checklist.md",
+    "revs_recent": 6,
+    "revs_baseline": 0,
+    "recent_per_week": 1.4,
+    "baseline_per_week": 0.0,
+    "acceleration": 1.4
+  },
+  {
+    "path": "engine/package.json",
+    "revs_recent": 6,
+    "revs_baseline": 0,
+    "recent_per_week": 1.4,
+    "baseline_per_week": 0.0,
+    "acceleration": 1.4
+  }
+]

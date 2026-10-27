@@ -1,0 +1,2180 @@
+[
+  {
+    "entity": ".code-tmp/02-repos.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 8,
+    "deleted": 0
+  },
+  {
+    "entity": ".code-tmp/26-truth-raw.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 309,
+    "deleted": 0
+  },
+  {
+    "entity": ".code-tmp/memory.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 866,
+    "deleted": 0
+  },
+  {
+    "entity": ".code-tmp/research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 478,
+    "deleted": 0
+  },
+  {
+    "entity": ".gitattributes",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 3,
+    "deleted": 0
+  },
+  {
+    "entity": ".github/workflows/engine-ci.yml",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 30,
+    "deleted": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/BACKLOG.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 66,
+    "deleted": 3
+  },
+  {
+    "entity": ".scratch/architecture-recovery/HANDOFF-2026-09-12-round-close.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 150,
+    "deleted": 52
+  },
+  {
+    "entity": ".scratch/architecture-recovery/README.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 436,
+    "deleted": 16
+  },
+  {
+    "entity": ".scratch/architecture-recovery/WORKFLOW.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 329,
+    "deleted": 3
+  },
+  {
+    "entity": ".scratch/architecture-recovery/decision-ledger.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 368,
+    "deleted": 53
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/01-s1-semantic-measurement.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/02-s2-adr-timestamp-check.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/03-s4-adr-assumption-extraction.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/04-s5-ownership-single-author.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/05-25-unit-matrix.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/06-ai-agent-adr-impact.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/07-duckdb-write-strategy.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/08-schema-versioning.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/09-read-model-staleness.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 28,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/10-cross-scale-correlation-key.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/11-langgraph-eval.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/12-data-mesh-defense.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/13-tool-alignment.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/14-shared-skeleton-design.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/15-scale-slice-boundaries.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/16-rendering-split.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 28,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/17-path-cost-value.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/18-failure-path-detail.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 29,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/19-push-ci-activation.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/20-fact-schema-v0.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/21-deterministic-collectors.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/22-b-criteria-prereg.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 30,
+    "deleted": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/23-first-report-e2e.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 34,
+    "deleted": 3
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/24-gap-sweep-anchors.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 29,
+    "deleted": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/25-rollout-distribution.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/26-adr-measurement-audit.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 25,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/27-criteria-v2-fallback-chain.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 25,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/28-adr-hygiene-sweep.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 25,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/29-c-disposition-reopen.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 25,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/30-frozen-calibration-desk.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 25,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/31-codelore-probe.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 26,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/32-prompts-closeout-block.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 22,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/33-gate-watch-guard.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 30,
+    "deleted": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/34-plugin-json-compliance.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 30,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/35-codelore-expansion-batch1.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 30,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/36-codelore-llm-faces.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/37-pilot-surface-audit.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/38-macro-c-preview.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 29,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/39-macro-b-three-repo.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 28,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/40-external-repo-generalization.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 25,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/41-distribution-closeout.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 29,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/42-upstream-queue.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/43-sample-golden-ci.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 25,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/audit-round6-2026-09-15.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 65,
+    "deleted": 15
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/audit-round7-w1-2026-09-15.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 43,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/closeout-2026-09-13.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 34,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/closeout-2026-09-14.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 37,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/handoffs/closeout-2026-09-15.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/01-s1-semantic-measurement.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/02-s2-adr-timestamp-check.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/03-s4-adr-assumption-extraction.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/04-s5-ownership-single-author.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/05-25-unit-matrix.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/06-ai-agent-adr-impact.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/07-duckdb-write-strategy.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/08-schema-versioning.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/09-read-model-staleness.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/10-cross-scale-correlation-key.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/11-langgraph-eval.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/12-data-mesh-defense.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/13-tool-alignment.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/14-shared-skeleton-design.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/15-scale-slice-boundaries.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/16-rendering-split.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/17-path-cost-value.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/18-failure-path-detail.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/19-push-ci-activation.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/20-fact-schema-v0.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/21-deterministic-collectors.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/22-b-criteria-prereg.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/23-first-report-e2e.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/24-gap-sweep-anchors.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/25-rollout-distribution.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/26-adr-measurement-audit.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/27-criteria-v2-fallback-chain.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/28-adr-hygiene-sweep.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/29-c-disposition-reopen.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/30-frozen-calibration-desk.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/31-codelore-probe.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/32-prompts-closeout-block.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/33-gate-watch-guard.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 23,
+    "deleted": 6
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/34-plugin-json-compliance.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 22,
+    "deleted": 5
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/35-codelore-expansion-batch1.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/36-codelore-llm-faces.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/37-pilot-surface-audit.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/38-macro-c-preview.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/39-macro-b-three-repo.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/40-external-repo-generalization.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/41-distribution-closeout.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/42-upstream-queue.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/issues/43-sample-golden-ci.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/01-s1-semantic-measurement.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 33,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/02-s2-adr-timestamp-check.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 33,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/03-s4-adr-assumption-extraction.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/04-s5-ownership-single-author.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/05-25-unit-matrix.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/06-ai-agent-adr-impact.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/07-duckdb-write-strategy.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/08-schema-versioning.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/09-read-model-staleness.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 32,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/10-cross-scale-correlation-key.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/11-langgraph-eval.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/12-data-mesh-defense.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/13-tool-alignment.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/14-shared-skeleton-design.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/15-scale-slice-boundaries.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/16-rendering-split.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 32,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/17-path-cost-value.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/18-failure-path-detail.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 33,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/19-push-ci-activation.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/20-fact-schema-v0.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/21-deterministic-collectors.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/22-b-criteria-prereg.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 32,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/23-first-report-e2e.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 33,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/24-gap-sweep-anchors.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 30,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/25-rollout-distribution.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/26-adr-measurement-audit.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 35,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/27-criteria-v2-fallback-chain.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 37,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/28-adr-hygiene-sweep.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 33,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/29-c-disposition-reopen.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 34,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/30-frozen-calibration-desk.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 34,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/31-codelore-probe.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 37,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/32-prompts-closeout-block.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/33-gate-watch-guard.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 37,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/34-plugin-json-compliance.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 34,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/35-codelore-expansion-batch1.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 36,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/36-codelore-llm-faces.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 35,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/37-pilot-surface-audit.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 34,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/38-macro-c-preview.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 35,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/39-macro-b-three-repo.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 35,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/40-external-repo-generalization.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 34,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/41-distribution-closeout.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 36,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/42-upstream-queue.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 35,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/prompts/43-sample-golden-ci.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 34,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-align.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 2474,
+    "deleted": 4
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-align.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 201,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 252,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 75,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-corpora.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 6374,
+    "deleted": 63
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-extract.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 189,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-fallback.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 91,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 262,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-research-prompt.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-spotcheck.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 982,
+    "deleted": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/01-spotcheck.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 101,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/02-adr-fallback.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 2061,
+    "deleted": 451
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/02-adr-fallback.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 140,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/02-adr-header-scan.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 1615,
+    "deleted": 393
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/02-adr-header-scan.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 162,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/02-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 397,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/03-extraction-cases.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 841,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/03-extraction-prompt.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 180,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/03-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 82,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/03-reusability.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 43,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/03-spotcheck-checklist.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 55,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/04-downweight-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 109,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/04-downweight.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 222,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/04-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 108,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/05-matrix-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 52,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/05-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 170,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/05-unit-matrix.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 870,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/05-unit-matrix.schema.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 274,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/06-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 502,
+    "deleted": 4
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/07-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 463,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/08-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 569,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/09-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 268,
+    "deleted": 3
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/09-stale-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 172,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/09-stale-marker-fields.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 284,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/10-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 369,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/11-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 203,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/12-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 353,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/13-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 441,
+    "deleted": 189
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/14-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 203,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/14-skeleton-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 148,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/14-skeleton-fields.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 1034,
+    "deleted": 2
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/14-skeleton.schema.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 246,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/15-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 133,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/15-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 167,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/15-research-prompt.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/15-slice-boundaries.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 440,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/15-slice-boundaries.schema.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 426,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/15-slice-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 133,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/16-render-split-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 167,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/16-render-split.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 2061,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/16-render-split.schema.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 316,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/16-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 78,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/17-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 171,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/18-demo-fixture.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 140,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/18-demo-output.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 204,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/18-demo-output.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 110,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/18-failure-demo.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 258,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/18-failure-paths.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 340,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/18-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 245,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/19-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 213,
+    "deleted": 42
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/20-fact-schema-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 145,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/20-fact-schema.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 433,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/20-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 131,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/20-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 98,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/21-collector-map.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 111,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/21-collectors-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 254,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/21-collectors-fixture.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 98,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/21-collectors.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 237,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/21-guard-run.log",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 44,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/21-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 126,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/21-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 87,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/22-c-adjudication-basis.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 76,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/22-criteria-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 164,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/22-criteria-pre-registration.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 239,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/22-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 142,
+    "deleted": 8
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/22-threshold-probe.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 222,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/22-threshold-raw.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 336,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-atomcode-prompt.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 283,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-facts-insert.sql",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 228,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-facts.jsonl",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 228,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-first-report-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 166,
+    "deleted": 5
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-first-report-failure.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 735,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-first-report-failure.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 170,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-first-report.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 995,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-first-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 168,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-first-report.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 413,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-fixtures.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 8,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-gates.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 416,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-measurements.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 108,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/23-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 172,
+    "deleted": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/24-atomcode-prompt.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 44,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/24-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 254,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/24-calibration-map.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 62,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/24-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 106,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/24-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 88,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/25-atomcode-prompt.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 30,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/25-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 133,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/25-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 107,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/25-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 76,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/25-rollout-checklist.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 124,
+    "deleted": 38
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/26-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 88,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/26-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 57,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/26-truth-table.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 1211,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/26-truth-table.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 85,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/27-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 51,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/27-dual-readings.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 893,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/27-dual-readings.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 103,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/27-prereg.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 45,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/27-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 48,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/27-rerun.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 85,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/28-apply.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 133,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/28-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 194,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/28-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 73,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/29-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 35,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/29-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 28,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/30-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 30,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/30-desk-calibration.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 138,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/30-desk-calibration.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 26,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/30-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 30,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/31-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 39,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/31-codelore-probe.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 79,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/31-probe-measurements.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 79,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/31-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 42,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/31-upstream-drift.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 48,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/31-upstream-facts.jsonl",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 8,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/32-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 23,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/32-t0-verify.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 48,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/32-t0-verify2.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 24,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/33-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 101,
+    "deleted": 7
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/33-gate-registry.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 86,
+    "deleted": 31
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/33-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 43,
+    "deleted": 1
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/34-check.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 52,
+    "deleted": 7
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/34-plugin.schema.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 68,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/34-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 34,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/round6-audit.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 72,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/round6-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 62,
+    "deleted": 4
+  },
+  {
+    "entity": ".scratch/architecture-recovery/reports/round7-w1-audit.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 88,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/architecture-recovery/spec.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 429,
+    "deleted": 6
+  },
+  {
+    "entity": ".scratch/architecture-recovery/verify-build-2026-09-12.log",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 22,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/decision-ledger.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 457,
+    "deleted": 4
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/2026-09-12-r2q7-engineering-handoff.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 69,
+    "deleted": 35
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/2026-09-12-r2q7-handoff.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 54,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/2026-09-12-round-close-handoff.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 39,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/2026-09-15-r7-window1.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/handoffs/next-round.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 215,
+    "deleted": 164
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/2026-09-12-audit-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 235,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/2026-09-12-report-engineering.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 57,
+    "deleted": 57
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/2026-09-12-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 256,
+    "deleted": 108
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/2026-09-15-report.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 56,
+    "deleted": 2
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R2-Q7-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 224,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R2-Q7-research-prompt.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 37,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R3-Q1-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 101,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R3-Q2-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 98,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R3-Q3-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 96,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R4-Q1-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 110,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R5-Q3-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 52,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R5-Q4-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 57,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/reports/R5-Q5-atomcode-research.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 72,
+    "deleted": 0
+  },
+  {
+    "entity": ".scratch/macro-audit/spec-phase-tasks.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 149,
+    "deleted": 10
+  },
+  {
+    "entity": "AGENTS.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 12,
+    "deleted": 0
+  },
+  {
+    "entity": "CONTEXT.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 239,
+    "deleted": 1
+  },
+  {
+    "entity": "README.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 99,
+    "deleted": 12
+  },
+  {
+    "entity": "docs/adr/0001-five-scale-scope.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 1
+  },
+  {
+    "entity": "docs/adr/0002-no-mvp-slice.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 2
+  },
+  {
+    "entity": "docs/adr/0003-boundary-product-and-usage.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 1
+  },
+  {
+    "entity": "docs/adr/0004-strategic-quadrant-five-dims.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 1
+  },
+  {
+    "entity": "docs/adr/0005-hub-of-facts-with-federated-adjudication.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 1
+  },
+  {
+    "entity": "docs/adr/0006-shared-skeleton-scale-slice.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 1
+  },
+  {
+    "entity": "docs/adr/0007-ten-demo-paths.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 1
+  },
+  {
+    "entity": "docs/adr/0008-agent-plugin-five-layer-box.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 1
+  },
+  {
+    "entity": "docs/adr/0009-intake-local-first-url-optin.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 17,
+    "deleted": 1
+  },
+  {
+    "entity": "docs/adr/0010-spec-repo-and-engineering-repo-split.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 28,
+    "deleted": 2
+  },
+  {
+    "entity": "docs/adr/0011-single-repo-subdir-but-branches.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 26,
+    "deleted": 1
+  },
+  {
+    "entity": "docs/adr/0012-value-validation-loop-first.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 21,
+    "deleted": 0
+  },
+  {
+    "entity": "docs/adr/0013-three-layer-acceptance-gates.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 22,
+    "deleted": 0
+  },
+  {
+    "entity": "docs/adr/0014-upstream-integration-dual-track.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 24,
+    "deleted": 2
+  },
+  {
+    "entity": "docs/adr/0015-serial-calibration-measurement-validity-first.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 32,
+    "deleted": 0
+  },
+  {
+    "entity": "docs/adr/0016-distribution-channel-agent-plugins-only.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 25,
+    "deleted": 0
+  },
+  {
+    "entity": "docs/adr/0017-preview-release-model.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 30,
+    "deleted": 0
+  },
+  {
+    "entity": "docs/adr/0018-versioning-and-chronicle-discipline.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 27,
+    "deleted": 0
+  },
+  {
+    "entity": "docs/decisions/2026-09-13-r3-execution-summary.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 28,
+    "deleted": 0
+  },
+  {
+    "entity": "docs/decisions/2026-09-14-r3-execution-closeout.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 20,
+    "deleted": 0
+  },
+  {
+    "entity": "docs/decisions/README.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 42,
+    "deleted": 1
+  },
+  {
+    "entity": "docs/versioning.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 31,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/.claude-plugin/plugin.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 9,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/.gitattributes",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 11,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/.gitignore",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 4,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/CHANGELOG.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 14,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/LICENSE",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 8,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/PROVENANCE.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 11,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/README.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 29,
+    "deleted": 6
+  },
+  {
+    "entity": "engine/extensions/com.macroaudit.hooks/README.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 5,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/manifest.meta.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 51,
+    "deleted": 8
+  },
+  {
+    "entity": "engine/mcp.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 12,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/package-lock.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 198,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/package.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 49,
+    "deleted": 8
+  },
+  {
+    "entity": "engine/plugin.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 20,
+    "deleted": 8
+  },
+  {
+    "entity": "engine/scripts/gen-manifests.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 100,
+    "deleted": 54
+  },
+  {
+    "entity": "engine/skills/macro-audit/SKILL.md",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 19,
+    "deleted": 3
+  },
+  {
+    "entity": "engine/src/cli.ts",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 20,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/src/collect/collectors.ts",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 590,
+    "deleted": 3
+  },
+  {
+    "entity": "engine/src/fact/index.ts",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 2,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/src/fact/schema.ts",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 107,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/src/fact/store.ts",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 63,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/src/index.ts",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 4,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/src/manifest.ts",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 24,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/src/report/generate.ts",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 594,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/src/selftest.ts",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 24,
+    "deleted": 1
+  },
+  {
+    "entity": "engine/src/upstream/codelore.ts",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 129,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/test/codelore-adapter.test.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 61,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/test/collectors.test.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 73,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/test/fixtures/codelore/explain-cli.ts.txt",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 19,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/test/fixtures/codelore/explain-collectors.ts.txt",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 46,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/test/fixtures/codelore/summary.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 18,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/test/fixtures/codelore/version.txt",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 1,
+    "deleted": 0
+  },
+  {
+    "entity": "engine/test/smoke.test.mjs",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 35,
+    "deleted": 1
+  },
+  {
+    "entity": "engine/tsconfig.json",
+    "author": "iz0ms@Euiop1.oi",
+    "added": 16,
+    "deleted": 0
+  }
+]

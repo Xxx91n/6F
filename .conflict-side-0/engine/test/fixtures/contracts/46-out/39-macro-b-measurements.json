@@ -1,0 +1,50 @@
+{
+  "probe": "39-macro-b-one-shot.mjs",
+  "generated_at": "2026-09-16T07:13:30.349Z",
+  "ticket": 39,
+  "a_xxx": "A-044",
+  "scale": "Macro-B",
+  "targets": [
+    {
+      "repo": "jiahao",
+      "head_sha": "8a8422e952269b474220e68ae30ee11e6fc11e15",
+      "head_date": "2026-09-16T14:39:52+08:00",
+      "commit_count": 265,
+      "adr_count": 69,
+      "fact_count": 1101,
+      "intent_docs": [
+        "CONTEXT.md",
+        "README.md",
+        "AGENTS.md"
+      ],
+      "verdicts": {
+        "pc1": true,
+        "pc2": true,
+        "tc1": "NOT_RED",
+        "tc2": "NOT_RED",
+        "tc3": "GREEN",
+        "nc1": true,
+        "overall": "supported"
+      },
+      "receipt": "RCP-a435e3bf5b9d6b46",
+      "outputs": {
+        "md": "39-macro-b-jiahao.md",
+        "sidecar": "39-macro-b-jiahao.json",
+        "facts": "39-macro-b-jiahao-facts.jsonl",
+        "measurements": "39-macro-b-jiahao-measurements.json"
+      }
+    }
+  ],
+  "shared_duckdb": {
+    "file": "39-audit-facts.duckdb",
+    "appended": 1101,
+    "dedup_dropped": 0,
+    "db_by_scale": {
+      "Macro-B": 1101
+    },
+    "db_by_repo": {
+      "jiahao@8a8422e952269b474220e68ae30ee11e6fc11e15": 1101
+    },
+    "note": "三仓 Macro-B 事实同一 audit_fact 表、同一 appendFact 写路径（单写者串行追加）；供 mw self-probe 与后续层对照"
+  }
+}

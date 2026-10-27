@@ -1,0 +1,50 @@
+[
+  {
+    "module": ".scratch",
+    "total_commits": 97,
+    "bus_factor": 1,
+    "top_contributor": "iz0ms@Euiop1.oi",
+    "top_contributor_share": 1.0,
+    "model": "commits"
+  },
+  {
+    "module": "engine",
+    "total_commits": 13,
+    "bus_factor": 1,
+    "top_contributor": "iz0ms@Euiop1.oi",
+    "top_contributor_share": 1.0,
+    "model": "commits"
+  },
+  {
+    "module": "<root>",
+    "total_commits": 12,
+    "bus_factor": 1,
+    "top_contributor": "iz0ms@Euiop1.oi",
+    "top_contributor_share": 1.0,
+    "model": "commits"
+  },
+  {
+    "module": "docs",
+    "total_commits": 12,
+    "bus_factor": 1,
+    "top_contributor": "iz0ms@Euiop1.oi",
+    "top_contributor_share": 1.0,
+    "model": "commits"
+  },
+  {
+    "module": ".code-tmp",
+    "total_commits": 3,
+    "bus_factor": 1,
+    "top_contributor": "iz0ms@Euiop1.oi",
+    "top_contributor_share": 1.0,
+    "model": "commits"
+  },
+  {
+    "module": ".github",
+    "total_commits": 2,
+    "bus_factor": 1,
+    "top_contributor": "iz0ms@Euiop1.oi",
+    "top_contributor_share": 1.0,
+    "model": "commits"
+  }
+]

@@ -305,7 +305,7 @@ export async function runMacroCAudit(opts) {
     }
     // ---------- §5 证据＋结论→引文锚（多 token 全命中；源=运行目录工件相对名） ----------
     const R = NAME.toUpperCase().split('-').join('').split('/').join('');
-    const RUN_CMD = portableReproduceCmd(opts.input, opts.outDir, intake.kind);
+    const RUN_CMD = portableReproduceCmd(opts.input, opts.outDir, intake.url);
     const evidence = [];
     function addEvidence(id, source, tokens, claim, base) {
         const ex = pickExcerpt(source, tokens, base);

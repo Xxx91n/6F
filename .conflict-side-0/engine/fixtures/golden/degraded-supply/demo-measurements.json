@@ -1,0 +1,111 @@
+{
+  "scenario": "degraded-supply",
+  "synthetic": true,
+  "generator": "fixture-generator@1.0.0",
+  "observed_at": "2026-04-06T10:00:00Z",
+  "head_sha": "8fc753eddd6dbe22b43818c704fda26096e7189c",
+  "tree_sha": "74ad5d090a81fa1d08d27741b52ddd7b1472adb9",
+  "commit_count": 8,
+  "merge_commits": 1,
+  "branches": [
+    "feature/supply-notes",
+    "main"
+  ],
+  "tags": [
+    "v0.1.0"
+  ],
+  "adr_count": 6,
+  "intent_docs": [
+    "CONTEXT.md",
+    "README.md"
+  ],
+  "fact_count": 129,
+  "intake": {
+    "kind": "local",
+    "shallow": false,
+    "full_depth_verified": true,
+    "remote_config_execution": "disabled",
+    "credentials": "local-git-credential-chain",
+    "cloned": false
+  },
+  "tc1": {
+    "judgeable_n": 6,
+    "backfill_n": 0,
+    "ratio_4": "0.0000",
+    "verdict": "NOT_RED",
+    "threshold": {
+      "lag_days": 90,
+      "ratio_red": 0.2,
+      "min_n": 5
+    }
+  },
+  "tc2": {
+    "total": 6,
+    "mean_ratio_4": "1.0000",
+    "missing_counts": {
+      "Status": 0,
+      "Date": 0,
+      "Context": 0,
+      "Decision": 0,
+      "Consequences": 0
+    },
+    "missing_ratio_4": {
+      "Status": 0,
+      "Date": 0,
+      "Context": 0,
+      "Decision": 0,
+      "Consequences": 0
+    },
+    "cond_a": false,
+    "cond_b": false,
+    "verdict": "NOT_RED",
+    "threshold": {
+      "mean_red": 0.6,
+      "field_missing_red": 0.5
+    }
+  },
+  "tc3": {
+    "per_source": [
+      {
+        "path": "CONTEXT.md",
+        "hit": 20,
+        "keywords": 20,
+        "ratio_4": "1.0000"
+      },
+      {
+        "path": "README.md",
+        "hit": 9,
+        "keywords": 15,
+        "ratio_4": "0.6000"
+      }
+    ],
+    "lowest_path": "README.md",
+    "lowest_ratio_4": "0.6000",
+    "verdict": "AMBER",
+    "threshold": {
+      "red": 0.5,
+      "green": 0.7,
+      "top_n": 20
+    }
+  },
+  "nc1": {
+    "path": "package.json",
+    "fact_count": 11,
+    "five_piece_present": 0,
+    "supersede_present": false,
+    "pass": true
+  },
+  "pc1": {
+    "pass": true
+  },
+  "pc2": {
+    "pass": true,
+    "delta_days": 255
+  },
+  "failure_trigger": "supply-chain-not-connected",
+  "expect": {
+    "overall_verdict": "insufficient",
+    "degraded_mode": true,
+    "degraded_reason_marker": "供应链"
+  }
+}

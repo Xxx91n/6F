@@ -1,0 +1,237 @@
+{
+  "ticket": 21,
+  "a_xxx": "A-022",
+  "spec_ref": "spec.md §R3-D3",
+  "decision_refs": [
+    "D-016",
+    "D-017",
+    "D-018",
+    "ADR-0013"
+  ],
+  "schema": {
+    "table": "audit_fact",
+    "schema_version": 1,
+    "columns": 16,
+    "produced_by_store": [
+      "fact_seq",
+      "ingested_at",
+      "schema_version"
+    ],
+    "produced_by_collector": [
+      "fact_id",
+      "trace_id",
+      "baggage_id",
+      "scale",
+      "quadrant",
+      "dimension",
+      "collector_id",
+      "repo_ref",
+      "subject_ref",
+      "evidence_ref",
+      "metric",
+      "value_json",
+      "observed_at"
+    ]
+  },
+  "determinism": {
+    "id_derivation": "sha256 over collector_id|subject_ref|metric|value_json|observed_at -> uuid-like 36 chars",
+    "trace_id": "injected run trace_id (32 lowercase hex)",
+    "baggage_id": "sha256 over repo_ref|scale|quadrant|dimension|run_id -> 32 lowercase hex",
+    "clock": "observed_at 由调用方注入，禁止 Date.now() / Math.random()",
+    "purity": "采集器不读 fs、不起子进程、不发网络请求；输入一律注入"
+  },
+  "collectors": [
+    {
+      "id": "adr-structure@v1",
+      "family": "adr-structure",
+      "dimension": "S2",
+      "quadrant": "strategic",
+      "default_scale": "Macro-B",
+      "input": [
+        "注入的 ADR 文件数组 {path, text}"
+      ],
+      "extraction": [
+        "头部字段：- Status: / - Date: / - Deciders: / - Ledger:（列表式，位于 H1 标题之后）",
+        "正文章节：## Context / ## Decision / ## Consequences（+ 可选 ## Options / ## Considered Options）",
+        "supersede 链：正文内匹配 supersede / superseded by / supersedes（大小写不敏感）"
+      ],
+      "metrics": [
+        {
+          "metric": "adr.header_field_present",
+          "value_shape": "{field,present,line}",
+          "evidence_ref_shape": "<adr path>#L<line>"
+        },
+        {
+          "metric": "adr.section_present",
+          "value_shape": "{section,present,line}",
+          "evidence_ref_shape": "<adr path>#L<line>"
+        },
+        {
+          "metric": "adr.five_piece_completeness",
+          "value_shape": "{present,of,ratio,missing:[]}",
+          "evidence_ref_shape": "<adr path>",
+          "note": "五件套 = Status / Date / Context / Decision / Consequences；真判据 S2b 输入"
+        },
+        {
+          "metric": "adr.supersede_link_present",
+          "value_shape": "{present,matches,line}",
+          "evidence_ref_shape": "<adr path>#L<line>"
+        },
+        {
+          "metric": "adr.decision_date",
+          "value_shape": "{date}",
+          "evidence_ref_shape": "<adr path>#L<line>"
+        }
+      ],
+      "subject_ref_shape": "ADR 文件路径"
+    },
+    {
+      "id": "positioning@v1",
+      "family": "positioning",
+      "dimension": "S1",
+      "quadrant": "strategic",
+      "default_scale": "Macro-B",
+      "input": [
+        "注入的意图声明文本（README / roadmap / epic 目标）",
+        "注入的实际交付文本（CHANGELOG / PR 标题 / issue label）",
+        "注入的关键词抽取配置 {topN, stopwords}（topN 是采集配置，不是判据阈值）"
+      ],
+      "extraction": [
+        "意图文本确定性分词：ASCII 词（长度>=2）+ CJK 2-gram",
+        "去停用词（注入表）后按频次降序取 topN 作为定位关键词集合",
+        "在实际交付文本中逐词命中统计（大小写不敏感）"
+      ],
+      "metrics": [
+        {
+          "metric": "positioning.keyword_coverage",
+          "value_shape": "{keywords,hit,ratio,missed:[]}",
+          "evidence_ref_shape": "<intent doc path>",
+          "note": "真判据 S1 输入"
+        },
+        {
+          "metric": "positioning.keyword_hit",
+          "value_shape": "{keyword,hit,intent_count,delivery_count}",
+          "evidence_ref_shape": "<intent doc path>"
+        },
+        {
+          "metric": "positioning.drift_anchor",
+          "value_shape": "{first_missed_keyword,anchor}",
+          "evidence_ref_shape": "<intent doc path>"
+        }
+      ],
+      "subject_ref_shape": "意图声明文档路径"
+    },
+    {
+      "id": "gitlog@v1",
+      "family": "gitlog",
+      "dimension": null,
+      "quadrant": "strategic",
+      "default_scale": "Macro-B",
+      "input": [
+        "注入的 git log 记录数组 {sha, author, date, paths[]}",
+        "注入的 ADR 日期映射 {adrPath: date}（来自 adr-structure@v1，构成同族交叉）",
+        "注入的目标路径列表"
+      ],
+      "extraction": [
+        "按路径聚合：首现提交（最早 date，同 date 时按 sha 字典序，保证确定性）、提交数、作者分布",
+        "与注入的 ADR 日期比对，计算 date 差值天数"
+      ],
+      "metrics": [
+        {
+          "metric": "git.first_commit",
+          "value_shape": "{path,sha,date}",
+          "evidence_ref_shape": "<sha>"
+        },
+        {
+          "metric": "git.commit_count",
+          "value_shape": "{path,count}",
+          "evidence_ref_shape": "<sha>"
+        },
+        {
+          "metric": "git.author_matrix",
+          "value_shape": "{path,authors:[],top_author,top_share}",
+          "evidence_ref_shape": "<sha>",
+          "note": "为 S5 预留，本票只声明不承载判据"
+        },
+        {
+          "metric": "git.adr_lag_days",
+          "value_shape": "{path,adr_date,first_commit_date,delta_days}",
+          "evidence_ref_shape": "<sha>",
+          "note": "真判据 S2a 事后补写占比的输入信号；跨族（gitlog × adr-structure）"
+        }
+      ],
+      "subject_ref_shape": "被聚合的路径"
+    }
+  ],
+  "detector_binding": [
+    {
+      "criterion": "PC-1",
+      "type": "positive_control",
+      "role": "前置·管线健康闸 A",
+      "families": [
+        "adr-structure",
+        "positioning"
+      ],
+      "covers_true_criteria": [
+        "TC-2",
+        "TC-3"
+      ],
+      "assertion": "fixture 中植入一份五件套齐全 + supersede 链完备的 ADR 与一份完整定位声明，两族均须产出非空事实；未命中 = 管线故障 P0，不计入价值判定"
+    },
+    {
+      "criterion": "PC-2",
+      "type": "positive_control",
+      "role": "前置·管线健康闸 B",
+      "families": [
+        "gitlog"
+      ],
+      "cross_family": [
+        "adr-structure"
+      ],
+      "covers_true_criteria": [
+        "TC-1"
+      ],
+      "assertion": "fixture 中植入一份已知事后补写 ADR（adr_date 晚于首现提交），gitlog 族须检出 delta_days > 0；未命中 = 管线故障 P0"
+    },
+    {
+      "criterion": "TC-1",
+      "type": "true_criterion",
+      "signal": "S2a ADR 事后补写占比",
+      "primary_family": "gitlog",
+      "cross_family": [
+        "adr-structure"
+      ],
+      "same_family_control": "PC-2",
+      "threshold": "待票 22 测定写死（A-023 纪律）"
+    },
+    {
+      "criterion": "TC-2",
+      "type": "true_criterion",
+      "signal": "S2b ADR 五件套完整度",
+      "primary_family": "adr-structure",
+      "same_family_control": "PC-1",
+      "threshold": "待票 22 测定写死（A-023 纪律）"
+    },
+    {
+      "criterion": "TC-3",
+      "type": "true_criterion",
+      "signal": "S1 定位关键词覆盖率",
+      "primary_family": "positioning",
+      "same_family_control": "PC-1",
+      "threshold": "待票 22 测定写死（A-023 纪律）"
+    },
+    {
+      "criterion": "NC-1",
+      "type": "negative_control",
+      "role": "特异性守卫",
+      "primary_family": "adr-structure",
+      "same_family_control": null,
+      "note": "取预期 0 命中的已知干净片段；命中走事前约定复核路径，不自动定罪"
+    }
+  ],
+  "for_ticket_22": [
+    "直接引用 detector_binding；阈值一律由票 22 测定写死",
+    "正对照与真判据的族指认已就绪：TC-1→PC-2，TC-2→PC-1，TC-3→PC-1",
+    "冲突 C-21-1：2 正对照覆盖 3 族的解法是跨族驱动，若票 22 认为需改配比须显式回写账本"
+  ]
+}
