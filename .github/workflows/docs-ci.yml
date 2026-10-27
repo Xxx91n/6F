@@ -20,6 +20,9 @@ on:
       - "engine/test/contracts/docs-authority-check.mjs"
       - ".github/PULL_REQUEST_TEMPLATE.md"
       - ".github/workflows/docs-ci.yml"
+      - ".github/**"
+      - ".claude-plugin/**"
+      - "examples/**"
   pull_request:
     paths:
       - "docs/**"
@@ -35,6 +38,9 @@ on:
       - "engine/test/contracts/docs-authority-check.mjs"
       - ".github/PULL_REQUEST_TEMPLATE.md"
       - ".github/workflows/docs-ci.yml"
+      - ".github/**"
+      - ".claude-plugin/**"
+      - "examples/**"
 
 permissions:
   contents: read

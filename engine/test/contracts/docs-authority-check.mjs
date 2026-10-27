@@ -313,6 +313,7 @@ const REQUIRED_PATHS = [
   'GLOSSARY.md', 'engine/README.md', 'engine/package.json',
   '.github/PULL_REQUEST_TEMPLATE.md',
   'engine/test/contracts/docs-authority-check.mjs', '.github/workflows/docs-ci.yml',
+  '.github/**', '.claude-plugin/**', 'examples/**',
 ];
 t('G1 docs-ci workflow 在位且无 BOM + LF', !!docsCiBuf && noBom(docsCiBuf) && docsCi.indexOf('\r') < 0);
 for (const ev of ['push', 'pull_request']) {
