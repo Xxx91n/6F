@@ -3,9 +3,10 @@
 //   通配与占位不抽取）→ C 全量对账（每条 .mjs 引用可解析，或逐条登记 historical）→ D 反向对账
 //   （historical 必须仍被引用、必须不可解析、kind 与 reason 齐备且家族匹配）→ E 消费面活性
 //   （guards[]／confirmations[] 两族各有引用，防字段改名后守卫空转）→ F 判别臂负对照
-//   （未登记／已登记／复活／kind 错配／空理由／悬空六态）。
+//   （未登记／已登记／复活／kind 错配／空理由／悬空六态）→ G 守卫卫生（无 BOM）。
 // 纪律：只读仓内 JSON 与文件系统，零写；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, statSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, isAbsolute, relative } from 'node:path';
 
@@ -16,6 +17,8 @@ const PROTECTED_SURFACE = '#31 registry 可执行引用一致性（ADR-0027）�
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
 const REG = join(REPO, 'engine', 'test', 'fixtures', 'contracts', '33-gate-registry.json');
+// 只认已跟踪文件：untracked 残留不得翻转结论（portable 面本地/CI 同判）。
+const TRACKED = new Set(execFileSync('git', ['ls-files'], { cwd: REPO, encoding: 'utf8' }).split('\n').filter(Boolean).map(function (p) { return p.split('\\').join('/'); }));
 
 // 通配/占位写法不是文件引用：#31 票面点名 `NN-check.mjs` 是措辞截出的伪引用。
 const NON_REFERENCE = new Set(['NN-check.mjs']);
@@ -30,6 +33,7 @@ function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] ==
 function extractRefs(root) {
   const refs = new Map();
   (function walk(v, path) {
+    if (path === 'meta.reference_resolution') return; // 声明面不是引用面：防 historical 自证/自我放大
     if (typeof v === 'string') {
       for (const m of v.matchAll(REF_RE)) {
         const ref = m[1];
@@ -60,7 +64,10 @@ function refsFromStrings(strings) {
 function resolveRef(ref, roots) {
   for (const root of roots) {
     const p = join(root, ref);
-    if (existsSync(p) && statSync(p).isFile()) return relative(REPO, p).split('\\').join('/');
+    if (!existsSync(p) || !statSync(p).isFile()) continue;
+    const rel = relative(REPO, p).split('\\').join('/');
+    if (rel === '' || rel.startsWith('../') || isAbsolute(rel)) continue;
+    if (TRACKED.has(rel)) return rel;
   }
   return null;
 }
@@ -68,6 +75,7 @@ function resolveRef(ref, roots) {
 function classify(refs, historical, resolve) {
   const v = [];
   for (const [ref, paths] of refs) {
+    if (isAbsolute(ref) || ref.split('/').indexOf('..') >= 0) { v.push('INVALID-REF ' + ref); continue; }
     const target = resolve(ref);
     const h = historical[ref];
     if (target) {
@@ -97,6 +105,7 @@ const roots = declaredRoots.filter(function (r) { return typeof r === 'string'; 
 t('A2 解析根仓相对且实存（<repo> 必在其中）',
   declaredRoots.indexOf('<repo>') >= 0 && badRoots.length === 0 && roots.every(function (r) { return existsSync(r) && statSync(r).isDirectory(); }),
   'bad=' + JSON.stringify(badRoots));
+t('A3 已跟踪文件面非空（解析只认 git ls-files——untracked 残留不翻转结论）', TRACKED.size > 0, 'tracked=' + TRACKED.size);
 
 // ---------- B. 抽取规则自证 ----------
 const sample = 'reports/33-check.mjs、38-check.mjs＋_lib/check-kit.mjs；*-check.mjs 与 NN-check.mjs 不是引用；*.test.mjs 也不截。';
@@ -110,8 +119,8 @@ const historical = (policy && policy.historical) || {};
 const violations = classify(refs, historical, function (r) { return resolveRef(r, roots); });
 const liveRefs = [...refs.keys()].filter(function (r) { return resolveRef(r, roots); });
 t('C1 每条 .mjs 引用可解析，或逐条登记 historical（零未登记死引用）', violations.length === 0, violations.join(' ;; '));
-t('C2 对账面非空（live>0 且 historical>0）', liveRefs.length > 0 && Object.keys(historical).length > 0,
-  'live=' + liveRefs.length + ' historical=' + Object.keys(historical).length);
+t('C2 对账面非空（refs>0 且 live>0——historical 清零属收敛态，不判红）', refs.size > 0 && liveRefs.length > 0,
+  'refs=' + refs.size + ' live=' + liveRefs.length + ' historical=' + Object.keys(historical).length);
 
 // ---------- D. 反向对账 ----------
 const histKeys = Object.keys(historical);
@@ -143,6 +152,7 @@ const cases = [
   ['F4 reports/* kind 错配 → KIND-MISMATCH', [['reports/x.mjs']], { 'reports/x.mjs': mark('retired-script', 'negative control: kind mismatch') }, function () { return null; }, 'KIND-MISMATCH'],
   ['F5 空理由 → EMPTY-REASON', [['999-missing.mjs']], { '999-missing.mjs': mark('retired-script', '') }, function () { return null; }, 'EMPTY-REASON'],
   ['F6 悬空登记 → DANGLING-HISTORICAL', [], { '999-missing.mjs': mark('retired-script', 'negative control: dangling entry') }, function () { return null; }, 'DANGLING-HISTORICAL'],
+  ['F7 越界引用 → INVALID-REF', [['../escape.mjs']], {}, function () { return null; }, 'INVALID-REF'],
 ];
 for (const [name, refList, hist, resolver, want] of cases) {
   const m = new Map(refList.map(function (r) { return [r[0], new Set(['synthetic'])]; }));
