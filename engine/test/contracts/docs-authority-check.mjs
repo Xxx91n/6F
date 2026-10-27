@@ -28,11 +28,12 @@ const SELF = relative(REPO, fileURLToPath(import.meta.url)).split(sep).join('/')
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + String(detail).slice(0, 400) : '')); } }
 function txt(p) { return readFileSync(join(REPO, p), 'utf8'); }
+function safeTxt(p) { try { return txt(p); } catch { return null; } }
 function noBom(buf) { return !(buf[0] === 0xEF && buf[1] === 0xBB && buf[2] === 0xBF); }
 function git(args) { return execFileSync('git', ['-C', REPO].concat(args), { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }); }
 
 // ---------- 普查面：tracked 文本，排除归档/产物/冻结夹具 ----------
-const TRACKED = git(['ls-files']).split('\n').filter(Boolean);
+const TRACKED = git(['ls-files', '-z']).split('\0').filter(Boolean);
 const TEXT_RE = /\.(md|markdown|txt|ts|tsx|js|mjs|cjs|json|jsonl|ya?ml|yml|toml)$/i;
 const EXCLUDED_DIRS = ['docs/archive/', 'engine/dist/', 'engine/test/fixtures/', 'engine/fixtures/golden/', 'node_modules/'];
 function excluded(p) {
@@ -46,11 +47,12 @@ function corpusText(p, s) {
   if (p !== SELF) { return s; }
   return s.split('\n').filter(l => !l.includes('--inject-') && !l.includes('NEGATIVE-CONTROL')).join('\n');
 }
+const unreadable = [];
 const CORPUS = [];
 for (const p of TRACKED) {
   if (excluded(p) || !TEXT_RE.test(p)) { continue; }
   let s;
-  try { s = readFileSync(join(REPO, p), 'utf8'); } catch { continue; }
+  try { s = readFileSync(join(REPO, p), 'utf8'); } catch { unreadable.push(p); continue; }
   if (s.indexOf('\u0000') >= 0) { continue; }
   CORPUS.push({ path: p, text: corpusText(p, s) });
 }
@@ -77,6 +79,7 @@ t('A2 文件名符合 *-check.mjs（contracts-run 自动纳入）', /-check\.mjs
 const CORPUS_PATHS = new Set(CORPUS.map(f => f.path));
 t('A3 普查面非空且含权威载体/门面/源码三锚（防空集假绿）',
   ['docs/authority.md', 'README.md', 'engine/src/audit/macro-c.ts'].every(p => CORPUS_PATHS.has(p)));
+t('A4 所有 tracked 文本文件可读（缺失即红，不静默跳过）', unreadable.length === 0, unreadable.join(','));
 
 // ---------- B. 门面文书集合 → 指针 ----------
 // 域＝除 docs/authority.md 与三载体正文之外、声明落点的文书；按内容标记派生，
@@ -92,9 +95,10 @@ const facade = TRACKED.filter(p => {
   if (CARRIER.some(r => r.test(p))) { return false; }
   if (FACADE_FIXED.includes(p)) { return true; }
   if (excluded(p)) { return false; }
-  return LANDING_MARK.test(txt(p));
+  const s = safeTxt(p);
+  return s !== null && LANDING_MARK.test(s);
 });
-const missingFixed = FACADE_FIXED.filter(p => !facade.includes(p) || !LANDING_MARK.test(txt(p)));
+const missingFixed = FACADE_FIXED.filter(p => !facade.includes(p) || !LANDING_MARK.test(safeTxt(p) || ''));
 // 指针必须解析到 docs/authority.md 本体；`[x](../nope/authority.md)` 这类伪指针不算。
 function authorityPointer(p, text) {
   const dir = posix.dirname(p);
@@ -105,7 +109,7 @@ function authorityPointer(p, text) {
   }
   return false;
 }
-const facadeMissing = facade.filter(p => !authorityPointer(p, txt(p)));
+const facadeMissing = facade.filter(p => !authorityPointer(p, safeTxt(p) || ''));
 t('B1 固定门面文书全部入域且带落点声明（域按内容派生，非计数硬编码）', missingFixed.length === 0, 'missing=' + missingFixed.join(','));
 t('B2 每份门面文书都以 markdown 链接指回 docs/authority.md 本体', facadeMissing.length === 0, 'missing=' + facadeMissing.join(','));
 
@@ -248,7 +252,9 @@ function selfClaimHit(line) {
 }
 const selfClaim = [];
 for (const p of facade) {
-  txt(p).split('\n').forEach((line, i) => {
+  const s = safeTxt(p);
+  if (s === null) { continue; }
+  s.split('\n').forEach((line, i) => {
     const viaAuthority = line.includes('authority.md');
     const viaWhitelist = lineMatchesWhitelist(line);
     if (line.includes('唯一权威') && !viaAuthority && !viaWhitelist) { selfClaim.push(p + ':' + (i + 1) + ' 唯一权威无 §2 落点'); }
@@ -256,7 +262,7 @@ for (const p of facade) {
     if (selfClaimHit(line) && !viaAuthority) { selfClaim.push(p + ':' + (i + 1) + ' 自称权威'); }
   });
 }
-const readmeAuthorityLine = txt('README.md').split('\n').find(l => l.includes('唯一权威')) || '';
+const readmeAuthorityLine = (safeTxt('README.md') || '').split('\n').find(l => l.includes('唯一权威')) || '';
 t('F1 §2 从属口径白名单可从 authority.md 单源解析（upstream-lock.yaml 正对照）',
   [...whitelistMatch].includes('upstream-lock.yaml'), 'tokens=' + [...whitelist].join(','));
 t('F1b §2 白名单只取 §2 表（不含 §2.1 生成面）',
@@ -294,7 +300,7 @@ function yamlPaths(wf, event) {
   return out;
 }
 const REQUIRED_PATHS = [
-  'docs/**', 'README*', 'CONTRIBUTING.md', 'AGENTS.md', 'SECURITY.md', 'CODE_OF_CONDUCT.md',
+  'docs/**', '*.md', 'README*', 'CONTRIBUTING.md', 'AGENTS.md', 'SECURITY.md', 'CODE_OF_CONDUCT.md',
   'GLOSSARY.md', 'engine/README.md', 'engine/package.json',
   '.github/PULL_REQUEST_TEMPLATE.md',
   'engine/test/contracts/docs-authority-check.mjs', '.github/workflows/docs-ci.yml',
@@ -313,6 +319,7 @@ t('G4 docs-ci 复用 check:docs（单一步骤，不建第二套 README/戳位�
   runSteps.length === 1 && runSteps[0] === 'npm run check:docs', 'runs=' + runSteps.join(' | '));
 t('G5 docs-ci permissions contents: read', /permissions:[\s\S]*?contents:\s*read/.test(docsCi));
 t('G6 docs-ci working-directory: engine', /working-directory:\s*engine/.test(docsCi));
+t('G7 docs-ci checkout 不持久化凭据（persist-credentials: false）', /persist-credentials:\s*false/.test(docsCi));
 
 // ---------- H. engine-ci 矩阵/路径边界 ----------
 const engineCi = txt('.github/workflows/engine-ci.yml');

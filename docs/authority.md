@@ -48,7 +48,7 @@
 | README 双语对的致谢锚段与 `<!-- sync: … -->` 戳 | `node scripts/gen-acknowledgments.mjs`（写双文件并按 EN 内容重算 sync 戳） | `77-check` A3（**手改戳位即红**）＋ `73-check` C 组 |
 | `engine/test/fixtures/contracts/48-micro-a-golden-*`（在册**十二件**） | `node engine/test/contracts/48-micro-a-preview.mjs --golden --out engine/test/fixtures/contracts`（cassette 离线回放，确定性可重算；实写十二件） | **部分**：`85-check` E1~E9 只逐值比 pr64／pr51 **两件 JSON 侧车**的 band／切片数值／fact_ids／披露块／overall_verdict；`48-check` B4 只判**十件在场**不比内容，`48-micro-a-golden-assertions.json` 自身由 `--golden` 现算——其余 `.md`、拒绝件、facts、gate-probes、measurements 的正文**暂无逐值守卫**（缺口如实登记，勿当成全量对账）；CI 不回写，golden 更新随 PR 审查 |
 
-文档面的只读自检（零写入）：`cd engine && npm run check:docs` = acknowledgments `--check` + `73-check` + `77-check` + `docs-authority-check`。
+文档面的只读自检（零写入）：`cd engine && npm run check:docs`。
 
 ## 3. 历史指纹政策
 

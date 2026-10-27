@@ -8,6 +8,7 @@ on:
   push:
     paths:
       - "docs/**"
+      - "*.md"
       - "README*"
       - "CONTRIBUTING.md"
       - "AGENTS.md"
@@ -22,6 +23,7 @@ on:
   pull_request:
     paths:
       - "docs/**"
+      - "*.md"
       - "README*"
       - "CONTRIBUTING.md"
       - "AGENTS.md"
@@ -45,6 +47,8 @@ jobs:
         working-directory: engine
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24
