@@ -40,11 +40,12 @@ export const MACRO_C_LLM_EXPLAIN_CANDIDATES: readonly string[] = ['apps/cli/src/
 export const MACRO_C_SUPERSEDE_KINDS: readonly string[] = ['whole-adr-status', 'item-level-inline'];
 
 // Design: 报告输出面不得出现本机绝对路径 — ADR-0026
-// reproduce_cmd 可移植化：本地输入记 `<repo>`、出目录记 `<dir>`（形制同 micro-a.ts），报告输出面不得出现本机绝对路径（ADR-0026）。
-// 本地与否以 intake 的判定为准，不靠字面猜——`projects/demo` 这类相对路径会被 slug 正则误判成 owner/repo，从而依赖原工作目录；
+// reproduce_cmd 可移植化：本机目录记 `<repo>`、出目录记 `<dir>`（形制同 micro-a.ts），报告输出面不得出现本机绝对路径（ADR-0026）。
+// 判据取 intake 的解析结果（url===null ⇒ 落在本机目录），不靠字面也不靠 kind 猜：`projects/demo` 这类相对路径会被
+// classifyRepoInput 归成 owner-repo，却仍由 repoAdd 解析成本机目录——只看 kind 会把原字面值留在报告里，复现命令随之依赖原工作目录。
 // `file://` 在 intake 里归 url（URL_SCHEMES），但它承载的正是本机绝对路径，同样要换成占位。
-function portableReproduceCmd(input: string, outDir: string | null | undefined, kind: RepoInputKind): string {
-  const local = kind === 'local' || /^file:\/\//i.test(input);
+function portableReproduceCmd(input: string, outDir: string | null | undefined, remoteUrl: string | null): string {
+  const local = remoteUrl === null || /^file:\/\//i.test(input);
   return 'macro-audit audit ' + (local ? '<repo>' : input) + ' --scale Macro-C' + (outDir ? ' --out <dir>' : '');
 }
 
