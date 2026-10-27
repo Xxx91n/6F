@@ -3,7 +3,7 @@
 - Date: 2026-10-26
 - Status: accepted
 
-> 勘误补记（tracker #77 / tracker #98，2026-10-28）：Decision 正文的「改用 ADR 号或 spec A-code」按现行编号口径读——架构决策落 `ADR-NNNN`，产品决策落 [`docs/spec.md`](../spec.md) 的 `R<n>-<m>` 条目；`A-NNN` 与 `D-NNN` 账本均已封账，不追加新号。原文未改写。
+> 勘误补记（tracker #77 / tracker #98，2026-10-28）：Decision 正文的「改用 ADR 号或 spec A-code」按现行编号口径（[`docs/authority.md`](../authority.md) §3）读——架构决策落 `ADR-NNNN`，产品决策落 [`docs/spec.md`](../spec.md) 的 `R<n>-<m>` 条目；`A-NNN` 与 `D-NNN` 账本均已封账，不追加新号。原文未改写。
 
 ## Context
 
