@@ -113,9 +113,11 @@ const resolveCommit = function (v) {
 const truthFull = resolveCommit(scriptTruth);
 const idxFull = resolveCommit(idxCommit), lineageIdxFull = resolveCommit(lineageIdx);
 const scriptFull = resolveCommit(lineageScript);
+let shallowHist = 'unknown';
+try { shallowHist = execFileSync('git', ['rev-parse', '--is-shallow-repository'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { shallowHist = 'unknown'; }
 t('R13 血缘两枚 commit 各归其名——两侧均解析为完整 commit 后比全值：索引腿＝#38 行对象，脚本腿＝git 新增该脚本的对象（不可解析、对调、指错真值皆红；宽度差不红）',
   idxFull !== '' && lineageIdxFull === idxFull && scriptFull !== '' && truthFull !== '' && scriptFull === truthFull && scriptFull !== idxFull,
-  JSON.stringify({ index: idxCommit, script: lineageScript, idxFull: idxFull.slice(0, 12), scriptFull: scriptFull.slice(0, 12), truthFull: truthFull.slice(0, 12) }));
+  JSON.stringify({ index: idxCommit, script: lineageScript, idxFull: idxFull.slice(0, 12), scriptFull: scriptFull.slice(0, 12), truthFull: truthFull.slice(0, 12), shallow: shallowHist }));
 
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
