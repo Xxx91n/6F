@@ -4,8 +4,7 @@
 > 分工（D-113② 单向权威）：本册=缺口语义唯一权威（gap_id/reason_code/证据链/status/owner/review_by）；
 >   `engine/test/fixtures/contracts/33-gate-registry.json`（活契约）=立法触发器册（只持五要素触发器字段，
 >   禁复制缺口语义；trigger_id 单向外链 registry，registry 不反写本册）。
->   可执行引用一致性由 `engine/test/contracts/87-check.mjs` 机检（#31／ADR-0027）：每条 `.mjs` 引用须可解析（通配/占位写法不计），
->   或逐条登记在 `meta.reference_resolution.historical`（`reports/*` 归档路径＋已删脚本）。
+>   可执行引用一致性由 `engine/test/contracts/87-check.mjs` 机检（#31／ADR-0027；判定面与 `historical` 登记规则的单源在 registry `meta.reference_resolution`，本册不复述）。
 > 检测面（D-113③）：quarantine_log SQL 派生信号（UNCLASSIFIED_FIELD_ANOMALY 出现/新码首见）→ 人审登记——
 >   自动信号≠台账条目（自动 intake→人审→裁决登记三层）。
 

@@ -3,7 +3,7 @@
 //   通配与占位不抽取）→ C 全量对账（每条 .mjs 引用可解析，或逐条登记 historical）→ D 反向对账
 //   （historical 必须仍被引用、必须不可解析、kind 与 reason 齐备且家族匹配）→ E 消费面活性
 //   （guards[]／confirmations[] 两族各有引用，防字段改名后守卫空转）→ F 判别臂负对照
-//   （未登记／已登记／复活／kind 错配／空理由／悬空六态）→ G 守卫卫生（无 BOM）。
+//   （未登记／已登记／复活／kind 错配／空理由／悬空／越界七态）→ G 守卫卫生（无 BOM）。
 // 纪律：只读仓内 JSON 与文件系统，零写；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -140,8 +140,12 @@ const guardRefs = refsFromStrings(reg.items.flatMap(function (i) { return Array.
 const confRefs = refsFromStrings(reg.items.flatMap(function (i) {
   return (Array.isArray(i.confirmations) ? i.confirmations : []).map(function (c) { return [c && c.evidence, c && c.reason].filter(Boolean).join(' '); });
 }));
-t('E1 guards[] 面有可抽取引用（字段改名后守卫不得空转）', guardRefs.size > 0, 'n=' + guardRefs.size);
-t('E2 confirmations[] 面有可抽取引用（evidence/reason 双字段）', confRefs.size > 0, 'n=' + confRefs.size);
+const guardLive = [...guardRefs.keys()].filter(function (r) { return resolveRef(r, roots); });
+const confLive = [...confRefs.keys()].filter(function (r) { return resolveRef(r, roots); });
+t('E1 guards[] 面有可解析引用（字段改名后守卫不得空转）', guardRefs.size > 0 && guardLive.length > 0,
+  'n=' + guardRefs.size + ' live=' + guardLive.length);
+t('E2 confirmations[] 面有可解析引用（evidence/reason 双字段）', confRefs.size > 0 && confLive.length > 0,
+  'n=' + confRefs.size + ' live=' + confLive.length);
 
 // ---------- F. 判别臂负对照（合成样本，不读仓内状态） ----------
 const mark = function (kind, reason) { return { kind: kind, reason: reason }; };

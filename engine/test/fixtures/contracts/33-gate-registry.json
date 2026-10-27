@@ -10,8 +10,14 @@
   "watch_schema": "watch 三态：event_bound（默认——须 trigger_event 或 deadline_event 至少一锚）/ manual_watch（五要素：标记=watch 字段值本身＋责任人 owner＋复审时点 review_at prose＋review_event 机读锚＋验证方法 verify_method＋确认留痕 confirmations[]）/ risk_accepted（三要素：acceptor＋reason＋expires_at——翻转权属人工裁决，守卫仅输出 RISK-ACCEPTED-CANDIDATE 候选名单不自动改 status）",
   "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签",
   "reference_resolution": {
-   "rule": "registry 内每个 .mjs 引用按 resolution_roots 逐根解析，只认 git 已跟踪文件；解析失败者必须在 historical 逐条登记（kind＋reason），否则 87-check 判红。historical 是历史登记，不代表该脚本仍可执行；guards[]/verify_method 中的 historical 引用按历史留痕读，现行载体见各条 reason 与 registry 的 watch_rule。historical 条目须仍被本表引用且在工作树不可解析——复活即红。reports/* 归档路径 kind=archived-path，已删脚本 kind=retired-script。通配/占位写法（*-check.mjs、NN-check.mjs）不是文件引用，不参与解析。",
-   "resolution_roots": ["<repo>", "engine", "engine/test", "engine/test/contracts", "engine/scripts"],
+   "rule": "registry 内每个 .mjs 引用按 resolution_roots 逐根解析，只认 git 已跟踪文件；解析失败者必须在 historical 逐条登记（kind＋reason），否则 87-check 判红。historical 是历史登记，不代表该脚本仍可执行；guards[]/verify_method 中的 historical 引用按历史留痕读，现行载体见各条 reason 与 registry 的 watch_rule。historical 条目须仍被本表引用且在工作树不可解析——复活即红。reports/* 归档路径 kind=archived-path，已删脚本 kind=retired-script。通配/占位写法（*-check.mjs、NN-check.mjs）不是文件引用，不参与解析。本守卫只判可执行引用（.mjs）；非执行证据路径（.json/.md 等）不在判定面。",
+   "resolution_roots": [
+    "<repo>",
+    "engine",
+    "engine/test",
+    "engine/test/contracts",
+    "engine/scripts"
+   ],
    "historical": {
     "01-check.mjs": {
      "kind": "retired-script",
@@ -59,7 +65,7 @@
     },
     "75a-check.mjs": {
      "kind": "retired-script",
-     "reason": "75a-check 守卫普查器已退役；item 81 明载「75a-T4 已退役，无自动断言」"
+     "reason": "75a-check 守卫普查器已退役（75a-T3/T4/M1/M3 对账均无自动断言，改人工同窗维护）；本引用为历史登记"
     },
     "84-check.mjs": {
      "kind": "retired-script",
@@ -1948,7 +1954,7 @@
    "source": "reports/known-red-manifest.json entries[id=kr-01-corpus-regen]",
    "owner": "收口窗口指派（登记位：known-red-manifest.json kr-01-corpus-regen 条目）",
    "review_event": "stage3-close",
-   "verify_method": "guard-all-run.mjs 册件复绿告警（strict 摘除制）＋75a-check M1 schema 校验；复绿即摘条目",
+   "verify_method": "人工复审窗按 review_at/review_event 核对 manifest 摘除/复绿记录（原机检载体 guard-all-run.mjs＋75a-check.mjs 均已退役，历史照存）；复绿即摘条目",
    "confirmations": [
     {
      "at": "2026-09-28",
@@ -2127,7 +2133,7 @@
   {
    "id": "env-gated-guard-class",
    "family": "code-hygiene",
-   "title": "env-gated 守卫类登记（D-159①④/D-163）——十二件 env-contract tier（sibling 三件＋engine-deps 九件含 asset/engine 混合面）；声明集↔本项 guards 对账现由人工同窗维护（75a-T3 已随 75a-check 退役；新增/摘除 env-contract 守卫须同窗更新本项）",
+   "title": "env-gated 守卫类登记（D-159①④/D-163）——十二件 env-contract tier 历史登记（37/38/39/40 已退役，现行 8 件；sibling 三件＋engine-deps 九件含 asset/engine 混合面原计数）；声明集↔本项 guards 对账现由人工同窗维护（75a-T3 已随 75a-check 退役；新增/摘除 env-contract 守卫须同窗更新本项）",
    "deadline_event": null,
    "deadline": "无（登记项）",
    "trigger_event": "env-contract-tier-active",
@@ -2135,7 +2141,7 @@
    "review_at": "新增/摘除 env-contract 声明守卫时（人工同窗对账——75a-T3 已退役）＋每审计窗复核",
    "status": "decided",
    "owner": "macro-audit 队列值守",
-   "verify_method": "人工同窗对账（75a-T3 已随 75a-check.mjs 退役，无自动断言）：全量 -check.mjs 的 const TIER=env-contract 声明集须等于本项 guards 集；新增/摘除时同窗更新",
+   "verify_method": "人工同窗对账（75a-T3 已随 75a-check.mjs 退役，无自动断言）：全量 -check.mjs 的 const TIER=env-contract 声明集须等于本项 guards 中的现行项（37/38/39/40 已退役，按 historical 登记，不计入现行集）；新增/摘除时同窗更新",
    "review_event": "stage3-close",
    "guards": [
     "37-check.mjs",
@@ -2929,7 +2935,7 @@
    "status": "pending",
    "watch": "event_bound",
    "owner": "macro-audit 队列值守",
-   "verify_method": "点火后逐件核被消费守卫 consumption_forms 声明是否仍覆盖真实消费形态；漏枚=75a-T4 对账红或人工补声明",
+   "verify_method": "点火后逐件核被消费守卫 consumption_forms 声明是否仍覆盖真实消费形态；漏枚=人工同窗核对（75a-T4 已退役，无自动断言）或人工补声明",
    "review_event": "next-audit-window",
    "confirmations": [
     {
