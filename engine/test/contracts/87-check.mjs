@@ -118,7 +118,7 @@ t('B2 声明面 reason 内的 .mjs 纳入 C1 全量对账、不纳入 D3 外部�
   extractRefs(policySample, true).has('engine/test/contracts-run.mjs') && !extractRefs(policySample, false).has('engine/test/contracts-run.mjs'));
 
 // ---------- C. 全量对账 ----------
-const refs = extractRefs(reg, false);
+const refsBody = extractRefs(reg, false);
 const refsAll = extractRefs(reg, true);
 const historical = (policy && policy.historical) || {};
 const violations = classify(refsAll, historical, function (r) { return resolveRef(r, roots); });
@@ -135,8 +135,8 @@ t('D1 historical 逐条 kind/reason 齐备（kind 二态合法＋reason 非空�
 t('D2 reports/* 一律 archived-path，其余一律 retired-script（家族与 kind 互证）',
   histKeys.every(function (k) { return historical[k].kind === (k.indexOf('reports/') === 0 ? 'archived-path' : 'retired-script'); }),
   histKeys.filter(function (k) { return historical[k].kind !== (k.indexOf('reports/') === 0 ? 'archived-path' : 'retired-script'); }).join(','));
-t('D3 historical 条目必须仍被 registry 引用（零悬空登记）', histKeys.every(function (k) { return refs.has(k); }),
-  histKeys.filter(function (k) { return !refs.has(k); }).join(','));
+t('D3 historical 条目必须仍被 registry 引用（零悬空登记）', histKeys.every(function (k) { return refsBody.has(k); }),
+  histKeys.filter(function (k) { return !refsBody.has(k); }).join(','));
 t('D4 historical 条目必须不可解析（复活即红——防声明与实存双真）', histKeys.every(function (k) { return !resolveRef(k, roots); }),
   histKeys.filter(function (k) { return !!resolveRef(k, roots); }).join(','));
 
