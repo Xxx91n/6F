@@ -183,9 +183,11 @@ t('A15 历史钉值引用棘轮：40 位全值只出现在声明的六件 38 现
   'hits=' + (PIN_HITS_JOINED || 'none') + ' declared_alive=' + PIN_DECLARED_ALIVE + ' bin_site=' + BIN_SITE_ALIVE);
 // A16 静态面（不依赖 B 组的 duckdb 组级闸）：报告复现命令必须走占位形。B8 的实跑面在无 duckdb 的机器上整组 SKIP，
 //   若只在那里判，「内容缺陷＝红、环境缺席＝SKIP」就退化成「环境缺席＝永不判」（tracker #72 同一条边界）。
-//   源与 dist 双侧同锚：MC_DIST 是被打进 `dist/cli.js` 的那份 tsc 产物，只认源码会让「改了源码没重建」这类漂移留在绿里。
-//   真正执行的 `dist/cli.js` 是 esbuild 压缩体（`remoteUrl===null` 不带空格），逐字面锚结构上不可能命中它——
-//   执行面的行为由实跑钉：B8（本守卫内，无 duckdb 时整组 SKIP）＋ `macro-c.test.mjs` K2（owner/repo 形态相对路径）。
+//   源与 dist 双侧同锚：MC_DIST 是 tsc 先跑出的模块树，本守卫 C 组与 `macro-c.test.mjs` U 组都直接 import 它执行，
+//   只认源码会让「改了源码没重建」这类漂移留在绿里。而 CLI 实际跑的 `dist/cli.js` 是 esbuild 从 `src/cli.ts`
+//   另打包的自包含压缩体（`remoteUrl===null` 不带空格），逐字面锚结构上不可能命中它——它与 src 的同步由 engine-ci
+//   的 rebuild-diff 步判红（不在本守卫内），它的行为由实跑钉：B8（本守卫内，无 duckdb 时整组 SKIP）
+//   ＋ `macro-c.test.mjs` K2（owner/repo 形态相对路径只能按解析结果判）。
 const MC_SRC = readFileSync(join(ENG, 'src', 'audit', 'macro-c.ts'), 'utf8');
 const MC_DIST = readFileSync(join(ENG, 'dist', 'audit', 'macro-c.js'), 'utf8');
 const portableShape = function (txt) {
