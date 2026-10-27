@@ -228,6 +228,8 @@ function section2Whitelist(text) {
   const out = new Set();
   for (const line of m[1].split('\n')) {
     if (!line.startsWith('|')) { continue; }
+    // 非权威/只读行不构成「专题唯一权威」白名单（docs/archive/decisions/ 明标非权威、只读）。
+    if (/非权威|只读|not authoritative|read-only/i.test(line)) { continue; }
     const first = line.split('|')[1] || '';
     if (!first.includes('`') && !first.includes('](')) { continue; }
     for (const tick of first.matchAll(/`([^`]+)`/g)) { out.add(tick[1]); }
@@ -280,6 +282,10 @@ t('F1d 粗体不构成白名单命中（** 不再放行任意行）',
   whitelistMatch.has(assertedAuthority('唯一权威 = engine/upstream-lock.yaml') || ''));
 t('F1e 伪权威值不因同句 authority.md 链接而通过',
   !whitelistMatch.has(assertedAuthority('唯一权威 = other/engine/upstream-lock.yaml；参见 [authority.md](docs/authority.md)') || ''));
+t('F1f 非权威/只读的 §2 行不入白名单（docs/archive/decisions/ 被排除）',
+  whitelist.has('docs/ra/') && !whitelist.has('docs/archive/decisions/'));
+t('F1g 伪权威值 docs/archive/decisions/ 被拒',
+  !whitelistMatch.has(assertedAuthority('唯一权威 = docs/archive/decisions/') || ''));
 t('F2 门面文书不得自称权威；专题唯一权威须命中 §2 白名单', selfClaim.length === 0, selfClaim.join(' | '));
 t('F3 README 上游表「唯一权威=upstream-lock」属合法命中（不得洗红）',
   whitelistMatch.has(assertedAuthority(readmeAuthorityLine) || ''));
