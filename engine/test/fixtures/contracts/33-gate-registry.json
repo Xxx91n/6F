@@ -3,12 +3,122 @@
   "ticket": 33,
   "a_xxx": "A-038",
   "created": "2026-09-15",
-  "purpose": "全挂门项机读登记表——三字段（最迟拍板时点/触发事件/复审时点）统一索引，由 33-check.mjs 扫描到期报警",
+  "purpose": "全挂门项机读登记表——三字段（最迟拍板时点/触发事件/复审时点）统一索引；到期扫描由人工审计窗承担，可执行引用一致性由 87-check.mjs 机检（33-check 已退役，历史引用见 meta.reference_resolution.historical）",
   "binding_table": "../macro-audit/reports/R5-Q5-atomcode-research.md §3",
   "watch_rule": "触发已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次；再到期升级用户（D-026⑤）",
   "extended": "A-053（2026-09-16）#33-ext：manual_watch 五要素齐备化（owner/review_event/verify_method 补齐＋confirmations 字段归一）＋micro-a-preview-prep 事件登记＋守卫 fail-closed 事件引用/event_bound 覆盖率/risk_accepted 候选名单扩展——round8-35-audit W6 补洞",
   "watch_schema": "watch 三态：event_bound（默认——须 trigger_event 或 deadline_event 至少一锚）/ manual_watch（五要素：标记=watch 字段值本身＋责任人 owner＋复审时点 review_at prose＋review_event 机读锚＋验证方法 verify_method＋确认留痕 confirmations[]）/ risk_accepted（三要素：acceptor＋reason＋expires_at——翻转权属人工裁决，守卫仅输出 RISK-ACCEPTED-CANDIDATE 候选名单不自动改 status）",
-  "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签"
+  "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签",
+  "reference_resolution": {
+   "rule": "registry 内每个 .mjs 引用按 resolution_roots 逐根解析；解析失败者必须在 historical 逐条登记（kind＋reason），否则 87-check 判红。historical 条目须仍被本表引用且在工作树不可解析——复活即红。reports/* 归档路径 kind=archived-path，已删脚本 kind=retired-script。通配/占位写法（*-check.mjs、NN-check.mjs）不是文件引用，不参与解析。",
+   "resolution_roots": ["<repo>", "engine", "engine/test", "engine/test/contracts", "engine/scripts"],
+   "historical": {
+    "01-check.mjs": {
+     "kind": "retired-script",
+     "reason": "01 语料提取守卫已退役（语料治理迁出 .scratch 后无同名守卫；最后读数见 item 61 的 82/82 历史确认）"
+    },
+    "01-extract.mjs": {
+     "kind": "retired-script",
+     "reason": "01 语料提取器为历史复测载体（item 73 记录其 extractIntent 读数），现无同名脚本"
+    },
+    "26-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 git-object 族守卫已退役；item 65 明载「26-check 幽灵钉归 D-094 普查通道不拉回」"
+    },
+    "27-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 git-object 族守卫已退役（与 26-check 同批；item 65 明载不留回）"
+    },
+    "28-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 git-object 族守卫已退役（与 26-check 同批；item 65 明载不留回）"
+    },
+    "37-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+    },
+    "38-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+    },
+    "39-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+    },
+    "39-mw-child.mjs": {
+     "kind": "retired-script",
+     "reason": "#39 多写者 self-probe 的一次性探针脚本，随实验退役（结论已留 item 16 的 confirmation）"
+    },
+    "39-mw-self-probe.mjs": {
+     "kind": "retired-script",
+     "reason": "#39 多写者 self-probe 的一次性探针脚本，随实验退役（结论已留 item 16 的 confirmation）"
+    },
+    "40-check.mjs": {
+     "kind": "retired-script",
+     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+    },
+    "75a-check.mjs": {
+     "kind": "retired-script",
+     "reason": "75a-check 守卫普查器已退役；item 81 明载「75a-T4 已退役，无自动断言」"
+    },
+    "84-check.mjs": {
+     "kind": "retired-script",
+     "reason": "84-check 多形态消费方守卫已退役；item 81 的 84-check 引用为历史登记证据"
+    },
+    "guard-all-run.mjs": {
+     "kind": "retired-script",
+     "reason": "全量守卫运行器已退役；现行入口为 engine/test/contracts-run.mjs"
+    },
+    "reports/01-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/33-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/37-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/46-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/47-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/48-micro-a-preview.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/50-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/75a-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/84-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/_lib/env-contract.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "reports/check-kit-regex-check.mjs": {
+     "kind": "archived-path",
+     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+    },
+    "xfail-run.mjs": {
+     "kind": "retired-script",
+     "reason": "xfail 三态运行器已退役（D-071 建制期产物；known-red 机制换代后不再运行）"
+    }
+   }
+  }
  },
  "events": {
   "stage2-double-closeout": {
