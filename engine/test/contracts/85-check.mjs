@@ -93,10 +93,12 @@ const HISTORICAL_PIN = 'b45d0799' + '2d9c2ee9d01c7b7f176e2fb7c7978dd6';
 const FACTS = join(ENG, 'test', 'fixtures', 'contracts', '38-macro-c-facts.jsonl');
 const FACTS_TXT = existsSync(FACTS) ? readFileSync(FACTS, 'utf8') : '';
 // 取**全部** repo_ref 再判（不先按仓名过滤——否则某行换成别的仓名就被正则排除，A14 照绿）；
-// 同时核「每行都带一个 repo_ref」，防漏行。
-const FACTS_REFS = Array.from(new Set((FACTS_TXT.match(/"repo_ref":"[^"]*"/g) || []).map(function (s) { return s.slice(12, -1); })));
+// 同时核「每行都带一个 repo_ref」，防漏行。正则须容忍 JSON 的冒号后空白（`"repo_ref": "x"`），
+// 否则改一个空格就能让该行整体从集合里消失，A14 照绿。
+const REF_RE = /"repo_ref"\s*:\s*"([^"]*)"/g;
+const FACTS_REFS = Array.from(new Set(Array.from(FACTS_TXT.matchAll(REF_RE)).map(function (m) { return m[1]; })));
 const FACTS_ROWS = FACTS_TXT.split(String.fromCharCode(10)).filter(function (l) { return l.trim() !== ''; }).length;
-const FACTS_REF_N = (FACTS_TXT.match(/"repo_ref":/g) || []).length;
+const FACTS_REF_N = Array.from(FACTS_TXT.matchAll(REF_RE)).length;
 // 本机绝对路径探针同样分片拼接——A12 机检本守卫自身零盘符锚，字面串会让 A12 自己变红
 const FACTS_ABS_RE = new RegExp('D:' + '[/\\\\]Aworker[/\\\\]anysearch-cli', 'g');
 // 同批四件里的第二族锚：本仓自身目录（`D:` + 本仓名，即下面 REPO_ABS_RE 所指）——同属原始现场，不属 D12 的「30 处」口径但同样不可移植
@@ -147,11 +149,11 @@ const HIST_DECLARED = [
   'engine/test/fixtures/contracts/38-macro-c-preview-report.md'
 ];
 const PIN_SCAN_SKIP = ['node_modules', '.git', '.scratch'];
-// 扫描域＝文本件。`38-audit-facts.duckdb` 同属原始现场且含此值，但二进制不入文本棘轮（归档索引第 3 行同口径）。
-//   它靠扩展名过滤排出，但排除必须**可证**：下面断言该件在位且确实含值——件被删/改名/换成不含值的空壳即红，
-//   否则「排除了一个含值的件」这句话本身无从验证，等于一句注释。
-const PIN_SCAN_EXT = /\.(ts|mjs|js|json|jsonl|md|ya?ml)$/;
+// 扫描域＝**除显式排除外的全部文件**（默认扫，而不是白名单扩展名）：白名单会让 .txt/.cjs/.csv 等里
+//   新抄一份 40 位全值却无人发觉，与「只许出现在声明件」的标题不符。二进制枚单独列出并跳过——
+//   但它必须可证：下面断言该件在位且按原始字节确实含此值（件被删/改名/换成空壳即红）。
 const BIN_SITE_FILES = ['engine/test/fixtures/contracts/38-audit-facts.duckdb'];
+const PIN_SCAN_BINARY_EXT = /\.(duckdb|bundle|png|jpe?g|gif|ico|pdf|zip|gz|woff2?|ttf|wasm)$/i;
 const PIN_HITS = [];
 (function scanPin(dir) {
   if (!existsSync(dir)) { return; }
@@ -160,7 +162,7 @@ const PIN_HITS = [];
     const p = join(dir, ent.name);
     if (ent.isDirectory()) { scanPin(p); continue; }
     const rel = p.slice(REPO.length + 1).split('\\').join('/');
-    if (!PIN_SCAN_EXT.test(ent.name)) { continue; }
+    if (PIN_SCAN_BINARY_EXT.test(ent.name)) { continue; }
     if (readFileSync(p, 'utf8').indexOf(HISTORICAL_PIN) >= 0) { PIN_HITS.push(rel); }
   }
 })(REPO);
@@ -185,16 +187,20 @@ t('A15 历史钉值引用棘轮：40 位全值只出现在声明的六件 38 现
 const MC_SRC = readFileSync(join(ENG, 'src', 'audit', 'macro-c.ts'), 'utf8');
 const MC_DIST = readFileSync(join(ENG, 'dist', 'audit', 'macro-c.js'), 'utf8');
 const portableShape = function (txt) {
-  return txt.indexOf("' --out <dir>'") >= 0 && txt.indexOf("'<repo>'") >= 0 && txt.indexOf("' --out ' + opts.outDir") < 0;
+  return txt.indexOf("' --out <dir>'") >= 0 && txt.indexOf("' --out ' + opts.outDir") < 0;
 };
+// 极性本身就是断言：只查「`<repo>` 字样存在」不够——把三目反过来写成 `(local ? input : '<repo>')`，
+//   字面仍在、语义全反（本地路径照旧泄漏，只有远程才被换成占位）。故直接钉住占位在「真」分支的这一侧。
+const REPO_POLARITY = "(local ? '<repo>' : input)";
 // `file://` 在 intake 里归 url，但它承载的正是本机绝对路径；`owner-repo` 形态的相对路径（projects/demo）同样落在本机目录。
 // 判据只能取 intake 的解析结果（url===null），不能取 kind。判别力由正向臂提供：两臂各自必须在 src＋dist 双侧成立——
 // 任一臂被删（或退回只认 kind）这两处就地判否。不另设「拿字面串自比」的负对照：那种臂不读文件，恒为常量真。
 const portableLocalArm = function (txt) { return txt.indexOf('remoteUrl === null') >= 0; };
 const portableFileArm = function (txt) { return txt.indexOf('/^file:') >= 0; };
 const CALL_SITE = 'portableReproduceCmd(opts.input, opts.outDir, intake.url)';
-t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> 双占位＋本地判定取 intake 解析结果＋file 臂＋调用点同形）',
+t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> 双占位且极性正确＋本地判定取 intake 解析结果＋file 臂＋调用点同形）',
   portableShape(MC_SRC) && portableShape(MC_DIST)
+  && MC_SRC.indexOf(REPO_POLARITY) >= 0 && MC_DIST.indexOf(REPO_POLARITY) >= 0
   && portableLocalArm(MC_SRC) && portableLocalArm(MC_DIST) && portableFileArm(MC_SRC) && portableFileArm(MC_DIST)
   && MC_SRC.indexOf(CALL_SITE) >= 0 && MC_DIST.indexOf(CALL_SITE) >= 0,
   'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' local=' + portableLocalArm(MC_SRC) + '/' + portableLocalArm(MC_DIST) + ' file=' + portableFileArm(MC_SRC) + '/' + portableFileArm(MC_DIST) + ' call=' + (MC_SRC.indexOf(CALL_SITE) >= 0) + '/' + (MC_DIST.indexOf(CALL_SITE) >= 0) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
