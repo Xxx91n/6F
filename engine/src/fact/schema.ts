@@ -11,7 +11,7 @@ export interface FactField {
   inherits: string;
 }
 
-// Design: 战略维度固定 S1-S5 五维，事实表不得自造维度 — ADR-0004
+// Design: 战略维度固定 S1-S5 五维 — ADR-0004
 // Design: 跨 scale 共享同一 append-only 事实表 — ADR-0005
 export const SCHEMA_VERSION_V0 = 1;
 
