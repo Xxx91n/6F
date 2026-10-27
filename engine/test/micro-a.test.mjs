@@ -82,12 +82,17 @@ const gateRefOk = function (g) {
 };
 t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 .scratch；缺字段即红）', gateRefOk(gr64), JSON.stringify(gr64));
 // 负对照喂的是**接线后的判定函数**（不是 helper）：缺 criteria_path／空串／已退役 .scratch 三态必须判红
-t('R11-P 负对照：缺 criteria_path、空串、.scratch 回潮三态均判红（删掉 R11 的前置判空此条即红）',
-  gateRefOk(null) === false
-  && gateRefOk({ basis_path: 'docs/x.md' }) === false
-  && gateRefOk({ criteria_path: '', basis_path: 'docs/x.md' }) === false
-  && gateRefOk({ criteria_path: '.scratch/a.md', basis_path: 'docs/x.md' }) === false
-  && grPath('docs/x.md D-1') === 'docs/x.md');
+// 反例必须**只差一个维度**：basis 用真实存在的锚，否则「路径不存在」会把断言替死（删掉被测断言仍绿）
+const EXIST_ANCHOR = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
+const SCRATCHY = './.scratch/../' + EXIST_ANCHOR;   // 字符串含 .scratch，归一化后仍指向该存在文件
+t('R11-P 负对照：缺字段／空串／.scratch 三态各只差一维即判红（删任一断言此条即红）',
+  gateRefOk({ criteria_path: EXIST_ANCHOR, basis_path: EXIST_ANCHOR }) === true      // 正对照：两锚干净时放行
+  && gateRefOk(null) === false
+  && gateRefOk({ basis_path: EXIST_ANCHOR }) === false                               // 仅缺 criteria_path
+  && gateRefOk({ criteria_path: '', basis_path: EXIST_ANCHOR }) === false             // 仅 criteria 为空串
+  && existsSync(join(SELF, SCRATCHY))                                                // 该路径真实可解析
+  && gateRefOk({ criteria_path: SCRATCHY, basis_path: EXIST_ANCHOR }) === false       // 仅因 .scratch 判红
+  && grPath(EXIST_ANCHOR + ' D-1') === EXIST_ANCHOR);
 // 授权锚=EV(4) 票面授权锚＋EV(5) 判据预声明锚；条数钉死（filter 落空会让 .every 恒真——空集不构成正对照）
 const anchors = sc64.evidence.filter(function (e) { return /-(04|05)$/.test(e.evidence_id); });
 t('R12 证据源零退役 .scratch 且授权锚 grounded（EV(4)/EV(5) 恰两条，引文摘取成功）',

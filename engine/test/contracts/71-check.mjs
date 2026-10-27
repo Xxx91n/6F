@@ -12,7 +12,7 @@
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, join, posix } from 'node:path';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '#71 守卫——codelore 接线票·批1（D-080③ sibling 首票／D-078 映射表 v1.0 落地）';
@@ -120,7 +120,18 @@ function stripLineComments(line) {
 // 实现边界：本守卫是行级扫描，看不到经变量间接传入的读取（如 addEvidence(EV(4), LEDGER_PATH, …)），该面由证据 grounded 兜底。
 const DOCREF_RE = /docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr(?:\/|['"])|archive\/decisions\/)/;
 const DOCIO_RE = /\b(?:(?:fs\s*\.\s*promises|fsp|promises|fs)\s*\.\s*[A-Za-z]+|readFile|writeFile|appendFile|readdir|mkdir|rm|unlink|copyFile|rename|stat|access|open|import|readFileSync|readdirSync|existsSync|createReadStream|openSync|writeFileSync|appendFileSync|mkdirSync|rmSync|unlinkSync|copyFileSync|renameSync)\s*\([^)]*['"`]docs\/|^\s*(import|export)\b[^;]*from\s*['"`]docs\//;
-const docRefViolation = (line) => DOCREF_RE.test(line) || DOCIO_RE.test(line);
+// 目录穿越：字面量以豁免目录开头、但归一化后越界（`docs/archive/decisions/../../spec.md`）——豁免按归一化结果判，不按前缀
+const DOCEXEMPT_LIT_RE = /['"`](docs\/(?:adr|archive\/decisions)\/[^'"`\s]*)['"`]/g;
+const docRefViolation = (line) => {
+  if (DOCREF_RE.test(line) || DOCIO_RE.test(line)) return true;
+  DOCEXEMPT_LIT_RE.lastIndex = 0;
+  let m;
+  while ((m = DOCEXEMPT_LIT_RE.exec(line)) !== null) {
+    const norm = posix.normalize(m[1]);
+    if (!(norm.startsWith('docs/adr/') || norm.startsWith('docs/archive/decisions/'))) return true;
+  }
+  return false;
+};
 const docRefViolations = [];
 const walkCode = (dir) => {
   if (!fs.existsSync(dir)) return;
@@ -142,7 +153,7 @@ walkCode(join(ENG, 'src'));
 walkCode(join(ENG, 'skills'));
 t('E1 engine/{src,skills} 无指向本仓 docs/ 树的引用与读写（upstream-dimension-map 引用仅限注释指针——D-083⑤；#29 收窄豁免 docs/archive/decisions/ 引文坐标，读写与 import 仍红——ADR-0025 归档只读）',
   docRefViolations.length === 0, docRefViolations.slice(0, 8).join(' '));
-// E1-P 判别臂活性（正/负对照——豁免收窄后必须仍然能红）：判定函数对十三类样本的判色
+// E1-P 判别臂活性（正/负对照——豁免收窄后必须仍然能红）：判定函数对十五类样本的判色
 const E1_PROBES = [
   ["const p = 'docs/spec.md';", true, '其余 docs/ 路径仍红'],
   ["const p = '../docs/spec.md';", true, '相对路径仍红'],
@@ -155,11 +166,13 @@ const E1_PROBES = [
   ["import fsp from 'node:fs/promises'; fsp.readFile('docs/archive/decisions/x.md');", true, 'node:fs/promises 别名读取仍红'],
   ["readFile('docs/archive/decisions/x.md');", true, '解构自 fs/promises 的裸 readFile 仍红'],
   ["const p = 'docs/adr-other/file.md';", true, '`adr` 前缀目录（非 docs/adr 本体）仍红——豁免按目录边界不按前缀'],
+  ["const p = 'docs/archive/decisions/../../spec.md';", true, '归档前缀的目录穿越仍红——豁免按归一化结果判'],
+  ["const p = 'docs/adr/../spec.md';", true, 'ADR 前缀的目录穿越仍红——豁免按归一化结果判'],
   ["const p = 'docs/archive/decisions/macro-audit-ledger.md';", false, '归档目录的引文坐标放行'],
   ["const p = 'docs/adr/0027-x.md';", false, 'ADR 指针放行']
 ];
 const e1Red = E1_PROBES.filter(function (x) { return docRefViolation(x[0]) !== x[1]; });
-t('E1-P 判别臂活性：十三类样本判色全对（红/绿两侧均非空——收窄后仍能红；豁免按目录边界，异步读写不逃逸）',
+t('E1-P 判别臂活性：十五类样本判色全对（红/绿两侧均非空——收窄后仍能红；豁免按目录边界，异步读写不逃逸）',
   e1Red.length === 0 && E1_PROBES.some(function (x) { return x[1]; }) && E1_PROBES.some(function (x) { return !x[1]; }),
   e1Red.map(function (x) { return x[2]; }).join(' '));
 
