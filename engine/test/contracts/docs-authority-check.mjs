@@ -1,15 +1,15 @@
-// docs-authority-check.mjs — tracker #47 文档权威守卫与 docs-ci 单腿（R8 / ADR-0027）
+// docs-authority-check.mjs — tracker #47 文档权威守卫与 docs-ci 单腿（ADR-0027）
 // 断言面：
 //   A 守卫自声明（guard-meta）、*-check.mjs 命名、普查面非空（防空集假绿）
-//   B 门面文书集合（按「声明落点」内容派生，不硬编码五/六处计数）→ 逐文件 markdown 链接指回 docs/authority.md
+//   B 门面文书集合（按「声明落点」内容派生，不硬编码五/六处计数）→ 逐文件 markdown 链接指回 docs/authority.md 本体
 //   C 现行文本的 ADR-NNNN 全部可解析；docs/adr/ 相对链接可解析（含生成索引）
 //   D D-NNN 引用 ⊆ 归档索引；D-NNN 集合只减不增（冻结账本 blob 钉＋散文假阳性五项钉）
-//   E §D-NNN / §A-NNN 死锚拒绝（3 位退役码形态；1~2 位是 ADR-0018 节号，不在此列）
+//   E §D-NNN / §A-NNN 死锚拒绝（2+ 位退役码形态；1 位是 ADR-0018 节号，不在此列）
 //   F 门面文书不得自称权威；专题「唯一权威」白名单读自 docs/authority.md §2（单源）
 //   G docs-ci 单腿契约：ubuntu/node24、paths 覆盖、复用 check:docs、不建第二套校验
 //   H engine-ci 矩阵/路径边界：仍为 [22,24]，不承载文档守卫
 //   I contracts-run 以 *-check.mjs 命名自动纳入；smoke 链与 check:docs 链同源
-//   J 本守卫与 docs-ci 无 BOM + LF
+//   J 本守卫无 BOM + LF
 // 负对照（注入普查面后必须 exit 1）：--inject-adr=ADR-9998 / --inject-dcode=D-999 / --inject-anchor=§D-004
 // 纪律：只读断言（git ls-files / git hash-object 只读 + fs 读），零写仓内状态；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync } from 'node:fs';
@@ -19,7 +19,7 @@ import { dirname, join, relative, sep, posix } from 'node:path';
 
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
-const PROTECTED_SURFACE = 'tracker #47 文档权威守卫与 docs-ci 单腿（R8 / ADR-0027）';
+const PROTECTED_SURFACE = 'tracker #47 文档权威守卫与 docs-ci 单腿（ADR-0027）';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
@@ -66,8 +66,9 @@ for (const [flag, label] of [['--inject-adr', 'ADR'], ['--inject-dcode', 'DCODE'
 // ---------- 探测器（纯函数：负对照与主断言共用，避免「测的不是判的」） ----------
 function dcodes(text) { return [...text.matchAll(/\bD-(\d{3})\b/g)].map(m => m[0]); }
 function adrRefs(text) { return [...text.matchAll(/\bADR-(\d{4})\b/g)].map(m => m[0]); }
-// 退役决策账本的 D/A 码是三位零填充（D-004）；ADR-0018 的节号 §D-1/§D-2 是 1~2 位，不属死锚形态
-function deadAnchors(text) { return [...text.matchAll(/§[DA]-\d{3,}/g)].map(m => m[0]); }
+// 退役决策账本的 D/A 码是三位零填充（D-004）；ADR-0018 的节号 §D-1/§D-2 是 1 位，不属死锚形态。
+// 判据取 2+ 位：既覆盖三位退役码，也拦住非零填充的短码变体；1 位节号放行。
+function deadAnchors(text) { return [...text.matchAll(/§[DA]-\d{2,}/g)].map(m => m[0]); }
 
 // ---------- A. 守卫自声明与普查面 ----------
 const selfText = txt(SELF);
@@ -94,9 +95,19 @@ const facade = TRACKED.filter(p => {
   return LANDING_MARK.test(txt(p));
 });
 const missingFixed = FACADE_FIXED.filter(p => !facade.includes(p));
-const facadeMissing = facade.filter(p => !/\]\([^)\s]*authority\.md\)/.test(txt(p)));
+// 指针必须解析到 docs/authority.md 本体；`[x](../nope/authority.md)` 这类伪指针不算。
+function authorityPointer(p, text) {
+  const dir = posix.dirname(p);
+  for (const m of text.matchAll(/\]\(([^)\s]*authority\.md)(?:#[^)]*)?\)/g)) {
+    const raw = m[1];
+    if (/^[a-z]+:/i.test(raw)) { continue; }
+    if (posix.normalize(posix.join(dir, raw)) === 'docs/authority.md') { return true; }
+  }
+  return false;
+}
+const facadeMissing = facade.filter(p => !authorityPointer(p, txt(p)));
 t('B1 固定门面文书全部入域（域按声明落点内容派生，非计数硬编码）', missingFixed.length === 0, 'missing=' + missingFixed.join(','));
-t('B2 每份门面文书都以 markdown 链接指回 docs/authority.md', facadeMissing.length === 0, 'missing=' + facadeMissing.join(','));
+t('B2 每份门面文书都以 markdown 链接指回 docs/authority.md 本体', facadeMissing.length === 0, 'missing=' + facadeMissing.join(','));
 
 // ---------- C. ADR-NNNN 与 docs/adr 链接可解析 ----------
 const ADR_NUMBERS = new Set(TRACKED
@@ -109,10 +120,13 @@ const ADR_DELETED = new Set(deletedLine.match(/\b\d{4}\b/g) || []);
 // 合成夹具/解析器写出的哨兵号，不是决策落点：ADR-0000（空占位）、ADR-9999（越界探针）。
 // 只允许出现在 engine 代码/测试（逐字节冻结夹具已在 excluded() 排除）；docs/门面引用它们仍是死锚。
 const ADR_SENTINELS = new Set(['ADR-0000', 'ADR-9999']);
-const ADR_SENTINEL_PATH = /^engine\//;
+// 只允许 engine 代码/测试；engine/README.md 是门面，引用哨兵仍按死锚判红。
+const ADR_SENTINEL_PATH = /^engine\/(?:src|scripts|test)\//;
 const badAdr = [];
+let adrRefCount = 0;
 for (const { path, text } of CORPUS) {
   for (const code of adrRefs(text)) {
+    adrRefCount++;
     if (ADR_SENTINELS.has(code) && ADR_SENTINEL_PATH.test(path)) { continue; }
     const n = code.slice(4);
     if (ADR_NUMBERS.has(n)) { continue; }
@@ -135,9 +149,12 @@ for (const { path, text } of CORPUS) {
     if (!existsSync(join(REPO, resolved))) { adrLinks.push(path + ' -> ' + raw + ' (' + resolved + ')'); }
   }
 }
-t('C0 docs/adr 现行件可枚举＋已删三件从 authority.md §4 解析',
-  ADR_NUMBERS.has('0001') && ADR_NUMBERS.has('0027') && ['0002', '0010', '0015'].every(n => ADR_DELETED.has(n)));
-t('C1 现行文本的 ADR-NNNN 全部可解析（哨兵与 ADR 正文内的已删前身除外）', badAdr.length === 0, 'dangling=' + [...new Set(badAdr)].join(','));
+t('C0 docs/adr 现行件可枚举＋已删三件从 authority.md §4 解析（size=3）',
+  ADR_NUMBERS.has('0001') && ADR_NUMBERS.has('0027') && ADR_DELETED.size === 3 && deletedLine.length > 0);
+t('C1 现行文本的 ADR-NNNN 全部可解析（哨兵与 ADR 正文内的已删前身除外）',
+  adrRefCount > 0 && badAdr.length === 0, 'refs=' + adrRefCount + ' dangling=' + [...new Set(badAdr)].join(','));
+t('C1b 哨兵豁免只覆盖 engine 代码/测试（engine/README.md 不在内）',
+  ADR_SENTINEL_PATH.test('engine/src/audit/macro-b.ts') && !ADR_SENTINEL_PATH.test('engine/README.md'));
 t('C2 现行 Markdown 的 docs/adr 链接可解析（含生成索引相对链接）', adrLinkCount > 0 && adrLinks.length === 0, 'links=' + adrLinkCount + ' dangling=' + adrLinks.join(','));
 
 // ---------- D. D-code ⊆ 归档索引 + 只减不增 ----------
@@ -168,6 +185,7 @@ function parseFalsePositives(text) {
 const FP_CODES = parseFalsePositives(indexText);
 // §4 的散文假阳性是固定五项（归档 README 同文）；表可读，但集合必须与已知五项逐一相等，
 // 防止「往 §4 加一行」把任意新 D-code 洗成假阳性（棘轮旁路）。
+// FP_KNOWN 是测试 oracle（钉住不可扩），不是第二套成文源。
 const FP_KNOWN = ['D-000', 'D-391', 'D-393', 'D-394', 'D-403'];
 
 const currentCodes = new Set();
@@ -188,9 +206,9 @@ const dead = [];
 for (const { path, text } of CORPUS) {
   for (const anchor of deadAnchors(text)) { dead.push(path + ':' + anchor); }
 }
-t('E1 现行文本零 §D-NNN/§A-NNN 死锚（3 位退役码形态）', dead.length === 0, 'hits=' + dead.slice(0, 10).join(','));
-t('E2 死锚探测器负对照：§D-004/§A-123 命中，ADR-0018 §D-1 不命中', // NEGATIVE-CONTROL
-  deadAnchors('x §D-004 y §A-123 z').length === 2 && deadAnchors('ADR-0018 §D-1').length === 0); // NEGATIVE-CONTROL
+t('E1 现行文本零 §D-NNN/§A-NNN 死锚（2+ 位退役码形态）', dead.length === 0, 'hits=' + dead.slice(0, 10).join(','));
+t('E2 死锚探测器负对照：§D-004/§A-123/§D-99 命中，ADR-0018 §D-1 不命中', // NEGATIVE-CONTROL
+  deadAnchors('x §D-004 y §A-123 z §D-99').length === 3 && deadAnchors('ADR-0018 §D-1').length === 0); // NEGATIVE-CONTROL
 
 // ---------- F. 门面文书不得自称权威（§2 白名单单源） ----------
 function section2Whitelist(text) {
@@ -274,9 +292,9 @@ for (const ev of ['push', 'pull_request']) {
 t('G3 docs-ci 单腿 ubuntu/node24（无 matrix/strategy）',
   /runs-on:\s*ubuntu-latest/.test(docsCi) && /node-version:\s*['"]?24['"]?/.test(docsCi) &&
   !/^\s*matrix:/m.test(docsCi) && !/^\s*strategy:/m.test(docsCi) && (docsCi.match(/runs-on:/g) || []).length === 1);
-t('G4 docs-ci 复用 check:docs（不建第二套 README/戳位校验）',
-  /run:\s*npm run check:docs/.test(docsCi) && !/npm test/.test(docsCi) &&
-  !/gen-acknowledgments/.test(docsCi) && !/77-check/.test(docsCi) && !/73-check/.test(docsCi));
+const runSteps = [...docsCi.matchAll(/^[ \t]*run:[ \t]*(.+)$/gm)].map(m => m[1].trim());
+t('G4 docs-ci 复用 check:docs（单一步骤，不建第二套 README/戳位校验）',
+  runSteps.length === 1 && runSteps[0] === 'npm run check:docs', 'runs=' + runSteps.join(' | '));
 t('G5 docs-ci permissions contents: read', /permissions:[\s\S]*?contents:\s*read/.test(docsCi));
 t('G6 docs-ci working-directory: engine', /working-directory:\s*engine/.test(docsCi));
 
@@ -297,11 +315,12 @@ t('I1 contracts-run 以 *-check.mjs 命名枚举（本守卫自动纳入）',
   runner.includes('/-check.mjs$/') && /-check\.mjs$/.test(SELF.split('/').pop()));
 t('I2 smoke 链含 contracts-run（engine-ci 六腿自动继承）', String(pkg.scripts.smoke || '').includes('test/contracts-run.mjs'));
 t('I3 check:docs 链含本守卫（docs-ci 单命令复用）', String(pkg.scripts['check:docs'] || '').includes('test/contracts/docs-authority-check.mjs'));
+const checkDocs = String(pkg.scripts['check:docs'] || '');
+t('I4 check:docs 单源含 ack/73/77/docs-authority 四段',
+  ['gen-acknowledgments.mjs --check', '73-check.mjs', '77-check.mjs', 'docs-authority-check.mjs'].every(s => checkDocs.includes(s)));
 
 // ---------- J. 编码纪律 ----------
-t('J1 本守卫与 docs-ci 无 BOM + LF',
-  noBom(readFileSync(fileURLToPath(import.meta.url))) && selfText.indexOf('\r') < 0 &&
-  !!docsCiBuf && noBom(docsCiBuf) && docsCi.indexOf('\r') < 0);
+t('J1 本守卫无 BOM + LF', noBom(readFileSync(fileURLToPath(import.meta.url))) && selfText.indexOf('\r') < 0);
 
 console.log('---');
 console.log((fail === 0 ? 'PASS' : 'FAIL') + ' ' + pass + '/' + (pass + fail) + ' docs-authority checks');

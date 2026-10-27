@@ -79,4 +79,4 @@ Design: <一句话约束> — ADR-NNNN
 
 - 要改"权威口径"本身：改本文件，并检查门面文书的指针仍指向这里；不要在门面文书里追加解释。
 - 本文件与三载体不一致时，以三载体的正文为准，本文件随之修正——本文件只登记落点，不承载决策内容。
-- 本口径的机检面（设计记于 [`ADR-0027`](adr/0027-verification-surface-node-floor-and-docs-authority-guard.md)：指针存在性、`docs/adr/NNNN` 可解析、仓内 `D-NNN` 引用 ⊆ 归档索引、`D-NNN` 集合只减不增；tracker #47 复盘增补 `§D-NNN` 死锚拒绝与门面不得自称权威）由 [`engine/test/contracts/docs-authority-check.mjs`](../engine/test/contracts/docs-authority-check.mjs) 执行，CI 单腿见 [`.github/workflows/docs-ci.yml`](../.github/workflows/docs-ci.yml)；守卫运行通过才算机检通过，不以"跑过"代替"绿灯"。
+- 本口径的机检面设计记于 [`ADR-0027`](adr/0027-verification-surface-node-floor-and-docs-authority-guard.md)（tracker #47 复盘增补见该 ADR 的 Consequences）；执行面见 [`engine/test/contracts/docs-authority-check.mjs`](../engine/test/contracts/docs-authority-check.mjs)，CI 单腿见 [`.github/workflows/docs-ci.yml`](../.github/workflows/docs-ci.yml)；守卫运行通过才算机检通过，不以"跑过"代替"绿灯"。
