@@ -117,7 +117,7 @@ function stripLineComments(line) {
 }
 // Design: 归档豁免只放行出处坐标——字面量形态的 docs/ 读写与 import 仍红，经变量传入的引文摘取不归本守卫管 — ADR-0027
 const DOCREF_RE = /docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr|archive\/decisions\/)/;
-const DOCIO_RE = /\b(readFileSync|readdirSync|existsSync|createReadStream|openSync|writeFileSync|appendFileSync|copyFileSync|renameSync|mkdirSync|rmSync|unlinkSync|readFile|writeFile|appendFile|copyFile|rename|mkdir|opendir)\s*\([^)]*['"`]docs\/|^\s*(import|export)\b[^;]*from\s*['"`]docs\/|\brequire\s*\(\s*['"`]docs\//;
+const DOCIO_RE = /\b(readFileSync|readdirSync|existsSync|createReadStream|openSync|writeFileSync|appendFileSync|copyFileSync|renameSync|mkdirSync|rmSync|unlinkSync|readFile|writeFile|appendFile|copyFile|rename|mkdir|opendir)\b[^;]*['"`]docs\/|^\s*(import|export)\b[^;]*from\s*['"`]docs\/|\brequire\s*\(\s*['"`]docs\//;
 const docRefViolation = (line) => DOCREF_RE.test(line) || DOCIO_RE.test(line);
 const docRefViolations = [];
 const walkCode = (dir) => {
@@ -150,11 +150,14 @@ const E1_PROBES = [
   ["writeFileSync('docs/archive/decisions/macro-audit-ledger.md', '');", true, '写归档目录仍红（档案只读）'],
   ["readFile('docs/archive/decisions/macro-audit-ledger.md');", true, '异步 fs 读 docs/ 仍红（同函数名不分 sync/async）'],
   ["require('docs/adr/0027-x.md');", true, 'require 形 docs/ 仍红（静态 import 臂不管 CJS）'],
+  ["readFileSync(join(process.cwd(), 'docs/archive/decisions/macro-audit-ledger.md'));", true, '嵌套调用里的字面量读仍红（CodeRabbit #82 反例）'],
+  ["writeFileSync(join(OUT, 'docs/archive/decisions/macro-audit-ledger.md'), '');", true, '嵌套调用里的字面量写仍红'],
   ["const p = 'docs/archive/decisions/macro-audit-ledger.md';", false, '归档目录的引文坐标放行'],
-  ["const p = 'docs/adr/0027-x.md';", false, 'ADR 指针放行']
+  ["const LEDGER_REPRO = 'git -C <repo> show HEAD:' + LEDGER_PATH;", false, '纯坐标拼接不误红'],
+  ["addEvidence('EV-06', 'docs/adr/' + col.adrFiles[0], null, m, r, base);", false, '主题仓采集坐标不误红']
 ];
 const e1Red = E1_PROBES.filter(function (x) { return docRefViolation(x[0]) !== x[1]; });
-t('E1-P 判别臂活性：十类样本判色全对（红/绿两侧均非空——收窄后仍能红，豁免不吞掉同步/异步读写、静态 import、require 与模板字面量）',
+t('E1-P 判别臂活性：十三类样本判色全对（红/绿两侧均非空——豁免不吞掉直写、嵌套调用、异步读、require 与静态 import，坐标形不误红）',
   e1Red.length === 0 && E1_PROBES.some(function (x) { return x[1]; }) && E1_PROBES.some(function (x) { return !x[1]; }),
   e1Red.map(function (x) { return x[2]; }).join(' '));
 
