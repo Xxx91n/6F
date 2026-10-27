@@ -1,6 +1,6 @@
 // DuckDB fact store — 绑定：@duckdb/node-api（唯一选型，锁版本 1.5.5-r.5；D-075④ F4 升版——win32-arm64 官方包实存接入）
-// Design: 跨 scale 事实共享单一 DuckDB fact table，事件单向写入、按需投影 — ADR-0005
-// Design: 写入路径单点收口，读写分离 — ADR-0019
+// Design: 跨 scale 共享单一事实底座，事实单向追加 — ADR-0005
+// Design: 并发写者必须显式失败，不做盲目重试 — ADR-0019
 // 连接拓扑：唯一写者（READ_WRITE）+ 任意读者（READ_ONLY），承接 A-007 单写多读 SWMR。
 // 本模块是 engine 对外唯一写入口：只暴露 appendFact / queryFacts，不暴露裸 SQL 写接口。
 // 本机不安装原生绑定、不构建；构建与测试一律走 CI（prompt 专属 delta 第 3 条）。

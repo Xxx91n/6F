@@ -72,7 +72,7 @@ Design: <一句话约束> — ADR-NNNN
 - 指针目标必须是 `docs/adr/` 下可解析的现行 ADR（不含 0002/0010/0015 这三份保持删除的编号）。
 - 产品级约束指向 `docs/spec.md` 的节时写成 `Design: <一句话约束> — spec §R<n>`；术语约束指向 `GLOSSARY.md` 词条。
 - 一份 ADR 可被多处指针引用；指针本身不构成决策记录，删除指针不删除决策。
-- 首个实例：`engine/src/audit/micro-a.ts` 的 `LEDGER_PATH` 处（指向 ADR-0027 的溯源锚）；上述六个面的其余约束点已按 tracker #46 落地。
+- 首个实例：`engine/src/audit/micro-a.ts` 的 `LEDGER_PATH` 处（指向 ADR-0027 的溯源锚）；audit/fact/intake/report/upstream/collect 六个面的其余约束点已按 tracker #46 落地。
 
 ## 5. 变更纪律
 

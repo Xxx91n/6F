@@ -1,5 +1,5 @@
 // audit/fact-write.ts —— run 级 fact/quarantine 同位发射共享核（#84 / D-204② file-card 同位）
-// Design: 事实先于叙事，跨 scale 共享 append-only fact table — ADR-0005
+// Design: 跨 scale 共用同一 append-only 写入路径 — ADR-0005
 // audit.ts（Macro-B）与 macro-c.ts（Macro-C）同消费——同一 emit 函数、同 grain（逐 commit 事务＋节拍批 500）、
 // 同 fact_id 规则（append-only 内容寻址）、同逐 commit 恒等式断言（D-115①/D-116① 语义单源）。
 

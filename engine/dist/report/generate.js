@@ -13,7 +13,7 @@ export { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations };
 // Design: 5 scale 共享报告骨架＋scale 切片，章节顺序锁定 — ADR-0006
 export const REPORT_SKELETON_VERSION = '1.2.0';
 export const REPORT_SKELETON_SOURCE = 'reports/14-skeleton-fields.json#skeleton';
-// Design: 首报验收=A/B/C 三层闸门，C 层裁定由人做 — ADR-0013
+// Design: 首报验收=A/B/C 三层闸门，C 层为信任裁决 — ADR-0013
 export const ADJUDICATION_PROTOCOL_VERSION = 'ADR-0013-C/v1';
 export const REPORT_SKELETON = [
     { id: 'C1', ordinal: 1, name: '执行摘要', required_fields: ['report_id', 'schema_version', 'scale', 'subject_ref', 'generated_at', 'correlation_key', 'overall_verdict', 'confidence', 'headline', 'top_findings', 'degraded_mode', 'stale_data_marker', 'staleness_sla_seconds', 'read_model_lag_seconds', 'read_model_version', 'fact_watermark_version'] },

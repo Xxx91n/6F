@@ -2,7 +2,7 @@
 // 纯逻辑模块：不 import 任何 DuckDB 原生绑定，使守卫脚本可零依赖直接 import 本文件。
 // 决议继承：A-007 单写多读 SWMR / A-008 版本演进 / A-010 correlation key（沿用，不重开）
 // Design: 战略维度固定 S1-S5 五维，事实表不得自造维度 — ADR-0004
-// Design: 跨 scale 共享同一 append-only 事实表，事实先于叙事 — ADR-0005
+// Design: 跨 scale 共享同一 append-only 事实表 — ADR-0005
 export const SCHEMA_VERSION_V0 = 1;
 export const AUDIT_FACT_FIELDS = [
     { name: 'fact_seq', type: 'UBIGINT', nullable: false, role: 'identity', constraints: ['NOT NULL', 'PRIMARY KEY'], inherits: 'A-007' },
