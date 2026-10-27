@@ -14,7 +14,7 @@ import { readFileSync, readdirSync, existsSync, mkdtempSync, mkdirSync, writeFil
 import { basename, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { repoAdd } from '../intake/intake.js';
-import type { RepoAddResult, RepoInputKind } from '../intake/intake.js';
+import type { RepoAddResult } from '../intake/intake.js';
 import { probeMacroBRepo, macroBContext, probeGitVersion } from './macro-b.js';
 import type { MacroBProbes } from './macro-b.js';
 import { auditRepoName } from './audit.js';
@@ -39,11 +39,12 @@ export const MACRO_C_NC_CANDIDATES: readonly string[] = ['apps/cli/package.json'
 export const MACRO_C_LLM_EXPLAIN_CANDIDATES: readonly string[] = ['apps/cli/src/index.ts', 'apps/cli/src/composition.ts', 'src/index.ts', 'src/main.ts'];
 export const MACRO_C_SUPERSEDE_KINDS: readonly string[] = ['whole-adr-status', 'item-level-inline'];
 
-// reproduce_cmd 可移植化：本地输入记 `<repo>`、出目录记 `<dir>`（形制同 micro-a.ts），报告输出面不得出现本机绝对路径（ADR-0026）。
-// 本地与否以 intake 的判定为准，不靠字面猜——`projects/demo` 这类相对路径会被 slug 正则误判成 owner/repo，从而依赖原工作目录；
-// `file://` 在 intake 里归 url（URL_SCHEMES），但它承载的正是本机绝对路径，同样要换成占位。
-function portableReproduceCmd(input: string, outDir: string | null | undefined, kind: RepoInputKind): string {
-  const local = kind === 'local' || /^file:\/\//i.test(input);
+// reproduce_cmd 可移植化：本机目录记 `<repo>`、出目录记 `<dir>`（形制同 micro-a.ts），报告输出面不得出现本机绝对路径（ADR-0026）。
+// 判据取 intake 的**解析结果**（url===null ⇒ 落在本机目录），不靠字面也不靠 kind 猜：`projects/demo`、`engine/test` 这类
+// 相对路径会被 classifyRepoInput 归成 owner-repo，却仍由 repoAdd 解析成本机目录——只看 kind 会把原字面值留在报告里，
+// 复现命令随之依赖原工作目录。`file://` 在 intake 里归 url，但承载的同样是本机绝对路径，一并换成占位。
+function portableReproduceCmd(input: string, outDir: string | null | undefined, remoteUrl: string | null): string {
+  const local = remoteUrl === null || /^file:\/\//i.test(input);
   return 'macro-audit audit ' + (local ? '<repo>' : input) + ' --scale Macro-C' + (outDir ? ' --out <dir>' : '');
 }
 
@@ -301,7 +302,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
   if (outDir) { writeFileSync(join(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL, 'utf8'); }
   // ---------- §5 证据＋结论→引文锚（多 token 全命中；源=运行目录工件相对名） ----------
   const R = NAME.toUpperCase().split('-').join('').split('/').join('');
-  const RUN_CMD = portableReproduceCmd(opts.input, opts.outDir, intake.kind);
+  const RUN_CMD = portableReproduceCmd(opts.input, opts.outDir, intake.url);
   const evidence: EvidenceItem[] = [];
   function addEvidence(id: string, source: string, tokens: readonly string[] | null, claim: string, base: string | null) {
     const ex = pickExcerpt(source, tokens, base);

@@ -93,12 +93,16 @@ const HISTORICAL_PIN = 'b45d0799' + '2d9c2ee9d01c7b7f176e2fb7c7978dd6';
 const FACTS = join(ENG, 'test', 'fixtures', 'contracts', '38-macro-c-facts.jsonl');
 const FACTS_TXT = existsSync(FACTS) ? readFileSync(FACTS, 'utf8') : '';
 // 取**全部** repo_ref 再判（不先按仓名过滤——否则某行换成别的仓名就被正则排除，A14 照绿）；
-// 同时核「每行都带一个 repo_ref」，防漏行。
-const FACTS_REFS = Array.from(new Set((FACTS_TXT.match(/"repo_ref":"[^"]*"/g) || []).map(function (s) { return s.slice(12, -1); })));
+// 同时核「每行都带一个 repo_ref」，防漏行。正则须容忍 JSON 的冒号后空白（`"repo_ref": "x"`），
+// 否则改一个空格就能让该行整体从集合里消失，A14 照绿。
+const REF_RE = /"repo_ref"\s*:\s*"([^"]*)"/g;
+const FACTS_REFS = Array.from(new Set(Array.from(FACTS_TXT.matchAll(REF_RE)).map(function (m) { return m[1]; })));
 const FACTS_ROWS = FACTS_TXT.split(String.fromCharCode(10)).filter(function (l) { return l.trim() !== ''; }).length;
-const FACTS_REF_N = (FACTS_TXT.match(/"repo_ref":/g) || []).length;
+const FACTS_REF_N = Array.from(FACTS_TXT.matchAll(REF_RE)).length;
 // 本机绝对路径探针同样分片拼接——A12 机检本守卫自身零盘符锚，字面串会让 A12 自己变红
 const FACTS_ABS_RE = new RegExp('D:' + '[/\\\\]Aworker[/\\\\]anysearch-cli', 'g');
+// 同批四件里的第二族锚：本仓自身目录（`D:` + 本仓名，即下面 REPO_ABS_RE 所指）——同属原始现场，不属 D12 的「30 处」口径但同样不可移植
+const REPO_ABS_RE = new RegExp('D:' + '[/\\\\]+Aworker[/\\\\]+6F', 'g');
 // 原始现场逐件计数（归档索引第 3 行的枚举与合计须与实物同值——文档口径与机检口径同源，缺件/多件都红）
 const ABS_BATCH_FILES = ['38-macro-c-facts.jsonl', '38-macro-c-preview-report.md', '38-macro-c-preview-report.json', '38-report.md'];
 const ABS_BATCH = ABS_BATCH_FILES.map(function (f) {
@@ -106,6 +110,11 @@ const ABS_BATCH = ABS_BATCH_FILES.map(function (f) {
   return ((existsSync(p) ? readFileSync(p, 'utf8') : '').match(FACTS_ABS_RE) || []).length;
 });
 const ABS_BATCH_TOTAL = ABS_BATCH.reduce(function (a, b) { return a + b; }, 0);
+const REPO_ABS_BATCH = ABS_BATCH_FILES.map(function (f) {
+  const p = join(ENG, 'test', 'fixtures', 'contracts', f);
+  return ((existsSync(p) ? readFileSync(p, 'utf8') : '').match(REPO_ABS_RE) || []).length;
+});
+const REPO_ABS_TOTAL = REPO_ABS_BATCH.reduce(function (a, b) { return a + b; }, 0);
 const ARCH_IDX_P = join(REPO, 'docs', 'archive', 'decisions', 'ticket-index.md');
 const ARCH_IDX = existsSync(ARCH_IDX_P) ? readFileSync(ARCH_IDX_P, 'utf8') : '';
 // 判别臂活性自证：把权威钉末位改一位，绑死判据必须判异——否则「钉==AUTHORITY_PIN」只是恒真句（改一位即红＝真在比）
@@ -114,17 +123,19 @@ const samePin = function (a, b) { return String(a) === String(b); };
 const PIN_MUTANT = AUTHORITY_PIN.slice(0, 39) + (AUTHORITY_PIN.slice(39) === 'f' ? '0' : 'f');
 const PIN_SENSITIVE = !!BASE_ROW && !samePin(BASE_ROW.version, PIN_MUTANT);
 // 第二判别臂：尾部追加脏字符（前 40 位仍相同）必须判异——只测末位改一位的话，退回截前 40 位比较仍能通过。
-const PIN_TRAILING = AUTHORITY_PIN + '0';
-const PIN_TAIL_SENSITIVE = !samePin(PIN_TRAILING, AUTHORITY_PIN);
-t('A14 基准身份唯一权威绑定：baseline-lock 钉==770d2549…／冻结事实全部 repo_ref 恰为 anysearch-cli@b45d0799…（历史产物，且每行各带一枚）／两值互异／原始现场逐件计数 30·2·2·1＝35／归档索引只登记历史钉＋指针到锁表（不两写权威值）',
+// 在**真实读到的锁表值**上做变异（不是两个常量自比）：常量自比只能证明常量不等常量，与锁表内容无关。
+const PIN_TRAILING = (BASE_ROW ? String(BASE_ROW.version) : AUTHORITY_PIN) + '0';
+const PIN_TAIL_SENSITIVE = !samePin(PIN_TRAILING, BASE_ROW ? BASE_ROW.version : AUTHORITY_PIN);
+t('A14 基准身份唯一权威绑定：baseline-lock 钉==770d2549…／冻结事实全部 repo_ref 恰为 anysearch-cli@b45d0799…（历史产物，且每行各带一枚）／两值互异／原始现场两族锚逐件计数 30·2·2·1＝35＋0·1·1·1＝3／归档索引只登记历史钉＋指针到锁表（不两写权威值）',
   !!BASE_ROW && samePin(BASE_ROW.version, AUTHORITY_PIN)
   && FACTS_REFS.length === 1 && FACTS_REFS[0] === 'anysearch-cli@' + HISTORICAL_PIN && FACTS_REF_N === FACTS_ROWS
   && !samePin(AUTHORITY_PIN, HISTORICAL_PIN) && PIN_SENSITIVE && PIN_TAIL_SENSITIVE
   && ABS_BATCH.join(',') === '30,2,2,1' && ABS_BATCH_TOTAL === 35
-  && ARCH_IDX.indexOf(HISTORICAL_PIN) >= 0 && ARCH_IDX.indexOf('35 处') >= 0 && ARCH_IDX.indexOf('30 处') >= 0
+  && REPO_ABS_BATCH.join(',') === '0,1,1,1' && REPO_ABS_TOTAL === 3
+  && ARCH_IDX.indexOf(HISTORICAL_PIN) >= 0 && ARCH_IDX.indexOf('35 处') >= 0 && ARCH_IDX.indexOf('30 处') >= 0 && ARCH_IDX.indexOf('38 处') >= 0
   && ARCH_IDX.indexOf('engine/baseline-lock.yaml') >= 0 && ARCH_IDX.indexOf(AUTHORITY_PIN) < 0,
-  'lock=' + String(BASE_ROW && BASE_ROW.version).slice(0, 12) + ' facts_refs=' + (FACTS_REFS.join(',') || 'none') + ' rows=' + FACTS_REF_N + '/' + FACTS_ROWS + ' abs=' + ABS_BATCH.join(',') + ' total=' + ABS_BATCH_TOTAL + ' sensitive=' + PIN_SENSITIVE + '/' + PIN_TAIL_SENSITIVE
-  + ' idx_historical=' + (ARCH_IDX.indexOf(HISTORICAL_PIN) >= 0) + ' idx_counts=' + (ARCH_IDX.indexOf('35 处') >= 0) + '/' + (ARCH_IDX.indexOf('30 处') >= 0)
+  'lock=' + String(BASE_ROW && BASE_ROW.version).slice(0, 12) + ' facts_refs=' + (FACTS_REFS.join(',') || 'none') + ' rows=' + FACTS_REF_N + '/' + FACTS_ROWS + ' abs=' + ABS_BATCH.join(',') + ' total=' + ABS_BATCH_TOTAL + ' repo_abs=' + REPO_ABS_BATCH.join(',') + ' repo_total=' + REPO_ABS_TOTAL + ' sensitive=' + PIN_SENSITIVE + '/' + PIN_TAIL_SENSITIVE
+  + ' idx_historical=' + (ARCH_IDX.indexOf(HISTORICAL_PIN) >= 0) + ' idx_counts=' + (ARCH_IDX.indexOf('35 处') >= 0) + '/' + (ARCH_IDX.indexOf('30 处') >= 0) + '/' + (ARCH_IDX.indexOf('38 处') >= 0)
   + ' idx_pointer=' + (ARCH_IDX.indexOf('engine/baseline-lock.yaml') >= 0) + ' idx_authority_dup=' + (ARCH_IDX.indexOf(AUTHORITY_PIN) >= 0));
 // A15 历史钉值引用棘轮：40 位全值只许留在「38 现场冻结件」六件＋归档索引的声明行里——新增引用即红；声明件被重算丢值亦红（双向）。
 //   口径：只认 40 位全值；缩写（`b45d0799`）不入棘轮，故 ADR-0026／CHANGELOG 的缩写引用不算命中。
@@ -138,7 +149,11 @@ const HIST_DECLARED = [
   'engine/test/fixtures/contracts/38-macro-c-preview-report.md'
 ];
 const PIN_SCAN_SKIP = ['node_modules', '.git', '.scratch'];
-const PIN_SCAN_EXT = /\.(ts|mjs|js|json|jsonl|md|ya?ml)$/;
+// 扫描域＝**除显式排除外的全部文件**（默认扫，而不是白名单扩展名）：白名单会让 .txt/.cjs/.csv 等里
+//   新抄一份 40 位全值却无人发觉，与「只许出现在声明件」的标题不符。二进制枚单独列出并跳过——
+//   但它必须可证：下面断言该件在位且按原始字节确实含此值（件被删/改名/换成空壳即红）。
+const BIN_SITE_FILES = ['engine/test/fixtures/contracts/38-audit-facts.duckdb'];
+const PIN_SCAN_BINARY_EXT = /\.(duckdb|bundle|png|jpe?g|gif|ico|pdf|zip|gz|woff2?|ttf|wasm)$/i;
 const PIN_HITS = [];
 (function scanPin(dir) {
   if (!existsSync(dir)) { return; }
@@ -146,8 +161,9 @@ const PIN_HITS = [];
     if (PIN_SCAN_SKIP.indexOf(ent.name) >= 0) { continue; }
     const p = join(dir, ent.name);
     if (ent.isDirectory()) { scanPin(p); continue; }
-    if (!PIN_SCAN_EXT.test(ent.name)) { continue; }
-    if (readFileSync(p, 'utf8').indexOf(HISTORICAL_PIN) >= 0) { PIN_HITS.push(p.slice(REPO.length + 1).split('\\').join('/')); }
+    const rel = p.slice(REPO.length + 1).split('\\').join('/');
+    if (PIN_SCAN_BINARY_EXT.test(ent.name)) { continue; }
+    if (readFileSync(p, 'utf8').indexOf(HISTORICAL_PIN) >= 0) { PIN_HITS.push(rel); }
   }
 })(REPO);
 const PIN_HITS_JOINED = PIN_HITS.slice().sort().join(',');
@@ -157,36 +173,49 @@ const PIN_DECLARED_ALIVE = HIST_DECLARED.every(function (rel) {
   const p = join(REPO, rel);
   return existsSync(p) && readFileSync(p, 'utf8').indexOf(HISTORICAL_PIN) >= 0;
 });
-t('A15 历史钉值引用棘轮：40 位全值只出现在声明的六件 38 现场冻结件＋归档索引声明行（新增引用即红；声明件丢值亦红）',
-  PIN_HITS_JOINED === HIST_DECLARED.slice().sort().join(',') && PIN_DECLARED_ALIVE,
-  'hits=' + (PIN_HITS_JOINED || 'none') + ' declared_alive=' + PIN_DECLARED_ALIVE);
+// 二进制枚的排除必须可证：该件在位且确实含此值（二进制按原始字节检索）。否则「排除一个含值的件」只是注释。
+const BIN_SITE_ALIVE = BIN_SITE_FILES.every(function (rel) {
+  const p = join(REPO, rel);
+  return existsSync(p) && readFileSync(p).indexOf(HISTORICAL_PIN) >= 0;
+});
+t('A15 历史钉值引用棘轮：40 位全值只出现在声明的六件 38 现场冻结件＋归档索引声明行（新增引用即红；声明件丢值亦红；二进制枚排除可证）',
+  PIN_HITS_JOINED === HIST_DECLARED.slice().sort().join(',') && PIN_DECLARED_ALIVE && BIN_SITE_ALIVE,
+  'hits=' + (PIN_HITS_JOINED || 'none') + ' declared_alive=' + PIN_DECLARED_ALIVE + ' bin_site=' + BIN_SITE_ALIVE);
 // A16 静态面（不依赖 B 组的 duckdb 组级闸）：报告复现命令必须走占位形。B8 的实跑面在无 duckdb 的机器上整组 SKIP，
 //   若只在那里判，「内容缺陷＝红、环境缺席＝SKIP」就退化成「环境缺席＝永不判」（tracker #72 同一条边界）。
 //   源与 dist 双侧同锚：dist 才是实际执行体，只认源码会让「改了源码没重建」这类漂移留在绿里。
 const MC_SRC = readFileSync(join(ENG, 'src', 'audit', 'macro-c.ts'), 'utf8');
 const MC_DIST = readFileSync(join(ENG, 'dist', 'audit', 'macro-c.js'), 'utf8');
 const portableShape = function (txt) {
-  return txt.indexOf("' --out <dir>'") >= 0 && txt.indexOf("'<repo>'") >= 0 && txt.indexOf("' --out ' + opts.outDir") < 0;
+  return txt.indexOf("' --out <dir>'") >= 0 && txt.indexOf("' --out ' + opts.outDir") < 0;
 };
-// `file://` 在 intake 里归 url，但它承载的正是本机绝对路径——只判 kind==='local' 会让 file:///home/u/repo 原样落进报告。
-// 判别臂：只认 kind 的旧写法必须判否，否则这条断言测不出「file:// 那条臂被删掉」。
-const portableFileLocal = function (txt) { return txt.indexOf("kind === 'local'") >= 0 && txt.indexOf('/^file:') >= 0; };
-const FILE_LOCAL_DEAD_FORM = "kind === 'local' ? '<repo>' : input";
-t('A16 报告复现命令可移植形在（src＋dist 双侧：走 <repo>／<dir> 双占位，本地与否取 intake 判定且 file:// 同判本地）',
-  portableShape(MC_SRC) && portableShape(MC_DIST) && portableFileLocal(MC_SRC) && portableFileLocal(MC_DIST) && !portableFileLocal(FILE_LOCAL_DEAD_FORM)
-  && MC_SRC.indexOf('portableReproduceCmd(opts.input, opts.outDir, intake.kind)') >= 0,
-  'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' file_local=' + portableFileLocal(MC_SRC) + '/' + portableFileLocal(MC_DIST) + ' file_arm_live=' + !portableFileLocal(FILE_LOCAL_DEAD_FORM) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
+// 极性本身就是断言：只查「`<repo>` 字样存在」不够——把三目反过来写成 `(local ? input : '<repo>')`，
+//   字面仍在、语义全反（本地路径照旧泄漏，只有远程才被换成占位）。故直接钉住占位在「真」分支的这一侧。
+const REPO_POLARITY = "(local ? '<repo>' : input)";
+// `file://` 在 intake 里归 url，但它承载的正是本机绝对路径；`owner-repo` 形态的相对路径（projects/demo）同样落在本机目录。
+// 判据只能取 intake 的解析结果（url===null），不能取 kind。判别力由正向臂提供：两臂各自必须在 src＋dist 双侧成立——
+// 任一臂被删（或退回只认 kind）这两处就地判否。不另设「拿字面串自比」的负对照：那种臂不读文件，恒为常量真。
+const portableLocalArm = function (txt) { return txt.indexOf('remoteUrl === null') >= 0; };
+const portableFileArm = function (txt) { return txt.indexOf('/^file:') >= 0; };
+const CALL_SITE = 'portableReproduceCmd(opts.input, opts.outDir, intake.url)';
+t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> 双占位且极性正确＋本地判定取 intake 解析结果＋file 臂＋调用点同形）',
+  portableShape(MC_SRC) && portableShape(MC_DIST)
+  && MC_SRC.indexOf(REPO_POLARITY) >= 0 && MC_DIST.indexOf(REPO_POLARITY) >= 0
+  && portableLocalArm(MC_SRC) && portableLocalArm(MC_DIST) && portableFileArm(MC_SRC) && portableFileArm(MC_DIST)
+  && MC_SRC.indexOf(CALL_SITE) >= 0 && MC_DIST.indexOf(CALL_SITE) >= 0,
+  'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' local=' + portableLocalArm(MC_SRC) + '/' + portableLocalArm(MC_DIST) + ' file=' + portableFileArm(MC_SRC) + '/' + portableFileArm(MC_DIST) + ' call=' + (MC_SRC.indexOf(CALL_SITE) >= 0) + '/' + (MC_DIST.indexOf(CALL_SITE) >= 0) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
 const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];
 if (groupProbe('85-check', 'B', DEPS_B)) {
   const tmpB = mkdtempSync(join(tmpdir(), '85-run-'));
-  // B1 预算 720s：本机实测 audit 单跑 478s（2026-10-26，tracker #34 窗口），原 420s 已不足——机器变慢/仓变大都会踩，
-  //   踩中时 B2~B8 会级联红，读起来像实现回归。runner 级 300s 单件上限属另一层缺陷，归 tracker #54，不在本守卫内处置。
-  const r = spawnSync('node', [join(ENG, 'dist', 'cli.js'), 'audit', '..', '--scale', 'Macro-C', '--out', join(tmpB, 'out')], { encoding: 'utf8', cwd: ENG, timeout: 720000 });
+  // B1 预算 420s：本机实测 audit 单跑 158s、本守卫整跑 256s（2026-10-26 复测），余量充足。
+  //   runner 级 300s 单件上限属另一层缺陷，归 tracker #54，不在本守卫内处置——调大内层预算到上限之外
+  //   既改变不了聚合跑的判据，又会让 #33 窗口有意加的 TIMEOUT(420s) 诊断退成 runner 的 FAIL(TIMEOUT)。
+  const r = spawnSync('node', [join(ENG, 'dist', 'cli.js'), 'audit', '..', '--scale', 'Macro-C', '--out', join(tmpB, 'out')], { encoding: 'utf8', cwd: ENG, timeout: 420000 });
   // 超时与失败必须可分辨：spawnSync 超时时 status=null，与「真失败」同形会误导成回归（#33 复盘实测踩过）
   const bTimedOut = !!(r.error && r.error.code === 'ETIMEDOUT');
-  t('B1 CLI audit --scale Macro-C exit 0（6F 自审实测）', r.status === 0, bTimedOut ? 'TIMEOUT(720s)——并发负载下会超时，先查机器负载再判回归' : 'status=' + r.status + ' err=' + (r.stderr || '').slice(0, 200));
+  t('B1 CLI audit --scale Macro-C exit 0（6F 自审实测）', r.status === 0, bTimedOut ? 'TIMEOUT(420s)——并发负载下会超时，先查机器负载再判回归' : 'status=' + r.status + ' err=' + (r.stderr || '').slice(0, 200));
   let rec = null;
   try { rec = JSON.parse(r.stdout); } catch (e) { }
   t('B2 回执 scale=Macro-C + capabilities=[macro-c] + report_id -MACRO-C 收尾', !!rec && rec.scale === 'Macro-C' && JSON.stringify(rec.capabilities) === JSON.stringify(['macro-c']) && /-MACRO-C$/.test(rec.report_id || ''), rec && rec.report_id);
