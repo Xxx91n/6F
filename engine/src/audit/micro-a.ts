@@ -403,7 +403,7 @@ export async function buildRefusalReportMicroA(g: { name: string; owner: string;
   const RUN_CMD = 'macro-audit audit ' + g.owner + '/' + g.repo + ' --scale Micro-A';
   addEvidence('EV-48-' + R + '-REF-01', opts.measName, [g.name], '本次实测：' + g.name + ' 托管枚举 merged PR=0——无托管 PR 面', RUN_CMD, opts.outDir);
   const srcRoot = sourceRepoRoot();
-  addEvidence('EV-48-' + R + '-REF-03', LEDGER_PATH, ['无托管 PR 面'], '硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」', LEDGER_REPRO, srcRoot);
+  addEvidence('EV-48-' + R + '-REF-03', LEDGER_PATH, ['| D-033 |', '不得指派无托管 PR 面'], '硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」', LEDGER_REPRO, srcRoot);
   const runF = byMetric(g.facts, 'github_rest.run').slice(-1)[0] || null;
   const run = runF ? val(runF) : null;
   const entries: AdjudicationEntry[] = [
