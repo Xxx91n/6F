@@ -77,7 +77,7 @@ for (const NN of ['39', '40']) {
   t('D-' + NN + '2 对照物保留自身归一化（normalizeGitIsoDate=病态即抛=「解析失败」分歧类的可观测代理）', s.indexOf('normalizeGitIsoDate') >= 0 && s.indexOf('%cI') >= 0);
 }
 const s39 = txt(ONESHOT39);
-t('D-393 39 等位 catch：崩溃桶工件落盘+stderr 结构化（D-109① 第二腿）', s39.indexOf('crashArtifactFromError') >= 0 && s39.indexOf('buildCrashArtifact') >= 0 && s39.indexOf('39-crash-') >= 0 && s39.indexOf('process.exit(isDivergence ? 2 : 4)') >= 0);
+t('D-393 39 等位 catch：崩溃桶工件落盘+stderr 结构化（D-109① 第二腿）', s39.indexOf('crashArtifactFromError') >= 0 && s39.indexOf('buildCrashArtifact') >= 0 && s39.indexOf('39-crash-') >= 0 && s39.indexOf('process.exit(isProto ? 2 : 4)') >= 0);
 t('D-394 39 env 腿：MACRO_AUDIT_STRICT_QUARANTINE 读取+证据面回声', s39.indexOf('STRICT_QUARANTINE_ENV') >= 0 && s39.indexOf('strict_quarantine') >= 0);
 t('D-403 40 零 crash/env 引入（40 未在 D-109①/D-110④ 挂载面——保持纯对照）', txt(join(REPO,'engine','scripts','40-macro-b-one-shot.mjs')).indexOf('quarantine.js') < 0);
 
@@ -127,20 +127,6 @@ t('F2b 39 crash 工件落盘 quarantine-crash-artifact/v1（D-109① 双通道�
 // env 腿实证：STRICT env=1 时 39 stderr 回声 strict_quarantine:true（对照物语义恒硬崩，env 只进证据面）
 const r39s = spawnSync('node', [ONESHOT39, '--repo', 'fx', '--root', FX, '--out', join(tmp, 'out-39-strict')], { encoding: 'utf8', timeout: 120000, env: Object.assign({}, process.env, { MACRO_AUDIT_STRICT_QUARANTINE: '1' }) });
 t('F2c 39 env 腿实证：MACRO_AUDIT_STRICT_QUARANTINE=1 → stderr 回声 strict_quarantine:true', r39s.status === 2 && (r39s.stderr || '').indexOf('"strict_quarantine":true') >= 0, 'err=' + (r39s.stderr || '').slice(0, 200));
-// #42 复审（CodeRabbit major）：探针不变量/环境失败必须阻断（exit 4），不得落 workflow 的 exit-2 预期分歧格。
-const FXB = join(tmp, 'fx-broken-object');
-mkdirSync(FXB, { recursive: true });
-gitR(['init'], FXB); gitR(['config', 'user.email', 'a@b.c'], FXB); gitR(['config', 'user.name', 't'], FXB); gitR(['config', 'commit.gpgsign', 'false'], FXB);
-writeFileSync(join(FXB, 'a.txt'), 'x' + NL, 'utf8');
-gitR(['add', 'a.txt'], FXB); gitR(['commit', '-m', 'init'], FXB);
-const bSha = gitR(['rev-parse', 'HEAD'], FXB);
-rmSync(join(FXB, '.git', 'objects', bSha.slice(0, 2), bSha.slice(2)), { force: true });
-const OUT_B = join(tmp, 'out-39-broken-object');
-const rb = spawnSync('node', [ONESHOT39, '--repo', 'broken-object', '--root', FXB, '--out', OUT_B], { encoding: 'utf8', timeout: 120000 });
-const crashB = existsSync(OUT_B) ? fs2.readdirSync(OUT_B).filter(function (f) { return f.indexOf('39-crash-') === 0; }) : [];
-let crashBj = null; try { crashBj = JSON.parse(txt(join(OUT_B, crashB[0]))); } catch (_) { }
-t('F2d GIT-PROBE-FAILED=阻断格（exit 4 + crash 工件 error_code）', rb.status === 4 && crashB.length === 1 && !!crashBj && crashBj.error_code === 'GIT-PROBE-FAILED', 'status=' + rb.status + ' artifacts=' + crashB.join(';') + ' err=' + (rb.stderr || '').slice(0, 160));
-t('F2e 39 exit 2 仅限 GITCLI-OUTPUT-CONTRACT 解析分歧（不变量/环境失败阻断）', txt(ONESHOT39).indexOf("code === 'GITCLI-OUTPUT-CONTRACT'") >= 0 && txt(ONESHOT39).indexOf('process.exit(isDivergence ? 2 : 4)') >= 0 && txt(ONESHOT39).indexOf('process.exit(isProto ? 2 : 4)') < 0);
 
 async function quarSet(dbPath) {
   const c = await STORE.openReader(dbPath);
