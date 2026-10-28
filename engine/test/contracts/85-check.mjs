@@ -244,11 +244,17 @@ function preregTerms(txt) {
   return out;
 }
 function preregQuoted(term) { const s = term.match(/^(['"])([^'"]*)\1$/); return s ? s[2] : null; }
+// 标记臂验的是**提取出来的值**，不是构造子名字：`preregSentinel('bad name')` 名字合法而值不合形制，
+//   只认名字就会把它放过去，拖到发出面真跑时才由构造子抛出——而本臂宣称的正是「静态判形态」。
+//   组值复用 GEN17 同一对构造子（不在此重写前缀字面，免得长出第二份语法定义），名字不合形制即抛出＝判否。
+function preregMarkerForm(kind, name) {
+  try { return GEN17.classifyPreregAnchor(kind === 'preregSentinel' ? GEN17.preregSentinel(name) : GEN17.preregDegraded(name)); } catch (e) { return 'ambiguous'; }
+}
 function preregTermForm(term) {
   const q = preregQuoted(term);
   if (q !== null) { return GEN17.classifyPreregAnchor(q); }
-  const call = term.match(/^(?:[A-Za-z_$][\w$]*\.)*(preregSentinel|preregDegraded)\((['"])[^'"]*\2\)$/);
-  if (call) { return call[1] === 'preregSentinel' ? 'sentinel' : 'degraded'; }
+  const call = term.match(/^(?:[A-Za-z_$][\w$]*\.)*(preregSentinel|preregDegraded)\((['"])([^'"]*)\2\)$/);
+  if (call) { return preregMarkerForm(call[1], call[3]); }
   if (term === 'PREREG_COMMIT') { return 'resolver'; }
   return 'ambiguous';
 }
@@ -290,8 +296,11 @@ const PREREG_OFFENDERS = PREREG_TERMS.reduce(function (acc, e) {
 t('A17 prereg 锚取值口径：发现的每个发出面各带 ≥1 枚锚且全部落三形态（模糊态/锚名非法/退化的锚常量赋值即红；commit 形可解析性另过 git-history 组闸；裸历史字面量已判否）',
   PREREG_COVERED && PREREG_MISS.length === 0 && PREREG_OFFENDERS.length === 0 && PREREG_UNRESOLVED.length === 0
   && GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous' && GEN17.classifyPreregAnchor('45-demo-criteria') === 'ambiguous',
-  'covered=' + PREREG_COVERED + ' hist_arm_run=' + PREREG_HIST_RUN + ' scan_miss=' + (PREREG_MISS.join(',') || 'none') + ' emitters=' + PREREG_TERMS.length + '(' + PREREG_TERMS.map(function (e) { return e.rel; }).join(' ') + ')'
-  + ' offenders=' + ((PREREG_OFFENDERS.concat(PREREG_UNRESOLVED)).join(',') || 'none')
+  'offenders=' + ((PREREG_OFFENDERS.concat(PREREG_UNRESOLVED)).join(',') || 'none')
+  // 明细首位必须是 offenders：t() 把 detail 截到 300 字符，早先把九件发出面清单排在前面，
+  //   一次真实变异（`preregSentinel('bad name')`）判了红却看不到是哪件——判红不可诊断等于 half a guard。
+  + ' hist_arm_run=' + PREREG_HIST_RUN + ' covered=' + PREREG_COVERED + ' scan_miss=' + (PREREG_MISS.join(',') || 'none')
+  + ' emitters=' + PREREG_TERMS.length
   + ' classifier_rejects=' + (GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous'));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
