@@ -90,14 +90,10 @@ function tryGit(root: string, args: readonly string[]): string | null {
 }
 
 // 预声明锚（48 §2 D-179① 伴生确定性：钉 CRITERIA_PATH 最后变更 commit——判据不动即恒值；非运行时 HEAD）
-// 取值前先验克隆深度：`git log -1 -- <判据件>` 在浅克隆下会把该文件归到边界 commit（tracker #86 实测——完整克隆
-//   e356581e／浅克隆取到 HEAD），值仍是一枚像 commit 的十六进制串、不报错也不回查，静默产出错锚。
-//   判据件真实存在时浅克隆无法给出末次变更，故落显式降级标记而非裸 'unknown'（取值口径 R9-1／ADR-0027）。
+// Design: 浅克隆取不到末次变更，不得静默交出边界 commit，须落显式降级标记 — spec §R9-1
 export function resolvePreregCommit(root: string | null, criteriaPath: string): string {
   if (root === null) { return preregDegraded('no-source-repo'); }
-  // isShallowRepo 走 intake 的 gitOk：判不了深度时**抛**（git 缺席／老于 2.15 不认 --is-shallow-repository／对象库损坏），
-  //   而本函数在模块加载期就被调用，抛出即拖垮整条 Micro-A 面。接住并降级——理由同上一条：拿不到深度证据时
-  //   绝不声称自己拿到了末次变更 commit，「静默交边界 commit」与「崩溃」都不是可接受的兜底。
+  // isShallowRepo 走 intake 的 gitOk：判不了深度是**抛出**而非返回 false，本函数又在模块加载期被调用，抛出即拖垮整条 Micro-A 面。
   let shallow: boolean;
   try { shallow = isShallowRepo(root); } catch (e) { return preregDegraded('depth-unknown'); }
   if (shallow) { return preregDegraded('shallow-clone'); }

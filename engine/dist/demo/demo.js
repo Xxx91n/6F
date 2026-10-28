@@ -179,8 +179,7 @@ export function runDemo(opts) {
         ];
         // ---------- §10 裁决条目（判据 id 与 39 同族；band 三档如实；tcBand 由共享管线导入） ----------
         const GATE_REF = {
-            // 与 Macro-C 的 38 面同一口径取显式哨兵（tracker #100／R9-1）：demo 判据是合成演示件，不产 commit，
-            //   裸 '45-demo-criteria' 会让读者猜它是锚还是名字；两侧都带前缀，不留第二套。
+            // Design: demo 判据是合成演示件、不产 commit，与 38 面同取显式哨兵，不留第二套 — spec §R9-1
             prereg_commit: preregSentinel('45-demo-criteria'),
             criteria_path: 'reports/22-criteria-pre-registration.md',
             basis_path: 'reports/22-c-adjudication-basis.md',

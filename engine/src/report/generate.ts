@@ -125,23 +125,19 @@ export interface GateRef {
   criterion_ids: readonly string[];
 }
 
-// ---------- prereg 锚取值口径（R9-1／ADR-0027；tracker #100） ----------
-// prereg_commit 是报告里唯一说明「判据何时先于本次裁定」的坐标，历史上混着三类值：真 commit、
-// `38-script-const` 那种仓内无定义的存档字面量、以及浅克隆下静默取到的边界 commit。后两类读起来都像锚
-// 却不可回查，所以口径把要求落在**值本身的形态**上：报告消费者不读源码就能分辨它是哪一种，禁止两者之间的模糊态。
-// 标记前缀含冒号，而 git 短/全 SHA 永不含冒号——标记形与 commit 形结构上不可能互撞。
+// Design: prereg_commit 只取可解析 commit 或带前缀的显式标记，禁模糊态 — spec §R9-1
+// 标记前缀含冒号而 SHA 字符集不含冒号，两族结构上不可能互撞；名字形制由构造子把关，裸字面量不再构成合法锚。
 const PREREG_COMMIT_FORM = /^[0-9a-f]{7,40}$/;   // 宽度不属身份：git auto-abbrev 随对象库在 7↔8 跳变（A-098）
 const PREREG_NAME_FORM = /^[0-9A-Za-z][0-9A-Za-z._-]*$/;
 export type PreregAnchorForm = 'commit' | 'sentinel' | 'degraded' | 'ambiguous';
 
-// 'sentinel' = 设计上就不是 commit（存档哨兵）；'degraded' = 本该取到 commit 但取不到或取不准，已显式降级。
+// 'sentinel' = 设计上就不是 commit（存档哨兵）；'degraded' = 本该取到 commit 但取不到或取不准。
 export function classifyPreregAnchor(v: string): PreregAnchorForm {
   if (v.indexOf('sentinel:') === 0) { return PREREG_NAME_FORM.test(v.slice(9)) ? 'sentinel' : 'ambiguous'; }
   if (v.indexOf('degraded:') === 0) { return PREREG_NAME_FORM.test(v.slice(9)) ? 'degraded' : 'ambiguous'; }
   return PREREG_COMMIT_FORM.test(v) ? 'commit' : 'ambiguous';
 }
 
-// Design: 标记只能经构造子产出，前缀与名字一处定义——裸字面量不再构成合法锚 — ADR-0027
 function preregMarked(prefix: string, name: string): string {
   if (!PREREG_NAME_FORM.test(name)) { throw new Error('PREREG-ANCHOR-NAME-INVALID: ' + prefix + ' 后的标记名不合形制（须为 [0-9A-Za-z][0-9A-Za-z._-]*）：' + JSON.stringify(name)); }
   return prefix + name;
@@ -149,10 +145,10 @@ function preregMarked(prefix: string, name: string): string {
 export function preregSentinel(name: string): string { return preregMarked('sentinel:', name); }
 export function preregDegraded(reason: string): string { return preregMarked('degraded:', reason); }
 
-// Design: 模糊态锚在产线 choke point 当场拒收，口径不止落在文书上 — ADR-0027
+// Design: 模糊态锚在回执哈希链之前当场拒收，错误值不得被签成可回查坐标 — spec §R9-1
 export function assertDiscriminablePreregAnchor(v: string): void {
   if (classifyPreregAnchor(v) === 'ambiguous') {
-    throw new Error('PREREG-ANCHOR-AMBIGUOUS: gate_ref.prereg_commit=' + JSON.stringify(v) + ' 既不是 7–40 位小写十六进制 commit，也不带 sentinel:/degraded: 标记前缀（取值口径见 R9-1／ADR-0027）');
+    throw new Error('PREREG-ANCHOR-AMBIGUOUS: gate_ref.prereg_commit=' + JSON.stringify(v) + ' 既不是 7–40 位小写十六进制 commit，也不带 sentinel:/degraded: 标记前缀（取值口径见 spec §R9-1）');
   }
 }
 

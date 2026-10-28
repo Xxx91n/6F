@@ -146,30 +146,39 @@ gitAt(pSrc, ['add', '-A']); gitAt(pSrc, ['commit', '-qm', 'c1: 判据预声明']
 const TRUE_ANCHOR = gitAt(pSrc, ['log', '-1', '--format=%h', '--', SRC_REL]);
 writeFileSync(join(pSrc, 'later.md'), '# 后续无关变更' + NL, 'utf8');
 gitAt(pSrc, ['add', '-A']); gitAt(pSrc, ['commit', '-qm', 'c2: 无关变更']);
-const BOUNDARY_COMMIT = gitAt(pSrc, ['rev-parse', '--short', 'HEAD']);
+const BOUNDARY_COMMIT = gitAt(pSrc, ['rev-parse', 'HEAD']);
+// 锚等不等，按 commit 全值判，不按 %h 字面判：git auto-abbrev 随对象库在 7↔8 跳变，两仓对象数不同即可能
+//   给出不同宽度（tracker #84 已定这条口径）。字面比较会让「退化成短写的边界 commit」溜过去＝假绿。
+function fullCommit(cwd, v) { try { return gitAt(cwd, ['rev-parse', '--verify', v + '^{commit}']); } catch (e) { return ''; } }
+const TRUE_ANCHOR_FULL = fullCommit(pSrc, TRUE_ANCHOR);
+const sameCommit = function (cwd, v, fullSha) { const r = fullCommit(cwd, v); return r !== '' && r === fullSha; };
 const pShallow = join(tmp, 'prereg-shallow');
 execFileSync('git', ['clone', '-q', '--depth', '1', '--no-local', pSrc, pShallow], { encoding: 'utf8', env: GIT_ENV });
 
-t('S1 前提臂：fixture 确为浅克隆，且裸命令在该形态下确实取到边界 commit（失败形态复现，非恒真）',
+t('S1 前提臂：fixture 确为浅克隆，且裸命令在该形态下取到的 commit 就是边界 commit（失败形态复现，非恒真）',
   gitAt(pShallow, ['rev-parse', '--is-shallow-repository']) === 'true'
-  && TRUE_ANCHOR !== BOUNDARY_COMMIT
-  && gitAt(pShallow, ['log', '-1', '--format=%h', '--', SRC_REL]) === BOUNDARY_COMMIT
-  && gitAt(pSrc, ['log', '-1', '--format=%h', '--', SRC_REL]) === TRUE_ANCHOR,
-  'shallow=' + gitAt(pShallow, ['rev-parse', '--is-shallow-repository']) + ' true=' + TRUE_ANCHOR + ' boundary=' + BOUNDARY_COMMIT);
+  && TRUE_ANCHOR_FULL !== '' && TRUE_ANCHOR_FULL !== BOUNDARY_COMMIT
+  && sameCommit(pShallow, gitAt(pShallow, ['log', '-1', '--format=%h', '--', SRC_REL]), BOUNDARY_COMMIT)
+  && sameCommit(pSrc, gitAt(pSrc, ['log', '-1', '--format=%h', '--', SRC_REL]), TRUE_ANCHOR_FULL),
+  'shallow=' + gitAt(pShallow, ['rev-parse', '--is-shallow-repository']) + ' true=' + TRUE_ANCHOR_FULL.slice(0, 12) + ' boundary=' + BOUNDARY_COMMIT.slice(0, 12));
 
 const SHALLOW_ANCHOR = MA.resolvePreregCommit(pShallow, SRC_REL);
 t('S2 判别臂：浅克隆取 degraded 标记而非边界 commit（退回裸 tryGit 取值即红）',
   SHALLOW_ANCHOR === 'degraded:shallow-clone', SHALLOW_ANCHOR);
 
-t('S3 票面字面判据：浅克隆结果既不等于边界 commit 也不等于真锚，且不伪装成 commit 形',
-  SHALLOW_ANCHOR !== BOUNDARY_COMMIT && SHALLOW_ANCHOR !== TRUE_ANCHOR
-  && !new RegExp('^[0-9a-f]{7,40}$').test(SHALLOW_ANCHOR), SHALLOW_ANCHOR + ' boundary=' + BOUNDARY_COMMIT);
+t('S3 票面字面判据：浅克隆结果既不指向边界 commit 也不指向真锚，且不伪装成 commit 形',
+  !sameCommit(pShallow, SHALLOW_ANCHOR, BOUNDARY_COMMIT) && !sameCommit(pShallow, SHALLOW_ANCHOR, TRUE_ANCHOR_FULL)
+  && !new RegExp('^[0-9a-f]{7,40}$').test(SHALLOW_ANCHOR), SHALLOW_ANCHOR + ' boundary=' + BOUNDARY_COMMIT.slice(0, 12));
 
 t('S4 正对照：完整历史仓仍取判据件末次变更 commit——收紧没把好面一起拒掉',
-  MA.resolvePreregCommit(pSrc, SRC_REL) === TRUE_ANCHOR, MA.resolvePreregCommit(pSrc, SRC_REL) + ' vs ' + TRUE_ANCHOR);
+  sameCommit(pSrc, MA.resolvePreregCommit(pSrc, SRC_REL), TRUE_ANCHOR_FULL), MA.resolvePreregCommit(pSrc, SRC_REL) + ' vs ' + TRUE_ANCHOR_FULL.slice(0, 12));
 
 t('S5 无源码仓根（安装态插件）落显式降级标记，不再落裸 unknown',
   MA.resolvePreregCommit(null, SRC_REL) === 'degraded:no-source-repo', MA.resolvePreregCommit(null, SRC_REL));
+
+t('S5b 判据件在该仓取不到 commit 时落具名降级，而非裸空值/unknown',
+  MA.resolvePreregCommit(pSrc, 'engine/test/fixtures/contracts/NO-SUCH-CRITERIA.md') === 'degraded:no-criteria-history',
+  MA.resolvePreregCommit(pSrc, 'engine/test/fixtures/contracts/NO-SUCH-CRITERIA.md'));
 
 t('S6 发出面合口径：本机完整克隆跑出的 Micro-A 报告 prereg_commit 仍是 commit 形（未误判为降级）',
   GR.classifyPreregAnchor(String(gr64 && gr64.prereg_commit)) === 'commit', JSON.stringify(gr64 && gr64.prereg_commit));
