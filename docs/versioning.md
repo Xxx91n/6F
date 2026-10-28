@@ -20,7 +20,7 @@
 - 字段：`id / kind / version / pin_type(exact-version|commit-sha|digest|api-version) / contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review`（`api-version` 为 #47/D-048 remote-api 行引入：远端 API 按 X-GitHub-Api-Version 头 pin，非制品版本）。
 - 复审留痕字段（#43 引入，**非** 九字段契约面，值为一行散文）：`review_evidence`=本次实跑复核的命令与读数（刷新 `last_reviewed`/`next_review` 的凭据，缺此即不得刷新）；`review_deferred`=复审缓办标记＋原因＋重核触发（该行两日期保留原值不刷新，仍由 `44-check` C5 advisory 点名）。`review_deferred`（复审缓办）≠ registry `deferred-faces`（未采集面不归位）——同词不同域，引用时点明字段名。
 - **锁定表先于依赖存在**——planned 登记目标契约，禁止未 pin 接入；retired 行不删（旧报告 provenance 反查）；`^`/`>=`/浮动 tag 全禁。
-- 种子行（#44 落盘）：codelore=active（exact-version＋`--version` pin 契约）／scorecard=planned、repomix=retired（D-056，重开触发器登记于 registry）／sqlite-dump=evaluating（风险注记）；github-rest=planned（remote-api kind，#47/D-048）。
+- 种子行（#44 落盘，状态以 `engine/upstream-lock.yaml` 现行为准）：codelore=active（exact-version＋`--version` pin 契约）／scorecard=planned、repomix=retired（D-056，重开触发器登记于 registry）／sqlite-dump=evaluating（风险注记）；github-rest=active（remote-api kind，#47/D-048——种子行落盘时为 planned，适配器落地即翻，`47-check E1` 机检）。
 - **基准语料分册（#33／ADR-0026）**：被审计同级仓的冻结快照**不属本表**——唯一权威＝`engine/baseline-lock.yaml`（字段 `id / kind / version / pin_type / status / contract / adapter / materialization / bundle / bundle_bytes / bundle_sha256 / last_reviewed / next_review`；另加复审留痕字段 `review_evidence`，口径同本节第 3 条；`status` 只有 active|retired；三元钉 version＋bundle_sha256＋bundle_bytes 须同窗更新，`85-check` A10~A13 机检；复审节奏同 §4）。该表**不随 tgz**（消费方是仓内守卫，语料 bundle 在测试夹具内不入包）。理由：本表的 status 枚举与 README 致谢面闭账是「产品上游」语义，基准语料是「被审计基准仓」，旧表用 `status: planned` 承载已生效的钉属枚举位妥协（#32）。
 
 ## 4. 更新节奏

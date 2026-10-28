@@ -20,7 +20,7 @@ body:
     attributes:
       label: Plugin / CLI version
       description: Output of `node dist/cli.js --version` (or the version shown by /plugin)
-      placeholder: "0.1.0"
+      placeholder: "0.3.0"
     validations:
       required: true
   - type: input
