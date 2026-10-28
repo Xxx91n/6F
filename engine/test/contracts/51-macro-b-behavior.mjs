@@ -113,7 +113,6 @@ const input = {
   adjudication_entries: entries, decided_at: decidedAt,
   commit_anchor: 'unanchored', tree_anchor: 'unanchored',
   // Design: 裸 'unanchored' 属禁用的模糊态，发出面取显式降级标记 — spec §R9-1
-  //   已入库的 51-macro-b-env-manager.{json,md} 含自算 receipt 链，按历史指纹政策字节零动；本生成子下次真跑即产合规锚。
   gate_ref: { prereg_commit: G.preregDegraded('unanchored-run'), criteria_path: '51-behavior-criteria.md', basis_path: '22-c-adjudication-basis.md', criterion_ids: ['PC-1', 'TC-1', 'TC-2', 'NC-1'] },
   degraded: false, degraded_reason: null,
   preview_disclosure: {

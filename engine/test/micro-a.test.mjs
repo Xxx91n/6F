@@ -168,7 +168,7 @@ t('S2 判别臂：浅克隆取 degraded 标记而非边界 commit（退回裸 tr
 
 t('S3 票面字面判据：浅克隆结果既不指向边界 commit 也不指向真锚，且不伪装成 commit 形',
   !sameCommit(pShallow, SHALLOW_ANCHOR, BOUNDARY_COMMIT) && !sameCommit(pShallow, SHALLOW_ANCHOR, TRUE_ANCHOR_FULL)
-  && !new RegExp('^[0-9a-f]{7,40}$').test(SHALLOW_ANCHOR), SHALLOW_ANCHOR + ' boundary=' + BOUNDARY_COMMIT.slice(0, 12));
+  && GR.classifyPreregAnchor(SHALLOW_ANCHOR) !== 'commit', SHALLOW_ANCHOR + ' boundary=' + BOUNDARY_COMMIT.slice(0, 12));
 
 t('S4 正对照：完整历史仓仍取判据件末次变更 commit——收紧没把好面一起拒掉',
   sameCommit(pSrc, MA.resolvePreregCommit(pSrc, SRC_REL), TRUE_ANCHOR_FULL), MA.resolvePreregCommit(pSrc, SRC_REL) + ' vs ' + TRUE_ANCHOR_FULL.slice(0, 12));

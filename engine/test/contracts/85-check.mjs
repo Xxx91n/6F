@@ -214,20 +214,26 @@ t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> �
 // 为什么是静态面：与 A16 同理——只在实跑腿判会随环境缺席一起隐身。这里不另扫 dist：dist 与 src 的同步由 engine-ci
 //   的 rebuild-diff（DIST-DRIFT）判红，authority §2.1 已登记该归属；A16 扫 dist 是因为压缩后的 cli 自包含体在
 //   duckdb 缺席时没有任何实跑兜底，本口径没这个问题（发出值由 buildReceipt 当场校验）。
-// 扫描面含契约生成子（48/51/23/39/40），不只 engine/src：口径说的是「发出面」，生成子同样在发报告，
-//   把它们排除在外等于留第二套——而且 buildReceipt 已会拒收模糊态，静态面不认它们就会与产线自相矛盾。
-// commit 形不能只验形状：本票的病根正是「形状合法、指向错对象」（浅克隆取到边界 commit），
+// commit 形不能只验形状：本票的病根正是「形状合法、指错对象」（浅克隆取到边界 commit），
 //   所以 commit 形一律经 `rev-parse --verify <v>^{commit}` 实解析，解析不到即红。
-// 判别力三臂，缺一即退化成空集自证：① 完备臂——每个列出的发出件必须各寻到 ≥1 枚锚初值；
-//   ② 反恒真臂——把两枚裸历史字面量喂进同一个分类器，必须判 ambiguous；
-//   ③ 锚常量溯源臂——写 PREREG_COMMIT 标识符的文件必须真的从 resolvePreregCommit 取值。
+// 发出面清单由 `git ls-files` 现算，不写死：写死清单的话，新增一个发 `prereg_commit:` 的文件不会有任何东西红，
+//   而那正是「第二套口径」的诞生路径。普查根＝engine/src＋engine/scripts＋engine/test/contracts，逐条豁免给理由：
+//   `*-check.mjs` 与 `*.test.mjs` 是**断言面**不是发出面——前者含本守卫自己的 `/prereg_commit:/` 正则字面量，
+//   后者含刻意写坏的负对照样本（`report-preview.test.mjs` 的 P3 就是拿裸 '38-script-const' 证明产线会拒收，
+//   把它算成违规等于要求负对照不存在）；`src/report/generate.ts` 承载 GateRef 的类型声明与 receipt 透传，
+//   不是锚的决定点。断言面不脱管：它们真跑 buildReport 时由 buildReceipt 当场把关。
+// 判别力四臂，缺一即退化成空集自证：① 覆盖臂——发现集必须真的含四个产品发出面，改名/移出扫描根会当场红；
+//   ② 完备臂——发现集里每个发出件各寻到 ≥1 枚锚初值；③ 反恒真臂——两枚裸历史字面量喂进同一分类器必须判 ambiguous；
+//   ④ 锚常量溯源臂——写 PREREG_COMMIT 标识符的文件必须真的把 PREREG_COMMIT **赋值自** resolvePreregCommit
+//     （只 `indexOf('resolvePreregCommit(')` 不够：`export function resolvePreregCommit` 自己就满足它，
+//      把模块常量退回裸 IIFE 仍会绿——这条是自我指认的空臂）。
 const GEN17 = await import(pathToFileURL(join(ENG, 'dist', 'report', 'generate.js')).href);
-const PREREG_EMITTER_FILES = [
-  'src/audit/micro-a.ts', 'src/audit/macro-c.ts', 'src/audit/audit.ts', 'src/demo/demo.ts',
-  'test/contracts/48-micro-a-preview.mjs', 'test/contracts/51-macro-b-behavior.mjs',
-  'test/contracts/23-first-report.mjs', 'scripts/39-macro-b-one-shot.mjs', 'scripts/40-macro-b-one-shot.mjs'
-];
-const PREREG_RESOLVER_IDENTS = ['PREREG_COMMIT'];   // 非常量字面：由 resolvePreregCommit 当场取值
+const PREREG_PRODUCT_FACERS = ['src/audit/micro-a.ts', 'src/audit/macro-c.ts', 'src/audit/audit.ts', 'src/demo/demo.ts'];
+const PREREG_TYPEONLY_FILES = ['src/report/generate.ts'];   // 类型声明＋透传，不决定锚值
+const PREREG_DISCOVERED = execFileSync('git', ['-C', REPO, 'ls-files', '--', 'engine/src', 'engine/scripts', 'engine/test/contracts'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+  .trim().split('\n').filter(function (p) { return /\.(ts|mjs)$/.test(p) && !/-check\.mjs$/.test(p); })
+  .map(function (p) { return p.replace(/^engine\//, ''); })
+  .filter(function (rel) { return PREREG_TYPEONLY_FILES.indexOf(rel) < 0; });
 function preregTerms(txt) {
   const out = []; const re = /prereg_commit:\s*([^,}\n]+)/g; let m;
   while ((m = re.exec(txt)) !== null) { out.push(m[1].trim()); }
@@ -239,30 +245,31 @@ function preregTermForm(term) {
   if (q !== null) { return GEN17.classifyPreregAnchor(q); }
   const call = term.match(/^(?:[A-Za-z_$][\w$]*\.)*(preregSentinel|preregDegraded)\((['"])[^'"]*\2\)$/);
   if (call) { return call[1] === 'preregSentinel' ? 'sentinel' : 'degraded'; }
-  if (PREREG_RESOLVER_IDENTS.indexOf(term) >= 0) { return 'resolver'; }
+  if (term === 'PREREG_COMMIT') { return 'resolver'; }
   return 'ambiguous';
 }
 function preregResolvable(v) {
   try { return execFileSync('git', ['-C', REPO, 'rev-parse', '--verify', v + '^{commit}'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() !== ''; } catch (e) { return false; }
 }
-const PREREG_TERMS = PREREG_EMITTER_FILES.map(function (rel) {
+const PREREG_TERMS = PREREG_DISCOVERED.map(function (rel) {
   const txt = readFileSync(join(ENG, rel), 'utf8');
   return { rel: rel, terms: preregTerms(txt), txt: txt };
-});
-const PREREG_SCAN_COMPLETE = PREREG_TERMS.every(function (e) { return e.terms.length >= 1; });
+}).filter(function (e) { return e.terms.length >= 1; });
+const PREREG_COVERED = PREREG_PRODUCT_FACERS.every(function (rel) { return PREREG_TERMS.some(function (e) { return e.rel === rel; }); });
 const PREREG_OFFENDERS = PREREG_TERMS.reduce(function (acc, e) {
   for (const term of e.terms) {
     const form = preregTermForm(term);
     if (form === 'ambiguous') { acc.push(e.rel + '=' + term); continue; }
     if (form === 'commit' && !preregResolvable(String(preregQuoted(term)))) { acc.push(e.rel + '=' + term + '(不可解析)'); continue; }
-    if (form === 'resolver' && e.txt.indexOf('resolvePreregCommit(') < 0) { acc.push(e.rel + '=锚常量未走 resolvePreregCommit'); }
+    if (form === 'resolver' && !new RegExp('=\\s*(?:[A-Za-z_$][\\w$]*\\.)?resolvePreregCommit\\(').test(e.txt)) { acc.push(e.rel + '=锚常量未赋值自 resolvePreregCommit'); }
   }
   return acc;
 }, []);
-t('A17 prereg 锚取值口径：九个发出面各带 ≥1 枚锚且全部落三形态（commit 形须真可解析；模糊态/假锚即红；裸历史字面量已判否）',
-  PREREG_SCAN_COMPLETE && PREREG_OFFENDERS.length === 0
+t('A17 prereg 锚取值口径：发现的每个发出面各带 ≥1 枚锚且全部落三形态（commit 形须真可解析；模糊态/假锚/退化的锚常量赋值即红；裸历史字面量已判否）',
+  PREREG_COVERED && PREREG_TERMS.length > 0 && PREREG_OFFENDERS.length === 0
   && GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous' && GEN17.classifyPreregAnchor('45-demo-criteria') === 'ambiguous',
-  'scan_complete=' + PREREG_SCAN_COMPLETE + ' offenders=' + (PREREG_OFFENDERS.join(',') || 'none')
+  'covered=' + PREREG_COVERED + ' emitters=' + PREREG_TERMS.length + '(' + PREREG_TERMS.map(function (e) { return e.rel; }).join(' ') + ')'
+  + ' offenders=' + (PREREG_OFFENDERS.join(',') || 'none')
   + ' classifier_rejects=' + (GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous'));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------

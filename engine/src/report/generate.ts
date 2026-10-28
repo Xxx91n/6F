@@ -126,7 +126,6 @@ export interface GateRef {
 }
 
 // Design: prereg_commit 只取可解析 commit 或带前缀的显式标记，禁模糊态 — spec §R9-1
-// 标记前缀含冒号而 SHA 字符集不含冒号，两族结构上不可能互撞；名字形制由构造子把关，裸字面量不再构成合法锚。
 const PREREG_COMMIT_FORM = /^[0-9a-f]{7,40}$/;   // 宽度不属身份：git auto-abbrev 随对象库在 7↔8 跳变（A-098）
 const PREREG_NAME_FORM = /^[0-9A-Za-z][0-9A-Za-z._-]*$/;
 export type PreregAnchorForm = 'commit' | 'sentinel' | 'degraded' | 'ambiguous';
