@@ -103,6 +103,19 @@ check('O2 实跑产物与 golden 逐字节一致（report.md/report.json/facts/m
 const manifest = JSON.parse(readFileSync(join(GOLDEN, 'manifest.json'), 'utf8'));
 check('O3 manifest 记录三场景裁定与实跑一致', D.DEMO_SCENARIOS.every((s) => manifest.scenarios[s] && manifest.scenarios[s].verdict === runs[s].verdict && manifest.scenarios[s].receipt_id === runs[s].receipt_id));
 
+// O4 prereg 锚取值口径（tracker #100／R9-1）：demo 面与 Macro-C 面同取 sentinel 标记，两侧不第二套。
+const GD = await import(pathToFileURL(join(root, 'dist', 'report', 'generate.js')).href);
+const goldenAnchors = D.DEMO_SCENARIOS.map(function (s) {
+  const p = join(GOLDEN, s, 'report.json');
+  if (!existsSync(p)) { return ''; }
+  const j = JSON.parse(readFileSync(p, 'utf8'));
+  const g = j.gate_ref || (j.receipt && j.receipt.gate_ref) || {};
+  return String(g.prereg_commit || '');
+});
+check('O4 三场景 golden 的 prereg 锚同为显式哨兵（与 38 面口径一致；裸 45-demo-criteria 已非法）',
+  goldenAnchors.length === 3 && goldenAnchors.every(function (v) { return v === 'sentinel:45-demo-criteria' && GD.classifyPreregAnchor(v) === 'sentinel'; })
+  && GD.classifyPreregAnchor('45-demo-criteria') === 'ambiguous', JSON.stringify(goldenAnchors));
+
 rmSync(tmp, { recursive: true, force: true });
 
 let ok = true;

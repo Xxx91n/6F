@@ -41,8 +41,8 @@
     "baggage_id": "d3ad072f4037955c7d88b84112e35d98"
   },
   "receipt": {
-    "receipt_id": "RCP-73e130018f0d155a",
-    "chain_hash": "73e130018f0d155a27598c165fbd06f16649784b24b80732b9473e054cd6fc92",
+    "receipt_id": "RCP-13bfa28f901e8964",
+    "chain_hash": "13bfa28f901e896421bfe478fd62be2182900dcfd067ec4f9206039422786e59",
     "issued_at": "2026-04-13T10:00:00Z",
     "commit_anchor": "4f9b0b567d3dd47be141c10f867bbbac877c1f94",
     "tree_anchor": "d0fb585754c7f84a85bb88d41fc26063cc903aac",
@@ -52,7 +52,7 @@
       "canonicalization": "json_utf8_entries_then_citation_checks"
     },
     "gate_ref": {
-      "prereg_commit": "45-demo-criteria",
+      "prereg_commit": "sentinel:45-demo-criteria",
       "criteria_path": "reports/22-criteria-pre-registration.md",
       "basis_path": "reports/22-c-adjudication-basis.md",
       "criterion_ids": [
@@ -67,7 +67,7 @@
     "fact_count": 129,
     "adjudication_count": 6,
     "degraded": false,
-    "mark": "RECEIPT RCP-73e130018f0d155a chain=73e130018f0d155a27598c165fbd06f1 content=82c05995bc07193f facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7",
+    "mark": "RECEIPT RCP-13bfa28f901e8964 chain=13bfa28f901e896421bfe478fd62be21 content=82c05995bc07193f facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7",
     "verdict": {
       "band": "supported",
       "reason_class": "none"

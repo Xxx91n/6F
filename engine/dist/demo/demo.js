@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { metaPath } from '../manifest.js';
 import { deriveBaggageId } from '../collect/collectors.js';
-import { buildReport, degradeReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, UNVERIFIED_MARK, REPORT_SKELETON_VERSION, firstFactIds } from '../report/generate.js';
+import { buildReport, degradeReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, UNVERIFIED_MARK, REPORT_SKELETON_VERSION, firstFactIds, preregSentinel } from '../report/generate.js';
 import { repoAdd } from '../intake/intake.js';
 import { generateFixtureRepo, FIXTURE_GENERATOR_ID } from './fixture-generator.js';
 import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, TC3_TOPN, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, MACRO_B_STOPWORDS } from '../audit/macro-b.js';
@@ -179,7 +179,8 @@ export function runDemo(opts) {
         ];
         // ---------- §10 裁决条目（判据 id 与 39 同族；band 三档如实；tcBand 由共享管线导入） ----------
         const GATE_REF = {
-            prereg_commit: '45-demo-criteria',
+            // Design: demo 判据是合成演示件、不产 commit，与 38 面同取显式哨兵，不留第二套 — spec §R9-1
+            prereg_commit: preregSentinel('45-demo-criteria'),
             criteria_path: 'reports/22-criteria-pre-registration.md',
             basis_path: 'reports/22-c-adjudication-basis.md',
             criterion_ids: ['PC-1', 'PC-2', 'TC-1', 'TC-2', 'TC-3', 'NC-1']

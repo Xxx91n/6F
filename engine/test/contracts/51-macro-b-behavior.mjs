@@ -112,7 +112,8 @@ const input = {
   recommendations: [{ rec_id: 'R-51-1', priority: 'P2', action: 'behavior 象限 preview 位维持：churn/hotspot/coupling 三面接 codelore（min_revs=' + TC1_MIN_N + ' 阈值惯例）', rationale: 'behavior 切片已落（native 象限）——低样本仓信度披露靠 TC-1 判据守住', expected_impact: 'Macro-B 四象限名实落差收窄为 strategy+behavior 双 active', effort: '本票已付', verdict_gate_stamp: behaviorBand, evidence_refs: ['EV-B-HOTSPOTS', 'EV-B-COUPLING'], degraded_note: null }],
   adjudication_entries: entries, decided_at: decidedAt,
   commit_anchor: 'unanchored', tree_anchor: 'unanchored',
-  gate_ref: { prereg_commit: 'unanchored', criteria_path: '51-behavior-criteria.md', basis_path: '22-c-adjudication-basis.md', criterion_ids: ['PC-1', 'TC-1', 'TC-2', 'NC-1'] },
+  // Design: 裸 'unanchored' 属禁用的模糊态，发出面取显式降级标记 — spec §R9-1
+  gate_ref: { prereg_commit: G.preregDegraded('unanchored-run'), criteria_path: '51-behavior-criteria.md', basis_path: '22-c-adjudication-basis.md', criterion_ids: ['PC-1', 'TC-1', 'TC-2', 'NC-1'] },
   degraded: false, degraded_reason: null,
   preview_disclosure: {
     capability_label: 'capability 1 of 5 · preview',

@@ -6,6 +6,8 @@
 //     语料来源＝仓内 frozen bundle（ADR-0026/#33）→ 无 sibling 依赖，CI 可达；钉值唯一权威=engine/baseline-lock.yaml
 //     ＋基准身份绑定（tracker #34／ADR-0026）：A14 锁表钉与冻结事实历史身份绑死、A15 历史钉值引用棘轮、
 //       A16 复现命令可移植形（src＋dist 静态面，不随 duckdb 缺席 SKIP）、B8 报告输出面无盘符锚（实跑面）
+//     ＋溯源锚取值口径（tracker #100／R9-1）：A17 现算九个发出面的 prereg 锚须全部落三形态，模糊态即红
+//       （commit 形的可解析性子判据依赖全量历史，单独过 `git-history:` 组闸——浅克隆下计 SKIP-GROUPS 不隐身）
 //   → D 自检组（正负对照：构造偏差必须检出——§2.4 命中方向跑前声明）
 // 纪律：只读断言＋临时目录写运行产物（跑完即弃）；bundle 物化走 `git clone <bundle>` 至 OS temp（主仓对象库零写，D-074）；
 //   exit 0 + PASS N/N 绿。
@@ -208,6 +210,98 @@ t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> �
   && portableLocalArm(MC_SRC) && portableLocalArm(MC_DIST) && portableFileArm(MC_SRC) && portableFileArm(MC_DIST)
   && MC_SRC.indexOf(CALL_SITE) >= 0 && MC_DIST.indexOf(CALL_SITE) >= 0,
   'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' local=' + portableLocalArm(MC_SRC) + '/' + portableLocalArm(MC_DIST) + ' file=' + portableFileArm(MC_SRC) + '/' + portableFileArm(MC_DIST) + ' call=' + (MC_SRC.indexOf(CALL_SITE) >= 0) + '/' + (MC_DIST.indexOf(CALL_SITE) >= 0) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
+
+// A17 prereg 锚取值口径（tracker #100／docs/spec.md R9-1）：每个发出面的锚只能落三形态，且 commit 形必须真能解析。
+// 为什么是静态面：与 A16 同理——只在实跑腿判会随环境缺席一起隐身。这里不另扫 dist：dist 与 src 的同步由 engine-ci
+//   的 rebuild-diff（DIST-DRIFT）判红，authority §2.1 已登记该归属；A16 扫 dist 是因为压缩后的 cli 自包含体在
+//   duckdb 缺席时没有任何实跑兜底，本口径没这个问题（发出值由 buildReceipt 当场校验）。
+// commit 形不能只验形状：本票的病根正是「形状合法、指错对象」（浅克隆取到边界 commit），
+//   所以 commit 形一律经 `rev-parse --verify <v>^{commit}` 实解析，解析不到即红。
+// 发出面清单由 `git ls-files` 现算，不写死：写死清单的话，新增一个发 `prereg_commit:` 的文件不会有任何东西红，
+//   而那正是「第二套口径」的诞生路径。普查根＝engine/src＋engine/scripts＋engine/test/contracts，逐条豁免给理由：
+//   `*-check.mjs` 与 `*.test.mjs` 是**断言面**不是发出面——前者含本守卫自己的 `/prereg_commit:/` 正则字面量，
+//   后者含刻意写坏的负对照样本（`report-preview.test.mjs` 的 P3 就是拿裸 '38-script-const' 证明产线会拒收，
+//   把它算成违规等于要求负对照不存在）；`src/report/generate.ts` 承载 GateRef 的类型声明与 receipt 透传，
+//   不是锚的决定点。断言面不脱管：它们真跑 buildReport 时由 buildReceipt 当场把关。
+// 判别力四臂，缺一即退化成空集自证：① 覆盖臂——发现集必须真的含四个产品发出面，改名/移出扫描根会当场红；
+//   ② 扫描不失灵臂——凡正文含 `prereg_commit:` 的发现件，正则都必须抓到 ≥1 枚初值；只把「有初值的件」
+//     筛出来当输入、再断言它们各有一枚，那是恒真的自我循环，正则写坏时反而静默把发出面当成不存在；
+//   ③ 反恒真臂——两枚裸历史字面量喂进同一分类器必须判 ambiguous；
+//   ④ 锚常量溯源臂——写 PREREG_COMMIT 标识符的文件必须有一行**行首的** `const PREREG_COMMIT = [X.]resolvePreregCommit(`。
+//     初版写全文件 `indexOf('resolvePreregCommit(')`：那被 micro-a.ts 自己的 `export function` 行就满足＝自我指认空臂，
+//     常量退回裸 IIFE 仍绿；锚到赋值行、并要求行首就是 `const`（注释掉的赋值以 `//` 起头，匹配不上），两个洞一起关。
+const PREREG_RESOLVER_ASSIGN = /^[ \t]*(?:export[ \t]+)?const[ \t]+PREREG_COMMIT[ \t]*=[ \t]*(?:[A-Za-z_$][\w$]*\.)?resolvePreregCommit\(/m;
+const GEN17 = await import(pathToFileURL(join(ENG, 'dist', 'report', 'generate.js')).href);
+const PREREG_PRODUCT_FACERS = ['src/audit/micro-a.ts', 'src/audit/macro-c.ts', 'src/audit/audit.ts', 'src/demo/demo.ts'];
+const PREREG_TYPEONLY_FILES = ['src/report/generate.ts'];   // 类型声明＋透传，不决定锚值
+const PREREG_DISCOVERED = execFileSync('git', ['-C', REPO, 'ls-files', '--', 'engine/src', 'engine/scripts', 'engine/test/contracts'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+  .trim().split('\n').filter(function (p) { return /\.(ts|mjs)$/.test(p) && !/-check\.mjs$/.test(p) && !/\.test\.mjs$/.test(p); })
+  .map(function (p) { return p.replace(/^engine\//, ''); })
+  .filter(function (rel) { return PREREG_TYPEONLY_FILES.indexOf(rel) < 0; });
+function preregTerms(txt) {
+  const out = []; const re = /prereg_commit:\s*([^,}\n]+)/g; let m;
+  while ((m = re.exec(txt)) !== null) { out.push(m[1].trim()); }
+  return out;
+}
+function preregQuoted(term) { const s = term.match(/^(['"])([^'"]*)\1$/); return s ? s[2] : null; }
+// 标记臂验的是**提取出来的值**，不是构造子名字：`preregSentinel('bad name')` 名字合法而值不合形制，
+//   只认名字就会把它放过去，拖到发出面真跑时才由构造子抛出——而本臂宣称的正是「静态判形态」。
+//   组值复用 GEN17 同一对构造子（不在此重写前缀字面，免得长出第二份语法定义），名字不合形制即抛出＝判否。
+function preregMarkerForm(kind, name) {
+  try { return GEN17.classifyPreregAnchor(kind === 'preregSentinel' ? GEN17.preregSentinel(name) : GEN17.preregDegraded(name)); } catch (e) { return 'ambiguous'; }
+}
+function preregTermForm(term) {
+  const q = preregQuoted(term);
+  if (q !== null) { return GEN17.classifyPreregAnchor(q); }
+  const call = term.match(/^(?:[A-Za-z_$][\w$]*\.)*(preregSentinel|preregDegraded)\((['"])([^'"]*)\2\)$/);
+  if (call) { return preregMarkerForm(call[1], call[3]); }
+  if (term === 'PREREG_COMMIT') { return 'resolver'; }
+  return 'ambiguous';
+}
+function preregResolvable(v) {
+  try { return execFileSync('git', ['-C', REPO, 'rev-parse', '--verify', v + '^{commit}'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() !== ''; } catch (e) { return false; }
+}
+// 可解析性判据依赖全量历史，而本守卫自声明 CONSUMPTION_FORMS 含 ci-shallow——depth-1 检出里 `7395495` 根本不在
+//   对象库，把「历史缺席」报成「锚非法」就是混淆两类因（tracker #72／#33 边界：内容缺陷＝红，环境缺席＝不隐身）。
+//   不隐身要走仓内既有载体：D-215② 专为「完整历史可达性」立的第五 need 族 `git-history:` ＋ groupProbe，
+//   它打 `SKIP 85-check/A17-HIST` 与 `GUARD-RESULT: SKIP-GROUP` 两行，由 contracts-run 留存并计入终行
+//   SKIP-GROUPS=n。自己 console.log 一行 NOTE 没用——contracts-run.mjs:26 的子进程输出过滤只留
+//   /PASS|FAIL|SKIP|WARN|error/，NOTE 不匹配，恰好落在本仓已定性的「尾两行窗口截掉＝假绿面」里。
+function preregHistoryOk() {
+  try { return execFileSync('git', ['-C', REPO, 'rev-parse', '--is-shallow-repository'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() !== 'true'; } catch (e) { return false; }
+}
+const PREREG_SCANNED = PREREG_DISCOVERED.map(function (rel) {
+  const txt = readFileSync(join(ENG, rel), 'utf8');
+  return { rel: rel, txt: txt, mentions: txt.indexOf('prereg_commit:') >= 0, terms: preregTerms(txt) };
+});
+// ② 扫描不失灵臂：正文明明写着 `prereg_commit:` 却被正则抓到 0 枚初值的件。少了这条，筛完再验「各有一枚」
+//   就是恒真的自我循环——正则一坏，发出面会静默从普查里消失，而不是判红。
+const PREREG_MISS = PREREG_SCANNED.filter(function (e) { return e.mentions && e.terms.length === 0; }).map(function (e) { return e.rel; });
+const PREREG_TERMS = PREREG_SCANNED.filter(function (e) { return e.terms.length >= 1; });
+const PREREG_COVERED = PREREG_PRODUCT_FACERS.every(function (rel) { return PREREG_TERMS.some(function (e) { return e.rel === rel; }); });
+// 可解析性一支单独过组闸：历史不可得时 groupProbe 打 SKIP＋GUARD-RESULT: SKIP-GROUP（runner 留存并计数）。
+//   其余三臂——形态判别、普查不失灵、锚常量赋值溯源——不依赖历史深度，浅克隆下照跑照红，不随这支一起隐身。
+const PREREG_HIST_RUN = groupProbe('85-check', 'A17-HIST', [need('git-history:prereg_commit 锚可解析性', preregHistoryOk())]);
+const PREREG_UNRESOLVED = PREREG_HIST_RUN ? PREREG_TERMS.reduce(function (acc, e) {
+  return acc.concat(e.terms.filter(function (x) { return preregTermForm(x) === 'commit' && !preregResolvable(String(preregQuoted(x))); }).map(function (x) { return e.rel + '=' + x + '(不可解析)'; }));
+}, []) : [];
+const PREREG_OFFENDERS = PREREG_TERMS.reduce(function (acc, e) {
+  for (const term of e.terms) {
+    const form = preregTermForm(term);
+    if (form === 'ambiguous') { acc.push(e.rel + '=' + term); continue; }
+    if (form === 'resolver' && !PREREG_RESOLVER_ASSIGN.test(e.txt)) { acc.push(e.rel + '=锚常量未由 const PREREG_COMMIT = resolvePreregCommit(...) 赋值'); }
+  }
+  return acc;
+}, []);
+t('A17 prereg 锚取值口径：发现的每个发出面各带 ≥1 枚锚且全部落三形态（模糊态/锚名非法/退化的锚常量赋值即红；commit 形可解析性另过 git-history 组闸；裸历史字面量已判否）',
+  PREREG_COVERED && PREREG_MISS.length === 0 && PREREG_OFFENDERS.length === 0 && PREREG_UNRESOLVED.length === 0
+  && GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous' && GEN17.classifyPreregAnchor('45-demo-criteria') === 'ambiguous',
+  'offenders=' + ((PREREG_OFFENDERS.concat(PREREG_UNRESOLVED)).join(',') || 'none')
+  // 明细首位必须是 offenders：t() 把 detail 截到 300 字符，早先把九件发出面清单排在前面，
+  //   一次真实变异（`preregSentinel('bad name')`）判了红却看不到是哪件——判红不可诊断等于 half a guard。
+  + ' hist_arm_run=' + PREREG_HIST_RUN + ' covered=' + PREREG_COVERED + ' scan_miss=' + (PREREG_MISS.join(',') || 'none')
+  + ' emitters=' + PREREG_TERMS.length
+  + ' classifier_rejects=' + (GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous'));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
 const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];

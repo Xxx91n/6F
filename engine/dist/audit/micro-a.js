@@ -17,7 +17,8 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { parseGithubRepoRef, collectGithubPrFacts, resolvePrDiff, createGithubRestClient, resolveGithubCredential } from '../upstream/github-rest.js';
 import { deriveBaggageId, sha256Hex } from '../collect/collectors.js';
-import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, REPORT_SKELETON } from '../report/generate.js';
+import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, REPORT_SKELETON, preregDegraded } from '../report/generate.js';
+import { isShallowRepo } from '../intake/intake.js';
 import { openWriter, closeDuckdb } from '../fact/store.js';
 import { writeRunFactsAndEvents } from './fact-write.js';
 const NL = String.fromCharCode(10);
@@ -73,6 +74,24 @@ function tryGit(root, args) {
     }
 }
 // 预声明锚（48 §2 D-179① 伴生确定性：钉 CRITERIA_PATH 最后变更 commit——判据不动即恒值；非运行时 HEAD）
+// Design: 浅克隆取不到末次变更，不得静默交出边界 commit，须落显式降级标记 — spec §R9-1
+export function resolvePreregCommit(root, criteriaPath) {
+    if (root === null) {
+        return preregDegraded('no-source-repo');
+    }
+    // isShallowRepo 走 intake 的 gitOk：判不了深度是**抛出**而非返回 false，本函数又在模块加载期被调用，抛出即拖垮整条 Micro-A 面。
+    let shallow;
+    try {
+        shallow = isShallowRepo(root);
+    }
+    catch (e) {
+        return preregDegraded('depth-unknown');
+    }
+    if (shallow) {
+        return preregDegraded('shallow-clone');
+    }
+    return tryGit(root, ['log', '-1', '--format=%h', '--', criteriaPath]) || preregDegraded('no-criteria-history');
+}
 function sourceRepoRoot() {
     try {
         let dir = dirname(fileURLToPath(import.meta.url));
@@ -92,7 +111,7 @@ function sourceRepoRoot() {
     }
     return null;
 }
-const PREREG_COMMIT = (function () { const r = sourceRepoRoot(); return (r !== null ? tryGit(r, ['log', '-1', '--format=%h', '--', CRITERIA_PATH]) : null) || 'unknown'; })();
+const PREREG_COMMIT = resolvePreregCommit(sourceRepoRoot(), CRITERIA_PATH);
 // ---------- §4 采集（48 collectTarget 逐行移植——枚举＋元数据＋diff 双通道，事实=适配器唯一来源） ----------
 export function microACollectContext(t, headSha, runAt) {
     return {

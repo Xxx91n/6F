@@ -1,5 +1,5 @@
 # MA-45-DEMO-HAPPYPATH — Macro-B 首报（fixture-happy-path@4f9b0b567d3d）
-> RECEIPT RCP-73e130018f0d155a chain=73e130018f0d155a27598c165fbd06f1 content=82c05995bc07193f facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7
+> RECEIPT RCP-13bfa28f901e8964 chain=13bfa28f901e896421bfe478fd62be21 content=82c05995bc07193f facts=129 adjudications=6 issued_at=2026-04-13T10:00:00Z commit=4f9b0b567d3dd47be141c10f867bbbac877c1f94 tree=d0fb585754c7
 >
 > 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 2026-04-13T10:00:00Z
 > - stability: preview · capabilities: macro-b

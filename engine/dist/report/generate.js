@@ -89,8 +89,37 @@ export function adjudicate(args) {
         citation_checks: checks
     };
 }
+// Design: prereg_commit 只取可解析 commit 或带前缀的显式标记，禁模糊态 — spec §R9-1
+const PREREG_COMMIT_FORM = /^[0-9a-f]{4,40}$/; // 4 = git 能 emit 的最小缩写宽度；为何不是 7 见 spec §R9-1
+const PREREG_NAME_FORM = /^[0-9A-Za-z][0-9A-Za-z._-]*$/;
+// 'sentinel' = 设计上就不是 commit（存档哨兵）；'degraded' = 本该取到 commit 但取不到或取不准。
+export function classifyPreregAnchor(v) {
+    if (v.indexOf('sentinel:') === 0) {
+        return PREREG_NAME_FORM.test(v.slice(9)) ? 'sentinel' : 'ambiguous';
+    }
+    if (v.indexOf('degraded:') === 0) {
+        return PREREG_NAME_FORM.test(v.slice(9)) ? 'degraded' : 'ambiguous';
+    }
+    return PREREG_COMMIT_FORM.test(v) ? 'commit' : 'ambiguous';
+}
+function preregMarked(prefix, name) {
+    if (!PREREG_NAME_FORM.test(name)) {
+        throw new Error('PREREG-ANCHOR-NAME-INVALID: ' + prefix + ' 后的标记名不合形制（须为 [0-9A-Za-z][0-9A-Za-z._-]*）：' + JSON.stringify(name));
+    }
+    return prefix + name;
+}
+export function preregSentinel(name) { return preregMarked('sentinel:', name); }
+export function preregDegraded(reason) { return preregMarked('degraded:', reason); }
+// Design: 模糊态锚在回执哈希链之前当场拒收，错误值不得被签成可回查坐标 — spec §R9-1
+export function assertDiscriminablePreregAnchor(v) {
+    if (classifyPreregAnchor(v) === 'ambiguous') {
+        throw new Error('PREREG-ANCHOR-AMBIGUOUS: gate_ref.prereg_commit=' + JSON.stringify(v) + ' 既不是 4–40 位小写十六进制 commit，也不带 sentinel:/degraded: 标记前缀（取值口径见 spec §R9-1）');
+    }
+}
 export const CONTENT_DIGEST_CANONICALIZATION = 'json_utf8_entries_then_citation_checks';
 export function buildReceipt(args) {
+    // 口径闸先于哈希：一旦模糊态锚进了链，receipt_id/chain_hash 会把错误值签成「可回查的坐标」。
+    assertDiscriminablePreregAnchor(args.gate_ref.prereg_commit);
     const sorted = args.fact_ids.slice().sort();
     const adjParts = [];
     for (const e of args.adjudication.entries) {

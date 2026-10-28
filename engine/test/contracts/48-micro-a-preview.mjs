@@ -89,7 +89,9 @@ function git(root, args) { return execFileSync('git', ['-C', root].concat(args),
 function tryGit(root, args) { try { return git(root, args).trim(); } catch (e) { return null; } }
 // D-179① 伴生确定性：prereg_commit 钉判据预声明件最后变更 commit（名实归位——「预声明锚」非运行时 HEAD；
 //   原 rev-parse HEAD 令每次 commit 后整批 golden 必漂，改钉 CRITERIA_PATH 锚=判据不动即恒值）
-const PREREG_COMMIT = tryGit(REPO, ['log', '-1', '--format=%h', '--', CRITERIA_PATH]) || 'unknown';
+// Design: 取值走引擎同一个 resolvePreregCommit——本生成器与 dist 引擎不得各判各的锚 — spec §R9-1
+const MA48 = await import(pathToFileURL(join(DIST, 'audit', 'micro-a.js')).href);
+const PREREG_COMMIT = MA48.resolvePreregCommit(REPO, CRITERIA_PATH);
 function pickExcerpt(absOrRelPath, tokens, base) {
   const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
   const lines = text.split(NL);
