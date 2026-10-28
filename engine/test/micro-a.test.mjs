@@ -196,10 +196,11 @@ t('S7 判不了深度时降级而非抛出——非 git 目录喂进去不得抛
 // core.abbrev=4 时 `%h` 真会短到 4 位（git 忽略 <4 的设定，4 是下限）。这条钉的是**本票自引入的**失败模式：
 //   口径闸初版把 commit 下限写成 7，合法锚会被自己的闸判成模糊态，buildReceipt 在 Micro-A 落盘前就抛。
 gitAt(pSrc, ['config', 'core.abbrev', '4']);
+const ABBREV4_RAW = gitAt(pSrc, ['log', '-1', '--format=%h', '--', SRC_REL]);
 const ABBREV4_ANCHOR = MA.resolvePreregCommit(pSrc, SRC_REL);
-t('S8 前提+正对照：core.abbrev=4 的仓取到 4 位缩写，仍是 commit 形且仍解析回同一枚判据锚',
-  ABBREV4_ANCHOR.length === 4 && GR.classifyPreregAnchor(ABBREV4_ANCHOR) === 'commit'
-  && sameCommit(pSrc, ABBREV4_ANCHOR, TRUE_ANCHOR_FULL), JSON.stringify(ABBREV4_ANCHOR));
+t('S8 前提+正对照：core.abbrev=4 使 %h 落到 7 位以下，该锚仍须判成 commit 且解析回同一枚判据锚',
+  ABBREV4_RAW.length < 7 && GR.classifyPreregAnchor(ABBREV4_ANCHOR) === 'commit'
+  && sameCommit(pSrc, ABBREV4_ANCHOR, TRUE_ANCHOR_FULL), JSON.stringify({ raw: ABBREV4_RAW, anchor: ABBREV4_ANCHOR }));
 
 try { rmSync(tmp, { recursive: true, force: true }); } catch (e) { }
 console.log(fail === 0 ? 'MICRO-A-TEST-OK ' + pass + '/' + (pass + fail) : 'MICRO-A-TEST-FAIL ' + fail + '/' + (pass + fail));

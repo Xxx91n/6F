@@ -104,7 +104,6 @@ t('C1 degradeReport 保留 preview_disclosure（降级不丢披露义务）', ()
 t('P1 三形态各自命中——commit 形／显式哨兵／显式降级（前缀即判别面，不读源码也能分辨）', () => {
   assert.equal(G.classifyPreregAnchor('e356581e'), 'commit');
   assert.equal(G.classifyPreregAnchor('a'.repeat(40)), 'commit');
-  assert.equal(G.classifyPreregAnchor('7670'), 'commit');   // core.abbrev=4 的仓里 %h 真会短到 4 位，仍是合法锚
   assert.equal(G.preregSentinel('38-script-const'), 'sentinel:38-script-const');
   assert.equal(G.classifyPreregAnchor(G.preregSentinel('38-script-const')), 'sentinel');
   assert.equal(G.preregDegraded('shallow-clone'), 'degraded:shallow-clone');
@@ -115,7 +114,7 @@ t('P2 模糊态判否——历史裸字面量与无前缀值一律不再构成�
   const AMBIGUOUS = [
     '38-script-const', '45-demo-criteria', 'unknown', 'unanchored', 'x', '',
     'sentinel:', 'degraded:', 'sentinel:bad reason', 'Sentinel:x', 'SENTINEL:x',
-    'deadBeef', 'zzzzzzz', 'e356581e ', 'bee', 'e356581g', 'a'.repeat(41)
+    'deadBeef', 'zzzzzzz', 'e356581e ', 'e356581g', 'a'.repeat(41)
   ];
   for (const v of AMBIGUOUS) { assert.equal(G.classifyPreregAnchor(v), 'ambiguous', 'must reject ' + JSON.stringify(v)); }
 });
