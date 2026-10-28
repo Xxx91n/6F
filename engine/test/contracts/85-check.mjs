@@ -6,7 +6,8 @@
 //     语料来源＝仓内 frozen bundle（ADR-0026/#33）→ 无 sibling 依赖，CI 可达；钉值唯一权威=engine/baseline-lock.yaml
 //     ＋基准身份绑定（tracker #34／ADR-0026）：A14 锁表钉与冻结事实历史身份绑死、A15 历史钉值引用棘轮、
 //       A16 复现命令可移植形（src＋dist 静态面，不随 duckdb 缺席 SKIP）、B8 报告输出面无盘符锚（实跑面）
-//     ＋溯源锚取值口径（tracker #100／R9-1）：A17 四个 src 发出面的 prereg 锚全部落三形态，模糊态即红
+//     ＋溯源锚取值口径（tracker #100／R9-1）：A17 现算九个发出面的 prereg 锚须全部落三形态，模糊态即红
+//       （commit 形的可解析性子判据依赖全量历史，单独过 `git-history:` 组闸——浅克隆下计 SKIP-GROUPS 不隐身）
 //   → D 自检组（正负对照：构造偏差必须检出——§2.4 命中方向跑前声明）
 // 纪律：只读断言＋临时目录写运行产物（跑完即弃）；bundle 物化走 `git clone <bundle>` 至 OS temp（主仓对象库零写，D-074）；
 //   exit 0 + PASS N/N 绿。
@@ -255,12 +256,14 @@ function preregResolvable(v) {
   try { return execFileSync('git', ['-C', REPO, 'rev-parse', '--verify', v + '^{commit}'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() !== ''; } catch (e) { return false; }
 }
 // 可解析性判据依赖全量历史，而本守卫自声明 CONSUMPTION_FORMS 含 ci-shallow——depth-1 检出里 `7395495` 根本不在
-//   对象库，把「历史缺席」报成「锚非法」就是混淆两类因（tracker #72/#33 同一条边界：内容缺陷＝红，环境缺席＝显式可见）。
-//   所以历史不可用时不判红、也不静默：单列一行 NOTE 点名哪些 commit 形锚这次没能验，判据本身照常跑。
+//   对象库，把「历史缺席」报成「锚非法」就是混淆两类因（tracker #72／#33 边界：内容缺陷＝红，环境缺席＝不隐身）。
+//   不隐身要走仓内既有载体：D-215② 专为「完整历史可达性」立的第五 need 族 `git-history:` ＋ groupProbe，
+//   它打 `SKIP 85-check/A17-HIST` 与 `GUARD-RESULT: SKIP-GROUP` 两行，由 contracts-run 留存并计入终行
+//   SKIP-GROUPS=n。自己 console.log 一行 NOTE 没用——contracts-run.mjs:26 的子进程输出过滤只留
+//   /PASS|FAIL|SKIP|WARN|error/，NOTE 不匹配，恰好落在本仓已定性的「尾两行窗口截掉＝假绿面」里。
 function preregHistoryOk() {
   try { return execFileSync('git', ['-C', REPO, 'rev-parse', '--is-shallow-repository'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() !== 'true'; } catch (e) { return false; }
 }
-const PREREG_HISTORY_OK = preregHistoryOk();
 const PREREG_SCANNED = PREREG_DISCOVERED.map(function (rel) {
   const txt = readFileSync(join(ENG, rel), 'utf8');
   return { rel: rel, txt: txt, mentions: txt.indexOf('prereg_commit:') >= 0, terms: preregTerms(txt) };
@@ -270,27 +273,25 @@ const PREREG_SCANNED = PREREG_DISCOVERED.map(function (rel) {
 const PREREG_MISS = PREREG_SCANNED.filter(function (e) { return e.mentions && e.terms.length === 0; }).map(function (e) { return e.rel; });
 const PREREG_TERMS = PREREG_SCANNED.filter(function (e) { return e.terms.length >= 1; });
 const PREREG_COVERED = PREREG_PRODUCT_FACERS.every(function (rel) { return PREREG_TERMS.some(function (e) { return e.rel === rel; }); });
+// 可解析性一支单独过组闸：历史不可得时 groupProbe 打 SKIP＋GUARD-RESULT: SKIP-GROUP（runner 留存并计数）。
+//   其余三臂——形态判别、普查不失灵、锚常量赋值溯源——不依赖历史深度，浅克隆下照跑照红，不随这支一起隐身。
+const PREREG_HIST_RUN = groupProbe('85-check', 'A17-HIST', [need('git-history:prereg_commit 锚可解析性', preregHistoryOk())]);
+const PREREG_UNRESOLVED = PREREG_HIST_RUN ? PREREG_TERMS.reduce(function (acc, e) {
+  return acc.concat(e.terms.filter(function (x) { return preregTermForm(x) === 'commit' && !preregResolvable(String(preregQuoted(x))); }).map(function (x) { return e.rel + '=' + x + '(不可解析)'; }));
+}, []) : [];
 const PREREG_OFFENDERS = PREREG_TERMS.reduce(function (acc, e) {
   for (const term of e.terms) {
     const form = preregTermForm(term);
     if (form === 'ambiguous') { acc.push(e.rel + '=' + term); continue; }
-    if (form === 'commit' && PREREG_HISTORY_OK && !preregResolvable(String(preregQuoted(term)))) { acc.push(e.rel + '=' + term + '(不可解析)'); continue; }
     if (form === 'resolver' && !PREREG_RESOLVER_ASSIGN.test(e.txt)) { acc.push(e.rel + '=锚常量未由 const PREREG_COMMIT = resolvePreregCommit(...) 赋值'); }
   }
   return acc;
 }, []);
-// 历史不可用时这一轮没验成的 commit 形锚——逐件点名，别让它读起来像「全过」
-const PREREG_UNJUDGED = PREREG_HISTORY_OK ? [] : PREREG_TERMS.reduce(function (acc, e) {
-  return acc.concat(e.terms.filter(function (x) { return preregTermForm(x) === 'commit'; }).map(function (x) { return e.rel + '=' + x; }));
-}, []);
-if (!PREREG_HISTORY_OK && PREREG_UNJUDGED.length > 0) {
-  console.log('NOTE A17 可解析性子判据本轮未执行（检出为浅克隆/历史不可读，非锚缺陷）：' + PREREG_UNJUDGED.join(', '));
-}
-t('A17 prereg 锚取值口径：发现的每个发出面各带 ≥1 枚锚且全部落三形态（commit 形须真可解析；模糊态/假锚/退化的锚常量赋值即红；裸历史字面量已判否）',
-  PREREG_COVERED && PREREG_MISS.length === 0 && PREREG_OFFENDERS.length === 0
+t('A17 prereg 锚取值口径：发现的每个发出面各带 ≥1 枚锚且全部落三形态（模糊态/锚名非法/退化的锚常量赋值即红；commit 形可解析性另过 git-history 组闸；裸历史字面量已判否）',
+  PREREG_COVERED && PREREG_MISS.length === 0 && PREREG_OFFENDERS.length === 0 && PREREG_UNRESOLVED.length === 0
   && GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous' && GEN17.classifyPreregAnchor('45-demo-criteria') === 'ambiguous',
-  'covered=' + PREREG_COVERED + ' history_ok=' + PREREG_HISTORY_OK + ' unjudged=' + (PREREG_UNJUDGED.join(',') || 'none') + ' scan_miss=' + (PREREG_MISS.join(',') || 'none') + ' emitters=' + PREREG_TERMS.length + '(' + PREREG_TERMS.map(function (e) { return e.rel; }).join(' ') + ')'
-  + ' offenders=' + (PREREG_OFFENDERS.join(',') || 'none')
+  'covered=' + PREREG_COVERED + ' hist_arm_run=' + PREREG_HIST_RUN + ' scan_miss=' + (PREREG_MISS.join(',') || 'none') + ' emitters=' + PREREG_TERMS.length + '(' + PREREG_TERMS.map(function (e) { return e.rel; }).join(' ') + ')'
+  + ' offenders=' + ((PREREG_OFFENDERS.concat(PREREG_UNRESOLVED)).join(',') || 'none')
   + ' classifier_rejects=' + (GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous'));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
