@@ -101,15 +101,14 @@ if (groupProbe('53-check', 'E', DEP53)) {
     const sAu = JSON.parse(txt(join(OUTA, 'report.json')));
     const k39 = Object.keys(s39).sort();
     const kAu = Object.keys(sAu).sort();
-    // #78/D-118⑤ 显式豁免集：intake_health=引擎独有摄入面机读块（对照物 SoD 零分类逻辑不产此面——豁免须显式枚举，沉默不兜底）
-    const PARITY_EXEMPT_PREFIX = ['intake_health', 'verdict.reason_class'];
-    const missing = kAu.filter(function (k) { return k39.indexOf(k) < 0 && PARITY_EXEMPT_PREFIX.indexOf(k) < 0; });
-    t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段∪豁免集（漂移即报警；intake_health=引擎独有 D-118⑤ 显式豁免）', missing.length === 0, 'extra=' + missing.join(','));
+    // #42：intake_health 已回 39 契约面——两侧字段面同全集（39 的 verdict 三面投影由 buildReport 恒供，豁免已无依据）
+    const missing = kAu.filter(function (k) { return k39.indexOf(k) < 0; });
+    t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段（漂移即报警；无豁免）', missing.length === 0, 'extra=' + missing.join(','));
     function paths(o, pre, acc) { for (const k of Object.keys(o)) { const v = o[k]; const p = pre ? pre + '.' + k : k; acc.push(p); if (v && typeof v === 'object' && !Array.isArray(v)) { paths(v, p, acc); } } return acc; }
     const p39 = paths(s39, '', []).sort();
     const pAu = paths(sAu, '', []).sort();
-    const drift = pAu.filter(function (p) { return p39.indexOf(p) < 0 && PARITY_EXEMPT_PREFIX.every(function (x) { return p !== x && p.indexOf(x + '.') !== 0; }); });
-    t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径∪豁免集（intake_health.*=预期分歧类 D-118⑤）', drift.length === 0, 'drift=' + drift.slice(0, 6).join(','));
+    const drift = pAu.filter(function (p) { return p39.indexOf(p) < 0; });
+    t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径（漂移即报警；无豁免）', drift.length === 0, 'drift=' + drift.slice(0, 6).join(','));
     const q39keys = s39.quadrants.length ? Object.keys(s39.quadrants[0]).sort() : [];
     const qDrift = (sAu.quadrants || []).filter(function (q) { return Object.keys(q).some(function (k) { return q39keys.indexOf(k) < 0; }); });
     t('E3 audit 象限条目字段 ⊆ 39 象限条目字段', qDrift.length === 0);
@@ -118,11 +117,24 @@ if (groupProbe('53-check', 'E', DEP53)) {
     const core = ['repo', 'root', 'observed_at', 'head_sha', 'tree_sha', 'commit_count', 'adr_count', 'intent_docs', 'fact_count', 'tc1', 'tc2', 'tc3', 'nc1', 'pc1', 'pc2'];
     const coreMiss = core.filter(function (k) { return !(k in mAu); });
     t('E4 audit measurements 含 39 全部核心字段（39 集合 ⊆ audit 集合；audit 扩展项=intake/behavior 披露面）', coreMiss.length === 0, 'miss=' + coreMiss.join(','));
+    t('E5 39 侧车 intake_health.fields 为数组且非空（#42 workflow 断言同源守卫）', !!s39.intake_health && Array.isArray(s39.intake_health.fields) && s39.intake_health.fields.length > 0, 'fields=' + (s39.intake_health && Array.isArray(s39.intake_health.fields) ? s39.intake_health.fields.length : 'absent/null'));
+    // #42 复审（CodeRabbit nitpick）：paths() 只对对象下钻，数组元素字段面 E2 看不见——intake_health.fields 条目另比（E3 同型补位）。
+    // 不做通用数组下钻：实测会把 quadrants[].slice_fields 的引擎扩展项一并拉进无豁免比较（FAIL E2 drift=6 项）——那是另一张票的豁免议题。
+    // 39 侧 quarantined_rows 恒空（首个病态即 normalizeGitIsoDate 抛＝崩溃桶无 sidecar），对其条目断言必恒真，故只比 fields。
+    const ih39Fields = (s39.intake_health || {}).fields || [];
+    const ih39Keys = ih39Fields.length ? Object.keys(ih39Fields[0]).sort() : [];
+    const ihMissing = [];
+    for (const f of ((sAu.intake_health || {}).fields || [])) {
+      for (const k of Object.keys(f)) { if (ih39Keys.indexOf(k) < 0 && ihMissing.indexOf(k) < 0) { ihMissing.push(k); } }
+    }
+    t('E6 audit intake_health.fields 条目字段 ⊆ 39 intake_health.fields 条目字段（数组元素面；无豁免）', ihMissing.length === 0, 'missing=' + ihMissing.join(','));
   } else {
     t('E1 audit 侧车顶层字段 ⊆ 39 侧车字段（漂移即报警）', false, '39 复跑或 audit 产物缺席');
     t('E2 audit 侧车字段路径全集 ⊆ 39 侧车字段路径', false, '跳过');
     t('E3 audit 象限条目字段 ⊆ 39 象限条目字段', false, '跳过');
     t('E4 audit measurements 含 39 全部核心字段', false, '跳过');
+    t('E5 39 侧车 intake_health.fields 为数组', false, '跳过');
+    t('E6 audit intake_health.fields 条目字段 ⊆ 39 intake_health.fields 条目字段', false, '跳过');
   }
 }
 
