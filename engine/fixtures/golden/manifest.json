@@ -7,12 +7,12 @@
     "happy-path": {
       "verdict": "supported",
       "degraded_mode": false,
-      "receipt_id": "RCP-73e130018f0d155a",
+      "receipt_id": "RCP-13bfa28f901e8964",
       "head_sha": "4f9b0b567d3dd47be141c10f867bbbac877c1f94",
       "fact_count": 129,
       "sha256": {
-        "report.md": "f3556fd6ae96202501e30b1a1e16b63423acd1ce2ca357038e77626ef8498dca",
-        "report.json": "85e98b0b3ea0b52d04d370e31eb8631e79b6ccbfc797146bf73c3f44dec54e06",
+        "report.md": "b0e3afd25219480e2f77c2bb93519fb98936a56153be1843f397596662125081",
+        "report.json": "dccd4f4ff8312118d4e1d59923d07e71f9530421b601c30020404ddd2ef9db30",
         "demo-measurements.json": "09d5b820aede586b9989c850788213d2fa68975e89f80cf773aa80621b832bda",
         "demo-facts.jsonl": "77672b8406b2f7edbf75a1cb88c877a3d1bb11f27381de5fc01e316686bb79b3"
       }
@@ -20,12 +20,12 @@
     "degraded-supply": {
       "verdict": "insufficient",
       "degraded_mode": true,
-      "receipt_id": "RCP-6b4d66b876997afb",
+      "receipt_id": "RCP-0aea39c3b68e1392",
       "head_sha": "8fc753eddd6dbe22b43818c704fda26096e7189c",
       "fact_count": 129,
       "sha256": {
-        "report.md": "0c785b6fcdb03ae7773e263653562f8bed80fda35bb9ad813663f9a08666d7a7",
-        "report.json": "5211ea068d4749005d75cb1395e9863cf927e446550ab948640bd1ba85ac7d41",
+        "report.md": "c46757132b8dbac14b2b5eb35d417c1ef0e39f4e884007ffb4794796c85ffe18",
+        "report.json": "67ebbf0da8993794bccdacbb8334a39f7cf661aeb42984efbefa3dd6a1562a1c",
         "demo-measurements.json": "fc7345281fd95e1789a6c07fb82603fb47752bddeaf438b3f5ef413c6f3b3aa9",
         "demo-facts.jsonl": "dddb41381ae717324f385d7b4d1cfd4a41ea4f1cb2a4345cee931234e592fb5c"
       }
@@ -33,12 +33,12 @@
     "degraded-incomplete": {
       "verdict": "insufficient",
       "degraded_mode": true,
-      "receipt_id": "RCP-28239044184a9a0a",
+      "receipt_id": "RCP-ec0b81ab4a4f742c",
       "head_sha": "d757d4cd3046ac0d6251b5c3f0e5cb8884647012",
       "fact_count": 30,
       "sha256": {
-        "report.md": "6f85f13116ae18a414f9c95b8436fc310355e4675abbaa4e0fc6d312006ac888",
-        "report.json": "d8bc44d7d3ecf19bef9ff69ab2fc439e795a2b2660cd666e660dece17e650bd8",
+        "report.md": "0e3e2360cf44e13c7375128da77f5a401c856d13b0e33098334d371fa98979e4",
+        "report.json": "9b799ae818845836ef3a56f9f92b11a74c5effefd880795b8fd45cd9ce002370",
         "demo-measurements.json": "56486a1903620ca4b5e783f739faf2a8b79888d6daba049b3f4d1dbccdb57e49",
         "demo-facts.jsonl": "f3c936a2ed7c2c50ae71c3dfdf6969b1a961b2299798d23aaec5dc531e27fd2a"
       }

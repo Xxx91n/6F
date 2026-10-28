@@ -23,7 +23,7 @@ import { collectAdrStructureV2, collectGitlog, makeFact, ADR_STRUCTURE_V2_DESCRI
 import type { CollectContext, CollectedFact } from '../collect/collectors.js';
 import { collectCodeloreFacets, collectCodeloreLlm, CODELORE_BATCH1_FACETS } from '../upstream/codelore.js';
 import { CODELORE_S3_FACETS } from './upstream-dimension-map.js';
-import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, UNVERIFIED_MARK } from '../report/generate.js';
+import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, UNVERIFIED_MARK, preregSentinel } from '../report/generate.js';
 import type { ReportInput, EvidenceItem, ClaimAnchor, QuadrantEntry, Recommendation, AdjudicationEntry, IntakeHealth, PreviewDisclosure } from '../report/generate.js';
 import { openWriter, appendFact, queryQuarantineCounts, closeDuckdb, AuditIoError as AuditIoErrorS } from '../fact/store.js';
 import { strictQuarantineViolations, ratchetIssues, protocolCrashError, intakeIdentityIssues, countsFromStats, QUARANTINE_FIELD_RATIO_RED, GIT_ISO_DIALECT_RULES } from '../intake/quarantine.js';
@@ -396,7 +396,9 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
     decided_at: HEAD_AT,
     commit_anchor: probes.headSha,
     tree_anchor: probes.treeSha,
-    gate_ref: { prereg_commit: '38-script-const', criteria_path: 'engine/test/fixtures/contracts/38-report.md §4.1', basis_path: 'docs/archive/decisions/macro-audit-ledger.md D-034', criterion_ids: ['PC-MC-1', 'PC-MC-2', 'TC-MC-1', 'TC-MC-2', 'TC-MC-3', 'NC-MC-1'] },
+    // prereg_commit 取显式哨兵：38 期脚本层常量，仓内无定义处、永不是 commit（口径 R9-1／ADR-0027）。
+    //   值仍带 38 存档原名，读者可据此回查 38-macro-c-preview-report.json——那两件冻结件原文保留裸字面量，不被改写。
+    gate_ref: { prereg_commit: preregSentinel('38-script-const'), criteria_path: 'engine/test/fixtures/contracts/38-report.md §4.1', basis_path: 'docs/archive/decisions/macro-audit-ledger.md D-034', criterion_ids: ['PC-MC-1', 'PC-MC-2', 'TC-MC-1', 'TC-MC-2', 'TC-MC-3', 'NC-MC-1'] },
     degraded: false,
     degraded_reason: null,
     preview_disclosure: disclosure,

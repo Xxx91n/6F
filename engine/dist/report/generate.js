@@ -89,8 +89,42 @@ export function adjudicate(args) {
         citation_checks: checks
     };
 }
+// ---------- prereg 锚取值口径（R9-1／ADR-0027；tracker #100） ----------
+// prereg_commit 是报告里唯一说明「判据何时先于本次裁定」的坐标，历史上混着三类值：真 commit、
+// `38-script-const` 那种仓内无定义的存档字面量、以及浅克隆下静默取到的边界 commit。后两类读起来都像锚
+// 却不可回查，所以口径把要求落在**值本身的形态**上：报告消费者不读源码就能分辨它是哪一种，禁止两者之间的模糊态。
+// 标记前缀含冒号，而 git 短/全 SHA 永不含冒号——标记形与 commit 形结构上不可能互撞。
+const PREREG_COMMIT_FORM = /^[0-9a-f]{7,40}$/; // 宽度不属身份：git auto-abbrev 随对象库在 7↔8 跳变（A-098）
+const PREREG_NAME_FORM = /^[0-9A-Za-z][0-9A-Za-z._-]*$/;
+// 'sentinel' = 设计上就不是 commit（存档哨兵）；'degraded' = 本该取到 commit 但取不到或取不准，已显式降级。
+export function classifyPreregAnchor(v) {
+    if (v.indexOf('sentinel:') === 0) {
+        return PREREG_NAME_FORM.test(v.slice(9)) ? 'sentinel' : 'ambiguous';
+    }
+    if (v.indexOf('degraded:') === 0) {
+        return PREREG_NAME_FORM.test(v.slice(9)) ? 'degraded' : 'ambiguous';
+    }
+    return PREREG_COMMIT_FORM.test(v) ? 'commit' : 'ambiguous';
+}
+// Design: 标记只能经构造子产出，前缀与名字一处定义——裸字面量不再构成合法锚 — ADR-0027
+function preregMarked(prefix, name) {
+    if (!PREREG_NAME_FORM.test(name)) {
+        throw new Error('PREREG-ANCHOR-NAME-INVALID: ' + prefix + ' 后的标记名不合形制（须为 [0-9A-Za-z][0-9A-Za-z._-]*）：' + JSON.stringify(name));
+    }
+    return prefix + name;
+}
+export function preregSentinel(name) { return preregMarked('sentinel:', name); }
+export function preregDegraded(reason) { return preregMarked('degraded:', reason); }
+// Design: 模糊态锚在产线 choke point 当场拒收，口径不止落在文书上 — ADR-0027
+export function assertDiscriminablePreregAnchor(v) {
+    if (classifyPreregAnchor(v) === 'ambiguous') {
+        throw new Error('PREREG-ANCHOR-AMBIGUOUS: gate_ref.prereg_commit=' + JSON.stringify(v) + ' 既不是 7–40 位小写十六进制 commit，也不带 sentinel:/degraded: 标记前缀（取值口径见 R9-1／ADR-0027）');
+    }
+}
 export const CONTENT_DIGEST_CANONICALIZATION = 'json_utf8_entries_then_citation_checks';
 export function buildReceipt(args) {
+    // 口径闸先于哈希：一旦模糊态锚进了链，receipt_id/chain_hash 会把错误值签成「可回查的坐标」。
+    assertDiscriminablePreregAnchor(args.gate_ref.prereg_commit);
     const sorted = args.fact_ids.slice().sort();
     const adjParts = [];
     for (const e of args.adjudication.entries) {

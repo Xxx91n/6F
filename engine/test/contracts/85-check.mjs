@@ -6,6 +6,7 @@
 //     语料来源＝仓内 frozen bundle（ADR-0026/#33）→ 无 sibling 依赖，CI 可达；钉值唯一权威=engine/baseline-lock.yaml
 //     ＋基准身份绑定（tracker #34／ADR-0026）：A14 锁表钉与冻结事实历史身份绑死、A15 历史钉值引用棘轮、
 //       A16 复现命令可移植形（src＋dist 静态面，不随 duckdb 缺席 SKIP）、B8 报告输出面无盘符锚（实跑面）
+//     ＋溯源锚取值口径（tracker #100／R9-1）：A17 四个 src 发出面的 prereg 锚全部落三形态，模糊态即红
 //   → D 自检组（正负对照：构造偏差必须检出——§2.4 命中方向跑前声明）
 // 纪律：只读断言＋临时目录写运行产物（跑完即弃）；bundle 物化走 `git clone <bundle>` 至 OS temp（主仓对象库零写，D-074）；
 //   exit 0 + PASS N/N 绿。
@@ -208,6 +209,42 @@ t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> �
   && portableLocalArm(MC_SRC) && portableLocalArm(MC_DIST) && portableFileArm(MC_SRC) && portableFileArm(MC_DIST)
   && MC_SRC.indexOf(CALL_SITE) >= 0 && MC_DIST.indexOf(CALL_SITE) >= 0,
   'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' local=' + portableLocalArm(MC_SRC) + '/' + portableLocalArm(MC_DIST) + ' file=' + portableFileArm(MC_SRC) + '/' + portableFileArm(MC_DIST) + ' call=' + (MC_SRC.indexOf(CALL_SITE) >= 0) + '/' + (MC_DIST.indexOf(CALL_SITE) >= 0) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
+
+// A17 prereg 锚取值口径（tracker #100／docs/spec.md R9-1）：engine/src 四个发出面的锚只能落三形态之一，禁模糊态。
+// 为什么是静态面：与 A16 同理——只在实跑腿判会随环境缺席一起隐身。这里不另扫 dist：dist 与 src 的同步由 engine-ci
+//   的 rebuild-diff（DIST-DRIFT）判红，authority §2.1 已登记该归属；A16 扫 dist 是因为压缩后的 cli 自包含体在
+//   duckdb 缺席时没有任何实跑兜底，本口径没这个问题（发出值由 buildReceipt 当场校验）。
+// 判别力两臂，缺一即退化成空集自证：① 完备臂——四个发出件必须各寻到 ≥1 枚锚初值，扫描失灵/改名不会把断言变真空；
+//   ② 反恒真臂——把两枚裸历史字面量喂进同一个分类器，必须判 ambiguous，否则「全部合规」只是分类器什么都收。
+const GEN17 = await import(pathToFileURL(join(ENG, 'dist', 'report', 'generate.js')).href);
+const PREREG_EMITTER_FILES = ['src/audit/micro-a.ts', 'src/audit/macro-c.ts', 'src/audit/audit.ts', 'src/demo/demo.ts'];
+const PREREG_RESOLVER_IDENTS = ['PREREG_COMMIT'];   // 非常量字面：由 resolvePreregCommit 当场取值
+function preregTerms(txt) {
+  const out = []; const re = /prereg_commit:\s*([^,}\n]+)/g; let m;
+  while ((m = re.exec(txt)) !== null) { out.push(m[1].trim()); }
+  return out;
+}
+function preregTermForm(term) {
+  const str = term.match(/^(['"])([^'"]*)\1$/);
+  if (str) { return GEN17.classifyPreregAnchor(str[2]); }
+  if (/^preregSentinel\((['"])[^'"]+\1\)$/.test(term)) { return 'sentinel'; }
+  if (/^preregDegraded\((['"])[^'"]+\1\)$/.test(term)) { return 'degraded'; }
+  if (PREREG_RESOLVER_IDENTS.indexOf(term) >= 0) { return 'resolver'; }
+  return 'ambiguous';
+}
+const PREREG_TERMS = PREREG_EMITTER_FILES.map(function (rel) {
+  return { rel: rel, terms: preregTerms(readFileSync(join(ENG, rel), 'utf8')) };
+});
+const PREREG_SCAN_COMPLETE = PREREG_TERMS.every(function (e) { return e.terms.length >= 1; });
+const PREREG_OFFENDERS = PREREG_TERMS.reduce(function (acc, e) {
+  return acc.concat(e.terms.filter(function (x) { return ['commit', 'sentinel', 'degraded', 'resolver'].indexOf(preregTermForm(x)) < 0; }).map(function (x) { return e.rel + '=' + x; }));
+}, []);
+const PREREG_MICROA_RESOLVER = readFileSync(join(ENG, 'src', 'audit', 'micro-a.ts'), 'utf8').indexOf('resolvePreregCommit(sourceRepoRoot(), CRITERIA_PATH)') >= 0;
+t('A17 prereg 锚取值口径：四个 src 发出面各带 ≥1 枚锚且全部落 commit/sentinel/degraded/resolver（模糊态即红；裸历史字面量已判否）',
+  PREREG_SCAN_COMPLETE && PREREG_OFFENDERS.length === 0 && PREREG_MICROA_RESOLVER
+  && GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous' && GEN17.classifyPreregAnchor('45-demo-criteria') === 'ambiguous',
+  'scan_complete=' + PREREG_SCAN_COMPLETE + ' offenders=' + (PREREG_OFFENDERS.join(',') || 'none') + ' resolver=' + PREREG_MICROA_RESOLVER
+  + ' classifier_rejects=' + (GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous'));
 
 // ---------- B. CLI 命令面测活（6F 本仓自审；duckdb 组级闸） ----------
 const DEPS_B = [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))];

@@ -119,6 +119,20 @@ t('R13 血缘两枚 commit 各归其名——两侧均解析为完整 commit 后
   idxFull !== '' && lineageIdxFull === idxFull && scriptFull !== '' && truthFull !== '' && scriptFull === truthFull && scriptFull !== idxFull,
   JSON.stringify({ index: idxCommit, script: lineageScript, idxFull: idxFull.slice(0, 12), scriptFull: scriptFull.slice(0, 12), truthFull: truthFull.slice(0, 12), shallow: shallowHist }));
 
+// R14 prereg 锚取值口径（tracker #100／R9-1）：Macro-C 发出面必须取显式哨兵，且 `38-*` 冻结件原文零改写。
+//   冻结件正是该字面量的出处——发出面归位到带标记形态，出处仍留原样，两侧各按各自身份读。
+const GG = await import(pathToFileURL(join(HERE, '..', 'dist', 'report', 'generate.js')).href);
+const FROZEN_MC = join(SELF, 'engine', 'test', 'fixtures', 'contracts', '38-macro-c-preview-report.json');
+const frozenMcText = existsSync(FROZEN_MC) ? readFileSync(FROZEN_MC, 'utf8') : '';
+t('R14 发出面取显式哨兵：值带 sentinel 前缀、不伪装成 commit 形，读者不读源码即可判别',
+  !!gr && gr.prereg_commit === 'sentinel:38-script-const'
+  && GG.classifyPreregAnchor(String(gr && gr.prereg_commit)) === 'sentinel', JSON.stringify(gr && gr.prereg_commit));
+t('R14-N 负对照：裸历史字面量已非法（只差前缀即判否）＋冻结件仍留原字面未被改写',
+  GG.classifyPreregAnchor('38-script-const') === 'ambiguous'
+  && frozenMcText.indexOf('"prereg_commit": "38-script-const"') >= 0
+  && frozenMcText.indexOf('sentinel:38-script-const') < 0,
+  'ambiguous=' + (GG.classifyPreregAnchor('38-script-const') === 'ambiguous') + ' frozen_has_bare=' + (frozenMcText.indexOf('"prereg_commit": "38-script-const"') >= 0));
+
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
 const docs = [

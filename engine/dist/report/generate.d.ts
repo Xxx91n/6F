@@ -59,6 +59,11 @@ export interface GateRef {
     basis_path: string;
     criterion_ids: readonly string[];
 }
+export type PreregAnchorForm = 'commit' | 'sentinel' | 'degraded' | 'ambiguous';
+export declare function classifyPreregAnchor(v: string): PreregAnchorForm;
+export declare function preregSentinel(name: string): string;
+export declare function preregDegraded(reason: string): string;
+export declare function assertDiscriminablePreregAnchor(v: string): void;
 export interface ContentDigest {
     algo: string;
     value: string;

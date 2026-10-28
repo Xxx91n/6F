@@ -76,6 +76,7 @@ export interface MicroACollect {
     mergedCount: number;
     headSha: string | null;
 }
+export declare function resolvePreregCommit(root: string | null, criteriaPath: string): string;
 export declare function microACollectContext(t: {
     name: string;
     owner: string;

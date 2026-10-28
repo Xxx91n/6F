@@ -15,7 +15,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { metaPath } from '../manifest.js';
 import { deriveBaggageId } from '../collect/collectors.js';
-import { buildReport, degradeReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, UNVERIFIED_MARK, REPORT_SKELETON_VERSION, firstFactIds } from '../report/generate.js';
+import { buildReport, degradeReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, UNVERIFIED_MARK, REPORT_SKELETON_VERSION, firstFactIds, preregSentinel } from '../report/generate.js';
 import type { PreviewDisclosure, ReportInput, EvidenceItem, ClaimAnchor, QuadrantEntry, Recommendation, AdjudicationEntry } from '../report/generate.js';
 import { repoAdd } from '../intake/intake.js';
 import { generateFixtureRepo, FIXTURE_GENERATOR_ID } from './fixture-generator.js';
@@ -212,7 +212,9 @@ export function runDemo(opts: DemoOptions): DemoResult {
 
     // ---------- §10 裁决条目（判据 id 与 39 同族；band 三档如实；tcBand 由共享管线导入） ----------
     const GATE_REF = {
-      prereg_commit: '45-demo-criteria',
+      // 与 Macro-C 的 38 面同一口径取显式哨兵（tracker #100／R9-1）：demo 判据是合成演示件，不产 commit，
+      //   裸 '45-demo-criteria' 会让读者猜它是锚还是名字；两侧都带前缀，不留第二套。
+      prereg_commit: preregSentinel('45-demo-criteria'),
       criteria_path: 'reports/22-criteria-pre-registration.md',
       basis_path: 'reports/22-c-adjudication-basis.md',
       criterion_ids: ['PC-1', 'PC-2', 'TC-1', 'TC-2', 'TC-3', 'NC-1']

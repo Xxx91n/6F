@@ -19,8 +19,9 @@ import { fileURLToPath } from 'node:url';
 import { parseGithubRepoRef, collectGithubPrFacts, resolvePrDiff, createGithubRestClient, resolveGithubCredential } from '../upstream/github-rest.js';
 import { deriveBaggageId, sha256Hex } from '../collect/collectors.js';
 import type { CollectContext, CollectedFact } from '../collect/collectors.js';
-import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, REPORT_SKELETON } from '../report/generate.js';
+import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, REPORT_SKELETON, preregDegraded } from '../report/generate.js';
 import type { ReportInput, EvidenceItem, ClaimAnchor, QuadrantEntry, Recommendation, AdjudicationEntry, PreviewDisclosure } from '../report/generate.js';
+import { isShallowRepo } from '../intake/intake.js';
 import { openWriter, closeDuckdb } from '../fact/store.js';
 import { writeRunFactsAndEvents } from './fact-write.js';
 import type { AuditOptions, AuditResult } from './audit.js';
@@ -89,6 +90,19 @@ function tryGit(root: string, args: readonly string[]): string | null {
 }
 
 // 预声明锚（48 §2 D-179① 伴生确定性：钉 CRITERIA_PATH 最后变更 commit——判据不动即恒值；非运行时 HEAD）
+// 取值前先验克隆深度：`git log -1 -- <判据件>` 在浅克隆下会把该文件归到边界 commit（tracker #86 实测——完整克隆
+//   e356581e／浅克隆取到 HEAD），值仍是一枚像 commit 的十六进制串、不报错也不回查，静默产出错锚。
+//   判据件真实存在时浅克隆无法给出末次变更，故落显式降级标记而非裸 'unknown'（取值口径 R9-1／ADR-0027）。
+export function resolvePreregCommit(root: string | null, criteriaPath: string): string {
+  if (root === null) { return preregDegraded('no-source-repo'); }
+  // isShallowRepo 走 intake 的 gitOk：判不了深度时**抛**（git 缺席／老于 2.15 不认 --is-shallow-repository／对象库损坏），
+  //   而本函数在模块加载期就被调用，抛出即拖垮整条 Micro-A 面。接住并降级——理由同上一条：拿不到深度证据时
+  //   绝不声称自己拿到了末次变更 commit，「静默交边界 commit」与「崩溃」都不是可接受的兜底。
+  let shallow: boolean;
+  try { shallow = isShallowRepo(root); } catch (e) { return preregDegraded('depth-unknown'); }
+  if (shallow) { return preregDegraded('shallow-clone'); }
+  return tryGit(root, ['log', '-1', '--format=%h', '--', criteriaPath]) || preregDegraded('no-criteria-history');
+}
 function sourceRepoRoot(): string | null {
   try {
     let dir = dirname(fileURLToPath(import.meta.url));
@@ -101,7 +115,7 @@ function sourceRepoRoot(): string | null {
   } catch (e) { return null; }
   return null;
 }
-const PREREG_COMMIT = (function () { const r = sourceRepoRoot(); return (r !== null ? tryGit(r, ['log', '-1', '--format=%h', '--', CRITERIA_PATH]) : null) || 'unknown'; })();
+const PREREG_COMMIT = resolvePreregCommit(sourceRepoRoot(), CRITERIA_PATH);
 
 // ---------- §4 采集（48 collectTarget 逐行移植——枚举＋元数据＋diff 双通道，事实=适配器唯一来源） ----------
 export function microACollectContext(t: { name: string; owner: string; repo: string }, headSha: string | null, runAt: string): CollectContext {

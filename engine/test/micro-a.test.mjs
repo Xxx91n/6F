@@ -1,8 +1,9 @@
 // micro-a.test.mjs —— #85② Micro-A 一等面测试（cassette 离线回放；github-rest.test.mjs 同型注入）
 // 断言面：U 采集（适配器事实落 Micro-A scale＋token 永不入 fact）→ R 单 PR 报告（骨架交集＋披露块翻转＋判据 band）
 //   → F 拒绝件（merged=0 intake 显式拒绝）→ C CLI 接线（本地路径/名册外仓结构化拒绝 exit 2——离线安全面）
+//   → S prereg 锚取值口径（浅克隆合成 fixture 正负对照——tracker #100／R9-1）。
 // 纪律：cassette 回放零网络；golden 腿不落真工件（outDir 隔离跑完即弃）；CLI happy-path 真网络面不入离线 smoke（predecl §1.2 偏差⑥）。
-import { spawnSync } from 'node:child_process';
+import { spawnSync, execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -16,6 +17,7 @@ function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } 
 function parseErr(stderr) { try { return JSON.parse(stderr); } catch (e) { return null; } }
 
 const MA = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'micro-a.js')).href);
+const GR = await import(pathToFileURL(join(HERE, '..', 'dist', 'report', 'generate.js')).href);
 const noGh = function () { return { available: false, token: null }; };
 function cassetteFetcher(cas, cap) {
   let i = 0;
@@ -123,6 +125,65 @@ t('C1 本地路径 → exit 2 结构化 MICRO-A-INPUT', c1.status === 2 && (pars
 const c2 = spawnSync('node', [CLI, 'audit', 'Xxx91n/not-a-pilot-repo', '--scale', 'Micro-A'], { encoding: 'utf8' });
 t('C2 名册外仓 → exit 2 MICRO-A-SCOPE（D-049③ 票面写死；先于网络）', c2.status === 2 && (parseErr(c2.stderr) || {}).error === 'MICRO-A-SCOPE', c2.stderr.slice(0, 140));
 t('C3 MICRO-A-INPUT 载体带试点名册（message 内嵌——cli 泛型 catch 序列化面）', ((parseErr(c1.stderr) || {}).message || '').indexOf('Xxx91n/env-manager') >= 0);
+
+// ---------- S prereg 锚取值口径（tracker #100／R9-1：浅克隆不得静默取到边界 commit） ----------
+// 合成 fixture＝两枚 commit 的临时 git 仓：判据件落在 c1，c2 只改无关文件。
+//   完整仓 → c1（真末次变更锚）；浅克隆 → 只含 c2，裸 `git log -1 --format=%h -- <判据件>` 把判据件归到边界 commit c2。
+// S1 前提臂钉「失败形态确实复现」，S2/S3 才是判别臂——没有 S1，负对照可能只是恒真的空跑。
+// 纪律：local-path clone 会静默忽略 --depth（git 自带 warning「--depth is ignored in local clones」），
+//   必须 --no-local 走真传输，否则克隆根本不浅、fixture 全程失真而断言照绿。
+const SRC_REL = join('engine', 'test', 'fixtures', 'contracts', 'PREREG-CRITERIA.md').split('\\').join('/');
+const GIT_ENV = Object.assign({}, process.env, { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '2026-04-10T10:00:00Z' });
+function gitAt(cwd, args) { return execFileSync('git', ['-C', cwd].concat(args), { encoding: 'utf8', env: GIT_ENV }).trim(); }
+const pSrc = join(tmp, 'prereg-src');
+mkdirSync(join(pSrc, 'engine', 'test', 'fixtures', 'contracts'), { recursive: true });
+gitAt(pSrc, ['init', '-q']);
+gitAt(pSrc, ['config', 'user.email', 'a@b.c']);
+gitAt(pSrc, ['config', 'user.name', 'micro-a-prereg-test']);
+gitAt(pSrc, ['config', 'commit.gpgsign', 'false']);
+writeFileSync(join(pSrc, 'engine', 'test', 'fixtures', 'contracts', 'PREREG-CRITERIA.md'), '# 判据预声明 v1' + NL, 'utf8');
+gitAt(pSrc, ['add', '-A']); gitAt(pSrc, ['commit', '-qm', 'c1: 判据预声明']);
+const TRUE_ANCHOR = gitAt(pSrc, ['log', '-1', '--format=%h', '--', SRC_REL]);
+writeFileSync(join(pSrc, 'later.md'), '# 后续无关变更' + NL, 'utf8');
+gitAt(pSrc, ['add', '-A']); gitAt(pSrc, ['commit', '-qm', 'c2: 无关变更']);
+const BOUNDARY_COMMIT = gitAt(pSrc, ['rev-parse', '--short', 'HEAD']);
+const pShallow = join(tmp, 'prereg-shallow');
+execFileSync('git', ['clone', '-q', '--depth', '1', '--no-local', pSrc, pShallow], { encoding: 'utf8', env: GIT_ENV });
+
+t('S1 前提臂：fixture 确为浅克隆，且裸命令在该形态下确实取到边界 commit（失败形态复现，非恒真）',
+  gitAt(pShallow, ['rev-parse', '--is-shallow-repository']) === 'true'
+  && TRUE_ANCHOR !== BOUNDARY_COMMIT
+  && gitAt(pShallow, ['log', '-1', '--format=%h', '--', SRC_REL]) === BOUNDARY_COMMIT
+  && gitAt(pSrc, ['log', '-1', '--format=%h', '--', SRC_REL]) === TRUE_ANCHOR,
+  'shallow=' + gitAt(pShallow, ['rev-parse', '--is-shallow-repository']) + ' true=' + TRUE_ANCHOR + ' boundary=' + BOUNDARY_COMMIT);
+
+const SHALLOW_ANCHOR = MA.resolvePreregCommit(pShallow, SRC_REL);
+t('S2 判别臂：浅克隆取 degraded 标记而非边界 commit（退回裸 tryGit 取值即红）',
+  SHALLOW_ANCHOR === 'degraded:shallow-clone', SHALLOW_ANCHOR);
+
+t('S3 票面字面判据：浅克隆结果既不等于边界 commit 也不等于真锚，且不伪装成 commit 形',
+  SHALLOW_ANCHOR !== BOUNDARY_COMMIT && SHALLOW_ANCHOR !== TRUE_ANCHOR
+  && !new RegExp('^[0-9a-f]{7,40}$').test(SHALLOW_ANCHOR), SHALLOW_ANCHOR + ' boundary=' + BOUNDARY_COMMIT);
+
+t('S4 正对照：完整历史仓仍取判据件末次变更 commit——收紧没把好面一起拒掉',
+  MA.resolvePreregCommit(pSrc, SRC_REL) === TRUE_ANCHOR, MA.resolvePreregCommit(pSrc, SRC_REL) + ' vs ' + TRUE_ANCHOR);
+
+t('S5 无源码仓根（安装态插件）落显式降级标记，不再落裸 unknown',
+  MA.resolvePreregCommit(null, SRC_REL) === 'degraded:no-source-repo', MA.resolvePreregCommit(null, SRC_REL));
+
+t('S6 发出面合口径：本机完整克隆跑出的 Micro-A 报告 prereg_commit 仍是 commit 形（未误判为降级）',
+  GR.classifyPreregAnchor(String(gr64 && gr64.prereg_commit)) === 'commit', JSON.stringify(gr64 && gr64.prereg_commit));
+
+// 判定失败必须走降级而不是抛出：本函数在模块加载期即被调用，抛出等于拖垮整条 Micro-A 面
+//   （回归实据：isShallowRepo 走 intake 的 gitOk，git 缺席／老于 2.15／对象库损坏时抛出，不是返回 false）。
+const pNotRepo = join(tmp, 'prereg-not-a-repo');
+mkdirSync(pNotRepo, { recursive: true });
+let unprobed = '';
+let unprobedErr = null;
+try { unprobed = MA.resolvePreregCommit(pNotRepo, SRC_REL); } catch (e) { unprobedErr = String((e && e.message) || e); }
+t('S7 判不了深度时降级而非抛出——非 git 目录喂进去不得抛，结果仍落合规形态',
+  unprobedErr === null && GR.classifyPreregAnchor(unprobed) === 'degraded',
+  unprobedErr !== null ? 'threw ' + unprobedErr : unprobed);
 
 try { rmSync(tmp, { recursive: true, force: true }); } catch (e) { }
 console.log(fail === 0 ? 'MICRO-A-TEST-OK ' + pass + '/' + (pass + fail) : 'MICRO-A-TEST-FAIL ' + fail + '/' + (pass + fail));

@@ -44,7 +44,8 @@ const baseInput = (extra) => ({
   decided_at: '2026-09-16T00:00:00Z',
   commit_anchor: 'a'.repeat(40),
   tree_anchor: 'b'.repeat(40),
-  gate_ref: { prereg_commit: 'x', criteria_path: 'p', basis_path: 'b', criterion_ids: [] },
+  // 合规锚形态（R9-1）：测试夹具直接写显式哨兵形，不经被测构造子——P 组挂了不会连带全文件失真。
+  gate_ref: { prereg_commit: 'sentinel:test-anchor', criteria_path: 'p', basis_path: 'b', criterion_ids: [] },
   degraded: false,
   degraded_reason: null,
   ...extra
@@ -96,6 +97,46 @@ t('C1 degradeReport 保留 preview_disclosure（降级不丢披露义务）', ()
   const sc = JSON.parse(G.renderSidecar(d));
   assert.deepEqual(sc.preview_disclosure, DISCLOSURE);
   assert.equal(sc.degraded_mode, true);
+});
+
+// ---------- P. prereg 锚取值口径（tracker #100／R9-1：可解析 commit 或显式标记，禁模糊态） ----------
+// 正负对照都落在这里：口径只有落到产线 choke point（buildReceipt）才不是文书承诺。
+t('P1 三形态各自命中——commit 形／显式哨兵／显式降级（前缀即判别面，不读源码也能分辨）', () => {
+  assert.equal(G.classifyPreregAnchor('e356581e'), 'commit');
+  assert.equal(G.classifyPreregAnchor('a'.repeat(40)), 'commit');
+  assert.equal(G.preregSentinel('38-script-const'), 'sentinel:38-script-const');
+  assert.equal(G.classifyPreregAnchor(G.preregSentinel('38-script-const')), 'sentinel');
+  assert.equal(G.preregDegraded('shallow-clone'), 'degraded:shallow-clone');
+  assert.equal(G.classifyPreregAnchor(G.preregDegraded('shallow-clone')), 'degraded');
+});
+
+t('P2 模糊态判否——历史裸字面量与无前缀值一律不再构成合法锚', () => {
+  const AMBIGUOUS = [
+    '38-script-const', '45-demo-criteria', 'unknown', 'unanchored', 'x', '',
+    'sentinel:', 'degraded:', 'sentinel:bad reason', 'Sentinel:x', 'SENTINEL:x',
+    'deadBeef', 'zzzzzzz', 'e356581e ', 'e35658', 'e356581g', 'a'.repeat(41)
+  ];
+  for (const v of AMBIGUOUS) { assert.equal(G.classifyPreregAnchor(v), 'ambiguous', 'must reject ' + JSON.stringify(v)); }
+});
+
+t('P3 buildReport 在产线 choke point 拒收模糊态锚（不是只写在文书里的口径）', () => {
+  assert.throws(
+    () => G.buildReport(baseInput({ gate_ref: { prereg_commit: '38-script-const', criteria_path: 'p', basis_path: 'b', criterion_ids: [] } })),
+    /PREREG-ANCHOR-AMBIGUOUS/
+  );
+});
+
+t('P4 degradeReport 同一路径——降级变体不得绕过口径', () => {
+  const forged = G.buildReport(baseInput());
+  forged.receipt.gate_ref.prereg_commit = 'unanchored';
+  assert.throws(() => G.degradeReport(forged, '降级原因'), /PREREG-ANCHOR-AMBIGUOUS/);
+});
+
+t('P5 三形态各自放行（正对照：收紧判据没有把合法锚一起拒掉）', () => {
+  for (const v of ['e356581e', 'a'.repeat(40), G.preregSentinel('38-script-const'), G.preregDegraded('shallow-clone')]) {
+    const r = G.buildReport(baseInput({ gate_ref: { prereg_commit: v, criteria_path: 'p', basis_path: 'b', criterion_ids: [] } }));
+    assert.equal(r.receipt.gate_ref.prereg_commit, v);
+  }
 });
 
 console.log('REPORT-PREVIEW-TEST-OK ' + n + '/' + n);
