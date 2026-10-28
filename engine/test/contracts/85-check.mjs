@@ -231,7 +231,7 @@ const GEN17 = await import(pathToFileURL(join(ENG, 'dist', 'report', 'generate.j
 const PREREG_PRODUCT_FACERS = ['src/audit/micro-a.ts', 'src/audit/macro-c.ts', 'src/audit/audit.ts', 'src/demo/demo.ts'];
 const PREREG_TYPEONLY_FILES = ['src/report/generate.ts'];   // 类型声明＋透传，不决定锚值
 const PREREG_DISCOVERED = execFileSync('git', ['-C', REPO, 'ls-files', '--', 'engine/src', 'engine/scripts', 'engine/test/contracts'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
-  .trim().split('\n').filter(function (p) { return /\.(ts|mjs)$/.test(p) && !/-check\.mjs$/.test(p); })
+  .trim().split('\n').filter(function (p) { return /\.(ts|mjs)$/.test(p) && !/-check\.mjs$/.test(p) && !/\.test\.mjs$/.test(p); })
   .map(function (p) { return p.replace(/^engine\//, ''); })
   .filter(function (rel) { return PREREG_TYPEONLY_FILES.indexOf(rel) < 0; });
 function preregTerms(txt) {

@@ -167,7 +167,7 @@ t('S2 判别臂：浅克隆取 degraded 标记而非边界 commit（退回裸 tr
   SHALLOW_ANCHOR === 'degraded:shallow-clone', SHALLOW_ANCHOR);
 
 t('S3 票面字面判据：浅克隆结果既不指向边界 commit 也不指向真锚，且不伪装成 commit 形',
-  !sameCommit(pShallow, SHALLOW_ANCHOR, BOUNDARY_COMMIT) && !sameCommit(pShallow, SHALLOW_ANCHOR, TRUE_ANCHOR_FULL)
+  !sameCommit(pShallow, SHALLOW_ANCHOR, BOUNDARY_COMMIT) && !sameCommit(pSrc, SHALLOW_ANCHOR, TRUE_ANCHOR_FULL)
   && GR.classifyPreregAnchor(SHALLOW_ANCHOR) !== 'commit', SHALLOW_ANCHOR + ' boundary=' + BOUNDARY_COMMIT.slice(0, 12));
 
 t('S4 正对照：完整历史仓仍取判据件末次变更 commit——收紧没把好面一起拒掉',
@@ -183,8 +183,7 @@ t('S5b 判据件在该仓取不到 commit 时落具名降级，而非裸空值/u
 t('S6 发出面合口径：本机完整克隆跑出的 Micro-A 报告 prereg_commit 仍是 commit 形（未误判为降级）',
   GR.classifyPreregAnchor(String(gr64 && gr64.prereg_commit)) === 'commit', JSON.stringify(gr64 && gr64.prereg_commit));
 
-// 判定失败必须走降级而不是抛出：本函数在模块加载期即被调用，抛出等于拖垮整条 Micro-A 面
-//   （回归实据：isShallowRepo 走 intake 的 gitOk，git 缺席／老于 2.15／对象库损坏时抛出，不是返回 false）。
+// 判不了深度必须降级而非抛出——机理记于 ADR-0027；本函数在模块加载期被调用，抛出即拖垮整条 Micro-A 面。
 const pNotRepo = join(tmp, 'prereg-not-a-repo');
 mkdirSync(pNotRepo, { recursive: true });
 let unprobed = '';
