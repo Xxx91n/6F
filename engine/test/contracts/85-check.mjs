@@ -254,6 +254,13 @@ function preregTermForm(term) {
 function preregResolvable(v) {
   try { return execFileSync('git', ['-C', REPO, 'rev-parse', '--verify', v + '^{commit}'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() !== ''; } catch (e) { return false; }
 }
+// 可解析性判据依赖全量历史，而本守卫自声明 CONSUMPTION_FORMS 含 ci-shallow——depth-1 检出里 `7395495` 根本不在
+//   对象库，把「历史缺席」报成「锚非法」就是混淆两类因（tracker #72/#33 同一条边界：内容缺陷＝红，环境缺席＝显式可见）。
+//   所以历史不可用时不判红、也不静默：单列一行 NOTE 点名哪些 commit 形锚这次没能验，判据本身照常跑。
+function preregHistoryOk() {
+  try { return execFileSync('git', ['-C', REPO, 'rev-parse', '--is-shallow-repository'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() !== 'true'; } catch (e) { return false; }
+}
+const PREREG_HISTORY_OK = preregHistoryOk();
 const PREREG_SCANNED = PREREG_DISCOVERED.map(function (rel) {
   const txt = readFileSync(join(ENG, rel), 'utf8');
   return { rel: rel, txt: txt, mentions: txt.indexOf('prereg_commit:') >= 0, terms: preregTerms(txt) };
@@ -267,15 +274,22 @@ const PREREG_OFFENDERS = PREREG_TERMS.reduce(function (acc, e) {
   for (const term of e.terms) {
     const form = preregTermForm(term);
     if (form === 'ambiguous') { acc.push(e.rel + '=' + term); continue; }
-    if (form === 'commit' && !preregResolvable(String(preregQuoted(term)))) { acc.push(e.rel + '=' + term + '(不可解析)'); continue; }
+    if (form === 'commit' && PREREG_HISTORY_OK && !preregResolvable(String(preregQuoted(term)))) { acc.push(e.rel + '=' + term + '(不可解析)'); continue; }
     if (form === 'resolver' && !PREREG_RESOLVER_ASSIGN.test(e.txt)) { acc.push(e.rel + '=锚常量未由 const PREREG_COMMIT = resolvePreregCommit(...) 赋值'); }
   }
   return acc;
 }, []);
+// 历史不可用时这一轮没验成的 commit 形锚——逐件点名，别让它读起来像「全过」
+const PREREG_UNJUDGED = PREREG_HISTORY_OK ? [] : PREREG_TERMS.reduce(function (acc, e) {
+  return acc.concat(e.terms.filter(function (x) { return preregTermForm(x) === 'commit'; }).map(function (x) { return e.rel + '=' + x; }));
+}, []);
+if (!PREREG_HISTORY_OK && PREREG_UNJUDGED.length > 0) {
+  console.log('NOTE A17 可解析性子判据本轮未执行（检出为浅克隆/历史不可读，非锚缺陷）：' + PREREG_UNJUDGED.join(', '));
+}
 t('A17 prereg 锚取值口径：发现的每个发出面各带 ≥1 枚锚且全部落三形态（commit 形须真可解析；模糊态/假锚/退化的锚常量赋值即红；裸历史字面量已判否）',
   PREREG_COVERED && PREREG_MISS.length === 0 && PREREG_OFFENDERS.length === 0
   && GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous' && GEN17.classifyPreregAnchor('45-demo-criteria') === 'ambiguous',
-  'covered=' + PREREG_COVERED + ' scan_miss=' + (PREREG_MISS.join(',') || 'none') + ' emitters=' + PREREG_TERMS.length + '(' + PREREG_TERMS.map(function (e) { return e.rel; }).join(' ') + ')'
+  'covered=' + PREREG_COVERED + ' history_ok=' + PREREG_HISTORY_OK + ' unjudged=' + (PREREG_UNJUDGED.join(',') || 'none') + ' scan_miss=' + (PREREG_MISS.join(',') || 'none') + ' emitters=' + PREREG_TERMS.length + '(' + PREREG_TERMS.map(function (e) { return e.rel; }).join(' ') + ')'
   + ' offenders=' + (PREREG_OFFENDERS.join(',') || 'none')
   + ' classifier_rejects=' + (GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous'));
 

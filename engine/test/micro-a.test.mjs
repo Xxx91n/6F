@@ -195,11 +195,15 @@ t('S7 判不了深度时降级而非抛出——非 git 目录喂进去不得抛
 
 // core.abbrev=4 时 `%h` 真会短到 4 位（git 忽略 <4 的设定，4 是下限）。这条钉的是**本票自引入的**失败模式：
 //   口径闸初版把 commit 下限写成 7，合法锚会被自己的闸判成模糊态，buildReceipt 在 Micro-A 落盘前就抛。
+// 三条都要：① 裸命令确实落到 7 位以下（前提）；② **解析器原样交出那个短值**（不加宽）——少了这条，
+//   解析器哪怕偷偷 `--abbrev=7` 把值撑回 7 位，本臂照样绿，等于没验到「短值过闸」这件事本身；
+//   ③ 该短值过分类器仍判 commit 且解析回同一枚判据锚。
 gitAt(pSrc, ['config', 'core.abbrev', '4']);
 const ABBREV4_RAW = gitAt(pSrc, ['log', '-1', '--format=%h', '--', SRC_REL]);
 const ABBREV4_ANCHOR = MA.resolvePreregCommit(pSrc, SRC_REL);
-t('S8 前提+正对照：core.abbrev=4 使 %h 落到 7 位以下，该锚仍须判成 commit 且解析回同一枚判据锚',
-  ABBREV4_RAW.length < 7 && GR.classifyPreregAnchor(ABBREV4_ANCHOR) === 'commit'
+t('S8 前提+正对照：core.abbrev=4 使 %h 落到 7 位以下，解析器原样交出该短值且仍判 commit、仍解析回判据锚',
+  ABBREV4_RAW.length < 7 && ABBREV4_ANCHOR === ABBREV4_RAW
+  && GR.classifyPreregAnchor(ABBREV4_ANCHOR) === 'commit'
   && sameCommit(pSrc, ABBREV4_ANCHOR, TRUE_ANCHOR_FULL), JSON.stringify({ raw: ABBREV4_RAW, anchor: ABBREV4_ANCHOR }));
 
 try { rmSync(tmp, { recursive: true, force: true }); } catch (e) { }
