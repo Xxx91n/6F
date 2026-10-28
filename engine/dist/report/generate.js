@@ -90,7 +90,7 @@ export function adjudicate(args) {
     };
 }
 // Design: prereg_commit 只取可解析 commit 或带前缀的显式标记，禁模糊态 — spec §R9-1
-const PREREG_COMMIT_FORM = /^[0-9a-f]{4,40}$/; // 下限取 git 能 emit 的最小宽度 4（core.abbrev<4 被 git 忽略）；宽度不属身份（A-098）
+const PREREG_COMMIT_FORM = /^[0-9a-f]{4,40}$/; // 4 = git 能 emit 的最小缩写宽度；为何不是 7 见 spec §R9-1
 const PREREG_NAME_FORM = /^[0-9A-Za-z][0-9A-Za-z._-]*$/;
 // 'sentinel' = 设计上就不是 commit（存档哨兵）；'degraded' = 本该取到 commit 但取不到或取不准。
 export function classifyPreregAnchor(v) {

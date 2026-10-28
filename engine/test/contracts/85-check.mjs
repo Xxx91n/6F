@@ -223,7 +223,9 @@ t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> �
 //   把它算成违规等于要求负对照不存在）；`src/report/generate.ts` 承载 GateRef 的类型声明与 receipt 透传，
 //   不是锚的决定点。断言面不脱管：它们真跑 buildReport 时由 buildReceipt 当场把关。
 // 判别力四臂，缺一即退化成空集自证：① 覆盖臂——发现集必须真的含四个产品发出面，改名/移出扫描根会当场红；
-//   ② 完备臂——发现集里每个发出件各寻到 ≥1 枚锚初值；③ 反恒真臂——两枚裸历史字面量喂进同一分类器必须判 ambiguous；
+//   ② 扫描不失灵臂——凡正文含 `prereg_commit:` 的发现件，正则都必须抓到 ≥1 枚初值；只把「有初值的件」
+//     筛出来当输入、再断言它们各有一枚，那是恒真的自我循环，正则写坏时反而静默把发出面当成不存在；
+//   ③ 反恒真臂——两枚裸历史字面量喂进同一分类器必须判 ambiguous；
 //   ④ 锚常量溯源臂——写 PREREG_COMMIT 标识符的文件必须有一行**行首的** `const PREREG_COMMIT = [X.]resolvePreregCommit(`。
 //     初版写全文件 `indexOf('resolvePreregCommit(')`：那被 micro-a.ts 自己的 `export function` 行就满足＝自我指认空臂，
 //     常量退回裸 IIFE 仍绿；锚到赋值行、并要求行首就是 `const`（注释掉的赋值以 `//` 起头，匹配不上），两个洞一起关。
@@ -252,10 +254,14 @@ function preregTermForm(term) {
 function preregResolvable(v) {
   try { return execFileSync('git', ['-C', REPO, 'rev-parse', '--verify', v + '^{commit}'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() !== ''; } catch (e) { return false; }
 }
-const PREREG_TERMS = PREREG_DISCOVERED.map(function (rel) {
+const PREREG_SCANNED = PREREG_DISCOVERED.map(function (rel) {
   const txt = readFileSync(join(ENG, rel), 'utf8');
-  return { rel: rel, terms: preregTerms(txt), txt: txt };
-}).filter(function (e) { return e.terms.length >= 1; });
+  return { rel: rel, txt: txt, mentions: txt.indexOf('prereg_commit:') >= 0, terms: preregTerms(txt) };
+});
+// ② 扫描不失灵臂：正文明明写着 `prereg_commit:` 却被正则抓到 0 枚初值的件。少了这条，筛完再验「各有一枚」
+//   就是恒真的自我循环——正则一坏，发出面会静默从普查里消失，而不是判红。
+const PREREG_MISS = PREREG_SCANNED.filter(function (e) { return e.mentions && e.terms.length === 0; }).map(function (e) { return e.rel; });
+const PREREG_TERMS = PREREG_SCANNED.filter(function (e) { return e.terms.length >= 1; });
 const PREREG_COVERED = PREREG_PRODUCT_FACERS.every(function (rel) { return PREREG_TERMS.some(function (e) { return e.rel === rel; }); });
 const PREREG_OFFENDERS = PREREG_TERMS.reduce(function (acc, e) {
   for (const term of e.terms) {
@@ -267,9 +273,9 @@ const PREREG_OFFENDERS = PREREG_TERMS.reduce(function (acc, e) {
   return acc;
 }, []);
 t('A17 prereg 锚取值口径：发现的每个发出面各带 ≥1 枚锚且全部落三形态（commit 形须真可解析；模糊态/假锚/退化的锚常量赋值即红；裸历史字面量已判否）',
-  PREREG_COVERED && PREREG_TERMS.length > 0 && PREREG_OFFENDERS.length === 0
+  PREREG_COVERED && PREREG_MISS.length === 0 && PREREG_OFFENDERS.length === 0
   && GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous' && GEN17.classifyPreregAnchor('45-demo-criteria') === 'ambiguous',
-  'covered=' + PREREG_COVERED + ' emitters=' + PREREG_TERMS.length + '(' + PREREG_TERMS.map(function (e) { return e.rel; }).join(' ') + ')'
+  'covered=' + PREREG_COVERED + ' scan_miss=' + (PREREG_MISS.join(',') || 'none') + ' emitters=' + PREREG_TERMS.length + '(' + PREREG_TERMS.map(function (e) { return e.rel; }).join(' ') + ')'
   + ' offenders=' + (PREREG_OFFENDERS.join(',') || 'none')
   + ' classifier_rejects=' + (GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous'));
 
