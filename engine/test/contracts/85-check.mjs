@@ -224,9 +224,10 @@ t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> �
 //   不是锚的决定点。断言面不脱管：它们真跑 buildReport 时由 buildReceipt 当场把关。
 // 判别力四臂，缺一即退化成空集自证：① 覆盖臂——发现集必须真的含四个产品发出面，改名/移出扫描根会当场红；
 //   ② 完备臂——发现集里每个发出件各寻到 ≥1 枚锚初值；③ 反恒真臂——两枚裸历史字面量喂进同一分类器必须判 ambiguous；
-//   ④ 锚常量溯源臂——写 PREREG_COMMIT 标识符的文件必须真的把 PREREG_COMMIT **赋值自** resolvePreregCommit
-//     （只 `indexOf('resolvePreregCommit(')` 不够：`export function resolvePreregCommit` 自己就满足它，
-//      把模块常量退回裸 IIFE 仍会绿——这条是自我指认的空臂）。
+//   ④ 锚常量溯源臂——写 PREREG_COMMIT 标识符的文件必须有一行**行首的** `const PREREG_COMMIT = [X.]resolvePreregCommit(`。
+//     初版写全文件 `indexOf('resolvePreregCommit(')`：那被 micro-a.ts 自己的 `export function` 行就满足＝自我指认空臂，
+//     常量退回裸 IIFE 仍绿；锚到赋值行、并要求行首就是 `const`（注释掉的赋值以 `//` 起头，匹配不上），两个洞一起关。
+const PREREG_RESOLVER_ASSIGN = /^[ \t]*(?:export[ \t]+)?const[ \t]+PREREG_COMMIT[ \t]*=[ \t]*(?:[A-Za-z_$][\w$]*\.)?resolvePreregCommit\(/m;
 const GEN17 = await import(pathToFileURL(join(ENG, 'dist', 'report', 'generate.js')).href);
 const PREREG_PRODUCT_FACERS = ['src/audit/micro-a.ts', 'src/audit/macro-c.ts', 'src/audit/audit.ts', 'src/demo/demo.ts'];
 const PREREG_TYPEONLY_FILES = ['src/report/generate.ts'];   // 类型声明＋透传，不决定锚值
@@ -261,7 +262,7 @@ const PREREG_OFFENDERS = PREREG_TERMS.reduce(function (acc, e) {
     const form = preregTermForm(term);
     if (form === 'ambiguous') { acc.push(e.rel + '=' + term); continue; }
     if (form === 'commit' && !preregResolvable(String(preregQuoted(term)))) { acc.push(e.rel + '=' + term + '(不可解析)'); continue; }
-    if (form === 'resolver' && !new RegExp('=\\s*(?:[A-Za-z_$][\\w$]*\\.)?resolvePreregCommit\\(').test(e.txt)) { acc.push(e.rel + '=锚常量未赋值自 resolvePreregCommit'); }
+    if (form === 'resolver' && !PREREG_RESOLVER_ASSIGN.test(e.txt)) { acc.push(e.rel + '=锚常量未由 const PREREG_COMMIT = resolvePreregCommit(...) 赋值'); }
   }
   return acc;
 }, []);

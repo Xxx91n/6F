@@ -509,7 +509,7 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 
 ### R9-1 — `prereg_commit` 只取可解析 commit，或带前缀的显式标记
 
-- **决策**：报告的 `gate_ref.prereg_commit` 只允许三形态——① 一枚**可解析**的 commit（值形为 7–40 位小写十六进制，且须真能解析为该仓的 commit 对象；形状对而指错对象不算合规）；② `sentinel:` 前缀的存档哨兵（设计上就不是 commit）；③ `degraded:` 前缀的显式降级（本该取到 commit 但取不到或取不准）。三态之外一律非法，回执装配处当场拒收，不留给读者猜。约束落在**用户可见的报告契约**上：读者不读源码就能判断这个坐标是不是 commit、能不能回查。
+- **决策**：报告的 `gate_ref.prereg_commit` 只允许三形态——① 一枚**可解析**的 commit（值形为 4–40 位小写十六进制，下限取 git 能 emit 的最小缩写宽度——`core.abbrev` 小于 4 被 git 忽略；且须真能解析为该仓的 commit 对象，形状对而指错对象不算合规）；② `sentinel:` 前缀的存档哨兵（设计上就不是 commit）；③ `degraded:` 前缀的显式降级（本该取到 commit 但取不到或取不准）。三态之外一律非法，回执装配处当场拒收，不留给读者猜。约束落在**用户可见的报告契约**上：读者不读源码就能判断这个坐标是不是 commit、能不能回查。
 - **为什么要立法**：该字段历史上混着三类值——真 commit、仓内无定义的存档字面量、以及浅克隆下静默取到的边界 commit。第三类最坏：它完全长得像一枚合法 commit、不报错，并随克隆深度变化，令同一判据件在两种克隆形态下产出不同锚与不同回执摘要。「取对了」这件事读者无法在报告内验证，只能由发出方以值本身的形态自证。
 - **历史不足时不得静默**：取不到判据件末次变更 commit 时不返回边界 commit，而落具名降级标记。现行清单共五枚：`resolvePreregCommit` 产四枚——`degraded:shallow-clone`（确认浅克隆）、`degraded:no-source-repo`（安装态插件没有源码仓根）、`degraded:depth-unknown`（深度判不了）、`degraded:no-criteria-history`（判据件在该仓取不到 commit）——另契约生成子 `51-macro-b-behavior.mjs` 的存档跑产 `degraded:unanchored-run`。这五枚是本条的登记清单：新增一枚须先写在这里——`85-check` A17 只判形态，判不出名字是否在册，清单只有落在这里才对得上代码。判定面按 `git rev-parse --is-shallow-repository` 认浅克隆；`--filter=` 一类部分历史克隆不在上述清单里，当前不判为降级（仍可能交出边界 commit），是否扩判定面另行裁。「全量历史属受支持运行形态」的裁定与三条 workflow 的 `fetch-depth: 0` 现状记于 `docs/adr/0027`，本条不复述。降级可被机检，禁以 SKIP 通过（承 tracker #35 纪律：被跳过的验证组不得隐身）。
 - **两族形态结构上不可能互撞**：标记前缀含冒号，git 短/全 SHA 的字符集不含冒号。两族标记只能经构造子产出，裸字面量不再构成合法锚。短 SHA 显示宽度（7↔8 跳变）属形态不属身份，沿用 tracker #84 的全值比较口径，本条不重述。

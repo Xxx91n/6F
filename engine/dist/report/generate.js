@@ -90,7 +90,7 @@ export function adjudicate(args) {
     };
 }
 // Design: prereg_commit 只取可解析 commit 或带前缀的显式标记，禁模糊态 — spec §R9-1
-const PREREG_COMMIT_FORM = /^[0-9a-f]{7,40}$/; // 宽度不属身份：git auto-abbrev 随对象库在 7↔8 跳变（A-098）
+const PREREG_COMMIT_FORM = /^[0-9a-f]{4,40}$/; // 下限取 git 能 emit 的最小宽度 4（core.abbrev<4 被 git 忽略）；宽度不属身份（A-098）
 const PREREG_NAME_FORM = /^[0-9A-Za-z][0-9A-Za-z._-]*$/;
 // 'sentinel' = 设计上就不是 commit（存档哨兵）；'degraded' = 本该取到 commit 但取不到或取不准。
 export function classifyPreregAnchor(v) {
@@ -113,7 +113,7 @@ export function preregDegraded(reason) { return preregMarked('degraded:', reason
 // Design: 模糊态锚在回执哈希链之前当场拒收，错误值不得被签成可回查坐标 — spec §R9-1
 export function assertDiscriminablePreregAnchor(v) {
     if (classifyPreregAnchor(v) === 'ambiguous') {
-        throw new Error('PREREG-ANCHOR-AMBIGUOUS: gate_ref.prereg_commit=' + JSON.stringify(v) + ' 既不是 7–40 位小写十六进制 commit，也不带 sentinel:/degraded: 标记前缀（取值口径见 spec §R9-1）');
+        throw new Error('PREREG-ANCHOR-AMBIGUOUS: gate_ref.prereg_commit=' + JSON.stringify(v) + ' 既不是 4–40 位小写十六进制 commit，也不带 sentinel:/degraded: 标记前缀（取值口径见 spec §R9-1）');
     }
 }
 export const CONTENT_DIGEST_CANONICALIZATION = 'json_utf8_entries_then_citation_checks';
