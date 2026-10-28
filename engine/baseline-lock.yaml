@@ -26,8 +26,9 @@
 #   活跃路径（本表＋85-check＋报告输出）不得出现本机绝对路径（tracker #34 可移植性前提；A12 机检本表与守卫，B8 机检报告两件）。
 #
 # 换钉流程（手动窗口）：重打 bundle（HEAD 指向新钉提交的全历史自足包）→ 同步改本行 version／bundle_bytes／
-#   bundle_sha256 三值 → 同步 85-check A14 的 AUTHORITY_PIN 常量与归档索引 §6 的指针行（两处是身份绑定点，改钉
-#   不同窗改这两处＝A14 双红，属预期）→ 重跑 85-check C 组 C0~C6 值级全等断言 → 记录 review_evidence。禁改钉而不改制品哈希。
+#   bundle_sha256 三值 → 同步 85-check A14 的 AUTHORITY_PIN 常量（漏改即 A14 红，属预期）→ 归档索引 §6 只留
+#   「见本表」指针、不复制钉值（A14 机检该行不得出现权威钉值，两写即红）→ 重跑 85-check C 组 C0~C6 值级全等断言 →
+#   记录 review_evidence。禁改钉而不改制品哈希。
 lock_version: 1
 baselines:
   - id: anysearch-cli-adr-corpus
