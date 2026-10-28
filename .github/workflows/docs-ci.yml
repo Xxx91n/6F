@@ -4,6 +4,8 @@ name: docs-ci
 # 与 engine-ci 分工：engine-ci 的矩阵/路径不动（[22,24] 六腿 + engine/** 触发）；
 # 本 workflow 只在文档面变化时跑 ubuntu/node24 单腿，复用 engine 的只读快道
 # `npm run check:docs`（致谢锚段只读比对 + 73 + 77 + docs-authority），不建第二套校验。
+# tracker #97 追加生成物 drift 断言：npm run gen 后 docs/adr/README.md 必须与提交一致，
+# 手改索引或新增 ADR 忘 regen 即红；复用 engine-ci 同一条 gen 链，不建第二套。
 on:
   push:
     paths:
@@ -17,6 +19,8 @@ on:
       - "GLOSSARY.md"
       - "engine/README.md"
       - "engine/package.json"
+      # tracker #97/CodeRabbit：索引生成器本身改动也须触发 drift 守卫；engine/scripts 其余面仍归 engine-ci
+      - "engine/scripts/gen-adr-index.mjs"
       - "engine/test/contracts/docs-authority-check.mjs"
       - ".github/PULL_REQUEST_TEMPLATE.md"
       - ".github/workflows/docs-ci.yml"
@@ -35,6 +39,8 @@ on:
       - "GLOSSARY.md"
       - "engine/README.md"
       - "engine/package.json"
+      # tracker #97/CodeRabbit：索引生成器本身改动也须触发 drift 守卫；engine/scripts 其余面仍归 engine-ci
+      - "engine/scripts/gen-adr-index.mjs"
       - "engine/test/contracts/docs-authority-check.mjs"
       - ".github/PULL_REQUEST_TEMPLATE.md"
       - ".github/workflows/docs-ci.yml"
@@ -61,3 +67,22 @@ jobs:
       # 只读快道：全部脚本只用 node 内置模块，无需 npm ci；不跑全链 smoke。
       - name: docs authority guard + document self-checks (read-only)
         run: npm run check:docs
+      # tracker #97：生成物 drift 断言——docs/adr/README.md 首行自述 GENERATED，手改或
+      # 新增 ADR 忘 regen 都会让它静默过期。gen 两个脚本只用 node 内置模块，无需 npm ci。
+      # 与 engine-ci 的 dist 守卫不同，这里不带 --ignore-space-at-eol：那边六腿矩阵含 Windows
+      # 检出的行尾噪声，本 workflow 单腿 ubuntu 无此噪声，生成物逐字节对账。
+      # git diff 失败时自动打印 drift 文件与差异；gen 脚本确定性输出（不取当前时钟），未手改恒绿。
+      - name: adr-index drift guard (docs/adr/README.md regenerated == committed)
+        working-directory: ${{ github.workspace }}
+        shell: bash
+        run: |
+          npm --prefix engine run gen
+          # CodeRabbit：untracked/被删的 README 不进 git diff——tracked 检查必须在 diff 之前
+          if ! git ls-files --error-unmatch -- docs/adr/README.md > /dev/null 2>&1; then
+            echo "ADR-INDEX-UNTRACKED: docs/adr/README.md 未纳入提交——npm run gen 后同 commit 提交"
+            exit 1
+          fi
+          if ! git diff --exit-code -- docs/adr/README.md; then
+            echo "ADR-INDEX-DRIFT: docs/adr/README.md 与 ADR 源失同步——npm run gen 后同 commit 提交（drift 文件如上）"
+            exit 1
+          fi
