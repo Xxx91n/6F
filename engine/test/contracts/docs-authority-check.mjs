@@ -6,7 +6,7 @@
 //   D D-NNN 引用 ⊆ 归档索引；D-NNN 集合只减不增（冻结账本 blob 钉＋散文假阳性五项钉）
 //   E §D-NNN / §A-NNN 死锚拒绝（2+ 位退役码形态；1 位是 ADR-0018 节号，不在此列）
 //   F 门面文书不得自称权威；专题「唯一权威」白名单读自 docs/authority.md §2（单源）
-//   G docs-ci 单腿契约：ubuntu/node24、paths 覆盖、复用 check:docs、不建第二套校验
+//   G docs-ci 单腿契约：ubuntu/node24、paths 覆盖、复用 check:docs、#97 drift 断言（gen 后 diff 即红）、不建第二套校验
 //   H engine-ci 矩阵/路径边界：仍为 [22,24]，不承载文档守卫
 //   I contracts-run 以 *-check.mjs 命名自动纳入；smoke 链与 check:docs 链同源
 //   J 本守卫无 BOM + LF
@@ -324,7 +324,7 @@ function yamlPaths(wf, event) {
 }
 const REQUIRED_PATHS = [
   'docs/**', '*.md', 'README*', 'CONTRIBUTING.md', 'AGENTS.md', 'SECURITY.md', 'CODE_OF_CONDUCT.md',
-  'GLOSSARY.md', 'engine/README.md', 'engine/package.json',
+  'GLOSSARY.md', 'engine/README.md', 'engine/package.json', 'engine/scripts/gen-adr-index.mjs',
   '.github/PULL_REQUEST_TEMPLATE.md',
   'engine/test/contracts/docs-authority-check.mjs', '.github/workflows/docs-ci.yml',
   '.github/**', '.claude-plugin/**', 'examples/**',
@@ -339,8 +339,31 @@ t('G3 docs-ci 单腿 ubuntu/node24（无 matrix/strategy）',
   /runs-on:\s*ubuntu-latest/.test(docsCi) && /node-version:\s*['"]?24['"]?/.test(docsCi) &&
   !/^\s*matrix:/m.test(docsCi) && !/^\s*strategy:/m.test(docsCi) && (docsCi.match(/runs-on:/g) || []).length === 1);
 const runSteps = [...docsCi.matchAll(/^[ \t]*run:[ \t]*(.+)$/gm)].map(m => m[1].trim());
-t('G4 docs-ci 复用 check:docs（单一步骤，不建第二套 README/戳位校验）',
-  runSteps.length === 1 && runSteps[0] === 'npm run check:docs', 'runs=' + runSteps.join(' | '));
+t('G4 docs-ci 复用 check:docs（恰一个 npm run check:docs run 步骤，不建第二套 README/戳位校验）',
+  runSteps.filter(s => s === 'npm run check:docs').length === 1, 'runs=' + runSteps.join(' | '));
+// tracker #97：生成物 drift 断言的形状——全 workflow 恰两个 run 步骤（check:docs ＋ 一个多行 drift 步骤），
+// 复用 engine-ci 同一条 npm run gen 链，断言本体钉死为 docs/adr/README.md 一件，不扩第二套校验。
+// CodeRabbit 复审升级：解析第二个 run: | 的可执行体并剥注释行，钉死命令顺序——
+// gen 首行、tracked 检查次之、diff 本体第三；注释里的命令文本不再能洗绿，顺序颠倒即红。
+const wfLines = docsCi.split('\n');
+const runBarIdx = wfLines.map((l, i) => (/^[ \t]*run:\s*\|\s*$/.test(l) ? i : -1)).filter(i => i >= 0);
+const driftCmds = runBarIdx.length === 1 ? (() => {
+  const out = [];
+  for (let i = runBarIdx[0] + 1; i < wfLines.length; i++) {
+    if (/^\s*$/.test(wfLines[i])) { continue; }
+    if (!/^[ \t]{8,}/.test(wfLines[i])) { break; }
+    const l = wfLines[i].trim();
+    if (!l.startsWith('#')) { out.push(l); }
+  }
+  return out;
+})() : [];
+const genIdx = driftCmds.indexOf('npm --prefix engine run gen');
+const trackIdx = driftCmds.findIndex(l => l.startsWith('if ! git ls-files --error-unmatch -- docs/adr/README.md'));
+const diffIdx = driftCmds.findIndex(l => l.startsWith('if ! git diff --exit-code -- docs/adr/README.md'));
+t('G8 docs-ci #97 drift 断言：可执行序列 = gen → tracked 检查 → diff 本体（剥注释行，顺序敏感）',
+  runSteps.length === 2 && runSteps[0] === 'npm run check:docs' && runSteps[1] === '|' &&
+  driftCmds.length > 0 && genIdx === 0 && trackIdx === genIdx + 1 && diffIdx > trackIdx,
+  'cmds=' + driftCmds.join(' && '));
 t('G5 docs-ci permissions contents: read', /permissions:[\s\S]*?contents:\s*read/.test(docsCi));
 t('G6 docs-ci working-directory: engine', /working-directory:\s*engine/.test(docsCi));
 // checkout 步骤是否仍持久化凭据：只看 actions/checkout 步骤内的键，跳过注释行；
