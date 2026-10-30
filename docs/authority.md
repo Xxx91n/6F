@@ -43,7 +43,7 @@
 | 生成面 | 再生者 | 失同步由谁判红 |
 |---|---|---|
 | `engine/dist/**` | `npm run build`（tsc 逐文件输出保留注释，所以**只改 `engine/src` 的注释也会动 dist**；`dist/cli.js` 另经 esbuild 压缩） | engine-ci 的 rebuild-diff 步（`DIST-DRIFT`）。注意 `check-dist.mjs` 只管 `dist/cli.js` 的**体积棘轮**，不查内容 drift |
-| `docs/adr/README.md` | `npm run gen`（`gen-adr-index.mjs`，无只读模式，跑即写） | **暂无守卫**——手写会在下次 gen 被静默覆盖，CI 不因它红；tracker #53 待落（tracker #47 的 docs-authority 已落，但不含索引 drift 校验，不建第二套） |
+| `docs/adr/README.md` | `npm run gen`（`gen-adr-index.mjs`，无只读模式，跑即写） | docs-ci 的 `adr-index drift guard (docs/adr/README.md regenerated == committed)` 步（tracker #97 落地）：`npm --prefix engine run gen` 后先查 `git ls-files --error-unmatch` 确为 tracked、再 `git diff --exit-code` 逐字节对账——手改索引或新增 ADR 忘 regen 即红；复用同一条 gen 链，不建第二套 |
 | `engine/plugin.json`、`.claude-plugin/plugin.json`、`.mcp.json` | `npm run gen`（`gen-manifests.mjs` 先比后写） | 生成器自身：检出 drift 即 `GEN-FAIL`，`npm run gen` 当场红 |
 | README 双语对的致谢锚段与 `<!-- sync: … -->` 戳 | `node scripts/gen-acknowledgments.mjs`（写双文件并按 EN 内容重算 sync 戳） | `77-check` A3（**手改戳位即红**）＋ `73-check` C 组 |
 | `engine/test/fixtures/contracts/48-micro-a-golden-*`（在册**十二件**） | `node engine/test/contracts/48-micro-a-preview.mjs --golden --out engine/test/fixtures/contracts`（cassette 离线回放，确定性可重算；实写十二件） | **部分**：`85-check` E1~E9 只逐值比 pr64／pr51 **两件 JSON 侧车**的 band／切片数值／fact_ids／披露块／overall_verdict；`48-check` B4 只判**十件在场**不比内容，`48-micro-a-golden-assertions.json` 自身由 `--golden` 现算——其余 `.md`、拒绝件、facts、gate-probes、measurements 的正文**暂无逐值守卫**（缺口如实登记，勿当成全量对账）；CI 不回写，golden 更新随 PR 审查 |
