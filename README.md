@@ -15,12 +15,12 @@
 
 <p align="center"><a href="README.md">English</a> &middot; <a href="README.zh-CN.md">&#31616;&#20307;&#20013;&#25991;</a></p>
 
-Macro + micro engineering-content audit for git-healthy repositories — a **Claude Code Agent Plugin**. Evidence collection comes largely from upstream components; the adjudication protocol, fact-table schema, acceptance gates, and verifiable receipts are this project's self-built moat and glue. Five audit scales (Macro-A cross-repo strategy / Macro-B repo quadrant / Macro-C evolution archaeology / Micro-A PR diff / Micro-B file level) share one fact base and one adjudication layer — they differ in triggers and report slices.
+6F is a macro + micro engineering-content audit product for git-healthy repositories, distributed as a **Claude Code Agent Plugin** ([`engine/`](engine/)). Evidence collection comes largely from upstream components; the adjudication protocol, fact-table schema, acceptance gates, and verifiable receipts are this project's own work. Five audit scales — Macro-A cross-repo strategy, Macro-B repo quadrant, Macro-C evolution archaeology, Micro-A PR diff, Micro-B file level — share one fact base and one adjudication layer, and differ in triggers and report slices.
 
 ## Highlights
 
 - **Facts** — one append-only fact table collects every claim (Hub-of-Facts: one shared fact table with federated adjudication).
-- **Federation** — a federated verdict-gate protocol adjudicates every verdict under the shared Hub-of-Facts architecture.
+- **Federation** — a federated verdict-gate protocol adjudicates every verdict under that shared architecture.
 - **Forensics** — evolution archaeology digs repository history into evidence (Macro-C).
 - **Five scales** — five audit granularities share that one fact base; five scales are the full plan, not an MVP slice.
 - **Frankness** — preview, degraded, and `synthetic` marks label themselves under the graded preview release model.
@@ -28,25 +28,24 @@ Macro + micro engineering-content audit for git-healthy repositories — a **Cla
 
 <img src="https://img.shields.io/badge/status-preview-f59e0b" alt="Status: preview"/>
 
-
 > [!NOTE]
-> Status (2026-10-05): **preview** (capability boundaries in the matrix below). Macro-B / Macro-C / Micro-B / Micro-A are in preview (Micro-A productionized — #85②, D-204③④); Macro-A is **Not yet in preview** — roadmap narrative, not a usable promise. The plugin is installable today via the marketplace (`claude plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`; install & acceptance details in [engine/README.md](engine/README.md); the official-catalog track is unsubmitted and sits behind the owner's gate). The previous 「发布未发生·不存在可安装 listing」 state was ended by marketplace onboarding. Upstreams marked "planned" are not wired yet — do not read this page as a finished product. Product-facing surfaces (audit reports, listing copy) are primarily in Chinese; this file is the canonical English facade.
+> Status: **preview**. Macro-B, Macro-C, Micro-A, and Micro-B are in preview; Macro-A is **Not yet in preview** — roadmap narrative, not a usable promise. The plugin is installable today via the marketplace (`/plugin marketplace add Xxx91n/6F` → `/plugin install 6f@xxx91n`; acceptance details in [engine/README.md](engine/README.md)). Upstreams marked "planned" are not wired yet — do not read this page as a finished product. Product-facing surfaces (audit reports, listing copy) are primarily in Chinese; this file is the canonical English facade.
 
 ## Capability matrix
 
-Release cadence = **graded preview releases**: **build-scope ≠ release-sequence** — five audit scales are the full plan (the five-scale scope stands), each layer moves through its own preview→GA funnel, and a preview form is not an MVP slice.
+Release cadence = **graded preview releases**: build-scope ≠ release-sequence — five audit scales are the full plan, each layer moves through its own preview→GA funnel, and a preview form is not an MVP slice.
 
 | scale | status |
 |---|---|
 | Macro-B repo quadrant | **capability 1 of 5 · preview** (self-audit first report: [examples/first-report/](examples/first-report/)); quadrant slices: **strategy: active** (S1+S2 collectors live) · **behavior: preview** (codelore churn/hotspot/coupling slices, #51) · **structure: preview** (S3-family shape observations — structure/shape semantic domain, derived observation-only, D-205) · **supply-chain: queued** (D-034③ Scorecard does not skip the queue) |
 | Macro-C evolution archaeology | **capability 2 of 5 · preview** (single-repo calibration disclosure) |
-| Micro-A PR diff | **capability 3 of 5 · preview** (hosted-API adapter consumer side, same pilot-repo 4-PR calibration; adapter hardening landed as engine first-class face — #85② closed, D-204③④) |
-| Micro-B file level | **capability 4 of 5 · preview** (file-audit card; same-owner pilot set=jiahao＋env-manager two-repo stitching/calibration — 同主偏差如实: both pilot repos share one maintainer; advisory-only structural isolation, advisory verdicts never reach gates) |
+| Micro-A PR diff | **capability 3 of 5 · preview** (hosted-API adapter consumer side; adapter hardening landed as engine first-class face — #85②, D-204③④) |
+| Micro-B file level | **capability 4 of 5 · preview** (`audit file` card; same-owner pilot set = jiahao + env-manager two-repo stitching/calibration — advisory-only structural isolation, advisory verdicts never reach gates) |
 | Macro-A cross-repo strategy | Not yet in preview |
 
 Honest preview labeling is a decision, not decoration: report headers and sidecars carry a `preview_disclosure` block (capability tag + calibration scope + structural limits + not_in_preview list) sourced from the same semantics as the table above; degraded output carries a `⚠ unverified` mark, unwired evidence domains carry a "⚠ data not connected" note, and synthetic fixtures carry a `synthetic` mark — they never impersonate real audits.
 
-**0.x semantics**: 0.x 单调递增、号不复用 (versions increase monotonically, never reused); minor = contract change, patch = fix, no patches backported to older lines. The 1.0 退出条件 (exit condition) = report schema frozen + every wired upstream adapter passing deterministic acceptance — not calendar-driven. Full policy in [docs/versioning.md](docs/versioning.md); product version history lives in [engine/CHANGELOG.md](engine/CHANGELOG.md).
+**0.x semantics**: versions increase monotonically and are never reused; minor = contract change, patch = fix, no patches backported to older lines. The 1.0 exit condition = report schema frozen + every wired upstream adapter passing deterministic acceptance — not calendar-driven. Full policy in [docs/versioning.md](docs/versioning.md); product version history lives in [engine/CHANGELOG.md](engine/CHANGELOG.md).
 
 ## Install
 
@@ -146,7 +145,7 @@ flowchart LR
 
 ## Demo and examples
 
-- **Deterministic demo** (zero external dependencies, discard after run): `node dist/cli.js demo` — a fixture generator synthesizes a temporary git repo and runs the Macro-B chain end to end; three scenarios via `node dist/cli.js demo --list` (happy-path / degraded-supply / degraded-incomplete). Synthetic fixtures carry a `synthetic` disclosure mark — **they do not impersonate real audits**.
+- **Deterministic demo** (zero external dependencies, discard after run): `node dist/cli.js demo` — a fixture generator synthesizes a temporary git repo and runs the Macro-B chain end to end; three scenarios via `node dist/cli.js demo --list` (happy-path / degraded-supply / degraded-incomplete). Synthetic fixtures carry a `synthetic` disclosure mark — they do not impersonate real audits.
 - **Real first-report sample**: [examples/first-report/](examples/first-report/) — the 6F self-audit Macro-B run, four files (happy + failure pair), disclosing the generating commit, date, regeneration command, and freeze-point attributes.
 
 ## Try on a real repository
@@ -155,13 +154,23 @@ External repositories join via URL opt-in (D-013 local-first + URL opt-in): clon
 
 ```bash
 cd engine && npm install && npm run build
-node dist/cli.js repo add https://github.com/open-gsd/gsd-core.git   # opt-in public repo
-node dist/cli.js repo add /path/to/local/repo                        # local path (same intake leg)
+
+# intake: local path | owner/repo (local-first) | URL opt-in isolated clone
+node dist/cli.js repo add https://github.com/open-gsd/gsd-core.git
+node dist/cli.js repo add /path/to/local/repo
+
+# audit: first-class command — Macro-B default; Macro-C / Micro-A also shipped
+node dist/cli.js audit /path/to/local/repo
+node dist/cli.js audit <repo> --scale Macro-C
+node dist/cli.js audit <repo> --scale Micro-A
+
+# Micro-B file card (lazy supplementary collection, --db required)
+node dist/cli.js audit file <repo> <file> --db <facts.duckdb> [--at <sha>]
 ```
 
-- Opt-in public example: [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) (actually onboarded here: Macro-B one-shot on 2026-09-16 produced 1424 facts and an `unsupported` verdict faithfully recorded — TC-2 attributed to an ADR dash+bold form detector gap, registered as a coverage hole).
+- Opt-in public example: [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) (onboarded here: a Macro-B one-shot on 2026-09-16 produced 1424 facts and an `unsupported` verdict faithfully recorded — TC-2 attributed to an ADR dash+bold form detector gap, registered as a coverage hole; run record in execution ledger A-045).
 - **⚠ 外部内容随上游变化 (external content drifts with upstream)**: external repo content/structure evolves with its upstream, so audit readings cannot be golden-expected — the example demonstrates the intake path, not a promised verdict.
-- Current `repo add` delivers the intake surface; the full audit pipeline for external repos currently runs as in-repo scripts (run records in the execution ledger A-044/A-045) and the packaged first-class command surface is not frozen — no fictional `audit` subcommand is claimed.
+- `--scale` accepts only the shipped layers (`Macro-B` / `Macro-C` / `Micro-A`); an unimplemented layer is rejected with structured `SCALE-NOT-IMPLEMENTED` + exit 2 — the CLI does not pretend to run layers that are not wired.
 
 <!-- acknowledgments:start — GENERATED by engine/scripts/gen-acknowledgments.mjs; do not edit by hand (regen: node engine/scripts/gen-acknowledgments.mjs) -->
 ## Acknowledgments

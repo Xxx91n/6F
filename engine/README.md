@@ -11,21 +11,28 @@
 - src/cli.ts（内核 CLI；四外壳为规划目标，当前仅 CLI 外壳落地）
 
 ## 命令
-- npm run gen      # 生成双 manifest（先比后写）+ docs/adr/README.md 索引
+- npm run gen      # 生成双 manifest（先比后写）+ docs/adr/README.md 索引 + README 致谢块/sync 戳
 - npm run build    # tsc 编译 + build-bundle（dist/cli.js=esbuild 单文件 bundle 覆写，dist 随源进仓 #59/D-067）
 - npm run package  # npm pack --dry-run
 - npm run smoke    # 启动并测活（进程存活 + 最小 e2e）
 - npm test         # gen + build + smoke
+- npm run selftest       # 5 项自检（等价 node dist/cli.js selftest）
+- npm run demo:golden  # demo 三场景 golden 字节锁校验（definitions 变更走 PR 同规矩）
+- npm run check:docs   # 文档断言（gen drift / 指针完整性，见 check:docs 脚本本体）
 
 ## CLI 命令面
-- `macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]` —— 一等审计命令（#53/D-060）：实仓审计。链 = repoAdd 输入裁决（本地默认/owner-repo 本地优先/URL opt-in）→ 共享管线（`src/audit/macro-b.ts` 策略面 + codelore 行为面，与 demo 同消费；`src/audit/macro-c.ts` Macro-C 演化考古面——#84/D-204②④，38 管线移植＋anysearch-cli 原语料重校准差分对账）→ 骨架报告 + facts.duckdb。
-  - `--scale` 缺省 `Macro-B`（已上架：`Macro-B` · `Macro-C` · `Micro-A`——#85②/D-204③④）；未实装层不假装——结构化 `SCALE-NOT-IMPLEMENTED` + exit 2。
+- `macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine]` —— 一等审计命令（#53/D-060）：实仓审计。链 = repoAdd 输入裁决（本地默认/owner-repo 本地优先/URL opt-in）→ 共享管线（`src/audit/macro-b.ts` 策略面 + codelore 行为面，与 demo 同消费；`src/audit/macro-c.ts` Macro-C 演化考古面——#84/D-204②④，38 管线移植＋anysearch-cli 原语料重校准差分对账；`src/audit/micro-a.ts` Micro-A PR 面——#85②/D-204③④，48 管线移植）→ 骨架报告 + facts.duckdb。
+  - `--scale` 缺省 `Macro-B`（已上架：`Macro-B` · `Macro-C` · `Micro-A`——`src/audit/audit.ts` `AUDIT_SCALES_IMPLEMENTED`）；未实装层不假装——结构化 `SCALE-NOT-IMPLEMENTED` + exit 2。
   - 省略 `--out`：报告 md 走 stdout；`--json` 改走 sidecar JSON；`--out <dir>` 双写（`report.md`/`report.json`/`audit-facts.jsonl`/`audit-measurements.json`/`facts.duckdb`）后 stdout 打印回执 JSON。
   - `--refresh`：intake URL 缓存显式刷新 opt-in（#55/D-059⑦；不自动 pull）；快照时点/缓存命中披露落 measurements.intake + 报告披露块。
+  - `--strict-quarantine` / `--no-strict-quarantine`：Quarantine 严格档开关（D-110④ precedence = flag > env > 文件配置；env = `MACRO_AUDIT_STRICT_QUARANTINE`）。
+- `macro-audit audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]` —— Micro-B 文件级审计卡（#80/D-122·D-126）：文件卡 lazy 补采唯一写入口（MCP 面永不写）；`--db` 必填——观测集落点，不存在则创建 append-only 库。
 - `macro-audit repo add <path|owner/repo|url> [--cache <dir>] [--refresh]` —— repo 输入裁决（本地路径 | owner/repo 本地优先 | URL opt-in 隔离 clone；远程配置执行恒定 disabled、浅仓拒绝、hooks noop、protocol.ext.allow=never）。
-- `macro-audit demo [scenario] [--out <dir>] [--json] [--keep]` —— 合成 fixture 演示跑通（三场景 golden 字节锁）。
-- `macro-audit mcp [--db <facts.duckdb>]` / `mcp facts [--db <path>]` —— MCP stdio 只读 facts 投影面（db 寻址=--db → MACRO_AUDIT_FACTS_DB env，与 MCP 服务端链一致：arguments.db → server --db → env；全缺→usage/结构化错误）。
-- `macro-audit selftest` / `--version` / `--help`。
+- `macro-audit demo [scenario] [--out <dir>] [--json] [--keep] [--list]` —— 合成 fixture 演示跑通（三场景 golden 字节锁；`--list` 枚举 happy-path / degraded-supply / degraded-incomplete）。
+- `macro-audit mcp [--db <facts.duckdb>]` —— MCP stdio 服务端（kernel MCP 只读面；db 寻址 = `--db` → `MACRO_AUDIT_FACTS_DB` env → 全缺则 usage/结构化错误）。
+- `macro-audit mcp facts [--db <path>] [--scale S] [--repo owner/repo] [--subject ref] [--limit n]` —— MCP 只读 facts 投影面（固定列集 + LIMIT，不接裸 SQL）。
+- `macro-audit mcp quarantine [--db <path>] [--run <run_id>] [--field <name>] [--limit n]` —— quarantine_log 只读投影（#78/D-113②），与 mcp facts 同形收窄面。
+- `macro-audit selftest` / `doctor [--fix]` / `--version` / `--help` —— selftest = 5 项自检；doctor = 运行时三腿探测（duckdb 可开库 / git / 上游连通，结构化 JSON 输出，探测失败非静默；#62/D-059③），`--fix` = DuckDB 自愈唯一显式主路。
 
 ## 插件安装（Claude Code · git-clone 分发 · #59/D-067）
 
@@ -42,7 +49,7 @@ marketplace 安装 = git clone 无构建步——可运行体 `dist/cli.js`（es
 
 **能力分级**（git-clone 不带 node_modules）：
 - 零依赖可用：`selftest` / `doctor`（运行时三腿探测：duckdb 可开库/git/上游连通——结构化 JSON 输出，探测失败非静默；#62/D-059③）/ `--version` / MCP 握手（initialize・tools/list）/ `repo add` / `demo --list`
-- 需 duckdb 原生绑定：`mcp facts` / `audit` / `demo` 实跑——**按面分层自愈**（#66/D-075 revised 承接 D-072）：**CLI 交互面**首次使用自动补拉（需网络 ~40MB，stderr 预告最长 240s 可 Ctrl-C 中断）——store.ts 精确拉 `@duckdb/node-bindings-<platform>@1.5.5-r.5`（`npm install --no-save --omit=dev`＋完整性校验，每进程至多 1 次）；**MCP/CI 无人值守面永不自动拉包**——缺失时返回结构化 `DUCKDB-UNAVAILABLE` 四段披露（缺失原因→修复路径→能力边界→opt-in）而非进程崩溃：修复=插件目录 `macro-audit doctor --fix`（自愈唯一显式主路）或 `npm install --omit=dev`；opt-in=设 `MACRO_AUDIT_SELFHEAL=1` 本进程启用自动补拉（代价：阻塞最长 240s，MCP 面即阻塞 JSON-RPC）。Default Mode 收窄如实登记：CLI 面「一次安装命令」语义不变；**MCP 面=install→doctor --fix（或 opt-in env）1~2 步——补偿机制在 MCP 面以披露替代自动**。
+- 需 duckdb 原生绑定：`mcp facts` / `mcp quarantine` / `audit` / `audit file` / `demo` 实跑——**按面分层自愈**（#66/D-075 revised 承接 D-072）：**CLI 交互面**首次使用自动补拉（需网络 ~40MB，stderr 预告最长 240s 可 Ctrl-C 中断）——store.ts 精确拉 `@duckdb/node-bindings-<platform>@1.5.5-r.5`（`npm install --no-save --omit=dev`＋完整性校验，每进程至多 1 次）；**MCP/CI 无人值守面永不自动拉包**——缺失时返回结构化 `DUCKDB-UNAVAILABLE` 四段披露（缺失原因→修复路径→能力边界→opt-in）而非进程崩溃：修复=插件目录 `macro-audit doctor --fix`（自愈唯一显式主路）或 `npm install --omit=dev`；opt-in=设 `MACRO_AUDIT_SELFHEAL=1` 本进程启用自动补拉（代价：阻塞最长 240s，MCP 面即阻塞 JSON-RPC）。Default Mode 收窄如实登记：CLI 面「一次安装命令」语义不变；**MCP 面=install→doctor --fix（或 opt-in env）1~2 步——补偿机制在 MCP 面以披露替代自动**。
 - npm 渠道辨析：本仓 npm publish 渠道维持 deferred（D-067⑧ 不动）≠插件目录 `npm install` 依赖拉取（消费上游包非自发布）——两者勿混读。
 
 **Windows 已知 bug 链**：Claude Code 对 `${CLAUDE_PLUGIN_ROOT}` 的展开在 hook 面有 open issue（anthropics/claude-code#43380 / #65579）；MCP stdio exec-form 官方口径为纯字符串替换、理论免疫，但 Windows 真机以 `/mcp` 实测为准。失败引导：`claude --debug` 看 MCP init 日志；若 server 未 connected，先 `node dist/cli.js selftest` 区分「宿主未拉起」与「进程拉起即崩」。

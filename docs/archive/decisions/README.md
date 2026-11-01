@@ -32,7 +32,7 @@ git rev-parse 2e6061be:.scratch/architecture-recovery/decision-ledger.md
 3. **`.scratch/...` 路径** → 该目录已于 `e356581e` 移出版本控制并加入 `.gitignore`，工作树里没有。逐票档案按 `git show 2e6061be:<旧路径>` 取回，口径见 [ticket-index.md §5](ticket-index.md)。
 4. **冻结件里的本机绝对路径** → 见 [ticket-index.md §6](ticket-index.md)：`engine/test/fixtures/contracts/` 的 38 期冻结件中，原始采集现场的若干件含本机盘符锚，不可移植、不作基准锚。逐件口径只在 §6 登记，本节不复述计数（同一事实不两写）。
 
-## 边界
+## 边界（非目标）
 
 - 账本所载状态（`current` / `revised` / `deferred` / `closed`）是**当时的裁定记录**，不等于现行有效；冲突时以本文件首行指针所列的权威载体为准。
 - 索引的「载体」列是按账本点名物在本仓文件清单里做的解析，不是重新裁定的去向；`unmapped` / `去向未载` 只表示解析链在本仓断掉，不表示该决策被推翻。
