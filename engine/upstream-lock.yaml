@@ -87,10 +87,10 @@ upstreams:
     kind: data-export
     version: null
     pin_type: null
-    contract: "CodeLore sqlite dump 对照评估（#42 上游队列拉动）。首轮对照评估已落文=reports/42-dump-comparison.md，呈报结论=维持逐面契约路径不采纳为事实输入面；采纳须另立 ADR 并先定 pin（exact-version 或 digest）；评估期禁止接入事实链/verdict 输入面"
+    contract: "CodeLore sqlite dump 对照评估（#42 上游队列拉动）。首轮对照评估已落文（工件已随治理工件退役，git 历史可查原路径 .scratch/architecture-recovery/reports/42-dump-comparison.md），呈报结论=维持逐面契约路径不采纳为事实输入面；采纳须另立 ADR 并先定 pin（exact-version 或 digest）；评估期禁止接入事实链/verdict 输入面"
     status: evaluating
     adapter: null
-    risk_note: "dump 格式随 codelore 版本漂移——若采纳将成为审计口径输入面；首轮评估（42-dump-comparison.md）三轴裁定：契约字段覆盖 0/30 层级错位／语义翻译面爆炸须复刻上游分析引擎（结构性违反上游适配层禁业务语义）／golden 只能钉内部 schema_v8 非契约面；dump 合法域=诊断调研原料不进 verdict 输入；采纳前置=ADR 拍板＋pin 落定＋golden 回归"
+    risk_note: "dump 格式随 codelore 版本漂移——若采纳将成为审计口径输入面；首轮评估（工件已随治理工件退役，git 历史可查原路径 .scratch/architecture-recovery/reports/42-dump-comparison.md）三轴裁定：契约字段覆盖 0/30 层级错位／语义翻译面爆炸须复刻上游分析引擎（结构性违反上游适配层禁业务语义）／golden 只能钉内部 schema_v8 非契约面；dump 合法域=诊断调研原料不进 verdict 输入；采纳前置=ADR 拍板＋pin 落定＋golden 回归"
     last_reviewed: 2026-09-16
     next_review: 2026-10-16
     review_deferred: "#43 2026-10-25 deferred（日期不刷新＝实跑面不在仓）：evaluating 行无 pin 可核；首轮三轴对照评估产物 reports/42-dump-comparison.md 与只读枚举脚本 42-probe.mjs 已随 .scratch 治理收敛移出版本控制（本机 .scratch/ 仅剩 ticket-40/），无对照可重跑——重跑＝新一轮评估工作，非复审动作（#38 Out of Scope：不新增上游接入）。维持 evaluating 不翻、呈报不代拍。重核触发=另立 ADR＋pin 落定＋golden 回归（采纳门）；登记面=#42 上游队列"
