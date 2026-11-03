@@ -170,7 +170,7 @@ jobs:
           node -e "const fs=require('fs');const f=fs.readdirSync('macro-b-artifacts').filter(x=>x.indexOf('crash')>=0);const j=JSON.parse(fs.readFileSync('macro-b-artifacts/'+f[0],'utf8'));if(j.schema!=='quarantine-crash-artifact/v1')throw new Error('crash schema!=v1');if(typeof j.error_code!=='string'||!j.error_code)throw new Error('error_code absent');console.log('expected-divergence green:',j.error_code)"
 
       - name: upload crash artifacts (protocol-bucket lane, if any)
-        # #78/D-109：协议级崩溃固定 schema 工件——one-shot 硬崩（exit 2/3）时崩溃桶 JSON 随工件上传，批灭前先留证
+        # #78/D-109：协议级崩溃固定 schema 工件——one-shot 硬崩（exit 2/3）时崩溃桶 JSON 随工件上传，批灭前先留证（actions/upload-artifact@v4）
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
