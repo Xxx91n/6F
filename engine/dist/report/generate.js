@@ -22,7 +22,6 @@ export const REPORT_SKELETON = [
     { id: 'C4', ordinal: 4, name: '行动建议', required_fields: ['recommendations', 'rec_id', 'priority', 'action', 'rationale', 'expected_impact', 'effort', 'verdict_gate_stamp', 'evidence_refs', 'degraded_note'] }
 ];
 export const CHAPTER_COUNT = REPORT_SKELETON.length;
-
 /**
  * 输出编码（#114）：对被审计仓进入 report.md 的引文做 HTML 实体转义，
  * 防止 Markdown 渲染链中不可信输入触发存储型 XSS。
@@ -35,7 +34,6 @@ export function escapeMarkdownExcerpt(text) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 }
-
 export function chapterHeading(ch) {
     return '## ' + ch.id + ' ' + ch.name;
 }

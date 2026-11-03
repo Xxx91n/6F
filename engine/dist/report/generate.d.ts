@@ -14,6 +14,10 @@ export interface SkeletonChapter {
 }
 export declare const REPORT_SKELETON: readonly SkeletonChapter[];
 export declare const CHAPTER_COUNT: number;
+/**
+ * 输出编码（#114）：对被审计仓进入 report.md 的引文做 HTML 实体转义，
+ * 防止 Markdown 渲染链中不可信输入触发存储型 XSS。
+ */
 export declare function escapeMarkdownExcerpt(text: string): string;
 export declare function chapterHeading(ch: SkeletonChapter): string;
 export declare function skeletonOf(markdown: string): string[];
