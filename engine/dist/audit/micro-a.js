@@ -16,6 +16,7 @@ import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { parseGithubRepoRef, collectGithubPrFacts, resolvePrDiff, createGithubRestClient, resolveGithubCredential } from '../upstream/github-rest.js';
+import { readRepoFileSafe } from './safe-read.js';
 import { deriveBaggageId, sha256Hex } from '../collect/collectors.js';
 import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, REPORT_SKELETON, preregDegraded } from '../report/generate.js';
 import { isShallowRepo } from '../intake/intake.js';
@@ -274,7 +275,17 @@ function prFact(facts, metric, n) {
     return hit.length > 0 ? hit[0] : null;
 }
 function pickExcerpt(absOrRelPath, tokens, base) {
-    const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
+    let text;
+    if (base) {
+        const r = readRepoFileSafe(base, absOrRelPath);
+        if (!r.ok) {
+            throw new Error('EXCERPT-REJECTED[' + absOrRelPath + ']: ' + r.reason);
+        }
+        text = r.text;
+    }
+    else {
+        text = readFileSync(absOrRelPath, 'utf8');
+    }
     const lines = text.split(NL);
     if (tokens === null) {
         return { line: 1, text: lines[0].trim() };

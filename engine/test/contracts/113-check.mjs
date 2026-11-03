@@ -50,138 +50,140 @@ const wfSrc = txt(join(ROOT, '.github', 'workflows', 'macro-b-regression.yml'));
 t('A5 macro-b-regression.yml clone 步包含 -c core.symlinks=false',
   wfSrc.includes('core.symlinks=false'), '');
 
-// ---------- B. safe-read 纯逻辑与行为实测 ----------
+// ---------- B. safe-read 行为实测（支持 dist 与 src 回退） ----------
 const testTmp = fs.mkdtempSync(join(tmpdir(), '6f-113-test-'));
-const fakeSecret = join(testTmp, 'secret.txt');
-fs.writeFileSync(fakeSecret, 'SECRET_SUPER_CONFIDENTIAL_KEY\n', 'utf8');
+try {
+  const fakeSecret = join(testTmp, 'secret.txt');
+  fs.writeFileSync(fakeSecret, 'SECRET_SUPER_CONFIDENTIAL_KEY\n', 'utf8');
 
-const fakeRepo = join(testTmp, 'fake-repo');
-fs.mkdirSync(join(fakeRepo, 'docs', 'adr'), { recursive: true });
+  const fakeRepo = join(testTmp, 'fake-repo');
+  fs.mkdirSync(join(fakeRepo, 'docs', 'adr'), { recursive: true });
 
-// 初始化 git 仓
-execFileSync('git', ['init', fakeRepo], { stdio: 'ignore' });
-execFileSync('git', ['-C', fakeRepo, 'config', 'user.name', 'test'], { stdio: 'ignore' });
-execFileSync('git', ['-C', fakeRepo, 'config', 'user.email', 'test@test.local'], { stdio: 'ignore' });
+  execFileSync('git', ['init', fakeRepo], { stdio: 'ignore' });
+  execFileSync('git', ['-C', fakeRepo, 'config', 'user.name', 'test'], { stdio: 'ignore' });
+  execFileSync('git', ['-C', fakeRepo, 'config', 'user.email', 'test@test.local'], { stdio: 'ignore' });
 
-// 写入正常 ADR（贫瘠对照 ADR：缺少部分字段）
-const ADR_POOR = `# ADR-0001: Poor ADR
+  const ADR_POOR = `# ADR-0001: Poor ADR
 ## Status
 accepted
 ## Context
 some context
 `;
-fs.writeFileSync(join(fakeRepo, 'docs', 'adr', '0001-poor.md'), ADR_POOR, 'utf8');
-fs.writeFileSync(join(fakeRepo, 'docs', 'adr', '0002-poor.md'), ADR_POOR, 'utf8');
-fs.writeFileSync(join(fakeRepo, 'docs', 'adr', '0003-poor.md'), ADR_POOR, 'utf8');
-fs.writeFileSync(join(fakeRepo, 'README.md'), '# Fake Repo\n', 'utf8');
+  fs.writeFileSync(join(fakeRepo, 'docs', 'adr', '0001-poor.md'), ADR_POOR, 'utf8');
+  fs.writeFileSync(join(fakeRepo, 'docs', 'adr', '0002-poor.md'), ADR_POOR, 'utf8');
+  fs.writeFileSync(join(fakeRepo, 'docs', 'adr', '0003-poor.md'), ADR_POOR, 'utf8');
+  fs.writeFileSync(join(fakeRepo, 'README.md'), '# Fake Repo\n', 'utf8');
 
-execFileSync('git', ['-C', fakeRepo, 'add', '.'], { stdio: 'ignore' });
-execFileSync('git', ['-C', fakeRepo, 'commit', '-m', 'initial poor adrs'], { stdio: 'ignore' });
+  execFileSync('git', ['-C', fakeRepo, 'add', '.'], { stdio: 'ignore' });
+  execFileSync('git', ['-C', fakeRepo, 'commit', '-m', 'initial poor adrs'], { stdio: 'ignore' });
 
-// 引入符号链接：docs/adr/0004-evil.md -> ../../../secret.txt
-try {
-  fs.symlinkSync(fakeSecret, join(fakeRepo, 'docs', 'adr', '0004-evil.md'));
-} catch (e) {
-  // on platforms without symlink permissions
-}
-
-// 动态跑 safe-read 校验
-const { readRepoFileSafe, isPathContainedInRepo, makeFileSubjectSkipFact } = await import(pathToFileURL(join(ENG, 'src', 'audit', 'safe-read.ts')).href);
-
-const poorRead = readRepoFileSafe(fakeRepo, 'docs/adr/0001-poor.md');
-t('B1 safe-read 允许仓内常规文件读取', poorRead.ok === true && poorRead.text.includes('Poor ADR'), '');
-
-const evilRead = readRepoFileSafe(fakeRepo, 'docs/adr/0004-evil.md');
-t('B2 safe-read 拒绝指向仓外的符号链接', evilRead.ok === false && evilRead.reason === 'symlink-outside', evilRead.reason);
-
-// 校验目录 junction 逃逸
-const outsideDir = join(testTmp, 'outside-adrs');
-fs.mkdirSync(outsideDir, { recursive: true });
-const junctionJail = join(fakeRepo, 'docs', 'adr-junction');
-try {
-  fs.symlinkSync(outsideDir, junctionJail, 'junction');
-} catch (e) {}
-
-t('B3 isPathContainedInRepo 拦截指向仓外的目录符号链接/junction',
-  isPathContainedInRepo(fakeRepo, junctionJail) === false, '');
-
-// ---------- C. 验证 TC-2 判据防翻转 ----------
-// 在 fakeRepo 中注入 5 份完整的仓外 ADR 指向
-for (let i = 5; i <= 9; i++) {
-  const extAdr = join(outsideDir, `000${i}-rich.md`);
-  fs.writeFileSync(extAdr, `# ADR-000${i}: Rich ADR\n## Status\naccepted\n## Context\nctx\n## Decision\ndec\n## Consequences\ncons\n`, 'utf8');
   try {
-    fs.symlinkSync(extAdr, join(fakeRepo, 'docs', 'adr', `000${i}-rich.md`));
+    fs.symlinkSync(fakeSecret, join(fakeRepo, 'docs', 'adr', '0004-evil.md'));
+  } catch (e) {}
+
+  const safeModPath = exists(join(ENG, 'dist', 'audit', 'safe-read.js'))
+    ? join(ENG, 'dist', 'audit', 'safe-read.js')
+    : join(ENG, 'src', 'audit', 'safe-read.ts');
+  const { readRepoFileSafe, isPathContainedInRepo, makeFileSubjectSkipFact } = await import(pathToFileURL(safeModPath).href);
+
+  const poorRead = readRepoFileSafe(fakeRepo, 'docs/adr/0001-poor.md');
+  t('B1 safe-read 允许仓内常规文件读取', poorRead.ok === true && poorRead.text.includes('Poor ADR'), '');
+
+  const evilRead = readRepoFileSafe(fakeRepo, 'docs/adr/0004-evil.md');
+  t('B2 safe-read 拒绝指向仓外的符号链接', evilRead.ok === false && evilRead.reason === 'symlink-outside', evilRead.reason);
+
+  const outsideDir = join(testTmp, 'outside-adrs');
+  fs.mkdirSync(outsideDir, { recursive: true });
+  const junctionJail = join(fakeRepo, 'docs', 'adr-junction');
+  try {
+    fs.symlinkSync(outsideDir, junctionJail, 'junction');
+  } catch (e) {}
+
+  t('B3 isPathContainedInRepo 拦截指向仓外的目录符号链接/junction',
+    isPathContainedInRepo(fakeRepo, junctionJail) === false, '');
+
+  // ---------- C. 验证 TC-2 判据防翻转 ----------
+  for (let i = 5; i <= 9; i++) {
+    const extAdr = join(outsideDir, `000${i}-rich.md`);
+    fs.writeFileSync(extAdr, `# ADR-000${i}: Rich ADR\n## Status\naccepted\n## Context\nctx\n## Decision\ndec\n## Consequences\ncons\n`, 'utf8');
+    try {
+      fs.symlinkSync(extAdr, join(fakeRepo, 'docs', 'adr', `000${i}-rich.md`));
+    } catch (e) {}
+  }
+
+  const oneShotScript = txt(join(ENG, 'scripts', '39-macro-b-one-shot.mjs'));
+  t('C1 39-macro-b-one-shot.mjs 包含 readRepoFileSafe 安全读取逻辑',
+    oneShotScript.includes('readRepoFileSafe') && oneShotScript.includes('isPathContainedInRepo'), '');
+
+  const rawFiles = fs.readdirSync(join(fakeRepo, 'docs', 'adr')).filter(f => /^\d{3,}.*\.md$/i.test(f)).sort();
+  const validDocs = [];
+  const skipped = [];
+  const ctx = {
+    runId: 'test-run',
+    traceId: 'trace0000000000000000000000000001',
+    repoRef: 'fake-repo@head',
+    scale: 'Macro-B',
+    observedAt: '2026-10-30T00:00:00Z'
+  };
+
+  for (const f of rawFiles) {
+    const rel = 'docs/adr/' + f;
+    const r = readRepoFileSafe(fakeRepo, rel);
+    if (!r.ok) {
+      skipped.push(makeFileSubjectSkipFact(ctx, rel, r.reason));
+    } else {
+      validDocs.push({ path: rel, text: r.text });
+    }
+  }
+
+  t('C2 仓外符号链接 ADR 全部被拦截 (skipped count >= 6)', skipped.length >= 6, `skipped=${skipped.length}`);
+  t('C3 仅 3 份仓内合法 poor ADR 被纳入 (valid count == 3)', validDocs.length === 3, `valid=${validDocs.length}`);
+
+  const colModPath = exists(join(ENG, 'dist', 'collect', 'collectors.js'))
+    ? join(ENG, 'dist', 'collect', 'collectors.js')
+    : join(ENG, 'src', 'collect', 'collectors.ts');
+  const mbModPath = exists(join(ENG, 'dist', 'audit', 'macro-b.js'))
+    ? join(ENG, 'dist', 'audit', 'macro-b.js')
+    : join(ENG, 'src', 'audit', 'macro-b.ts');
+
+  const { collectAdrStructureV2 } = await import(pathToFileURL(colModPath).href);
+  const { evaluateMacroB } = await import(pathToFileURL(mbModPath).href);
+
+  const adrFacts = collectAdrStructureV2({ documents: validDocs }, ctx);
+  const colSim = {
+    adrFiles: validDocs.map(d => d.path),
+    intentDocs: [{ path: 'README.md', text: '# Fake Repo\n' }],
+    nc1Path: 'README.md',
+    adrFacts: adrFacts.concat(skipped),
+    gitFacts: [],
+    posFacts: [],
+    codeloreFacts: [],
+    fileLineageFacts: [],
+    realFacts: adrFacts.concat(skipped),
+    pc1: { pass: true },
+    pc2: { pass: true, delta_days: 10 },
+    nc1: { path: 'README.md', fact_count: 1, five_piece_present: 0, supersede_present: false, pass: true },
+    pc1AdrFacts: [],
+    pc1PosFacts: [],
+    pc2Lag: [],
+    nc1Facts: [],
+    codeloreResolution: null
+  };
+
+  const evSim = evaluateMacroB(colSim);
+  t('C4 TC-2 verdict 恒为 RED，不随 5 份注入 ADR 翻转', evSim.tc2.verdict === 'RED' && evSim.tc2.total === 3, `verdict=${evSim.tc2.verdict} total=${evSim.tc2.total} mean=${evSim.tc2.mean_ratio}`);
+  t('C5 产出的 skip 事实包含 codelore.file_subject_skip',
+    skipped.some(f => f.metric === 'codelore.file_subject_skip' && f.subject_ref.includes('0004-evil')), '');
+
+} finally {
+  try {
+    fs.rmSync(testTmp, { recursive: true, force: true });
   } catch (e) {}
 }
-
-const probes = {
-  headSha: execFileSync('git', ['-C', fakeRepo, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
-  treeSha: execFileSync('git', ['-C', fakeRepo, 'rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim(),
-  headDate: '2026-10-30T00:00:00Z',
-  headRaw: '2026-10-30T00:00:00Z',
-  commitCount: 1,
-  commits: [{ sha: 'mock', author: 'test', date: '2026-10-30T00:00:00Z', paths: ['docs/adr/0001-poor.md', 'docs/adr/0002-poor.md', 'docs/adr/0003-poor.md'] }],
-  subjects: ['initial poor adrs'],
-  fieldStats: [],
-  fieldEvents: [],
-  dialectAbsorptions: []
-};
-
-// 跑 39-macro-b-one-shot / safe-read 逻辑校验
-const oneShotScript = txt(join(ENG, 'scripts', '39-macro-b-one-shot.mjs'));
-t('C1 39-macro-b-one-shot.mjs 包含 readRepoFileSafe 安全读取逻辑',
-  oneShotScript.includes('readRepoFileSafe') && oneShotScript.includes('isPathContainedInRepo'), '');
-
-// 验证 safe-read 对 fakeRepo 的 ADR 过滤行为
-const rawFiles = fs.readdirSync(join(fakeRepo, 'docs', 'adr')).filter(f => /^\d{3,}.*\.md$/i.test(f)).sort();
-const validDocs = [];
-const skipped = [];
-const ctx = {
-  runId: 'test-run',
-  traceId: 'trace0000000000000000000000000001',
-  repoRef: 'fake-repo@head',
-  scale: 'Macro-B',
-  observedAt: probes.headDate
-};
-
-for (const f of rawFiles) {
-  const rel = 'docs/adr/' + f;
-  const r = readRepoFileSafe(fakeRepo, rel);
-  if (!r.ok) {
-    skipped.push(makeFileSubjectSkipFact(ctx, rel, r.reason));
-  } else {
-    validDocs.push({ path: rel, text: r.text });
-  }
-}
-
-t('C2 仓外符号链接 ADR 全部被拦截 (skipped count >= 6)', skipped.length >= 6, `skipped=${skipped.length}`);
-t('C3 仅 3 份仓内合法 poor ADR 被纳入 (valid count == 3)', validDocs.length === 3, `valid=${validDocs.length}`);
-
-// 校验 TC-2 计算结果：按 3 份 poor ADR 计算，mean_ratio 维持 0.4000，TC-2 恒为 RED
-const { collectAdrStructureV2 } = await import(pathToFileURL(join(ENG, 'dist', 'collect', 'collectors.js')).href);
-const { evaluateMacroB } = await import(pathToFileURL(join(ENG, 'dist', 'audit', 'macro-b.js')).href);
-
-const adrFacts = collectAdrStructureV2({ documents: validDocs }, ctx);
-const colSim = {
-  adrFacts: adrFacts.concat(skipped),
-  intentDocs: [{ path: 'README.md', text: '# Fake Repo\n' }],
-  gitFacts: [],
-  posFacts: []
-};
-const evSim = evaluateMacroB(colSim);
-t('C4 TC-2 verdict 恒为 RED，不随 5 份注入 ADR 翻转', evSim.tc2.verdict === 'RED' && evSim.tc2.total === 3, `verdict=${evSim.tc2.verdict} total=${evSim.tc2.total} mean=${evSim.tc2.mean_ratio}`);
-t('C5 产出的 skip 事实包含 codelore.file_subject_skip',
-  skipped.some(f => f.metric === 'codelore.file_subject_skip' && f.subject_ref.includes('0004-evil')), '');
 
 // ---------- D. 卫生规范 ----------
 t('D1 safe-read.ts 无 BOM', !txt(join(ENG, 'src', 'audit', 'safe-read.ts')).startsWith('\uFEFF'), '');
 t('D2 113-check.mjs 自身无 BOM', !txt(join(HERE, '113-check.mjs')).startsWith('\uFEFF'), '');
-
-// 清理临时仓
-try {
-  fs.rmSync(testTmp, { recursive: true, force: true });
-} catch (e) {}
 
 console.log(`\n--- 113-check summary: ${pass} passed, ${fail} failed ---`);
 if (fail > 0) process.exit(1);

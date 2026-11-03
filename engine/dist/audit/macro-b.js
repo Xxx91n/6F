@@ -6,10 +6,11 @@
 // 渲染段由调用方 finalize（demo 保 byte-parity 组装自身契约面；audit 走 audit.ts 装配）。
 // 纪律：本模块对 repoRoot 只读（git 只读子命令＋文件读）；codelore='auto' 仅 audit 传入，
 //   demo 恒定 'off' 保合成仓逐字节确定性（codelore 实跑=环境相关，不进 golden 链）。
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPositioning, sha256Hex, ADR_FIVE_PIECE } from '../collect/collectors.js';
+import { readRepoFileSafe, isPathContainedInRepo, makeFileSubjectSkipFact } from './safe-read.js';
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
 import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
 // %cI 契约=normalizeGitIsoDate 同族判定本体（契约层分类器 classifyGitIsoField 承载，见 quarantine.ts）
@@ -144,9 +145,14 @@ export function probeGitVersion() {
 }
 const defaultRenameLogRunner = function (repoRoot, args) { return git(repoRoot, args); };
 export function collectMacroB(repoRoot, spec, ctx, probes) {
+    const skipFacts = [];
     // -- ADR 语料（adr-structure@v2 回退链） --
     const adrDir = join(repoRoot, 'docs', 'adr');
-    const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
+    const adrDirValid = existsSync(adrDir) && isPathContainedInRepo(repoRoot, adrDir);
+    if (existsSync(adrDir) && !adrDirValid) {
+        skipFacts.push(makeFileSubjectSkipFact(ctx, 'docs/adr', 'dir-junction-outside'));
+    }
+    const rawAdrFiles = adrDirValid ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
     const firstCommitOf = function (p) {
         let best = null;
         for (const c of probes.commits) {
@@ -156,10 +162,18 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
         }
         return best;
     };
-    const adrDocs = adrFiles.map(function (f) {
+    const adrDocs = [];
+    const adrFiles = [];
+    for (const f of rawAdrFiles) {
         const rel = 'docs/adr/' + f;
-        return { path: rel, text: readFileSync(join(adrDir, f), 'utf8'), first_commit_date: firstCommitOf(rel) };
-    });
+        const readRes = readRepoFileSafe(repoRoot, rel);
+        if (!readRes.ok) {
+            skipFacts.push(makeFileSubjectSkipFact(ctx, rel, readRes.reason));
+            continue;
+        }
+        adrFiles.push(f);
+        adrDocs.push({ path: rel, text: readRes.text, first_commit_date: firstCommitOf(rel) });
+    }
     const adrPaths = adrDocs.map(function (d) { return d.path; });
     const adrFacts = collectAdrStructureV2({ documents: adrDocs }, ctx);
     const adrDateMap = {};
@@ -177,7 +191,13 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
     for (const cand of spec.intentCandidates) {
         const p = join(repoRoot, cand);
         if (existsSync(p)) {
-            intentDocs.push({ path: cand, text: readFileSync(p, 'utf8') });
+            const readRes = readRepoFileSafe(repoRoot, cand);
+            if (!readRes.ok) {
+                skipFacts.push(makeFileSubjectSkipFact(ctx, cand, readRes.reason));
+            }
+            else {
+                intentDocs.push({ path: cand, text: readRes.text });
+            }
         }
     }
     const deliveryDocs = [{ path: 'git log subjects @ ' + probes.headSha.slice(0, 7), text: probes.subjects.join(NL) }];
@@ -226,25 +246,34 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
     const pc2 = { pass: pc2Lag.length > 0 && JSON.parse(pc2Lag[0].value_json).delta_days > 0, delta_days: pc2Lag.length > 0 ? JSON.parse(pc2Lag[0].value_json).delta_days : null };
     // -- 负对照 NC-1（被测仓内非 ADR 文件，五件套预期 0 命中） --
     let nc1Path = null;
+    let nc1Text = null;
     for (const cand of spec.nc1Candidates) {
         if (existsSync(join(repoRoot, cand))) {
-            nc1Path = cand;
-            break;
+            const r = readRepoFileSafe(repoRoot, cand);
+            if (!r.ok) {
+                skipFacts.push(makeFileSubjectSkipFact(ctx, cand, r.reason));
+            }
+            else {
+                nc1Path = cand;
+                nc1Text = r.text;
+                break;
+            }
         }
     }
-    if (!nc1Path) {
+    if (!nc1Path || nc1Text === null) {
         throw new Error('NC1-CANDIDATE-MISS[' + repoRoot + ']');
     }
-    const nc1Facts = collectAdrStructure({ documents: [{ path: nc1Path, text: readFileSync(join(repoRoot, nc1Path), 'utf8') }] }, ctx);
+    const nc1Facts = collectAdrStructure({ documents: [{ path: nc1Path, text: nc1Text }] }, ctx);
     const nc1Five = nc1Facts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
     const nc1Sup = nc1Facts.find(function (f) { return f.metric === 'adr.supersede_link_present'; });
     const nc1 = { path: nc1Path, fact_count: nc1Facts.length, five_piece_present: nc1Five ? JSON.parse(nc1Five.value_json).present : -1, supersede_present: nc1Sup ? JSON.parse(nc1Sup.value_json).present : null, pass: false };
     nc1.pass = nc1.fact_count > 0 && nc1.five_piece_present === 0 && nc1.supersede_present === false;
     return {
         adrFiles: adrFiles, intentDocs: intentDocs, nc1Path: nc1Path,
-        adrFacts: adrFacts, gitFacts: gitFacts, posFacts: posFacts, codeloreFacts: codeloreFacts,
+        adrFacts: adrFacts.concat(skipFacts),
+        gitFacts: gitFacts, posFacts: posFacts, codeloreFacts: codeloreFacts,
         fileLineageFacts: fileLineageFacts,
-        realFacts: adrFacts.concat(posFacts, gitFacts, codeloreFacts, fileLineageFacts),
+        realFacts: adrFacts.concat(skipFacts, posFacts, gitFacts, codeloreFacts, fileLineageFacts),
         pc1: pc1, pc2: pc2, nc1: nc1,
         pc1AdrFacts: pc1AdrFacts, pc1PosFacts: pc1PosFacts, pc2Lag: pc2Lag, nc1Facts: nc1Facts,
         codeloreResolution: codeloreResolution

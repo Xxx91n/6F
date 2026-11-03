@@ -14,6 +14,7 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { repoAdd } from '../intake/intake.js';
 import { probeMacroBRepo, macroBContext, probeGitVersion } from './macro-b.js';
+import { readRepoFileSafe, isPathContainedInRepo, makeFileSubjectSkipFact } from './safe-read.js';
 import { auditRepoName } from './audit.js';
 import { collectAdrStructureV2, collectGitlog, makeFact, ADR_STRUCTURE_V2_DESCRIPTOR } from '../collect/collectors.js';
 import { collectCodeloreFacets, collectCodeloreLlm, CODELORE_BATCH1_FACETS } from '../upstream/codelore.js';
@@ -127,9 +128,14 @@ export function buildSupersedeChain(adrs, deferRegistryPresent) {
     };
 }
 export function collectMacroC(repoRoot, probes, ctx, spec) {
+    const skipFacts = [];
     // §2 ADR 语料（被审计仓的 ADR 目录；first_commit=含该文件的最早 dated commit——D-100② 毒值跳过同构 38）
     const adrDir = join(repoRoot, 'docs', 'adr');
-    const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
+    const adrDirValid = existsSync(adrDir) && isPathContainedInRepo(repoRoot, adrDir);
+    if (existsSync(adrDir) && !adrDirValid) {
+        skipFacts.push(makeFileSubjectSkipFact(ctx, 'docs/adr', 'dir-junction-outside'));
+    }
+    const rawAdrFiles = adrDirValid ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
     const firstCommitOf = function (relPath) {
         let best = null;
         for (const c of probes.commits) {
@@ -139,10 +145,16 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
         }
         return best;
     };
-    const adrDocs = adrFiles.map(function (f) {
+    const adrDocs = [];
+    for (const f of rawAdrFiles) {
         const rel = 'docs/adr/' + f;
-        return { path: rel, text: readFileSync(join(adrDir, f), 'utf8'), first_commit_date: firstCommitOf(rel) };
-    });
+        const readRes = readRepoFileSafe(repoRoot, rel);
+        if (!readRes.ok) {
+            skipFacts.push(makeFileSubjectSkipFact(ctx, rel, readRes.reason));
+            continue;
+        }
+        adrDocs.push({ path: rel, text: readRes.text, first_commit_date: firstCommitOf(rel) });
+    }
     const adrFacts = collectAdrStructureV2({ documents: adrDocs }, ctx);
     const adrDateMap = {};
     for (const f of adrFacts) {
@@ -157,7 +169,17 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
     // §3 codelore 契约面 30 面＋LLM 门控面（38 同款直调——emitPerFileFacts 在发射边界内落 Micro-B grain）
     const codeloreFacts = collectCodeloreFacets({ repoRoot: repoRoot }, ctx);
     const explainCandidates = (spec && spec.llmExplainCandidates) || MACRO_C_LLM_EXPLAIN_CANDIDATES;
-    const explainPaths = explainCandidates.filter(function (p) { return existsSync(join(repoRoot, p)); }).slice(0, 2);
+    const explainPaths = explainCandidates.filter(function (p) {
+        if (!existsSync(join(repoRoot, p))) {
+            return false;
+        }
+        const r = readRepoFileSafe(repoRoot, p);
+        if (!r.ok) {
+            skipFacts.push(makeFileSubjectSkipFact(ctx, p, r.reason));
+            return false;
+        }
+        return true;
+    }).slice(0, 2);
     const llmFacts = collectCodeloreLlm({ repoRoot: repoRoot, explainPaths: explainPaths, diffRange: (spec && spec.llmDiffRange) || 'HEAD~10..HEAD' }, ctx);
     const llmGateFact = llmFacts.find(function (f) { return f.metric === 'codelore.llm_gate'; });
     const llmGate = llmGateFact ? JSON.parse(llmGateFact.value_json) : { configured: false, reason: 'no-gate-fact' };
@@ -167,7 +189,7 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
     const chain = buildSupersedeChain(adrs, deferRegistryPresent);
     const chainFact = makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, 'docs/adr/*', 'docs/adr/* status+inline scan', 'adr.supersede_chain_summary', chain);
     // §5 fact_id 内容寻址去重（38 同款：resolution 双 emit 合一；保留首见，dedup 计数留痕）
-    const rawFacts = adrFacts.concat(gitFacts, codeloreFacts, llmFacts, [chainFact]);
+    const rawFacts = adrFacts.concat(skipFacts, gitFacts, codeloreFacts, llmFacts, [chainFact]);
     const seenFactIds = new Set();
     const realFacts = [];
     let dedupDropped = 0;
@@ -185,7 +207,7 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
         const v = JSON.parse(resFact.value_json);
         codeloreResolution = { version: v.version !== undefined ? v.version : null, pinned: v.pinned === true, error: v.error !== undefined ? v.error : null };
     }
-    return { adrDocs: adrDocs, adrFacts: adrFacts, gitFacts: gitFacts, codeloreFacts: codeloreFacts, llmFacts: llmFacts, llmGate: llmGate, chain: chain, chainFact: chainFact, realFacts: realFacts, dedupDropped: dedupDropped, codeloreResolution: codeloreResolution };
+    return { adrDocs: adrDocs, adrFacts: adrFacts.concat(skipFacts), gitFacts: gitFacts, codeloreFacts: codeloreFacts, llmFacts: llmFacts, llmGate: llmGate, chain: chain, chainFact: chainFact, realFacts: realFacts, dedupDropped: dedupDropped, codeloreResolution: codeloreResolution };
 }
 export function evaluateMacroC(col, repoRoot, ctx, ncCandidates) {
     const facetRowsFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_rows'; });
@@ -217,16 +239,29 @@ export function evaluateMacroC(col, repoRoot, ctx, ncCandidates) {
         }
     }
     if (nc1Path !== null) {
-        const nc1Doc = { path: nc1Path, text: readFileSync(join(repoRoot, nc1Path), 'utf8'), first_commit_date: null };
-        const nc1Facts = collectAdrStructureV2({ documents: [nc1Doc] }, ctx);
-        const nc1Five = nc1Facts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
-        ncMc1 = !!nc1Five && JSON.parse(nc1Five.value_json).present === 0;
+        const r = readRepoFileSafe(repoRoot, nc1Path);
+        if (r.ok) {
+            const nc1Doc = { path: nc1Path, text: r.text, first_commit_date: null };
+            const nc1Facts = collectAdrStructureV2({ documents: [nc1Doc] }, ctx);
+            const nc1Five = nc1Facts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
+            ncMc1 = !!nc1Five && JSON.parse(nc1Five.value_json).present === 0;
+        }
     }
     return { pcMc1: pcMc1, pcMc2: pcMc2, tcMc1: tcMc1, tcMc2: tcMc2, tcMc3: tcMc3, ncMc1: ncMc1, facetRowsFacts: facetRowsFacts, facetErrFacts: facetErrFacts, lagFacts: lagFacts, dateFacts: dateFacts, legDist: legDist, llmGatedCount: col.llmFacts.filter(function (f) { return f.metric === 'codelore.llm_gated'; }).length, llmNarrativeCount: col.llmFacts.filter(function (f) { return f.metric === 'codelore.llm_narrative'; }).length, nc1Path: nc1Path };
 }
 // ---------- 一等命令装配（38 §6~§9＋audit.ts 家族形态；capability 2 of 5 · preview） ----------
 function pickExcerpt(absOrRelPath, tokens, base) {
-    const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
+    let text;
+    if (base) {
+        const r = readRepoFileSafe(base, absOrRelPath);
+        if (!r.ok) {
+            throw new Error('EXCERPT-REJECTED[' + absOrRelPath + ']: ' + r.reason);
+        }
+        text = r.text;
+    }
+    else {
+        text = readFileSync(absOrRelPath, 'utf8');
+    }
     const lines = text.split(NL);
     if (tokens === null) {
         return { line: 1, text: lines[0].trim() };
