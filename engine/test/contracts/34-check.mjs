@@ -19,7 +19,8 @@ let pass = 0, fail = 0;
 const t = (name, ok, extra = '') => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : fail++; };
 
 // #58/D-066 advisory probe（前置执行：连续 SKIP 升格顶显＋末尾 ADV 块复用结果；advisory 不红非 FAIL 面）
-const _cv = spawnSync('claude --version', { shell: true, encoding: 'utf8', timeout: 30000 });
+const _claudeSpec = process.platform === 'win32' ? { cmd: 'cmd.exe', pre: ['/d', '/s', '/c', 'claude'] } : { cmd: 'claude', pre: [] };
+const _cv = spawnSync(_claudeSpec.cmd, _claudeSpec.pre.concat(['--version']), { encoding: 'utf8', timeout: 30000 });
 const _claudeVer = !_cv.error && _cv.status === 0 ? (_cv.stdout || '').trim().split(' ')[0] : null;
 const _vr = spawnSync(process.execPath, [join('scripts', 'validate-plugin.mjs')], { cwd: ENGINE, encoding: 'utf8', timeout: 150000 });
 const _vlines = ((_vr.stdout || '') + (_vr.stderr || '')).split('\n').filter(l => l.trim().length > 0);

@@ -37,7 +37,9 @@ function appendReceipt(verdict, cliVersion, output) {
 }
 
 const st = readState();
-const probe = spawnSync('claude --version', { shell: true, encoding: 'utf8', timeout: 30000 });
+// win32 经 cmd.exe /d /s /c 调 claude（Node≥24 硬化禁 .cmd 直调 EINVAL；shell:true 有命令断裂/注入风险——cmd.exe 显式包装两全）；POSIX 直调 claude。
+const claudeSpec = process.platform === 'win32' ? { cmd: 'cmd.exe', pre: ['/d', '/s', '/c', 'claude'] } : { cmd: 'claude', pre: [] };
+const probe = spawnSync(claudeSpec.cmd, claudeSpec.pre.concat(['--version']), { encoding: 'utf8', timeout: 30000 });
 const cliVer = !probe.error && probe.status === 0 ? (probe.stdout || '').trim().split('\n')[0] : null;
 const cliAbsent = !cliVer;
 
@@ -55,7 +57,7 @@ if (cliAbsent) {
   process.exit(0);
 }
 
-const r = spawnSync('claude plugin validate "' + ENGINE + '" --strict', { shell: true, encoding: 'utf8', timeout: 150000 });
+const r = spawnSync(claudeSpec.cmd, claudeSpec.pre.concat(['plugin', 'validate', ENGINE, '--strict']), { encoding: 'utf8', timeout: 150000 });
 const out = ((r.stdout || '') + '\n' + (r.stderr || '')).trim();
 if (!r.error && r.status === 0) {
   st.streak = 0; st.last = 'pass'; writeState(st);
