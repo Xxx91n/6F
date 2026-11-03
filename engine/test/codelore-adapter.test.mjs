@@ -60,6 +60,8 @@ t('G7 不存在二进制 → resolution error + pinned=false', () => {
 
 t('G8 parseExplainDossier 防原型污染（#115）：__proto__ / constructor / prototype 节名与属性名均不污染原型', () => {
   const payload = [
+    '[before-danger]',
+    'beforeKey = keep',
     '[__proto__]',
     'pollutedKey = yes',
     '[constructor]',
@@ -81,12 +83,17 @@ t('G8 parseExplainDossier 防原型污染（#115）：__proto__ / constructor / 
   assert.equal(({}).pollutedPrototype, undefined);
   assert.equal(String({}), '[object Object]');
 
-  // 2. 危险节名被拒且未挂载在 sections 自身属性上
+  // 2. 危险节名被拒且未挂载在 sections 自身属性上，原型保持 Object.prototype
   assert.equal(Object.prototype.hasOwnProperty.call(d.sections, '__proto__'), false);
+  assert.equal(Object.getPrototypeOf(d.sections), Object.prototype);
   assert.equal(Object.prototype.hasOwnProperty.call(d.sections, 'constructor'), false);
   assert.equal(Object.prototype.hasOwnProperty.call(d.sections, 'prototype'), false);
 
-  // 3. 正常节名保留且排除危险属性名
+  // 3. 正常节名保留且排除危险属性名；危险节名下属性不泄露到前序正常节
+  assert.ok(d.sections['before-danger']);
+  assert.deepEqual(Object.keys(d.sections['before-danger']), ['beforeKey']);
+  assert.equal(d.sections['before-danger'].beforeKey, 'keep');
+
   assert.ok(d.sections['valid-section']);
   assert.equal(d.sections['valid-section'].normalKey, 'ok');
   assert.equal(Object.prototype.hasOwnProperty.call(d.sections['valid-section'], '__proto__'), false);
