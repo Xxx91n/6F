@@ -57,6 +57,11 @@ if (cliAbsent) {
   process.exit(0);
 }
 
+if (claudeSpec.cmd === 'cmd.exe' && /[&|<>^%!()"]/.test(ENGINE)) {
+  console.log('SKIP(claude-validate): unsafe-path | ENGINE 路径含 cmd.exe 元字符，跳过 Windows 校验');
+  process.exit(0);
+}
+
 const r = spawnSync(claudeSpec.cmd, claudeSpec.pre.concat(['plugin', 'validate', ENGINE, '--strict']), { encoding: 'utf8', timeout: 150000 });
 const out = ((r.stdout || '') + '\n' + (r.stderr || '')).trim();
 if (!r.error && r.status === 0) {
