@@ -71,9 +71,25 @@ export function parseExplainDossier(text: string): ExplainDossier {
     const line = raw.trim();
     if (!line) continue;
     const sec = line.match(/^\[(.+)\]$/);
-    if (sec) { cur = sec[1]; sections[cur] = sections[cur] || {}; continue; }
+    if (sec) {
+      cur = sec[1];
+      if (cur === '__proto__' || cur === 'constructor' || cur === 'prototype') {
+        cur = null;
+        continue;
+      }
+      if (!Object.prototype.hasOwnProperty.call(sections, cur)) {
+        sections[cur] = {};
+      }
+      continue;
+    }
     const kv = line.match(/^([A-Za-z0-9_][A-Za-z0-9_.]*)\s*=\s*(.*)$/);
-    if (kv && cur) { sections[cur][kv[1]] = kv[2].trim(); }
+    if (kv && cur) {
+      const k = kv[1];
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') {
+        continue;
+      }
+      sections[cur][k] = kv[2].trim();
+    }
   }
   return { sections };
 }

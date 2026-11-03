@@ -58,4 +58,41 @@ t('G7 不存在二进制 → resolution error + pinned=false', () => {
   assert.ok(r.error !== null);
 });
 
+t('G8 parseExplainDossier 防原型污染（#115）：__proto__ / constructor / prototype 节名与属性名均不污染原型', () => {
+  const payload = [
+    '[__proto__]',
+    'pollutedKey = yes',
+    '[constructor]',
+    'pollutedConstructor = yes',
+    '[prototype]',
+    'pollutedPrototype = yes',
+    '[valid-section]',
+    '__proto__ = bad',
+    'constructor = bad',
+    'prototype = bad',
+    'normalKey = ok'
+  ].join('\n');
+
+  const d = C.parseExplainDossier(payload);
+
+  // 1. Object.prototype 无新增污染键且进程级内置行为正常
+  assert.equal(({}).pollutedKey, undefined);
+  assert.equal(({}).pollutedConstructor, undefined);
+  assert.equal(({}).pollutedPrototype, undefined);
+  assert.equal(String({}), '[object Object]');
+
+  // 2. 危险节名被拒且未挂载在 sections 自身属性上
+  assert.equal(Object.prototype.hasOwnProperty.call(d.sections, '__proto__'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(d.sections, 'constructor'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(d.sections, 'prototype'), false);
+
+  // 3. 正常节名保留且排除危险属性名
+  assert.ok(d.sections['valid-section']);
+  assert.equal(d.sections['valid-section'].normalKey, 'ok');
+  assert.equal(Object.prototype.hasOwnProperty.call(d.sections['valid-section'], '__proto__'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(d.sections['valid-section'], 'constructor'), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(d.sections['valid-section'], 'prototype'), false);
+  assert.deepEqual(Object.keys(d.sections['valid-section']), ['normalKey']);
+});
+
 console.log('CODELORE-ADAPTER-TEST-OK ' + n + '/' + n);
