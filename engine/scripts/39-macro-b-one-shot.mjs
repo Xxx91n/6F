@@ -8,16 +8,94 @@
 //   → 报告（buildReport + preview_disclosure「capability 1 of 5 · preview」）
 // 纪律：被测仓只读（git 只读子命令 + 文件读，绝不写）；唯一写动作 = --out 目录 39-* 工件。
 //       试点成功度量 = 反复接受非跑通（D-033）：裁定带 supported/unsupported/insufficient 三档如实落数。
-import { readFileSync, readdirSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync, existsSync, mkdirSync, unlinkSync, lstatSync, realpathSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, relative, isAbsolute } from 'node:path';
 import { siblingPath } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..'); // engine/scripts 下移一层                 // 6F 仓根（engine 所在）
 const DIST = join(REPO, 'engine', 'dist');
 const NL = String.fromCharCode(10);
+
+function isPathContainedInRepo(repoRoot, targetPath) {
+  try {
+    const realRoot = realpathSync(repoRoot);
+    const realTarget = realpathSync(targetPath);
+    const rel = relative(realRoot, realTarget).split(String.fromCharCode(92)).join('/');
+    if (rel === '' || (rel.indexOf('..') !== 0 && !/^[A-Za-z]:/.test(rel))) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+function readRepoFileSafe(repoRoot, relOrAbsPath) {
+  const abs = isAbsolute(relOrAbsPath) ? resolve(relOrAbsPath) : resolve(repoRoot, relOrAbsPath);
+  const normRel = relative(repoRoot, abs).split(String.fromCharCode(92)).join('/');
+  let st;
+  try {
+    st = lstatSync(abs);
+  } catch {
+    return { ok: false, reason: 'missing', relPath: normRel };
+  }
+  let realRoot;
+  try {
+    realRoot = realpathSync(repoRoot);
+  } catch {
+    realRoot = repoRoot;
+  }
+  if (st.isSymbolicLink()) {
+    let real;
+    try {
+      real = realpathSync(abs);
+    } catch {
+      return { ok: false, reason: 'symlink-outside', relPath: normRel };
+    }
+    const rel = relative(realRoot, real).split(String.fromCharCode(92)).join('/');
+    if (rel.indexOf('..') === 0 || rel.length === 0 || /^[A-Za-z]:/.test(rel)) {
+      return { ok: false, reason: 'symlink-outside', relPath: normRel };
+    }
+    let realSt;
+    try {
+      realSt = lstatSync(real);
+    } catch {
+      return { ok: false, reason: 'symlink-outside', relPath: normRel };
+    }
+    if (!realSt.isFile()) {
+      return { ok: false, reason: 'symlink-non-regular', relPath: normRel };
+    }
+    try {
+      const text = readFileSync(real, 'utf8');
+      return { ok: true, text: text, relPath: normRel, realPath: real, isSymlink: true };
+    } catch (e) {
+      return { ok: false, reason: 'read-error', relPath: normRel, error: String(e) };
+    }
+  }
+  if (!st.isFile()) {
+    return { ok: false, reason: 'non-regular', relPath: normRel };
+  }
+  let real;
+  try {
+    real = realpathSync(abs);
+  } catch {
+    return { ok: false, reason: 'outside-repo', relPath: normRel };
+  }
+  const rel = relative(realRoot, real).split(String.fromCharCode(92)).join('/');
+  if (rel.indexOf('..') === 0 || rel.length === 0 || /^[A-Za-z]:/.test(rel)) {
+    return { ok: false, reason: 'outside-repo', relPath: normRel };
+  }
+  try {
+    const text = readFileSync(abs, 'utf8');
+    return { ok: true, text: text, relPath: normRel, realPath: real, isSymlink: false };
+  } catch (e) {
+    return { ok: false, reason: 'read-error', relPath: normRel, error: String(e) };
+  }
+}
+
 
 const C = await import(pathToFileURL(join(DIST, 'collect', 'collectors.js')).href);
 const G = await import(pathToFileURL(join(DIST, 'report', 'generate.js')).href);
@@ -95,7 +173,14 @@ function git(root, args) {
 }
 
 function pickExcerpt(absOrRelPath, tokens, base) {
-  const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
+  let text;
+  if (base) {
+    const r = readRepoFileSafe(base, absOrRelPath);
+    if (!r.ok) { throw new Error('EXCERPT-REJECTED[' + absOrRelPath + ']: ' + r.reason); }
+    text = r.text;
+  } else {
+    text = readFileSync(absOrRelPath, 'utf8');
+  }
   const lines = text.split(NL);
   if (tokens === null || tokens === undefined) { return { line: 1, text: lines[0].trim() }; }  // 文件存在性锚：取首行
   const list = Array.isArray(tokens) ? tokens : [tokens];
@@ -133,16 +218,22 @@ async function runOneShot(target) {
 
   // -- 采集：ADR 语料（adr-structure@v2 回退链） --
   const adrDir = join(ROOT, 'docs', 'adr');
-  const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
+  const adrDirValid = existsSync(adrDir) && isPathContainedInRepo(ROOT, adrDir);
+  const rawAdrFiles = adrDirValid ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
   const firstCommitOf = (p) => {
     let best = null;
     for (const c of commits) { if (c.date !== null && c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) { best = c.date; } }
     return best;
   };
-  const adrDocs = adrFiles.map(function (f) {
+  const adrDocs = [];
+  const adrFiles = [];
+  for (const f of rawAdrFiles) {
     const rel = 'docs/adr/' + f;
-    return { path: rel, text: readFileSync(join(adrDir, f), 'utf8'), first_commit_date: firstCommitOf(rel) };
-  });
+    const r = readRepoFileSafe(ROOT, rel);
+    if (!r.ok) { continue; }
+    adrFiles.push(f);
+    adrDocs.push({ path: rel, text: r.text, first_commit_date: firstCommitOf(rel) });
+  }
   const adrPaths = adrDocs.map(function (d) { return d.path; });
   const adrFacts = C.collectAdrStructureV2({ documents: adrDocs }, ctx);
   const adrDateMap = {};
@@ -158,7 +249,10 @@ async function runOneShot(target) {
   const intentDocs = [];
   for (const cand of INTENT_CANDIDATES) {
     const p = join(ROOT, cand);
-    if (existsSync(p)) { intentDocs.push({ path: cand, text: readFileSync(p, 'utf8') }); }
+    if (existsSync(p)) {
+      const r = readRepoFileSafe(ROOT, cand);
+      if (r.ok) { intentDocs.push({ path: cand, text: r.text }); }
+    }
   }
   const subjects = probes.subjects;
   const deliveryDocs = [{ path: 'git log subjects @ ' + HEAD_SHA.slice(0, 7), text: subjects.join(NL) }];
@@ -184,9 +278,19 @@ async function runOneShot(target) {
 
   // -- 负对照 NC-1（被测仓内非 ADR 文件，五件套预期 0 命中） --
   let nc1Path = null;
-  for (const cand of NC1_CANDIDATES) { if (existsSync(join(ROOT, cand))) { nc1Path = cand; break; } }
-  if (!nc1Path) { throw new Error('NC1-CANDIDATE-MISS[' + NAME + ']'); }
-  const nc1Facts = C.collectAdrStructure({ documents: [{ path: nc1Path, text: readFileSync(join(ROOT, nc1Path), 'utf8') }] }, ctx);
+  let nc1Text = null;
+  for (const cand of NC1_CANDIDATES) {
+    if (existsSync(join(ROOT, cand))) {
+      const r = readRepoFileSafe(ROOT, cand);
+      if (r.ok) {
+        nc1Path = cand;
+        nc1Text = r.text;
+        break;
+      }
+    }
+  }
+  if (!nc1Path || nc1Text === null) { throw new Error('NC1-CANDIDATE-MISS[' + NAME + ']'); }
+  const nc1Facts = C.collectAdrStructure({ documents: [{ path: nc1Path, text: nc1Text }] }, ctx);
   const nc1Five = nc1Facts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
   const nc1Sup = nc1Facts.find(function (f) { return f.metric === 'adr.supersede_link_present'; });
   const nc1 = { path: nc1Path, fact_count: nc1Facts.length, five_piece_present: nc1Five ? JSON.parse(nc1Five.value_json).present : -1, supersede_present: nc1Sup ? JSON.parse(nc1Sup.value_json).present : null };

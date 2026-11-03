@@ -112,6 +112,7 @@ jobs:
           mkdir -p .clone-noop-hooks
           git -c core.hooksPath="$GITHUB_WORKSPACE/.clone-noop-hooks" \
               -c protocol.ext.allow=never \
+              -c core.symlinks=false \
               clone "$REPO_URL" audited-repo
           # 浅拒断言（engine/src/intake.ts SHALLOW-CLONE-REJECTED 同构：全深度才准入）
           test "$(git -C audited-repo rev-parse --is-shallow-repository)" = "false"
