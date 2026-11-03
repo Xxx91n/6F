@@ -390,8 +390,15 @@ export interface PrDiffOutcome {
 
 const NULL_STATS: PrDiffStats = { files_changed: null, additions: null, deletions: null };
 
+// SHA 十六进制显式校验正则（#116 安全审计：防参数注入 --opt / 路径遍历 / 非法字符；7~40 位十六进制）
+export const GIT_SHA_HEX_RE = /^[0-9a-f]{7,40}$/i;
+
+export function isValidGitSha(sha: string): boolean {
+  return typeof sha === 'string' && GIT_SHA_HEX_RE.test(sha.trim());
+}
+
 export function gitShaResolvable(repoRoot: string, sha: string): boolean {
-  if (!sha) { return false; }
+  if (!isValidGitSha(sha)) { return false; }
   const r = spawnSync('git', ['cat-file', '-e', sha + '^{commit}'], { cwd: repoRoot, encoding: 'utf8', timeout: 30000, windowsHide: true });
   return !r.error && r.status === 0;
 }
@@ -413,6 +420,9 @@ export function parseNumstat(text: string): PrDiffStats {
 }
 
 export function localThreeDotDiff(repoRoot: string, baseSha: string, headSha: string): { ok: boolean; text: string; stats: PrDiffStats; detail: string | null } {
+  if (!isValidGitSha(baseSha) || !isValidGitSha(headSha)) {
+    return { ok: false, text: '', stats: NULL_STATS, detail: 'invalid base or head git sha: baseSha=' + JSON.stringify(baseSha) + ', headSha=' + JSON.stringify(headSha) };
+  }
   const range = baseSha + '...' + headSha;
   const d = spawnSync('git', ['diff', range], { cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 120000, windowsHide: true });
   if (d.error || d.status !== 0) {
@@ -432,6 +442,9 @@ export async function resolvePrDiff(
   headSha: string,
   repoRoot?: string | null
 ): Promise<PrDiffOutcome> {
+  if (!isValidGitSha(baseSha) || !isValidGitSha(headSha)) {
+    return { channel: 'local-git', ok: false, text: '', stats: NULL_STATS, detail: 'invalid base or head git sha: baseSha=' + JSON.stringify(baseSha) + ', headSha=' + JSON.stringify(headSha), error_kind: 'local-diff' };
+  }
   if (repoRoot && gitShaResolvable(repoRoot, baseSha) && gitShaResolvable(repoRoot, headSha)) {
     const l = localThreeDotDiff(repoRoot, baseSha, headSha);
     if (l.ok) { return { channel: 'local-git', ok: true, text: l.text, stats: l.stats, detail: null, error_kind: null }; }
