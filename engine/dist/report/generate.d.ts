@@ -14,6 +14,7 @@ export interface SkeletonChapter {
 }
 export declare const REPORT_SKELETON: readonly SkeletonChapter[];
 export declare const CHAPTER_COUNT: number;
+export declare function escapeMarkdownExcerpt(text: string): string;
 export declare function chapterHeading(ch: SkeletonChapter): string;
 export declare function skeletonOf(markdown: string): string[];
 export type VerdictBand = 'supported' | 'unsupported' | 'insufficient';

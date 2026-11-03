@@ -38,6 +38,20 @@ export const REPORT_SKELETON: readonly SkeletonChapter[] = [
 
 export const CHAPTER_COUNT = REPORT_SKELETON.length;
 
+
+/**
+ * 输出编码（#114）：对被审计仓进入 report.md 的引文做 HTML 实体转义，
+ * 防止 Markdown 渲染链中不可信输入触发存储型 XSS。
+ */
+export function escapeMarkdownExcerpt(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export function chapterHeading(ch: SkeletonChapter): string {
   return '## ' + ch.id + ' ' + ch.name;
 }
@@ -478,7 +492,7 @@ export function renderMarkdown(r: Report): string {
         out.push('- claim: ' + e.claim);
         out.push('- grounded: ' + e.grounded + ' · collected_at: ' + e.collected_at);
         out.push('- reproduce_cmd: ' + (e.reproduce_cmd.length > 0 ? e.reproduce_cmd : '(absent: ' + (e.reproduce_absent_reason ? e.reproduce_absent_reason : '未声明') + ')'));
-        out.push('- 引文原文: ' + (e.excerpt.length > 0 ? e.excerpt : '（缺失 —— ' + UNVERIFIED_MARK + '）'));
+        out.push('- 引文原文: ' + (e.excerpt.length > 0 ? escapeMarkdownExcerpt(e.excerpt) : '（缺失 —— ' + UNVERIFIED_MARK + '）'));
         out.push('');
       }
       out.push('#### 引文→结论支持关系校验');
