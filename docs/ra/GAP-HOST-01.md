@@ -21,12 +21,12 @@
 ## 2. justification（不修/不可自力理由）
 
 - IDE 形态关窗盲区我方不可自力——教科书级外部依赖情形：CodeBuddy IDE 形态不在本仓可得环境内，宿主侧安装/试用驱动=用户主权闸门（任务书「宿主侧操作=用户驱动面，agent 不代行宿主内点击」）。
-- 同型先例：decryptiondigest 有效 justification 列举「team cannot resolve without a dependency outside their control」（R43-Q3 调研，reports/R43-Q3-atomcode-research.md，证据档已随治理工件退役，git 历史可查）。
+- 同型先例：decryptiondigest 有效 justification 列举「team cannot resolve without a dependency outside their control」（R43-Q3 调研，reports/R43-Q3-atomcode-research.md，证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/reports/R43-Q3-atomcode-research.md）。
 - 非缺陷声明：CLI 面三判据全 hit；IDE 面缺口=**未实测非已失败**——禁以 CLI 证据外推 IDE（registry verify_method 明文纪律）。
 
 ## 3. 可验证补偿控制
 
-- **CLI 三判据 hit verified**：C1 安装链（marketplace add→install→/mcp connected→selftest 5/5）／C2 字段级 parity（语义锚全等）／C3 preview 披露零失守——证据=trials/codebuddy-r38-report.md（证据档已随治理工件退役，git 历史可查）。
+- **CLI 三判据 hit verified**：C1 安装链（marketplace add→install→/mcp connected→selftest 5/5）／C2 字段级 parity（语义锚全等）／C3 preview 披露零失守——证据=trials/codebuddy-r38-report.md（证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/trials/codebuddy-r38-report.md）。
 - **双哨兵值守在册**：registry `codebuddy-ide-gap-watch`（IDE 形态可得→charter 三判据重跑，读数标 IDE-specific）＋`codebuddy-f02-display-watch`（宿主展示盲区观察，宿主版本演进即触发）。
 - **Stage-2 闸不旁路**：关档后判据③读数如实记「accepted-risk 五要件齐备关闭」而非「IDE verified」——对外口径三绿＋两项显式阻塞/RA 呈报（D-168⑥）。
 
@@ -38,7 +38,7 @@
 ## 5. 到期日＋到期复审钩
 
 - **到期日：min（下次 CodeBuddy IDE 形态会话发生，2026-12-27)**（≤90d 自 2026-09-28 起算；事件先到先触发）。
-- **复审钩**：到期或 IDE 会话发生（早者为准）→按 trials/codebuddy-r38-charter.md（证据档已随治理工件退役，git 历史可查）三判据重跑 IDE-specific 读数，回填本档案 §6＋registry 哨兵确认行；**逾期未复审=档案失效**，须按五要件重立项（D-169-b④「到期缺失/已过禁续期」）。
+- **复审钩**：到期或 IDE 会话发生（早者为准）→按 trials/codebuddy-r38-charter.md（证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/trials/codebuddy-r38-charter.md）三判据重跑 IDE-specific 读数，回填本档案 §6＋registry 哨兵确认行；**逾期未复审=档案失效**，须按五要件重立项（D-169-b④「到期缺失/已过禁续期」）。
 - 复审执行锚：registry `codebuddy-ide-gap-watch`（manual_watch，review_event=next-audit-window；IDE 可得即提前——不等窗）。
 
 ## 6. 批准结果登记（裁后回填）
