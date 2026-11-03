@@ -58,7 +58,9 @@ if (cliAbsent) {
 }
 
 if (claudeSpec.cmd === 'cmd.exe' && /[&|<>^%!()"]/.test(ENGINE)) {
-  console.log('SKIP(claude-validate): unsafe-path | ENGINE 路径含 cmd.exe 元字符，跳过 Windows 校验');
+  st.streak += 1; st.last = 'skip-unsafe-path'; writeState(st);
+  appendReceipt('skip-unsafe-path', cliVer, 'unsafe-path local streak=' + st.streak);
+  console.log('SKIP(claude-validate): unsafe-path | ENGINE 路径含 cmd.exe 元字符，跳过 Windows 校验' + (st.streak >= 2 ? ' | SKIP-STREAK-ALERT streak=' + st.streak : ' | streak=' + st.streak));
   process.exit(0);
 }
 
