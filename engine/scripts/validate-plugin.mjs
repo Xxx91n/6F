@@ -51,14 +51,18 @@ if (cliAbsent && IS_CI) {
 }
 
 if (cliAbsent) {
-  st.streak += 1; st.last = 'skip-cli-absent'; writeState(st);
+  st.streak = (st.last === 'skip-cli-absent') ? (st.streak + 1) : 1;
+  st.last = 'skip-cli-absent';
+  writeState(st);
   appendReceipt('skip-cli-absent', null, 'cli-absent local streak=' + st.streak);
   console.log('SKIP(claude-validate): cli-absent | 本地异常缺席——计入 WARN' + (st.streak >= 2 ? ' | SKIP-STREAK-ALERT streak=' + st.streak : ' | streak=' + st.streak));
   process.exit(0);
 }
 
 if (claudeSpec.cmd === 'cmd.exe' && /[&|<>^%!()"]/.test(ENGINE)) {
-  st.streak += 1; st.last = 'skip-unsafe-path'; writeState(st);
+  st.streak = (st.last === 'skip-unsafe-path') ? (st.streak + 1) : 1;
+  st.last = 'skip-unsafe-path';
+  writeState(st);
   appendReceipt('skip-unsafe-path', cliVer, 'unsafe-path local streak=' + st.streak);
   console.log('SKIP(claude-validate): unsafe-path | ENGINE 路径含 cmd.exe 元字符，跳过 Windows 校验' + (st.streak >= 2 ? ' | SKIP-STREAK-ALERT streak=' + st.streak : ' | streak=' + st.streak));
   process.exit(0);
