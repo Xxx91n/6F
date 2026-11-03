@@ -6,7 +6,7 @@
 
 ## 1. 判据引用
 
-- **主判据**：reports/R49-Q3-atomcode-research.md（atomcode 深调研——benchmark deprecation 三阶段框架＋计量学 ILAC-G24/NCSLI RP-1/NIST GMP 11 重校准双触发制＋BNC/PMC 语料库快照语义＋in-toto/SLSA chain-of-custody 双轨）。
+- **主判据**：reports/R49-Q3-atomcode-research.md（证据档已随治理工件退役，git 历史可查；atomcode 深调研——benchmark deprecation 三阶段框架＋计量学 ILAC-G24/NCSLI RP-1/NIST GMP 11 重校准双触发制＋BNC/PMC 语料库快照语义＋in-toto/SLSA chain-of-custody 双轨）。
 - **裁定锚**：decision-ledger.md **D-182**（R49-Q3 冻结包代表性衰减呈裁，采纳 2026-09-30）。
 - **缺口条目**：docs/known-gaps.md `GAP-REP-01`（reason_code=upstream_representativeness_decay）。
 - **实测证据**：01-extract.mjs extractIntent 谓词复测上游 anysearch-cli intent=1（readme:h1）vs frozen 锚=8；归因上游 commit `bbb3ba73`（r69-t2 README 登录页 IA 重构——定位 bullets 段消除）；与 c6fe0f8 退化读数同签名；「该退化无认领票」。

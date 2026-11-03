@@ -6,7 +6,7 @@
 
 ## 1. 判据引用
 
-- **主判据**：reports/R50-Q1-atomcode-research.md（atomcode 降级形态承载——js-tokens P_VALUE/P_NONE 前驱三档分类＋Padolsey 翻车实录误删危险向＋V8 ScanRegExpPattern/TS lexical classifier 行尾强制闭合先例＋R39-Q2 手工豁免反形态判例）。
+- **主判据**：reports/R50-Q1-atomcode-research.md（证据档已随治理工件退役，git 历史可查；atomcode 降级形态承载——js-tokens P_VALUE/P_NONE 前驱三档分类＋Padolsey 翻车实录误删危险向＋V8 ScanRegExpPattern/TS lexical classifier 行尾强制闭合先例＋R39-Q2 手工豁免反形态判例）。
 - **裁定锚**：decision-ledger.md **D-184**（R50-Q1 check-kit regex 盲区分步处置呈裁，采纳 2026-09-30）。
 - **缺口条目**：docs/known-gaps.md `GAP-CK-01`（reason_code 族=instrument_dialect_blindspot）。
 - **实测证据**：check-kit.mjs `stripComments` 三态机（inStr/inLine/inBlock）无 regex 字面量态——regex 字面量内引号被当字符串起始致 inStr 跨行粘滞，期间注释标记当字符串内容保留（该剥不剥）→下游盘点漂移；轮50 普查实证=21/55 迁入 PASS（附录B 三条件判别不受污染）＋70-check 迁入后 E1 盘点漂移→回退本地双轨＋D-181 勘误记档。
