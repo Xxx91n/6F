@@ -124,6 +124,8 @@ export interface PrDiffOutcome {
     detail: string | null;
     error_kind: GithubApiErrorKind | 'local-diff' | null;
 }
+export declare const GIT_SHA_HEX_RE: RegExp;
+export declare function isValidGitSha(sha: string): boolean;
 export declare function gitShaResolvable(repoRoot: string, sha: string): boolean;
 export declare function parseNumstat(text: string): PrDiffStats;
 export declare function localThreeDotDiff(repoRoot: string, baseSha: string, headSha: string): {
