@@ -435,7 +435,7 @@ export function renderMarkdown(r: Report): string {
     out.push('> 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）');
     out.push('> - capability: ' + r.preview_disclosure.capability_label);
     out.push('> - calibration_scope: ' + r.preview_disclosure.calibration_scope);
-    out.push('> - structural_limitations: ' + r.preview_disclosure.structural_limitations.join('；'));
+    out.push('> - structural_limitations: ' + escapeMarkdownExcerpt(r.preview_disclosure.structural_limitations.join('；')));
     out.push('> - not_in_preview: ' + r.preview_disclosure.not_in_preview.join(' / '));
   }
   out.push('');
