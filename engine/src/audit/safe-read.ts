@@ -125,8 +125,7 @@ export function makeFileSubjectSkipFact(
   reason: string,
   descriptor: CollectorDescriptor = AUDIT_DESCRIPTOR
 ): CollectedFact {
-  // #113 返修（Windows C14）：事实面 subject 一律正斜杠归一形，与读取单点返回的 relPath 同源；
-  //   fact_id 哈希输入同用归一值，保持 id 与发出值同源。
+  // Design: file_subject_skip 的 subject 与 fact_id 一律 '/' 分隔（含 Windows join 产物）— ADR-0023
   const subject = slash(rawPath);
   const value = {
     analysis: 'safe-read',
