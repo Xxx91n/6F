@@ -146,11 +146,16 @@ export function probeGitVersion() {
 const defaultRenameLogRunner = function (repoRoot, args) { return git(repoRoot, args); };
 export function collectMacroB(repoRoot, spec, ctx, probes) {
     const skipFacts = [];
+    const skipSeen = new Set();
+    const pushSkip = function (f) { if (!skipSeen.has(f.fact_id)) {
+        skipSeen.add(f.fact_id);
+        skipFacts.push(f);
+    } };
     // -- ADR 语料（adr-structure@v2 回退链） --
     const adrDir = join(repoRoot, 'docs', 'adr');
     const adrDirValid = existsSync(adrDir) && isPathContainedInRepo(repoRoot, adrDir);
     if (existsSync(adrDir) && !adrDirValid) {
-        skipFacts.push(makeFileSubjectSkipFact(ctx, 'docs/adr', 'dir-junction-outside'));
+        pushSkip(makeFileSubjectSkipFact(ctx, 'docs/adr', 'dir-junction-outside'));
     }
     const rawAdrFiles = adrDirValid ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
     const firstCommitOf = function (p) {
@@ -168,7 +173,7 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
         const rel = 'docs/adr/' + f;
         const readRes = readRepoFileSafe(repoRoot, rel);
         if (!readRes.ok) {
-            skipFacts.push(makeFileSubjectSkipFact(ctx, rel, readRes.reason));
+            pushSkip(makeFileSubjectSkipFact(ctx, rel, readRes.reason));
             continue;
         }
         adrFiles.push(f);
@@ -193,7 +198,7 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
         if (existsSync(p)) {
             const readRes = readRepoFileSafe(repoRoot, cand);
             if (!readRes.ok) {
-                skipFacts.push(makeFileSubjectSkipFact(ctx, cand, readRes.reason));
+                pushSkip(makeFileSubjectSkipFact(ctx, cand, readRes.reason));
             }
             else {
                 intentDocs.push({ path: cand, text: readRes.text });
@@ -251,7 +256,7 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
         if (existsSync(join(repoRoot, cand))) {
             const r = readRepoFileSafe(repoRoot, cand);
             if (!r.ok) {
-                skipFacts.push(makeFileSubjectSkipFact(ctx, cand, r.reason));
+                pushSkip(makeFileSubjectSkipFact(ctx, cand, r.reason));
             }
             else {
                 nc1Path = cand;

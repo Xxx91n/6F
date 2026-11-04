@@ -211,11 +211,13 @@ export interface MacroBCollect {
 
 export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: CollectContext, probes: MacroBProbes): MacroBCollect {
   const skipFacts: CollectedFact[] = [];
+  const skipSeen = new Set<string>();
+  const pushSkip = function (f: CollectedFact): void { if (!skipSeen.has(f.fact_id)) { skipSeen.add(f.fact_id); skipFacts.push(f); } };
   // -- ADR 语料（adr-structure@v2 回退链） --
   const adrDir = join(repoRoot, 'docs', 'adr');
   const adrDirValid = existsSync(adrDir) && isPathContainedInRepo(repoRoot, adrDir);
   if (existsSync(adrDir) && !adrDirValid) {
-    skipFacts.push(makeFileSubjectSkipFact(ctx, 'docs/adr', 'dir-junction-outside'));
+    pushSkip(makeFileSubjectSkipFact(ctx, 'docs/adr', 'dir-junction-outside'));
   }
   const rawAdrFiles = adrDirValid ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
   const firstCommitOf = function (p: string): string | null {
@@ -229,7 +231,7 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
     const rel = 'docs/adr/' + f;
     const readRes = readRepoFileSafe(repoRoot, rel);
     if (!readRes.ok) {
-      skipFacts.push(makeFileSubjectSkipFact(ctx, rel, readRes.reason));
+      pushSkip(makeFileSubjectSkipFact(ctx, rel, readRes.reason));
       continue;
     }
     adrFiles.push(f);
@@ -253,7 +255,7 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
     if (existsSync(p)) {
       const readRes = readRepoFileSafe(repoRoot, cand);
       if (!readRes.ok) {
-        skipFacts.push(makeFileSubjectSkipFact(ctx, cand, readRes.reason));
+        pushSkip(makeFileSubjectSkipFact(ctx, cand, readRes.reason));
       } else {
         intentDocs.push({ path: cand, text: readRes.text });
       }
@@ -313,7 +315,7 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
     if (existsSync(join(repoRoot, cand))) {
       const r = readRepoFileSafe(repoRoot, cand);
       if (!r.ok) {
-        skipFacts.push(makeFileSubjectSkipFact(ctx, cand, r.reason));
+        pushSkip(makeFileSubjectSkipFact(ctx, cand, r.reason));
       } else {
         nc1Path = cand;
         nc1Text = r.text;

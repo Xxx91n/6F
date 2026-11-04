@@ -283,7 +283,7 @@ export async function runAudit(opts) {
     if (anchorQuarantined) {
         limitations.push('锚字段病态：HEAD %cI quarantined（anchor_head_date_malformed）→ audit_fact 行不落库（observed_at NOT NULL 不落伪值）；quarantine_log 留痕 recorded_at=NULL，整仓 unsupported');
     }
-    const fileSkips = col.realFacts.filter(function (f) { return f.metric === 'codelore.file_subject_skip'; });
+    const fileSkips = col.realFacts.filter(function (f) { return f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read'; });
     if (fileSkips.length > 0) {
         const skipPaths = fileSkips.map(function (f) { const v = JSON.parse(f.value_json); return v.raw_path; });
         limitations.push('语料来源经链接解析被拒（防仓外穿透/符号链接逃逸）：跳过 ' + fileSkips.length + ' 处不可信文件（' + skipPaths.slice(0, 5).join(', ') + (skipPaths.length > 5 ? ' 等' : '') + '）');

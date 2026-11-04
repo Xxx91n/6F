@@ -74,31 +74,31 @@
 - claim: 本次实测：happy-path 合成 fixture 采集事实数
 - grounded: true · collected_at: 2026-04-13T10:00:00Z
 - reproduce_cmd: macro-audit demo --scenario happy-path
-- 引文原文: "fact_count": 129,
+- 引文原文: &quot;fact_count&quot;: 129,
 
 ### EV-45-HAPPYPATH-02 — demo-measurements.json @ L35
 - claim: 本次实测：TC-1 ADR 事后补写判据裁定（NOT_RED）
 - grounded: true · collected_at: 2026-04-13T10:00:00Z
 - reproduce_cmd: macro-audit demo --scenario happy-path
-- 引文原文: "verdict": "NOT_RED",
+- 引文原文: &quot;verdict&quot;: &quot;NOT_RED&quot;,
 
 ### EV-45-HAPPYPATH-03 — demo-measurements.json @ L44
 - claim: 本次实测：TC-2 五件套完整度 mean_ratio
 - grounded: true · collected_at: 2026-04-13T10:00:00Z
 - reproduce_cmd: macro-audit demo --scenario happy-path
-- 引文原文: "mean_ratio_4": "1.0000",
+- 引文原文: &quot;mean_ratio_4&quot;: &quot;1.0000&quot;,
 
 ### EV-45-HAPPYPATH-04 — demo-measurements.json @ L83
 - claim: 本次实测：TC-3 定位覆盖率最低值
 - grounded: true · collected_at: 2026-04-13T10:00:00Z
 - reproduce_cmd: macro-audit demo --scenario happy-path
-- 引文原文: "lowest_ratio_4": "0.6000",
+- 引文原文: &quot;lowest_ratio_4&quot;: &quot;0.6000&quot;,
 
 ### EV-45-HAPPYPATH-05 — demo-measurements.json @ L94
 - claim: 本次实测：NC-1 负对照选材五件套命中数（预期 0）
 - grounded: true · collected_at: 2026-04-13T10:00:00Z
 - reproduce_cmd: macro-audit demo --scenario happy-path
-- 引文原文: "five_piece_present": 0,
+- 引文原文: &quot;five_piece_present&quot;: 0,
 
 ### EV-45-HAPPYPATH-06 — docs/adr/001-evidence-first-verdict-gate.md @ L1
 - claim: happy-path 合成 ADR 语料锚：docs/adr/001-evidence-first-verdict-gate.md 实物存在（语料 6 份，synthetic fixture）
@@ -110,7 +110,7 @@
 - claim: 合成印记：本报告全部语料为 synthetic fixture 生成仓，not an audit of any real repository
 - grounded: true · collected_at: 2026-04-13T10:00:00Z
 - reproduce_cmd: macro-audit demo --scenario happy-path
-- 引文原文: "synthetic": true,
+- 引文原文: &quot;synthetic&quot;: true,
 
 #### 引文→结论支持关系校验
 - CL-45-HAPPYPATH-01 -> EV-45-HAPPYPATH-01: supports（matched=fact_count missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）

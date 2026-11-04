@@ -19,82 +19,7 @@ const REPO = join(HERE, '..', '..'); // engine/scripts 下移一层             
 const DIST = join(REPO, 'engine', 'dist');
 const NL = String.fromCharCode(10);
 
-function isPathContainedInRepo(repoRoot, targetPath) {
-  try {
-    const realRoot = realpathSync(repoRoot);
-    const realTarget = realpathSync(targetPath);
-    const rel = relative(realRoot, realTarget).split(String.fromCharCode(92)).join('/');
-    if (rel === '' || (rel.indexOf('..') !== 0 && !/^[A-Za-z]:/.test(rel))) {
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
-  }
-}
 
-function readRepoFileSafe(repoRoot, relOrAbsPath) {
-  const abs = isAbsolute(relOrAbsPath) ? resolve(relOrAbsPath) : resolve(repoRoot, relOrAbsPath);
-  const normRel = relative(repoRoot, abs).split(String.fromCharCode(92)).join('/');
-  let st;
-  try {
-    st = lstatSync(abs);
-  } catch {
-    return { ok: false, reason: 'missing', relPath: normRel };
-  }
-  let realRoot;
-  try {
-    realRoot = realpathSync(repoRoot);
-  } catch {
-    realRoot = repoRoot;
-  }
-  if (st.isSymbolicLink()) {
-    let real;
-    try {
-      real = realpathSync(abs);
-    } catch {
-      return { ok: false, reason: 'symlink-outside', relPath: normRel };
-    }
-    const rel = relative(realRoot, real).split(String.fromCharCode(92)).join('/');
-    if (rel.indexOf('..') === 0 || rel.length === 0 || /^[A-Za-z]:/.test(rel)) {
-      return { ok: false, reason: 'symlink-outside', relPath: normRel };
-    }
-    let realSt;
-    try {
-      realSt = lstatSync(real);
-    } catch {
-      return { ok: false, reason: 'symlink-outside', relPath: normRel };
-    }
-    if (!realSt.isFile()) {
-      return { ok: false, reason: 'symlink-non-regular', relPath: normRel };
-    }
-    try {
-      const text = readFileSync(real, 'utf8');
-      return { ok: true, text: text, relPath: normRel, realPath: real, isSymlink: true };
-    } catch (e) {
-      return { ok: false, reason: 'read-error', relPath: normRel, error: String(e) };
-    }
-  }
-  if (!st.isFile()) {
-    return { ok: false, reason: 'non-regular', relPath: normRel };
-  }
-  let real;
-  try {
-    real = realpathSync(abs);
-  } catch {
-    return { ok: false, reason: 'outside-repo', relPath: normRel };
-  }
-  const rel = relative(realRoot, real).split(String.fromCharCode(92)).join('/');
-  if (rel.indexOf('..') === 0 || rel.length === 0 || /^[A-Za-z]:/.test(rel)) {
-    return { ok: false, reason: 'outside-repo', relPath: normRel };
-  }
-  try {
-    const text = readFileSync(abs, 'utf8');
-    return { ok: true, text: text, relPath: normRel, realPath: real, isSymlink: false };
-  } catch (e) {
-    return { ok: false, reason: 'read-error', relPath: normRel, error: String(e) };
-  }
-}
 
 
 const C = await import(pathToFileURL(join(DIST, 'collect', 'collectors.js')).href);
@@ -105,6 +30,8 @@ const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);//
 const MB = await import(pathToFileURL(join(DIST, 'audit', 'macro-b.js')).href); // #42：探针同源 audit.ts（字段级分类/事件面）
 const Q = await import(pathToFileURL(join(DIST, 'intake', 'quarantine.js')).href);   // #78/D-109①：崩溃桶构造器复用——Q 只取崩溃/投影聚合导出（分类器/写库面禁引，D-118④）
 const STRICT_Q = process.env[Q.STRICT_QUARANTINE_ENV] === '1';   // #78/D-110④：env 只传开关——对照物无 quarantine 桶（病态恒硬崩=strict 恒真语义），env 值进证据面供 CI 对账
+const SR = await import(pathToFileURL(join(DIST, 'audit', 'safe-read.js')).href);
+const { isPathContainedInRepo, readRepoFileSafe, makeFileSubjectSkipFact } = SR;
 
 // ---------- §0 参数：默认三仓全跑；--repo/--root/--out = 单仓 CI 形态 ----------
 const DEFAULT_REPOS = [

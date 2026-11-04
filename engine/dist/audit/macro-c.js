@@ -129,11 +129,16 @@ export function buildSupersedeChain(adrs, deferRegistryPresent) {
 }
 export function collectMacroC(repoRoot, probes, ctx, spec) {
     const skipFacts = [];
+    const skipSeen = new Set();
+    const pushSkip = function (f) { if (!skipSeen.has(f.fact_id)) {
+        skipSeen.add(f.fact_id);
+        skipFacts.push(f);
+    } };
     // §2 ADR 语料（被审计仓的 ADR 目录；first_commit=含该文件的最早 dated commit——D-100② 毒值跳过同构 38）
     const adrDir = join(repoRoot, 'docs', 'adr');
     const adrDirValid = existsSync(adrDir) && isPathContainedInRepo(repoRoot, adrDir);
     if (existsSync(adrDir) && !adrDirValid) {
-        skipFacts.push(makeFileSubjectSkipFact(ctx, 'docs/adr', 'dir-junction-outside'));
+        pushSkip(makeFileSubjectSkipFact(ctx, 'docs/adr', 'dir-junction-outside'));
     }
     const rawAdrFiles = adrDirValid ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
     const firstCommitOf = function (relPath) {
@@ -150,7 +155,7 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
         const rel = 'docs/adr/' + f;
         const readRes = readRepoFileSafe(repoRoot, rel);
         if (!readRes.ok) {
-            skipFacts.push(makeFileSubjectSkipFact(ctx, rel, readRes.reason));
+            pushSkip(makeFileSubjectSkipFact(ctx, rel, readRes.reason));
             continue;
         }
         adrDocs.push({ path: rel, text: readRes.text, first_commit_date: firstCommitOf(rel) });
@@ -175,7 +180,7 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
         }
         const r = readRepoFileSafe(repoRoot, p);
         if (!r.ok) {
-            skipFacts.push(makeFileSubjectSkipFact(ctx, p, r.reason));
+            pushSkip(makeFileSubjectSkipFact(ctx, p, r.reason));
             return false;
         }
         return true;
@@ -231,21 +236,26 @@ export function evaluateMacroC(col, repoRoot, ctx, ncCandidates) {
     const tcMc3 = col.llmGate.configured === true && col.llmFacts.filter(function (f) { return f.metric === 'codelore.llm_narrative'; }).length >= 1;
     const cands = ncCandidates || MACRO_C_NC_CANDIDATES;
     let nc1Path = null;
+    let nc1Text = null;
     let ncMc1 = false;
     for (const c of cands) {
-        if (existsSync(join(repoRoot, c))) {
-            nc1Path = c;
-            break;
+        if (!existsSync(join(repoRoot, c))) {
+            continue;
         }
+        const r = readRepoFileSafe(repoRoot, c);
+        if (!r.ok) {
+            // candidate rejected safely
+            continue;
+        }
+        nc1Path = c;
+        nc1Text = r.text;
+        break;
     }
-    if (nc1Path !== null) {
-        const r = readRepoFileSafe(repoRoot, nc1Path);
-        if (r.ok) {
-            const nc1Doc = { path: nc1Path, text: r.text, first_commit_date: null };
-            const nc1Facts = collectAdrStructureV2({ documents: [nc1Doc] }, ctx);
-            const nc1Five = nc1Facts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
-            ncMc1 = !!nc1Five && JSON.parse(nc1Five.value_json).present === 0;
-        }
+    if (nc1Path !== null && nc1Text !== null) {
+        const nc1Doc = { path: nc1Path, text: nc1Text, first_commit_date: null };
+        const nc1Facts = collectAdrStructureV2({ documents: [nc1Doc] }, ctx);
+        const nc1Five = nc1Facts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
+        ncMc1 = !!nc1Five && JSON.parse(nc1Five.value_json).present === 0;
     }
     return { pcMc1: pcMc1, pcMc2: pcMc2, tcMc1: tcMc1, tcMc2: tcMc2, tcMc3: tcMc3, ncMc1: ncMc1, facetRowsFacts: facetRowsFacts, facetErrFacts: facetErrFacts, lagFacts: lagFacts, dateFacts: dateFacts, legDist: legDist, llmGatedCount: col.llmFacts.filter(function (f) { return f.metric === 'codelore.llm_gated'; }).length, llmNarrativeCount: col.llmFacts.filter(function (f) { return f.metric === 'codelore.llm_narrative'; }).length, nc1Path: nc1Path };
 }

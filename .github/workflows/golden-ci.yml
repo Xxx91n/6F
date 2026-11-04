@@ -37,10 +37,12 @@ jobs:
   golden:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # bundle 前置对象 200b344 位于历史深处；git diff 需要基线
-      - uses: actions/setup-node@v4
+          # #117 / artipacked：golden 对账不向远端 push；清凭据防泄露
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24 # 与 golden 生成环境同主版本；重生成脚本直 import engine/src/*.ts 依赖免 flag 类型剥离（22.18+/23.6+/24）
 

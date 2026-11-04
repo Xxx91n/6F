@@ -81,12 +81,14 @@ jobs:
       matrix: ${{ fromJSON(needs.resolve.outputs.matrix) }}
     steps:
       - name: checkout audit engine (self)
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           path: engine-repo
           fetch-depth: 0          # one-shot 证据锚读仓内文档（docs/spec.md）；全量对象与 #39 先例一致
+          # #117 / artipacked：engine 自身 checkout 仅供读取文档和构建，不写回远端；清凭据防泄露
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24   # 对齐 golden-ci 同仓 CI 惯例（engine engines>=22.18 无碍；engine-ci 矩阵另覆盖 22/24）
           cache: npm
@@ -169,15 +171,15 @@ jobs:
           node -e "const fs=require('fs');const f=fs.readdirSync('macro-b-artifacts').filter(x=>x.indexOf('crash')>=0);const j=JSON.parse(fs.readFileSync('macro-b-artifacts/'+f[0],'utf8'));if(j.schema!=='quarantine-crash-artifact/v1')throw new Error('crash schema!=v1');if(typeof j.error_code!=='string'||!j.error_code)throw new Error('error_code absent');console.log('expected-divergence green:',j.error_code)"
 
       - name: upload crash artifacts (protocol-bucket lane, if any)
-        # #78/D-109：协议级崩溃固定 schema 工件——one-shot 硬崩（exit 2/3）时崩溃桶 JSON 随工件上传，批灭前先留证
+        # #78/D-109：协议级崩溃固定 schema 工件——one-shot 硬崩（exit 2/3）时崩溃桶 JSON 随工件上传，批灭前先留证（actions/upload-artifact@v4）
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: macro-b-crash-${{ matrix.repo.name }}
           path: macro-b-artifacts/*crash*.json
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: macro-b-${{ matrix.repo.name }}-${{ github.run_id }}

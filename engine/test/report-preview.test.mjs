@@ -99,6 +99,72 @@ t('C1 degradeReport 保留 preview_disclosure（降级不丢披露义务）', ()
   assert.equal(sc.degraded_mode, true);
 });
 
+// ---------- S. 输出编码（tracker #114：引文原文 HTML/Markdown 转义防止存储型 XSS） ----------
+t('S1 report.md 中引文原文转义 HTML 实体（<img onerror> 不得裸出），保留纯文本语义', () => {
+  const xssPayload = '<img src=x onerror="alert(document.domain)">';
+  const r = G.buildReport(baseInput({
+    evidence: [{
+      evidence_id: 'EV-XSS-01',
+      source: 'docs/adr/0001-a.md',
+      locator: 'L1',
+      claim: 'xss test claim',
+      grounded: true,
+      collected_at: '2026-10-30T00:00:00Z',
+      reproduce_cmd: 'macro-audit audit .',
+      reproduce_absent_reason: null,
+      required_tokens: ['xss', 'test'],
+      excerpt: xssPayload
+    }]
+  }));
+  const md = G.renderMarkdown(r);
+  assert.ok(!md.includes(xssPayload), 'md output must not contain raw HTML injection payload');
+  assert.ok(md.includes('- 引文原文: &lt;img src=x onerror=&quot;alert(document.domain)&quot;&gt;'), 'md output must escape HTML entities');
+});
+
+t('S2 侧车 JSON / facts 中 excerpt 保持原始保真不降级（输出编码非数据源转义）', () => {
+  const xssPayload = '<img src=x onerror="alert(document.domain)">';
+  const r = G.buildReport(baseInput({
+    evidence: [{
+      evidence_id: 'EV-XSS-01',
+      source: 'docs/adr/0001-a.md',
+      locator: 'L1',
+      claim: 'xss test claim',
+      grounded: true,
+      collected_at: '2026-10-30T00:00:00Z',
+      reproduce_cmd: 'macro-audit audit .',
+      reproduce_absent_reason: null,
+      required_tokens: ['xss', 'test'],
+      excerpt: xssPayload
+    }]
+  }));
+  const sc = JSON.parse(G.renderSidecar(r));
+  assert.equal(sc.evidence[0].excerpt, xssPayload, 'sidecar must retain verbatim raw excerpt');
+});
+
+t('S3 引文/claim 支撑校验不受输出编码影响（checkAllCitations 针对 raw excerpt 仍生效）', () => {
+  const xssPayload = '<img src=x onerror="alert(document.domain)"> & test token';
+  const r = G.buildReport(baseInput({
+    evidence: [{
+      evidence_id: 'EV-XSS-01',
+      source: 'docs/adr/0001-a.md',
+      locator: 'L1',
+      claim: 'claim with test token',
+      grounded: true,
+      collected_at: '2026-10-30T00:00:00Z',
+      reproduce_cmd: '',
+      reproduce_absent_reason: 'manual',
+      required_tokens: ['test', 'token'],
+      excerpt: xssPayload
+    }],
+    claims: [{
+      claim_id: 'CL-01',
+      evidence_id: 'EV-XSS-01',
+      required_tokens: ['test', 'token']
+    }]
+  }));
+  assert.equal(r.adjudication.citation_checks[0].support, 'supports');
+});
+
 // ---------- P. prereg 锚取值口径（tracker #100／R9-1：可解析 commit 或显式标记，禁模糊态） ----------
 // 正负对照都落在这里：口径只有落到产线 choke point（buildReceipt）才不是文书承诺。
 t('P1 三形态各自命中——commit 形／显式哨兵／显式降级（前缀即判别面，不读源码也能分辨）', () => {

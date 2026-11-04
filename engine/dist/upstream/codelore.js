@@ -54,12 +54,22 @@ export function parseExplainDossier(text) {
         const sec = line.match(/^\[(.+)\]$/);
         if (sec) {
             cur = sec[1];
-            sections[cur] = sections[cur] || {};
+            if (cur === '__proto__' || cur === 'constructor' || cur === 'prototype') {
+                cur = null;
+                continue;
+            }
+            if (!Object.prototype.hasOwnProperty.call(sections, cur)) {
+                sections[cur] = {};
+            }
             continue;
         }
         const kv = line.match(/^([A-Za-z0-9_][A-Za-z0-9_.]*)\s*=\s*(.*)$/);
         if (kv && cur) {
-            sections[cur][kv[1]] = kv[2].trim();
+            const k = kv[1];
+            if (k === '__proto__' || k === 'constructor' || k === 'prototype') {
+                continue;
+            }
+            sections[cur][k] = kv[2].trim();
         }
     }
     return { sections };

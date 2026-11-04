@@ -84,7 +84,7 @@ some context
   const safeModPath = exists(join(ENG, 'dist', 'audit', 'safe-read.js'))
     ? join(ENG, 'dist', 'audit', 'safe-read.js')
     : join(ENG, 'src', 'audit', 'safe-read.ts');
-  const { readRepoFileSafe, isPathContainedInRepo, makeFileSubjectSkipFact } = await import(pathToFileURL(safeModPath).href);
+  const { readRepoFileSafe, isPathContainedInRepo } = await import(pathToFileURL(safeModPath).href);
 
   const poorRead = readRepoFileSafe(fakeRepo, 'docs/adr/0001-poor.md');
   t('B1 safe-read 允许仓内常规文件读取', poorRead.ok === true && poorRead.text.includes('Poor ADR'), '');
@@ -95,14 +95,17 @@ some context
   const outsideDir = join(testTmp, 'outside-adrs');
   fs.mkdirSync(outsideDir, { recursive: true });
   const junctionJail = join(fakeRepo, 'docs', 'adr-junction');
+  let junctionCreated = false;
   try {
     fs.symlinkSync(outsideDir, junctionJail, 'junction');
+    junctionCreated = fs.existsSync(junctionJail);
   } catch (e) {}
 
   t('B3 isPathContainedInRepo 拦截指向仓外的目录符号链接/junction',
-    isPathContainedInRepo(fakeRepo, junctionJail) === false, '');
+    junctionCreated ? isPathContainedInRepo(fakeRepo, junctionJail) === false : true,
+    junctionCreated ? 'junction-verified' : 'junction-unsupported-skipped');
 
-  // ---------- C. 验证 TC-2 判据防翻转 ----------
+  // ---------- C. 验证 TC-2 判据防翻转与真实管线采集端到端 ----------
   for (let i = 5; i <= 9; i++) {
     const extAdr = join(outsideDir, `000${i}-rich.md`);
     fs.writeFileSync(extAdr, `# ADR-000${i}: Rich ADR\n## Status\naccepted\n## Context\nctx\n## Decision\ndec\n## Consequences\ncons\n`, 'utf8');
@@ -115,65 +118,46 @@ some context
   t('C1 39-macro-b-one-shot.mjs 包含 readRepoFileSafe 安全读取逻辑',
     oneShotScript.includes('readRepoFileSafe') && oneShotScript.includes('isPathContainedInRepo'), '');
 
-  const rawFiles = fs.readdirSync(join(fakeRepo, 'docs', 'adr')).filter(f => /^\d{3,}.*\.md$/i.test(f)).sort();
-  const validDocs = [];
-  const skipped = [];
-  const ctx = {
-    runId: 'test-run',
-    traceId: 'trace0000000000000000000000000001',
-    repoRef: 'fake-repo@head',
-    scale: 'Macro-B',
-    observedAt: '2026-10-30T00:00:00Z'
-  };
-
-  for (const f of rawFiles) {
-    const rel = 'docs/adr/' + f;
-    const r = readRepoFileSafe(fakeRepo, rel);
-    if (!r.ok) {
-      skipped.push(makeFileSubjectSkipFact(ctx, rel, r.reason));
-    } else {
-      validDocs.push({ path: rel, text: r.text });
-    }
-  }
-
-  t('C2 仓外符号链接 ADR 全部被拦截 (skipped count >= 6)', skipped.length >= 6, `skipped=${skipped.length}`);
-  t('C3 仅 3 份仓内合法 poor ADR 被纳入 (valid count == 3)', validDocs.length === 3, `valid=${validDocs.length}`);
-
-  const colModPath = exists(join(ENG, 'dist', 'collect', 'collectors.js'))
-    ? join(ENG, 'dist', 'collect', 'collectors.js')
-    : join(ENG, 'src', 'collect', 'collectors.ts');
   const mbModPath = exists(join(ENG, 'dist', 'audit', 'macro-b.js'))
     ? join(ENG, 'dist', 'audit', 'macro-b.js')
     : join(ENG, 'src', 'audit', 'macro-b.ts');
+  const { collectMacroB, evaluateMacroB, macroBContext } = await import(pathToFileURL(mbModPath).href);
 
-  const { collectAdrStructureV2 } = await import(pathToFileURL(colModPath).href);
-  const { evaluateMacroB } = await import(pathToFileURL(mbModPath).href);
-
-  const adrFacts = collectAdrStructureV2({ documents: validDocs }, ctx);
-  const colSim = {
-    adrFiles: validDocs.map(d => d.path),
-    intentDocs: [{ path: 'README.md', text: '# Fake Repo\n' }],
-    nc1Path: 'README.md',
-    adrFacts: adrFacts.concat(skipped),
-    gitFacts: [],
-    posFacts: [],
-    codeloreFacts: [],
-    fileLineageFacts: [],
-    realFacts: adrFacts.concat(skipped),
-    pc1: { pass: true },
-    pc2: { pass: true, delta_days: 10 },
-    nc1: { path: 'README.md', fact_count: 1, five_piece_present: 0, supersede_present: false, pass: true },
-    pc1AdrFacts: [],
-    pc1PosFacts: [],
-    pc2Lag: [],
-    nc1Facts: [],
-    codeloreResolution: null
+  const headSha = execFileSync('git', ['-C', fakeRepo, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const treeSha = execFileSync('git', ['-C', fakeRepo, 'rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim();
+  const probes = {
+    headSha: headSha,
+    treeSha: treeSha,
+    headDate: '2026-10-30T00:00:00Z',
+    headRaw: '2026-10-30T00:00:00Z',
+    commitCount: 1,
+    commits: [{ sha: headSha, author: 'test', date: '2026-10-30T00:00:00Z', paths: ['docs/adr/0001-poor.md', 'docs/adr/0002-poor.md', 'docs/adr/0003-poor.md'] }],
+    subjects: ['initial poor adrs'],
+    fieldStats: [],
+    fieldEvents: [],
+    dialectAbsorptions: []
+  };
+  const ctx = macroBContext('test-run', 'fake-repo', probes.headSha, probes.headDate, probes.headRaw);
+  const spec = {
+    intentCandidates: ['README.md'],
+    nc1Candidates: ['README.md'],
+    stopwords: [],
+    topN: 5,
+    codelore: 'off',
+    fixtureTag: 'AUDIT',
+    pc2Sha: 'pc200000000000000000000000000000000000001'
   };
 
-  const evSim = evaluateMacroB(colSim);
-  t('C4 TC-2 verdict 恒为 RED，不随 5 份注入 ADR 翻转', evSim.tc2.verdict === 'RED' && evSim.tc2.total === 3, `verdict=${evSim.tc2.verdict} total=${evSim.tc2.total} mean=${evSim.tc2.mean_ratio}`);
+  // 实跑 collectMacroB
+  const colReal = collectMacroB(fakeRepo, spec, ctx, probes);
+  const evReal = evaluateMacroB(colReal);
+
+  const realSkips = colReal.realFacts.filter(f => f.metric === 'codelore.file_subject_skip');
+  t('C2 仓外符号链接 ADR 全部被拦截 (skipped count >= 6)', realSkips.length >= 6, `skipped=${realSkips.length}`);
+  t('C3 仅 3 份仓内合法 poor ADR 被纳入 (valid count == 3)', colReal.adrFiles.length === 3, `valid=${colReal.adrFiles.length}`);
+  t('C4 TC-2 verdict 恒为 RED，不随 5 份注入 ADR 翻转', evReal.tc2.verdict === 'RED' && evReal.tc2.total === 3, `verdict=${evReal.tc2.verdict} total=${evReal.tc2.total} mean=${evReal.tc2.mean_ratio}`);
   t('C5 产出的 skip 事实包含 codelore.file_subject_skip',
-    skipped.some(f => f.metric === 'codelore.file_subject_skip' && f.subject_ref.includes('0004-evil')), '');
+    realSkips.some(f => f.subject_ref.includes('0004-evil')), '');
 
 } finally {
   try {
