@@ -147,7 +147,7 @@ if (!symlinkProbe) {
     t('B1 仓内常规文件放行', okRead.ok === true && okRead.text.indexOf('ADR-0001') >= 0, '');
 
     // 仓外文件链接
-    fs.symlinkSync(secret, join(insideDir, '0002-evil.md'));
+    fs.symlinkSync(secret, join(insideDir, '0002-evil.md'), 'file');
     const evil = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr/0002-evil.md');
     t('B2 指向仓外文件的符号链接被拒（reason=symlink-outside）',
       evil.ok === false && evil.reason === 'symlink-outside', evil.reason);
