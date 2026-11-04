@@ -125,9 +125,8 @@ export function makeFileSubjectSkipFact(
   reason: string,
   descriptor: CollectorDescriptor = AUDIT_DESCRIPTOR
 ): CollectedFact {
-  // #113 返修（Windows C14）：事实面 subject 一律正斜杠归一形——调用方可能传 join() 产物
-  //   （`docs\deferred-registry.json`），不归一则与读取单点返回的 relPath（已 slash 归一）不同源，
-  //   按相对路径比对的披露面在 Windows 上漏计。fact_id 的哈希输入同用归一值，保持 id 与发出值同源。
+  // #113 返修（Windows C14）：事实面 subject 一律正斜杠归一形，与读取单点返回的 relPath 同源；
+  //   fact_id 哈希输入同用归一值，保持 id 与发出值同源。
   const subject = slash(rawPath);
   const value = {
     analysis: 'safe-read',

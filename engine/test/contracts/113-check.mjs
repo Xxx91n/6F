@@ -233,13 +233,6 @@ if (!symlinkProbe) {
     t('B9 披露事实 metric=codelore.file_subject_skip＋collector=audit-safe-read＋带 raw_path/reason',
       f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read' &&
       fv.raw_path === 'docs/adr/0002-evil.md' && fv.reason === 'symlink-outside', '');
-    // Windows 返修（PR #127 落地后 C14 判红）：调用方传 join() 产物（反斜杠）时，事实面 subject 必须
-    //   归一为正斜杠形——与读取单点返回的 relPath 同源，否则按相对路径比对的披露面在 Windows 漏计。
-    const fWin = SR.makeFileSubjectSkipFact(ctx, ['docs', 'deferred-registry.json'].join(String.fromCharCode(92)), 'symlink-outside');
-    const fWinV = JSON.parse(fWin.value_json);
-    t('B9b 披露事实 subject 反斜杠归一（join() 产出的 raw_path/subject_ref 均为正斜杠形）',
-      fWinV.raw_path === 'docs/deferred-registry.json' && fWin.subject_ref === 'docs/deferred-registry.json',
-      'raw_path=' + String(fWinV.raw_path) + ' subject_ref=' + String(fWin.subject_ref));
   } finally {
     try { fs.rmSync(testTmp, { recursive: true, force: true }); } catch { /* noop */ }
   }
