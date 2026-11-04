@@ -164,6 +164,15 @@ function isInsideRoot(relRootToTarget: string): boolean {
   return relRootToTarget.indexOf('..') !== 0 && !/^[A-Za-z]:/.test(relRootToTarget);
 }
 
+/**
+ * lstat 错误分类（#113 返修 / PR #127 审查）：只有 ENOENT / ENOTDIR 才等于「不存在」。
+ * ELOOP（自环链接）、EACCES、EPERM 等是「探测不了」而不是「没有」——若一律当不存在，
+ * 被审计仓只要造一个探测不了的名字，语料就会静默缩水且不留披露事实。
+ */
+function isAbsentErrno(code: string | undefined): boolean {
+  return code === 'ENOENT' || code === 'ENOTDIR';
+}
+
 function realRootOf(repoRoot: string): string {
   try {
     return realpathSync(repoRoot);
@@ -222,8 +231,10 @@ export function readRepoFileSafe(repoRoot: string, relOrAbsPath: string): SafeRe
   let st;
   try {
     st = lstatSync(abs);
-  } catch {
-    return { ok: false, reason: 'missing', relPath: normRel };
+  } catch (e: unknown) {
+    const code = (e as { code?: string }).code;
+    if (isAbsentErrno(code)) { return { ok: false, reason: 'missing', relPath: normRel }; }
+    return { ok: false, reason: 'read-error', relPath: normRel, error: String(e) };
   }
 
   if (st.isSymbolicLink()) {
@@ -283,8 +294,11 @@ export function readRepoDirSafe(repoRoot: string, relOrAbsPath: string): SafeDir
   let st;
   try {
     st = lstatSync(abs);
-  } catch {
-    return { ok: false, reason: 'missing', relPath: normRel };
+  } catch (e: unknown) {
+    const code = (e as { code?: string }).code;
+    if (isAbsentErrno(code)) { return { ok: false, reason: 'missing', relPath: normRel }; }
+    // 探测不了≠不存在：ELOOP/EACCES 一律报拒绝，调用方据此发披露事实（不静默缩水语料）。
+    return { ok: false, reason: 'read-error', relPath: normRel, error: String(e) };
   }
 
   let real: string;
@@ -326,8 +340,11 @@ export function probeRepoEntry(repoRoot: string, relOrAbsPath: string): 'absent'
   let st;
   try {
     st = lstatSync(abs);
-  } catch {
-    return 'absent';
+  } catch (e: unknown) {
+    const code = (e as { code?: string }).code;
+    if (isAbsentErrno(code)) { return 'absent'; }
+    // 探测不了就交给安全读取去判定并披露（不可当作「没有」静默跳过）。
+    return 'other';
   }
   if (st.isSymbolicLink()) { return 'link'; }
   if (st.isFile()) { return 'file'; }

@@ -87,6 +87,10 @@ t('A1 safe-read.ts 导出读取/列目录/探针/披露事实四件（readRepoFi
   /export function makeFileSubjectSkipFact/.test(safeSrc) &&
   /export function listAdrFilesSafe/.test(safeSrc), '');
 
+t('A1b lstat 错误按 errno 分类（只有 ENOENT/ENOTDIR 算不存在，其余报拒绝而不是静默缩水）',
+  /isAbsentErrno/.test(safeSrc) && /code === 'ENOENT' \|\| code === 'ENOTDIR'/.test(safeSrc)
+  && (safeSrc.match(/isAbsentErrno\(code\)/g) || []).length >= 3, '');
+
 t('A2 安全读取经单一文件描述符（fstat 复核＋fd 读；判界与读取同一 inode，堵 TOCTOU）',
   safeSrc.includes('openSync') && safeSrc.includes('fstatSync') && safeSrc.includes('O_NOFOLLOW') &&
   safeSrc.includes('readFileSync(fd'), '');
@@ -205,6 +209,20 @@ if (!symlinkProbe) {
       outsideDirLinkMade ? (outsideListing.ok === false && outsideListing.reason === 'dir-junction-outside') : true,
       outsideDirLinkMade ? (outsideListing.ok ? 'unexpected-ok' : outsideListing.reason) : 'junction-unsupported-skipped');
 
+    // 探测不了≠不存在（PR #127 审查）：ELOOP 自环在 POSIX 上可造，须报 read-error 且**不是** missing。
+    if (linkCap.file) {
+      try {
+        fs.symlinkSync(join(testTmp, 'repo', 'docs', 'self-loop.md'), join(testTmp, 'repo', 'docs', 'self-loop.md'), 'file');
+      } catch { /* ELOOP 建不出来就算了，下面的断言跳过 */ }
+      const loopRead = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/self-loop.md');
+      const loopProbe = SR.probeRepoEntry(join(testTmp, 'repo'), 'docs/self-loop.md');
+      t('B10 ELOOP 自环报拒绝（既不是 missing，也不被探针当 absent 静默吞掉）',
+        loopRead.ok === false && loopRead.reason !== 'missing' && loopProbe !== 'absent',
+        loopRead.ok ? 'unexpected-ok' : loopRead.reason + '/' + loopProbe);
+    } else {
+      skipGroup('B10', 'env-missing:file-symlink');
+    }
+
     // 披露事实形状
     const ctx = { runId: 'r', traceId: 't', repoRef: 'x@y', scale: 'Macro-B', observedAt: '2026-01-01T00:00:00Z' };
     const f = SR.makeFileSubjectSkipFact(ctx, 'docs/adr/0002-evil.md', 'symlink-outside');
@@ -217,10 +235,13 @@ if (!symlinkProbe) {
   }
 
   // ---------- C. 端到端（真实入口） ----------
-  // C 组需要构建产物；无 dist 即无入口可测——SKIP 不假绿。
+  // C 组要同时具备两件：构建产物（入口可跑）＋原生绑定（duckdb 落库面）。
+  //   engine/dist 是入库产物——只查 distReady 时 ci-shallow（无 node_modules）会「看起来能跑」，
+  //   随后 C0/C1/C8 断言入口产物存在即红；故整组按两件能力门控，缺一即组级 SKIP（不假绿也不假红）。
   if (!distReady || !exists(join(ENG, 'dist', 'audit', 'macro-b.js'))) {
-    console.log('SKIP 113-check/C | env-missing:engine-dist（先 cd engine && npm run build）——C 组跳过，不计绿');
-    console.log('GUARD-RESULT: SKIP-GROUP 113-check group=C reason=engine-dist-missing');
+    skipGroup('C', 'env-missing:engine-dist（先 cd engine && npm run build）');
+  } else if (!duckdbReady) {
+    skipGroup('C', 'env-missing:engine-deps:@duckdb/node-api（C 组全部入口都要落库面）');
   } else {
     const e2eTmp = fs.mkdtempSync(join(tmpdir(), '6f-113-e2e-'));
     const gitArgs = (cwd, args) => ['-C', cwd].concat(args);
