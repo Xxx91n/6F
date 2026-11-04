@@ -68,25 +68,21 @@ jobs:
           retention-days: 7
       - run: npm run package
       - run: npm run smoke
-      # TEMP-DIAG（#113 返修窗口）：smoke 失败时把逐件输出与失败守卫现场打包成 artifact——
-      # 本窗口所在环境取不到 job 日志，只能靠产物定位；定位完即删。
-      - name: TEMP-DIAG smoke log on failure
+      # TEMP-DIAG（#113 返修窗口）：smoke 逐件重跑，失败件直接吐 ::error:: 注解——
+      # 本窗口环境取不到 job 日志与 artifact，注解是唯一可读通道；定位完即删。
+      - name: TEMP-DIAG smoke per-file on failure
         if: failure()
         shell: bash
         run: |
-          mkdir -p .diag
-          node test/contracts/113-check.mjs > .diag/113-check.log 2>&1 || true
-          node -e "const{readdirSync,statSync}=require('fs');for(const f of readdirSync('test/contracts').filter(x=>/-check\.mjs$/.test(x))){const r=require('child_process').spawnSync(process.execPath,['test/contracts/'+f],{encoding:'utf8'});require('fs').writeFileSync('.diag/contract-'+f+'.log',((r.stdout||'')+(r.stderr||'')).slice(-20000));}" || true
-          platform_note="os=${{ matrix.os }} node=${{ matrix.node }}"
-          echo "$platform_note" > .diag/platform.txt
-          node -e "console.log(JSON.stringify({platform:process.platform,node:process.version,versions:process.versions},null,2))" >> .diag/platform.txt || true
-      - name: TEMP-DIAG upload
-        if: failure()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 (node24)
-        with:
-          name: temp-diag-${{ matrix.os }}-node${{ matrix.node }}
-          path: engine/.diag/
-          retention-days: 2
+          files="smoke collectors codelore-adapter codelore-batch1 micro-b-emit codelore-llm report-preview intake gitcli-contract sql-literal mcp-db-resolution audit macro-c micro-a demo github-rest upstream-map narrative citation doctor quarantine audit-zero-write dialect-boundary file-card"
+          for f in $files; do
+            if ! out=$(node test/$f.test.mjs 2>&1); then
+              echo "::error title=smoke-fail $f.test.mjs::${{ matrix.os }}/node${{ matrix.node }} :: $(printf '%s' "$out" | grep -E 'FAIL|Error|error' | tail -3 | tr '\n' ' ' | cut -c1-700)"
+            fi
+          done
+          if ! out=$(node test/contracts-run.mjs 2>&1); then
+            echo "::error title=smoke-fail contracts-run::${{ matrix.os }}/node${{ matrix.node }} :: $(printf '%s' "$out" | grep -E '^FAIL' | tr '\n' ' ' | cut -c1-900)"
+          fi
       # #58/D-066 真校验器 advisory：`claude plugin validate --strict`（WARN 不红；cli-absent=SKIP 非失败）
       # 双触发之一=CI event_bound（manifest.meta.json/gen-manifests.mjs 变更随 engine/** 路径触发即含）；
       # 双触发之二=pack/marketplace 前置手动窗口 npm run validate:plugin；转 enforce 判据=registry claude-validate-promotion-watch
