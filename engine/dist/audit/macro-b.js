@@ -6,7 +6,7 @@
 // 渲染段由调用方 finalize（demo 保 byte-parity 组装自身契约面；audit 走 audit.ts 装配）。
 // 纪律：本模块对 repoRoot 只读（git 只读子命令＋文件读）；codelore='auto' 仅 audit 传入，
 //   demo 恒定 'off' 保合成仓逐字节确定性（codelore 实跑=环境相关，不进 golden 链）。
-import { readdirSync, existsSync } from 'node:fs';
+import { readdirSync, existsSync, lstatSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPositioning, sha256Hex, ADR_FIVE_PIECE } from '../collect/collectors.js';
@@ -195,7 +195,15 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
     const intentDocs = [];
     for (const cand of spec.intentCandidates) {
         const p = join(repoRoot, cand);
-        if (existsSync(p)) {
+        let entryExists = false;
+        try {
+            lstatSync(p);
+            entryExists = true;
+        }
+        catch {
+            entryExists = false;
+        }
+        if (entryExists) {
             const readRes = readRepoFileSafe(repoRoot, cand);
             if (!readRes.ok) {
                 pushSkip(makeFileSubjectSkipFact(ctx, cand, readRes.reason));
@@ -253,7 +261,16 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
     let nc1Path = null;
     let nc1Text = null;
     for (const cand of spec.nc1Candidates) {
-        if (existsSync(join(repoRoot, cand))) {
+        const candPath = join(repoRoot, cand);
+        let entryExists = false;
+        try {
+            lstatSync(candPath);
+            entryExists = true;
+        }
+        catch {
+            entryExists = false;
+        }
+        if (entryExists) {
             const r = readRepoFileSafe(repoRoot, cand);
             if (!r.ok) {
                 pushSkip(makeFileSubjectSkipFact(ctx, cand, r.reason));

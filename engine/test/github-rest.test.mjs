@@ -112,6 +112,41 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const client3 = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: async () => { throw new Error('must-not-call'); } });
   const d3 = await G.resolvePrDiff(client3, 'o', 'r', 9, base, orphanSha, repo);
   check('D7 本地可解但 diff 失败 → local-git 降级不兜底 API', d3.ok === false && d3.channel === 'local-git' && d3.error_kind === 'local-diff' && client3.callLog.length === 0, JSON.stringify(d3).slice(0, 200));
+
+  // #116 安全审计：git diff range 拼接显式 SHA 十六进制校验（7~40位 hex）
+  const hackOption = '--output=HACK.txt';
+  const pathTraversal = '../../etc/passwd';
+  const tooShort = 'deadbe';
+  const tooLong = 'a'.repeat(41);
+  const nonHex = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz';
+
+  // localThreeDotDiff 入口防线
+  const badLocal1 = G.localThreeDotDiff(repo, hackOption, head);
+  check('D8 localThreeDotDiff 显式拒 --output 选项', badLocal1.ok === false && /invalid base or head git sha/i.test(badLocal1.detail || ''));
+  const badLocal2 = G.localThreeDotDiff(repo, base, pathTraversal);
+  check('D9 localThreeDotDiff 显式拒路径遍历', badLocal2.ok === false && /invalid base or head git sha/i.test(badLocal2.detail || ''));
+  const badLocal3 = G.localThreeDotDiff(repo, tooShort, head);
+  check('D10 localThreeDotDiff 显式拒过短 SHA (<7)', badLocal3.ok === false && /invalid base or head git sha/i.test(badLocal3.detail || ''));
+  const badLocal4 = G.localThreeDotDiff(repo, base, tooLong);
+  check('D11 localThreeDotDiff 显式拒超长 SHA (>40)', badLocal4.ok === false && /invalid base or head git sha/i.test(badLocal4.detail || ''));
+  const badLocal5 = G.localThreeDotDiff(repo, nonHex, head);
+  check('D12 localThreeDotDiff 显式拒非十六进制字符', badLocal5.ok === false && /invalid base or head git sha/i.test(badLocal5.detail || ''));
+
+  // resolvePrDiff 入口防线（结构化拒绝，local-diff，零 API 调用，零 git diff）
+  const clientSec = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: async () => { throw new Error('must-not-call'); } });
+  const badPr1 = await G.resolvePrDiff(clientSec, 'o', 'r', 10, hackOption, head, repo);
+  check('D13 resolvePrDiff 显式拒 --output 且不兜底 API', badPr1.ok === false && badPr1.channel === 'local-git' && badPr1.error_kind === 'local-diff' && clientSec.callLog.length === 0 && /invalid base or head git sha/i.test(badPr1.detail || ''));
+  const badPr2 = await G.resolvePrDiff(clientSec, 'o', 'r', 11, base, pathTraversal, repo);
+  check('D14 resolvePrDiff 显式拒路径遍历', badPr2.ok === false && badPr2.channel === 'local-git' && badPr2.error_kind === 'local-diff' && clientSec.callLog.length === 0);
+
+  // 空 baseSha/headSha（PR 不在 listing/details 中）保持 API 兜底
+  const clientEmpty = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: cassetteFetcher({ name: 'empty-sha', calls: [cas.calls[3]] }, []) });
+  const emptyDiff = await G.resolvePrDiff(clientEmpty, 'Xxx91n', 'env-manager', 64, '', '', repo);
+  check('D15 空 SHA 回退到 API diff 通道', emptyDiff.ok && emptyDiff.channel === 'api' && clientEmpty.callLog.length === 1);
+
+  // 合法 short SHA（如 7 位）允许通过显式十六进制校验
+  check('D16 isValidGitSha 校验函数导出且真值表正确', typeof G.isValidGitSha === 'function' && G.isValidGitSha('1234567') && G.isValidGitSha('a'.repeat(40)) && !G.isValidGitSha(hackOption) && !G.isValidGitSha('123456'));
+
   rmSync(tmp, { recursive: true, force: true });
 }
 

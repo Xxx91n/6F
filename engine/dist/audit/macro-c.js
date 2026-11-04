@@ -229,7 +229,7 @@ export function evaluateMacroC(col, repoRoot, ctx, ncCandidates) {
     }
     const pinned = col.codeloreResolution ? col.codeloreResolution.pinned === true : false;
     const chain = col.chain;
-    const pcMc1 = pinned && facetRowsFacts.length === CODELORE_BATCH1_FACETS.length && facetErrFacts.length === 0 && col.adrFacts.length > 0;
+    const pcMc1 = pinned && facetRowsFacts.length === CODELORE_BATCH1_FACETS.length && facetErrFacts.length === 0 && col.adrDocs.length > 0;
     const pcMc2 = col.gitFacts.filter(function (f) { return f.metric === 'git.first_commit'; }).length >= col.adrDocs.length - 2;
     const tcMc1 = chain.edge_count >= 1 && chain.unresolved_refs.length === 0 && chain.missing_backrefs.length === 0;
     const tcMc2 = lagFacts.length >= MACRO_C_LAG_MIN_N;
@@ -403,15 +403,21 @@ export async function runMacroCAudit(opts) {
         { rec_id: 'R-MC-3', priority: 'P3', action: '供应链象限维持「⚠ 数据未接」，Scorecard 探针按层需求队列接入不插队', rationale: 'D-034③ 降级披露制已立法；解排触发器=registry supply-chain-closure-trigger（D-206）', expected_impact: 'preview 诚实形态保持', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / insufficient', evidence_refs: ['EV-MC-' + R + '-02'], degraded_note: null }
     ];
     const HEADLINE = NAME + ' Macro-C audit（capability 2 of 5 · preview）：全链实跑——codelore ' + ev.facetRowsFacts.length + '/' + CODELORE_BATCH1_FACETS.length + ' 面 + ADR ' + col.adrDocs.length + ' 份（日期解析 ' + ev.dateFacts.length + '）+ supersede 引用网 ' + chain.edge_count + ' 边（断链 ' + chain.unresolved_refs.length + '／缺回链 ' + chain.missing_backrefs.length + '）+ lag 可判定 ' + ev.lagFacts.length + '；S4 深检面 ' + (col.llmGate.configured ? 'open' : 'llm_gated') + ' → 综合裁定 ' + overallBand + '（' + (ev.facetErrFacts.length === 0 ? 'preview 诚实部分裁定，非管线失败' : '面级错误如实落数') + '）。';
+    const macroCLimitations = [
+        '单仓校准（本 run 对象=' + NAME + '）：不构成泛化证据——dogfooding = generative not evaluative（D-033），GA 前置须 ≥1 非自有公开仓',
+        'LLM 叙事面 env 门控' + (col.llmGate.configured ? '开' : '关：S4 假设失效检测深检维度降级 ⚠ unverified（llm_gated 明示，不伪造不真调）'),
+        '供应链象限 ⚠ 数据未接：Scorecard/repomix 未接不插队（D-034③）',
+        'structure/behavior 象限为衍生观测（无预声明阈值基线）——观测值如实落 slice_fields 不裁决（语义域标签：structure/shape 测量层 vs S3/budget-attribution 归因层，D-205）'
+    ];
+    const mcFileSkips = col.realFacts.filter(function (f) { return f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read'; });
+    if (mcFileSkips.length > 0) {
+        const skipPaths = mcFileSkips.map(function (f) { const v = JSON.parse(f.value_json); return v.raw_path; });
+        macroCLimitations.push('语料来源经链接解析被拒（防仓外穿透/符号链接逃逸）：跳过 ' + mcFileSkips.length + ' 处不可信文件（' + skipPaths.slice(0, 5).join(', ') + (skipPaths.length > 5 ? ' 等' : '') + '）');
+    }
     const disclosure = {
         capability_label: MACRO_C_CAPABILITY_LABEL,
         calibration_scope: NAME + ' Macro-C audit（演化考古一等命令面；管线校准=anysearch-cli 原语料重校准差分对账——85-check 背书）',
-        structural_limitations: [
-            '单仓校准（本 run 对象=' + NAME + '）：不构成泛化证据——dogfooding = generative not evaluative（D-033），GA 前置须 ≥1 非自有公开仓',
-            'LLM 叙事面 env 门控' + (col.llmGate.configured ? '开' : '关：S4 假设失效检测深检维度降级 ⚠ unverified（llm_gated 明示，不伪造不真调）'),
-            '供应链象限 ⚠ 数据未接：Scorecard/repomix 未接不插队（D-034③）',
-            'structure/behavior 象限为衍生观测（无预声明阈值基线）——观测值如实落 slice_fields 不裁决（语义域标签：structure/shape 测量层 vs S3/budget-attribution 归因层，D-205）'
-        ],
+        structural_limitations: macroCLimitations,
         not_in_preview: ['Macro-A'] // Micro-B file-card 进 preview（#80 步③）；Micro-A 产线化入 preview（#85②/D-204③④）；Macro-C 本面产线化入 preview（#84/D-204②）
     };
     const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });

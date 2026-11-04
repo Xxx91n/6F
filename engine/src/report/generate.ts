@@ -488,8 +488,8 @@ export function renderMarkdown(r: Report): string {
       }
     } else if (ch.id === 'C3') {
       for (const e of r.evidence) {
-        out.push('### ' + e.evidence_id + ' — ' + e.source + ' @ ' + e.locator);
-        out.push('- claim: ' + e.claim);
+        out.push('### ' + e.evidence_id + ' — ' + escapeMarkdownExcerpt(e.source) + ' @ ' + e.locator);
+        out.push('- claim: ' + escapeMarkdownExcerpt(e.claim));
         out.push('- grounded: ' + e.grounded + ' · collected_at: ' + e.collected_at);
         out.push('- reproduce_cmd: ' + (e.reproduce_cmd.length > 0 ? e.reproduce_cmd : '(absent: ' + (e.reproduce_absent_reason ? e.reproduce_absent_reason : '未声明') + ')'));
         out.push('- 引文原文: ' + (e.excerpt.length > 0 ? escapeMarkdownExcerpt(e.excerpt) : '（缺失 —— ' + UNVERIFIED_MARK + '）'));
