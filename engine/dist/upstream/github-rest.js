@@ -271,7 +271,8 @@ export function gitShaResolvable(repoRoot, sha) {
     if (!isValidGitSha(sha)) {
         return false;
     }
-    const r = spawnSync('git', ['cat-file', '-e', sha + '^{commit}'], { cwd: repoRoot, encoding: 'utf8', timeout: 30000, windowsHide: true });
+    const cleanSha = sha.trim();
+    const r = spawnSync('git', ['cat-file', '-e', cleanSha + '^{commit}'], { cwd: repoRoot, encoding: 'utf8', timeout: 30000, windowsHide: true });
     return !r.error && r.status === 0;
 }
 export function parseNumstat(text) {
@@ -301,7 +302,9 @@ export function localThreeDotDiff(repoRoot, baseSha, headSha) {
     if (!isValidGitSha(baseSha) || !isValidGitSha(headSha)) {
         return { ok: false, text: '', stats: NULL_STATS, detail: 'invalid base or head git sha: baseSha=' + JSON.stringify(baseSha) + ', headSha=' + JSON.stringify(headSha) };
     }
-    const range = baseSha + '...' + headSha;
+    const cleanBase = baseSha.trim();
+    const cleanHead = headSha.trim();
+    const range = cleanBase + '...' + cleanHead;
     const d = spawnSync('git', ['diff', range], { cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 120000, windowsHide: true });
     if (d.error || d.status !== 0) {
         return { ok: false, text: '', stats: NULL_STATS, detail: 'git diff ' + range + ' :: ' + (d.error ? String(d.error) : (d.stderr || '').slice(-200)) };
@@ -311,11 +314,14 @@ export function localThreeDotDiff(repoRoot, baseSha, headSha) {
     return { ok: true, text: d.stdout || '', stats: stats, detail: null };
 }
 export async function resolvePrDiff(client, owner, repo, prNumber, baseSha, headSha, repoRoot) {
-    if (!isValidGitSha(baseSha) || !isValidGitSha(headSha)) {
+    // 非空 SHA 必须满足十六进制校验；恶意参数/非法字符前置拒绝
+    if ((baseSha && !isValidGitSha(baseSha)) || (headSha && !isValidGitSha(headSha))) {
         return { channel: 'local-git', ok: false, text: '', stats: NULL_STATS, detail: 'invalid base or head git sha: baseSha=' + JSON.stringify(baseSha) + ', headSha=' + JSON.stringify(headSha), error_kind: 'local-diff' };
     }
-    if (repoRoot && gitShaResolvable(repoRoot, baseSha) && gitShaResolvable(repoRoot, headSha)) {
-        const l = localThreeDotDiff(repoRoot, baseSha, headSha);
+    const cleanBase = baseSha ? baseSha.trim() : '';
+    const cleanHead = headSha ? headSha.trim() : '';
+    if (repoRoot && cleanBase && cleanHead && gitShaResolvable(repoRoot, cleanBase) && gitShaResolvable(repoRoot, cleanHead)) {
+        const l = localThreeDotDiff(repoRoot, cleanBase, cleanHead);
         if (l.ok) {
             return { channel: 'local-git', ok: true, text: l.text, stats: l.stats, detail: null, error_kind: null };
         }

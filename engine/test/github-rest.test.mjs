@@ -139,8 +139,13 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const badPr2 = await G.resolvePrDiff(clientSec, 'o', 'r', 11, base, pathTraversal, repo);
   check('D14 resolvePrDiff 显式拒路径遍历', badPr2.ok === false && badPr2.channel === 'local-git' && badPr2.error_kind === 'local-diff' && clientSec.callLog.length === 0);
 
+  // 空 baseSha/headSha（PR 不在 listing/details 中）保持 API 兜底
+  const clientEmpty = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: cassetteFetcher({ name: 'empty-sha', calls: [cas.calls[3]] }, []) });
+  const emptyDiff = await G.resolvePrDiff(clientEmpty, 'Xxx91n', 'env-manager', 64, '', '', repo);
+  check('D15 空 SHA 回退到 API diff 通道', emptyDiff.ok && emptyDiff.channel === 'api' && clientEmpty.callLog.length === 1);
+
   // 合法 short SHA（如 7 位）允许通过显式十六进制校验
-  check('D15 isValidGitSha 校验函数导出且真值表正确', typeof G.isValidGitSha === 'function' && G.isValidGitSha('1234567') && G.isValidGitSha('a'.repeat(40)) && !G.isValidGitSha(hackOption) && !G.isValidGitSha('123456'));
+  check('D16 isValidGitSha 校验函数导出且真值表正确', typeof G.isValidGitSha === 'function' && G.isValidGitSha('1234567') && G.isValidGitSha('a'.repeat(40)) && !G.isValidGitSha(hackOption) && !G.isValidGitSha('123456'));
 
   rmSync(tmp, { recursive: true, force: true });
 }
