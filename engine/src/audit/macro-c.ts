@@ -10,12 +10,13 @@
 // 纪律：被测仓只读；kernel 边界内（D-058）——确定性采集＋骨架渲染，叙事职责不外携（D-053）；
 //   LLM env 门控关=llm_gated 降级披露（不伪造不真调）。
 
-import { readFileSync, readdirSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, unlinkSync } from 'node:fs';
+import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, unlinkSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { repoAdd } from '../intake/intake.js';
 import type { RepoAddResult } from '../intake/intake.js';
 import { probeMacroBRepo, macroBContext, probeGitVersion } from './macro-b.js';
+import { readRepoFileSafe, listAdrFilesSafe, probeRepoEntry, makeFileSubjectSkipFact } from './safe-read.js';
 import type { MacroBProbes } from './macro-b.js';
 import { auditRepoName } from './audit.js';
 import type { AuditOptions, AuditResult } from './audit.js';
@@ -124,6 +125,8 @@ export interface MacroCCollectSpec {
 }
 export interface MacroCCollect {
   adrDocs: { path: string; text: string; first_commit_date: string | null }[];
+  /** docs/adr 是否可用（存在且在仓内）。false 时语料为空——ADR 存在性判据必须看它，不能看 adrFacts（skip 事实也在里面）。 */
+  adrDirUsable: boolean;
   adrFacts: CollectedFact[];
   gitFacts: CollectedFact[];
   codeloreFacts: CollectedFact[];
@@ -134,11 +137,22 @@ export interface MacroCCollect {
   realFacts: CollectedFact[];
   dedupDropped: number;
   codeloreResolution: { version: string | null; pinned: boolean; error: string | null } | null;
+  /** NC-1 负对照选材（安全读取通过的首个候选；被拒候选已各发 skip 事实）。 */
+  ncSelection: { path: string | null; text: string | null };
 }
 export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: CollectContext, spec?: MacroCCollectSpec): MacroCCollect {
+  const skipFacts: CollectedFact[] = [];
+  const skipSeen = new Set<string>();
+  const pushSkip = function (f: CollectedFact): void { if (!skipSeen.has(f.fact_id)) { skipSeen.add(f.fact_id); skipFacts.push(f); } };
   // §2 ADR 语料（被审计仓的 ADR 目录；first_commit=含该文件的最早 dated commit——D-100② 毒值跳过同构 38）
-  const adrDir = join(repoRoot, 'docs', 'adr');
-  const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
+  // #113：目录枚举走安全列目录单点——`docs/adr` 若是指向仓外的 junction/符号链接，一律不出语料并产披露事实。
+  const ADR_REL_DIR = 'docs/adr';
+  const adrListing = listAdrFilesSafe(repoRoot, ADR_REL_DIR);
+  const adrDirUsable = adrListing.ok === true;
+  if (!adrListing.ok && adrListing.reason !== 'missing') {
+    pushSkip(makeFileSubjectSkipFact(ctx, ADR_REL_DIR, adrListing.reason));
+  }
+  const rawAdrFiles = adrListing.ok ? adrListing.files : [];
   const firstCommitOf = function (relPath: string): string | null {
     let best: string | null = null;
     for (const c of probes.commits) {
@@ -146,10 +160,16 @@ export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: Colle
     }
     return best;
   };
-  const adrDocs = adrFiles.map(function (f) {
+  const adrDocs: { path: string; text: string; first_commit_date: string | null }[] = [];
+  for (const f of rawAdrFiles) {
     const rel = 'docs/adr/' + f;
-    return { path: rel, text: readFileSync(join(adrDir, f), 'utf8'), first_commit_date: firstCommitOf(rel) };
-  });
+    const readRes = readRepoFileSafe(repoRoot, rel);
+    if (!readRes.ok) {
+      pushSkip(makeFileSubjectSkipFact(ctx, rel, readRes.reason));
+      continue;
+    }
+    adrDocs.push({ path: rel, text: readRes.text, first_commit_date: firstCommitOf(rel) });
+  }
   const adrFacts = collectAdrStructureV2({ documents: adrDocs }, ctx);
   const adrDateMap: Record<string, string> = {};
   for (const f of adrFacts) {
@@ -162,17 +182,54 @@ export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: Colle
   // §3 codelore 契约面 30 面＋LLM 门控面（38 同款直调——emitPerFileFacts 在发射边界内落 Micro-B grain）
   const codeloreFacts = collectCodeloreFacets({ repoRoot: repoRoot }, ctx);
   const explainCandidates = (spec && spec.llmExplainCandidates) || MACRO_C_LLM_EXPLAIN_CANDIDATES;
-  const explainPaths = explainCandidates.filter(function (p) { return existsSync(join(repoRoot, p)); }).slice(0, 2);
+  const explainPaths = explainCandidates.filter(function (p) {
+    // #113：存在性用 lstat（悬空链接也算「存在」→ 交给安全读取判定并披露），不再用 existsSync 静默过滤。
+    if (probeRepoEntry(repoRoot, p) === 'absent') { return false; }
+    const r = readRepoFileSafe(repoRoot, p);
+    if (!r.ok) {
+      pushSkip(makeFileSubjectSkipFact(ctx, p, r.reason));
+      return false;
+    }
+    return true;
+  }).slice(0, 2);
   const llmFacts = collectCodeloreLlm({ repoRoot: repoRoot, explainPaths: explainPaths, diffRange: (spec && spec.llmDiffRange) || 'HEAD~10..HEAD' }, ctx);
   const llmGateFact = llmFacts.find(function (f) { return f.metric === 'codelore.llm_gate'; });
   const llmGate = llmGateFact ? JSON.parse(llmGateFact.value_json) : { configured: false, reason: 'no-gate-fact' };
+
+  // §3b NC-1 负对照选材（#113 返修：选材上移进采集段——被拒候选在此**逐件发 skip 事实**，
+  //   与 macro-b 的 NC-1 选材同形；判据侧只消费选材结果，不再自己偷偷读文件）。
+  //   存在性判定用 lstat 探针：悬空链接也进安全读取的拒绝分支，不会因 existsSync=false 静默消失。
+  const ncCandidates = (spec && spec.ncCandidates) || MACRO_C_NC_CANDIDATES;
+  let ncPath: string | null = null;
+  let ncText: string | null = null;
+  for (const cand of ncCandidates) {
+    if (probeRepoEntry(repoRoot, cand) === 'absent') { continue; }
+    const r = readRepoFileSafe(repoRoot, cand);
+    if (!r.ok) {
+      pushSkip(makeFileSubjectSkipFact(ctx, cand, r.reason));
+      continue;
+    }
+    ncPath = cand;
+    ncText = r.text;
+    break;
+  }
+
   // §4 supersede 链（38 逐行移植）＋链摘要 fact（同族 metric，evidence=被审计仓 ADR 目录扫描）
   const adrs = scanSupersedeAdrs(adrDocs);
-  const deferRegistryPresent = existsSync(join(repoRoot, 'docs', 'deferred-registry.json'));
+  // #113（返修自查）：defer 注册表存在性同样不得跟随符号链接——`existsSync` 会解析链接，仓外文件只要挂个
+  //   `deferred-registry.json` 链接就能把所有 defer-ref 边判成 resolved，TC-MC-1 由 insufficient 翻 supported。
+  //   存在性改由安全读取判定：读通才算在册，读不通（仓外/悬空/非普通文件）既不算存在，也落披露事实。
+  const DEFER_REL = join('docs', 'deferred-registry.json');
+  let deferRegistryPresent = false;
+  if (probeRepoEntry(repoRoot, DEFER_REL) !== 'absent') {
+    const deferRead = readRepoFileSafe(repoRoot, DEFER_REL);
+    if (deferRead.ok) { deferRegistryPresent = true; }
+    else { pushSkip(makeFileSubjectSkipFact(ctx, DEFER_REL, deferRead.reason)); }
+  }
   const chain = buildSupersedeChain(adrs, deferRegistryPresent);
   const chainFact = makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, 'docs/adr/*', 'docs/adr/* status+inline scan', 'adr.supersede_chain_summary', chain);
   // §5 fact_id 内容寻址去重（38 同款：resolution 双 emit 合一；保留首见，dedup 计数留痕）
-  const rawFacts = adrFacts.concat(gitFacts, codeloreFacts, llmFacts, [chainFact]);
+  const rawFacts = adrFacts.concat(skipFacts, gitFacts, codeloreFacts, llmFacts, [chainFact]);
   const seenFactIds = new Set<string>();
   const realFacts: CollectedFact[] = [];
   let dedupDropped = 0;
@@ -187,7 +244,7 @@ export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: Colle
     const v = JSON.parse(resFact.value_json);
     codeloreResolution = { version: v.version !== undefined ? v.version : null, pinned: v.pinned === true, error: v.error !== undefined ? v.error : null };
   }
-  return { adrDocs: adrDocs, adrFacts: adrFacts, gitFacts: gitFacts, codeloreFacts: codeloreFacts, llmFacts: llmFacts, llmGate: llmGate, chain: chain, chainFact: chainFact, realFacts: realFacts, dedupDropped: dedupDropped, codeloreResolution: codeloreResolution };
+  return { adrDocs: adrDocs, adrDirUsable: adrDirUsable, adrFacts: adrFacts.concat(skipFacts), gitFacts: gitFacts, codeloreFacts: codeloreFacts, llmFacts: llmFacts, llmGate: llmGate, chain: chain, chainFact: chainFact, realFacts: realFacts, dedupDropped: dedupDropped, codeloreResolution: codeloreResolution, ncSelection: { path: ncPath, text: ncText } };
 }
 
 // ---------- 判据（38 §8 逐行移植——阈值=本模块常量，跑前写死跑后禁调） ----------
@@ -198,7 +255,7 @@ export interface MacroCEval {
   llmGatedCount: number; llmNarrativeCount: number;
   nc1Path: string | null;
 }
-export function evaluateMacroC(col: MacroCCollect, repoRoot: string, ctx: CollectContext, ncCandidates?: readonly string[]): MacroCEval {
+export function evaluateMacroC(col: MacroCCollect, repoRoot: string, ctx: CollectContext): MacroCEval {
   const facetRowsFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_rows'; });
   const facetErrFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_error' || f.metric === 'codelore.facet_parse_error'; });
   const lagFacts = col.gitFacts.filter(function (f) { return f.metric === 'git.adr_lag_days'; });
@@ -213,19 +270,19 @@ export function evaluateMacroC(col: MacroCCollect, repoRoot: string, ctx: Collec
   }
   const pinned = col.codeloreResolution ? col.codeloreResolution.pinned === true : false;
   const chain = col.chain as { edge_count: number; unresolved_refs: string[]; missing_backrefs: string[] };
-  const pcMc1 = pinned && facetRowsFacts.length === CODELORE_BATCH1_FACETS.length && facetErrFacts.length === 0 && col.adrFacts.length > 0;
+  // ADR 存在性看「语料目录是否可用且确有文档」——不再看 col.adrFacts.length：skip 事实与 ADR 事实同族混装，
+  //   若 docs/adr 指向仓外，那里会有一条 skip 事实而零份 ADR，用事实数判存在性等于把拒绝读成阳性（PR #127 审查）。
+  const pcMc1 = pinned && facetRowsFacts.length === CODELORE_BATCH1_FACETS.length && facetErrFacts.length === 0 && col.adrDirUsable === true && col.adrDocs.length > 0;
   const pcMc2 = col.gitFacts.filter(function (f) { return f.metric === 'git.first_commit'; }).length >= col.adrDocs.length - 2;
   const tcMc1 = chain.edge_count >= 1 && chain.unresolved_refs.length === 0 && chain.missing_backrefs.length === 0;
   const tcMc2 = lagFacts.length >= MACRO_C_LAG_MIN_N;
   const tcMc3 = col.llmGate.configured === true && col.llmFacts.filter(function (f) { return f.metric === 'codelore.llm_narrative'; }).length >= 1;
-  const cands = ncCandidates || MACRO_C_NC_CANDIDATES;
-  let nc1Path: string | null = null;
+  // NC-1 选材由采集段完成（被拒候选在那里逐件发 skip 事实）；判据侧只消费选材结果，不重复读文件。
+  const nc1Path: string | null = col.ncSelection.path;
+  const nc1Text: string | null = col.ncSelection.text;
   let ncMc1 = false;
-  for (const c of cands) {
-    if (existsSync(join(repoRoot, c))) { nc1Path = c; break; }
-  }
-  if (nc1Path !== null) {
-    const nc1Doc = { path: nc1Path, text: readFileSync(join(repoRoot, nc1Path), 'utf8'), first_commit_date: null };
+  if (nc1Path !== null && nc1Text !== null) {
+    const nc1Doc = { path: nc1Path, text: nc1Text, first_commit_date: null };
     const nc1Facts = collectAdrStructureV2({ documents: [nc1Doc] }, ctx);
     const nc1Five = nc1Facts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
     ncMc1 = !!nc1Five && JSON.parse(nc1Five.value_json).present === 0;
@@ -235,7 +292,14 @@ export function evaluateMacroC(col: MacroCCollect, repoRoot: string, ctx: Collec
 
 // ---------- 一等命令装配（38 §6~§9＋audit.ts 家族形态；capability 2 of 5 · preview） ----------
 function pickExcerpt(absOrRelPath: string, tokens: readonly string[] | null, base: string | null): { line: number; text: string } {
-  const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
+  let text: string;
+  if (base) {
+    const r = readRepoFileSafe(base, absOrRelPath);
+    if (!r.ok) { throw new Error('EXCERPT-REJECTED[' + absOrRelPath + ']: ' + r.reason); }
+    text = r.text;
+  } else {
+    text = readFileSync(absOrRelPath, 'utf8');
+  }
   const lines = text.split(NL);
   if (tokens === null) { return { line: 1, text: lines[0].trim() }; }
   for (let i = 0; i < lines.length; i++) {
@@ -353,15 +417,21 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
     { rec_id: 'R-MC-3', priority: 'P3', action: '供应链象限维持「⚠ 数据未接」，Scorecard 探针按层需求队列接入不插队', rationale: 'D-034③ 降级披露制已立法；解排触发器=registry supply-chain-closure-trigger（D-206）', expected_impact: 'preview 诚实形态保持', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / insufficient', evidence_refs: ['EV-MC-' + R + '-02'], degraded_note: null }
   ];
   const HEADLINE = NAME + ' Macro-C audit（capability 2 of 5 · preview）：全链实跑——codelore ' + ev.facetRowsFacts.length + '/' + CODELORE_BATCH1_FACETS.length + ' 面 + ADR ' + col.adrDocs.length + ' 份（日期解析 ' + ev.dateFacts.length + '）+ supersede 引用网 ' + chain.edge_count + ' 边（断链 ' + chain.unresolved_refs.length + '／缺回链 ' + chain.missing_backrefs.length + '）+ lag 可判定 ' + ev.lagFacts.length + '；S4 深检面 ' + (col.llmGate.configured ? 'open' : 'llm_gated') + ' → 综合裁定 ' + overallBand + '（' + (ev.facetErrFacts.length === 0 ? 'preview 诚实部分裁定，非管线失败' : '面级错误如实落数') + '）。';
+  const macroCLimitations: string[] = [
+    '单仓校准（本 run 对象=' + NAME + '）：不构成泛化证据——dogfooding = generative not evaluative（D-033），GA 前置须 ≥1 非自有公开仓',
+    'LLM 叙事面 env 门控' + (col.llmGate.configured ? '开' : '关：S4 假设失效检测深检维度降级 ⚠ unverified（llm_gated 明示，不伪造不真调）'),
+    '供应链象限 ⚠ 数据未接：Scorecard/repomix 未接不插队（D-034③）',
+    'structure/behavior 象限为衍生观测（无预声明阈值基线）——观测值如实落 slice_fields 不裁决（语义域标签：structure/shape 测量层 vs S3/budget-attribution 归因层，D-205）'
+  ];
+  const mcFileSkips = col.realFacts.filter(function (f) { return f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read'; });
+  if (mcFileSkips.length > 0) {
+    const skipPaths = mcFileSkips.map(function (f) { const v = JSON.parse(f.value_json); return v.raw_path; });
+    macroCLimitations.push('语料来源经链接解析被拒（防仓外穿透/符号链接逃逸）：跳过 ' + mcFileSkips.length + ' 处不可信文件（' + skipPaths.slice(0, 5).join(', ') + (skipPaths.length > 5 ? ' 等' : '') + '）');
+  }
   const disclosure: PreviewDisclosure = {
     capability_label: MACRO_C_CAPABILITY_LABEL,
     calibration_scope: NAME + ' Macro-C audit（演化考古一等命令面；管线校准=anysearch-cli 原语料重校准差分对账——85-check 背书）',
-    structural_limitations: [
-      '单仓校准（本 run 对象=' + NAME + '）：不构成泛化证据——dogfooding = generative not evaluative（D-033），GA 前置须 ≥1 非自有公开仓',
-      'LLM 叙事面 env 门控' + (col.llmGate.configured ? '开' : '关：S4 假设失效检测深检维度降级 ⚠ unverified（llm_gated 明示，不伪造不真调）'),
-      '供应链象限 ⚠ 数据未接：Scorecard/repomix 未接不插队（D-034③）',
-      'structure/behavior 象限为衍生观测（无预声明阈值基线）——观测值如实落 slice_fields 不裁决（语义域标签：structure/shape 测量层 vs S3/budget-attribution 归因层，D-205）'
-    ],
+    structural_limitations: macroCLimitations,
     not_in_preview: ['Macro-A']   // Micro-B file-card 进 preview（#80 步③）；Micro-A 产线化入 preview（#85②/D-204③④）；Macro-C 本面产线化入 preview（#84/D-204②）
   };
   const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });

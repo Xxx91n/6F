@@ -34,6 +34,16 @@ export function escapeMarkdownExcerpt(text) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 }
+/**
+ * 单行化（#113 返修 / #114 同面）：转义后再把换行折成 `⏎`。
+ * 不折行时，引文里的 `> ` / `# ` / `|` 会落在行首，仍能跳出列表项与引用块、伪造标题或表格行——
+ * HTML 实体只挡标签注入，挡不住 Markdown 块级语法。单行是这一层唯一可判定的形态。
+ */
+export function escapeMarkdownExcerptInline(text) {
+    return escapeMarkdownExcerpt(text)
+        .split(String.fromCharCode(13)).join('')
+        .split(String.fromCharCode(10)).join('\u23ce');
+}
 export function chapterHeading(ch) {
     return '## ' + ch.id + ' ' + ch.name;
 }
@@ -250,7 +260,7 @@ export function renderMarkdown(r) {
         out.push('> 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）');
         out.push('> - capability: ' + r.preview_disclosure.capability_label);
         out.push('> - calibration_scope: ' + r.preview_disclosure.calibration_scope);
-        out.push('> - structural_limitations: ' + r.preview_disclosure.structural_limitations.join('；'));
+        out.push('> - structural_limitations: ' + escapeMarkdownExcerptInline(r.preview_disclosure.structural_limitations.join('；')));
         out.push('> - not_in_preview: ' + r.preview_disclosure.not_in_preview.join(' / '));
     }
     out.push('');
@@ -307,11 +317,11 @@ export function renderMarkdown(r) {
         }
         else if (ch.id === 'C3') {
             for (const e of r.evidence) {
-                out.push('### ' + e.evidence_id + ' — ' + e.source + ' @ ' + e.locator);
-                out.push('- claim: ' + e.claim);
+                out.push('### ' + e.evidence_id + ' — ' + escapeMarkdownExcerptInline(e.source) + ' @ ' + e.locator);
+                out.push('- claim: ' + escapeMarkdownExcerptInline(e.claim));
                 out.push('- grounded: ' + e.grounded + ' · collected_at: ' + e.collected_at);
                 out.push('- reproduce_cmd: ' + (e.reproduce_cmd.length > 0 ? e.reproduce_cmd : '(absent: ' + (e.reproduce_absent_reason ? e.reproduce_absent_reason : '未声明') + ')'));
-                out.push('- 引文原文: ' + (e.excerpt.length > 0 ? escapeMarkdownExcerpt(e.excerpt) : '（缺失 —— ' + UNVERIFIED_MARK + '）'));
+                out.push('- 引文原文: ' + (e.excerpt.length > 0 ? escapeMarkdownExcerptInline(e.excerpt) : '（缺失 —— ' + UNVERIFIED_MARK + '）'));
                 out.push('');
             }
             out.push('#### 引文→结论支持关系校验');

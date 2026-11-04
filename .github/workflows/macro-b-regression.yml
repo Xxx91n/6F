@@ -81,14 +81,14 @@ jobs:
       matrix: ${{ fromJSON(needs.resolve.outputs.matrix) }}
     steps:
       - name: checkout audit engine (self)
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0 (node24)
         with:
           path: engine-repo
           fetch-depth: 0          # one-shot 证据锚读仓内文档（docs/spec.md）；全量对象与 #39 先例一致
           # #117 / artipacked：engine 自身 checkout 仅供读取文档和构建，不写回远端；清凭据防泄露
           persist-credentials: false
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0 (node24)
         with:
           node-version: 24   # 对齐 golden-ci 同仓 CI 惯例（engine engines>=22.18 无碍；engine-ci 矩阵另覆盖 22/24）
           cache: npm
@@ -112,11 +112,22 @@ jobs:
             *) echo "::error::repo url 仅允许 https://（got: $REPO_URL）"; exit 1 ;;
           esac
           mkdir -p .clone-noop-hooks
+          # #113 返修（PR #127 审查）：本腿**不**加 `-c core.symlinks=false`。带它会把被审计仓里的符号链接
+          #   物化成「内容是目标路径文本的普通文件」——`readRepoFileSafe` 只认 lstat 事实，普通文件即放行，
+          #   于是仓外指向的链接被当作 ADR 正文解析、且**不产生** `codelore.file_subject_skip` 披露事实：
+          #   既改了 ADR 语料，又把本票要证明的「拒绝+披露」路径整段遮住。链接照实际落盘，安全边界由读取单点兜。
+          #   `core.symlinks=false` 的 defense-in-depth 作用位=url 腿的真克隆（engine/src/intake/intake.ts，
+          #   其效果由 engine/test/contracts/113-check.mjs A5 静态钉住）；workflow_dispatch 的任意 https:// 输入
+          #   也走那一条腿，故本腿不再挂同旗标。
           git -c core.hooksPath="$GITHUB_WORKSPACE/.clone-noop-hooks" \
               -c protocol.ext.allow=never \
               clone "$REPO_URL" audited-repo
-          # 浅拒断言（engine/src/intake.ts SHALLOW-CLONE-REJECTED 同构：全深度才准入）
+          # 浅拒断言（engine/src/intake/intake.ts SHALLOW-CLONE-REJECTED 同构：全深度才准入）
           test "$(git -C audited-repo rev-parse --is-shallow-repository)" = "false"
+          # 链接可见性前置断言（#113）：克隆必须**保留**符号链接，否则本 CI 的回归面测不到安全读取单点。
+          #   无链接的普通仓不触发（!= 0 即无链接，非失败）。
+          symlinks_seen="$(git -C audited-repo ls-files -s | awk '$1 == "120000"' | wc -l)"
+          echo "audited-repo symlink entries: $symlinks_seen（保留原始链接=安全读取单点仍被回归覆盖）"
 
       - name: Macro-B one-shot regression (exit-code aware; expected-divergence branch)
         id: oneshot
@@ -172,13 +183,13 @@ jobs:
       - name: upload crash artifacts (protocol-bucket lane, if any)
         # #78/D-109：协议级崩溃固定 schema 工件——one-shot 硬崩（exit 2/3）时崩溃桶 JSON 随工件上传，批灭前先留证（actions/upload-artifact@v4）
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 (node24)
         with:
           name: macro-b-crash-${{ matrix.repo.name }}
           path: macro-b-artifacts/*crash*.json
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 (node24)
         if: always()
         with:
           name: macro-b-${{ matrix.repo.name }}-${{ github.run_id }}

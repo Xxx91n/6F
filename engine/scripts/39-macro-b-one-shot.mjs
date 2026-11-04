@@ -8,16 +8,19 @@
 //   → 报告（buildReport + preview_disclosure「capability 1 of 5 · preview」）
 // 纪律：被测仓只读（git 只读子命令 + 文件读，绝不写）；唯一写动作 = --out 目录 39-* 工件。
 //       试点成功度量 = 反复接受非跑通（D-033）：裁定带 supported/unsupported/insufficient 三档如实落数。
-import { readFileSync, readdirSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, relative, isAbsolute } from 'node:path';
 import { siblingPath } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..'); // engine/scripts 下移一层                 // 6F 仓根（engine 所在）
 const DIST = join(REPO, 'engine', 'dist');
 const NL = String.fromCharCode(10);
+
+
+
 
 const C = await import(pathToFileURL(join(DIST, 'collect', 'collectors.js')).href);
 const G = await import(pathToFileURL(join(DIST, 'report', 'generate.js')).href);
@@ -27,6 +30,8 @@ const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);//
 const MB = await import(pathToFileURL(join(DIST, 'audit', 'macro-b.js')).href); // #42：探针同源 audit.ts（字段级分类/事件面）
 const Q = await import(pathToFileURL(join(DIST, 'intake', 'quarantine.js')).href);   // #78/D-109①：崩溃桶构造器复用——Q 只取崩溃/投影聚合导出（分类器/写库面禁引，D-118④）
 const STRICT_Q = process.env[Q.STRICT_QUARANTINE_ENV] === '1';   // #78/D-110④：env 只传开关——对照物无 quarantine 桶（病态恒硬崩=strict 恒真语义），env 值进证据面供 CI 对账
+const SR = await import(pathToFileURL(join(DIST, 'audit', 'safe-read.js')).href);
+const { listAdrFilesSafe, probeRepoEntry, readRepoFileSafe, makeFileSubjectSkipFact } = SR;
 
 // ---------- §0 参数：默认三仓全跑；--repo/--root/--out = 单仓 CI 形态 ----------
 const DEFAULT_REPOS = [
@@ -95,7 +100,14 @@ function git(root, args) {
 }
 
 function pickExcerpt(absOrRelPath, tokens, base) {
-  const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
+  let text;
+  if (base) {
+    const r = readRepoFileSafe(base, absOrRelPath);
+    if (!r.ok) { throw new Error('EXCERPT-REJECTED[' + absOrRelPath + ']: ' + r.reason); }
+    text = r.text;
+  } else {
+    text = readFileSync(absOrRelPath, 'utf8');
+  }
   const lines = text.split(NL);
   if (tokens === null || tokens === undefined) { return { line: 1, text: lines[0].trim() }; }  // 文件存在性锚：取首行
   const list = Array.isArray(tokens) ? tokens : [tokens];
@@ -132,17 +144,32 @@ async function runOneShot(target) {
   // -- 采集：gitlog（PROBE-INVARIANT 由共享探针断言：解析数==rev-list 数） --
 
   // -- 采集：ADR 语料（adr-structure@v2 回退链） --
-  const adrDir = join(ROOT, 'docs', 'adr');
-  const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
+  // #113：每个被安全读取拒绝的输入都发 codelore.file_subject_skip 事实（进 JSONL/duckdb/报告披露），
+  //   不再静默丢弃——回归工作流跑本脚本对着不可信仓，看不见的拒绝=看不见的语料缺口。
+  const skipFacts = [];
+  const skipSeen = new Set();
+  const pushSkip = function (rel, reason) {
+    const f = makeFileSubjectSkipFact(ctx, rel, reason);
+    if (!skipSeen.has(f.fact_id)) { skipSeen.add(f.fact_id); skipFacts.push(f); }
+  };
+  const ADR_REL_DIR = 'docs/adr';
+  const adrListing = listAdrFilesSafe(ROOT, ADR_REL_DIR);
+  if (!adrListing.ok && adrListing.reason !== 'missing') { pushSkip(ADR_REL_DIR, adrListing.reason); }
+  const rawAdrFiles = adrListing.ok ? adrListing.files : [];
   const firstCommitOf = (p) => {
     let best = null;
     for (const c of commits) { if (c.date !== null && c.paths.indexOf(p) >= 0 && (best === null || c.date < best)) { best = c.date; } }
     return best;
   };
-  const adrDocs = adrFiles.map(function (f) {
+  const adrDocs = [];
+  const adrFiles = [];
+  for (const f of rawAdrFiles) {
     const rel = 'docs/adr/' + f;
-    return { path: rel, text: readFileSync(join(adrDir, f), 'utf8'), first_commit_date: firstCommitOf(rel) };
-  });
+    const r = readRepoFileSafe(ROOT, rel);
+    if (!r.ok) { pushSkip(rel, r.reason); continue; }
+    adrFiles.push(f);
+    adrDocs.push({ path: rel, text: r.text, first_commit_date: firstCommitOf(rel) });
+  }
   const adrPaths = adrDocs.map(function (d) { return d.path; });
   const adrFacts = C.collectAdrStructureV2({ documents: adrDocs }, ctx);
   const adrDateMap = {};
@@ -157,15 +184,17 @@ async function runOneShot(target) {
   // -- 采集：positioning（意图面=仓根 CONTEXT/README/AGENTS 存在者；交付面=git log subjects） --
   const intentDocs = [];
   for (const cand of INTENT_CANDIDATES) {
-    const p = join(ROOT, cand);
-    if (existsSync(p)) { intentDocs.push({ path: cand, text: readFileSync(p, 'utf8') }); }
+    if (probeRepoEntry(ROOT, cand) === 'absent') { continue; }
+    const r = readRepoFileSafe(ROOT, cand);
+    if (r.ok) { intentDocs.push({ path: cand, text: r.text }); }
+    else { pushSkip(cand, r.reason); }
   }
   const subjects = probes.subjects;
   const deliveryDocs = [{ path: 'git log subjects @ ' + HEAD_SHA.slice(0, 7), text: subjects.join(NL) }];
   const posFacts = intentDocs.length > 0
     ? C.collectPositioning({ intentDocs: intentDocs, deliveryDocs: deliveryDocs, topN: TC3_TOPN, stopwords: STOPWORDS }, ctx)
     : [];
-  const realFacts = adrFacts.concat(posFacts, gitFacts);
+  const realFacts = adrFacts.concat(skipFacts, posFacts, gitFacts);
 
   // -- 正对照 PC-1 / PC-2（管线健康闸，夹具与被测仓无关） --
   const pc1AdrFacts = C.collectAdrStructure({ documents: [{ path: 'fixtures/39-pc1-golden-adr.md', text: GOLDEN_ADR }] }, ctx);
@@ -184,9 +213,19 @@ async function runOneShot(target) {
 
   // -- 负对照 NC-1（被测仓内非 ADR 文件，五件套预期 0 命中） --
   let nc1Path = null;
-  for (const cand of NC1_CANDIDATES) { if (existsSync(join(ROOT, cand))) { nc1Path = cand; break; } }
-  if (!nc1Path) { throw new Error('NC1-CANDIDATE-MISS[' + NAME + ']'); }
-  const nc1Facts = C.collectAdrStructure({ documents: [{ path: nc1Path, text: readFileSync(join(ROOT, nc1Path), 'utf8') }] }, ctx);
+  let nc1Text = null;
+  for (const cand of NC1_CANDIDATES) {
+    if (probeRepoEntry(ROOT, cand) === 'absent') { continue; }
+    const r = readRepoFileSafe(ROOT, cand);
+    if (r.ok) {
+      nc1Path = cand;
+      nc1Text = r.text;
+      break;
+    }
+    pushSkip(cand, r.reason);
+  }
+  if (!nc1Path || nc1Text === null) { throw new Error('NC1-CANDIDATE-MISS[' + NAME + ']'); }
+  const nc1Facts = C.collectAdrStructure({ documents: [{ path: nc1Path, text: nc1Text }] }, ctx);
   const nc1Five = nc1Facts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
   const nc1Sup = nc1Facts.find(function (f) { return f.metric === 'adr.supersede_link_present'; });
   const nc1 = { path: nc1Path, fact_count: nc1Facts.length, five_piece_present: nc1Five ? JSON.parse(nc1Five.value_json).present : -1, supersede_present: nc1Sup ? JSON.parse(nc1Sup.value_json).present : null };
@@ -316,6 +355,18 @@ async function runOneShot(target) {
     recorded_at: probes.headDate
   };
 
+  // #113：被安全读取拒绝的输入必须进报告披露块（不静默）——与 audit.ts / macro-c.ts 同文案口径。
+  const structuralLimitations = [
+    '同主仓确认偏差：三试点仓与产品同主——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟，不构成泛化证据',
+    '泛化证据缺口：Macro-B GA 前置须 ≥1 非自有公开仓经 URL opt-in（#40 / D-013）',
+    'structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）；供应链象限 ⚠ 数据未接（D-034③）',
+    'one-shot 度量 = 反复接受非跑通：TC 三档裁定（supported/unsupported/insufficient）如实落数，不为跑通而跑通'
+  ];
+  if (skipFacts.length > 0) {
+    const skipPaths = skipFacts.map(function (f) { return JSON.parse(f.value_json).raw_path; });
+    structuralLimitations.push('语料来源经链接解析被拒（防仓外穿透/符号链接逃逸）：跳过 ' + skipFacts.length + ' 处不可信文件（' + skipPaths.slice(0, 5).join(', ') + (skipPaths.length > 5 ? ' 等' : '') + '）');
+  }
+
   const reportInput = {
     report_id: 'MA-39-' + NAME.toUpperCase().split('-').join('') + '-MACRO-B-ONESHOT',
     scale: 'Macro-B',
@@ -342,12 +393,7 @@ async function runOneShot(target) {
     preview_disclosure: {
       capability_label: 'capability 1 of 5 · preview',
       calibration_scope: '同主三试点仓 one-shot（env-manager / anysearch-cli / jiahao）',
-      structural_limitations: [
-        '同主仓确认偏差：三试点仓与产品同主——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟，不构成泛化证据',
-        '泛化证据缺口：Macro-B GA 前置须 ≥1 非自有公开仓经 URL opt-in（#40 / D-013）',
-        'structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）；供应链象限 ⚠ 数据未接（D-034③）',
-        'one-shot 度量 = 反复接受非跑通：TC 三档裁定（supported/unsupported/insufficient）如实落数，不为跑通而跑通'
-      ],
+      structural_limitations: structuralLimitations,
       not_in_preview: ['Micro-A', 'Micro-B', 'Macro-A']
     },
     intake_health: intakeHealth,

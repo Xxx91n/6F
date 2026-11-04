@@ -54,6 +54,8 @@ export interface MacroCCollect {
         text: string;
         first_commit_date: string | null;
     }[];
+    /** docs/adr 是否可用（存在且在仓内）。false 时语料为空——ADR 存在性判据必须看它，不能看 adrFacts（skip 事实也在里面）。 */
+    adrDirUsable: boolean;
     adrFacts: CollectedFact[];
     gitFacts: CollectedFact[];
     codeloreFacts: CollectedFact[];
@@ -72,6 +74,11 @@ export interface MacroCCollect {
         pinned: boolean;
         error: string | null;
     } | null;
+    /** NC-1 负对照选材（安全读取通过的首个候选；被拒候选已各发 skip 事实）。 */
+    ncSelection: {
+        path: string | null;
+        text: string | null;
+    };
 }
 export declare function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: CollectContext, spec?: MacroCCollectSpec): MacroCCollect;
 export interface MacroCEval {
@@ -90,5 +97,5 @@ export interface MacroCEval {
     llmNarrativeCount: number;
     nc1Path: string | null;
 }
-export declare function evaluateMacroC(col: MacroCCollect, repoRoot: string, ctx: CollectContext, ncCandidates?: readonly string[]): MacroCEval;
+export declare function evaluateMacroC(col: MacroCCollect, repoRoot: string, ctx: CollectContext): MacroCEval;
 export declare function runMacroCAudit(opts: AuditOptions): Promise<AuditResult>;

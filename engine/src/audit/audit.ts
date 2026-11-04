@@ -12,6 +12,7 @@ import { mkdirSync, writeFileSync, existsSync, unlinkSync, readFileSync, mkdtemp
 import { basename, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { repoAdd } from '../intake/intake.js';
+import { readRepoFileSafe } from './safe-read.js';
 import type { RepoAddResult } from '../intake/intake.js';
 import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, probeGitVersion, MACRO_B_STOPWORDS, TC1_LAG_DAYS, TC1_RATIO_RED, TC1_MIN_N, TC2_MEAN_RED, TC2_FIELD_MISSING_RED, TC3_RED, TC3_GREEN, TC3_TOPN } from './macro-b.js';
 import { buildReport, renderMarkdown, renderSidecar, deriveOverallBand, ADJUDICATION_PROTOCOL_VERSION, REPORT_SKELETON_VERSION, UNVERIFIED_MARK, firstFactIds } from '../report/generate.js';
@@ -108,7 +109,14 @@ const AUDIT_INTENT_CANDIDATES: readonly string[] = ['CONTEXT.md', 'README.md', '
 const AUDIT_NC1_CANDIDATES: readonly string[] = ['package.json', 'README.md', 'README.adoc', 'README.rst', 'README', 'Cargo.toml', 'pom.xml', 'build.gradle', 'LICENSE', 'LICENSE.txt', 'pyproject.toml', 'go.mod', 'Makefile'];
 
 function pickExcerpt(absOrRelPath: string, tokens: readonly string[] | null, base: string | null): { line: number; text: string } {
-  const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
+  let text: string;
+  if (base) {
+    const r = readRepoFileSafe(base, absOrRelPath);
+    if (!r.ok) { throw new Error('EXCERPT-REJECTED[' + absOrRelPath + ']: ' + r.reason); }
+    text = r.text;
+  } else {
+    text = readFileSync(absOrRelPath, 'utf8');
+  }
   const lines = text.split(NL);
   if (tokens === null) { return { line: 1, text: lines[0].trim() }; }
   for (let i = 0; i < lines.length; i++) {
@@ -312,6 +320,11 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   ];
   if (anchorQuarantined) {
     limitations.push('锚字段病态：HEAD %cI quarantined（anchor_head_date_malformed）→ audit_fact 行不落库（observed_at NOT NULL 不落伪值）；quarantine_log 留痕 recorded_at=NULL，整仓 unsupported');
+  }
+  const fileSkips = col.realFacts.filter(function (f) { return f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read'; });
+  if (fileSkips.length > 0) {
+    const skipPaths = fileSkips.map(function (f) { const v = JSON.parse(f.value_json); return v.raw_path; });
+    limitations.push('语料来源经链接解析被拒（防仓外穿透/符号链接逃逸）：跳过 ' + fileSkips.length + ' 处不可信文件（' + skipPaths.slice(0, 5).join(', ') + (skipPaths.length > 5 ? ' 等' : '') + '）');
   }
   const disclosure: PreviewDisclosure = {
     capability_label: 'capability 1 of 5 · preview',
