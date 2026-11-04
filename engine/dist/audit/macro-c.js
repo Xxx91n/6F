@@ -212,7 +212,20 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
     }
     // §4 supersede 链（38 逐行移植）＋链摘要 fact（同族 metric，evidence=被审计仓 ADR 目录扫描）
     const adrs = scanSupersedeAdrs(adrDocs);
-    const deferRegistryPresent = existsSync(join(repoRoot, 'docs', 'deferred-registry.json'));
+    // #113（返修自查）：defer 注册表存在性同样不得跟随符号链接——`existsSync` 会解析链接，仓外文件只要挂个
+    //   `deferred-registry.json` 链接就能把所有 defer-ref 边判成 resolved，TC-MC-1 由 insufficient 翻 supported。
+    //   存在性改由安全读取判定：读通才算在册，读不通（仓外/悬空/非普通文件）既不算存在，也落披露事实。
+    const DEFER_REL = join('docs', 'deferred-registry.json');
+    let deferRegistryPresent = false;
+    if (probeRepoEntry(repoRoot, DEFER_REL) !== 'absent') {
+        const deferRead = readRepoFileSafe(repoRoot, DEFER_REL);
+        if (deferRead.ok) {
+            deferRegistryPresent = true;
+        }
+        else {
+            pushSkip(makeFileSubjectSkipFact(ctx, DEFER_REL, deferRead.reason));
+        }
+    }
     const chain = buildSupersedeChain(adrs, deferRegistryPresent);
     const chainFact = makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, 'docs/adr/*', 'docs/adr/* status+inline scan', 'adr.supersede_chain_summary', chain);
     // §5 fact_id 内容寻址去重（38 同款：resolution 双 emit 合一；保留首见，dedup 计数留痕）

@@ -105,6 +105,9 @@ t('A3b macro-c.ts 接入安全读取（读取＋列目录＋披露事实；ADR �
   mcSrc.includes('readRepoFileSafe') && mcSrc.includes('listAdrFilesSafe') && mcSrc.includes('makeFileSubjectSkipFact') &&
   mcSrc.includes('adrDirUsable') && !/col\.adrFacts\.length\s*>\s*0/.test(mcSrc), '');
 
+t('A3c macro-c.ts 不再对被审计仓做 existsSync 存在性探针（跟随链接＝仓外文件可解 defer-ref 边）',
+  !/existsSync\(\s*join\(\s*repoRoot/.test(mcSrc) && /DEFER_REL/.test(mcSrc), '');
+
 const auditSrc = txt(join(ENG, 'src', 'audit', 'audit.ts'));
 t('A4 audit.ts 证据引文走安全读取并在 limitations 披露跳过语料',
   auditSrc.includes('readRepoFileSafe') && auditSrc.includes('语料来源经链接解析被拒'), '');
@@ -388,6 +391,44 @@ if (!symlinkProbe) {
       t('C12 目录 junction：仓外 ADR 未进报告（零 outside 语料）且 PC-MC-1 不因 skip 事实转阳性',
         juncMd.indexOf('ADR-0001: Outside') < 0 &&
         /PC-MC-1: (insufficient|unsupported)/.test(juncMd), '');
+
+      // ---- C14：defer 注册表链接不得把 defer-ref 边「解」成 resolved（TC-MC-1 由 insufficient 翻 supported）----
+      //   形态：仓内 ADR 正文写 `References: defer-001`，仓根挂 docs/deferred-registry.json → 仓外文件。
+      //   旧实现 existsSync 跟随链接 ⇒ deferRegistryPresent=true ⇒ 全部 defer-ref 边 resolved ⇒ TC-MC-1 supported。
+      const repoD = join(e2eTmp, 'repoD');
+      fs.mkdirSync(join(repoD, 'docs', 'adr'), { recursive: true });
+      git(repoD, ['init', '-q', '.']);
+      git(repoD, ['config', 'user.email', 'guard@test.local']);
+      git(repoD, ['config', 'user.name', 'guard']);
+      fs.writeFileSync(join(repoD, 'docs', 'adr', '0001-defer.md'),
+        '# ADR-0001: Defer' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'c' + NL
+        + '## Decision' + NL + 'd' + NL + '## Consequences' + NL + 'q' + NL + 'References: defer-001' + NL, 'utf8');
+      fs.writeFileSync(join(repoD, 'README.md'), '# Repo D' + NL, 'utf8');
+      fs.writeFileSync(join(repoD, 'package.json'), '{"name":"d"}' + NL, 'utf8');
+      git(repoD, ['add', '-A']);
+      git(repoD, ['commit', '-qm', 'init defer adr']);
+      const DEFER_OUTSIDE = join(e2eTmp, 'outside-registry.json');
+      fs.writeFileSync(DEFER_OUTSIDE, '{"deferred":[]}' + NL, 'utf8');
+      fs.symlinkSync(DEFER_OUTSIDE, join(repoD, 'docs', 'deferred-registry.json'), 'file');
+      const deferOut = join(e2eTmp, 'out-defer');
+      const rDefer = runAudit(repoD, deferOut, 'Macro-C');
+      const deferFacts = readFacts(deferOut);
+      const deferSkips = deferFacts.filter(f => f.metric === 'codelore.file_subject_skip'
+        && JSON.parse(f.value_json).raw_path === 'docs/deferred-registry.json');
+      const deferChain = deferFacts.filter(f => f.metric === 'adr.supersede_chain_summary')
+        .map(f => JSON.parse(f.value_json))[0];
+      // 链摘要不带明细 edges；以 defer_ref_edges＋unresolved_refs 判定：注册表在册时 defer-ref 边全 resolved
+      //   （unresolved_refs 里不出现 defer-ref），被拒时必须仍为未解析。
+      const deferUnresolved = deferChain && Array.isArray(deferChain.unresolved_refs)
+        ? deferChain.unresolved_refs.filter(r => String(r).indexOf('defer-ref') >= 0).length : -1;
+      const deferEdgeN = deferChain ? deferChain.defer_ref_edges : -1;
+      const deferMd = fs.readdirSync(deferOut).filter(a => a.endsWith('.md')).map(a => txt(join(deferOut, a))).join(NL);
+      t('C14 defer 注册表仓外链接：拒绝并披露（defer-ref 边仍 unresolved——TC-MC-1 不因仓外文件转 supported）',
+        rDefer.status === 0 && deferSkips.length === 1 && deferSkips[0].collector_id === 'audit-safe-read'
+        && deferEdgeN === 1 && deferUnresolved === 1
+        && /^- TC-MC-1: (insufficient|unsupported)/m.test(deferMd),
+        'exit=' + String(rDefer.status) + ' skips=' + String(deferSkips.length)
+          + ' deferEdges=' + String(deferEdgeN) + ' unresolvedDefer=' + String(deferUnresolved));
 
       // ---- C13：duckdb 落库面（原生绑定不在位即 SKIP，不假绿）----
       if (!duckdbReady) {
