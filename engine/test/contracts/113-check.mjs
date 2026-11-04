@@ -32,9 +32,17 @@ const CLI = join(ENG, 'dist', 'cli.js');
 const NL = String.fromCharCode(10);
 
 let pass = 0, fail = 0;
+const failedNames = [];
+const skippedGroups = [];
 const t = (name, ok, extra = '') => {
   console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : ''));
-  if (ok) pass++; else fail++;
+  if (ok) { pass++; } else { fail++; failedNames.push(name); }
+};
+// 能力缺组统一走这里：吐 SKIP + SKIP-GROUP 机读行，不静默也不算绿（D-159③ 三态纪律）。
+const skipGroup = (group, reason) => {
+  console.log('SKIP 113-check/' + group + ' | ' + reason);
+  console.log('GUARD-RESULT: SKIP-GROUP 113-check group=' + group + ' reason=' + reason);
+  skippedGroups.push(group);
 };
 const txt = p => fs.readFileSync(p, 'utf8');
 const exists = p => fs.existsSync(p);
@@ -69,6 +77,7 @@ const linkCap = (() => {
 })();
 const symlinkProbe = linkCap.file;
 
+try {
 // ---------- A. 静态源码断言 ----------
 const safeSrc = txt(join(ENG, 'src', 'audit', 'safe-read.ts'));
 t('A1 safe-read.ts 导出读取/列目录/探针/披露事实四件（readRepoFileSafe·readRepoDirSafe·probeRepoEntry·makeFileSubjectSkipFact）',
@@ -344,8 +353,9 @@ if (!symlinkProbe) {
           + '## Context' + NL + 'c' + NL + '## Decision' + NL + 'd' + NL + '## Consequences' + NL + 'q' + NL, 'utf8');
       }
       // 目录链接/junction：Windows 上 junction 免开发者模式——能力优先，形态不改变被测语义（都指向仓外目录）
-      if (linkCap.junction) { fs.symlinkSync(JUNC_OUTSIDE, join(repoB, 'docs', 'adr'), 'junction'); }
-      else { fs.symlinkSync(JUNC_OUTSIDE, join(repoB, 'docs', 'adr'), 'dir'); }
+      const dirLinkKind = linkCap.junction ? 'junction' : (linkCap.dir ? 'dir' : null);
+      if (dirLinkKind === null) { throw new Error('ENV-SKIP:dir-link-unavailable'); }
+      fs.symlinkSync(JUNC_OUTSIDE, join(repoB, 'docs', 'adr'), dirLinkKind);
       const juncOut = join(e2eTmp, 'out-junction');
       const rJunc = runAudit(repoB, juncOut, 'Macro-C');
       const juncFacts = readFacts(juncOut);
@@ -421,7 +431,10 @@ if (distReady && symlinkProbe && duckdbReady) {
     fs.cpSync(join(ENG, 'dist'), join(engCopy, 'dist'), { recursive: true });
     fs.cpSync(join(ENG, 'scripts'), join(engCopy, 'scripts'), { recursive: true });
     fs.copyFileSync(join(ENG, 'package.json'), join(engCopy, 'package.json'));
-    fs.symlinkSync(join(ENG, 'node_modules'), join(engCopy, 'node_modules'), 'dir');
+    // node_modules 用 junction（Windows 免开发者模式）优先，退回目录符号链接；两者都不可建则整组跳过。
+    let nmLinked = true;
+    try { fs.symlinkSync(join(ENG, 'node_modules'), join(engCopy, 'node_modules'), linkCap.junction ? 'junction' : 'dir'); }
+    catch { nmLinked = false; }
     // 39 脚本读预声明阈值夹具（REPO 推算为 engine 副本的父目录）——只补这一件，不搬整个 fixtures 面。
     fs.mkdirSync(join(engCopy, 'test', 'fixtures', 'contracts'), { recursive: true });
     fs.copyFileSync(join(ENG, 'test', 'fixtures', 'contracts', '22-threshold-raw.json'),
@@ -470,6 +483,7 @@ if (distReady && symlinkProbe && duckdbReady) {
       ''
     ].join(NL), 'utf8');
 
+    if (!nmLinked) { throw new Error('ENV-SKIP:dir-link-unavailable'); }
     const negOut = join(ctrlTmp, 'out-neg');
     fs.mkdirSync(negOut, { recursive: true });
     const rNeg = spawnSync('node', [join(engCopy, 'scripts', '39-macro-b-one-shot.mjs'),
@@ -498,5 +512,23 @@ t('E1 safe-read.ts 无 BOM', !txt(join(ENG, 'src', 'audit', 'safe-read.ts')).sta
 t('E2 113-check.mjs 自身无 BOM', !txt(join(HERE, '113-check.mjs')).startsWith('\uFEFF'), '');
 t('E3 主仓工作区未被守卫写入（守卫只写 OS temp）', !exists(join(ENG, 'audit-facts.jsonl')), '');
 
+} catch (e) {
+  // 崩溃同样要能被 CI 侧看见（否则只有一句 exit code 1）——ENV-SKIP 走 SKIP 语义，其余算红。
+  const msg = String(e && e.message ? e.message : e);
+  if (msg.indexOf('ENV-SKIP:') === 0) {
+    skipGroup('C-D-e2e', msg.slice('ENV-SKIP:'.length));
+  } else {
+    console.log('FAIL 113-check 未捕获异常: ' + msg);
+    console.log('::error title=113-check::CRASH ' + msg.slice(0, 900));
+    console.log((L => L)(e && e.stack ? String(e.stack).slice(0, 1500) : ''));
+    fail += 1;
+    failedNames.push('crash:' + msg.slice(0, 200));
+  }
+}
+
 console.log(`${NL}--- 113-check summary: ${pass} passed, ${fail} failed ---`);
-if (fail > 0) process.exit(1);
+if (fail > 0) {
+  // Actions 注解（本地跑只是一行原文）：CI 上失败项直接进 check-run annotation，不必翻整段日志。
+  console.log('::error title=113-check::' + String(fail) + ' failed: ' + failedNames.join(' | ').slice(0, 900));
+  process.exit(1);
+}
