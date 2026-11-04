@@ -19,6 +19,12 @@ export declare const CHAPTER_COUNT: number;
  * 防止 Markdown 渲染链中不可信输入触发存储型 XSS。
  */
 export declare function escapeMarkdownExcerpt(text: string): string;
+/**
+ * 单行化（#113 返修 / #114 同面）：转义后再把换行折成 `⏎`。
+ * 不折行时，引文里的 `> ` / `# ` / `|` 会落在行首，仍能跳出列表项与引用块、伪造标题或表格行——
+ * HTML 实体只挡标签注入，挡不住 Markdown 块级语法。单行是这一层唯一可判定的形态。
+ */
+export declare function escapeMarkdownExcerptInline(text: string): string;
 export declare function chapterHeading(ch: SkeletonChapter): string;
 export declare function skeletonOf(markdown: string): string[];
 export type VerdictBand = 'supported' | 'unsupported' | 'insufficient';

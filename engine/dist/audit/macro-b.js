@@ -6,11 +6,9 @@
 // 渲染段由调用方 finalize（demo 保 byte-parity 组装自身契约面；audit 走 audit.ts 装配）。
 // 纪律：本模块对 repoRoot 只读（git 只读子命令＋文件读）；codelore='auto' 仅 audit 传入，
 //   demo 恒定 'off' 保合成仓逐字节确定性（codelore 实跑=环境相关，不进 golden 链）。
-import { readdirSync, existsSync, lstatSync } from 'node:fs';
-import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPositioning, sha256Hex, ADR_FIVE_PIECE } from '../collect/collectors.js';
-import { readRepoFileSafe, isPathContainedInRepo, makeFileSubjectSkipFact } from './safe-read.js';
+import { readRepoFileSafe, listAdrFilesSafe, probeRepoEntry, makeFileSubjectSkipFact } from './safe-read.js';
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
 import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
 // %cI 契约=normalizeGitIsoDate 同族判定本体（契约层分类器 classifyGitIsoField 承载，见 quarantine.ts）
@@ -152,12 +150,13 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
         skipFacts.push(f);
     } };
     // -- ADR 语料（adr-structure@v2 回退链） --
-    const adrDir = join(repoRoot, 'docs', 'adr');
-    const adrDirValid = existsSync(adrDir) && isPathContainedInRepo(repoRoot, adrDir);
-    if (existsSync(adrDir) && !adrDirValid) {
-        pushSkip(makeFileSubjectSkipFact(ctx, 'docs/adr', 'dir-junction-outside'));
+    // #113：目录枚举走安全列目录单点（`docs/adr` 若是仓外 junction/符号链接→零语料＋披露事实）。
+    const ADR_REL_DIR = 'docs/adr';
+    const adrListing = listAdrFilesSafe(repoRoot, ADR_REL_DIR);
+    if (!adrListing.ok && adrListing.reason !== 'missing') {
+        pushSkip(makeFileSubjectSkipFact(ctx, ADR_REL_DIR, adrListing.reason));
     }
-    const rawAdrFiles = adrDirValid ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
+    const rawAdrFiles = adrListing.ok ? adrListing.files : [];
     const firstCommitOf = function (p) {
         let best = null;
         for (const c of probes.commits) {
@@ -194,23 +193,16 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
     // -- positioning（意图面=候选集存在者；交付面=git subjects） --
     const intentDocs = [];
     for (const cand of spec.intentCandidates) {
-        const p = join(repoRoot, cand);
-        let entryExists = false;
-        try {
-            lstatSync(p);
-            entryExists = true;
+        // #113：存在性探针=lstat（悬空链接也算存在→交安全读取判定并披露），不再用 existsSync（悬空时静默消失）。
+        if (probeRepoEntry(repoRoot, cand) === 'absent') {
+            continue;
         }
-        catch {
-            entryExists = false;
+        const readRes = readRepoFileSafe(repoRoot, cand);
+        if (!readRes.ok) {
+            pushSkip(makeFileSubjectSkipFact(ctx, cand, readRes.reason));
         }
-        if (entryExists) {
-            const readRes = readRepoFileSafe(repoRoot, cand);
-            if (!readRes.ok) {
-                pushSkip(makeFileSubjectSkipFact(ctx, cand, readRes.reason));
-            }
-            else {
-                intentDocs.push({ path: cand, text: readRes.text });
-            }
+        else {
+            intentDocs.push({ path: cand, text: readRes.text });
         }
     }
     const deliveryDocs = [{ path: 'git log subjects @ ' + probes.headSha.slice(0, 7), text: probes.subjects.join(NL) }];
@@ -261,25 +253,17 @@ export function collectMacroB(repoRoot, spec, ctx, probes) {
     let nc1Path = null;
     let nc1Text = null;
     for (const cand of spec.nc1Candidates) {
-        const candPath = join(repoRoot, cand);
-        let entryExists = false;
-        try {
-            lstatSync(candPath);
-            entryExists = true;
+        if (probeRepoEntry(repoRoot, cand) === 'absent') {
+            continue;
         }
-        catch {
-            entryExists = false;
+        const r = readRepoFileSafe(repoRoot, cand);
+        if (!r.ok) {
+            pushSkip(makeFileSubjectSkipFact(ctx, cand, r.reason));
         }
-        if (entryExists) {
-            const r = readRepoFileSafe(repoRoot, cand);
-            if (!r.ok) {
-                pushSkip(makeFileSubjectSkipFact(ctx, cand, r.reason));
-            }
-            else {
-                nc1Path = cand;
-                nc1Text = r.text;
-                break;
-            }
+        else {
+            nc1Path = cand;
+            nc1Text = r.text;
+            break;
         }
     }
     if (!nc1Path || nc1Text === null) {

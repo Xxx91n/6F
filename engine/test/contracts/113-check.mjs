@@ -1,23 +1,35 @@
 // 113-check.mjs —— #113 审计对象仓符号链接与路径穿透安全防护守卫
-// 验证 Acceptance criteria：
-//   1. 含文件级符号链接的合成仓：audit report / facts 均不含仓外内容，且发射 file_subject_skip 披露事实；
-//   2. 含 docs/adr 目录 junction 的合成仓：不纳入仓外 ADR，产出披露事实；
-//   3. 同一组合成仓（对照 3 份 + 注入 5 份）的 TC-2 verdict 恒为 RED，不随链接注入变化（钉死判据翻转回归面）；
-//   4. .github/workflows/macro-b-regression.yml 的 clone 步包含 core.symlinks=false；
-//   5. 守卫卫生：新增文件无 BOM。
+// 断言面（对应本票 Acceptance criteria，按 PASS/FAIL 口径；能力不可得时给 SKIP 而不是假绿）：
+//   A 静态契约：安全读取单点在位、四个读取面与 39 one-shot 全部接入、url 腿保留 `core.symlinks=false`、
+//     回归克隆腿**不**带该旗标（带了就把链接物化成普通文件→遮住本票要证明的拒绝+披露路径）
+//   B 安全读取单点行为：仓内常规文件放行 / 仓外文件链接拒绝 / 悬空链接拒绝（专门 reason）/
+//     仓内目录链接放行 / 仓外目录 junction 拒绝 / 目录枚举单点同判定
+//   C 端到端（走真实入口，不自造事实）：
+//     C1 `audit --out`（Macro-B 一等命令）——report.md / facts.jsonl / facts.duckdb 均不含仓外内容，
+//        且**持久化事实里**有 codelore.file_subject_skip 披露事实＋报告 limitations 如实披露
+//     C2 TC-2 判据防翻转：对照 3 份贫瘠 ADR 恒 RED，注入 5 份仓外完整 ADR 后仍 RED（total 恒 3）
+//     C3 `39-macro-b-one-shot.mjs`（CI 实跑脚本）——同样落 skip 事实进 JSONL 与报告披露块
+//     C4 目录 junction 合成仓——零仓外语料、有 dir-junction-outside 披露事实、PC-MC-1 不因 skip 事实转阳性
+//   D 守卫卫生：新增文件无 BOM
+// 纪律：被测仓一律建在 OS temp（PRODUCTION_SAFE，跑完即弃）；只读断言仓内文件，不写主仓。
 import fs from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 // guard-meta（D-159②/D-160③ 自声明）
 const TIER = 'portable';
+// D-214① consumption_forms：端到端面需要 engine/node_modules（duckdb 原生绑定）——dev-full 全断言面；
+// ci-shallow（CI 浅克隆）下 C1/C3 的 duckdb 落库断言组级 SKIP，其余组照跑。
+const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#113 审计对象仓符号链接安全防护——不可信输入边界贯穿与判据翻转防护';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
 const ENG = join(ROOT, 'engine');
+const CLI = join(ENG, 'dist', 'cli.js');
+const NL = String.fromCharCode(10);
 
 let pass = 0, fail = 0;
 const t = (name, ok, extra = '') => {
@@ -27,147 +39,429 @@ const t = (name, ok, extra = '') => {
 const txt = p => fs.readFileSync(p, 'utf8');
 const exists = p => fs.existsSync(p);
 
+// ---------- 能力探测（前置条件不可得＝SKIP，不假绿） ----------
+const nodeMajor = Number(process.versions.node.split('.')[0]);
+const distReady = exists(CLI) && exists(join(ENG, 'dist', 'audit', 'safe-read.js'));
+const duckdbReady = (() => {
+  try { return exists(join(ENG, 'node_modules', '@duckdb', 'node-api')); } catch { return false; }
+})();
+// 符号链接能力：POSIX 上恒有；Windows 上需开发者模式/管理员。探测一次，后续按能力选组。
+const symlinkProbe = (() => {
+  const dir = fs.mkdtempSync(join(tmpdir(), '6f-113-cap-'));
+  try {
+    const target = join(dir, 'target.txt');
+    fs.writeFileSync(target, 'x', 'utf8');
+    fs.symlinkSync(target, join(dir, 'link.txt'));
+    return fs.lstatSync(join(dir, 'link.txt')).isSymbolicLink();
+  } catch { return false; } finally { try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* noop */ } }
+})();
+
 // ---------- A. 静态源码断言 ----------
-const safeSrc = exists(join(ENG, 'src', 'audit', 'safe-read.ts')) ? txt(join(ENG, 'src', 'audit', 'safe-read.ts')) : '';
-t('A1 safe-read.ts 模块存在并导出 readRepoFileSafe / isPathContainedInRepo / makeFileSubjectSkipFact',
+const safeSrc = txt(join(ENG, 'src', 'audit', 'safe-read.ts'));
+t('A1 safe-read.ts 导出读取/列目录/探针/披露事实四件（readRepoFileSafe·readRepoDirSafe·probeRepoEntry·makeFileSubjectSkipFact）',
   /export function readRepoFileSafe/.test(safeSrc) &&
-  /export function isPathContainedInRepo/.test(safeSrc) &&
-  /export function makeFileSubjectSkipFact/.test(safeSrc), '');
+  /export function readRepoDirSafe/.test(safeSrc) &&
+  /export function probeRepoEntry/.test(safeSrc) &&
+  /export function makeFileSubjectSkipFact/.test(safeSrc) &&
+  /export function listAdrFilesSafe/.test(safeSrc), '');
+
+t('A2 安全读取经单一文件描述符（fstat 复核＋fd 读；判界与读取同一 inode，堵 TOCTOU）',
+  safeSrc.includes('openSync') && safeSrc.includes('fstatSync') && safeSrc.includes('O_NOFOLLOW') &&
+  safeSrc.includes('readFileSync(fd'), '');
 
 const mbSrc = txt(join(ENG, 'src', 'audit', 'macro-b.ts'));
-t('A2 macro-b.ts 接入 safe-read 且包含 junction/symlink 拦截与 skipFacts',
-  mbSrc.includes('readRepoFileSafe') && mbSrc.includes('isPathContainedInRepo') && mbSrc.includes('makeFileSubjectSkipFact'), '');
+t('A3a macro-b.ts 接入安全读取（读取＋列目录＋披露事实，无裸 readdir 枚举 ADR 目录）',
+  mbSrc.includes('readRepoFileSafe') && mbSrc.includes('listAdrFilesSafe') && mbSrc.includes('makeFileSubjectSkipFact') &&
+  !/readdirSync\(\s*adrDir/.test(mbSrc), '');
 
 const mcSrc = txt(join(ENG, 'src', 'audit', 'macro-c.ts'));
-t('A3 macro-c.ts 接入 safe-read 且包含 junction/symlink 拦截与 skipFacts',
-  mcSrc.includes('readRepoFileSafe') && mcSrc.includes('isPathContainedInRepo') && mcSrc.includes('makeFileSubjectSkipFact'), '');
+t('A3b macro-c.ts 接入安全读取（读取＋列目录＋披露事实；ADR 存在性看语料目录不看事实数）',
+  mcSrc.includes('readRepoFileSafe') && mcSrc.includes('listAdrFilesSafe') && mcSrc.includes('makeFileSubjectSkipFact') &&
+  mcSrc.includes('adrDirUsable') && !/col\.adrFacts\.length\s*>\s*0/.test(mcSrc), '');
 
 const auditSrc = txt(join(ENG, 'src', 'audit', 'audit.ts'));
-t('A4 audit.ts pickExcerpt 接入 safe-read 并在 limitations 披露语料链接解析跳过',
+t('A4 audit.ts 证据引文走安全读取并在 limitations 披露跳过语料',
   auditSrc.includes('readRepoFileSafe') && auditSrc.includes('语料来源经链接解析被拒'), '');
 
+const microASrc = txt(join(ENG, 'src', 'audit', 'micro-a.ts'));
+t('A4b micro-a.ts 证据引文走安全读取（无 base 时才落裸读）',
+  microASrc.includes('readRepoFileSafe') && microASrc.includes('EXCERPT-REJECTED'), '');
+
+const oneShotSrc = txt(join(ENG, 'scripts', '39-macro-b-one-shot.mjs'));
+t('A4c 39-macro-b-one-shot.mjs 接入安全读取并就拒绝输入发射披露事实（含 limitations 披露）',
+  oneShotSrc.includes('readRepoFileSafe') && oneShotSrc.includes('makeFileSubjectSkipFact') &&
+  oneShotSrc.includes('pushSkip(') && oneShotSrc.includes('语料来源经链接解析被拒'), '');
+
+const intakeSrc = txt(join(ENG, 'src', 'intake', 'intake.ts'));
+t('A5 url 腿克隆保留 core.symlinks=false（defense-in-depth 真作用位）',
+  intakeSrc.includes('core.symlinks=false'), '');
+
 const wfSrc = txt(join(ROOT, '.github', 'workflows', 'macro-b-regression.yml'));
-t('A5 macro-b-regression.yml clone 步包含 -c core.symlinks=false',
-  wfSrc.includes('core.symlinks=false'), '');
+// 注释里说明「为什么不用它」是允许的；只有真接进 `git clone` 命令行才算违约——按去注释后的行判。
+const wfCodeLines = wfSrc.split(NL).map(l => l.replace(/(^|\s)#.*$/, '')).join(NL);
+t('A6 回归克隆腿不带 core.symlinks=false（带则链接被物化成普通文件，遮住拒绝+披露路径）',
+  wfCodeLines.indexOf('core.symlinks=false') < 0, '');
+t('A7 回归克隆腿保留链接可见性断言（链接面不被静默降级）',
+  wfSrc.includes('120000') && wfSrc.includes('symlink entries'), '');
 
-// ---------- B. safe-read 行为实测（支持 dist 与 src 回退） ----------
-const testTmp = fs.mkdtempSync(join(tmpdir(), '6f-113-test-'));
-try {
-  const fakeSecret = join(testTmp, 'secret.txt');
-  fs.writeFileSync(fakeSecret, 'SECRET_SUPER_CONFIDENTIAL_KEY\n', 'utf8');
+const genSrc = txt(join(ENG, 'src', 'report', 'generate.ts'));
+t('A8 引文/来源/披露块转义走单行化（多行引文不得跳出列表项与引用块）',
+  /export function escapeMarkdownExcerptInline/.test(genSrc) &&
+  /escapeMarkdownExcerptInline\(e\.excerpt\)/.test(genSrc), '');
 
-  const fakeRepo = join(testTmp, 'fake-repo');
-  fs.mkdirSync(join(fakeRepo, 'docs', 'adr'), { recursive: true });
+// ---------- B. 安全读取单点行为 ----------
+const safeModPath = distReady ? join(ENG, 'dist', 'audit', 'safe-read.js') : join(ENG, 'src', 'audit', 'safe-read.ts');
+const SR = await import(pathToFileURL(safeModPath).href);
 
-  execFileSync('git', ['init', fakeRepo], { stdio: 'ignore' });
-  execFileSync('git', ['-C', fakeRepo, 'config', 'user.name', 'test'], { stdio: 'ignore' });
-  execFileSync('git', ['-C', fakeRepo, 'config', 'user.email', 'test@test.local'], { stdio: 'ignore' });
-
-  const ADR_POOR = `# ADR-0001: Poor ADR
-## Status
-accepted
-## Context
-some context
-`;
-  fs.writeFileSync(join(fakeRepo, 'docs', 'adr', '0001-poor.md'), ADR_POOR, 'utf8');
-  fs.writeFileSync(join(fakeRepo, 'docs', 'adr', '0002-poor.md'), ADR_POOR, 'utf8');
-  fs.writeFileSync(join(fakeRepo, 'docs', 'adr', '0003-poor.md'), ADR_POOR, 'utf8');
-  fs.writeFileSync(join(fakeRepo, 'README.md'), '# Fake Repo\n', 'utf8');
-
-  execFileSync('git', ['-C', fakeRepo, 'add', '.'], { stdio: 'ignore' });
-  execFileSync('git', ['-C', fakeRepo, 'commit', '-m', 'initial poor adrs'], { stdio: 'ignore' });
-
+if (!symlinkProbe) {
+  console.log('SKIP 113-check/B | env-missing:file-symlink 能力（Windows 未开开发者模式/权限不足）——' + 'B/C 组跳过，不计绿');
+  console.log('GUARD-RESULT: SKIP-GROUP 113-check group=B reason=file-symlink-unavailable');
+} else {
+  const testTmp = fs.mkdtempSync(join(tmpdir(), '6f-113-test-'));
   try {
-    fs.symlinkSync(fakeSecret, join(fakeRepo, 'docs', 'adr', '0004-evil.md'));
-  } catch (e) {}
+    const secret = join(testTmp, 'secret.txt');
+    fs.writeFileSync(secret, 'SECRET_SUPER_CONFIDENTIAL_KEY' + NL, 'utf8');
+    const outsideDir = join(testTmp, 'outside-adrs');
+    fs.mkdirSync(outsideDir, { recursive: true });
+    const outsideAdr = join(outsideDir, '0001-outside.md');
+    fs.writeFileSync(outsideAdr, '# ADR-0001: outside' + NL, 'utf8');
+    const insideDir = join(testTmp, 'repo', 'docs', 'adr');
+    fs.mkdirSync(insideDir, { recursive: true });
 
-  const safeModPath = exists(join(ENG, 'dist', 'audit', 'safe-read.js'))
-    ? join(ENG, 'dist', 'audit', 'safe-read.js')
-    : join(ENG, 'src', 'audit', 'safe-read.ts');
-  const { readRepoFileSafe, isPathContainedInRepo } = await import(pathToFileURL(safeModPath).href);
+    // 仓内常规文件
+    fs.writeFileSync(join(insideDir, '0001-in.md'), '# ADR-0001: in' + NL, 'utf8');
+    const okRead = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr/0001-in.md');
+    t('B1 仓内常规文件放行', okRead.ok === true && okRead.text.indexOf('ADR-0001') >= 0, '');
 
-  const poorRead = readRepoFileSafe(fakeRepo, 'docs/adr/0001-poor.md');
-  t('B1 safe-read 允许仓内常规文件读取', poorRead.ok === true && poorRead.text.includes('Poor ADR'), '');
+    // 仓外文件链接
+    fs.symlinkSync(secret, join(insideDir, '0002-evil.md'));
+    const evil = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr/0002-evil.md');
+    t('B2 指向仓外文件的符号链接被拒（reason=symlink-outside）',
+      evil.ok === false && evil.reason === 'symlink-outside', evil.reason);
 
-  const evilRead = readRepoFileSafe(fakeRepo, 'docs/adr/0004-evil.md');
-  t('B2 safe-read 拒绝指向仓外的符号链接', evilRead.ok === false && evilRead.reason === 'symlink-outside', evilRead.reason);
+    // 悬空链接
+    fs.symlinkSync(join(testTmp, 'does-not-exist.md'), join(insideDir, '0003-dangling.md'));
+    const dangling = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr/0003-dangling.md');
+    t('B3 悬空符号链接被拒且 reason 单列（symlink-dangling，不与「不存在」混判）',
+      dangling.ok === false && dangling.reason === 'symlink-dangling', dangling.reason);
 
-  const outsideDir = join(testTmp, 'outside-adrs');
-  fs.mkdirSync(outsideDir, { recursive: true });
-  const junctionJail = join(fakeRepo, 'docs', 'adr-junction');
-  let junctionCreated = false;
-  try {
-    fs.symlinkSync(outsideDir, junctionJail, 'junction');
-    junctionCreated = fs.existsSync(junctionJail);
-  } catch (e) {}
+    // 仓内目录链接：允许（链接目标仍在仓内）
+    fs.symlinkSync(insideDir, join(testTmp, 'repo', 'docs', 'adr-inside-link'));
+    const insideLink = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr-inside-link/0001-in.md');
+    t('B4 指向仓内目录的链接放行（边界判仓内/仓外，不按链接形态一刀切）', insideLink.ok === true, insideLink.ok ? '' : insideLink.reason);
 
-  t('B3 isPathContainedInRepo 拦截指向仓外的目录符号链接/junction',
-    junctionCreated ? isPathContainedInRepo(fakeRepo, junctionJail) === false : true,
-    junctionCreated ? 'junction-verified' : 'junction-unsupported-skipped');
+    // 仓外目录 junction / 目录链接
+    fs.symlinkSync(outsideDir, join(testTmp, 'repo', 'docs', 'adr-junction'));
+    const junction = SR.readRepoDirSafe(join(testTmp, 'repo'), 'docs/adr-junction');
+    t('B5 指向仓外的目录链接拒绝（reason=dir-junction-outside）',
+      junction.ok === false && junction.reason === 'dir-junction-outside', junction.reason);
+    const junctionRead = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr-junction/0001-outside.md');
+    t('B6 经仓外目录链接读文件同样被拒（不靠调用方各自判）', junctionRead.ok === false, junctionRead.reason);
 
-  // ---------- C. 验证 TC-2 判据防翻转与真实管线采集端到端 ----------
-  for (let i = 5; i <= 9; i++) {
-    const extAdr = join(outsideDir, `000${i}-rich.md`);
-    fs.writeFileSync(extAdr, `# ADR-000${i}: Rich ADR\n## Status\naccepted\n## Context\nctx\n## Decision\ndec\n## Consequences\ncons\n`, 'utf8');
-    try {
-      fs.symlinkSync(extAdr, join(fakeRepo, 'docs', 'adr', `000${i}-rich.md`));
-    } catch (e) {}
+    // 列目录单点与 ADR 文件名口径
+    const listing = SR.listAdrFilesSafe(join(testTmp, 'repo'), 'docs/adr');
+    t('B7 列目录单点只出仓内 ADR 语料（bad 链接文件也在列——由读取单点逐件拒绝并披露）',
+      listing.ok === true && listing.files.indexOf('0001-in.md') >= 0 && listing.files.indexOf('0002-evil.md') >= 0, '');
+    const outsideListing = SR.listAdrFilesSafe(join(testTmp, 'repo'), 'docs/adr-junction');
+    t('B8 列目录单点对仓外目录链接返回失败（不静默给空列）',
+      outsideListing.ok === false && outsideListing.reason === 'dir-junction-outside', outsideListing.ok ? 'unexpected-ok' : outsideListing.reason);
+
+    // 披露事实形状
+    const ctx = { runId: 'r', traceId: 't', repoRef: 'x@y', scale: 'Macro-B', observedAt: '2026-01-01T00:00:00Z' };
+    const f = SR.makeFileSubjectSkipFact(ctx, 'docs/adr/0002-evil.md', 'symlink-outside');
+    const fv = JSON.parse(f.value_json);
+    t('B9 披露事实 metric=codelore.file_subject_skip＋collector=audit-safe-read＋带 raw_path/reason',
+      f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read' &&
+      fv.raw_path === 'docs/adr/0002-evil.md' && fv.reason === 'symlink-outside', '');
+  } finally {
+    try { fs.rmSync(testTmp, { recursive: true, force: true }); } catch { /* noop */ }
   }
 
-  const oneShotScript = txt(join(ENG, 'scripts', '39-macro-b-one-shot.mjs'));
-  t('C1 39-macro-b-one-shot.mjs 包含 readRepoFileSafe 安全读取逻辑',
-    oneShotScript.includes('readRepoFileSafe') && oneShotScript.includes('isPathContainedInRepo'), '');
+  // ---------- C. 端到端（真实入口） ----------
+  // C 组需要构建产物；无 dist 即无入口可测——SKIP 不假绿。
+  if (!distReady || !exists(join(ENG, 'dist', 'audit', 'macro-b.js'))) {
+    console.log('SKIP 113-check/C | env-missing:engine-dist（先 cd engine && npm run build）——C 组跳过，不计绿');
+    console.log('GUARD-RESULT: SKIP-GROUP 113-check group=C reason=engine-dist-missing');
+  } else {
+    const e2eTmp = fs.mkdtempSync(join(tmpdir(), '6f-113-e2e-'));
+    const gitArgs = (cwd, args) => ['-C', cwd].concat(args);
+    const git = (cwd, args) => spawnSync('git', gitArgs(cwd, args), { encoding: 'utf8' });
+    try {
+      const OUTSIDE = join(e2eTmp, 'outside');
+      fs.mkdirSync(OUTSIDE, { recursive: true });
+      const SECRET = '-----BEGIN FAKE PRIVATE KEY-----' + NL + 'FAKESECRET-' + String(process.pid) + NL;
+      fs.writeFileSync(join(OUTSIDE, 'secret.txt'), SECRET, 'utf8');
 
-  const mbModPath = exists(join(ENG, 'dist', 'audit', 'macro-b.js'))
-    ? join(ENG, 'dist', 'audit', 'macro-b.js')
-    : join(ENG, 'src', 'audit', 'macro-b.ts');
-  const { collectMacroB, evaluateMacroB, macroBContext } = await import(pathToFileURL(mbModPath).href);
+      // ---- C1/C2：文件级符号链接合成仓（3 份仓内贫瘠 ADR + 5 份仓外完整 ADR + 1 份悬空 + 越界意图文档）----
+      const repoA = join(e2eTmp, 'repoA');
+      fs.mkdirSync(join(repoA, 'docs', 'adr'), { recursive: true });
+      git(repoA, ['init', '-q', '.']);
+      git(repoA, ['config', 'user.email', 'guard@test.local']);
+      git(repoA, ['config', 'user.name', 'guard']);
+      const POOR = '# ADR-0001: Poor ADR' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'some context' + NL;
+      for (const n of ['0001', '0002', '0003']) { fs.writeFileSync(join(repoA, 'docs', 'adr', n + '-poor.md'), POOR, 'utf8'); }
+      fs.writeFileSync(join(repoA, 'README.md'), '# Synth Repo' + NL, 'utf8');
+      fs.writeFileSync(join(repoA, 'package.json'), '{"name":"synth"}' + NL, 'utf8');
+      git(repoA, ['add', '-A']);
+      git(repoA, ['commit', '-qm', 'init poor adrs']);
 
-  const headSha = execFileSync('git', ['-C', fakeRepo, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-  const treeSha = execFileSync('git', ['-C', fakeRepo, 'rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim();
-  const probes = {
-    headSha: headSha,
-    treeSha: treeSha,
-    headDate: '2026-10-30T00:00:00Z',
-    headRaw: '2026-10-30T00:00:00Z',
-    commitCount: 1,
-    commits: [{ sha: headSha, author: 'test', date: '2026-10-30T00:00:00Z', paths: ['docs/adr/0001-poor.md', 'docs/adr/0002-poor.md', 'docs/adr/0003-poor.md'] }],
-    subjects: ['initial poor adrs'],
-    fieldStats: [],
-    fieldEvents: [],
-    dialectAbsorptions: []
-  };
-  const ctx = macroBContext('test-run', 'fake-repo', probes.headSha, probes.headDate, probes.headRaw);
-  const spec = {
-    intentCandidates: ['README.md'],
-    nc1Candidates: ['README.md'],
-    stopwords: [],
-    topN: 5,
-    codelore: 'off',
-    fixtureTag: 'AUDIT',
-    pc2Sha: 'pc200000000000000000000000000000000000001'
-  };
+      // 基线：注入前先跑一次（同一条命令，只差链接是否在场）——判据翻转的对照臂
+      const runAudit = (repo, outDir, scale) => spawnSync('node',
+        [CLI, 'audit', repo, '--scale', scale, '--out', outDir, '--json'],
+        { encoding: 'utf8', timeout: 300000, cwd: e2eTmp });
+      const readFacts = outDir => {
+        const p = join(outDir, 'audit-facts.jsonl');
+        if (!exists(p)) { return []; }
+        return txt(p).split(NL).filter(l => l.trim().length > 0).map(l => JSON.parse(l));
+      };
+      const baselineOut = join(e2eTmp, 'out-baseline');
+      const rBase = runAudit(repoA, baselineOut, 'Macro-B');
+      const baseFacts = readFacts(baselineOut);
+      const baseTc2 = baseFacts.filter(f => f.metric === 'adr.five_piece_completeness');
+      t('C0 基线段可跑（audit 一等命令 exit=0 且产出 facts.jsonl）',
+        rBase.status === 0 && baseFacts.length > 0, 'exit=' + String(rBase.status) + ' facts=' + String(baseFacts.length));
 
-  // 实跑 collectMacroB
-  const colReal = collectMacroB(fakeRepo, spec, ctx, probes);
-  const evReal = evaluateMacroB(colReal);
+      // 注入：仓外文件链接、悬空链接、仓外目录链接、越界意图文档链接
+      fs.symlinkSync(join(OUTSIDE, 'secret.txt'), join(repoA, 'docs', 'adr', '0004-evil.md'));
+      for (const n of ['0005', '0006', '0007', '0008', '0009']) {
+        const p = join(OUTSIDE, n + '-rich.md');
+        fs.writeFileSync(p, '# ADR-' + n + ': Rich' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'ctx'
+          + NL + '## Decision' + NL + 'dec' + NL + '## Consequences' + NL + 'cons' + NL, 'utf8');
+        fs.symlinkSync(p, join(repoA, 'docs', 'adr', n + '-rich.md'));
+      }
+      fs.symlinkSync(join(OUTSIDE, 'nope.md'), join(repoA, 'docs', 'adr', '0010-dangling.md'));
+      fs.symlinkSync(join(OUTSIDE, 'secret.txt'), join(repoA, 'AGENTS.md'));
 
-  const realSkips = colReal.realFacts.filter(f => f.metric === 'codelore.file_subject_skip');
-  t('C2 仓外符号链接 ADR 全部被拦截 (skipped count >= 6)', realSkips.length >= 6, `skipped=${realSkips.length}`);
-  t('C3 仅 3 份仓内合法 poor ADR 被纳入 (valid count == 3)', colReal.adrFiles.length === 3, `valid=${colReal.adrFiles.length}`);
-  t('C4 TC-2 verdict 恒为 RED，不随 5 份注入 ADR 翻转', evReal.tc2.verdict === 'RED' && evReal.tc2.total === 3, `verdict=${evReal.tc2.verdict} total=${evReal.tc2.total} mean=${evReal.tc2.mean_ratio}`);
-  t('C5 产出的 skip 事实包含 codelore.file_subject_skip',
-    realSkips.some(f => f.subject_ref.includes('0004-evil')), '');
+      const attackOut = join(e2eTmp, 'out-attack');
+      const rAttack = runAudit(repoA, attackOut, 'Macro-B');
+      t('C1 攻击段可跑（exit=0）', rAttack.status === 0, 'exit=' + String(rAttack.status));
+      const attackFacts = readFacts(attackOut);
+      const skips = attackFacts.filter(f => f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read');
+      const skipPaths = skips.map(f => JSON.parse(f.value_json).raw_path);
+      t('C2 持久化事实里存在披露事实（docs/adr 下 7 处链接：6 越界 + 1 悬空）',
+        skipPaths.filter(p => p.indexOf('docs/adr/') === 0).length >= 7, 'n=' + String(skipPaths.length));
+      t('C3 悬空链接单列 reason=symlink-dangling（不被 existsSync 静默吞掉）',
+        skips.some(f => JSON.parse(f.value_json).raw_path === 'docs/adr/0010-dangling.md'
+          && JSON.parse(f.value_json).reason === 'symlink-dangling'), '');
+      t('C4 越界意图文档链接也被拒并披露（AGENTS.md→仓外）',
+        skips.some(f => JSON.parse(f.value_json).raw_path === 'AGENTS.md'), '');
 
-} finally {
-  try {
-    fs.rmSync(testTmp, { recursive: true, force: true });
-  } catch (e) {}
+      // 仓外内容不得出现在任何产物里（report.md / facts.jsonl / facts.duckdb 三面）
+      const artifacts = fs.readdirSync(attackOut);
+      const leaked = artifacts.filter(a => a.endsWith('.md') || a.endsWith('.jsonl') || a.endsWith('.duckdb'))
+        .filter(a => {
+          const p = join(attackOut, a);
+          try {
+            const buf = fs.readFileSync(p);
+            return buf.indexOf('FAKE PRIVATE KEY') >= 0 || buf.indexOf('ADR-0005: Rich') >= 0;
+          } catch { return false; }
+        });
+      t('C5 报告/事实库/duckdb 均不含仓外内容（三面逐件扫）', leaked.length === 0, 'leaked=' + leaked.join(','));
+
+      // 报告披露块如实写明跳过数与路径
+      const mdA = artifacts.filter(a => a.endsWith('.md')).map(a => txt(join(attackOut, a))).join(NL);
+      t('C6 报告 limitations 如实披露「语料来源经链接解析被拒」并带跳过计数',
+        mdA.indexOf('语料来源经链接解析被拒') >= 0 && /跳过 \d+ 处不可信文件/.test(mdA), '');
+
+      // TC-2 判据防翻转：AD 语料恒为仓内 3 份；注入 5 份完整仓外 ADR 前后 verdict/total 不变
+      const baseFive = baseTc2.length;
+      const attackFive = attackFacts.filter(f => f.metric === 'adr.five_piece_completeness');
+      const baseMean = baseFive === 0 ? 0 : baseTc2.reduce((s, f) => s + JSON.parse(f.value_json).ratio, 0) / baseFive;
+      const attackMean = attackFive.length === 0 ? 0 : attackFive.reduce((s, f) => s + JSON.parse(f.value_json).ratio, 0) / attackFive.length;
+      const baseRed = baseMean < 0.6;
+      const attackRed = attackMean < 0.6;
+      t('C7 TC-2 判据防翻转：注入 5 份完整仓外 ADR 前后均 RED、语料数恒 3（mean 不变）',
+        baseFive === 3 && attackFive.length === 3 && baseRed && attackRed &&
+        Math.abs(baseMean - attackMean) < 1e-9,
+        'base=' + String(baseFive) + '/' + baseMean.toFixed(4) + ' attack=' + String(attackFive.length) + '/' + attackMean.toFixed(4));
+
+      // ---- C8/C9：39 one-shot（CI 实跑脚本）同一条链 ----
+      const oneShotOut = join(e2eTmp, 'out-oneshot');
+      fs.mkdirSync(oneShotOut, { recursive: true });
+      const r39 = spawnSync('node', [join(ENG, 'scripts', '39-macro-b-one-shot.mjs'),
+        '--repo', 'synthA', '--root', repoA, '--out', oneShotOut],
+      { encoding: 'utf8', timeout: 300000, cwd: e2eTmp });
+      const facts39Path = join(oneShotOut, '39-macro-b-synthA-facts.jsonl');
+      const facts39 = exists(facts39Path) ? txt(facts39Path).split(NL).filter(l => l.trim().length > 0).map(l => JSON.parse(l)) : [];
+      const skips39 = facts39.filter(f => f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read');
+      t('C8 39 one-shot 退出 0 且把拒绝输入落成披露事实（不再静默丢弃）',
+        r39.status === 0 && skips39.length >= 7, 'exit=' + String(r39.status) + ' skips=' + String(skips39.length));
+      const md39Path = join(oneShotOut, '39-macro-b-synthA.md');
+      const md39 = exists(md39Path) ? txt(md39Path) : '';
+      t('C9 39 one-shot 报告披露块写明跳过语料（与 audit 面同文案口径）',
+        md39.indexOf('语料来源经链接解析被拒') >= 0, '');
+      t('C10 39 one-shot 产物不含仓外内容',
+        facts39.every(f => f.value_json.indexOf('FAKE PRIVATE KEY') < 0) && md39.indexOf('FAKE PRIVATE KEY') < 0, '');
+
+      // ---- C11/C12：目录 junction 合成仓（docs/adr 整体指向仓外目录）----
+      const repoB = join(e2eTmp, 'repoB');
+      fs.mkdirSync(join(repoB, 'docs'), { recursive: true });
+      git(repoB, ['init', '-q', '.']);
+      git(repoB, ['config', 'user.email', 'guard@test.local']);
+      git(repoB, ['config', 'user.name', 'guard']);
+      fs.writeFileSync(join(repoB, 'README.md'), '# Repo B' + NL, 'utf8');
+      fs.writeFileSync(join(repoB, 'package.json'), '{"name":"b"}' + NL, 'utf8');
+      git(repoB, ['add', '-A']);
+      git(repoB, ['commit', '-qm', 'init']);
+      const JUNC_OUTSIDE = join(e2eTmp, 'outside-adr-dir');
+      fs.mkdirSync(JUNC_OUTSIDE, { recursive: true });
+      for (const n of ['0001', '0002', '0003']) {
+        fs.writeFileSync(join(JUNC_OUTSIDE, n + '-outside.md'),
+          '# ADR-' + n + ': Outside' + NL + '- Status: accepted' + NL + '- Date: 2026-01-0' + n.slice(-1) + NL
+          + '## Context' + NL + 'c' + NL + '## Decision' + NL + 'd' + NL + '## Consequences' + NL + 'q' + NL, 'utf8');
+      }
+      fs.symlinkSync(JUNC_OUTSIDE, join(repoB, 'docs', 'adr'));
+      const juncOut = join(e2eTmp, 'out-junction');
+      const rJunc = runAudit(repoB, juncOut, 'Macro-C');
+      const juncFacts = readFacts(juncOut);
+      const juncSkips = juncFacts.filter(f => f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read');
+      t('C11 目录 junction：docs/adr 整体被拒并披露 reason=dir-junction-outside',
+        rJunc.status === 0 && juncSkips.some(f => JSON.parse(f.value_json).raw_path === 'docs/adr'
+          && JSON.parse(f.value_json).reason === 'dir-junction-outside'), 'exit=' + String(rJunc.status));
+      const juncMd = fs.readdirSync(juncOut).filter(a => a.endsWith('.md')).map(a => txt(join(juncOut, a))).join(NL);
+      t('C12 目录 junction：仓外 ADR 未进报告（零 outside 语料）且 PC-MC-1 不因 skip 事实转阳性',
+        juncMd.indexOf('ADR-0001: Outside') < 0 &&
+        /PC-MC-1: (insufficient|unsupported)/.test(juncMd), '');
+
+      // ---- C13：duckdb 落库面（原生绑定不在位即 SKIP，不假绿）----
+      if (!duckdbReady) {
+        console.log('SKIP 113-check/C13 | env-missing:engine-deps:@duckdb/node-api——duckdb 落库面跳过，不计绿');
+        console.log('GUARD-RESULT: SKIP-GROUP 113-check group=C13 reason=engine-deps-missing');
+      } else {
+        const dbPath = join(attackOut, 'facts.duckdb');
+        const probe = spawnSync(process.execPath, ['--input-type=module', '-e', `
+          import { createRequire } from 'node:module';
+          const require = createRequire(${JSON.stringify(join(ENG, 'package.json'))});
+          const { DuckDBInstance } = await import(new URL(require.resolve('@duckdb/node-api'), 'file://'));
+          const inst = await DuckDBInstance.create(${JSON.stringify(dbPath)}, { access_mode: 'READ_ONLY' });
+          const conn = await inst.connect();
+          const rows = await (await conn.runAndReadAll(
+            "SELECT COUNT(*) AS n FROM audit_fact WHERE metric = 'codelore.file_subject_skip'"
+          )).getRows();
+          console.log(JSON.stringify({ n: Number(rows[0][0]) }));
+        `], { encoding: 'utf8', timeout: 120000 });
+        let dbSkips = -1;
+        try { dbSkips = JSON.parse((probe.stdout || '{}').trim().split(NL).pop()).n; } catch { dbSkips = -1; }
+        t('C13 facts.duckdb 内同样落有披露事实（落库面与 JSONL 同源）',
+          probe.status === 0 && dbSkips >= 7, 'db_skips=' + String(dbSkips) + ' exit=' + String(probe.status));
+      }
+    } finally {
+      try { fs.rmSync(e2eTmp, { recursive: true, force: true }); } catch { /* noop */ }
+    }
+  }
 }
 
-// ---------- D. 卫生规范 ----------
-t('D1 safe-read.ts 无 BOM', !txt(join(ENG, 'src', 'audit', 'safe-read.ts')).startsWith('\uFEFF'), '');
-t('D2 113-check.mjs 自身无 BOM', !txt(join(HERE, '113-check.mjs')).startsWith('\uFEFF'), '');
+// ---------- D. 负对照（守卫自检：判据确实会红，不是恒真断言） ----------
+// 在临时副本里用**旧行为**（裸 readFileSync 跟随链接）替换安全读取单点——端到端必须出现仓外内容/判据翻转，
+// 否则说明 C 组断言与被测面脱节（恒真教训：Autonoma 恒真断言五形态，D-153②）。
+if (distReady && symlinkProbe && duckdbReady) {
+  const ctrlTmp = fs.mkdtempSync(join(tmpdir(), '6f-113-neg-'));
+  try {
+    const SECRET = '-----BEGIN FAKE PRIVATE KEY-----' + NL + 'NEGCTRL-' + String(process.pid) + NL;
+    fs.writeFileSync(join(ctrlTmp, 'secret.txt'), SECRET, 'utf8');
+    const repoC = join(ctrlTmp, 'repoC');
+    fs.mkdirSync(join(repoC, 'docs', 'adr'), { recursive: true });
+    spawnSync('git', ['-C', repoC, 'init', '-q', '.'], { encoding: 'utf8' });
+    spawnSync('git', ['-C', repoC, 'config', 'user.email', 'guard@test.local'], { encoding: 'utf8' });
+    spawnSync('git', ['-C', repoC, 'config', 'user.name', 'guard'], { encoding: 'utf8' });
+    const POOR = '# ADR-0001: Poor ADR' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'some context' + NL;
+    for (const n of ['0001', '0002', '0003']) { fs.writeFileSync(join(repoC, 'docs', 'adr', n + '-poor.md'), POOR, 'utf8'); }
+    fs.writeFileSync(join(repoC, 'README.md'), '# Repo C' + NL, 'utf8');
+    fs.writeFileSync(join(repoC, 'package.json'), '{"name":"c"}' + NL, 'utf8');
+    spawnSync('git', ['-C', repoC, 'add', '-A'], { encoding: 'utf8' });
+    spawnSync('git', ['-C', repoC, 'commit', '-qm', 'init'], { encoding: 'utf8' });
+    fs.symlinkSync(join(ctrlTmp, 'secret.txt'), join(repoC, 'docs', 'adr', '0004-evil.md'));
+    for (const n of ['0005', '0006', '0007', '0008', '0009']) {
+      const p = join(ctrlTmp, n + '-rich.md');
+      fs.writeFileSync(p, '# ADR-' + n + ': Rich' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'ctx'
+        + NL + '## Decision' + NL + 'dec' + NL + '## Consequences' + NL + 'cons' + NL, 'utf8');
+      fs.symlinkSync(p, join(repoC, 'docs', 'adr', n + '-rich.md'));
+    }
 
-console.log(`\n--- 113-check summary: ${pass} passed, ${fail} failed ---`);
+    // 复制 engine 到临时目录，把安全读取单点换成「旧行为」实现（仅供本负对照使用，不落主仓）
+    // 临时 engine 副本：dist（含**未打包**的 dist/audit/safe-read.js，39 one-shot 直接 import 它）＋scripts＋
+    // package.json＋node_modules 软链。不复制 fixtures（十几 MB），也不打新包——负对照只替换读取单点本身。
+    const engCopy = join(ctrlTmp, 'engine');
+    fs.mkdirSync(engCopy, { recursive: true });
+    fs.cpSync(join(ENG, 'dist'), join(engCopy, 'dist'), { recursive: true });
+    fs.cpSync(join(ENG, 'scripts'), join(engCopy, 'scripts'), { recursive: true });
+    fs.copyFileSync(join(ENG, 'package.json'), join(engCopy, 'package.json'));
+    fs.symlinkSync(join(ENG, 'node_modules'), join(engCopy, 'node_modules'), 'dir');
+    // 39 脚本读预声明阈值夹具（REPO 推算为 engine 副本的父目录）——只补这一件，不搬整个 fixtures 面。
+    fs.mkdirSync(join(engCopy, 'test', 'fixtures', 'contracts'), { recursive: true });
+    fs.copyFileSync(join(ENG, 'test', 'fixtures', 'contracts', '22-threshold-raw.json'),
+      join(engCopy, 'test', 'fixtures', 'contracts', '22-threshold-raw.json'));
+    // 39 的 EV-39-07 引文锚读仓库根 docs/spec.md（REPO 推算为 engine 副本的父目录）——同样只补这一件。
+    fs.mkdirSync(join(engCopy, '..', 'docs'), { recursive: true });
+    fs.copyFileSync(join(ROOT, 'docs', 'spec.md'), join(engCopy, '..', 'docs', 'spec.md'));
+    // 旧行为实现（=本票要修掉的形态）：不做 lstat 非链接判定、不做 realpath 判界，直接跟随链接读。
+    fs.writeFileSync(join(engCopy, 'dist', 'audit', 'safe-read.js'), [
+      "import { readFileSync, statSync, readdirSync } from 'node:fs';",
+      "import { join, relative, resolve, isAbsolute } from 'node:path';",
+      "import { createHash } from 'node:crypto';",
+      "export const AUDIT_DESCRIPTOR = { id: 'audit-safe-read', family: 'audit', dimension: 'S2', quadrant: 'strategic' };",
+      "export function isPathContainedInRepo() { return true; }",
+      "export function readRepoFileSafe(repoRoot, relOrAbsPath) {",
+      "  const abs = isAbsolute(relOrAbsPath) ? resolve(relOrAbsPath) : resolve(repoRoot, relOrAbsPath);",
+      "  const normRel = relative(repoRoot, abs).split(String.fromCharCode(92)).join('/');",
+      "  try { return { ok: true, text: readFileSync(abs, 'utf8'), relPath: normRel, realPath: abs, isSymlink: false }; }",
+      "  catch { return { ok: false, reason: 'missing', relPath: normRel }; }",
+      "}",
+      "export function readRepoDirSafe(repoRoot, relOrAbsPath) {",
+      "  const abs = isAbsolute(relOrAbsPath) ? resolve(relOrAbsPath) : resolve(repoRoot, relOrAbsPath);",
+      "  const normRel = relative(repoRoot, abs).split(String.fromCharCode(92)).join('/');",
+      "  try { return { ok: true, relPath: normRel, realPath: abs, isSymlink: false, entries: readdirSync(abs).slice().sort() }; }",
+      "  catch { return { ok: false, reason: 'missing', relPath: normRel }; }",
+      "}",
+      "export function listAdrFilesSafe(repoRoot, relDir) {",
+      "  const d = readRepoDirSafe(repoRoot, relDir);",
+      "  if (!d.ok) { return { ok: false, reason: d.reason, relPath: d.relPath }; }",
+      "  return { ok: true, files: d.entries.filter(f => /^\\d{3,}.*\\.md$/i.test(f)).sort() };",
+      "}",
+      "export function probeRepoEntry(repoRoot, relOrAbsPath) {",
+      "  const abs = isAbsolute(relOrAbsPath) ? resolve(relOrAbsPath) : resolve(repoRoot, relOrAbsPath);",
+      "  try { const st = statSync(abs); return st.isFile() ? 'file' : (st.isDirectory() ? 'dir' : 'other'); }",
+      "  catch { return 'absent'; }",
+      "}",
+      "export function makeFileSubjectSkipFact(ctx, rawPath, reason) {",
+      "  const valueJson = JSON.stringify({ analysis: 'safe-read', group: 'security', raw_path: rawPath, reason: reason });",
+      "  const h = createHash('sha256').update([rawPath, reason].join('|')).digest('hex');",
+      "  return { fact_id: [h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20,32)].join('-'),",
+      "    trace_id: ctx.traceId, baggage_id: h.slice(0, 32), scale: ctx.scale, quadrant: 'strategic',",
+      "    dimension: 'S2', collector_id: 'audit-safe-read', repo_ref: ctx.repoRef, subject_ref: rawPath,",
+      "    evidence_ref: 'safe-read-probe', metric: 'codelore.file_subject_skip', value_json: valueJson, observed_at: ctx.observedAt };",
+      "}",
+      "export const __negctrl = join;",
+      ''
+    ].join(NL), 'utf8');
+
+    const negOut = join(ctrlTmp, 'out-neg');
+    fs.mkdirSync(negOut, { recursive: true });
+    const rNeg = spawnSync('node', [join(engCopy, 'scripts', '39-macro-b-one-shot.mjs'),
+      '--repo', 'negctrl', '--root', repoC, '--out', negOut],
+    { encoding: 'utf8', timeout: 300000, cwd: ctrlTmp });
+    const negFactsPath = join(negOut, '39-macro-b-negctrl-facts.jsonl');
+    const negFacts = exists(negFactsPath) ? txt(negFactsPath).split(NL).filter(l => l.trim().length > 0).map(l => JSON.parse(l)) : [];
+    const negFive = negFacts.filter(f => f.metric === 'adr.five_piece_completeness');
+    const negSkips = negFacts.filter(f => f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read');
+    t('D4 负对照（旧行为替换读取单点，走真实 one-shot 入口）：拒绝+披露面整体消失（0 条 skip 事实）——C2/C8 不是恒真',
+      rNeg.status === 0 && negSkips.length === 0,
+      'exit=' + String(rNeg.status) + ' skips=' + String(negSkips.length)
+        + ' stdout=' + String(rNeg.stdout || '').slice(-200));
+    t('D5 负对照（判据翻转面）：旧行为下 ADR 语料由 3 涨到 9（3 贫瘠＋1 仓外密钥样＋5 仓外完整）——C7 的「恒 3」不是恒真',
+      negFive.length === 9, 'five=' + String(negFive.length));
+  } finally {
+    try { fs.rmSync(ctrlTmp, { recursive: true, force: true }); } catch { /* noop */ }
+  }
+} else {
+  console.log('SKIP 113-check/D4-D5 | env-missing:dist/symlink/engine-deps——负对照组跳过，不计绿');
+  console.log('GUARD-RESULT: SKIP-GROUP 113-check group=D4 reason=capability-unavailable');
+}
+
+// ---------- E. 卫生规范 ----------
+t('E1 safe-read.ts 无 BOM', !txt(join(ENG, 'src', 'audit', 'safe-read.ts')).startsWith('\uFEFF'), '');
+t('E2 113-check.mjs 自身无 BOM', !txt(join(HERE, '113-check.mjs')).startsWith('\uFEFF'), '');
+t('E3 主仓工作区未被守卫写入（守卫只写 OS temp）', !exists(join(ENG, 'audit-facts.jsonl')), '');
+
+console.log(`${NL}--- 113-check summary: ${pass} passed, ${fail} failed ---`);
 if (fail > 0) process.exit(1);

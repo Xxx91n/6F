@@ -9,12 +9,12 @@
 //   ④重校准=85-check 差分对账（同语料编排层独立重算，语料漂移非等值目标——38-check F5 先例）。
 // 纪律：被测仓只读；kernel 边界内（D-058）——确定性采集＋骨架渲染，叙事职责不外携（D-053）；
 //   LLM env 门控关=llm_gated 降级披露（不伪造不真调）。
-import { readFileSync, readdirSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, unlinkSync } from 'node:fs';
+import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, unlinkSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { repoAdd } from '../intake/intake.js';
 import { probeMacroBRepo, macroBContext, probeGitVersion } from './macro-b.js';
-import { readRepoFileSafe, isPathContainedInRepo, makeFileSubjectSkipFact } from './safe-read.js';
+import { readRepoFileSafe, listAdrFilesSafe, probeRepoEntry, makeFileSubjectSkipFact } from './safe-read.js';
 import { auditRepoName } from './audit.js';
 import { collectAdrStructureV2, collectGitlog, makeFact, ADR_STRUCTURE_V2_DESCRIPTOR } from '../collect/collectors.js';
 import { collectCodeloreFacets, collectCodeloreLlm, CODELORE_BATCH1_FACETS } from '../upstream/codelore.js';
@@ -135,12 +135,14 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
         skipFacts.push(f);
     } };
     // §2 ADR 语料（被审计仓的 ADR 目录；first_commit=含该文件的最早 dated commit——D-100② 毒值跳过同构 38）
-    const adrDir = join(repoRoot, 'docs', 'adr');
-    const adrDirValid = existsSync(adrDir) && isPathContainedInRepo(repoRoot, adrDir);
-    if (existsSync(adrDir) && !adrDirValid) {
-        pushSkip(makeFileSubjectSkipFact(ctx, 'docs/adr', 'dir-junction-outside'));
+    // #113：目录枚举走安全列目录单点——`docs/adr` 若是指向仓外的 junction/符号链接，一律不出语料并产披露事实。
+    const ADR_REL_DIR = 'docs/adr';
+    const adrListing = listAdrFilesSafe(repoRoot, ADR_REL_DIR);
+    const adrDirUsable = adrListing.ok === true;
+    if (!adrListing.ok && adrListing.reason !== 'missing') {
+        pushSkip(makeFileSubjectSkipFact(ctx, ADR_REL_DIR, adrListing.reason));
     }
-    const rawAdrFiles = adrDirValid ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
+    const rawAdrFiles = adrListing.ok ? adrListing.files : [];
     const firstCommitOf = function (relPath) {
         let best = null;
         for (const c of probes.commits) {
@@ -175,7 +177,8 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
     const codeloreFacts = collectCodeloreFacets({ repoRoot: repoRoot }, ctx);
     const explainCandidates = (spec && spec.llmExplainCandidates) || MACRO_C_LLM_EXPLAIN_CANDIDATES;
     const explainPaths = explainCandidates.filter(function (p) {
-        if (!existsSync(join(repoRoot, p))) {
+        // #113：存在性用 lstat（悬空链接也算「存在」→ 交给安全读取判定并披露），不再用 existsSync 静默过滤。
+        if (probeRepoEntry(repoRoot, p) === 'absent') {
             return false;
         }
         const r = readRepoFileSafe(repoRoot, p);
@@ -188,6 +191,25 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
     const llmFacts = collectCodeloreLlm({ repoRoot: repoRoot, explainPaths: explainPaths, diffRange: (spec && spec.llmDiffRange) || 'HEAD~10..HEAD' }, ctx);
     const llmGateFact = llmFacts.find(function (f) { return f.metric === 'codelore.llm_gate'; });
     const llmGate = llmGateFact ? JSON.parse(llmGateFact.value_json) : { configured: false, reason: 'no-gate-fact' };
+    // §3b NC-1 负对照选材（#113 返修：选材上移进采集段——被拒候选在此**逐件发 skip 事实**，
+    //   与 macro-b 的 NC-1 选材同形；判据侧只消费选材结果，不再自己偷偷读文件）。
+    //   存在性判定用 lstat 探针：悬空链接也进安全读取的拒绝分支，不会因 existsSync=false 静默消失。
+    const ncCandidates = (spec && spec.ncCandidates) || MACRO_C_NC_CANDIDATES;
+    let ncPath = null;
+    let ncText = null;
+    for (const cand of ncCandidates) {
+        if (probeRepoEntry(repoRoot, cand) === 'absent') {
+            continue;
+        }
+        const r = readRepoFileSafe(repoRoot, cand);
+        if (!r.ok) {
+            pushSkip(makeFileSubjectSkipFact(ctx, cand, r.reason));
+            continue;
+        }
+        ncPath = cand;
+        ncText = r.text;
+        break;
+    }
     // §4 supersede 链（38 逐行移植）＋链摘要 fact（同族 metric，evidence=被审计仓 ADR 目录扫描）
     const adrs = scanSupersedeAdrs(adrDocs);
     const deferRegistryPresent = existsSync(join(repoRoot, 'docs', 'deferred-registry.json'));
@@ -212,9 +234,9 @@ export function collectMacroC(repoRoot, probes, ctx, spec) {
         const v = JSON.parse(resFact.value_json);
         codeloreResolution = { version: v.version !== undefined ? v.version : null, pinned: v.pinned === true, error: v.error !== undefined ? v.error : null };
     }
-    return { adrDocs: adrDocs, adrFacts: adrFacts.concat(skipFacts), gitFacts: gitFacts, codeloreFacts: codeloreFacts, llmFacts: llmFacts, llmGate: llmGate, chain: chain, chainFact: chainFact, realFacts: realFacts, dedupDropped: dedupDropped, codeloreResolution: codeloreResolution };
+    return { adrDocs: adrDocs, adrDirUsable: adrDirUsable, adrFacts: adrFacts.concat(skipFacts), gitFacts: gitFacts, codeloreFacts: codeloreFacts, llmFacts: llmFacts, llmGate: llmGate, chain: chain, chainFact: chainFact, realFacts: realFacts, dedupDropped: dedupDropped, codeloreResolution: codeloreResolution, ncSelection: { path: ncPath, text: ncText } };
 }
-export function evaluateMacroC(col, repoRoot, ctx, ncCandidates) {
+export function evaluateMacroC(col, repoRoot, ctx) {
     const facetRowsFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_rows'; });
     const facetErrFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_error' || f.metric === 'codelore.facet_parse_error'; });
     const lagFacts = col.gitFacts.filter(function (f) { return f.metric === 'git.adr_lag_days'; });
@@ -229,28 +251,17 @@ export function evaluateMacroC(col, repoRoot, ctx, ncCandidates) {
     }
     const pinned = col.codeloreResolution ? col.codeloreResolution.pinned === true : false;
     const chain = col.chain;
-    const pcMc1 = pinned && facetRowsFacts.length === CODELORE_BATCH1_FACETS.length && facetErrFacts.length === 0 && col.adrDocs.length > 0;
+    // ADR 存在性看「语料目录是否可用且确有文档」——不再看 col.adrFacts.length：skip 事实与 ADR 事实同族混装，
+    //   若 docs/adr 指向仓外，那里会有一条 skip 事实而零份 ADR，用事实数判存在性等于把拒绝读成阳性（PR #127 审查）。
+    const pcMc1 = pinned && facetRowsFacts.length === CODELORE_BATCH1_FACETS.length && facetErrFacts.length === 0 && col.adrDirUsable === true && col.adrDocs.length > 0;
     const pcMc2 = col.gitFacts.filter(function (f) { return f.metric === 'git.first_commit'; }).length >= col.adrDocs.length - 2;
     const tcMc1 = chain.edge_count >= 1 && chain.unresolved_refs.length === 0 && chain.missing_backrefs.length === 0;
     const tcMc2 = lagFacts.length >= MACRO_C_LAG_MIN_N;
     const tcMc3 = col.llmGate.configured === true && col.llmFacts.filter(function (f) { return f.metric === 'codelore.llm_narrative'; }).length >= 1;
-    const cands = ncCandidates || MACRO_C_NC_CANDIDATES;
-    let nc1Path = null;
-    let nc1Text = null;
+    // NC-1 选材由采集段完成（被拒候选在那里逐件发 skip 事实）；判据侧只消费选材结果，不重复读文件。
+    const nc1Path = col.ncSelection.path;
+    const nc1Text = col.ncSelection.text;
     let ncMc1 = false;
-    for (const c of cands) {
-        if (!existsSync(join(repoRoot, c))) {
-            continue;
-        }
-        const r = readRepoFileSafe(repoRoot, c);
-        if (!r.ok) {
-            // candidate rejected safely
-            continue;
-        }
-        nc1Path = c;
-        nc1Text = r.text;
-        break;
-    }
     if (nc1Path !== null && nc1Text !== null) {
         const nc1Doc = { path: nc1Path, text: nc1Text, first_commit_date: null };
         const nc1Facts = collectAdrStructureV2({ documents: [nc1Doc] }, ctx);
