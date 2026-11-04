@@ -85,7 +85,7 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const repo = join(tmp, 'r');
   mkdirSync(repo, { recursive: true });
   const git = (a) => spawnSync('git', a, { cwd: repo, encoding: 'utf8' });
-  git(['init', '-q']); git(['config', 'user.email', 't@t']); git(['config', 'user.name', 't']);
+  git(['init', '-q', '--object-format=sha1']); git(['config', 'user.email', 't@t']); git(['config', 'user.name', 't']);
   writeFileSync(join(repo, 'a.txt'), 'a1\n');
   git(['add', 'a.txt']); git(['commit', '-qm', 'c1']);
   const base = git(['rev-parse', 'HEAD']).stdout.trim();
