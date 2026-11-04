@@ -125,7 +125,7 @@ export function makeFileSubjectSkipFact(
   reason: string,
   descriptor: CollectorDescriptor = AUDIT_DESCRIPTOR
 ): CollectedFact {
-  // Design: file_subject_skip 的 subject 与 fact_id 一律 '/' 分隔（含 Windows join 产物）— ADR-0023
+  // Design: file_subject_skip 的 subject 与 fact_id 一律 '/' 分隔（含 Windows join 产物） — ADR-0023
   const subject = slash(rawPath);
   const value = {
     analysis: 'safe-read',
