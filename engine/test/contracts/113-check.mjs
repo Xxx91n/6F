@@ -376,8 +376,10 @@ if (!symlinkProbe) {
         const dbPath = join(attackOut, 'facts.duckdb');
         const probe = spawnSync(process.execPath, ['--input-type=module', '-e', `
           import { createRequire } from 'node:module';
+          import { pathToFileURL } from 'node:url';
           const require = createRequire(${JSON.stringify(join(ENG, 'package.json'))});
-          const { DuckDBInstance } = await import(new URL(require.resolve('@duckdb/node-api'), 'file://'));
+          // 必须 pathToFileURL：Windows 上 new URL('C:\\x', 'file://') 得到的是 scheme=c: 的不透明 URL，import 必败。
+          const { DuckDBInstance } = await import(pathToFileURL(require.resolve('@duckdb/node-api')).href);
           const inst = await DuckDBInstance.create(${JSON.stringify(dbPath)}, { access_mode: 'READ_ONLY' });
           const conn = await inst.connect();
           const rows = await (await conn.runAndReadAll(
@@ -388,7 +390,9 @@ if (!symlinkProbe) {
         let dbSkips = -1;
         try { dbSkips = JSON.parse((probe.stdout || '{}').trim().split(NL).pop()).n; } catch { dbSkips = -1; }
         t('C13 facts.duckdb 内同样落有披露事实（落库面与 JSONL 同源）',
-          probe.status === 0 && dbSkips >= 7, 'db_skips=' + String(dbSkips) + ' exit=' + String(probe.status));
+          probe.status === 0 && dbSkips >= 7,
+          'db_skips=' + String(dbSkips) + ' exit=' + String(probe.status)
+            + (probe.status === 0 ? '' : ' stderr=' + String(probe.stderr || '').trim().split(NL).slice(-2).join(' ').slice(0, 300)));
       }
     } finally {
       try { fs.rmSync(e2eTmp, { recursive: true, force: true }); } catch { /* noop */ }
