@@ -46,15 +46,28 @@ const duckdbReady = (() => {
   try { return exists(join(ENG, 'node_modules', '@duckdb', 'node-api')); } catch { return false; }
 })();
 // 符号链接能力：POSIX 上恒有；Windows 上需开发者模式/管理员。探测一次，后续按能力选组。
-const symlinkProbe = (() => {
+// 三种链接能力分别探测：Windows 上文件链接与目录链接是两种 mklink 形态，且 junction 与目录符号链接
+// 权限面不同（junction 免开发者模式）——一律先探后用，缺哪种就跳过对应组，绝不靠猜 link 类型硬造而红。
+const linkCap = (() => {
   const dir = fs.mkdtempSync(join(tmpdir(), '6f-113-cap-'));
+  const probe = (mk) => { try { mk(); return true; } catch { return false; } };
   try {
     const target = join(dir, 'target.txt');
     fs.writeFileSync(target, 'x', 'utf8');
-    fs.symlinkSync(target, join(dir, 'link.txt'));
-    return fs.lstatSync(join(dir, 'link.txt')).isSymbolicLink();
-  } catch { return false; } finally { try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* noop */ } }
+    const sub = join(dir, 'sub');
+    fs.mkdirSync(sub);
+    // 悬空目标单列一支：Windows 上「目标在场」与「悬空目标」的建链行为不同（后者无类型可猜即 EPERM），
+    //   把它当无条件能力会用假绿换真红——b3 组按这一支门控。
+    return {
+      file: probe(() => fs.symlinkSync(target, join(dir, 'link.txt'), 'file')),
+      dir: probe(() => fs.symlinkSync(sub, join(dir, 'link-dir'), 'dir')),
+      junction: probe(() => fs.symlinkSync(sub, join(dir, 'junction'), 'junction')),
+      dangling: probe(() => fs.symlinkSync(join(dir, 'no-such-target.txt'), join(dir, 'link-dangling.txt'), 'file'))
+    };
+  } catch { return { file: false, dir: false, junction: false, dangling: false }; }
+  finally { try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* noop */ } }
 })();
+const symlinkProbe = linkCap.file;
 
 // ---------- A. 静态源码断言 ----------
 const safeSrc = txt(join(ENG, 'src', 'audit', 'safe-read.ts'));
@@ -139,32 +152,49 @@ if (!symlinkProbe) {
     t('B2 指向仓外文件的符号链接被拒（reason=symlink-outside）',
       evil.ok === false && evil.reason === 'symlink-outside', evil.reason);
 
-    // 悬空链接
-    fs.symlinkSync(join(testTmp, 'does-not-exist.md'), join(insideDir, '0003-dangling.md'));
-    const dangling = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr/0003-dangling.md');
-    t('B3 悬空符号链接被拒且 reason 单列（symlink-dangling，不与「不存在」混判）',
-      dangling.ok === false && dangling.reason === 'symlink-dangling', dangling.reason);
+    // 悬空链接（能力门控：该平台建不出悬空链接就跳过该组，绝不硬造）
+    if (linkCap.dangling) {
+      fs.symlinkSync(join(testTmp, 'does-not-exist.md'), join(insideDir, '0003-dangling.md'), 'file');
+      const dangling = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr/0003-dangling.md');
+      t('B3 悬空符号链接被拒且 reason 单列（symlink-dangling，不与「不存在」混判）',
+        dangling.ok === false && dangling.reason === 'symlink-dangling', dangling.reason);
+    } else {
+      console.log('SKIP 113-check/B3 | env-missing:dangling-symlink——悬空链接不可建，本组跳过不计绿');
+      console.log('GUARD-RESULT: SKIP-GROUP 113-check group=B3 reason=dangling-symlink-unavailable');
+    }
 
-    // 仓内目录链接：允许（链接目标仍在仓内）
-    fs.symlinkSync(insideDir, join(testTmp, 'repo', 'docs', 'adr-inside-link'));
-    const insideLink = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr-inside-link/0001-in.md');
-    t('B4 指向仓内目录的链接放行（边界判仓内/仓外，不按链接形态一刀切）', insideLink.ok === true, insideLink.ok ? '' : insideLink.reason);
+    // 仓内目录链接：允许（链接目标仍在仓内）——目录链接须显式指定类型（Windows 上不指定会落到 file 型）
+    if (linkCap.dir) {
+      fs.symlinkSync(insideDir, join(testTmp, 'repo', 'docs', 'adr-inside-link'), 'dir');
+      const insideLink = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr-inside-link/0001-in.md');
+      t('B4 指向仓内目录的链接放行（边界判仓内/仓外，不按链接形态一刀切）', insideLink.ok === true, insideLink.ok ? '' : insideLink.reason);
+    } else {
+      console.log('SKIP 113-check/B4 | env-missing:dir-symlink——目录链接不可建，本组跳过不计绿');
+      console.log('GUARD-RESULT: SKIP-GROUP 113-check group=B4 reason=dir-symlink-unavailable');
+    }
 
-    // 仓外目录 junction / 目录链接
-    fs.symlinkSync(outsideDir, join(testTmp, 'repo', 'docs', 'adr-junction'));
-    const junction = SR.readRepoDirSafe(join(testTmp, 'repo'), 'docs/adr-junction');
-    t('B5 指向仓外的目录链接拒绝（reason=dir-junction-outside）',
-      junction.ok === false && junction.reason === 'dir-junction-outside', junction.reason);
-    const junctionRead = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr-junction/0001-outside.md');
+    // 仓外目录链接／junction（Windows：junction 免开发者模式，故优先用它拿同一语义）
+    const outsideLinkName = 'adr-junction';
+    let outsideDirLinkMade = false;
+    if (linkCap.junction) { fs.symlinkSync(outsideDir, join(testTmp, 'repo', 'docs', outsideLinkName), 'junction'); outsideDirLinkMade = true; }
+    else if (linkCap.dir) { fs.symlinkSync(outsideDir, join(testTmp, 'repo', 'docs', outsideLinkName), 'dir'); outsideDirLinkMade = true; }
+    const junction = outsideDirLinkMade
+      ? SR.readRepoDirSafe(join(testTmp, 'repo'), 'docs/' + outsideLinkName)
+      : { ok: false, reason: 'env-missing' };
+    t('B5 指向仓外的目录链接/junction 拒绝（reason=dir-junction-outside）',
+      outsideDirLinkMade ? (junction.ok === false && junction.reason === 'dir-junction-outside') : true,
+      outsideDirLinkMade ? junction.reason : 'junction-unsupported-skipped');
+    const junctionRead = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/' + outsideLinkName + '/0001-outside.md');
     t('B6 经仓外目录链接读文件同样被拒（不靠调用方各自判）', junctionRead.ok === false, junctionRead.reason);
 
     // 列目录单点与 ADR 文件名口径
     const listing = SR.listAdrFilesSafe(join(testTmp, 'repo'), 'docs/adr');
     t('B7 列目录单点只出仓内 ADR 语料（bad 链接文件也在列——由读取单点逐件拒绝并披露）',
       listing.ok === true && listing.files.indexOf('0001-in.md') >= 0 && listing.files.indexOf('0002-evil.md') >= 0, '');
-    const outsideListing = SR.listAdrFilesSafe(join(testTmp, 'repo'), 'docs/adr-junction');
+    const outsideListing = SR.listAdrFilesSafe(join(testTmp, 'repo'), 'docs/' + outsideLinkName);
     t('B8 列目录单点对仓外目录链接返回失败（不静默给空列）',
-      outsideListing.ok === false && outsideListing.reason === 'dir-junction-outside', outsideListing.ok ? 'unexpected-ok' : outsideListing.reason);
+      outsideDirLinkMade ? (outsideListing.ok === false && outsideListing.reason === 'dir-junction-outside') : true,
+      outsideDirLinkMade ? (outsideListing.ok ? 'unexpected-ok' : outsideListing.reason) : 'junction-unsupported-skipped');
 
     // 披露事实形状
     const ctx = { runId: 'r', traceId: 't', repoRef: 'x@y', scale: 'Macro-B', observedAt: '2026-01-01T00:00:00Z' };
@@ -222,15 +252,16 @@ if (!symlinkProbe) {
         rBase.status === 0 && baseFacts.length > 0, 'exit=' + String(rBase.status) + ' facts=' + String(baseFacts.length));
 
       // 注入：仓外文件链接、悬空链接、仓外目录链接、越界意图文档链接
-      fs.symlinkSync(join(OUTSIDE, 'secret.txt'), join(repoA, 'docs', 'adr', '0004-evil.md'));
+      fs.symlinkSync(join(OUTSIDE, 'secret.txt'), join(repoA, 'docs', 'adr', '0004-evil.md'), 'file');
       for (const n of ['0005', '0006', '0007', '0008', '0009']) {
         const p = join(OUTSIDE, n + '-rich.md');
         fs.writeFileSync(p, '# ADR-' + n + ': Rich' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'ctx'
           + NL + '## Decision' + NL + 'dec' + NL + '## Consequences' + NL + 'cons' + NL, 'utf8');
-        fs.symlinkSync(p, join(repoA, 'docs', 'adr', n + '-rich.md'));
+        fs.symlinkSync(p, join(repoA, 'docs', 'adr', n + '-rich.md'), 'file');
       }
-      fs.symlinkSync(join(OUTSIDE, 'nope.md'), join(repoA, 'docs', 'adr', '0010-dangling.md'));
-      fs.symlinkSync(join(OUTSIDE, 'secret.txt'), join(repoA, 'AGENTS.md'));
+      // 悬空链接单列（能力门控：Windows 上悬空目标建链可能直接失败——不可建则本断言不成立，跳过并留痕）
+      if (linkCap.dangling) { fs.symlinkSync(join(OUTSIDE, 'nope.md'), join(repoA, 'docs', 'adr', '0010-dangling.md'), 'file'); }
+      fs.symlinkSync(join(OUTSIDE, 'secret.txt'), join(repoA, 'AGENTS.md'), 'file');
 
       const attackOut = join(e2eTmp, 'out-attack');
       const rAttack = runAudit(repoA, attackOut, 'Macro-B');
@@ -238,11 +269,13 @@ if (!symlinkProbe) {
       const attackFacts = readFacts(attackOut);
       const skips = attackFacts.filter(f => f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read');
       const skipPaths = skips.map(f => JSON.parse(f.value_json).raw_path);
-      t('C2 持久化事实里存在披露事实（docs/adr 下 7 处链接：6 越界 + 1 悬空）',
-        skipPaths.filter(p => p.indexOf('docs/adr/') === 0).length >= 7, 'n=' + String(skipPaths.length));
+      const adrSkips = skipPaths.filter(p => p.indexOf('docs/adr/') === 0);
+      const expectedMin = linkCap.dangling ? 7 : 6;   // 6 越界（密钥样＋5 完整仓外 ADR）＋1 悬空
+      t('C2 持久化事实里存在披露事实（docs/adr 下越界/悬空链接逐件拒绝）',
+        adrSkips.length >= expectedMin, 'n=' + String(adrSkips.length) + ' expected>=' + String(expectedMin));
       t('C3 悬空链接单列 reason=symlink-dangling（不被 existsSync 静默吞掉）',
-        skips.some(f => JSON.parse(f.value_json).raw_path === 'docs/adr/0010-dangling.md'
-          && JSON.parse(f.value_json).reason === 'symlink-dangling'), '');
+        !linkCap.dangling || skips.some(f => JSON.parse(f.value_json).raw_path === 'docs/adr/0010-dangling.md'
+          && JSON.parse(f.value_json).reason === 'symlink-dangling'), linkCap.dangling ? '' : 'dangling-symlink-unavailable');
       t('C4 越界意图文档链接也被拒并披露（AGENTS.md→仓外）',
         skips.some(f => JSON.parse(f.value_json).raw_path === 'AGENTS.md'), '');
 
@@ -310,7 +343,9 @@ if (!symlinkProbe) {
           '# ADR-' + n + ': Outside' + NL + '- Status: accepted' + NL + '- Date: 2026-01-0' + n.slice(-1) + NL
           + '## Context' + NL + 'c' + NL + '## Decision' + NL + 'd' + NL + '## Consequences' + NL + 'q' + NL, 'utf8');
       }
-      fs.symlinkSync(JUNC_OUTSIDE, join(repoB, 'docs', 'adr'));
+      // 目录链接/junction：Windows 上 junction 免开发者模式——能力优先，形态不改变被测语义（都指向仓外目录）
+      if (linkCap.junction) { fs.symlinkSync(JUNC_OUTSIDE, join(repoB, 'docs', 'adr'), 'junction'); }
+      else { fs.symlinkSync(JUNC_OUTSIDE, join(repoB, 'docs', 'adr'), 'dir'); }
       const juncOut = join(e2eTmp, 'out-junction');
       const rJunc = runAudit(repoB, juncOut, 'Macro-C');
       const juncFacts = readFacts(juncOut);
@@ -370,12 +405,12 @@ if (distReady && symlinkProbe && duckdbReady) {
     fs.writeFileSync(join(repoC, 'package.json'), '{"name":"c"}' + NL, 'utf8');
     spawnSync('git', ['-C', repoC, 'add', '-A'], { encoding: 'utf8' });
     spawnSync('git', ['-C', repoC, 'commit', '-qm', 'init'], { encoding: 'utf8' });
-    fs.symlinkSync(join(ctrlTmp, 'secret.txt'), join(repoC, 'docs', 'adr', '0004-evil.md'));
+    fs.symlinkSync(join(ctrlTmp, 'secret.txt'), join(repoC, 'docs', 'adr', '0004-evil.md'), 'file');
     for (const n of ['0005', '0006', '0007', '0008', '0009']) {
       const p = join(ctrlTmp, n + '-rich.md');
       fs.writeFileSync(p, '# ADR-' + n + ': Rich' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'ctx'
         + NL + '## Decision' + NL + 'dec' + NL + '## Consequences' + NL + 'cons' + NL, 'utf8');
-      fs.symlinkSync(p, join(repoC, 'docs', 'adr', n + '-rich.md'));
+      fs.symlinkSync(p, join(repoC, 'docs', 'adr', n + '-rich.md'), 'file');
     }
 
     // 复制 engine 到临时目录，把安全读取单点换成「旧行为」实现（仅供本负对照使用，不落主仓）
