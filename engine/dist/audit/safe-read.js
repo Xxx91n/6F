@@ -31,15 +31,19 @@ function uuidFromHex(h) {
     return [h.slice(0, 8), h.slice(8, 12), h.slice(12, 16), h.slice(16, 20), h.slice(20, 32)].join('-');
 }
 export function makeFileSubjectSkipFact(ctx, rawPath, reason, descriptor = AUDIT_DESCRIPTOR) {
+    // #113 返修（Windows C14）：事实面 subject 一律正斜杠归一形——调用方可能传 join() 产物
+    //   （`docs\deferred-registry.json`），不归一则与读取单点返回的 relPath（已 slash 归一）不同源，
+    //   按相对路径比对的披露面在 Windows 上漏计。fact_id 的哈希输入同用归一值，保持 id 与发出值同源。
+    const subject = slash(rawPath);
     const value = {
         analysis: 'safe-read',
         group: 'security',
-        raw_path: rawPath,
+        raw_path: subject,
         reason: reason
     };
     const valueJson = JSON.stringify(value);
     const metric = 'codelore.file_subject_skip';
-    const factId = uuidFromHex(sha256Hex([descriptor.id, rawPath, metric, valueJson, ctx.observedAt].join('|')));
+    const factId = uuidFromHex(sha256Hex([descriptor.id, subject, metric, valueJson, ctx.observedAt].join('|')));
     const baggageParts = [ctx.repoRef, ctx.scale, 'strategic', descriptor.dimension === null ? 'na' : descriptor.dimension, ctx.runId];
     const baggageId = sha256Hex(baggageParts.join('|')).slice(0, 32);
     return {
@@ -51,7 +55,7 @@ export function makeFileSubjectSkipFact(ctx, rawPath, reason, descriptor = AUDIT
         dimension: descriptor.dimension,
         collector_id: descriptor.id,
         repo_ref: ctx.repoRef,
-        subject_ref: rawPath,
+        subject_ref: subject,
         evidence_ref: 'safe-read-probe',
         metric: metric,
         value_json: valueJson,
