@@ -233,6 +233,13 @@ if (!symlinkProbe) {
     t('B9 披露事实 metric=codelore.file_subject_skip＋collector=audit-safe-read＋带 raw_path/reason',
       f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read' &&
       fv.raw_path === 'docs/adr/0002-evil.md' && fv.reason === 'symlink-outside', '');
+    // CodeRabbit 审查（tracker #128）：归一分支须有跨平台身份断言——反斜杠输入（Windows join 产物）
+    //   与正斜杠输入产出同 raw_path / subject_ref / fact_id，不只靠 Windows 腿的 C14 端到端兜。
+    const fWin = SR.makeFileSubjectSkipFact(ctx, ['docs', 'adr', '0002-evil.md'].join(String.fromCharCode(92)), 'symlink-outside');
+    const fWinV = JSON.parse(fWin.value_json);
+    t('B11 Windows 反斜杠输入与正斜杠输入同身份（raw_path/subject_ref/fact_id 相等）',
+      fWinV.raw_path === fv.raw_path && fWin.subject_ref === f.subject_ref && fWin.fact_id === f.fact_id,
+      'raw_path=' + String(fWinV.raw_path) + ' subject_ref=' + String(fWin.subject_ref) + ' fact_id=' + String(fWin.fact_id));
   } finally {
     try { fs.rmSync(testTmp, { recursive: true, force: true }); } catch { /* noop */ }
   }
