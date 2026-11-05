@@ -142,6 +142,25 @@ t('A8 引文/来源/披露块转义走单行化（多行引文不得跳出列表
 const safeModPath = distReady ? join(ENG, 'dist', 'audit', 'safe-read.js') : join(ENG, 'src', 'audit', 'safe-read.ts');
 const SR = await import(pathToFileURL(safeModPath).href);
 
+// ---------- B11. 归一分支身份断言（纯函数，不依赖 symlink 能力，独立于 B 组门控） ----------
+//   CodeRabbit 审查（tracker #128）：win32 的 '\' 是分隔符须归一；POSIX 的 '\' 是文件名字符须保留独立身份。
+{
+  const ctx0 = { runId: 'r0', traceId: 't0', repoRef: 'x@y', scale: 'Macro-B', observedAt: '2026-01-01T00:00:00Z' };
+  const fSlash = SR.makeFileSubjectSkipFact(ctx0, 'docs/adr/0002-evil.md', 'symlink-outside');
+  const fvSlash = JSON.parse(fSlash.value_json);
+  const fBack = SR.makeFileSubjectSkipFact(ctx0, ['docs', 'adr', '0002-evil.md'].join(String.fromCharCode(92)), 'symlink-outside');
+  const fvBack = JSON.parse(fBack.value_json);
+  if (process.platform === 'win32') {
+    t('B11 win32：反斜杠分隔符与正斜杠输入同身份（raw_path/subject_ref/fact_id 相等）',
+      fvBack.raw_path === fvSlash.raw_path && fBack.subject_ref === fSlash.subject_ref && fBack.fact_id === fSlash.fact_id,
+      'raw_path=' + String(fvBack.raw_path) + ' fact_id=' + String(fBack.fact_id));
+  } else {
+    t('B11 POSIX：字面反斜杠属文件名字符，不与斜杠路径合并身份（raw_path/subject_ref/fact_id 均不同）',
+      fvBack.raw_path !== fvSlash.raw_path && fBack.subject_ref !== fSlash.subject_ref && fBack.fact_id !== fSlash.fact_id,
+      'raw_path=' + String(fvBack.raw_path) + ' fact_id=' + String(fBack.fact_id));
+  }
+}
+
 if (!symlinkProbe) {
   console.log('SKIP 113-check/B | env-missing:file-symlink 能力（Windows 未开开发者模式/权限不足）——' + 'B/C 组跳过，不计绿');
   console.log('GUARD-RESULT: SKIP-GROUP 113-check group=B reason=file-symlink-unavailable');
@@ -233,13 +252,6 @@ if (!symlinkProbe) {
     t('B9 披露事实 metric=codelore.file_subject_skip＋collector=audit-safe-read＋带 raw_path/reason',
       f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read' &&
       fv.raw_path === 'docs/adr/0002-evil.md' && fv.reason === 'symlink-outside', '');
-    // CodeRabbit 审查（tracker #128）：归一分支须有跨平台身份断言——反斜杠输入（Windows join 产物）
-    //   与正斜杠输入产出同 raw_path / subject_ref / fact_id，不只靠 Windows 腿的 C14 端到端兜。
-    const fWin = SR.makeFileSubjectSkipFact(ctx, ['docs', 'adr', '0002-evil.md'].join(String.fromCharCode(92)), 'symlink-outside');
-    const fWinV = JSON.parse(fWin.value_json);
-    t('B11 Windows 反斜杠输入与正斜杠输入同身份（raw_path/subject_ref/fact_id 相等）',
-      fWinV.raw_path === fv.raw_path && fWin.subject_ref === f.subject_ref && fWin.fact_id === f.fact_id,
-      'raw_path=' + String(fWinV.raw_path) + ' subject_ref=' + String(fWin.subject_ref) + ' fact_id=' + String(fWin.fact_id));
   } finally {
     try { fs.rmSync(testTmp, { recursive: true, force: true }); } catch { /* noop */ }
   }

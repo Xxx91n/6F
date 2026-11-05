@@ -31,8 +31,8 @@ function uuidFromHex(h) {
     return [h.slice(0, 8), h.slice(8, 12), h.slice(12, 16), h.slice(16, 20), h.slice(20, 32)].join('-');
 }
 export function makeFileSubjectSkipFact(ctx, rawPath, reason, descriptor = AUDIT_DESCRIPTOR) {
-    // Design: file_subject_skip 的 subject 与 fact_id 一律 '/' 分隔（含 Windows join 产物） — ADR-0023
-    const subject = slash(rawPath);
+    // Design: 事实面 subject/fact_id 一律 '/' 分隔——win32 的 '\' 是分隔符须归一，POSIX 的 '\' 是文件名字符须保留 — ADR-0023
+    const subject = process.platform === 'win32' ? slash(rawPath) : rawPath;
     const value = {
         analysis: 'safe-read',
         group: 'security',
