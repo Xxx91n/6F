@@ -119,6 +119,13 @@ function uuidFromHex(h: string): string {
   return [h.slice(0, 8), h.slice(8, 12), h.slice(12, 16), h.slice(16, 20), h.slice(20, 32)].join('-');
 }
 
+/**
+ * 披露事实：安全读取拒绝时发射 `codelore.file_subject_skip`（subject / fact_id 用同一归一形）。
+ * @param ctx 采集上下文（run/trace/repo/scale/observedAt）
+ * @param rawPath 调用方给的仓根相对路径（可能来自 join()，win32 上含反斜杠）
+ * @param reason 拒绝原因（SafeReadFailReason 或其调用面同义码）
+ * @param descriptor 采集器描述符（默认 audit-safe-read）
+ */
 export function makeFileSubjectSkipFact(
   ctx: CollectContext,
   rawPath: string,
