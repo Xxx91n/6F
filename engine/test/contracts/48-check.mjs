@@ -18,7 +18,7 @@ const REPO = join(HERE, '..', '..', '..');
 const FX = join(REPO, 'engine', 'test', 'fixtures', 'contracts');
 const PIPE = join(HERE, '48-micro-a-preview.mjs');
 const CRIT = join(REPO,'engine','test','fixtures','contracts','48-micro-a-criteria.md');
-// golden 在册十二件唯一清单（B4 在场腿／B5 对账腿／B6·B7·B11 篡改腿／B8 集合闸／B9·B10 认祖腿／B12·B13 宽度腿同源——禁各处再抄一份，tracker #88）
+// golden 在册十二件唯一清单（B4 在场腿／B5 对账腿／B6·B7·B11 篡改腿／B8 集合闸／B9·B10 全值校验腿／B12·B13 宽度腿同源——禁各处再抄一份，tracker #88）
 const GOLDEN_PREFIX = '48-micro-a-golden-';
 const GOLDEN_NAMES = [
   '48-micro-a-golden-env-manager-pr64.md',
@@ -73,7 +73,7 @@ t('B4 golden 工件齐备（在册十二件全在场——含 pr64.diff 与 asse
 // 红了由人重跑 --golden 随 PR 提交，golden 更新只走审查。
 // 对账是全字节的：prereg_commit 的 %h 宽度也一并比，因为宽度会被算进 receipt_id／chain_hash／mark，
 // 放过宽度等于放过那三列。跨环境可复算由生成器在 --golden 下钉 core.abbrev 保证，本文件只核一遍宽度没抖（B12）。
-// Design: 存档宽度须与现跑一致，身份（不是宽度）另有 B9 全值认祖 — spec §R9-1
+// Design: 存档宽度须与现跑一致，身份（不是宽度）另有 B9 全值全值校验 — spec §R9-1
 const GEN = await import(pathToFileURL(join(REPO, 'engine', 'dist', 'report', 'generate.js')).href);
 function goldenDrift(baseDir, otherDir, names) {
   const bad = [];
@@ -121,10 +121,10 @@ const setRepo = readdirSync(FX).filter(function (f) { return f.indexOf(GOLDEN_PR
 const setRegen = readdirSync(GOLDEN_OUT).filter(function (f) { return f.indexOf(GOLDEN_PREFIX) === 0; }).sort().join('|');
 const setListed = GOLDEN_NAMES.slice().sort().join('|');
 t('B8 集合闸：清单＝入库＝现跑且各恰十二件', setListed === setRepo && setListed === setRegen && GOLDEN_NAMES.length === 12, 'listed=' + setListed.split('|').length + ' repo=' + setRepo.split('|').length + ' regen=' + setRegen.split('|').length + (setRepo !== setListed ? ' repo∉清单:' + setRepo : '') + (setRegen !== setListed ? ' regen∉清单:' + setRegen : ''));
-// ---------- prereg_commit 双侧全值认祖（tracker #88 AC③） ----------
+// ---------- prereg_commit 双侧全值全值校验（tracker #88 AC③） ----------
 // 形制判别复用产品单源 classifyPreregAnchor（三形态口径归 spec §R9-1，守卫不另立第二套；
 // 形制本身的可解析性由 85-check A17 与 micro-a.test S 组管，本臂不重扫）。本臂只补产品面管不着的那一档：
-// 存档侧与现跑两侧的短写都必须指向**那枚判据锚**——全值走 log --format=%H 取，再前缀认祖；
+// 存档侧与现跑两侧的短写都必须指向**那枚判据锚**——全值走 log --format=%H 取，再前缀全值校验；
 // 不走 rev-parse --verify：`%h` 短写不是可解析 rev，喂进去只会报出假因。
 const prPr = spawnSync('git', ['-C', REPO, 'log', '-1', '--format=%H', '--', 'engine/test/fixtures/contracts/48-micro-a-criteria.md'], { encoding: 'utf8', timeout: 60000 });
 const preregFull = (prPr.stdout || '').trim();
@@ -141,12 +141,12 @@ function preregOffenders(dir) {
   }
   return { carriers: carriers, bad: bad };
 }
-// 双侧认祖：逐字节面只能证两侧一致，证不了「一致地指错了锚」——生成器的锚若退回 rev-parse HEAD
-// （D-179① 原缺陷）且有人跟着再生存档，字节全等而锚已飘到别的 commit，故两侧都按全值认祖。
+// 双侧全值校验：逐字节面只能证两侧一致，证不了「一致地指错了锚」——生成器的锚若退回 rev-parse HEAD
+// （D-179① 原缺陷）且有人跟着再生存档，字节全等而锚已飘到别的 commit，故两侧都按全值全值校验。
 const scanRepo = preregOffenders(FX);
 const scanRegen = preregOffenders(GOLDEN_OUT);
-t('B9 prereg_commit 双侧全值认祖（入库与现跑都须指到判据锚）', scanRepo.carriers.length > 0 && scanRegen.carriers.length > 0 && scanRepo.bad.length === 0 && scanRegen.bad.length === 0, 'full=' + (preregFull.slice(0, 12) || 'ABSENT') + ' carriers=' + scanRepo.carriers.length + '/' + scanRegen.carriers.length + ' 入库违规=' + scanRepo.bad.join(',') + ' 现跑违规=' + scanRegen.bad.join(','));
-// 认祖臂自证：在册真短写末位翻成另一枚 hex（形制仍合法、宽度不变的异值）写回副本走同一条扫描，必须点名该件——
+t('B9 prereg_commit 双侧全值全值校验（入库与现跑都须指到判据锚）', scanRepo.carriers.length > 0 && scanRegen.carriers.length > 0 && scanRepo.bad.length === 0 && scanRegen.bad.length === 0, 'full=' + (preregFull.slice(0, 12) || 'ABSENT') + ' carriers=' + scanRepo.carriers.length + '/' + scanRegen.carriers.length + ' 入库违规=' + scanRepo.bad.join(',') + ' 现跑违规=' + scanRegen.bad.join(','));
+// 全值校验臂自证：在册真短写末位翻成另一枚 hex（形制仍合法、宽度不变的异值）写回副本走同一条扫描，必须点名该件——
 // 否则「形制合法、也解析得到、但不是那枚锚」这一类无人判红（tracker #100 立法要杀的正是要窄这一档）。
 const preregPerturbed = scanRepo.carriers.length > 0 ? scanRepo.carriers[0].v.slice(0, -1) + (scanRepo.carriers[0].v.slice(-1) === '0' ? '1' : '0') : '';
 const tamAnchorDir = tamperedCopy(TAM_PR64_JSON, function (s) { return s.replace(/("prereg_commit":\s*")[0-9a-f]{4,40}(")/, '$1' + preregPerturbed + '$2'); });
