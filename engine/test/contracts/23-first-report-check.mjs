@@ -139,9 +139,316 @@ const pc2Idx = ids.indexOf('PC-2');
 // 两枚正对照都必须真在条目里且先于首个真判据——取 max 会让缺席的那枚（indexOf=-1）被另一枚掩护掉
 const lastPc = Math.max(pc1Idx, pc2Idx);
 check('B2', pc1Idx >= 0 && pc2Idx >= 0 && firstTc >= 0 && lastPc < firstTc, '执行顺序不可倒（两枚 PC 均须索引 >=0 且 < firstTC）：PC-1 索引 ' + pc1Idx + '、PC-2 索引 ' + pc2Idx + '、firstTC 索引 ' + firstTc);
-check('B3-TC1', gates.B.tc1.verdict === 'INCONCLUSIVE', 'TC-1 判 ' + gates.B.tc1.verdict + '（可判定数 ' + gates.B.tc1.judgeable_n + ' < 门槛 ' + gates.B.tc1.threshold.min_n + '）');
-check('B3-TC2', gates.B.tc2.verdict === 'RED', 'TC-2 判 RED（mean ' + gates.B.tc2.mean_ratio_4 + ' < ' + gates.B.tc2.threshold.mean_red + '）');
-check('B3-TC3', gates.B.tc3.verdict === 'AMBER', 'TC-3 判 ' + gates.B.tc3.verdict + '（最低 ' + gates.B.tc3.lowest_ratio_4 + '）');
+// ---------- B3 三臂（tracker #76）：字面 ↔ 统计重算 ↔ 裁决重导 ----------
+// 规则的成文权威 = 22-criteria-pre-registration.md §3.1（TC-1）/§3.2（TC-2）/§3.3（TC-3），跑前写死；
+// 下面三个 derive 只做指针式兑现，不另立第二套正文。阈值取自冻结件 threshold 块，其字面由 B4 逐项钉死（跑后未调）。
+// 判定条件＝字面 ∧ 记录自洽 ∧ 对照表全过；对照表兼作「判别臂非恒真」自证，把 tracker #76 票面三条矛盾
+// 与逐处谎报的合成样本喂进同一条重导——仍判绿即本条判红。
+// 零分母一律按产线同式取 0（collectors.ts 与 23-first-report.mjs 都这么写），守卫另判会把这些合法记录误报成红。
+function r4(x) { return Number(x).toFixed(4); }
+
+// §3.1 的两条：可执行门槛（否则判 INCONCLUSIVE）＋判红方向（严格大于）；ratio 是 0–1 的占比
+function deriveTc1(t) {
+  const ratio = t.judgeable_n === 0 ? 0 : t.backfill_n / t.judgeable_n;
+  return {
+    ratio: ratio,
+    ratio_4: r4(ratio),
+    verdict: t.judgeable_n < t.threshold.min_n ? 'INCONCLUSIVE' : (ratio > t.threshold.ratio_red ? 'RED' : 'NOT_RED')
+  };
+}
+function consistentTc1(t) {
+  const d = deriveTc1(t);
+  return d.ratio >= 0 && d.ratio <= 1 && d.ratio_4 === t.ratio_4 && d.verdict === t.verdict;
+}
+
+// §3.2 的两条独立判红臂（任一命中即 RED）。mean 与逐字段缺失率同源于缺失计数，靠采集器
+// ratio = 现件数/5 闭合（Σ ratio = 5·total − Σ 缺失），所以两条臂都能从原始计数独立重算。
+function deriveTc2(t) {
+  const fields = C.ADR_FIVE_PIECE.slice().sort();
+  const keys = Object.keys(t.missing_counts).sort();
+  const ratio = {};
+  let sumMissing = 0;
+  for (const k of keys) {
+    ratio[k] = t.total === 0 ? 0 : t.missing_counts[k] / t.total;
+    sumMissing = sumMissing + t.missing_counts[k];
+  }
+  const mean = t.total === 0 ? 0 : (fields.length * t.total - sumMissing) / (fields.length * t.total);
+  const cond_a = mean < t.threshold.mean_red;
+  const cond_b = keys.some(function (k) { return ratio[k] > t.threshold.field_missing_red; });
+  return {
+    keys: keys,
+    fieldSetOk: keys.join(',') === fields.join(','),
+    ratio: ratio,
+    mean: mean,
+    mean_4: r4(mean),
+    cond_a: cond_a,
+    cond_b: cond_b,
+    verdict: (cond_a || cond_b) ? 'RED' : 'NOT_RED'
+  };
+}
+function inUnitInterval(xs) {
+  return xs.every(function (x) { return x >= 0 && x <= 1; });
+}
+function consistentTc2(t) {
+  const d = deriveTc2(t);
+  const ratioKeys = Object.keys(t.missing_ratio_4).sort();
+  return d.fieldSetOk
+    && inUnitInterval([d.mean].concat(ratioKeys.map(function (k) { return d.ratio[k]; })))
+    && ratioKeys.join(',') === d.keys.join(',')
+    && ratioKeys.every(function (k) { return Number(t.missing_ratio_4[k]).toFixed(4) === r4(d.ratio[k]); })
+    && d.mean_4 === t.mean_ratio_4
+    && d.cond_a === t.cond_a && d.cond_b === t.cond_b
+    && d.verdict === t.verdict;
+}
+
+// §3.3 的三条：每源 ratio = hit/keywords、取最低一条、按 red/green 分档。
+// 并列最低时「最低一条」不唯一（§3.3 只要求取最低，没写取哪一枚），故路径只断言落在 argmin 集内。
+function tc3Band(t, r) { return r < t.threshold.red ? 'RED' : (r < t.threshold.green ? 'AMBER' : 'GREEN'); }
+function deriveTc3(t) {
+  const per = t.per_source.map(function (s) {
+    return { path: s.path, ratio: s.keywords === 0 ? 0 : s.hit / s.keywords };
+  });
+  let lowest = null;
+  for (const p of per) { if (lowest === null || p.ratio < lowest.ratio) { lowest = p; } }
+  // 无源时与产线同式取 ratio 0（23-first-report.mjs 的 `tc3Lowest ? … : 0`），守卫不自造第四档；
+  // 也不抛——未捕获异常会把整条 contracts-run 拉成栈回溯，属 tracker #72 立过的同一失败模式
+  const lowestRatio = lowest === null ? 0 : lowest.ratio;
+  return {
+    per: per,
+    lowest_ratio_4: r4(lowestRatio),
+    lowest_paths: lowest === null ? [] : per.filter(function (p) { return p.ratio === lowestRatio; }).map(function (p) { return p.path; }),
+    verdict: tc3Band(t, lowestRatio)
+  };
+}
+function consistentTc3(t) {
+  const d = deriveTc3(t);
+  return inUnitInterval(d.per.map(function (p) { return p.ratio; }))
+    // §3.3 的采集口径：每源 hit＋missed 恰为 top_n 个关键词，一个都不许两写或漏计
+    && t.per_source.every(function (s) {
+      return s.hit + s.missed.length === s.keywords && s.keywords <= t.threshold.top_n;
+    })
+    && d.per.every(function (p, i) { return p.path === t.per_source[i].path && r4(p.ratio) === t.per_source[i].ratio_4; })
+    && d.lowest_ratio_4 === t.lowest_ratio_4
+    && d.lowest_paths.indexOf(t.lowest_path) >= 0
+    && d.verdict === t.verdict;
+}
+
+function badCases(cases) {
+  return cases.filter(function (c) { return !c[1]; }).map(function (c) { return c[0]; });
+}
+
+const tc1 = gates.B.tc1;
+const tc2 = gates.B.tc2;
+const tc3 = gates.B.tc3;
+const minN = tc1.threshold.min_n;
+const t2keys = Object.keys(tc2.missing_counts);
+function tc2Counts(each) {
+  const c = {};
+  for (const k of t2keys) { c[k] = each; }
+  return c;
+}
+function tc2CountsOnlyFirst(n) {
+  const c = tc2Counts(0);
+  c[t2keys[0]] = n;
+  return c;
+}
+// 三个 record() 把一条样本的各派生量按同一规则算齐（统计量与裁决互相自洽），
+// 用于正对照（自洽样本必须放行，否则重导是恒否的空臂）与谎报对照（只改一处，必须判否）。
+function tc1Record(judgeable, backfill) {
+  const d = deriveTc1(Object.assign({}, tc1, { judgeable_n: judgeable, backfill_n: backfill }));
+  return Object.assign({}, tc1, { judgeable_n: judgeable, backfill_n: backfill, ratio_4: d.ratio_4, verdict: d.verdict });
+}
+function tc2Record(total, counts) {
+  const d = deriveTc2(Object.assign({}, tc2, { total: total, missing_counts: counts }));
+  const ratios = {};
+  for (const k of t2keys) { ratios[k] = Number(d.ratio[k].toFixed(4)); }
+  return Object.assign({}, tc2, {
+    total: total, missing_counts: counts, missing_ratio_4: ratios,
+    mean_ratio_4: d.mean_4, cond_a: d.cond_a, cond_b: d.cond_b, verdict: d.verdict
+  });
+}
+function tc3Record(per) {
+  const d = deriveTc3(Object.assign({}, tc3, { per_source: per }));
+  return Object.assign({}, tc3, {
+    per_source: per, lowest_ratio_4: d.lowest_ratio_4, lowest_path: d.lowest_paths[0], verdict: d.verdict
+  });
+}
+// 合成意图源连 ratio_4 与 missed 清单一起按同规则组齐，否则逐源谎报臂会把正对照一并判否（＝自证空臂）
+function tc3Source(path, hit, keywords) {
+  const missed = [];
+  for (let i = 0; i < keywords - hit; i++) { missed.push('m' + i); }
+  return { path: path, hit: hit, keywords: keywords, ratio_4: r4(keywords === 0 ? 0 : hit / keywords), missed: missed };
+}
+// 谎报对照通用形：样本先按同规则算齐，再只改 field 一处——判否必须只由这一处承重，
+// witness 当场复核其余量仍相符（否则「恒否的重导」也能把对照臂伪装成非恒真）。
+function lieArm(consistent, derive, base, field, value, witness) {
+  const lied = Object.assign({}, base);
+  lied[field] = value;
+  return !consistent(lied) && witness(derive(lied), lied);
+}
+// 每行第三槽＝用例类。判定要求六类齐备：整表被清空、或只留一类，是「臂不再参与判定」最后一种能全绿的形制
+// （`tXBad.length === 0` 对空表恒真，光有臂拦不住它）。
+const TC_CLASSES = ['正对照', '边界', '谎报', '域', '注入', '同式'];
+function classGaps(cases) {
+  const gaps = cases.filter(function (c) { return typeof c[2] !== 'string' || c[2].length === 0; })
+    .map(function (c) { return c[0] + ' 未标类'; });
+  for (const cls of TC_CLASSES) {
+    if (!cases.some(function (c) { return c[2] === cls; })) { gaps.push(cls + ' 整类缺失'); }
+  }
+  return gaps;
+}
+
+const d1 = deriveTc1(tc1);
+const d2 = deriveTc2(tc2);
+const d3 = deriveTc3(tc3);
+const tc1Cases = [
+  ['正对照：达门槛的自洽样本放行', consistentTc1(tc1Record(minN, 0)) && consistentTc1(tc1Record(minN, minN)), '正对照'],
+  ['门槛下判 INCONCLUSIVE', deriveTc1(Object.assign({}, tc1, { judgeable_n: minN - 1, backfill_n: 0 })).verdict === 'INCONCLUSIVE', '边界'],
+  ['达门槛不判 INCONCLUSIVE', deriveTc1(Object.assign({}, tc1, { judgeable_n: minN, backfill_n: 0 })).verdict !== 'INCONCLUSIVE', '边界'],
+  ['门槛优先于判红方向（两臂同时中仍判 INCONCLUSIVE）', (function () {
+    const both = Object.assign({}, tc1, { judgeable_n: minN - 1, backfill_n: minN - 1 });
+    return deriveTc1(both).verdict === 'INCONCLUSIVE' && deriveTc1(both).ratio_4 === '1.0000';
+  })(), '边界'],
+  ['ratio 恰等于 ratio_red 不判红（严格大于）', tc1Record(minN, 1).ratio_4 === '0.2000' && tc1Record(minN, 1).verdict === 'NOT_RED', '边界'],
+  ['达门槛且超 ratio_red 判 RED', tc1Record(minN, minN).verdict === 'RED', '边界'],
+  ['可判定数 0 取 0.0000 判 INCONCLUSIVE（与产线同式，不产 NaN）', consistentTc1(tc1Record(0, 0)) && tc1Record(0, 0).ratio_4 === '0.0000', '同式'],
+  ['ratio 谎报必否（裁决与门槛仍自洽，只由统计重算承重）', lieArm(consistentTc1, deriveTc1, tc1Record(minN, 1), 'ratio_4', '0.9000',
+    function (d, l) { return d.verdict === l.verdict; }), '谎报'],
+  ['裁决谎报 INCONCLUSIVE 必否（统计量全自洽，只由裁决重导承重）', lieArm(consistentTc1, deriveTc1, tc1Record(minN, 0), 'verdict', 'INCONCLUSIVE',
+    function (d, l) { return d.ratio_4 === l.ratio_4; }), '谎报'],
+  ['占比越出 0–1 必否（补写数超过可判定数）', !consistentTc1(tc1Record(tc1.judgeable_n, tc1.judgeable_n + 1)), '域'],
+  ['tracker #76 注入 judgeable_n=999 必否', !consistentTc1(Object.assign({}, tc1, { judgeable_n: 999 })), '注入']
+];
+const tc2Cases = [
+  ['正对照：两臂皆未中的自洽样本放行', consistentTc2(tc2Record(10, tc2Counts(0))) && deriveTc2(tc2Record(10, tc2Counts(0))).verdict === 'NOT_RED', '正对照'],
+  ['仅 (a) 命中判 RED', (function () { const d = deriveTc2(Object.assign({}, tc2, { total: 10, missing_counts: tc2Counts(5) })); return d.verdict === 'RED' && d.cond_a && !d.cond_b; })(), '边界'],
+  ['mean 恰等于 mean_red 不判 (a)（严格小于）', (function () { const d = deriveTc2(Object.assign({}, tc2, { total: 10, missing_counts: tc2Counts(4) })); return d.mean_4 === '0.6000' && !d.cond_a && d.verdict === 'NOT_RED'; })(), '边界'],
+  ['仅 (b) 命中判 RED', (function () { const d = deriveTc2(Object.assign({}, tc2, { total: 10, missing_counts: tc2CountsOnlyFirst(6) })); return d.verdict === 'RED' && !d.cond_a && d.cond_b; })(), '边界'],
+  ['缺失率恰等于 field_missing_red 不判 (b)（严格大于）', (function () { const d = deriveTc2(Object.assign({}, tc2, { total: 10, missing_counts: tc2CountsOnlyFirst(5) })); return r4(d.ratio[t2keys[0]]) === '0.5000' && !d.cond_b && d.verdict === 'NOT_RED'; })(), '边界'],
+  ['total 0 取 0.0000 判 RED（与产线同式，不产 NaN）', consistentTc2(tc2Record(0, tc2Counts(0))) && tc2Record(0, tc2Counts(0)).mean_ratio_4 === '0.0000', '同式'],
+  ['逐字段缺失率谎报必否', (function () {
+    const lied = Object.assign({}, tc2, { missing_ratio_4: (function () { const m = {}; for (const k of t2keys) { m[k] = 0; } return m; })() });
+    return !consistentTc2(lied) && Number(tc2.missing_ratio_4[t2keys[0]]).toFixed(4) === r4(d2.ratio[t2keys[0]]);
+  })(), '谎报'],
+  ['字段集缺一枚必否', (function () {
+    const m = Object.assign({}, tc2.missing_ratio_4);
+    delete m[t2keys[0]];
+    return !consistentTc2(Object.assign({}, tc2, { missing_ratio_4: m }));
+  })(), '谎报'],
+  ['字段名集越出五件套必否（计数与比率仍逐项对齐）', (function () {
+    const base = tc2Record(tc2.total, tc2.missing_counts);
+    const ren = function (obj) {
+      const m = {};
+      for (const k of Object.keys(obj)) { m[k === t2keys[0] ? 'StatusX' : k] = obj[k]; }
+      return m;
+    };
+    const lied = Object.assign({}, base, { missing_counts: ren(base.missing_counts), missing_ratio_4: ren(base.missing_ratio_4) });
+    return !consistentTc2(lied) && deriveTc2(lied).mean_4 === lied.mean_ratio_4 && deriveTc2(lied).verdict === lied.verdict;
+  })(), '谎报'],
+  ['cond_a 谎报必否（mean 与裁决仍自洽）', lieArm(consistentTc2, deriveTc2, tc2Record(10, tc2Counts(4)), 'cond_a', true,
+    function (d, l) { return d.mean_4 === l.mean_ratio_4 && d.verdict === l.verdict; }), '谎报'],
+  ['cond_b 谎报必否（缺失率与裁决仍自洽）', lieArm(consistentTc2, deriveTc2, tc2Record(10, tc2CountsOnlyFirst(6)), 'cond_b', false,
+    function (d, l) { return d.mean_4 === l.mean_ratio_4 && d.verdict === l.verdict; }), '谎报'],
+  ['缺失计数越出 0–total 必否（其余各量按同规则算齐）', !consistentTc2(tc2Record(tc2.total, (function () { const c = Object.assign({}, tc2.missing_counts); c[t2keys[0]] = tc2.total + 1; return c; })())), '域'],
+  ['统计量全自洽而裁决谎报 RED 必否（只由裁决重导承重）', lieArm(consistentTc2, deriveTc2, tc2Record(10, tc2Counts(0)), 'verdict', 'RED',
+    function (d, l) { return !d.cond_a && !d.cond_b && d.mean_4 === l.mean_ratio_4; }), '谎报'],
+  ['tracker #76 注入 mean_ratio_4=0.9 必否', !consistentTc2(Object.assign({}, tc2, { mean_ratio_4: '0.9' })), '注入'],
+  ['票面注入只改 mean 字面：记录不自洽，而 RED 仍由 (b) 臂独立撑住', (function () {
+    // §3.2 的两条臂各自独立：票面「mean 抬到 0.9 就该不再 RED」把 (a) 当成唯一承重臂，
+    // 实测缺失计数未动 ⇒ (b) 仍真 ⇒ 该改的是统计量与计数的相符性，不是裁决
+    const inj = Object.assign({}, tc2, { mean_ratio_4: '0.9' });
+    const d = deriveTc2(inj);
+    return d.verdict === 'RED' && d.cond_b && !consistentTc2(inj);
+  })(), '注入']
+];
+const tc3Cases = [
+  ['正对照：抬到绿线以上的自洽样本判 GREEN', (function () {
+    const rec = tc3Record(tc3.per_source.map(function (s) { return tc3Source(s.path, s.keywords, s.keywords); }));
+    return consistentTc3(rec) && rec.verdict === 'GREEN';
+  })(), '正对照'],
+  ['三档边界 RED/AMBER/GREEN', tc3Band(tc3, tc3.threshold.red - 0.01) === 'RED'
+    && tc3Band(tc3, tc3.threshold.red) === 'AMBER'
+    && tc3Band(tc3, tc3.threshold.green - 0.01) === 'AMBER'
+    && tc3Band(tc3, tc3.threshold.green) === 'GREEN', '边界'],
+  ['取最低不取首条', (function () {
+    const src = [tc3Source('low', 4, 10), tc3Source('high', 9, 10)];
+    const dLow = deriveTc3(Object.assign({}, tc3, { per_source: src }));
+    const dHigh = deriveTc3(Object.assign({}, tc3, { per_source: src.slice().reverse() }));
+    return dLow.verdict === 'RED' && dHigh.lowest_ratio_4 === '0.4000' && dHigh.lowest_paths.indexOf('low') >= 0;
+  })(), '边界'],
+  ['keywords 0 取 0.0000 判 RED（与产线同式，不产 NaN）', (function () {
+    const rec = tc3Record([tc3Source('zero', 0, 0)]);
+    return consistentTc3(rec) && rec.lowest_ratio_4 === '0.0000' && rec.verdict === 'RED';
+  })(), '同式'],
+  ['空 per_source 取产线同式的 0.0000/RED 且判否而非抛', (function () {
+    const empty = Object.assign({}, tc3, { per_source: [] });
+    const d = deriveTc3(empty);
+    const faked = Object.assign({}, empty, { lowest_ratio_4: '0.6000', lowest_path: null, verdict: 'AMBER' });
+    const honest = Object.assign({}, empty, { lowest_ratio_4: d.lowest_ratio_4, lowest_path: null, verdict: d.verdict });
+    // 值面钉产线同式（自造第四档或改取 0.6 即红）；空源本身仍必须判否——argmin 路径集是空集，
+    // 而 §3.3 的意图源是冻结的（两枚，B6 同口径），空源记录不属于任何合法现场
+    return d.lowest_ratio_4 === '0.0000' && d.verdict === 'RED' && d.lowest_paths.length === 0
+      && !consistentTc3(faked) && !consistentTc3(honest);
+  })(), '同式'],
+  ['逐源 ratio_4 谎报必否（最低值与裁决仍自洽）', (function () {
+    const lied = Object.assign({}, tc3, { per_source: tc3.per_source.map(function (s, i) {
+      return Object.assign({}, s, { ratio_4: i === 0 ? '0.9900' : s.ratio_4 });
+    }) });
+    return !consistentTc3(lied) && deriveTc3(lied).lowest_ratio_4 === lied.lowest_ratio_4 && deriveTc3(lied).verdict === lied.verdict;
+  })(), '谎报'],
+  ['missed 清单与计数不符必否（hit＋missed 须等于 keywords）', (function () {
+    const lied = Object.assign({}, tc3, { per_source: tc3.per_source.map(function (s, i) {
+      return Object.assign({}, s, { missed: i === 0 ? [] : s.missed });
+    }) });
+    return !consistentTc3(lied) && deriveTc3(lied).per.every(function (p, i) {
+      return r4(p.ratio) === lied.per_source[i].ratio_4;
+    });
+  })(), '谎报'],
+  ['keywords 越过冻结 top_n 必否', !consistentTc3(Object.assign({}, tc3, {
+    threshold: Object.assign({}, tc3.threshold, { top_n: tc3.per_source[0].keywords - 1 })
+  })), '域'],
+  ['lowest_path 落在 argmin 之外必否', lieArm(consistentTc3, deriveTc3, tc3, 'lowest_path', tc3.per_source[0].path,
+    function (d, l) { return d.lowest_ratio_4 === l.lowest_ratio_4; }), '谎报'],
+  ['裁决谎报 AMBER 必否（统计量四处全自洽，只由分带承重）', lieArm(consistentTc3, deriveTc3,
+    tc3Record(tc3.per_source.map(function (s) { return tc3Source(s.path, s.keywords, s.keywords); })), 'verdict', 'AMBER',
+    function (d, l) { return d.lowest_ratio_4 === l.lowest_ratio_4 && d.lowest_paths.indexOf(l.lowest_path) >= 0; }), '谎报'],
+  ['占比越出 0–1 必否（hit>keywords 同时破 hit＋missed=keywords）', (function () {
+    const per = tc3.per_source.map(function (s, i) { return tc3Source(s.path, i === 0 ? s.keywords + 1 : s.hit, s.keywords); });
+    return !consistentTc3(tc3Record(per));
+  })(), '域'],
+  ['命中数为负必否（missed 清单仍能闭合，只由占比域臂承重）', (function () {
+    const per = [tc3Source('neg', -1, tc3.per_source[0].keywords), tc3Source('ok', 12, 20)];
+    const rec = tc3Record(per);
+    return rec.per_source[0].missed.length === tc3.per_source[0].keywords + 1 && !consistentTc3(rec);
+  })(), '域'],
+  ['tracker #76 注入 lowest_ratio_4=0.99 必否', !consistentTc3(Object.assign({}, tc3, { lowest_ratio_4: '0.9900' })), '注入']
+];
+
+const tc1Bad = badCases(tc1Cases);
+const tc2Bad = badCases(tc2Cases);
+const tc3Bad = badCases(tc3Cases);
+const tc1Gaps = classGaps(tc1Cases);
+const tc2Gaps = classGaps(tc2Cases);
+const tc3Gaps = classGaps(tc3Cases);
+// 判定＝字面 ∧ 记录自洽 ∧ 对照表全过 ∧ 六类齐备。四条都放条件里而非表里，论证单源在 CHANGELOG 的 tracker #76 条目。
+check('B3-TC1', tc1.verdict === 'INCONCLUSIVE' && consistentTc1(tc1) && tc1Bad.length === 0 && tc1Gaps.length === 0,
+  'TC-1 判 ' + tc1.verdict + '（可判定数 ' + tc1.judgeable_n + '／门槛 ' + minN + '／ratio_red ' + tc1.threshold.ratio_red
+  + '，ratio ' + tc1.backfill_n + '/' + tc1.judgeable_n + ' 重算 ' + d1.ratio_4 + ' vs 记录 ' + tc1.ratio_4 + '，裁决重导 ' + d1.verdict
+  + '；判定=' + (tc1.verdict === 'INCONCLUSIVE' ? '字面✓' : '字面✗') + (consistentTc1(tc1) ? '＋自洽✓' : '＋自洽✗')
+  + '，对照表 ' + (tc1Cases.length - tc1Bad.length) + '/' + tc1Cases.length + '，类覆盖 ' + (TC_CLASSES.length - tc1Gaps.length) + '/' + TC_CLASSES.length
+  + (tc1Bad.length ? ' 失配：' + tc1Bad.join('、') : '') + (tc1Gaps.length ? ' 缺类：' + tc1Gaps.join('、') : '') + '）');
+check('B3-TC2', tc2.verdict === 'RED' && consistentTc2(tc2) && tc2Bad.length === 0 && tc2Gaps.length === 0,
+  'TC-2 判 ' + tc2.verdict + '（total ' + tc2.total + '／mean_red ' + tc2.threshold.mean_red + '／field_missing_red ' + tc2.threshold.field_missing_red
+  + '，mean 重算 ' + d2.mean_4 + ' vs 记录 ' + tc2.mean_ratio_4 + '，cond_a/b 重算 ' + d2.cond_a + '/' + d2.cond_b + ' vs 记录 ' + tc2.cond_a + '/' + tc2.cond_b + '，裁决重导 ' + d2.verdict
+  + '；判定=' + (tc2.verdict === 'RED' ? '字面✓' : '字面✗') + (consistentTc2(tc2) ? '＋自洽✓' : '＋自洽✗')
+  + '，对照表 ' + (tc2Cases.length - tc2Bad.length) + '/' + tc2Cases.length + '，类覆盖 ' + (TC_CLASSES.length - tc2Gaps.length) + '/' + TC_CLASSES.length
+  + (tc2Bad.length ? ' 失配：' + tc2Bad.join('、') : '') + (tc2Gaps.length ? ' 缺类：' + tc2Gaps.join('、') : '') + '）');
+check('B3-TC3', tc3.verdict === 'AMBER' && consistentTc3(tc3) && tc3Bad.length === 0 && tc3Gaps.length === 0,
+  'TC-3 判 ' + tc3.verdict + '（源 ' + tc3.per_source.length + ' 个／红线 ' + tc3.threshold.red + '／绿线 ' + tc3.threshold.green
+  + '，最低重算 ' + d3.lowest_ratio_4 + ' vs 记录 ' + tc3.lowest_ratio_4 + ' @' + d3.lowest_paths.join(',') + '，裁决重导 ' + d3.verdict
+  + '；判定=' + (tc3.verdict === 'AMBER' ? '字面✓' : '字面✗') + (consistentTc3(tc3) ? '＋自洽✓' : '＋自洽✗')
+  + '，对照表 ' + (tc3Cases.length - tc3Bad.length) + '/' + tc3Cases.length + '，类覆盖 ' + (TC_CLASSES.length - tc3Gaps.length) + '/' + TC_CLASSES.length
+  + (tc3Bad.length ? ' 失配：' + tc3Bad.join('、') : '') + (tc3Gaps.length ? ' 缺类：' + tc3Gaps.join('、') : '') + '）');
 check('B3-NC1', gates.B.nc1.pass === true, 'NC-1 负对照 0 命中（facts=' + gates.B.nc1.fact_count + '，five=' + gates.B.nc1.five_piece_present + '）');
 check('B4', preRegText.indexOf('0.2462') >= 0 && preRegText.indexOf('0.6000') >= 0 && gates.B.tc1.threshold.lag_days === 90 && gates.B.tc1.threshold.ratio_red === 0.2 && gates.B.tc1.threshold.min_n === 5 && gates.B.tc2.threshold.mean_red === 0.6 && gates.B.tc2.threshold.field_missing_red === 0.5 && gates.B.tc3.threshold.red === 0.5 && gates.B.tc3.threshold.green === 0.7, '阈值跑前写死且与预声明逐项一致（跑后未调）');
 const bindingOk = ['TC-1', 'TC-2', 'TC-3'].every(function (id) {
