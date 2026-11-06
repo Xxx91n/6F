@@ -430,8 +430,7 @@ const tc3Bad = badCases(tc3Cases);
 const tc1Gaps = classGaps(tc1Cases);
 const tc2Gaps = classGaps(tc2Cases);
 const tc3Gaps = classGaps(tc3Cases);
-// 判定＝字面 ∧ 记录自洽 ∧ 对照表全过 ∧ 六类齐备。两条不变量放条件里、不放表里，理由记于 tracker #76（本处不重述）；
-// 六类齐备补的是「`tXBad.length === 0` 对空表恒真」这条尾巴——表被清空或只剩一类都不得全绿。
+// 判定＝字面 ∧ 记录自洽 ∧ 对照表全过 ∧ 六类齐备。四条都放条件里而非表里，论证单源在 CHANGELOG 的 tracker #76 条目。
 check('B3-TC1', tc1.verdict === 'INCONCLUSIVE' && consistentTc1(tc1) && tc1Bad.length === 0 && tc1Gaps.length === 0,
   'TC-1 判 ' + tc1.verdict + '（可判定数 ' + tc1.judgeable_n + '／门槛 ' + minN + '／ratio_red ' + tc1.threshold.ratio_red
   + '，ratio ' + tc1.backfill_n + '/' + tc1.judgeable_n + ' 重算 ' + d1.ratio_4 + ' vs 记录 ' + tc1.ratio_4 + '，裁决重导 ' + d1.verdict
