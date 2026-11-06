@@ -41,6 +41,7 @@ function txt(p) { return readFileSync(p, 'utf8'); }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 // 坏 JSON 不得抛穿整条守卫：未捕获异常会把「有名判红」降成无名的 status=1（tracker #72 同型）。
 // 能 parse 但形状不对（{}、[]、数字、无 checks）同样不许在下游取属性时抛，故 B2/B3 另用 Array.isArray 兜底。
+/** 安全 JSON 读：文件缺席或内容坏掉时返回 null，不抛穿守卫（tracker #72 同型）。 */
 function safeJson(p) { try { return existsSync(p) ? JSON.parse(txt(p)) : null; } catch (e) { return null; } }
 
 // ---------- A. 管道 + 判据 + 导出契约 ----------
@@ -75,6 +76,13 @@ t('B4 golden 工件齐备（在册十二件全在场——含 pr64.diff 与 asse
 // 放过宽度等于放过那三列。跨环境可复算由生成器在 --golden 下钉 core.abbrev 保证，本文件只核一遍宽度没抖（B12）。
 // Design: 存档宽度须与现跑一致，身份（不是宽度）另有 B9 全值全值校验 — spec §R9-1
 const GEN = await import(pathToFileURL(join(REPO, 'engine', 'dist', 'report', 'generate.js')).href);
+/**
+ * 逐字节对账：把 baseDir 的在册件与 otherDir 的同名件按字节比，返回漂移清单（含缺席）。
+ * @param {string} baseDir 基准目录（入库件）
+ * @param {string} otherDir 对侧目录（现跑产物）
+ * @param {string[]} names 在册件名（唯一清单 GOLDEN_NAMES）
+ * @returns {{name: string, why: string}[]} 空数组＝十二件全等
+ */
 function goldenDrift(baseDir, otherDir, names) {
   const bad = [];
   for (const n of names) {
@@ -87,6 +95,7 @@ function goldenDrift(baseDir, otherDir, names) {
   }
   return bad;
 }
+/** 把漂移清单压成一行可读明细（件名＋原因），供 FAIL 行打印。 */
 function driftText(bad) { return bad.map(function (d) { return d.name + '（' + d.why + '）'; }).join(' '); }
 const REGEN_CMD = 'node engine/test/contracts/48-micro-a-preview.mjs --golden --out engine/test/fixtures/contracts';
 const driftB5 = goldenDrift(FX, GOLDEN_OUT, GOLDEN_NAMES);
@@ -95,6 +104,13 @@ t('B5 golden 逐字节对账十二件（现跑 vs 入库，漂移即红）', dri
 // 对照臂（tracker #88 AC②）：判别臂自己必须被判别——红侧与绿侧都不得是空集恒真（tracker #29 口径）。
 // 绿侧由 B5∧B8 承担（十二件真比对零漂移，＋三集合等闸钉住「比对集非空」），此处只补必红的正对照。
 const TAMPER_DIRS = [];
+/**
+ * 复制现跑十二件到临时目录，再篡改其中一件，供对照臂证明守卫的判别力。
+ * 源件缺席时不抛错，返回残缺副本交给下游判红（tracker #72 同型）。
+ * @param {string} name 要篡改的在册件名
+ * @param {(text: string) => string} mutate 就地改写该件正文
+ * @returns {string} 临时目录（已登记进 TAMPER_DIRS 待清理）
+ */
 function tamperedCopy(name, mutate) {
   const dir = mkdtempSync(join(tmpdir(), '48-tamper-'));
   TAMPER_DIRS.push(dir);
@@ -109,6 +125,7 @@ function tamperedCopy(name, mutate) {
   return dir;
 }
 // 篡改腿的统一形制：复制现跑目录 → 改一件 → 交回同一条对账臂。四条腿共用，免得每加一条就再抄一遍三步
+/** 篡改腿的统一形制：复制 → 改一件 → 交回 goldenDrift，返回漂移清单。 */
 function driftOfTamper(name, mutate) { return goldenDrift(GOLDEN_OUT, tamperedCopy(name, mutate), GOLDEN_NAMES); }
 const TAM_REFUSAL_MD = '48-micro-a-golden-goose-duck-agent-refusal.md';
 const driftRefusal = driftOfTamper(TAM_REFUSAL_MD, function (s) { return s.split('无托管 PR 面').join('托管 PR 面齐备'); });
@@ -128,6 +145,12 @@ t('B8 集合闸：清单＝入库＝现跑且各恰十二件', setListed === set
 // 不走 rev-parse --verify：`%h` 短写不是可解析 rev，喂进去只会报出假因。
 const prPr = spawnSync('git', ['-C', REPO, 'log', '-1', '--format=%H', '--', 'engine/test/fixtures/contracts/48-micro-a-criteria.md'], { encoding: 'utf8', timeout: 60000 });
 const preregFull = (prPr.stdout || '').trim();
+/**
+ * 扫一个目录里的 prereg_commit 载体：形制交产品 classifyPreregAnchor 判，
+ * 身份要求是本检出判据锚全值（log --format=%H）的前缀。
+ * @param {string} dir 待扫目录（入库或现跑）
+ * @returns {{carriers: {name: string, v: string}[], bad: string[]}} 载体清单＋违规明细
+ */
 function preregOffenders(dir) {
   const carriers = [], bad = [];
   for (const n of GOLDEN_NAMES) {
@@ -170,6 +193,13 @@ t('B11 正对照：等长篡改（diff_bytes ' + (archivedBytes[1] || '?') + '�
 // 前缀撞车时 git 会自动加长，那时这里也会红，属于「需随批再生」的真信号而非假红。宽度级联进 receipt_id／
 // chain_hash／mark，此处点名原因，免得 B5 只报字节不等时有人误判成内容回归。
 const ARCHIVED_ABBREV_MIN = 8;
+/**
+ * 锚宽判定：入库与现跑的 %h 宽度必须相等，且入库宽不得窄于 ARCHIVED_ABBREV_MIN。
+ * 宽度属形态不属身份，但它被算进 receipt_id／chain_hash／mark，所以必须两侧一致。
+ * @param {{name: string, v: string}[]} repoC 入库侧载体
+ * @param {{name: string, v: string}[]} regenC 现跑侧载体
+ * @returns {{bad: {name: string, repoW: number, regenW: number}[], under: {name: string, w: number}[]}}
+ */
 function widthOffenders(repoC, regenC) {
   const byName = {};
   for (const c of regenC) { byName[c.name] = c.v; }
