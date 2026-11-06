@@ -81,6 +81,18 @@ function parseArgs(argv) {
   return out;
 }
 const ARGS = parseArgs(process.argv.slice(2));
+// Design: golden 存档的锚须与检出无关 —— 定长取判据锚前 GOLDEN_ABBREV 位；真跑面原样返回 — spec §R9-1
+// %h 的宽度随该检出的对象集合走（小检出 emit 7 位、前缀有歧义时 git 自动加长），而锚值被算进
+// receipt_id／chain_hash／mark。故 golden 侧两头都收口：钉下限挡住「<8」，截断挡住「>8」。
+const GOLDEN_ABBREV = 8;
+if (ARGS.golden) {
+  // core.abbrev 是下限不是等宽，这里只解决「小检出 emit 7 位」；歧义加宽交给下面 PREREG_COMMIT 那步截断。
+  // 追加而非覆写：GIT_CONFIG_* 是 git 的通用注入位，可能已被用户/CI 占用，覆写会把人家的配置顶掉。
+  const n = parseInt(process.env.GIT_CONFIG_COUNT || '0', 10) || 0;
+  process.env['GIT_CONFIG_KEY_' + n] = 'core.abbrev';
+  process.env['GIT_CONFIG_VALUE_' + n] = String(GOLDEN_ABBREV);
+  process.env.GIT_CONFIG_COUNT = String(n + 1);
+}
 const OUTDIR = resolve(ARGS.out);
 if (!existsSync(OUTDIR)) { mkdirSync(OUTDIR, { recursive: true }); }
 
@@ -91,7 +103,11 @@ function tryGit(root, args) { try { return git(root, args).trim(); } catch (e) {
 //   原 rev-parse HEAD 令每次 commit 后整批 golden 必漂，改钉 CRITERIA_PATH 锚=判据不动即恒值）
 // Design: 取值走引擎同一个 resolvePreregCommit——本生成器与 dist 引擎不得各判各的锚 — spec §R9-1
 const MA48 = await import(pathToFileURL(join(DIST, 'audit', 'micro-a.js')).href);
-const PREREG_COMMIT = MA48.resolvePreregCommit(REPO, CRITERIA_PATH);
+// 取值仍由产品 resolver 给出（85-check A17 的溯源臂要求这一字面形，不得换成自造包装）；
+// golden 侧再把它收成定长：钉下限后 %h ≥ 8，故 hex 形要么恰好 8（原样）、要么 >8（截首 8 位——
+// 同一 commit 的前缀，跨检出恒定）；degraded:/sentinel: 不匹配该正则、原样保留。
+// 真跑面 replacer 取 '$&'（整段照抄），一个字节都不动。
+const PREREG_COMMIT = MA48.resolvePreregCommit(REPO, CRITERIA_PATH).replace(/^([0-9a-f]{8})[0-9a-f]+$/, ARGS.golden ? '$1' : '$&');
 function pickExcerpt(absOrRelPath, tokens, base) {
   const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
   const lines = text.split(NL);

@@ -69,13 +69,13 @@
 - claim: 本次实测：goose-duck-agent 托管枚举 merged PR=0——无托管 PR 面
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
 - reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
-- 引文原文: "name": "goose-duck-agent",
+- 引文原文: &quot;name&quot;: &quot;goose-duck-agent&quot;,
 
 ### EV-48-GOOSEDUCKAGENT-REF-02 — 48-micro-a-golden-gate-probes.json @ L14
 - claim: 前提漂移锚：anysearch-cli 票面撰写时无托管面（#37 实测 pr=0），本票复核托管枚举 merged=null
 - grounded: true · collected_at: 1970-01-01T00:00:00.000Z
 - reproduce_cmd: node engine/test/contracts/48-micro-a-preview.mjs --golden
-- 引文原文: "name": "anysearch-cli",
+- 引文原文: &quot;name&quot;: &quot;anysearch-cli&quot;,
 
 ### EV-48-GOOSEDUCKAGENT-REF-03 — docs/archive/decisions/macro-audit-ledger.md @ L88
 - claim: 硬约束锚：D-033/D-049「PR 层试点不得指派无托管 PR 面的仓」
