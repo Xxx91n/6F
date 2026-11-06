@@ -18,7 +18,7 @@ const REPO = join(HERE, '..', '..', '..');
 const FX = join(REPO, 'engine', 'test', 'fixtures', 'contracts');
 const PIPE = join(HERE, '48-micro-a-preview.mjs');
 const CRIT = join(REPO,'engine','test','fixtures','contracts','48-micro-a-criteria.md');
-// golden 在册十二件唯一清单（B4 在场腿／B5 对账腿／B8 集合闸／B9~B11 认祖臂同源——禁各处再抄一份，tracker #88）
+// golden 在册十二件唯一清单（B4 在场腿／B5 对账腿／B6·B7·B11 篡改腿／B8 集合闸／B9~B12 认祖与宽度腿同源——禁各处再抄一份，tracker #88）
 const GOLDEN_PREFIX = '48-micro-a-golden-';
 const GOLDEN_NAMES = [
   '48-micro-a-golden-env-manager-pr64.md',
@@ -39,6 +39,8 @@ let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
 function txt(p) { return readFileSync(p, 'utf8'); }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
+// 坏 JSON 不得抛穿整条守卫：未捕获异常会把「有名判红」降成无名的 status=1（tracker #72 同型）
+function safeJson(p) { try { return existsSync(p) ? JSON.parse(txt(p)) : null; } catch (e) { return null; } }
 
 // ---------- A. 管道 + 判据 + 导出契约 ----------
 t('A1 48-micro-a-preview.mjs 在', existsSync(PIPE));
@@ -59,7 +61,7 @@ const gr = spawnSync('node', [PIPE, '--golden', '--out', GOLDEN_OUT], { cwd: REP
 const gout = (gr.stdout || '') + (gr.stderr || '');
 
 t('B1 --golden 实跑 exit 0', gr.status === 0, gout.slice(-300));
-const gass = existsSync(join(REPO,'engine','test','fixtures','contracts','48-micro-a-golden-assertions.json')) ? JSON.parse(txt(join(REPO,'engine','test','fixtures','contracts','48-micro-a-golden-assertions.json'))) : null;
+const gass = safeJson(join(FX, '48-micro-a-golden-assertions.json'));
 t('B2 golden 断言文件 all_pass=true', gass !== null && gass.all_pass === true);
 t('B3 golden 断言 ≥10 条且全过', gass !== null && gass.checks.length >= 10 && gass.checks.every(function (c) { return c.pass; }), gass ? String(gass.checks.length) : 'absent');
 t('B4 golden 工件齐备（在册十二件全在场——含 pr64.diff 与 assertions）', GOLDEN_NAMES.every(function (f) { return existsSync(join(FX, f)); }), GOLDEN_NAMES.filter(function (f) { return !existsSync(join(FX, f)); }).join(','));
@@ -150,14 +152,24 @@ const scanTamper = preregOffenders(tamAnchorDir);
 // 会因错而红，那种红证不了这条臂的判别力，只会把 B9 的问题重复一遍。
 const tamperAdded = scanTamper.bad.filter(function (x) { return scanRegen.bad.indexOf(x) < 0; });
 t('B10 正对照：锚短写改同宽异值 → 恰该件多判红一件（不留洞）', preregPerturbed.length >= 4 && tamperAdded.length === 1 && tamperAdded[0].indexOf(TAM_PR64_JSON) === 0, 'perturbed=' + preregPerturbed + ' 新增=' + tamperAdded.join(','));
-// 宽度闸：生成器在 --golden 下钉了 core.abbrev（48-micro-a-preview.mjs），两侧 %h 宽度必须相等。
-// 不等＝钉失效或有人用未钉路径再生过；宽度会级联进 receipt_id／chain_hash／mark，此处点名原因，
-// 免得 B5 只报「字节不等」时有人以为是内容回归。
+// 等长篡改对照：B6／B7 改的都动了长度，只能证「长度变了会红」；comparator 若退化成只比长度，这两条照样绿。
+// 故补一条同长度篡改（diff_bytes 1549→1449，逐字节只差两位数字），并先钉「两侧文件长度确实相等」——
+// 长度一变这条对照就失去意义，前提腿当场红（同 tracker #29 对恒真空跑的处理）。
+const tamSameDir = tamperedCopy(TAM_PR64_JSON, function (s) { return s.replace('"diff_bytes": 1549', '"diff_bytes": 1449'); });
+const driftSame = goldenDrift(GOLDEN_OUT, tamSameDir, GOLDEN_NAMES);
+const sameLenPremise = existsSync(join(GOLDEN_OUT, TAM_PR64_JSON)) && existsSync(join(tamSameDir, TAM_PR64_JSON)) && readFileSync(join(GOLDEN_OUT, TAM_PR64_JSON)).toString().indexOf('"diff_bytes": 1549') >= 0 && readFileSync(join(GOLDEN_OUT, TAM_PR64_JSON)).length === readFileSync(join(tamSameDir, TAM_PR64_JSON)).length;
+t('B11 正对照：等长篡改（diff_bytes 1549→1449）必判红（禁退化成只比长度）', sameLenPremise && driftSame.length === 1 && driftSame[0].name === TAM_PR64_JSON, '前提=' + sameLenPremise + ' ' + driftText(driftSame));
+// 宽度闸：生成器在 --golden 下钉了 core.abbrev（48-micro-a-preview.mjs 的 GOLDEN_ABBREV），两侧 %h 宽度必须相等；
+// 下限另用本文件的独立字面量（不用生成器的常量当尺子，否则钉改成 7、尺子跟着变＝自我指认）：入库十二件实宽 8，
+// 且 spec §R9-1 明令不取 7——只查相等会放行「把钉改窄再整批再生」。宽度级联进 receipt_id／chain_hash／mark，
+// 此处点名原因，免得 B5 只报字节不等时有人误判成内容回归。
+const ARCHIVED_ABBREV_MIN = 8;
 const regenAnchor = {};
 for (const c of scanRegen.carriers) { regenAnchor[c.name] = c.v; }
 const widthBad = scanRepo.carriers.filter(function (c) { return /^[0-9a-f]+$/.test(c.v) && typeof regenAnchor[c.name] === 'string' && regenAnchor[c.name].length !== c.v.length; });
-t('B12 锚宽闸：入库与现跑 %h 宽度一致（宽度不属身份，但级联进摘要列）', widthBad.length === 0, widthBad.map(function (c) { return c.name + '（入库 ' + c.v.length + ' 位 vs 现跑 ' + String(regenAnchor[c.name]).length + ' 位）'; }).join(' '));
-try { rmSync(GOLDEN_OUT, { recursive: true, force: true }); rmSync(tamRefusalDir, { recursive: true, force: true }); rmSync(tamPr64Dir, { recursive: true, force: true }); rmSync(tamAnchorDir, { recursive: true, force: true }); } catch (e) { }
+const underPin = scanRepo.carriers.filter(function (c) { return /^[0-9a-f]+$/.test(c.v) && c.v.length < ARCHIVED_ABBREV_MIN; });
+t('B12 锚宽闸：入库＝现跑宽度，且不窄于 ' + ARCHIVED_ABBREV_MIN, widthBad.length === 0 && underPin.length === 0, widthBad.map(function (c) { return c.name + '（入库 ' + c.v.length + ' vs 现跑 ' + String(regenAnchor[c.name]).length + '）'; }).join(' ') + ' ' + underPin.map(function (c) { return c.name + '（' + c.v.length + ' 位窄于下限）'; }).join(' '));
+try { rmSync(GOLDEN_OUT, { recursive: true, force: true }); rmSync(tamRefusalDir, { recursive: true, force: true }); rmSync(tamPr64Dir, { recursive: true, force: true }); rmSync(tamAnchorDir, { recursive: true, force: true }); rmSync(tamSameDir, { recursive: true, force: true }); } catch (e) { }
 
 // ---------- C. 真跑工件齐备 ----------
 const REAL = ['env-manager-pr64', 'env-manager-pr55', 'env-manager-pr51', 'jiahao-pr6'];

@@ -81,11 +81,15 @@ function parseArgs(argv) {
   return out;
 }
 const ARGS = parseArgs(process.argv.slice(2));
-// golden 模式的存档案必须跨环境可复算：%h 的宽度随对象库规模走（同一 commit 在满库检出是 8 位、
-// 在新克隆是 7 位），而它又被算进 receipt_id／chain_hash／mark，宽度一抖整批摘要跟着变。
-// 故只对 --golden 钉住缩写下限（真跑面不动）；取 8 因为入库十二件就是 8 位，且 spec §R9-1 明令不取 7。
 // Design: golden 存档的 %h 宽度须环境无关，否则「确定性可重算」不成立 — spec §R9-1
-if (ARGS.golden) { process.env.GIT_CONFIG_COUNT = '1'; process.env.GIT_CONFIG_KEY_0 = 'core.abbrev'; process.env.GIT_CONFIG_VALUE_0 = '8'; }
+const GOLDEN_ABBREV = '8';
+if (ARGS.golden) {
+  // 追加而非覆写：GIT_CONFIG_* 是 git 的通用注入位，可能已被用户/CI 占用，覆写会把人家的配置顶掉
+  const n = parseInt(process.env.GIT_CONFIG_COUNT || '0', 10) || 0;
+  process.env['GIT_CONFIG_KEY_' + n] = 'core.abbrev';
+  process.env['GIT_CONFIG_VALUE_' + n] = GOLDEN_ABBREV;
+  process.env.GIT_CONFIG_COUNT = String(n + 1);
+}
 const OUTDIR = resolve(ARGS.out);
 if (!existsSync(OUTDIR)) { mkdirSync(OUTDIR, { recursive: true }); }
 
