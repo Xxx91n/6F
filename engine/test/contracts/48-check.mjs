@@ -59,7 +59,9 @@ t('A8 走主路/回退标注面（credential_strategy + diff_channel 入切片�
 
 // ---------- B. golden 实跑（cassette 离线回放） ----------
 const GOLDEN_OUT = mkdtempSync(join(tmpdir(), '48-golden-'));
-const gr = spawnSync('node', [PIPE, '--golden', '--out', GOLDEN_OUT], { cwd: REPO, encoding: 'utf8', timeout: 120000 });
+// 种子显式钉 0（＝deterministicRunAt 的默认 epoch）：对账不该被外部 SOURCE_DATE_EPOCH 改写——
+// 否则同一份存档在别人设了该变量的环境里无故判红。生成器保留显式种子能力，本守卫只是不继承它。
+const gr = spawnSync('node', [PIPE, '--golden', '--out', GOLDEN_OUT], { cwd: REPO, encoding: 'utf8', timeout: 120000, env: Object.assign({}, process.env, { SOURCE_DATE_EPOCH: '0' }) });
 const gout = (gr.stdout || '') + (gr.stderr || '');
 
 t('B1 --golden 实跑 exit 0', gr.status === 0, gout.slice(-300));
