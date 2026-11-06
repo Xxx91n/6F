@@ -64,16 +64,14 @@ t('B2 golden 断言文件 all_pass=true', gass !== null && gass.all_pass === tru
 t('B3 golden 断言 ≥10 条且全过', gass !== null && gass.checks.length >= 10 && gass.checks.every(function (c) { return c.pass; }), gass ? String(gass.checks.length) : 'absent');
 t('B4 golden 工件齐备（在册十二件全在场——含 pr64.diff 与 assertions）', GOLDEN_NAMES.every(function (f) { return existsSync(join(FX, f)); }), GOLDEN_NAMES.filter(function (f) { return !existsSync(join(FX, f)); }).join(','));
 
-// ---------- B5~B11 golden 逐字节对账（tracker #88；形制取 golden-ci.yml 的「重渲染＋逐字节 diff」纪律 D-030③） ----------
+// ---------- B5~B12 golden 逐字节对账（tracker #88；形制取 golden-ci.yml 的「重渲染＋逐字节 diff」纪律 D-030③） ----------
 // B1 已把十二件现跑进 GOLDEN_OUT，此前只判 exit 0 即弃——入库件手改或引擎渲染变更都不判红（实证：tracker #114
 // 的引文转义修复静默漂了三件 .md，而 48-check 照旧 PASS 40/40）。对账臂＝入库目录 vs 现跑目录，CI 不回写：
 // 红了由人重跑 --golden 随 PR 提交，golden 更新只走审查。
-// 件内 prereg_commit 是 `%h` 短写：宽度属形态不属身份，且 commit 形下限 4 是 spec §R9-1 的立法值而非漏洞
-// （core.abbrev=4 的检出真会 emit 4 位，micro-a.test S8 钉这条），故逐字节面只归一 commit 形的宽度；
-// 身份改由 B9 双侧全值认祖钉——挖掉的那一面必须有人判红，不许留成手改无人知的洞（tracker #88 AC①）。
+// 对账是全字节的：prereg_commit 的 %h 宽度也一并比，因为宽度会被算进 receipt_id／chain_hash／mark，
+// 放过宽度等于放过那三列。跨环境可复算由生成器在 --golden 下钉 core.abbrev 保证，本文件只核一遍宽度没抖（B12）。
+// Design: 存档宽度须与现跑一致，身份（不是宽度）另有 B9 全值认祖 — spec §R9-1
 const GEN = await import(pathToFileURL(join(REPO, 'engine', 'dist', 'report', 'generate.js')).href);
-const PREREG_FIELD = /("prereg_commit":\s*")[0-9a-f]{4,40}(")/g;
-function canonBytes(p) { return readFileSync(p, 'utf8').replace(PREREG_FIELD, '$1PREREG$2'); }
 function goldenDrift(baseDir, otherDir, names) {
   const bad = [];
   for (const n of names) {
@@ -81,7 +79,7 @@ function goldenDrift(baseDir, otherDir, names) {
     let why = null;
     if (!existsSync(a)) { why = '基准缺席'; }
     else if (!existsSync(b)) { why = '对侧缺席'; }
-    else if (canonBytes(a) !== canonBytes(b)) { why = '字节不等'; }
+    else if (!readFileSync(a).equals(readFileSync(b))) { why = '字节不等'; }
     if (why) { bad.push({ name: n, why: why }); }
   }
   return bad;
@@ -95,8 +93,13 @@ t('B5 golden 逐字节对账十二件（现跑 vs 入库，漂移即红）', dri
 // 绿侧由 B5∧B8 承担（十二件真比对零漂移，＋三集合等闸钉住「比对集非空」），此处只补必红的正对照。
 function tamperedCopy(name, mutate) {
   const dir = mkdtempSync(join(tmpdir(), '48-tamper-'));
-  for (const n of GOLDEN_NAMES) { copyFileSync(join(GOLDEN_OUT, n), join(dir, n)); }
+  for (const n of GOLDEN_NAMES) {
+    const src = join(GOLDEN_OUT, n);
+    if (existsSync(src)) { copyFileSync(src, join(dir, n)); }
+  }
   const p = join(dir, name);
+  // B1 没产出该件时不许在此抛 ENOENT 拖垮整条守卫——照常返回残缺副本，让下游对照臂判红并留下可读原因（tracker #72 同型）
+  if (!existsSync(p)) { return dir; }
   writeFileSync(p, mutate(readFileSync(p, 'utf8')), 'utf8');
   return dir;
 }
@@ -133,21 +136,28 @@ function preregOffenders(dir) {
   }
   return { carriers: carriers, bad: bad };
 }
-// 现跑侧一并认祖：只钉入库侧会留一条静默退化路——生成器的锚若退回 rev-parse HEAD（D-179① 原缺陷），
-// 短写被归一化后逐字节面看不见它，全值面又只查了存档，两侧都绿而锚已经飘到别的 commit 上。
+// 双侧认祖：逐字节面只能证两侧一致，证不了「一致地指错了锚」——生成器的锚若退回 rev-parse HEAD
+// （D-179① 原缺陷）且有人跟着再生存档，字节全等而锚已飘到别的 commit，故两侧都按全值认祖。
 const scanRepo = preregOffenders(FX);
 const scanRegen = preregOffenders(GOLDEN_OUT);
-t('B9 prereg_commit 双侧全值认祖（入库与现跑都须指到判据锚）', scanRepo.carriers.length > 0 && scanRepo.bad.length === 0 && scanRegen.bad.length === 0, 'full=' + (preregFull.slice(0, 12) || 'ABSENT') + ' carriers=' + scanRepo.carriers.length + ' 入库违规=' + scanRepo.bad.join(',') + ' 现跑违规=' + scanRegen.bad.join(','));
-// 认祖臂自证：把在册真短写末位翻成另一枚 hex（形制仍合法、宽度不变的异值）交回同一条扫描，必须点名该件——
-// 否则「形制合法、也解析得到、但不是那枚锚」这一类无人判红，宽度豁免就成了手改洞（tracker #100 立法要杀的正是要窄这一档）
+t('B9 prereg_commit 双侧全值认祖（入库与现跑都须指到判据锚）', scanRepo.carriers.length > 0 && scanRegen.carriers.length > 0 && scanRepo.bad.length === 0 && scanRegen.bad.length === 0, 'full=' + (preregFull.slice(0, 12) || 'ABSENT') + ' carriers=' + scanRepo.carriers.length + '/' + scanRegen.carriers.length + ' 入库违规=' + scanRepo.bad.join(',') + ' 现跑违规=' + scanRegen.bad.join(','));
+// 认祖臂自证：在册真短写末位翻成另一枚 hex（形制仍合法、宽度不变的异值）写回副本走同一条扫描，必须点名该件——
+// 否则「形制合法、也解析得到、但不是那枚锚」这一类无人判红（tracker #100 立法要杀的正是要窄这一档）。
 const preregPerturbed = scanRepo.carriers.length > 0 ? scanRepo.carriers[0].v.slice(0, -1) + (scanRepo.carriers[0].v.slice(-1) === '0' ? '1' : '0') : '';
 const tamAnchorDir = tamperedCopy(TAM_PR64_JSON, function (s) { return s.replace(/("prereg_commit":\s*")[0-9a-f]{4,40}(")/, '$1' + preregPerturbed + '$2'); });
 const scanTamper = preregOffenders(tamAnchorDir);
-t('B10 正对照：锚短写改同宽异值 → 认祖臂点名该件（豁免不留洞）', preregPerturbed.length >= 4 && scanTamper.bad.length === 1 && scanTamper.bad[0].indexOf(TAM_PR64_JSON) === 0, 'perturbed=' + preregPerturbed + ' bad=' + scanTamper.bad.join(','));
-// 豁免只对宽度生效：短写截掉一位（8→7，同祖异宽）逐字节面不得判红——否则对象库一扩容就整批假红
-const tamWidthDir = tamperedCopy(TAM_PR64_JSON, function (s) { return s.replace(/("prereg_commit":\s*")[0-9a-f]{4,40}(")/, function (_all, p1, p2) { return p1 + preregFull.slice(0, 7) + p2; }); });
-t('B11 负对照：prereg_commit 仅显示宽度跳变（8→7）→ 逐字节面不判红', goldenDrift(GOLDEN_OUT, tamWidthDir, GOLDEN_NAMES).length === 0);
-try { rmSync(GOLDEN_OUT, { recursive: true, force: true }); rmSync(tamRefusalDir, { recursive: true, force: true }); rmSync(tamPr64Dir, { recursive: true, force: true }); rmSync(tamAnchorDir, { recursive: true, force: true }); rmSync(tamWidthDir, { recursive: true, force: true }); } catch (e) { }
+// 差分断言而非绝对计数：只许「篡改多出一件」，不许别的件的判定被这次篡改带偏。绝对计数在现跑侧本身已违规时
+// 会因错而红，那种红证不了这条臂的判别力，只会把 B9 的问题重复一遍。
+const tamperAdded = scanTamper.bad.filter(function (x) { return scanRegen.bad.indexOf(x) < 0; });
+t('B10 正对照：锚短写改同宽异值 → 恰该件多判红一件（不留洞）', preregPerturbed.length >= 4 && tamperAdded.length === 1 && tamperAdded[0].indexOf(TAM_PR64_JSON) === 0, 'perturbed=' + preregPerturbed + ' 新增=' + tamperAdded.join(','));
+// 宽度闸：生成器在 --golden 下钉了 core.abbrev（48-micro-a-preview.mjs），两侧 %h 宽度必须相等。
+// 不等＝钉失效或有人用未钉路径再生过；宽度会级联进 receipt_id／chain_hash／mark，此处点名原因，
+// 免得 B5 只报「字节不等」时有人以为是内容回归。
+const regenAnchor = {};
+for (const c of scanRegen.carriers) { regenAnchor[c.name] = c.v; }
+const widthBad = scanRepo.carriers.filter(function (c) { return /^[0-9a-f]+$/.test(c.v) && typeof regenAnchor[c.name] === 'string' && regenAnchor[c.name].length !== c.v.length; });
+t('B12 锚宽闸：入库与现跑 %h 宽度一致（宽度不属身份，但级联进摘要列）', widthBad.length === 0, widthBad.map(function (c) { return c.name + '（入库 ' + c.v.length + ' 位 vs 现跑 ' + String(regenAnchor[c.name]).length + ' 位）'; }).join(' '));
+try { rmSync(GOLDEN_OUT, { recursive: true, force: true }); rmSync(tamRefusalDir, { recursive: true, force: true }); rmSync(tamPr64Dir, { recursive: true, force: true }); rmSync(tamAnchorDir, { recursive: true, force: true }); } catch (e) { }
 
 // ---------- C. 真跑工件齐备 ----------
 const REAL = ['env-manager-pr64', 'env-manager-pr55', 'env-manager-pr51', 'jiahao-pr6'];
