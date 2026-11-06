@@ -81,15 +81,10 @@ function parseArgs(argv) {
   return out;
 }
 const ARGS = parseArgs(process.argv.slice(2));
-// Design: golden 存档的 %h 宽度须环境无关，否则「确定性可重算」不成立 — spec §R9-1
-const GOLDEN_ABBREV = '8';
-if (ARGS.golden) {
-  // 追加而非覆写：GIT_CONFIG_* 是 git 的通用注入位，可能已被用户/CI 占用，覆写会把人家的配置顶掉
-  const n = parseInt(process.env.GIT_CONFIG_COUNT || '0', 10) || 0;
-  process.env['GIT_CONFIG_KEY_' + n] = 'core.abbrev';
-  process.env['GIT_CONFIG_VALUE_' + n] = GOLDEN_ABBREV;
-  process.env.GIT_CONFIG_COUNT = String(n + 1);
-}
+// Design: golden 存档的锚宽度须环境无关，否则「确定性可重算」不成立 — spec §R9-1
+// 取法是「全值 SHA 定长截取」而不是让 git 现算 %h：%h 的宽度随该检出的对象集合走（前缀有歧义时 git 自动加长），
+// 同一个 commit 在满库检出与 --no-local 新克隆会得到不同宽度，而宽度被算进 receipt_id／chain_hash／mark。
+const GOLDEN_ABBREV = 8;
 const OUTDIR = resolve(ARGS.out);
 if (!existsSync(OUTDIR)) { mkdirSync(OUTDIR, { recursive: true }); }
 
@@ -100,7 +95,16 @@ function tryGit(root, args) { try { return git(root, args).trim(); } catch (e) {
 //   原 rev-parse HEAD 令每次 commit 后整批 golden 必漂，改钉 CRITERIA_PATH 锚=判据不动即恒值）
 // Design: 取值走引擎同一个 resolvePreregCommit——本生成器与 dist 引擎不得各判各的锚 — spec §R9-1
 const MA48 = await import(pathToFileURL(join(DIST, 'audit', 'micro-a.js')).href);
-const PREREG_COMMIT = MA48.resolvePreregCommit(REPO, CRITERIA_PATH);
+// golden 模式的锚：先走产品口径（浅克隆／无源码仓等降级判定照旧），拿到 commit 形之后换成
+// 「全值 SHA 的前 GOLDEN_ABBREV 位」——全值是内容属性、跨检出恒定，存档因此可复算；
+// 真跑面仍用 %h 原值（那是运行时读数，不该被存档口径改写）。
+function resolveGoldenAnchor() {
+  const v = MA48.resolvePreregCommit(REPO, CRITERIA_PATH);
+  if (!/^[0-9a-f]{4,40}$/.test(v)) { return v; }
+  const full = tryGit(REPO, ['log', '-1', '--format=%H', '--', CRITERIA_PATH]);
+  return /^[0-9a-f]{40}$/.test(full || '') ? full.slice(0, GOLDEN_ABBREV) : v;
+}
+const PREREG_COMMIT = ARGS.golden ? resolveGoldenAnchor() : MA48.resolvePreregCommit(REPO, CRITERIA_PATH);
 function pickExcerpt(absOrRelPath, tokens, base) {
   const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
   const lines = text.split(NL);

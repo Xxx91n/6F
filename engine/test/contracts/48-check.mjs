@@ -72,9 +72,9 @@ t('B4 golden 工件齐备（在册十二件全在场——含 pr64.diff 与 asse
 // B1 已把十二件现跑进 GOLDEN_OUT，此前只判 exit 0 即弃——入库件手改或引擎渲染变更都不判红（实证：tracker #114
 // 的引文转义修复静默漂了三件 .md，而 48-check 照旧 PASS 40/40）。对账臂＝入库目录 vs 现跑目录，CI 不回写：
 // 红了由人重跑 --golden 随 PR 提交，golden 更新只走审查。
-// 对账是全字节的：prereg_commit 的 %h 宽度也一并比，因为宽度会被算进 receipt_id／chain_hash／mark，
-// 放过宽度等于放过那三列。跨环境可复算由生成器在 --golden 下钉 core.abbrev 保证，本文件只核一遍宽度没抖（B12）。
-// Design: 存档宽度须与现跑一致，身份（不是宽度）另有 B9 全值全值校验 — spec §R9-1
+// 对账是全字节的：prereg_commit 的锚宽也一并比，因为锚值会被算进 receipt_id／chain_hash／mark，
+// 放过锚值等于放过那三列。跨环境可复算由生成器在 --golden 下取全值 SHA 定长截取保证，本文件只核一遍宽度没抖（B12）。
+// Design: 存档宽度须与现跑一致，身份（不是宽度）另有 B9 全值校验 — spec §R9-1
 const GEN = await import(pathToFileURL(join(REPO, 'engine', 'dist', 'report', 'generate.js')).href);
 /**
  * 逐字节对账：把 baseDir 的在册件与 otherDir 的同名件按字节比，返回漂移清单（含缺席）。
@@ -187,11 +187,11 @@ const tamSameDir = tamperedCopy(TAM_PR64_JSON, function (s) { return s.replace('
 const driftSame = goldenDrift(GOLDEN_OUT, tamSameDir, GOLDEN_NAMES);
 const sameLenPremise = flippedBytes !== '' && flippedBytes !== archivedBytes[1] && flippedBytes.length === String(archivedBytes[1]).length && existsSync(join(tamSameDir, TAM_PR64_JSON)) && readFileSync(join(GOLDEN_OUT, TAM_PR64_JSON)).length === readFileSync(join(tamSameDir, TAM_PR64_JSON)).length;
 t('B11 正对照：等长篡改（diff_bytes ' + (archivedBytes[1] || '?') + '→' + (flippedBytes || '?') + '）必判红（禁退化成只比长度）', sameLenPremise && driftSame.length === 1 && driftSame[0].name === TAM_PR64_JSON, '前提=' + sameLenPremise + ' ' + driftText(driftSame));
-// 宽度闸：生成器在 --golden 下钉 core.abbrev 下限（48-micro-a-preview.mjs 的 GOLDEN_ABBREV），两侧 %h 宽度必须相等；
-// 下限另用本文件的独立字面量（不用生成器的常量当尺子，否则钉改成 7、尺子跟着变＝自我指认）：入库十二件实宽 8，
-// 且 spec §R9-1 明令不取 7——只查相等会放行「把钉改窄再整批再生」。注意 core.abbrev 是下限不是等宽：
-// 前缀撞车时 git 会自动加长，那时这里也会红，属于「需随批再生」的真信号而非假红。宽度级联进 receipt_id／
-// chain_hash／mark，此处点名原因，免得 B5 只报字节不等时有人误判成内容回归。
+// 宽度闸：生成器在 --golden 下已把锚定成「判据锚全值 SHA 的前 8 位」（48-micro-a-preview.mjs 的
+// GOLDEN_ABBREV），与检出对象集无关，故两侧宽度必须相等；下限另用本文件的独立字面量（不拿生成器的常量
+// 当尺子，否则把截取宽度改窄、尺子跟着变＝自我指认）：入库十二件实宽 8，且 spec §R9-1 明令不取 7——
+// 只查相等会放行「改窄再整批再生」。宽度级联进 receipt_id／chain_hash／mark，此处点名原因，
+// 免得 B5 只报字节不等时有人误判成内容回归。
 const ARCHIVED_ABBREV_MIN = 8;
 /**
  * 锚宽判定：入库与现跑的 %h 宽度必须相等，且入库宽不得窄于 ARCHIVED_ABBREV_MIN。
