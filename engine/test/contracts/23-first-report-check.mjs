@@ -35,9 +35,13 @@ const results = [];
 function check(id, pass, detail) { results.push([id, !!pass, String(detail)]); }
 
 const gates = JSON.parse(readFileSync(join(REPO,'engine','test','fixtures','contracts','23-gates.json'), 'utf8'));
-const facts23 = readFileSync(FACTS_JSONL, 'utf8').split(/\r?\n/)
-  .filter(function (line) { return line.length > 0; })
-  .map(function (line) { return JSON.parse(line); });
+/** 解析冻结 JSONL：跳过纯空白行，并容忍各行首尾空白与前导 BOM。 */
+function parseFactsJsonl(text) {
+  return text.split(/\r?\n/)
+    .filter(function (line) { return line.trim().length > 0; })
+    .map(function (line) { return JSON.parse(line.trim()); });
+}
+const facts23 = parseFactsJsonl(readFileSync(FACTS_JSONL, 'utf8'));
 const mdHappy = readFileSync(join(REPO,'engine','test','fixtures','contracts','23-first-report.md'), 'utf8');
 const mdFail = readFileSync(join(REPO,'engine','test','fixtures','contracts','23-first-report-failure.md'), 'utf8');
 const carHappy = JSON.parse(readFileSync(join(REPO,'engine','test','fixtures','contracts','23-first-report.json'), 'utf8'));
@@ -224,16 +228,20 @@ function sameStrings(a, b) {
   return Array.isArray(a) && Array.isArray(b) && a.length === b.length
     && a.every(function (x, i) { return x === b[i]; });
 }
-/** 按生成器落值重算 TC-3 逐源字段，并以原始 ratio 取首个最低源。 */
+/** TC-3 原始 ratio 只接受有限 number，拒绝 null、字符串及 NaN／Infinity 的强制转换。 */
+function validTc3Ratio(value) { return typeof value === 'number' && Number.isFinite(value); }
+/** 按生成器落值重算 TC-3 逐源字段，并以合法的原始 ratio 取首个最低源。 */
 function deriveTc3Facts(entries) {
   const per = entries.map(function (e) {
+    const ratioValid = validTc3Ratio(e.value.ratio);
     return {
       path: e.path, hit: e.value.hit, keywords: e.value.keywords,
-      ratio_4: r4(e.value.ratio), missed: e.value.missed
+      ratio_4: ratioValid ? r4(e.value.ratio) : null, ratio_valid: ratioValid, missed: e.value.missed
     };
   });
   let lowest = null;
   for (const e of entries) {
+    if (!validTc3Ratio(e.value.ratio)) { continue; }
     if (lowest === null || e.value.ratio < lowest.value.ratio) { lowest = e; }
   }
   return {
@@ -253,8 +261,13 @@ function tc3FactDiff(t, entries) {
   for (let i = 0; i < shared; i++) {
     const s = t.per_source[i];
     const p = f.per_source[i];
-    for (const k of ['path', 'hit', 'keywords', 'ratio_4']) {
+    for (const k of ['path', 'hit', 'keywords']) {
       if (s[k] !== p[k]) { diff.push('per_source[' + i + '].' + k + ' 记录=' + s[k] + ' 事实=' + p[k]); }
+    }
+    if (!p.ratio_valid) {
+      diff.push('per_source[' + i + '].ratio 非有限数字 事实=' + String(entries[i].value.ratio));
+    } else if (s.ratio_4 !== p.ratio_4) {
+      diff.push('per_source[' + i + '].ratio_4 记录=' + s.ratio_4 + ' 事实=' + p.ratio_4);
     }
     if (!sameStrings(s.missed, p.missed)) {
       diff.push('per_source[' + i + '].missed 记录=' + JSON.stringify(s.missed) + ' 事实=' + JSON.stringify(p.missed));
@@ -470,6 +483,15 @@ const tc1Cases = [
       && !matchesTc1Facts(tc1, removed)
       && boundaryRaw.judgeable_n === tc1.judgeable_n && boundaryRaw.backfill_n === tc1.backfill_n
       && matchesTc1Facts(tc1, boundary);
+  })(), '注入'],
+  ['JSONL 纯空白行跳过且 BOM／首尾空白可解析', (function () {
+    const row = { fact_id: 'parse-whitespace', metric: 'git.adr_lag_days', subject_ref: 'parse-subject', value_json: '{"delta_days":-1}' };
+    try {
+      const parsed = parseFactsJsonl(' \t \n \ufeff ' + JSON.stringify(row) + ' \t\n');
+      return parsed.length === 1 && parsed[0].fact_id === row.fact_id
+        && parsed[0].subject_ref === row.subject_ref
+        && JSON.parse(parsed[0].value_json).delta_days === -1;
+    } catch (e) { return false; }
   })(), '注入']
 ];
 const tc2Cases = [
@@ -636,13 +658,29 @@ const tc3Cases = [
       return { path: e.path, value: Object.assign({}, e.value, { ratio: 0.6 }) };
     });
     const tiedRaw = deriveTc3Facts(tied);
+    // 旧式 Number(null) 会把非最低源变成 0.0000 并抢下最低源；记录按旧结果伪造时也必须判否。
+    const nullFacts = editFactValue(tc3Facts, index, { ratio: null });
+    const nullRecord = Object.assign({}, tc3, {
+      per_source: tc3.per_source.map(function (s, i) {
+        return Object.assign({}, s, { ratio_4: i === index ? '0.0000' : s.ratio_4 });
+      }),
+      lowest_path: tc3.per_source[index].path, lowest_ratio_4: '0.0000'
+    });
+    const nullDiff = tc3FactDiff(nullRecord, nullFacts);
     return consistentTc3(tc3) && raw.per_source[index].hit === tc3.per_source[index].hit
       && raw.per_source[index].keywords === tc3.per_source[index].keywords
       && raw.per_source[index].ratio_4 === '0.9000'
+      && raw.per_source.every(function (p) { return p.ratio_valid; })
       && raw.lowest_path === tc3.lowest_path && raw.lowest_ratio_4 === tc3.lowest_ratio_4
       && !matchesTc3Facts(tc3, changed)
       && !matchesTc3Facts(lowestValueLied, tc3Facts) && !matchesTc3Facts(lowestPathLied, tc3Facts)
-      && tiedRaw.lowest_path === tc3Facts[0].path && tiedRaw.lowest_ratio_4 === '0.6000';
+      && tiedRaw.lowest_path === tc3Facts[0].path && tiedRaw.lowest_ratio_4 === '0.6000'
+      && validTc3Ratio(0) && !validTc3Ratio(null) && !validTc3Ratio(NaN)
+      && !validTc3Ratio(Infinity) && !validTc3Ratio('0.6')
+      && nullDiff.length === 3
+      && nullDiff.some(function (d) { return d.indexOf('per_source[' + index + '].ratio 非有限数字') === 0; })
+      && nullDiff.some(function (d) { return d.indexOf('lowest_path ') === 0; })
+      && nullDiff.some(function (d) { return d.indexOf('lowest_ratio_4 ') === 0; });
   })(), '注入'],
   ['事实 missed 等长换词而清单照抄必否（其余计数与最低源不变）', (function () {
     const missed = tc3Facts[0].value.missed.slice();
