@@ -401,7 +401,7 @@ t('H3 engine-ci 仍跑 smoke（contracts-run 自动纳入新守卫）', /run:\s*
 const runner = txt('engine/test/contracts-run.mjs');
 const pkg = JSON.parse(txt('engine/package.json'));
 t('I1 contracts-run 以 *-check.mjs 命名枚举（本守卫自动纳入）',
-  runner.includes('/-check.mjs$/') && /-check\.mjs$/.test(SELF.split('/').pop()));
+  runner.includes('/-check\\.mjs$/') && /-check\.mjs$/.test(SELF.split('/').pop()));
 t('I2 smoke 链含 contracts-run（engine-ci 六腿自动继承）', String(pkg.scripts.smoke || '').includes('test/contracts-run.mjs'));
 t('I3 check:docs 链含本守卫（docs-ci 单命令复用）', String(pkg.scripts['check:docs'] || '').includes('test/contracts/docs-authority-check.mjs'));
 const checkDocs = String(pkg.scripts['check:docs'] || '');
