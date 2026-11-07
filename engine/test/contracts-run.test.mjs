@@ -1,4 +1,6 @@
 // Runner and isolated guard-mutation regression tests (tracker #54).
+// The maintainer approved the unclassified row and false-witness injections in tracker #54.
+// These controls run the isolated guard directly; the runner-based harness remains tracker #134.
 import assert from 'node:assert/strict';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync, execFileSync } from 'node:child_process';
