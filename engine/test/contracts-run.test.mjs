@@ -52,14 +52,15 @@ try {
   const original = readFileSync(join(engine, 'test/contracts/23-first-report-check.mjs'), 'utf8');
   const gateLine = "const gates = JSON.parse(readFileSync(join(REPO,'engine','test','fixtures','contracts','23-gates.json'), 'utf8'));";
   const conditions = [
-    "tc1.verdict === 'INCONCLUSIVE' && consistentTc1(tc1) && tc1Bad.length === 0 && tc1Gaps.length === 0",
-    "tc2.verdict === 'RED' && consistentTc2(tc2) && tc2Bad.length === 0 && tc2Gaps.length === 0",
-    "tc3.verdict === 'AMBER' && consistentTc3(tc3) && tc3Bad.length === 0 && tc3Gaps.length === 0"
+    "tc1.verdict === 'INCONCLUSIVE' && consistentTc1(tc1) && tc1FactOk && tc1Bad.length === 0 && tc1Gaps.length === 0",
+    "tc2.verdict === 'RED' && consistentTc2(tc2) && tc2FactOk && tc2Bad.length === 0 && tc2Gaps.length === 0",
+    "tc3.verdict === 'AMBER' && consistentTc3(tc3) && tc3FactOk && tc3Bad.length === 0 && tc3Gaps.length === 0"
   ];
   const data = ["gates.B.tc1.judgeable_n = 999;", "gates.B.tc2.mean_ratio_4 = '0.9000';", "gates.B.tc3.lowest_ratio_4 = '0.9900';"];
   const cases = [
     ...conditions.map((condition, i) => ({ id: i + 1, injection: [gateLine, gateLine + '\n' + data[i]], mutation: [condition, condition.split(' && ')[0]] })),
-    { id: 1, injection: [gateLine, gateLine + '\n' + data[0]], mutation: [conditions[0], conditions[0].replace(' && consistentTc1(tc1)', '')] },
+    // Existing TC-1 ratio lie: inject after self-tests so the new fact-table cases cannot mask the record-consistency arm.
+    { id: 1, injection: ["check('B3-TC1',", "tc1.ratio_4 = '0.9000';\ncheck('B3-TC1',"], mutation: [conditions[0], conditions[0].replace(' && consistentTc1(tc1)', '')] },
     { id: 1, injection: ['const tc1Gaps = classGaps(tc1Cases);', "tc1Cases.push(['missing class', true, '']);\nconst tc1Gaps = classGaps(tc1Cases);"], mutation: [conditions[0], conditions[0].replace(' && tc1Gaps.length === 0', '')] },
     { id: 1, injection: ['const tc1Gaps = classGaps(tc1Cases);', "tc1Cases.push(['missing class', true, '']);\nconst tc1Gaps = classGaps(tc1Cases);"], mutation: ['function classGaps(cases) {', 'function classGaps(cases) { return [];'] },
     { id: 1, injection: ['function lieArm(consistent, derive, base, field, value, witness) {', 'function lieArm(consistent, derive, base, field, value, witness) { witness = function () { return false; };'], mutation: ['return !consistent(lied) && witness(derive(lied), lied);', 'return !consistent(lied);'] }
