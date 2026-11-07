@@ -9,11 +9,20 @@ import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DIR = join(HERE, 'contracts');
-const files = readdirSync(DIR).filter(f => /-check.mjs$/.test(f)).sort();
+let only;
+try { only = process.env.CONTRACTS_ONLY === undefined ? null : new RegExp(process.env.CONTRACTS_ONLY); }
+catch (e) { console.error('Invalid CONTRACTS_ONLY regex: ' + e.message); process.exit(1); }
+// 85-check 内部 audit 的预算为 420s；外壳不得比它更短（tracker #54）。
+const timeout = Number(process.env.CONTRACTS_TIMEOUT_MS ?? 420000);
+if (!Number.isSafeInteger(timeout) || timeout <= 0 || timeout > 2147483647) {
+  console.error('CONTRACTS_TIMEOUT_MS must be an integer between 1 and 2147483647'); process.exit(1);
+}
+const files = readdirSync(DIR).filter(f => /-check\.mjs$/.test(f) && (!only || only.test(f))).sort();
+if (!files.length) { console.error('No contract checks matched CONTRACTS_ONLY'); process.exit(1); }
 let fails = 0;
 let skipGroups = 0;
 for (const f of files) {
-  const r = spawnSync('node', [join(DIR, f)], { encoding: 'utf8', timeout: 300000 });
+  const r = spawnSync(process.execPath, [join(DIR, f)], { encoding: 'utf8', timeout });
   // 超时与失败必须可分辨：spawnSync 超时时 status=null，`FAIL(null)` 读起来像脚本崩溃（#33 复盘实测踩过）
   const timedOut = !!(r.error && r.error.code === 'ETIMEDOUT');
   const out = ((r.stdout || '') + (r.stderr || '')).trim();
@@ -25,7 +34,7 @@ for (const f of files) {
   skipGroups += lines.filter(l => /^GUARD-RESULT: SKIP-GROUP\b/.test(l)).length;
   const tail = lines.filter(l => /PASS|FAIL|SKIP|WARN|error/i.test(l)).slice(-2).join(' | ');
   if (r.status === 0) { console.log('PASS  ' + f + (tail ? '  — ' + tail.slice(0, 140) : '')); }
-  else { fails++; console.log('FAIL(' + (timedOut ? 'TIMEOUT' : r.status) + ') ' + f + '  — ' + (timedOut ? '超时 300s（并发负载下会触发，先查机器负载再判回归）' : (tail || out.slice(-200))).slice(0, 200)); }
+  else { fails++; console.log('FAIL(' + (timedOut ? 'TIMEOUT' : (r.status === null ? (r.signal || (r.error && r.error.code) || 'UNKNOWN') : r.status)) + ') ' + f + '  — ' + (timedOut ? '超时 ' + timeout + 'ms signal=' + (r.signal || 'none') : (tail || out.slice(-200) || (r.error && r.error.message) || '')).slice(0, 200)); }
 }
 console.log('---');
 console.log((fails === 0 ? 'PASS' : 'FAIL') + ' ' + (files.length - fails) + '/' + files.length + ' contract checks' + ' SKIP-GROUPS=' + skipGroups);
