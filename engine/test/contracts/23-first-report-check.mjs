@@ -24,6 +24,7 @@ const G = await import(pathToFileURL(GENERATE_JS).href);
 
 const PRE_REG = join(REPO, 'engine', 'test', 'fixtures', 'contracts', '22-criteria-pre-registration.md');
 const C_BASIS = join(REPO, 'engine', 'test', 'fixtures', 'contracts', '22-c-adjudication-basis.md');
+const FACTS_JSONL = join(REPO, 'engine', 'test', 'fixtures', 'contracts', '23-facts.jsonl');
 // 账本载体 = #40 归档进仓的两份退役决策账本（只读档案）。原载体 .scratch/gov-audit/ 不在仓里、
 // 却可能在开发机上残留——CI 与 dev 因此对不上。承重判据见下方 P1。
 const ARCHIVE_LEDGERS = ['architecture-recovery-ledger.md', 'macro-audit-ledger.md']
@@ -34,6 +35,13 @@ const results = [];
 function check(id, pass, detail) { results.push([id, !!pass, String(detail)]); }
 
 const gates = JSON.parse(readFileSync(join(REPO,'engine','test','fixtures','contracts','23-gates.json'), 'utf8'));
+/** 解析冻结 JSONL：跳过纯空白行，并容忍各行首尾空白与前导 BOM。 */
+function parseFactsJsonl(text) {
+  return text.split(/\r?\n/)
+    .filter(function (line) { return line.trim().length > 0; })
+    .map(function (line) { return JSON.parse(line.trim()); });
+}
+const facts23 = parseFactsJsonl(readFileSync(FACTS_JSONL, 'utf8'));
 const mdHappy = readFileSync(join(REPO,'engine','test','fixtures','contracts','23-first-report.md'), 'utf8');
 const mdFail = readFileSync(join(REPO,'engine','test','fixtures','contracts','23-first-report-failure.md'), 'utf8');
 const carHappy = JSON.parse(readFileSync(join(REPO,'engine','test','fixtures','contracts','23-first-report.json'), 'utf8'));
@@ -139,13 +147,139 @@ const pc2Idx = ids.indexOf('PC-2');
 // 两枚正对照都必须真在条目里且先于首个真判据——取 max 会让缺席的那枚（indexOf=-1）被另一枚掩护掉
 const lastPc = Math.max(pc1Idx, pc2Idx);
 check('B2', pc1Idx >= 0 && pc2Idx >= 0 && firstTc >= 0 && lastPc < firstTc, '执行顺序不可倒（两枚 PC 均须索引 >=0 且 < firstTC）：PC-1 索引 ' + pc1Idx + '、PC-2 索引 ' + pc2Idx + '、firstTC 索引 ' + firstTc);
-// ---------- B3 三臂（tracker #76）：字面 ↔ 统计重算 ↔ 裁决重导 ----------
+// ---------- B3 四层（tracker #76 / tracker #130）：字面 ↔ 统计重算 ↔ 裁决重导 ↔ 事实重算 ----------
 // 规则的成文权威 = 22-criteria-pre-registration.md §3.1（TC-1）/§3.2（TC-2）/§3.3（TC-3），跑前写死；
 // 下面三个 derive 只做指针式兑现，不另立第二套正文。阈值取自冻结件 threshold 块，其字面由 B4 逐项钉死（跑后未调）。
-// 判定条件＝字面 ∧ 记录自洽 ∧ 对照表全过；对照表兼作「判别臂非恒真」自证，把 tracker #76 票面三条矛盾
-// 与逐处谎报的合成样本喂进同一条重导——仍判绿即本条判红。
+// 判定条件＝字面 ∧ 记录自洽 ∧ 事实对账 ∧ 对照表全过 ∧ 六类齐备；事实对账只读 23-facts.jsonl，
+// 按 23-first-report.mjs 的聚合式静态重算，不调用采集器、不重渲染（ADR-0027）。
 // 零分母一律按产线同式取 0（collectors.ts 与 23-first-report.mjs 都这么写），守卫另判会把这些合法记录误报成红。
 function r4(x) { return Number(x).toFixed(4); }
+
+/** 取指定 metric 的冻结事实，解析 value_json 并保留生成器落记录所用的 subject_ref。 */
+function factValues(metric) {
+  return facts23.filter(function (f) { return f.metric === metric; }).map(function (f) {
+    return { path: f.subject_ref, value: JSON.parse(f.value_json) };
+  });
+}
+const tc1Facts = factValues('git.adr_lag_days');
+const tc2Facts = factValues('adr.five_piece_completeness');
+const tc3Facts = factValues('positioning.keyword_coverage');
+
+/** 按生成器口径，以 lag 事实条数与 delta_days 严格过阈条数重算 TC-1 原始计数。 */
+function deriveTc1Facts(entries, t) {
+  return {
+    judgeable_n: entries.length,
+    backfill_n: entries.filter(function (e) { return e.value.delta_days > t.threshold.lag_days; }).length
+  };
+}
+/** 返回 TC-1 冻结记录与事实重算的逐字段失配，空数组表示全等。 */
+function tc1FactDiff(t, entries) {
+  const f = deriveTc1Facts(entries, t);
+  const diff = [];
+  for (const k of ['judgeable_n', 'backfill_n']) {
+    if (t[k] !== f[k]) { diff.push(k + ' 记录=' + t[k] + ' 事实=' + f[k]); }
+  }
+  return diff;
+}
+/** 供内存对照表使用的 TC-1 事实全等谓词。 */
+function matchesTc1Facts(t, entries) { return tc1FactDiff(t, entries).length === 0; }
+
+/**
+ * 按生成器的条数、missing 累加、ratio 算术平均重算 TC-2。
+ * mean 不能只从 missing_counts 反推，否则只改事实 ratio 而保留 missing 时仍会漏报。
+ */
+function deriveTc2Facts(entries) {
+  const counts = {};
+  for (const k of C.ADR_FIVE_PIECE) { counts[k] = 0; }
+  let ratioSum = 0;
+  for (const e of entries) {
+    ratioSum = ratioSum + e.value.ratio;
+    for (const k of e.value.missing) { counts[k] = counts[k] + 1; }
+  }
+  return {
+    total: entries.length,
+    missing_counts: counts,
+    mean_ratio_4: r4(entries.length === 0 ? 0 : ratioSum / entries.length)
+  };
+}
+/** 返回 TC-2 total、缺失字段集与计数、mean 的记录／事实失配。 */
+function tc2FactDiff(t, entries) {
+  const f = deriveTc2Facts(entries);
+  const diff = [];
+  if (t.total !== f.total) { diff.push('total 记录=' + t.total + ' 事实=' + f.total); }
+  const factKeys = Object.keys(f.missing_counts).sort();
+  const recordKeys = Object.keys(t.missing_counts).sort();
+  if (recordKeys.join(',') !== factKeys.join(',')) {
+    diff.push('missing_counts 字段集 记录=' + recordKeys.join('/') + ' 事实=' + factKeys.join('/'));
+  }
+  for (const k of factKeys) {
+    if (t.missing_counts[k] !== f.missing_counts[k]) {
+      diff.push('missing_counts.' + k + ' 记录=' + t.missing_counts[k] + ' 事实=' + f.missing_counts[k]);
+    }
+  }
+  if (t.mean_ratio_4 !== f.mean_ratio_4) { diff.push('mean_ratio_4 记录=' + t.mean_ratio_4 + ' 事实=' + f.mean_ratio_4); }
+  return diff;
+}
+/** 供内存对照表使用的 TC-2 事实全等谓词。 */
+function matchesTc2Facts(t, entries) { return tc2FactDiff(t, entries).length === 0; }
+
+/** 逐项比较两个字符串数组，兼拒非数组与等长异值。 */
+function sameStrings(a, b) {
+  return Array.isArray(a) && Array.isArray(b) && a.length === b.length
+    && a.every(function (x, i) { return x === b[i]; });
+}
+/** TC-3 原始 ratio 只接受有限 number，拒绝 null、字符串及 NaN／Infinity 的强制转换。 */
+function validTc3Ratio(value) { return typeof value === 'number' && Number.isFinite(value); }
+/** 按生成器落值重算 TC-3 逐源字段，并以合法的原始 ratio 取首个最低源。 */
+function deriveTc3Facts(entries) {
+  const per = entries.map(function (e) {
+    const ratioValid = validTc3Ratio(e.value.ratio);
+    return {
+      path: e.path, hit: e.value.hit, keywords: e.value.keywords,
+      ratio_4: ratioValid ? r4(e.value.ratio) : null, ratio_valid: ratioValid, missed: e.value.missed
+    };
+  });
+  let lowest = null;
+  for (const e of entries) {
+    if (!validTc3Ratio(e.value.ratio)) { continue; }
+    if (lowest === null || e.value.ratio < lowest.value.ratio) { lowest = e; }
+  }
+  return {
+    per_source: per,
+    lowest_path: lowest === null ? null : lowest.path,
+    lowest_ratio_4: r4(lowest === null ? 0 : lowest.value.ratio)
+  };
+}
+/** 返回 TC-3 源条数、逐源落值及最低源的记录／事实失配。 */
+function tc3FactDiff(t, entries) {
+  const f = deriveTc3Facts(entries);
+  const diff = [];
+  if (t.per_source.length !== f.per_source.length) {
+    diff.push('per_source.length 记录=' + t.per_source.length + ' 事实=' + f.per_source.length);
+  }
+  const shared = Math.min(t.per_source.length, f.per_source.length);
+  for (let i = 0; i < shared; i++) {
+    const s = t.per_source[i];
+    const p = f.per_source[i];
+    for (const k of ['path', 'hit', 'keywords']) {
+      if (s[k] !== p[k]) { diff.push('per_source[' + i + '].' + k + ' 记录=' + s[k] + ' 事实=' + p[k]); }
+    }
+    if (!p.ratio_valid) {
+      diff.push('per_source[' + i + '].ratio 非有限数字 事实=' + String(entries[i].value.ratio));
+    } else if (s.ratio_4 !== p.ratio_4) {
+      diff.push('per_source[' + i + '].ratio_4 记录=' + s.ratio_4 + ' 事实=' + p.ratio_4);
+    }
+    if (!sameStrings(s.missed, p.missed)) {
+      diff.push('per_source[' + i + '].missed 记录=' + JSON.stringify(s.missed) + ' 事实=' + JSON.stringify(p.missed));
+    }
+  }
+  for (const k of ['lowest_path', 'lowest_ratio_4']) {
+    if (t[k] !== f[k]) { diff.push(k + ' 记录=' + t[k] + ' 事实=' + f[k]); }
+  }
+  return diff;
+}
+/** 供内存对照表使用的 TC-3 事实全等谓词。 */
+function matchesTc3Facts(t, entries) { return tc3FactDiff(t, entries).length === 0; }
 
 // §3.1 的两条：可执行门槛（否则判 INCONCLUSIVE）＋判红方向（严格大于）；ratio 是 0–1 的占比
 function deriveTc1(t) {
@@ -286,6 +420,12 @@ function lieArm(consistent, derive, base, field, value, witness) {
   lied[field] = value;
   return !consistent(lied) && witness(derive(lied), lied);
 }
+/** 只改内存事实副本的解析值，供对照表注入；两个冻结 JSON 文件均不写。 */
+function editFactValue(entries, index, patch) {
+  return entries.map(function (e, i) {
+    return i === index ? { path: e.path, value: Object.assign({}, e.value, patch) } : e;
+  });
+}
 // 每行第三槽＝用例类。判定要求六类齐备：整表被清空、或只留一类，是「臂不再参与判定」最后一种能全绿的形制
 // （`tXBad.length === 0` 对空表恒真，光有臂拦不住它）。
 const TC_CLASSES = ['正对照', '边界', '谎报', '域', '注入', '同式'];
@@ -301,6 +441,15 @@ function classGaps(cases) {
 const d1 = deriveTc1(tc1);
 const d2 = deriveTc2(tc2);
 const d3 = deriveTc3(tc3);
+const f1 = deriveTc1Facts(tc1Facts, tc1);
+const f2 = deriveTc2Facts(tc2Facts);
+const f3 = deriveTc3Facts(tc3Facts);
+const tc1FactDiffs = tc1FactDiff(tc1, tc1Facts);
+const tc2FactDiffs = tc2FactDiff(tc2, tc2Facts);
+const tc3FactDiffs = tc3FactDiff(tc3, tc3Facts);
+const tc1FactOk = tc1FactDiffs.length === 0;
+const tc2FactOk = tc2FactDiffs.length === 0;
+const tc3FactOk = tc3FactDiffs.length === 0;
 const tc1Cases = [
   ['正对照：达门槛的自洽样本放行', consistentTc1(tc1Record(minN, 0)) && consistentTc1(tc1Record(minN, minN)), '正对照'],
   ['门槛下判 INCONCLUSIVE', deriveTc1(Object.assign({}, tc1, { judgeable_n: minN - 1, backfill_n: 0 })).verdict === 'INCONCLUSIVE', '边界'],
@@ -317,7 +466,33 @@ const tc1Cases = [
   ['裁决谎报 INCONCLUSIVE 必否（统计量全自洽，只由裁决重导承重）', lieArm(consistentTc1, deriveTc1, tc1Record(minN, 0), 'verdict', 'INCONCLUSIVE',
     function (d, l) { return d.ratio_4 === l.ratio_4; }), '谎报'],
   ['占比越出 0–1 必否（补写数超过可判定数）', !consistentTc1(tc1Record(tc1.judgeable_n, tc1.judgeable_n + 1)), '域'],
-  ['tracker #76 注入 judgeable_n=999 必否', !consistentTc1(Object.assign({}, tc1, { judgeable_n: 999 })), '注入']
+  ['tracker #76 注入 judgeable_n=999 必否', !consistentTc1(Object.assign({}, tc1, { judgeable_n: 999 })), '注入'],
+  ['事实过阈或删行而计数照抄必否（backfill/judgeable 两臂；更新后的记录可放行）', (function () {
+    const changed = editFactValue(tc1Facts, 0, { delta_days: tc1.threshold.lag_days + 1 });
+    const raw = deriveTc1Facts(changed, tc1);
+    const updated = tc1Record(raw.judgeable_n, raw.backfill_n);
+    const removed = tc1Facts.slice(1);
+    const removedRaw = deriveTc1Facts(removed, tc1);
+    // 恰等 90 天不算补写：既钉严格大于，也证明事实变了但记录无需变时事实臂不是恒否。
+    const boundary = editFactValue(tc1Facts, 0, { delta_days: tc1.threshold.lag_days });
+    const boundaryRaw = deriveTc1Facts(boundary, tc1);
+    return consistentTc1(tc1) && raw.backfill_n === tc1.backfill_n + 1
+      && !matchesTc1Facts(tc1, changed)
+      && consistentTc1(updated) && matchesTc1Facts(updated, changed)
+      && removedRaw.judgeable_n === tc1.judgeable_n - 1 && removedRaw.backfill_n === tc1.backfill_n
+      && !matchesTc1Facts(tc1, removed)
+      && boundaryRaw.judgeable_n === tc1.judgeable_n && boundaryRaw.backfill_n === tc1.backfill_n
+      && matchesTc1Facts(tc1, boundary);
+  })(), '注入'],
+  ['JSONL 纯空白行跳过且 BOM／首尾空白可解析', (function () {
+    const row = { fact_id: 'parse-whitespace', metric: 'git.adr_lag_days', subject_ref: 'parse-subject', value_json: '{"delta_days":-1}' };
+    try {
+      const parsed = parseFactsJsonl(' \t \n \ufeff ' + JSON.stringify(row) + ' \t\n');
+      return parsed.length === 1 && parsed[0].fact_id === row.fact_id
+        && parsed[0].subject_ref === row.subject_ref
+        && JSON.parse(parsed[0].value_json).delta_days === -1;
+    } catch (e) { return false; }
+  })(), '注入']
 ];
 const tc2Cases = [
   ['正对照：两臂皆未中的自洽样本放行', consistentTc2(tc2Record(10, tc2Counts(0))) && deriveTc2(tc2Record(10, tc2Counts(0))).verdict === 'NOT_RED', '正对照'],
@@ -359,6 +534,30 @@ const tc2Cases = [
     const inj = Object.assign({}, tc2, { mean_ratio_4: '0.9' });
     const d = deriveTc2(inj);
     return d.verdict === 'RED' && d.cond_b && !consistentTc2(inj);
+  })(), '注入'],
+  ['事实 missing 少一项而 missing_counts 照抄必否（total 与 mean 不变）', (function () {
+    const changed = editFactValue(tc2Facts, 0, {
+      missing: tc2Facts[0].value.missing.filter(function (k) { return k !== 'Status'; })
+    });
+    const raw = deriveTc2Facts(changed);
+    return consistentTc2(tc2) && raw.total === tc2.total && raw.mean_ratio_4 === tc2.mean_ratio_4
+      && raw.missing_counts.Status === tc2.missing_counts.Status - 1
+      && !matchesTc2Facts(tc2, changed);
+  })(), '注入'],
+  ['事实 ratio 或条数漂移而记录照抄必否（mean/total 两臂分开判别）', (function () {
+    const index = tc2Facts.findIndex(function (e) { return e.value.ratio > 0; });
+    const changed = editFactValue(tc2Facts, index, { ratio: 0 });
+    const raw = deriveTc2Facts(changed);
+    const mean = tc2Facts.reduce(function (s, e) { return s + e.value.ratio; }, 0) / tc2Facts.length;
+    // 补一条 ratio=现均值、missing=空的事实：mean 与缺失计数都不变，只剩 total 一臂可判否。
+    const added = tc2Facts.concat([{ path: 'fact-injected-total', value: { ratio: mean, missing: [] } }]);
+    const addedRaw = deriveTc2Facts(added);
+    return index >= 0 && consistentTc2(tc2) && raw.total === tc2.total && raw.mean_ratio_4 !== tc2.mean_ratio_4
+      && C.ADR_FIVE_PIECE.every(function (k) { return raw.missing_counts[k] === tc2.missing_counts[k]; })
+      && !matchesTc2Facts(tc2, changed)
+      && addedRaw.total === tc2.total + 1 && addedRaw.mean_ratio_4 === tc2.mean_ratio_4
+      && C.ADR_FIVE_PIECE.every(function (k) { return addedRaw.missing_counts[k] === tc2.missing_counts[k]; })
+      && !matchesTc2Facts(tc2, added);
   })(), '注入']
 ];
 const tc3Cases = [
@@ -421,7 +620,91 @@ const tc3Cases = [
     const rec = tc3Record(per);
     return rec.per_source[0].missed.length === tc3.per_source[0].keywords + 1 && !consistentTc3(rec);
   })(), '域'],
-  ['tracker #76 注入 lowest_ratio_4=0.99 必否', !consistentTc3(Object.assign({}, tc3, { lowest_ratio_4: '0.9900' })), '注入']
+  ['tracker #76 注入 lowest_ratio_4=0.99 必否', !consistentTc3(Object.assign({}, tc3, { lowest_ratio_4: '0.9900' })), '注入'],
+  ['事实 hit 或源条数漂移而记录照抄必否（其余字段与最低源不变）', (function () {
+    const changed = editFactValue(tc3Facts, 0, { hit: tc3Facts[0].value.hit + 1 });
+    const raw = deriveTc3Facts(changed);
+    // 重复非最低源：已有位置及最低源全不变，只剩 per_source.length 一臂可判否。
+    const addedIndex = tc3Facts.findIndex(function (e) { return e.path !== tc3.lowest_path; });
+    if (addedIndex < 0) { return false; }
+    const added = tc3Facts.concat([tc3Facts[addedIndex]]);
+    const addedRaw = deriveTc3Facts(added);
+    return consistentTc3(tc3) && raw.per_source[0].keywords === tc3.per_source[0].keywords
+      && raw.per_source[0].ratio_4 === tc3.per_source[0].ratio_4
+      && raw.lowest_path === tc3.lowest_path && raw.lowest_ratio_4 === tc3.lowest_ratio_4
+      && !matchesTc3Facts(tc3, changed)
+      && addedRaw.per_source.length === tc3.per_source.length + 1
+      && addedRaw.lowest_path === tc3.lowest_path && addedRaw.lowest_ratio_4 === tc3.lowest_ratio_4
+      && !matchesTc3Facts(tc3, added);
+  })(), '注入'],
+  ['事实 keywords 漂移而记录照抄必否（hit/ratio/最低源均不变）', (function () {
+    const changed = editFactValue(tc3Facts, 0, { keywords: tc3Facts[0].value.keywords - 1 });
+    const raw = deriveTc3Facts(changed);
+    return consistentTc3(tc3) && raw.per_source[0].hit === tc3.per_source[0].hit
+      && raw.per_source[0].ratio_4 === tc3.per_source[0].ratio_4
+      && raw.lowest_path === tc3.lowest_path && raw.lowest_ratio_4 === tc3.lowest_ratio_4
+      && !matchesTc3Facts(tc3, changed);
+  })(), '注入'],
+  ['事实 ratio／最低字段／并列首个各臂分别判别', (function () {
+    // 改非最低源且不改最低归属：只有逐源 ratio_4 对账能判否，最低值臂不得代打。
+    const index = tc3Facts.findIndex(function (e) { return e.path !== tc3.lowest_path; });
+    if (index < 0) { return false; }
+    const changed = editFactValue(tc3Facts, index, { ratio: 0.9 });
+    const raw = deriveTc3Facts(changed);
+    const lowestValueLied = Object.assign({}, tc3, { lowest_ratio_4: '0.9000' });
+    const lowestPathLied = Object.assign({}, tc3, { lowest_path: tc3.per_source[index].path });
+    // 两源原始 ratio 并列时生成器保留首个；<= 会错取末个。
+    const tied = tc3Facts.map(function (e) {
+      return { path: e.path, value: Object.assign({}, e.value, { ratio: 0.6 }) };
+    });
+    const tiedRaw = deriveTc3Facts(tied);
+    // 旧式 Number(null) 会把非最低源变成 0.0000 并抢下最低源；记录按旧结果伪造时也必须判否。
+    const nullFacts = editFactValue(tc3Facts, index, { ratio: null });
+    const nullRecord = Object.assign({}, tc3, {
+      per_source: tc3.per_source.map(function (s, i) {
+        return Object.assign({}, s, { ratio_4: i === index ? '0.0000' : s.ratio_4 });
+      }),
+      lowest_path: tc3.per_source[index].path, lowest_ratio_4: '0.0000'
+    });
+    const nullDiff = tc3FactDiff(nullRecord, nullFacts);
+    return consistentTc3(tc3) && raw.per_source[index].hit === tc3.per_source[index].hit
+      && raw.per_source[index].keywords === tc3.per_source[index].keywords
+      && raw.per_source[index].ratio_4 === '0.9000'
+      && raw.per_source.every(function (p) { return p.ratio_valid; })
+      && raw.lowest_path === tc3.lowest_path && raw.lowest_ratio_4 === tc3.lowest_ratio_4
+      && !matchesTc3Facts(tc3, changed)
+      && !matchesTc3Facts(lowestValueLied, tc3Facts) && !matchesTc3Facts(lowestPathLied, tc3Facts)
+      && tiedRaw.lowest_path === tc3Facts[0].path && tiedRaw.lowest_ratio_4 === '0.6000'
+      && validTc3Ratio(0) && !validTc3Ratio(null) && !validTc3Ratio(NaN)
+      && !validTc3Ratio(Infinity) && !validTc3Ratio('0.6')
+      && nullDiff.length === 3
+      && nullDiff.some(function (d) { return d.indexOf('per_source[' + index + '].ratio 非有限数字') === 0; })
+      && nullDiff.some(function (d) { return d.indexOf('lowest_path ') === 0; })
+      && nullDiff.some(function (d) { return d.indexOf('lowest_ratio_4 ') === 0; });
+  })(), '注入'],
+  ['事实 missed 等长换词而清单照抄必否（其余计数与最低源不变）', (function () {
+    const missed = tc3Facts[0].value.missed.slice();
+    if (missed.length > 0) { missed[0] = 'fact-injected-miss'; }
+    const changed = editFactValue(tc3Facts, 0, { missed: missed });
+    const raw = deriveTc3Facts(changed);
+    return missed.length > 0 && consistentTc3(tc3)
+      && raw.per_source[0].hit === tc3.per_source[0].hit
+      && raw.per_source[0].keywords === tc3.per_source[0].keywords
+      && raw.per_source[0].ratio_4 === tc3.per_source[0].ratio_4
+      && raw.lowest_path === tc3.lowest_path && raw.lowest_ratio_4 === tc3.lowest_ratio_4
+      && !matchesTc3Facts(tc3, changed);
+  })(), '注入'],
+  ['非最低事实源 path 漂移而记录照抄必否（最低源不变）', (function () {
+    const index = tc3Facts.findIndex(function (e) { return e.path !== tc3.lowest_path; });
+    if (index < 0) { return false; }
+    const changed = editFactValue(tc3Facts, index, {});
+    changed[index] = { path: 'fact-injected-path', value: changed[index].value };
+    const raw = deriveTc3Facts(changed);
+    return consistentTc3(tc3) && raw.lowest_path === tc3.lowest_path
+      && raw.per_source[index].hit === tc3.per_source[index].hit
+      && raw.per_source[index].ratio_4 === tc3.per_source[index].ratio_4
+      && !matchesTc3Facts(tc3, changed);
+  })(), '注入']
 ];
 
 const tc1Bad = badCases(tc1Cases);
@@ -430,24 +713,30 @@ const tc3Bad = badCases(tc3Cases);
 const tc1Gaps = classGaps(tc1Cases);
 const tc2Gaps = classGaps(tc2Cases);
 const tc3Gaps = classGaps(tc3Cases);
-// 判定＝字面 ∧ 记录自洽 ∧ 对照表全过 ∧ 六类齐备。四条都放条件里而非表里，论证单源在 CHANGELOG 的 tracker #76 条目。
-check('B3-TC1', tc1.verdict === 'INCONCLUSIVE' && consistentTc1(tc1) && tc1Bad.length === 0 && tc1Gaps.length === 0,
+// 五条都放条件里而非表里，避免空表或单行恒真把任一变量的不变量旁路。
+check('B3-TC1', tc1.verdict === 'INCONCLUSIVE' && consistentTc1(tc1) && tc1FactOk && tc1Bad.length === 0 && tc1Gaps.length === 0,
   'TC-1 判 ' + tc1.verdict + '（可判定数 ' + tc1.judgeable_n + '／门槛 ' + minN + '／ratio_red ' + tc1.threshold.ratio_red
   + '，ratio ' + tc1.backfill_n + '/' + tc1.judgeable_n + ' 重算 ' + d1.ratio_4 + ' vs 记录 ' + tc1.ratio_4 + '，裁决重导 ' + d1.verdict
-  + '；判定=' + (tc1.verdict === 'INCONCLUSIVE' ? '字面✓' : '字面✗') + (consistentTc1(tc1) ? '＋自洽✓' : '＋自洽✗')
+  + '，事实重算 judgeable/backfill=' + f1.judgeable_n + '/' + f1.backfill_n + ' vs 记录 ' + tc1.judgeable_n + '/' + tc1.backfill_n
+  + '；判定=' + (tc1.verdict === 'INCONCLUSIVE' ? '字面✓' : '字面✗') + (consistentTc1(tc1) ? '＋自洽✓' : '＋自洽✗') + (tc1FactOk ? '＋事实✓' : '＋事实✗')
   + '，对照表 ' + (tc1Cases.length - tc1Bad.length) + '/' + tc1Cases.length + '，类覆盖 ' + (TC_CLASSES.length - tc1Gaps.length) + '/' + TC_CLASSES.length
+  + (tc1FactDiffs.length ? ' 事实失配：' + tc1FactDiffs.join('；') : '')
   + (tc1Bad.length ? ' 失配：' + tc1Bad.join('、') : '') + (tc1Gaps.length ? ' 缺类：' + tc1Gaps.join('、') : '') + '）');
-check('B3-TC2', tc2.verdict === 'RED' && consistentTc2(tc2) && tc2Bad.length === 0 && tc2Gaps.length === 0,
+check('B3-TC2', tc2.verdict === 'RED' && consistentTc2(tc2) && tc2FactOk && tc2Bad.length === 0 && tc2Gaps.length === 0,
   'TC-2 判 ' + tc2.verdict + '（total ' + tc2.total + '／mean_red ' + tc2.threshold.mean_red + '／field_missing_red ' + tc2.threshold.field_missing_red
   + '，mean 重算 ' + d2.mean_4 + ' vs 记录 ' + tc2.mean_ratio_4 + '，cond_a/b 重算 ' + d2.cond_a + '/' + d2.cond_b + ' vs 记录 ' + tc2.cond_a + '/' + tc2.cond_b + '，裁决重导 ' + d2.verdict
-  + '；判定=' + (tc2.verdict === 'RED' ? '字面✓' : '字面✗') + (consistentTc2(tc2) ? '＋自洽✓' : '＋自洽✗')
+  + '，事实 total/mean=' + f2.total + '/' + f2.mean_ratio_4 + ' vs 记录 ' + tc2.total + '/' + tc2.mean_ratio_4
+  + '；判定=' + (tc2.verdict === 'RED' ? '字面✓' : '字面✗') + (consistentTc2(tc2) ? '＋自洽✓' : '＋自洽✗') + (tc2FactOk ? '＋事实✓' : '＋事实✗')
   + '，对照表 ' + (tc2Cases.length - tc2Bad.length) + '/' + tc2Cases.length + '，类覆盖 ' + (TC_CLASSES.length - tc2Gaps.length) + '/' + TC_CLASSES.length
+  + (tc2FactDiffs.length ? ' 事实失配：' + tc2FactDiffs.join('；') : '')
   + (tc2Bad.length ? ' 失配：' + tc2Bad.join('、') : '') + (tc2Gaps.length ? ' 缺类：' + tc2Gaps.join('、') : '') + '）');
-check('B3-TC3', tc3.verdict === 'AMBER' && consistentTc3(tc3) && tc3Bad.length === 0 && tc3Gaps.length === 0,
+check('B3-TC3', tc3.verdict === 'AMBER' && consistentTc3(tc3) && tc3FactOk && tc3Bad.length === 0 && tc3Gaps.length === 0,
   'TC-3 判 ' + tc3.verdict + '（源 ' + tc3.per_source.length + ' 个／红线 ' + tc3.threshold.red + '／绿线 ' + tc3.threshold.green
   + '，最低重算 ' + d3.lowest_ratio_4 + ' vs 记录 ' + tc3.lowest_ratio_4 + ' @' + d3.lowest_paths.join(',') + '，裁决重导 ' + d3.verdict
-  + '；判定=' + (tc3.verdict === 'AMBER' ? '字面✓' : '字面✗') + (consistentTc3(tc3) ? '＋自洽✓' : '＋自洽✗')
+  + '，事实重算最低 ' + f3.lowest_ratio_4 + ' @' + f3.lowest_path + ' vs 记录 ' + tc3.lowest_ratio_4 + ' @' + tc3.lowest_path
+  + '；判定=' + (tc3.verdict === 'AMBER' ? '字面✓' : '字面✗') + (consistentTc3(tc3) ? '＋自洽✓' : '＋自洽✗') + (tc3FactOk ? '＋事实✓' : '＋事实✗')
   + '，对照表 ' + (tc3Cases.length - tc3Bad.length) + '/' + tc3Cases.length + '，类覆盖 ' + (TC_CLASSES.length - tc3Gaps.length) + '/' + TC_CLASSES.length
+  + (tc3FactDiffs.length ? ' 事实失配：' + tc3FactDiffs.join('；') : '')
   + (tc3Bad.length ? ' 失配：' + tc3Bad.join('、') : '') + (tc3Gaps.length ? ' 缺类：' + tc3Gaps.join('、') : '') + '）');
 check('B3-NC1', gates.B.nc1.pass === true, 'NC-1 负对照 0 命中（facts=' + gates.B.nc1.fact_count + '，five=' + gates.B.nc1.five_piece_present + '）');
 check('B4', preRegText.indexOf('0.2462') >= 0 && preRegText.indexOf('0.6000') >= 0 && gates.B.tc1.threshold.lag_days === 90 && gates.B.tc1.threshold.ratio_red === 0.2 && gates.B.tc1.threshold.min_n === 5 && gates.B.tc2.threshold.mean_red === 0.6 && gates.B.tc2.threshold.field_missing_red === 0.5 && gates.B.tc3.threshold.red === 0.5 && gates.B.tc3.threshold.green === 0.7, '阈值跑前写死且与预声明逐项一致（跑后未调）');
