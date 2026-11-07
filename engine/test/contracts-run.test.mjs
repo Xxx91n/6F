@@ -9,9 +9,11 @@ import { fileURLToPath } from 'node:url';
 const engine = join(dirname(fileURLToPath(import.meta.url)), '..');
 const root = join(engine, '..');
 const temp = mkdtempSync(join(tmpdir(), 'contracts-run-test-'));
+/** Run an isolated Node process with bounded execution and controlled runner settings. */
 function run(args, env = {}) {
   return spawnSync(process.execPath, args, { encoding: 'utf8', timeout: 60000, env: { ...process.env, CONTRACTS_ONLY: '', CONTRACTS_TIMEOUT_MS: '10000', ...env } });
 }
+/** Inject only at a unique anchor so a changed guard cannot silently invalidate a test. */
 function replaceOnce(text, from, to) {
   assert.equal(text.split(from).length, 2, 'injection anchor must be unique: ' + from);
   return text.replace(from, to);
@@ -60,6 +62,7 @@ try {
     { id: 1, injection: ['const tc1Gaps = classGaps(tc1Cases);', "tc1Cases.push(['missing class', true, '']);\nconst tc1Gaps = classGaps(tc1Cases);"], mutation: ['function classGaps(cases) {', 'function classGaps(cases) { return [];'] },
     { id: 1, injection: ['function lieArm(consistent, derive, base, field, value, witness) {', 'function lieArm(consistent, derive, base, field, value, witness) { witness = function () { return false; };'], mutation: ['return !consistent(lied) && witness(derive(lied), lied);', 'return !consistent(lied);'] }
   ];
+  /** Execute the temporary guard and return the named B3 result, not an unrelated failure. */
   function guard(source, id) {
     writeFileSync(target, source);
     const result = run([target]);
