@@ -35,8 +35,13 @@ try {
   assert.doesNotMatch(r.stdout, /b-check/);
   r = run([join(runnerDir, 'contracts-run.mjs')], { CONTRACTS_ONLY: '^b-', CONTRACTS_TIMEOUT_MS: '100' });
   assert.equal(r.status, 1); assert.match(r.stdout, /FAIL\(TIMEOUT\).*超时 100ms signal=/); assert.doesNotMatch(r.stdout, /FAIL\(null\)/);
-  for (const env of [{ CONTRACTS_ONLY: '[' }, { CONTRACTS_ONLY: 'not-found' }, { CONTRACTS_TIMEOUT_MS: '0' }]) {
-    r = run([join(runnerDir, 'contracts-run.mjs')], env); assert.equal(r.status, 1); assert.doesNotMatch(r.stdout, /PASS 0\/0/);
+  for (const [env, message] of [
+    [{ CONTRACTS_ONLY: '[' }, /Invalid CONTRACTS_ONLY regex/],
+    [{ CONTRACTS_ONLY: 'not-found' }, /No contract checks matched CONTRACTS_ONLY/],
+    [{ CONTRACTS_TIMEOUT_MS: '0' }, /CONTRACTS_TIMEOUT_MS must be an integer/]
+  ]) {
+    r = run([join(runnerDir, 'contracts-run.mjs')], env);
+    assert.equal(r.status, 1); assert.match(r.stderr, message); assert.doesNotMatch(r.stdout, /PASS 0\/0/);
   }
 
   // Mirror only the guard's inputs. Git metadata points at the original object store;
