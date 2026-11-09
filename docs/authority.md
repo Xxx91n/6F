@@ -1,27 +1,27 @@
 # 决定和术语写在哪
 
-决定和术语写在哪，只看这一份。[`AGENTS.md`](../AGENTS.md)、[`README.md`](../README.md)、[`README.zh-CN.md`](../README.zh-CN.md)、
+决定和术语分别记在哪，只看这一份。[`AGENTS.md`](../AGENTS.md)、[`README.md`](../README.md)、[`README.zh-CN.md`](../README.zh-CN.md)、
 [`CONTRIBUTING.md`](../CONTRIBUTING.md)、[`engine/README.md`](../engine/README.md)、
 [`docs/agents/domain.md`](agents/domain.md) 这些门面文书只放链接，不重复写。
-决定本身记在 [`ADR-0025`](adr/0025-authority-carriers-and-historical-fingerprints.md)。
+现在的架构决定收在 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
 
 ## 1. 三类文件
 
 | 文件 | 管什么 | 编号 | 什么时候写这里 |
 |---|---|---|---|
-| [`docs/spec.md`](spec.md) | 产品决定：范围、能力、对用户的承诺 | `R<n>` 节 / `R<n>-<m>` 条（编号只在 spec 里有效） | 改的是“产品做什么、对用户承诺什么” |
-| [`docs/adr/`](adr/) | 架构决定：背景 / 备选 / 后果 | `ADR-NNNN` | 有备选被否掉，或者要留下“为什么不” |
+| [`docs/spec.md`](spec.md) | 产品决定：范围、能力、对用户的承诺 | `R<n>` 节 / `R<n>-<m>` 条（编号只在 spec 里有效） | 改的是「产品做什么、对用户承诺什么」 |
+| [`docs/adr/`](adr/) | 架构决定：背景 / 备选 / 后果 | `ADR-NNNN` | 有备选被否掉，或者要留下「为什么不」 |
 | [`GLOSSARY.md`](../GLOSSARY.md) | 术语：每个领域词是什么意思 | 词条名（可附 `_Avoid_` 不要用的词） | 出现一个新词，或把一个代码里已经在用的词收进来 |
 
 规则：
 
 - **一个决定只写一处。** 别处只放链接，不抄正文。
-- **术语只说“是什么”。** “怎么做”看代码和注释，“为什么”看 ADR/spec。
+- **术语只说「是什么」。** 「怎么做」看代码和注释，「为什么」看 ADR 或 spec。
 - **三类文件各管各的。** 产品争议看 `docs/spec.md`，架构取舍看 `docs/adr/`，用词争议看 `GLOSSARY.md`。
 
 ## 2. 专门规则（各自管一块，不和上面三类抢）
 
-下面这些文件在各自题目里说了算，但它们都不回答“决定和术语分别写在哪”，所以不算第二套权威：
+下面这些文件在各自题目里说了算，但它们都不回答「决定和术语分别写在哪」，所以不算第二套权威：
 
 | 位置 | 管什么 |
 |---|---|
@@ -37,7 +37,7 @@
 
 ### 2.1 自动生成的文件和重生命令
 
-这里只记哪个文件由谁重新生成、对不上时谁报错。命令怎么写看 `engine/package.json` 的 scripts，这里不抄参数。手写生成的文件就会和生成器对不上；报错的那列照实写，没有检查就写没有。
+这里只记哪个文件由谁重新生成、对不上时谁报错。命令怎么写看 `engine/package.json` 的 scripts，这里不抄参数。手写生成的文件会和生成器对不上；报错那一列照实写，没有检查就写没有。
 
 | 生成的文件 | 谁重新生成 | 对不上时谁报错 |
 |---|---|---|
@@ -51,14 +51,29 @@
 
 ## 3. 历史编号怎么用
 
-仓里还有三类旧编号：`D-NNN`（产品决定记录）、`A-NNN`（架构恢复记录）、旧 BACKLOG 票号 `#32`–`#94`。它们只用来查历史，不再新增。
+仓里现在有四类旧编号：`D-NNN`（产品决定记录）、`A-NNN`（架构恢复记录）、旧 BACKLOG 票号 `#32`–`#94`、旧 ADR 号 `ADR-0001`–`ADR-0027`。它们只用来查历史，不再新增。
 
-- 这些编号能从 [`docs/archive/decisions/`](archive/decisions/)（记录原文 + 索引）逐号查到；能查到，不等于能拿来判。
+- `D-NNN`、`A-NNN` 和旧 BACKLOG 票号能从 [`docs/archive/decisions/`](archive/decisions/)（记录原文 + 索引）逐号查到；旧 ADR 号按下一段说的 git 查法查。能查到，不等于能拿来判。
 - **新决定不再用 `D-NNN` / `A-NNN`**：产品决定写进 `docs/spec.md` 的 `R<n>-<m>` 条，架构决定写 `ADR-NNNN`。旧编号只作历史引用，不加新号。
-  [`ADR-0025`](adr/0025-authority-carriers-and-historical-fingerprints.md) 原文写的是“改用 ADR 号或 spec A-code”——spec 现在用 `R<n>-<m>`，`A-NNN` 记录已经封账，所以这里按实际写法定。
+  `ADR-0025` 原文写的是「改用 ADR 号或 spec A-code」——spec 现在用 `R<n>-<m>`，`A-NNN` 已经不再新增，所以这里按实际写法定。
 - 代码注释、workflow 注释和历史文档里的旧编号**保留原样**，不清洗；按字节冻结的记录和冻结件可以保留原始现场（包括本机绝对路径），前提是归档处写明这是历史产物。
 - `CONTEXT.md` 已经退役（`6626d08d` 删除），术语看 [`GLOSSARY.md`](../GLOSSARY.md)；历史文书（包括 ADR 正文和记录行）里提到 `CONTEXT.md` 的地方按历史编号读，不当现行位置。
 - **号码会撞**：GitHub issue/PR 和旧 BACKLOG 票号共用同一串号——旧 BACKLOG 覆盖 `#32`–`#94`，GitHub 号只增不减，两段重叠。新写的按 [`docs/spec.md`](spec.md) R8 的规则把 GitHub 引用写成 `tracker #N`；历史文本里的裸 `#NN`（代码注释、`NN-check` 脚本名、记录行）按 [`ticket-index.md` §撞号警示](archive/decisions/ticket-index.md#撞号警示) 分清，不要改写。
+- **旧 ADR 号是第四类历史编号**：`ADR-0001`–`ADR-0027` 只减不增；本轮收尾提交会把 24 份正文删掉，删掉之后正文只在 git 历史里，不再当现行位置；现行架构决定从 `ADR-0028` 起算。删除前正文还在 `docs/adr/`，直接读；删除后用下面的 git 查法。老正文怎么查，见 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
+- `ADR-0028` 替代 `ADR-0025` 里「从 `6626d08d^` 恢复 21 份现行 ADR」那条决定；三类文件的分工和归档政策继续沿用，不另起一套。完整的来龙去脉和归档政策写在 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
+- 收尾票会把检查脚本改成只读下面这个块，不在脚本里抄第二份；块里的历史号、三处历史件路径和两个说明处就是脚本要认的全部：
+
+```yaml
+historical_adr:
+  numbers: ["0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018", "0019", "0020", "0021", "0022", "0023", "0024", "0025", "0026", "0027"]
+  paths:
+    - examples/first-report/
+    - engine/CHANGELOG.md
+    - engine/test/contracts/23-first-report.mjs
+  explained_in:
+    - docs/authority.md
+    - docs/adr/0028-current-architecture-and-docs-authority.md
+```
 
 ## 4. `Design:` 指针怎么写
 
@@ -68,14 +83,15 @@
 Design: <一句话约束> — ADR-NNNN
 ```
 
-- 只写“为什么这里必须这样”，并给出 ADR 号；**不抄 ADR 正文**，不写多行块注释。
+- 只写「为什么这里必须这样」，并给出 ADR 号；**不抄 ADR 正文**，不写多行块注释。
 - 指针指向的必须是 `docs/adr/` 下能打开的现行 ADR（不含 0002/0010/0015 这三份保持删除的编号）。
 - 产品级约束指向 `docs/spec.md` 的节时写成 `Design: <一句话约束> — spec §R<n>`；术语约束指向 `GLOSSARY.md` 词条。
 - 一份 ADR 可以被多处指针引用；指针本身不是决定记录，删指针不删决定。
 - 第一个例子：`engine/src/audit/micro-a.ts` 的 `LEDGER_PATH` 处（指向 ADR-0027 的溯源锚）；audit/fact/intake/report/upstream/collect 六个面的其余约束点已按 tracker #46 落地。
+- 收尾删除旧 ADR 之前，代码里现有的指针还指旧号（例如 `engine/src/audit/micro-a.ts` 的 `LEDGER_PATH` 指 ADR-0027）；这是过渡状态，收尾提交和代码注释票会把它们迁到 ADR-0028 或删掉，不算第二套现行规则。
 
 ## 5. 改这份文件时
 
 - 要改这份文件本身：改完检查门面文书的链接还指向这里；别在门面文书里加解释。
 - 这份文件和三类正文对不上时，以正文为准，这份文件跟着改——这里只记位置，不放决定内容。
-- 机器检查怎么设计写在 [`ADR-0027`](adr/0027-verification-surface-node-floor-and-docs-authority-guard.md)（tracker #47 复盘的补充见该 ADR 的 Consequences）；执行面在 [`engine/test/contracts/docs-authority-check.mjs`](../engine/test/contracts/docs-authority-check.mjs)，CI 单腿在 [`.github/workflows/docs-ci.yml`](../.github/workflows/docs-ci.yml)；检查脚本跑通才算通过，不看“跑过”。
+- 机器检查怎么设计写在 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)（tracker #47 复盘的内容也收在该 ADR）；执行面在 [`engine/test/contracts/docs-authority-check.mjs`](../engine/test/contracts/docs-authority-check.mjs)，CI 单腿在 [`.github/workflows/docs-ci.yml`](../.github/workflows/docs-ci.yml)；检查脚本跑通才算通过，不看「跑过」。
