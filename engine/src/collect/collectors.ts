@@ -1,12 +1,12 @@
-// collect/collectors.ts — 三族确定性采集器（A-022 / spec.md §R3-D3）
-// 单模块约束：不含任何相对 import，使守卫脚本可用 Node 自带类型剥离直接 import（Node 22.18+）。
-// 纯逻辑约束：输入一律注入；不读 fs、不起子进程、不发网络请求、不接 LLM。
-// 决议继承：D-016/D-017（确定性、不接 LLM）· D-018（正对照与真判据同族）· A-010（correlation key 前置）· A-021（schema v0）
-// Design: 价值验证闭环阶段 0 要求确定性采集器，不接 LLM — ADR-0012
+// collect/collectors.ts — 三组确定性采集器（A-022 / spec.md §R3-D3）
+// 模块独立性要求：不包含任何相对路径 import，方便测试脚本直接在 Node 中引入。
+// 纯逻辑规则：所有输入由外部传入；不读写文件系统、不启动子进程、不发网络请求、不调用大模型。
+// 方案约定继承：确定性与不调用大模型、已知答案对照与实际检查项同源、统一关联标识。
+// 价值验证初始阶段要求使用结果确定的采集器，不引入大模型
 
 import { createHash } from 'node:crypto';
 
-// ---------- §1 公共契约 ----------
+// ---------- §1 基础公共结构 ----------
 
 export interface CollectContext {
   runId: string;
@@ -94,7 +94,7 @@ export function daysBetweenUtc(a: string, b: string): number {
   return Math.round((ta - tb) / 86400000);
 }
 
-// ---------- §2 族一：adr-structure（S2 ADR 结构扫描） ----------
+// ---------- §2 第一组：adr-structure（S2 架构决策记录结构扫描） ----------
 
 export const ADR_STRUCTURE_ID = 'adr-structure@v1';
 export const ADR_STRUCTURE_FAMILY = 'adr-structure';
@@ -238,9 +238,9 @@ export function adrDates(input: AdrStructureInput): Record<string, string> {
   return out;
 }
 
-// ---------- §2b 族一 v2：adr-structure 回退链（A-002 接线；v1 留档禁改） ----------
-// 规则冻结于 reports/27-prereg.md（先于重跑入库）：字段腿 A dash → B 内联 Nygard；
-// Date 追加 C head-60 ISO → D git 首提交（外部注入）；节腿 A ## 标题 → B 行首裸标签。
+// ---------- §2b 第一组 v2：adr-structure 兼容匹配链（A-002 接入；v1 归档保留） ----------
+// 匹配规则保存在 reports/27-prereg.md：字段匹配先尝试短横线前缀，再尝试行内键值对；
+// 日期先尝试前 60 行中的 ISO 日期，再尝试 git 首次提交日期（外部传入）；章节匹配先尝试 ## 标题，再尝试行首标签。
 
 export const ADR_STRUCTURE_V2_ID = 'adr-structure@v2';
 
@@ -384,7 +384,7 @@ export function collectAdrStructureV2(input: AdrStructureV2Input, ctx: CollectCo
   return out;
 }
 
-// ---------- §3 族二：positioning（S1 定位素材） ----------
+// ---------- §3 第二组：positioning（S1 定位文本分析） ----------
 
 export const POSITIONING_ID = 'positioning@v1';
 export const POSITIONING_FAMILY = 'positioning';
@@ -480,7 +480,7 @@ export function collectPositioning(input: PositioningInput, ctx: CollectContext)
   return out;
 }
 
-// ---------- §4 族三：gitlog（跨族交叉） ----------
+// ---------- §4 第三组：gitlog（提交历史分析） ----------
 
 export const GITLOG_ID = 'gitlog@v1';
 export const GITLOG_FAMILY = 'gitlog';
@@ -488,8 +488,8 @@ export const GITLOG_FAMILY = 'gitlog';
 export interface CommitRecord {
   sha: string;
   author: string;
-  // date=null=quarantined 置位（D-100② null=毒值）：日期派生指标（first_commit/adr_lag）
-  // 显式跳过该 commit 禁当 0/禁入排序比较；commit_count/author_matrix 无日期语义仍计全量。
+  // date=null 表示被隔离的异常值（D-100②）：依赖日期的统计（如 first_commit、adr_lag）
+  // 明确跳过该 commit，禁止当成 0 或参与排序比较；无需日期的统计（如 commit_count、author_matrix）仍计算该提交。
   date: string | null;
   paths: readonly string[];
 }
@@ -512,8 +512,8 @@ export function collectGitlog(input: GitlogInput, ctx: CollectContext): Collecte
   for (const path of input.paths) {
     const touching = input.commits.filter(function (c) { return c.paths.indexOf(path) >= 0; });
     if (touching.length === 0) { continue; }
-    // null=毒值显式跳过（D-100②）：first_commit/adr_lag 只在 date 可判定子集上排序；
-    // 排除计数由 Intake Health 节 excluded_commits 披露（over N-M commits 声明）。
+    // 缺失日期的异常值明确跳过（D-100②）：first_commit 和 adr_lag 只在日期有效的数据上排序；
+    // 排除的提交数量会在入口健康检查中的 excluded_commits 中说明。
     const dated = touching.filter(function (c): c is CommitRecord & { date: string } { return c.date !== null; });
     const sorted = dated.slice().sort(function (a, b) {
       if (a.date < b.date) { return -1; }
@@ -561,7 +561,7 @@ export function collectGitlog(input: GitlogInput, ctx: CollectContext): Collecte
   return out;
 }
 
-// ---------- §5 注册表 + detector 同族声明（供票 22 直接引用） ----------
+// ---------- §5 采集器清单与检测器关联声明 ----------
 
 export const COLLECTOR_DESCRIPTORS: readonly CollectorDescriptor[] = [
   ADR_STRUCTURE_DESCRIPTOR,
