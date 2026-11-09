@@ -1,9 +1,9 @@
 # MA-48-GOOSEDUCKAGENT-REFUSAL — Micro-A 首报（Xxx91n/goose-duck-agent）
 > RECEIPT RCP-47855f19017680f3 chain=47855f19017680f3e1d59a20ec64b18f content=abcc5d4877749285 facts=3 adjudications=2 issued_at=1970-01-01T00:00:00.000Z commit=unanchored-no-local-clone tree=unanchored
 >
-> 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
+> 骨架 1.2.0（章顺序锁定）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
 >
-> 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）
+> 披露块（preview 标注诚实，机器可读字段见侧车 preview_disclosure）
 > - capability: capability 3 of 5 · preview
 > - calibration_scope: 托管面资格闸拒绝件（failure 演示面）
 > - structural_limitations: golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计；拒绝语义：intake 阶段显式拒绝（D-033 硬约束逆用）——报告落 unsupported: 无托管 PR 面＋原因＋前置条件；票面前提漂移如实登记：anysearch-cli 票面撰写时无托管面（#37 实测 github_pr_total=0），本票复核托管枚举 merged=null——前提已漂移，failure 演示主体改取真负例 goose-duck-agent（merged=0）；适配器硬化面已落 engine 一等面（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts
@@ -100,6 +100,6 @@
 
 ## Intake Health
 
-- 契约：ADR-0022 违约两级处置——协议级违约 fail-fast（崩溃桶工件），字段级病态=quarantine 桶隔离（判定/处置硬分界）
-- 摄入无病态声明：quarantined=0 · normalized=0（接线字段未供给 intake_health——同形骨架负声明，证据缺席≠证据为零）
+- 契约：违约两级处置——整行协议格式破坏立刻中断，字段内容异常则放入隔离区单独记录
+- 摄入无病态声明：quarantined=0 · normalized=0（未提供体检数据时默认无异常，证据缺席不等于证据为零）
 

@@ -1,19 +1,17 @@
-// report/generate.ts - 首报生成器纯逻辑（A-026 / A-027 / spec.md §R3-D5）
-// 单模块约束：只依赖 node: 内建（node:crypto）；守卫脚本可用 Node 类型剥离直接 import（承 #21 教训）。
-// 契约继承：报告模板=共享骨架（章序锁定）+ scale 切片（骨架 1.2.0，上源 reports/14-skeleton-fields.json#skeleton）；
-//           首报验收 A/B/C 三层闸门的 C 层四条款 B1-B5；A-027 agent 可消费性；A-018 降级不改骨架；A-010 correlation key 前置。
-// 纯逻辑约束：输入一律注入；不读 fs、不起子进程、不发网络请求、不接 LLM（D-016）。
+// report/generate.ts - 报告生成器的纯逻辑实现
+// 单模块约束：只依赖 node 内建模块（node:crypto），不引入额外依赖。
+// 结构继承：报告模板由共享固定结构和各档位自己的字段组成；章节顺序固定，降级时结构保持不变。
+// 纯逻辑约束：输入一律通过参数注入，不读文件系统、不起子进程、不发网络请求、不接大模型。
 import { createHash } from 'node:crypto';
 import { intakeEscalation, deriveReasonClass, VERDICT_REASON_CLASSES } from '../intake/quarantine.js';
 import { sealNarrativeSections, renderTemplateNarrative, NARRATIVE_SEAL_PROTOCOL } from './narrative.js';
 import { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations } from './citation.js';
-// 引文核验面已抽入叶子模块 citation.ts（C1：破 generate↔narrative 运行期循环 import）；
-// 此处 re-export 保持既有 import 路径 'generate.js' 不破。
+// 引文核验逻辑已抽入独立模块 citation.ts；此处重新导出以保持既有引用路径不变。
 export { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations };
-// Design: 5 scale 共享报告骨架＋scale 切片，章节顺序锁定 — ADR-0006
+// 五个档位共享固定报告结构，各档位只放自己的那部分字段，章节顺序保持锁定
 export const REPORT_SKELETON_VERSION = '1.2.0';
 export const REPORT_SKELETON_SOURCE = 'reports/14-skeleton-fields.json#skeleton';
-// Design: 首报验收=A/B/C 三层闸门，C 层为信任裁决 — ADR-0013
+// 验收分为形式、内容和信任裁决，判定规则版本固定
 export const ADJUDICATION_PROTOCOL_VERSION = 'ADR-0013-C/v1';
 export const REPORT_SKELETON = [
     { id: 'C1', ordinal: 1, name: '执行摘要', required_fields: ['report_id', 'schema_version', 'scale', 'subject_ref', 'generated_at', 'correlation_key', 'overall_verdict', 'confidence', 'headline', 'top_findings', 'degraded_mode', 'stale_data_marker', 'staleness_sla_seconds', 'read_model_lag_seconds', 'read_model_version', 'fact_watermark_version'] },
@@ -111,10 +109,10 @@ export function adjudicate(args) {
         citation_checks: checks
     };
 }
-// Design: prereg_commit 只取可解析 commit 或带前缀的显式标记，禁模糊态 — spec §R9-1
+// prereg_commit 只接受能解析的提交哈希，或带 sentinel/degraded 前缀的明确标记，严禁模糊值
 const PREREG_COMMIT_FORM = /^[0-9a-f]{4,40}$/; // 4 = git 能 emit 的最小缩写宽度；为何不是 7 见 spec §R9-1
 const PREREG_NAME_FORM = /^[0-9A-Za-z][0-9A-Za-z._-]*$/;
-// 'sentinel' = 设计上就不是 commit（存档哨兵）；'degraded' = 本该取到 commit 但取不到或取不准。
+// 'sentinel' = 设计上就不是提交哈希（历史记录哨兵）；'degraded' = 本该取到提交哈希但取不到或不准确。
 export function classifyPreregAnchor(v) {
     if (v.indexOf('sentinel:') === 0) {
         return PREREG_NAME_FORM.test(v.slice(9)) ? 'sentinel' : 'ambiguous';
@@ -132,15 +130,15 @@ function preregMarked(prefix, name) {
 }
 export function preregSentinel(name) { return preregMarked('sentinel:', name); }
 export function preregDegraded(reason) { return preregMarked('degraded:', reason); }
-// Design: 模糊态锚在回执哈希链之前当场拒收，错误值不得被签成可回查坐标 — spec §R9-1
+// 模糊不清的锚点在进入回执哈希链之前当场报错拒收，避免将错误值签成凭证
 export function assertDiscriminablePreregAnchor(v) {
     if (classifyPreregAnchor(v) === 'ambiguous') {
-        throw new Error('PREREG-ANCHOR-AMBIGUOUS: gate_ref.prereg_commit=' + JSON.stringify(v) + ' 既不是 4–40 位小写十六进制 commit，也不带 sentinel:/degraded: 标记前缀（取值口径见 spec §R9-1）');
+        throw new Error('PREREG-ANCHOR-AMBIGUOUS: gate_ref.prereg_commit=' + JSON.stringify(v) + ' 既不是 4–40 位小写十六进制 commit，也不带 sentinel:/degraded: 标记前缀（取值规则见 spec §R9-1）');
     }
 }
 export const CONTENT_DIGEST_CANONICALIZATION = 'json_utf8_entries_then_citation_checks';
 export function buildReceipt(args) {
-    // 口径闸先于哈希：一旦模糊态锚进了链，receipt_id/chain_hash 会把错误值签成「可回查的坐标」。
+    // 校验关卡先于哈希计算：一旦模糊不清的锚点进入了链，回执哈希就会把错误值固定下来。
     assertDiscriminablePreregAnchor(args.gate_ref.prereg_commit);
     const sorted = args.fact_ids.slice().sort();
     const adjParts = [];
@@ -182,10 +180,10 @@ export function buildReceipt(args) {
     };
 }
 export function buildReport(input) {
-    // 叙事双轨（D-053）：宿主 agent 段逐段盖章；degraded 报告无叙事→kernel 模板兜底注入（永居降级位，D-053① 通用兜底）
+    // 叙事生成：宿主 agent 生成的段落逐段盖章；降级报告没有正式叙事时，由内核模板生成兜底说明
     const narrativeInput = (input.narrative_sections || []).slice();
     if (input.degraded && narrativeInput.length === 0) {
-        // degraded:true 直建路径同样拿模板兜底（A2 修复：兜底不再仅 degradeReport 可达）
+        // 标记为降级时，直接补充模板叙事兜底
         narrativeInput.push(renderTemplateNarrative({ quadrants: input.quadrants.slice(), degraded_reason: input.degraded_reason }));
     }
     const adjudication = adjudicate({
@@ -195,8 +193,7 @@ export function buildReport(input) {
         decided_at: input.decided_at,
         human: input.human
     });
-    // quarantine 升级（D-100③/D-105①）：锚字段病态或单字段病态率超阈 → run 级裁定升级 unsupported；
-    // 条目不动——升级语义载于 verdict.reason_class（三面投影）＋Intake Health 节。
+    // 隔离升级：关键字段异常或单个字段异常率超标时，整份报告判定升级为不支持；原因记录在 reason_class 和收仓体检段落中。
     const intakeHealth = input.intake_health !== undefined ? input.intake_health : null;
     const escalation = intakeHealth ? intakeEscalation(intakeHealth.fields) : 'none';
     if (escalation !== 'none' && adjudication.overall !== 'unsupported') {
@@ -247,7 +244,7 @@ export function renderMarkdown(r) {
     out.push('# ' + r.report_id + ' — ' + r.scale + ' 首报（' + r.subject_ref + '）');
     out.push('> ' + r.receipt.mark);
     out.push('>');
-    out.push('> 骨架 ' + r.schema_version + '（章顺序锁定，ADR-0006）· 裁定协议 ' + r.adjudication.protocol_version + ' · 生成于 ' + r.generated_at);
+    out.push('> 骨架 ' + r.schema_version + '（章顺序锁定）· 裁定协议 ' + r.adjudication.protocol_version + ' · 生成于 ' + r.generated_at);
     if (r.stability !== null || r.capabilities.length > 0) {
         out.push('> - stability: ' + (r.stability !== null ? r.stability : 'unspecified') + (r.capabilities.length > 0 ? ' · capabilities: ' + r.capabilities.join(', ') : ''));
     }
@@ -257,7 +254,7 @@ export function renderMarkdown(r) {
     }
     if (r.preview_disclosure) {
         out.push('>');
-        out.push('> 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）');
+        out.push('> 披露块（preview 标注诚实，机器可读字段见侧车 preview_disclosure）');
         out.push('> - capability: ' + r.preview_disclosure.capability_label);
         out.push('> - calibration_scope: ' + r.preview_disclosure.calibration_scope);
         out.push('> - structural_limitations: ' + escapeMarkdownExcerptInline(r.preview_disclosure.structural_limitations.join('；')));
@@ -301,7 +298,7 @@ export function renderMarkdown(r) {
             }
             out.push('- human_adjudication: ' + r.adjudication.human.status + '（裁定仍由人做，见 B5）');
             if (r.narrative_sections.length > 0) {
-                out.push('#### 叙事段（宿主 agent 生成/kernel 盖章；叙事面不携带裁决 band——红线 D-053/ADR-0013）');
+                out.push('#### 叙事段（宿主 agent 生成、内核盖章，叙事内容不携带判定档位）');
                 for (const ns of r.narrative_sections) {
                     const grounded = ns.seal.checks.filter(function (c) { return c.support === 'supports'; }).length;
                     out.push('- [' + ns.section_id + '] author=' + ns.author + ' model_id=' + (ns.model_id ? ns.model_id : '(none)') + ' stamp=' + ns.seal.stamp + ' grounded=' + grounded + '/' + ns.seal.checks.length);
@@ -342,12 +339,12 @@ export function renderMarkdown(r) {
         }
         out.push('');
     }
-    // ---------- Intake Health 节（D-114 恒在渲染：有/无病态共享同骨架；零病态渲染「无」=阴性自证） ----------
+    // ---------- 收仓体检：有无异常都保持相同结构 ----------
     out.push('## Intake Health');
     out.push('');
-    out.push('- 契约：ADR-0022 违约两级处置——协议级违约 fail-fast（崩溃桶工件），字段级病态=quarantine 桶隔离（判定/处置硬分界）');
+    out.push('- 契约：违约两级处置——整行协议格式破坏立刻中断，字段内容异常则放入隔离区单独记录');
     if (r.intake_health === null) {
-        out.push('- 摄入无病态声明：quarantined=0 · normalized=0（接线字段未供给 intake_health——同形骨架负声明，证据缺席≠证据为零）');
+        out.push('- 摄入无病态声明：quarantined=0 · normalized=0（未提供体检数据时默认无异常，证据缺席不等于证据为零）');
     }
     else {
         const ih = r.intake_health;
@@ -356,13 +353,13 @@ export function renderMarkdown(r) {
             out.push('- field ' + f.field_name + ': total=' + f.total + ' clean=' + f.clean + ' normalized=' + f.normalized + ' quarantined=' + f.quarantined + '（' + eq + '）');
         }
         out.push('- affected_commits（quarantined 去重）: ' + ih.affected_commits);
-        // D-108④ NULL 语义呈现面显式文案（防误读「开放式」缺省）：NULL 仅锚病态路径=「时点不可得」自证
-        out.push('- quarantine_log.recorded_at（写入时点列）: ' + (ih.recorded_at === null ? 'NULL（锚病态→观测时点不可得，非「开放式」缺省；列级语义见 schema 注记）' : ih.recorded_at));
+        // 明确记录 NULL 含义，避免误解为未设置
+        out.push('- quarantine_log.recorded_at（写入时间）: ' + (ih.recorded_at === null ? 'NULL（因字段异常导致观测时间无法获取）' : ih.recorded_at));
         const totalCommits = ih.fields.filter(function (f) { return f.field_name === 'committer_date'; })[0];
-        out.push('- 派生统计排除声明：日期派生指标 over ' + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + ' commits（quarantined 排除 ' + ih.excluded_commits + '；quarantined 日期 commit 禁入 first_commit/adr_lag 派生）');
-        out.push('- 阈值纪律：单字段 quarantined/total > ' + ih.threshold_ratio + ' → run 级裁定升级 unsupported；escalation=' + ih.escalation);
+        out.push('- 统计排除声明：日期统计基于 ' + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + ' 次提交（已排除隔离的 ' + ih.excluded_commits + ' 次提交；异常提交不参与指标计算）');
+        out.push('- 阈值规则：单字段异常率超过 ' + ih.threshold_ratio + ' 则整份报告升级为 unsupported；escalation=' + ih.escalation);
         if (ih.quarantined_rows.length === 0) {
-            out.push('- quarantined rows: 无（摄入无病态=阴性自证）');
+            out.push('- quarantined rows: 无（摄入无病态）');
         }
         else {
             out.push('- quarantined-only SHA 表（sha | field | reason_code | raw_echo 截断呈现）：');
@@ -520,10 +517,8 @@ export function degradeReport(r, reason) {
         preview_disclosure: r.preview_disclosure,
         narrative_sections: []
     };
-    // degraded 兜底=kernel 模板叙事（D-053①：永居降级位，不冒充正式叙事）。
-    // A1 修复：模板引用降级后对象 out（degraded_reason 已就位），不再读降级前对象输出「未声明」。
-    // C5 裁定：已盖章宿主叙事不静默丢弃——按降级后证据重盖章（引文多落 insufficient→sealed-with-gaps 如实留痕），
-    //          模板叙事追加在降级位；宿主段丢失=审计痕迹丢失，与双轨纪律相抵。
+    // 降级兜底：使用内核模板叙事作为降级补充说明。
+    // 已盖章的宿主叙事不悄悄丢弃，按降级后的证据重新盖章留痕，模板叙事追加在后面。
     const hostKept = r.narrative_sections.map(function (s) {
         return { section_id: s.section_id, author: s.author, model_id: s.model_id, text: s.text, claims: s.claims.slice() };
     });

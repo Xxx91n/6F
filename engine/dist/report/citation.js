@@ -1,27 +1,27 @@
-// report/citation.ts — 引文核验叶子模块（轮 14 审计返工 C1：破 generate↔narrative 循环 import）
+// report/citation.ts — 引文核验独立模块
 // 纯逻辑约束同 generate.ts：输入一律注入、无 fs/子进程/网络/LLM。
-// 此模块为零依赖叶子：generate.ts 与 narrative.ts 均从这里取引文核验与 UNVERIFIED_MARK。
+// 此模块为零依赖独立模块：generate.ts 与 narrative.ts 均从这里取引文核验与 UNVERIFIED_MARK。
 //
-// #56 / D-065 语义边界（文档化命名——TIST 命名即判据）：
+// 语义边界说明：
 //   supports = presence-level 字面锚在场判定：required_tokens 在引文 excerpt 中逐字命中，
 //   且命中点经确定性语境剥离（引语/归属包裹掩蔽＋pre/post 否定窗 cue 表＋伪否定豁免表
 //   ＋CJK 独立否定词表）后仍存活。**supports 不是语义蕴含**——改写/同义而字面锚缺席者
-//   不升级（FN 类如实披露，归 human-in-loop 复核，D-053④；kernel 内禁 NLI/概率模型，D-058）。
-//   fail-safe 从严：语境不确定的命中不计入 supports（宁 insufficient 勿误 supports）。
-//   输出空间维持二态 supports/insufficient，不加第三态（D-045 / D-065）。
+//   不升级（假阴性如实披露，归人工复核；内核内禁用任何概率模型）。
+//   fail-safe 从严：语境不确定的命中不计入 supports（宁可判定为证据不足，不可误判为支持）。
+//   输出空间维持两态 supports/insufficient，不增加第三态。
 //   context_flags 词表（机读）：absent:<tok>（字面缺席）/ context-stripped:<tok>（剥离吞没）/
 //   negated:<tok>:<kind>@<pos>（否定窗 cue 命中）/ non-asserted:<tok>:<kind>@<pos>（假想·示例语境，
-//   非否定但非断言式主张——r18 审计 O2 名实对齐）/ verdict-label:<tok>:@<pos>（cue 词作裁决标签位）/
+//   非否定但非断言式主张）/ verdict-label:<tok>:@<pos>（cue 词作裁决标签位）/
 //   <span-kind>@<pos>（引语/归属/言语/悬挂引号剥离区段）。
 export const UNVERIFIED_MARK = '⚠ unverified';
-// ---------- D-065 语义边界披露（机读常量——56-check 断言其在位） ----------
+// ---------- 语义边界披露（机读常量——测试断言其在位） ----------
 export const PRESENCE_LIMITS = {
     semantics: 'presence-level 字面锚在场判定（语境剥离后逐字命中），非语义蕴含判定',
     output_states: ['supports', 'insufficient'],
-    fn_disclosure: '改写/同义语义在场但字面锚缺席者如实判 insufficient——语义召回缺口归 human-in-loop 复核（D-053④）；kernel 内禁 NLI/概率模型（D-058）',
+    fn_disclosure: '改写/同义语义在场但字面锚缺席者如实判 insufficient——语义召回缺口归 human-in-loop 复核；kernel 内禁 NLI/概率模型',
     adversarial_fp_guard: '否定窗/引语包裹/归属引导内的字面命中经语境剥离后不计 supports；不确定语境从严降级 insufficient',
 };
-// ---------- D-065 预声明窗口与四张确定性表（kernel 内零外源） ----------
+// ---------- 预声明窗口与四张确定性表（内核内零外源） ----------
 /** 预声明窗口（字符）：命中点向前找 pre-negation cue 的最大距离。 */
 export const NEG_WINDOW_PRE = 60;
 /** 预声明窗口（字符）：命中点向后找 post-negation cue 的最大距离（后置否定短，例「X 不成立」）。 */
@@ -30,11 +30,11 @@ export const NEG_WINDOW_POST = 40;
 export const ATTRIBUTION_TAIL = 80;
 /** 引语前置言语/归属 cue 回溯窗（字符）。 */
 export const SPEECH_LOOKBACK = 24;
-// ---------- 词表治理（#61/D-069②「词表即判据」统一声明） ----------
+// ---------- 词表规则（词表即判据） ----------
 // 各 cue 表注释统一模板：本表增删改变 supports/insufficient 判定面——改表三件义务：
-//   ① 同 commit 记动机登记票面；② held-out 复跑＋52a golden parity 对照阈值不回调；
-//   ③ 禁参照 52a 语料标签调参（D-065 禁令延伸至 cue 表属加严非修订，本行显式登记）。
-// 「改表→同 commit 复跑」义务=本仓自设加严无工业逐 commit 先例（业界=release/pre-commit 粒度），先验纪律如实标。
+//   ① 同 commit 记录修改动机；② 评测集与基准对照阈值不回调；
+//   ③ 严禁对照评测语料标签来凑参数。
+// 规则变动须在提交中如实记录。
 /** pre-negation cue 表（EN，词边界匹配；n't 特例只查右界）；词表即判据——本表增删改变 supports/insufficient 判定面 */
 const EN_PRE_NEG_CUES = [
     'not', 'no', 'never', "n't", 'cannot', 'do not', 'does not', 'did not',
@@ -97,7 +97,7 @@ const CJK_PSEUDO_NEG = [
 ];
 /** non-asserted context cue 表（CJK——假想/示例语境标记：非否定，但该处提及非断言式主张；
     与否定 cue 同走剥离窗（fail-safe），flag kind 单列 'non-asserted' 名实对齐。
-    #61/D-069① 同构补表（ConText hypothetical 独立 trigger 表先例——假想语境表=否定表对称兄弟）：
+    假想语境表与否定表对称并列：
     词表即判据——本表增删改变 supports/insufficient 判定面（改表三件义务见 EN_PRE_NEG_CUES 表头）；
     ≥2 字词形禁单字（子串误吞灾难）；「严格来说」不收（限定语非假想语境）；
     种子表一次先验声明，禁后续参照标签渐进调参 */
@@ -158,7 +158,7 @@ function isClauseLike(s) {
     const cjkCount = (s.match(/[一-鿿]/g) || []).length;
     return words.length >= 3 || (words.length >= 2 && s.trim().length >= 12) || /[，。；：？！!?]/.test(s) || cjkCount >= 6;
 }
-/** EN cue 词边界扫描（n't 特例：左界必为词字符故只查右界）——#61 r18④ 签名对称化：offset 内联与 substrCuesIn 同形 */
+/** EN cue 词边界扫描（n't 特例：左界必为词字符故只查右界） */
 function enCuesIn(text, cues, offset) {
     const lower = text.toLowerCase();
     const out = [];
@@ -311,8 +311,8 @@ function negationHits(maskedText, start, end, pseudoSpans, ctxPseudoSpans) {
     const cjkPre = substrCuesIn(preWin, CJK_PRE_NEG_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-neg' }; });
     const enPost = enCuesIn(postWin, EN_POST_NEG_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-neg' }; });
     const cjkPost = substrCuesIn(postWin, CJK_POST_NEG_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-neg' }; });
-    // #61/D-069① non-assert 语境窗接线（EN_NON_ASSERT_CUES 此前声明未接——本票接通；CJK 同构补表）：
-    //   剥离窗口与否定 cue 同参数；flag kind=pre-ctx/post-ctx → 既有映射产 non-asserted（零改动）；
+    // non-assert 语境窗接线：
+    //   剥离窗口与否定 cue 同参数；flag kind=pre-ctx/post-ctx → 既有映射产 non-asserted；
     //   伪表豁免各归各面（ctx 命中查 ctxPseudo，neg 命中查 pseudoSpans）；赋值豁免架构复用
     const enPreCtx = enCuesIn(preWin, EN_NON_ASSERT_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-ctx' }; });
     const cjkPreCtx = substrCuesIn(preWin, CJK_NON_ASSERT_PRE_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-ctx' }; });
@@ -341,7 +341,7 @@ function pseudoSpansOf(maskedText) {
     const cjk = substrCuesIn(maskedText, CJK_PSEUDO_NEG, 0).map(function (s) { return { start: s.start, end: s.end, kind: 'pseudo' }; });
     return en.concat(cjk);
 }
-/** #61 r18④ memo：stripContexts/pseudoSpansOf/ctxPseudo 为 evidence.excerpt 纯函数——按对象 WeakMap 缓存（多 claim 共享同 evidence 时免重算，GC 安全，输出等价） */
+/** 纯函数缓存：stripContexts/pseudoSpansOf/ctxPseudo 为 evidence.excerpt 纯函数——按对象 WeakMap 缓存（多 claim 共享同 evidence 时免重算，输出等价） */
 const stripMemo = new WeakMap();
 export function checkCitationSupport(claim, evidence) {
     const flags = [];

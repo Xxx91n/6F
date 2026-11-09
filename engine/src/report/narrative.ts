@@ -1,10 +1,10 @@
-// report/narrative.ts — 叙事双轨 kernel 面（D-053 / A-057；band 归 C 层人裁的红线）
-// 职责边界（D-058）：叙事生成归宿主 agent（概率面，模型驱动）；kernel 只做确定性盖章——
-//   ① sealNarrative：逐 claim 走 checkAllCitations（grounded / 未引证＋失败明细 token↔evidence）；
-//   ② band 红线机检：叙事段不得携带裁决 band（S1-S5 band 判定渗入叙事即违规——首报验收 C 层人裁 / D-026）；
-//   ③ renderTemplateNarrative：kernel 模板叙事=degraded 兜底位（复用 UNVERIFIED_MARK，永不得冒充正式叙事）；
-//   ④ model id 可溯：host-agent 叙事必记 model_id（D-053⑤，CodeLore stamp 同款纪律）。
-// 纯逻辑约束同 generate.ts：输入一律注入、无 fs/子进程/网络/LLM。
+// report/narrative.ts — 叙事双轨的内核逻辑面（叙事不能带判定结果）
+// 职责边界：叙事由宿主 agent 来写（模型生成）；内核只做确定性的盖章——
+//   ① sealNarrative：逐条检查引文（是否落地、有没有证据以及对应的词句）；
+//   ② 判定结果红线机检：叙事段落里绝对不能带判定档位（比如 S1-S5 判定渗入叙事就违规）；
+//   ③ renderTemplateNarrative：内核模板叙事作为降级兜底（带上未验证标记，不能冒充正式叙事）；
+//   ④ 记录模型标识：宿主 agent 写的叙事必须记录 model_id。
+// 纯逻辑约束同 generate.ts：输入一律注入，不读文件系统、不起子进程、不发网络请求、不接大模型。
 
 import { checkAllCitations, UNVERIFIED_MARK } from './citation.js';
 import type { CitationCheck, EvidenceItem } from './citation.js';
@@ -12,8 +12,8 @@ import type { Report } from './generate.js';
 
 export const NARRATIVE_SEAL_PROTOCOL = 'ADR-0013-C/v1+narrative-seal/v1';
 
-// 叙事内单条断言：claim_id 自命名（建议 NC-n），evidence_id 必指 C3 证据锚，
-// required_tokens = 支撑锚词（与 checkCitationSupport 同一契约面）。
+// 叙事内单条断言：claim_id 自命名（建议 NC-n），evidence_id 必须指向 C3 证据锚点，
+// required_tokens = 支撑锚词（和 checkCitationSupport 保持一致）。
 export interface NarrativeClaim {
   claim_id: string;
   evidence_id: string;
@@ -51,11 +51,11 @@ export interface SealedNarrative {
   seal: NarrativeSeal;
 }
 
-// ---- band 红线机检（D-053 红线：叙事段只带 citation 盖章、不得携带裁决 band）----
-// 命中即违规：维度 band 赋值（S1-S5 后接判定符）、裁决字段名（verdict/band/verdict_gate/overall_verdict）、
-// band 赋值句式、中文裁定句式。只扫叙事面，不影响裁决块本体。
-// 从严本意声明（C2 裁定项）：verdict-field-en 裸词 \bverdict\b 命中即拒是刻意从严——
-// 叙事段提及裁决字段名本身就是红线信号（叙事事前探口风/事后复述 band 均属违规形态），不放行。
+// ---- 判定结果红线机检：叙事段只带引文盖章，不能带判定档位 ----
+// 命中即违规：维度判定赋值（S1-S5 后接判定符）、判定字段名（verdict/band/verdict_gate/overall_verdict）、
+// 判定赋值句式、中文裁定句式。只扫描叙事内容，不影响裁决块本身。
+// 这里的意图：verdict-field-en 裸词 \bverdict\b 命中即拦是刻意从严——
+// 叙事段里提到判定字段名本身就是越界信号（叙事事前探口风或事后复述判定都是违规），不予放行。
 const BAND_PATTERNS: readonly { name: string; re: RegExp }[] = [
   { name: 'dimension-band-assignment', re: new RegExp('\\bS[1-5]\\s*[:=：＝]') },
   { name: 'verdict-field-en', re: new RegExp('\\b(verdict|verdict_gate|overall_verdict|verdict_band)\\b', 'i') },
@@ -74,8 +74,8 @@ export function scanBandViolations(text: string): string[] {
   return out;
 }
 
-// ---- 盖章链路（D-053③）：宿主 agent 叙事段 → kernel sealNarrative → 入报告 ----
-// 返回 SealedNarrative：stamp 三态 + 每 claim 明细（哪个 token↔哪条 evidence，CiteGuard Auditable 原则）。
+// ---- 盖章流程：宿主 agent 叙事段 → 内核 sealNarrative → 写入报告 ----
+// 返回 SealedNarrative：三种盖章状态 + 每条 claim 的检查明细（哪个 token 对应哪条证据）。
 export function sealNarrative(section: NarrativeSection, evidence: readonly EvidenceItem[], sealedAt: string): SealedNarrative {
   const checks = checkAllCitations(
     section.claims.map(function (c) { return { claim_id: c.claim_id, evidence_id: c.evidence_id, required_tokens: c.required_tokens }; }),
@@ -108,15 +108,15 @@ export function sealNarrativeSections(sections: readonly NarrativeSection[], evi
   return sections.map(function (s) { return sealNarrative(s, evidence, sealedAt); });
 }
 
-// ---- kernel 模板叙事兜底（D-053① degraded 位）----
-// 永居 degraded：只在 degraded 报告位可达；文本不做任何超出裁决块的断言，band 值一律指回 C2 裁决块。
+// ---- 内核模板叙事兜底 ----
+// 专用于降级场景：只在降级报告中生效；内容不做超出裁决块的断言，判定结果一律指回 C2 裁决块。
 export function renderTemplateNarrative(r: Pick<Report, 'quadrants' | 'degraded_reason'>): NarrativeSection {
   const quads = r.quadrants.map(function (q) { return q.quadrant; }).join('·');
   const text = [
-    '本段为 kernel 模板叙事（degraded 兜底位 ' + UNVERIFIED_MARK + '）：',
-    '四象限覆盖 ' + quads + '，逐维裁定见 C2 结构化裁决块（本段不重复断言任何判定）；',
+    '本段为内核模板叙事（降级兜底 ' + UNVERIFIED_MARK + '）：',
+    '四象限覆盖 ' + quads + '，各维度判定见 C2 结构化裁决块（本段不重复断言任何判定）；',
     '证据与引文支持关系见 C3；降级原因：' + (r.degraded_reason ? r.degraded_reason : '未声明') + '。',
-    '正式叙事归宿主 agent 经 MCP facts 只读投影取数后生成——模板叙事不替代之。'
+    '正式叙事由宿主 agent 通过事实表只读投影取数后生成，模板叙事不替代正式叙事。'
   ].join('');
   return {
     section_id: 'kernel-template-fallback',
