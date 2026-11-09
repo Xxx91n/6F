@@ -6,7 +6,7 @@
 
 ## 1. 依据
 
-- **主依据**：reports/R49-Q3-atomcode-research.md（证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/reports/R49-Q3-atomcode-research.md；atomcode 深调研——benchmark deprecation 三阶段框架＋计量学 ILAC-G24/NCSLI RP-1/NIST GMP 11 重校准双触发制＋BNC/PMC 语料库快照语义＋in-toto/SLSA chain-of-custody 双轨）。
+- **主依据**：reports/R49-Q3-atomcode-research.md（证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/reports/R49-Q3-atomcode-research.md；atomcode 深调研——benchmark deprecation 三阶段框架＋计量学 ILAC-G24/NCSLI RP-1/NIST GMP 11 重校对双触发制＋BNC/PMC 语料库快照语义＋in-toto/SLSA chain-of-custody 双轨）。
 - **决定锚**：decision-ledger.md **D-182**（R49-Q3 冻结包代表性衰减送审，2026-09-30 采纳）。
 - **缺口条目**：docs/known-gaps.md `GAP-REP-01`（reason_code=upstream_representativeness_decay）。
 - **实测证据**：01-extract.mjs extractIntent 谓词复测上游 anysearch-cli intent=1（readme:h1）vs frozen 锚=8；原因是上游 commit `bbb3ba73`（r69-t2 README 登录页信息架构重构——定位 bullets 段被删）；和 c6fe0f8 的变差读数同一个签名；「这个变差没有认领票」。
@@ -15,8 +15,8 @@
 ## 2. 为什么接受
 
 - **没有使用方**：现在没有 Macro-C/Macro-A 消费 anysearch-cli 上游代表性校对的需求——没有测量对象，重新校对就是纯走流程（D-182⑤ 明确驳回「立刻重新校对」的理由相同）。
-- **计量学先例**：ILAC-G24 / NCSLI RP-1 / NIST GMP 11 都只认两条合法重校准触发（周期制 owner 设定 / event-driven in-service）——**没有第三种「参照物一变就自动重测」**；到期日由仪器主人定。
-- **仓内同类**：参照仓两条 ADR 的 D5 重校准锚=被测面变了，不是参照物变了。
+- **计量学先例**：ILAC-G24 / NCSLI RP-1 / NIST GMP 11 都只认两条合法重校对触发（周期制 owner 设定 / event-driven in-service）——**没有第三种「参照物一变就自动重测」**；到期日由仪器主人定。
+- **仓内同类**：参照仓两条 ADR 的 D5 重校对锚=被测面变了，不是参照物变了。
 - **冻结件不能动**：01 系五件=历史证据冻结类（D-171/D-172①），字节零动；代表性衰减=只处理说明，不动工件。
 
 ## 3. 能检查的补偿控制
@@ -34,7 +34,7 @@
 ## 5. 到期日和复查钩
 
 - **到期形态**：wontfix 恒久类事件制双条件（D-171）——接受=事实判据（as-of 快照语义）不依赖存续控制物来消解缺口本身。
-- **事件复查钩（消费触发锚）**：下次真的需要消费上游代表性校对时（Macro-C/Macro-A 消费 anysearch-cli 锚场景票）→**另立决定**做新校准包 v2（新建，不是 frozen 突变，走 D-177 事前声明工序）。
+- **事件复查钩（消费触发锚）**：下次真的需要消费上游代表性校对时（Macro-C/Macro-A 消费 anysearch-cli 锚场景票）→**另立决定**做新校对包 v2（新建，不是 frozen 突变，走 D-177 事前声明工序）。
 - **低频盘查钩**：T3 普查节奏（每审计窗随读——册项 status 重审＋「这个变差没有认领票」标注复核）。
 - **双条件满足就复查**：消费触发先到→立刻另立决定；否则按审计窗节奏盘查维持。**任一条件触发却没复查=档案失效**，要按五要素重新立项（D-169-b④）。
 

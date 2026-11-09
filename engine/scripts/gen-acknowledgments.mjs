@@ -25,8 +25,8 @@ const TEMPLATES = {
   'codelore': {
     name: 'CodeLore',
     url: 'https://github.com/emrecdr/codelore',
-    en: 'code archaeology and evidence-layer external CLI (read-only explain/summary probes)',
-    zh: '代码考古与证据层外部 CLI（explain/summary 只读探针）',
+    en: 'code archaeology and evidence-layer external CLI (read-only explain/summary checks)',
+    zh: '代码考古与证据层外部 CLI（explain/summary 只读检查）',
   },
   'duckdb-node-api': {
     name: 'DuckDB Node API',
@@ -94,7 +94,7 @@ function activeIds() {
 }
 
 function renderBlock(lang) {
-  const head = lang === 'zh' ? '## 致谢 {#acknowledgments}' : '## Acknowledgments';
+  const head = lang === 'zh' ? '## 致谢 {#acknowledgments}' : '## Acknowledgments {#acknowledgments}';
   const intro = lang === 'zh'
     ? '6F 建立在这些上游组件之上——就是 [engine/upstream-lock.yaml](engine/upstream-lock.yaml) 里状态为 active 的那组：'
     : '6F builds on these upstream components — the `active` set in [engine/upstream-lock.yaml](engine/upstream-lock.yaml):';

@@ -152,7 +152,7 @@ node dist/cli.js audit file <repo> <file> --db <facts.duckdb> [--at <sha>]
 
 6F 建立在这些上游组件之上——就是 [engine/upstream-lock.yaml](engine/upstream-lock.yaml) 里状态为 active 的那组：
 
-- **[CodeLore](https://github.com/emrecdr/codelore)** — 代码考古与证据层外部 CLI（explain/summary 只读探针）
+- **[CodeLore](https://github.com/emrecdr/codelore)** — 代码考古与证据层外部 CLI（explain/summary 只读检查）
 - **[DuckDB Node API](https://github.com/duckdb/duckdb-node)** — 各档审计写入事实表用的 DuckDB 底座（@duckdb/node-api）
 - **[DuckDB Node bindings](https://github.com/duckdb/duckdb-node)** — 事实表运行所依赖的平台原生 DuckDB 二进制（@duckdb/node-bindings-*）
 - **[git](https://github.com/git/git)** — 确定性的仓库历史挖掘与证据采集（宿主环境自带外部 CLI）

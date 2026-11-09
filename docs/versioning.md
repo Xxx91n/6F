@@ -6,13 +6,13 @@
 
 - 0.x 只往上涨，号不复用；minor 是契约变更，patch 是修复；**旧版本线不回头补 patch**。
 - 每个 preview 里程碑对应一个 tag（首个 preview tag = 0.1.0 候选，#41 窗口）。
-- **1.0 的退出条件（写死，不看日历）**：报告 schema 冻结，并且接上的每个上游适配器都通过确定性验收。
+- **1.0 的退出条件（写死，不看日历）**：报告 schema 冻结，并且接上的每个上游中间层都通过确定性验收。
 
 ## 2. 报告契约（和产品版本分开）
 
 - `report_schema` 用自己的版本号，minor 只往后兼容。
 - 报告头固定字段：`stability: "preview"` ＋ `capabilities: [...]` ＋ 出处锚含锁定表快照 hash ＋ `superseded_by` 归档互链（旧报告不作废，只换戳，按 Dual Reporting）。
-- 披露块（synthetic fixture / ⚠ 数据未接 / capability N of 5）和本节字段是**同一个契约面**——报告 schema 票和 #45 各写一处引用，不要两处手抄。
+- 说明块（synthetic fixture / ⚠ 数据未接 / capability N of 5）和本节字段是**同一个契约面**——报告 schema 票和 #45 各写一处引用，不要两处手抄。
 
 ## 3. 上游锁定表（`engine/upstream-lock.yaml`）
 
@@ -20,8 +20,8 @@
 - 字段：`id / kind / version / pin_type(exact-version|commit-sha|digest|api-version) / contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review`（`api-version` 是 #47/D-048 为 remote-api 行加的：远端 API 按 X-GitHub-Api-Version 头固定，不是制品版本）。
 - 复审留痕字段（#43 引入，**不是**九字段契约面，值是一行说明）：`review_evidence`=这次实际跑过的复核命令和读数（刷新 `last_reviewed`/`next_review` 的凭据，没有它就不能刷新）；`review_deferred`=复审缓办标记＋原因＋重核触发（该行两个日期保留原值不刷新，仍由 `44-check` C5 提醒并点名）。`review_deferred`（复审缓办）≠ registry 的 `deferred-faces`（没采集的面还没归位）——同一个词、不同地方，引用时写清字段名。
 - **锁定表先于依赖存在**——planned 只登记目标契约，不许没固定版本就接入；retired 行不删（旧报告还要靠它回头查）；`^`/`>=`/浮动 tag 全禁。
-- 种子行（#44 写入，状态以 `engine/upstream-lock.yaml` 现行为准）：codelore=active（exact-version＋`--version` 固定契约）／scorecard=planned、repomix=retired（D-056，重开触发器登记在 registry）／sqlite-dump=evaluating（风险说明）；github-rest=active（remote-api kind，#47/D-048——种子行写入时是 planned，适配器落地就翻，`47-check E1` 检查）。
-- **基准语料另立一册（#33／ADR-0026）**：被审计同级仓的冻结快照**不属于本表**——唯一权威是 `engine/baseline-lock.yaml`（字段 `id / kind / version / pin_type / status / contract / adapter / materialization / bundle / bundle_bytes / bundle_sha256 / last_reviewed / next_review`；另加复审留痕字段 `review_evidence`，规则同本节第 3 条；`status` 只有 active|retired；三个固定值 version＋bundle_sha256＋bundle_bytes 必须在同一个窗口更新，`85-check` A10~A13 检查；复审节奏同 §4）。该表**不随 tgz 走**（用它的是仓内检查脚本，语料 bundle 在测试夹具里，不进包）。理由：本表的 status 枚举和 README 致谢面的闭账是「产品上游」的意思，基准语料是「被审计的基准仓」，旧表用 `status: planned` 装已经生效的固定值，是枚举位的将就（#32）。
+- 种子行（#44 写入，状态以 `engine/upstream-lock.yaml` 现行为准）：codelore=active（exact-version＋`--version` 固定契约）／scorecard=planned、repomix=retired（D-056，重开触发器登记在 registry）／sqlite-dump=evaluating（风险说明）；github-rest=active（remote-api kind，#47/D-048——种子行写入时是 planned，中间层落地就翻，`47-check E1` 检查）。
+- **基准语料另立一册（#33／ADR-0026）**：被审计同级仓的冻结快照**不属于本表**——唯一来源是 `engine/baseline-lock.yaml`（字段 `id / kind / version / pin_type / status / contract / adapter / materialization / bundle / bundle_bytes / bundle_sha256 / last_reviewed / next_review`；另加复审留痕字段 `review_evidence`，规则同本节第 3 条；`status` 只有 active|retired；三个固定值 version＋bundle_sha256＋bundle_bytes 必须在同一个窗口更新，`85-check` A10~A13 检查；复审节奏同 §4）。该表**不随 tgz 走**（用它的是仓内检查脚本，语料 bundle 在测试夹具里，不进包）。理由：本表的 status 枚举和 README 致谢面的闭账是「产品上游」的意思，基准语料是「被审计的基准仓」，旧表用 `status: planned` 装已经生效的固定值，是枚举位的将就（#32）。
 
 ## 4. 更新节奏
 

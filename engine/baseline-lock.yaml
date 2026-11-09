@@ -1,4 +1,4 @@
-# baseline-lock.yaml — 基准语料锁定表（机读权威 / single source of truth）
+# baseline-lock.yaml — 基准语料锁定表（机器读权威 / single source of truth）
 # 制度来源：ADR-0026（基准语料自持）＋ #33 写入；与 upstream-lock.yaml（产品上游）分册——基准语料不是产品上游。
 #
 # 为什么分册（#32 根因）：upstream-lock.yaml 的 status 枚举（active/planned/evaluating/retired）与
@@ -36,7 +36,7 @@ baselines:
     version: "770d25495a67bb1e6b1c421a9b40c04259950ddf"
     pin_type: commit-sha
     status: active
-    contract: "Macro-C 差分重校准基准语料＝anysearch-cli 在 770d2549 时点的仓快照（ADR 删除提交的父提交，2026-10-22；tree 含 docs/adr/*.md 104 件，全历史 822 提交）；pin 已定版（pin_type=commit-sha，禁 range/浮动 HEAD）；语料自持=仓内 frozen bundle 全历史自足包，HEAD 指向该钉，clone 即得冻结面（无 prerequisite、零联网、零 sibling）；唯一权威=本行三元钉（version＋bundle_sha256＋bundle_bytes）；C 组消费面=head_sha/commit_count/adr_count/adr_date_resolvable/lag_judgeable_n/adr_leg_distribution/supersede_chain 七项值级全等＋chainFact fact_id 全等（engine 面 vs 38 编排层独立重算，非 golden 手抄）"
+    contract: "Macro-C 差分重校对基准语料＝anysearch-cli 在 770d2549 时点的仓快照（ADR 删除提交的父提交，2026-10-22；tree 含 docs/adr/*.md 104 件，全历史 822 提交）；pin 已定版（pin_type=commit-sha，禁 range/浮动 HEAD）；语料自持=仓内 frozen bundle 全历史自足包，HEAD 指向该钉，clone 即得冻结面（无 prerequisite、零联网、零 sibling）；唯一来源=本行三元钉（version＋bundle_sha256＋bundle_bytes）；C 组消费面=head_sha/commit_count/adr_count/adr_date_resolvable/lag_judgeable_n/adr_leg_distribution/supersede_chain 七项值级全等＋chainFact fact_id 全等（engine 面 vs 38 编排层独立重算，非 golden 手抄）"
     adapter: "engine/test/contracts/85-check.mjs C 组（baselineRow('anysearch-cli-adr-corpus')→AS_PIN_SHA→git clone <bundle>）"
     materialization: "frozen-bundle"
     bundle: "engine/test/fixtures/frozen/anysearch-cli-770d2549.bundle"

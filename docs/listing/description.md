@@ -22,9 +22,9 @@
 当前预览版的边界：
 
 - **Macro-B 单仓四象限档**（capability 1 of 5 · preview）：从 git 日志、ADR 结构、定位三类采集 → 事实表 → 用跑之前写好的事前判据做裁决 → 带回执的报告；
-- **Macro-C 历史演化档**（capability 2 of 5 · preview）：只披露单仓校准的范围和限制；
-- **Micro-A PR diff（改动档）**（capability 3 of 5 · preview）：通过托管平台接口适配器去取数据（GitHub REST），在自家名下的试点仓上用 4 个 PR 校准；适配器加固（fetchDiffArtifact/cassetteFetcher）已经放进 engine，成为正式功能——#85② 已完成（D-204③④）；
-- **Micro-B 单文件档**（capability 4 of 5 · preview）：`audit file` 文件卡；在自家名下的试点仓上做接入和校准，只给建议，不参与裁决；
+- **Macro-C 历史演化档**（capability 2 of 5 · preview）：只说明单仓校对的范围和限制；
+- **Micro-A PR diff（改动档）**（capability 3 of 5 · preview）：通过托管平台接口中间层去取数据（GitHub REST），在自家名下的试点仓上用 4 个 PR 校对；中间层加固（fetchDiffArtifact/cassetteFetcher）已经放进 engine，成为正式功能——#85② 已完成（D-204③④）；
+- **Micro-B 单文件档**（capability 4 of 5 · preview）：`audit file` 文件卡；在自家名下的试点仓上做接入和校对，只给建议，不参与裁决；
 - Macro-A **跨仓战略档** = **Not yet in preview**（路线图里的说法，不是已经能用的承诺）。
 
 设计原则：

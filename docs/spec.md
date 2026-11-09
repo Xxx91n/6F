@@ -28,13 +28,13 @@
 
 #### Decision 4.1 — S1 定位收敛语义度量方法
 - **覆盖 A-001**
-- 不锁 70% 为 hard rule；交付试点仓库清单 + 校准流程（含 embedding 选型、关键词 fallback、人工抽检）
+- 不锁 70% 为 hard rule；交付试点仓库清单 + 校对流程（含 embedding 选型、关键词 fallback、人工抽检）
 - 与 A-005 矩阵结构对齐（每行的"语义度量"单元格复用 4.5 决策的矩阵格式）
 
 #### Decision 4.2 — S2 ADR 质量事后补写判定
 - **覆盖 A-002**
 - 交付目标仓库 ADR YAML 时间戳头一致性核查清单 + 缺失头时的回退方案
-- 阈值"事后补写 > 90 天 > 20% 判失败"作为初版参数；预留跨仓校准
+- 阈值"事后补写 > 90 天 > 20% 判失败"作为初版参数；预留跨仓校对
 
 #### Decision 4.3 — S4 ADR 假设提取工具链
 - **覆盖 A-003**
@@ -48,7 +48,7 @@
 
 #### Decision 4.5 — 25 采集单元矩阵
 - **覆盖 A-005**
-- 矩阵结构 = 5 dim × 5 scale = 25 个单元，每个单元含：判据定义 / 数据源 / 阈值初版 / 跨仓校准机制
+- 矩阵结构 = 5 dim × 5 scale = 25 个单元，每个单元含：判据定义 / 数据源 / 阈值初版 / 跨仓校对机制
 - 是 4.1/4.2/4.3/4.4 的上游抽象（任何单维决策必须能填入矩阵的对应行）
 
 #### Decision 4.6 — AI-agent 对 ADR 质量冲击评估
@@ -168,7 +168,7 @@
 7. As a 技术决策者（CTO / 架构师 / 尽调人）, I want 面向非作者可读的叙事化四象限报告 + 可追溯证据引文, so that 我能在尽调/架构决策前给出可驳回的判定
 8. As a 工程团队成员（TL / 平台组 / 质量负责人）, I want CI 关卡裁决（verdict-gate）+ 低误报的行级带引文评审, so that 我能把审计嵌入 push/PR 流程而不被噪音淹没
 9. As an agent 生态开发者（Claude Code / Codex 用户）, I want 一次安装的 Agent Plugin + 稳定的 MCP 只读查询面, so that 我能在 agent 会话内直接触发仓库评审
-10. As a 自用者（本人 + 三自有仓）, I want 本地可复现的审计报告, so that 我能用真实反馈回路校准 rubric 判据
+10. As a 自用者（本人 + 三自有仓）, I want 本地可复现的审计报告, so that 我能用真实反馈回路校对 rubric 判据
 
 ### R2-01 — 目标用户四类全集（persona 段落）
 
@@ -193,8 +193,8 @@
 - **交付拉动**：plugin 分发与 MCP 接口稳定。
 
 #### Persona D — 自用（本人 + jiahao / anysearch-cli / env-manager）
-- **何时用**：手动触评时刻；作为 rubric 判据调优的校准锚。
-- **拿走什么**：本地可复现的审计报告 + rubric 校准的真实反馈回路。
+- **何时用**：手动触评时刻；作为 rubric 判据调优的校对锚。
+- **拿走什么**：本地可复现的审计报告 + rubric 校对的真实反馈回路。
 - **主要 scale**：Macro-B / Macro-C。
 - **交付拉动**：本地可复现。
 
@@ -317,7 +317,7 @@ DuckDB fact table schema v0：字段级清单含 correlation key 前置字段；
 6F 全链首跑（采集→fact→叙事→裁决→报告）：首报格式 md 主产物 + 可回头查引文 + Receipt 印记 + 引文→结论支持关系校验；C 层判据明确覆盖 agent 可消费性（结构化裁决块/可解析引文锚）；同路径覆盖一条失败路径（降级 + ⚠ unverified）。
 
 **R3-D6 缺口回流实测锚清扫**（覆盖 A-028｜计划 R3-06｜issue 24）
-用首报实测锚补 CodeScene/GitClear 定向调研与 B 层迁移有效性多仓复核；定向调研只作校准输入不阻塞首报。
+用首报实测锚补 CodeScene/GitClear 定向调研与 B 层迁移有效性多仓复核；定向调研只作校对输入不阻塞首报。
 
 **R3-D7 铺开与分发收尾**（覆盖 A-030｜计划 R3-07｜issue 25）
 分发收尾前置清单清点（BACKLOG B1/B2/B3 立票、plugin 上架条件、演示资产范围）当时逐项待拍板——B 票据已随治理工件退役；B4.1 已被单仓 + engine/ 子目录的架构决策取代不立项。
@@ -325,7 +325,7 @@ DuckDB fact table schema v0：字段级清单含 correlation key 前置字段；
 #### R3 核对（2026-09-12）
 
 - A-019 ~ A-030 共 12 条 → R3-D1:2 / R3-D2:1 / R3-D3:1 / R3-D4:4 / R3-D5:2 / R3-D6:1 / R3-D7:1 = 12 覆盖，无去向记录清单 = 空。
-## R4 — 序列化校准（2026-09-15 grill 轮 5）
+## R4 — 序列化校对（2026-09-15 grill 轮 5）
 
 > 本段为指针段：决策全文以本文件 R4 段为准（原裁定与执行计划 R4-01 ~ R4-05 已随治理工件退役，见 git 历史）。
 
@@ -333,16 +333,16 @@ DuckDB fact table schema v0：字段级清单含 correlation key 前置字段；
 14 份 ADR 人工真值表 + 逐份 delta 表模板：区分 detector 漏认（内联 Nygard 格式）vs 真实缺失；产物 = R4-02 验收 golden set + 原 TC-2 RED 记 invalid 的逐份可归属原因（Assignable Cause）。先于一切 v2 代码；纯文档零构建。
 
 ### R4-02 — 判据 v2 追加
-adr-structure detector 接线 A-002 回退链（YAML 头 → 内联 Nygard → git 首提交）；v1 留档禁改；验收 = 与 R4-01 人工真值表一致率；对冻结首报数据重跑 → 并列读数 + 勘误披露（重测次数与判定规则事先写死，禁 testing into compliance）。
+adr-structure detector 接线 A-002 回退链（YAML 头 → 内联 Nygard → git 首提交）；v1 留档禁改；验收 = 与 R4-01 人工真值表一致率；对冻结首报数据重跑 → 并列读数 + 勘误说明（重测次数与判定规则事先写死，禁 testing into compliance）。
 
 ### R4-03 — ADR 治理卫生票
 6F 真实五件套缺失清零：准入范围 = R4-01 人工读数中真实缺失分解；验收独立于 R4-02——两票互为引用、互不为完成条件。
 
-### R4-04 — 阶段 2a 冻结校准
-10 项 desk 清单（任务 2/4/8/9/10/11/12/13/14/15/16 + 任务 5 已锚行 + 任务 7 单写者域草案）；草案全部标注置信域（单写者证据禁外推多写者）；待探针占位带「满足判据 + 复审时点」两字段。
+### R4-04 — 阶段 2a 冻结校对
+10 项 desk 清单（任务 2/4/8/9/10/11/12/13/14/15/16 + 任务 5 已锚行 + 任务 7 单写者域草案）；草案全部标注置信域（单写者证据禁外推多写者）；待只读检查占位带「满足判据 + 复审时点」两字段。
 
-### R4-05 — 阶段 2b CodeLore 单上游探针
-前置 = 运行时解析策略判定（容器捆绑 vs 二进制发现）+ 读 Agent Plugins 1.0.0 plugin schema 原文（P1 预核对 baseline 顺手做）；适配器 + 锁版本 + golden 契约测试（适配器双轨制：适配层禁业务规则）；重跑 6F 首报同仓 + 同 spec 版本 diff；provenance 锚定（commit pin + spec 版本 + data fingerprint）；产物 = 数据源变化报告 + 任务 1/3 实测锚 + README 上游清单 CodeLore 行状态更新（不虚报）。
+### R4-05 — 阶段 2b CodeLore 单上游只读检查
+前置 = 运行时解析策略判定（容器捆绑 vs 二进制发现）+ 读 Agent Plugins 1.0.0 plugin schema 原文（P1 预核对 baseline 顺手做）；中间层 + 锁版本 + golden 契约测试（中间层双轨制：适配层禁业务规则）；重跑 6F 首报同仓 + 同 spec 版本 diff；provenance 锚定（commit pin + spec 版本 + data fingerprint）；产物 = 数据源变化报告 + 任务 1/3 实测锚 + README 上游清单 CodeLore 行状态更新（不虚报）。
 
 ### Implementation Decisions（R4 执行轮，来源 A-031 ~ A-036，2026-09-15）
 
@@ -352,7 +352,7 @@ adr-structure detector 接线 A-002 回退链（YAML 头 → 内联 Nygard → g
 14 份 ADR 逐份人工真值表（五件套字段读数 + Nygard 内联格式识别）+ 逐份 delta 表模板（detector 漏认 vs 真实缺失分列）；产物即 R4-02 golden set 与 TC-2 RED invalid 判定的逐份可归属原因；纯文档零构建。
 
 **R4-D2 判据 v2 追加**（覆盖 A-032｜计划 R4-02｜issue 27）
-adr-structure detector 接线 A-002 回退链；v1 代码与 v1 阈值 0.60 留档禁改；验收 = 与真值表一致率（golden set 对照）；冻结首报数据重跑 → 并列读数 + 逐份 delta 表勘误披露；重测次数与判定规则事先写死。
+adr-structure detector 接线 A-002 回退链；v1 代码与 v1 阈值 0.60 留档禁改；验收 = 与真值表一致率（golden set 对照）；冻结首报数据重跑 → 并列读数 + 逐份 delta 表勘误说明；重测次数与判定规则事先写死。
 
 **R4-D3 ADR 治理卫生**（覆盖 A-033｜计划 R4-03｜issue 28）
 6F 自身 ADR 五件套真实缺失清零（范围仅以 R4-01 真实缺失分解为准）；与 R4-D2 互为引用、互不为完成条件；补写须注明勘误性质（量测审计驱动的治理补记）。
@@ -360,11 +360,11 @@ adr-structure detector 接线 A-002 回退链；v1 代码与 v1 阈值 0.60 留�
 **R4-D4 C 层 disposition 补记**（覆盖 A-034｜任务书 T4｜issue 29）
 T1~T3 结题后按 CAPA reopen 惯例补记 disposition：architecture-recovery 记录 C 裁定节追加（不改写原文与时间戳）；勘误式双读数发布（原 RED 不撤回 + 成对动作说明）。
 
-**R4-D5 阶段 2a 冻结校准**（覆盖 A-035｜计划 R4-04｜issue 30）
-冻结首报数据上的 10 项 desk 校准；草案带置信域标注；待探针占位两字段纪律（满足判据 + 复审时点）；不改冻结数据、不接新上游。
+**R4-D5 阶段 2a 冻结校对**（覆盖 A-035｜计划 R4-04｜issue 30）
+冻结首报数据上的 10 项 desk 校对；草案带置信域标注；待只读检查占位两字段纪律（满足判据 + 复审时点）；不改冻结数据、不接新上游。
 
-**R4-D6 阶段 2b CodeLore 探针**（覆盖 A-036｜计划 R4-05｜issue 31）
-只接一个上游的一条薄路径：适配器 → fact → 重跑首报同仓 + 同 spec 版本 diff；锁版本 + golden 契约测试；provenance 锚定三件套；产物 = 数据源变化报告 + 任务 1/3 实测锚 + README 上游清单状态列更新。
+**R4-D6 阶段 2b CodeLore 只读检查**（覆盖 A-036｜计划 R4-05｜issue 31）
+只接一个上游的一条薄路径：中间层 → fact → 重跑首报同仓 + 同 spec 版本 diff；锁版本 + golden 契约测试；provenance 锚定三件套；产物 = 数据源变化报告 + 任务 1/3 实测锚 + README 上游清单状态列更新。
 
 #### R4 核对（2026-09-15）
 
@@ -399,7 +399,7 @@ explain 族 env 门控（CODELORE_LLM_*）＋成本验收面；S4 ADR 假设抽�
 env-manager / anysearch-cli / jiahao 三仓只读实测：PR 人/机比、supersede 链完整度、托管面有无；产出 层×仓 capacity 矩阵（Pilot-surface Audit 三问）。
 
 **R5-D7 Macro-C preview（第二能力层）**（覆盖 A-043｜计划 R5-07｜issue 38）
-anysearch-cli 为校准语料（56 ADR＋supersede 链）；报告强制披露「单仓校准（anysearch-cli）」结构性限制；完成定义含该层 happy+failure 演示双件（DoD 准入件）。
+anysearch-cli 为校对语料（56 ADR＋supersede 链）；报告强制说明「单仓校对（anysearch-cli）」结构性限制；完成定义含该层 happy+failure 演示双件（DoD 准入件）。
 
 **R5-D8 Macro-B 三仓 one-shot＋jiahao 回归**（覆盖 A-044｜计划 R5-08｜issue 39）
 Macro-B 对三试点仓各跑一次 one-shot 泛化验证；jiahao 持续回归接入 CI——接入即触发多写者 self-probe 实测定下来（衔接 #33）。
@@ -408,10 +408,10 @@ Macro-B 对三试点仓各跑一次 one-shot 泛化验证；jiahao 持续回归�
 ≥1 非自有公开仓经 URL opt-in（首实用户）跑通 Macro-B；Macro-B GA 前置条件。
 
 **R5-D10 分发收尾**（覆盖 A-046｜计划 R5-10｜issue 41）
-五子项：examples/first-report/ 复制四件＋披露 README／README·marketplace preview 标注＋0.x 语义＋changelog／listing 资产（未上架层「Not yet in preview」披露块）／Agent Plugins preview 字段查证＋竞品占位扫描（前置子任务）／凭据申请（已触发）。上架动作停用户关卡。
+五子项：examples/first-report/ 复制四件＋说明 README／README·marketplace preview 标注＋0.x 语义＋changelog／listing 资产（未上架层「Not yet in preview」说明块）／Agent Plugins preview 字段查证＋竞品占位扫描（前置子任务）／凭据申请（已触发）。上架动作停用户关卡。
 
 **R5-D11 上游队列定期检查**（覆盖 A-047｜计划 R5-11｜issue 42）
-Scorecard/repomix 探针按层需求拉动不插队；CodeLore sqlite/parquet dump 对照评估（采纳须另立 ADR）；Macro-B preview 供应链象限维持「⚠ 数据未接」披露。
+Scorecard/repomix 只读检查按层需求拉动不插队；CodeLore sqlite/parquet dump 对照评估（采纳须另立 ADR）；Macro-B preview 供应链象限维持「⚠ 数据未接」说明。
 
 **R5-D12 样例 golden CI**（覆盖 A-048｜计划 R5-12｜issue 43）
 CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更新走 PR 审查；禁自动重生成直通 main；与 #33 同批立项、执行在 #41 样例放进后。
@@ -430,7 +430,7 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 - desk-task15 触发器重绑 micro-a-preview-prep＋勘误留痕（分层记录：fired 记录不可变／绑定可修正）；
 - CodeLore 残余 4 面裁决清零：entity-effort→后续批次，architecture-violations/defect-validation/finding-hotspot-overlap→暂缓面集（逐项判据＋复审时点）；
 - Macro-B 回归 CI 迁回 6F 自有 CI（URL opt-in 公仓 clone，零 token），jiahao 仅留审计对象角色；
-- Micro-A preview 试点集 = {env-manager, jiahao}＋经典公开仓第三槽（挂托管 API 适配器前置）。
+- Micro-A preview 试点集 = {env-manager, jiahao}＋经典公开仓第三槽（挂托管 API 中间层前置）。
 
 ---
 
@@ -443,30 +443,30 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 
 ### R8-1 — Macro-C 产线化（capability 2 of 5 · preview）
 
-- **决策**：Macro-C 从退役脚本管线移植为 `audit --scale Macro-C` 正式入口；产线化前置 = 同族基准差分重校准（85-check C 组值级全等），未通过不进 preview。
+- **决策**：Macro-C 从退役脚本管线移植为 `audit --scale Macro-C` 正式入口；产线化前置 = 同族基准差分重校对（85-check C 组值级全等），未通过不进 preview。
 - **事实发射**：与 Micro-B 文件卡共享同一发射核（同 grain、同恒等式），不另起一套 fact 写法。
-- **校准披露**：校准语料 = anysearch-cli 单仓；单仓校准的结构性限制必须在报告披露（承 R5-D7）。
+- **校对说明**：校对语料 = anysearch-cli 单仓；单仓校对的结构性限制必须在报告说明（承 R5-D7）。
 - **基准**：基准语料自持为仓内 frozen bundle ＋ 独立 `baseline-lock`（ADR-0026）；落地由 tracker #33 / tracker #32 / tracker #34 承担——本段记录决策，不把未落地面写成已落地。
 - **来源**：commit `10252bc0`（产线化）、commit `6626d08d`（基准钉改为不可变提交）、`engine/src/audit/macro-c.ts`、`engine/CHANGELOG.md` §0.2.0、ADR-0026。
 
 ### R8-2 — Micro-A 产线化（capability 3 of 5 · preview）
 
-- **决策**：Micro-A 从 48 管线移植为 `audit --scale Micro-A` 正式入口（仓内生成器 `engine/test/contracts/48-micro-a-preview.mjs`）；产线化前置 = 同族基准差分重校准（85-check E 组：引擎面 cassette 回放 vs 48 生成器 golden，fact_id 值级等值）。
+- **决策**：Micro-A 从 48 管线移植为 `audit --scale Micro-A` 正式入口（仓内生成器 `engine/test/contracts/48-micro-a-preview.mjs`）；产线化前置 = 同族基准差分重校对（85-check E 组：引擎面 cassette 回放 vs 48 生成器 golden，fact_id 值级等值）。
 - **输入契约**：只接受 GitHub 托管仓 ref；本地路径与名册外仓结构化拒绝（`MICRO-A-INPUT` / `MICRO-A-SCOPE`，exit 2），不悄悄降级。
-- **试点校准**：同主双仓 env-manager + jiahao 的 4 条 merged PR 钉（release-please / 声明式 bot / human 三种形态）；PR 粒度不产生 commit grain；数据面主路 = 托管 API 适配器（GitHub REST＋凭据三级探测，无认证明确降级；架构见 ADR-0020）。
+- **试点校对**：同主双仓 env-manager + jiahao 的 4 条 merged PR 钉（release-please / 声明式 bot / human 三种形态）；PR 粒度不产生 commit grain；数据面主路 = 托管 API 中间层（GitHub REST＋凭据三级探测，无认证明确降级；架构见 ADR-0020）。
 - **来源**：commits `29c31fba`（产线化）、`2066d412`（preview 翻转）、`engine/src/audit/micro-a.ts`、`engine/CHANGELOG.md` §0.2.0、ADR-0020。
 
 ### R8-3 — Micro-B 文件卡（capability 4 of 5 · preview）
 
 - **决策**：Micro-B 的 preview 形态 = 文件级审计卡（file-audit card，只读投影），不是 verdict 面：卡面明确 `advisory: true`，无 verdict / gate-consumable 字段；advisory 卡永不进入 gate。
-- **试点与披露**：试点集 = 同主双仓 jiahao + env-manager；同主偏差与 advisory-only 结构性隔离必须在矩阵与报告披露。
-- **入口**：`audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]`（lazy 补采唯一写入口，MCP 面永不写）；`audit --scale Micro-B` 不实装，返回结构化 `SCALE-NOT-IMPLEMENTED` + exit 2。卡契约（三层卡、miss 四类、血缘缝合规约）见 ADR-0023，本段不复制。
-- **来源**：commits `652ebc9d`（文件卡投影）、`81a3ef87`（血缘缝合＋preview 翻转）、`engine/src/fact/file-card.ts`、`engine/src/audit/file-card.ts`、`engine/CHANGELOG.md` §0.2.0、ADR-0023。
+- **试点与说明**：试点集 = 同主双仓 jiahao + env-manager；同主偏差与 advisory-only 结构性隔离必须在矩阵与报告说明。
+- **入口**：`audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]`（lazy 补采唯一写入口，MCP 面永不写）；`audit --scale Micro-B` 不实装，返回结构化 `SCALE-NOT-IMPLEMENTED` + exit 2。卡契约（三层卡、miss 四类、文件改名记录缝合规约）见 ADR-0023，本段不复制。
+- **来源**：commits `652ebc9d`（文件卡投影）、`81a3ef87`（文件改名记录缝合＋preview 翻转）、`engine/src/fact/file-card.ts`、`engine/src/audit/file-card.ts`、`engine/CHANGELOG.md` §0.2.0、ADR-0023。
 
 ### R8-4 — 能力矩阵状态（五层全计划，逐层 preview→GA）
 
 - **决策**：五档是完整计划，不是砍出来的第一版；build-scope ≠ release-sequence，每层独立走 preview→GA 漏斗（ADR-0017）。报告 `preview_disclosure` 与能力矩阵同语义源；矩阵是发布状态给人看的展示面。
-- **状态快照（0.2.0 发布面）**：Macro-B = `capability 1 of 5 · preview`（象限部分：strategy active／behavior preview／structure preview／supply-chain queued）；Macro-C = 2 of 5 preview（单仓校准披露）；Micro-A = 3 of 5 preview；Micro-B = 4 of 5 preview（advisory-only）；Macro-A = Not yet in preview（roadmap 叙事，不是可用承诺）。当前值以矩阵为准，本段记录分层决策。
+- **状态快照（0.2.0 发布面）**：Macro-B = `capability 1 of 5 · preview`（象限部分：strategy active／behavior preview／structure preview／supply-chain queued）；Macro-C = 2 of 5 preview（单仓校对说明）；Micro-A = 3 of 5 preview；Micro-B = 4 of 5 preview（advisory-only）；Macro-A = Not yet in preview（roadmap 叙事，不是可用承诺）。当前值以矩阵为准，本段记录分层决策。
 - **命令面**：已上架 `--scale` = Macro-B / Macro-C / Micro-A；未实装层不假装（`SCALE-NOT-IMPLEMENTED` + exit 2）。Micro-B 走文件卡入口（R8-3），不是第四种 `--scale`。
 - **层序**：扩面 → Macro-C → Micro-A → Micro-B → Macro-A 的 preview 推进顺序不变（承 R5 阶段 3 结构）。
 - **来源**：`README.md` / `README.zh-CN.md` §Capability matrix、`engine/src/audit/audit.ts`（`AUDIT_SCALES_IMPLEMENTED`）、commits `2066d412` / `81a3ef87`、ADR-0017、GLOSSARY（Release Preview / Generalization Gate）。
@@ -478,9 +478,9 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 - **同步面**：`engines.node`、CI 矩阵、版本号（package / manifest / 双 plugin.json / README 徽章）、README×2、engine/README、SKILL.md 的 Prerequisites 必须同源一致。落地票 = tracker #36（Node 面）＋ tracker #45（版本与文本）；本段只记决策，落地前 HEAD 上仍可见旧版本号与 ≥20 属待清偿文本，不是第二规则。
 - **来源**：ADR-0027、父票 tracker #38（Node 支持面 / 版本 0.3.0）、`docs/versioning.md` §1、ADR-0018。
 
-### R8-6 — preview 披露规则
+### R8-6 — preview 说明规则
 
-- **决策**：preview 标注是决策本体，不是装饰。报告头/侧车必须携带 `preview_disclosure` 四字段：`capability_label` / `calibration_scope` / `structural_limitations` / `not_in_preview`；报告头另带 `stability: preview` + `capabilities: [...]`。披露块与能力矩阵同语义源，禁止两处手抄（`docs/versioning.md` §2）。
+- **决策**：preview 标注是决策本体，不是装饰。报告头/侧车必须携带 `preview_disclosure` 四字段：`capability_label` / `calibration_scope` / `structural_limitations` / `not_in_preview`；报告头另带 `stability: preview` + `capabilities: [...]`。说明块与能力矩阵同语义源，禁止两处手抄（`docs/versioning.md` §2）。
 - **三印记**：降级产出 `⚠ unverified`；未接证据域「⚠ 数据未接」；合成 fixture `synthetic`。三者不得互相冒充，也不得冒充真实审计。
 - **未上架层**：分发面统一标 "Not yet in preview"；锁表 `planned` 行不得被读成已接入。
 - **来源**：`engine/src/report/generate.ts`（`PreviewDisclosure` / `stability` / `capabilities`）、`engine/src/audit/audit.ts`、README §Capability matrix + §Honesty notes、`docs/versioning.md` §2、ADR-0017、GLOSSARY（Release Preview / Demo Fixture）。
@@ -494,7 +494,7 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 | Micro-B 文件卡 | R8-3 |
 | 能力矩阵状态 | R8-4 |
 | 0.2.0 → 0.3.0 支持面变化 | R8-5 |
-| preview 披露规则 | R8-6 |
+| preview 说明规则 | R8-6 |
 
 - 核对：6/6 覆盖，无去向记录清单 = 空；来源指针见各 R8-n 的「来源」行。
 - 边界：架构正文只在 `docs/adr/`，本段不复制；本段不新增 D-code / ADR 编号；产品级决策不迁往 README、ADR 或归档。

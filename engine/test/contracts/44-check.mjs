@@ -101,8 +101,8 @@ t('A9 planned/evaluating 行 contract 含接入前定 pin 注记（锁定先于�
 t('A10 codelore-sqlite-dump 行 risk_note 在位（D-037③ 风险注记）',
   byId['codelore-sqlite-dump'] && typeof byId['codelore-sqlite-dump'].risk_note === 'string' && byId['codelore-sqlite-dump'].risk_note.length > 0);
 const lockText = existsSync(LOCK) ? txt(LOCK) : '';
-t('A11 表头纪律注记齐备（唯一机读权威/先于依赖存在/retired 不删/禁 range 浮动/手动窗口+golden 回归）',
-  lockText.indexOf('唯一机读权威') >= 0 && lockText.indexOf('先于依赖存在') >= 0 && lockText.indexOf('retired 行不删') >= 0 && lockText.indexOf('禁 range') >= 0 && lockText.indexOf('手动窗口') >= 0 && lockText.indexOf('golden 回归') >= 0);
+t('A11 表头纪律注记齐备（唯一机器读来源/先于依赖存在/retired 不删/禁 range 浮动/手动窗口+golden 回归）',
+  lockText.indexOf('唯一机器读来源') >= 0 && lockText.indexOf('先于依赖存在') >= 0 && lockText.indexOf('retired 行不删') >= 0 && lockText.indexOf('禁 range') >= 0 && lockText.indexOf('手动窗口') >= 0 && lockText.indexOf('golden 回归') >= 0);
 const pkg = JSON.parse(txt(join(ENG, 'package.json')));
 t('A12 duckdb-node-api 锁值 == package.json dependencies 精确值（锁表↔package 同源）', byId['duckdb-node-api'] && byId['duckdb-node-api'].version === pkg.dependencies['@duckdb/node-api'], 'lock=' + (byId['duckdb-node-api'] && byId['duckdb-node-api'].version) + ' pkg=' + pkg.dependencies['@duckdb/node-api']);
 t('A13 upstream-lock.yaml 入 package.json files（provenance 锚随 tgz，D-037②）', pkg.files.indexOf('upstream-lock.yaml') >= 0);

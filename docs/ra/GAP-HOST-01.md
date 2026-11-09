@@ -26,7 +26,7 @@
 
 ## 3. 能检查的补偿控制
 
-- **CLI 三条判据 verified**：C1 安装链（marketplace add→install→/mcp connected→selftest 5/5）／C2 字段级 parity（语义锚全等）／C3 preview 披露零失守——证据=trials/codebuddy-r38-report.md（证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/trials/codebuddy-r38-report.md）。
+- **CLI 三条判据 verified**：C1 安装链（marketplace add→install→/mcp connected→selftest 5/5）／C2 字段级 parity（语义锚全等）／C3 preview 说明零失守——证据=trials/codebuddy-r38-report.md（证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/trials/codebuddy-r38-report.md）。
 - **两个 registry 标记在册**：`codebuddy-ide-gap-watch`（IDE 形态能跑→按 charter 三条判据重跑，读数标 IDE-specific）＋`codebuddy-f02-display-watch`（宿主展示盲区观察，宿主版本一变就触发）。
 - **Stage-2 关卡不绕**：结案后判据③读数照实写「已接受风险五要素齐全关闭」，不写「IDE verified」——对外说法是三项绿＋两项明确阻塞/风险档案（D-168⑥）。
 

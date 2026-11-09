@@ -21,10 +21,10 @@
 - npm run check:docs   # 文档断言（生成物对不对得上、指针齐不齐，细节看脚本本体）
 
 ## 命令行有哪些命令
-- `macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine]` —— 主审计命令（#53/D-060）：对真实仓库做审计。流程是先用 repoAdd 判断输入（本地路径默认可用 / owner-repo 先找本地 / URL 要明确同意），再走共享管线（`src/audit/macro-b.ts` 的策略部分 + codelore 的行为部分，和 demo 用同一套；`src/audit/macro-c.ts` 是 Macro-C 历史演化部分——#84/D-204②④，移植 38 管线，再用 anysearch-cli 的原始语料重新校准并核对；`src/audit/micro-a.ts` 是 Micro-A PR 部分——#85②/D-204③④，移植 48 管线），最后产出按报告模板生成的报告和 facts.duckdb。
+- `macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine]` —— 主审计命令（#53/D-060）：对真实仓库做审计。流程是先用 repoAdd 判断输入（本地路径默认可用 / owner-repo 先找本地 / URL 要明确同意），再走共享管线（`src/audit/macro-b.ts` 的策略部分 + codelore 的行为部分，和 demo 用同一套；`src/audit/macro-c.ts` 是 Macro-C 历史演化部分——#84/D-204②④，移植 38 管线，再用 anysearch-cli 的原始语料重新校对并核对；`src/audit/micro-a.ts` 是 Micro-A PR 部分——#85②/D-204③④，移植 48 管线），最后产出按报告模板生成的报告和 facts.duckdb。
   - `--scale` 默认 `Macro-B`（已经能跑的是 `Macro-B` · `Macro-C` · `Micro-A`——`src/audit/audit.ts` 的 `AUDIT_SCALES_IMPLEMENTED`）；没做的档位不假装——返回结构化的 `SCALE-NOT-IMPLEMENTED`，并以 exit 2 退出。
   - 不写 `--out`：报告 md 走 stdout；写 `--json` 改走 sidecar JSON；写 `--out <dir>` 时两份都写（`report.md`/`report.json`/`audit-facts.jsonl`/`audit-measurements.json`/`facts.duckdb`），跑完会在 stdout 打印回执 JSON。
-  - `--refresh`：要刷新收仓 URL 缓存时明确打开（#55/D-059⑦；不会自动 pull）；快照时点和缓存命中情况写进 measurements.intake 和报告的预览披露块。
+  - `--refresh`：要刷新收仓 URL 缓存时明确打开（#55/D-059⑦；不会自动 pull）；快照时点和缓存命中情况写进 measurements.intake 和报告的预览说明块。
   - `--strict-quarantine` / `--no-strict-quarantine`：Quarantine 严格档的开关（D-110④ 优先顺序：命令行开关 > 环境变量 > 配置文件；环境变量是 `MACRO_AUDIT_STRICT_QUARANTINE`）。
 - `macro-audit audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]` —— Micro-B 文件卡（#80/D-122·D-126）：文件卡按需补采，这是唯一的写入入口（MCP 这边永远不写）；`--db` 必填——它指定观测集存在哪里，文件不存在就新建一个只往后加的库。
 - `macro-audit repo add <path|owner/repo|url> [--cache <dir>] [--refresh]` —— 判断 repo 输入（本地路径 | owner/repo 先找本地 | URL 要明确同意并单独隔离 clone；远程配置执行一律 disabled、拒绝浅克隆、hooks 设为 noop、protocol.ext.allow=never）。

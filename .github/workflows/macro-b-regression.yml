@@ -114,8 +114,8 @@ jobs:
           mkdir -p .clone-noop-hooks
           # #113 返修（PR #127 审查）：本腿**不**加 `-c core.symlinks=false`。带它会把被审计仓里的符号链接
           #   物化成「内容是目标路径文本的普通文件」——`readRepoFileSafe` 只认 lstat 事实，普通文件即放行，
-          #   于是仓外指向的链接被当作 ADR 正文解析、且**不产生** `codelore.file_subject_skip` 披露事实：
-          #   既改了 ADR 语料，又把本票要证明的「拒绝+披露」路径整段遮住。链接照实际写入，安全边界由读取单点兜。
+          #   于是仓外指向的链接被当作 ADR 正文解析、且**不产生** `codelore.file_subject_skip` 说明事实：
+          #   既改了 ADR 语料，又把本票要证明的「拒绝+说明」路径整段遮住。链接照实际写入，安全边界由读取单点兜。
           #   `core.symlinks=false` 的 defense-in-depth 作用位=url 腿的真克隆（engine/src/intake/intake.ts，
           #   其效果由 engine/test/contracts/113-check.mjs A5 静态钉住）；workflow_dispatch 的任意 https:// 输入
           #   也走那一条腿，故本腿不再挂同旗标。
