@@ -1,10 +1,10 @@
-// ---------- Repo Intake 输入面（本地默认/owner-repo 本地优先/URL opt-in / D-013） ----------
-// Design: 本地路径默认、远程 URL 显式 opt-in，clone 到隔离缓存 — ADR-0009
-// 裁决顺序：显式本地路径 → owner/repo 形态本地优先消歧（./ 前缀强制本地）→ 显式 URL（https/git@）才 clone。
-// clone 纪律：隔离缓存 <cache>/repos/<sha256(url)[:16]>/；全深度（不传 --depth/fetch-depth 0）；
-// .git 完整性校验；浅 clone 显式拒绝 SHALLOW-CLONE-REJECTED；禁远程配置执行（不递归子模块、
-// hooksPath 置 noop、ext 协议禁）；凭据复用本地 git 凭据链（不新建凭据存储）。
-// 入口纪律：repo add 仅 CLI/配置文件可达；kernel MCP 查询面保持只读（本模块不被 mcp 面导入）。
+// ---------- 仓库接入输入判定（默认用本地路径 / owner-repo 优先查本地 / 远端 URL 需明确指定 / D-013） ----------
+// 默认使用本地路径；远端 URL 必须明确指定，克隆到独立的缓存目录。
+// 判定顺序：先看是不是明确的本地路径 → 如果是 owner/repo 格式先看本地有没有（./ 开头强制当成纯本地）→ 只有明确给出的 URL（https/git@）才去克隆。
+// 克隆要求：放到专用缓存目录 <cache>/repos/<sha256(url)[:16]>/；完整历史克隆（不加 --depth，fetch-depth 设为 0）；
+// 检查 .git 是否完整；浅克隆直接拒绝并报错 SHALLOW-CLONE-REJECTED；禁止执行远端自带的钩子或脚本配置（不递归克隆子模块、
+// 把 hooksPath 指向空目录、禁止 ext 协议）；凭据复用本地 git 既有配置（不新建凭据存储）。
+// 入口控制：repo add 只对命令行和配置文件开放；核心 MCP 查询通道保持只读（本模块不被 MCP 相关代码引用）。
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, statSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -14,7 +14,7 @@ const URL_SCHEMES = [
     /^https?:\/\//i,
     /^ssh:\/\//i,
     /^git:\/\//i,
-    /^file:\/\//i, // 显式 URL 形态（file:// 仅用于离线/测试等价路径，不经网络）
+    /^file:\/\//i, // 明确给出的 URL 格式（file:// 仅用于离线或测试，不走网络）
     /^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+:.+/ // git@host:owner/repo
 ];
 const OWNER_REPO_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*\/[A-Za-z0-9][A-Za-z0-9._-]*$/;
@@ -59,14 +59,15 @@ export function isGitRepo(dir, timeoutMs = 30000) {
     const r = git(['rev-parse', '--git-dir'], dir, timeoutMs);
     return !r.error && r.status === 0;
 }
-// ---- git %cI 输出形状契约（#54 / D-059①；upstream-lock.yaml git-cli 行「输出解析为契约」enforce 位） ----
-// git <2.45 对 UTC 偏移提交吐 '+00:00'，≥2.45 吐 'Z'——同一 commit object 跨版本字面漂移，
-// 击穿 traceId→fact_id→receipt→report 逐字节确定性链。处置=解析边界归一化 '+00:00'→'Z'
-// （非 UTC 偏移如 +08:00 两版一致不动）＋严格形状断言：归一化后不符即拒，不静默放行。
-// %cI 严格形状正则=quarantine.ts GIT_ISO_STRICT_RE（契约层自持，判定单源）
-// 归一化判定本体=契约层 classifyGitIsoField（字段级病态三态分流、永不 throw；D-103）。
-// 本函数为既有调用方保留的「抛型回执」：clean/normalized 返回合法值；quarantined 仍抛
-// GITCLI-OUTPUT-CONTRACT（调用方要走隔离桶时须直接消费 classifyGitIsoField）。
+// ---- git %cI 输出格式约定（#54 / D-059①；upstream-lock.yaml 中注明 git-cli 输出解析需保持统一） ----
+// git 2.45 之前的版本对 UTC 零时区提交输出 '+00:00'，2.45 及以后的版本输出 'Z'。
+// 同一个提交对象在不同 git 版本下文字写法不一致，会导致 traceId、fact_id、回执和报告的哈希值对不上。
+// 处理方式：在解析入口把 '+00:00' 统一转换为 'Z'（其他时区如 +08:00 各版本写法一致，保持原样），
+// 并且严格校验时间格式：转换后只要不符合标准就直接拒绝报错，绝不悄悄放行。
+// %cI 严格时间正则定义在 quarantine.ts 的 GIT_ISO_STRICT_RE（由规则层统一提供，保持单处定义）。
+// 格式转换逻辑由 quarantine.ts 的 classifyGitIsoField 函数实现（支持三种分类状态，遇到异常不抛出异常；D-103）。
+// 当前函数为现有调用方保留抛异常行为：clean 或 normalized 返回合法字符串；quarantined 抛出 GITCLI-OUTPUT-CONTRACT 错误
+// （如果调用方需要把异常记录进隔离区，应直接使用 classifyGitIsoField）。
 export function normalizeGitIsoDate(raw) {
     const c = classifyGitIsoField(raw);
     if (c.status === 'quarantined' || c.value === null) {
@@ -89,12 +90,12 @@ function remoteOriginUrl(dir, timeoutMs) {
 export function sha256Short(text) {
     return createHash('sha256').update(text).digest('hex').slice(0, 16);
 }
-// ---- URL 键归一（#55 / D-059⑦）：'https://…/a/b' 与 'https://…/a/b.git' 指向同一远端——
-// 缓存键对归一化形态取 sha，去尾 '.git' 与尾 '/'，防同仓双缓存槽＋provenance sha 键漂移。
+// ---- URL 缓存键规整（#55 / D-059⑦）：'https://…/a/b' 与 'https://…/a/b.git' 指向同一个远端仓库 ——
+// 缓存键计算前先对 URL 统一处理，去掉末尾的 '.git' 和 '/'，防止同一个仓库重复占用两个缓存槽，避免来源哈希对不上。
 export function normalizeRepoUrlKey(url) {
     return url.trim().replace(/\/+$/, '').replace(/\.git$/i, '');
 }
-// 缓存槽的最近 fetch 时点：优先 .git/FETCH_HEAD mtime（clone/fetch 均写），退 .git 目录 mtime，再退槽目录 mtime。
+// 获取缓存目录最近拉取时间：优先读取 .git/FETCH_HEAD 的修改时间（克隆和拉取都会写），没有则看 .git 目录时间，再没有看缓存目录本身的时间。
 function snapshotFetchedAt(dir) {
     for (const p of [join(dir, '.git', 'FETCH_HEAD'), join(dir, '.git'), dir]) {
         try {
@@ -116,12 +117,12 @@ export function cloneToIsolatedCache(url, cacheRoot, timeoutMs = 600000, refresh
             if (!refresh) {
                 return { dir: dir, cloned: false, head_sha: headSha(dir, 30000), shallow: false, snapshot_fetched_at: snapshotFetchedAt(dir), refreshed: false };
             }
-            // 显式刷新 opt-in（不自动 pull 保隔离纪律）：fetch --prune → 复位到 origin/HEAD。
+            // 手动刷新（不自动 pull，避免影响工作区独立性）：fetch --prune → 重置到 origin/HEAD。
             const noopHooksRefresh = join(cacheRoot, 'noop-hooks');
             gitOk(['-c', 'core.hooksPath=' + noopHooksRefresh, '-c', 'protocol.ext.allow=never', 'fetch', 'origin', '--prune'], dir, timeoutMs);
             let remoteHead = git(['rev-parse', '--verify', 'origin/HEAD'], dir, 30000);
             if (remoteHead.error || remoteHead.status !== 0 || !remoteHead.stdout) {
-                // 兜底：origin/HEAD symref 缺席（部分 file:// 克隆不建）→ 取 refs/remotes/origin/* 首支
+                // 保底处理：如果 origin/HEAD 软链接不存在（部分通过 file:// 克隆的仓库不会创建）→ 取 refs/remotes/origin/* 下的第一个分支
                 const refs = git(['for-each-ref', '--format=%(refname:short)', 'refs/remotes/origin'], dir, 30000);
                 const first = (!refs.error && refs.status === 0) ? refs.stdout.split('\n').map(function (s) { return s.trim(); }).filter(function (s) { return s && s !== 'origin/HEAD'; })[0] : null;
                 remoteHead = first ? git(['rev-parse', '--verify', first], dir, 30000) : remoteHead;
@@ -130,13 +131,13 @@ export function cloneToIsolatedCache(url, cacheRoot, timeoutMs = 600000, refresh
                 throw intakeError('REFRESH-REMOTE-HEAD-UNRESOLVED', 'origin/HEAD 及 refs/remotes/origin/* 均不可解析：' + dir);
             }
             gitOk(['reset', '--hard', remoteHead.stdout], dir, timeoutMs);
-            // refresh 后时点=FETCH_HEAD 新 mtime（与 clone 腿同一取证源——单源一致，缓存命中读回同值）
+            // 刷新后时间记录为 FETCH_HEAD 的新修改时间（与克隆时取自同一处，命中缓存时读出相同的值）
             return { dir: dir, cloned: false, head_sha: headSha(dir, 30000), shallow: false, snapshot_fetched_at: snapshotFetchedAt(dir) || new Date().toISOString(), refreshed: true };
         }
         throw intakeError('INTAKE-CACHE-COLLISION', 'cache slot occupied by foreign content: ' + dir);
     }
     mkdirSync(dirname(dir), { recursive: true });
-    // 禁远程配置执行：hooksPath 指向空目录（hook 不随 clone 传输，此为双保险）；ext:: 协议禁；symlinks 关闭（Windows 安全）。
+    // 禁止执行远端配置：hooksPath 指向空目录（钩子本身不会随克隆传输，这里做双重保险）；禁用 ext:: 协议；关闭符号链接（保障 Windows 下安全）。
     const noopHooks = join(cacheRoot, 'noop-hooks');
     mkdirSync(noopHooks, { recursive: true });
     const r = git([
@@ -152,11 +153,11 @@ export function cloneToIsolatedCache(url, cacheRoot, timeoutMs = 600000, refresh
     if (!isGitRepo(dir, 30000)) {
         throw intakeError('CLONE-FAILED', 'clone produced non-git dir: ' + dir);
     }
-    const head = headSha(dir, 30000); // .git 完整性：HEAD 可解析
+    const head = headSha(dir, 30000); // 确保 .git 完整且 HEAD 可正常解析
     if (isShallowRepo(dir, 30000)) {
         throw intakeError('SHALLOW-CLONE-REJECTED', 'clone is shallow (fetch-depth must be 0): ' + dir);
     }
-    // clone 时点=FETCH_HEAD mtime（clone 必写；与缓存命中腿同一取证源——同槽同值，双钟不漂）
+    // 克隆时间记录为 FETCH_HEAD 的修改时间（克隆必然会写入；与命中缓存时取自同一处，时间记录不走样）
     return { dir: dir, cloned: true, head_sha: head, shallow: false, snapshot_fetched_at: snapshotFetchedAt(dir) || new Date().toISOString(), refreshed: false };
 }
 export function repoAdd(input, opts = {}) {
@@ -191,7 +192,7 @@ export function repoAdd(input, opts = {}) {
         if (existsSync(localCandidate) && statSync(localCandidate).isDirectory()) {
             return finishLocal({ ...base, resolved_root: localCandidate }, timeoutMs);
         }
-        throw intakeError('OWNER-REPO-UNRESOLVED', cls.original + ' 本地优先消歧失败——显式 URL（https/git@）才允许 clone');
+        throw intakeError('OWNER-REPO-UNRESOLVED', cls.original + ' 本地路径不存在——只有给出明确的 URL（如 https 或 git@）才允许克隆');
     }
     const localPath = resolve(cwd, cls.original);
     if (!existsSync(localPath) || !statSync(localPath).isDirectory()) {
