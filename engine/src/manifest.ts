@@ -19,7 +19,7 @@ export function metaPath(): string {
   return join(here, '..', 'manifest.meta.json');
 }
 
-// Design: 双 manifest 由单一元数据源生成，禁止手抄漂移 — ADR-0008
+// 两个清单文件由同一个元数据源自动生成，不手工复制避免不一致
 export function loadManifestMeta(): ManifestMeta {
   return JSON.parse(readFileSync(metaPath(), 'utf8')) as ManifestMeta;
 }
