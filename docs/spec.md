@@ -503,26 +503,26 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 
 ## R9 — 报告溯源锚的取值规则（2026-10-28 治理轮补记，tracker #94 D6）
 
-> 本段由治理轮合并子票 tracker #100 追加，记录 R8 之后的产品级决策；实现与实测细节只在 `docs/adr/0027`（该 ADR 的「可复现范围」「未清面」两条随本条同步归位），本段不复制正文。
-> 来源指针 = ADR / issue（一律写 `tracker #N`）/ commit / 现行文件；本段不新增 D-code。
-> 本段为文末追加：R1–R8 的决定没动，这次只改了大白话用词。
+> 本段由治理轮的合并子票 tracker #100 补写，记录 R8 之后的产品决定；实现细节和实测细节都写在 `docs/adr/` 的现行架构决定里，索引见 [`docs/adr/README.md`](adr/README.md)，本段不抄一遍。
+> 来源只写这几类：架构决定、工单（一律写 `tracker #N`，指 GitHub 上的现行工单）、commit、现行文件；本段不加新的 D 编号。
+> 本段接在 R8 后面：R1–R8 的决定没动，这次只把说法改成人话。
 
 ### R9-1 — `prereg_commit` 只取可解析 commit，或带前缀的明确标记
 
-- **决策**：报告的 `gate_ref.prereg_commit` 只允许三形态——① 一枚**可解析**的 commit（值形为 4–40 位小写十六进制，下限取 git 能 emit 的最小缩写宽度——`core.abbrev` 小于 4 被 git 忽略；且须真能解析为该仓的 commit 对象，形状对而指错对象不算合规）；② `sentinel:` 前缀的存档哨兵（设计上就不是 commit）；③ `degraded:` 前缀的明确降级（本该取到 commit 但取不到或取不准）。三态之外一律非法，回执装配处当场拒收，不留给读者猜。约束落在**用户可见的报告契约**上：读者不读源码就能判断这个坐标是不是 commit、能不能回头查。
-- **为什么要立法**：该字段历史上混着三类值——真 commit、仓内无定义的存档字面量、以及浅克隆下悄悄取到的边界 commit。第三类最坏：它完全长得像一枚合法 commit、不报错，并随克隆深度变化，令同一判据件在两种克隆形态下产出不同锚与不同回执摘要。「取对了」这件事读者无法在报告内验证，只能由发出方以值本身的形态自证。
-- **历史不足时不得悄悄**：取不到判据件末次变更 commit 时不返回边界 commit，而落具名降级标记。现行清单共五枚：`resolvePreregCommit` 产四枚——`degraded:shallow-clone`（确认浅克隆）、`degraded:no-source-repo`（安装态插件没有源码仓根）、`degraded:depth-unknown`（深度判不了）、`degraded:no-criteria-history`（判据件在该仓取不到 commit）——另契约生成子 `51-macro-b-behavior.mjs` 的存档跑产 `degraded:unanchored-run`。这五枚是本条的登记清单：新增一枚须先写在这里——`85-check` A17 只判形态，判不出名字是否在册，清单只有写在这里才对得上代码。判定面按 `git rev-parse --is-shallow-repository` 认浅克隆；`--filter=` 一类部分历史克隆不在上述清单里，当前不判为降级（仍可能交出边界 commit），是否扩判定面另行裁。「全量历史属受支持运行形态」的裁定与三条 workflow 的 `fetch-depth: 0` 现状记于 `docs/adr/0027`，本条不复述。降级能被机器检查，禁以 SKIP 通过（承 tracker #35 纪律：被跳过的验证组不得隐身）。
-- **两族形态结构上不可能互撞**：标记前缀含冒号，git 短/全 SHA 的字符集不含冒号。两族标记只能经构造子产出，裸字面量不再构成合法锚。短 SHA 显示宽度（7↔8 跳变）属形态不属身份，沿用 tracker #84 的全值比较规则，本条不重述。commit 形的宽度下限取 **4** 而不是 7：git 能 emit 的最小缩写宽度就是 4（`core.abbrev` 小于 4 被 git 自身忽略），闸设在 7 会让 `core.abbrev=4` 的检出交出「形状合法却被闸判成模糊态」的锚，报告在装配处抛错、落不了盘——那是判别性规则自己制造的可用性故障。反过来给取值加 `--abbrev=7` 也不取：它把本仓自然的 8 位缩写钉成 7 位，动的恰是 tracker #86 明令排除的宽度表示面，并让 `48-micro-a-golden-*` 十二件与生成器失同步。
-- **这条规则约束对外发出的内容，不清洗历史现场**：`38-*` 冻结件与 `51-macro-b-*`／`23-first-report` 存档件保留原来的裸字面量（含各自已算好的回执链），一个字节不动——按 [`docs/authority.md`](authority.md) §3 的历史编号规则，按字节冻结的存档可以保留原始现场。对外发出的内容改成带标记的形态后，存档里那一枚仍按「历史编号」读。同名两形并存不算第二套现行说法：现行规则只有本条一种，另一枚是被声明为历史产物的出处坐标。
-- **与 D-179① 的关系**：D-179①（历史号，只作引用）定义「伴生确定性＝钉判据件最后变更 commit」的取值语义；该语义在浅克隆下会悄悄失准，本条补的是**取不到真值时的形态要求**，不改其取值定义。
-- **三印记不互冒充**：`degraded:` 既不是「⚠ 数据未接」也不是 `⚠ unverified`，它是锚坐标自身的降级声明，与 R8-6 三条印记并列不重叠。
-- **来源**：`engine/src/report/generate.ts`（`classifyPreregAnchor`／`preregSentinel`／`preregDegraded`／`assertDiscriminablePreregAnchor`）、`engine/src/audit/micro-a.ts`（`resolvePreregCommit`）、`engine/src/audit/macro-c.ts`、`engine/src/demo/demo.ts`、`engine/test/micro-a.test.mjs` S 组（合成浅克隆仓的正负对照）、`engine/test/report-preview.test.mjs` P 组（产线拒收模糊态）、`engine/test/contracts/85-check.mjs` A17、`docs/adr/0027`、tracker #86／#89／#94 D6／#100。
+- **决策**：报告里的 `gate_ref.prereg_commit` 只允许三种值：① 一枚能真正解析的 commit（4–40 位小写十六进制；下限取 4，因为 git 能吐出的最短缩写就是 4 位，`core.abbrev` 小于 4 会被 git 忽略；而且必须真能解析成这个仓里的一个 commit，长得像但指错对象不算）；② 以 `sentinel:` 开头的存档哨兵（一个占位值，它本来就不是 commit）；③ 以 `degraded:` 开头的明确降级（本该取到 commit，但取不到或取不准）。三种以外的值一律不行，生成回执时当场退回，不让读者去猜。这条规矩管的是用户能看到的报告：读者不翻源码，也能判断这个坐标是不是 commit、能不能回头查。
+- **为什么要定这条规矩**：这个字段以前混着三种值——真 commit、仓里没有定义的存档字面量、以及浅克隆时悄悄取到的边界 commit。第三种最麻烦：它看起来就是一枚合法 commit，不报错，还会随克隆深度变化，同一个判据件在两种克隆方式下给出不同的锚和不同的回执摘要。「取对了没有」这件事，读者在报告里查不出来，只能靠发出方用值本身的样子来证明。
+- **拿不到历史时，不许悄悄糊弄**：取不到判据件最后一次改动的 commit 时，不要返回边界 commit，而是写一个带名字的降级标记。现在的清单一共五枚：`resolvePreregCommit` 产出四枚——`degraded:shallow-clone`（确认是浅克隆）、`degraded:no-source-repo`（安装态插件没有源码仓根）、`degraded:depth-unknown`（判不出克隆深度）、`degraded:no-criteria-history`（这个仓里取不到判据件的 commit）——另外契约生成脚本 `51-macro-b-behavior.mjs` 存档回放时会产出 `degraded:unanchored-run`。这五枚就是本条登记的清单：以后新增一枚，必须先把名字写在这里——`85-check` A17 只看写法对不对，看不出名字在不在册，只有写在这里才和代码对得上。是不是浅克隆，用 `git rev-parse --is-shallow-repository` 判断；`--filter=` 这类只取部分历史的克隆不在上面这份清单里，现在不判成降级（仍可能交出边界 commit），要不要把判断范围扩大另定。「全量历史属受支持运行形态」这条裁定，以及三份 workflow 里 `fetch-depth: 0` 的现状，都写在 `docs/adr/` 的现行架构决定里（索引见 [`docs/adr/README.md`](adr/README.md)），本条不抄一遍。降级能被机器查出来，不许用 SKIP 混过去（承 tracker #35 的规矩：被跳过的检查组不能当作没发生）。
+- **两种标记的写法不可能撞在一起**：标记前缀里带冒号，git 短 SHA 和全 SHA 的字符里都没有冒号。这两种标记只能由专门的生成函数产出，直接写死的字面量不再算合法锚。短 SHA 显示几位（在 7 和 8 之间跳）只关乎宽度，不关乎身份；沿用 tracker #84 的全值比较规则，本条不再重复。commit 这种值的宽度下限取 **4**，不取 7：git 自己能吐出的最短缩写就是 4 位（`core.abbrev` 小于 4 会被 git 自己忽略）。如果门槛设在 7，`core.abbrev=4` 的检出就会交出一个「写法合法、却被门槛判成说不清」的锚，报告在组装时抛错、存不下来——这是判定规则自己造成的可用性问题。反过来，给取值加 `--abbrev=7` 也不干：它会把本仓自然的 8 位缩写固定成 7 位，改动的正是 tracker #86 明确排除的宽度表示方式，还会让 `48-micro-a-golden-*` 十二件和生成器对不上。
+- **这条规矩只管对外发出的内容，不改历史现场**：`38-*` 冻结件、`51-macro-b-*` 和 `23-first-report` 存档件里原来那种不带前缀的写法（连同各自已经算好的回执链）一个字节都不动——按 [`docs/authority.md`](authority.md) §3 的历史编号规则，按字节冻住的历史存档可以保留原样。对外发出的内容改成带标记的写法以后，存档里的那一枚仍按「历史编号」读。同一个名字两种写法并存，不算有两套现行说法：现行规则只有本条这一种，另一枚是已经声明为历史产物的出处坐标。
+- **和 D-179① 的关系**：D-179①（历史编号，这里只作引用）定了一条「伴生确定性」：判据件跟着它最后一次改动的 commit 固定下来，取值就取这个 commit；这个含义在浅克隆下会悄悄失准，本条补的是**取不到真值时该写成什么样**，不改它的取值定义。
+- **`degraded:` 不冒充 R8-6 的三印记**：`degraded:` 既不是「⚠ 数据未接」，也不是 `⚠ unverified`；它是锚这个坐标自己声明降级了，和 R8-6 的三印记并列，互不重叠。
+- **来源**：`engine/src/report/generate.ts`（`classifyPreregAnchor`／`preregSentinel`／`preregDegraded`／`assertDiscriminablePreregAnchor`）、`engine/src/audit/micro-a.ts`（`resolvePreregCommit`）、`engine/src/audit/macro-c.ts`、`engine/src/demo/demo.ts`、`engine/test/micro-a.test.mjs` S 组（合成浅克隆仓的正负对照）、`engine/test/report-preview.test.mjs` P 组（实际生成时会拒收说不清的锚）、`engine/test/contracts/85-check.mjs` A17、`docs/adr/README.md`、tracker #86／#89／#94 D6／#100。
 
 ### R9 Coverage（核对）
 
 | tracker #94 决策项 | 覆盖的 R9 Decision |
 |---|---|
-| D6 — tracker #86＋tracker #89 合并票：立法 prereg 锚取值规则 | R9-1 |
+| D6 — tracker #86＋tracker #89 合并票：定下 prereg 锚怎么取值 | R9-1 |
 
-- 核对：1/1 覆盖，无去向记录清单 = 空；来源指针见 R9-1 的「来源」行。
-- 边界：实测记录与「全量历史是否受支持运行形态」的记录状态在 `docs/adr/0027`；对各个对外发出点的静态检查在 `85-check` A17；本段不新增 ADR 编号、不新增 D-code、不动 `GLOSSARY.md`。
+- 核对：1/1 覆盖，无去向记录清单 = 空；来源看 R9-1 的「来源」行。
+- 边界：实测记录和「全量历史属受支持运行形态」这条裁定都记在 `docs/adr/` 的现行架构决定里（索引见 [`docs/adr/README.md`](adr/README.md)）；各个对外发出点的静态检查在 `85-check` A17；本段不新增 ADR 编号、不加新的 D 编号、不动 `GLOSSARY.md`。
