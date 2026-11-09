@@ -1,168 +1,350 @@
 # GLOSSARY — macro-audit（6F）
 
-> 术语载体——领域唯一语言在此定义，词条不写实现细节。「决策与术语分别落在哪」只在 [`docs/authority.md`](docs/authority.md) 成文。
+> 术语表——整套术语在这里定义，词条只说「是什么」，不说「怎么做」。「决定和术语分别写在哪」只在 [`docs/authority.md`](docs/authority.md) 成文。
 
-## 治理与载体
+## 文档与治理
 
-**Decision Carrier（决策载体）**：承载某一类决策正文的仓库文件。
-_Avoid_: 把同一决策复制进代码注释、README 或归档。
+**决策写在哪**
+某一类决定写在哪个文件。
+_别名_: Decision Carrier、carrier
 
-**Authority Surface（权威面）**：「决策与术语分别在哪」的声明面——仓内只允许一处成文。
-_Avoid_: 在多个文件各写一套权威声明。
+**权威声明面**
+「决定和术语分别写在哪」只写一次的地方。
+_别名_: Authority Surface
 
-**Design Pointer（Design 指针）**：写在约束点上、把读者指回决策载体的单行注释；格式以 `docs/authority.md` 为准。
-_Avoid_: 把完整决策理由写进注释。
+**设计指针**
+代码里一行注释，指回它依据的决定文件；格式以 [`docs/authority.md`](docs/authority.md) §4 为准。
+_别名_: Design Pointer
 
-**Historical Fingerprint（历史指纹）**：只用于历史溯源、不承载现行权威的编号，如 `D-NNN`、`A-NNN` 与旧 BACKLOG 票号。
-_Avoid_: 用历史编号承载新决策。
+**历史编号**
+只用来查历史、不再承担现行决定的编号（`D-NNN`、`A-NNN`、旧 BACKLOG 票号）。
+_别名_: Historical Fingerprint
+_不要用_: 拿历史编号写新决定
 
-**Baseline Corpus（基准语料）**：用于差分重校准的不可变外部语料，按版本钉持有；它不是产品上游依赖。
-_Avoid_: 把基准语料当成产品上游依赖。
+**基准语料**
+重新校准用的外部语料，按版本固定住，不跟着产品上游变。
+_别名_: Baseline Corpus
+_不要用_: 把基准语料当产品上游依赖
 
-**Live Contract（活契约）**：运行期被守卫消费、其可执行引用必须能解析的登记表或夹具；与只保历史字节的 Frozen Artifact 相对。
-_Avoid_: 让活契约静默积累死引用。
+**活契约**
+运行时真的会被读、里面的引用必须能打开的登记表或夹具。
+_别名_: Live Contract
+_不要用_: 让活契约里攒死引用
 
-**Frozen Artifact（冻结件）**：字节冻结的历史产物，只保证可回查、不再作为现行基准。
-_Avoid_: 把冻结件当现行契约断言。
+**冻结件**
+按字节固定、只保证能回头查的历史产物。
+_别名_: Frozen Artifact
+_不要用_: 把冻结件当现行契约
 
-## 审计与尺度
+## 审计与档位
 
-**Audit**：对工程产物做带证据引文与可驳回裁决的结构化判定；输出必须可追溯到文件、commit 或度量值。
+**审计**
+拿证据对工程产物做一个说得清、能驳回的判定。
+_别名_: Audit、audit
 
-**Macro Audit**：跨仓到仓库级的审计视角，输出叙事化报告而非行级评论。
+**审计档位**
+审计看多细，一共五档。
+_别名_: Scale
 
-**Micro Audit**：单文件或单次提交粒度的审计，输出行级带引文评审或单文件质量卡。
+**跨仓战略档**
+多个仓库合起来看往哪走、值不值得。
+_别名_: Macro-A
 
-**Scale**：审计粒度层级，共 5 档：Macro-A / Macro-B / Macro-C / Micro-A / Micro-B；共享证据层与裁决层。
+**单仓四象限档**
+一个仓库按结构、行为、供应链、战略四个面一起看。
+_别名_: Macro-B
 
-**Macro-A（跨仓战略审计）**：多仓组合的战略对齐审视，触发器为季度/手动，输出战略叙事报告。
+**历史演化档**
+看一个仓库一路怎么变成今天这样。
+_别名_: Macro-C
 
-**Macro-B（仓库级四象限审计）**：单仓全景评审，四象限=结构 / 行为 / 供应链 / 战略。
+**改动档（PR 档）**
+看一次提交或一个 PR 改了什么。
+_别名_: Micro-A、PR 级
 
-**Macro-C（演化考古审计）**：单仓时间维度的演化审视，输出演化对比报告。
-
-**Micro-A（PR 级 diff 审计）**：单次提交/PR 粒度审计，输出行级带引文评审 + verdict-gate。
-
-**Micro-B（文件级审计）**：单文件粒度审计，输出文件质量卡（只读投影，advisory 不入裁决路径）。
+**单文件档**
+看单个文件的质量。
+_别名_: Micro-B
 
 ## 证据与裁决
 
-**Evidence Gate**：完成声明必须可核验；任何「完成/通过」须附行号、commit 或 SARIF 行等证据。
+**证据闸**
+要说「完成了」，必须拿得出证据。
+_别名_: Evidence Gate
 
-**Sufficiency Gate**：证据不足时标记 `data doesn't show` 并发起 GapRequest，禁止硬凑结论。
+**证据够用闸**
+证据不够就明说「看不出来」，并正式提缺口请求，不许硬凑。
+_别名_: Sufficiency Gate、`data doesn't show`
 
-**Adjudication Protocol**：5 scale 共享的 verdict-gate 配置（证据门槛、申诉、override、审计日志）。
+**裁决规则**
+五档共用的一整套判定规矩：证据门槛、申诉、人工改判、日志。
+_别名_: Adjudication Protocol
 
-**Receipt（裁决回执）**：内核 CLI/CI 对审计结论出具的可离线复核回执，携带证据引用与判定结果。
+**回执**
+能离线复查的判定凭证，带证据引用和判定结果。
+_别名_: Receipt、`RCP-`
 
-**Provenance String（溯源串）**：现行报告内嵌的出处坐标，供读者回查引文。
-_Avoid_: 把本机绝对路径或已退役路径写进报告出处；把出处坐标当裁决依据。
+**出处坐标**
+引文在哪份文件、哪个提交、第几行。
+_别名_: Provenance String、引文坐标
+_不要用_: 把本机绝对路径写进出处
 
-**Kill Criterion（预声明判据）**：跑被测仓前写下并 commit 的可操作判据；真判据未命中=「前提未被支持」的合法数据。
+**事前判据**
+跑之前就写好、提交进去、跑完不许改的判据。
+_别名_: Kill Criterion
+_不要用_: 跑完再改判据
 
-**Positive Control（正对照）**：与真判据共享 detector 路径的已知答案样本，只证明管线能响应，不计入价值判定。
+**真判据、正对照、负对照**
+真判据是要验的判定；正对照是已知会过的样本，只证明管线活着；负对照是已知不该过的样本。
+_别名_: TC / PC / NC、Positive Control
+_不要用_: 只跑正对照就说通关
 
-**Failure Semantics**：采集失败、叙事超时、裁决驳回、渲染异常时的降级路径必须显式，禁止沉默失败。
+**判定档**
+一条判据最后落在哪一档：支持、不支持、证据不够。
+_别名_: band
+_不要用_: 只说「通过 / 不通过」而不说落在哪档
 
-**违约两级处置**：协议级违约（行形状/定界坏）→fail-fast；字段级病态→quarantine（字段 null + ⚠malformed，审计继续）。
+**裁决闸**
+每条结论都要过的判定关卡。
+_别名_: verdict-gate
 
-**Quarantine 字段处置**：分类器永不 throw，逐字段返回 clean/normalized/quarantined + reason_code；处置归消费面与报告层。
+**缺口请求**
+证据不够时，正式提出要补什么。
+_别名_: GapRequest
 
-**Reason Code 受控词表**：处置事件的分类码；open-ended，新码经 known-gaps 立法进场，未识别码 default-deny。
+**人工改判**
+人对机器的判定做覆盖，并留下记录。
+_别名_: override
 
-**Intake Health 节**：报告固定摄入健康节，含逐字段恒等式、受影响 commit 数、quarantined-only 逐 SHA 表。
+**事后凑判据**
+跑完才改判据，为了让结果好看。
+_别名_: HARKing
+_不要用_: 改判据凑结果
 
-**Dual Reporting（勘误式双读数）**：原读数不撤回，修正读数以勘误/并列形态发布并附 delta 表。
+**失败怎么降级**
+采集失败、叙事超时、裁决驳回、渲染出错时走哪条退路，必须写出来，不许悄悄失败。
+_别名_: Failure Semantics
 
-**Assignable Cause（可归属原因）**：异常读数判 invalid 的唯一凭证；无可归属原因时默认接受并升级调查。
+**违约两级处置**
+整行格式坏就立刻停；单个字段坏就隔离，审计接着跑。
+_别名_: two-level disposition、fail-fast
 
-**静默窗**：发布前的稳定性观察期；零试点下「无新 findings」是空真，不是稳定性证据。
+**病态字段隔离**
+坏字段单独记下原因，不拖垮整份报告。
+_别名_: Quarantine、`quarantine_log`
 
-## 集成与报告
+**原因码**
+坏字段为什么坏的标准说法。
+_别名_: Reason Code、`reason_code`
+_不要用_: 随手写一句自由文本当原因
 
-**Hub-of-Facts with Federated Adjudication**：共享 DuckDB fact table + 定义集中、执行分散的联邦裁决。
+**收仓体检**
+报告里专门说明采数哪里有问题。
+_别名_: Intake Health、`intake health`
 
-**SSOT**：同一审计事实只由 fact table 一处持有，5 scale 共享读、禁止跨 scale 复制。
+**勘误并列读数**
+老数字不删，新数字并排放，并说差多少。
+_别名_: Dual Reporting、delta 表
+_不要用_: 悄悄改掉老数字
 
-**Event Sourcing**：事件单向追加写入 fact table，报告可重放，schema 演进靠版本号。
+**能说清的原因**
+说得出原因，才能判「这个数无效」。
+_别名_: Assignable Cause
 
-**Read Model**：各 scale 从 fact table 投影的语义层，独立优化，不做 UI 抓取。
+**静观期**
+发布前先放一段没人报问题的时间。
+_别名_: silent window
+_不要用_: 零试点下的「无新问题」当稳定性证据
 
-**Cross-Scale Correlation Key**：跨 scale 关联同一 commit/PR 的 trace_id / baggage_id。
+## 事实与报告
 
-**Semantic Domain（语义域）**：同一批事实的判读归属层；`structure/shape`=形态测量读数，`S3/budget-attribution`=预算归因读数。同一面可被两层读，归属由读它的那一层决定，不由采集它的那一层决定。
-_Avoid_: 把 structure 观测直接当 S3 裁决。
+**一张事实表、各处裁决**
+事实集中存一份，判定分散在各档做。
+_别名_: Hub-of-Facts with Federated Adjudication、hub-of-facts
+_不要用_: 每档各存一份事实
 
-**Report Template**：共享骨架 + scale-specific 切片；骨架章序=执行摘要→四象限/裁决→证据→行动建议。
+**事实表**
+存全部审计事实的那张 DuckDB 表；只往后加，不改旧行。
+_别名_: fact table、`audit_fact`、`facts.duckdb`
+_不要用_: 同一条事实存两处
 
-**Strategic Quadrant**：四象限之一，评「产品往哪去、值不值得」；覆盖 5 scale。
+**一条事实**
+一次观测写下的一行；同一件事只存一处。
+_别名_: fact、`fact_id`
 
-**S1 定位收敛**：意图声明与实际交付的收敛度。
+**只读投影**
+从事实表读出来、给报告看、不写回去的视图。
+_别名_: read-only projection
 
-**S2 ADR 质量**：ADR 是否为真决策（Context / Options / Consequences / supersede 链 / 当时写）。
+**跨档关联键**
+同一个提交或 PR 在各档能对上的编号。
+_别名_: Cross-Scale Correlation Key、`trace_id`、`baggage_id`
 
-**S3 门面预算 vs 结构预算**：维护预算花在门面还是结构。
+**读数归属层**
+同一批数字归哪一层解释；同一面可以被两层读，归哪层由读它的那层决定。
+_别名_: Semantic Domain、`structure/shape`、`S3/budget-attribution`
+_不要用_: 把结构观测直接当 S3 裁决
 
-**S4 演化方向**：系统是否沿声明方向演化，还是漂移/侵蚀。
+**报告模板**
+所有报告共用的固定骨架，每档只换自己那部分。
+_别名_: Report Template
 
-**S5 所有权边界匹配**：模块分解与所有权分解是否同构；单人仓信号弱须降权披露。
+**战略象限**
+四象限里评「值不值得、往哪走」的那面，五档都用。
+_别名_: Strategic Quadrant
 
-**Hotspot**：CodeLore 的「变更频率 × 复杂度」乘积，直接复用不自创。
+**战略五问**
+定位、ADR 质量、预算、演化方向、所有权边界这五个问题。
+_别名_: S1–S5
+_不要用_: 把 S1–S5 拆成五条独立词条
 
-**Report Aggregation**：多 scale 输出合并规则（时间对齐 / 证据去重 / 冲突标记 / 主裁决来源）。
+**四象限**
+单仓审计看的四个面：结构、行为、供应链、战略；行为面看哪些文件改得多又复杂。
+_别名_: four quadrants、structure / behavior / supply-chain / strategy
 
-**Conflict Resolution**：scale 间结论冲突时的仲裁规则，不允许各自为政。
+**报告合并规则**
+多档结果怎么摆在一起：对时间、去重证据、标冲突、定主裁决。
+_别名_: Report Aggregation
+_不要用_: 各档各写各的
 
-**Actionable Recommendation**：报告末章，须带 verdict-gate 印记；未过裁决的建议标 ⚠ unverified。
+**可动手的建议**
+带判定印、能照着做的建议；没裁决过的标 ⚠ unverified。
+_别名_: Actionable Recommendation
+
+**观测集**
+一次采集在某个提交上产出的全部事实；只往后加，可以按提交固定。
+_别名_: Observation Set、`at:<sha>`
+
+**原始证据层**
+上游原文照存的那层，平常查询不走它。
+_别名_: Raw Evidence Layer
 
 ## 演示与发布
 
-**Demonstration Scenario**：5 scale × 关键/失败路径 = 10 条演示路径。
+**演示场景**
+五档 × 顺利 / 失败 = 十条演示路径。
+_别名_: Demonstration Scenario、demo scenario
 
-**Happy Path / Failure Path**：成功路径与显式降级路径，产物共用骨架、必须可对比。
+**顺利路径 / 失败路径**
+正常跑通 / 出事时怎么退；两边产物用同一骨架，必须能对比。
+_别名_: Happy Path / Failure Path
+_不要用_: 只演示成功路径
 
-**Degraded Demonstration**：失败路径产物必含 ⚠ unverified / 降级注释 / 裁决拒绝印记。
+**降级演示**
+失败路径的产物，必须带降级标记。
+_别名_: Degraded Demonstration、`⚠ unverified`
 
-**Release Preview**：`capability N of 5 · preview` + 0.x 语义；build-scope ≠ release-sequence。
+**预览版**
+能用、但还没到正式版；能力边界要标清。
+_别名_: Release Preview、`capability N of 5 · preview`
 
-**Generalization Gate**：层 GA 须引 ≥1 非自有公开仓完成真实泛化验证，试点成功不算泛化。
+**泛化闸**
+要在别人仓库跑通才算过关；试点成功不算。
+_别名_: Generalization Gate
 
-**Demo Fixture**：确定性生成的合成 git 仓，必须带合成披露戳，不得冒充真实审计。
+**演示用假仓**
+临时造出来的仓库，必须标「合成」，不许冒充真实审计。
+_别名_: Demo Fixture、`synthetic`
 
-**Agent Plugin**：Agent Plugins 1.0.0 五层盒子 + 双 manifest；内核 CLI 同二进制四外壳。
+**Agent 插件**
+装进 agent 里的插件包；内核命令同一份二进制带四个外壳。
+_别名_: Agent Plugin、`6f`、`macro-audit`
 
-**Default Mode**：开箱路径=C 类用户在 agent 工作流内触发 Macro-B 四象限评审。
+**默认模式**
+装完就能在 agent 里对仓库跑一遍 Macro-B 四象限。
+_别名_: Default Mode
 
-**Repo Intake**：本地路径默认 + 远程 URL 显式 opt-in；clone 到隔离缓存、全深度、浅 clone 拒绝。
+**收仓**
+把要审的仓库接进来；默认本地路径，远程地址要明确同意，浅克隆拒绝。
+_别名_: Repo Intake、`repo add`
 
-**Value Validation Loop**：主干=在真实仓库跑通「采集→fact→叙事→裁决→报告」，四阶段串行。
+**价值验证闭环**
+在真仓库跑通「采集 → 事实 → 叙事 → 裁决 → 报告」一遍。
+_别名_: Value Validation Loop
 
-**Acceptance Gate**：首报验收 A 形式→B 内容→C 信任裁决，三层串行、预声明判据。
+**验收闸**
+首报要过的三道关：形式、内容、信任。
+_别名_: Acceptance Gate
 
-**SWMR Facade**：存储层只准入单写者，竞争失败 fail-fast；升级阶梯 L0→L3。
+**单写门面**
+只让一个写者进来，抢不到就立刻报错。
+_别名_: SWMR Facade
 
-**Hosted API Adapter**：GitHub REST + env token 主路，gh 认证态可选回退，无认证显式降级。
+**托管平台接口适配器**
+从 GitHub 这类平台取数据的中间层。
+_别名_: Hosted API Adapter
 
-**Instrument Dialect**：上游工具版本造成的等价拼写差异，归防腐边界吸收并独立披露。
+**上游写法差异**
+上游工具版本不同造成的等义写法差异，在适配层吸收并单独披露。
+_别名_: Instrument Dialect
 
-**Subject Canonical Form**：仓根相对、`/` 分隔、NFC、无空段的文件 subject 规范化路径。
+**文件标准路径**
+仓根相对、斜杠分隔、统一按 NFC 编码、没有空段的路径。
+_别名_: Subject Canonical Form
 
-**File Lineage**：rename 连续性的一等事实；血缘是附加事实非身份本体。
+**文件血缘**
+文件改名后还能追到前身。
+_别名_: File Lineage
 
-**Observation Set**：一次采集在 HEAD 时点产出的全部 facts；append-only，`at:<sha>` 可 pin。
+**预览披露块**
+报告里说清这是预览、校准了什么、还有什么限制、哪些还没做。
+_别名_: preview disclosure block、`preview_disclosure`
 
-**Raw Evidence Layer**：上游原始输出的 append-only 保真层，不进文件卡查询主路径。
+**能力状态表**
+五档各自到哪一步的那张表。
+_别名_: capability matrix
+_不要用_: 只说「预览」不说哪一档
 
-**Known-gaps 台账**：契约覆盖缺口登记册（gap_id / reason / 证据 / status / owner / review_by / trigger）。
+**只给建议，不进裁决**
+这种输出看看就好，不能当判定。
+_别名_: advisory-only、`advisory`
 
-## 品牌与边界
+**校准**
+拿已知答案的语料调准判据。
+_别名_: calibration
 
-**6F**：公开品牌名；六句 F 宣言=Facts / Federation / Forensics / Five scales / Frankness / Fingerprints。
+**试点仓**
+先拿来试的那几个仓库。
+_别名_: pilot set、pilot
 
-**Plugin/Marketplace 双层命名**：plugin name=`6f`，marketplace name=`xxx91n`，内核名 `macro-audit` 不变。
+**同主**
+自己名下的仓库；在同主仓上跑要披露偏差。
+_别名_: same-owner
 
-**Kernel/Agent 职责边界**：确定性面归 kernel，编排与概率性面归宿主 agent；band 永不归 agent。
+## 架构与边界
 
-**Canonical→Derived**：README.md 为 canonical，README.zh-CN.md 为 derived；可落后但不得假装新鲜。
+**防腐层**
+上游的写法不许越过适配层。
+_别名_: anti-corruption layer
 
-**暴露梯度**：Stage-0 被动挂牌 → Stage-1 定向邀请 → Stage-2 公开推广（四判据 + 30 日静默窗）。
+**双轨接入**
+库走依赖、命令行走适配器。
+_别名_: dual-track adapter
+
+**出处清单**
+许可证、变更记录、签名、构建来源这一套。
+_别名_: provenance manifest
+
+**缺口登记册**
+已知没覆盖到的地方，逐条登记：谁负责、什么时候复核。
+_别名_: known-gaps、`gap_id`
+
+**6F**
+公开品牌名；六句 F 宣言：Facts / Federation / Forensics / Five scales / Frankness / Fingerprints。
+_别名_: 6f
+
+**插件名和市场名两层**
+插件叫 `6f`，市场叫 `xxx91n`，内核叫 `macro-audit`。
+_别名_: plugin name / marketplace name / kernel name
+
+**内核与 Agent 的分工**
+确定的活给内核，编排和看运气的活给 Agent；判定档永远不归 Agent。
+_别名_: kernel、agent
+
+**正本→译本**
+英文 README 是正本，中文 README 是译本；可以落后，不能假装同步。
+_别名_: canonical / derived
+
+**公开三步**
+先被动挂牌，再定向邀请，最后公开推广；最后一步要过四道判据和 30 天静观期。
+_别名_: Stage-0 / Stage-1 / Stage-2
