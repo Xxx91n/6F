@@ -399,7 +399,7 @@ explain 族 env 门控（CODELORE_LLM_*）＋成本验收面；S4 ADR 假设抽�
 env-manager / anysearch-cli / jiahao 三仓只读实测：PR 人/机比、supersede 链完整度、托管面有无；产出 层×仓 capacity 矩阵（Pilot-surface Audit 三问）。
 
 **R5-D7 Macro-C preview（第二能力层）**（覆盖 A-043｜计划 R5-07｜issue 38）
-anysearch-cli 为校对语料（56 ADR＋supersede 链）；报告强制说明「单仓校对（anysearch-cli）」结构性限制；完成定义含该层 happy+failure 演示双件（DoD 准入件）。
+anysearch-cli 为校对语料（56 ADR＋supersede 链）；报告强制说明单仓校对的范围和结构性限制（报告字段名保持 `calibration_scope`）；完成定义含该层 happy+failure 演示双件（DoD 准入件）。
 
 **R5-D8 Macro-B 三仓 one-shot＋jiahao 回归**（覆盖 A-044｜计划 R5-08｜issue 39）
 Macro-B 对三试点仓各跑一次 one-shot 泛化验证；jiahao 持续回归接入 CI——接入即触发多写者 self-probe 实测定下来（衔接 #33）。

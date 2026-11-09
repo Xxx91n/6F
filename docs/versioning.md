@@ -12,7 +12,7 @@
 
 - `report_schema` 用自己的版本号，minor 只往后兼容。
 - 报告头固定字段：`stability: "preview"` ＋ `capabilities: [...]` ＋ 出处锚含锁定表快照 hash ＋ `superseded_by` 归档互链（旧报告不作废，只换戳，按 Dual Reporting）。
-- 说明块（synthetic fixture / ⚠ 数据未接 / capability N of 5）和本节字段是**同一个契约面**——报告 schema 票和 #45 各写一处引用，不要两处手抄。
+- 说明块（机器键 `preview_disclosure`；内容含 synthetic fixture / ⚠ 数据未接 / capability N of 5）和本节字段是**同一个契约面**——报告 schema 票和 #45 各写一处引用，不要两处手抄。
 
 ## 3. 上游锁定表（`engine/upstream-lock.yaml`）
 

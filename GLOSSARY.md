@@ -282,7 +282,7 @@ _别名_: Instrument Dialect
 仓根相对、斜杠分隔、统一按 NFC 编码、没有空段的路径。
 _别名_: Subject Canonical Form
 
-**文件文件改名记录**
+**文件改名记录**
 文件改名后还能追到前身。
 _别名_: File Lineage
 
