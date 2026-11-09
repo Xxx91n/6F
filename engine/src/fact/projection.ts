@@ -1,7 +1,7 @@
-// fact/projection.ts — MCP facts 只读投影（D-053④ / A-057）
-// Design: 消费面按需拉取投影，不直连写入路径 — ADR-0005
-// 宿主 agent 叙事面的唯一取数主路：固定 SELECT 形（不接裸 SQL——stub 面收窄防注入）；
-// 连接=openReader（READ_ONLY 实例，SWMR 读者位，A-007）；投影列=FactEvent 十三列。
+// fact/projection.ts — MCP 事实只读阅读视图
+// 理由：使用方按需拉取阅读视图，不直连写入流程。
+// 外部读取事实数据的主要途径：使用固定的 SELECT 查询，不拼接裸 SQL，防止注入；
+// 使用只读连接打开数据库，投影字段对应事实表的 13 个常规列。
 import { openReader, closeDuckdb } from './store.js';
 import { assertAppendOnly } from './schema.js';
 import type { FactEvent } from './store.js';
@@ -18,7 +18,7 @@ export interface FactProjectionFilter {
 const MAX_LIMIT = 500;
 const PROJECTION_COLUMNS = 'fact_id, trace_id, baggage_id, scale, quadrant, dimension, collector_id, repo_ref, subject_ref, evidence_ref, metric, value_json, CAST(observed_at AS VARCHAR) AS observed_at';
 
-// 过滤值只允许固定列等值匹配——值走参数绑定不进 SQL 文本，列名白名单硬编码。
+// 仅允许在固定列上做等值过滤，参数走占位符绑定，不拼入 SQL 文本中。
 export function buildProjectionSql(filter: FactProjectionFilter): { sql: string; params: string[] } {
   const where: string[] = [];
   const params: string[] = [];
@@ -49,29 +49,29 @@ function normalizeFactRow(names: string[]): (r: unknown[]) => FactEvent {
     const o: Record<string, unknown> = {};
     names.forEach(function (n, i) {
       const v = r[i];
-      // JSON 可序列化归一：BigInt→Number、Date→ISO（TIMESTAMPTZ 已 SQL 层 CAST 为 VARCHAR）
+      // 保证返回结果可直接 JSON 序列化：BigInt 转为数字，Date 转为 ISO 字符串
       o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
     });
     return o as unknown as FactEvent;
   };
 }
 
-// ---------- file_card 只读投影（#80 步② / D-126；预采集投影×per-file subject×血缘事实） ----------
-// 观测集语义：repo_ref=<name>@<head_sha> 天然成集；默认=最新已采集观测集（MAX(observed_at) 平手按 repo_ref 字典序钉死）；
-// at:<sha>=显式 opt-in pin——精确匹配或 ≥7 字符唯一前缀（常量纪律：不做模糊解析）。
-// 本面只读：miss→never_collected 显式态＋CLI 指引（lazy 补采唯一入口=CLI audit file，MCP 永不写）。
+// ---------- file_card 只读阅读视图 ----------
+// 观测集规则：repo_ref=<name>@<head_sha> 作为一个完整观测集；默认取最新已采集的数据集；
+// 也可以指定 at:<sha> 精确匹配或用唯一前缀查询。
+// 本接口为纯只读模式：查不到数据时输出未采集状态及命令行补采指引，绝不在本流程执行写入。
 export interface FileCardQuery {
-  repo: string;                    // repo 名（repo_ref 的 '@' 前缀部）
-  subject: string;                 // 文件路径（卡内归一）
-  at?: string;                     // at:<sha> pin
-  current_head_sha?: string | null;   // 调用面注入的当前 HEAD 探针结果（null=未知→staleness.drift=unknown）
+  repo: string;                    // 仓库名（对应 repo_ref 的 @ 之前部分）
+  subject: string;                 // 文件路径（卡片内部做统一格式处理）
+  at?: string;                     // 指定查询的提交号
+  current_head_sha?: string | null;   // 当前最新提交号（null 表示未知）
   source?: 'prefetch' | 'backfill' | 'unknown';
-  cli_guidance?: string | null;    // miss.never_collected 可行动指引（触发面拼好注入）
-  lineage_edge_cap?: number;       // 测试缝：祖先血缘边池帽覆盖（缺省=FILE_CARD_LINEAGE_EDGE_CAP；降帽供 EDGE_CAP 披露件回归测）
+  cli_guidance?: string | null;    // 未采集时的操作指引
+  lineage_edge_cap?: number;       // 改名边池上限（主要用于特定测试场景）
 }
 
-const FILE_CARD_SET_CAP = 200000;   // 观测集内 Micro-B 事实硬帽（percentile 需全集——超帽如实截断仍确定性）
-const FILE_CARD_LINEAGE_EDGE_CAP = 10000;   // 血缘边池硬帽（D-137② 跨观测集解析——病态仓库防失控，截断如实）
+const FILE_CARD_SET_CAP = 200000;   // 观测集内事实数据条数上限（超过该值做截断处理）
+const FILE_CARD_LINEAGE_EDGE_CAP = 10000;   // 改名关联边池上限
 
 function likeEscape(s: string): string {
   return s.split('!').join('!!').split('%').join('!%').split('_').join('!_');
@@ -93,7 +93,7 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
     let picked: { repo_ref: string; head_sha: string | null; last_obs: string } | null = null;
     let pinAmbiguous: string[] | undefined = undefined;
     if (q.at !== undefined && q.at !== null && q.at.length > 0) {
-      // F7a（#83）：pin 前缀唯一性验重——精确 40 位命中直取；≥7 前缀命中 >1=歧义不猜（not_tracked_at_sha 披露全部命中）
+      // 提交号匹配：全量 40 位直接精确匹配；7 位及以上前缀匹配如命中多个则记录歧义，不随意猜测。
       const exact = sets.filter(function (s) { return s.head_sha === q.at; });
       if (exact.length > 0) {
         picked = exact[0];
@@ -108,7 +108,7 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
     const facts: FactEvent[] = [];
     let setTruncated = false;
     if (picked !== null) {
-      // F7h（#83）：截断卡面标记——集内事实行数超 CAP 时如实披露（percentile 语义=截断集上计算，不静默）
+      // 统计数据集中的事实数量是否超限并做好截断标记
       const cSql = 'SELECT COUNT(*) FROM audit_fact WHERE scale = ? AND repo_ref = ?';
       assertAppendOnly(cSql);
       const cReader = await conn.run(cSql, ['Micro-B', picked.repo_ref] as never);
@@ -122,14 +122,12 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
       const norm = normalizeFactRow(names);
       for (const r of fRows) { facts.push(norm(r)); }
     }
-    // D-137② 跨观测集血缘解析（#80 步③）：file.renamed 边池=选中集∪祖先观测集。
-    //   「祖先」语义=同 repo 观测集中 MAX(observed_at) ≤ 选中集者——事实仓仅持采集时点序（git 祖先关系
-    //   不入库，pin 精确性由 D-126⑤ at:sha 引用层纪律承担）；词表侧用 observed_at 字符串词典序（ISO 规范化后可比较）。
+    // 跨观测集改名关系拉取：结合当前数据集与历史较早的数据集中的改名记录。
     const lineageFacts: FactEvent[] = [];
     let lineageEdgeCapHit = false;
     if (picked !== null) {
       const ancestorRefs = sets.filter(function (s) {
-        return s.repo_ref !== picked.repo_ref && s.last_obs <= picked.last_obs;   // picked 恒为 sets 元素——last_obs 随行不重查
+        return s.repo_ref !== picked.repo_ref && s.last_obs <= picked.last_obs;
       }).map(function (s) { return s.repo_ref; });
       if (ancestorRefs.length > 0) {
         const edgeCap = Math.max(1, Math.floor(q.lineage_edge_cap === undefined ? FILE_CARD_LINEAGE_EDGE_CAP : q.lineage_edge_cap));
@@ -140,7 +138,7 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
         const lRows = await lReader.getRows();
         const lNorm = normalizeFactRow(lReader.columnNames());
         for (const r of lRows) { lineageFacts.push(lNorm(r)); }
-        // A4 截断如实：拉取量触帽=祖先边池可能不全——经卡面 truncated 伞披露（A4）
+        // 记录拉取数量是否触及上限截断
         if (lRows.length >= edgeCap) { lineageEdgeCapHit = true; }
       }
     }
@@ -163,9 +161,8 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
   }
 }
 
-// ---------- quarantine_log 只读投影（#78 / D-113② / D-118） ----------
-// 与 projectFacts 同形面收窄：固定列集、值走参数绑定、LIMIT 硬帽、READ_ONLY 连接。
-// raw_bytes_hex 回显有界（≤131072 chars hex，D-117 截断+指纹三件套随行）。
+// ---------- quarantine_log 只读阅读视图 ----------
+// 提供隔离记录的安全只读查询接口，列名固定，参数绑定，限制最大查询条数。
 export interface QuarantineProjectionFilter {
   run_id?: string;
   field_name?: string;
