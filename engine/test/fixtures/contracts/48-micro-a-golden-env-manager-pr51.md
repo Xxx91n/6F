@@ -1,9 +1,9 @@
 # MA-48-ENVMANAGER-PR51-PREVIEW — Micro-A 首报（Xxx91n/env-manager#51）
 > RECEIPT RCP-09ad511304aec0a6 chain=09ad511304aec0a673f9bdc2c90e0aea content=8afd3f623144ce8f facts=2 adjudications=6 issued_at=1970-01-01T00:00:00.000Z commit=92764cb14e7178cb2fa39232208c9fd86a899705 tree=unanchored
 >
-> 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
+> 骨架 1.2.0（章顺序锁定）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
 >
-> 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）
+> 披露块（preview 标注诚实，机器可读字段见侧车 preview_disclosure）
 > - capability: capability 3 of 5 · preview
 > - calibration_scope: 同主试点仓 merged PR 最小集（env-manager×3 形态＋jiahao×1 全人基线；票面写死实例）
 > - structural_limitations: golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计；同主确认偏差：试点仓与产品同主（Xxx91n）——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟不构成泛化证据；判据范围收窄：preview 判据=证据完整性/托管面资格/选择性，非 PR 质量裁决——diff --llm 行级语义评审归 #50 叙事双轨（D-053）；reviews/comments 面 planned 未接（锁表 github-rest 契约面）——评审语义不在 preview 内；supply_chain 象限 not_applicable：Scorecard 未接（D-034③）；dependabot PR 的供应链信号仅作事实落库；适配器硬化面已落 engine 一等面（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts（重校准背书=85-check E 组）
@@ -125,6 +125,6 @@
 
 ## Intake Health
 
-- 契约：ADR-0022 违约两级处置——协议级违约 fail-fast（崩溃桶工件），字段级病态=quarantine 桶隔离（判定/处置硬分界）
-- 摄入无病态声明：quarantined=0 · normalized=0（接线字段未供给 intake_health——同形骨架负声明，证据缺席≠证据为零）
+- 契约：违约两级处置——整行协议格式破坏立刻中断，字段内容异常则放入隔离区单独记录
+- 摄入无病态声明：quarantined=0 · normalized=0（未提供体检数据时默认无异常，证据缺席不等于证据为零）
 
