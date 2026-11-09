@@ -295,8 +295,8 @@ t('F1f 非权威/只读的 §2 行不入白名单（docs/archive/decisions/ 被�
 t('F1g 伪权威值 docs/archive/decisions/ 被拒',
   !whitelistMatch.has(assertedAuthority('唯一权威 = docs/archive/decisions/') || ''));
 t('F2 门面文书不得自称权威；专题唯一权威须命中 §2 白名单', selfClaim.length === 0, selfClaim.join(' | '));
-t('F3 README 上游表「唯一权威=upstream-lock」属合法命中（不得洗红）',
-  whitelistMatch.has(assertedAuthority(readmeAuthorityLine) || ''));
+t('F3 README 若有「唯一权威」行，必须命中 §2 白名单（没有该行也通过）',
+  readmeAuthorityLine === '' || whitelistMatch.has(assertedAuthority(readmeAuthorityLine) || ''));
 t('F4 自称权威探测器负对照：本文件是权威口径命中，本目录是非权威不命中', // NEGATIVE-CONTROL
   selfClaimHit('本文件是权威口径') && !selfClaimHit('本目录是非权威、只读')); // NEGATIVE-CONTROL
 
