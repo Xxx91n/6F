@@ -1,15 +1,12 @@
-// audit/safe-read.ts — 仓内安全读取单点（#113 / P0 安全审计防符号链接穿透）
-// 威胁模型：被审计仓为不可信输入。
+// audit/safe-read.ts — 仓库内安全读取文件单点入口（防止符号链接逃逸到仓库外部）
 // 规则：
-//   1. 目标文件必须在 repoRoot 内部（lstat + realpath 判界）；
-//   2. 符号链接必须解析为 repoRoot 内部的普通文件（regular file）；
-//   3. 拒绝外部路径、悬空符号链接、设备文件以及外部目录 junction；
-//   4. 校验与读取必须指向同一 inode：判界后经**同一个文件描述符**读取（fstat 复核 + fd 读），
-//      避免「校验这个名字、读那个名字」的 TOCTOU 窗口（CWE-367）；
-//   5. 命中跳过时产出结构化拒绝原因，供调用方发射 file_subject_skip 事实并在报告中披露。
+//   1. 目标文件必须在仓库根目录内部（使用 lstat 和 realpath 进行双重检查）；
+//   2. 符号链接必须解析为仓库内部的普通文件；
+//   3. 拒绝外部路径、悬空符号链接、设备文件以及外部目录软链接；
+//   4. 检查与读取必须指向同一个文件句柄（同一文件描述符），防止检查与读取之间路径被篡改；
+//   5. 命中跳过规则时输出明确原因，供调用方记录跳过事实并在报告中如实说明。
 //
-// 语义与上游 codelore 面既有的 defaultSubjectPathProbe（upstream/codelore.ts）对齐——
-// 本模块是「审计对象仓文档读取」的那一份实现，不另造第二套边界规则。
+// 保持统一规则：作为审计目标仓库文档的安全读取实现，不另行设置第二套规则。
 
 import {
   lstatSync, realpathSync, readFileSync, readdirSync, closeSync, fstatSync, openSync,
@@ -18,8 +15,7 @@ import {
 import { join, relative, resolve, isAbsolute } from 'node:path';
 import { createHash } from 'node:crypto';
 
-// O_NOFOLLOW 在 Windows 上不存在——取 0 表示该平台不提供「末段不跟随链接」的打开语义；
-// 该平台仍由 realpath 判界＋fstat 复核（同 fd）兜住穿透。
+// O_NOFOLLOW 在 Windows 上不存在，设为 0；该平台依然由 realpath 和同文件描述符的 fstat 复核来防范越界。
 const O_NOFOLLOW = typeof (fsConstants as { O_NOFOLLOW?: number }).O_NOFOLLOW === 'number'
   ? (fsConstants as unknown as { O_NOFOLLOW: number }).O_NOFOLLOW
   : 0;
@@ -27,19 +23,19 @@ const O_NOFOLLOW = typeof (fsConstants as { O_NOFOLLOW?: number }).O_NOFOLLOW ==
 export interface SafeReadOk {
   ok: true;
   text: string;
-  relPath: string;      // 仓根相对规范化路径
+  relPath: string;      // 相对仓库根目录的标准路径
   realPath: string;     // 物理真实路径
   isSymlink: boolean;
 }
 
 export type SafeReadFailReason =
-  | 'missing'            // lstat 失败：路径不存在
+  | 'missing'            // 路径不存在
   | 'symlink-dangling'   // 符号链接指向不存在的目标
-  | 'symlink-outside'    // 符号链接解析后落在 repoRoot 之外
-  | 'symlink-non-regular'// 符号链接指向仓内的非普通文件（目录/设备/FIFO 等）
-  | 'outside-repo'       // 普通文件的 realpath 落在 repoRoot 之外（父级目录被替换）
-  | 'non-regular'        // 目标本身是非普通文件
-  | 'read-error';        // 打开/读取失败
+  | 'symlink-outside'    // 符号链接解析后落在仓库根目录之外
+  | 'symlink-non-regular'// 符号链接指向仓库内部的非普通文件（如目录、设备等）
+  | 'outside-repo'       // 路径真实位置落在仓库根目录之外
+  | 'non-regular'        // 目标本身不是普通文件
+  | 'read-error';        // 打开或读取文件失败
 
 export interface SafeReadFail {
   ok: false;
@@ -60,9 +56,9 @@ export interface SafeDirOk {
 
 export type SafeDirFailReason =
   | 'missing'               // 目录不存在
-  | 'dir-junction-outside'  // 目录符号链接/junction 解析后落在 repoRoot 之外
-  | 'non-directory'         // 路径存在但不是目录
-  | 'read-error';           // 列目录失败
+  | 'dir-junction-outside'  // 目录链接解析后落在仓库根目录之外
+  | 'non-directory'         // 目标存在但不是目录
+  | 'read-error';           // 列出目录失败
 
 export interface SafeDirFail {
   ok: false;
@@ -120,11 +116,11 @@ function uuidFromHex(h: string): string {
 }
 
 /**
- * 披露事实：安全读取拒绝时发射 `codelore.file_subject_skip`（subject / fact_id 用同一归一形）。
- * @param ctx 采集上下文（run/trace/repo/scale/observedAt）
- * @param rawPath 调用方给的仓根相对路径（可能来自 join()，win32 上含反斜杠）
- * @param reason 拒绝原因（SafeReadFailReason 或其调用面同义码）
- * @param descriptor 采集器描述符（默认 audit-safe-read）
+ * 记录安全读取拒绝事件，输出 codelore.file_subject_skip 事实。
+ * @param ctx 采集上下文
+ * @param rawPath 调用方传入的相对路径
+ * @param reason 拒绝原因
+ * @param descriptor 采集器描述符
  */
 export function makeFileSubjectSkipFact(
   ctx: CollectContext,
@@ -132,7 +128,7 @@ export function makeFileSubjectSkipFact(
   reason: string,
   descriptor: CollectorDescriptor = AUDIT_DESCRIPTOR
 ): CollectedFact {
-  // Design: 事实面 subject/fact_id 一律 '/' 分隔——win32 的 '\' 是分隔符须归一，POSIX 的 '\' 是文件名字符须保留 — ADR-0023
+  // 理由：路径统一使用 '/' 分隔符，Windows 下的反斜杠转为正斜杠，POSIX 下保留原样。
   const subject = process.platform === 'win32' ? slash(rawPath) : rawPath;
   const value = {
     analysis: 'safe-read',
@@ -167,16 +163,15 @@ function slash(p: string): string {
   return p.split(String.fromCharCode(92)).join('/');
 }
 
-/** repoRoot 相对形态：是否仍在仓内（'' 与 '.' 视为仓根本身＝在仓内）。 */
+/** 检查相对路径是否确实在仓库内（空或点表示仓库根目录自身，均视为在仓内）。 */
 function isInsideRoot(relRootToTarget: string): boolean {
   if (relRootToTarget === '' || relRootToTarget === '.') { return true; }
   return relRootToTarget.indexOf('..') !== 0 && !/^[A-Za-z]:/.test(relRootToTarget);
 }
 
 /**
- * lstat 错误分类（#113 返修 / PR #127 审查）：只有 ENOENT / ENOTDIR 才等于「不存在」。
- * ELOOP（自环链接）、EACCES、EPERM 等是「探测不了」而不是「没有」——若一律当不存在，
- * 被审计仓只要造一个探测不了的名字，语料就会静默缩水且不留披露事实。
+ * 区分路径不存在还是无法访问：仅 ENOENT 或 ENOTDIR 视为文件不存在。
+ * 权限不足或循环链接等问题属于无法检测，需要如实报警或记录，不能当作文件不存在直接跳过。
  */
 function isAbsentErrno(code: string | undefined): boolean {
   return code === 'ENOENT' || code === 'ENOTDIR';
@@ -191,8 +186,8 @@ function realRootOf(repoRoot: string): string {
 }
 
 /**
- * 校验指定相对路径或绝对路径是否合法落于 repoRoot 内。
- * 依据 realpath 判界：不存在、悬空链接、仓外目标一律 false。
+ * 检查目标路径是否属于仓库内部。
+ * 依据真实物理路径判断：不存在、悬空链接、仓外目标均返回 false。
  */
 export function isPathContainedInRepo(repoRoot: string, targetPath: string): boolean {
   try {
@@ -205,8 +200,8 @@ export function isPathContainedInRepo(repoRoot: string, targetPath: string): boo
 }
 
 /**
- * 经单一文件描述符读取：realpath 判界之后，用 fd 打开、fstat 复核普通文件、再经同一 fd 读出。
- * 判界与读取因此绑定在同一 inode 上——期间路径被并发替换也不会把仓外内容读进来（CWE-367）。
+ * 校验并读取文件：realpath 确认在仓内后，用同一个文件描述符打开、复核是普通文件后读出，
+ * 防止在校验和读取之间路径被并发篡改。
  */
 function readVerified(realPath: string): { ok: true; text: string } | { ok: false; reason: SafeReadFailReason; error?: string } {
   let fd: number;
@@ -214,7 +209,7 @@ function readVerified(realPath: string): { ok: true; text: string } | { ok: fals
     fd = openSync(realPath, fsConstants.O_RDONLY | O_NOFOLLOW);
   } catch (e: unknown) {
     const code = (e as { code?: string }).code;
-    // ELOOP=末段是链接（判界后被替换）；ENOENT=目标消失——都按「不可信输入」拒绝，不重试。
+    // 遇到符号链接或文件突然消失直接按不可信输入拒绝
     if (code === 'ELOOP') { return { ok: false, reason: 'symlink-outside', error: String(e) }; }
     return { ok: false, reason: 'read-error', error: String(e) };
   }
@@ -225,12 +220,12 @@ function readVerified(realPath: string): { ok: true; text: string } | { ok: fals
   } catch (e: unknown) {
     return { ok: false, reason: 'read-error', error: String(e) };
   } finally {
-    try { closeSync(fd); } catch { /* 关描述符失败不掩盖读取结论 */ }
+    try { closeSync(fd); } catch { /* 关闭文件描述符失败不覆盖主要结论 */ }
   }
 }
 
 /**
- * 安全读取仓内文件内容，拦截逃逸符号链接、悬空链接、目录 junction 及非普通文件。
+ * 安全读取仓库内文件，拦截逃逸符号链接、悬空链接、外部目录链接及非普通文件。
  */
 export function readRepoFileSafe(repoRoot: string, relOrAbsPath: string): SafeReadResult {
   const abs = isAbsolute(relOrAbsPath) ? resolve(relOrAbsPath) : resolve(repoRoot, relOrAbsPath);
@@ -251,7 +246,7 @@ export function readRepoFileSafe(repoRoot: string, relOrAbsPath: string): SafeRe
     try {
       real = realpathSync(abs);
     } catch (e: unknown) {
-      // ENOENT/ENOTDIR＝悬空链接；其余（ELOOP 自环等）＝解析失败——两者都不放开读取。
+      // 目标不存在或循环链接等情况统一按拒绝处理
       const code = (e as { code?: string }).code;
       return { ok: false, reason: code === 'ENOENT' || code === 'ENOTDIR' ? 'symlink-dangling' : 'symlink-outside', relPath: normRel };
     }
@@ -292,8 +287,8 @@ export function readRepoFileSafe(repoRoot: string, relOrAbsPath: string): SafeRe
 }
 
 /**
- * 安全列目录：目录本身可以是仓内的普通目录或指向仓内目录的符号链接；
- * 指向仓外（或悬空）的目录链接/junction 一律拒绝并给出 dir-junction-outside。
+ * 安全列出目录内容：目标可以为仓库内普通目录或指向仓内目录的符号链接；
+ * 若指向仓外或悬空则拒绝并返回 dir-junction-outside。
  */
 export function readRepoDirSafe(repoRoot: string, relOrAbsPath: string): SafeDirResult {
   const abs = isAbsolute(relOrAbsPath) ? resolve(relOrAbsPath) : resolve(repoRoot, relOrAbsPath);
@@ -306,7 +301,7 @@ export function readRepoDirSafe(repoRoot: string, relOrAbsPath: string): SafeDir
   } catch (e: unknown) {
     const code = (e as { code?: string }).code;
     if (isAbsentErrno(code)) { return { ok: false, reason: 'missing', relPath: normRel }; }
-    // 探测不了≠不存在：ELOOP/EACCES 一律报拒绝，调用方据此发披露事实（不静默缩水语料）。
+    // 无法检测直接报错拒绝，并在调用方记录事实，不悄悄跳过
     return { ok: false, reason: 'read-error', relPath: normRel, error: String(e) };
   }
 
@@ -341,7 +336,7 @@ export function readRepoDirSafe(repoRoot: string, relOrAbsPath: string): SafeDir
 }
 
 /**
- * 条目存在性探针（不读取内容）：用于把「不存在＝静默跳过」与「存在但被安全读取拒绝＝必须披露」分开。
+ * 探测文件或目录是否存在（不读取内容），用于将“文件不存在”与“存在但因安全规则被拦截”区分开来。
  * 返回 'absent' | 'link' | 'file' | 'dir' | 'other'。
  */
 export function probeRepoEntry(repoRoot: string, relOrAbsPath: string): 'absent' | 'link' | 'file' | 'dir' | 'other' {
@@ -352,7 +347,7 @@ export function probeRepoEntry(repoRoot: string, relOrAbsPath: string): 'absent'
   } catch (e: unknown) {
     const code = (e as { code?: string }).code;
     if (isAbsentErrno(code)) { return 'absent'; }
-    // 探测不了就交给安全读取去判定并披露（不可当作「没有」静默跳过）。
+    // 探测失败交给安全读取去判断并如实披露，不能悄悄当成不存在
     return 'other';
   }
   if (st.isSymbolicLink()) { return 'link'; }
@@ -361,7 +356,7 @@ export function probeRepoEntry(repoRoot: string, relOrAbsPath: string): 'absent'
   return 'other';
 }
 
-/** ADR 语料文件名口径（编号前缀的 .md）；目录安全枚举与文件名过滤同点，供 macro-b/macro-c/39 共用。 */
+/** 安全列出 ADR 目录下的文件（匹配以数字开头的 .md 文件）。 */
 export function listAdrFilesSafe(repoRoot: string, relDir: string): { ok: true; files: string[] } | { ok: false; reason: SafeDirFailReason; relPath: string } {
   const dir = readRepoDirSafe(repoRoot, relDir);
   if (!dir.ok) { return { ok: false, reason: dir.reason, relPath: dir.relPath }; }

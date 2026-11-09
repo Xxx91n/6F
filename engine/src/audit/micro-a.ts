@@ -1,15 +1,10 @@
-// audit/micro-a.ts —— Micro-A（PR diff）一等面（#85② / D-204③④；产线化前置=同族基准差分重校准硬准入）
-// .scratch/architecture-recovery/reports/48-micro-a-preview.mjs 移植：编排语义逐段保真——
-//   48 §0 切片契约 → §1 票面写死实例 → §2 工具/形态分类 → §3 骨架交集 → §4 采集（枚举＋元数据＋diff 双通道）
-//   → §5 diff 工件（local-git 优先 / api 兜底）→ §6 单 PR 报告 → §7 拒绝件 → §8 事实落盘 → §9-10 编排。
-// 移植差异面（预声明包 reports/2026-10-05-r63-t1-predecl.md §1.2 声明在案，禁静默）：
-//   ①input=github 托管仓 ref——本地路径/名册外仓结构化拒绝 MICRO-A-INPUT / MICRO-A-SCOPE（D-013/D-049③）;
-//   ②repoRoot=null（engine 面无 sibling 假设）——diff 腿=api 通道，repoRoot 提供时 local-git 优先逻辑照走;
-//   ③fact 发射=fact-write.ts 共享核：commits=[]（PR 粒度无 commit grain，500 节拍批）；intake 恒等式断言跳过（无 intake 探针面）;
-//   ④重校准=85-check E 组差分对账（引擎面 cassette 回放 vs 48 生成器 golden 存档——等值集 §1.3）;
-//   ⑤AuditResult primary=首钉 PR；全量 PR 工件 micro-a-pr<N>.* 落 outDir；receipt 不与 48 存档逐字节等（证据文件名差异）;
-//   ⑥golden 回放仅模块级（opts.fetcher 注入）；CLI 面真跑=真网络三级凭据探测。
-// 纪律：被测托管仓只读（REST GET）；凭据即用即清永不入 fact；D-179① run 时戳唯一熵源=deterministicRunAt。
+// audit/micro-a.ts —— 改动档（PR 档）审计核心流程
+// 针对单个拉取请求（PR）的代码差异与相关信息进行审计：
+//   1. 检查 PR 元数据与差异详情
+//   2. 区分改动形态（人类提交、自动化发布机器人等）
+//   3. 检查报告各必要字段完整性
+//   4. 事实入库与证据生成
+// 原则：对远程仓库只读；凭据用完即清，不写入事实库；时间戳保持确定性。
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, unlinkSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -29,8 +24,8 @@ import type { AuditOptions, AuditResult } from './audit.js';
 
 const NL = String.fromCharCode(10);
 
-// ---------- 判据常量（48 §0/§1/§2 跑前写死段移植——A/B/C 三层闸门：判据先于实跑，跑后禁调） ----------
-export const MICRO_A_CAPABILITY_LABEL = 'capability 3 of 5 · preview';   // #85② 产线化翻转（D-204③④）；48 存档 D-e4 历史值另册不随动
+// ---------- 判据常量（跑前写死，跑完不许改动） ----------
+export const MICRO_A_CAPABILITY_LABEL = 'capability 3 of 5 · preview';
 export const MICRO_A_REPORT_ID_PREFIX = 'MA-48-';
 export const MICRO_A_SLICE_FIELDS = [
   'pr_number', 'pr_title', 'pr_state', 'merged', 'merged_at',
@@ -39,16 +34,16 @@ export const MICRO_A_SLICE_FIELDS = [
   'diff_channel', 'diff_files_changed', 'diff_additions', 'diff_deletions', 'diff_bytes',
   'credential_strategy', 'credential_degraded', 'api_calls', 'rate_limit_remaining'
 ];
-const RELEASE_TITLE = new RegExp('^chore[(][^)]*[)]: release [0-9]+[.][0-9]+[.][0-9]+');   // release-please 产物签名（#37 教训：收窄到产物形态非主题词；字符类正则零反斜杠纪律）
+const RELEASE_TITLE = new RegExp('^chore[(][^)]*[)]: release [0-9]+[.][0-9]+[.][0-9]+');   // 匹配 release-please 提交标题
 const CRITERIA_PATH = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
-// Design: 证据锚须为仓内可解析坐标，禁指已退役 .scratch — ADR-0027
+// 理由：证据坐标必须指向仓库内现行可解析的文件。
 const LEDGER_PATH = 'docs/archive/decisions/macro-audit-ledger.md';
 const LEDGER_REPRO = 'git -C <repo> show HEAD:' + LEDGER_PATH;
 const CRITERION_IDS = ['PC-1', 'TC-1', 'TC-2', 'TC-3', 'TC-4', 'NC-1'];
 export const MICRO_A_GOLDEN_PRS = [{ n: 64, form: 'machine-generated/release-please' }, { n: 51, form: 'human' }];
 export const MICRO_A_GOLDEN_DIFFS = [64];
 
-// 票面写死实例（D-049③：恰 4 条 merged；不给通用公式——泛化=GA Generalization Gate R-48-*-2）
+// 固定试点用例定义
 export interface MicroAPin { n: number; form: string }
 export interface MicroAPilot { name: string; owner: string; repo: string; pins: readonly MicroAPin[] }
 export const MICRO_A_PILOTS: readonly MicroAPilot[] = [
@@ -59,16 +54,16 @@ export const MICRO_A_PILOTS: readonly MicroAPilot[] = [
   ] },
   { name: 'jiahao', owner: 'Xxx91n', repo: 'jiahao', pins: [{ n: 6, form: 'human' }] }
 ];
-export const MICRO_A_REFUSAL_FACE = { name: 'goose-duck-agent', owner: 'Xxx91n', repo: 'goose-duck-agent' };   // 真负例拒绝主体（托管枚举 merged=0）
-export const MICRO_A_DRIFT_FACE = { name: 'anysearch-cli', owner: 'Xxx91n', repo: 'anysearch-cli' };   // 票面前提漂移核查——harness 面留 48 生成器（偏差①）
+export const MICRO_A_REFUSAL_FACE = { name: 'goose-duck-agent', owner: 'Xxx91n', repo: 'goose-duck-agent' };   // 负对照主体（合并 PR 数为 0）
+export const MICRO_A_DRIFT_FACE = { name: 'anysearch-cli', owner: 'Xxx91n', repo: 'anysearch-cli' };
 
-// ---------- 结构化拒绝（偏差①；cli 泛型 catch → exit 2 同 AuditScaleError 形） ----------
+// ---------- 结构化拒绝错误 ----------
 export interface MicroAInputError { code: 'MICRO-A-INPUT' | 'MICRO-A-SCOPE'; message: string; pilots: readonly string[]; requested: string }
 export function isMicroAInputError(e: unknown): e is MicroAInputError {
   return !!e && typeof e === 'object' && ((e as { code?: string }).code === 'MICRO-A-INPUT' || (e as { code?: string }).code === 'MICRO-A-SCOPE');
 }
 
-// ---------- D-179① 确定性 run 时戳（_lib/env-contract.mjs deterministicRunAt 同源语义——缺省 epoch 0） ----------
+// ---------- 运行时间戳（支持环境变量固定，默认 epoch 0） ----------
 export function deterministicRunAt(): string {
   const e = process.env.SOURCE_DATE_EPOCH;
   if (e === undefined || e === '') { return new Date(0).toISOString(); }
@@ -77,7 +72,7 @@ export function deterministicRunAt(): string {
   return new Date(Math.trunc(n) * 1000).toISOString();
 }
 
-// ---------- 共享注入面（测试/E 组 cassette 注入；CLI 真跑=空 shared 走适配器真网络） ----------
+// ---------- 测试与回放注入接口 ----------
 export interface MicroAGhTokenProbe { (): { available: boolean; token: string | null } }
 export interface MicroACassetteFetcher { (req: { url: string; method: string; accept?: string }): Promise<{ status: number; headers: Record<string, string>; body: string }> }
 export interface MicroAShared { env?: Record<string, string>; ghTokenProbe?: MicroAGhTokenProbe; fetcher?: MicroACassetteFetcher }
@@ -90,11 +85,9 @@ function tryGit(root: string, args: readonly string[]): string | null {
   try { return execFileSync('git', ['-C', root].concat(args), { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); } catch (e) { return null; }
 }
 
-// 预声明锚（48 §2 D-179① 伴生确定性：钉 CRITERIA_PATH 最后变更 commit——判据不动即恒值；非运行时 HEAD）
-// Design: 浅克隆取不到末次变更，不得静默交出边界 commit，须落显式降级标记 — spec §R9-1
+// 解析判据文件的变更提交：若浅克隆无法追溯完整历史，则明确返回降级标记，不假装拿到完整提交
 export function resolvePreregCommit(root: string | null, criteriaPath: string): string {
   if (root === null) { return preregDegraded('no-source-repo'); }
-  // isShallowRepo 走 intake 的 gitOk：判不了深度是**抛出**而非返回 false，本函数又在模块加载期被调用，抛出即拖垮整条 Micro-A 面。
   let shallow: boolean;
   try { shallow = isShallowRepo(root); } catch (e) { return preregDegraded('depth-unknown'); }
   if (shallow) { return preregDegraded('shallow-clone'); }
@@ -114,7 +107,7 @@ function sourceRepoRoot(): string | null {
 }
 const PREREG_COMMIT = resolvePreregCommit(sourceRepoRoot(), CRITERIA_PATH);
 
-// ---------- §4 采集（48 collectTarget 逐行移植——枚举＋元数据＋diff 双通道，事实=适配器唯一来源） ----------
+// ---------- 采集流程 ----------
 export function microACollectContext(t: { name: string; owner: string; repo: string }, headSha: string | null, runAt: string): CollectContext {
   return {
     runId: 'r48-' + t.name + '-' + (headSha || 'na').slice(0, 7),
@@ -139,7 +132,7 @@ export async function collectMicroA(t: MicroATarget, shared: MicroAShared, diffs
   return { t: t, ctx: ctx, res: res, summaries: summaries, mergedCount: mergedCount, headSha: headSha };
 }
 
-// 托管面资格闸（D-033 硬约束逆用）：merged PR >=1 → eligible；=0 → intake 显式拒绝（48 gateProbe 逐行移植）
+// 检查是否具备合格的托管 PR：已合并 PR 数需大于等于 1；为 0 则明确拒绝
 export interface MicroAGate { name: string; owner: string; repo: string; merged_prs: number; prs_listed: number; eligible: boolean; strategy: string; degraded: boolean; calls: number; stopped_reason: string | null; facts: CollectedFact[]; ctx: CollectContext; headSha: string | null; refusal: boolean }
 export async function gateProbeMicroA(g: { name: string; owner: string; repo: string; root?: string | null; refusal?: boolean }, shared: MicroAShared, runAt: string): Promise<MicroAGate> {
   const t: MicroATarget = { name: g.name, owner: g.owner, repo: g.repo, root: g.root || null, pins: [] };
@@ -147,7 +140,7 @@ export async function gateProbeMicroA(g: { name: string; owner: string; repo: st
   return { name: g.name, owner: g.owner, repo: g.repo, merged_prs: r.mergedCount, prs_listed: r.res.prs_listed, eligible: r.mergedCount >= 1, strategy: r.res.strategy, degraded: r.res.degraded, calls: r.res.calls, stopped_reason: r.res.stopped_reason, facts: r.res.facts, ctx: r.ctx, headSha: r.headSha, refusal: g.refusal === true };
 }
 
-// ---------- §5 diff 工件（与适配器同路径再现：local-git 优先 / api 兜底；写 .diff 供行级引文锚） ----------
+// ---------- 提取 diff 差异内容 ----------
 export interface MicroADiffArtifact { ok: boolean; channel: string; bytes: number; stats: { files_changed: number | null; additions: number | null; deletions: number | null }; error: string | null }
 export async function fetchDiffArtifactMicroA(t: MicroATarget, n: number, baseSha: string, headSha: string, shared: MicroAShared, outDir: string | null, outName: string): Promise<MicroADiffArtifact> {
   const cred = resolveGithubCredential(shared.env || (process.env as Record<string, string>), shared.ghTokenProbe);
@@ -162,7 +155,7 @@ export async function fetchDiffArtifactMicroA(t: MicroATarget, n: number, baseSh
   return { ok: d.ok, channel: d.channel, bytes: d.text.length, stats: d.stats, error: d.ok ? null : String(d.detail || d.error_kind || 'unknown') };
 }
 
-// ---------- §2 形态分类（48 classifyForm 逐行移植） ----------
+// ---------- 提交形态分类 ----------
 export function classifyForm(v: Record<string, unknown>): string {
   if (v.bot_declared === true && /dependabot/i.test(String(v.author_login))) { return 'platform-declared-bot/dependabot'; }
   if (v.bot_declared === true && RELEASE_TITLE.test(String(v.title))) { return 'machine-generated/release-please'; }
@@ -170,7 +163,7 @@ export function classifyForm(v: Record<string, unknown>): string {
   return 'human';
 }
 
-// ---------- §3 骨架交集机械导出（48 skeletonIntersectionReport 逐行移植；NN-check 由常量 ∩ 骨架 required_fields 断言，禁手抄漂移） ----------
+// ---------- 报告必要字段检查 ----------
 export function skeletonIntersectionReport(sidecar: Record<string, unknown>, mdText: string): { ok: boolean; missing: string[] } {
   const missing: string[] = [];
   const rename: Record<string, string> = { stale_data_marker: 'stale.marker', staleness_sla_seconds: 'stale.sla_seconds', read_model_lag_seconds: 'stale.lag_seconds', read_model_version: 'stale.read_model_version', fact_watermark_version: 'stale.fact_watermark_version', evidence_items: 'evidence' };
@@ -207,7 +200,7 @@ export function skeletonIntersectionReport(sidecar: Record<string, unknown>, mdT
   return { ok: missing.length === 0, missing: missing };
 }
 
-// ---------- 共享小工具 ----------
+// ---------- 辅助函数 ----------
 function val(f: CollectedFact): Record<string, unknown> { return JSON.parse(f.value_json) as Record<string, unknown>; }
 function byMetric(facts: readonly CollectedFact[], m: string): CollectedFact[] { return facts.filter(function (f) { return f.metric === m; }); }
 function prFact(facts: readonly CollectedFact[], metric: string, n: number): CollectedFact | null {
@@ -233,7 +226,7 @@ function pickExcerpt(absOrRelPath: string, tokens: readonly string[] | null, bas
   throw new Error('EXCERPT-MISS: ' + absOrRelPath + ' tokens=' + String(tokens));
 }
 
-// ---------- §6 单 PR 报告构建（48 buildPrReport 逐段移植：共享骨架四章＋Micro-A 切片＋披露三件套） ----------
+// ---------- 单 PR 报告构建 ----------
 export interface MicroAPrRunOpts { golden: boolean; outDir: string | null; measName: string; factsName: string }
 export interface MicroAPrResult { pr: number; form_expected: string; form_actual: string; form_match: boolean; merged: boolean; overall: string; receipt: string; diff_channel: string | null; artifact: MicroADiffArtifact; skeleton: { ok: boolean; missing: string[] }; outputs: { md: string; sidecar: string; diff: string | null }; fact_ids: string[] }
 export async function buildPrReportMicroA(t: MicroATarget, pin: MicroAPin, collected: MicroACollect, gate: { merged_prs: number; eligible: boolean }, shared: MicroAShared, opts: MicroAPrRunOpts): Promise<MicroAPrResult> {
@@ -253,14 +246,14 @@ export async function buildPrReportMicroA(t: MicroATarget, pin: MicroAPin, colle
   const merged = (meta !== null && meta.merged === true) || (sum !== null && sum.merged_at !== null && sum.state === 'closed');
   const formActual = meta !== null ? classifyForm(meta) : (sum !== null ? classifyForm(sum) : 'unknown');
   const formMatch = formActual === pin.form;
-  // diff 工件：与采集同路径再现（local-git 优先 / api 兜底——走主路/回退如实标注）
+  // 提取 diff 差异产物
   const artName = PRE + NAME + '-pr' + pin.n + '.diff';
   const art = await fetchDiffArtifactMicroA(t, pin.n, sum ? String(sum.base_sha) : '', sum ? String(sum.head_sha) : '', shared, opts.outDir, artName);
-  // 判据评估（48-micro-a-criteria.md 预声明；跑后禁调）
+  // 判据规则评估
   const tripleOk = sumF !== null && metaF !== null && diffF !== null && merged === true;
   const numStatsOk = diff !== null && typeof diff.files_changed === 'number' && typeof diff.additions === 'number' && typeof diff.deletions === 'number';
   const channelOk = diff !== null && (diff.channel === 'local-git' || diff.channel === 'api') && typeof diff.bytes === 'number' && (diff.bytes as number) > 0;
-  // api 腿契约=NULL_STATS 如实缺席（适配器 apiDiff 不算 numstat）——api 腿改判 detail 注记在场；local-git 腿须数值齐备
+  // 接口获取 diff 时若无具体行数统计，需有相应说明
   const tc2ok = channelOk && (diff !== null && diff.channel === 'api' ? (typeof diff.detail === 'string' && (diff.detail as string).length > 0) : numStatsOk);
   const botFieldsOk = sum !== null && typeof sum.bot_declared === 'boolean' && typeof sum.bot_basis === 'string' && String(sum.bot_basis).indexOf('platform-declared') === 0;
   const EV = function (k: number): string { return 'EV-48-' + R + '-PR' + pin.n + '-0' + k; };
@@ -273,7 +266,7 @@ export async function buildPrReportMicroA(t: MicroATarget, pin: MicroAPin, colle
     { criterion_id: 'NC-1', band: merged && formMatch ? 'supported' : 'unsupported', basis_refs: ['B4'], anchored_fact_ids: sumF ? [sumF.fact_id] : [], anchored_evidence_ids: [EV(3)], decided_at: RUN_AT, rationale: '负对照：入选实例 ' + pin.form + ' 票面写死；实测 form=' + formActual + ' merged=' + String(merged) + '（closed-unmerged 不入集、形态错配即判负）' }
   ];
   const overall = deriveOverallBand(entries);
-  // Micro-A 切片字段（契约 = MICRO_A_SLICE_FIELDS）
+  // 改动档各专属字段内容
   const sliceFields: Record<string, unknown> = {
     pr_number: pin.n,
     pr_title: sum ? String(sum.title) : '',
@@ -299,7 +292,7 @@ export async function buildPrReportMicroA(t: MicroATarget, pin: MicroAPin, colle
     api_calls: run ? run.calls : null,
     rate_limit_remaining: run ? run.final_remaining : null
   };
-  // 证据（C3：行级引文锚——diff 工件行 / 实测文件行 / 账本行；摘取失败如实 grounded=false）
+  // 构建引文证据
   const evidence: EvidenceItem[] = [];
   function addEvidence(id: string, src: string, tokens: readonly string[], claim: string, repro: string, base: string | null): void {
     let ex: { line: number; text: string } | null = null;
@@ -327,7 +320,7 @@ export async function buildPrReportMicroA(t: MicroATarget, pin: MicroAPin, colle
     { claim_id: 'CL-48-' + R + '-PR' + String(pin.n) + '-04', evidence_id: EV(4), required_tokens: ['D-049'] },
     { claim_id: 'CL-48-' + R + '-PR' + String(pin.n) + '-05', evidence_id: EV(5), required_tokens: ['TC-4'] }
   ];
-  // 四象限（Micro-A：behavior=native 单面；其余 not_applicable 如实披露）
+  // 四象限状态（改动档仅分析行为面，其余象限如实披露为不适用）
   const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'engine/src/audit/micro-a.ts' };
   const isDep = formActual === 'platform-declared-bot/dependabot';
   const quadrants: QuadrantEntry[] = [
@@ -352,7 +345,7 @@ export async function buildPrReportMicroA(t: MicroATarget, pin: MicroAPin, colle
       'supply_chain 象限 not_applicable：Scorecard 未接（D-034③）；dependabot PR 的供应链信号仅作事实落库',
       '适配器硬化面已落 engine 一等面（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts（重校准背书=85-check E 组）'
     ]),
-    not_in_preview: ['Macro-A']   // Micro-A 产线化入 preview（#85②/D-204③④）；Macro-A 层序末位未启动
+    not_in_preview: ['Macro-A']
   };
   const reportInput: ReportInput = {
     report_id: MICRO_A_REPORT_ID_PREFIX + R + '-PR' + String(pin.n) + '-PREVIEW',
@@ -403,7 +396,7 @@ export async function buildPrReportMicroA(t: MicroATarget, pin: MicroAPin, colle
 }
 
 
-// ---------- §7 拒绝件：无托管面显式拒绝（48 buildRefusalReport 逐行移植；偏差⑦：漂移证据行留 48 生成器 harness） ----------
+// ---------- 拒绝报告构建（无合格 PR 时的处理） ----------
 export interface MicroARefusalOpts { golden: boolean; outDir: string | null; measName: string }
 export interface MicroARefusalResult { refusal_for: string; overall: string; receipt: string; outputs: { md: string; sidecar: string } }
 export async function buildRefusalReportMicroA(g: { name: string; owner: string; repo: string; headSha: string | null; root: string | null; facts: CollectedFact[]; ctx: CollectContext }, shared: MicroAShared, opts: MicroARefusalOpts): Promise<MicroARefusalResult> {
@@ -485,7 +478,7 @@ export async function buildRefusalReportMicroA(g: { name: string; owner: string;
   return { refusal_for: g.name, overall: report.overall_verdict, receipt: report.receipt.receipt_id, outputs: { md: mdName, sidecar: jsonName } };
 }
 
-// ---------- §10 一等命令装配（48 §8/§10 单仓编排＋audit.ts 家族形态；capability 3 of 5 · preview） ----------
+// ---------- 组装改动档审计命令 ----------
 export async function runMicroAAudit(opts: AuditOptions): Promise<AuditResult> {
   const ref = parseGithubRepoRef(opts.input);
   const pilotList = MICRO_A_PILOTS.map(function (p) { return p.owner + '/' + p.repo; });
@@ -503,9 +496,9 @@ export async function runMicroAAudit(opts: AuditOptions): Promise<AuditResult> {
   mkdirSync(outDir, { recursive: true });
   const MEAS_NAME = 'audit-measurements.json';
   const FACTS_NAME = 'audit-facts.jsonl';
-  const shared: MicroAShared = {};   // 真跑：适配器内部三级探测 env-token→gh-token→unauthenticated 如实降级
+  const shared: MicroAShared = {};   // 实际运行：内部探测环境变量或 token，若缺失则正常降级处理
   const t: MicroATarget = { name: pilot.name, owner: pilot.owner, repo: pilot.repo, root: null, pins: pilot.pins };
-  // §4 采集（一次采集全 PR 共享——48 runRepo 同构）
+  // 执行采集
   const collected = await collectMicroA(t, shared, undefined, runAt);
   const gate = { merged_prs: collected.mergedCount, eligible: collected.mergedCount >= 1 };
   const meas: Record<string, unknown> = {
@@ -525,12 +518,12 @@ export async function runMicroAAudit(opts: AuditOptions): Promise<AuditResult> {
       perPr.push({ n: r.pr, form_expected: r.form_expected, form_actual: r.form_actual, form_match: r.form_match, merged: r.merged, overall: r.overall, receipt: r.receipt, diff_channel: r.diff_channel, diff_artifact: r.outputs.diff, diff_bytes: r.artifact.bytes, skeleton_ok: r.skeleton.ok, skeleton_missing: r.skeleton.missing });
     }
   }
-  // §7 拒绝腿（gate 未过 → intake 显式拒绝）
+  // 未通过资格检查时生成拒绝报告
   let refusalResult: MicroARefusalResult | null = null;
   if (!gate.eligible) {
     refusalResult = await buildRefusalReportMicroA({ name: pilot.name, owner: pilot.owner, repo: pilot.repo, headSha: collected.headSha, root: null, facts: collected.res.facts, ctx: collected.ctx }, shared, { golden: false, outDir: outDir, measName: MEAS_NAME });
   }
-  // §8 事实落盘（偏差③：fact-write.ts 共享核——PR 事实节拍批，零 commit grain）
+  // 事实落盘保存
   const dbPath = join(outDir, 'facts.duckdb');
   if (existsSync(dbPath)) { unlinkSync(dbPath); }
   if (existsSync(dbPath + '.wal')) { unlinkSync(dbPath + '.wal'); }
@@ -549,10 +542,10 @@ export async function runMicroAAudit(opts: AuditOptions): Promise<AuditResult> {
   });
   await writer.run('FORCE CHECKPOINT');
   closeDuckdb(writer);
-  // 工件：facts JSONL（raw fact 面，macro-c §9 同型）＋measurements（48 meas 形状＋pipeline 溯源）
+  // 写入 JSONL 格式事实与测量指标
   writeFileSync(join(outDir, FACTS_NAME), collected.res.facts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
   writeFileSync(join(outDir, MEAS_NAME), JSON.stringify(meas, null, 2) + NL, 'utf8');
-  // primary=首钉 PR（偏差④）；拒绝 run primary=拒绝件
+  // 读取主报告输出
   const primaryMdName = prResults.length > 0 ? prResults[0].outputs.md : (refusalResult as MicroARefusalResult).outputs.md;
   const primaryJsonName = prResults.length > 0 ? prResults[0].outputs.sidecar : (refusalResult as MicroARefusalResult).outputs.sidecar;
   const primaryMd = readFileSync(join(outDir, primaryMdName), 'utf8');

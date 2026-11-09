@@ -1,12 +1,12 @@
-// audit/audit.ts — `macro-audit audit` 一等命令装配层（#53 / D-060）
-// 签名：macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]
-// 链 = repoAdd 输入裁决（本地路径默认/owner-repo 本地优先/URL 显式 opt-in 隔离 clone）
-//   → 共享管线 audit/macro-b.ts（probe→collectors＋codelore 面→facts→骨架渲染前置件，与 demo 同消费）
-//   Macro-C（#84/D-204②④）：scale=Macro-C dispatch→audit/macro-c.ts（38 管线移植一等面）
-//   → facts（audit-facts.jsonl＋facts.duckdb，同一 appendFact 追加路径）
-//   → 报告（buildReport + preview_disclosure「capability 1 of 5 · preview」＋报告头 stability/capabilities）
-// 纪律：被测仓只读；不自动 pull（--refresh 显式 opt-in 才 fetch）；--scale 未实装层诚实拒绝 exit 2；
-//   叙事职责不外携（kernel 面止于 facts+骨架，叙事=宿主 agent 经 MCP 读 facts，D-053）。
+// audit/audit.ts — `macro-audit audit` 命令行总入口
+// 语法：macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]
+// 流程：
+//   1. 接收仓库输入并解析路径（默认读取本地目录，owner/repo 形式优先使用本地同名目录，远程地址需主动同意）
+//   2. 调用单仓四象限档共享管线（信息探测、事实采集、行为指标分析、报告骨架组装）
+//   3. 若指定了历史演化档或改动档，则分发到对应的处理模块
+//   4. 将事实数据写入数据库和文件
+//   5. 组装并生成最终的 Markdown 与 JSON 报告
+// 原则：对仓库只读；默认不自动拉取远程最新更新（加 --refresh 明确同意才拉取）；遇到未支持的审计档位如实返回不支持。
 
 import { mkdirSync, writeFileSync, existsSync, unlinkSync, readFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
@@ -27,11 +27,9 @@ import { reaggregateFileFacetRows, reconcilePerFileVsAggregate } from '../upstre
 
 const NL = String.fromCharCode(10);
 
-// 已实现规模面（D-060③：--scale 缺省 Macro-B；其余层未实装 → 诚实拒绝 exit 2）
-// Design: 5 档 scale 全规划覆盖（build-scope） — ADR-0001
-// Design: preview 按层序逐层上架，未上架层只披露不承诺 — ADR-0017
-export const AUDIT_SCALES_IMPLEMENTED: readonly string[] = ['Macro-B', 'Macro-C', 'Micro-A'];   // Macro-C 产线化（#84/D-204②④）＋Micro-A 产线化（#85②/D-204③④）；层序不动（Preview 分级发布层序 Macro-C→Micro-A→Micro-B→Macro-A）
-const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（ADR-0017③ 层序，Macro-B/Macro-C/Micro-A 已上架 preview）';
+// 理由：规划覆盖 5 档审计规模；预览版按顺序逐步开放能力，未支持的档位明确说明不支持，不假装可用。
+export const AUDIT_SCALES_IMPLEMENTED: readonly string[] = ['Macro-B', 'Macro-C', 'Micro-A'];
+const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（Macro-B/Macro-C/Micro-A 已上架 preview）';
 const SCALE_CANON: Record<string, string> = { 'microa': 'Micro-A', 'microb': 'Micro-B', 'macroa': 'Macro-A', 'macrob': 'Macro-B', 'macroc': 'Macro-C' };
 
 export interface AuditScaleError { code: 'SCALE-NOT-IMPLEMENTED'; message: string; implemented: readonly string[]; requested: string; layer_order: string }
@@ -54,7 +52,7 @@ export function normalizeAuditScale(raw: string | undefined): string {
   return req;
 }
 
-// owner/repo、url、本地路径 → 报告用仓名（provenance 署名面）
+// 提取用于报告展示的仓库简称
 export function auditRepoName(input: string, resolvedRoot: string): string {
   const t = input.trim();
   if (/^(https?|ssh|git|file):\/\//.test(t) || t.indexOf('git@') === 0) {
@@ -68,10 +66,10 @@ export function auditRepoName(input: string, resolvedRoot: string): string {
 export interface AuditOptions {
   input: string;
   scale?: string;
-  outDir?: string;       // 缺省=不落盘，报告 md 走 stdout
-  json?: boolean;        // 报告面走 sidecar JSON
-  refresh?: boolean;     // 透传 repoAdd refresh opt-in（#55/D-059⑦）
-  strictQuarantine?: boolean;  // D-110 strict 门禁：quarantined 行 reason_code 越仓级基线→硬崩（flag 只传开关，基线=版本化常量）
+  outDir?: string;       // 结果输出目录，未指定则输出到标准输出
+  json?: boolean;        // 是否输出 JSON 格式
+  refresh?: boolean;     // 是否主动拉取更新
+  strictQuarantine?: boolean;  // 严格隔离模式：遇到不在已知范围内的异常字段时报错终止
   cwd?: string;
 }
 
@@ -105,7 +103,7 @@ export interface AuditResult {
 }
 
 const AUDIT_INTENT_CANDIDATES: readonly string[] = ['CONTEXT.md', 'README.md', 'AGENTS.md'];
-// NC-1 负对照候选集=39 同款宽面（跨生态非 ADR 文件，五件套预期 0 命中）
+// 负对照候选文件列表
 const AUDIT_NC1_CANDIDATES: readonly string[] = ['package.json', 'README.md', 'README.adoc', 'README.rst', 'README', 'Cargo.toml', 'pom.xml', 'build.gradle', 'LICENSE', 'LICENSE.txt', 'pyproject.toml', 'go.mod', 'Makefile'];
 
 function pickExcerpt(absOrRelPath: string, tokens: readonly string[] | null, base: string | null): { line: number; text: string } {
@@ -129,25 +127,24 @@ function pickExcerpt(absOrRelPath: string, tokens: readonly string[] | null, bas
 
 export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   const scale = normalizeAuditScale(opts.scale);
-  if (scale === 'Macro-C') { return runMacroCAudit(opts); }   // #84/D-204②④：Macro-C 一等面（38 管线移植）
-  if (scale === 'Micro-A') { return runMicroAAudit(opts); }   // #85②/D-204③④：Micro-A 一等面（48 管线移植）
+  if (scale === 'Macro-C') { return runMacroCAudit(opts); }   // 分发至历史演化档
+  if (scale === 'Micro-A') { return runMicroAAudit(opts); }   // 分发至改动档
   const cwd = opts.cwd || process.cwd();
 
-  // ---------- §1 intake（本地默认/owner-repo 本地优先/URL 显式 opt-in；不自动 pull，refresh 显式 opt-in） ----------
+  // 接入仓库路径并解析
   const intake: RepoAddResult = repoAdd(opts.input, { cwd: cwd, refresh: opts.refresh === true });
   const repoRoot = intake.resolved_root;
   const NAME = auditRepoName(opts.input, repoRoot);
 
-  // ---------- §2 共享管线链（audit/macro-b.ts；与 demo 同消费） ----------
+  // 运行基础探测并提取提交记录
   const probes = probeMacroBRepo(repoRoot, intake.head_sha);
   const ctx = macroBContext('audit-' + NAME, NAME, probes.headSha, probes.headDate, probes.headRaw);
-  // 锚字段病态→观测时点不可用：decided_at/generated_at 用显式哨兵标记（不落伪时间戳）
+  // 提交时间异常时标记为隔离状态，避免伪造时间戳
   const HEAD_AT = probes.headDate === null ? 'quarantined(anchor_head_date_malformed)' : probes.headDate;
   const anchorQuarantined = probes.headDate === null;
   const excludedCommits = probes.commits.filter(function (c) { return c.date === null; }).length;
 
-  // strict quarantine 门禁（D-110）：写入副作用前先求值——quarantined 行 reason_code 越基线
-  // 或基线滞留码（棘轮：只减不增）→硬崩 fail-closed
+  // 严格隔离模式：如果出现未预期的字段异常原因码则报错终止
   if (opts.strictQuarantine === true) {
     const violations = strictQuarantineViolations(probes.fieldEvents).concat(ratchetIssues(probes.fieldEvents));
     if (violations.length > 0) {
@@ -170,9 +167,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   }, ctx, probes);
   const ev = evaluateMacroB(col);
 
-  // ---------- §3 行为面判据（codelore 实跑成功时；51 同款 PC/TC/NC 形） ----------
-  // 消费面迁移（#80 步① / D-124③）：判据读源=facet_rows 聚合→per-file file_facet_row 重聚合（BbA 双实现先例）；
-  //   facet_rows 保留为 raw 证据锚（anchored_fact_ids 指向 append-only raw 层），对账判据=per_file 重算↔聚合载荷多重集相等。
+  // 行为指标评估
   const facetFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_rows'; });
   const facetErrs = col.codeloreFacts.filter(function (f) { return /facet_(parse_)?error/.test(f.metric); });
   const fileFacetFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.file_facet_row'; });
@@ -194,7 +189,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   const bhvNc1 = BHV_DEFERRED.length > 0;
   const behaviorBand = bhvRan ? ((bhvPc1 && bhvTc1 && bhvTc2 && bhvNc1) ? 'supported' : 'insufficient') : 'insufficient';
 
-  // ---------- §4 实测数落盘（省略 --out 时落运行目录：证据锚可读；跑完即弃不污染 cwd） ----------
+  // 记录实测指标数据
   const persistOut = !!opts.outDir;
   const outDir = opts.outDir ? resolve(cwd, opts.outDir) : mkdtempSync(join(tmpdir(), 'macro-audit-run-'));
   mkdirSync(outDir, { recursive: true });
@@ -212,8 +207,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
       threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
       strict_mode: opts.strictQuarantine === true
     },
-    // D-128④ 双轴披露=独立面（run 元数据载体）：方言吸收事件＋采集环境元数据——
-    // 禁入 Intake Health 统计/禁入 golden 字节比对面/禁打 ⚠（仪器元数据与测量值分离，OTel Resource 先例）。
+    // 工具写法差异记录与运行环境信息
     collection_environment: {
       git_version: probeGitVersion(),
       instrument_dialect: {
@@ -235,7 +229,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   };
   if (outDir) { writeFileSync(join(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL, 'utf8'); }
 
-  // ---------- §5 证据 + 结论→引文锚（源=工件相对名，锚可机检） ----------
+  // 整理结论与证明引文
   const evidence: EvidenceItem[] = [];
   const R = NAME.toUpperCase().split('-').join('').split('/').join('');
   const RUN_CMD = 'macro-audit audit ' + opts.input + (opts.outDir ? ' --out ' + opts.outDir : '');
@@ -243,7 +237,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     const ex = pickExcerpt(source, tokens, base);
     evidence.push({ evidence_id: id, source: source, locator: 'L' + ex.line, claim: claim, grounded: true, collected_at: HEAD_AT, reproduce_cmd: RUN_CMD, reproduce_absent_reason: null, required_tokens: [], excerpt: ex.text });
   }
-  const measBase = outDir;   // 运行目录（outDir 或 scratch）——工件相对名锚均可读
+  const measBase = outDir;
   addEvidence('EV-AUDIT-' + R + '-01', MEAS_NAME, ['"fact_count"'], '本次实测：' + NAME + ' Macro-B audit 采集事实数', measBase);
   addEvidence('EV-AUDIT-' + R + '-02', MEAS_NAME, ['"verdict"'], '本次实测：' + NAME + ' TC-1 ADR 事后补写判据裁定（' + ev.tc1.verdict + '）', measBase);
   addEvidence('EV-AUDIT-' + R + '-03', MEAS_NAME, ['"mean_ratio_4"'], '本次实测：' + NAME + ' TC-2 五件套完整度 mean_ratio', measBase);
@@ -263,7 +257,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     { claim_id: 'CL-AUDIT-' + R + '-06', evidence_id: 'EV-AUDIT-' + R + '-07', required_tokens: ['snapshot_fetched_at'] }
   ];
 
-  // ---------- §6 裁决条目（39 同族 6 判据＋51 同族行为 4 判据） ----------
+  // 判据判定明细
   const GATE_REF = {
     prereg_commit: '7395495',
     criteria_path: 'reports/22-criteria-pre-registration.md',
@@ -288,9 +282,8 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   }
   const strategyBand = deriveOverallBand(adjudicationEntries);
 
-  // ---------- §7 四象限（strategy 原生；behavior=codelore 实跑决定 native/not_applicable；余两象限如实披露） ----------
+  // 四象限数据组装
   const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'engine/src/audit/audit.ts' };
-  // ---------- structure 摘帽接入（#87/D-205②③）：S3 族成对准入（六面全齐零错→derived；任一缺席→not_applicable——单指标禁孤立入维 #51） ----------
   const S3_FACES = CODELORE_S3_FACETS as unknown as readonly string[];
   const s3FaceFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_rows' && S3_FACES.indexOf(f.subject_ref) >= 0; });
   const s3FaceErrs = col.codeloreFacts.filter(function (f) { return /facet_(parse_)?error/.test(f.metric) && S3_FACES.indexOf(f.subject_ref) >= 0; });
@@ -330,7 +323,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     capability_label: 'capability 1 of 5 · preview',
     calibration_scope: NAME + ' Macro-B audit（audit 一等命令面；scale=Macro-B 已上架）',
     structural_limitations: limitations,
-    not_in_preview: ['Macro-A']   // Micro-B file-card 进 preview（#80 步③）；Macro-C 产线化入 preview（#84/D-204②④）；Micro-A 产线化入 preview（#85②/D-204③④）
+    not_in_preview: ['Macro-A']
   };
 
   const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
@@ -372,18 +365,12 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     intake_health: intakeHealth,
     human: { status: 'pending', adjudicator: 'user', text: null, decided_at: null }
   };
-  // ---------- §8 事实库先行写入（D-115① 逐 commit 事务边界＋D-116① 逐 commit 增量断言） ----------
-  // 锚病态（headDate quarantined）→ audit_fact.observed_at NOT NULL 无合法值→fact 行不落库（不落伪值）；
-  // quarantine_log 行仍写（recorded_at=NULL 合法，NULL 仅锚病态路径）。
-  // 事务 grain=commit：facts(subject_ref=sha)＋该 commit 的 quarantine 事件同事务（Spring Kafka 事务性
-  //   DLQ 同构——错误事件存在 iff 该批其余已提交）；非 commit 粒度 facts 走节拍批（500/批锚节拍非运行末）。
-  // D-115③ 错误码分流：IO 类→AuditIoError（D-111 IO 失败类 exit 4）；约束/schema 类→QUARANTINE-CONSTRAINT 协议崩。
+  // 事实库写入
   const FACT_WRITE_BATCH = 500;
   const dbPath = join(outDir, 'facts.duckdb');
   if (existsSync(dbPath)) { unlinkSync(dbPath); }
   if (existsSync(dbPath + '.wal')) { unlinkSync(dbPath + '.wal'); }
   const writer = await openWriter(dbPath);
-  // file-card 同位发射（#84/D-204②）：fact-write.ts 共享核——同 emit 函数/同 grain/同恒等式（原 §8 内联体抽出）
   const writeResult = await writeRunFactsAndEvents(writer, {
     ctx: { repoRef: ctx.repoRef, traceId: ctx.traceId },
     commits: probes.commits,
@@ -410,8 +397,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   let artifacts: AuditResult['artifacts'] = null;
   writeFileSync(join(outDir, 'report.md'), reportMd, 'utf8');
   writeFileSync(join(outDir, 'report.json'), sidecarJson, 'utf8');
-  // O5 split-brain 修：锚病态→fact 行未落库 → jsonl 镜像库面写零行（不落「声称完整」工件；
-  // 采集面 fact_count 仍在 measurements 留痕，facts_persisted=false 明示持久化缺席）
+
   writeFileSync(join(outDir, FACTS_NAME), anchorQuarantined ? '' : col.realFacts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
   artifacts = persistOut ? { report_md: join(outDir, 'report.md'), report_json: join(outDir, 'report.json'), facts_jsonl: join(outDir, FACTS_NAME), measurements: join(outDir, MEAS_NAME), duckdb: dbPath } : null;
   const resultOutDir = persistOut ? outDir : null;
