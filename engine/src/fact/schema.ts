@@ -1,6 +1,6 @@
-// schema v0 — DuckDB fact table 字段契约（A-021 / spec.md §R3-D2）
-// 纯逻辑模块：不 import 任何 DuckDB 原生绑定，使守卫脚本可零依赖直接 import 本文件。
-// 决议继承：A-007 单写多读 SWMR / A-008 版本演进 / A-010 correlation key（沿用，不重开）
+// schema v0 — DuckDB 事实表字段定义
+// 纯逻辑模块：不引入任何 DuckDB 原生绑定，使检查脚本可直接导入本文件。
+// 设计原则：单写多读、版本可演进、跨档关联键统一（沿用既有规则）。
 
 export interface FactField {
   name: string;
@@ -11,8 +11,7 @@ export interface FactField {
   inherits: string;
 }
 
-// Design: 战略维度固定 S1-S5 五维 — ADR-0004
-// Design: 跨 scale 共享同一 append-only 事实表 — ADR-0005
+// 理由：战略五问固定为 S1-S5 五个维度；五个审计档位共用同一张只追加事实表。
 export const SCHEMA_VERSION_V0 = 1;
 
 export const AUDIT_FACT_FIELDS: readonly FactField[] = [
@@ -41,9 +40,9 @@ export const SCHEMA_REGISTRY_FIELDS: readonly FactField[] = [
   { name: 'description', type: 'VARCHAR(512)', nullable: false, role: 'payload', constraints: ['NOT NULL'], inherits: 'A-008' },
   { name: 'registered_at', type: 'TIMESTAMPTZ', nullable: false, role: 'provenance', constraints: ['NOT NULL', 'DEFAULT current_timestamp'], inherits: 'A-008' }
 ];
-// ---- 只追加守卫：改写语句黑名单（默认拒绝，白名单放行）----
-// 依据：DuckDB 稳定版无触发器、无表级权限模型，READ_ONLY 会连 INSERT 一起禁；
-// 表级只追加只能靠 连接拓扑 + 门面白名单 + 本守卫 三层应用侧方案（调研 §4.2 / §4.3）。
+// ---- 只追加检查：拦截可能修改或删除已有数据的语句（默认拒绝，只有放行清单内的语句才允许）----
+// 依据：DuckDB 稳定版没有触发器，也没有表级别的权限控制，设置 READ_ONLY 会连 INSERT 也一起禁用；
+// 保证表级只追加写入，依靠连接管理、入口放行清单与本检查三道防护。
 export const REWRITE_BLACKLIST: readonly string[] = [
   'UPDATE',
   'DELETE',
@@ -74,11 +73,10 @@ export function normalizeSql(sql: string): string {
   return noBlock.split(String.fromCharCode(10)).join(' ').split(String.fromCharCode(9)).join(' ').split('  ').join(' ').trim().toUpperCase();
 }
 
-// ---- 字面量剥离（#55 / D-059④）：黑名单匹配前先剥 SQL 字面量——
-// '...'（'' 转义）、`"..."`（"" 转义，标识符引号）、`...`、$$…$$ / $tag$…$tag$ 美元引号串。
-// 误伤案例：SELECT * FROM t WHERE c='DELETE FROM x'——字面量内 UPDATE/DELETE 字样非改写意图。
-// 未闭合引号不匹配任何剥离式 → 原文残留字样照常被黑名单拦（不可解析=保守拒，方向正确）。
-// 拒「必须上 AST」强主张：OWASP 分级下字符串黑名单在非注入面合法（本守卫作用面=应用侧只追加门面）。
+// ---- 字面量清除：匹配拦截词前先剥离 SQL 字符串字面量 ----
+// 包括 '...'（'' 转义）、`"..."`（"" 转义）、`...` 以及 $$…$$ / $tag$…$tag$ 美元引号字符串。
+// 避免误伤：例如 SELECT * FROM t WHERE c='DELETE FROM x'，字符串内部的词并不代表改写意图。
+// 引号没闭合时不匹配任何清除规则，残留字样仍会被拦截，保持安全拒绝。
 export function stripSqlLiterals(sql: string): string {
   return sql
     .replace(/\$([A-Za-z_][A-Za-z0-9_]*)?\$[\s\S]*?\$\1?\$/g, ' ')
@@ -111,7 +109,7 @@ export function assertAppendOnly(sql: string): void {
   if (!v.allow) { throw new AppendOnlyViolation(sql, v.reason); }
 }
 
-// ---- DDL 构造器：字段清单程序化派生，禁止手工转录 DDL ----
+// ---- 建表语句生成器：根据字段配置生成 SQL，禁止手动拼写 DDL ----
 export function buildCreateTableSql(table: string, fields: readonly FactField[], tableConstraints?: readonly string[]): string {
   const cols = fields.map(function (f) { return '  ' + f.name + ' ' + f.type + ' ' + f.constraints.join(' ').trim(); })
     .concat(tableConstraints ? tableConstraints.map(function (c) { return '  ' + c; }) : []);
@@ -122,15 +120,12 @@ export function buildCreateTableSql(table: string, fields: readonly FactField[],
 export const AUDIT_FACT_DDL: string = buildCreateTableSql('audit_fact', AUDIT_FACT_FIELDS);
 export const SCHEMA_REGISTRY_DDL: string = buildCreateTableSql('schema_registry', SCHEMA_REGISTRY_FIELDS);
 
-// ---- quarantine_log（#78 / 病态输入两级处置=协议级 fail-fast、字段级 quarantine / D-106·D-108·D-112·D-115·D-117·D-119）----
-// 字段级病态处置事件台账——逐字段处置事件行（normalized 留痕不告警 / quarantined 隔离）。
-// 幂等自然键（D-108②+D-112④ 扩展）：UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)
-//   ——重跑同 run 重复写=插入幂等（ON CONFLICT DO NOTHING），崩溃后重跑自愈。
-// reason_code CHECK=命名公约契约物（D-119）：开放词表禁把枚举硬编码进 CHECK
-//   ——加码=非破坏；枚举成员资格由写路径（appendQuarantineEvent）校验 QUARANTINE_REASON_CODES。
-// raw_bytes 有界（D-117）：hex 回显 ≤131072 chars（64KiB bytes 上限双编码）＋指纹三件套列
-//   （is_trunc/original_length/sha256_full）——截断声明可机验，完整现场 git 内容寻址重放兜底。
-// recorded_at=该 run 观测时点（值源=headDate，D-108③）；可空——NULL 仅锚病态路径。
+// ---- quarantine_log 隔离记录表 ----
+// 处理有问题的输入：整行严重格式错误则立刻报错终止；单个字段有异常则记录原因并隔离。
+// 幂等写入唯一键：UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)，重复跑同一批次不会重复插入。
+// reason_code 校验使用命名规则校验，不硬编码枚举值，方便后续扩展。
+// raw_bytes 长度有限制：十六进制文本不超过 131072 字符（对应 64KB 原始字节），同时记下是否截断、原始长度和完整 sha256。
+// recorded_at 为本次观测时间戳，允许为空。
 export const QUARANTINE_LOG_FIELDS: readonly FactField[] = [
   { name: 'q_seq', type: 'UBIGINT', nullable: false, role: 'identity', constraints: ['NOT NULL', 'PRIMARY KEY'], inherits: 'D-106' },
   { name: 'run_id', type: 'CHAR(32)', nullable: false, role: 'correlation', constraints: ['NOT NULL', "CHECK(regexp_matches(run_id, '^[0-9a-f]{32}$'))"], inherits: 'D-108' },
@@ -139,8 +134,8 @@ export const QUARANTINE_LOG_FIELDS: readonly FactField[] = [
   { name: 'disposition', type: 'VARCHAR(16)', nullable: false, role: 'classification', constraints: ['NOT NULL', "CHECK(disposition IN ('quarantined','normalized'))"], inherits: 'D-112' },
   { name: 'reason_code', type: 'VARCHAR(64)', nullable: false, role: 'classification', constraints: ['NOT NULL', "CHECK(regexp_matches(reason_code, '^[a-z][a-z0-9_]{2,63}$'))"], inherits: 'D-119' },
   { name: 'raw_bytes_hex', type: 'VARCHAR', nullable: false, role: 'payload', constraints: ['NOT NULL', 'CHECK(length(raw_bytes_hex) <= 131072)'], inherits: 'D-117' },
-  //   列名 is_trunc（非 is_truncated）：append-only 黑名单为子串扫，'TRUNCATE' 会误伤列名——
-//   改名避开守卫误报（语义不变：D-117 截断标记位；禁词表兼容注记见 docs/known-gaps.md）。
+  //   字段名采用 is_trunc（不用 is_truncated）：只追加拦截规则使用子串匹配，'TRUNCATE' 会误伤该字段名，
+  //   改短名称避免检查脚本误报，实际含义仍为截断标记。
   { name: 'is_trunc', type: 'BOOLEAN', nullable: false, role: 'payload', constraints: ['NOT NULL'], inherits: 'D-117' },
   { name: 'original_length', type: 'UBIGINT', nullable: false, role: 'payload', constraints: ['NOT NULL'], inherits: 'D-117' },
   { name: 'sha256_full', type: 'CHAR(64)', nullable: false, role: 'payload', constraints: ['NOT NULL', "CHECK(regexp_matches(sha256_full, '^[0-9a-f]{64}$'))"], inherits: 'D-117' },
