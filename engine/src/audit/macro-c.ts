@@ -1,14 +1,11 @@
-// audit/macro-c.ts —— Macro-C（演化考古）一等面（#84 / D-204②④；产线化前置=同族基准差分重校准硬准入）
-// .scratch/architecture-recovery/reports/38-macro-c-preview.mjs 移植：编排语义逐段保真——
-//   38 §0 触发→§1 gitlog→§2 ADR 语料→§3 codelore 30 面＋LLM 门控→§4 supersede 链→§5 fact 同位发射
-//   →§6 measurements→§7 证据→§8 判据（跑前写死常量段）→§9 报告装配。
-// 移植差异面（预声明包 2026-10-03-r57-t1-predecl.md §2.5/§5.1 声明在案）：
-//   ①intake 走仓级 probeMacroBRepo（硬化 intake 替代脚本裸解析——病态字段 quarantine 非崩溃）；
-//   ②NC 对照选材/explainPaths 候选化（列首保 38 原路径，band 级对账不受候选差影响）；
-//   ③fact 发射=file-card 同位（fact-write.ts 共享核：同 emit 函数/同 grain/同恒等式）；
-//   ④重校准=85-check 差分对账（同语料编排层独立重算，语料漂移非等值目标——38-check F5 先例）。
-// 纪律：被测仓只读；kernel 边界内（D-058）——确定性采集＋骨架渲染，叙事职责不外携（D-053）；
-//   LLM env 门控关=llm_gated 降级披露（不伪造不真调）。
+// audit/macro-c.ts —— 历史演化档审计核心流程
+// 梳理仓库从过去到现在的演化历程：
+//   1. 触发检查与日志分析
+//   2. 架构决策记录语料读取与替代关系分析
+//   3. 提取演化相关指标并在配置模型可用时运行叙事说明
+//   4. 事实数据落盘与测试指标计算
+//   5. 组装与渲染审计报告
+// 原则：对仓库只读；内核只负责固定规则的采集与报告骨架组装，具体叙事编排由外部 Agent 执行；未配置大模型环境变量时明确降级说明，不伪造数据。
 
 import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, unlinkSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
@@ -32,7 +29,7 @@ import { writeRunFactsAndEvents } from './fact-write.js';
 
 const NL = String.fromCharCode(10);
 
-// ---------- 判据常量（38 §8 跑前写死段移植——A/B/C 三层闸门：判据先于实跑、跑后禁调） ----------
+// ---------- 判据常量（跑前写死，跑完不许改动） ----------
 export const MACRO_C_LAG_MIN_N = 30;   // TC-MC-2 可判定数门槛
 export const MACRO_C_CAPABILITY_LABEL = 'capability 2 of 5 · preview';
 export const MACRO_C_REPORT_ID_PREFIX = 'MA-AUDIT-';
@@ -40,17 +37,13 @@ export const MACRO_C_NC_CANDIDATES: readonly string[] = ['apps/cli/package.json'
 export const MACRO_C_LLM_EXPLAIN_CANDIDATES: readonly string[] = ['apps/cli/src/index.ts', 'apps/cli/src/composition.ts', 'src/index.ts', 'src/main.ts'];
 export const MACRO_C_SUPERSEDE_KINDS: readonly string[] = ['whole-adr-status', 'item-level-inline'];
 
-// Design: 报告输出面不得出现本机绝对路径 — ADR-0026
-// reproduce_cmd 可移植化：本机目录记 `<repo>`、出目录记 `<dir>`（形制同 micro-a.ts），报告输出面不得出现本机绝对路径（ADR-0026）。
-// 判据取 intake 的解析结果（url===null ⇒ 落在本机目录），不靠字面也不靠 kind 猜：`projects/demo` 这类相对路径会被
-// classifyRepoInput 归成 owner-repo，却仍由 repoAdd 解析成本机目录——只看 kind 会把原字面值留在报告里，复现命令随之依赖原工作目录。
-// `file://` 在 intake 里归 url（URL_SCHEMES），但它承载的正是本机绝对路径，同样要换成占位。
+// 理由：报告输出中不能包含本机绝对路径，因此使用通用的占位符替换本地路径。
 function portableReproduceCmd(input: string, outDir: string | null | undefined, remoteUrl: string | null): string {
   const local = remoteUrl === null || /^file:\/\//i.test(input);
   return 'macro-audit audit ' + (local ? '<repo>' : input) + ' --scale Macro-C' + (outDir ? ' --out <dir>' : '');
 }
 
-// ---------- supersede 链扫描（38 §4 逐行移植——编排层重校准对照物同源） ----------
+// ---------- 架构决策替代链条扫描 ----------
 export interface SupersedeEdge { from: string; to: string; kind: string; evidence: string; resolved: boolean | null; back_reference: boolean | null }
 export interface SupersedeAdr { file: string; num: string; whole_to: string | null; inline: { line: number; to: string; negated: boolean }[]; amends: { line: number; to: string }[]; refs: { line: number; to: string }[]; defers: { line: number; to: string }[]; mentions: string[] }
 export function scanSupersedeAdrs(adrDocs: readonly { path: string; text: string }[]): SupersedeAdr[] {
@@ -117,7 +110,7 @@ export function buildSupersedeChain(adrs: readonly SupersedeAdr[], deferRegistry
   };
 }
 
-// ---------- 采集编排（38 §1~§5 移植；intake 硬化=probeMacroBRepo，病态字段 quarantine 非崩溃） ----------
+// ---------- 采集编排流程 ----------
 export interface MacroCCollectSpec {
   ncCandidates?: readonly string[];
   llmExplainCandidates?: readonly string[];
@@ -125,7 +118,7 @@ export interface MacroCCollectSpec {
 }
 export interface MacroCCollect {
   adrDocs: { path: string; text: string; first_commit_date: string | null }[];
-  /** docs/adr 是否可用（存在且在仓内）。false 时语料为空——ADR 存在性判据必须看它，不能看 adrFacts（skip 事实也在里面）。 */
+  /** docs/adr 目录是否可用，必须按此标志判断 ADR 是否存在 */
   adrDirUsable: boolean;
   adrFacts: CollectedFact[];
   gitFacts: CollectedFact[];
@@ -137,15 +130,14 @@ export interface MacroCCollect {
   realFacts: CollectedFact[];
   dedupDropped: number;
   codeloreResolution: { version: string | null; pinned: boolean; error: string | null } | null;
-  /** NC-1 负对照选材（安全读取通过的首个候选；被拒候选已各发 skip 事实）。 */
+  /** 负对照选材结果 */
   ncSelection: { path: string | null; text: string | null };
 }
 export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: CollectContext, spec?: MacroCCollectSpec): MacroCCollect {
   const skipFacts: CollectedFact[] = [];
   const skipSeen = new Set<string>();
   const pushSkip = function (f: CollectedFact): void { if (!skipSeen.has(f.fact_id)) { skipSeen.add(f.fact_id); skipFacts.push(f); } };
-  // §2 ADR 语料（被审计仓的 ADR 目录；first_commit=含该文件的最早 dated commit——D-100② 毒值跳过同构 38）
-  // #113：目录枚举走安全列目录单点——`docs/adr` 若是指向仓外的 junction/符号链接，一律不出语料并产披露事实。
+  // 读取被审计仓库的 ADR 目录
   const ADR_REL_DIR = 'docs/adr';
   const adrListing = listAdrFilesSafe(repoRoot, ADR_REL_DIR);
   const adrDirUsable = adrListing.ok === true;
@@ -179,7 +171,7 @@ export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: Colle
     }
   }
   const gitFacts = collectGitlog({ commits: probes.commits, paths: adrDocs.map(function (d) { return d.path; }), adrDates: adrDateMap }, ctx);
-  // §3 codelore 契约面 30 面＋LLM 门控面（38 同款直调——emitPerFileFacts 在发射边界内落 Micro-B grain）
+  // 读取代码演化分析数据与大模型配置状态
   const codeloreFacts = collectCodeloreFacets({ repoRoot: repoRoot }, ctx);
   const explainCandidates = (spec && spec.llmExplainCandidates) || MACRO_C_LLM_EXPLAIN_CANDIDATES;
   const explainPaths = explainCandidates.filter(function (p) {
@@ -196,9 +188,7 @@ export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: Colle
   const llmGateFact = llmFacts.find(function (f) { return f.metric === 'codelore.llm_gate'; });
   const llmGate = llmGateFact ? JSON.parse(llmGateFact.value_json) : { configured: false, reason: 'no-gate-fact' };
 
-  // §3b NC-1 负对照选材（#113 返修：选材上移进采集段——被拒候选在此**逐件发 skip 事实**，
-  //   与 macro-b 的 NC-1 选材同形；判据侧只消费选材结果，不再自己偷偷读文件）。
-  //   存在性判定用 lstat 探针：悬空链接也进安全读取的拒绝分支，不会因 existsSync=false 静默消失。
+  // 负对照样本选择：通过安全读取检查的候选文件才可入选，被拒文件记录跳过事实
   const ncCandidates = (spec && spec.ncCandidates) || MACRO_C_NC_CANDIDATES;
   let ncPath: string | null = null;
   let ncText: string | null = null;
@@ -214,11 +204,8 @@ export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: Colle
     break;
   }
 
-  // §4 supersede 链（38 逐行移植）＋链摘要 fact（同族 metric，evidence=被审计仓 ADR 目录扫描）
+  // 扫描 ADR 替代关系链条
   const adrs = scanSupersedeAdrs(adrDocs);
-  // #113（返修自查）：defer 注册表存在性同样不得跟随符号链接——`existsSync` 会解析链接，仓外文件只要挂个
-  //   `deferred-registry.json` 链接就能把所有 defer-ref 边判成 resolved，TC-MC-1 由 insufficient 翻 supported。
-  //   存在性改由安全读取判定：读通才算在册，读不通（仓外/悬空/非普通文件）既不算存在，也落披露事实。
   const DEFER_REL = join('docs', 'deferred-registry.json');
   let deferRegistryPresent = false;
   if (probeRepoEntry(repoRoot, DEFER_REL) !== 'absent') {
@@ -228,7 +215,7 @@ export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: Colle
   }
   const chain = buildSupersedeChain(adrs, deferRegistryPresent);
   const chainFact = makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, 'docs/adr/*', 'docs/adr/* status+inline scan', 'adr.supersede_chain_summary', chain);
-  // §5 fact_id 内容寻址去重（38 同款：resolution 双 emit 合一；保留首见，dedup 计数留痕）
+  // 按事实编号去重，保留最先读取到的记录
   const rawFacts = adrFacts.concat(skipFacts, gitFacts, codeloreFacts, llmFacts, [chainFact]);
   const seenFactIds = new Set<string>();
   const realFacts: CollectedFact[] = [];
@@ -247,7 +234,7 @@ export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: Colle
   return { adrDocs: adrDocs, adrDirUsable: adrDirUsable, adrFacts: adrFacts.concat(skipFacts), gitFacts: gitFacts, codeloreFacts: codeloreFacts, llmFacts: llmFacts, llmGate: llmGate, chain: chain, chainFact: chainFact, realFacts: realFacts, dedupDropped: dedupDropped, codeloreResolution: codeloreResolution, ncSelection: { path: ncPath, text: ncText } };
 }
 
-// ---------- 判据（38 §8 逐行移植——阈值=本模块常量，跑前写死跑后禁调） ----------
+// ---------- 判据计算 ----------
 export interface MacroCEval {
   pcMc1: boolean; pcMc2: boolean; tcMc1: boolean; tcMc2: boolean; tcMc3: boolean; ncMc1: boolean;
   facetRowsFacts: CollectedFact[]; facetErrFacts: CollectedFact[]; lagFacts: CollectedFact[]; dateFacts: CollectedFact[];
@@ -270,14 +257,13 @@ export function evaluateMacroC(col: MacroCCollect, repoRoot: string, ctx: Collec
   }
   const pinned = col.codeloreResolution ? col.codeloreResolution.pinned === true : false;
   const chain = col.chain as { edge_count: number; unresolved_refs: string[]; missing_backrefs: string[] };
-  // ADR 存在性看「语料目录是否可用且确有文档」——不再看 col.adrFacts.length：skip 事实与 ADR 事实同族混装，
-  //   若 docs/adr 指向仓外，那里会有一条 skip 事实而零份 ADR，用事实数判存在性等于把拒绝读成阳性（PR #127 审查）。
+  // ADR 是否存在必须看目录是否可用且有文档，不能仅看事实条数（跳过事实也会计入）
   const pcMc1 = pinned && facetRowsFacts.length === CODELORE_BATCH1_FACETS.length && facetErrFacts.length === 0 && col.adrDirUsable === true && col.adrDocs.length > 0;
   const pcMc2 = col.gitFacts.filter(function (f) { return f.metric === 'git.first_commit'; }).length >= col.adrDocs.length - 2;
   const tcMc1 = chain.edge_count >= 1 && chain.unresolved_refs.length === 0 && chain.missing_backrefs.length === 0;
   const tcMc2 = lagFacts.length >= MACRO_C_LAG_MIN_N;
   const tcMc3 = col.llmGate.configured === true && col.llmFacts.filter(function (f) { return f.metric === 'codelore.llm_narrative'; }).length >= 1;
-  // NC-1 选材由采集段完成（被拒候选在那里逐件发 skip 事实）；判据侧只消费选材结果，不重复读文件。
+  // 负对照验证：所选候选文件不应匹配出完整的 ADR 结构
   const nc1Path: string | null = col.ncSelection.path;
   const nc1Text: string | null = col.ncSelection.text;
   let ncMc1 = false;
@@ -290,7 +276,7 @@ export function evaluateMacroC(col: MacroCCollect, repoRoot: string, ctx: Collec
   return { pcMc1: pcMc1, pcMc2: pcMc2, tcMc1: tcMc1, tcMc2: tcMc2, tcMc3: tcMc3, ncMc1: ncMc1, facetRowsFacts: facetRowsFacts, facetErrFacts: facetErrFacts, lagFacts: lagFacts, dateFacts: dateFacts, legDist: legDist, llmGatedCount: col.llmFacts.filter(function (f) { return f.metric === 'codelore.llm_gated'; }).length, llmNarrativeCount: col.llmFacts.filter(function (f) { return f.metric === 'codelore.llm_narrative'; }).length, nc1Path: nc1Path };
 }
 
-// ---------- 一等命令装配（38 §6~§9＋audit.ts 家族形态；capability 2 of 5 · preview） ----------
+// ---------- 组装历史演化档审计命令 ----------
 function pickExcerpt(absOrRelPath: string, tokens: readonly string[] | null, base: string | null): { line: number; text: string } {
   let text: string;
   if (base) {
@@ -312,17 +298,17 @@ function pickExcerpt(absOrRelPath: string, tokens: readonly string[] | null, bas
 
 export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
   const cwd = opts.cwd || process.cwd();
-  // ---------- §1 intake（本地默认/owner-repo 本地优先/URL opt-in；不自动 pull，refresh 显式 opt-in） ----------
+  // 收仓与地址解析
   const intake: RepoAddResult = repoAdd(opts.input, { cwd: cwd, refresh: opts.refresh === true });
   const repoRoot = intake.resolved_root;
   const NAME = auditRepoName(opts.input, repoRoot);
-  // ---------- §2 硬化 intake 探针（与 Macro-B 同 probe——锚字段病态 quarantine 非崩溃） ----------
+  // 执行探针探测
   const probes = probeMacroBRepo(repoRoot, intake.head_sha);
   const ctx = macroBContext('audit-macro-c-' + NAME, NAME, probes.headSha, probes.headDate, probes.headRaw, 'Macro-C');
   const HEAD_AT = probes.headDate === null ? 'quarantined(anchor_head_date_malformed)' : probes.headDate;
   const anchorQuarantined = probes.headDate === null;
   const excludedCommits = probes.commits.filter(function (c) { return c.date === null; }).length;
-  // strict quarantine 门禁（D-110）：与 audit.ts 同判据同向 fail-closed（crash_location 如实到本面）
+  // 严格隔离模式校验
   if (opts.strictQuarantine === true) {
     const violations = strictQuarantineViolations(probes.fieldEvents).concat(ratchetIssues(probes.fieldEvents));
     if (violations.length > 0) {
@@ -335,11 +321,11 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
       });
     }
   }
-  // ---------- §3 采集＋判据（38 §1~§5/§8） ----------
+  // 执行采集与评估
   const col = collectMacroC(repoRoot, probes, ctx);
   const ev = evaluateMacroC(col, repoRoot, ctx);
   const chain = col.chain as { edge_count: number; unresolved_refs: string[]; missing_backrefs: string[] };
-  // ---------- §4 实测数落盘（outDir 或 scratch 临时目录：证据锚可读） ----------
+  // 输出目录与实测指标记录
   const persistOut = !!opts.outDir;
   const outDir = opts.outDir ? resolve(cwd, opts.outDir) : mkdtempSync(join(tmpdir(), 'macro-audit-run-'));
   mkdirSync(outDir, { recursive: true });
@@ -365,7 +351,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
     collection_environment: { git_version: probeGitVersion() }
   };
   if (outDir) { writeFileSync(join(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL, 'utf8'); }
-  // ---------- §5 证据＋结论→引文锚（多 token 全命中；源=运行目录工件相对名） ----------
+  // 构建引文证据
   const R = NAME.toUpperCase().split('-').join('').split('/').join('');
   const RUN_CMD = portableReproduceCmd(opts.input, opts.outDir, intake.url);
   const evidence: EvidenceItem[] = [];
@@ -390,7 +376,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
     { claim_id: 'CL-MC-' + R + '-05', evidence_id: 'EV-MC-' + R + '-05', required_tokens: ['configured'] },
     { claim_id: 'CL-MC-' + R + '-06', evidence_id: 'EV-MC-' + R + '-06', required_tokens: ['snapshot_fetched_at'] }
   ];
-  // ---------- §6 裁决条目（38 §8 六判据——阈值已在本模块常量段跑前写死） ----------
+  // 裁决条目与判定结论
   const facetFactIds = ev.facetRowsFacts.slice(0, 3).map(function (f) { return f.fact_id; });
   const lagFactIds = ev.lagFacts.slice(0, 5).map(function (f) { return f.fact_id; });
   const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, decided_at: HEAD_AT, audit_ref: 'engine/src/audit/macro-c.ts' };
@@ -403,7 +389,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
     { criterion_id: 'NC-MC-1', band: ev.ncMc1 ? 'supported' : 'insufficient', basis_refs: ['负对照特异性'], anchored_fact_ids: [], anchored_evidence_ids: ['EV-MC-' + R + '-04'], decided_at: HEAD_AT, rationale: ev.ncMc1 ? '负对照选材 ' + NAME + '/' + String(ev.nc1Path) + ' 五件套 0 命中（特异性成立）' : '负对照命中或选材缺席 → 转复核路径' }
   ];
   const overallBand = deriveOverallBand(adjudicationEntries);
-  // ---------- §7 四象限（38 §9 形态：strategy 原生 S2/S4；structure/behavior 衍生观测；supply_chain 数据未接 D-034③） ----------
+  // 组装四象限数据
   const quadrantSliceKeys = CODELORE_S3_FACETS as unknown as readonly string[];
   const quadrants: QuadrantEntry[] = [
     { quadrant: 'strategy', applicability: 'native', verdict: overallBand, score: null, confidence: 0.55, dimensions: ['S2', 'S4'], slice_fields: { adr_count: col.adrDocs.length, supersede_edges: chain.edge_count, supersede_unresolved: chain.unresolved_refs.length, supersede_missing_backrefs: chain.missing_backrefs.length, lag_judgeable_n: ev.lagFacts.length, adr_date_resolvable: ev.dateFacts.length, llm_gate: col.llmGate.configured ? 'open' : 'closed' }, verdict_gate: { protocol_version: GATE.protocol_version, decision: overallBand, evidence_flag: false, decided_at: HEAD_AT, override_reason: 'S4 深检面 llm_gated——深检维度证据门槛未达，preview 诚实部分裁定', audit_ref: GATE.audit_ref }, conflict_markers: ['single-repo-calibration'] },
@@ -432,7 +418,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
     capability_label: MACRO_C_CAPABILITY_LABEL,
     calibration_scope: NAME + ' Macro-C audit（演化考古一等命令面；管线校准=anysearch-cli 原语料重校准差分对账——85-check 背书）',
     structural_limitations: macroCLimitations,
-    not_in_preview: ['Macro-A']   // Micro-B file-card 进 preview（#80 步③）；Micro-A 产线化入 preview（#85②/D-204③④）；Macro-C 本面产线化入 preview（#84/D-204②）
+    not_in_preview: ['Macro-A']   // 预览能力状态
   };
   const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
   const intakeHealth: IntakeHealth = {
@@ -466,7 +452,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
     decided_at: HEAD_AT,
     commit_anchor: probes.headSha,
     tree_anchor: probes.treeSha,
-    // Design: 38 期脚本层常量永不是 commit，取显式哨兵；`38-*` 冻结件保留裸字面量作出处 — spec §R9-1
+    // 脚本常量不是真实 commit，使用专门的固定哨兵标记
     gate_ref: { prereg_commit: preregSentinel('38-script-const'), criteria_path: 'engine/test/fixtures/contracts/38-report.md §4.1', basis_path: 'docs/archive/decisions/macro-audit-ledger.md D-034', criterion_ids: ['PC-MC-1', 'PC-MC-2', 'TC-MC-1', 'TC-MC-2', 'TC-MC-3', 'NC-MC-1'] },
     degraded: false,
     degraded_reason: null,
@@ -474,7 +460,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
     intake_health: intakeHealth,
     human: { status: 'pending', adjudicator: 'user', text: null, decided_at: null }
   };
-  // ---------- §8 事实库写入（file-card 同位发射——fact-write.ts 共享核，D-115①/D-116① 全量适用） ----------
+  // 事实库写入
   const dbPath = join(outDir, 'facts.duckdb');
   if (existsSync(dbPath)) { unlinkSync(dbPath); }
   if (existsSync(dbPath + '.wal')) { unlinkSync(dbPath + '.wal'); }
@@ -498,7 +484,7 @@ export async function runMacroCAudit(opts: AuditOptions): Promise<AuditResult> {
   if (identityIssues.length > 0) {
     throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '恒等式断言失败：' + JSON.stringify(identityIssues), { crash_location: 'macro-c.ts:intake-identity', run_context: { repo_ref: ctx.repoRef, run_id: ctx.traceId, commit_sha: null, head_date: probes.headDate, collector: 'macro-audit audit(macro-c)' }, counts: countsFromStats(probes.fieldStats, probes.commitCount, writeResult.factsWritten, writeResult.eventsWritten) });
   }
-  // ---------- §9 报告双件＋回执 ----------
+  // 报告双件生成与输出
   const report = buildReport(reportInput);
   const reportMd = renderMarkdown(report) + NL;
   const sidecarJson = renderSidecar(report) + NL;
