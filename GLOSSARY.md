@@ -139,7 +139,7 @@ _别名_: Reason Code、`reason_code`
 _不要用_: 随手写一句自由文本当原因
 
 **收仓体检**
-报告开头告诉你采数哪里有问题。
+报告里专门说明采数哪里有问题。
 _别名_: Intake Health、`intake health`
 
 **勘误并列读数**
