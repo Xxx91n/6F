@@ -24,7 +24,7 @@ import { probeMacroBRepo, collectMacroB, evaluateMacroB, macroBContext, tcBand, 
 import { intakeEscalation, QUARANTINE_FIELD_RATIO_RED , rawEcho } from '../intake/quarantine.js';
 import type { IntakeHealth } from '../report/generate.js';
 
-// Design: 5 scale 各配关键/失败两条演示路径 — ADR-0007
+// 5 档每档各配正常和失败两条演示路径
 export const DEMO_SCENARIOS: readonly string[] = ['happy-path', 'degraded-supply', 'degraded-incomplete'];
 const NL = String.fromCharCode(10);
 // #59/D-067：fixtures 锚定引擎根（metaPath 的 dirname）而非本文件相对层级——
@@ -130,7 +130,7 @@ export function runDemo(opts: DemoOptions): DemoResult {
     // ---------- §3-§7 链本体=共享管线（#53/D-060④：probe→collect→evaluate 全链与 audit 同消费） ----------
     const probes = probeMacroBRepo(repoDir, intake.head_sha);
     if (probes.headDate === null) { throw new Error('DEMO-FIXTURE-QUARANTINE[' + scenario + ']: 合成夹具锚字段病态（fixture bug 非真病态——golden 语料 %cI 恒合法，病态即夹具回归）'); }
-    const headDate: string = probes.headDate;   // 上一行断言后收窄——闭包内消费点经本绑定
+    const headDate: string = probes.headDate;   // 确认非空后锁定变量
     const ctx = macroBContext('r45-' + scenario, def.repo.name, probes.headSha, headDate, probes.headRaw);
     const demoExcl = probes.commits.filter(function (c) { return c.date === null; }).length;
     const demoQuarRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
@@ -212,7 +212,7 @@ export function runDemo(opts: DemoOptions): DemoResult {
 
     // ---------- §10 裁决条目（判据 id 与 39 同族；band 三档如实；tcBand 由共享管线导入） ----------
     const GATE_REF = {
-      // Design: demo 判据是合成演示件、不产 commit，与 38 面同取显式哨兵，不留第二套 — spec §R9-1
+      // demo 规则是合成演示数据，不需要生成真实的 commit，与 38 一样使用特定占位标识 — spec §R9-1
       prereg_commit: preregSentinel('45-demo-criteria'),
       criteria_path: 'reports/22-criteria-pre-registration.md',
       basis_path: 'reports/22-c-adjudication-basis.md',
@@ -235,12 +235,12 @@ export function runDemo(opts: DemoOptions): DemoResult {
     const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'engine/src/demo/demo.ts' };
     const quadrants: QuadrantEntry[] = [
       { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(measurements.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(measurements.tc2.mean_ratio_4), adr_count: ev.tc2.total, lag_judgeable_n: ev.tc1.judgeable_n, intent_docs: col.intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: ev.tc2.verdict === 'RED', decided_at: headDate, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: ['synthetic-fixture'] },
-      { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: headDate, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23/#39 同口径）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
+      { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: headDate, override_reason: 'Macro-B 目前只支持战略（strategy，S1+S2）维度的采集——架构（structure）维度暂无采集器（与 #23/#39 保持一致）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
       { quadrant: 'behavior', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: headDate, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——behavior 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
       { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: headDate, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
     ];
     const recommendations: Recommendation[] = [
-      { rec_id: 'R-45-' + R + '-1', priority: 'P1', action: '对真实目标仓跑同一链路：`macro-audit repo add <path|url>` 接入后按 Macro-B 口径裁决——本报告为合成 fixture 演示，not an audit of any real repository', rationale: 'D-038 硬契约：合成数据不冒充真实审计结论；本演示只证管线形态与披露面', expected_impact: '获得真实审计结论而非演示数据', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-45-' + R + '-07'], degraded_note: null },
+      { rec_id: 'R-45-' + R + '-1', priority: 'P1', action: '对真实目标仓跑同一链路：`macro-audit repo add <path|url>` 接入后按 Macro-B 标准进行审计——本报告为合成 fixture 演示，not an audit of any real repository', rationale: 'D-038 硬契约：合成数据不冒充真实审计结论；本演示只证管线形态与披露面', expected_impact: '获得真实审计结论而非演示数据', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-45-' + R + '-07'], degraded_note: null },
       { rec_id: 'R-45-' + R + '-2', priority: 'P3', action: '供应链象限维持「⚠ 数据未接」：Scorecard/repomix 按层需求队列接入不插队（D-034③④）', rationale: 'preview 诚实形态保持——supply-chain: ' + UNVERIFIED_MARK + ' 为披露块常驻印记', expected_impact: '披露诚实性保持', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-45-' + R + '-01'], degraded_note: null }
     ];
     const HEADLINE = def.repo.name + ' demo（capability 1 of 5 · preview · synthetic fixture）：' + probes.commitCount + ' commits / ADR ' + ev.tc2.total + ' 份 / facts ' + col.realFacts.length + '——TC-1 ' + ev.tc1.verdict + '（n=' + ev.tc1.judgeable_n + '）、TC-2 ' + ev.tc2.verdict + '（mean=' + measurements.tc2.mean_ratio_4 + '）、TC-3 ' + ev.tc3.verdict + '（' + measurements.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '。not an audit of any real repository——合成语料不冒充真实审计（D-038）。';

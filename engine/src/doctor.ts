@@ -1,9 +1,9 @@
-// doctor.ts — 运行时 doctor 探测（#62/D-059③ runtime-doctor-trigger 兑现：first-external-install 于 A-068 occurred）
-// 三腿 probe：duckdb 可开库（经 loadDuckdb 自愈链——消费 #64/D-072⑧ DUCKDB-SELFHEAL 结构化事件与三段回落文案）／
-//   git 可用（git --version）／上游连通性（npm registry HTTPS HEAD——自愈补拉与适配器拉取前提）。
-// 结构化输出：{doctor, legs:[{leg,status,detail}], overall}——探测失败=结构化报告非静默；
-// status：ok / degraded（有文档化回落路径，如离线时 facts/audit 不可用其余命令正常）/ fail（硬故障）。
-// selftest 维持 manifest 完整性对账本职不扩容（D-059③ doctor≠manifest 对账两类工具）——本模块为独立探测面。
+// doctor.ts — 运行环境诊断（#62/D-059③）
+// 检查项：duckdb 能否正常打开数据库（通过 loadDuckdb 自动修复流程）／
+//   git 命令是否可用（git --version）／网络与 npm 镜像连通性（检测能否拉取依赖）。
+// 结构化输出：{doctor, legs:[{leg,status,detail}], overall}——检查失败时明确返回结构化信息，不悄悄吞掉错误；
+// status：ok（正常）/ degraded（降级，如离线时 facts/audit 无法使用但其它命令正常）/ fail（严重故障）。
+// selftest 专门负责清单对账，不混在一起（D-059③ 两者职责分离）——本文件专做环境诊断。
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { get } from 'node:https';
@@ -39,7 +39,7 @@ async function probeDuckdb(fix: boolean): Promise<DoctorLeg> {
   } catch (e) {
     const msg = String(e && (e as Error).message || e);
     if (msg.indexOf('DUCKDB-UNAVAILABLE') === 0) {
-      // D-075③：doctor --fix=自愈唯一显式主路——显式操作员同意，任何面均可执行；成功后重开库验载。
+      // D-075③：doctor --fix 专门用于主动修复依赖；成功后重新打开数据库验证。
       if (fix) {
         const heal = healDuckdbBinding();
         if (!heal.ok) {
@@ -49,12 +49,12 @@ async function probeDuckdb(fix: boolean): Promise<DoctorLeg> {
           const conn2 = await openWriter(db);
           try { await conn2.run('SELECT 1'); } catch { /* best effort */ }
           try { closeDuckdb(conn2); } catch { /* best effort */ }
-          return { leg: 'duckdb', status: 'ok', detail: 'doctor --fix 显式自愈成功——' + heal.detail };
+          return { leg: 'duckdb', status: 'ok', detail: 'doctor --fix 自动修复成功——' + heal.detail };
         } catch (e2) {
           return { leg: 'duckdb', status: 'fail', detail: 'doctor --fix 装成功但加载失败：' + String(e2 && (e2 as Error).message || e2).slice(0, 120) };
         }
       }
-      return { leg: 'duckdb', status: 'degraded', detail: 'DUCKDB-UNAVAILABLE 结构化回落（分层面不自动补拉；修复=doctor --fix 显式主路；无网络时 facts/audit 不可用其余命令不受影响）' };
+      return { leg: 'duckdb', status: 'degraded', detail: 'DUCKDB-UNAVAILABLE 降级处理（默认不会悄悄自动安装；可执行 doctor --fix 修复；离线时 facts/audit 无法使用，其余命令不受影响）' };
     }
     return { leg: 'duckdb', status: 'fail', detail: msg.slice(0, 160) };
   } finally {
@@ -68,8 +68,8 @@ function probeGit(): DoctorLeg {
   return { leg: 'git', status: 'fail', detail: 'git --version exit=' + String(r.status) + ' ' + String(r.error || r.stderr || '').replace(/\s+/g, ' ').slice(0, 120) };
 }
 
-// F7（D-075④）：registry 口径改 `npm config get registry` 探测回落 npmjs.org（esbuild PR#1621 同构）——
-// 镜像/私有 registry 环境下探测目标=真实拉包源，不再硬编码 npmjs.org。
+// 检查 npm registry 源连通性（优先读取用户配置的 npm registry，读取不到再回退到官方源）
+
 function probeUpstream(): Promise<DoctorLeg> {
   const conf = process.platform === 'win32' ? spawnSync('cmd.exe', ['/d', '/s', '/c', 'npm', 'config', 'get', 'registry'], { encoding: 'utf8', timeout: 10000 }) : spawnSync('npm', ['config', 'get', 'registry'], { encoding: 'utf8', timeout: 10000 });
   const configured = conf.status === 0 ? String(conf.stdout || '').trim() : '';
