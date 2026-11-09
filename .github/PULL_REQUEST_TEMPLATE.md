@@ -2,14 +2,17 @@
 
 <!-- What changed and why. Link the GitHub issue, or the entry where the decision lives (see docs/authority.md), if applicable. -->
 
-## Dogfood checklist
+## Self-check
 
-This repo audits itself — the checklist below is the same discipline the engine reports on.
+This repo audits itself. Run the checks that match what you changed; the same discipline shows up in the engine's own reports.
 
 - [ ] `cd engine && npm test` passes (gen + build + smoke)
-- [ ] Relevant contract check(s) green: `node engine/test/contracts/NN-check.mjs` exits 0
-- [ ] `engine/src` changed → `engine/dist` rebuilt and included (`npm run build`; dist ships with source, CI guards drift)
-- [ ] `README.md` changed → `README.zh-CN.md` updated or `<!-- sync: <en-hash> -->` stamp deliberately reviewed (`73-check.mjs` must exit 0)
-- [ ] Decision made → recorded in its carrier (see [`docs/authority.md`](../docs/authority.md)) or explicitly confirmed not a decision
-- [ ] No claims added beyond evidence: preview labels, ⚠ markers, and `synthetic` marks preserved — capability matrix untouched unless the capability actually shipped
+- [ ] If your change touches a contract, a checker, or the behavior they cover, the relevant `node engine/test/contracts/NN-check.mjs` exits 0
+- [ ] `engine/src` changed → `engine/dist` rebuilt and committed (`npm run build`; `dist` ships with `src`, and CI fails on drift)
+- [ ] Docs, the README pair, or a policy file (`SECURITY.md`/`CODE_OF_CONDUCT.md`) changed → `cd engine && npm run check:docs` exits 0 (read-only; covers authority pointers, ADR references, README structure and sync, and generated acknowledgment blocks)
+- [ ] `README.md` changed → `README.zh-CN.md` updated, and the `<!-- sync: <en-hash> -->` stamp regenerated or deliberately reviewed (`73-check.mjs` must exit 0)
+- [ ] Wording follows [`GLOSSARY.md`](../GLOSSARY.md): one name per concept, and no retired or invented jargon outside the historical and frozen areas
+- [ ] Machine-read names, numbers, and links untouched: database columns, JSON keys, CLI flags and error codes, file paths, and pinned phrases
+- [ ] Decision made → recorded where decisions live (see [`docs/authority.md`](../docs/authority.md)) or explicitly confirmed not a decision
+- [ ] No claims added beyond evidence: preview labels, ⚠ markers, and `synthetic` marks preserved — the capability matrix changes only when the capability actually ships
 - [ ] No secrets or tokens; upstream credentials stay out of facts and logs

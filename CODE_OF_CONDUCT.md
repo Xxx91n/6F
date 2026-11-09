@@ -1,5 +1,7 @@
 # Contributor Covenant Code of Conduct
 
+Where a decision or a term belongs is written once, in [`docs/authority.md`](docs/authority.md) — the authority surface. This page only covers how people treat each other in project spaces.
+
 ## Our Pledge
 
 We as members, contributors, and leaders pledge to make participation in our
@@ -120,6 +122,8 @@ version 2.1, available at
 
 Community Impact Guidelines were inspired by
 [Mozilla's code of conduct enforcement ladder][Mozilla CoC].
+
+Changes from the original: this project added a one-line pointer to [`docs/authority.md`](docs/authority.md) at the top. The Contributor Covenant text is otherwise unchanged.
 
 For answers to common questions about this code of conduct, see the FAQ at
 <https://www.contributor-covenant.org/faq>. Translations are available at
