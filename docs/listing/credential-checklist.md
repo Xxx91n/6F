@@ -35,7 +35,7 @@
 - 字段查证记录已经随治理文档一起退役（git 历史里能查到 `.scratch/macro-audit/reports/41b-marketplace-fields.md`）
 - plugin.json/manifest.meta.json 已经对齐 Agent Plugins 1.0.0（#34 已完成）
 
-## E. 诚实披露（上架前必须知道）
+## E. 诚实说明（上架前必须知道）
 
 - 发布还没发生；不存在能安装的 listing（以 README 的说法为准）；
 - preview 为 Macro-B/Macro-C/Micro-A/Micro-B（capability 1/2/3/4 of 5——Micro-A 产线化 #85②，D-204③④）；Macro-A 这一层 Not yet in preview；

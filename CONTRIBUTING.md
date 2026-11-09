@@ -13,7 +13,7 @@ First, the honest status: this project is in **preview** (0.x) and is maintained
 The exact command flags live in [engine/README.md](engine/README.md). The short version, run from `engine/`:
 
 - `npm test` — generates manifests, builds, and runs a smoke check.
-- `npm run check:docs` — checks the bilingual README pair, the acknowledgment block, and that every ADR number, decision number, and anchor resolves.
+- `npm run check:docs` — checks the acknowledgment block and that every ADR number, decision number, and anchor resolves.
 
 ## What not to change
 
@@ -28,7 +28,7 @@ PRs are welcome, with two things to know up front:
 1. **Review latency** — single maintainer; expect days, not hours. Draft PRs for large changes are appreciated so direction can be confirmed early.
 2. **Scope discipline** — this repository is an exercise in building the audit method: capabilities ship one step at a time behind explicit preview labels, and "not yet implemented" is recorded rather than hidden. PRs that promise more than their evidence shows will be asked to narrow their claims.
 
-Before opening a PR, work through the checklist in the PR template: guard scripts green, decisions recorded where [`docs/authority.md`](docs/authority.md) says they belong, bilingual README sync stamp reviewed if `README.md` changed, and `engine/dist` rebuilt if `engine/src` changed.
+Before opening a PR, work through the checklist in the PR template: check scripts green, decisions recorded where [`docs/authority.md`](docs/authority.md) says they belong, and `engine/dist` rebuilt if `engine/src` changed.
 
 ## Where things live (pointers, not duplicated)
 

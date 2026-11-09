@@ -55,8 +55,8 @@ t('B4 macro-b.ts %cI 调用点恰 2 处全归一化 + demo.ts 无裸 %cI 调用�
 // ---------- C. golden-ci.yml 勘误声明 ----------
 const gci = txt(join(REPO, '.github', 'workflows', 'golden-ci.yml'));
 t('C1 勘误块在（2026-09-17 / #54 / D-059①）', gci.indexOf('勘误（2026-09-17 / #54 / D-059①）') >= 0);
-t('C2 勘误如实记漂移性质=工具版本漂移非平台漂移', gci.indexOf('工具版本漂移') >= 0 && gci.indexOf('2.45') >= 0);
-t('C3 单平台裁定维持声明在（归一化封口后矩阵仍不产生新信号）', gci.indexOf('单平台裁定维持') >= 0);
+t('C2 勘误如实记变化性质=工具版本变化而非平台变化', gci.indexOf('工具版本变化') >= 0 && gci.indexOf('2.45') >= 0);
+t('C3 单平台判定维持声明在（归一化并定下来后矩阵仍不产生新信号）', gci.indexOf('单平台判定维持') >= 0);
 
 // ---------- D. upstream-lock.yaml git-cli 行点名 enforce 位 ----------
 const lock = txt(join(ENG, 'upstream-lock.yaml'));

@@ -1991,7 +1991,7 @@
    "status": "pending",
    "watch": "manual_watch",
    "source": "docs/known-gaps.md 批2-β 登记批节（D-155①/D-156②）",
-   "owner": "仓内值守",
+   "owner": "仓内定期检查",
    "review_event": "next-audit-window",
    "verify_method": "known-gaps 台账批2-β 节八件逐件 status 重审（observed→triaged→legislated 走向）＋逐件 mini-五要素齐备抽查（gap_id/证据链/owner/notes/review_by/trigger_id）",
    "confirmations": [
@@ -2000,7 +2000,7 @@
      "by": "R42-T1 审计窗随读",
      "criterion_version": "D-156②",
      "decision": "status-unchanged",
-     "reason": "GAP-B2B-01~08 逐件复审：全八件 status=triaged/仓内值守、mini-五要素齐备——批2-β 未落地，复审窗未至（锚=next-audit-window）；本窗无迁移",
+     "reason": "GAP-B2B-01~08 逐件复审：全八件 status=triaged/仓内定期检查、mini-五要素齐备——批2-β 未落地，复审窗未至（锚=next-audit-window）；本窗无迁移",
      "evidence": "docs/known-gaps.md 批2-β 节八行 status 列全 triaged"
     },
     {
@@ -2008,7 +2008,7 @@
      "by": "R44-T3 审计窗随读＋T1-B 普查同窗",
      "criterion_version": "D-156②/D-169-b③",
      "decision": "status-unchanged",
-     "reason": "GAP-B2B-01~08 逐件重审：全八件 status=triaged/owner=仓内值守、mini-五要素 8/8 字段齐备、review_by=批2-β 落地后下一审计窗（事件锚在册）——批2-β 未落地复审窗未至，本窗无迁移；兼作触发器①读数=无恶化（较基线同态）；RA 两字段标注=裁者可溯源（D-155①/D-156② 轮39 立法登记）＋复审锚在册",
+     "reason": "GAP-B2B-01~08 逐件重审：全八件 status=triaged/owner=仓内定期检查、mini-五要素 8/8 字段齐备、review_by=批2-β 落地后下一审计窗（事件锚在册）——批2-β 未落地复审窗未至，本窗无迁移；兼作触发器①读数=无恶化（较基线同态）；RA 两字段标注=裁者可溯源（D-155①/D-156② 轮39 立法登记）＋复审锚在册",
      "evidence": "docs/known-gaps.md 批2-β 节八行字段机读核验（fields=8/8 mini5ok=true ×8）"
     },
     {
@@ -2016,7 +2016,7 @@
      "by": "R45 审计窗哨兵值守（r44-t1-exec 批审计同窗）",
      "criterion_version": "D-156②/D-169-b③",
      "decision": "status-unchanged",
-     "reason": "GAP-B2B-01~08 复核：全八件 status=triaged/owner=仓内值守同态、mini-五要素字段仍齐备、复审锚在册——批2-β 未落地复审窗未至；兼作触发器①读数=无恶化",
+     "reason": "GAP-B2B-01~08 复核：全八件 status=triaged/owner=仓内定期检查同态、mini-五要素字段仍齐备、复审锚在册——批2-β 未落地复审窗未至；兼作触发器①读数=无恶化",
      "evidence": "docs/known-gaps.md 批2-β 节八行复核（审计窗逐行重读，与 R44 登记读数同态）"
     },
     {
@@ -2049,7 +2049,7 @@
    "status": "pending",
    "watch": "manual_watch",
    "source": "trials/codebuddy-r38-report.md（T1 试用关窗：CLI 面三判据 hit，IDE not-run 如实留痕）",
-   "owner": "仓内值守",
+   "owner": "仓内定期检查",
    "review_event": "next-audit-window",
    "verify_method": "IDE 实装时按 trials/codebuddy-r38-charter.md 三判据重跑（C1 安装链/C2 安装树自对照 parity/C3 披露），读数标 IDE-specific——禁从 CLI 结果外推（D-155② 归属裁：同宿主未覆盖驱动路径=关窗后未实测残项）",
    "confirmations": [
@@ -2099,7 +2099,7 @@
    "status": "pending",
    "watch": "manual_watch",
    "source": "trials/codebuddy-r38-report.md findings F-02（D-146 分诊=宿主侧行为不进裁定链）",
-   "owner": "仓内值守",
+   "owner": "仓内定期检查",
    "review_event": "next-audit-window",
    "verify_method": "复跑 `codebuddy mcp list` 对照会话内 MCP server 连通态——列名补齐即宿主侧已修；不主动上报（用户有官方渠道意愿另行授权，本仓不代办）",
    "confirmations": [
@@ -2578,7 +2578,7 @@
    "status": "pending",
    "watch": "manual_watch",
    "source": "decision-ledger D-169-a②／R43 收口节执行窗登记",
-   "owner": "仓内值守",
+   "owner": "仓内定期检查",
    "review_event": "next-audit-window",
    "verify_method": "审计窗三问核验：GAP-B2B 读数较基线恶化？同型需求第二例出现？known-gaps 新增条目命中批2-β 机制？任一 yes→trigger_event 置 occurred→临窗呈裁批2-β 开工；全 no→挂账续持",
    "confirmations": [
@@ -2687,7 +2687,7 @@
    "status": "pending",
    "watch": "manual_watch",
    "source": "macro-audit decision-ledger D-176③（R48 收口节执行窗登记——轮49 T1 兑现位）",
-   "owner": "仓内值守",
+   "owner": "仓内定期检查",
    "review_event": "next-audit-window",
    "verify_method": "T3 审计窗三读数：①gh workflow list/run list（或等值 API 列读）核 macro-b-regression 名复原且 schedule 注册活性在案（覆盖 60 天自动停用/注册漂移平台侧失效——D-176③ 原款字面）、近窗 run 无 0s 败迹/YAML error 形态；②actionlint 或等值解析器本地跑 .github/workflows/*.yml 全绿（parse 校验工具归哨兵节律承载非 CI 硬依赖——D-176③）；③46-check A18 parse 档闸读数在绿。workflow_dispatch 实跑属未授权动作不入本册（D-176 scoping 另行登记）",
    "confirmations": [

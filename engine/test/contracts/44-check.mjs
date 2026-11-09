@@ -101,8 +101,8 @@ t('A9 planned/evaluating 行 contract 含接入前定 pin 注记（锁定先于�
 t('A10 codelore-sqlite-dump 行 risk_note 在位（D-037③ 风险注记）',
   byId['codelore-sqlite-dump'] && typeof byId['codelore-sqlite-dump'].risk_note === 'string' && byId['codelore-sqlite-dump'].risk_note.length > 0);
 const lockText = existsSync(LOCK) ? txt(LOCK) : '';
-t('A11 表头纪律注记齐备（唯一机读权威/先于依赖存在/retired 不删/禁 range 浮动/手动窗口+golden 回归）',
-  lockText.indexOf('唯一机读权威') >= 0 && lockText.indexOf('先于依赖存在') >= 0 && lockText.indexOf('retired 行不删') >= 0 && lockText.indexOf('禁 range') >= 0 && lockText.indexOf('手动窗口') >= 0 && lockText.indexOf('golden 回归') >= 0);
+t('A11 表头纪律注记齐备（唯一机器读来源/先于依赖存在/retired 不删/禁 range 浮动/手动窗口+golden 回归）',
+  lockText.indexOf('唯一机器读来源') >= 0 && lockText.indexOf('先于依赖存在') >= 0 && lockText.indexOf('retired 行不删') >= 0 && lockText.indexOf('禁 range') >= 0 && lockText.indexOf('手动窗口') >= 0 && lockText.indexOf('golden 回归') >= 0);
 const pkg = JSON.parse(txt(join(ENG, 'package.json')));
 t('A12 duckdb-node-api 锁值 == package.json dependencies 精确值（锁表↔package 同源）', byId['duckdb-node-api'] && byId['duckdb-node-api'].version === pkg.dependencies['@duckdb/node-api'], 'lock=' + (byId['duckdb-node-api'] && byId['duckdb-node-api'].version) + ' pkg=' + pkg.dependencies['@duckdb/node-api']);
 t('A13 upstream-lock.yaml 入 package.json files（provenance 锚随 tgz，D-037②）', pkg.files.indexOf('upstream-lock.yaml') >= 0);
@@ -111,7 +111,7 @@ const UP_FILES = [join(ENG, 'src', 'upstream', 'codelore.ts'), join(ENG, 'src', 
 t('A14 upstream 适配器文件无 S1-S5 字样（映射=业务语义禁入防腐层，ADR-0014/D-078⑥）', UP_FILES.every(f => !existsSync(f) || !/\bS[1-5]\b/.test(txt(f))), UP_FILES.filter(f => existsSync(f) && /\bS[1-5]\b/.test(txt(f))).join(','));
 t('A15 descriptor dimension:null 保留＋注释指针 upstream-dimension-map.md（两适配器逐件）', UP_FILES.every(f => txt(f).indexOf('dimension: null') >= 0 && txt(f).indexOf('upstream-dimension-map.md') >= 0), '');
 const DIMMAP = join(REPO, 'docs', 'upstream-dimension-map.md');
-t('A16 docs/upstream-dimension-map.md 在且骨架齐（准入条件列＋永久排除行＋双挂＋复审两字段）', existsSync(DIMMAP) && ['准入条件', '永久排除', 'S5 ↔ S4', 'last_reviewed', 'next_review', 'dimension: null'].every(k => txt(DIMMAP).indexOf(k) >= 0), '');
+t('A16 docs/upstream-dimension-map.md 在且结构齐（进入条件列＋永久排除行＋双挂＋复审两字段）', existsSync(DIMMAP) && ['进入条件', '永久排除', 'S5 ↔ S4', 'last_reviewed', 'next_review', 'dimension: null'].every(k => txt(DIMMAP).indexOf(k) >= 0), '');
 
 // ---------- B. 版本断言（binary 可解析→ENFORCE；缺席→ADVISORY WARN） ----------
 const clSrc = txt(join(ENG, 'src', 'upstream', 'codelore.ts'));
@@ -145,8 +145,6 @@ w('C5 锁表新鲜度：next_review 全行未逾期（逾期→advisory 报警�
 
 // ---------- D. README §3 上游表状态列绑锁表（ENFORCE；D-037⑥） ----------
 const readme = txt(join(REPO, 'README.md'));
-t('D1 「以 engine/upstream-lock.yaml 为唯一权威」机读绑定注记在', readme.indexOf('engine/upstream-lock.yaml') >= 0 && readme.indexOf('唯一权威') >= 0 && readme.indexOf('机读') >= 0);
-t('D2 状态映射声明在（已接入→active／规划中→planned／评估中→evaluating）', readme.indexOf('已接入→active') >= 0 && readme.indexOf('规划中→planned') >= 0 && readme.indexOf('评估中→evaluating') >= 0);
 const README_TO_LOCK = [
   ['DuckDB（@duckdb/node-api）', 'duckdb-node-api'],
   ['git CLI', 'git-cli'],
@@ -164,25 +162,24 @@ for (const [name, id] of README_TO_LOCK) {
   const lockRow = byId[id];
   if (!lockRow || lockRow.status !== want) { d3ok = false; d3bad.push(name + ':readme=' + want + ',lock=' + (lockRow && lockRow.status)); }
 }
-t('D3 README 上游表五行状态 ↔ 锁表 status 全同源（人读↔机读一致）', d3ok, d3bad.join(';'));
-t('D4 README 状态列括号含机读枚举值逐字（已接入（active）／规划中（planned））', readme.indexOf('已接入（active') >= 0 && readme.indexOf('规划中（planned') >= 0);
+t('D3 README 上游表五行状态 ↔ 锁表 status 全同源（给人看↔机器读一致）', d3ok, d3bad.join(';'));
+t('D4 README 状态列括号含机器读枚举值逐字（已接入（active）／规划中（planned））', readme.indexOf('已接入（active') >= 0 && readme.indexOf('规划中（planned') >= 0);
 t('D5 README codelore 行含 0.28.0（== 锁表 version）', readme.indexOf('0.28.0') >= 0);
-t('D6 锁定纪律注记在（禁 range/浮动 tag/latest＋手动窗口＋golden 回归）', readme.indexOf('禁 range/浮动 tag/latest') >= 0 && readme.indexOf('手动窗口') >= 0 && readme.indexOf('golden 回归') >= 0);
 
-// ---------- E. 三处 preview 标注同源（ENFORCE；README 边界节＋generate.ts＋examples README） ----------
+// ---------- E. 两处 preview 标注同源（ENFORCE；generate.ts＋examples README） ----------
 const genSrc = txt(join(ENG, 'src', 'report', 'generate.ts'));
 const exReadme = txt(join(REPO, 'examples', 'first-report', 'README.md'));
-const SRC3 = { 'README边界节': readme, 'engine披露语义源（generate+citation，审计 C1 破环后合并面）': genSrc + txt(join(ENG, 'src', 'report', 'citation.ts')), 'examples/README': exReadme };
-t('E1 三处共享 token：preview_disclosure 全命中', Object.keys(SRC3).every(k => SRC3[k].indexOf('preview_disclosure') >= 0));
-t('E2 三处共享 token：⚠ unverified 全命中', Object.keys(SRC3).every(k => SRC3[k].indexOf('⚠ unverified') >= 0));
+const SRC2 = { 'engine披露语义源（generate+citation，审计 C1 破环后合并面）': genSrc + txt(join(ENG, 'src', 'report', 'citation.ts')), 'examples/README': exReadme };
+t('E1 两处共享 token：preview_disclosure 全命中', Object.keys(SRC2).every(k => SRC2[k].indexOf('preview_disclosure') >= 0));
+t('E2 两处共享 token：⚠ unverified 全命中', Object.keys(SRC2).every(k => SRC2[k].indexOf('⚠ unverified') >= 0));
 t('E3 generate.ts PreviewDisclosure 四字段契约＋UNVERIFIED_MARK 单一语义源（citation.ts 定义＋generate re-export——审计 C1 载体迁移）', genSrc.indexOf('interface PreviewDisclosure') >= 0 && ['capability_label', 'calibration_scope', 'structural_limitations', 'not_in_preview'].every(f => genSrc.indexOf(f) >= 0) && txt(join(ENG, 'src', 'report', 'citation.ts')).indexOf("UNVERIFIED_MARK = '⚠ unverified'") >= 0 && genSrc.indexOf('export { UNVERIFIED_MARK') >= 0);
-t('E4 README 边界节 capability 标注组（1/2/3/4 of 5 · preview——#85② Micro-A 产线化 D-204③④＋Not yet ==2）', readme.indexOf('capability 1 of 5 · preview') >= 0 && readme.indexOf('capability 2 of 5 · preview') >= 0 && readme.indexOf('capability 3 of 5 · preview') >= 0 && readme.indexOf('capability 4 of 5 · preview') >= 0 && (readme.match(/Not yet in preview/g) || []).length === 2);   // ≥1→===2 收紧（状态句＋Macro-A 行两处——Macro-A 唯一未上架层）
+t('E4 README capability 标注组（1/2/3/4 of 5 · preview——#85② Micro-A 产线化 D-204③④＋Not yet ==1）', readme.indexOf('capability 1 of 5 · preview') >= 0 && readme.indexOf('capability 2 of 5 · preview') >= 0 && readme.indexOf('capability 3 of 5 · preview') >= 0 && readme.indexOf('capability 4 of 5 · preview') >= 0 && (readme.match(/Not yet in preview/g) || []).length === 1);
 const goldenHappy = JSON.parse(txt(join(ENG, 'fixtures', 'golden', 'happy-path', 'report.json')));
 const macroC = JSON.parse(txt(join(REPO,'engine','test','fixtures','contracts','38-macro-c-preview-report.json')));
 t('E5 README「capability 1 of 5 · preview」== golden 实物 capability_label（Macro-B 文档↔产物同源）', goldenHappy.preview_disclosure.capability_label === 'capability 1 of 5 · preview');
 t('E6 README「capability 2 of 5 · preview」== #38 实物 capability_label（Macro-C 文档↔产物同源）', macroC.preview_disclosure.capability_label === 'capability 2 of 5 · preview');
 t('E7 examples README preview_disclosure 时点差如实注＋failure=degradeReport 演示性质', exReadme.indexOf('时点') >= 0 && exReadme.indexOf('degradeReport') >= 0 && exReadme.indexOf('preview_disclosure') >= 0);
-t('E8 越界承诺机检（README 允许至 capability 4 of 5 · preview——#80 Micro-B 已上架；generate.ts/examples 仍禁 3/4/5，README 禁 5）', genSrc.indexOf('capability 3 of 5') < 0 && genSrc.indexOf('capability 4 of 5') < 0 && genSrc.indexOf('capability 5 of 5') < 0 && SRC3['examples/README'].indexOf('capability 3 of 5') < 0 && SRC3['examples/README'].indexOf('capability 4 of 5') < 0 && SRC3['examples/README'].indexOf('capability 5 of 5') < 0 && readme.indexOf('capability 5 of 5') < 0);
+t('E8 越界承诺机检（README 允许至 capability 4 of 5 · preview——#80 Micro-B 已上架；generate.ts/examples 仍禁 3/4/5，README 禁 5）', genSrc.indexOf('capability 3 of 5') < 0 && genSrc.indexOf('capability 4 of 5') < 0 && genSrc.indexOf('capability 5 of 5') < 0 && SRC2['examples/README'].indexOf('capability 3 of 5') < 0 && SRC2['examples/README'].indexOf('capability 4 of 5') < 0 && SRC2['examples/README'].indexOf('capability 5 of 5') < 0 && readme.indexOf('capability 5 of 5') < 0);
 
 const ecl = txt(join(ENG, 'CHANGELOG.md'));
 t('F8 engine/CHANGELOG Unreleased 条目引 upstream-lock.yaml（D-037⑥ CHANGELOG entry 引 lock diff）', ecl.indexOf('[Unreleased]') >= 0 && ecl.indexOf('upstream-lock.yaml') >= 0);

@@ -4,7 +4,7 @@
 //   - per-id 人工模板（名字/角色句/上游主页逐条人定一次）——禁从 kind 推导（github-rest 是 API 非项目，谢错对象风险真实）；
 //   - planned/evaluating/retired 不进致谢面；节内禁写版本/pin/契约（工程证据面归 lock）；链接一律指上游仓主页，禁 .scratch 快照路径；
 //   - 先比后写同型 manifest.meta.json（gen-manifests.mjs）：--check 只比不写 exit 1 on drift；默认写漂移目标报 DRIFT/CLEAN/NEW；
-//   - zh-CN 派生镜像同锚段（D-088：EN canonical/zh derived）；写后顺手把 zh 头 sync 戳刷成新 EN 指纹（sha256[:12]，73-check C 组口径）。
+//   - zh-CN 派生镜像同锚段（D-088：EN canonical/zh derived）；zh 头如果有 sync 戳，就刷成新 EN 指纹（sha256[:12]）；没有就不加。
 // 用法：node engine/scripts/gen-acknowledgments.mjs [--check]
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -25,38 +25,38 @@ const TEMPLATES = {
   'codelore': {
     name: 'CodeLore',
     url: 'https://github.com/emrecdr/codelore',
-    en: 'code archaeology & evidence-layer external CLI (read-only explain/summary probe slices)',
-    zh: '代码考古／证据层外部 CLI（explain/summary 只读探针面）',
+    en: 'code archaeology and evidence-layer external CLI (read-only explain/summary checks)',
+    zh: '代码考古与证据层外部 CLI（explain/summary 只读检查）',
   },
   'duckdb-node-api': {
     name: 'DuckDB Node API',
     url: 'https://github.com/duckdb/duckdb-node',
-    en: 'the fact-table base every audit scale writes through (@duckdb/node-api)',
-    zh: '各审计尺度事实表写路径底座（@duckdb/node-api）',
+    en: 'the DuckDB base that every audit scale writes its fact table into (@duckdb/node-api)',
+    zh: '各档审计写入事实表用的 DuckDB 底座（@duckdb/node-api）',
   },
   'duckdb-node-bindings': {
     name: 'DuckDB Node bindings',
     url: 'https://github.com/duckdb/duckdb-node',
-    en: 'platform-native DuckDB binaries the fact store runs on (@duckdb/node-bindings-*)',
+    en: 'the platform-native DuckDB binaries the fact table runs on (@duckdb/node-bindings-*)',
     zh: '事实表运行所依赖的平台原生 DuckDB 二进制（@duckdb/node-bindings-*）',
   },
   'git-cli': {
     name: 'git',
     url: 'https://github.com/git/git',
-    en: 'deterministic repository archaeology and evidence collection (external CLI, host-provided)',
-    zh: '确定性仓库考古与证据采集（宿主环境外部 CLI）',
+    en: 'deterministic repository history digging and evidence collection (external CLI, provided by the host)',
+    zh: '确定性的仓库历史挖掘与证据采集（宿主环境自带外部 CLI）',
   },
   'github-rest': {
     name: 'GitHub REST API',
     url: 'https://docs.github.com/rest',
-    en: 'the Micro-A PR data surface — enumeration / metadata / diff fallback, local git first',
-    zh: 'Micro-A PR 数据面——枚举／元数据／diff 兜底（本地 git 优先）',
+    en: 'the PR data source for the change level (Micro-A) — enumeration / metadata / diff fallback, local git first',
+    zh: '改动档（Micro-A）的 PR 数据源——枚举／元数据／diff 取不到就走备选（本地 git 优先）',
   },
   'esbuild': {
     name: 'esbuild',
     url: 'https://github.com/evanw/esbuild',
     en: 'single-file dist bundle builder for the packaged CLI',
-    zh: '打包发行用单文件 dist bundle 构建器',
+    zh: '打包发布用的单文件 dist 包构建器',
   },
   'schemastore-claude-plugin-manifest': {
     name: 'SchemaStore',
@@ -67,8 +67,8 @@ const TEMPLATES = {
   'claude-cli': {
     name: 'Claude Code CLI',
     url: 'https://github.com/anthropics/claude-code',
-    en: 'the advisory claude plugin validate toolchain',
-    zh: 'advisory 位的 claude plugin validate 校验工具链',
+    en: 'the claude plugin validate toolchain, used for advice only',
+    zh: '只给建议的 claude plugin validate 校验工具链',
   },
 };
 
@@ -94,13 +94,13 @@ function activeIds() {
 }
 
 function renderBlock(lang) {
-  const head = lang === 'zh' ? '## 致谢 {#acknowledgments}' : '## Acknowledgments';
+  const head = lang === 'zh' ? '## 致谢 {#acknowledgments}' : '## Acknowledgments {#acknowledgments}';
   const intro = lang === 'zh'
-    ? '6F 站在这些上游组件之上——即 [engine/upstream-lock.yaml](engine/upstream-lock.yaml) 的 active 集：'
-    : '6F stands on these upstream components — the active set of [engine/upstream-lock.yaml](engine/upstream-lock.yaml):';
+    ? '6F 建立在这些上游组件之上——就是 [engine/upstream-lock.yaml](engine/upstream-lock.yaml) 里状态为 active 的那组：'
+    : '6F builds on these upstream components — the `active` set in [engine/upstream-lock.yaml](engine/upstream-lock.yaml):';
   const foot = lang === 'zh'
-    ? '*完整上游账目（含 planned／evaluating／retired 行）见 [engine/upstream-lock.yaml](engine/upstream-lock.yaml)；法律承接义务由 NOTICE/许可证文件承载，本节仅为人读致谢面。*'
-    : '*The full upstream ledger — including planned / evaluating / retired rows — lives in [engine/upstream-lock.yaml](engine/upstream-lock.yaml). Legal attribution obligations are carried by NOTICE/license files; this section is the human credit surface only.*';
+    ? '*完整上游记录（含 planned／evaluating／retired 行）见 [engine/upstream-lock.yaml](engine/upstream-lock.yaml)；法律上的署名义务由 NOTICE/许可证文件承担，本节只给人看致谢。*'
+    : '*The full upstream record — including planned / evaluating / retired rows — lives in [engine/upstream-lock.yaml](engine/upstream-lock.yaml). Legal attribution obligations are carried by NOTICE/license files; this section is the human-readable credit list only.*';
   const lines = activeIds().map(id => {
     const tp = TEMPLATES[id];
     if (!tp) return '- **MISSING-TEMPLATE:' + id + '**'; // 防御网——renderable 门已先行拦截
@@ -139,7 +139,7 @@ function expectedEn() {
 }
 
 function expectedZh(enAfter) {
-  // 戳口径对齐 73-check C 组：sha256(盘上 EN 原文, utf8)——期望值换算成目标 EOL 形态再哈希（LF 锁下与原文等价）
+  // 戳按盘上 EN 原文算：sha256(EN 原文, utf8)——期望值换算成目标 EOL 形态再哈希（LF 锁下与原文等价）
   const enDiskEol = eolOf(fs.readFileSync(EN_PATH, 'utf8'));
   const hash = crypto.createHash('sha256').update(enAfter.split('\n').join(enDiskEol), 'utf8').digest('hex').slice(0, 12);
   const zh = norm(fs.readFileSync(ZH_PATH, 'utf8'));

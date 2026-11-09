@@ -1,7 +1,7 @@
 # com.macroaudit.hooks（反向域名扩展目录）
 
-hooks 仅作触发 / 呈现面（Agent Plugin 分发形态）：
-- PostToolUse / Stop：呈现 receipt、注入证据就绪上下文。
-- 永不作裁决执行点 —— 裁决一律环境外执行（内核 CLI / CI gate）；裁决职能属本目录**非目标**。
+hooks 只管触发和显示（Agent Plugin 分发形态）：
+- PostToolUse / Stop：显示回执，把证据准备好的上下文塞进去。
+- 永远不作为执行裁决的地方——裁决一律在外面跑（内核 CLI / CI 关卡）；本目录不负责裁决。
 
-> **声明位（D-055，2026-09-17）**：本目录=规范合法的可选呈现面声明位，宿主专属非可移植组件（Agent Plugins 1.0.0 v1 可移植组件=skills+mcp.json；`com.macroaudit.*` 自造命名空间在一切宿主侧 inert——实建须按目标宿主命名空间落位）。现无 hook 实物；实建见 registry `hooks-presentation-face` 触发器（激活条件=真实呈现需求信号）。
+> **声明位置（D-055，2026-09-17）**：本目录是规范允许的可选显示位置，宿主专用、不可移植的组件（Agent Plugins 1.0.0 v1 的可移植组件=skills+mcp.json；`com.macroaudit.*` 自己造的命名空间在所有宿主上都是空的——真要做就按目标宿主的命名空间放）。现在没有 hook 实物；真要做看 registry `hooks-presentation-face` 触发器（激活条件=真的有人要看）。
