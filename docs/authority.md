@@ -1,82 +1,81 @@
-# 权威载体与历史指纹（唯一成文处）
+# 决定和术语写在哪
 
-本文件回答一个问题：**一条决策或一个术语该落在哪**。这是仓内关于该问题的唯一成文处——
-[`AGENTS.md`](../AGENTS.md)、[`README.md`](../README.md)、[`README.zh-CN.md`](../README.zh-CN.md)、
+决定和术语写在哪，只看这一份。[`AGENTS.md`](../AGENTS.md)、[`README.md`](../README.md)、[`README.zh-CN.md`](../README.zh-CN.md)、
 [`CONTRIBUTING.md`](../CONTRIBUTING.md)、[`engine/README.md`](../engine/README.md)、
-[`docs/agents/domain.md`](agents/domain.md) 等门面文书只留指回本文件的指针，不各自重述口径。
-决策本身记于 [`ADR-0025`](adr/0025-authority-carriers-and-historical-fingerprints.md)。
+[`docs/agents/domain.md`](agents/domain.md) 这些门面文书只放链接，不重复写。
+决定本身记在 [`ADR-0025`](adr/0025-authority-carriers-and-historical-fingerprints.md)。
 
-## 1. 三载体
+## 1. 三类文件
 
-| 载体 | 承载什么 | 现行编号 | 何时进这一层 |
+| 文件 | 管什么 | 编号 | 什么时候写这里 |
 |---|---|---|---|
-| [`docs/spec.md`](spec.md) | 产品决策：范围、能力、用户可见契约 | `R<n>` 节 / `R<n>-<m>` 条目（编号只在 spec 内有效） | 改的是"产品做什么、对用户承诺什么" |
-| [`docs/adr/`](adr/) | 架构决策：Context / 替代方案 / 后果 | `ADR-NNNN` | 有替代方案被否决，或需要留下"为什么不" |
-| [`GLOSSARY.md`](../GLOSSARY.md) | 术语：领域唯一语言 | 词条名（可附 `_Avoid_` 禁用语） | 引入一个新词，或收编一个已被代码使用的词 |
+| [`docs/spec.md`](spec.md) | 产品决定：范围、能力、对用户的承诺 | `R<n>` 节 / `R<n>-<m>` 条（编号只在 spec 里有效） | 改的是“产品做什么、对用户承诺什么” |
+| [`docs/adr/`](adr/) | 架构决定：背景 / 备选 / 后果 | `ADR-NNNN` | 有备选被否掉，或者要留下“为什么不” |
+| [`GLOSSARY.md`](../GLOSSARY.md) | 术语：每个领域词是什么意思 | 词条名（可附 `_Avoid_` 不要用的词） | 出现一个新词，或把一个代码里已经在用的词收进来 |
 
-纪律：
+规则：
 
-- **一条决策只有一个落点。** 其他位置只允许指针，不允许复制正文。
-- **术语定义不写实现细节。** 定义说"是什么"；"怎么做"归代码与其注释，"为什么"归 ADR/spec。
-- **载体之间不互相裁决。** 产品语义争议回 `docs/spec.md`，架构取舍争议回 `docs/adr/`，用词争议回 `GLOSSARY.md`。
+- **一个决定只写一处。** 别处只放链接，不抄正文。
+- **术语只说“是什么”。** “怎么做”看代码和注释，“为什么”看 ADR/spec。
+- **三类文件各管各的。** 产品争议看 `docs/spec.md`，架构取舍看 `docs/adr/`，用词争议看 `GLOSSARY.md`。
 
-## 2. 专门口径（从属，不与三载体竞争）
+## 2. 专门规则（各自管一块，不和上面三类抢）
 
-下列文件在各自专题内是唯一口径，但都不回答"决策与术语分别在哪"，因而不构成第二套权威面：
+下面这些文件在各自题目里说了算，但它们都不回答“决定和术语分别写在哪”，所以不算第二套权威：
 
-| 位置 | 专题口径 |
+| 位置 | 管什么 |
 |---|---|
-| [`docs/versioning.md`](versioning.md) | 0.x 版本语义、上游锁定与复审节奏的成文口径 |
-| [`engine/upstream-lock.yaml`](../engine/upstream-lock.yaml) | 产品上游版本钉的机读权威（README 上游表状态列与之同源） |
-| [`engine/baseline-lock.yaml`](../engine/baseline-lock.yaml) | 基准语料（Baseline Corpus）钉的登记处 |
-| [`docs/known-gaps.md`](known-gaps.md) | 缺口（gap）语义的权威登记册 |
-| [`docs/upstream-dimension-map.md`](upstream-dimension-map.md) | upstream→dimension 映射表本体（逐行 `last_reviewed` / `next_review` 的登记位；节奏与字段口径归 `docs/versioning.md`） |
-| [`docs/ra/`](ra/) | Accepted-Risk 呈批档案（已批准风险的现场，具名裁者=用户） |
-| [`engine/test/fixtures/contracts/`](../engine/test/fixtures/contracts/) | 同一目录两类身份并存：被守卫运行期消费的**活契约**（Live Contract，如 `33-gate-registry.json`）与字节冻结、只保证可回查的**冻结件**（Frozen Artifact，如 `23-frozen-fc00d458.bundle`、`38-macro-c-facts.jsonl`）；两者不得互当现行基准 |
-| [`engine/CHANGELOG.md`](../engine/CHANGELOG.md) | 产品版本账 |
-| [`docs/archive/decisions/`](archive/decisions/) | 历史指纹的解析入口——**非权威、只读** |
+| [`docs/versioning.md`](versioning.md) | 0.x 版本规则、上游锁定和复审节奏 |
+| [`engine/upstream-lock.yaml`](../engine/upstream-lock.yaml) | 产品上游版本的机器读权威（README 上游表的状态列和它一致） |
+| [`engine/baseline-lock.yaml`](../engine/baseline-lock.yaml) | 基准语料固定版本的登记处 |
+| [`docs/known-gaps.md`](known-gaps.md) | 缺口是什么意思的登记册 |
+| [`docs/upstream-dimension-map.md`](upstream-dimension-map.md) | 上游到维度的映射表（每行记 `last_reviewed` / `next_review`；节奏和字段规则看 `docs/versioning.md`） |
+| [`docs/ra/`](ra/) | 已接受风险的档案（谁批的写名字，批的人是用户） |
+| [`engine/test/fixtures/contracts/`](../engine/test/fixtures/contracts/) | 同一目录里有两类文件：测试实际会读的**活契约**（Live Contract，比如 `33-gate-registry.json`），和按字节冻结、只保证能回头查的**冻结件**（Frozen Artifact，比如 `23-frozen-fc00d458.bundle`、`38-macro-c-facts.jsonl`）；两类不能互当现行基准 |
+| [`engine/CHANGELOG.md`](../engine/CHANGELOG.md) | 产品版本记录 |
+| [`docs/archive/decisions/`](archive/decisions/) | 历史编号的查询入口——**非权威、只读** |
 
-### 2.1 生成面的再生命令
+### 2.1 自动生成的文件和重生命令
 
-这里登记「哪个文件由谁再生、失同步由谁判红」——命令的完整形态看 `engine/package.json` 的 scripts，别在此抄参数。手写生成面＝与生成器失同步；判红列写实的，没有守卫就写没有。
+这里只记哪个文件由谁重新生成、对不上时谁报错。命令怎么写看 `engine/package.json` 的 scripts，这里不抄参数。手写生成的文件就会和生成器对不上；报错的那列照实写，没有检查就写没有。
 
-| 生成面 | 再生者 | 失同步由谁判红 |
+| 生成的文件 | 谁重新生成 | 对不上时谁报错 |
 |---|---|---|
-| `engine/dist/**` | `npm run build`（tsc 逐文件输出保留注释，所以**只改 `engine/src` 的注释也会动 dist**；`dist/cli.js` 另经 esbuild 压缩） | engine-ci 的 rebuild-diff 步（`DIST-DRIFT`）。注意 `check-dist.mjs` 只管 `dist/cli.js` 的**体积棘轮**，不查内容 drift |
-| `docs/adr/README.md` | `npm run gen`（`gen-adr-index.mjs`，无只读模式，跑即写） | docs-ci 的 `adr-index drift guard (docs/adr/README.md regenerated == committed)` 步（tracker #97 落地）：`npm --prefix engine run gen` 后先查 `git ls-files --error-unmatch` 确为 tracked、再 `git diff --exit-code` 逐字节对账——手改索引或新增 ADR 忘 regen 即红；复用同一条 gen 链，不建第二套 |
-| `engine/plugin.json`、`.claude-plugin/plugin.json`、`.mcp.json` | `npm run gen`（`gen-manifests.mjs` 先比后写） | 生成器自身：检出 drift 即 `GEN-FAIL`，`npm run gen` 当场红 |
-| README 双语对的致谢锚段与 `<!-- sync: … -->` 戳 | `node scripts/gen-acknowledgments.mjs`（写双文件并按 EN 内容重算 sync 戳） | `77-check` A3（**手改戳位即红**）＋ `73-check` C 组 |
-| `engine/test/fixtures/contracts/48-micro-a-golden-*`（在册**十二件**） | `node engine/test/contracts/48-micro-a-preview.mjs --golden --out engine/test/fixtures/contracts`（cassette 离线回放，确定性可重算；实写十二件。**须全量检出**：浅克隆下锚会落 `degraded:shallow-clone`，写进存档即被 B9 判红；**再生须 `SOURCE_DATE_EPOCH=0`**——守卫子进程已显式钉 0，外部设了别的值只影响人手再生） | `48-check.mjs` 的 B 组：凡匹配 `48-micro-a-golden-*` 的在册件一律与 `--golden` 现跑产物**逐字节**对账——清单、入库、现跑三个集合不等、或任一字节不同，即判红并点名该件；另带篡改、判据锚全值、锚宽三类判别对照，防守卫自身退化成恒真。件内 `prereg_commit` 在 golden 模式下被收成判据锚的**定长前 8 位**（先钉 `core.abbrev` 下限挡住小检出 emit 7 位，再把因歧义加宽的 hex 截首 8 位——`%h` 的宽度随检出对象集变，不能直接入库），真跑面仍用 `%h` 原值。`85-check` E1~E9 是**跨实现逐值对账**（引擎面 vs 生成器存档），范围仅 pr64／pr51 两件 JSON 侧车：六判据 band、切片数值字段、fact_ids、overall_verdict、structural_limitations 两件都比，capability_label 与 not_in_preview 只比 pr64；它与上面的逐字节对账不互替（十二件全量的判红者是本行的 `48-check` B 组）。CI 不回写，golden 更新随 PR 审查（同 `golden-ci.yml` 的快照纪律 D-030③） |
+| `engine/dist/**` | `npm run build`（tsc 逐文件输出保留注释，所以**只改 `engine/src` 的注释也会动 dist**；`dist/cli.js` 另经 esbuild 压缩） | engine-ci 的 rebuild-diff 步（`DIST-DRIFT`）。`check-dist.mjs` 只管 `dist/cli.js` 的**体积只紧不松的限制**，不查内容有没有变 |
+| `docs/adr/README.md` | `npm run gen`（`gen-adr-index.mjs`，没有只读模式，跑就写） | docs-ci 的 `adr-index drift guard (docs/adr/README.md regenerated == committed)` 步（tracker #97）：`npm --prefix engine run gen` 后先查 `git ls-files --error-unmatch` 确认是 tracked、再 `git diff --exit-code` 逐字节核对——手改索引或新增 ADR 忘了 regen 就报错；复用同一条 gen 链，不建第二套 |
+| `engine/plugin.json`、`.claude-plugin/plugin.json`、`.mcp.json` | `npm run gen`（`gen-manifests.mjs` 先比后写） | 生成器自己：发现对不上就 `GEN-FAIL`，`npm run gen` 当场报错 |
+| README 双语对的致谢段 | `node scripts/gen-acknowledgments.mjs`（写双文件；zh 头如果有 `<!-- sync: … -->` 戳就刷新，没有就不加） | `gen-acknowledgments.mjs --check`（对不上就报错） |
+| `engine/test/fixtures/contracts/48-micro-a-golden-*`（在册**十二件**） | `node engine/test/contracts/48-micro-a-preview.mjs --golden --out engine/test/fixtures/contracts`（cassette 离线回放，结果固定，能重算；实写十二件。**必须全量检出**：浅克隆时锚会落 `degraded:shallow-clone`，写进存档会被 B9 报错；**重生成必须用 `SOURCE_DATE_EPOCH=0`**——检查脚本的子进程已经固定写 0，外部设了别的值只影响人手重生成） | `48-check.mjs` 的 B 组：凡是匹配 `48-micro-a-golden-*` 的在册件，一律和 `--golden` 现跑产物**逐字节核对**——清单、入库、现跑三个集合不等，或任一字节不同，就报错并点名该件；另带篡改、判据锚全值、锚宽三类对照，防止检查脚本变成永远为真。件内 `prereg_commit` 在 golden 模式下只收判据锚的**固定前 8 位**（先固定 `core.abbrev` 下限，挡住小检出 emit 7 位，再把因歧义加宽的 hex 截首 8 位——`%h` 的宽度随检出对象集变，不能直接入库），实际运行仍用 `%h` 原值。`85-check` E1~E9 是**跨实现逐值核对**（引擎侧 vs 生成器存档），范围只有 pr64／pr51 两件 JSON 侧车：六判据 band、那部分数值字段、fact_ids、overall_verdict、structural_limitations 两件都比，capability_label 与 not_in_preview 只比 pr64；它和上面的逐字节核对不能互相替代（十二件全量报错的是本行的 `48-check` B 组）。CI 不回写，golden 更新随 PR 审查（同 `golden-ci.yml` 的快照规则 D-030③） |
 
-文档面的只读自检（零写入）：`cd engine && npm run check:docs`。
+文档只读检查：`cd engine && npm run check:docs`。
 
-## 3. 历史指纹政策
+## 3. 历史编号怎么用
 
-仓内大量存在、但**不再新增**的三类编号：`D-NNN`（产品决策账）、`A-NNN`（架构恢复账本）与旧 BACKLOG 票号 `#32`–`#94`。
+仓里还有三类旧编号：`D-NNN`（产品决定记录）、`A-NNN`（架构恢复记录）、旧 BACKLOG 票号 `#32`–`#94`。它们只用来查历史，不再新增。
 
-- 它们只用于历史溯源，可由 [`docs/archive/decisions/`](archive/decisions/)（账本原文 + 索引）逐号解析；解析入口≠裁决依据。
-- **新决策不再使用 `D-NNN` / `A-NNN`**：产品决策落 `docs/spec.md` 的 `R<n>-<m>` 条目，架构决策落 `ADR-NNNN`。既有账本号只作历史引用，不追加新号。
-  [`ADR-0025`](adr/0025-authority-carriers-and-historical-fingerprints.md) 原文写的是"改用 ADR 号或 spec A-code"——spec 的现行编号形态是 `R<n>-<m>`，`A-NNN` 账本已封账不再增号，故本文件按实际形态落定。
-- 代码注释、workflow 注释与历史文档里的历史指纹**保留原样**，不做现代化清洗；逐字节冻结的账本与冻结件（Frozen Artifact）允许保留原始现场（含本机绝对路径），前提是归档处已声明其为历史产物。
-- `CONTEXT.md` 已退役（`6626d08d` 删除），术语归 [`GLOSSARY.md`](../GLOSSARY.md)；历史文书（含 ADR 正文与账本行）里对 `CONTEXT.md` 的提法按历史指纹读，不作为现行落点。
-- **撞号警示**：GitHub issue/PR 与旧 BACKLOG 票号共用同一串号——旧 BACKLOG 覆盖 `#32`–`#94`，GitHub 号只增不减，两段区间重叠。新写的一律按 [`docs/spec.md`](spec.md) R8 的口径把 GitHub 引用写成 `tracker #N`；历史文本里的裸 `#NN`（代码注释、`NN-check` 脚本名、账本行）按 [`ticket-index.md` §撞号警示](archive/decisions/ticket-index.md#撞号警示) 消歧，不改写。
+- 这些编号能从 [`docs/archive/decisions/`](archive/decisions/)（记录原文 + 索引）逐号查到；能查到，不等于能拿来判。
+- **新决定不再用 `D-NNN` / `A-NNN`**：产品决定写进 `docs/spec.md` 的 `R<n>-<m>` 条，架构决定写 `ADR-NNNN`。旧编号只作历史引用，不加新号。
+  [`ADR-0025`](adr/0025-authority-carriers-and-historical-fingerprints.md) 原文写的是“改用 ADR 号或 spec A-code”——spec 现在用 `R<n>-<m>`，`A-NNN` 记录已经封账，所以这里按实际写法定。
+- 代码注释、workflow 注释和历史文档里的旧编号**保留原样**，不清洗；按字节冻结的记录和冻结件可以保留原始现场（包括本机绝对路径），前提是归档处写明这是历史产物。
+- `CONTEXT.md` 已经退役（`6626d08d` 删除），术语看 [`GLOSSARY.md`](../GLOSSARY.md)；历史文书（包括 ADR 正文和记录行）里提到 `CONTEXT.md` 的地方按历史编号读，不当现行位置。
+- **号码会撞**：GitHub issue/PR 和旧 BACKLOG 票号共用同一串号——旧 BACKLOG 覆盖 `#32`–`#94`，GitHub 号只增不减，两段重叠。新写的按 [`docs/spec.md`](spec.md) R8 的规则把 GitHub 引用写成 `tracker #N`；历史文本里的裸 `#NN`（代码注释、`NN-check` 脚本名、记录行）按 [`ticket-index.md` §撞号警示](archive/decisions/ticket-index.md#撞号警示) 分清，不要改写。
 
-## 4. `Design:` 指针格式
+## 4. `Design:` 指针怎么写
 
-约束点上的代码/配置注释使用单行指针，格式以本节为准：
+代码和配置里要写约束时，用一行指针，格式以本节为准：
 
 ```
 Design: <一句话约束> — ADR-NNNN
 ```
 
-- 只写"为什么这里必须这样"并给出 ADR 指针；**不复制 ADR 正文**，不写多行块注释。
-- 指针目标必须是 `docs/adr/` 下可解析的现行 ADR（不含 0002/0010/0015 这三份保持删除的编号）。
+- 只写“为什么这里必须这样”，并给出 ADR 号；**不抄 ADR 正文**，不写多行块注释。
+- 指针指向的必须是 `docs/adr/` 下能打开的现行 ADR（不含 0002/0010/0015 这三份保持删除的编号）。
 - 产品级约束指向 `docs/spec.md` 的节时写成 `Design: <一句话约束> — spec §R<n>`；术语约束指向 `GLOSSARY.md` 词条。
-- 一份 ADR 可被多处指针引用；指针本身不构成决策记录，删除指针不删除决策。
-- 首个实例：`engine/src/audit/micro-a.ts` 的 `LEDGER_PATH` 处（指向 ADR-0027 的溯源锚）；audit/fact/intake/report/upstream/collect 六个面的其余约束点已按 tracker #46 落地。
+- 一份 ADR 可以被多处指针引用；指针本身不是决定记录，删指针不删决定。
+- 第一个例子：`engine/src/audit/micro-a.ts` 的 `LEDGER_PATH` 处（指向 ADR-0027 的溯源锚）；audit/fact/intake/report/upstream/collect 六个面的其余约束点已按 tracker #46 落地。
 
-## 5. 变更纪律
+## 5. 改这份文件时
 
-- 要改"权威口径"本身：改本文件，并检查门面文书的指针仍指向这里；不要在门面文书里追加解释。
-- 本文件与三载体不一致时，以三载体的正文为准，本文件随之修正——本文件只登记落点，不承载决策内容。
-- 本口径的机检面设计记于 [`ADR-0027`](adr/0027-verification-surface-node-floor-and-docs-authority-guard.md)（tracker #47 复盘增补见该 ADR 的 Consequences）；执行面见 [`engine/test/contracts/docs-authority-check.mjs`](../engine/test/contracts/docs-authority-check.mjs)，CI 单腿见 [`.github/workflows/docs-ci.yml`](../.github/workflows/docs-ci.yml)；守卫运行通过才算机检通过，不以"跑过"代替"绿灯"。
+- 要改这份文件本身：改完检查门面文书的链接还指向这里；别在门面文书里加解释。
+- 这份文件和三类正文对不上时，以正文为准，这份文件跟着改——这里只记位置，不放决定内容。
+- 机器检查怎么设计写在 [`ADR-0027`](adr/0027-verification-surface-node-floor-and-docs-authority-guard.md)（tracker #47 复盘的补充见该 ADR 的 Consequences）；执行面在 [`engine/test/contracts/docs-authority-check.mjs`](../engine/test/contracts/docs-authority-check.mjs)，CI 单腿在 [`.github/workflows/docs-ci.yml`](../.github/workflows/docs-ci.yml)；检查脚本跑通才算通过，不看“跑过”。

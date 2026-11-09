@@ -2,7 +2,7 @@
 # 制度来源：ADR-0026（基准语料自持）＋ #33 落盘；与 upstream-lock.yaml（产品上游）分册——基准语料不是产品上游。
 #
 # 为什么分册（#32 根因）：upstream-lock.yaml 的 status 枚举（active/planned/evaluating/retired）与
-#   README 致谢面闭账（gen-acknowledgments.mjs TEMPLATES 双向差集，77-check A2/A3 enforce）是「产品上游」语义；
+#   README 致谢面闭账（gen-acknowledgments.mjs 的模板集和锁表 active 集互相对账）是「产品上游」语义；
 #   基准语料是「被审计的同级基准仓」，生命周期与上游锁不同。旧表用 status=planned 承载一枚已生效消费的钉＝枚举位妥协，
 #   本表以 status=active 直言其已生效态，不再借位。
 #

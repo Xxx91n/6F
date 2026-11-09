@@ -8,13 +8,13 @@ name: macro-b-regression
 #   → 工件断言（receipt + sidecar + md + facts + duckdb；test -s 非零字节 + RCP 强断言）→ upload-artifact。
 #
 # 触发面：schedule（每周一 03:17 UTC，沿用 #39 节拍）+ workflow_dispatch（repo_url opt-in 或复跑默认集）。
-#   - 不接 push / pull_request：本面=定时审计回归而非 PR 门禁（同 D-034④a 口径）；
+#   - 不接 push / pull_request：本面=定时审计回归而非 PR 关卡（同 D-034④a 规则）；
 #   - 已上架层限定：只跑 Macro-B one-shot，preview 层不混入（D-033 持续回归仅限已上架层）；
-#   - job 绿 = 管线跑通且工件齐备，非裁定绿——supported/unsupported/insufficient 三档如实落数（反复接受非跑通）；
-#   - mw-trigger-a 语义不变：「Macro-B 进 CI 定时回归」在 6F CI 形态同样成立（D-046④），D-043 裁决不受影响；
+#   - job 绿 = 管线跑通且工件齐备，不是判定绿——supported/unsupported/insufficient 三档照实写数字（反复接受非跑通）；
+#   - mw-trigger-a 语义不变：「Macro-B 进 CI 定时回归」在 6F CI 形态同样成立（D-046④），D-043 判定不受影响；
 #   - repo_url 仅 https:// 公开仓（D-013 输入面）；ssh/file/ext:: 等协议面拒入，clone 守 #40 intake 隔离；
 #   - matrix.repo.* 进 run 一律经 env 间接引用（$REPO_URL/$REPO_NAME），堵 $()/反引号穿 JSON 注入；
-#     clone 腿对 $REPO_URL 再跑 https-only 闸门（defense-in-depth，不信上游 resolve 输出）；
+#     clone 腿对 $REPO_URL 再跑 https-only 关卡（defense-in-depth，不信上游 resolve 输出）；
 #   - 默认回归集 = jiahao（撤 CI 后仍作审计对象不承载我方资产，D-046）；
 #     T3 经典公开仓候选经用户选定后追加进 resolve job 的 DEFAULT JSON（一仓一行）。
 on:
@@ -106,7 +106,7 @@ jobs:
           REPO_URL: ${{ matrix.repo.url }}
         run: |
           set -euo pipefail
-          # defense-in-depth：不信上游 resolve 输出，clone 腿重跑 https-only 闸门
+          # defense-in-depth：不信上游 resolve 输出，clone 腿重跑 https-only 关卡
           case "$REPO_URL" in
             https://*) ;;
             *) echo "::error::repo url 仅允许 https://（got: $REPO_URL）"; exit 1 ;;
@@ -115,7 +115,7 @@ jobs:
           # #113 返修（PR #127 审查）：本腿**不**加 `-c core.symlinks=false`。带它会把被审计仓里的符号链接
           #   物化成「内容是目标路径文本的普通文件」——`readRepoFileSafe` 只认 lstat 事实，普通文件即放行，
           #   于是仓外指向的链接被当作 ADR 正文解析、且**不产生** `codelore.file_subject_skip` 披露事实：
-          #   既改了 ADR 语料，又把本票要证明的「拒绝+披露」路径整段遮住。链接照实际落盘，安全边界由读取单点兜。
+          #   既改了 ADR 语料，又把本票要证明的「拒绝+披露」路径整段遮住。链接照实际写入，安全边界由读取单点兜。
           #   `core.symlinks=false` 的 defense-in-depth 作用位=url 腿的真克隆（engine/src/intake/intake.ts，
           #   其效果由 engine/test/contracts/113-check.mjs A5 静态钉住）；workflow_dispatch 的任意 https:// 输入
           #   也走那一条腿，故本腿不再挂同旗标。

@@ -192,5 +192,5 @@ node dist/cli.js audit file <repo> <file> --db <facts.duckdb> [--at <sha>]
 ## Honesty notes
 
 - **Badges show only what is true today**: license, version, Node floor, marketplace installability, and the engine-ci main-branch status badge (mounted 2026-09-22 after the first green main run — `event_bound`, not speculation). A motion GIF will be recorded against the real UI after the listing-material freeze — it is not referenced before it exists.
-- **Preview means preview**: capability labels, ⚠ marks, and `synthetic` marks are key honesty signals, kept word for word in both language versions.
+- **Preview means preview**: capability labels, ⚠ marks, and `synthetic` marks are key honesty signals; the English version keeps them word for word, and the Chinese version must not contradict them.
 - **Two-layer front page**: the upper half of this file is the product front page; everything below the rule is the engineering layer (architecture, upstreams, runtime view, ownership, contracts, repo map), kept whole for evaluators who want to check the work.

@@ -14,7 +14,7 @@
 基准语料自持，并与产品上游分离：
 
 - 把 anysearch-cli 的 `770d2549` 打成 frozen bundle 入库（原文记「实测 144KB」——**该数量级不成立**，实测 14961055 B ≈ 14.3 MiB，勘误与原因见后果段），经 `env-contract` 的只读路径物化；守卫运行期不在主仓对象库写入。
-- 新建 `engine/baseline-lock.yaml`，作为基准语料的唯一权威；`upstream-lock.yaml` 移除 anysearch 行，保持纯产品上游语义与致谢闭账口径。
+- 新建 `engine/baseline-lock.yaml`，作为基准语料的唯一权威；`upstream-lock.yaml` 移除 anysearch 行，保持纯产品上游语义与致谢对账规则。
 - `85-check` C 组改读 `baseline-lock.yaml` 并物化仓内 bundle；无 sibling 的机器上 C1/C2/C3 值级断言实跑，`SKIP-GROUPS` 归零。
 - 唯一权威钉 = `770d2549`；`38-macro-c-facts.jsonl` 的 `b45d0799` 标为历史产物，不再当基准；冻结件字节零动，本机绝对路径在归档索引注明属原始现场。
 - 活跃路径（baseline-lock、85-check、报告输出）不得出现本机绝对路径。
@@ -22,7 +22,7 @@
 ## Considered Options
 
 - **只在 anysearch-cli 侧登记"禁改写该提交"**：仍是跨仓假设，且该提交已经 dangling；CI 仍然不可达。
-- **在 `upstream-lock.yaml` 增 `baseline` status**：会污染"产品上游"语义，并迫使 `gen-acknowledgments` 与 77-check 扩枚举；#32 的根因正是把基准混进了上游锁。
+- **在 `upstream-lock.yaml` 增 `baseline` status**：会污染"产品上游"语义，并迫使 `gen-acknowledgments` 扩枚举；#32 的根因正是把基准混进了上游锁。
 - **重算/重生冻结事实**：冻结事实是历史证据，字节零动优先；重生会制造新的"哪一枚 sha 才是权威"问题。
 
 ## Consequences

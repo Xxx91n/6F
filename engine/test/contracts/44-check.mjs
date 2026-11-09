@@ -111,7 +111,7 @@ const UP_FILES = [join(ENG, 'src', 'upstream', 'codelore.ts'), join(ENG, 'src', 
 t('A14 upstream 适配器文件无 S1-S5 字样（映射=业务语义禁入防腐层，ADR-0014/D-078⑥）', UP_FILES.every(f => !existsSync(f) || !/\bS[1-5]\b/.test(txt(f))), UP_FILES.filter(f => existsSync(f) && /\bS[1-5]\b/.test(txt(f))).join(','));
 t('A15 descriptor dimension:null 保留＋注释指针 upstream-dimension-map.md（两适配器逐件）', UP_FILES.every(f => txt(f).indexOf('dimension: null') >= 0 && txt(f).indexOf('upstream-dimension-map.md') >= 0), '');
 const DIMMAP = join(REPO, 'docs', 'upstream-dimension-map.md');
-t('A16 docs/upstream-dimension-map.md 在且骨架齐（准入条件列＋永久排除行＋双挂＋复审两字段）', existsSync(DIMMAP) && ['准入条件', '永久排除', 'S5 ↔ S4', 'last_reviewed', 'next_review', 'dimension: null'].every(k => txt(DIMMAP).indexOf(k) >= 0), '');
+t('A16 docs/upstream-dimension-map.md 在且结构齐（进入条件列＋永久排除行＋双挂＋复审两字段）', existsSync(DIMMAP) && ['进入条件', '永久排除', 'S5 ↔ S4', 'last_reviewed', 'next_review', 'dimension: null'].every(k => txt(DIMMAP).indexOf(k) >= 0), '');
 
 // ---------- B. 版本断言（binary 可解析→ENFORCE；缺席→ADVISORY WARN） ----------
 const clSrc = txt(join(ENG, 'src', 'upstream', 'codelore.ts'));

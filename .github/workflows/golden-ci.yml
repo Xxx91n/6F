@@ -1,21 +1,21 @@
 name: golden-ci
-# 样例 golden 守卫（#43 / A-048 / spec.md §R5-D12 / D-030③ 样例防失真机制）
+# 样例 golden 检查（#43 / A-048 / spec.md §R5-D12 / D-030③ 样例防失真机制）
 #
 # 纪律（snapshot 纪律 = Jest/Vitest 同型：golden 入版本库＋code review）：
 #   - 本 job 只做「重渲染 + 逐字节 diff」，不一致即 fail（非零退出 + 差异摘要入日志）。
 #   - golden/样例更新只走 PR 审查：由人重渲染后随 PR 提交；本 workflow 不含任何
 #     commit / push / 自动回写步骤——diff 红了由人修，CI 绝不自动重生成直通 main。
 #
-# 平台裁定：单平台 ubuntu-latest + Node 24（不挂 3 平台矩阵）——
+# 平台判定：单平台 ubuntu-latest + Node 24（不挂 3 平台矩阵）——
 #   重渲染确定性是逐字节级契约而非平台行为：#45 已验证 demo fixture 全 env pin
-#   （author/committer/date 钉死）跨环境同 SHA；examples 腿输入全部钉在冻结 commit
+#   （author/committer/date 固定）跨环境同 SHA；examples 腿输入全部固定在冻结 commit
 #   的对象上；仓根 .gitattributes 全仓 eol=lf 消除行尾平台差。矩阵重复跑同一确定性
-#   计算不产生新信号，故挂单平台，若未来发现平台相关漂移须如实登记再加矩阵。
+#   计算不产生新信号，故挂单平台，若未来发现平台相关变化须如实登记再加矩阵。
 # 勘误（2026-09-17 / #54 / D-059①）：「非平台行为」声明过宽——git %cI 对 UTC 偏移提交
-#   的输出拼写在 git 2.45 版本边界漂移（<2.45 吐 +00:00，≥2.45 吐 Z），属工具版本漂移
-#   而非平台漂移，此前未纳入确定性论证。已处置：%cI 输出在解析边界归一化 +00:00→Z 并
+#   的输出拼写在 git 2.45 版本边界走样（<2.45 吐 +00:00，≥2.45 吐 Z），属工具版本变化
+#   而非平台变化，此前未纳入确定性论证。已处置：%cI 输出在解析边界归一化 +00:00→Z 并
 #   强断言 ISO 形状（engine/src/intake/intake.ts normalizeGitIsoDate，GITCLI-OUTPUT-CONTRACT）。
-#   单平台裁定维持——漂移源已归一化封口，矩阵仍不产生新信号。
+#   单平台判定维持——走样来源已归一化并定下来，矩阵仍不产生新信号。
 on:
   push:
     paths:
@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0 (node24)
         with:
           fetch-depth: 0 # bundle 前置对象 200b344 位于历史深处；git diff 需要基线
-          # #117 / artipacked：golden 对账不向远端 push；清凭据防泄露
+          # #117 / artipacked：golden 核对不向远端 push；清凭据防泄露
           persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0 (node24)
         with:

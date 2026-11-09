@@ -186,7 +186,7 @@ _别名_: Semantic Domain、`structure/shape`、`S3/budget-attribution`
 _不要用_: 把结构观测直接当 S3 裁决
 
 **报告模板**
-所有报告共用的固定骨架，每档只换自己那部分。
+所有报告共用的固定结构，每档只换自己那部分。
 _别名_: Report Template
 
 **战略象限**
@@ -226,7 +226,7 @@ _别名_: Raw Evidence Layer
 _别名_: Demonstration Scenario、demo scenario
 
 **顺利路径 / 失败路径**
-正常跑通 / 出事时怎么退；两边产物用同一骨架，必须能对比。
+正常跑通 / 出事时怎么退；两边产物用同一结构，必须能对比。
 _别名_: Happy Path / Failure Path
 _不要用_: 只演示成功路径
 
@@ -258,7 +258,7 @@ _别名_: Default Mode
 把要审的仓库接进来；默认本地路径，远程地址要明确同意，浅克隆拒绝。
 _别名_: Repo Intake、`repo add`
 
-**价值验证闭环**
+**价值验证跑通**
 在真仓库跑通「采集 → 事实 → 叙事 → 裁决 → 报告」一遍。
 _别名_: Value Validation Loop
 

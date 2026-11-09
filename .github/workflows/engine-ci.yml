@@ -23,7 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         # #36：下限 22.18——20-fact-schema-check / 21-collectors-check / 43-check / 23-first-report-check
-        # 四条守卫直读 .ts，依赖免 flag 的类型剥离（22.18+/23.6+）；Node 20 抛 ERR_UNKNOWN_FILE_EXTENSION，已 2026-04-30 EOL。
+        # 四条检查脚本直读 .ts，依赖免 flag 的类型剥离（22.18+/23.6+）；Node 20 抛 ERR_UNKNOWN_FILE_EXTENSION，已 2026-04-30 EOL。
         node: [22, 24]
     runs-on: ${{ matrix.os }}
     defaults:
@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0 (node24)
         with:
-          # R64 审计返修 P0-1：84-check B/C 面逐件校验真账本引用的历史 commit——浅克隆对象库不含历史必红（72 件级联实证）；
+          # R64 审计返修 P0-1：84-check B/C 面逐件校验真记录引用的历史 commit——浅克隆对象库不含历史必红（72 件级联实证）；
           # golden-ci.yml:41 / macro-b-regression.yml:86 同例——对象位于历史深处，fetch-depth: 0 全量取回
           fetch-depth: 0
           # #117 / artipacked：CI 仅构建及本地检查，无需写远端；清凭据防泄露
@@ -43,7 +43,7 @@ jobs:
       - run: npm ci
       - run: npm run gen
       - run: npm run build
-      # #82/D-129③：棘轮断言挂 rebuild-diff 同链＋check-dist.yml 式两减痛件
+      # #82/D-129③：只紧不松的限制断言挂 rebuild-diff 同链＋check-dist.yml 式两减痛件
       # （--ignore-space-at-eol 容忍行尾空白差；失败时 upload-artifact 供异地复核）
       - name: rebuild-diff guard (D-067 dist committed — src/dist drift fails)
         id: rebuilddiff
@@ -59,7 +59,7 @@ jobs:
             exit 1
           fi
       - name: upload dist on rebuild-diff failure
-        # #83/F7j：job 级 failure() 收窄为步级 outcome——仅 rebuild-diff 守卫本身失败才传 dist（前步失败不再触发上传）
+        # #83/F7j：job 级 failure() 缩小为步级 outcome——仅 rebuild-diff 检查本身失败才传 dist（前步失败不再触发上传）
         if: steps.rebuilddiff.outcome == 'failure'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 (node24)
         with:
@@ -92,7 +92,7 @@ jobs:
         working-directory: engine
         run: node test/doctor-fix.test.mjs
 
-      - name: 78-check quarantine 独立对账守卫（D-116② load-bearing：独立代码路径恒等式重算）
+      - name: 78-check quarantine 独立核对检查（D-116② load-bearing：独立代码路径恒等式重算）
         shell: bash
         working-directory: ${{ github.workspace }}
         run: node engine/test/contracts/78-check.mjs

@@ -4,7 +4,7 @@
 //   - per-id 人工模板（名字/角色句/上游主页逐条人定一次）——禁从 kind 推导（github-rest 是 API 非项目，谢错对象风险真实）；
 //   - planned/evaluating/retired 不进致谢面；节内禁写版本/pin/契约（工程证据面归 lock）；链接一律指上游仓主页，禁 .scratch 快照路径；
 //   - 先比后写同型 manifest.meta.json（gen-manifests.mjs）：--check 只比不写 exit 1 on drift；默认写漂移目标报 DRIFT/CLEAN/NEW；
-//   - zh-CN 派生镜像同锚段（D-088：EN canonical/zh derived）；写后顺手把 zh 头 sync 戳刷成新 EN 指纹（sha256[:12]，73-check C 组口径）。
+//   - zh-CN 派生镜像同锚段（D-088：EN canonical/zh derived）；zh 头如果有 sync 戳，就刷成新 EN 指纹（sha256[:12]）；没有就不加。
 // 用法：node engine/scripts/gen-acknowledgments.mjs [--check]
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -50,7 +50,7 @@ const TEMPLATES = {
     name: 'GitHub REST API',
     url: 'https://docs.github.com/rest',
     en: 'the PR data source for the change level (Micro-A) — enumeration / metadata / diff fallback, local git first',
-    zh: '改动档（Micro-A）的 PR 数据源——枚举／元数据／diff 兜底（本地 git 优先）',
+    zh: '改动档（Micro-A）的 PR 数据源——枚举／元数据／diff 取不到就走备选（本地 git 优先）',
   },
   'esbuild': {
     name: 'esbuild',
@@ -139,7 +139,7 @@ function expectedEn() {
 }
 
 function expectedZh(enAfter) {
-  // 戳口径对齐 73-check C 组：sha256(盘上 EN 原文, utf8)——期望值换算成目标 EOL 形态再哈希（LF 锁下与原文等价）
+  // 戳按盘上 EN 原文算：sha256(EN 原文, utf8)——期望值换算成目标 EOL 形态再哈希（LF 锁下与原文等价）
   const enDiskEol = eolOf(fs.readFileSync(EN_PATH, 'utf8'));
   const hash = crypto.createHash('sha256').update(enAfter.split('\n').join(enDiskEol), 'utf8').digest('hex').slice(0, 12);
   const zh = norm(fs.readFileSync(ZH_PATH, 'utf8'));

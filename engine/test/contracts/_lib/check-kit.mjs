@@ -1,4 +1,4 @@
-// check-kit.mjs — 守卫共用工具包（#75批1 / D-094③「名↔检剥注释」通用化落点；73-check A4 / 20-check A5 先例收敛）
+// check-kit.mjs — 检查脚本共用工具包（#75批1 / D-094③「名↔检剥注释」通用化落点；20-check A5 先例收敛）
 // 约定：零三方依赖；本目录仅放共享纯函数，不参与 *-check.mjs 命名枚举（70-check/75a 普查枚举面豁免）。
 
 import { spawnSync } from 'node:child_process';

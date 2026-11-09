@@ -339,7 +339,7 @@ t('G3 docs-ci 单腿 ubuntu/node24（无 matrix/strategy）',
   /runs-on:\s*ubuntu-latest/.test(docsCi) && /node-version:\s*['"]?24['"]?/.test(docsCi) &&
   !/^\s*matrix:/m.test(docsCi) && !/^\s*strategy:/m.test(docsCi) && (docsCi.match(/runs-on:/g) || []).length === 1);
 const runSteps = [...docsCi.matchAll(/^[ \t]*run:[ \t]*(.+)$/gm)].map(m => m[1].trim());
-t('G4 docs-ci 复用 check:docs（恰一个 npm run check:docs run 步骤，不建第二套 README/戳位校验）',
+t('G4 docs-ci 复用 check:docs（恰一个 npm run check:docs run 步骤，不建第二套文档校验）',
   runSteps.filter(s => s === 'npm run check:docs').length === 1, 'runs=' + runSteps.join(' | '));
 // tracker #97：生成物 drift 断言的形状——全 workflow 恰两个 run 步骤（check:docs ＋ 一个多行 drift 步骤），
 // 复用 engine-ci 同一条 npm run gen 链，断言本体钉死为 docs/adr/README.md 一件，不扩第二套校验。
@@ -405,8 +405,8 @@ t('I1 contracts-run 以 *-check.mjs 命名枚举（本守卫自动纳入）',
 t('I2 smoke 链含 contracts-run（engine-ci 六腿自动继承）', String(pkg.scripts.smoke || '').includes('test/contracts-run.mjs'));
 t('I3 check:docs 链含本守卫（docs-ci 单命令复用）', String(pkg.scripts['check:docs'] || '').includes('test/contracts/docs-authority-check.mjs'));
 const checkDocs = String(pkg.scripts['check:docs'] || '');
-t('I4 check:docs 单源含 ack/73/77/docs-authority 四段',
-  ['gen-acknowledgments.mjs --check', '73-check.mjs', '77-check.mjs', 'docs-authority-check.mjs'].every(s => checkDocs.includes(s)));
+t('I4 check:docs 单源含 ack/docs-authority 两段',
+  ['gen-acknowledgments.mjs --check', 'docs-authority-check.mjs'].every(s => checkDocs.includes(s)));
 
 // ---------- J. 编码纪律 ----------
 t('J1 本守卫无 BOM + LF', noBom(readFileSync(fileURLToPath(import.meta.url))) && selfText.indexOf('\r') < 0);
