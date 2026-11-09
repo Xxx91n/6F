@@ -1,20 +1,14 @@
-// fact/file-card.ts — Micro-B 文件级审计卡投影（#80 步② / D-123/D-126；预采集投影×per-file subject×血缘事实）
-// Design: 文件卡是 DuckDB 读模型投影，advisory 隔离且 MCP 面永不写 — ADR-0023
-// 纯逻辑：输入=已取事实行＋注入观测（current_head_sha 由调用面探针供给）；不读 fs、不起子进程。
-// 三层卡契约（D-123）：
-//   kernel 层=已契约实体面逐字段直投（facet_rows 按 analysis 归组，逐行带 citation 锚 fact_ref/observed_at/evidence_ref）；
-//   derived 层=仅确定性可复算值（priority_band 规则带版本号 hotspot_priority_v1／percentile_rank scope=repo／top_n_flag），
-//     每项带 derivation 溯源字段；禁 A-E/GPA 字母判语形态（业界绑定门禁语义——裁决力在消费面不在值形态，故结构性隔离）；
-//   narrative 层=零指标值纪律（只引用 kernel 已算值键名）＋citation 校验验键存在性（key_check）。
-// advisory 结构性隔离：卡 schema 无 verdict/gate-consumable 字段＋advisory:true 显式字段＋priority=排序语义非判定。
-// miss 四类显式态（D-126）：never_collected（可行动指引）/not_tracked_at_sha/not_applicable（合法空值非 miss）/renamed_to
-//   （血缘存在→跳转指引＋逐请求重验证 revalidated 字段；无血缘→降级 not_tracked_at_sha）。
-// 血缘缝合（#80 步③ / D-137）：file.renamed 边池=选中集∪祖先集事实行（投影层注入 lineageFacts）→
-//   反向多跳显式图遍历＋环检测＋规模帽→旧名 era 事实并入新名卡（行级 subject_ref 溯源＋lineage 披露块；
-//   漏判=历史诚实分裂不编造——SonarSource「rename 后 history kept」先例同型）。
-// 失败三态：new_file/insufficient_history=显式态仅静态指标（derived 抑制 suppressed_by 留痕）；
-//   binary/generated→card_type:not_applicable 不出空卡。
-// at:<sha>=显式 opt-in pin（常量禁自动派生——SQL:2011 AS OF 仅常量纪律）；staleness=双字段披露照答不拒答。
+// fact/file-card.ts — Micro-B 单文件档审计卡
+// 理由：文件卡是只读阅读视图，只给建议不进裁决，且在 MCP 接口下绝不写入数据。
+// 纯逻辑模块：输入为已有事实数据与当前提交号；不直接访问文件系统，不启动子进程。
+// 卡片分层设计：
+//   kernel 层：基础观测数据按分析项归类直出，每行携带出处坐标与关联信息；
+//   derived 层：根据基础数据计算得出的衍生指标（如热点优先级规则、仓内百分位排行等），可稳定复算；
+//   narrative 层：文字说明部分，只允许引用已计算出的键名，并附带键名存在性检查结果。
+// 独立定位：本卡片不包含正式裁决结论，明确标记 advisory: true，优先级仅用于排序参考。
+// 未找到数据的四种状态：从未采集（附带操作提示）/ 当前提交未追踪 / 不适用（如二进制文件或生成文件）/ 已改名跳转。
+// 文件改名记录处理：通过改名事实构建改名关系图，自动反向追溯历史旧名，将旧名字段并入当前文件卡中。
+// 历史不足与特殊状态：新文件或修改次数过少时只保留基础静态指标，不输出衍生排行。
 
 import { normalizeSubjectPath } from './subject.js';
 import type { FactEvent } from './store.js';
@@ -22,12 +16,11 @@ import type { FactEvent } from './store.js';
 export const FILE_CARD_SCHEMA_VERSION = 'file-card@v1';
 export const FILE_CARD_RULE_VERSION = 'hotspot_priority_v1';
 export const FILE_CARD_TOP_N = 20;
-export const FILE_CARD_INSUFFICIENT_MIN_REVS = 3;   // <3 修订=历史不足（含 new_file=1）
+export const FILE_CARD_INSUFFICIENT_MIN_REVS = 3;   // 修改少于 3 次视为历史不足（包含新文件 1 次）
 
-// D-136 失败态投影收口（#83）：kernel facet 词表二分 closed 枚举（D-095 纪律）——
-//   历史派生族（D-123⑤ 括号点名五族）在 new_file/insufficient_history 下不进卡面；
-//   保留面=静态指标集 closed。两集成员级双向差集对账=发射词表（CODELORE_*_FACETS 33 名）由
-//   file-card.test 断言：并集=全集且交集=∅——新增 analysis 未分类即红（禁临场裁量）。
+// 失败与历史不足时的字段过滤：
+//   依赖历史演化数据的分析项在历史不足或新文件时不放入卡片；
+//   静态指标项则正常保留。
 export const FILE_CARD_HISTORY_DERIVED_FACETS: readonly string[] = [
   'entity-churn', 'entity-ownership', 'code-age', 'hotspots', 'coupling'
 ];
@@ -40,8 +33,8 @@ export const FILE_CARD_STATIC_FACETS: readonly string[] = [
   'function-hotspots'
 ];
 
-// suppressed_facets 原因码=closed 枚举（D-136②）——词表源=D-126③ FailureState 族。
-export type SuppressedFacetReason = 'new_file' | 'insufficient_history'; // D-126③ 词表可达子集——not_applicable 仅 miss/card_type 层可达；新失败枝须扩此集
+// 指标未展示原因码：包含新文件和历史记录不足两种情况。
+export type SuppressedFacetReason = 'new_file' | 'insufficient_history';
 export interface SuppressedFacet { facet: string; reason: SuppressedFacetReason }
 
 export type MissState = 'never_collected' | 'not_tracked_at_sha' | 'not_applicable' | 'renamed_to';
@@ -54,22 +47,21 @@ export interface FileCardMiss {
   detail: string;
   renamed_to?: string;
   lineage_edge?: { from: string; to: string; commit_sha: string; similarity: number };
-  revalidated?: boolean;            // renamed_to：逐请求重验证=目标 subject 在观测集内有事实（跳转条件，301-教训：不无条件跳）
-  available_head_shas?: string[];   // not_tracked_at_sha：已采集观测集 sha 清单（诚实披露可选集）
-  cli_guidance?: string;            // never_collected：可行动指引（MCP 面永不写→指 CLI 补采）
+  revalidated?: boolean;            // 已改名：检查目标文件在观测数据中是否存在（跳转前确认有效性）
+  available_head_shas?: string[];   // 当前提交未追踪：列出已有数据的提交号清单供参考
+  cli_guidance?: string;            // 从未采集：提供命令行采集的操作建议
 }
 
-// 血缘缝合披露块（#80 步③ / D-137）：缝合账本非行为修饰——披露哪些旧名被并入、消费了哪些边、
-//   环/截断异常如实留痕（诚实分裂可见不编造）。
+// 文件改名记录说明：明确记录哪些旧名称被合并、消费了哪些改名记录、是否检测到循环改名或链条超长截断。
 export interface FileCardLineageEdge { from: string; to: string; commit_sha: string; similarity: number }
 export interface FileCardLineage {
-  stitched_from: string[];              // 反向遍历解析出的旧名 subject（确定性序——链序游走，平等枝词典序）
-  edges: FileCardLineageEdge[];         // 缝合消费的血缘边（确定性序——commit_sha 无时间序故词典序）
-  cycle_detected: boolean;              // 环检测命中：from 端回到已访节点即停该边并置旗（A→B→A 病态图不绕死）
-  truncated: boolean;                   // 祖先链超 FILE_CARD_LINEAGE_MAX_ANCESTORS 截断如实披露
+  stitched_from: string[];              // 追溯出的历史旧路径列表（保持固定排序）
+  edges: FileCardLineageEdge[];         // 消费的文件改名记录边（按提交号排序）
+  cycle_detected: boolean;              // 循环检测标记：发现闭环时停止该分支追溯并标记
+  truncated: boolean;                   // 追溯链路超出上限时标记为截断
 }
 
-export const FILE_CARD_LINEAGE_MAX_ANCESTORS = 64;   // 祖先名链硬帽（病态图保护，正常改名链远小于此）
+export const FILE_CARD_LINEAGE_MAX_ANCESTORS = 64;   // 祖先名称追溯上限，防止异常改名环消耗过多资源
 
 export interface FileCard {
   schema_version: string;
@@ -86,11 +78,11 @@ export interface FileCard {
   source: 'prefetch' | 'backfill' | 'unknown';
   failure_state: FailureState;
   miss: FileCardMiss | null;
-  lineage: FileCardLineage | null;      // 缝合账本：null=未参与缝合；对象=缝合账本（stitched_from 可空——解析到旧名但未并入行亦如实披露）
+  lineage: FileCardLineage | null;      // 改名追溯记录：null 表示无改名关系，有改名时为详情对象
   kernel: {
     facet_rows: Record<string, { row: Record<string, unknown>; fact_ref: string; observed_at: string; evidence_ref: string; subject_ref: string }[]>;
-    set_truncated: boolean;              // F7h：观测集 fact 行数超 FILE_CARD_SET_CAP 截断时=true（卡面如实标记不静默）
-    suppressed_facets: SuppressedFacet[]; // D-136②：失败态滤除的历史派生族 facet 清单（closed 枚举成员级对账，每项带原因码）
+    set_truncated: boolean;              // 观测数据行数超过上限发生截断时标记为 true
+    suppressed_facets: SuppressedFacet[]; // 因新文件或历史不足而被排除的分析项列表
   };
   derived: {
     rule_version: string;
@@ -99,7 +91,7 @@ export interface FileCard {
     percentile_rank: { scope: 'repo'; metric: string; value: number | null };
     top_n_flag: { n: number; scope: 'repo'; metric: string; value: boolean | null };
     priority_band: { value: 'high' | 'medium' | 'low' | null; inputs: { hotspot_score: number | null; percentile_rank: number | null } };
-    suppressed_by: FailureState | null;   // 显式态仅静态指标：非 ok 时 derived 值抑制并留痕（D-123）
+    suppressed_by: FailureState | null;   // 衍生指标因历史不足等原因被隐藏时的具体原因
   };
   narrative: {
     hints: string[];
@@ -108,18 +100,18 @@ export interface FileCard {
 }
 
 export interface FileCardBuildInput {
-  subject: string;                          // 调用方原文路径（本器内归一——归一单点纪律的读侧镜像）
-  setRepoRef: string | null;                // 选中观测集 repo_ref（name@sha）；null=无观测集
-  setFacts: readonly FactEvent[];           // 选中观测集全部 Micro-B 事实（无集时传空）
-  availableHeadShas: readonly string[];     // 该 repo 全部已采集观测集 head_sha（miss 诚实披露面）
-  pinnedSha: string | null;                 // at:<sha> pin 常量
-  currentHeadSha: string | null;            // 探针注入的当前 HEAD（null=宿主未知→drift:unknown 照答）
+  subject: string;                          // 传入的原始路径（在内部做标准化处理）
+  setRepoRef: string | null;                // 目标观测集仓库标识（格式为 name@sha）；null 表示未找到数据集
+  setFacts: readonly FactEvent[];           // 选中观测集的所有文件级事实数据（没有时为空数组）
+  availableHeadShas: readonly string[];     // 该仓库已采集过事实数据的全部提交号列表
+  pinnedSha: string | null;                 // 指定查询的固定提交号
+  currentHeadSha: string | null;            // 外部传入的当前仓库最新提交号（null 表示未知）
   source: 'prefetch' | 'backfill' | 'unknown';
-  cliGuidance: string | null;               // miss 可行动指引（CLI 补采命令形态，由触发面拼好注入）
-  setTruncated?: boolean;                   // 观测集 fact 拉取超 FILE_CARD_SET_CAP 截断标记（投影层判定注入）
-  pinnedAmbiguous?: readonly string[];      // F7a：at:<sha> 前缀命中多个观测集 head_sha（歧义不猜——not_tracked_at_sha 如实答）
-  lineageFacts?: readonly FactEvent[];      // D-137② 跨观测集血缘边池增量：祖先观测集的 file.renamed 事实行（投影层解析注入；缺席=仅选中集边）
-  lineageEdgeCapHit?: boolean;              // 祖先集血缘拉取超 FILE_CARD_LINEAGE_EDGE_CAP——截断如实披露（并入 truncated 伞）
+  cliGuidance: string | null;               // 未采集时的命令行操作建议
+  setTruncated?: boolean;                   // 事实数据是否超限截断
+  pinnedAmbiguous?: readonly string[];      // 指定提交号前缀存在歧义时匹配到的多个完整提交号
+  lineageFacts?: readonly FactEvent[];      // 跨批次拉取到的文件改名事实记录
+  lineageEdgeCapHit?: boolean;              // 改名边数量是否触及上限截断
 }
 
 export function headShaOfRepoRef(repoRef: string): string | null {
@@ -131,7 +123,7 @@ function asNum(v: unknown): number | null {
   return typeof v === 'number' && Number.isFinite(v) ? v : null;
 }
 
-// narrative 键集=kernel facet 键＋derived 键＋观测锚键——宿主叙事只可引用已算值键名（D-123 零指标值纪律）。
+// 收集所有可引用的字段键名：包括基础指标键、衍生指标键和观测状态键，仅允许引用已存在的键。
 export function fileCardCitationKeys(card: FileCard): string[] {
   const keys: string[] = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state', 'kernel.set_truncated', 'kernel.suppressed_facets'];
   if (card.lineage !== null) { keys.push('lineage.stitched_from', 'lineage.edges', 'lineage.cycle_detected', 'lineage.truncated'); }
@@ -144,7 +136,7 @@ export function fileCardCitationKeys(card: FileCard): string[] {
   return keys;
 }
 
-// citation 校验=验键存在性：宿主叙事段引用的键须全在卡键集内（缺失键清单如实回执）。
+// 检查引用的键名是否全部有效，返回是否通过及缺失的键名列表。
 export function validateFileCardCitations(card: FileCard, referenced: readonly string[]): { ok: boolean; missing: string[] } {
   const have = new Set(fileCardCitationKeys(card));
   const missing = referenced.filter(function (k) { return !have.has(k); });
@@ -186,9 +178,8 @@ function missCard(subject: string, miss: FileCardMiss, input: FileCardBuildInput
   };
 }
 
-// ---------- 血缘缝合（#80 步③ / D-137） ----------
-// file.renamed 事实行→边池：载荷 {from,to,commit_sha,similarity} 逐字段型检；病态行跳过不误吞（解析失败行
-//   本就不构成边）。去重键=(from,to,commit_sha)——同边跨观测集重复检出是常态（历史事实 append-only 重放）。
+// ---------- 文件改名关联与历史追溯 ----------
+// 从事实数据中提取 file.renamed 改名事件，解析改名来源与目标，按唯一键去重。
 function collectRenameEdges(facts: readonly FactEvent[]): FileCardLineageEdge[] {
   const seen = new Set<string>();
   const edges: FileCardLineageEdge[] = [];
@@ -206,13 +197,11 @@ function collectRenameEdges(facts: readonly FactEvent[]): FileCardLineageEdge[] 
   return edges;
 }
 
-// 反向多跳遍历（D-137② 显式图遍历非单路径 follow——Vajna 补丁实证根因=路径状态单变量 last-write-wins）：
-//   邻接 to→[edges]（from 端=旧名）；BFS 逐层回溯，环检测=from 回到已访节点即停该边如实置旗；
-//   确定性序=邻接内按 (commit_sha,from) 词典序（sha 无时间序）；规模帽截断如实披露。
+// 反向遍历改名关系图，寻找历史旧路径；处理多跳改名、循环改名检测和链路超长截断。
 function resolveLineageAncestors(subject: string, edges: readonly FileCardLineageEdge[]): {
   subjects: string[]; edgesUsed: FileCardLineageEdge[]; cycleDetected: boolean; truncated: boolean;
 } {
-  // byTo=反向邻接（to→[from]：朝旧名回溯）；byFrom=前向邻接（from→[to]：old→new），供 dup 命中时的真环判定
+  // byTo 表示新路径到旧路径的反向映射；byFrom 表示从旧路径到新路径的正向映射。
   const byTo = new Map<string, FileCardLineageEdge[]>();
   const byFrom = new Map<string, FileCardLineageEdge[]>();
   for (const e of edges) {
@@ -228,8 +217,7 @@ function resolveLineageAncestors(subject: string, edges: readonly FileCardLineag
       return a.commit_sha === b.commit_sha ? (a.from < b.from ? -1 : a.from > b.from ? 1 : 0) : (a.commit_sha < b.commit_sha ? -1 : 1);
     });
   }
-  // 前向可达判定：cur 沿 old→new 方向可达 e.from ⟺ e.from 兼为 cur 的祖先（边 Y→X）与后裔（X→*Y）=真环；
-  //   DAG 钻石/重复边命中（两路径汇于同一祖先名）不满足互达——照实不置环旗（D-137② 披露≠误报）。
+  // 沿改名方向判断是否形成闭环改名回路。
   function reachesForward(start: string, target: string): boolean {
     const seen = new Set<string>([start]);
     const fq: string[] = [start];
@@ -275,19 +263,19 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
   if (!norm.ok) {
     return missCard(String(input.subject), {
       state: 'not_tracked_at_sha',
-      detail: 'subject 归一拒绝 reason=' + norm.reason + '（SCIP 五规则读侧镜像）'
+      detail: 'subject 路径不合法，已被拒绝：reason=' + norm.reason
     }, input, input.setRepoRef !== null ? headShaOfRepoRef(input.setRepoRef) : null);
   }
   const subject = norm.subject as string;
   const headSha = input.setRepoRef !== null ? headShaOfRepoRef(input.setRepoRef) : null;
 
-  // miss 态序（D-126 四类）：无观测集→never_collected（可行动指引）；集内无 subject→血缘/跳检→renamed_to|not_tracked。
+  // 数据缺失状态判定顺序：先看有无对应提交的数据，再看文件是否存在或发生过改名。
   if (input.setRepoRef === null) {
-    // F7a：pin 前缀歧义先判（观测集在但前缀不唯一——不猜最新，照答 not_tracked 并披露全部命中 sha）
+    // 指定提交前缀存在多个匹配项时，不随意猜测，明确提示前缀不唯一。
     if (input.pinnedAmbiguous !== undefined && input.pinnedAmbiguous.length > 1) {
       return missCard(subject, {
         state: 'not_tracked_at_sha',
-        detail: 'pin 前缀歧义：at:' + String(input.pinnedSha) + ' 命中 ' + input.pinnedAmbiguous.length + ' 个观测集（' + input.pinnedAmbiguous.map(function (s) { return s.slice(0, 12); }).join(', ') + '…）——唯一性不成立，用更长前缀或全 sha 重试',
+        detail: '提交前缀歧义：at:' + String(input.pinnedSha) + ' 匹配到 ' + input.pinnedAmbiguous.length + ' 个提交记录（' + input.pinnedAmbiguous.map(function (s) { return s.slice(0, 12); }).join(', ') + '…）——无法唯一定位，请提供更长的前缀或完整哈希',
         available_head_shas: input.availableHeadShas.slice(),
         cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
       }, input, null);
@@ -295,29 +283,28 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     if (input.availableHeadShas.length === 0) {
       return missCard(subject, {
         state: 'never_collected',
-        detail: '该 repo 无任何 Micro-B 观测集——文件级事实从未采集',
+        detail: '该仓库尚未采集过单文件档事实数据',
         cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
       }, input, null);
     }
     return missCard(subject, {
       state: 'not_tracked_at_sha',
-      detail: 'pin 观测集缺席：at:' + String(input.pinnedSha) + ' 未采集（不实现强制 HEAD 匹配，照答不拒答）',
+      detail: '未找到指定提交的数据：at:' + String(input.pinnedSha) + ' 未曾采集',
       available_head_shas: input.availableHeadShas.slice(),
       cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
     }, input, null);
   }
 
-  // 血缘边池=选中集∪祖先集 file.renamed 行（D-137② 跨观测集解析——祖先集边经 lineageFacts 注入）
+  // 整理改名记录，寻找历史旧路径并一并拉取旧名下的历史数据。
   const edgePool = collectRenameEdges(input.lineageFacts !== undefined && input.lineageFacts.length > 0
     ? input.setFacts.concat(input.lineageFacts)
     : input.setFacts);
-  // 反向多跳遍历解析旧名祖先集——缝合集=subject∪祖先名（并入旧名 era 事实，D-137①）
   const resolved = resolveLineageAncestors(subject, edgePool);
   const stitchedNames = new Set<string>([subject].concat(resolved.subjects));
 
   const mine = input.setFacts.filter(function (f) { return f.metric === 'codelore.file_facet_row' && stitchedNames.has(f.subject_ref); });
   if (mine.length === 0) {
-    // binary/generated/非 regular path→发射侧 file_subject_skip 留痕→card_type:not_applicable（合法空值非 miss 态空卡）
+    // 二进制文件、生成文件或特殊跳过文件：明确说明不适用，不输出空卡片。
     const skip = input.setFacts.filter(function (f) {
       if (f.metric !== 'codelore.file_subject_skip') { return false; }
       try { const v = JSON.parse(f.value_json) as { raw_path?: unknown }; return v.raw_path === subject || v.raw_path === input.subject; }
@@ -328,17 +315,16 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
       try { reason = String((JSON.parse(skip.value_json) as { reason?: unknown }).reason); } catch { /* keep */ }
       return missCard(subject, {
         state: 'not_applicable',
-        detail: 'subject 发射侧判定不适用（' + reason + '）——合法空值非采集缺漏，不出空卡'
+        detail: '该文件不参与单文件分析（' + reason + '），属于正常跳过而非数据缺失'
       }, input, headSha);
     }
-    // 血缘存在→renamed_to＋逐请求重验证（目标在集内有事实=跳转条件成立）；无血缘→not_tracked_at_sha
-    //   （边池含祖先集增量——单跳跳转语义不变：解析到即报一跳，链深处由消费面逐请求推进）
+    // 检测到改名情况，提示已重命名，并确认新路径是否有对应事实数据。
     const ev = edgePool.filter(function (e) { return e.from === subject; })[0];
     if (ev) {
       const targetHasFacts = input.setFacts.some(function (f) { return f.metric === 'codelore.file_facet_row' && f.subject_ref === ev.to; });
       return missCard(subject, {
         state: 'renamed_to',
-        detail: '血缘检出 ' + subject + ' → ' + ev.to + '（commit=' + ev.commit_sha.slice(0, 7) + ' similarity=' + ev.similarity + '）——条件跳转：重验证通过方可请求目标卡',
+        detail: '检测到文件已改名：' + subject + ' → ' + ev.to + '（提交=' + ev.commit_sha.slice(0, 7) + ' 相似度=' + ev.similarity + '）',
         renamed_to: ev.to,
         lineage_edge: { from: ev.from, to: ev.to, commit_sha: ev.commit_sha, similarity: ev.similarity },
         revalidated: targetHasFacts
@@ -346,13 +332,13 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     }
     return missCard(subject, {
       state: 'not_tracked_at_sha',
-      detail: '观测集 head=' + String(headSha).slice(0, 7) + ' 内无该 subject 的 per-file 事实且无血缘边——该 sha 树下不追踪',
-      available_head_shas: input.availableHeadShas.slice(),   // F6：「可提示 at: 其他 sha 试探」机制两枝补齐（pin 枝既有）
+      detail: '在提交 ' + String(headSha).slice(0, 7) + ' 下未找到该文件的指标数据，且无改名记录',
+      available_head_shas: input.availableHeadShas.slice(),
       cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
     }, input, headSha);
   }
 
-  // ---------- kernel 层：facet_rows 逐字段直投＋逐行 citation 锚 ----------
+  // ---------- 基础层：整理各分析项的行数据与出处信息 ----------
   const facetRows: FileCard['kernel']['facet_rows'] = {};
   for (const f of mine) {
     let v: { analysis?: unknown; row?: unknown };
@@ -360,14 +346,14 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     const analysis = typeof v.analysis === 'string' ? v.analysis : 'unknown';
     const row = (v.row !== null && typeof v.row === 'object' ? v.row : {}) as Record<string, unknown>;
     const arr = facetRows[analysis] || (facetRows[analysis] = []);
-    // subject_ref 行级溯源（D-137③：缝合行不洗白身份——并入的旧名 era 行保留其原 subject 键）
+    // 保留每一行的原始归属路径，改名合并进来的旧数据仍保留旧路径标记。
     arr.push({ row: row, fact_ref: f.fact_id, observed_at: f.observed_at, evidence_ref: f.evidence_ref, subject_ref: f.subject_ref });
   }
   const analyses = Object.keys(facetRows).sort();
   const ordered: FileCard['kernel']['facet_rows'] = {};
   for (const a of analyses) { ordered[a] = facetRows[a]; }
 
-  // ---------- derived 层：hotspot_priority_v1（确定性可复算＋规则版本随行） ----------
+  // ---------- 衍生层：计算热点得分与相对排行（带规则版本） ----------
   let revisions: number | null = null;
   let hotspotScore: number | null = null;
   for (const r of ordered['revisions'] || []) { const n = asNum(r.row['n_revs']); if (n !== null && (revisions === null || n > revisions)) { revisions = n; } }
@@ -375,9 +361,8 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     const n = asNum(r.row['revisions']); if (n !== null && (revisions === null || n > revisions)) { revisions = n; }
     const s = asNum(r.row['hotspot_score']); if (s !== null && (hotspotScore === null || s > hotspotScore)) { hotspotScore = s; }
   }
-  // percentile scope=repo：同观测集全部 subject 的 hotspot_score 分布（中位秩法 less+eq/2 确定性消并列）
-  //   缝合一致性（D-137③）：被取代旧名（其 to 端在集内有行的 from 名）不入同 repo 分布——同一文件
-  //   新旧名两行只计新名一次，防缝合语义的 repo 级重复计数。
+  // 在同仓库所有文件中计算百分位排行（中位数法平滑并列情况）。
+  // 已被新名称取代的旧路径不重复计入分布，防止重复统计。
   const supersededNames = new Set<string>();
   {
     const namesWithRows = new Set<string>();
@@ -401,14 +386,12 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
   const topN = hotspotScore === null ? null : peerScores.filter(function (s) { return s > hotspotScore; }).length < FILE_CARD_TOP_N;
   const band: 'high' | 'medium' | 'low' | null = pct === null ? null : (pct >= 0.9 ? 'high' : (pct >= 0.6 ? 'medium' : 'low'));
 
-  // 失败三态（D-123）：binary/generated 走 miss not_applicable；new_file/insufficient_history=显式态仅静态指标
+  // 历史不足判定：修改次数过少时只保留静态基础指标，不输出需要演化历史的分析项。
   const failure: 'ok' | SuppressedFacetReason = revisions === 1 ? 'new_file'
     : (revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS) ? 'insufficient_history' : 'ok';
   const suppressed = failure !== 'ok';
 
-  // D-136 失败态投影收口（#83）：kernel 卡面只留静态指标集（closed）——历史派生族及未声明 facet
-  //   一律移 suppressed_facets 带原因码（fail-closed：未入静态集=失败态不上卡面，防退化值冒充有效读数）；
-  //   raw 事实层 append-only 不动（收口只作用投影层）；derived.suppressed_by 现行保留。
+  // 过滤需隐藏的指标：将历史演化类指标移入 suppressed_facets，避免样本过少产生失真读数。
   const keptFacets: FileCard['kernel']['facet_rows'] = {};
   const suppressedFacets: SuppressedFacet[] = [];
   for (const a of analyses) {
@@ -438,7 +421,7 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     source: input.source,
     failure_state: failure,
     miss: null,
-    // 缝合账本：解析到边（含纯环边）即披露——旧名解析成功但零行并入亦如实（stitched_from 非空＋facet_rows 无该行 subject_ref 可互证）
+    // 改名追溯详情：如果解析到了改名记录或环，如实记录改名链路与是否截断。
     lineage: resolved.edgesUsed.length > 0 || resolved.cycleDetected
       ? { stitched_from: resolved.subjects, edges: sortLineageEdges(resolved.edgesUsed), cycle_detected: resolved.cycleDetected, truncated: resolved.truncated || input.lineageEdgeCapHit === true }
       : null,
@@ -454,7 +437,7 @@ export function buildFileCard(input: FileCardBuildInput): FileCard {
     },
     narrative: { hints: [], key_check: { referenced: [], missing: [], ok: true } }
   };
-  // 叙事层：hints=只引用卡内已算值键名（零指标值纪律）；key_check=键存在性校验自洽回执
+  // 说明层：列出所有可供外部引用的计算指标字段，并完成校验。
   card.narrative.hints = fileCardCitationKeys(card);
   card.narrative.key_check = { referenced: card.narrative.hints.slice(), missing: [], ok: true };
   return card;

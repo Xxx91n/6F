@@ -10,7 +10,7 @@ import { projectFacts, projectQuarantine } from './fact/projection.js';
 import { isProtocolCrash, crashArtifactFromError, strictQuarantineEnabled, STRICT_QUARANTINE_ENV } from './intake/quarantine.js';
 import { isAuditIoError } from './fact/store.js';
 
-// D-111① 退出码契约：0=管线完成（verdict 三档均算跑完）；非零三类=协议崩溃 2/strict 门禁 3/IO 失败 4。
+// D-111① 退出码规范：0=分析正常完成（无论判定结论为何都算跑完）；非零分三类：协议严重错误 2 / 严格隔离限制 3 / 文件读写错误 4。
 const EXIT_PROTOCOL_CRASH = 2;
 const EXIT_STRICT_GATE = 3;
 const EXIT_IO_FAILURE = 4;
@@ -38,14 +38,14 @@ async function main(): Promise<void> {
     outExit(JSON.stringify(r) + '\n', r.ok ? 0 : 1);
   } else if (cmd === 'doctor') {
     // 运行时 doctor 探测（#62/D-059③ runtime-doctor-trigger 兑现）：三腿 probe 结构化输出——
-    // duckdb 可开库（经自愈链）／git 可用／上游连通性；selftest 对账本职不扩容，doctor 独立探测面。
-    // exit 1 仅 overall=fail（degraded=有文档化回落路径 exit 0）；输出=结构化 JSON 非静默。
-    // D-075③：doctor --fix=自愈唯一显式主路——duckdb 腿 DUCKDB-UNAVAILABLE 命中时显式补拉＋重开库验载。
+    // 检查 duckdb、git 及网络是否正常，输出结构化 JSON，不隐瞒错误。
+    // 只有在总体严重故障（fail）时才返回退出码 1；降级可用时返回 0。
+    // 使用 --fix 时会主动尝试修复缺失的 duckdb 底层模块。
     const dr = await runDoctor({ fix: process.argv.indexOf('--fix') >= 0 });
     outExit(JSON.stringify(dr) + '\n', dr.overall === 'fail' ? 1 : 0);
   } else if (cmd === 'mcp') {
     // MCP 查询面（D-053④）：read-only facts 投影——宿主 agent 叙事面的唯一取数主路。
-    // 面收窄：固定 SELECT 形不接裸 SQL；openReader READ_ONLY 实例；projection 列=FactEvent 十三列。
+    // 限制为固定查询结构，不执行随意 SQL，保证只读安全。
     // 裸 mcp = JSON-RPC 2.0 stdio 服务（NDJSON 行帧，A3 返工：与 mcp.json 注册面名实相符）；
     // mcp facts = 同投影的直连 CLI 形态（调试/守卫用，不经握手）。
     const sub = process.argv[3];
@@ -77,7 +77,7 @@ async function main(): Promise<void> {
         errExit(JSON.stringify({ error: 'MCP-FACTS-ERROR', message: String(e && (e as Error).message || e) }) + '\n', 2);
       }
     } else if (sub === 'quarantine') {
-      // quarantine_log 只读投影（#78/D-113②）：mcp facts 同形面收窄——固定列集+LIMIT，不接裸 SQL。
+      // 隔离日志只读查询：固定字段列表与条数限制，不接受任意 SQL。
       const args = process.argv.slice(4);
       const known = ['--db', '--run', '--field', '--limit'];
       const opts: { [k: string]: string } = {};
@@ -123,7 +123,7 @@ async function main(): Promise<void> {
   } else if (cmd === 'repo') {
     // Repo Intake（本地默认/owner-repo 本地优先/URL opt-in / D-013）：repo add <path|owner/repo|url> [--cache <dir>] [--refresh]
     // clone 仅经 CLI/配置文件入口可达；kernel MCP 查询面保持只读。
-    // --refresh=显式刷新 opt-in（#55/D-059⑦）：仅 url 面缓存命中时 fetch --prune＋复位 origin/HEAD；绝不自动 pull。
+    // --refresh 用于明确要求刷新已有缓存，默认不主动拉取远程最新内容。
     const sub = process.argv[3];
     if (sub !== 'add' || !process.argv[4]) {
       errExit('usage: macro-audit repo add <path|owner/repo|url> [--cache <dir>] [--refresh]\n', 2);
@@ -141,15 +141,14 @@ async function main(): Promise<void> {
       errExit(JSON.stringify({ error: err.code || 'INTAKE-ERROR', message: err.message || String(e) }) + '\n', 2);
     }
   } else if (cmd === 'audit') {
-    // audit 一等命令（#53/D-060）：audit <path|owner/repo|url> [--scale S] [--out <dir>] [--json] [--refresh]
-    // 链=repoAdd 输入裁决 → audit/macro-b.ts 共享管线（与 demo 同消费）→ facts.duckdb＋骨架报告。
-    // 省略 --out 时报告 md 走 stdout；--out 双写后 stdout 打印回执 JSON（demo 回执契约字段集）。
-    // --scale 缺省 Macro-B；未实装层不假装——SCALE-NOT-IMPLEMENTED 结构化拒绝 exit 2。
+    // 核心审计命令（#53/D-060）：audit <path|owner/repo|url> [--scale S] [--out <dir>] [--json] [--refresh]
+    // 流程 = 输入参数解析 → 运行分析流程（与 demo 共用）→ 保存 facts.duckdb 并产出报告。
+    // 不加 --out 时报告直接输出到终端；指定 --out 时保存文件并在终端输出回执 JSON。
+    // --scale 默认 Macro-B；未支持的档位明确返回 SCALE-NOT-IMPLEMENTED 错误并以退出码 2 退出。
     const args = process.argv.slice(3);
-    // #80 步②（D-122/D-126）：audit file=文件卡 lazy 补采唯一写入口（MCP 面永不写）——
-    //   同构发射管线仓级重跑产新观测集 append 非覆盖；资格=HEAD 对象库可达；脏工作区零感知。
-    //   拦截须在通用位置参数循环之前（file 是子命令不是仓输入）。
-    //   usage: macro-audit audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]
+    // audit file 子命令：用于补采指定单文件的审计数据（MCP 服务端只读不写，在此处集中补采）
+    // 拦截须在通用位置参数循环之前（file 是子命令不是仓输入）。
+    // usage: macro-audit audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]
     if (args[0] === 'file') {
       const fileArgs = args.slice(1);
       let repoInput: string | undefined;
@@ -166,9 +165,9 @@ async function main(): Promise<void> {
         else { errExit('AUDIT-FILE-ARGS: unexpected extra positional ' + a + '\n', 2); }
       }
       if (!repoInput || !filePath) { errExit('usage: macro-audit audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]\n', 2); }
-      if (!dbPath) { errExit('AUDIT-FILE-ARGS: --db <facts.duckdb> required（观测集落点——不存在则创建 append-only 库）\n', 2); }
+      if (!dbPath) { errExit('AUDIT-FILE-ARGS: --db <facts.duckdb> required（保存观测事实的数据库文件路径，不存在则自动新建）\n', 2); }
       try {
-        // repoInput/filePath/dbPath 经上闸收窄（errExit=never）——循环内赋值致 CFA 不传导，as string 如实标注
+        // 参数验证后继续执行
         const r = await runAuditFile({ input: repoInput as string, path: filePath as string, db: dbPath as string, at: atSha });
         outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, skipped: r.skipped, repo_ref: r.repo_ref, head_sha: r.head_sha }) + '\n', 0);
       } catch (e) {
@@ -184,8 +183,7 @@ async function main(): Promise<void> {
     let outDir: string | undefined;
     let asJson = false;
     let refresh = false;
-    // D-110④ flag>env>文件 precedence：flag 显式给（--strict-quarantine / --no-strict-quarantine）者胜；
-    // 未给→MACRO_AUDIT_STRICT_QUARANTINE=1 兜底（env 只传开关，基线恒读仓内常量）。
+    // 优先级：命令行参数（--strict-quarantine / --no-strict-quarantine）高于环境变量 MACRO_AUDIT_STRICT_QUARANTINE
     let strictFlag: boolean | undefined = undefined;
     for (let i = 0; i < args.length; i++) {
       const a = args[i];
@@ -202,7 +200,7 @@ async function main(): Promise<void> {
     const strictQuarantine = strictQuarantineEnabled(strictFlag, process.env[STRICT_QUARANTINE_ENV]);
     if (!input) { errExit('usage: macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine] | audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]\n', 2); }
     try {
-      // input 经上闸收窄（errExit=never）——循环内赋值致 CFA 不传导收窄，as string 如实标注
+      // 参数验证后继续执行
       const r = await runAudit({ input: input as string, scale: scale, outDir: outDir, json: asJson, refresh: refresh, strictQuarantine: strictQuarantine });
       if (r.out_dir) {
         outExit(JSON.stringify({

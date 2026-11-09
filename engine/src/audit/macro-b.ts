@@ -1,11 +1,11 @@
-// audit/macro-b.ts — Macro-B 单一管线函数（#53 / D-060④）：one-shot 装配语义提炼为引擎内共享链，
-// audit 与 demo 共同消费（intake→git 探针→collectors＋codelore 面→facts→骨架渲染前置件）。
-// 链 = probeMacroBRepo（git 探针＋%cI 归一化＋PROBE-INVARIANT）
-//   → collectMacroB（adr-structure@v2＋gitlog＋positioning＋可选 codelore 行为面）
-//   → evaluateMacroB（PC-1/PC-2 正对照＋NC-1 负对照＋TC-1/2/3 预声明阈值实测，跑后禁调）
-// 渲染段由调用方 finalize（demo 保 byte-parity 组装自身契约面；audit 走 audit.ts 装配）。
-// 纪律：本模块对 repoRoot 只读（git 只读子命令＋文件读）；codelore='auto' 仅 audit 传入，
-//   demo 恒定 'off' 保合成仓逐字节确定性（codelore 实跑=环境相关，不进 golden 链）。
+// audit/macro-b.ts — 单仓四象限档审计核心管线：将单次执行拆解为引擎内的共享流程，
+// 供真实审计命令与演示场景共同复用（收仓→git 探针检查→采集器与行为指标→事实表写入→报告骨架渲染）。
+// 流程包括：
+//   1. 仓库基本信息与提交日志探测
+//   2. 架构决策记录、提交记录、定位与行为面数据采集
+//   3. 事前写死规则的判据评估（正对照、负对照、真判据）
+// 最终由调用方完成报告渲染组装。
+// 原则：对仓库目录保持只读操作；演示场景关闭外部依赖以保证产物完全一致。
 
 import { execFileSync } from 'node:child_process';
 import { collectAdrStructureV2, collectAdrStructure, collectGitlog, collectPositioning, sha256Hex, ADR_FIVE_PIECE } from '../collect/collectors.js';
@@ -14,15 +14,14 @@ import type { CollectContext, CollectedFact } from '../collect/collectors.js';
 import { collectCodeloreFacets, CODELORE_BEHAVIOR_FACETS } from '../upstream/codelore.js';
 import type { CodeloreFacetSpec } from '../upstream/codelore.js';
 import { collectFileLineage, gitRenameLogArgs, parseRenameLogZ, RENAME_DEFAULT_THRESHOLD, RENAME_DETECTOR_VERSION } from '../collect/file-lineage.js';
-// %cI 契约=normalizeGitIsoDate 同族判定本体（契约层分类器 classifyGitIsoField 承载，见 quarantine.ts）
-// #81/D-128：git 版本方言（+00:00↔Z）由 absorbGitIsoDialect 在边界先行吸收——分类器只见规范流。
+// 检查 git 时间戳格式，上游先吸收等价格式差异，确保校验时格式标准。
 import { classifyGitIsoField, recordFieldInstance, emptyFieldStat, protocolCrashError, absorbGitIsoDialect, FIELD_HEAD_DATE, FIELD_COMMITTER_DATE } from '../intake/quarantine.js';
 import type { FieldStatus, FieldEvent, FieldStat, DialectAbsorption } from '../intake/quarantine.js';
 
 const NL = String.fromCharCode(10);
 
-// ---------- 预声明阈值（与 reports/22-criteria-pre-registration.md 逐字同源，跑后禁调） ----------
-// Design: 首报验收=A/B/C 三层闸门，判据阈值跑前写死、跑后禁调 — ADR-0013
+// ---------- 事前约定的判据门槛（跑前固定，跑完不许改动） ----------
+// 理由：首报验收包含形式、内容和信任三道关，判据门槛必须在跑之前写死，跑完严禁为了凑结果而调整。
 export const TC1_LAG_DAYS = 90;
 export const TC1_RATIO_RED = 0.20;
 export const TC1_MIN_N = 5;
@@ -32,9 +31,9 @@ export const TC3_RED = 0.50;
 export const TC3_GREEN = 0.70;
 export const TC3_TOPN = 20;
 
-// stopwords 与 22-threshold-raw.json#tc3_s1_coverage.stopwords 同源快照（引擎自含，不读 .scratch）
+// 定位分析中忽略的高频通用停用词表
 export const MACRO_B_STOPWORDS: readonly string[] = ['the', 'and', 'for', 'with', 'that', 'this', 'from', 'into', 'per', 'via', 'not', 'all', 'any', 'are', 'was', 'were', 'has', 'have', 'had', 'its', 'but', 'can', 'may', 'our', 'out', 'over', 'under', 'when', 'which', 'will', 'would', 'should', 'must', 'such', 'than', 'then', 'they', 'them', 'their', 'there', 'here', 'each', 'both', 'same', 'more', 'most', 'some', 'only', 'also', 'been', 'being', 'does', 'did', 'done', '的', '了', '是', '在', '和', '与', '及', '或', '为', '以', '对', '从', '到', '被', '把', '给', '让', '使', '等', '就', '都', '也', '还', '很', '更', '最', '要', '会', '能', '可', '将', '已', '未', '无', '非', '个', '中', '上', '下', '之', '其', '此', '该', '由', '而', '但', '则', '若', '如', '于', '所', '有', '这', '那', '不', '一', '二', '三', '的的', '了的', '是在', '和的', '与的', '为的', '对的', '中的', '上的', '下的', '之中', '一个', '这个', '那个', '我们', '他们', '可以', '因为', '所以', '但是', '如果', '通过', '进行', '以及', '并且', '从而', '因此', '其中', '对应', '相关', '分别', '同时', '之后', '之前', '以内', '以上', '以下'];
-// ---------- 正/负对照夹具（管线健康闸与被测仓无关；demo/audit 同源） ----------
+// ---------- 正对照与负对照样例数据（验证采集与判定通道是否正常工作） ----------
 export const GOLDEN_ADR = [
   '# ADR-9999: PC-1 golden fixture',
   '',
@@ -62,10 +61,9 @@ function git(root: string, args: readonly string[]): string {
 }
 
 export interface ParsedCommit { sha: string; author: string; date: string | null; paths: string[] }
-// date=null=字段级病态 quarantined 置位（D-100② null=毒值——消费方显式跳过禁当 0）。
+// date 为 null 表示该字段存在问题被隔离，消费方遇到时明确跳过，不当成有效时间。
 
-// 方言吸收事件载体（D-128④ 独立披露面）：逐实例留痕（字段/sha/规则/原文→规范形）——
-// 不进 fieldEvents/quarantine_log/Intake Health，仅由消费面汇进 run 元数据披露块。
+// 记录格式吸收事件：说明不同工具版本带来的等义拼写差异，仅作补充披露，不计入字段异常。
 export interface DialectAbsorptionEvent extends DialectAbsorption {
   field_name: string;
   commit_sha: string;
@@ -73,24 +71,20 @@ export interface DialectAbsorptionEvent extends DialectAbsorption {
 
 export interface MacroBProbes {
   headSha: string;
-  headDate: string | null;  // 锚字段合法值；quarantined→null（headRaw 保原始字节进 traceId 哈希，D-108①）
+  headDate: string | null;  // HEAD 提交时间；若异常则为 null 并记录原始字节
   headRaw: string;
   headStatus: FieldStatus;
   treeSha: string;
   commitCount: number;
   commits: ParsedCommit[];
   subjects: string[];
-  fieldEvents: FieldEvent[];   // normalized+quarantined 处置事件（clean 不记——恒等式 clean=total−事件行）
-  fieldStats: FieldStat[];     // 逐字段实例三桶（head_date 基数 1＋committer_date 基数 commitCount）
-  dialectAbsorptions: DialectAbsorptionEvent[];  // 边界层方言吸收事件（观测仪器等价拼写差——非主体病态）
+  fieldEvents: FieldEvent[];   // 字段修复与隔离处置记录
+  fieldStats: FieldStat[];     // 字段统计情况
+  dialectAbsorptions: DialectAbsorptionEvent[];  // 工具写法差异的吸收记录
 }
 
-// git 探针＋log 解析（PROBE-INVARIANT：解析完整性先断言）。
-// %cI 两级分流（协议级 fail-fast / 字段级 quarantine；D-100③）：记录形状坏（__R__ 行 ≠3 字段——嵌定界符/截断行）=协议级违约
-//   fail-fast 落崩溃桶工件；字段值语义非法=字段级病态 → classifyGitIsoField 三态（永不 throw）
-//   → quarantined 置 null＋事件留痕，管线继续。normalizeGitIsoDate 判定本体同族（抛型回执留给旧调用方）。
-// 边界归一（#81/D-128②）：git 版本方言 +00:00↔Z 由 absorbGitIsoDialect 在分类器上游吸收——
-//   分类器只见规范流（normalized 桶收窄=主体自载语义归一专用）；吸收事件落 dialectAbsorptions 独立披露。
+// 探测仓库信息与解析日志：
+// 严重格式错误直接报错中断；单个字段内容有缺陷则记录原因并隔离，保证审计流程继续推进。
 export type GitProbeRunner = (repoRoot: string, args: readonly string[]) => string;
 export function probeMacroBRepo(repoRoot: string, headSha: string, opts?: { gitRunner?: GitProbeRunner }): MacroBProbes {
   const run: GitProbeRunner = opts && opts.gitRunner ? opts.gitRunner : git;
@@ -165,8 +159,7 @@ export function probeMacroBRepo(repoRoot: string, headSha: string, opts?: { gitR
   return { headSha: headSha, headDate: headDate, headRaw: headRaw, headStatus: headCls.status, treeSha: treeSha, commitCount: commitCount, commits: commits, subjects: subjects, fieldEvents: fieldEvents, fieldStats: fieldStats, dialectAbsorptions: dialectAbsorptions };
 }
 
-// 采集环境探针（D-128④ 双轴披露轴二：仪器元数据与测量值强制分离——OTel Resource 先例）。
-// 如实降级：git 二进制缺席→'unknown'（与 file-lineage 探测同口径）。
+// 获取 git 客户端版本，若未安装或执行失败则返回 'unknown'
 export function probeGitVersion(): string {
   try { return execFileSync('git', ['--version'], { encoding: 'utf8' }).trim(); } catch { return 'unknown'; }
 }
@@ -180,11 +173,11 @@ export interface MacroBCollectSpec {
   nc1Candidates: readonly string[];
   stopwords: readonly string[];
   topN: number;
-  codelore: 'off' | 'auto';   // auto=resolveCodelore 决议→行为三面采集；缺席/不 pin→如实降级（resolution 事实留痕）
-  extraCodeloreFacets?: readonly CodeloreFacetSpec[];   // 附加面集（#87/D-205：S3 族六面——成对准入由消费位闸执行，采集层只做并集）
-  fileLineage?: { mode: 'on' | 'off'; threshold?: string; runner?: RenameLogRunner };   // on=确定性 rename 检测（git log --name-status -z -M）→file.renamed 血缘事实；audit=on demo=off（保合成仓逐字节确定性）
-  fixtureTag: string;         // PC/NC 夹具路径前缀（demo='45'/audit='AUDIT'）——进 subject_ref→fact_id 哈希，调用方各保自身前缀防两链漂移
-  pc2Sha: string;             // PC-2 夹具 commit sha（入 gitlog 输入→lag 事实哈希，同源纪律同上）
+  codelore: 'off' | 'auto';   // auto 表示自动解析并采集行为三面，若缺少外部工具则如实记录跳过
+  extraCodeloreFacets?: readonly CodeloreFacetSpec[];   // 附加分析项列表
+  fileLineage?: { mode: 'on' | 'off'; threshold?: string; runner?: RenameLogRunner };   // 是否检测文件改名记录
+  fixtureTag: string;         // 对照夹具标识
+  pc2Sha: string;             // PC-2 对照提交哈希
 }
 
 export interface MacroBCollect {
@@ -211,8 +204,8 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
   const skipFacts: CollectedFact[] = [];
   const skipSeen = new Set<string>();
   const pushSkip = function (f: CollectedFact): void { if (!skipSeen.has(f.fact_id)) { skipSeen.add(f.fact_id); skipFacts.push(f); } };
-  // -- ADR 语料（adr-structure@v2 回退链） --
-  // #113：目录枚举走安全列目录单点（`docs/adr` 若是仓外 junction/符号链接→零语料＋披露事实）。
+  // -- ADR 目录扫描与读取 --
+  // 采用安全目录遍历，若目录被链接到外部则直接拒绝并记录事实
   const ADR_REL_DIR = 'docs/adr';
   const adrListing = listAdrFilesSafe(repoRoot, ADR_REL_DIR);
   if (!adrListing.ok && adrListing.reason !== 'missing') {
@@ -247,10 +240,10 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
   }
   const gitFacts = collectGitlog({ commits: probes.commits, paths: adrPaths, adrDates: adrDateMap }, ctx);
 
-  // -- positioning（意图面=候选集存在者；交付面=git subjects） --
+  // -- 定位分析（意图来源与实际提交内容比对） --
   const intentDocs: { path: string; text: string }[] = [];
   for (const cand of spec.intentCandidates) {
-    // #113：存在性探针=lstat（悬空链接也算存在→交安全读取判定并披露），不再用 existsSync（悬空时静默消失）。
+    // 检查文件存在性，符号链接交由安全读取检查，不存在则跳过
     if (probeRepoEntry(repoRoot, cand) === 'absent') { continue; }
     const readRes = readRepoFileSafe(repoRoot, cand);
     if (!readRes.ok) {
@@ -264,7 +257,7 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
     ? collectPositioning({ intentDocs: intentDocs, deliveryDocs: deliveryDocs, topN: spec.topN, stopwords: spec.stopwords }, ctx)
     : [];
 
-  // -- codelore 行为面（audit=auto；demo=off 保确定性） --
+  // -- codelore 行为面指标采集 --
   let codeloreFacts: CollectedFact[] = [];
   let codeloreResolution: MacroBCollect['codeloreResolution'] = null;
   if (spec.codelore === 'auto') {
@@ -276,8 +269,7 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
     }
   }
 
-  // -- file_renamed 血缘事实（#80 步① / D-125：检测参数入载荷可复算；audit=on demo=off） --
-  // Micro-B grain：scale=Micro-B（subject=规范化 file path——粒度分类按 subject 非 run，D-124）。
+  // -- 文件改名记录事实采集 --
   let fileLineageFacts: CollectedFact[] = [];
   if (spec.fileLineage && spec.fileLineage.mode === 'on') {
     const threshold = spec.fileLineage.threshold || RENAME_DEFAULT_THRESHOLD;
@@ -293,7 +285,7 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
     }, { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt });
   }
 
-  // -- 正对照 PC-1 / PC-2（夹具与被测仓无关） --
+  // -- 正对照验证（验证分析管线处于正常工作状态） --
   const pc1AdrFacts = collectAdrStructure({ documents: [{ path: 'fixtures/' + spec.fixtureTag + '-pc1-golden-adr.md', text: GOLDEN_ADR }] }, ctx);
   const pc1PosFacts = collectPositioning({ intentDocs: [{ path: 'fixtures/' + spec.fixtureTag + '-pc1-positioning.md', text: POS_DECL }], deliveryDocs: [{ path: 'fixtures/' + spec.fixtureTag + '-pc1-delivery.md', text: POS_DECL }], topN: spec.topN, stopwords: spec.stopwords }, ctx);
   const pc1Five = pc1AdrFacts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
@@ -306,7 +298,7 @@ export function collectMacroB(repoRoot: string, spec: MacroBCollectSpec, ctx: Co
   const pc2Lag = pc2Facts.filter(function (f) { return f.metric === 'git.adr_lag_days'; });
   const pc2 = { pass: pc2Lag.length > 0 && JSON.parse(pc2Lag[0].value_json).delta_days > 0, delta_days: pc2Lag.length > 0 ? JSON.parse(pc2Lag[0].value_json).delta_days : null };
 
-  // -- 负对照 NC-1（被测仓内非 ADR 文件，五件套预期 0 命中） --
+  // -- 负对照验证（选取非 ADR 文件，预期无法解析出 ADR 结构） --
   let nc1Path: string | null = null;
   let nc1Text: string | null = null;
   for (const cand of spec.nc1Candidates) {
@@ -353,7 +345,7 @@ export interface MacroBEval {
   fiveFactIds: string[];
 }
 
-// 真判据 TC-1/TC-2/TC-3（预声明阈值实测）
+// 实际判据评估：依据事前约定规则计算各项指标
 export function evaluateMacroB(collect: MacroBCollect): MacroBEval {
   const lagValues = collect.gitFacts.filter(function (f) { return f.metric === 'git.adr_lag_days'; }).map(function (f) { return JSON.parse(f.value_json); });
   const tc1Judgeable = lagValues.length;
@@ -393,11 +385,8 @@ export function tcBand(v: string): 'supported' | 'unsupported' | 'insufficient' 
   return 'supported';
 }
 
-// ctx 契约面：runIdLabel 进 runId（run 身份）；ctxLabel 进 traceId/repoRef（仓身份——demo=def.repo.name，
-// audit=仓名）。两 label 分离原因：demo 原实现 runId 用 scenario、traceId/repoRef 用 repo.name，混并即漂哈希。
-// headDate=null（锚病态 quarantined）→ traceId 哈希改用锚字段原始字节（D-108①：锚病态哈希 raw bytes
-// 保持确定性）；observedAt 不落伪值——哨兵串 'quarantined(...)' 标记，audit_fact.observed_at
-// NOT NULL 无法满足故该 run 跳过 fact 落库（quarantine_log 行仍写，recorded_at=NULL 合法）。
+// 构建上下文标识：包含运行标识、追踪标识与仓库标识。
+// 若提交时间异常，则使用原始字节哈希确保结果固定，不填入伪造时间。
 export function macroBContext(runIdLabel: string, ctxLabel: string, headSha: string, headDate: string | null, headRaw?: string, scale: string = 'Macro-B'): CollectContext {
   const anchor = headDate === null ? 'quarantined:' + sha256Hex(headRaw === undefined ? '' : headRaw) : headDate;
   return {

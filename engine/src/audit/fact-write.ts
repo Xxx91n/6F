@@ -1,9 +1,10 @@
-// audit/fact-write.ts —— run 级 fact/quarantine 同位发射共享核（#84 / D-204② file-card 同位）
-// Design: 跨 scale 共用同一 append-only 写入路径 — ADR-0005
-// audit.ts（Macro-B）与 macro-c.ts（Macro-C）同消费——同一 emit 函数、同 grain（逐 commit 事务＋节拍批 500）、
-// 同 fact_id 规则（append-only 内容寻址）、同逐 commit 恒等式断言（D-115①/D-116① 语义单源）。
+// audit/fact-write.ts —— 事实数据与隔离记录写入的公共处理逻辑
+// 理由：不同审计档位共用同一套只追加不修改的数据库写入通道。
+// audit.ts（单仓四象限档）与 macro-c.ts（历史演化档）共同复用：
+//   同一写入函数、相同的事务颗粒度（按提交划分事务，批量 500 条）、
+//   相同的事实编号规则（只追加写入、按内容寻址）、相同的数据一致性检查。
 
-// file-card 补采（audit/file-card.ts）同走 appendFact＋runInTransaction 原语——发射时机异、身份规则同位。
+// 单文件档补采（audit/file-card.ts）同样使用 appendFact 与 runInTransaction 原语，写入时机不同，但编号与写入规则保持一致。
 import { closeDuckdb, appendFact, appendQuarantineEvent, runInTransaction, AuditIoError, classifyWriteError } from '../fact/store.js';
 import type { CollectedFact } from '../collect/collectors.js';
 import { protocolCrashError, isProtocolCrash, countsFromStats } from '../intake/quarantine.js';
@@ -19,7 +20,7 @@ export interface RunFactWriteInput {
   headDate: string | null;
   anchorQuarantined: boolean;
   collector: string;
-  crashSource: string;   // crash_location 前缀（audit.ts / macro-c.ts——崩溃定位如实到面）
+  crashSource: string;   // 报错来源前缀（例如 audit.ts 或 macro-c.ts，用于明确异常发生位置）
 }
 
 export interface RunFactWriteResult { factsWritten: number; eventsWritten: number }
@@ -64,13 +65,13 @@ export async function writeRunFactsAndEvents(writer: RunWriter, input: RunFactWr
           await appendEvents(cEvents);
         });
       }
-      // 逐 commit 增量恒等式断言（D-116① 极简纯 COUNT 比较）
+      // 检查当前提交写入隔离记录的计数是否一致
       const cn = await (await writer.run('SELECT COUNT(*) FROM quarantine_log WHERE run_id = ? AND commit_sha = ?', [input.ctx.traceId, c.sha] as unknown as Parameters<typeof writer.run>[1])).getRows();
       if (Number(cn[0][0]) !== cEvents.length) {
         throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '逐 commit 增量恒等式断言失败：sha=' + c.sha + ' 期望 ' + cEvents.length + ' 库内 ' + Number(cn[0][0]), { crash_location: input.crashSource + ':per-commit-identity', run_context: crashCtx(c.sha), counts: crashCounts() });
       }
     }
-    // 非 commit 粒度 facts 节拍批（500/批锚节拍非运行末单事务）；孤儿事件随末节拍批同事务
+    // 非提交粒度的事实按 500 条分批写入，未绑定到提交的隔离事件随最后一批事务一起提交
     const orphanEvents = input.fieldEvents.filter(function (fe) { return !commitShaSet.has(fe.commit_sha); });
     for (let i = 0; i < restFacts.length; i += FACT_WRITE_BATCH) {
       const batch = restFacts.slice(i, i + FACT_WRITE_BATCH);
@@ -84,7 +85,7 @@ export async function writeRunFactsAndEvents(writer: RunWriter, input: RunFactWr
       await runInTransaction(writer, async function () { await appendEvents(orphanEvents); });
     }
   } catch (e) {
-    try { closeDuckdb(writer); } catch (_) { /* 次生关闭错不盖主错 */ }
+    try { closeDuckdb(writer); } catch (_) { /* 关闭数据库失败不覆盖主异常 */ }
     if (isProtocolCrash(e)) { throw e; }
     if (classifyWriteError(e) === 'io') {
       throw new AuditIoError('fact/quarantine 写 IO 失败（D-115③ IO 失败类退出类——非协议崩溃）：' + String((e as Error).message || e));
