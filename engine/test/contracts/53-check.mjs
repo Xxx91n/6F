@@ -47,7 +47,7 @@ let r1 = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-A'], { encoding
 let sj = null; try { sj = JSON.parse(r1.stderr); } catch (e) { }
 t('B1 --scale Macro-A → exit 2 + error=SCALE-NOT-IMPLEMENTED', r1.status === 2 && !!sj && sj.error === 'SCALE-NOT-IMPLEMENTED', 'status=' + r1.status);
 t('B2 拒绝 JSON 载 implemented/requested/layer_order（#84＋#85② 产线化后 implemented=[Macro-B, Macro-C, Micro-A]）', !!sj && JSON.stringify(sj.implemented) === JSON.stringify(['Macro-B', 'Macro-C', 'Micro-A']) && sj.requested === 'Macro-A' && typeof sj.layer_order === 'string');
-t('B2b layer_order=层序说明原文', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0 && sj.layer_order.indexOf('层序') >= 0, sj && sj.layer_order);
+t('B2b layer_order=层序与已上架说明原文', !!sj && sj.layer_order === 'Macro-C→Micro-A→Micro-B→Macro-A（Macro-B/Macro-C/Micro-A 已上架 preview）', sj && sj.layer_order);
 // engine-deps 前置（D-163③）：audit 实跑需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
 if (groupProbe('53-check', 'B3', DEP53)) {
   const r1b = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-B'], { encoding: 'utf8', cwd: ENG });
@@ -86,7 +86,7 @@ if (groupProbe('53-check', 'C', DEP53)) {
 const demo = txt(join(ENG, 'src', 'demo', 'demo.ts'));
 const mb = txt(join(ENG, 'src', 'audit', 'macro-b.ts'));
 t('D1 audit.ts + demo.ts 同消费 audit/macro-b.ts 链件（probe/collect/evaluate 三件套）', audit.indexOf("from './macro-b.js'") >= 0 && /probeMacroBRepo.*collectMacroB.*evaluateMacroB/.test(demo) && /probeMacroBRepo.*collectMacroB.*evaluateMacroB/.test(audit));
-t('D2 macro-b.ts 导出三链件 + normalizeGitIsoDate 消费（%cI 归一化位）', /export function probeMacroBRepo/.test(mb) && /export function collectMacroB/.test(mb) && /export function evaluateMacroB/.test(mb) && mb.indexOf('normalizeGitIsoDate') >= 0);
+t('D2 macro-b.ts 导出三链件 + git ISO 方言归一消费（absorbGitIsoDialect 位）', /export function probeMacroBRepo/.test(mb) && /export function collectMacroB/.test(mb) && /export function evaluateMacroB/.test(mb) && mb.indexOf('absorbGitIsoDialect') >= 0 && mb.indexOf('classifyGitIsoField') >= 0);
 t('D3 demo codelore=off 确定性位 + audit codelore=auto 实跑位', demo.indexOf("codelore: 'off'") >= 0 && audit.indexOf("codelore: 'auto'") >= 0);
 
 // ---------- E. golden parity：audit 产物字段 ⊆ 39 one-shot 复跑产物 ----------
