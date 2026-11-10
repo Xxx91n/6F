@@ -2,7 +2,7 @@
 // 断言面：
 //   A 守卫自声明（guard-meta）、*-check.mjs 命名、普查面非空（防空集假绿）
 //   B 门面文书集合（按「声明位置」内容派生，不硬编码五/六处计数）→ 逐文件 markdown 链接指回 docs/authority.md 本体
-//   C 现行文本的 ADR-NNNN 全部可解析；docs/adr/ 相对链接可解析（含生成索引）
+//   C 现行 ADR 只有 0028；旧号只准出现在 authority.md §3 声明的历史引用面（哨兵与固定机器名除外）；docs/adr/ 链接可解析
 //   D D-NNN 引用 ⊆ 归档索引；D-NNN 集合只减不增（冻结记录 blob 钉＋散文假阳性五项钉）
 //   E §D-NNN / §A-NNN 死锚拒绝（2+ 位退役码形态；1 位是节号，不在此列）
 //   F 门面文书不得自称权威；专题「唯一权威」白名单读自 docs/authority.md §2（单源）
@@ -67,8 +67,7 @@ for (const [flag, label] of [['--inject-adr', 'ADR'], ['--inject-dcode', 'DCODE'
 
 // ---------- 探测器（纯函数：负对照与主断言共用，避免「测的不是判的」） ----------
 function dcodes(text) { return [...text.matchAll(/\bD-(\d{3})\b/g)].map(m => m[0]); }
-function adrRefs(text) { return [...text.matchAll(/\bADR-(\d{4})\b/g)].map(m => m[0]); }
-// 退役决策记录的 D/A 码是三位零填充（D-004）；ADR-0018 的节号 §D-1/§D-2 是 1 位，不属死锚形态。
+// 退役决策记录的 D/A 码是三位零填充（D-004）；旧 ADR 正文里的 1 位节号 §D-1/§D-2 不属死锚形态。
 // 判据取 2+ 位：既覆盖三位退役码，也拦住非零填充的短码变体；1 位节号放行。
 function deadAnchors(text) { return [...text.matchAll(/§[DA]-\d{2,}/g)].map(m => m[0]); }
 
@@ -121,14 +120,43 @@ t('B0 门面标记与 authorityPointer 同形：外链不算、fragment 算',
   !LANDING_MARK.test('](https://example.com/authority.md)') &&
   LANDING_MARK.test('](docs/authority.md#section)'));
 
-// ---------- C. ADR-NNNN 与 docs/adr 链接可解析 ----------
-const ADR_NUMBERS = new Set(TRACKED
-  .filter(p => /^docs\/adr\/\d{4}-.+\.md$/.test(p))
-  .map(p => p.match(/^docs\/adr\/(\d{4})-/)[1]));
+// ---------- C. 现行 ADR 唯一，旧号只在历史引用面 ----------
+const ADR_FILES = TRACKED.filter(p => /^docs\/adr\/\d{4}-.+\.md$/.test(p));
+const ADR_NUMBERS = new Set(ADR_FILES.map(p => p.match(/^docs\/adr\/(\d{4})-/)[1]));
+const CURRENT_ADR = '0028';
 const authorityText = txt('docs/authority.md');
-// 0002/0010/0015 保持删除；从 authority.md §4 的成文行解析，不复制第二套编号。
-const deletedLine = authorityText.split('\n').find(l => l.includes('保持删除') && /\b0002\b/.test(l)) || '';
-const ADR_DELETED = new Set(deletedLine.match(/\b\d{4}\b/g) || []);
+// authority.md §3 的 yaml 块是历史号、历史路径和说明处的唯一来源；脚本不自带第二份清单。
+function parseHistoricalAdr(text) {
+  const fences = [...text.matchAll(/```yaml\r?\n([\s\S]*?)```/g)].map(m => m[1]);
+  const block = fences.find(b => b.includes('historical_adr:')) || null;
+  if (!block) { return null; }
+  const lines = block.split(/\r?\n/);
+  const numbersLine = lines.find(l => /^\s*numbers:\s*\[/.test(l)) || '';
+  const numbers = [...numbersLine.matchAll(/"(\d{4})"/g)].map(m => m[1]);
+  function list(key) {
+    const start = lines.findIndex(l => new RegExp('^\\s+' + key + ':\\s*$').test(l));
+    if (start < 0) { return []; }
+    const out = [];
+    for (let i = start + 1; i < lines.length; i++) {
+      if (/^\s*[a-zA-Z_][a-zA-Z0-9_]*:/.test(lines[i])) { break; }
+      const item = lines[i].match(/^\s*-\s+([^\s#]+)/);
+      if (item) { out.push(item[1]); }
+    }
+    return out;
+  }
+  return { numbers, paths: list('paths'), explained_in: list('explained_in') };
+}
+const HIST = parseHistoricalAdr(authorityText);
+const HIST_NUMBERS = new Set(HIST ? HIST.numbers : []);
+const HIST_PATHS = HIST ? HIST.paths : [];
+const HIST_EXPLAINED = new Set(HIST ? HIST.explained_in : []);
+// 历史路径按前缀匹配目录，说明处按整文件匹配；两者都要求号在 numbers 清单里。
+function inHistoricalSurface(path, num) {
+  if (!HIST_NUMBERS.has(num)) { return false; }
+  if (HIST_EXPLAINED.has(path)) { return true; }
+  return HIST_PATHS.some(p => path === p || path.startsWith(p.endsWith('/') ? p : p + '/'));
+}
+function historicalPathExists(p) { return existsSync(join(REPO, p)); }
 // 合成夹具/解析器写出的哨兵号，不是决策位置：ADR-0000（空占位）、ADR-9999（越界探针）。
 // 只允许出现在 engine 代码/测试（逐字节冻结夹具已在 excluded() 排除）；docs/门面引用它们仍是死锚。
 const ADR_SENTINELS = new Set(['ADR-0000', 'ADR-9999', 'ADR-9991', 'ADR-9992', 'ADR-9993', 'ADR-9994']);
@@ -137,18 +165,41 @@ const ADR_SENTINEL_PATH = /^engine\/(?:src|scripts|test)\//;
 // engine/fixtures/definitions/*.json 是手写合成夹具（不是冻结件），其 ADR 头是 fixture 数据，
 // 不是放置位置；D-code 与死锚仍照常扫描。
 const ADR_SYNTHETIC_PATH = /^engine\/fixtures\/definitions\//;
+// 两个固定名字不是位置引用：ADR-NNNN-C/vN 是裁决协议/叙事封条版本串；schema 的 inherits: 值
+// 是「这一列从哪份旧决定继承」的历史标签。只放行这两个形状，且只限 engine 源码/脚本/测试。
+function frozenMachineLabel(path, site) {
+  if (!ADR_SENTINEL_PATH.test(path)) { return false; }
+  const num = site.num || site.code.slice(4);
+  if (!HIST_NUMBERS.has(num) && !ADR_NUMBERS.has(num)) { return false; }
+  if (new RegExp(site.code + '-C/v[0-9]+').test(site.line)) { return true; }
+  return new RegExp('inherits\\s*:\\s*[\\x27"]' + site.code + '[\\x27"]').test(site.line);
+}
+function adrRefSites(text) {
+  const out = [];
+  for (const m of text.matchAll(/\bADR-(\d{4})\b/g)) {
+    const lineStart = text.lastIndexOf('\n', m.index - 1) + 1;
+    const lineEnd = text.indexOf('\n', m.index);
+    out.push({ code: m[0], num: m[1], line: text.slice(lineStart, lineEnd < 0 ? text.length : lineEnd) });
+  }
+  return out;
+}
+// 同一枚号按放置面分类：C1 主断言和 C6 负对照共用这一个分类器，避免「测的不是判的」。
+function adrRefClass(path, num, site) {
+  if (site) {
+    if (ADR_SYNTHETIC_PATH.test(path)) { return 'exempt'; }
+    if (frozenMachineLabel(path, site)) { return 'exempt'; }
+    if (ADR_SENTINELS.has(site.code) && ADR_SENTINEL_PATH.test(path)) { return 'exempt'; }
+  }
+  if (ADR_NUMBERS.has(num)) { return 'current'; }
+  if (inHistoricalSurface(path, num)) { return 'historical'; }
+  return 'dead';
+}
 const badAdr = [];
 let adrRefCount = 0;
 for (const { path, text } of CORPUS) {
-  for (const code of adrRefs(text)) {
+  for (const site of adrRefSites(text)) {
     adrRefCount++;
-    if (ADR_SYNTHETIC_PATH.test(path)) { continue; }
-    if (ADR_SENTINELS.has(code) && ADR_SENTINEL_PATH.test(path)) { continue; }
-    const n = code.slice(4);
-    if (ADR_NUMBERS.has(n)) { continue; }
-    // 但门面/现行文书引用它们仍是不可解析的位置（下面的 path.startsWith('docs/adr/') 只豁免载体本身）。
-    if (ADR_DELETED.has(n) && path.startsWith('docs/adr/')) { continue; }
-    badAdr.push(path + ':' + code);
+    if (adrRefClass(path, site.num, site) === 'dead') { badAdr.push(path + ':' + site.code); }
   }
 }
 const adrLinks = [];
@@ -165,13 +216,55 @@ for (const { path, text } of CORPUS) {
     if (!existsSync(join(REPO, resolved))) { adrLinks.push(path + ' -> ' + raw + ' (' + resolved + ')'); }
   }
 }
-t('C0 docs/adr 现行件可枚举＋已删三件从 authority.md §4 解析（size=3）',
-  ADR_NUMBERS.has('0001') && ADR_NUMBERS.has('0027') && ADR_DELETED.size === 3 && deletedLine.length > 0);
-t('C1 现行文本的 ADR-NNNN 全部可解析（哨兵与 ADR 正文内的已删前身除外）',
+const currentAdrFiles = ADR_FILES.filter(p => new RegExp('^docs/adr/' + CURRENT_ADR + '-').test(p));
+t('C0 docs/adr 下有 0028 且仅一份，没有历史号 ADR 复活（旧 24 份正文已删）',
+  ADR_NUMBERS.has(CURRENT_ADR) && currentAdrFiles.length === 1 && ![...ADR_NUMBERS].some(n => HIST_NUMBERS.has(n)),
+  'files=' + ADR_FILES.join(','));
+t('C1 现行文本的 ADR-NNNN 只指向现行 ADR 或历史引用面（哨兵与固定机器名除外）',
   adrRefCount > 0 && badAdr.length === 0, 'refs=' + adrRefCount + ' dangling=' + [...new Set(badAdr)].join(','));
 t('C1b 哨兵豁免只覆盖 engine 代码/测试（engine/README.md 不在内）',
   ADR_SENTINEL_PATH.test('engine/src/audit/macro-b.ts') && !ADR_SENTINEL_PATH.test('engine/README.md'));
 t('C2 现行 Markdown 的 docs/adr 链接可解析（含生成索引相对链接）', adrLinkCount > 0 && adrLinks.length === 0, 'links=' + adrLinkCount + ' dangling=' + adrLinks.join(','));
+function contiguousFromOne(nums) {
+  const sorted = [...new Set(nums)].sort();
+  return sorted.length === nums.length && sorted.every((n, i) => n === String(i + 1).padStart(4, '0'));
+}
+t('C3 历史号解析恰为 0001–0027（27 个、连续、无重复；从 §3 读）',
+  !!HIST && HIST.numbers.length === 27 && contiguousFromOne(HIST.numbers),
+  HIST ? 'n=' + HIST.numbers.length + ' first=' + HIST.numbers[0] + ' last=' + HIST.numbers[HIST.numbers.length - 1] : 'block=absent');
+const missingHistPaths = HIST_PATHS.filter(p => !historicalPathExists(p));
+t('C4 历史路径清单非空，每条都在仓里（清单从 §3 读，不在脚本里抄第二份）',
+  HIST_PATHS.length > 0 && missingHistPaths.length === 0,
+  'paths=' + HIST_PATHS.join(',') + ' missing=' + missingHistPaths.join(','));
+const missingExplained = [...HIST_EXPLAINED].filter(p => !historicalPathExists(p));
+t('C5 explained_in 非空、每条都在仓里，且含 authority.md 与现行 ADR',
+  HIST_EXPLAINED.size > 0 && missingExplained.length === 0 && currentAdrFiles.length === 1 &&
+  HIST_EXPLAINED.has('docs/authority.md') && HIST_EXPLAINED.has(currentAdrFiles[0]),
+  'explained=' + [...HIST_EXPLAINED].join(',') + ' missing=' + missingExplained.join(','));
+const HIST_SCREEN = HIST_PATHS[0] || '<missing-historical-path>';
+t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判红；历史路径不放行任意旧号', // NEGATIVE-CONTROL
+  adrRefClass(HIST_SCREEN, '0001') === 'historical' && // NEGATIVE-CONTROL
+  adrRefClass('README.md', '0001') === 'dead' && // NEGATIVE-CONTROL
+  adrRefClass('README.md', CURRENT_ADR) === 'current' && // NEGATIVE-CONTROL
+  adrRefClass(HIST_SCREEN, '9998') === 'dead', // NEGATIVE-CONTROL
+  'hist=' + adrRefClass(HIST_SCREEN, '0001') + ' current=' + adrRefClass('README.md', '0001'));
+t('C7 固定机器名放行：协议版本串和 schema inherits 历史标签不算死引用，普通旧号仍算', // NEGATIVE-CONTROL
+  frozenMachineLabel('engine/src/report/generate.ts', { code: 'ADR-0013', line: "const V = 'ADR-0013-C/v1';" }) && // NEGATIVE-CONTROL
+  frozenMachineLabel('engine/src/fact/schema.ts', { code: 'ADR-0005', line: "inherits: 'ADR-0005'" }) && // NEGATIVE-CONTROL
+  !frozenMachineLabel('engine/src/audit/x.ts', { code: 'ADR-0005', line: '// ADR-0005' }) && // NEGATIVE-CONTROL
+  !frozenMachineLabel('README.md', { code: 'ADR-0013', line: "'ADR-0013-C/v1'" })); // NEGATIVE-CONTROL
+// explained_in 是整文件豁免；活指针仍须守「不指旧号」——单独一条，避免整文件豁免把它洗绿。
+// 三处「历史件」原样保留，不按活指针判；其余面（含两处 explained_in）照常扫。
+const historicalDesignPointers = [];
+for (const { path, text } of CORPUS) {
+  if (HIST_PATHS.some(p => path === p || path.startsWith(p.endsWith('/') ? p : p + '/'))) { continue; }
+  for (const site of adrRefSites(text)) {
+    if (!site.line.includes('Design:')) { continue; }
+    if (HIST_NUMBERS.has(site.num)) { historicalDesignPointers.push(path + ':' + site.code); }
+  }
+}
+t('C8 Design 指针不指历史号（explained_in 整文件豁免不放行活指针）',
+  historicalDesignPointers.length === 0, 'hits=' + historicalDesignPointers.slice(0, 10).join(','));
 
 // ---------- D. D-code ⊆ 归档索引 + 只减不增 ----------
 const INDEX_PATH = 'docs/archive/decisions/ticket-index.md';

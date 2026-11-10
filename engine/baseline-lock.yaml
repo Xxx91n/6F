@@ -1,5 +1,5 @@
 # baseline-lock.yaml — 基准语料锁定表（机器读权威 / single source of truth）
-# 制度来源：ADR-0026（基准语料自持）＋ #33 写入；与 upstream-lock.yaml（产品上游）分册——基准语料不是产品上游。
+# 制度来源：现行 ADR-0028 §3（基准语料自持，原决定收进现行 ADR）＋ #33 写入；与 upstream-lock.yaml（产品上游）分册——基准语料不是产品上游。
 #
 # 为什么分册（#32 根因）：upstream-lock.yaml 的 status 枚举（active/planned/evaluating/retired）与
 #   README 致谢面闭账（gen-acknowledgments.mjs 的模板集和锁表 active 集互相核对）是「产品上游」语义；
@@ -44,4 +44,4 @@ baselines:
     bundle_sha256: "6624a2dcfbcdecd828e03c8359d564d8e9a7204d66fdfffff06dd6a0a13bb1ce"
     last_reviewed: 2026-10-26
     next_review: 2026-11-25
-    review_evidence: "#33 2026-10-26 实跑：`git bundle list-heads`＝770d2549… HEAD 唯一位；`git bundle verify` 自证完整（零 prerequisite）；clone 至 OS temp 后 rev-parse HEAD＝770d2549…、rev-list --count=822、docs/adr/*.md=104 件；`GUARD_SIBLING_ROOT=/tmp/__no_sibling__ node test/contracts/85-check.mjs` → PASS 41/41、118s、SKIP-GROUPS 零（C 组不再依赖任何同级仓）。制品体量实测 14961055B（14.3 MiB）——ADR-0026 原记「实测 144KB」系 ADR 语料 gzip 量级误记，勘误见该 ADR 后果段"
+    review_evidence: "#33 2026-10-26 实跑：`git bundle list-heads`＝770d2549… HEAD 唯一位；`git bundle verify` 自证完整（零 prerequisite）；clone 至 OS temp 后 rev-parse HEAD＝770d2549…、rev-list --count=822、docs/adr/*.md=104 件；`GUARD_SIBLING_ROOT=/tmp/__no_sibling__ node test/contracts/85-check.mjs` → PASS 41/41、118s、SKIP-GROUPS 零（C 组不再依赖任何同级仓）。制品体量实测 14961055B（14.3 MiB）——旧记录把 ADR 语料 gzip 量级（约 144KB）误当成制品体量，勘误随本轮收口记在这里。2026-11-10 收口只把这段里的旧 ADR 号换成现行 ADR-0028，未重跑基准，last_reviewed 保持 2026-10-26"
