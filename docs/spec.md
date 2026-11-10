@@ -474,8 +474,8 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 ### R8-5 — 0.2.0 → 0.3.0 的支持面变化
 
 - **决策**：产品版本升到 0.3.0（不是 0.2.1）——支持哪些版本是用户能看见的承诺，不能藏进补丁版本里（`docs/versioning.md` §1：minor = 契约变更；版本纪律也写在那里）。
-- **Node 支持面**：下限从 ≥20 提到 ≥22.6（三条检查脚本直接 import `.ts`，需要类型剥离）；engine-ci 矩阵从 Node 20/22 改为 [22, 24]（三 OS 六条任务）；不保留 Node 20 的 SKIP 分支，也不宣称已经停止维护的版本（Node 20 于 2026-04-30 停止维护）。
-- **同步面**：`engines.node`、CI 矩阵、版本号（package / manifest / 双 plugin.json / README 徽章）、README×2、engine/README、SKILL.md 的 Prerequisites 必须同源一致。落地票 = tracker #36（Node 面）＋ tracker #45（版本与文本）；本段只记决策，落地前 HEAD 上仍可见旧版本号与 ≥20 属待清偿文本，不是第二规则。
+- **Node 支持面**：下限从 ≥20 提到 ≥22.18（三条检查脚本直接 import `.ts`，需要类型剥离）；engine-ci 矩阵从 Node 20/22 改为 [22, 24]（三 OS 六条任务）；不保留 Node 20 的 SKIP 分支，也不宣称已经停止维护的版本（Node 20 于 2026-04-30 停止维护）。
+- **同步面**：`engines.node`、CI 矩阵、版本号（package / manifest / 双 plugin.json / README 徽章）、README×2、engine/README、SKILL.md 的 Prerequisites 必须同源一致。落地票 = tracker #36（Node 面）＋ tracker #45（版本与文本）；本段只记决策，HEAD 上的版本号和 ≥22.18 已经同源一致。
 - **来源**：父票 tracker #38（Node 支持面 / 版本 0.3.0）、`docs/versioning.md` §1。
 
 ### R8-6 — 预览说明的规则
