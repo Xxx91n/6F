@@ -1,13 +1,13 @@
-// collect/file-lineage.ts — file_renamed 血缘一等事实发射（#80 步① / D-125；Micro-B 文件卡=预采集投影×per-file subject×血缘事实）
-// Design: 改名血缘是一等事实，漏判诚实分裂不编造 — ADR-0023
-// 纯逻辑约束：git 字节输入经参数注入；不读 fs、不起子进程。
-// 检测=git log --name-status -z --find-renames=<threshold>（git diffcore -M 先例；
-//   -z 原字节路径不 C-quote——非 ASCII/NFC 判定不交 git quotepath 而交 subject 归一器）。
-// 事实载荷 file_renamed{from,to,head_sha,commit_sha,similarity,threshold,detector_version,git_version}
-//   ——检测参数全入载荷可复算（D-125②）；detector_version=本仓检测规格版本（固定），
-//   git_version=二进制观测值随行（跨版本可复算验证项的举证字段，不入骨架锁）。
-// 缝合职责=投影层（事实层身份恒为规范化 path，跨 rename 连续性由读模型沿血缘链达成，D-125③）；
-// 漏判=历史诚实分裂可见不编造（git「rename 是猜的」官方心智）。
+// collect/file-lineage.ts — 文件重命名血缘事实记录（#80 步骤① / D-125；Micro-B 文件卡=预采集数据×单文件主体×血缘事实）
+// 文件重命名血缘属于关键事实，若无法判断则如实记录分叉历史而不人工编造
+// 纯逻辑规则：git 原始数据通过参数传入；不读写文件系统、不启动子进程。
+// 检测方式：git log --name-status -z --find-renames=<threshold>（参考 git diffcore -M 标准机制；
+//   -z 输出原始字节路径避免转义，特殊字符与非 ASCII 字符交由路径规范函数统一处理）。
+// 事实结构：file_renamed{from,to,head_sha,commit_sha,similarity,threshold,detector_version,git_version}
+//   ——检测参数完整存入事实以便重复计算验证（D-125②）；detector_version 为本仓库检测规格固定版本，
+//   git_version 为实际检测时的 git 命令版本（随数据记录以备核验）。
+// 连续性跟踪：在生成文件视图时，沿重命名血缘链追溯文件的演进历史（D-125③）；
+// 若历史重命名未被完全识别，如实展现分叉状态，不凭空捏造。
 import { normalizeSubjectPath } from '../fact/subject.js';
 import { makeFact, sha256Hex } from './collectors.js';
 export const FILE_LINEAGE_ID = 'file-lineage@v1';
@@ -18,16 +18,16 @@ export const FILE_LINEAGE_DESCRIPTOR = {
     dimension: null,
     quadrant: 'strategic'
 };
-// 检测规格版本（本仓管线规格固定——跨 git 版本可复算性=票面验证项，举证字段=载荷内 git_version）
+// 检测规格版本（本仓库流程规格固定——跨 git 版本可复查验证，实际执行的 git 版本保存在 git_version 中）
 export const RENAME_DETECTOR_VERSION = 'rename-detector@v1';
-export const RENAME_DEFAULT_THRESHOLD = '50%'; // -M 50% 先例（D-125⑤）
-// 同一 argv 构建器供运行与 evidence 共用（codeloreAnalysisArgs 同模式——防两处表达漂移）。
+export const RENAME_DEFAULT_THRESHOLD = '50%'; // 默认阈值设为 50%（D-125⑤）
+// 统一使用同一个命令行参数构造函数，供实际运行与证据记录共用——防止两边参数不一致。
 export function gitRenameLogArgs(threshold) {
     return ['log', '--format=__R__%H', '--name-status', '-z', '--find-renames=' + threshold, 'HEAD'];
 }
-// git log --format=__R__%H --name-status -z 字节布局（实测钉死）：
-//   __R__<sha>\0\n<status>\0[<path>\0]...   —— 提交行 NUL 终止后跟一个 LF 分隔；
-//   R<score>\0<from>\0<to>\0（rename/copy 类双路径）；A/M/D/T 等单路径 \0<path>\0。
+// git log --format=__R__%H --name-status -z 的输出格式：
+//   __R__<sha>\0\n<status>\0[<path>\0]...   —— 提交行以 NUL 结尾，后跟一个换行符分隔；
+//   R<score>\0<from>\0<to>\0（重命名或复制类包含源和目标两个路径）；A/M/D/T 等单路径为 \0<path>\0。
 export function parseRenameLogZ(raw) {
     const edges = [];
     const tokens = raw.split(String.fromCharCode(0));
@@ -47,8 +47,8 @@ export function parseRenameLogZ(raw) {
             const score = Number(tok.slice(1));
             const from = i + 1 < tokens.length ? tokens[i + 1] : '';
             const to = i + 2 < tokens.length ? tokens[i + 2] : '';
-            // fail-fast 协议纪律：R/C 双路径记录 from/to token 缺席（缓冲截断）或空串（结构不全）→抛错不静默丢边；
-            //   良构 C=copy 记录照常消费（i+=2）不发射——rename 血缘只认 R 边。
+            // 快速报错机制：若源路径或目标路径缺失（输出被截断或结构不完整），直接报错而不悄悄丢弃记录；
+            //   对于复制操作（C=copy）正常读取并跳过对应的源与目标，重命名血缘仅记录 R 类型。
             if (from.length === 0 || to.length === 0) {
                 throw new Error('RENAME-LOG-TRUNCATED status=' + status + ' tokenIndex=' + i + ' sha=' + curSha);
             }
@@ -58,7 +58,7 @@ export function parseRenameLogZ(raw) {
             }
         }
         else {
-            i += 1; // 单路径条目（A/M/D/T/X）跳过一个路径 token
+            i += 1; // 单路径条目（A/M/D/T/X）跳过一个路径参数
         }
     }
     return edges;

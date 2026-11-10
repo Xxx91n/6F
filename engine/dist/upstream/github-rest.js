@@ -1,18 +1,18 @@
-// ---------- 上游适配器：GitHub REST（GitHub REST+env token 主路、gh 认证态可选回退 / D-048 / #47）----------
-// Design: 托管平台适配器主路=GitHub REST＋env token，gh 仅可选回退 — ADR-0020
-// Design: raw 上游响应不出适配器边界，业务判据不进本层 — ADR-0014
-// 反腐层纪律（同 codelore.ts）：本文件只做「HTTP 调用 + 原始响应解析」——状态码、限流头解析、
-// schema 校验在此；业务规则（判据/阈值/裁决）禁止进入本层；raw 上游响应不出本层（以结构化类型/fact 传出）。
-// 路径钉死：REST 直连＋X-GitHub-Api-Version pin 主路；gh 已认证态只读借用 = 可选回退
-// （best-effort 非依赖、非 git-cli 先例延伸——git 为产品硬依赖、gh 为额外二进制）；
-// 无认证 = 显式降级（公仓 60/hr 如实披露）；凭据三级探测即用即清，不建凭据存储、不引 OAuth。
-// 最小契约 = PR 枚举（平台声明 Bot 判读：user.type==Bot ＋ login [bot] 后缀双检）＋PR 元数据
-// ＋diff 双通道（本地 git base...head 优先，API diff 仅在 base/head 本地缺席时兜底）。
-// review/comment 面 = planned 登记不入最小集（YAGNI，同 D-035 逐面纪律）。
-// 限流（docs.github.com rate-limits 原文对齐）：每响应读 x-ratelimit-* 头＋余额写事实库运行日志；
-// primary 耗尽（remaining=0）→ 不等待即停＋标注 reset_epoch；403/429 带 retry-after → 有界等待后
-// 单次重试，仍限 → 停；无 retry-after 且 remaining≠0 → 官方要求 ≥60s 等待超进程预算 → 显式停。
-// 措辞纪律：Bot 判读 = 「平台声明的 Bot 身份」，非语义级人/机判定；私仓场景披露「token 必需」。
+// ---------- 上游适配器：GitHub REST（GitHub REST+env token 主通道、gh 登录态可选回退 / D-048 / #47）----------
+// 托管平台适配器以直接调用 GitHub REST API 并配合环境变量 token 为主，gh 命令行仅作为可选回退
+// 上游接口返回的原始数据不超出适配器范围，业务判定规则不进入这一层
+// 防腐层规则（同 codelore.ts）：本文件只做「HTTP 调用 + 原始响应解析」——状态码、限流响应头解析、
+// 数据结构校验在此处理；判定规则（判据/阈值/裁决）禁止进入本层；接口原始响应不传出本层（统一转换为规范的结构化类型或事实输出）。
+// 方案约定：以 REST 直连并固定 X-GitHub-Api-Version 为主；借用本机 gh 登录态只读使用属于可选回退
+// （尽力而为，非强依赖——git 是产品必需的基础工具，gh 只是可选命令行）；
+// 未提供认证凭据时明确降级（公仓每小时 60 次限流如实说明）；凭据按三级探测即用即清，不保存凭据、不引入 OAuth。
+// 最小数据范围 = PR 列表（平台声明的 Bot 身份双重校验：user.type==Bot 且 login 带 [bot] 后缀）＋PR 详细元数据
+// ＋diff 双通道（优先使用本地 git 计算 base...head，本地没有相应 commit 时才调用 API 获取）。
+// review/comment 等功能当前登记为 planned，不纳入最小集（按需引入）。
+// 限流处理（对齐 GitHub 官方文档）：每个响应解析 x-ratelimit-* 响应头，并将剩余额度写入事实库日志；
+// 主要配额耗尽（remaining=0）时不再等待直接停止，并记录重置时间戳；遇到 403 或 429 且带有 retry-after 时，在时间限制内等待后
+// 重试一次，仍被限流则停止；无 retry-after 且 remaining!=0 时（官方建议等待 60 秒以上，超出执行预算）直接明确停止。
+// 规则要求：Bot 身份仅作为「平台声明的 Bot 身份」记录，不做语义层面的人机推断；私有仓库场景明确提示「token 必需」。
 import { spawnSync } from 'node:child_process';
 import { makeFact } from '../collect/collectors.js';
 export const GITHUB_REST_ADAPTER_ID = 'github-rest-adapter@v1';
@@ -24,15 +24,15 @@ export const UNAUTHENTICATED_HOURLY_LIMIT = 60;
 export const DEFAULT_MAX_PAGES = 10;
 export const DEFAULT_PER_PAGE = 100;
 export const DEFAULT_MAX_RETRY_WAIT_SECONDS = 60;
-// planned 登记（与锁表 contract 同源措辞）：本票最小契约之外的平台面，YAGNI 待真实需求拉动
+// 预定计划登记：本任务最小数据范围之外的平台接口，后续有实际需要时再引入
 export const GITHUB_REST_PLANNED_SURFACES = ['pulls.reviews', 'pulls.comments', 'issues.comments'];
 export const GITHUB_REST_DESCRIPTOR = {
     id: GITHUB_REST_ADAPTER_ID,
     family: GITHUB_REST_FAMILY,
-    dimension: null, // 防腐层故意留白（上游适配层禁业务语义）——维度映射见 docs/upstream-dimension-map.md（D-078）
+    dimension: null, // 防腐层故意留白（上游适配层禁止放入业务判定规则）——维度映射见 docs/upstream-dimension-map.md（D-078）
     quadrant: 'strategic'
 };
-// gh 已认证态只读借用：gh auth token 只读不改其 auth 态；gh 缺席 → available=false（非错误）。
+// 借用 gh 登录态：只读取 gh auth token，不修改其登录状态；未安装 gh 时返回 available=false（不当作错误）。
 export function probeGhAuthToken(binary) {
     const bin = binary || 'gh';
     const r = spawnSync(bin, ['auth', 'token'], { encoding: 'utf8', timeout: 15000, windowsHide: true });
@@ -137,11 +137,11 @@ export function createGithubRestClient(cred, opts) {
         }
         return { ok: false, status: res.status, data: null, error_kind: 'http', rate_limit: rl, retried: false, detail: 'http ' + res.status };
     }
-    // 退避策略（官方文档对齐，确定性有界）：
-    //  primary 耗尽（remaining==0）→ 即停，不进程内傻等 reset；
-    //  次级限流带 retry-after ≤ maxWait → 等一次重试一次；仍限/超限 → 停；
-    //  次级限流无 retry-after（官方要求 ≥60s）→ 超有界预算即停。
-    // 403/429 在裁决时刻即归类 rate-limited——callLog 记的是「该响应被判什么」而非传输层表象
+    // 退避等待策略（与官方文档对齐，限制等待上限）：
+    //  主要限额耗尽（remaining==0）时立即停止，不在程序内空等重置时间；
+    //  次级限流带有 retry-after 且小于等于最大等待时间时，等待指定时间并重试一次；若仍被限流或超出等待上限则停止；
+    //  次级限流未提供 retry-after 时（官方建议至少等待 60 秒以上，超出执行预算）直接停止。
+    // 403 或 429 在记录时直接归类为 rate-limited——调用日志记录的是处理结论而非单纯的底层网络状态。
     function logAttempt(path, r, retried) {
         const kind = (r.status === 403 || r.status === 429) ? 'rate-limited' : r.error_kind;
         log.push({ path: path, status: r.status, rate_limit: r.rate_limit, retried: retried, error_kind: kind });
@@ -178,7 +178,7 @@ export function createGithubRestClient(cred, opts) {
     }
     return { call: call, callLog: log };
 }
-// ---------- §4 schema 校验 + 解析（漂移显式抛错，不出假阳性） ----------
+// ---------- §4 数据结构校验与解析（格式不匹配时明确抛出错误，不掩盖异常） ----------
 export class GithubSchemaDrift extends Error {
     missing;
     constructor(where, missing) {
@@ -211,7 +211,7 @@ const PR_DETAIL_REQUIRED = PR_SUMMARY_REQUIRED.concat(['merged', 'merge_commit_s
 function num(v) { return typeof v === 'number' && isFinite(v) ? v : null; }
 function str(v) { return typeof v === 'string' ? v : null; }
 function boolOrNull(v) { return typeof v === 'boolean' ? v : null; }
-// 平台声明的 Bot 身份双检：user.type=='Bot' 且 login 以 [bot] 结尾——缺一不判 Bot（如实，不语义推断）。
+// 平台声明的 Bot 身份双重校验：user.type=='Bot' 且 login 以 [bot] 结尾——缺一不认定为 Bot（照实记录，不主观推断）。
 export function platformDeclaredBot(login, userType) {
     return userType === 'Bot' && typeof login === 'string' && /\[bot\]$/i.test(login);
 }
@@ -262,7 +262,7 @@ export function parsePrDetail(row) {
     };
 }
 const NULL_STATS = { files_changed: null, additions: null, deletions: null };
-// SHA 十六进制显式校验正则（#116 安全审计：防参数注入 --opt / 路径遍历 / 非法字符；7~40 位十六进制）
+// SHA 十六进制格式校验正则（#116 安全检查：防止参数注入、路径遍历或非法字符；限定 7 到 40 位十六进制字符）
 export const GIT_SHA_HEX_RE = /^[0-9a-f]{7,40}$/i;
 export function isValidGitSha(sha) {
     return typeof sha === 'string' && GIT_SHA_HEX_RE.test(sha.trim());
@@ -325,7 +325,7 @@ export async function resolvePrDiff(client, owner, repo, prNumber, baseSha, head
         if (l.ok) {
             return { channel: 'local-git', ok: true, text: l.text, stats: l.stats, detail: null, error_kind: null };
         }
-        // spec 收窄（D-048）：API diff 仅在 base/head 本地缺席时兜底；本地可解但 diff 失败=如实降级不静默改道
+        // 规则限定（D-048）：API diff 仅在本地缺少 base 或 head 时作为备选；本地存在 commit 但 diff 执行失败时照实报错降级，不悄悄换通道
         return { channel: 'local-git', ok: false, text: '', stats: NULL_STATS, detail: 'local-git diff failed: ' + (l.detail || 'unknown'), error_kind: 'local-diff' };
     }
     return apiDiff(client, owner, repo, prNumber);
@@ -373,7 +373,7 @@ export async function collectGithubPrFacts(owner, repo, opts, ctx) {
     }));
     let stopped = null;
     const counters = { errors: 0, rate_limited: 0, schema_drift: 0, prs: 0, details: 0, diffs: 0, diffs_local: 0, diffs_api: 0 };
-    // 共用发射器：rate_limit 运行日志事实按 callLog 每次尝试真值发射（list/detail/diff 三路径同源）
+    // 统一输出日志事实：按照调用记录真实输出 rate_limit 事实（列表、详情与 diff 统一来源）
     function emitCallLog(fromIdx) {
         for (let li = fromIdx; li < client.callLog.length; li++) {
             const le = client.callLog[li];
@@ -410,7 +410,7 @@ export async function collectGithubPrFacts(owner, repo, opts, ctx) {
             }));
         }
     }
-    // PR 枚举（分页经 per_page；不足页止）
+    // 获取 PR 列表（按每页条数分页，当返回条数少于每页要求时停止）
     const state = opts.state || 'all';
     const perPage = opts.perPage || DEFAULT_PER_PAGE;
     const maxPages = opts.maxPages || DEFAULT_MAX_PAGES;
@@ -466,7 +466,7 @@ export async function collectGithubPrFacts(owner, repo, opts, ctx) {
             break;
         }
     }
-    // PR 元数据 + diff（按需子集；限流/错误即停）
+    // 获取 PR 详情与 diff 内容（仅获取指定编号，遇到限流或错误时停止）
     const byNumber = new Map();
     for (const s of summaries) {
         byNumber.set(s.number, s);

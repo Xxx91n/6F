@@ -58,33 +58,33 @@ export interface CollectorDescriptor {
 }
 export declare const AUDIT_DESCRIPTOR: CollectorDescriptor;
 /**
- * 披露事实：安全读取拒绝时发射 `codelore.file_subject_skip`（subject / fact_id 用同一归一形）。
- * @param ctx 采集上下文（run/trace/repo/scale/observedAt）
- * @param rawPath 调用方给的仓根相对路径（可能来自 join()，win32 上含反斜杠）
- * @param reason 拒绝原因（SafeReadFailReason 或其调用面同义码）
- * @param descriptor 采集器描述符（默认 audit-safe-read）
+ * 记录安全读取拒绝事件，输出 codelore.file_subject_skip 事实。
+ * @param ctx 采集上下文
+ * @param rawPath 调用方传入的相对路径
+ * @param reason 拒绝原因
+ * @param descriptor 采集器描述符
  */
 export declare function makeFileSubjectSkipFact(ctx: CollectContext, rawPath: string, reason: string, descriptor?: CollectorDescriptor): CollectedFact;
 /**
- * 校验指定相对路径或绝对路径是否合法落于 repoRoot 内。
- * 依据 realpath 判界：不存在、悬空链接、仓外目标一律 false。
+ * 检查目标路径是否属于仓库内部。
+ * 依据真实物理路径判断：不存在、悬空链接、仓外目标均返回 false。
  */
 export declare function isPathContainedInRepo(repoRoot: string, targetPath: string): boolean;
 /**
- * 安全读取仓内文件内容，拦截逃逸符号链接、悬空链接、目录 junction 及非普通文件。
+ * 安全读取仓库内文件，拦截逃逸符号链接、悬空链接、外部目录链接及非普通文件。
  */
 export declare function readRepoFileSafe(repoRoot: string, relOrAbsPath: string): SafeReadResult;
 /**
- * 安全列目录：目录本身可以是仓内的普通目录或指向仓内目录的符号链接；
- * 指向仓外（或悬空）的目录链接/junction 一律拒绝并给出 dir-junction-outside。
+ * 安全列出目录内容：目标可以为仓库内普通目录或指向仓内目录的符号链接；
+ * 若指向仓外或悬空则拒绝并返回 dir-junction-outside。
  */
 export declare function readRepoDirSafe(repoRoot: string, relOrAbsPath: string): SafeDirResult;
 /**
- * 条目存在性探针（不读取内容）：用于把「不存在＝静默跳过」与「存在但被安全读取拒绝＝必须披露」分开。
+ * 探测文件或目录是否存在（不读取内容），用于将“文件不存在”与“存在但因安全规则被拦截”区分开来。
  * 返回 'absent' | 'link' | 'file' | 'dir' | 'other'。
  */
 export declare function probeRepoEntry(repoRoot: string, relOrAbsPath: string): 'absent' | 'link' | 'file' | 'dir' | 'other';
-/** ADR 语料文件名口径（编号前缀的 .md）；目录安全枚举与文件名过滤同点，供 macro-b/macro-c/39 共用。 */
+/** 安全列出 ADR 目录下的文件（匹配以数字开头的 .md 文件）。 */
 export declare function listAdrFilesSafe(repoRoot: string, relDir: string): {
     ok: true;
     files: string[];

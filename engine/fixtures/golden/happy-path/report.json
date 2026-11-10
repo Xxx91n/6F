@@ -677,7 +677,7 @@
         "decision": "insufficient",
         "evidence_flag": false,
         "decided_at": "2026-04-13T10:00:00Z",
-        "override_reason": "Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23/#39 同口径）",
+        "override_reason": "Macro-B 目前只支持战略（strategy，S1+S2）维度的采集——架构（structure）维度暂无采集器（与 #23/#39 保持一致）",
         "audit_ref": "engine/src/demo/demo.ts"
       },
       "conflict_markers": [
@@ -729,7 +729,7 @@
     {
       "rec_id": "R-45-HAPPYPATH-1",
       "priority": "P1",
-      "action": "对真实目标仓跑同一链路：`macro-audit repo add <path|url>` 接入后按 Macro-B 口径裁决——本报告为合成 fixture 演示，not an audit of any real repository",
+      "action": "对真实目标仓跑同一链路：`macro-audit repo add <path|url>` 接入后按 Macro-B 标准进行审计——本报告为合成 fixture 演示，not an audit of any real repository",
       "rationale": "D-038 硬契约：合成数据不冒充真实审计结论；本演示只证管线形态与披露面",
       "expected_impact": "获得真实审计结论而非演示数据",
       "effort": "S",

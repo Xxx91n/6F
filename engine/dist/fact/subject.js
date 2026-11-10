@@ -1,10 +1,10 @@
-// fact/subject.ts — Subject Canonical Form 归一器（#80 / D-124 / D-125；Micro-B 文件卡=预采集投影×per-file subject×血缘事实）
-// Design: subject_ref 用 SCIP 式规范化形，禁大小写折叠 — ADR-0023
-// 纯逻辑模块：不读 fs、不起子进程——symlink/regular-file 判定由调用面注入 probe。
-// 规范化形=SCIP relative_path 五规则＋NFC 显式归一（71fa8d2 实证不依赖 git config）：
-//   仓根相对 / '/' 分隔（含 Windows 反斜杠输入归一）/ 无 '//' '.' '..' 空段 /
-//   Unicode NFC 适配层显式做 / 禁大小写折叠（case-only 冲突=真实不同文件——CVE 事故先例）。
-// 归一单点=发射边界：上游行对象 path/entity 字段与 file_renamed 血缘端点统一过本器。
+// fact/subject.ts — 文件标准路径格式转换器
+// 理由：subject_ref 统一走标准相对路径格式，不折叠大小写。
+// 纯逻辑模块：不读文件系统、不启动子进程——符号链接与普通文件判定由外部传入。
+// 标准路径格式：基于五条相对路径规则加上明确的 Unicode NFC 规范化：
+//   基于仓库根目录的相对路径 / 统一用 '/' 分隔（Windows 反斜杠会自动转为正斜杠）/ 不含 '//' '.' '..' 空段 /
+//   明确做 Unicode NFC 转换 / 不折叠大小写（仅大小写不同的路径视为不同文件）。
+// 统一入口：上游数据中的 path/entity 字段与文件改名记录中的端点路径都由此函数处理。
 const ABSOLUTE_RE = /^([A-Za-z]:[\\/]|\\|\/\/|\/)/;
 export function normalizeSubjectPath(raw) {
     const warnings = [];
@@ -13,7 +13,7 @@ export function normalizeSubjectPath(raw) {
     }
     if (raw.trim() !== raw) {
         warnings.push('trimmed');
-    } // trim=身份合并动作如实留痕（' a.ts '与'a.ts'同 subject——静默合并先例教训）
+    } // 去掉首尾空格并记录，避免悄悄合并路径
     let s = raw.trim();
     if (s.length === 0) {
         return { ok: false, subject: null, reason: 'empty', warnings: warnings };
@@ -55,11 +55,11 @@ export function normalizeSubjectPath(raw) {
         warnings.push('nfc-normalized');
         out = nfc;
     }
-    // 禁大小写折叠：字面形原样保留——case-only 碰撞由 detectCaseOnlyConflicts 检出告警（D-125①）。
+    // 不折叠大小写：字面路径原样保留，仅大小写冲突的情况由 detectCaseOnlyConflicts 单独检查。
     return { ok: true, subject: out, reason: null, warnings: warnings };
 }
-// case-only 冲突检测：规范化形按 toLowerCase 分桶，同桶多字面=真实不同文件在大小写不敏感
-// 文件系统上的分裂脑镜像（git「保留字面提示冲突」心智）。输出确定性排序对。
+// 仅大小写冲突检查：将路径转为小写后分组，若同一组存在多个不同的原写法，
+// 说明在不区分大小写的文件系统上会冲突。输出固定排序的路径对。
 export function detectCaseOnlyConflicts(subjects) {
     const buckets = new Map();
     for (const s of subjects) {

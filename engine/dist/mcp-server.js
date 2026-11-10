@@ -1,7 +1,7 @@
 // mcp-server.ts — 最小 JSON-RPC 2.0 stdio 握手（A3 返工：mcp.json 注册面名实相符）
 // mcp.json 把 `macro-audit mcp` 注册为 stdio MCP server——此前实物只打印描述符即退，真 host 挂上即死。
 // 本模块实现 MCP over stdio（NDJSON 行帧）最小闭环：initialize / initialized / ping / tools/list / tools/call。
-// 面收窄不变：暴露 tools=facts / quarantine / file_card 三件套只读投影（D-053④/#78/#80 步②），clone/写操作不经 MCP 可达。
+// 只提供只读查询：暴露 tools=facts / quarantine / file_card 三个只读工具，不提供写操作和克隆功能。
 // #64/D-072⑧：MCP stdio 面 stdout 属 JSON-RPC 行帧——自愈结构化事件改落 stderr 避让协议通道
 process.env.MACRO_AUDIT_MCP_STDIO = '1';
 import { execFileSync } from 'node:child_process';
@@ -12,7 +12,7 @@ import { loadManifestMeta } from './manifest.js';
 export const MCP_PROTOCOL_VERSION = '2024-11-05';
 const QUARANTINE_TOOL = {
     name: 'quarantine',
-    description: 'read-only quarantine_log projection（#78/D-113②）：字段级病态处置事件台账——固定列集（run_id/commit_sha/field_name/disposition/reason_code/raw_bytes_hex/is_trunc/original_length/sha256_full/collector/recorded_at），READ_ONLY 实例，limit≤500。recorded_at=NULL=锚病态→观测时点不可得（D-108④ NULL 语义显式文案：非「开放式」缺省，range 谓词不吞 NULL）。db 寻址同 facts 链',
+    description: '只读隔离日志查询（quarantine_log）：查询字段级异常数据的处置记录，以固定字段列表展示，只读模式，单次最多返回 500 条。若 recorded_at 为空说明对应时间点不可用。数据库定位逻辑与 facts 相同。',
     inputSchema: {
         type: 'object',
         properties: {
@@ -24,11 +24,11 @@ const QUARANTINE_TOOL = {
         additionalProperties: false
     }
 };
-// #80 步②（D-122/D-126；Micro-B 文件卡=预采集投影×per-file subject×血缘事实）：file_card=Micro-B 文件级审计卡只读投影——MCP 面永不写：
-//   miss→显式态＋cli_guidance 指向 CLI audit file 补采（lazy 补采唯一入口在 CLI）。
+// Micro-B 文件审计卡只读查询——MCP 服务端只读不写：
+//   未采集时返回明确提示和补采命令行指引（补采只能在命令行中执行）。
 const FILE_CARD_TOOL = {
     name: 'file_card',
-    description: 'read-only Micro-B 文件级审计卡投影（#80 步②）：三层卡契约（kernel facet_rows 逐字段直投带 fact_ref 锚＋derived 确定性派生 hotspot_priority_v1＋narrative 键存在性校验）＋advisory:true 结构性隔离（无 verdict/gate-consumable 字段）＋miss 四类显式态（never_collected 附 CLI 补采指引／not_tracked_at_sha／not_applicable／renamed_to 条件跳转+revalidated）＋at:<sha> pin＋staleness 双字段（observed/current head）',
+    description: '只读 Micro-B 单文件审计卡查询：包含代码质量维度字段、改动热点优先级以及说明文本，仅供参考（不直接作为门禁裁定字段）。未采集时会返回对应状态及补采命令行指引。支持指定具体 commit SHA 以及比对最新 HEAD。',
     inputSchema: {
         type: 'object',
         required: ['repo', 'path'],
@@ -112,7 +112,7 @@ export async function handleRpcMessage(msg) {
             const a = (p.arguments || {});
             const db = resolveFactsDb(asStr(a.db));
             if (!db) {
-                return fail(id, -32602, 'MCP-FACTS-DB-UNRESOLVED: facts db 寻址失败——arguments.db 未给且服务端无 --db argv/MACRO_AUDIT_FACTS_DB env 配置');
+                return fail(id, -32602, 'MCP-FACTS-DB-UNRESOLVED: 找不到 facts 数据库——请传入 db 参数，或者配置服务启动参数 --db / 环境变量 MACRO_AUDIT_FACTS_DB');
             }
             const repo = asStr(a.repo);
             const path = asStr(a.path);
@@ -168,7 +168,7 @@ export async function handleRpcMessage(msg) {
             const a = (p.arguments || {});
             const db = resolveFactsDb(asStr(a.db));
             if (!db) {
-                return fail(id, -32602, 'MCP-FACTS-DB-UNRESOLVED: facts db 寻址失败——arguments.db 未给且服务端无 --db argv/MACRO_AUDIT_FACTS_DB env 配置');
+                return fail(id, -32602, 'MCP-FACTS-DB-UNRESOLVED: 找不到 facts 数据库——请传入 db 参数，或者配置服务启动参数 --db / 环境变量 MACRO_AUDIT_FACTS_DB');
             }
             const lim = a.limit === undefined ? undefined : Number(a.limit);
             if (lim !== undefined && (!Number.isFinite(lim) || lim <= 0)) {
@@ -186,7 +186,7 @@ export async function handleRpcMessage(msg) {
         const a = (p.arguments || {});
         const db = resolveFactsDb(asStr(a.db));
         if (!db) {
-            return fail(id, -32602, 'MCP-FACTS-DB-UNRESOLVED: facts db 寻址失败——arguments.db 未给且服务端无 --db argv/MACRO_AUDIT_FACTS_DB env 配置');
+            return fail(id, -32602, 'MCP-FACTS-DB-UNRESOLVED: 找不到 facts 数据库——请传入 db 参数，或者配置服务启动参数 --db / 环境变量 MACRO_AUDIT_FACTS_DB');
         }
         const lim = a.limit === undefined ? undefined : Number(a.limit);
         if (lim !== undefined && (!Number.isFinite(lim) || lim <= 0)) {

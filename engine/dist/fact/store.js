@@ -1,12 +1,11 @@
-// DuckDB fact store — 绑定：@duckdb/node-api（唯一选型，锁版本 1.5.5-r.5；D-075④ F4 升版——win32-arm64 官方包实存接入）
-// Design: 跨 scale 共享单一事实底座，事实单向追加 — ADR-0005
-// Design: 并发写者必须显式失败，不做盲目重试 — ADR-0019
-// 连接拓扑：唯一写者（READ_WRITE）+ 任意读者（READ_ONLY），承接 A-007 单写多读 SWMR。
-// 本模块是 engine 对外唯一写入口：只暴露 appendFact / queryFacts，不暴露裸 SQL 写接口。
-// 本机不安装原生绑定、不构建；构建与测试一律走 CI（prompt 专属 delta 第 3 条）。
-// #59/D-067：原生绑定改懒加载——插件 git-clone 安装不带 node_modules，静态 import 会使
-//   整个 CLI 在模块解析期崩溃（MCP server 握手都起不来）。duckdb 仅在 openWriter/openReader
-//   实际调用时解析；缺失时抛结构化 DUCKDB-UNAVAILABLE，由调用面转译成 isError/exit 2。
+// DuckDB fact store — 依赖原生绑定：@duckdb/node-api（版本锁定为 1.5.5-r.5）
+// 理由：多个审计档位共用同一套事实存储，事实数据单向追加。
+// 理由：并发写入时必须明确失败并报错，不做无意义的盲目重试。
+// 连接管理：单个写入者（READ_WRITE）+ 多个读取者（READ_ONLY），单写多读。
+// 本模块是引擎唯一的写入入口：对外只提供 appendFact 与 queryFacts，不开放原生 SQL 写入。
+// 本地开发不主动编译原生依赖，构建和测试统一走远端 CI。
+// 原生依赖采用懒加载：避免在没有 node_modules 时模块解析阶段崩溃。
+// 仅在真正调用 openWriter/openReader 时加载；缺少依赖时抛出明确的 DUCKDB-UNAVAILABLE 错误。
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, statSync } from 'node:fs';
@@ -17,22 +16,17 @@ import { QUARANTINE_REASON_CODES, rawBytesFingerprint, protocolCrashError } from
 const WRITE_COLUMNS = AUDIT_FACT_FIELDS
     .filter(function (f) { return f.name !== 'fact_seq' && f.name !== 'ingested_at'; })
     .map(function (f) { return f.name; });
-// fact_seq 由 store 赋值（序列）——audit_fact_seq 在 openWriter 建序；schema_registry FK 种子行同处幂等引导。
+// 自增序号由事实表管理，在 openWriter 时初始化序列；同时登记 schema 初始记录。
 const FACT_SEQ_NAME = 'audit_fact_seq';
 const INSERT_SQL = 'INSERT INTO audit_fact (fact_seq, ' + WRITE_COLUMNS.join(', ') + ', ingested_at) VALUES (nextval(' +
     String.fromCharCode(39) + FACT_SEQ_NAME + String.fromCharCode(39) + '), ' +
     WRITE_COLUMNS.map(function () { return '?'; }).join(', ') + ', current_timestamp)';
 let duckdbModulePromise = null;
-// --- #64/D-072→D-075(revised) 自愈补拉——按面分层（合法性判据=「谁在看屏幕」，每进程至多 1 次） ---
-// 面探测：MCP≡MACRO_AUDIT_MCP_STDIO==='1' ／ CLI 交互面≡非 MCP 且 stdout.isTTY ／ CI 无人值守≡其余非 TTY。
-// CLI 交互面保留自动自愈（stderr 预告「补拉约 40MB 最长 240s Ctrl-C 可中断」；spawnSync 保留不异步化——
-//   异步 spawn 会让 CLI 拉包中途返回假 exit 0 比阻塞更糟）；MCP/CI 无人值守面永不自动拉包（宿主驱动无人可询问，
-//   自动拉包在此面无工业先例）——改四段披露＋MACRO_AUDIT_SELFHEAL=1 opt-in 出口；doctor --fix=唯一显式主路。
-// 机制不变：平台探测（platform+arch+ldd 判 musl）→精确单平台包恢复（in-tree 手术=npm pack+tar 解包，绕 npm#9024 arborist no-op；冷启动=npm install 整装）
-// →完整性校验（原生件族 .node/.so/.dylib/.dll 任一存在＋任一>1MB 尺寸阈＋包内 version===锁定版，失败删半成品目录回落）；node-api JS 面亦缺才退全量。
-// F4：win32-arm64 死分支摘除——@duckdb/node-bindings-win32-arm64@1.5.5-r.5 npm 实存（D-072 前提证伪），pin -r.4→-r.5；
-// F8：emitSelfHeal 全 stderr 化＋success 移 createRequire 实载后（装成功≠载成功）；
-// F9：MCP 不再 spawn＋CLI 有人在场已消解大半——detached+轮询异步形态存档备选不实施。
+// --- 依赖自动拉取与修复：根据当前运行环境决定策略，每个进程最多尝试一次 ---
+// 环境判断：MCP 模式、命令行交互模式、或者非交互环境。
+// 交互模式允许自动尝试拉取修复；MCP 与非交互模式不自动联网下载，改为明确提示并可通过环境变量开启。
+// 修复主途径为运行 doctor --fix 命令。
+// 流程：检测系统架构与平台 -> 拉取对应平台的独立包 -> 校验原生库文件完整性与体积。
 const DUCKDB_PINNED_VERSION = '1.5.5-r.5';
 let selfHealAttempted = false;
 function duckdbSurface() {
@@ -80,8 +74,7 @@ export function engineRoot() {
     return dirname(fileURLToPath(import.meta.url));
 }
 function emitSelfHeal(ev) {
-    // F8 全 stderr 化：stdout 留给命令输出/JSON-RPC 行帧——MCP stdio 避让由单通道天然满足（MACRO_AUDIT_MCP_STDIO 仍供面探测）。
-    // 事件含 trigger 字段区分 auto（CLI 在场自动）/opt-in（MACRO_AUDIT_SELFHEAL=1）/doctor-fix（显式主路）——D-075⑥ opt-in 可审计性。
+    // 日志统一输出到 stderr，避免干扰 stdout 上的正常输出或 JSON-RPC 通信。
     console.error('DUCKDB-SELFHEAL ' + JSON.stringify(ev));
 }
 function selfHealDuckdb() {
@@ -93,13 +86,13 @@ function selfHealDuckdb() {
         return { ok: false, detail: 'unsupported-platform:' + process.platform + '-' + process.arch };
     const root = engineRoot();
     const nodeApiPresent = existsSync(join(root, 'node_modules', '@duckdb', 'node-api', 'package.json'));
-    // dev 检出分流：package-lock.json 在=开发仓——禁 --omit=dev（npm omit 会剪掉既有 devDeps 毁开发面）；插件 clone 无 lock→--omit=dev 保最小拉取（D-072① 只读语义）
+    // 判断开发环境：有 package-lock.json 则不使用 --omit=dev，避免误删开发依赖；普通安装则只拉运行依赖。
     const devCheckout = existsSync(join(root, 'package-lock.json'));
-    // win32 经 cmd.exe /c 调 npm（Node≥24 硬化禁 .cmd 直调 EINVAL；shell:true 触发 DEP0190——cmd.exe 显式包装两全）；POSIX 直调 npm。
+    // Windows 下通过 cmd.exe 包装调用 npm 命令，其余平台直接调用。
     const npmSpec = process.platform === 'win32' ? { cmd: 'cmd.exe', pre: ['/d', '/s', '/c', 'npm'] } : { cmd: 'npm', pre: [] };
     const pkgDir = join(root, 'node_modules', '@duckdb', 'node-bindings-' + suffix);
     if (!nodeApiPresent) {
-        // 冷启动整装（插件纯净克隆无 node_modules——无手工树编辑，arborist 语义正常）
+        // 首次完整安装依赖包
         const args = devCheckout ? ['install'] : ['install', '--omit=dev'];
         const r = spawnSync(npmSpec.cmd, npmSpec.pre.concat(args), { cwd: root, encoding: 'utf8', timeout: 240000 });
         if (r.status !== 0) {
@@ -107,9 +100,7 @@ function selfHealDuckdb() {
         }
     }
     else {
-        // #76 修复（CI run 35515346216 非 Windows 4/4 FAIL）：npm#9024——install --no-save 对 lockfile
-        // 已含该 optional 边＋磁盘目录缺失的包会 arborist no-op（up to date / exit 0 / 不落盘）。
-        // 绕开 arborist 树推理——npm pack + tar 解包手术恢复：纯 fetch+落文件路径，与 lockfile/npm 版本无关。
+        // 仅缺少单个平台的底层二进制时，通过 npm pack 下载并解包，精准补齐对应文件。
         const stage = mkdtempSync(join(root, '.duckdb-heal-'));
         try {
             const spec = '@duckdb/node-bindings-' + suffix + '@' + DUCKDB_PINNED_VERSION;
@@ -123,7 +114,7 @@ function selfHealDuckdb() {
             }
             const xdir = join(stage, 'x');
             mkdirSync(xdir, { recursive: true });
-            // 全相对路径（cwd=stage）——GNU tar on Windows 把 D:\… 当 host:file 远程规格/转义路径解析炸
+            // 使用相对路径解压，避免跨平台路径解析异常
             const tr = spawnSync('tar', ['-xzf', tgz, '-C', 'x'], { cwd: stage, encoding: 'utf8', timeout: 120000 });
             if (tr.status !== 0) {
                 return { ok: false, detail: 'tar-exit-' + String(tr.status) + ':' + String(tr.stderr || '').replace(/\s+/g, ' ').slice(0, 140) };
@@ -141,10 +132,7 @@ function selfHealDuckdb() {
         ver = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8')).version;
     }
     catch { /* missing */ }
-    // #76 修复（CI run 35677071573 非 Windows integrity-fail 实证）：载荷布局平台异——
-    // win32=duckdb.node 1.2MB+duckdb.dll 35MB；linux-x64=duckdb.node 465KB 加载壳+libduckdb.so 67MB；
-    // darwin=duckdb.node 502KB 壳+libduckdb.dylib 111MB。sizeOk 钉 .node>1MB 是 win32 偏置误判——
-    // 真本体=共享库后缀族，任一原生件>1MB 即完整。
+    // 原生二进制文件校验：检查是否存在动态链接库或 .node 文件，且文件大小符合预期。
     let nativeCount = 0;
     let sizeOk = false;
     if (existsSync(pkgDir)) {
@@ -165,7 +153,7 @@ function selfHealDuckdb() {
     }
     return { ok: true, detail: 'installed @duckdb/node-bindings-' + suffix + '@' + ver };
 }
-// D-075② 四段披露：缺失原因→修复路径（doctor --fix 显式主路 / npm install --omit=dev）→能力边界→opt-in 出口。
+// 缺失提示说明：分段说明缺失原因、修复建议命令、运行限制以及可选配置项。
 function unavailableMessage(surface, healDetail, orig) {
     const origMsg = String(orig && orig.message || orig).replace(/\s+/g, ' ').slice(0, 120);
     const reason = healDetail !== null ? '自动补拉失败（' + healDetail + '）' : '原生绑定缺失（' + origMsg + '）';
@@ -178,7 +166,7 @@ function loadDuckdb() {
     if (!duckdbModulePromise) {
         duckdbModulePromise = import('@duckdb/node-api').catch(async function (e) {
             const surface = duckdbSurface();
-            // D-075① 分层门控：CLI 交互面 auto；其余面仅 MACRO_AUDIT_SELFHEAL=1 opt-in；MCP/CI 缺省不 spawn。
+            // 根据运行环境判断：交互环境自动尝试修复；其他环境仅在主动配置环境变量时尝试。
             const trigger = surface === 'cli-interactive' ? 'auto' : (process.env.MACRO_AUDIT_SELFHEAL === '1' ? 'opt-in' : null);
             let healDetail = null;
             if (trigger !== null) {
@@ -204,8 +192,7 @@ function loadDuckdb() {
     }
     return duckdbModulePromise;
 }
-// D-075③ doctor --fix=自愈唯一显式主路：复用 selfHealDuckdb() 全逻辑（平台探测/锁定版/完整性三方校验/每进程 1 次）；
-// success 以 createRequire 实载为准（装成功≠载成功，F8）；输出自愈事件供 doctor 回显。
+// 主动修复入口：执行依赖包安装与校验，成功后使用 createRequire 加载模块，确保后续调用可用。
 export function healDuckdbBinding() {
     emitSelfHeal({ phase: 'start', trigger: 'doctor-fix', note: 'doctor --fix 显式自愈——补拉约 40MB 最长 240s', platform: process.platform + '-' + process.arch });
     const heal = selfHealDuckdb();
@@ -221,17 +208,12 @@ export function healDuckdbBinding() {
         emitSelfHeal({ result: 'fallback', trigger: 'doctor-fix', detail: heal.detail + '；createRequire 仍失败', platform: process.platform + '-' + process.arch });
         return { ok: false, detail: heal.detail + '；createRequire 仍失败' };
     }
-    // r22 审计 R1 修复：ESM 对失败 specifier 缓存 module record——同进程后续 import() 必回投原拒绝（A-072 实证）。
-    // 回填 duckdbModulePromise 为 createRequire 已验载实例：--fix 后同进程 openWriter→loadDuckdb 复用本实例，
-    // 不再走被污染的 import() 通道（--fix 是 MCP/CI 面唯一恢复路径，此回填即目标场景成立的前提）。
+    // 如果之前 import() 失败过，模块缓存可能记录拒绝状态，在此直接更新 promise 为成功加载的模块。
     duckdbModulePromise = Promise.resolve(mod);
     emitSelfHeal({ result: 'success', trigger: 'doctor-fix', detail: heal.detail, platform: process.platform + '-' + process.arch });
     return heal;
 }
-// #76/D-072 修复（CI run 35515346216 windows-20 ENOTEMPTY）：DuckDBInstance=库文件句柄持有者——
-// conn.closeSync() 只断连接不释库句柄，instance 滞留待 GC/native teardown——Windows 下宿文件
-// delete-pending → rmdir ENOTEMPTY（POSIX unlink-open 文件合法故 POSIX 无症状但同漏）。
-// instance↔connection 登记＋closeDuckdb 双段关闭（conn→instance 序不可换）=唯一确定释放路径。
+// 关闭连接与释放实例：不仅断开连接，还要释放底层的数据库句柄，防止文件占用。
 const instanceOf = new WeakMap();
 export function closeDuckdb(connection) {
     try {
@@ -284,14 +266,14 @@ export async function queryFacts(connection, sql) {
 export function factFieldNames() {
     return AUDIT_FACT_FIELDS.map(function (f) { return f.name; });
 }
-// ---------- quarantine_log 写路径（#78 / D-106·D-108·D-112·D-115·D-117·D-119） ----------
+// ---------- quarantine_log 写入流程 ----------
 export const QUARANTINE_SEQ_NAME = 'quarantine_log_seq';
-// Design: quarantine_log 是独立字段级处置账本，与 fact 同事务写入 — ADR-0022
-// 自然键幂等：UNIQUE(run_id,commit_sha,field_name,reason_code,disposition) + ON CONFLICT DO NOTHING
+// 理由：quarantine_log 是独立的字段级处置记录，与事实数据在同一事务中写入。
+// 使用自然键实现幂等：UNIQUE(run_id,commit_sha,field_name,reason_code,disposition) 遇到重复记录直接跳过。
 const QUARANTINE_INSERT_SQL = 'INSERT INTO quarantine_log (q_seq, run_id, commit_sha, field_name, disposition, reason_code, ' +
     'raw_bytes_hex, is_trunc, original_length, sha256_full, collector, recorded_at) VALUES (' +
     "nextval('" + QUARANTINE_SEQ_NAME + "'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
-// 分类器产出枚举外的 reason_code=分类器 bug（D-110② 前置枚举校验，与基线未命中硬崩分轨）。
+// 写入前校验原因码是否在已知列表中，如果不在说明分类逻辑存在缺陷，立刻报错。
 export async function appendQuarantineEvent(connection, ev) {
     if (QUARANTINE_REASON_CODES.indexOf(ev.reason_code) < 0) {
         throw protocolCrashError('REASON-CODE-UNLISTED', 'reason_code outside v1 vocabulary: ' + ev.reason_code, {
@@ -308,8 +290,7 @@ export async function appendQuarantineEvent(connection, ev) {
         ev.collector, ev.recorded_at
     ]);
 }
-// 逐 commit（或分批节拍）事务边界（D-115①）：fact 行＋quarantine 事件同事务提交；
-// 失败 ROLLBACK 无半截写——恒等式在任意崩溃点不破；重跑=自然键幂等自愈。
+// 事务边界管理：保证事实数据与隔离记录在同一个事务中提交，出错时完整回滚，防止写入半截数据。
 export class AuditIoError extends Error {
     code = 'AUDIT-IO-FAILURE';
     constructor(msg) { super(msg); this.name = 'AuditIoError'; }
@@ -317,25 +298,18 @@ export class AuditIoError extends Error {
 export function isAuditIoError(e) {
     return !!e && typeof e === 'object' && e.code === 'AUDIT-IO-FAILURE';
 }
-// D-115③ 错误码分流：磁盘满/锁/只读/IO 类 → AUDIT-IO-FAILURE（D-111 IO 失败类退出类）；
-// 约束违例/schema bug → QUARANTINE-CONSTRAINT 协议崩溃类。按错误内容归类非按表面异常。
+// 错误类型区分：磁盘满、文件锁、权限问题归为 IO 错误；字段约束与定义问题归为约束错误。
 const IO_ERROR_RE = /IO Error|disk|lock|readonly|read-only|ENOSPC|EBUSY|EPERM|out of space|full/i;
 export function classifyWriteError(e) {
     const m = String(e.message || e || '');
     return IO_ERROR_RE.test(m) ? 'io' : 'constraint';
 }
-// D-134① 吞错收窄精确指认（#83）：仅 fact_id UNIQUE 撞键可判「幂等跳过」——
-// 其余 constraint 类（PK/NOT NULL/CHECK/FK 等）=协议崩上抛回滚（D-115① fail-fast 语义归位）。
-// @duckdb/node-api 错误对象=plain Error（ownKeys=[stack,message]——实物探察 2026-09-25
-// 证据：dup-unique='Constraint Error: Duplicate key "fact_id: f1" violates unique constraint.'），
-// 指认按消息形态三件套（前缀+约束族+列名），版本措辞漂移由 file-card.test 实物钉防。
+// 精确识别重复主键错误：只有 fact_id 唯一约束冲突才视为幂等跳过，其余约束违规直接报错回滚。
 export function isFactIdUniqueViolation(e) {
     const m = String(e.message || e || '');
     return m.indexOf('Constraint Error') >= 0 && m.indexOf('unique constraint') >= 0 && m.indexOf('"fact_id:') >= 0;
 }
-// D-134① 更稳妥臂：写循环前预查该库已存 fact_id 集（WHERE fact_id IN 分批）——
-// 撞键消除在判定层（跳过可计数）而非吞错层；写者同事务内 SELECT 见本事务已写行，
-// 预查与写入无竞窗（append-only 单写者拓扑 A-007）。
+// 批量写入前先查询数据库中已存在的事实编号，提前过滤已有的行，避免靠捕获报错来跳过。
 export async function existingFactIds(connection, factIds) {
     const found = new Set();
     const CHUNK = 500;
@@ -362,11 +336,11 @@ export async function runInTransaction(connection, fn) {
         try {
             await connection.run('ROLLBACK');
         }
-        catch (_) { /* rollback 次生错不盖主错 */ }
+        catch (_) { /* 回滚自身如果出错不覆盖原来的主要错误 */ }
         throw e;
     }
 }
-// 恒等式对账的库内半层：run 内逐字段×disposition 行数（独立核对半层=78-check 自带 SQL）。
+// 统计一次运行中各个字段的处置计数（已修复 vs 已隔离）。
 export async function queryQuarantineCounts(connection, runId) {
     const sql = 'SELECT field_name, disposition, COUNT(*) AS n FROM quarantine_log WHERE run_id = ? GROUP BY field_name, disposition';
     assertAppendOnly(sql);
