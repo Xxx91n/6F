@@ -529,7 +529,7 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 
 ---
 
-## R10 — 全仓大白话收尾（2026-11-11 grill 补记）
+## R10 — 全仓大白话收尾（2026-11-11 grill 补记，tracker #200）
 
 > 本段接在 R9 后面，只记这一轮新定的事。上一轮的范围、人审办法和「黑话清单不加扫词脚本」沿用 tracker #148 的 spec，本段不重抄。
 > 来源只写这几类：工单（一律写 `tracker #N`）、commit、现行文件；本段不加新的 D 编号，也不新增 ADR 编号。
@@ -542,9 +542,9 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 
 ### R10-2 — 术语以 GLOSSARY 为准
 
-- 难懂的头词换成大白话，[`GLOSSARY.md`](../GLOSSARY.md) 已改，旧叫法进「不要用」列。改名的 12 条：单写门面→只留一个写入口、读数归属层→解释层、勘误并列读数→新旧数并排、收仓→接仓库、判定关→结论检查、证据闸→先拿证据、防腐层→隔离墙、收仓体检→采数体检、证据够用闸→不够就说看不出、冻结件→冻住的存档、活契约→真会被读的登记表、基准语料→校对用的固定语料。
-- 新加 3 条（原来表里没有）：暂挂两边、分析项组、接数据工单。术语表从 79 条变 82 条。
-- 另有 3 个说法只改正文，不进术语表：审计窗→下一轮审计、补采→再采一次、换戳→重出一份，旧的留着。
+- 难懂的头词换成大白话，[`GLOSSARY.md`](../GLOSSARY.md) 已改，旧叫法全部进了每条下面的「不要用」列。改了哪几个词，到术语表里查，本段不抄一遍。
+- 新加 3 条（原来表里没有）：暂挂两边、分析项组、接数据工单。术语表这轮只加不减，老的一条没删。
+- 另有 3 个说法（审计窗、补采、换戳）不进术语表，也不当禁用词处理。
 - 一个东西只留一个名字；容易混的才统一，普通描述句怎么顺口怎么说。
 - 碰到表里没有的新词：句子里能讲清就讲清；反复出现、又影响判对错的，才停下来问用户加词条。
 
@@ -561,8 +561,8 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 
 ### R10-5 — 真会被读的登记表里的说明
 
-- [`engine/test/fixtures/contracts/33-gate-registry.json`](../engine/test/fixtures/contracts/33-gate-registry.json) 的 title / reason / evidence 这些说明文字改成人话；键名、id、status、事件锚、事件成员不动。
-- 放宽「机器读的名字不许改」这条规矩另开一票，本段不做。
+- [`engine/test/fixtures/contracts/33-gate-registry.json`](../engine/test/fixtures/contracts/33-gate-registry.json) 的 title / reason / evidence 这些说明文字要改成人话，这件事由 tracker #210 做；本段只定规矩，本段自己不动那份文件。键名、id、status、事件锚、事件成员不动。
+- 把「机器读的名字不许改」这条放宽，另开一票；本段不做。
 
 ### R10-6 — 验收
 
@@ -579,7 +579,7 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 
 ### R10 Coverage（核对）
 
-| 这轮定的事 | 覆盖的 R10 条 |
+| tracker #200 这轮定的事 | 覆盖的 R10 条 |
 |---|---|
 | 清什么 | R10-1 |
 | 术语以 GLOSSARY 为准 | R10-2 |
@@ -590,5 +590,5 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 | 留到别的票 | R10-7 |
 
 - 核对：7/7 覆盖，无去向记录清单 = 空。
-- 来源：本会话 grill（2026-11-11）、tracker #200（本轮 spec 索引）、tracker #148（上一轮 spec）、[`GLOSSARY.md`](../GLOSSARY.md)、[`docs/authority.md`](authority.md)。
+- 来源：tracker #200（本轮 spec 索引，本段全部七条都由它派生）、tracker #148（上一轮 spec，范围和人审办法沿用）、[`GLOSSARY.md`](../GLOSSARY.md)、[`docs/authority.md`](authority.md)。
 - 边界：本轮不改产品承诺，不改任何机器读的名字；上一轮的人审标准和「不加扫词脚本」继续有效；本段不新增 ADR 编号、不加新的 D 编号。
