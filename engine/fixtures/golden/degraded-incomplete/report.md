@@ -127,7 +127,7 @@
 
 ## C4 行动建议
 
-### R-45-DEGRADEDINCOMPLETE-1 [P1] 对真实目标仓跑同一链路：`macro-audit repo add <path|url>` 接入后按 Macro-B 口径裁决——本报告为合成 fixture 演示，not an audit of any real repository
+### R-45-DEGRADEDINCOMPLETE-1 [P1] 对真实目标仓跑同一链路：`macro-audit repo add <path|url>` 接入后按 Macro-B 标准进行审计——本报告为合成 fixture 演示，not an audit of any real repository
 - rationale: D-038 硬契约：合成数据不冒充真实审计结论；本演示只证管线形态与披露面
 - expected_impact: 获得真实审计结论而非演示数据 · effort: S
 - verdict_gate_stamp: insufficient ⚠ unverified

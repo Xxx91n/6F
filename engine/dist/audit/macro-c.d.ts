@@ -54,7 +54,7 @@ export interface MacroCCollect {
         text: string;
         first_commit_date: string | null;
     }[];
-    /** docs/adr 是否可用（存在且在仓内）。false 时语料为空——ADR 存在性判据必须看它，不能看 adrFacts（skip 事实也在里面）。 */
+    /** docs/adr 目录是否可用，必须按此标志判断 ADR 是否存在 */
     adrDirUsable: boolean;
     adrFacts: CollectedFact[];
     gitFacts: CollectedFact[];
@@ -74,7 +74,7 @@ export interface MacroCCollect {
         pinned: boolean;
         error: string | null;
     } | null;
-    /** NC-1 负对照选材（安全读取通过的首个候选；被拒候选已各发 skip 事实）。 */
+    /** 负对照选材结果 */
     ncSelection: {
         path: string | null;
         text: string | null;

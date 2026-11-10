@@ -1,13 +1,13 @@
-// fact/projection.ts — MCP facts 只读投影（D-053④ / A-057）
-// Design: 消费面按需拉取投影，不直连写入路径 — ADR-0005
-// 宿主 agent 叙事面的唯一取数主路：固定 SELECT 形（不接裸 SQL——stub 面收窄防注入）；
-// 连接=openReader（READ_ONLY 实例，SWMR 读者位，A-007）；投影列=FactEvent 十三列。
+// fact/projection.ts — MCP 事实只读阅读视图
+// 理由：使用方按需拉取阅读视图，不直连写入流程。
+// 外部读取事实数据的主要途径：使用固定的 SELECT 查询，不拼接裸 SQL，防止注入；
+// 使用只读连接打开数据库，投影字段对应事实表的 13 个常规列。
 import { openReader, closeDuckdb } from './store.js';
 import { assertAppendOnly } from './schema.js';
 import { buildFileCard, headShaOfRepoRef } from './file-card.js';
 const MAX_LIMIT = 500;
 const PROJECTION_COLUMNS = 'fact_id, trace_id, baggage_id, scale, quadrant, dimension, collector_id, repo_ref, subject_ref, evidence_ref, metric, value_json, CAST(observed_at AS VARCHAR) AS observed_at';
-// 过滤值只允许固定列等值匹配——值走参数绑定不进 SQL 文本，列名白名单硬编码。
+// 仅允许在固定列上做等值过滤，参数走占位符绑定，不拼入 SQL 文本中。
 export function buildProjectionSql(filter) {
     const where = [];
     const params = [];
@@ -46,14 +46,14 @@ function normalizeFactRow(names) {
         const o = {};
         names.forEach(function (n, i) {
             const v = r[i];
-            // JSON 可序列化归一：BigInt→Number、Date→ISO（TIMESTAMPTZ 已 SQL 层 CAST 为 VARCHAR）
+            // 保证返回结果可直接 JSON 序列化：BigInt 转为数字，Date 转为 ISO 字符串
             o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
         });
         return o;
     };
 }
-const FILE_CARD_SET_CAP = 200000; // 观测集内 Micro-B 事实硬帽（percentile 需全集——超帽如实截断仍确定性）
-const FILE_CARD_LINEAGE_EDGE_CAP = 10000; // 血缘边池硬帽（D-137② 跨观测集解析——病态仓库防失控，截断如实）
+const FILE_CARD_SET_CAP = 200000; // 观测集内事实数据条数上限（超过该值做截断处理）
+const FILE_CARD_LINEAGE_EDGE_CAP = 10000; // 改名关联边池上限
 function likeEscape(s) {
     return s.split('!').join('!!').split('%').join('!%').split('_').join('!_');
 }
@@ -73,7 +73,7 @@ export async function projectFileCard(dbPath, q) {
         let picked = null;
         let pinAmbiguous = undefined;
         if (q.at !== undefined && q.at !== null && q.at.length > 0) {
-            // F7a（#83）：pin 前缀唯一性验重——精确 40 位命中直取；≥7 前缀命中 >1=歧义不猜（not_tracked_at_sha 披露全部命中）
+            // 提交号匹配：全量 40 位直接精确匹配；7 位及以上前缀匹配如命中多个则记录歧义，不随意猜测。
             const exact = sets.filter(function (s) { return s.head_sha === q.at; });
             if (exact.length > 0) {
                 picked = exact[0];
@@ -94,7 +94,7 @@ export async function projectFileCard(dbPath, q) {
         const facts = [];
         let setTruncated = false;
         if (picked !== null) {
-            // F7h（#83）：截断卡面标记——集内事实行数超 CAP 时如实披露（percentile 语义=截断集上计算，不静默）
+            // 统计数据集中的事实数量是否超限并做好截断标记
             const cSql = 'SELECT COUNT(*) FROM audit_fact WHERE scale = ? AND repo_ref = ?';
             assertAppendOnly(cSql);
             const cReader = await conn.run(cSql, ['Micro-B', picked.repo_ref]);
@@ -110,14 +110,12 @@ export async function projectFileCard(dbPath, q) {
                 facts.push(norm(r));
             }
         }
-        // D-137② 跨观测集血缘解析（#80 步③）：file.renamed 边池=选中集∪祖先观测集。
-        //   「祖先」语义=同 repo 观测集中 MAX(observed_at) ≤ 选中集者——事实仓仅持采集时点序（git 祖先关系
-        //   不入库，pin 精确性由 D-126⑤ at:sha 引用层纪律承担）；词表侧用 observed_at 字符串词典序（ISO 规范化后可比较）。
+        // 跨观测集改名关系拉取：结合当前数据集与历史较早的数据集中的改名记录。
         const lineageFacts = [];
         let lineageEdgeCapHit = false;
         if (picked !== null) {
             const ancestorRefs = sets.filter(function (s) {
-                return s.repo_ref !== picked.repo_ref && s.last_obs <= picked.last_obs; // picked 恒为 sets 元素——last_obs 随行不重查
+                return s.repo_ref !== picked.repo_ref && s.last_obs <= picked.last_obs;
             }).map(function (s) { return s.repo_ref; });
             if (ancestorRefs.length > 0) {
                 const edgeCap = Math.max(1, Math.floor(q.lineage_edge_cap === undefined ? FILE_CARD_LINEAGE_EDGE_CAP : q.lineage_edge_cap));
@@ -130,7 +128,7 @@ export async function projectFileCard(dbPath, q) {
                 for (const r of lRows) {
                     lineageFacts.push(lNorm(r));
                 }
-                // A4 截断如实：拉取量触帽=祖先边池可能不全——经卡面 truncated 伞披露（A4）
+                // 记录拉取数量是否触及上限截断
                 if (lRows.length >= edgeCap) {
                     lineageEdgeCapHit = true;
                 }
