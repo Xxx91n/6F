@@ -17,7 +17,7 @@ _别名_: Authority Surface
 _别名_: Design Pointer
 
 **历史编号**
-只用来查历史、不再承担现行决定的编号（`D-NNN`、`A-NNN`、旧 BACKLOG 票号）。
+只用来查历史、不再承担现行决定的编号（`D-NNN`、`A-NNN`、旧 BACKLOG 票号、旧 ADR 号 `0001`–`0027`）。
 _别名_: Historical Fingerprint
 _不要用_: 拿历史编号写新决定
 

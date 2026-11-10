@@ -79,7 +79,7 @@
 - 历史编号只用来查历史，不再新增。`D-NNN`、`A-NNN`、旧 BACKLOG 票号 `#32`–`#94`、旧 ADR 号 `ADR-0001`–`ADR-0027` 都属于这一类；可操作的规则写在 `docs/authority.md` §3。
 - `docs/archive/decisions/` 放记录原文和索引，声明非权威、只读；新决定不得写进去。
 - 按字节固定的记录和冻结件保留原始现场（包括本机绝对路径），前提是归档处写明这是历史产物；现行文本里不再抄旧编号。
-- 旧 24 份 ADR 定为本轮删除项，由收尾提交落地；删除前正文还在 `docs/adr/`，直接读；删掉之后正文只在 git 历史里：先 `git log --diff-filter=D --name-only -- docs/adr` 找到删除提交，再 `git show <删除提交>^:docs/adr/<文件名>` 取回原文。
+- 旧 24 份 ADR 已经删掉，正文只在 git 历史里：先 `git log --diff-filter=D --name-only -- docs/adr` 找到删除提交，再 `git show <删除提交>^:docs/adr/<文件名>` 取回原文。
 
 ### 9. 这次替代了什么
 

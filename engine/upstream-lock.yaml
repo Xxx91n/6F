@@ -20,7 +20,7 @@
 #   - 逾期逐行处置纪律＋review_evidence/review_deferred 留痕字段契约＝docs/versioning.md §3-4
 #     （#43 立法；正文只在那一处，本表逐行只填值不复制规则）。
 #   - 本表只承载产品上游。基准语料（被审计同级仓的冻结快照）不在本表——见 engine/baseline-lock.yaml
-#     （ADR-0026／#33 分册：基准不是上游，其 status 枚举与致谢面闭账规则不同）。
+#     （现行 ADR-0028 §3／#33 分册：基准不是上游，其 status 枚举与致谢面闭账规则不同）。
 lock_version: 1
 upstreams:
   - id: codelore
