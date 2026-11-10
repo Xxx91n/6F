@@ -30,3 +30,4 @@ Architecture decision records — generated index (navigation surface; not an au
 | [ADR-0025](0025-authority-carriers-and-historical-fingerprints.md) | 决策载体 = 三载体 + 历史指纹归档 | accepted | 2026-10-26 |
 | [ADR-0026](0026-baseline-corpus-self-hosting.md) | Macro-C 基准语料自持 = 仓内 frozen bundle + 独立 baseline-lock | accepted | 2026-10-26 |
 | [ADR-0027](0027-verification-surface-node-floor-and-docs-authority-guard.md) | 验证面 = Node 22.18 下限 + 文档权威守卫 + 回归夹具修复 | accepted | 2026-10-26 |
+| [ADR-0028](0028-current-architecture-and-docs-authority.md) | 现行架构决定与文档权威 | accepted | 2026-11-10 |
