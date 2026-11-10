@@ -42,7 +42,8 @@ export declare function scanSupersedeAdrs(adrDocs: readonly {
     path: string;
     text: string;
 }[]): SupersedeAdr[];
-export declare function buildSupersedeChain(adrs: readonly SupersedeAdr[], deferRegistryPresent: boolean): Record<string, unknown>;
+export declare function parseHistoricalAdrNumbers(text: string): string[];
+export declare function buildSupersedeChain(adrs: readonly SupersedeAdr[], deferRegistryPresent: boolean, historicalNumbers?: readonly string[]): Record<string, unknown>;
 export interface MacroCCollectSpec {
     ncCandidates?: readonly string[];
     llmExplainCandidates?: readonly string[];
