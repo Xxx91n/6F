@@ -1,12 +1,12 @@
-// 85-check.mjs —— #84 Macro-C 产线化一等面守卫（D-204②④；产线化前置=同族基准差分重校准硬准入）
+// 85-check.mjs —— #84 Macro-C 产线化正式入口守卫（D-204②④；产线化前置=同族基准差分重校准硬准入）
 // 断言面：A 静态契约（dist/src/README/CONTEXT 词条在场机核——R56 执行窗登记「CONTEXT 词条批在场机核」同窗兑现）
 //   → B CLI 命令面测活（6F 本仓自审；engine-deps 组级闸）
 //   → C anysearch-cli 差分重校准（基准自持组级闸：engine 面 vs 38 编排层独立重算——移植不重校准=数字形似义异防线，
 //     预声明包 2026-10-03-r57-t1-predecl.md §2：等值集封闭＋fact_id 全等（chainFact）＋活语料非存档等值）
-//     语料来源＝仓内 frozen bundle（ADR-0026/#33）→ 无 sibling 依赖，CI 可达；钉值唯一权威=engine/baseline-lock.yaml
-//     ＋基准身份绑定（tracker #34／ADR-0026）：A14 锁表钉与冻结事实历史身份绑死、A15 历史钉值引用棘轮、
+//     语料来源＝仓内 frozen bundle（#33）→ 无 sibling 依赖，CI 可达；钉值唯一权威=engine/baseline-lock.yaml
+//     ＋基准身份绑定（tracker #34）：A14 锁表钉与冻结事实历史身份绑死、A15 历史钉值引用限制、
 //       A16 复现命令可移植形（src＋dist 静态面，不随 duckdb 缺席 SKIP）、B8 报告输出面无盘符锚（实跑面）
-//     ＋溯源锚取值口径（tracker #100／R9-1）：A17 现算九个发出面的 prereg 锚须全部落三形态，模糊态即红
+//     ＋溯源锚取值规则（tracker #100／R9-1）：A17 现算九个发出面的 prereg 锚须全部落三形态，模糊态即红
 //       （commit 形的可解析性子判据依赖全量历史，单独过 `git-history:` 组闸——浅克隆下计 SKIP-GROUPS 不隐身）
 //   → D 自检组（正负对照：构造偏差必须检出——§2.4 命中方向跑前声明）
 // 纪律：只读断言＋临时目录写运行产物（跑完即弃）；bundle 物化走 `git clone <bundle>` 至 OS temp（主仓对象库零写，D-074）；
@@ -23,7 +23,7 @@ import { need, groupProbe, engineDepsOk, cloneBundleWorktree } from './_lib/env-
 const TIER = 'env-contract';
 // D-214① consumption_forms（多形态消费方——B/C/E 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→对应组 SKIP，仓内段照跑）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
-const PROTECTED_SURFACE = '#84 Macro-C＋#85② Micro-A 产线化一等面守卫（D-204②③④）——静态契约+CLI 测活+anysearch-cli 差分重校准+Micro-A cassette 差分重校准';
+const PROTECTED_SURFACE = '#84 Macro-C＋#85② Micro-A 产线化正式入口守卫（D-204②③④）——静态契约+CLI 测活+anysearch-cli 差分重校准+Micro-A cassette 差分重校准';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
@@ -32,7 +32,7 @@ let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + String(detail).slice(0, 300) : '')); } }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 // baseline-lock.yaml 行读取（形制＝两空格 `- id:` ＋四空格 `key: value`，与 upstream-lock 同源解析形制，无依赖 yaml 子集）
-// 基准语料钉的唯一权威＝engine/baseline-lock.yaml（ADR-0026）；upstream-lock.yaml 只承载产品上游，不再有基准行。
+// 基准语料钉的唯一权威＝engine/baseline-lock.yaml；upstream-lock.yaml 只承载产品上游，不再有基准行。
 const BASELINE_LOCK = join(ENG, 'baseline-lock.yaml');
 function baselineRow(id) {
   if (!existsSync(BASELINE_LOCK)) { return null; }
@@ -66,9 +66,9 @@ const NIP_ROGUE_RE = /not_in_preview:[ ]*\[[^\]]*'(Micro-A|Macro-C)'/;   // 否�
 t('A4 audit.ts not_in_preview 裁后=[Macro-A]（Macro-C 摘出＋Micro-A 产线化 #85②——判别臂序无关：任一位形不得回列 Micro-A/Macro-C；R64 P2-1＋LOOP P0-2 修正＋活性正对照）', srcA.indexOf("not_in_preview: ['Macro-A']") >= 0 && !NIP_ROGUE_RE.test(srcA) && NIP_ROGUE_RE.test("x = { not_in_preview: ['Macro-C'] };"));
 t('A5 fact-write.ts 同位共享核在（audit.ts 与 macro-c.ts 同消费）', existsSync(join(ENG, 'src', 'audit', 'fact-write.ts')) && srcA.indexOf('writeRunFactsAndEvents') >= 0 && srcC.indexOf('writeRunFactsAndEvents') >= 0);
 t('A6 engine/README scale 行已上架三层（Macro-B · Macro-C · Micro-A）', readFileSync(join(ENG, 'README.md'), 'utf8').indexOf('`Macro-B` · `Macro-C` · `Micro-A`') >= 0);
-t('A8 bundle 棘轮帽已显式重推导（371342——D-217 minify 治理后实测×1.25 向下重推导，D-129③ scoped 双向注记留痕）', readFileSync(join(ENG, 'scripts', 'check-dist.mjs'), 'utf8').indexOf('371342') >= 0);
+t('A8 bundle 上限已明确重推导（371342——D-217 minify 治理后实测×1.25 向下重推导，D-129③ scoped 双向注记留痕）', readFileSync(join(ENG, 'scripts', 'check-dist.mjs'), 'utf8').indexOf('371342') >= 0);
 t('A9 本守卫自身无 BOM', noBom(join(HERE, '85-check.mjs')));
-// A10–A13 基准语料自持面（ADR-0026／#33；#32 锁表分离同窗兑现）
+// A10–A13 基准语料自持面（#33；#32 锁表分离同窗兑现）
 t('A10 engine/baseline-lock.yaml 在位＋无 BOM＋lock_version=1＋anysearch-cli-adr-corpus 行十三字段齐备（status=active／pin_type=commit-sha／version=40 位 sha）',
   existsSync(BASELINE_LOCK) && noBom(BASELINE_LOCK)
   && readFileSync(BASELINE_LOCK, 'utf8').indexOf('lock_version: 1') >= 0
@@ -76,7 +76,7 @@ t('A10 engine/baseline-lock.yaml 在位＋无 BOM＋lock_version=1＋anysearch-c
   && BASE_ROW.status === 'active' && BASE_ROW.pin_type === 'commit-sha' && /^[0-9a-f]{40}$/.test(BASE_ROW.version || '')
   && BASE_ROW.materialization === 'frozen-bundle',
   BASE_ROW ? 'missing=' + BASE_FIELDS.filter(function (f) { return !BASE_ROW[f]; }).join(',') + ' status=' + BASE_ROW.status + ' pin=' + BASE_ROW.pin_type : 'baseline-lock.yaml 缺席');
-t('A11 仓内 frozen bundle 制品完整性：在位＋字节数==bundle_bytes＋sha256==bundle_sha256（制品级钉，防静默替换）',
+t('A11 仓内 frozen bundle 制品完整性：在位＋字节数==bundle_bytes＋sha256==bundle_sha256（制品级钉，防悄悄替换）',
   !!BUNDLE_BUF && !!BASE_ROW && String(BUNDLE_BUF.length) === String(BASE_ROW.bundle_bytes) && BUNDLE_SHA === BASE_ROW.bundle_sha256,
   BUNDLE_BUF ? 'bytes=' + BUNDLE_BUF.length + '/' + (BASE_ROW && BASE_ROW.bundle_bytes) + ' sha256=' + String(BUNDLE_SHA).slice(0, 12) + '/' + String(BASE_ROW && BASE_ROW.bundle_sha256).slice(0, 12) : 'bundle 缺席: ' + BUNDLE_REL);
 t('A12 基准活跃路径无本机绝对路径（baseline-lock.yaml＋本守卫自身；报告输出面见 B8）',
@@ -86,10 +86,10 @@ const UPSTREAM_TXT = readFileSync(join(ENG, 'upstream-lock.yaml'), 'utf8');
 t('A13 upstream-lock.yaml 已摘除基准语料行（零 anysearch 且零 kind: repo-corpus；正对照=该 kind 只在 baseline-lock）',
   UPSTREAM_TXT.indexOf('anysearch') < 0 && UPSTREAM_TXT.indexOf('kind: repo-corpus') < 0 && !!BASE_ROW && BASE_ROW.kind === 'repo-corpus');
 
-// ---------- A14/A15 基准身份绑定与历史身份棘轮（tracker #34／ADR-0026） ----------
+// ---------- A14/A15 基准身份绑定与历史身份限制（tracker #34） ----------
 // 同一份 Macro-C 基准在本仓有两门指称，本组把它们绑在一起：tracker #33 之后唯一权威钉＝baseline-lock 行 version，
 // 冻结事实 38-macro-c-facts.jsonl 的 repo_ref 是旧票 #38 的历史身份——两值互异、各自有主，谁都不是「另一枚的别名」。
-// 历史钉分片拼接：本守卫自身不参与 A15 棘轮扫描（自指），故不留 40 位字面串，避免自己成为命中项。
+// 历史钉分片拼接：本守卫自身不参与 A15 限制扫描（自指），故不留 40 位字面串，避免自己成为命中项。
 const AUTHORITY_PIN = '770d25495a67bb1e6b1c421a9b40c04259950ddf';
 const HISTORICAL_PIN = 'b45d0799' + '2d9c2ee9d01c7b7f176e2fb7c7978dd6';
 const FACTS = join(ENG, 'test', 'fixtures', 'contracts', '38-macro-c-facts.jsonl');
@@ -103,9 +103,9 @@ const FACTS_ROWS = FACTS_TXT.split(String.fromCharCode(10)).filter(function (l) 
 const FACTS_REF_N = Array.from(FACTS_TXT.matchAll(REF_RE)).length;
 // 本机绝对路径探针同样分片拼接——A12 机检本守卫自身零盘符锚，字面串会让 A12 自己变红
 const FACTS_ABS_RE = new RegExp('D:' + '[/\\\\]Aworker[/\\\\]anysearch-cli', 'g');
-// 同批四件里的第二族锚：本仓自身目录（`D:` + 本仓名，即下面 REPO_ABS_RE 所指）——同属原始现场，不属 D12 的「30 处」口径但同样不可移植
+// 同批四件里的第二族锚：本仓自身目录（`D:` + 本仓名，即下面 REPO_ABS_RE 所指）——同属原始现场，不属 D12 的「30 处」规则但同样不可移植
 const REPO_ABS_RE = new RegExp('D:' + '[/\\\\]+Aworker[/\\\\]+6F', 'g');
-// 原始现场逐件计数（归档索引第 3 行的枚举与合计须与实物同值——文档口径与机检口径同源，缺件/多件都红）
+// 原始现场逐件计数（归档索引第 3 行的枚举与合计须与实物同值——文档规则与机检规则同源，缺件/多件都红）
 const ABS_BATCH_FILES = ['38-macro-c-facts.jsonl', '38-macro-c-preview-report.md', '38-macro-c-preview-report.json', '38-report.md'];
 const ABS_BATCH = ABS_BATCH_FILES.map(function (f) {
   const p = join(ENG, 'test', 'fixtures', 'contracts', f);
@@ -119,7 +119,7 @@ const REPO_ABS_BATCH = ABS_BATCH_FILES.map(function (f) {
 const REPO_ABS_TOTAL = REPO_ABS_BATCH.reduce(function (a, b) { return a + b; }, 0);
 const ARCH_IDX_P = join(REPO, 'docs', 'archive', 'decisions', 'ticket-index.md');
 const ARCH_IDX = existsSync(ARCH_IDX_P) ? readFileSync(ARCH_IDX_P, 'utf8') : '';
-// 判别臂活性自证：把权威钉末位改一位，绑死判据必须判异——否则「钉==AUTHORITY_PIN」只是恒真句（改一位即红＝真在比）
+// 判别臂活性自证：把权威钉末位改一位，绑死判据必须判异——否则「钉==AUTHORITY_PIN」只是永远通过句（改一位即红＝真在比）
 // 全串严格相等，不截前 40 位：截断会让「钉值尾部多一个字符」也判同（锁表被追加脏字符时 A14 照绿）。
 const samePin = function (a, b) { return String(a) === String(b); };
 const PIN_MUTANT = AUTHORITY_PIN.slice(0, 39) + (AUTHORITY_PIN.slice(39) === 'f' ? '0' : 'f');
@@ -139,8 +139,8 @@ t('A14 基准身份唯一权威绑定：baseline-lock 钉==770d2549…／冻结�
   'lock=' + String(BASE_ROW && BASE_ROW.version).slice(0, 12) + ' facts_refs=' + (FACTS_REFS.join(',') || 'none') + ' rows=' + FACTS_REF_N + '/' + FACTS_ROWS + ' abs=' + ABS_BATCH.join(',') + ' total=' + ABS_BATCH_TOTAL + ' repo_abs=' + REPO_ABS_BATCH.join(',') + ' repo_total=' + REPO_ABS_TOTAL + ' sensitive=' + PIN_SENSITIVE + '/' + PIN_TAIL_SENSITIVE
   + ' idx_historical=' + (ARCH_IDX.indexOf(HISTORICAL_PIN) >= 0) + ' idx_counts=' + (ARCH_IDX.indexOf('35 处') >= 0) + '/' + (ARCH_IDX.indexOf('30 处') >= 0) + '/' + (ARCH_IDX.indexOf('38 处') >= 0)
   + ' idx_pointer=' + (ARCH_IDX.indexOf('engine/baseline-lock.yaml') >= 0) + ' idx_authority_dup=' + (ARCH_IDX.indexOf(AUTHORITY_PIN) >= 0));
-// A15 历史钉值引用棘轮：40 位全值只许留在「38 现场冻结件」六件＋归档索引的声明行里——新增引用即红；声明件被重算丢值亦红（双向）。
-//   口径：只认 40 位全值；缩写（`b45d0799`）不入棘轮，故 ADR-0026／CHANGELOG 的缩写引用不算命中。
+// A15 历史钉值引用限制：40 位全值只许留在「38 现场冻结件」六件＋归档索引的声明行里——新增引用即红；声明件被重算丢值亦红（双向）。
+//   口径：只认 40 位全值；缩写（`b45d0799`）不入限制，故 CHANGELOG 的缩写引用不算命中。
 const HIST_DECLARED = [
   'docs/archive/decisions/ticket-index.md',
   'engine/test/fixtures/contracts/38-macro-c-facts.jsonl',
@@ -151,7 +151,7 @@ const HIST_DECLARED = [
   'engine/test/fixtures/contracts/38-macro-c-preview-report.md'
 ];
 const PIN_SCAN_SKIP = ['node_modules', '.git', '.scratch'];
-// 扫描域＝**除显式排除外的全部文件**（默认扫，而不是白名单扩展名）：白名单会让 .txt/.cjs/.csv 等里
+// 扫描域＝**除明确排除外的全部文件**（默认扫，而不是白名单扩展名）：白名单会让 .txt/.cjs/.csv 等里
 //   新抄一份 40 位全值却无人发觉，与「只许出现在声明件」的标题不符。二进制枚单独列出并跳过——
 //   但它必须可证：下面断言该件在位且按原始字节确实含此值（件被删/改名/换成空壳即红）。
 const BIN_SITE_FILES = ['engine/test/fixtures/contracts/38-audit-facts.duckdb'];
@@ -180,15 +180,15 @@ const BIN_SITE_ALIVE = BIN_SITE_FILES.every(function (rel) {
   const p = join(REPO, rel);
   return existsSync(p) && readFileSync(p).indexOf(HISTORICAL_PIN) >= 0;
 });
-t('A15 历史钉值引用棘轮：40 位全值只出现在声明的六件 38 现场冻结件＋归档索引声明行（新增引用即红；声明件丢值亦红；二进制枚排除可证）',
+t('A15 历史钉值引用限制：40 位全值只出现在声明的六件 38 现场冻结件＋归档索引声明行（新增引用即红；声明件丢值亦红；二进制枚排除可证）',
   PIN_HITS_JOINED === HIST_DECLARED.slice().sort().join(',') && PIN_DECLARED_ALIVE && BIN_SITE_ALIVE,
   'hits=' + (PIN_HITS_JOINED || 'none') + ' declared_alive=' + PIN_DECLARED_ALIVE + ' bin_site=' + BIN_SITE_ALIVE);
 // A16 静态面（不依赖 B 组的 duckdb 组级闸）：报告复现命令必须走占位形。B8 的实跑面在无 duckdb 的机器上整组 SKIP，
-//   若只在那里判，「内容缺陷＝红、环境缺席＝SKIP」就退化成「环境缺席＝永不判」（tracker #72 同一条边界）。
+//   若只在那里判，「内容缺陷＝红、环境缺席＝SKIP」就失效成「环境缺席＝永不判」（tracker #72 同一条边界）。
 //   源与 dist 双侧同锚：MC_DIST 是 tsc 先跑出的模块树，本守卫 C 组与 `macro-c.test.mjs` U 组都直接 import 它执行，
 //   只认源码会让「改了源码没重建」这类漂移留在绿里。而 CLI 实际跑的 `dist/cli.js` 是 esbuild 从 `src/cli.ts`
 //   另打包的自包含压缩体（`remoteUrl===null` 不带空格），逐字面锚结构上不可能命中它——它与 src 的同步由 engine-ci
-//   的 rebuild-diff 步判红（不在本守卫内），它的行为由实跑钉：B8（本守卫内，无 duckdb 时整组 SKIP）
+//   的 rebuild-diff 步判失败（不在本守卫内），它的行为由实跑钉：B8（本守卫内，无 duckdb 时整组 SKIP）
 //   ＋ `macro-c.test.mjs` K2（owner/repo 形态相对路径只能按解析结果判）。
 const MC_SRC = readFileSync(join(ENG, 'src', 'audit', 'macro-c.ts'), 'utf8');
 const MC_DIST = readFileSync(join(ENG, 'dist', 'audit', 'macro-c.js'), 'utf8');
@@ -211,22 +211,22 @@ t('A16 报告复现命令可移植形在（src＋dist 双侧：<repo>／<dir> �
   && MC_SRC.indexOf(CALL_SITE) >= 0 && MC_DIST.indexOf(CALL_SITE) >= 0,
   'src=' + portableShape(MC_SRC) + ' dist=' + portableShape(MC_DIST) + ' local=' + portableLocalArm(MC_SRC) + '/' + portableLocalArm(MC_DIST) + ' file=' + portableFileArm(MC_SRC) + '/' + portableFileArm(MC_DIST) + ' call=' + (MC_SRC.indexOf(CALL_SITE) >= 0) + '/' + (MC_DIST.indexOf(CALL_SITE) >= 0) + ' raw_concat=' + (MC_SRC.indexOf("' --out ' + opts.outDir") >= 0));
 
-// A17 prereg 锚取值口径（tracker #100／docs/spec.md R9-1）：每个发出面的锚只能落三形态，且 commit 形必须真能解析。
+// A17 prereg 锚取值规则（tracker #100／docs/spec.md R9-1）：每个发出面的锚只能落三形态，且 commit 形必须真能解析。
 // 为什么是静态面：与 A16 同理——只在实跑腿判会随环境缺席一起隐身。这里不另扫 dist：dist 与 src 的同步由 engine-ci
-//   的 rebuild-diff（DIST-DRIFT）判红，authority §2.1 已登记该归属；A16 扫 dist 是因为压缩后的 cli 自包含体在
-//   duckdb 缺席时没有任何实跑兜底，本口径没这个问题（发出值由 buildReceipt 当场校验）。
+//   的 rebuild-diff（DIST-DRIFT）判失败，authority §2.1 已登记该归属；A16 扫 dist 是因为压缩后的 cli 自包含体在
+//   duckdb 缺席时没有任何实跑兜底，本规则没这个问题（发出值由 buildReceipt 当场校验）。
 // commit 形不能只验形状：本票的病根正是「形状合法、指错对象」（浅克隆取到边界 commit），
 //   所以 commit 形一律经 `rev-parse --verify <v>^{commit}` 实解析，解析不到即红。
 // 发出面清单由 `git ls-files` 现算，不写死：写死清单的话，新增一个发 `prereg_commit:` 的文件不会有任何东西红，
-//   而那正是「第二套口径」的诞生路径。普查根＝engine/src＋engine/scripts＋engine/test/contracts，逐条豁免给理由：
+//   而那正是「第二套规则」的诞生路径。普查根＝engine/src＋engine/scripts＋engine/test/contracts，逐条豁免给理由：
 //   `*-check.mjs` 与 `*.test.mjs` 是**断言面**不是发出面——前者含本守卫自己的 `/prereg_commit:/` 正则字面量，
 //   后者含刻意写坏的负对照样本（`report-preview.test.mjs` 的 P3 就是拿裸 '38-script-const' 证明产线会拒收，
 //   把它算成违规等于要求负对照不存在）；`src/report/generate.ts` 承载 GateRef 的类型声明与 receipt 透传，
 //   不是锚的决定点。断言面不脱管：它们真跑 buildReport 时由 buildReceipt 当场把关。
-// 判别力四臂，缺一即退化成空集自证：① 覆盖臂——发现集必须真的含四个产品发出面，改名/移出扫描根会当场红；
+// 判别力四臂，缺一即失效成空集自证：① 覆盖臂——发现集必须真的含四个产品发出面，改名/移出扫描根会当场红；
 //   ② 扫描不失灵臂——凡正文含 `prereg_commit:` 的发现件，正则都必须抓到 ≥1 枚初值；只把「有初值的件」
-//     筛出来当输入、再断言它们各有一枚，那是恒真的自我循环，正则写坏时反而静默把发出面当成不存在；
-//   ③ 反恒真臂——两枚裸历史字面量喂进同一分类器必须判 ambiguous；
+//     筛出来当输入、再断言它们各有一枚，那是永远通过的自我循环，正则写坏时反而悄悄把发出面当成不存在；
+//   ③ 反永远通过臂——两枚裸历史字面量喂进同一分类器必须判 ambiguous；
 //   ④ 锚常量溯源臂——写 PREREG_COMMIT 标识符的文件必须有一行**行首的** `const PREREG_COMMIT = [X.]resolvePreregCommit(`。
 //     初版写全文件 `indexOf('resolvePreregCommit(')`：那被 micro-a.ts 自己的 `export function` 行就满足＝自我指认空臂，
 //     常量退回裸 IIFE 仍绿；锚到赋值行、并要求行首就是 `const`（注释掉的赋值以 `//` 起头，匹配不上），两个洞一起关。
@@ -275,7 +275,7 @@ const PREREG_SCANNED = PREREG_DISCOVERED.map(function (rel) {
   return { rel: rel, txt: txt, mentions: txt.indexOf('prereg_commit:') >= 0, terms: preregTerms(txt) };
 });
 // ② 扫描不失灵臂：正文明明写着 `prereg_commit:` 却被正则抓到 0 枚初值的件。少了这条，筛完再验「各有一枚」
-//   就是恒真的自我循环——正则一坏，发出面会静默从普查里消失，而不是判红。
+//   就是永远通过的自我循环——正则一坏，发出面会悄悄从普查里消失，而不是判失败。
 const PREREG_MISS = PREREG_SCANNED.filter(function (e) { return e.mentions && e.terms.length === 0; }).map(function (e) { return e.rel; });
 const PREREG_TERMS = PREREG_SCANNED.filter(function (e) { return e.terms.length >= 1; });
 const PREREG_COVERED = PREREG_PRODUCT_FACERS.every(function (rel) { return PREREG_TERMS.some(function (e) { return e.rel === rel; }); });
@@ -293,12 +293,12 @@ const PREREG_OFFENDERS = PREREG_TERMS.reduce(function (acc, e) {
   }
   return acc;
 }, []);
-t('A17 prereg 锚取值口径：发现的每个发出面各带 ≥1 枚锚且全部落三形态（模糊态/锚名非法/退化的锚常量赋值即红；commit 形可解析性另过 git-history 组闸；裸历史字面量已判否）',
+t('A17 prereg 锚取值规则：发现的每个发出面各带 ≥1 枚锚且全部落三形态（模糊态/锚名非法/失效的锚常量赋值即失败；commit 形可解析性另过 git-history 组闸；裸历史字面量已判否）',
   PREREG_COVERED && PREREG_MISS.length === 0 && PREREG_OFFENDERS.length === 0 && PREREG_UNRESOLVED.length === 0
   && GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous' && GEN17.classifyPreregAnchor('45-demo-criteria') === 'ambiguous',
   'offenders=' + ((PREREG_OFFENDERS.concat(PREREG_UNRESOLVED)).join(',') || 'none')
   // 明细首位必须是 offenders：t() 把 detail 截到 300 字符，早先把九件发出面清单排在前面，
-  //   一次真实变异（`preregSentinel('bad name')`）判了红却看不到是哪件——判红不可诊断等于 half a guard。
+  //   一次真实变异（`preregSentinel('bad name')`）判了红却看不到是哪件——判失败不可诊断等于 half a guard。
   + ' hist_arm_run=' + PREREG_HIST_RUN + ' covered=' + PREREG_COVERED + ' scan_miss=' + (PREREG_MISS.join(',') || 'none')
   + ' emitters=' + PREREG_TERMS.length
   + ' classifier_rejects=' + (GEN17.classifyPreregAnchor('38-script-const') === 'ambiguous'));
@@ -325,12 +325,12 @@ if (groupProbe('85-check', 'B', DEPS_B)) {
   t('B6 侧车六判据齐＋band 三档枚举域', !!side && ['PC-MC-1', 'PC-MC-2', 'TC-MC-1', 'TC-MC-2', 'TC-MC-3', 'NC-MC-1'].every(function (c) { return side.adjudication.entries.some(function (e) { return e.criterion_id === c && ['supported', 'unsupported', 'insufficient'].indexOf(e.band) >= 0; }); }));
   const meas = existsSync(join(tmpB, 'out', 'audit-measurements.json')) ? JSON.parse(readFileSync(join(tmpB, 'out', 'audit-measurements.json'), 'utf8')) : null;
   t('B7 measurements 移植溯源＋fact_count>0＋supersede_chain 在', !!meas && meas.fact_count > 0 && !!meas.supersede_chain && String(meas.pipeline && meas.pipeline.recalibration || '').indexOf('85-check') >= 0, meas && meas.fact_count);
-  // B8 报告输出面（tracker #34／ADR-0026）：reproduce_cmd 记 <repo>／<dir> 占位，报告两件不得落本机盘符锚。
+  // B8 报告输出面（tracker #34）：reproduce_cmd 记 <repo>／<dir> 占位，报告两件不得落本机盘符锚。
   //   正对照＝探针必须能命中一条真实盘符锚——否则「零命中」只说明探针死了，不说明报告干净。
   //   正对照样本分片拼接：A12 机检本守卫自身零盘符锚，字面串会让 A12 自己变红。
   const ABS_PROBE_CTRL = 'macro-audit audit <repo> --scale Macro-C --out ' + ['D:', '/Aworker/6F/out'].join('');
   const sideRaw = existsSync(join(tmpB, 'out', 'report.json')) ? readFileSync(join(tmpB, 'out', 'report.json'), 'utf8') : '';
-  t('B8 报告输出面无本机绝对路径且 reproduce_cmd 为占位形（report.md＋report.json；tracker #34／ADR-0026 可移植性）',
+  t('B8 报告输出面无本机绝对路径且 reproduce_cmd 为占位形（report.md＋report.json；tracker #34 可移植性）',
     md !== '' && sideRaw !== '' && !ABS_PATH_RE.test(md) && !ABS_PATH_RE.test(sideRaw)
     && md.indexOf('reproduce_cmd: macro-audit audit <repo> --scale Macro-C --out <dir>') >= 0
     && ABS_PATH_RE.test(ABS_PROBE_CTRL),
@@ -339,7 +339,7 @@ if (groupProbe('85-check', 'B', DEPS_B)) {
 }
 
 // ---------- C. anysearch-cli 差分重校准（基准自持组级闸；产线化硬准入=同族基准对账后方可入 preview） ----------
-// 语料来源＝仓内 frozen bundle（ADR-0026/#33）：钉值唯一权威=engine/baseline-lock.yaml anysearch-cli-adr-corpus 行
+// 语料来源＝仓内 frozen bundle（#33）：钉值唯一权威=engine/baseline-lock.yaml anysearch-cli-adr-corpus 行
 // version（pin_type=commit-sha），语料随 bundle 入库，**不再依赖同级仓**——无 sibling 的机器（含 CI）同样实跑 C1/C2/C3。
 // 换钉＝手动窗口重打 bundle→改 baseline-lock（version/bundle_bytes/bundle_sha256 三值同窗）→重跑 C0~C6。
 const AS_PIN_SHA = BASE_ROW ? BASE_ROW.version : null;
@@ -386,7 +386,7 @@ if (BUNDLE_HEAD_OK && BUNDLE_VERIFY && groupProbe('85-check', 'C', DEPS_C)) {
   t('C0 语料钉快照一致：bundle 物化 HEAD＝＝baseline-lock 钉值（TOCTOU 消除不变式）', HEAD_SHA === SRC_HEAD, 'pin=' + HEAD_SHA.slice(0, 12) + ' src=' + String(SRC_HEAD).slice(0, 12));
   // 制品声明面（list-heads／空仓 verify）由上方 C-GATE 承载——此处不再复述同一条真理：
   //   clone 出来的语料仓里 verify 是假绿（对象已在库中，prerequisite 自然满足），故 verify 只认空仓那一处。
-  // (a) engine 一等面实跑（冻结面语料）
+  // (a) engine 正式入口实跑（冻结面语料）
   const run = await MC.runMacroCAudit({ input: AS_PIN, outDir: join(tmpC, 'out') });
   const meas = run.measurements;
   const side = JSON.parse(run.sidecar_json);
@@ -533,13 +533,13 @@ if (groupProbe('85-check', 'E', DEPS_E)) {
   const e51sc = JSON.parse(readFileSync(join(tmpE, e51.outputs.sidecar), 'utf8'));
   function bandMap(sc) { const m = {}; for (const e of sc.adjudication.entries) { m[e.criterion_id] = e.band; } return m; }
   function diffKeys(a, b) { const v = []; for (const k of Object.keys(a)) { if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) { v.push(k); } } return v; }
-  t('E0 切片字段契约双源互等（engine micro-a.ts vs 48 生成器导出——禁手抄漂移）', JSON.stringify(MAM.MICRO_A_SLICE_FIELDS) === JSON.stringify(MOD48.MICRO_A_SLICE_FIELDS));
+  t('E0 字段契约双源互等（engine micro-a.ts vs 48 生成器导出——禁手抄漂移）', JSON.stringify(MAM.MICRO_A_SLICE_FIELDS) === JSON.stringify(MOD48.MICRO_A_SLICE_FIELDS));
   const b64E = bandMap(e64sc); const b64G = bandMap(g64);
   t('E1 pr64 六判据 band 全等（引擎面 vs 48 golden 存档）', JSON.stringify(b64E) === JSON.stringify(b64G), JSON.stringify({ e: b64E, g: b64G }));
   t('E2 pr51 六判据 band 全等', JSON.stringify(bandMap(e51sc)) === JSON.stringify(bandMap(g51)), JSON.stringify({ e: bandMap(e51sc), g: bandMap(g51) }));
   function sliceOf(sc) { const q = sc.quadrants.filter(function (x) { return x.quadrant === 'behavior'; })[0]; const pick = {}; for (const k of ['author_form', 'merged', 'diff_channel', 'diff_files_changed', 'diff_additions', 'diff_deletions', 'diff_bytes', 'credential_strategy', 'credential_degraded', 'api_calls', 'rate_limit_remaining']) { pick[k] = q.slice_fields[k]; } return pick; }
-  t('E3 pr64 切片数值字段全等', diffKeys(sliceOf(e64sc), sliceOf(g64)).length === 0, JSON.stringify(diffKeys(sliceOf(e64sc), sliceOf(g64))));
-  t('E4 pr51 切片数值字段全等', diffKeys(sliceOf(e51sc), sliceOf(g51)).length === 0, JSON.stringify(diffKeys(sliceOf(e51sc), sliceOf(g51))));
+  t('E3 pr64 数值字段全等', diffKeys(sliceOf(e64sc), sliceOf(g64)).length === 0, JSON.stringify(diffKeys(sliceOf(e64sc), sliceOf(g64))));
+  t('E4 pr51 数值字段全等', diffKeys(sliceOf(e51sc), sliceOf(g51)).length === 0, JSON.stringify(diffKeys(sliceOf(e51sc), sliceOf(g51))));
   t('E5 fact_id 全等（pr64 三联＋pr51 双件——ctx 构造同字节）', JSON.stringify(e64sc.fact_ids) === JSON.stringify(g64.fact_ids) && JSON.stringify(e51sc.fact_ids) === JSON.stringify(g51.fact_ids), JSON.stringify({ e64: e64sc.fact_ids, g64: g64.fact_ids }));
   t('E6 披露块翻转双侧全等（capability 3 of 5 · preview＋not_in_preview=[Macro-A]）', e64sc.preview_disclosure.capability_label === g64.preview_disclosure.capability_label && JSON.stringify(e64sc.preview_disclosure.not_in_preview) === JSON.stringify(g64.preview_disclosure.not_in_preview) && e64sc.preview_disclosure.capability_label === 'capability 3 of 5 · preview', JSON.stringify(e64sc.preview_disclosure.not_in_preview));
   t('E7 token 进 wire 不入 fact（双通道同纪律）', capE.every(function (q) { return q.token === 'GOLDEN-PLACEHOLDER'; }) && JSON.stringify(collectedE.res.facts).indexOf('GOLDEN-PLACEHOLDER') < 0);

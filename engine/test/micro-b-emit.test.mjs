@@ -27,7 +27,7 @@ t('A1 反斜杠/重复斜杠/dot 段归一为 POSIX 形', () => {
   assert.equal(S.normalizeSubjectPath('docs/./y.md').subject, 'docs/y.md');
   assert.equal(S.normalizeSubjectPath('./a.ts').subject, 'a.ts');
 });
-t('A2 dotdot/绝对路径/NUL/空串显式拒绝（reason 分类）', () => {
+t('A2 dotdot/绝对路径/NUL/空串明确拒绝（reason 分类）', () => {
   assert.equal(S.normalizeSubjectPath('docs/../evil.md').reason, 'dotdot-segment');
   assert.equal(S.normalizeSubjectPath('/abs/x.ts').reason, 'absolute');
   assert.equal(S.normalizeSubjectPath('C:\\x.ts').reason, 'absolute');
@@ -68,7 +68,7 @@ t('B1 per-file 一等事实发射：subject_ref=规范化 path + value_json=per-
   const hf = fileFacts.filter((f) => JSON.parse(f.value_json).analysis === 'hotspots');
   for (const f of hf) { const v = JSON.parse(f.value_json); assert.equal(v.role, 'first_class'); assert.ok(v.row && typeof v.row === 'object'); assert.equal(v.path, f.subject_ref); }
 });
-t('B2 非规范化 subject→skip 披露事实（不静默丢行）', () => {
+t('B2 非规范化 subject→skip 披露事实（不悄悄丢行）', () => {
   const skips = facts.filter((f) => f.metric === 'codelore.file_subject_skip').map((f) => JSON.parse(f.value_json));
   assert.ok(skips.some((s) => s.raw_path === 'docs/../evil.md' && s.reason === 'dotdot-segment'));
   assert.ok(skips.some((s) => s.raw_path === 'link/dangling.ts' && s.reason === 'non-regular-path'));

@@ -1,6 +1,6 @@
 // 52a-gen-corpus.mjs —— #52a 合成 claim-evidence 语料生成器（D-061；确定性构造，版本化 golden claim set）
 // 构造纪律：gold 标签=构造意图标签（合成语料身份如实披露）；双标子集 gold_b=同一标定者二轮独立标注
-// （intra-rater——单人标定的诚实口径，非双人互标；限制披露随 eval JSON 一起走）。
+// （intra-rater——单人标定的诚实规则，非双人互标；限制披露随 eval JSON 一起走）。
 // 分层=checker 判定空间：presence 成立/不成立、grounded=false/excerpt 空、证据锚不可解析、
 //   语义对抗 FN（改写/同义——presence≠support 的 CiteEval 区分面）、语义对抗 FP（否定/引语包裹命中）、
 //   边界样本（大小写/边界位/CJK 混排/部分命中）、band-leak 注入（6 模式×注入＋干净对照）。
@@ -33,7 +33,7 @@ const A = [
   ['coverage ratio 0.85 measured on intent docs', ['coverage', '0.85'], '全部命中（两锚 EN）'],
   ['fact_count = 129 collected this run', ['fact_count', '129'], '数值锚命中'],
   ['verdict gate decided at 2026-04-10', ['gate', '2026-04-10'], '日期锚命中'],
-  ['骨架章序锁定 ADR-0006 裁定协议在', ['骨架', 'ADR-0006'], 'CJK+编号锚'],
+  ['骨架章序锁定 ADR-9999 裁定协议在', ['骨架', 'ADR-9999'], 'CJK+编号锚'],
   ['the receipt chain hash is stable across runs', ['receipt', 'stable', 'runs'], '三锚全中'],
   ['append-only fact table enforces immutability', ['append-only', 'immutability'], '概念双锚'],
   ['delta_days = 255 检出事后补写', ['delta_days', '255'], '指标锚 CJK 语境'],
@@ -58,7 +58,7 @@ const B = [
   ['coverage ratio measured on intent docs', ['coverage', '0.85'], '数值锚缺席'],
   ['fact_count collected this run', ['fact_count', '129'], '计数锚缺席'],
   ['the receipt chain is stable', ['receipt', 'hash', 'runs'], '两锚缺席'],
-  ['骨架章序锁定 裁定协议在', ['骨架', 'ADR-0006'], '编号锚缺席'],
+  ['骨架章序锁定 裁定协议在', ['骨架', 'ADR-9999'], '编号锚缺席'],
   ['append-only table enforces rules', ['append-only', 'immutability'], '概念锚缺席'],
   ['delta_days 检出补写', ['delta_days', '255'], '数值缺席'],
   ['supersede chain hit', ['supersede', 'ADR-0000'], '编号缺席'],
@@ -156,7 +156,7 @@ const bandItems = [
   { id: 'B-10', pattern: null, text: 'verdictless narrative without judgment words', gold: false, note: '干净对照——verdictless 词根但 \bverdict\b 边界不命中？复核：verdictless 含 verdict 前缀→应命中', gold_b: true, note2: '二轮复核修正：\bverdict\b 前缀命中 verdictless——gold_b=true（intra-rater 分歧如实留）' },
   { id: 'B-11', pattern: 'verdict-word-assertion', text: 'insufficient：证据缺口三处', gold: true, note: 'CJK 冒号判定词' },
   { id: 'B-12', pattern: null, text: 'supported systems theory is a field of study', gold: false, gold_b: false, note: 'supported 无冒号——非判定式，干净对照（二轮复核确认：无 verdict 词无判定句式）' },
-  { id: 'B-13', pattern: 'cjk-verdict-assertion', text: '判红该仓', gold: true, note: '判红句' },
+  { id: 'B-13', pattern: 'cjk-verdict-assertion', text: '判失败该仓', gold: true, note: '判失败句' },
   { id: 'B-14', pattern: 'band-field-en', text: 'band: supported', gold: true, note: 'band 冒号' },
   { id: 'B-15', pattern: 'dimension-band-assignment', text: 'S3 = red', gold: true, note: '等号赋值' },
   { id: 'B-16', pattern: null, text: 'narrative about anchoring and citations only', gold: false, note: '干净对照' },
@@ -171,7 +171,7 @@ const corpus = {
   band_item_count: bandItems.length,
   disclosure: {
     synthetic: true,
-    note: '合成 claim-evidence 语料：gold=构造意图标签；双标子集 gold_b=同一标定者二轮独立标注（intra-rater 口径——非双人互标，inter-rater κ 天花板在合成本质上退化为构造确定性）；对抗面（E/F 类）故意按 presence≠support 构造，FP/FN 分型即预期失配面；本集只用于标定测量，checker 阈值改动不得参照本集标签（防调参泄漏纪律 D-061）',
+    note: '合成 claim-evidence 语料：gold=构造意图标签；双标子集 gold_b=同一标定者二轮独立标注（intra-rater 规则——非双人互标，inter-rater κ 天花板在合成本质上变成构造确定性）；对抗面（E/F 类）故意按 presence≠support 构造，FP/FN 分型即预期失配面；本集只用于标定测量，checker 阈值改动不得参照本集标签（防调参泄漏纪律 D-061）',
     limitations: ['合成 excerpt 非 wild slice', '双人互标缺席（intra-rater 替代如实披露）', 'gold 为构造意图非判后共识']
   },
   items: items,

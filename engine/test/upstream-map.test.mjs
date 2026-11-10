@@ -123,7 +123,7 @@ t('C2 github-rest descriptor 注册（registered + opt_in=token+network＋skippe
   assert.equal(r.opt_in, 'token+network');
   assert.match(r.skipped_semantics, /skipped/);
 });
-t('C3 注册 descriptor 即适配器原物（dimension:null 未改写——ADR-0014）', () => {
+t('C3 注册 descriptor 即适配器原物（dimension:null 未改写）', () => {
   const ids = M.UPSTREAM_COLLECTOR_REGISTRY.map(x => x.descriptor.id).sort();
   assert.deepEqual(ids, ['codelore-adapter@v1', 'github-rest-adapter@v1']);
   assert.equal(CL.CODELORE_DESCRIPTOR.dimension, null);

@@ -1,6 +1,6 @@
 // 41b-check.mjs — #41b listing 资产核对留痕守卫（D-051/D-052/D-042 / A-060）
 // 断言面：A 三 manifest 字段值 = D-052 拍板值 → B license=Apache-2.0 全链一致
-//   → C capability 口径 = README 单一事实源（1-3 of 5 preview）→ D 诚实披露/闸门 → E 文档 → F BOM
+//   → C capability 规则 = README 单一事实源（1-3 of 5 preview）→ D 诚实披露/闸门 → E 文档 → F BOM
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -44,7 +44,7 @@ const ccUnk58 = ccKeys58.filter(function (k) { return wl58.indexOf(k) < 0; });
 const skillPath58 = function (s) { return typeof s === 'string' && s.indexOf('./') === 0; };
 t('A8 两份 plugin.json skills 值 ^\./ 路径形（裸名 fail）', (!('skills' in pj) || (Array.isArray(pj.skills) && pj.skills.every(skillPath58))) && Array.isArray(cc.skills) && cc.skills.every(skillPath58), 'cc.skills=' + JSON.stringify(cc.skills));
 t('A9 claude manifest 无 mcp 裸字段（事故②钉死 FAIL；白名单=SchemaStore props∪$schema）', ccKeys58.indexOf('mcp') < 0, 'unknown=' + ccUnk58.join(','));
-if (ccUnk58.filter(function (k) { return k !== 'mcp'; }).length > 0) { console.log('WARN A9w unknown-field（白名单外字段——勿照搬 fatal 口径，与 34-check G16c 同源）: ' + ccUnk58.join(',')); }
+if (ccUnk58.filter(function (k) { return k !== 'mcp'; }).length > 0) { console.log('WARN A9w unknown-field（白名单外字段——勿照搬 fatal 标准，与 34-check G16c 同源）: ' + ccUnk58.join(',')); }
 t('A10 单一 .mcp.json 自动发现位＋无兄弟 mcp.json 同位遮蔽（cursor#252 教训）', existsSync(join(REPO, 'engine', '.mcp.json')) && !existsSync(join(REPO, 'engine', 'mcp.json')));
 
 // ---------- B. license=Apache-2.0 全链 ----------
@@ -55,23 +55,23 @@ t('B3 cc-plugin.json license=Apache-2.0', cc.license === 'Apache-2.0');
 t('B4 marketplace plugins[0].license=Apache-2.0', mk.plugins[0].license === 'Apache-2.0');
 t('B5 package.json license=Apache-2.0', pk.license === 'Apache-2.0');
 
-// ---------- C. capability 口径 = README 单一事实源 ----------
+// ---------- C. capability 规则 = README 单一事实源 ----------
 const rd = txt(join(REPO, 'README.md'));
 const desc = txt(join(REPO, 'docs', 'listing', 'description.md'));
 const cl = txt(join(REPO, 'docs', 'listing', 'credential-checklist.md'));
 const readmeHas4 = rd.includes('capability 4 of 5');
-t('C1 README 口径 = capability 1-4 of 5 preview（#80 步③ Micro-B 上架后口径）', readmeHas4 && rd.includes('capability 1 of 5') && rd.includes('capability 2 of 5') && rd.includes('capability 3 of 5'));
-t('C2 marketplace description 口径同步（四层在架＋capability 4 of 5＋Macro-A 未上架＋Micro-A 在册——#85② 产线化 D-204③④；R64 返修 P2-1 恒真臂换判别臂）', mk.plugins[0].description.includes('capability 4 of 5') && mk.plugins[0].description.includes('四层在架') && mk.plugins[0].description.includes('Macro-A 未上架') && mk.plugins[0].description.indexOf('Micro-A') >= 0 && mk.plugins[0].description.indexOf('calibrated demo') < 0);
-t('C3 description.md 口径同步（Micro-A preview 行＋1/2/3/4 of 5——#85② 产线化）', desc.includes('Micro-A PR diff') && desc.includes('capability 3 of 5 · preview') && !desc.includes('capability 1-4 of 5') && !desc.includes('calibrated demo'));
+t('C1 README 规则 = capability 1-4 of 5 preview（#80 步③ Micro-B 上架后规则）', readmeHas4 && rd.includes('capability 1 of 5') && rd.includes('capability 2 of 5') && rd.includes('capability 3 of 5'));
+t('C2 marketplace description 规则同步（四层在架＋capability 4 of 5＋Macro-A 未上架＋Micro-A 在册——#85② 产线化 D-204③④；R64 返修 P2-1 永远通过臂换判别臂）', mk.plugins[0].description.includes('capability 4 of 5') && mk.plugins[0].description.includes('四层在架') && mk.plugins[0].description.includes('Macro-A 未上架') && mk.plugins[0].description.indexOf('Micro-A') >= 0 && mk.plugins[0].description.indexOf('calibrated demo') < 0);
+t('C3 description.md 规则同步（Micro-A preview 行＋1/2/3/4 of 5——#85② 产线化）', desc.includes('Micro-A PR diff') && desc.includes('capability 3 of 5 · preview') && !desc.includes('capability 1-4 of 5') && !desc.includes('calibrated demo'));
 t('C4 description.md license 段 = Apache-2.0（UNLICENSED 阻塞语已清）', desc.includes('`Apache-2.0`') && !desc.includes('UNLICENSED'));
-t('C5 credential-checklist §E 口径同步（Micro-A preview 口径——#85②）', cl.includes('Micro-A') && cl.indexOf('calibrated demo') < 0 && !cl.includes('capability 1-4 of 5'));
-t('C6 无残留旧收窄口径（1-3 of 5 老句＋calibrated demo 旧标注——#85② 产线化后禁旧态）', !desc.includes('1-2 of 5') && !desc.includes('capability 1-3 of 5') && !desc.includes('capability 3 of 5 · calibrated demo') && !mk.plugins[0].description.includes('capability 2 of 5') && !mk.plugins[0].description.includes('calibrated demo') && !cl.includes('1-2 of 5') && !cl.includes('capability 1-3 of 5') && !cl.includes('capability 3 of 5 · calibrated demo'));
+t('C5 credential-checklist §E 规则同步（Micro-A preview 规则——#85②）', cl.includes('Micro-A') && cl.indexOf('calibrated demo') < 0 && !cl.includes('capability 1-4 of 5'));
+t('C6 无残留旧缩小范围规则（1-3 of 5 老句＋calibrated demo 旧标注——#85② 产线化后禁旧态）', !desc.includes('1-2 of 5') && !desc.includes('capability 1-3 of 5') && !desc.includes('capability 3 of 5 · calibrated demo') && !mk.plugins[0].description.includes('capability 2 of 5') && !mk.plugins[0].description.includes('calibrated demo') && !cl.includes('1-2 of 5') && !cl.includes('capability 1-3 of 5') && !cl.includes('capability 3 of 5 · calibrated demo'));
 
 // ---------- D. 诚实披露与闸门 ----------
 t('D1 credential-checklist §C 用户专属动作未勾（提交=用户闸门）', /- \[ \] 6F 远端 push 授权确认/.test(cl) && /- \[ \] 若走路径 B：表单提交点击/.test(cl));
 t('D2 description.md 含 defaultEnabled:false 建议与 preview 披露', desc.includes('defaultEnabled:false') && /Not yet in preview/.test(desc));
 t('D4 icon.svg 在', existsSync(join(REPO, 'docs', 'listing', 'icon.svg')));
-t('D5 description.md 无截图伪造（截图挂门注记在）', desc.includes('不伪造') || desc.includes('真实 UI'));
+t('D5 description.md 无截图伪造（截图到期提醒项注记在）', desc.includes('不伪造') || desc.includes('真实 UI'));
 
 // ---------- E. 文档 ----------
 t('E5 41b-report.md 在', existsSync(join(REPO,'engine','test','fixtures','contracts','41b-report.md')));

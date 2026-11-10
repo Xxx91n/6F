@@ -1,7 +1,7 @@
 // #64/D-072→#66/D-075 离线＋分层门控模拟断言：挪走平台绑定包 →
 //   A) 非 TTY 缺省（spawnSync 管道面）：永不自动拉包——无 DUCKDB-SELFHEAL 事件，四段披露结构化回落；
 //   B) MACRO_AUDIT_SELFHEAL=1 opt-in＋死 registry：允许补拉但离线失败——start/fallback 事件＋四段披露。
-// 不在默认 smoke 链（改 node_modules＋需模拟网络面）——CI engine-ci「duckdb self-heal offline-sim」步显式跑。
+// 不在默认 smoke 链（改 node_modules＋需模拟网络面）——CI engine-ci「duckdb self-heal offline-sim」步明确跑。
 import { renameSync, existsSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -28,7 +28,7 @@ if (!existsSync(pkg)) {
 } else {
   renameSync(pkg, parked);
   try {
-    // —— A) 非 TTY 缺省面：D-075① 永不自动拉包（无人值守无人可询问） ——
+    // —— A) 非 TTY 缺省面：D-075① 永不自动拉包（无人定期检查无人可询问） ——
     const ra = spawnSync('node', ['--input-type=module', '-e', child, tmpDb], {
       cwd: root, encoding: 'utf8', timeout: 120000,
       env: { ...process.env, ...DEAD }

@@ -1,7 +1,7 @@
 // codelore-llm.test.mjs — explain 族 LLM 面 golden 契约测试两形态（#36/A-041/D-035②）
 // 形态一 门控关：env 未配置 → llm_gate(configured=false) + 每面 llm_gated 降级披露 + runner 零调用（不真调 LLM 的机检证明）。
 // 形态二 门控开：env 注入 + runner 回放 synthetic cassette → llm_narrative + llm_cost 计量。
-// 绝不真调 LLM、不需要真 key；红证 = 未配置不静默/不超 cap/env 值不落 fact/畸形输入拒识。
+// 绝不真调 LLM、不需要真 key；红证 = 未配置不悄悄忽略/不超 cap/env 值不落 fact/畸形输入拒识。
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -60,12 +60,12 @@ t('B2 CODELORE_LLM_MODEL 在 → 门控开', () => {
   assert.equal(g.provider, 'openai-compat');
   assert.deepEqual(g.missing_env, []);
 });
-t('B3 ANTHROPIC_API_KEY 在（无显式 PROVIDER）→ anthropic 门控开', () => {
+t('B3 ANTHROPIC_API_KEY 在（无明确 PROVIDER）→ anthropic 门控开', () => {
   const g = C.resolveLlmGate({ ANTHROPIC_API_KEY: 'k' });
   assert.equal(g.configured, true);
   assert.equal(g.provider, 'anthropic');
 });
-t('B4 显式 PROVIDER=anthropic 但缺 key → 门控关 missing-env', () => {
+t('B4 明确 PROVIDER=anthropic 但缺 key → 门控关 missing-env', () => {
   const g = C.resolveLlmGate({ CODELORE_LLM_PROVIDER: 'anthropic' });
   assert.equal(g.configured, false);
   assert.deepEqual(g.missing_env, ['ANTHROPIC_API_KEY']);
@@ -82,7 +82,7 @@ t('B6 空白值按未配置处理（trim）', () => {
   assert.deepEqual(g.missing_env, ['CODELORE_LLM_MODEL']);
 });
 
-// ---------- C. 形态一：门控关 = 显式降级披露 ----------
+// ---------- C. 形态一：门控关 = 明确降级披露 ----------
 t('C1 门控关 → resolution+llm_gate+逐面 llm_gated+llm_cost，runner 零调用', () => {
   const facts = C.collectCodeloreLlm({ repoRoot: 'fixture', resolver: fakeResolver, runner: throwRunner, env: {}, explainPaths: ['a.ts', 'b.ts'], diffRange: 'r1..r2' }, CTX);
   assert.equal(facts[0].metric, 'upstream.resolution');
@@ -104,7 +104,7 @@ t('C1 门控关 → resolution+llm_gate+逐面 llm_gated+llm_cost，runner 零�
   assert.equal(cost.calls_succeeded, 0);
   assert.deepEqual(cost.gated_faces.sort(), ['diff', 'explain-file']);
 });
-t('C2 门控关不静默：gated fact evidence 指向 env 族而非 argv', () => {
+t('C2 门控关不悄悄忽略：gated fact evidence 指向 env 族而非 argv', () => {
   const facts = C.collectCodeloreLlm({ repoRoot: 'fixture', resolver: fakeResolver, runner: throwRunner, env: {}, explainPaths: ['a.ts'], facets: [C.CODELORE_LLM_FACETS[0]] }, CTX);
   const g = facts.find((f) => f.metric === 'codelore.llm_gated');
   assert.equal(g.evidence_ref, 'env CODELORE_LLM_*');

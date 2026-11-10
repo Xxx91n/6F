@@ -49,7 +49,7 @@ function tokenize(text) { const lower = text.toLowerCase(); const out = []; cons
 // ---------- A. workflow 文件面 ----------
 const wf = existsSync(WF) ? readFileSync(WF, 'utf8') : '';
 t('A1 golden-ci.yml 在位且含 golden job（ubuntu-latest）', wf.indexOf('name: golden-ci') >= 0 && wf.indexOf('golden:') >= 0 && wf.indexOf('runs-on: ubuntu-latest') >= 0);
-t('A2 两腿重渲染命令落位（gen-demo-golden + 23-first-report.mjs）', wf.indexOf('node scripts/gen-demo-golden.mjs') >= 0 && wf.indexOf('node .scratch/architecture-recovery/reports/23-first-report.mjs') >= 0);
+t('A2 两腿重渲染命令放进（gen-demo-golden + 23-first-report.mjs）', wf.indexOf('node scripts/gen-demo-golden.mjs') >= 0 && wf.indexOf('node .scratch/architecture-recovery/reports/23-first-report.mjs') >= 0);
 const exReadme = readFileSync(join(EX, 'README.md'), 'utf8');
 const regenCmd = (exReadme.match(/重生成命令\*\*：(`[^`]+`)/) || [])[1];
 t('A3 重生成命令与 #41a 披露 README 逐字一致', !!regenCmd && wf.indexOf(regenCmd.slice(1, -1)) >= 0, 'README cmd=' + regenCmd);
@@ -76,7 +76,7 @@ t('B4 overlay README 等签名重构：top-20 关键词计数与 golden 签名�
 const FROZEN_OK = gitObjectNeedOk(REPO, FROZEN_SHA, BUNDLE);
 t('B5-GATE 冻结对象可解析（幽灵钉 fc00d458 经仓内 bundle 临时仓物化，主仓零写）', FROZEN_OK,
   'gitObjectNeedOk=false：核对 engine/test/fixtures/frozen/23-frozen-fc00d458.bundle 在位且含该对象（B1/B2 已分别断言位与 heads），以及临时目录可写；本行红时 B5＋C1~C4 共 5 条未跑（分母 23→18）');
-// 红路径下 B5／C1~C4 如实不跑：分母会静默缩水，故显式留一行，与「断言被删」区分（评审意见）
+// 红路径下 B5／C1~C4 如实不跑：分母会悄悄缩水，故明确留一行，与「断言被删」区分（评审意见）
 if (!FROZEN_OK) { console.log('NOTE B5-GATE 红 → B5＋C1~C4 共 5 条未跑（分母 23→18；本行即「跳过」的机读位）'); }
 else if (!tmp) { console.log('NOTE T0 红 → C1~C4 共 4 条未跑（分母 23→19；本行即「跳过」的机读位）'); }
 if (FROZEN_OK) {
@@ -123,7 +123,7 @@ execFileSync('git', ['worktree', 'remove', '--force', FW], { cwd: REPO, encoding
 }
 }
 
-// ---------- D. 文档与账本落文 ----------
+// ---------- D. 文档与记录落文 ----------
 t('D7 examples README 含 CI 校验与更新纪律节', exReadme.indexOf('更新只走 PR 审查') >= 0 && exReadme.indexOf('golden-ci.yml') >= 0);
 t('D8 43-report.md 在位且六段齐备', existsSync(join(REPO,'engine','test','fixtures','contracts','43-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(m => readFileSync(join(REPO,'engine','test','fixtures','contracts','43-report.md'), 'utf8').indexOf(m) >= 0));
 

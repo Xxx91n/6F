@@ -51,7 +51,7 @@ try {
   writeFileSync(join(REPO, 'package.json'), '{"name":"azw-tgt","private":true,"version":"0.0.0"}' + NL, 'utf8');
   commitAll('init');
 
-  writeFileSync(join(REPO, 'docs', 'adr', '001-first.md'), ['# ADR-001 first', '', '- Status: accepted', '- Date: 2026-05-01', '- Deciders: azw', '- Ledger: D-001', '', '## Context', 'toy cassette context.', '', '## Decision', 'toy decision.', '', '## Consequences', 'toy consequences; supersedes none.'].join(NL), 'utf8');
+  writeFileSync(join(REPO, 'docs', 'adr', '9999-first.md'), ['# ADR-9999 first', '', '- Status: accepted', '- Date: 2026-05-01', '- Deciders: azw', '- Ledger: D-001', '', '## Context', 'toy cassette context.', '', '## Decision', 'toy decision.', '', '## Consequences', 'toy consequences; supersedes none.'].join(NL), 'utf8');
   commitAll('add adr');
 
   writeFileSync(join(REPO, 'src', 'index.js'), 'export function main() { return 42; }' + NL, 'utf8');
@@ -70,7 +70,7 @@ try {
   const factsN = existsSync(factsPath) ? readFileSync(factsPath, 'utf8').trim().split(NL).filter(Boolean).length : 0;
   t('audit-zero-write-facts-produced 自检防 vacuous：审计确实产出 facts（回执 fact_count>0 且 audit-facts.jsonl 行数>0）', !!rec && (rec.fact_count || 0) > 0 && factsN > 0, 'fact_count=' + (rec && rec.fact_count) + ' jsonl=' + factsN);
 
-  // ---------- 零写入不变量（断言名显式写不变量语义；porcelain 含 untracked） ----------
+  // ---------- 零写入不变量（断言名明确写不变量语义；porcelain 含 untracked） ----------
   const status = gitOr(['status', '--porcelain'], REPO, 'PROBE-FAILED');
   t('audit-zero-write-porcelain-clean 审计管线对被测仓工作树零写入（git status --porcelain 空）', status === '', JSON.stringify(status).slice(0, 160));
   const headAfter = gitOr(['rev-parse', 'HEAD'], REPO, 'UNKNOWN');

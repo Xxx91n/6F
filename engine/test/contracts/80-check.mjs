@@ -2,7 +2,7 @@
 // 断言面：A 归一器/血缘/发射源标记在（dist+src 双锚）　→ B facet_rows raw 证据位（role=raw_evidence+append-only 保留）
 //   → C 消费面迁移（audit.ts 读源=per-file 重聚合+对账判据调用）　→ D fixture golden（骨架锁 regen→diff empty+测试在 smoke 链）
 //   → E 禁项集反面断言（禁大小写折叠/血缘不进身份/stale 不拒答/miss 不单态——步①可达子集）　→ F BOM/ledger 纪律
-//     ＋ need 族语义与 gitattributes 语义机检（#33 复盘：两者都是「写错了不会红」的静默失效型）
+//     ＋ need 族语义与 gitattributes 语义机检（#33 复盘：两者都是「写错了不会红」的悄悄失效型）
 // 用法：node 80-check.mjs → 逐条 PASS/FAIL；exit 0=全 PASS
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -43,7 +43,7 @@ t('A4 血缘载荷五字段合同（from/to/head_sha/threshold/detector_version 
 // ---------- B. raw 证据位 ----------
 t('B1 facet_rows 聚合载荷带 role=raw_evidence 标记（append-only 保留不删）',
   /role: 'raw_evidence'/.test(clSrc) && /codelore.facet_rows/.test(clSrc), '');
-t('B2 skip/冲突披露 metric 在（file_subject_skip/subject_case_conflict 不静默）',
+t('B2 skip/冲突披露 metric 在（file_subject_skip/subject_case_conflict 不悄悄忽略）',
   /codelore.file_subject_skip/.test(clSrc) && /codelore.subject_case_conflict/.test(clSrc), '');
 
 // ---------- C. 消费面迁移 ----------
@@ -118,11 +118,11 @@ t('F1 新增源/测试/fixture 文件无 BOM', (() => {
   return files.every(f => { const b = fs.readFileSync(join(ENG, f)); return b[0] !== 0xEF; });
 })());
 
-// F2/F3（#33 复盘）：need 族语义与 gitattributes 语义的机检——两者都是「写错了不会有东西红」的静默失效型。
-//   F2 的由来：C 组曾把**在仓** frozen bundle 挂进 groupProbe，于是「换钉不一致」退化成 SKIP＝套件仍绿；
+// F2/F3（#33 复盘）：need 族语义与 gitattributes 语义的机检——两者都是「写错了不会有东西红」的悄悄失效型。
+//   F2 的由来：C 组曾把**在仓** frozen bundle 挂进 groupProbe，于是「换钉不一致」失效成 SKIP＝套件仍绿；
 //   asset: 族的语义就是「gitignored 外部资产」，拿它承载在仓制品即违约，而族义是 SSOT，形状错了族义就废了。
 // 只认字面量（末尾紧跟 `+` 的是拼接形态，静态不可判——如 `need('git-object:' + sha)` 这种写法，跳过）；
-// 单双引号都收：只认单引号时，双引号写法的 asset 声明会静默漏检，而漏检的表现是「扫不到」＝全绿。
+// 单双引号都收：只认单引号时，双引号写法的 asset 声明会悄悄漏检，而漏检的表现是「扫不到」＝全绿。
 const NEED_LIT_RE = /need\(\s*(['"])(sibling|asset|git-object|engine-deps|git-history):([^'"]*)\1(?!\s*\+)/g;
 function needShapeViolations(entries, isTracked) {
   const bad = [];

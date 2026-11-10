@@ -35,7 +35,7 @@ t('A2 checker 判定空间分层齐全（presence 成立/不成立/对抗 FN/对
 const subset = corpus.items.filter(function (i) { return i.in_subset; });
 t('A3 双标子集 50-100 条票面区间＋gold_b 全填', subset.length >= 50 && subset.length <= 100 && subset.every(function (i) { return typeof i.gold_b === 'string'; }), 'subset=' + subset.length);
 t('A4 band 面分层：6 模式注入＋干净对照在位', corpus.band_items.filter(function (b) { return b.gold; }).length >= 6 && corpus.band_items.filter(function (b) { return !b.gold; }).length >= 4);
-t('A5 语料限制披露块在（synthetic＋intra-rater 口径＋防调参泄漏纪律）', corpus.disclosure.synthetic === true && corpus.disclosure.note.indexOf('intra-rater') >= 0 && corpus.disclosure.note.indexOf('调参泄漏') >= 0);
+t('A5 语料限制披露块在（synthetic＋intra-rater 规则＋防调参泄漏纪律）', corpus.disclosure.synthetic === true && corpus.disclosure.note.indexOf('intra-rater') >= 0 && corpus.disclosure.note.indexOf('调参泄漏') >= 0);
 
 // ---------- B. eval 重生成＋结果契约 ----------
 const evOut = execFileSync('node', [join(HERE, '52a-checker-eval.mjs')], { encoding: 'utf8' });

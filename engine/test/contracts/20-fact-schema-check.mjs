@@ -21,7 +21,7 @@ const PKG_JSON = join(REPO, 'engine', 'package.json');
 const results = [];
 function check(id, pass, detail) { results.push([id, !!pass, String(detail)]); }
 
-// R38/#75批2（r37 审计 P-4/20-A5）：本地裸「//」剥离器退役——不剥 /* */ 块注使注释内 SQL 词可误报、不保字符串字面量；_lib 库版自消费收口（54-check B 先例同型）。
+// R38/#75批2（r37 审计 P-4/20-A5）：本地裸「//」剥离器退役——不剥 /* */ 块注使注释内 SQL 词可误报、不保字符串字面量；_lib 库版自消费收尾（54-check B 先例同型）。
 
 function exportedFnNames(src) {
   const out = [];

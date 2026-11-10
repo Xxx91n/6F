@@ -2,10 +2,10 @@
 // 链 = codelore analyze 行为面集（hotspots/coupling/function-hotspots，env-manager 实物跑 schema 已确认）
 //   → fact（51-macro-b-env-manager-facts.jsonl＋51-audit-facts.duckdb，scale=Macro-B）
 //   → 判据（51-behavior-criteria.md 预声明 PC-1/TC-1/TC-2/NC-1，跑后禁调）
-//   → Macro-B 报告（behavior 象限 native 切片；strategy/structure/supply_chain 如实 not_applicable＋queued 理由）
+//   → Macro-B 报告（behavior 象限 native 那部分；strategy/structure/supply_chain 如实 not_applicable＋queued 理由）
 // quadrant 归位（D-054③）：fact.quadrant=collector provenance（strategic/codelore 族）不改写；
 //   报告象限归属=切片决策——behavior QuadrantEntry 消费行为面事实。
-// 纪律：被测仓只读（codelore analyze 只读扫描）；codelore 0.28.0 pin（resolveCodelore 不 pin 即降级不静默换版）。
+// 纪律：被测仓只读（codelore analyze 只读扫描）；codelore 0.28.0 pin（resolveCodelore 不 pin 即降级不悄悄换版）。
 
 import { writeFileSync, existsSync, unlinkSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -28,7 +28,7 @@ const SUBJECT = 'Xxx91n/env-manager';
 const REPO_ROOT = siblingPath('env-manager'); // D-159⑥ env SSOT 收敛
 const TC1_MIN_N = 5;
 
-// ---------- §0 behavior 切片字段契约 ----------
+// ---------- §0 behavior 字段契约 ----------
 export const BEHAVIOR_SLICE_FIELDS = [
   'faces', 'face_row_counts', 'hotspot_top', 'coupling_pairs', 'min_revs', 'sample_met', 'deferred_faces', 'quadrant_assignment'
 ];
@@ -65,14 +65,14 @@ const pc1 = facetFacts.length === 3 && facetFacts.every(function (f) { return JS
 const tc1 = hRows.length > 0 && hRows.every(function (r) { return typeof r.revisions === 'number' && r.revisions >= TC1_MIN_N; });
 const tc2 = cRows.length > 0 && (cRows.filter(function (r) { return r.shared >= 2 && r.degree > 0; }).length / cRows.length) >= 0.5;
 const DEFERRED = ['function-coupling(--target)'];
-const nc1 = DEFERRED.length > 0; // 未接面如实登记（deferred_faces 写入切片字段即兑现）
+const nc1 = DEFERRED.length > 0; // 未接面如实登记（deferred_faces 写入字段即兑现）
 
 const decidedAt = new Date().toISOString();
 const entries = [
   { criterion_id: 'PC-1', band: pc1 ? 'supported' : 'insufficient', basis_refs: ['B1', 'B4'], anchored_fact_ids: facetFacts.map(function (f) { return f.fact_id; }), anchored_evidence_ids: [], decided_at: decidedAt, rationale: '行为三面 facet_rows 齐备性（hotspots/coupling/function-hotspots 各 row_count>0，errFacts=' + errFacts.length + '）' },
   { criterion_id: 'TC-1', band: tc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.hotspots ? [byFace.hotspots.fact_id] : [], anchored_evidence_ids: ['EV-B-HOTSPOTS'], decided_at: decidedAt, rationale: '低样本判据：hotspots min(revisions)>=' + TC1_MIN_N + '（实测 min=' + (hRows.length ? Math.min.apply(null, hRows.map(function (r) { return r.revisions; })) : 'n/a') + '）' },
   { criterion_id: 'TC-2', band: tc2 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: byFace.coupling ? [byFace.coupling.fact_id] : [], anchored_evidence_ids: ['EV-B-COUPLING'], decided_at: decidedAt, rationale: 'coupling shared>=2&degree>0 占比=' + (cRows.length ? (cRows.filter(function (r) { return r.shared >= 2 && r.degree > 0; }).length / cRows.length).toFixed(3) : 'n/a') + '（阈值 0.5）' },
-  { criterion_id: 'NC-1', band: nc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: [], anchored_evidence_ids: [], decided_at: decidedAt, rationale: 'function-coupling（--target 参数面）暂缓如实登记——deferred_faces 写入切片字段' }
+  { criterion_id: 'NC-1', band: nc1 ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: [], anchored_evidence_ids: [], decided_at: decidedAt, rationale: 'function-coupling（--target 参数面）暂缓如实登记——deferred_faces 写入字段' }
 ];
 
 // ---------- §4 证据锚（C3） ----------
@@ -83,7 +83,7 @@ const evidence = [
 ];
 const claims = evidence.map(function (e) { return { claim_id: 'C-' + e.evidence_id, evidence_id: e.evidence_id, required_tokens: e.required_tokens }; });
 
-// ---------- §5 象限切片 + 报告 ----------
+// ---------- §5 象限那部分 + 报告 ----------
 const hotTop = hRows.slice(0, 3).map(function (r) { return r.path + '(revs=' + r.revisions + ',score=' + Number(r.hotspot_score).toFixed(2) + ')'; });
 const behaviorBand = (pc1 && tc1 && tc2 && nc1) ? 'supported' : 'insufficient';
 const gate = { protocol_version: 'ADR-0013-C/v1', decision: 'insufficient', evidence_flag: false, decided_at: decidedAt, override_reason: null, audit_ref: '51-behavior-criteria.md' };
@@ -93,9 +93,9 @@ const quadrants = [
     verdict_gate: { protocol_version: 'ADR-0013-C/v1', decision: behaviorBand, evidence_flag: pc1, decided_at: decidedAt, override_reason: null, audit_ref: '51-behavior-criteria.md' },
     conflict_markers: [] },
   { quadrant: 'strategy', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {},
-    verdict_gate: Object.assign({}, gate, { override_reason: '本票切片仅行为面；strategy 象限采集面已由 #39 上架（active 维持）' }), conflict_markers: [] },
+    verdict_gate: Object.assign({}, gate, { override_reason: '本票仅行为面；strategy 象限采集面已由 #39 上架（active 维持）' }), conflict_markers: [] },
   { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {},
-    verdict_gate: Object.assign({}, gate, { override_reason: 'queued：与 S3 族双口径风险暂缓（D-054）' }), conflict_markers: [] },
+    verdict_gate: Object.assign({}, gate, { override_reason: 'queued：与 S3 族双规则风险暂缓（D-054）' }), conflict_markers: [] },
   { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {},
     verdict_gate: Object.assign({}, gate, { override_reason: 'queued：Scorecard 不插队（D-034③）' }), conflict_markers: [] }
 ];
@@ -103,21 +103,21 @@ const quadrants = [
 const input = {
   report_id: 'MA-51-ENVMANAGER-BEHAVIOR', scale: 'Macro-B', subject_ref: SUBJECT,
   generated_at: RUN_AT, trace_id: ctx.traceId, baggage_id: C.sha256Hex([SUBJECT, 'Macro-B', 'behavior', ctx.runId].join('|')).slice(0, 32),
-  headline: 'Macro-B behavior 象限接入：codelore churn/hotspot/coupling 切片（hotspot_top=' + (hotTop[0] || 'none') + '）',
+  headline: 'Macro-B behavior 象限接入：codelore churn/hotspot/coupling 部分（hotspot_top=' + (hotTop[0] || 'none') + '）',
   confidence: 0.6,
   stale: { marker: 'fresh', sla_seconds: 86400, lag_seconds: 0, read_model_version: G.REPORT_SKELETON_VERSION, fact_watermark_version: String(facts.length) },
   fact_ids: facts.map(function (f) { return f.fact_id; }),
   top_findings: hotTop.concat(['coupling_pairs=' + cRows.length]),
   evidence: evidence, claims: claims, quadrants: quadrants,
-  recommendations: [{ rec_id: 'R-51-1', priority: 'P2', action: 'behavior 象限 preview 位维持：churn/hotspot/coupling 三面接 codelore（min_revs=' + TC1_MIN_N + ' 阈值惯例）', rationale: 'behavior 切片已落（native 象限）——低样本仓信度披露靠 TC-1 判据守住', expected_impact: 'Macro-B 四象限名实落差收窄为 strategy+behavior 双 active', effort: '本票已付', verdict_gate_stamp: behaviorBand, evidence_refs: ['EV-B-HOTSPOTS', 'EV-B-COUPLING'], degraded_note: null }],
+  recommendations: [{ rec_id: 'R-51-1', priority: 'P2', action: 'behavior 象限 preview 位维持：churn/hotspot/coupling 三面接 codelore（min_revs=' + TC1_MIN_N + ' 阈值惯例）', rationale: 'behavior 那部分已落（native 象限）——低样本仓信度披露靠 TC-1 判据守住', expected_impact: 'Macro-B 四象限名实落差缩小为 strategy+behavior 双 active', effort: '本票已付', verdict_gate_stamp: behaviorBand, evidence_refs: ['EV-B-HOTSPOTS', 'EV-B-COUPLING'], degraded_note: null }],
   adjudication_entries: entries, decided_at: decidedAt,
   commit_anchor: 'unanchored', tree_anchor: 'unanchored',
-  // Design: 裸 'unanchored' 属禁用的模糊态，发出面取显式降级标记 — spec §R9-1
+  // 裸 'unanchored' 属禁用的模糊态，发出面取明确降级标记 — spec §R9-1
   gate_ref: { prereg_commit: G.preregDegraded('unanchored-run'), criteria_path: '51-behavior-criteria.md', basis_path: '22-c-adjudication-basis.md', criterion_ids: ['PC-1', 'TC-1', 'TC-2', 'NC-1'] },
   degraded: false, degraded_reason: null,
   preview_disclosure: {
     capability_label: 'capability 1 of 5 · preview',
-    calibration_scope: '单仓校准（Xxx91n/env-manager，codelore 0.28.0 实跑）；behavior 切片=preview 位',
+    calibration_scope: '单仓校准（Xxx91n/env-manager，codelore 0.28.0 实跑）；behavior 那部分=preview 位',
     structural_limitations: ['行为面仅 churn/hotspot/coupling 三族（function-coupling --target 参数面暂缓）', '同主试点仓校准非泛化证据（dogfooding=generative not evaluative，D-033）', 'strategy/structure/supply-chain 本票不裁（归位=切片决策，各象限判据独立）'],
     not_in_preview: ['function-coupling', 'structure 象限', 'supply-chain 象限', 'Micro-B', 'Macro-A']
   }

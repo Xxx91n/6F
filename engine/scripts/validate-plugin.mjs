@@ -3,7 +3,7 @@
 //             ②pack/marketplace 前置手动窗口（npm run validate:plugin）
 // 环境分层（D-077①）：`MACRO_AUDIT_CI=1`=cli-absent-expected 面 → cli-absent → `INFO(claude-validate): cli-absent-expected`
 //   第三披露态（neutral——计入 ADV｜回显、不计 WARN、不进 streak、不触发升格）；缺省=cli-expected 面
-//   （fail-safe 本地告警方向）：SKIP 硬化原样（计入 WARN＋streak＋SKIP-STREAK-ALERT），语义收窄=「本地异常缺席」。
+//   （fail-safe 本地告警方向）：SKIP 硬化原样（计入 WARN＋streak＋SKIP-STREAK-ALERT），语义缩小范围=「本地异常缺席」。
 // 状态：.code-tmp/claude-validate-state.json（未跟踪 scratch，非契约面；mode=local-observation-only——
 //   本地连续观测计数器，CI 面不消费、非 promotion 证据）。
 // 证据：.code-tmp/claude-validate-receipts.jsonl（append-only——每跑一行 {at,cli_version,verdict,output_digest}；
@@ -37,7 +37,7 @@ function appendReceipt(verdict, cliVersion, output) {
 }
 
 const st = readState();
-// win32 经 cmd.exe /d /s /c 调 claude（Node≥24 硬化禁 .cmd 直调 EINVAL；shell:true 有命令断裂/注入风险——cmd.exe 显式包装两全）；POSIX 直调 claude。
+// win32 经 cmd.exe /d /s /c 调 claude（Node≥24 硬化禁 .cmd 直调 EINVAL；shell:true 有命令断裂/注入风险——cmd.exe 明确包装两全）；POSIX 直调 claude。
 const claudeSpec = process.platform === 'win32' ? { cmd: 'cmd.exe', pre: ['/d', '/s', '/c', 'claude'] } : { cmd: 'claude', pre: [] };
 const probe = spawnSync(claudeSpec.cmd, claudeSpec.pre.concat(['--version']), { encoding: 'utf8', timeout: 30000 });
 const cliVer = !probe.error && probe.status === 0 ? (probe.stdout || '').trim().split('\n')[0] : null;

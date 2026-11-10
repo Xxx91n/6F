@@ -1,11 +1,11 @@
 // 54-check.mjs —— #54 %cI 确定性修复守卫（D-059① / T1）
 // 断言面：A=intake.ts enforce 位（normalizeGitIsoDate 导出＋归一规则＋严格断言＋GITCLI-OUTPUT-CONTRACT）
 //   → B=demo.ts 两处 %cI 消费点全走归一化（无裸 %cI 直灌确定性链）
-//   → C=golden-ci.yml 勘误声明（「非平台行为」过宽声明已更正：git 版本拼写漂移已归一化封口）
+//   → C=golden-ci.yml 勘误声明（「非平台行为」过宽声明已更正：git 版本拼写漂移已归一化定下来）
 //   → D=upstream-lock.yaml git-cli 行点名 enforce 位
 //   → E=engine/test/gitcli-contract.test.mjs 实跑 exit 0（11/11）＋接入 smoke 链
 //   → F=golden 逐字节无漂：runDemo 重渲染 → 与入库 golden 逐字节 diff（本机 git 2.55 下归一化=恒等）
-//   → G=存活对照脚本（39/40/48）%cI 消费点同样走归一化（对照口径与引擎一致，冻结史证 23/22/01 不动）
+//   → G=存活对照脚本（39/40/48）%cI 消费点同样走归一化（对照规则与引擎一致，冻结史证 23/22/01 不动）
 //   → H=本票新增/改动文件无 BOM
 // 纪律：只读断言（临时目录渲染属工件产出非仓内状态改写）；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
@@ -36,7 +36,7 @@ t('A1 normalizeGitIsoDate 导出在', /export function normalizeGitIsoDate\(/.te
 // intake.ts 侧 normalizeGitIsoDate=抛型回执委托——两级违约分流钉锚。
 t('A2 +00:00→Z 归一规则在契约层', quar.indexOf("replace(/\\+00:00$/") >= 0 && quar.indexOf("'Z'") >= 0);
 t('A3 严格 ISO 形状断言（Z 或 ±HH:MM 秒精度）在契约层', /GIT_ISO_STRICT_RE = \/\^\\d\{4\}-/.test(quar));
-t('A4 形状违例抛 GITCLI-OUTPUT-CONTRACT（不静默放行；quarantined 经分类器回执）', intake.indexOf('GITCLI-OUTPUT-CONTRACT') >= 0 && intake.indexOf('classifyGitIsoField') >= 0);
+t('A4 形状违例抛 GITCLI-OUTPUT-CONTRACT（不悄悄放行；quarantined 经分类器回执）', intake.indexOf('GITCLI-OUTPUT-CONTRACT') >= 0 && intake.indexOf('classifyGitIsoField') >= 0);
 
 // ---------- B. %cI 消费点全走归一化（#53 提炼后位在 audit/macro-b.ts——demo 经共享链同消费） ----------
 const demo = txt(join(ENG, 'src', 'demo', 'demo.ts'));
@@ -87,10 +87,10 @@ for (const sc of D.DEMO_SCENARIOS) {
 t('F1 三场景重渲染与入库 golden 逐字节一致（归一化在本机 git 下=恒等，无回退漂移）', fAll, fDetail.join(','));
 rmSync(tmp, { recursive: true, force: true });
 
-// ---------- G. 存活对照脚本 %cI 消费同口径 ----------
+// ---------- G. 存活对照脚本 %cI 消费同规则 ----------
 for (const s of [join(REPO,'engine','scripts','39-macro-b-one-shot.mjs'), join(REPO,'engine','scripts','40-macro-b-one-shot.mjs'), join(HERE,'48-micro-a-preview.mjs')]) {
   const src = txt(s);
-  t('G-' + s + ' %cI 消费点走 normalizeGitIsoDate（与引擎同归一化，对照口径一致）', src.indexOf('normalizeGitIsoDate') >= 0 && src.indexOf('%cI') >= 0, 'normalize=' + (src.indexOf('normalizeGitIsoDate') >= 0));
+  t('G-' + s + ' %cI 消费点走 normalizeGitIsoDate（与引擎同归一化，对照规则一致）', src.indexOf('normalizeGitIsoDate') >= 0 && src.indexOf('%cI') >= 0, 'normalize=' + (src.indexOf('normalizeGitIsoDate') >= 0));
 }
 t('G-冻结史证 23-first-report.mjs 不动（CI 物化自 e39468c 冻结 commit，改本件无意义且制造双源）', txt(join(HERE, '23-first-report.mjs')).indexOf('%cI') >= 0);
 

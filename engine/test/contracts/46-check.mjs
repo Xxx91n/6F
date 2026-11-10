@@ -1,11 +1,11 @@
 // 46-check.mjs —— #46 回归 CI 迁回 6F 自有 CI 守卫（R7-05 / D-046 / D-013 / D-033）
 // 断言面：A=6F workflow 契约（触发面/opt-in 输入/intake 隔离/链/工件断言/权限/诚实语义）
 //   → B=jiahao 单文件撤除（工作树缺席 + 删除提交 name-status 恰 1 文件 D）
-//   → C=本地 one-shot 验证工件（46-out 工件集 + 回执 + 裁定三档如实落数）
+//   → C=本地 one-shot 验证工件（46-out 工件集 + 回执 + 裁定三档照实写数字）
 //   → D=引擎健康回归（33-check exit 0 + dist/cli.js 在 + one-shot 脚本迁移注记同步）
 //   → E=文书（BACKLOG #46 行 + 本轮报告含 #46 窗口节）
 // 纪律：只读断言（git 只读子命令 + fs 读，零写仓内状态）；exit 0 + PASS N/N 为绿。
-// 口径：job 绿=管线跑通+工件齐备，非裁定绿（supported/unsupported/insufficient 三档如实，反复接受非跑通 D-033）。
+// 规则：job 通过=管线跑通+工件齐备，非裁定绿（supported/unsupported/insufficient 三档如实，反复接受非跑通 D-033）。
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -21,7 +21,7 @@ const TIER = 'env-contract';
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '46 回归 CI 迁回面（6F workflow 契约＋jiahao 撤除＋46-out 工件）';
 const JIAHAO = siblingPath('jiahao');
-// 组级前置（D-164-a②；R42 审计 O3 收窄）：B 组与 C4 挂 sibling:jiahao；A/C1~C3/D/E 零需 portable 段不因 sibling 缺席连坐
+// 组级前置（D-164-a②；R42 审计 O3 缩小范围）：B 组与 C4 挂 sibling:jiahao；A/C1~C3/D/E 零需 portable 段不因 sibling 缺席连坐
 const WF = join(REPO, '.github', 'workflows', 'macro-b-regression.yml');
 const OUT = join(REPO, 'engine', 'test', 'fixtures', 'contracts', '46-out');
 
@@ -48,7 +48,7 @@ if (wf !== null) {
   t('A12 无 MACRO_AUDIT_6F_TOKEN（D-046⑤ 跨私仓面取消）+ 无 repository: Xxx91n/6F 跨仓 checkout', wf.indexOf('MACRO_AUDIT_6F_TOKEN') < 0 && wf.indexOf('repository: Xxx91n/6F') < 0);
   t('A13 resolve job 产 matrix（fromJSON）+ 默认集含 jiahao URL', wf.indexOf('fromJSON(needs.resolve.outputs.matrix)') >= 0 && wf.indexOf('https://github.com/Xxx91n/jiahao.git') >= 0);
   t('A14 诚实语义注释在：已上架层限定 + job 绿=管线 + 三档如实 + mw-trigger-a', ['已上架层', '管线', 'supported/unsupported/insufficient', 'mw-trigger-a'].every(s => wf.indexOf(s) >= 0));
-  t('A15 engine 构建用 npm ci --ignore-scripts（仓内 CI 惯例，golden-ci.yml:46 同口径），无裸 npm install', wf.indexOf('npm ci --ignore-scripts') >= 0 && wf.indexOf('npm install') < 0);
+  t('A15 engine 构建用 npm ci --ignore-scripts（仓内 CI 惯例，golden-ci.yml:46 同规则），无裸 npm install', wf.indexOf('npm ci --ignore-scripts') >= 0 && wf.indexOf('npm install') < 0);
   t('A16 matrix.repo.* 进 run 一律 env 间接引用（无 clone "${{ matrix.repo.url }}" 直插）', wf.indexOf('REPO_URL: ${{ matrix.repo.url }}') >= 0 && wf.indexOf('REPO_NAME: ${{ matrix.repo.name }}') >= 0 && wf.indexOf('clone "$REPO_URL"') >= 0 && wf.indexOf('clone "${{ matrix.repo.url }}"') < 0 && wf.indexOf('--repo "${{ matrix.repo.name }}"') < 0);
   t('A17 verify 步强断言：test -s 非零字节 + receipt_id RCP-[0-9a-f]{16} 格式断言', wf.indexOf('test -s') >= 0 && wf.indexOf('RCP-[0-9a-f]{16}') >= 0 && wf.indexOf('"receipt_id"') >= 0);
 }
@@ -83,22 +83,22 @@ const JH46 = [need('sibling:jiahao', existsSync(JIAHAO))];
 if (groupProbe('46-check', 'B', JH46)) {
   const jhWf = join(JIAHAO, '.github', 'workflows', 'macro-b-regression.yml');
   // F-7 漂移披露补腿（D-159⑤ 兑现）：sibling 在但状态越出钉定时代（文件重现/删除提交不可达/变更面不符）
-  //   →WARN 方言披露不计数（同 37-C1 退化型）；非漂移路径保留原断言 verbatim（sibling 态属环境面非本仓契约）
+  //   →WARN 方言披露不计数（同 37-C1 失效型）；非漂移路径保留原断言 verbatim（sibling 态属环境面非本仓契约）
   if (existsSync(jhWf)) {
-    console.log('WARN B1 jiahao 工作树该文件重现——sibling 漂移越出钉定时代，断言退化不计数（方言披露面 D-159⑤）');
+    console.log('WARN B1 jiahao 工作树该文件重现——sibling 漂移越出钉定时代，断言失效不计数（方言披露面 D-159⑤）');
   } else {
     t('B1 jiahao 工作树该文件已缺席', !existsSync(jhWf));
   }
   const delSha = (git(JIAHAO, ['log', '--all', '--diff-filter=D', '--format=%H', '--', '.github/workflows/macro-b-regression.yml']) || '').split(NL)[0] || '';
   if (!/^[0-9a-f]{40}$/.test(delSha)) {
-    console.log('WARN B2 jiahao 删除提交不可达（delSha=' + (delSha.slice(0, 8) || 'none') + '）——sibling 史漂移，断言退化不计数（方言披露面 D-159⑤ 同 37-C1 型）');
+    console.log('WARN B2 jiahao 删除提交不可达（delSha=' + (delSha.slice(0, 8) || 'none') + '）——sibling 史漂移，断言失效不计数（方言披露面 D-159⑤ 同 37-C1 型）');
   } else {
     t('B2 存在该文件的删除提交', /^[0-9a-f]{40}$/.test(delSha), 'delSha=' + delSha);
     const ns = git(JIAHAO, ['show', '--pretty=format:', '--name-status', delSha]) || '';
     if (ns === 'D\t.github/workflows/macro-b-regression.yml') {
       t('B3 删除提交变更面恰 1 文件且为 D 该文件', ns === 'D\t.github/workflows/macro-b-regression.yml', JSON.stringify(ns));
     } else {
-      console.log('WARN B3 删除提交变更面不符（ns=' + JSON.stringify(ns.slice(0, 60)) + '）——sibling 史改写漂移，退化不计数');
+      console.log('WARN B3 删除提交变更面不符（ns=' + JSON.stringify(ns.slice(0, 60)) + '）——sibling 史改写漂移，失效不计数');
     }
   }
 }
@@ -115,7 +115,7 @@ if (groupProbe('46-check', 'C4', JH46) && meas) {
   const headOk = /^[0-9a-f]{40}$/.test(meas.head_sha || '');
   const headType = headOk ? git(JIAHAO, ['cat-file', '-t', meas.head_sha]) : null;
   if (headOk && headType !== 'commit') {
-    console.log('WARN C4 存档 head ' + meas.head_sha.slice(0, 8) + ' jiahao 活仓不可达（type=' + headType + '）——运行锚断言退化不计数（方言披露面 D-159⑤ 同 37-C1 型）');
+    console.log('WARN C4 存档 head ' + meas.head_sha.slice(0, 8) + ' jiahao 活仓不可达（type=' + headType + '）——运行锚断言失效不计数（方言披露面 D-159⑤ 同 37-C1 型）');
   } else {
     t('C4 运行锚 40-hex head_sha 可解析为 git 对象', /^[0-9a-f]{40}$/.test(meas.head_sha || '') && headType === 'commit', 'head=' + (meas.head_sha || 'n/a'));
   }

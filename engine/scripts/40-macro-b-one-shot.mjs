@@ -4,7 +4,7 @@
 //   差异仅：默认目标=外部仓 clone 缓存、产物命名 40-*、披露块 calibration_scope=外部仓、条目 id 前缀 40-。
 // 用法：
 //   node 40-macro-b-one-shot.mjs                                          # 默认外部仓（open-gsd/gsd-core @ 40-clone-cache）
-//   node 40-macro-b-one-shot.mjs --repo gsd-core --root <abs> --out <dir>   # 显式单仓形态
+//   node 40-macro-b-one-shot.mjs --repo gsd-core --root <abs> --out <dir>   # 明确单仓形态
 // 链 = URL opt-in intake（engine intake repo add：隔离缓存+全深度+浅拒+禁远程配置执行）
 //   → 采集（gitlog + adr-structure@v2 + positioning）→ fact（40-*-facts.jsonl + 共享 40-audit-facts.duckdb）
 //   → 裁决（PC-1/PC-2 正对照 + TC-1/2/3 真判据 + NC-1 负对照，阈值=22-criteria-pre-registration.md）→ 报告。
@@ -24,7 +24,7 @@ const C = await import(pathToFileURL(join(DIST, 'collect', 'collectors.js')).hre
 const G = await import(pathToFileURL(join(DIST, 'report', 'generate.js')).href);
 const S = await import(pathToFileURL(join(DIST, 'fact', 'schema.js')).href);
 const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
-const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同口径防跨版本漂移
+const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同规则防跨版本漂移
 
 // ---------- §0 参数：默认三仓全跑；--repo/--root/--out = 单仓 CI 形态 ----------
 const EXT_URL = 'https://github.com/open-gsd/gsd-core.git';
@@ -293,19 +293,19 @@ async function runOneShot(target) {
   ];
   const strategyBand = G.deriveOverallBand(adjudicationEntries);
 
-  // -- 四象限切片（Macro-B 已上架采集面 = strategy 原生；其余 not_applicable 如实披露） --
+  // -- 四象限数据（Macro-B 已上架采集面 = strategy 原生；其余 not_applicable 如实披露） --
   const GATE = { protocol_version: G.ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'reports/40-macro-b-one-shot.mjs' };
   const quadrants = [
     { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(meas.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(meas.tc2.mean_ratio_4), adr_count: tc2Total, lag_judgeable_n: tc1Judgeable, intent_docs: intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: tc2Verdict === 'RED', decided_at: HEAD_DATE, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
-    { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_DATE, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23 首报同口径）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
+    { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_DATE, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23 首报同标准）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
     { quadrant: 'behavior', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_DATE, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——behavior 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
     { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_DATE, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
   ];
   const recommendations = [
     { rec_id: 'R-40-' + R + '-1', priority: 'P1', action: 'adr-structure v2 回退链补「- **Field:**」（dash+加粗）头部腿——本仓 Status 缺失读数主要为 detector 漏认（可归属原因候选），v3 腿须先预注册判据再改 detector（27-prereg 纪律，v2 禁改）', rationale: 'gsd-core 92 份 ADR 头部统一为 dash+加粗形态，v2 四腿（dash/inline/inline-iso/git）未覆盖 → Status 缺失率主成分为漏认；外部仓泛化暴露的首个覆盖缺口', expected_impact: 'TC-2 字段缺失读数区分「真缺失 vs 漏认」，跨仓可比性恢复', effort: 'M', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-40-' + R + '-03'], degraded_note: null },
-    { rec_id: 'R-40-' + R + '-2', priority: 'P2', action: 'first-external-repo 事件 occurred 落账：desk-task2 判据达成（TC-1 judgeable≥min_n 5）→ triggered-bound；desk-task15 判据属 Micro-A（未上架层）→ 值守通道呈报', rationale: 'URL opt-in 首实用户落地（D-013），registry 绑定项按登记处置不静默', expected_impact: 'Macro-B GA 前置条件达成；挂门值守状态机推进', effort: 'S', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-40-' + R + '-07'], degraded_note: null }
+    { rec_id: 'R-40-' + R + '-2', priority: 'P2', action: 'first-external-repo 事件 occurred 落账：desk-task2 判据达成（TC-1 judgeable≥min_n 5）→ triggered-bound；desk-task15 判据属 Micro-A（未上架层）→ 定期检查通道呈报', rationale: 'URL opt-in 首实用户落地（D-013），registry 绑定项按登记处置不悄悄忽略', expected_impact: 'Macro-B GA 前置条件达成；到期提醒定期检查状态机推进', effort: 'S', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-40-' + R + '-07'], degraded_note: null }
   ];
-  const HEADLINE = NAME + ' Macro-B one-shot（capability 1 of 5 · preview）：' + COMMIT_COUNT + ' commits / ADR ' + tc2Total + ' 份 / facts ' + realFacts.length + '——TC-1 ' + tc1Verdict + '（n=' + tc1Judgeable + '）、TC-2 ' + tc2Verdict + '（mean=' + meas.tc2.mean_ratio_4 + '）、TC-3 ' + tc3Verdict + '（' + meas.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '（反复接受非跑通：三档如实落数）。';
+  const HEADLINE = NAME + ' Macro-B one-shot（capability 1 of 5 · preview）：' + COMMIT_COUNT + ' commits / ADR ' + tc2Total + ' 份 / facts ' + realFacts.length + '——TC-1 ' + tc1Verdict + '（n=' + tc1Judgeable + '）、TC-2 ' + tc2Verdict + '（mean=' + meas.tc2.mean_ratio_4 + '）、TC-3 ' + tc3Verdict + '（' + meas.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '（反复接受非跑通：三档照实写数字）。';
 
   const reportInput = {
     report_id: 'MA-40-' + NAME.toUpperCase().split('-').join('') + '-MACRO-B-ONESHOT',
@@ -337,7 +337,7 @@ async function runOneShot(target) {
         '单仓泛化证据：本报告为首个非自有仓 one-shot（n=1）——满足 D-033「≥1 外部仓」下限，不构成外部仓形态全覆盖',
         'structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）；供应链象限 ⚠ 数据未接（D-034③）',
         'TC-2 读数含 detector 漏认成分：gsd-core ADR 头部为「- **Field:**」（dash+加粗混排）形态，v2 回退链未覆盖——Status 缺失读数主要为漏认而非真实缺失（可归属原因候选，待 v3 腿预注册）',
-        'one-shot 度量 = 反复接受非跑通：TC 三档裁定（supported/unsupported/insufficient）如实落数，不为跑通而跑通'
+        'one-shot 度量 = 反复接受非跑通：TC 三档裁定（supported/unsupported/insufficient）照实写数字，不为跑通而跑通'
       ],
       not_in_preview: ['Micro-A', 'Micro-B', 'Macro-A']
     },

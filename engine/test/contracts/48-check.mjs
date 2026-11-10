@@ -1,6 +1,6 @@
 // 48-check.mjs — #48 Micro-A preview 守卫（R8-02 / A-056 / D-049）
 // 断言面：A 管道+判据文件+模块导出契约 → B golden 实跑＋十二件逐字节对账（cassette 回放，离线；漂移即红 tracker #88）→ C 真跑工件齐备
-//   → D 报告语义（4 PR supported＋拒绝件 unsupported＋切片字段∩骨架机械断言＋披露四字段）→ E 事件闭环+文档回写 → F token 泄漏+BOM
+//   → D 报告语义（4 PR supported＋拒绝件 unsupported＋所含字段∩骨架机械断言＋披露四字段）→ E 事件闭环+文档回写 → F token 泄漏+BOM
 // 纪律：只读断言＋golden 子进程（cassette 离线回放零网络）；真跑工件为已落盘实证不重复实跑；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -39,7 +39,7 @@ let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
 function txt(p) { return readFileSync(p, 'utf8'); }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
-// 坏 JSON 不得抛穿整条守卫：未捕获异常会把「有名判红」降成无名的 status=1（tracker #72 同型）。
+// 坏 JSON 不得抛穿整条守卫：未捕获异常会把「有名判失败」降成无名的 status=1（tracker #72 同型）。
 // 能 parse 但形状不对（{}、[]、数字、无 checks）同样不许在下游取属性时抛，故 B2/B3 另用 Array.isArray 兜底。
 /** 安全 JSON 读：文件缺席或内容坏掉时返回 null，不抛穿守卫（tracker #72 同型）。 */
 function safeJson(p) { try { return existsSync(p) ? JSON.parse(txt(p)) : null; } catch (e) { return null; } }
@@ -55,12 +55,12 @@ const MOD = await import(pathToFileURL(PIPE).href);
 t('A5 导出 MICRO_A_SLICE_FIELDS ≥20 字段', Array.isArray(MOD.MICRO_A_SLICE_FIELDS) && MOD.MICRO_A_SLICE_FIELDS.length >= 20, String((MOD.MICRO_A_SLICE_FIELDS || []).length));
 t('A6 导出 skeletonIntersectionReport 函数', typeof MOD.skeletonIntersectionReport === 'function');
 t('A7 管道含三形态+真负例+漂移注记', pipe.indexOf('release-please') >= 0 && pipe.indexOf('dependabot') >= 0 && pipe.indexOf('goose-duck-agent') >= 0 && pipe.indexOf('anysearch-cli') >= 0);
-t('A8 走主路/回退标注面（credential_strategy + diff_channel 入切片）', MOD.MICRO_A_SLICE_FIELDS.indexOf('credential_strategy') >= 0 && MOD.MICRO_A_SLICE_FIELDS.indexOf('diff_channel') >= 0);
+t('A8 走主路/回退标注面（credential_strategy + diff_channel 入字段）', MOD.MICRO_A_SLICE_FIELDS.indexOf('credential_strategy') >= 0 && MOD.MICRO_A_SLICE_FIELDS.indexOf('diff_channel') >= 0);
 
 // ---------- B. golden 实跑（cassette 离线回放） ----------
 const GOLDEN_OUT = mkdtempSync(join(tmpdir(), '48-golden-'));
-// 种子显式钉 0（＝deterministicRunAt 的默认 epoch）：对账不该被外部 SOURCE_DATE_EPOCH 改写——
-// 否则同一份存档在别人设了该变量的环境里无故判红。生成器保留显式种子能力，本守卫只是不继承它。
+// 种子明确钉 0（＝deterministicRunAt 的默认 epoch）：对账不该被外部 SOURCE_DATE_EPOCH 改写——
+// 否则同一份存档在别人设了该变量的环境里无故判失败。生成器保留明确种子能力，本守卫只是不继承它。
 const gr = spawnSync('node', [PIPE, '--golden', '--out', GOLDEN_OUT], { cwd: REPO, encoding: 'utf8', timeout: 120000, env: Object.assign({}, process.env, { SOURCE_DATE_EPOCH: '0' }) });
 const gout = (gr.stdout || '') + (gr.stderr || '');
 
@@ -71,8 +71,8 @@ t('B3 golden 断言 ≥10 条且全过', gass !== null && Array.isArray(gass.che
 t('B4 golden 工件齐备（在册十二件全在场——含 pr64.diff 与 assertions）', GOLDEN_NAMES.every(function (f) { return existsSync(join(FX, f)); }), GOLDEN_NAMES.filter(function (f) { return !existsSync(join(FX, f)); }).join(','));
 
 // ---------- B5~B12 golden 逐字节对账（tracker #88；形制取 golden-ci.yml 的「重渲染＋逐字节 diff」纪律 D-030③） ----------
-// B1 已把十二件现跑进 GOLDEN_OUT，此前只判 exit 0 即弃——入库件手改或引擎渲染变更都不判红（实证：tracker #114
-// 的引文转义修复静默漂了三件 .md，而 48-check 照旧 PASS 40/40）。对账臂＝入库目录 vs 现跑目录，CI 不回写：
+// B1 已把十二件现跑进 GOLDEN_OUT，此前只判 exit 0 即弃——入库件手改或引擎渲染变更都不判失败（实证：tracker #114
+// 的引文转义修复悄悄漂了三件 .md，而 48-check 照旧 PASS 40/40）。对账臂＝入库目录 vs 现跑目录，CI 不回写：
 // 红了由人重跑 --golden 随 PR 提交，golden 更新只走审查。
 // 对账是全字节的：prereg_commit 的锚宽也一并比，因为锚值会被算进 receipt_id／chain_hash／mark，
 // 放过锚值等于放过那三列。跨环境可复算由生成器在 --golden 下取全值 SHA 定长截取保证，本文件只核一遍宽度没抖（B12）。
@@ -103,12 +103,12 @@ const REGEN_CMD = 'node engine/test/contracts/48-micro-a-preview.mjs --golden --
 const driftB5 = goldenDrift(FX, GOLDEN_OUT, GOLDEN_NAMES);
 t('B5 golden 逐字节对账十二件（现跑 vs 入库，漂移即红）', driftB5.length === 0, driftB5.length ? driftText(driftB5) + ' → 重跑 ' + REGEN_CMD + ' 随 PR 提交' : '');
 
-// 对照臂（tracker #88 AC②）：判别臂自己必须被判别——红侧与绿侧都不得是空集恒真（tracker #29 口径）。
+// 对照臂（tracker #88 AC②）：判别臂自己必须被判别——红侧与绿侧都不得是空集永远通过（tracker #29 规则）。
 // 绿侧由 B5∧B8 承担（十二件真比对零漂移，＋三集合等闸钉住「比对集非空」），此处只补必红的正对照。
 const TAMPER_DIRS = [];
 /**
  * 复制现跑十二件到临时目录，再篡改其中一件，供对照臂证明守卫的判别力。
- * 源件缺席时不抛错，返回残缺副本交给下游判红（tracker #72 同型）。
+ * 源件缺席时不抛错，返回残缺副本交给下游判失败（tracker #72 同型）。
  * @param {string} name 要篡改的在册件名
  * @param {(text: string) => string} mutate 就地改写该件正文
  * @returns {string} 临时目录（已登记进 TAMPER_DIRS 待清理）
@@ -121,7 +121,7 @@ function tamperedCopy(name, mutate) {
     if (existsSync(src)) { copyFileSync(src, join(dir, n)); }
   }
   const p = join(dir, name);
-  // B1 没产出该件时不许在此抛 ENOENT 拖垮整条守卫——照常返回残缺副本，让下游对照臂判红并留下可读原因（tracker #72 同型）
+  // B1 没产出该件时不许在此抛 ENOENT 拖垮整条守卫——照常返回残缺副本，让下游对照臂判失败并留下可读原因（tracker #72 同型）
   if (!existsSync(p)) { return dir; }
   writeFileSync(p, mutate(readFileSync(p, 'utf8')), 'utf8');
   return dir;
@@ -131,17 +131,17 @@ function tamperedCopy(name, mutate) {
 function driftOfTamper(name, mutate) { return goldenDrift(GOLDEN_OUT, tamperedCopy(name, mutate), GOLDEN_NAMES); }
 const TAM_REFUSAL_MD = '48-micro-a-golden-goose-duck-agent-refusal.md';
 const driftRefusal = driftOfTamper(TAM_REFUSAL_MD, function (s) { return s.split('无托管 PR 面').join('托管 PR 面齐备'); });
-t('B6 正对照：拒绝件 .md 语义措辞篡改 → 恰该件判红（不误伤其余十一件）', driftRefusal.length === 1 && driftRefusal[0].name === TAM_REFUSAL_MD, driftText(driftRefusal));
+t('B6 正对照：拒绝件 .md 语义措辞篡改 → 恰该件判失败（不误伤其余十一件）', driftRefusal.length === 1 && driftRefusal[0].name === TAM_REFUSAL_MD, driftText(driftRefusal));
 const TAM_PR64_JSON = '48-micro-a-golden-env-manager-pr64.json';
 const driftPr64 = driftOfTamper(TAM_PR64_JSON, function (s) { return s.replace('"overall_verdict": "supported"', '"overall_verdict": "insufficient"'); });
-t('B7 正对照：pr64.json overall_verdict 篡改 → 恰该件判红（裁决面篡改必红）', driftPr64.length === 1 && driftPr64[0].name === TAM_PR64_JSON, driftText(driftPr64));
-// 集合闸：清单/入库/现跑三集合必须同款同名——清单手改缩编、生成器少写或多写都在此当场红（空集恒真的最后一道）
+t('B7 正对照：pr64.json overall_verdict 篡改 → 恰该件判失败（裁决面篡改必失败）', driftPr64.length === 1 && driftPr64[0].name === TAM_PR64_JSON, driftText(driftPr64));
+// 集合闸：清单/入库/现跑三集合必须同款同名——清单手改缩编、生成器少写或多写都在此当场红（空集永远通过的最后一道）
 const setRepo = readdirSync(FX).filter(function (f) { return f.indexOf(GOLDEN_PREFIX) === 0; }).sort().join('|');
 const setRegen = readdirSync(GOLDEN_OUT).filter(function (f) { return f.indexOf(GOLDEN_PREFIX) === 0; }).sort().join('|');
 const setListed = GOLDEN_NAMES.slice().sort().join('|');
 t('B8 集合闸：清单＝入库＝现跑且各恰十二件', setListed === setRepo && setListed === setRegen && GOLDEN_NAMES.length === 12, 'listed=' + setListed.split('|').length + ' repo=' + setRepo.split('|').length + ' regen=' + setRegen.split('|').length + (setRepo !== setListed ? ' repo∉清单:' + setRepo : '') + (setRegen !== setListed ? ' regen∉清单:' + setRegen : ''));
 // ---------- prereg_commit 双侧全值校验（tracker #88 AC③） ----------
-// 形制判别复用产品单源 classifyPreregAnchor（三形态口径归 spec §R9-1，守卫不另立第二套；
+// 形制判别复用产品单源 classifyPreregAnchor（三形态规则归 spec §R9-1，守卫不另立第二套；
 // 形制本身的可解析性由 85-check A17 与 micro-a.test S 组管，本臂不重扫）。本臂只补产品面管不着的那一档：
 // 存档侧与现跑两侧的短写都必须指向**那枚判据锚**——全值走 log --format=%H 取，再前缀全值校验；
 // 不走 rev-parse --verify：`%h` 短写不是可解析 rev，喂进去只会报出假因。
@@ -172,23 +172,23 @@ const scanRepo = preregOffenders(FX);
 const scanRegen = preregOffenders(GOLDEN_OUT);
 t('B9 prereg_commit 双侧全值校验（入库与现跑都须指到判据锚）', scanRepo.carriers.length > 0 && scanRegen.carriers.length > 0 && scanRepo.bad.length === 0 && scanRegen.bad.length === 0, 'full=' + (preregFull.slice(0, 12) || 'ABSENT') + ' carriers=' + scanRepo.carriers.length + '/' + scanRegen.carriers.length + ' 入库违规=' + scanRepo.bad.join(',') + ' 现跑违规=' + scanRegen.bad.join(','));
 // 全值校验臂自证：在册真短写末位翻成另一枚 hex（形制仍合法、宽度不变的异值）写回副本走同一条扫描，必须点名该件——
-// 否则「形制合法、也解析得到、但不是那枚锚」这一类无人判红（tracker #100 立法要杀的正是要窄这一档）。
+// 否则「形制合法、也解析得到、但不是那枚锚」这一类无人判失败（tracker #100 立法要杀的正是要窄这一档）。
 const preregPerturbed = scanRepo.carriers.length > 0 ? scanRepo.carriers[0].v.slice(0, -1) + (scanRepo.carriers[0].v.slice(-1) === '0' ? '1' : '0') : '';
 const tamAnchorDir = tamperedCopy(TAM_PR64_JSON, function (s) { return s.replace(/("prereg_commit":\s*")[0-9a-f]{4,40}(")/, '$1' + preregPerturbed + '$2'); });
 const scanTamper = preregOffenders(tamAnchorDir);
 // 差分断言而非绝对计数：只许「篡改多出一件」，不许别的件的判定被这次篡改带偏。绝对计数在现跑侧本身已违规时
 // 会因错而红，那种红证不了这条臂的判别力，只会把 B9 的问题重复一遍。
 const tamperAdded = scanTamper.bad.filter(function (x) { return scanRegen.bad.indexOf(x) < 0; });
-t('B10 正对照：锚短写改同宽异值 → 恰该件多判红一件（不留洞）', preregPerturbed.length >= 4 && tamperAdded.length === 1 && tamperAdded[0].indexOf(TAM_PR64_JSON) === 0, 'perturbed=' + preregPerturbed + ' 新增=' + tamperAdded.join(','));
-// 等长篡改对照：B6／B7 改的都动了长度，只能证「长度变了会红」；comparator 若退化成只比长度，这两条照样绿。
+t('B10 正对照：锚短写改同宽异值 → 恰该件多判失败一件（不留洞）', preregPerturbed.length >= 4 && tamperAdded.length === 1 && tamperAdded[0].indexOf(TAM_PR64_JSON) === 0, 'perturbed=' + preregPerturbed + ' 新增=' + tamperAdded.join(','));
+// 等长篡改对照：B6／B7 改的都动了长度，只能证「长度变了会红」；comparator 若失效成只比长度，这两条照样绿。
 // 故补一条同长度篡改：从现跑件就地取 diff_bytes 再翻最后一位（不写死数值——真跑读数改了也不会把这条对照变成假红），
-// 并先钉「两侧文件长度确实相等」：长度一变这条对照就失去意义，前提腿当场红（同 tracker #29 对恒真空跑的处理）。
+// 并先钉「两侧文件长度确实相等」：长度一变这条对照就失去意义，前提腿当场红（同 tracker #29 对永远通过空跑的处理）。
 const archivedBytes = (existsSync(join(GOLDEN_OUT, TAM_PR64_JSON)) ? readFileSync(join(GOLDEN_OUT, TAM_PR64_JSON), 'utf8').match(/"diff_bytes": (\d+)/) : null) || [];
 const flippedBytes = String(archivedBytes[1] || '').replace(/\d$/, function (d) { return String((Number(d) + 1) % 10); });
 const tamSameDir = tamperedCopy(TAM_PR64_JSON, function (s) { return s.replace('"diff_bytes": ' + archivedBytes[1], '"diff_bytes": ' + flippedBytes); });
 const driftSame = goldenDrift(GOLDEN_OUT, tamSameDir, GOLDEN_NAMES);
 const sameLenPremise = flippedBytes !== '' && flippedBytes !== archivedBytes[1] && flippedBytes.length === String(archivedBytes[1]).length && existsSync(join(tamSameDir, TAM_PR64_JSON)) && readFileSync(join(GOLDEN_OUT, TAM_PR64_JSON)).length === readFileSync(join(tamSameDir, TAM_PR64_JSON)).length;
-t('B11 正对照：等长篡改（diff_bytes ' + (archivedBytes[1] || '?') + '→' + (flippedBytes || '?') + '）必判红（禁退化成只比长度）', sameLenPremise && driftSame.length === 1 && driftSame[0].name === TAM_PR64_JSON, '前提=' + sameLenPremise + ' ' + driftText(driftSame));
+t('B11 正对照：等长篡改（diff_bytes ' + (archivedBytes[1] || '?') + '→' + (flippedBytes || '?') + '）必判失败（禁失效成只比长度）', sameLenPremise && driftSame.length === 1 && driftSame[0].name === TAM_PR64_JSON, '前提=' + sameLenPremise + ' ' + driftText(driftSame));
 // 宽度闸：生成器在 --golden 下已把锚定成「判据锚全值 SHA 的前 8 位」（48-micro-a-preview.mjs 的
 // GOLDEN_ABBREV），与检出对象集无关，故两侧宽度必须相等；下限另用本文件的独立字面量（不拿生成器的常量
 // 当尺子，否则把截取宽度改窄、尺子跟着变＝自我指认）：入库十二件实宽 8，且 spec §R9-1 明令不取 7——
@@ -246,12 +246,12 @@ for (const s of REAL) {
   const bq = x.quadrants.filter(function (q) { return q.quadrant === 'behavior'; })[0];
   const sf = bq ? bq.slice_fields : {};
   const sliceMiss = MOD.MICRO_A_SLICE_FIELDS.filter(function (f) { return !(f in sf); });
-  t('D-' + s + ' supported+merged+形态锁+通道锁+切片字段全', x.overall_verdict === 'supported' && sf.merged === true && sf.author_form === PINS[s] && sf.diff_channel === CHAN[s] && sliceMiss.length === 0, 'form=' + sf.author_form + ' ch=' + sf.diff_channel + ' miss=' + sliceMiss.join(','));
+  t('D-' + s + ' supported+merged+形态锁+通道锁+所含字段全', x.overall_verdict === 'supported' && sf.merged === true && sf.author_form === PINS[s] && sf.diff_channel === CHAN[s] && sliceMiss.length === 0, 'form=' + sf.author_form + ' ch=' + sf.diff_channel + ' miss=' + sliceMiss.join(','));
 }
 t('D-e1 env64 release-please 平台声明 Bot（github-actions[bot]/Bot 双检真值）', sc['env-manager-pr64'].quadrants[0].slice_fields.bot_declared === true && sc['env-manager-pr64'].quadrants[0].slice_fields.author_login === 'github-actions[bot]');
 t('D-e2 env55 api 兜底如实标注（stats NULL 契约＋detail 注记）', (function () { const e = sc['env-manager-pr55'].adjudication.entries.filter(function (x) { return x.criterion_id === 'TC-2'; })[0]; return e.band === 'supported' && e.rationale.indexOf('api') >= 0; })());
 t('D-e3 四件判据条目=6 条/件（PC-1/TC-1~4/NC-1）', REAL.every(function (s) { return sc[s].adjudication.entries.length === 6; }));
-t('D-e4 四件 preview_disclosure=capability 3 of 5 · preview＋同主确认偏差置首＋not_in_preview 收窄', REAL.every(function (s) { const d = sc[s].preview_disclosure; return d && d.capability_label === 'capability 3 of 5 · preview' && d.structural_limitations[0].indexOf('同主确认偏差') >= 0 && JSON.stringify(d.not_in_preview) === JSON.stringify(['Micro-B', 'Macro-A']); }));
+t('D-e4 四件 preview_disclosure=capability 3 of 5 · preview＋同主确认偏差置首＋not_in_preview 缩小范围', REAL.every(function (s) { const d = sc[s].preview_disclosure; return d && d.capability_label === 'capability 3 of 5 · preview' && d.structural_limitations[0].indexOf('同主确认偏差') >= 0 && JSON.stringify(d.not_in_preview) === JSON.stringify(['Micro-B', 'Macro-A']); }));
 t('D-e5 四件 subject_ref=PR 级（owner/repo#N）', REAL.every(function (s) { return /^Xxx91n\/[a-z-]+#\d+$/.test(sc[s].subject_ref); }));
 t('D-e6 四件 receipt RCP- 格式＋human pending', REAL.every(function (s) { return /^RCP-[0-9a-f]{16}$/.test(sc[s].receipt.receipt_id) && sc[s].adjudication.human.status === 'pending'; }));
 t('D-r1 拒绝件 overall=unsupported', sc['goose-duck-agent-refusal'].overall_verdict === 'unsupported');
@@ -271,7 +271,7 @@ const t15 = reg.items.find(function (i) { return i.id === 'desk-task15'; });
 t('E2 desk-task15 decided + criterion-met 确认留痕（#48 署名）', t15.status === 'decided' && (t15.confirmations || []).some(function (c) { return c.decision === 'trigger-fired-criterion-met' && /#48/.test(c.by); }));
 t('E3 绑定三项复审留痕（llm-mcp-face/deferred-faces/scorecard-repomix）', ['codelore-llm-mcp-face', 'codelore-deferred-faces', 'upstream-probes-scorecard-repomix'].every(function (id) { const it = reg.items.find(function (x) { return x.id === id; }); return (it.confirmations || []).some(function (c) { return /#48/.test(c.by); }); }));
 const rd = txt(join(REPO, 'README.md'));
-t('E7 README 能力矩阵 Micro-A 产线化=capability 3 of 5 · preview（#85②/D-204③④——收窄旧标注转禁）', rd.indexOf('capability 3 of 5 · preview') >= 0 && /Micro-A PR diff \| \*\*capability 3 of 5/.test(rd) && rd.indexOf('capability 3 of 5 · calibrated demo') < 0 && rd.indexOf('not in plugin distribution') < 0);
+t('E7 README 能力矩阵 Micro-A 产线化=capability 3 of 5 · preview（#85②/D-204③④——缩小范围旧标注转禁）', rd.indexOf('capability 3 of 5 · preview') >= 0 && /Micro-A PR diff \| \*\*capability 3 of 5/.test(rd) && rd.indexOf('capability 3 of 5 · calibrated demo') < 0 && rd.indexOf('not in plugin distribution') < 0);
 t('E10 48-report.md 在且六段齐备', existsSync(join(REPO,'engine','test','fixtures','contracts','48-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(function (x) { return txt(join(REPO,'engine','test','fixtures','contracts','48-report.md')).indexOf(x) >= 0; }));
 
 // ---------- F. token 泄漏 + BOM ----------

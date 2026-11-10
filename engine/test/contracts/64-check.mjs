@@ -43,13 +43,13 @@ t('A8 opt-in 可审计性＋F8 stderr 化（emitSelfHeal 事件含 trigger 字�
   store.includes('trigger') && store.includes("'opt-in'") && store.includes("'doctor-fix'") && store.includes('console.error') && !store.includes('console.log(line)'));
 
 // --- B. bundle external 验收＋结构化 stdout（D-072④⑧） ---
-t('B1 bundle 验收硬条件：@duckdb/node-api 动态导入在 bundle 内显式 external 可达',
+t('B1 bundle 验收硬条件：@duckdb/node-api 动态导入在 bundle 内明确 external 可达',
   dist.includes('import("@duckdb/node-api")') && dist.includes('DUCKDB_PINNED_VERSION'), 'dist/cli.js ' + (dist.length / 1024).toFixed(0) + 'KB');
 t('B2 自愈结构化事件落输出（DUCKDB-SELFHEAL JSON——runtime-doctor 消费面）', store.includes("'DUCKDB-SELFHEAL '") && store.includes('result'));
 t('B3 MCP stdio 避让（stdout=JSON-RPC 行帧→env 旗标 stderr 化）', store.includes('MACRO_AUDIT_MCP_STDIO') && mcp.includes("MACRO_AUDIT_MCP_STDIO = '1'"));
 
 // --- C. 文档/CI/锁表（D-072③⑤⑦） ---
-t('C1 README 披露升口径（自动补拉＋需网络＋手动路径）', readme.includes('自动补拉') && readme.includes('npm install --omit=dev'));
+t('C1 README 披露升规则（自动补拉＋需网络＋手动路径）', readme.includes('自动补拉') && readme.includes('npm install --omit=dev'));
 t('C2 npm 渠道辨析票面（npm publish deferred ≠ 插件目录 npm install 依赖拉取）', readme.includes('npm publish') && readme.includes('依赖拉取'));
 t('C3 engine-ci 自愈双腿（offline-sim＋E2E smoke 步在）', ci.includes('self-heal offline') && ci.includes('self-heal E2E'));
 t('C4 upstream-lock duckdb-node-bindings 行（active/exact-version 三方同值第三腿）',

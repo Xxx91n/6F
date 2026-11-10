@@ -74,7 +74,7 @@ t('C5 尾斜线异拼写同缓存槽（r1.cloned=true→r2.cache_hit=true 同 sh
 t('C5b .git 尾缀归一化键等价（单元面：normalizeRepoUrlKey 异拼写同键——file:// 下 src 与 src.git 为不同物理路径，等价语义只对 https 类拼写成立）', I.normalizeRepoUrlKey('https://x/o/r.git') === I.normalizeRepoUrlKey('https://x/o/r') && I.normalizeRepoUrlKey('https://x/o/r.git/') === I.normalizeRepoUrlKey('https://x/o/r'));
 t('C6 时点披露：r1.snapshot_fetched_at 非空 ISO；r2 保旧时点（缓存命中未刷新如实）', typeof r1.snapshot_fetched_at === 'string' && /T.*(Z|[+-]\d{2}:\d{2})$/.test(r1.snapshot_fetched_at) && r2.snapshot_fetched_at === r1.snapshot_fetched_at && r2.refreshed === false);
 const r3 = I.repoAdd(fileUrl, { cacheRoot: cacheRoot, refresh: true });
-t('C7 refresh opt-in：refreshed=true + 时点更新（显式拉取语义）', r3.refreshed === true && typeof r3.snapshot_fetched_at === 'string');
+t('C7 refresh opt-in：refreshed=true + 时点更新（明确拉取语义）', r3.refreshed === true && typeof r3.snapshot_fetched_at === 'string');
 rmSync(tmp, { recursive: true, force: true });
 
 // ---------- D. contradicts 死枚举清除（D-059⑤） ----------

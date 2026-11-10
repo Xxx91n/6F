@@ -1,5 +1,5 @@
 // 113-check.mjs —— #113 审计对象仓符号链接与路径穿透安全防护守卫
-// 断言面（对应本票 Acceptance criteria，按 PASS/FAIL 口径；能力不可得时给 SKIP 而不是假绿）：
+// 断言面（对应本票 Acceptance criteria，按 PASS/FAIL 规则；能力不可得时给 SKIP 而不是假绿）：
 //   A 静态契约：安全读取单点在位、四个读取面与 39 one-shot 全部接入、url 腿保留 `core.symlinks=false`、
 //     回归克隆腿**不**带该旗标（带了就把链接物化成普通文件→遮住本票要证明的拒绝+披露路径）
 //   B 安全读取单点行为：仓内常规文件放行 / 仓外文件链接拒绝 / 悬空链接拒绝（专门 reason）/
@@ -38,7 +38,7 @@ const t = (name, ok, extra = '') => {
   console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : ''));
   if (ok) { pass++; } else { fail++; failedNames.push(name); }
 };
-// 能力缺组统一走这里：吐 SKIP + SKIP-GROUP 机读行，不静默也不算绿（D-159③ 三态纪律）。
+// 能力缺组统一走这里：吐 SKIP + SKIP-GROUP 机读行，不悄悄吞掉也不算通过（D-159③ 三态纪律）。
 const skipGroup = (group, reason) => {
   console.log('SKIP 113-check/' + group + ' | ' + reason);
   console.log('GUARD-RESULT: SKIP-GROUP 113-check group=' + group + ' reason=' + reason);
@@ -87,7 +87,7 @@ t('A1 safe-read.ts 导出读取/列目录/探针/披露事实四件（readRepoFi
   /export function makeFileSubjectSkipFact/.test(safeSrc) &&
   /export function listAdrFilesSafe/.test(safeSrc), '');
 
-t('A1b lstat 错误按 errno 分类（只有 ENOENT/ENOTDIR 算不存在，其余报拒绝而不是静默缩水）',
+t('A1b lstat 错误按 errno 分类（只有 ENOENT/ENOTDIR 算不存在，其余报拒绝而不是悄悄缩水）',
   /isAbsentErrno/.test(safeSrc) && /code === 'ENOENT' \|\| code === 'ENOTDIR'/.test(safeSrc)
   && (safeSrc.match(/isAbsentErrno\(code\)/g) || []).length >= 3, '');
 
@@ -130,7 +130,7 @@ const wfSrc = txt(join(ROOT, '.github', 'workflows', 'macro-b-regression.yml'));
 const wfCodeLines = wfSrc.split(NL).map(l => l.replace(/(^|\s)#.*$/, '')).join(NL);
 t('A6 回归克隆腿不带 core.symlinks=false（带则链接被物化成普通文件，遮住拒绝+披露路径）',
   wfCodeLines.indexOf('core.symlinks=false') < 0, '');
-t('A7 回归克隆腿保留链接可见性断言（链接面不被静默降级）',
+t('A7 回归克隆腿保留链接可见性断言（链接面不被悄悄降级）',
   wfSrc.includes('120000') && wfSrc.includes('symlink entries'), '');
 
 const genSrc = txt(join(ENG, 'src', 'report', 'generate.ts'));
@@ -172,14 +172,14 @@ if (!symlinkProbe) {
     const outsideDir = join(testTmp, 'outside-adrs');
     fs.mkdirSync(outsideDir, { recursive: true });
     const outsideAdr = join(outsideDir, '0001-outside.md');
-    fs.writeFileSync(outsideAdr, '# ADR-0001: outside' + NL, 'utf8');
+    fs.writeFileSync(outsideAdr, '# ADR-9999: outside' + NL, 'utf8');
     const insideDir = join(testTmp, 'repo', 'docs', 'adr');
     fs.mkdirSync(insideDir, { recursive: true });
 
     // 仓内常规文件
-    fs.writeFileSync(join(insideDir, '0001-in.md'), '# ADR-0001: in' + NL, 'utf8');
+    fs.writeFileSync(join(insideDir, '0001-in.md'), '# ADR-9999: in' + NL, 'utf8');
     const okRead = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr/0001-in.md');
-    t('B1 仓内常规文件放行', okRead.ok === true && okRead.text.indexOf('ADR-0001') >= 0, '');
+    t('B1 仓内常规文件放行', okRead.ok === true && okRead.text.indexOf('ADR-9999') >= 0, '');
 
     // 仓外文件链接
     fs.symlinkSync(secret, join(insideDir, '0002-evil.md'), 'file');
@@ -198,7 +198,7 @@ if (!symlinkProbe) {
       console.log('GUARD-RESULT: SKIP-GROUP 113-check group=B3 reason=dangling-symlink-unavailable');
     }
 
-    // 仓内目录链接：允许（链接目标仍在仓内）——目录链接须显式指定类型（Windows 上不指定会落到 file 型）
+    // 仓内目录链接：允许（链接目标仍在仓内）——目录链接须明确指定类型（Windows 上不指定会落到 file 型）
     if (linkCap.dir) {
       fs.symlinkSync(insideDir, join(testTmp, 'repo', 'docs', 'adr-inside-link'), 'dir');
       const insideLink = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/adr-inside-link/0001-in.md');
@@ -222,12 +222,12 @@ if (!symlinkProbe) {
     const junctionRead = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/' + outsideLinkName + '/0001-outside.md');
     t('B6 经仓外目录链接读文件同样被拒（不靠调用方各自判）', junctionRead.ok === false, junctionRead.reason);
 
-    // 列目录单点与 ADR 文件名口径
+    // 列目录单点与 ADR 文件名规则
     const listing = SR.listAdrFilesSafe(join(testTmp, 'repo'), 'docs/adr');
     t('B7 列目录单点只出仓内 ADR 语料（bad 链接文件也在列——由读取单点逐件拒绝并披露）',
       listing.ok === true && listing.files.indexOf('0001-in.md') >= 0 && listing.files.indexOf('0002-evil.md') >= 0, '');
     const outsideListing = SR.listAdrFilesSafe(join(testTmp, 'repo'), 'docs/' + outsideLinkName);
-    t('B8 列目录单点对仓外目录链接返回失败（不静默给空列）',
+    t('B8 列目录单点对仓外目录链接返回失败（不悄悄给空列）',
       outsideDirLinkMade ? (outsideListing.ok === false && outsideListing.reason === 'dir-junction-outside') : true,
       outsideDirLinkMade ? (outsideListing.ok ? 'unexpected-ok' : outsideListing.reason) : 'junction-unsupported-skipped');
 
@@ -238,7 +238,7 @@ if (!symlinkProbe) {
       } catch { /* ELOOP 建不出来就算了，下面的断言跳过 */ }
       const loopRead = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/self-loop.md');
       const loopProbe = SR.probeRepoEntry(join(testTmp, 'repo'), 'docs/self-loop.md');
-      t('B10 ELOOP 自环报拒绝（既不是 missing，也不被探针当 absent 静默吞掉）',
+      t('B10 ELOOP 自环报拒绝（既不是 missing，也不被探针当 absent 悄悄吞掉）',
         loopRead.ok === false && loopRead.reason !== 'missing' && loopProbe !== 'absent',
         loopRead.ok ? 'unexpected-ok' : loopRead.reason + '/' + loopProbe);
     } else {
@@ -280,7 +280,7 @@ if (!symlinkProbe) {
       git(repoA, ['init', '-q', '.']);
       git(repoA, ['config', 'user.email', 'guard@test.local']);
       git(repoA, ['config', 'user.name', 'guard']);
-      const POOR = '# ADR-0001: Poor ADR' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'some context' + NL;
+      const POOR = '# ADR-9999: Poor ADR' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'some context' + NL;
       for (const n of ['0001', '0002', '0003']) { fs.writeFileSync(join(repoA, 'docs', 'adr', n + '-poor.md'), POOR, 'utf8'); }
       fs.writeFileSync(join(repoA, 'README.md'), '# Synth Repo' + NL, 'utf8');
       fs.writeFileSync(join(repoA, 'package.json'), '{"name":"synth"}' + NL, 'utf8');
@@ -307,7 +307,7 @@ if (!symlinkProbe) {
       fs.symlinkSync(join(OUTSIDE, 'secret.txt'), join(repoA, 'docs', 'adr', '0004-evil.md'), 'file');
       for (const n of ['0005', '0006', '0007', '0008', '0009']) {
         const p = join(OUTSIDE, n + '-rich.md');
-        fs.writeFileSync(p, '# ADR-' + n + ': Rich' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'ctx'
+        fs.writeFileSync(p, '# ADR-9999: Rich' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'ctx'
           + NL + '## Decision' + NL + 'dec' + NL + '## Consequences' + NL + 'cons' + NL, 'utf8');
         fs.symlinkSync(p, join(repoA, 'docs', 'adr', n + '-rich.md'), 'file');
       }
@@ -325,7 +325,7 @@ if (!symlinkProbe) {
       const expectedMin = linkCap.dangling ? 7 : 6;   // 6 越界（密钥样＋5 完整仓外 ADR）＋1 悬空
       t('C2 持久化事实里存在披露事实（docs/adr 下越界/悬空链接逐件拒绝）',
         adrSkips.length >= expectedMin, 'n=' + String(adrSkips.length) + ' expected>=' + String(expectedMin));
-      t('C3 悬空链接单列 reason=symlink-dangling（不被 existsSync 静默吞掉）',
+      t('C3 悬空链接单列 reason=symlink-dangling（不被 existsSync 悄悄吞掉）',
         !linkCap.dangling || skips.some(f => JSON.parse(f.value_json).raw_path === 'docs/adr/0010-dangling.md'
           && JSON.parse(f.value_json).reason === 'symlink-dangling'), linkCap.dangling ? '' : 'dangling-symlink-unavailable');
       t('C4 越界意图文档链接也被拒并披露（AGENTS.md→仓外）',
@@ -338,7 +338,7 @@ if (!symlinkProbe) {
           const p = join(attackOut, a);
           try {
             const buf = fs.readFileSync(p);
-            return buf.indexOf('FAKE PRIVATE KEY') >= 0 || buf.indexOf('ADR-0005: Rich') >= 0;
+            return buf.indexOf('FAKE PRIVATE KEY') >= 0 || buf.indexOf('ADR-9999: Rich') >= 0;
           } catch { return false; }
         });
       t('C5 报告/事实库/duckdb 均不含仓外内容（三面逐件扫）', leaked.length === 0, 'leaked=' + leaked.join(','));
@@ -369,11 +369,11 @@ if (!symlinkProbe) {
       const facts39Path = join(oneShotOut, '39-macro-b-synthA-facts.jsonl');
       const facts39 = exists(facts39Path) ? txt(facts39Path).split(NL).filter(l => l.trim().length > 0).map(l => JSON.parse(l)) : [];
       const skips39 = facts39.filter(f => f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read');
-      t('C8 39 one-shot 退出 0 且把拒绝输入落成披露事实（不再静默丢弃）',
+      t('C8 39 one-shot 退出 0 且把拒绝输入落成披露事实（不再悄悄丢弃）',
         r39.status === 0 && skips39.length >= 7, 'exit=' + String(r39.status) + ' skips=' + String(skips39.length));
       const md39Path = join(oneShotOut, '39-macro-b-synthA.md');
       const md39 = exists(md39Path) ? txt(md39Path) : '';
-      t('C9 39 one-shot 报告披露块写明跳过语料（与 audit 面同文案口径）',
+      t('C9 39 one-shot 报告披露块写明跳过语料（与 audit 面同文案规则）',
         md39.indexOf('语料来源经链接解析被拒') >= 0, '');
       t('C10 39 one-shot 产物不含仓外内容',
         facts39.every(f => f.value_json.indexOf('FAKE PRIVATE KEY') < 0) && md39.indexOf('FAKE PRIVATE KEY') < 0, '');
@@ -392,7 +392,7 @@ if (!symlinkProbe) {
       fs.mkdirSync(JUNC_OUTSIDE, { recursive: true });
       for (const n of ['0001', '0002', '0003']) {
         fs.writeFileSync(join(JUNC_OUTSIDE, n + '-outside.md'),
-          '# ADR-' + n + ': Outside' + NL + '- Status: accepted' + NL + '- Date: 2026-01-0' + n.slice(-1) + NL
+          '# ADR-9999: Outside' + NL + '- Status: accepted' + NL + '- Date: 2026-01-0' + n.slice(-1) + NL
           + '## Context' + NL + 'c' + NL + '## Decision' + NL + 'd' + NL + '## Consequences' + NL + 'q' + NL, 'utf8');
       }
       // 目录链接/junction：Windows 上 junction 免开发者模式——能力优先，形态不改变被测语义（都指向仓外目录）
@@ -408,7 +408,7 @@ if (!symlinkProbe) {
           && JSON.parse(f.value_json).reason === 'dir-junction-outside'), 'exit=' + String(rJunc.status));
       const juncMd = fs.readdirSync(juncOut).filter(a => a.endsWith('.md')).map(a => txt(join(juncOut, a))).join(NL);
       t('C12 目录 junction：仓外 ADR 未进报告（零 outside 语料）且 PC-MC-1 不因 skip 事实转阳性',
-        juncMd.indexOf('ADR-0001: Outside') < 0 &&
+        juncMd.indexOf('ADR-9999: Outside') < 0 &&
         /PC-MC-1: (insufficient|unsupported)/.test(juncMd), '');
 
       // ---- C14：defer 注册表链接不得把 defer-ref 边「解」成 resolved（TC-MC-1 由 insufficient 翻 supported）----
@@ -420,7 +420,7 @@ if (!symlinkProbe) {
       git(repoD, ['config', 'user.email', 'guard@test.local']);
       git(repoD, ['config', 'user.name', 'guard']);
       fs.writeFileSync(join(repoD, 'docs', 'adr', '0001-defer.md'),
-        '# ADR-0001: Defer' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'c' + NL
+        '# ADR-9999: Defer' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'c' + NL
         + '## Decision' + NL + 'd' + NL + '## Consequences' + NL + 'q' + NL + 'References: defer-001' + NL, 'utf8');
       fs.writeFileSync(join(repoD, 'README.md'), '# Repo D' + NL, 'utf8');
       fs.writeFileSync(join(repoD, 'package.json'), '{"name":"d"}' + NL, 'utf8');
@@ -481,9 +481,9 @@ if (!symlinkProbe) {
   }
 }
 
-// ---------- D. 负对照（守卫自检：判据确实会红，不是恒真断言） ----------
+// ---------- D. 负对照（守卫自检：判据确实会红，不是永远通过断言） ----------
 // 在临时副本里用**旧行为**（裸 readFileSync 跟随链接）替换安全读取单点——端到端必须出现仓外内容/判据翻转，
-// 否则说明 C 组断言与被测面脱节（恒真教训：Autonoma 恒真断言五形态，D-153②）。
+// 否则说明 C 组断言与被测面脱节（永远通过教训：Autonoma 永远通过断言五形态，D-153②）。
 if (distReady && symlinkProbe && duckdbReady) {
   const ctrlTmp = fs.mkdtempSync(join(tmpdir(), '6f-113-neg-'));
   try {
@@ -494,7 +494,7 @@ if (distReady && symlinkProbe && duckdbReady) {
     spawnSync('git', ['-C', repoC, 'init', '-q', '.'], { encoding: 'utf8' });
     spawnSync('git', ['-C', repoC, 'config', 'user.email', 'guard@test.local'], { encoding: 'utf8' });
     spawnSync('git', ['-C', repoC, 'config', 'user.name', 'guard'], { encoding: 'utf8' });
-    const POOR = '# ADR-0001: Poor ADR' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'some context' + NL;
+    const POOR = '# ADR-9999: Poor ADR' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'some context' + NL;
     for (const n of ['0001', '0002', '0003']) { fs.writeFileSync(join(repoC, 'docs', 'adr', n + '-poor.md'), POOR, 'utf8'); }
     fs.writeFileSync(join(repoC, 'README.md'), '# Repo C' + NL, 'utf8');
     fs.writeFileSync(join(repoC, 'package.json'), '{"name":"c"}' + NL, 'utf8');
@@ -503,7 +503,7 @@ if (distReady && symlinkProbe && duckdbReady) {
     fs.symlinkSync(join(ctrlTmp, 'secret.txt'), join(repoC, 'docs', 'adr', '0004-evil.md'), 'file');
     for (const n of ['0005', '0006', '0007', '0008', '0009']) {
       const p = join(ctrlTmp, n + '-rich.md');
-      fs.writeFileSync(p, '# ADR-' + n + ': Rich' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'ctx'
+      fs.writeFileSync(p, '# ADR-9999: Rich' + NL + '## Status' + NL + 'accepted' + NL + '## Context' + NL + 'ctx'
         + NL + '## Decision' + NL + 'dec' + NL + '## Consequences' + NL + 'cons' + NL, 'utf8');
       fs.symlinkSync(p, join(repoC, 'docs', 'adr', n + '-rich.md'), 'file');
     }
@@ -578,11 +578,11 @@ if (distReady && symlinkProbe && duckdbReady) {
     const negFacts = exists(negFactsPath) ? txt(negFactsPath).split(NL).filter(l => l.trim().length > 0).map(l => JSON.parse(l)) : [];
     const negFive = negFacts.filter(f => f.metric === 'adr.five_piece_completeness');
     const negSkips = negFacts.filter(f => f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read');
-    t('D4 负对照（旧行为替换读取单点，走真实 one-shot 入口）：拒绝+披露面整体消失（0 条 skip 事实）——C2/C8 不是恒真',
+    t('D4 负对照（旧行为替换读取单点，走真实 one-shot 入口）：拒绝+披露面整体消失（0 条 skip 事实）——C2/C8 不是永远通过',
       rNeg.status === 0 && negSkips.length === 0,
       'exit=' + String(rNeg.status) + ' skips=' + String(negSkips.length)
         + ' stdout=' + String(rNeg.stdout || '').slice(-200));
-    t('D5 负对照（判据翻转面）：旧行为下 ADR 语料由 3 涨到 9（3 贫瘠＋1 仓外密钥样＋5 仓外完整）——C7 的「恒 3」不是恒真',
+    t('D5 负对照（判据翻转面）：旧行为下 ADR 语料由 3 涨到 9（3 贫瘠＋1 仓外密钥样＋5 仓外完整）——C7 的「恒 3」不是永远通过',
       negFive.length === 9, 'five=' + String(negFive.length));
   } finally {
     try { fs.rmSync(ctrlTmp, { recursive: true, force: true }); } catch { /* noop */ }
