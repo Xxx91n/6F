@@ -56,7 +56,8 @@ export function scanSupersedeAdrs(adrDocs: readonly { path: string; text: string
     const inlineRefs: { line: number; to: string; negated: boolean }[] = [];
     const lines = text.split(NL);
     lines.forEach(function (line, i) {
-      const sm = line.match(/superseded\s+by\s+ADR-?(\d{3,})/i) || line.match(/supersedes?\s+ADR-?(\d{3,})/i);
+      // 带冒号的写法（`Supersedes: ADR-NNNN`）也当替代边：ADR 头部习惯把键和值用冒号分开。
+      const sm = line.match(/superseded\s+by\s+ADR-?(\d{3,})/i) || line.match(/supersedes?\s*[:：]\s*ADR-?(\d{3,})/i) || line.match(/supersedes?\s+ADR-?(\d{3,})/i);
       if (sm && !/^\s*[-*]?\s*status\s*[:：]/i.test(line)) {
         const negated = /(does not|do not|not a|no longer|never)\s+supersede/i.test(line);
         inlineRefs.push({ line: i + 1, to: sm[1], negated: negated });
@@ -77,8 +78,22 @@ export function scanSupersedeAdrs(adrDocs: readonly { path: string; text: string
   return adrs;
 }
 
-export function buildSupersedeChain(adrs: readonly SupersedeAdr[], deferRegistryPresent: boolean): Record<string, unknown> {
-  const numSet = new Set(adrs.map(function (a) { return a.num; }));
+// ---------- 历史 ADR 号读取 ----------
+const MACRO_C_AUTHORITY_REL = join('docs', 'authority.md');
+
+// 读被审计仓 docs/authority.md §3 的 historical_adr.numbers：那里列的是已经退役的旧 ADR 号。
+// 读不到就当空集——这只是给「已退役目标」补一条有主来源，不是必检输入，所以不记跳过事实、不抛错。
+export function parseHistoricalAdrNumbers(text: string): string[] {
+  const fences = Array.from(text.matchAll(/```yaml\r?\n([\s\S]*?)```/g)).map(function (m) { return m[1]; });
+  const block = fences.find(function (b) { return b.indexOf('historical_adr:') >= 0; });
+  if (!block) { return []; }
+  const lines = block.split(NL);
+  const numbersLine = lines.find(function (l) { return /^\s*numbers\s*:\s*\[/.test(l); }) || '';
+  return Array.from(new Set(Array.from(numbersLine.matchAll(/"(\d{3,})"/g)).map(function (m) { return m[1]; })));
+}
+
+export function buildSupersedeChain(adrs: readonly SupersedeAdr[], deferRegistryPresent: boolean, historicalNumbers?: readonly string[]): Record<string, unknown> {
+  const historicalSet = new Set(historicalNumbers || []);
   const edges: SupersedeEdge[] = [];
   for (const a of adrs) {
     if (a.whole_to) { edges.push({ from: a.num, to: a.whole_to, kind: 'whole-adr-status', evidence: a.file + ' status-line', resolved: false, back_reference: null }); }
@@ -89,12 +104,19 @@ export function buildSupersedeChain(adrs: readonly SupersedeAdr[], deferRegistry
   }
   for (const e of edges) {
     if (e.from === e.to) { e.kind = 'self-quote-artifact'; }
-    if (e.kind === 'defer-ref') { e.resolved = deferRegistryPresent; }
-    else { e.resolved = numSet.has(e.to); }
-    if (e.kind !== 'defer-ref' && e.resolved) {
-      const target = adrs.find(function (a) { return a.num === e.to; });
-      e.back_reference = target ? target.mentions.indexOf(e.from) >= 0 : false;
-    } else { e.back_reference = null; }
+    if (e.kind === 'defer-ref') { e.resolved = deferRegistryPresent; e.back_reference = null; continue; }
+    const target = adrs.find(function (a) { return a.num === e.to; });
+    if (target) {
+      e.resolved = true;
+      e.back_reference = target.mentions.indexOf(e.from) >= 0;
+    } else if (historicalSet.has(e.to)) {
+      // 已退役的旧号只留在历史里：算已解析，但正文不在仓里，回链无从谈起，不能记成缺回链。
+      e.resolved = true;
+      e.back_reference = null;
+    } else {
+      e.resolved = false;
+      e.back_reference = null;
+    }
   }
   return {
     edge_count: edges.length,
@@ -213,7 +235,10 @@ export function collectMacroC(repoRoot: string, probes: MacroBProbes, ctx: Colle
     if (deferRead.ok) { deferRegistryPresent = true; }
     else { pushSkip(makeFileSubjectSkipFact(ctx, DEFER_REL, deferRead.reason)); }
   }
-  const chain = buildSupersedeChain(adrs, deferRegistryPresent);
+  // 历史号是可选的补充来源：读不到、块缺失、读失败都按空集走，不改变跳过事实的语义
+  const authorityRead = readRepoFileSafe(repoRoot, MACRO_C_AUTHORITY_REL);
+  const historicalNumbers = authorityRead.ok ? parseHistoricalAdrNumbers(authorityRead.text) : [];
+  const chain = buildSupersedeChain(adrs, deferRegistryPresent, historicalNumbers);
   const chainFact = makeFact(ctx, ADR_STRUCTURE_V2_DESCRIPTOR, 'docs/adr/*', 'docs/adr/* status+inline scan', 'adr.supersede_chain_summary', chain);
   // 按事实编号去重，保留最先读取到的记录
   const rawFacts = adrFacts.concat(skipFacts, gitFacts, codeloreFacts, llmFacts, [chainFact]);

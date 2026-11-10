@@ -2,8 +2,9 @@
 // 覆盖：CLI 实跑（audit --scale Macro-C）/回执契约/报告头+披露块/四象限形态/supersede 链扫描单元
 //   （whole/item/self-quote/unresolved/defer 五态）/facts.duckdb 同位写入/LLM 门控诚实披露/reproduce_cmd 取解析结果（K 组）。
 // 被测仓=临时合成 git 仓（被审计仓的 ADR 目录 supersede 对 + package.json 负对照），跑完即弃。
+// U10 例外：直接读本仓的 docs/adr/0028 与 docs/authority.md，做「本仓自审 TC-MC-1 谓词」等价断言（tracker #195）。
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -148,6 +149,32 @@ t('U2 item-level=1 + unresolved=1（ADR-9999→002 成对 + ADR-9999→999 断�
 t('U3 self-quote-artifact 检出（ADR-9994 自指边转类）', chain.self_quote_artifacts >= 1, JSON.stringify(chain.self_quote_artifacts));
 t('U4 back_reference 成对（9991→9992 回链=mentions 命中）', (function () { const m = JSON.stringify(chain); return m.indexOf('missing_backrefs') >= 0; })());
 t('U5 defer-ref resolved=false（registry 缺席）', chain.defer_ref_edges === 0 || JSON.stringify(chain).indexOf('defer-ref') >= 0);
+
+// ---------- U6–U10 tracker #195 英文标记＋历史目标 ----------
+// 合成 ADR 用哨兵号（ADR-9999 等），不写真实旧号：docs-authority-check 的 C 组只放行哨兵形态。
+const HIST_DOCS = [{ path: 'docs/adr/9993-hist.md', text: ['# ADR-9993', '', '- Status: accepted', '- Supersedes: ADR-9999', '', '## Context', 'c.', '', '## Decision', 'd.', '', '## Consequences', 'x.'].join(NL) }];
+const histChain = MC.buildSupersedeChain(MC.scanSupersedeAdrs(HIST_DOCS), false, ['9999']);
+t('U6 历史目标算已解析：Supersedes: ADR-9999（目录里没有）＋历史集 {9999} → edge>=1／断链 0／缺回链 0',
+  histChain.edge_count >= 1 && histChain.unresolved_refs.length === 0 && histChain.missing_backrefs.length === 0,
+  JSON.stringify({ e: histChain.edge_count, u: histChain.unresolved_refs.length, m: histChain.missing_backrefs.length }));
+const noHistChain = MC.buildSupersedeChain(MC.scanSupersedeAdrs(HIST_DOCS), false);
+t('U7 同一输入不传历史集 → 断链 1（没声明历史号的仓保持原行为）', noHistChain.unresolved_refs.length === 1, JSON.stringify(noHistChain.unresolved_refs));
+const wrongHistChain = MC.buildSupersedeChain(MC.scanSupersedeAdrs(HIST_DOCS), false, ['9991']);
+t('U8 历史集没声明的目标仍算断链', wrongHistChain.unresolved_refs.length === 1, JSON.stringify(wrongHistChain.unresolved_refs));
+const histBlock = ['```yaml', 'historical_adr:', '  numbers: ["0001", "0002", "0003"]', '  paths:', '    - examples/first-report/', '```'].join(NL);
+t('U9 历史号解析：只读 yaml 块里的 numbers；缺块或形状不对按空集',
+  JSON.stringify(MC.parseHistoricalAdrNumbers(histBlock)) === JSON.stringify(['0001', '0002', '0003']) &&
+  JSON.stringify(MC.parseHistoricalAdrNumbers('no block here')) === JSON.stringify([]) &&
+  JSON.stringify(MC.parseHistoricalAdrNumbers('```yaml' + NL + 'historical_adr:' + NL + '  paths: []' + NL + '```')) === JSON.stringify([]));
+// 本仓语料等价断言：ADR-0028 的替代标记＋§3 历史号 → TC-MC-1 谓词成立（完整链路由 85-check B9 实测兜底）
+const adrDir = join(SELF, 'docs', 'adr');
+const currentAdrFile = readdirSync(adrDir).filter(function (f) { return /^0028-/.test(f); })[0] || '';
+const realHistNumbers = MC.parseHistoricalAdrNumbers(readFileSync(join(SELF, 'docs', 'authority.md'), 'utf8'));
+const realChain = currentAdrFile === '' ? null : MC.buildSupersedeChain(
+  MC.scanSupersedeAdrs([{ path: 'docs/adr/' + currentAdrFile, text: readFileSync(join(adrDir, currentAdrFile), 'utf8') }]), false, realHistNumbers);
+t('U10 本仓语料等价断言：历史集含 0025 ＋ ADR-0028 的 Supersedes 行成边 → edge>=1／断链 0／缺回链 0',
+  realHistNumbers.indexOf('0025') >= 0 && !!realChain && realChain.edge_count >= 1 && realChain.unresolved_refs.length === 0 && realChain.missing_backrefs.length === 0,
+  JSON.stringify({ n: realHistNumbers.length, has25: realHistNumbers.indexOf('0025') >= 0, e: realChain && realChain.edge_count, u: realChain && realChain.unresolved_refs.length, m: realChain && realChain.missing_backrefs.length }));
 
 // ---------- D facts.duckdb 同位写入 ----------
 const STORE = await import(pathToFileURL(join(HERE, '..', 'dist', 'fact', 'store.js')).href);
