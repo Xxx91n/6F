@@ -217,8 +217,8 @@ for (const { path, text } of CORPUS) {
   }
 }
 const currentAdrFiles = ADR_FILES.filter(p => new RegExp('^docs/adr/' + CURRENT_ADR + '-').test(p));
-t('C0 docs/adr 下恰好一份现行 ADR 0028（旧 24 份正文已删）',
-  ADR_NUMBERS.size === 1 && ADR_NUMBERS.has(CURRENT_ADR) && currentAdrFiles.length === 1,
+t('C0 docs/adr 下有 0028 且仅一份，没有历史号 ADR 复活（旧 24 份正文已删）',
+  ADR_NUMBERS.has(CURRENT_ADR) && currentAdrFiles.length === 1 && ![...ADR_NUMBERS].some(n => HIST_NUMBERS.has(n)),
   'files=' + ADR_FILES.join(','));
 t('C1 现行文本的 ADR-NNNN 只指向现行 ADR 或历史引用面（哨兵与固定机器名除外）',
   adrRefCount > 0 && badAdr.length === 0, 'refs=' + adrRefCount + ' dangling=' + [...new Set(badAdr)].join(','));
