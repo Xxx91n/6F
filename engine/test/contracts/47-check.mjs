@@ -1,7 +1,7 @@
 // 47-check.mjs — #47 托管平台 API 适配器守卫（R8-01 / A-055 / D-048；GitHub REST+env token 主路、gh 认证态可选回退）
 // 断言面：A 适配器源+dist 产物标记 → B 五 cassette（存在/recorded 标注/token 泄漏扫描/关键响应头）
 //   → C 测试在 smoke 链且实跑 PASS → D dist 模块契约语义（三级探测/Bot 双检/仓引用/限流）
-//   → E 锁表 github-rest→active＋README/CHANGELOG 同源 → F 文档账本回写 → G BOM
+//   → E 锁表 github-rest→active＋README/CHANGELOG 同源 → F 文档记录回写 → G BOM
 // 纪律：只读断言 + node test 子进程（cassette 离线回放，零网络）；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
-const PROTECTED_SURFACE = '#47 托管平台 API 适配器守卫（R8-01 / A-055 / D-048 / ADR-0020）';
+const PROTECTED_SURFACE = '#47 托管平台 API 适配器守卫（R8-01 / A-055 / D-048）';
 
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -41,7 +41,7 @@ t('A7 planned 面登记（pulls.reviews/comments 不入最小集）',
   src.includes('pulls.reviews') && src.includes('pulls.comments'));
 t('A8 raw 响应不出边界 + 凭据不建存储文案', src.includes('credential_storage') || src.includes('即用即清'));
 t('A9 dist/upstream/github-rest.js 编译产物在（测试作用于 dist）', existsSync(DIST));
-t('A10 diff 兜底收窄至 spec（本地 diff 失败不再改道 API——无 -> api fallback 残留）',
+t('A10 diff 兜底缩小范围至 spec（本地 diff 失败不再改道 API——无 -> api fallback 残留）',
   !src.includes('-> api fallback') && src.includes("error_kind: 'local-diff'") && src.includes('api diff channel (base/head 本地缺席)'));
 t('A11 callLog 条目携带 retried/error_kind 真值 + 共用发射器 emitCallLog 三路径同源',
   src.includes('retried: boolean;') && src.includes('error_kind: GithubApiErrorKind;') && src.includes('emitCallLog') && src.includes('logAttempt'));
@@ -87,9 +87,9 @@ t('D3 Bot 双检真值表（缺一即 false）',
   G.platformDeclaredBot('internal-ci', 'Bot') === false &&
   G.platformDeclaredBot('custom[bot]', 'User') === false);
 const ng = G.parseGithubRepoRef('https://gitlab.com/a/b');
-t('D4 仓引用解析：owner/repo+URL 收、非 github 显式拒',
+t('D4 仓引用解析：owner/repo+URL 收、非 github 明确拒',
   G.parseGithubRepoRef('o/r').ok === true && G.parseGithubRepoRef('https://github.com/o/r').ok === true && ng.ok === false);
-t('D5 schema 漂移显式抛 GithubSchemaDrift',
+t('D5 schema 漂移明确抛 GithubSchemaDrift',
   (() => { try { G.parsePrSummaryRow({ number: 1 }); return false; } catch (e) { return e.name === 'GithubSchemaDrift'; } })());
 t('D6 限流头解析字段齐备', (() => { const r = G.parseRateLimitHeaders({ 'x-ratelimit-limit': '5000', 'x-ratelimit-remaining': '4999', 'x-ratelimit-used': '1', 'x-ratelimit-reset': '1', 'retry-after': '5' }); return r && r.limit === 5000 && r.remaining === 4999 && r.retry_after_seconds === 5; })());
 
@@ -105,7 +105,7 @@ t('E4 README §3 GitHub REST 行=已接入（active）', /\| GitHub REST API \|[
 const ec = txt(join(ENG, 'CHANGELOG.md'));
 t('E5 engine CHANGELOG Unreleased 含 #47 条目引锁表', ec.includes('#47') && ec.includes('github-rest'));
 
-// ---------- F. 文档账本回写 ----------
+// ---------- F. 文档记录回写 ----------
 const rep = existsSync(join(REPO,'engine','test','fixtures','contracts','47-report.md')) ? txt(join(REPO,'engine','test','fixtures','contracts','47-report.md')) : '';
 t('F5 47-report.md 在且六段齐备（①~⑥）', existsSync(join(REPO,'engine','test','fixtures','contracts','47-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every((x) => rep.indexOf(x) >= 0));
 

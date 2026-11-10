@@ -264,8 +264,8 @@ const REPRO_RUN = 'node engine/test/contracts/23-first-report.mjs';
 addEvidence('EV-001', PRE_REG, '0.2462', '预声明（跑前写死）：TC-2 mean_ratio = 0.2462，判 RED', REPRO_PREREG);
 addEvidence('EV-002', PRE_REG, ['INCONCLUSIVE', '可判定数'], '预声明：TC-1 可判定数 2 < 门槛 5，判 INCONCLUSIVE', REPRO_PREREG);
 addEvidence('EV-003', PRE_REG, ['AMBER', '0.6000'], '预声明：TC-3 最低 ratio = 0.6000，判 AMBER', REPRO_PREREG);
-addEvidence('EV-004', 'docs/adr/0012-value-validation-loop-first.md', '阶段 1 = Macro-B', 'ADR-0012：阶段 1 = 6F 自身 Macro-B happy path 出首报', 'git show HEAD:docs/adr/0012-value-validation-loop-first.md');
-addEvidence('EV-005', 'docs/adr/0013-three-layer-acceptance-gates.md', 'A→B→C', 'ADR-0013：首报验收 = A→B→C 三层串行闸门', 'git show HEAD:docs/adr/0013-three-layer-acceptance-gates.md');
+addEvidence('EV-004', 'docs/adr/0012-value-validation-loop-first.md', '阶段 1 = Macro-B', '阶段 1 = 6F 自身 Macro-B happy path 出首报', 'git show HEAD:docs/adr/0012-value-validation-loop-first.md');
+addEvidence('EV-005', 'docs/adr/0013-three-layer-acceptance-gates.md', 'A→B→C', '首报验收 = A→B→C 三层串行闸门', 'git show HEAD:docs/adr/0013-three-layer-acceptance-gates.md');
 addEvidence('EV-006', MEAS_REL, 'mean_ratio_4', '本次实测：TC-2 mean_ratio（4 位小数）', REPRO_RUN);
 addEvidence('EV-007', MEAS_REL, 'judgeable_n', '本次实测：TC-1 可判定数', REPRO_RUN);
 addEvidence('EV-008', MEAS_REL, 'lowest_ratio_4', '本次实测：TC-3 最低覆盖率（4 位小数）', REPRO_RUN);
@@ -326,7 +326,7 @@ const quadrants = [
 
 const recommendations = [
   { rec_id: 'R-23-1', priority: 'P0', action: '为 docs/adr 全集 13 份补 Status/Date YAML 头，使 S2 事后补写判据可执行', rationale: 'TC-1 可判定数 2 < 门槛 5，根因是 11/13 ADR 无 Date 头（缺失率 84.62%）', expected_impact: 'TC-1 由 INCONCLUSIVE 转为可判定，S2 阈值获得 assay sensitivity', effort: 'S', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / insufficient', evidence_refs: ['EV-002', 'EV-006', 'EV-007'], degraded_note: null },
-  { rec_id: 'R-23-2', priority: 'P1', action: '把 ADR 中文结构标记口径登记为 v2 追加（新开账本条目 + v1 留档），不在首报后静默重判', rationale: 'adr-structure@v1 只识别英文标记，6F 的 ADR-0001~0007 以 H1 + 自由正文书写；这是口径事实不是误报，改口径属改向', expected_impact: '消除 TC-2 RED 的口径歧义，保留 v1 结果可比性', effort: 'M', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / unsupported', evidence_refs: ['EV-001', 'EV-006'], degraded_note: null },
+  { rec_id: 'R-23-2', priority: 'P1', action: '把 ADR 中文结构标记规则登记为 v2 追加（新开记录条目 + v1 留档），不在首报后悄悄重判', rationale: 'adr-structure@v1 只识别英文标记，6F 的早期 ADR 以 H1 + 自由正文书写；这是规则事实不是误报，改规则属改向', expected_impact: '消除 TC-2 RED 的规则歧义，保留 v1 结果可比性', effort: 'M', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / unsupported', evidence_refs: ['EV-001', 'EV-006'], degraded_note: null },
   { rec_id: 'R-23-3', priority: 'P2', action: '把 23-first-report.json 侧车作为 Agent Plugin 的裁决块契约候选，落 R3-D7 分发前置清单', rationale: 'A-027 要求裁决块结构化、引文锚可解析；侧车已含 verdict 枚举 + evidence_id/source/locator 三元组', expected_impact: '下游 agent 可直接消费裁决而不必解析 md', effort: 'S', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / supported', evidence_refs: ['EV-005'], degraded_note: null }
 ];
 

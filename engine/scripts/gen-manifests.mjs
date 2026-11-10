@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const meta = JSON.parse(readFileSync(join(root, "manifest.meta.json"), "utf8"));
 
-// D-219：产物尾行哨兵——JSON 生成物统一 LF 尾行（POSIX 3.206 文本文件定义＋工业三源唯一口径）；
+// D-219：产物尾行哨兵——JSON 生成物统一 LF 尾行（POSIX 3.206 文本文件定义＋工业三源唯一标准）；
 //   stable() 追加 \n，drift 比对改字节等价（去双侧 .trim()——trim 对 EOL 差异结构性失明，哨兵对自身缺陷自载盲区）。
 function stable(o) { return JSON.stringify(o, null, 2) + "\n"; }
 

@@ -1,7 +1,7 @@
 // 78-check.mjs —— #78 quarantine 引擎验收闸（协议级 fail-fast / 字段级隔离；D-103~D-120）
 // load-bearing: 独立对账守卫——承载性冗余（独立代码路径自持 SQL+git 重放恒等式，禁当重复代码删除；D-116②）。已挂载 engine-ci.yml。
 // 断言面：A=契约层导出+intake 委托 / B=schema+store 持久化面 / C=macro-b+audit+report 接线
-//   D=39/40 one-shot 同口径 / E=quarantine.test.mjs 实跑 / F=病态仓双通道 disposition parity 独立对账
+//   D=39/40 one-shot 同规则 / E=quarantine.test.mjs 实跑 / F=病态仓双通道 disposition parity 独立对账
 // 用法：node 78-check.mjs（须先 npm run build——dist 面被断言）
 import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, readdirSync as _rs } from 'node:fs';
 import * as fs2 from 'node:fs';
@@ -14,7 +14,7 @@ import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 const TIER = 'env-contract';
 // D-214① consumption_forms（多形态消费方——E/F 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→对应组 SKIP，仓内段照跑）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
-const PROTECTED_SURFACE = '#78 quarantine 引擎验收闸（ADR-0022 / D-103~D-120）';
+const PROTECTED_SURFACE = '#78 quarantine 引擎验收闸（D-103~D-120）';
 
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -61,10 +61,10 @@ t('C2 probe 输出带 fieldStats/fieldEvents', mb.indexOf('fieldStats') >= 0 && 
 t('C3 audit 装配：strict 闸+事务写+恒等式断言', audit.indexOf('strictQuarantineViolations') >= 0 && audit.indexOf('runInTransaction') >= 0 && audit.indexOf('intakeIdentityIssues') >= 0);
 t('C4 Intake Health 恒在节+verdict 三面投影', gen.indexOf('## Intake Health') >= 0 && gen.indexOf('reason_class') >= 0 && gen.indexOf('VERDICT_REASON_CLASSES') >= 0);
 t('C5 cli --strict-quarantine 旗 + crash 工件 + 三值退出码', cli.indexOf('--strict-quarantine') >= 0 && cli.indexOf('crashArtifactFromError') >= 0 && cli.indexOf('STRICT-QUARANTINE-VIOLATION') >= 0);
-t('C6 collectors null-date 显式跳过（不静默转 0）', txt(join(ENG, 'src', 'collect', 'collectors.ts')).indexOf('date === null') >= 0 || txt(join(ENG, 'src', 'collect', 'collectors.ts')).indexOf('date: string | null') >= 0);
+t('C6 collectors null-date 明确跳过（不悄悄转 0）', txt(join(ENG, 'src', 'collect', 'collectors.ts')).indexOf('date === null') >= 0 || txt(join(ENG, 'src', 'collect', 'collectors.ts')).indexOf('date: string | null') >= 0);
 t('C7 strict env 通道：cli flag>env precedence（STRICT_QUARANTINE_ENV+strictQuarantineEnabled 单点）', cli.indexOf('STRICT_QUARANTINE_ENV') >= 0 && cli.indexOf('strictQuarantineEnabled') >= 0 && quar.indexOf('STRICT_QUARANTINE_ENV') >= 0);
 t('C8 D-115③ 错误码分流：AuditIoError+classifyWriteError+exit 4 类', store.indexOf('AuditIoError') >= 0 && store.indexOf('classifyWriteError') >= 0 && cli.indexOf('EXIT_IO_FAILURE') >= 0 && audit.indexOf('classifyWriteError') >= 0);
-t('C9 D-110③ 棘轮机化 ratchetIssues+strict 闸接线', quar.indexOf('ratchetIssues') >= 0 && audit.indexOf('ratchetIssues') >= 0);
+t('C9 D-110③ 限制机化 ratchetIssues+strict 闸接线', quar.indexOf('ratchetIssues') >= 0 && audit.indexOf('ratchetIssues') >= 0);
 t('C10 D-117② raw_echo 截断谓词单点共享（rawEcho 导出+双消费面零裸字面量）', quar.indexOf('RAW_ECHO_CAP') >= 0 && quar.indexOf('export function rawEcho') >= 0 && audit.indexOf('rawEcho(e.raw)') >= 0 && txt(join(ENG, 'src', 'demo', 'demo.ts')).indexOf('rawEcho(e.raw)') >= 0);
 t('C11 D-115①/D-116① 逐 commit 事务+增量断言接线（#84 §8 抽取→fact-write.ts 同位共享核——audit/macro-c 同消费）', (function () { const fw = txt(join(ENG, 'src', 'audit', 'fact-write.ts')); return fw.indexOf('per-commit-identity') >= 0 && fw.indexOf('FACT_WRITE_BATCH') >= 0 && audit.indexOf('writeRunFactsAndEvents') >= 0 && txt(join(ENG, 'src', 'audit', 'macro-c.ts')).indexOf('writeRunFactsAndEvents') >= 0; })());
 t('C12 D-109② 工件 schema 三桶+run_context 关联键补齐', quar.indexOf('records_parsed') >= 0 && quar.indexOf('head_date') >= 0 && quar.indexOf('collector') >= 0 && quar.indexOf('countsFromStats') >= 0);
@@ -105,7 +105,7 @@ gitR(['init'], FX); gitR(['config', 'user.email', 'a@b.c'], FX); gitR(['config',
 writeFileSync(join(FX, 'CONTEXT.md'), 'macro audit positioning determinism traceability provenance receipt' + NL, 'utf8');
 writeFileSync(join(FX, 'package.json'), '{"name":"fx","private":true}' + NL, 'utf8');
 gitR(['add', '-A'], FX); gitR(['commit', '-m', 'init'], FX);
-writeFileSync(join(FX, 'docs', 'adr', '001-decision.md'), ['# ADR-001', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: t', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL), 'utf8');
+writeFileSync(join(FX, 'docs', 'adr', '9999-decision.md'), ['# ADR-9999', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: t', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL), 'utf8');
 gitR(['add', '-A'], FX); gitR(['commit', '-m', 'adr'], FX);
 const tree = gitR(['rev-parse', 'HEAD^{tree}'], FX);
 const head = gitR(['rev-parse', 'HEAD'], FX);
@@ -158,7 +158,7 @@ gitR(['init'], FXC); gitR(['config', 'user.email', 'a@b.c'], FXC); gitR(['config
 writeFileSync(join(FXC, 'CONTEXT.md'), 'macro audit positioning determinism traceability provenance receipt' + NL, 'utf8');
 writeFileSync(join(FXC, 'package.json'), '{"name":"fxc","private":true}' + NL, 'utf8');
 gitR(['add', '-A'], FXC); gitR(['commit', '-m', 'init'], FXC);
-writeFileSync(join(FXC, 'docs', 'adr', '001-decision.md'), ['# ADR-001', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: t', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL), 'utf8');
+writeFileSync(join(FXC, 'docs', 'adr', '9999-decision.md'), ['# ADR-9999', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: t', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL), 'utf8');
 gitR(['add', '-A'], FXC); gitR(['commit', '-m', 'adr'], FXC);
 const OUT_C = join(tmp, 'out-audit-clean');
 const rac = spawnSync('node', [CLI, 'audit', FXC, '--out', OUT_C], { encoding: 'utf8', timeout: 120000 });

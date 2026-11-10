@@ -1,6 +1,6 @@
 // 51-check.mjs — #51 Macro-B behavior 象限守卫（R9-02 / A-058 / D-054）
 // 断言面：A 面集源契约 → B 实物 schema 留痕 → C 判据产物（criteria/报告/facts/duckdb/测量）
-//   → D 判据复跑（committed facts 离线重评估=确定性回放）→ E 能力矩阵收窄+文档 → F registry/账本 → G BOM
+//   → D 判据复跑（committed facts 离线重评估=确定性回放）→ E 能力矩阵缩小范围+文档 → F registry/记录 → G BOM
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -60,21 +60,21 @@ t('D1 三面 facet_rows 事实齐备', facetRows.length === 3 && !!hf && !!cf &&
 t('D2 PC-1 复跑：三面 row_count>0', facetRows.every(v => v.row_count > 0));
 t('D3 TC-1 复跑：hotspots min(revisions)>=5', hf && hf.rows.every(r => r.revisions >= 5));
 t('D4 TC-2 复跑：coupling shared>=2&degree>0 占比>=0.5', cf && cf.rows.length > 0 && (cf.rows.filter(r => r.shared >= 2 && r.degree > 0).length / cf.rows.length) >= 0.5);
-t('D5 fact.quadrant=strategic（provenance 不改写，归位在切片层）', factLines.every(f => f.quadrant === 'strategic'));
+t('D5 fact.quadrant=strategic（provenance 不改写，归位在对应层）', factLines.every(f => f.quadrant === 'strategic'));
 const rep = j(join(REPO,'engine','test','fixtures','contracts','51-macro-b-env-manager.json'));
 const bq = rep.quadrants.find(q => q.quadrant === 'behavior');
-t('D6 报告 behavior=native 切片且 slice_fields 八键齐备', bq && bq.applicability === 'native' && ['faces', 'face_row_counts', 'hotspot_top', 'coupling_pairs', 'min_revs', 'sample_met', 'deferred_faces', 'quadrant_assignment'].every(k => k in bq.slice_fields));
+t('D6 报告 behavior=native 原生数据且 slice_fields 八键齐备', bq && bq.applicability === 'native' && ['faces', 'face_row_counts', 'hotspot_top', 'coupling_pairs', 'min_revs', 'sample_met', 'deferred_faces', 'quadrant_assignment'].every(k => k in bq.slice_fields));
 t('D7 behavior verdict=supported（判据全过）', bq && bq.verdict === 'supported');
 t('D8 deferred_faces 含 function-coupling（NC-1 兑现）', bq && bq.slice_fields.deferred_faces.some(d => d.includes('function-coupling')));
 t('D9 其余三象限 not_applicable+queued 理由', rep.quadrants.filter(q => q.quadrant !== 'behavior').every(q => q.applicability === 'not_applicable' && /queued|本票/.test(q.verdict_gate.override_reason || '')));
 t('D10 citation_checks 全 supports（证据锚逐字命中）', rep.citation_checks.length === 3 && rep.citation_checks.every(c => c.support === 'supports'));
-t('D11 min_revs=5 预声明阈值写入切片字段', bq && bq.slice_fields.min_revs === 5 && bq.slice_fields.sample_met === true);
+t('D11 min_revs=5 预声明阈值写入字段', bq && bq.slice_fields.min_revs === 5 && bq.slice_fields.sample_met === true);
 
-// ---------- E. 能力矩阵收窄 ----------
+// ---------- E. 能力矩阵缩小范围 ----------
 const rd = txt(join(REPO, 'README.md'));
-t('E1 README 象限矩阵：strategy:active·behavior:preview·structure 摘帽 preview(structure/shape 域,D-205 #87)·supply-chain:queued 维持', /strategy:?\s*active/.test(rd) && /behavior:?\s*preview/.test(rd) && /structure:?\s*preview/.test(rd) && rd.indexOf('structure/shape') >= 0 && /supply-chain:?\s*queued/.test(rd) && rd.indexOf('双口径风险暂缓') < 0);
+t('E1 README 象限矩阵：strategy:active·behavior:preview·structure 摘帽 preview(structure/shape 域,D-205 #87)·supply-chain:queued 维持', /strategy:?\s*active/.test(rd) && /behavior:?\s*preview/.test(rd) && /structure:?\s*preview/.test(rd) && rd.indexOf('structure/shape') >= 0 && /supply-chain:?\s*queued/.test(rd) && rd.indexOf('双规则风险暂缓') < 0 && rd.indexOf('双' + '口' + '径' + '风险暂缓') < 0);
 const skm = txt(join(ENG, 'skills', 'macro-audit', 'SKILL.md'));
-t('E2 SKILL.md 能力矩阵措辞同步收窄', /behavior=preview|behavior:?\s*preview/.test(skm) && /queued/.test(skm));
+t('E2 SKILL.md 能力矩阵措辞同步缩小范围', /behavior=preview|behavior:?\s*preview/.test(skm) && /queued/.test(skm));
 t('E7 51-report.md 在且含判据复盘面', existsSync(join(REPO,'engine','test','fixtures','contracts','51-report.md')) && txt(join(REPO,'engine','test','fixtures','contracts','51-report.md')).includes('supported'));
 
 // ---------- F. registry + 实跑一致性 ----------

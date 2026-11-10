@@ -1,14 +1,14 @@
 // 48-micro-a-preview.mjs — Micro-A preview：托管 API 适配器消费侧管道（#48 / A-056 / spec R8-02 / D-049）
 // 链 = PR intake（github-rest-adapter@v1：PR 枚举＋元数据＋diff 双通道）→ fact（JSONL＋48-audit-facts.duckdb，scale=Micro-A）
 //   → 裁决（48-micro-a-criteria.md 预声明判据 PC-1 / TC-1~4 / NC-1，跑后禁调）
-//   → 报告（buildReport 骨架 1.2.0 共享四章＋Micro-A 切片字段＋preview_disclosure「capability 3 of 5 · preview」）
+//   → 报告（buildReport 骨架 1.2.0 共享四章＋Micro-A 字段＋preview_disclosure「capability 3 of 5 · preview」）
 // 模式：default=真跑（凭据三级探测 env-token→gh-token→unauthenticated 如实降级）；
 //   --golden=cassette 离线回放（engine/test/fixtures/github-rest/authenticated.cassette.json；只锁字段骨架不锁内容值）；
 //   --repo <name> 单仓过滤（env-manager|jiahao|anysearch-cli|goose-duck-agent）。
 // PR 集 = 恰 4 条已 merged（票面写死实例不给通用公式，D-049③）：
-//   env-manager #64 release-please 机器生成（github-actions[bot]/Bot · chore(main): release 标题签名——#37 教训收窄到产物形态）
+//   env-manager #64 release-please 机器生成（github-actions[bot]/Bot · chore(main): release 标题签名——#37 教训缩小范围到产物形态）
 //   env-manager #55 dependabot[bot]/Bot（平台声明 Bot 双检命中）  env-manager #51 人类（Xxx91n/User）  jiahao #6 人类（全人基线 merged）
-// failure 件 = D-033 硬约束逆用：托管枚举 merged PR=0 → intake 显式拒绝 → 报告落 unsupported「无托管 PR 面＋原因＋前置条件」；
+// failure 件 = D-033 硬约束逆用：托管枚举 merged PR=0 → intake 明确拒绝 → 报告落 unsupported「无托管 PR 面＋原因＋前置条件」；
 //   票面前提漂移如实登记——anysearch-cli 票面撰写时无托管面（#37 实测 github_pr_total=0），本票复核其托管枚举 merged≥1，
 //   故 failure 演示主体改取真负例 goose-duck-agent（托管仓 merged PR=0，拒绝路径如实演示）。
 // 纪律：被测仓只读（git 只读子命令＋REST GET）；凭据即用即清永不入工件；唯一写动作 = --out 目录 48-* 工件。
@@ -30,9 +30,9 @@ const G = await import(pathToFileURL(join(DIST, 'report', 'generate.js')).href);
 const S = await import(pathToFileURL(join(DIST, 'fact', 'schema.js')).href);
 const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
 const GH = await import(pathToFileURL(join(DIST, 'upstream', 'github-rest.js')).href);
-const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同口径
+const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同规则
 
-// ---------- §0 Micro-A 切片字段契约（唯一事实源） ----------
+// ---------- §0 Micro-A 字段契约（唯一事实源） ----------
 // NN-check 由本常量 ∩ dist REPORT_SKELETON.required_fields 机械导出断言集——禁手抄漂移（D-049⑤）。
 export const MICRO_A_SLICE_FIELDS = [
   'pr_number', 'pr_title', 'pr_state', 'merged', 'merged_at',
@@ -58,7 +58,7 @@ const PILOTS = [
   }
 ];
 // 托管面资格闸探针：anysearch-cli=票面前提漂移核查（#37 实测 github_pr_total=0 → 本票复核枚举 merged 数）；
-// goose-duck-agent=真负例拒绝主体（托管仓 merged PR=0 → intake 显式拒绝）。
+// goose-duck-agent=真负例拒绝主体（托管仓 merged PR=0 → intake 明确拒绝）。
 const GATE_PROBES = [
   { name: 'anysearch-cli', owner: 'Xxx91n', repo: 'anysearch-cli' },
   { name: 'goose-duck-agent', owner: 'Xxx91n', repo: 'goose-duck-agent', root: siblingPath('goose-duck-agent'), refusal: true }
@@ -68,7 +68,7 @@ const GOLDEN_PRS = [{ n: 64, form: 'machine-generated/release-please' }, { n: 51
 const GOLDEN_DIFFS = [64];
 const CRITERIA_PATH = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
 const CRITERION_IDS = ['PC-1', 'TC-1', 'TC-2', 'TC-3', 'TC-4', 'NC-1'];
-const RELEASE_TITLE = /^chore\([^)]*\): release \d+\.\d+\.\d+/;   // release-please 产物签名（#37 教训：收窄到产物形态非主题词）
+const RELEASE_TITLE = /^chore\([^)]*\): release \d+\.\d+\.\d+/;   // release-please 产物签名（#37 教训：缩小范围到产物形态非主题词）
 
 function parseArgs(argv) {
   const out = { golden: false, repo: null, out: HERE };
@@ -83,7 +83,7 @@ function parseArgs(argv) {
 const ARGS = parseArgs(process.argv.slice(2));
 // Design: golden 存档的锚须与检出无关 —— 定长取判据锚前 GOLDEN_ABBREV 位；真跑面原样返回 — spec §R9-1
 // %h 的宽度随该检出的对象集合走（小检出 emit 7 位、前缀有歧义时 git 自动加长），而锚值被算进
-// receipt_id／chain_hash／mark。故 golden 侧两头都收口：钉下限挡住「<8」，截断挡住「>8」。
+// receipt_id／chain_hash／mark。故 golden 侧两头都收尾：钉下限挡住「<8」，截断挡住「>8」。
 const GOLDEN_ABBREV = 8;
 if (ARGS.golden) {
   // core.abbrev 是下限不是等宽，这里只解决「小检出 emit 7 位」；歧义加宽交给下面 PREREG_COMMIT 那步截断。
@@ -203,7 +203,7 @@ async function collectTarget(t, shared, diffsOverride) {
   return { t: t, ctx: ctx, res: res, summaries: summaries, mergedCount: mergedCount, headSha: headSha, headDate: headDate };
 }
 
-// 托管面资格闸（D-033 硬约束逆用）：merged PR ≥1 → eligible；=0 → intake 显式拒绝。
+// 托管面资格闸（D-033 硬约束逆用）：merged PR ≥1 → eligible；=0 → intake 明确拒绝。
 async function gateProbe(g, shared) {
   const t = { name: g.name, owner: g.owner, repo: g.repo, root: g.root || null, prs: [] };
   const r = await collectTarget(t, shared, []);
@@ -269,7 +269,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
   ];
   const overall = G.deriveOverallBand(entries);
 
-  // Micro-A 切片字段（契约 = MICRO_A_SLICE_FIELDS）
+  // Micro-A 字段（契约 = MICRO_A_SLICE_FIELDS）
   const sliceFields = {
     pr_number: pin.n,
     pr_title: sum ? sum.title : '',
@@ -296,7 +296,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
     rate_limit_remaining: run ? run.final_remaining : null
   };
 
-  // 证据（C3：行级引文锚——diff 工件行 / 实测文件行 / 账本行；摘取失败如实 grounded=false）
+  // 证据（C3：行级引文锚——diff 工件行 / 实测文件行 / 记录行；摘取失败如实 grounded=false）
   const evidence = [];
   function addEvidence(id, src, tokens, claim, repro, base) {
     let ex = null;
@@ -314,7 +314,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
     evidence.push({ evidence_id: EV(2), source: artName, locator: 'L0', claim: '' + NAME + '#' + pin.n + ' diff 工件', grounded: false, collected_at: RUN_AT, reproduce_cmd: RUN_CMD, reproduce_absent_reason: 'diff 工件缺席（' + (art.error || 'channel 未产') + '）', required_tokens: [], excerpt: '' });
   }
   addEvidence(EV(3), opts.factsName, ['github_rest.pr_metadata', '#' + pin.n + ''], '本次实测：' + NAME + '#' + pin.n + ' 元数据事实落库（merged=' + merged + '）', RUN_CMD, OUTDIR);
-  // Design: 证据锚须为仓内可解析坐标，reproduce_cmd 用 <repo> 占位禁本机绝对路径 — ADR-0027
+  // 证据锚须为仓内可解析坐标，reproduce_cmd 用 <repo> 占位禁本机绝对路径
   addEvidence(EV(4), 'docs/archive/decisions/macro-audit-ledger.md', ['D-049', '票面形态'], '票面授权锚：D-049 Micro-A preview 单票铺开决策行', 'git -C <repo> show HEAD:docs/archive/decisions/macro-audit-ledger.md', REPO);
   addEvidence(EV(5), CRITERIA_PATH, 'TC-4', '判据预声明锚：48-micro-a-criteria.md 判据集在案（跑后禁调）', 'git -C <repo> show HEAD:' + CRITERIA_PATH, REPO);
 
@@ -331,13 +331,13 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
   const isDep = formActual === 'platform-declared-bot/dependabot';
   const quadrants = [
     { quadrant: 'behavior', applicability: 'native', verdict: overall, score: null, confidence: 0.6, dimensions: [], slice_fields: sliceFields, verdict_gate: { protocol_version: GATE.protocol_version, decision: overall, evidence_flag: tripleOk, decided_at: RUN_AT, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: isDep ? ['supply-chain-signal-unadjudicated'] : [] },
-    { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: RUN_AT, override_reason: 'Micro-A 切片无结构采集面（PR 粒度；结构象限归 Macro-B 仓级采集）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-micro-a'] },
+    { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: RUN_AT, override_reason: 'Micro-A 字段无结构采集面（PR 粒度；结构象限归 Macro-B 仓级采集）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-micro-a'] },
     { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: RUN_AT, override_reason: '⚠ 数据未接——Scorecard 未接（按层需求队列不插队，D-034③）' + (isDep ? '；dependabot PR 的供应链信号仅作事实落库不裁决' : ''), audit_ref: GATE.audit_ref }, conflict_markers: isDep ? ['data-not-connected', 'supply-chain-signal-unadjudicated'] : ['data-not-connected'] },
-    { quadrant: 'strategy', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: RUN_AT, override_reason: 'Micro-A 切片不裁仓级战略叙事（战略象限在仓级/跨仓层投影）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-micro-a'] }
+    { quadrant: 'strategy', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: RUN_AT, override_reason: 'Micro-A 字段不裁仓级战略叙事（战略象限在仓级/跨仓层投影）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-micro-a'] }
   ];
 
   const recommendations = [
-    { rec_id: 'R-48-' + R + '-PR' + pin.n + '-1', priority: 'P1', action: 'Micro-A preview 遗留面收口：pulls.reviews/comments 自 planned 拉入（锁表 github-rest 契约面）＋diff --llm 行级语义评审归 #50 叙事双轨', rationale: 'preview 判据=证据完整性/托管面资格/选择性，非 PR 质量裁决——行级评审叙事面属宿主 agent（D-053/D-058），本 preview 不含', expected_impact: 'Micro-A preview → GA 漏斗的叙事面齐备', effort: 'M', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + overall, evidence_refs: [EV(4)], degraded_note: null },
+    { rec_id: 'R-48-' + R + '-PR' + pin.n + '-1', priority: 'P1', action: 'Micro-A preview 遗留面收尾：pulls.reviews/comments 自 planned 拉入（锁表 github-rest 契约面）＋diff --llm 行级语义评审归 #50 叙事双轨', rationale: 'preview 判据=证据完整性/托管面资格/选择性，非 PR 质量裁决——行级评审叙事面属宿主 agent（D-053/D-058），本 preview 不含', expected_impact: 'Micro-A preview → GA 漏斗的叙事面齐备', effort: 'M', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + overall, evidence_refs: [EV(4)], degraded_note: null },
     { rec_id: 'R-48-' + R + '-PR' + pin.n + '-2', priority: 'P2', action: 'Micro-A GA 前置：≥1 非自有公开仓真实 PR 走通用化验证（Generalization Gate；复用 URL opt-in 输入面）', rationale: '同主确认偏差如实披露——试点仓与产品同主（Xxx91n），本报告属校准+冒烟不构成泛化证据', expected_impact: '泛化证据链起点', effort: 'S', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + overall, evidence_refs: [EV(4)], degraded_note: null }
   ];
 
@@ -371,10 +371,10 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
       calibration_scope: '同主试点仓 merged PR 最小集（env-manager×3 形态＋jiahao×1 全人基线；票面写死实例）',
       structural_limitations: (opts.golden ? ['golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计'] : []).concat([
         '同主确认偏差：试点仓与产品同主（Xxx91n）——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟不构成泛化证据',
-        '判据范围收窄：preview 判据=证据完整性/托管面资格/选择性，非 PR 质量裁决——diff --llm 行级语义评审归 #50 叙事双轨（D-053）',
+        '判据范围缩小范围：preview 判据=证据完整性/托管面资格/选择性，非 PR 质量裁决——diff --llm 行级语义评审归 #50 叙事双轨（D-053）',
         'reviews/comments 面 planned 未接（锁表 github-rest 契约面）——评审语义不在 preview 内',
         'supply_chain 象限 not_applicable：Scorecard 未接（D-034③）；dependabot PR 的供应链信号仅作事实落库',
-        '适配器硬化面已落 engine 一等面（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts（重校准背书=85-check E 组）'
+        '适配器硬化面已落 engine 正式入口（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts（重校准背书=85-check E 组）'
       ]),
       not_in_preview: ['Macro-A']   // Micro-A 产线化入 preview（#85②/D-204③④）；Macro-A 层序末位
     },
@@ -397,7 +397,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
     fact_ids: report.fact_ids
   };
 }
-// ---------- §7 failure 件：无托管面显式拒绝（D-033 硬约束逆用；报告落 unsupported＋原因＋前置条件） ----------
+// ---------- §7 failure 件：无托管面明确拒绝（D-033 硬约束逆用；报告落 unsupported＋原因＋前置条件） ----------
 async function buildRefusalReport(gp, allGates, shared, opts) {
   const PRE = opts.golden ? '48-micro-a-golden-' : '48-micro-a-';
   const R = gp.name.toUpperCase().split('-').join('');
@@ -419,7 +419,7 @@ async function buildRefusalReport(gp, allGates, shared, opts) {
   const run = runF ? val(runF) : null;
   const entries = [
     { criterion_id: 'PC-1', band: run !== null ? 'supported' : 'insufficient', basis_refs: ['B1'], anchored_fact_ids: runF ? [runF.fact_id] : [], anchored_evidence_ids: ['EV-48-' + R + '-REF-01'], decided_at: RUN_AT, rationale: run !== null ? '适配器 run 事实在案：calls=' + run.calls + ' strategy=' + run.strategy + '（枚举真实发生——拒绝非管线故障）' : '枚举未发生' },
-    { criterion_id: 'TC-4', band: 'unsupported', basis_refs: ['B2'], anchored_fact_ids: byMetric(gp.facts, 'github_rest.pr_summary').map(function (f) { return f.fact_id; }), anchored_evidence_ids: ['EV-48-' + R + '-REF-01'], decided_at: RUN_AT, rationale: '托管面资格闸未过：' + gp.name + ' 托管枚举 merged PR=0 → intake 显式拒绝（D-033 硬约束逆用）。原因=无托管 PR 面（无可裁 PR 对象）；前置条件=仓接入托管 PR 流程且产出 ≥1 merged PR 后再复审' }
+    { criterion_id: 'TC-4', band: 'unsupported', basis_refs: ['B2'], anchored_fact_ids: byMetric(gp.facts, 'github_rest.pr_summary').map(function (f) { return f.fact_id; }), anchored_evidence_ids: ['EV-48-' + R + '-REF-01'], decided_at: RUN_AT, rationale: '托管面资格闸未过：' + gp.name + ' 托管枚举 merged PR=0 → intake 明确拒绝（D-033 硬约束逆用）。原因=无托管 PR 面（无可裁 PR 对象）；前置条件=仓接入托管 PR 流程且产出 ≥1 merged PR 后再复审' }
   ];
   const GATE = { protocol_version: G.ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'reports/48-micro-a-preview.mjs' };
   const quadrants = ['behavior', 'structure', 'supply_chain', 'strategy'].map(function (q) {
@@ -434,7 +434,7 @@ async function buildRefusalReport(gp, allGates, shared, opts) {
     generated_at: RUN_AT,
     trace_id: gp.ctx.traceId,
     baggage_id: C.deriveBaggageId(gp.ctx, null),
-    headline: gp.name + ' Micro-A preview 拒绝件：托管枚举 merged PR=0——无托管 PR 面，intake 显式拒绝（unsupported；非管线故障，枚举真实发生）',
+    headline: gp.name + ' Micro-A preview 拒绝件：托管枚举 merged PR=0——无托管 PR 面，intake 明确拒绝（unsupported；非管线故障，枚举真实发生）',
     confidence: 0.9,
     stale: { marker: 'fresh', sla_seconds: 5, lag_seconds: 0, read_model_version: G.REPORT_SKELETON_VERSION, fact_watermark_version: '1' },
     fact_ids: gp.facts.map(function (f) { return f.fact_id; }),
@@ -460,9 +460,9 @@ async function buildRefusalReport(gp, allGates, shared, opts) {
       capability_label: 'capability 3 of 5 · preview',
       calibration_scope: '托管面资格闸拒绝件（failure 演示面）',
       structural_limitations: (opts.golden ? ['golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计'] : []).concat([
-        '拒绝语义：intake 阶段显式拒绝（D-033 硬约束逆用）——报告落 unsupported: 无托管 PR 面＋原因＋前置条件',
+        '拒绝语义：intake 阶段明确拒绝（D-033 硬约束逆用）——报告落 unsupported: 无托管 PR 面＋原因＋前置条件',
         '票面前提漂移如实登记：anysearch-cli 票面撰写时无托管面（#37 实测 github_pr_total=0），本票复核托管枚举 merged=' + (drift ? String(drift.merged_prs) : 'n/a') + '——前提已漂移，failure 演示主体改取真负例 goose-duck-agent（merged=0）',
-        '适配器硬化面已落 engine 一等面（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts'
+        '适配器硬化面已落 engine 正式入口（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts'
       ]),
       not_in_preview: ['Macro-A']   // Micro-A 产线化入 preview（#85②/D-204③④）；Macro-A 层序末位
     },
@@ -545,7 +545,7 @@ async function goldenMain() {
     a('golden pr' + r.pr + ' 四章骨架在', ['## C1', '## C2', '## C3', '## C4'].every(function (h) { return md.indexOf(h) >= 0; }));
     a('golden pr' + r.pr + ' schema=REPORT_SKELETON_VERSION + scale=Micro-A', sc.schema_version === G.REPORT_SKELETON_VERSION && sc.scale === 'Micro-A');
     a('golden pr' + r.pr + ' receipt RCP- 格式', /^RCP-[0-9a-f]{16}$/.test(sc.receipt.receipt_id), sc.receipt.receipt_id);
-    a('golden pr' + r.pr + ' 骨架交集∩切片字段机械断言', r.skeleton.ok, r.skeleton.missing.join(','));
+    a('golden pr' + r.pr + ' 骨架交集∩字段机械断言', r.skeleton.ok, r.skeleton.missing.join(','));
     a('golden pr' + r.pr + ' 披露块四字段在', sc.preview_disclosure !== null && typeof sc.preview_disclosure.capability_label === 'string' && Array.isArray(sc.preview_disclosure.structural_limitations) && Array.isArray(sc.preview_disclosure.not_in_preview));
     a('golden pr' + r.pr + ' citation_checks 面在', Array.isArray(sc.citation_checks) && sc.citation_checks.length > 0);
   }

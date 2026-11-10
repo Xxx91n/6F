@@ -44,7 +44,7 @@ const baseInput = (extra) => ({
   decided_at: '2026-09-16T00:00:00Z',
   commit_anchor: 'a'.repeat(40),
   tree_anchor: 'b'.repeat(40),
-  // 合规锚形态（R9-1）：测试夹具直接写显式哨兵形，不经被测构造子——P 组挂了不会连带全文件失真。
+  // 合规锚形态（R9-1）：测试夹具直接写明确哨兵形，不经被测构造子——P 组挂了不会连带全文件失真。
   gate_ref: { prereg_commit: 'sentinel:test-anchor', criteria_path: 'p', basis_path: 'b', criterion_ids: [] },
   degraded: false,
   degraded_reason: null,
@@ -165,9 +165,9 @@ t('S3 引文/claim 支撑校验不受输出编码影响（checkAllCitations 针�
   assert.equal(r.adjudication.citation_checks[0].support, 'supports');
 });
 
-// ---------- P. prereg 锚取值口径（tracker #100／R9-1：可解析 commit 或显式标记，禁模糊态） ----------
+// ---------- P. prereg 锚取值规则（tracker #100／R9-1：可解析 commit 或明确标记，禁模糊态） ----------
 // 正负对照都落在这里：口径只有落到产线 choke point（buildReceipt）才不是文书承诺。
-t('P1 三形态各自命中——commit 形／显式哨兵／显式降级（前缀即判别面，不读源码也能分辨）', () => {
+t('P1 三形态各自命中——commit 形／明确哨兵／明确降级（前缀即判别面，不读源码也能分辨）', () => {
   assert.equal(G.classifyPreregAnchor('e356581e'), 'commit');
   assert.equal(G.classifyPreregAnchor('a'.repeat(40)), 'commit');
   assert.equal(G.preregSentinel('38-script-const'), 'sentinel:38-script-const');
@@ -190,14 +190,14 @@ t('P2b commit 形下限取 git 能 emit 的最小宽度——4 位放行、3 位
   assert.equal(G.classifyPreregAnchor('767'), 'ambiguous');
 });
 
-t('P3 buildReport 在产线 choke point 拒收模糊态锚（不是只写在文书里的口径）', () => {
+t('P3 buildReport 在产线 choke point 拒收模糊态锚（不是只写在文书里的规则）', () => {
   assert.throws(
     () => G.buildReport(baseInput({ gate_ref: { prereg_commit: '38-script-const', criteria_path: 'p', basis_path: 'b', criterion_ids: [] } })),
     /PREREG-ANCHOR-AMBIGUOUS/
   );
 });
 
-t('P4 degradeReport 同一路径——降级变体不得绕过口径', () => {
+t('P4 degradeReport 同一路径——降级变体不得绕过规则', () => {
   const forged = G.buildReport(baseInput());
   forged.receipt.gate_ref.prereg_commit = 'unanchored';
   assert.throws(() => G.degradeReport(forged, '降级原因'), /PREREG-ANCHOR-AMBIGUOUS/);

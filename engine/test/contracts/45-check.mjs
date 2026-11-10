@@ -1,7 +1,7 @@
 // 45-check.mjs — #45 演示入口守卫（R6-02 / A-050 / D-038）
 // 断言面：三场景 definitions 在+名逐字 → golden 在 → demo --scenario 实跑 exit 0
 //   → 披露块字段与 #38 preview_disclosure 同一契约 → synthetic 印记（不冒充真实审计）
-//   → intake 本地腿（D-013）→ 跑完即弃 → golden 逐字节 diff → upstream 层零业务改动 → 文档账本
+//   → intake 本地腿（D-013）→ 跑完即弃 → golden 逐字节 diff → upstream 层零业务改动 → 文档记录
 // 纪律：本守卫只写 os.tmpdir() 临时目录（实跑产物），仓内状态零写；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -46,7 +46,7 @@ t('B1 生成器 pin author/committer/date（确定性根基）', genSrc.indexOf(
 t('B2 生成器支持 merge/多分支/tag 步型（FerrLabs 模式）', genSrc.indexOf("'merge'") >= 0 && genSrc.indexOf("'branch'") >= 0 && genSrc.indexOf("'tag'") >= 0);
 t('B3 demo 管线走 Repo Intake 本地腿（import repoAdd，不设新输入面 D-013）', demoSrc.indexOf("from '../intake/intake.js'") >= 0 && demoSrc.indexOf('repoAdd(') >= 0);
 t('B4 披露块复用 preview_disclosure 同一契约（PreviewDisclosure 类型 + buildReport 通道）', demoSrc.indexOf('PreviewDisclosure') >= 0 && demoSrc.indexOf('preview_disclosure: demoDisclosure()') >= 0);
-t('B5 ADR-0014：demo 不 import upstream 层（上游适配层零业务改动；codelore 仅许 off 配置——D-094(b) 字面钉合法演化：demo.ts 增 codelore:\u0027off\u0027 显式禁用配置后裸子串断言失配）', demoSrc.indexOf('upstream/') < 0 && !/(?:import|from|require)[^\n;]*codelore/.test(demoSrc) && demoSrc.indexOf("codelore: 'off'") >= 0);
+t('B5 demo 不 import upstream 层（上游适配层零业务改动；codelore 仅许 off 配置——D-094(b) 字面钉合法演化：demo.ts 增 codelore:\u0027off\u0027 明确禁用配置后裸子串断言失配）', demoSrc.indexOf('upstream/') < 0 && !/(?:import|from|require)[^\n;]*codelore/.test(demoSrc) && demoSrc.indexOf("codelore: 'off'") >= 0);
 t('B6 CLI 挂 demo 子命令（--scenario/--out/--json/--keep/--list）', cliSrc.indexOf("cmd === 'demo'") >= 0 && cliSrc.indexOf('--scenario') >= 0 && cliSrc.indexOf('--list') >= 0);
 t('B7 package.json files 含 fixtures（随 tgz 分发）+ smoke 链挂 demo.test.mjs', pkg.files.indexOf('fixtures') >= 0 && pkg.scripts.smoke.indexOf('demo.test.mjs') >= 0);
 t('B8 dist 编译产物在位（demo.js + fixture-generator.js）', existsSync(join(ENG, 'dist', 'demo', 'demo.js')) && existsSync(join(ENG, 'dist', 'demo', 'fixture-generator.js')));
@@ -71,7 +71,7 @@ t('C7 demo --list 列出三场景', listR.status === 0 && SCENARIOS.every(s => l
 const defR = spawnSync(process.execPath, [CLI, 'demo', '--out', join(tmp, 'run-default')], { encoding: 'utf8', timeout: 120000 });
 t('C8 demo 默认 scenario = happy-path', defR.status === 0 && JSON.parse(defR.stdout.trim()).scenario === 'happy-path');
 const badR = spawnSync(process.execPath, [CLI, 'demo', '--scenario', 'nope'], { encoding: 'utf8', timeout: 60000 });
-t('C9 未知 scenario 显式拒绝（exit 2 + DEMO-SCENARIO-UNKNOWN）', badR.status === 2 && badR.stderr.indexOf('DEMO-SCENARIO-UNKNOWN') >= 0);
+t('C9 未知 scenario 明确拒绝（exit 2 + DEMO-SCENARIO-UNKNOWN）', badR.status === 2 && badR.stderr.indexOf('DEMO-SCENARIO-UNKNOWN') >= 0);
 
 // ---------- D. 披露块契约（与 #38 preview_disclosure 同一契约面） ----------
 const side = json(join(runs['happy-path'].outDir, 'report.json'));
@@ -92,7 +92,7 @@ t('E2 报告 headline/markdown 明记 not an audit of any real repository', SCEN
 t('E3 strategy 象限 conflict_markers 带 synthetic-fixture', side.quadrants.find(q => q.quadrant === 'strategy').conflict_markers.indexOf('synthetic-fixture') >= 0);
 t('E4 degraded 报告 receipt.degraded=true + ⚠ unverified 印记', SCENARIOS.filter(s => s !== 'happy-path').every(s => { const j = json(join(runs[s].outDir, 'report.json')); return j.receipt.degraded === true && j.receipt.mark.indexOf('⚠ unverified') >= 0; }));
 t('E5 测量工件 synthetic=true + generator 印记', SCENARIOS.every(s => { const m = json(join(runs[s].outDir, 'demo-measurements.json')); return m.synthetic === true && m.generator === 'fixture-generator@1.0.0'; }));
-t('E6 骨架 C1-C4 章序锁定（降级不改骨架 ADR-0006）', SCENARIOS.every(s => { const md = readFileSync(join(runs[s].outDir, 'report.md'), 'utf8'); const ids = (md.match(/^## C\d /gm) || []).map(x => x.slice(3, 5)); return JSON.stringify(ids) === JSON.stringify(['C1', 'C2', 'C3', 'C4']); }));
+t('E6 骨架 C1-C4 章序锁定（降级不改骨架）', SCENARIOS.every(s => { const md = readFileSync(join(runs[s].outDir, 'report.md'), 'utf8'); const ids = (md.match(/^## C\d /gm) || []).map(x => x.slice(3, 5)); return JSON.stringify(ids) === JSON.stringify(['C1', 'C2', 'C3', 'C4']); }));
 
 // ---------- F. intake 本地腿 + 跑完即弃 ----------
 t('F1 三场景 intake_kind=local（同一 Repo Intake 本地路径 D-013）', SCENARIOS.every(s => runs[s].summary.intake_kind === 'local'));
@@ -106,7 +106,7 @@ t('G2 manifest 裁定/receipt 与实跑一致', SCENARIOS.every(s => manifest.sc
 const genScript = join(ENG, 'scripts', 'gen-demo-golden.mjs');
 t('G3 重渲染脚本在位（#43 CI diff 入口）+ 引用同一 runDemo 管线', existsSync(genScript) && readFileSync(genScript, 'utf8').indexOf('runDemo') >= 0);
 
-// ---------- H. 文档与账本落文 ----------
+// ---------- H. 文档与记录落文 ----------
 t('H6 45-report.md 在位且六段齐备', existsSync(join(REPO,'engine','test','fixtures','contracts','45-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(m => readFileSync(join(REPO,'engine','test','fixtures','contracts','45-report.md'), 'utf8').indexOf(m) >= 0));
 const reg = json(join(REPO,'engine','test','fixtures','contracts','33-gate-registry.json'));
 t('H8 registry 25-D4 演示入口行 = decided→D-038（触发面已闭合登记）', reg.items.some(i => i.id === '25-D4' && i.status === 'decided' && i.decision === 'D-038'));

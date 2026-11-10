@@ -13,7 +13,7 @@ function check(name, pass, detail) { results.push([name, !!pass, detail || '']);
 // -- 纯函数寻址序 --
 M.setMcpServerConfig({ db: 'C:/srv/db.duckdb' });
 delete process.env.MACRO_AUDIT_FACTS_DB;
-check('R1 arguments.db 优先（显式入参压一切）', M.resolveFactsDb('D:/arg/x.duckdb') === 'D:/arg/x.duckdb');
+check('R1 arguments.db 优先（明确入参压一切）', M.resolveFactsDb('D:/arg/x.duckdb') === 'D:/arg/x.duckdb');
 check('R2 server --db argv 兜底（mcp.json args 配置面）', M.resolveFactsDb(undefined) === 'C:/srv/db.duckdb');
 process.env.MACRO_AUDIT_FACTS_DB = 'E:/env/facts.duckdb';
 check('R3 env 在 argv 缺席时补位但让位 argv', M.resolveFactsDb(undefined) === 'C:/srv/db.duckdb');
@@ -29,13 +29,13 @@ const list = await M.handleRpcMessage({ jsonrpc: '2.0', id: 1, method: 'tools/li
 const factsTool = list && list.result && list.result.tools ? list.result.tools[0] : null;
 check('S1 tools/list 仍只暴露 facts 单工具', !!factsTool && factsTool.name === 'facts');
 check('S2 inputSchema.required 不再含 db（必填泄漏已修）', !factsTool.inputSchema.required || factsTool.inputSchema.required.indexOf('db') < 0, JSON.stringify(factsTool.inputSchema.required));
-check('S3 inputSchema 仍声明 db 属性（显式入参保留）', !!factsTool.inputSchema.properties.db);
+check('S3 inputSchema 仍声明 db 属性（明确入参保留）', !!factsTool.inputSchema.properties.db);
 
 // -- tools/call：寻址失败 → 结构化错误；寻址成功 → 进入投影层 --
 const r1 = await M.handleRpcMessage({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'facts', arguments: {} } });
 check('C1 无 db 寻址 → -32602 MCP-FACTS-DB-UNRESOLVED', !!r1.error && r1.error.code === -32602 && r1.error.message.indexOf('MCP-FACTS-DB-UNRESOLVED') >= 0, JSON.stringify(r1.error));
 const r2 = await M.handleRpcMessage({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'facts', arguments: { db: 'D:/nonexistent/none.duckdb' } } });
-check('C2 显式 db 寻址成功 → 进入投影层（文件缺席报 MCP-FACTS-ERROR 而非 UNRESOLVED）', !!r2.result && r2.result.isError === true && r2.result.content[0].text.indexOf('MCP-FACTS-ERROR') >= 0, JSON.stringify(r2).slice(0, 160));
+check('C2 明确 db 寻址成功 → 进入投影层（文件缺席报 MCP-FACTS-ERROR 而非 UNRESOLVED）', !!r2.result && r2.result.isError === true && r2.result.content[0].text.indexOf('MCP-FACTS-ERROR') >= 0, JSON.stringify(r2).slice(0, 160));
 process.env.MACRO_AUDIT_FACTS_DB = 'D:/nonexistent/env.duckdb';
 const r3 = await M.handleRpcMessage({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'facts', arguments: {} } });
 check('C3 env 寻址成功 → 同样进入投影层报 MCP-FACTS-ERROR', !!r3.result && r3.result.isError === true && r3.result.content[0].text.indexOf('MCP-FACTS-ERROR') >= 0, JSON.stringify(r3).slice(0, 160));

@@ -47,7 +47,7 @@ let r1 = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-A'], { encoding
 let sj = null; try { sj = JSON.parse(r1.stderr); } catch (e) { }
 t('B1 --scale Macro-A → exit 2 + error=SCALE-NOT-IMPLEMENTED', r1.status === 2 && !!sj && sj.error === 'SCALE-NOT-IMPLEMENTED', 'status=' + r1.status);
 t('B2 拒绝 JSON 载 implemented/requested/layer_order（#84＋#85② 产线化后 implemented=[Macro-B, Macro-C, Micro-A]）', !!sj && JSON.stringify(sj.implemented) === JSON.stringify(['Macro-B', 'Macro-C', 'Micro-A']) && sj.requested === 'Macro-A' && typeof sj.layer_order === 'string');
-t('B2b layer_order=ADR-0017③ 原文层序', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0 && sj.layer_order.indexOf('ADR-0017') >= 0, sj && sj.layer_order);
+t('B2b layer_order=层序说明原文', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0 && sj.layer_order.indexOf('层序') >= 0, sj && sj.layer_order);
 // engine-deps 前置（D-163③）：audit 实跑需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
 if (groupProbe('53-check', 'B3', DEP53)) {
   const r1b = spawnSync('node', [CLI, 'audit', '.', '--scale', 'Macro-B'], { encoding: 'utf8', cwd: ENG });
@@ -65,7 +65,7 @@ sh(['init']); sh(['config', 'user.email', 'a@b.c']); sh(['config', 'user.name', 
 writeFileSync(join(TGT, 'CONTEXT.md'), '# tgt\nmacro audit positioning determinism traceability provenance receipt\n', 'utf8');
 writeFileSync(join(TGT, 'package.json'), '{"name":"tgt"}\n', 'utf8');
 sh(['add', '-A']); sh(['commit', '-m', 'init']);
-writeFileSync(join(TGT, 'docs', 'adr', '001-x.md'), ['# ADR-001', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: t', '- Ledger: D-1', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL), 'utf8');
+writeFileSync(join(TGT, 'docs', 'adr', '9999-x.md'), ['# ADR-9999', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: t', '- Ledger: D-1', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL), 'utf8');
 sh(['add', '-A']); sh(['commit', '-m', 'adr']);
 
 // ---------- C. --out 双通道 ----------
@@ -120,7 +120,7 @@ if (groupProbe('53-check', 'E', DEP53)) {
     t('E5 39 侧车 intake_health.fields 为数组且非空（#42 workflow 断言同源守卫）', !!s39.intake_health && Array.isArray(s39.intake_health.fields) && s39.intake_health.fields.length > 0, 'fields=' + (s39.intake_health && Array.isArray(s39.intake_health.fields) ? s39.intake_health.fields.length : 'absent/null'));
     // #42 复审（CodeRabbit nitpick）：paths() 只对对象下钻，数组元素字段面 E2 看不见——intake_health.fields 条目另比（E3 同型补位）。
     // 不做通用数组下钻：实测会把 quadrants[].slice_fields 的引擎扩展项一并拉进无豁免比较（FAIL E2 drift=6 项）——那是另一张票的豁免议题。
-    // 39 侧 quarantined_rows 恒空（首个病态即 normalizeGitIsoDate 抛＝崩溃桶无 sidecar），对其条目断言必恒真，故只比 fields。
+    // 39 侧 quarantined_rows 恒空（首个病态即 normalizeGitIsoDate 抛＝崩溃桶无 sidecar），对其条目断言必永远通过，故只比 fields。
     const ih39Fields = (s39.intake_health || {}).fields || [];
     const ih39Keys = ih39Fields.length ? Object.keys(ih39Fields[0]).sort() : [];
     const ihMissing = [];

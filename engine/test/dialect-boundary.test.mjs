@@ -55,7 +55,7 @@ function fakeGit(tz) {
 const pZ = MB.probeMacroBRepo('synthetic', 'h'.repeat(40), { gitRunner: fakeGit('Z') });
 const pOff = MB.probeMacroBRepo('synthetic', 'h'.repeat(40), { gitRunner: fakeGit('+00:00') });
 t('C1 跨方言 fieldStats 逐字节一致（+00:00 与 Z 同计数）', JSON.stringify(pZ.fieldStats) === JSON.stringify(pOff.fieldStats), JSON.stringify(pOff.fieldStats));
-t('C2 两方言 stats 全 clean（normalized=0 quarantined=0——桶收窄落地）', pOff.fieldStats.every(function (s) { return s.clean === s.total && s.normalized === 0 && s.quarantined === 0; }));
+t('C2 两方言 stats 全 clean（normalized=0 quarantined=0——桶缩小范围落地）', pOff.fieldStats.every(function (s) { return s.clean === s.total && s.normalized === 0 && s.quarantined === 0; }));
 t('C3 +00:00 料产 4 条吸收事件（head_date×1+committer_date×3）；Z 料 0 条', pOff.dialectAbsorptions.length === 4 && pZ.dialectAbsorptions.length === 0 && pOff.dialectAbsorptions.every(function (e) { return e.rule_id === 'tz_offset/+00:00→Z'; }));
 t('C4 commits[].date 跨方言一致且为 canonical Z', JSON.stringify(pZ.commits.map(function (c) { return c.date; })) === JSON.stringify(pOff.commits.map(function (c) { return c.date; })) && pOff.commits.every(function (c) { return /Z$/.test(c.date); }));
 t('C5 headDate 跨方言一致（锚值规范形）', pZ.headDate === pOff.headDate && pOff.headDate === '2020-01-03T00:00:00Z');

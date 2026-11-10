@@ -1,7 +1,7 @@
-// 守卫：23 首报全链与三层闸门（A-026 / A-027 / spec §R3-D5 / ADR-0013）
+// 守卫：23 首报全链与三层闸门（A-026 / A-027 / spec §R3-D5）
 // 用法：node engine/test/contracts/23-first-report-check.mjs
 // 约定：零三方依赖；骨架读 engine/dist/report/generate.js，判据绑定读 engine/src/collect/collectors.ts（Node 类型剥离）；退出码 0 = PASS。
-// 分工（#37 / ADR-0027）：断言面对象＝仓内冻结产物，本守卫不重渲染——重渲染的逐字节 diff 归 golden-ci，两者不重叠。
+// 分工（#37）：断言面对象＝仓内冻结产物，本守卫不重渲染——重渲染的逐字节 diff 归 golden-ci，两者不重叠。
 
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -12,7 +12,7 @@ import { dirname, join } from 'node:path';
 const TIER = 'portable';
 // D-214① consumption_forms（多形态消费方——R-anchor 组级 need git-object:）：dev-full=完整克隆全断言面；ci-shallow=CI 浅克隆（冻结对象借仓内 bundle 临时仓零写入物化，主仓零写）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
-const PROTECTED_SURFACE = '守卫：23 首报全链与三层闸门（A-026 / A-027 / spec §R3-D5 / ADR-0013）';
+const PROTECTED_SURFACE = '守卫：23 首报全链与三层闸门（A-026 / A-027 / spec §R3-D5）';
 
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -25,8 +25,8 @@ const G = await import(pathToFileURL(GENERATE_JS).href);
 const PRE_REG = join(REPO, 'engine', 'test', 'fixtures', 'contracts', '22-criteria-pre-registration.md');
 const C_BASIS = join(REPO, 'engine', 'test', 'fixtures', 'contracts', '22-c-adjudication-basis.md');
 const FACTS_JSONL = join(REPO, 'engine', 'test', 'fixtures', 'contracts', '23-facts.jsonl');
-// 账本载体 = #40 归档进仓的两份退役决策账本（只读档案）。原载体 .scratch/gov-audit/ 不在仓里、
-// 却可能在开发机上残留——CI 与 dev 因此对不上。承重判据见下方 P1。
+// 记录载体 = #40 归档进仓的两份退役决策记录（只读档案）。原载体 .scratch/gov-audit/ 不在仓里、
+// 却可能在开发机上残留——CI 与 dev 因此对不上。关键判断判据见下方 P1。
 const ARCHIVE_LEDGERS = ['architecture-recovery-ledger.md', 'macro-audit-ledger.md']
   .map(function (f) { return join(REPO, 'docs', 'archive', 'decisions', f); });
 const SKELETON_JSON = join(REPO, 'engine', 'test', 'fixtures', 'contracts', '14-skeleton-fields.json');
@@ -55,8 +55,8 @@ const ledgerText = ARCHIVE_LEDGERS.filter(function (p) { return existsSync(p); }
 // ---------- 开跑前三查（启动器 delta 第 1 条：任一缺 = 停票） ----------
 const ciIds = gates.preflight.t19_ci_run_ids;
 const report19 = existsSync(join(REPO,'engine','test','fixtures','contracts','19-report.md')) ? readFileSync(join(REPO,'engine','test','fixtures','contracts','19-report.md'), 'utf8') : '';
-// 落点判定只做一次，断言与 detail 共用同一判定——归档账本必须真承重（≥1 个 run 见于账本）。
-// 只判文件在不在是不够的：账本被截断或清空时，19-report.md 单腿仍能把 P1 顶绿＝原死载体静默回落的复现。
+// 判定只做一次，断言与 detail 共用同一判定——归档记录必须真起关键作用（≥1 个 run 见于记录）。
+// 只判文件在不在是不够的：记录被截断或清空时，19-report.md 单腿仍能把 P1 顶绿＝原死载体悄悄回落的复现。
 const ciLand = (Array.isArray(ciIds) ? ciIds : []).map(function (r) {
   return { run: r, ledger: ledgerText.indexOf(r) >= 0, report: report19.indexOf(r) >= 0 };
 });
@@ -68,8 +68,8 @@ function ciStamp(l) {
 const ledgerBearing = ciLand.some(function (l) { return l.ledger; });
 const ciArchived = ciLand.length > 0 && ledgerBearing
   && ciLand.every(function (l) { return l.ledger || l.report; });
-check('P1', ciArchived, '票 19 CI 证据在档（双载体＝docs/archive/decisions 归档账本＋19-report.md）：'
-  + ciLand.map(ciStamp).join(' ') + (ledgerBearing ? '' : '｜归档账本零命中＝载体又死了'));
+check('P1', ciArchived, '票 19 CI 证据在档（双载体＝docs/archive/decisions 归档记录＋19-report.md）：'
+  + ciLand.map(ciStamp).join(' ') + (ledgerBearing ? '' : '｜归档记录零命中＝载体又死了'));
 // P2 diff-filter=AM：只认内容建立提交，排除退役删除提交（治理庭后语义保持）
 let preregCommit = '';
 try {
@@ -151,7 +151,7 @@ check('B2', pc1Idx >= 0 && pc2Idx >= 0 && firstTc >= 0 && lastPc < firstTc, '执
 // 规则的成文权威 = 22-criteria-pre-registration.md §3.1（TC-1）/§3.2（TC-2）/§3.3（TC-3），跑前写死；
 // 下面三个 derive 只做指针式兑现，不另立第二套正文。阈值取自冻结件 threshold 块，其字面由 B4 逐项钉死（跑后未调）。
 // 判定条件＝字面 ∧ 记录自洽 ∧ 事实对账 ∧ 对照表全过 ∧ 六类齐备；事实对账只读 23-facts.jsonl，
-// 按 23-first-report.mjs 的聚合式静态重算，不调用采集器、不重渲染（ADR-0027）。
+// 按 23-first-report.mjs 的聚合式静态重算，不调用采集器、不重渲染。
 // 零分母一律按产线同式取 0（collectors.ts 与 23-first-report.mjs 都这么写），守卫另判会把这些合法记录误报成红。
 function r4(x) { return Number(x).toFixed(4); }
 
@@ -165,7 +165,7 @@ const tc1Facts = factValues('git.adr_lag_days');
 const tc2Facts = factValues('adr.five_piece_completeness');
 const tc3Facts = factValues('positioning.keyword_coverage');
 
-/** 按生成器口径，以 lag 事实条数与 delta_days 严格过阈条数重算 TC-1 原始计数。 */
+/** 按生成器规则，以 lag 事实条数与 delta_days 严格过阈条数重算 TC-1 原始计数。 */
 function deriveTc1Facts(entries, t) {
   return {
     judgeable_n: entries.length,
@@ -281,7 +281,7 @@ function tc3FactDiff(t, entries) {
 /** 供内存对照表使用的 TC-3 事实全等谓词。 */
 function matchesTc3Facts(t, entries) { return tc3FactDiff(t, entries).length === 0; }
 
-// §3.1 的两条：可执行门槛（否则判 INCONCLUSIVE）＋判红方向（严格大于）；ratio 是 0–1 的占比
+// §3.1 的两条：可执行门槛（否则判 INCONCLUSIVE）＋判失败方向（严格大于）；ratio 是 0–1 的占比
 function deriveTc1(t) {
   const ratio = t.judgeable_n === 0 ? 0 : t.backfill_n / t.judgeable_n;
   return {
@@ -295,7 +295,7 @@ function consistentTc1(t) {
   return d.ratio >= 0 && d.ratio <= 1 && d.ratio_4 === t.ratio_4 && d.verdict === t.verdict;
 }
 
-// §3.2 的两条独立判红臂（任一命中即 RED）。mean 与逐字段缺失率同源于缺失计数，靠采集器
+// §3.2 的两条独立判失败臂（任一命中即 RED）。mean 与逐字段缺失率同源于缺失计数，靠采集器
 // ratio = 现件数/5 闭合（Σ ratio = 5·total − Σ 缺失），所以两条臂都能从原始计数独立重算。
 function deriveTc2(t) {
   const fields = C.ADR_FIVE_PIECE.slice().sort();
@@ -357,7 +357,7 @@ function deriveTc3(t) {
 function consistentTc3(t) {
   const d = deriveTc3(t);
   return inUnitInterval(d.per.map(function (p) { return p.ratio; }))
-    // §3.3 的采集口径：每源 hit＋missed 恰为 top_n 个关键词，一个都不许两写或漏计
+    // §3.3 的采集规则：每源 hit＋missed 恰为 top_n 个关键词，一个都不许两写或漏计
     && t.per_source.every(function (s) {
       return s.hit + s.missed.length === s.keywords && s.keywords <= t.threshold.top_n;
     })
@@ -413,8 +413,8 @@ function tc3Source(path, hit, keywords) {
   for (let i = 0; i < keywords - hit; i++) { missed.push('m' + i); }
   return { path: path, hit: hit, keywords: keywords, ratio_4: r4(keywords === 0 ? 0 : hit / keywords), missed: missed };
 }
-// 谎报对照通用形：样本先按同规则算齐，再只改 field 一处——判否必须只由这一处承重，
-// witness 当场复核其余量仍相符（否则「恒否的重导」也能把对照臂伪装成非恒真）。
+// 谎报对照通用形：样本先按同规则算齐，再只改 field 一处——判否必须只由这一处起关键判断作用，
+// witness 当场复核其余量仍相符（否则「恒否的重导」也能把对照臂伪装成非永远通过）。
 function lieArm(consistent, derive, base, field, value, witness) {
   const lied = Object.assign({}, base);
   lied[field] = value;
@@ -427,7 +427,7 @@ function editFactValue(entries, index, patch) {
   });
 }
 // 每行第三槽＝用例类。判定要求六类齐备：整表被清空、或只留一类，是「臂不再参与判定」最后一种能全绿的形制
-// （`tXBad.length === 0` 对空表恒真，光有臂拦不住它）。
+// （`tXBad.length === 0` 对空表永远通过，光有臂拦不住它）。
 const TC_CLASSES = ['正对照', '边界', '谎报', '域', '注入', '同式'];
 function classGaps(cases) {
   const gaps = cases.filter(function (c) { return typeof c[2] !== 'string' || c[2].length === 0; })
@@ -454,16 +454,16 @@ const tc1Cases = [
   ['正对照：达门槛的自洽样本放行', consistentTc1(tc1Record(minN, 0)) && consistentTc1(tc1Record(minN, minN)), '正对照'],
   ['门槛下判 INCONCLUSIVE', deriveTc1(Object.assign({}, tc1, { judgeable_n: minN - 1, backfill_n: 0 })).verdict === 'INCONCLUSIVE', '边界'],
   ['达门槛不判 INCONCLUSIVE', deriveTc1(Object.assign({}, tc1, { judgeable_n: minN, backfill_n: 0 })).verdict !== 'INCONCLUSIVE', '边界'],
-  ['门槛优先于判红方向（两臂同时中仍判 INCONCLUSIVE）', (function () {
+  ['门槛优先于判失败方向（两臂同时中仍判 INCONCLUSIVE）', (function () {
     const both = Object.assign({}, tc1, { judgeable_n: minN - 1, backfill_n: minN - 1 });
     return deriveTc1(both).verdict === 'INCONCLUSIVE' && deriveTc1(both).ratio_4 === '1.0000';
   })(), '边界'],
-  ['ratio 恰等于 ratio_red 不判红（严格大于）', tc1Record(minN, 1).ratio_4 === '0.2000' && tc1Record(minN, 1).verdict === 'NOT_RED', '边界'],
+  ['ratio 恰等于 ratio_red 不判失败（严格大于）', tc1Record(minN, 1).ratio_4 === '0.2000' && tc1Record(minN, 1).verdict === 'NOT_RED', '边界'],
   ['达门槛且超 ratio_red 判 RED', tc1Record(minN, minN).verdict === 'RED', '边界'],
   ['可判定数 0 取 0.0000 判 INCONCLUSIVE（与产线同式，不产 NaN）', consistentTc1(tc1Record(0, 0)) && tc1Record(0, 0).ratio_4 === '0.0000', '同式'],
-  ['ratio 谎报必否（裁决与门槛仍自洽，只由统计重算承重）', lieArm(consistentTc1, deriveTc1, tc1Record(minN, 1), 'ratio_4', '0.9000',
+  ['ratio 谎报必否（裁决与门槛仍自洽，只由统计重算起关键判断作用）', lieArm(consistentTc1, deriveTc1, tc1Record(minN, 1), 'ratio_4', '0.9000',
     function (d, l) { return d.verdict === l.verdict; }), '谎报'],
-  ['裁决谎报 INCONCLUSIVE 必否（统计量全自洽，只由裁决重导承重）', lieArm(consistentTc1, deriveTc1, tc1Record(minN, 0), 'verdict', 'INCONCLUSIVE',
+  ['裁决谎报 INCONCLUSIVE 必否（统计量全自洽，只由裁决重导关键判断）', lieArm(consistentTc1, deriveTc1, tc1Record(minN, 0), 'verdict', 'INCONCLUSIVE',
     function (d, l) { return d.ratio_4 === l.ratio_4; }), '谎报'],
   ['占比越出 0–1 必否（补写数超过可判定数）', !consistentTc1(tc1Record(tc1.judgeable_n, tc1.judgeable_n + 1)), '域'],
   ['tracker #76 注入 judgeable_n=999 必否', !consistentTc1(Object.assign({}, tc1, { judgeable_n: 999 })), '注入'],
@@ -525,11 +525,11 @@ const tc2Cases = [
   ['cond_b 谎报必否（缺失率与裁决仍自洽）', lieArm(consistentTc2, deriveTc2, tc2Record(10, tc2CountsOnlyFirst(6)), 'cond_b', false,
     function (d, l) { return d.mean_4 === l.mean_ratio_4 && d.verdict === l.verdict; }), '谎报'],
   ['缺失计数越出 0–total 必否（其余各量按同规则算齐）', !consistentTc2(tc2Record(tc2.total, (function () { const c = Object.assign({}, tc2.missing_counts); c[t2keys[0]] = tc2.total + 1; return c; })())), '域'],
-  ['统计量全自洽而裁决谎报 RED 必否（只由裁决重导承重）', lieArm(consistentTc2, deriveTc2, tc2Record(10, tc2Counts(0)), 'verdict', 'RED',
+  ['统计量全自洽而裁决谎报 RED 必否（只由裁决重导关键判断）', lieArm(consistentTc2, deriveTc2, tc2Record(10, tc2Counts(0)), 'verdict', 'RED',
     function (d, l) { return !d.cond_a && !d.cond_b && d.mean_4 === l.mean_ratio_4; }), '谎报'],
   ['tracker #76 注入 mean_ratio_4=0.9 必否', !consistentTc2(Object.assign({}, tc2, { mean_ratio_4: '0.9' })), '注入'],
   ['票面注入只改 mean 字面：记录不自洽，而 RED 仍由 (b) 臂独立撑住', (function () {
-    // §3.2 的两条臂各自独立：票面「mean 抬到 0.9 就该不再 RED」把 (a) 当成唯一承重臂，
+    // §3.2 的两条臂各自独立：票面「mean 抬到 0.9 就该不再 RED」把 (a) 当成唯一关键判断臂，
     // 实测缺失计数未动 ⇒ (b) 仍真 ⇒ 该改的是统计量与计数的相符性，不是裁决
     const inj = Object.assign({}, tc2, { mean_ratio_4: '0.9' });
     const d = deriveTc2(inj);
@@ -585,7 +585,7 @@ const tc3Cases = [
     const faked = Object.assign({}, empty, { lowest_ratio_4: '0.6000', lowest_path: null, verdict: 'AMBER' });
     const honest = Object.assign({}, empty, { lowest_ratio_4: d.lowest_ratio_4, lowest_path: null, verdict: d.verdict });
     // 值面钉产线同式（自造第四档或改取 0.6 即红）；空源本身仍必须判否——argmin 路径集是空集，
-    // 而 §3.3 的意图源是冻结的（两枚，B6 同口径），空源记录不属于任何合法现场
+    // 而 §3.3 的意图源是冻结的（两枚，B6 同标准），空源记录不属于任何合法现场
     return d.lowest_ratio_4 === '0.0000' && d.verdict === 'RED' && d.lowest_paths.length === 0
       && !consistentTc3(faked) && !consistentTc3(honest);
   })(), '同式'],
@@ -608,14 +608,14 @@ const tc3Cases = [
   })), '域'],
   ['lowest_path 落在 argmin 之外必否', lieArm(consistentTc3, deriveTc3, tc3, 'lowest_path', tc3.per_source[0].path,
     function (d, l) { return d.lowest_ratio_4 === l.lowest_ratio_4; }), '谎报'],
-  ['裁决谎报 AMBER 必否（统计量四处全自洽，只由分带承重）', lieArm(consistentTc3, deriveTc3,
+  ['裁决谎报 AMBER 必否（统计量四处全自洽，只由分带关键判断）', lieArm(consistentTc3, deriveTc3,
     tc3Record(tc3.per_source.map(function (s) { return tc3Source(s.path, s.keywords, s.keywords); })), 'verdict', 'AMBER',
     function (d, l) { return d.lowest_ratio_4 === l.lowest_ratio_4 && d.lowest_paths.indexOf(l.lowest_path) >= 0; }), '谎报'],
   ['占比越出 0–1 必否（hit>keywords 同时破 hit＋missed=keywords）', (function () {
     const per = tc3.per_source.map(function (s, i) { return tc3Source(s.path, i === 0 ? s.keywords + 1 : s.hit, s.keywords); });
     return !consistentTc3(tc3Record(per));
   })(), '域'],
-  ['命中数为负必否（missed 清单仍能闭合，只由占比域臂承重）', (function () {
+  ['命中数为负必否（missed 清单仍能闭合，只由占比域臂关键判断）', (function () {
     const per = [tc3Source('neg', -1, tc3.per_source[0].keywords), tc3Source('ok', 12, 20)];
     const rec = tc3Record(per);
     return rec.per_source[0].missed.length === tc3.per_source[0].keywords + 1 && !consistentTc3(rec);
@@ -713,7 +713,7 @@ const tc3Bad = badCases(tc3Cases);
 const tc1Gaps = classGaps(tc1Cases);
 const tc2Gaps = classGaps(tc2Cases);
 const tc3Gaps = classGaps(tc3Cases);
-// 五条都放条件里而非表里，避免空表或单行恒真把任一变量的不变量旁路。
+// 五条都放条件里而非表里，避免空表或单行永远通过把任一变量的不变量旁路。
 check('B3-TC1', tc1.verdict === 'INCONCLUSIVE' && consistentTc1(tc1) && tc1FactOk && tc1Bad.length === 0 && tc1Gaps.length === 0,
   'TC-1 判 ' + tc1.verdict + '（可判定数 ' + tc1.judgeable_n + '／门槛 ' + minN + '／ratio_red ' + tc1.threshold.ratio_red
   + '，ratio ' + tc1.backfill_n + '/' + tc1.judgeable_n + ' 重算 ' + d1.ratio_4 + ' vs 记录 ' + tc1.ratio_4 + '，裁决重导 ' + d1.verdict
@@ -760,12 +760,12 @@ const unanchored = carHappy.adjudication.entries.filter(function (e) { return !e
 check('C3', unanchored.length === 0, '裁定条目逐条锚定 B 产物（' + carHappy.adjudication.entries.length + ' 条，无锚 ' + unanchored.length + ' 条）');
 check('C4', Array.isArray(carHappy.machine_contract.verdict_enum) && carHappy.machine_contract.verdict_enum.join(',') === bands.join(',') && carHappy.adjudication.entries.length >= 6 && typeof carHappy.receipt.chain_hash === 'string', 'agent 可消费性：结构化裁决块 + verdict 枚举三档 + 引文锚可解析（B5/A-027）');
 check('C5', carHappy.adjudication.human && carHappy.adjudication.human.status === 'pending', '人裁定槽位保留（status=pending，裁定仍由人做）');
-check('C6', carFail.degraded_mode === true && mdFail.indexOf(G.UNVERIFIED_MARK) >= 0 && carHappy.degraded_mode === false, '失败路径产物：显式降级 + ' + G.UNVERIFIED_MARK + ' 印记，happy 未降级');
+check('C6', carFail.degraded_mode === true && mdFail.indexOf(G.UNVERIFIED_MARK) >= 0 && carHappy.degraded_mode === false, '失败路径产物：明确降级 + ' + G.UNVERIFIED_MARK + ' 印记，happy 未降级');
 
 // ---------- Receipt 加固断言（调研报告 §2.1 / §6.2：单 commit 锚不足） ----------
 const rc = carHappy.receipt;
 // 注：产物是对「生成时刻」锚定的，故断言「锚可解析为真实对象」而非「等于当前 HEAD」——
-// 后者在提交后必然失效，会把正确的不变量写成假 FAIL（本票首次收口即踩到）。
+// 后者在提交后必然失效，会把正确的不变量写成假 FAIL（本票首次收尾即踩到）。
 function gitType(rev) {
   try { return execFileSync('git', ['cat-file', '-t', rev], { cwd: REPO, encoding: 'utf8' }).trim(); }
   catch (e) { return ''; }
@@ -774,7 +774,7 @@ function gitType(rev) {
 // 缺席借仓内 bundle 临时仓零写入物化；R2/R4 纯 JSON 断言零需不连坐
 const GO23 = groupProbe('23-first-report-check', 'R-anchor', [need('git-object:' + rc.commit_anchor, gitObjectNeedOk(REPO, rc.commit_anchor, join(REPO, 'engine', 'test', 'fixtures', 'frozen', '23-frozen-' + rc.commit_anchor.slice(0, 8) + '.bundle')))]);
 if (GO23) check('R1', typeof rc.tree_anchor === 'string' && rc.tree_anchor.length === 40 && gitType(rc.tree_anchor) === 'tree' && gitType(rc.commit_anchor) === 'commit', '双锚可解析：tree ' + rc.tree_anchor.slice(0, 12) + ' 为真实 tree 对象，commit ' + rc.commit_anchor.slice(0, 7) + ' 为真实 commit 对象');
-check('R2', rc.content_digest && rc.content_digest.algo === 'sha256' && rc.content_digest.value.length === 64 && rc.content_digest.canonicalization === G.CONTENT_DIGEST_CANONICALIZATION, '内容摘要显式声明算法与规范化规则（' + rc.content_digest.canonicalization + '）');
+check('R2', rc.content_digest && rc.content_digest.algo === 'sha256' && rc.content_digest.value.length === 64 && rc.content_digest.canonicalization === G.CONTENT_DIGEST_CANONICALIZATION, '内容摘要明确声明算法与规范化规则（' + rc.content_digest.canonicalization + '）');
 const gr = rc.gate_ref;
 let preregAncestor = false;
 try {

@@ -37,7 +37,7 @@ t('A6 oversize>64KiB → quarantined/oversize', c6.status === 'quarantined' && c
 const c7 = Q.classifyGitIsoField('x'.repeat(65536));
 t('A7 边界 N=65536 不判 oversize（非 ISO→unclassified）', c7.status === 'quarantined' && c7.reason_code === 'unclassified_field_anomaly');
 const c8 = Q.classifyGitIsoField('2005-04-12T02:52:13+99:99');
-t('A8 形状合法语义越界（+99:99）=clean——契约是形状口径，不隐扩语义域', c8.status === 'clean' && c8.value === '2005-04-12T02:52:13+99:99');
+t('A8 形状合法语义越界（+99:99）=clean——契约是形状规则，不隐扩语义域', c8.status === 'clean' && c8.value === '2005-04-12T02:52:13+99:99');
 let threw = false;
 const FUZZ = [null, undefined, '', '   ', String.fromCharCode(10), String.fromCharCode(9, 13), '%cI', '垃圾', String.fromCharCode(0, 1, 2), '{bad}', 'not-a-date', 'x'.repeat(200000), '2005-04-07', '2005-04-07T22:13:13', '2005-04-07T22:13:13+0000', ' 2005-04-07T22:13:13Z '];
 for (const f of FUZZ) { try { const r = Q.classifyGitIsoField(f); if (['clean', 'normalized', 'quarantined'].indexOf(r.status) < 0) { threw = 'bad-status'; break; } } catch (e) { threw = 'threw:' + String(e).slice(0, 60); break; } }
@@ -46,7 +46,7 @@ const d1 = Q.classifyGitIsoField('bogus-value');
 const d2 = Q.classifyGitIsoField('bogus-value');
 t('A10 确定性：同输入同输出（reason/value/status 逐字节一致）', JSON.stringify(d1) === JSON.stringify(d2));
 const c11 = Q.classifyGitIsoField(' 2005-04-07T22:13:13Z ');
-t('A11 首尾空白清洗同口径（trim 后 ISO=clean）', c11.status === 'clean' && c11.value === '2005-04-07T22:13:13Z');
+t('A11 首尾空白清洗同规则（trim 后 ISO=clean）', c11.status === 'clean' && c11.value === '2005-04-07T22:13:13Z');
 
 // ---------- B. raw_bytes 指纹+截断（D-117） ----------
 const fp1 = Q.rawBytesFingerprint('2005-04-07T22:13:13Z');
@@ -112,14 +112,14 @@ function gitR(args, cwd, input) {
   if (r.status !== 0) { throw new Error('git ' + args[0] + ' failed: ' + (r.stderr || '').slice(0, 120)); }
   return r.stdout.trim();
 }
-const ADR_MD = ['# ADR-001', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: test', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL);
+const ADR_MD = ['# ADR-9999', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: test', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL);
 function mkRepo(dir) {
   mkdirSync(join(dir, 'docs', 'adr'), { recursive: true });
   gitR(['init'], dir); gitR(['config', 'user.email', 'a@b.c'], dir); gitR(['config', 'user.name', 't'], dir); gitR(['config', 'commit.gpgsign', 'false'], dir);
   writeFileSync(join(dir, 'CONTEXT.md'), 'macro audit positioning determinism traceability provenance receipt quarantine' + NL, 'utf8');
   writeFileSync(join(dir, 'package.json'), '{"name":"x","private":true}' + NL, 'utf8');
   gitR(['add', '-A'], dir); gitR(['commit', '-m', 'init'], dir);
-  writeFileSync(join(dir, 'docs', 'adr', '001-decision.md'), ADR_MD, 'utf8');
+  writeFileSync(join(dir, 'docs', 'adr', '9999-decision.md'), ADR_MD, 'utf8');
   gitR(['add', '-A'], dir); gitR(['commit', '-m', 'adr'], dir);
 }
 // hash-object --literally 手写 commit 对象（病态 committer/author 行原样入库）
@@ -154,7 +154,7 @@ t('G5 病态 committer_date 不崩全仓：audit exit 0', e2.status === 0, 'stat
 const md2 = existsSync(join(OUT2, 'report.md')) ? readFileSync(join(OUT2, 'report.md'), 'utf8') : '';
 t('G6 Intake Health quarantined-only SHA 表含该 sha+reason_code', md2.indexOf(BADSHA2) >= 0 && md2.indexOf('unclassified_field_anomaly') >= 0);
 const sc2 = existsSync(join(OUT2, 'report.json')) ? JSON.parse(readFileSync(join(OUT2, 'report.json'), 'utf8')) : null;
-t('G7 病态率超阈 → verdict 升级 unsupported/threshold_exceeded（D-105② 棘轮初值 0.001）', !!sc2 && sc2.verdict && sc2.verdict.band === 'unsupported' && sc2.verdict.reason_class === 'threshold_exceeded', sc2 && sc2.verdict ? JSON.stringify(sc2.verdict) : 'absent');
+t('G7 病态率超阈 → verdict 升级 unsupported/threshold_exceeded（D-105② 限制初值 0.001）', !!sc2 && sc2.verdict && sc2.verdict.band === 'unsupported' && sc2.verdict.reason_class === 'threshold_exceeded', sc2 && sc2.verdict ? JSON.stringify(sc2.verdict) : 'absent');
 const ms2 = existsSync(join(OUT2, 'audit-measurements.json')) ? JSON.parse(readFileSync(join(OUT2, 'audit-measurements.json'), 'utf8')) : null;
 t('G8 measurements.intake_quarantine 摄入块在（field_stats 三桶）', !!ms2 && ms2.intake_quarantine && Array.isArray(ms2.intake_quarantine.field_stats));
 if (ms2 && ms2.intake_quarantine) {
@@ -177,7 +177,7 @@ t('G11 锚病态 audit exit 0（run 完成不升格崩溃）', e3.status === 0, 
 const ms3 = existsSync(join(OUT3, 'audit-measurements.json')) ? JSON.parse(readFileSync(join(OUT3, 'audit-measurements.json'), 'utf8')) : null;
 const sc3 = existsSync(join(OUT3, 'report.json')) ? JSON.parse(readFileSync(join(OUT3, 'report.json'), 'utf8')) : null;
 t('G12 锚病态 → verdict=unsupported/anchor_malformed', !!sc3 && sc3.verdict && sc3.verdict.band === 'unsupported' && sc3.verdict.reason_class === 'anchor_malformed', sc3 && sc3.verdict ? JSON.stringify(sc3.verdict) : 'absent');
-t('G13 observed_at=显式哨兵标记（不落伪时间戳）', !!ms3 && ms3.observed_at === 'quarantined(anchor_head_date_malformed)', ms3 ? String(ms3.observed_at) : 'absent');
+t('G13 observed_at=明确哨兵标记（不落伪时间戳）', !!ms3 && ms3.observed_at === 'quarantined(anchor_head_date_malformed)', ms3 ? String(ms3.observed_at) : 'absent');
 const qdb3 = join(OUT3, 'facts.duckdb');
 if (existsSync(qdb3)) {
   const rc = await STORE.openReader(qdb3);
@@ -215,7 +215,7 @@ const OUT4E = join(tmpG, 'out-strict-env');
 let e4e = spawnSync('node', [CLI, 'audit', R2, '--out', OUT4E], { encoding: 'utf8', timeout: 120000, env: Object.assign({}, process.env, { MACRO_AUDIT_STRICT_QUARANTINE: '1' }) });
 t('G21 env 腿：MACRO_AUDIT_STRICT_QUARANTINE=1 无 flag → exit 3（同 strict 语义）', e4e.status === 3, 'status=' + e4e.status);
 let e4n = spawnSync('node', [CLI, 'audit', R2, '--out', join(tmpG, 'out-nostrict'), '--no-strict-quarantine'], { encoding: 'utf8', timeout: 120000, env: Object.assign({}, process.env, { MACRO_AUDIT_STRICT_QUARANTINE: '1' }) });
-t('G22 flag>env precedence：--no-strict-quarantine 显式关压 env=1 → exit 0', e4n.status === 0, 'status=' + e4n.status + ' err=' + (e4n.stderr || '').slice(0, 160));
+t('G22 flag>env precedence：--no-strict-quarantine 明确关压 env=1 → exit 0', e4n.status === 0, 'status=' + e4n.status + ' err=' + (e4n.stderr || '').slice(0, 160));
 
 // ---------- H. MCP quarantine 只读投影（D-113②） ----------
 const H1 = spawnSync('node', [CLI, 'mcp', 'quarantine', '--db', join(OUT2, 'facts.duckdb')], { encoding: 'utf8' });

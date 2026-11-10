@@ -24,7 +24,7 @@ sh(['init'], REPO); sh(['config', 'user.email', 'a@b.c'], REPO); sh(['config', '
 writeFileSync(join(REPO, 'CONTEXT.md'), '# audit test repo\nmacro audit positioning determinism traceability provenance receipt\n', 'utf8');
 writeFileSync(join(REPO, 'package.json'), '{"name":"tgt","private":true}\n', 'utf8');
 sh(['add', '-A'], REPO); sh(['commit', '-m', 'init'], REPO);
-writeFileSync(join(REPO, 'docs', 'adr', '001-decision.md'), ['# ADR-001', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: test', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL), 'utf8');
+writeFileSync(join(REPO, 'docs', 'adr', '9999-decision.md'), ['# ADR-9999', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: test', '- Ledger: D-001', '', '## Context', 'x.', '', '## Decision', 'y.', '', '## Consequences', 'z; supersedes ADR-000.'].join(NL), 'utf8');
 sh(['add', '-A'], REPO); sh(['commit', '-m', 'add adr'], REPO);
 
 const OUT = join(tmp, 'out');
@@ -38,7 +38,7 @@ let sj = null;
 try { sj = JSON.parse(r1.stderr); } catch (e) { }
 t('S3 拒绝载体=结构化 JSON error=SCALE-NOT-IMPLEMENTED', !!sj && sj.error === 'SCALE-NOT-IMPLEMENTED', r1.stderr.slice(0, 160));
 t('S4 implemented=[Macro-B, Macro-C, Micro-A]（#84＋#85② 产线化后）＋requested=Micro-B＋layer_order 在', !!sj && Array.isArray(sj.implemented) && JSON.stringify(sj.implemented) === JSON.stringify(['Macro-B', 'Macro-C', 'Micro-A']) && sj.requested === 'Micro-B' && typeof sj.layer_order === 'string');
-t('S5 layer_order=ADR-0017③ 原文层序（Macro-C→Micro-A→Micro-B→Macro-A 起首，Macro-B 已上架不入剩余漏斗）', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0, sj && sj.layer_order);
+t('S5 layer_order=层序说明原文（Macro-C→Micro-A→Micro-B→Macro-A 起首，Macro-B 已上架不入剩余漏斗）', !!sj && sj.layer_order.indexOf('Macro-C→Micro-A→Micro-B→Macro-A') === 0, sj && sj.layer_order);
 
 // ---------- R 实跑面（--out 双通道） ----------
 let r2 = spawnSync('node', [CLI, 'audit', REPO, '--out', OUT], { encoding: 'utf8', timeout: 120000 });
@@ -50,7 +50,7 @@ if (rec) {
   t('R3 回执契约字段集：report_id/scale/stability/capabilities/overall_verdict/head_sha/fact_count/out_dir/artifacts', ['report_id', 'scale', 'stability', 'capabilities', 'overall_verdict', 'head_sha', 'commit_count', 'adr_count', 'fact_count', 'out_dir', 'artifacts'].every(function (k) { return rec[k] !== undefined; }));
   t('R4 scale=Macro-B + stability=preview + capabilities=[macro-b]', rec.scale === 'Macro-B' && rec.stability === 'preview' && JSON.stringify(rec.capabilities) === JSON.stringify(['macro-b']));
   t('R5 intake 披露：kind=local + snapshot_fetched_at=null + cache_hit=false + refreshed=false', rec.intake && rec.intake.kind === 'local' && rec.intake.snapshot_fetched_at === null && rec.intake.cache_hit === false && rec.intake.refreshed === false);
-  t('R6 codelore 面如实登记（resolved 布尔 + pinned 布尔；缺席不静默）', rec.codelore && typeof rec.codelore.resolved === 'boolean' && typeof rec.codelore.pinned === 'boolean');
+  t('R6 codelore 面如实登记（resolved 布尔 + pinned 布尔；缺席不悄悄忽略）', rec.codelore && typeof rec.codelore.resolved === 'boolean' && typeof rec.codelore.pinned === 'boolean');
 }
 const ART = ['report.md', 'report.json', 'audit-facts.jsonl', 'audit-measurements.json', 'facts.duckdb'];
 t('R7 --out 五工件齐备', ART.every(function (f) { return existsSync(join(OUT, f)); }), ART.filter(function (f) { return !existsSync(join(OUT, f)); }).join(','));

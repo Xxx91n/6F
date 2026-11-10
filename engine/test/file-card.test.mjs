@@ -1,9 +1,9 @@
 // file-card.test.mjs — #80 步② 文件级审计卡投影+查询语义契约测试（D-122/D-123/D-126；预采集投影×per-file subject×血缘事实）
 // 断言面：A kernel 逐字段直投+citation 锚 / B derived 确定性派生（percentile/top_n/priority_band 规则版本）/
-//   C 失败三态（new_file/insufficient_history→derived 抑制；not_applicable 不出空卡）/ D miss 四类显式态 /
+//   C 失败三态（new_file/insufficient_history→derived 抑制；not_applicable 不出空卡）/ D miss 四类明确态 /
 //   E at:<sha> pin+staleness 双字段（E3 前缀歧义验重） / F narrative 键存在性校验 / G projectFileCard DuckDB 投影层 /
 //   H runAuditFile lazy 补采（注入缝=确定性合成事实；幂等复跑 emitted=0；H2 毒事实回滚零行/H3 skipped 披露+消息钉）/
-//   I advisory 结构性隔离 / J MCP 缺库 never_collected 卡 / K set_truncated 标记。C4~C7=D-136 失败态收口断言组（#83）。
+//   I advisory 结构性隔离 / J MCP 缺库 never_collected 卡 / K set_truncated 标记。C4~C7=D-136 失败态收尾断言组（#83）。
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -95,7 +95,7 @@ t('B2 priority_band 分档确定性（pct>=0.9 high / >=0.6 medium / else low）
 });
 
 // ---------- C. 失败三态 ----------
-t('C1 new_file（revisions=1）→ 显式态仅静态指标（derived 抑制 suppressed_by 留痕）', () => {
+t('C1 new_file（revisions=1）→ 明确态仅静态指标（derived 抑制 suppressed_by 留痕）', () => {
   const card = FC.buildFileCard({
     subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
     setFacts: [facetRow('src/a.ts', 'revisions', { entity: 'src/a.ts', n_revs: 1 })],
@@ -129,7 +129,7 @@ t('C3 binary/非 regular→card_type:not_applicable 不出空卡（合法空值�
   assert.equal(card.failure_state, 'not_applicable');
 });
 
-// ---------- C*. D-136 失败态投影收口（#83） ----------
+// ---------- C*. D-136 失败态投影收尾（#83） ----------
 t('C4 new_file：kernel 卡面滤除历史派生族入 suppressed_facets 带原因码（静态 revisions 保留）', () => {
   const card = FC.buildFileCard({
     subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
@@ -172,7 +172,7 @@ t('C6 closed 枚举成员级双向差集：static ∪ history = 发射词表（3
   assert.deepEqual(vocab.filter(a => !declared.has(a)), []);           // 发射名全已分类
   assert.deepEqual([...declared].filter(a => vocab.indexOf(a) < 0), []); // 声明名全在词表（无死成员）
 });
-t('C7 ok 态卡面不受收口影响（全 facet 直投+suppressed_facets 空）', () => {
+t('C7 ok 态卡面不受收尾影响（全 facet 直投+suppressed_facets 空）', () => {
   const card = FC.buildFileCard({
     subject: 'src/a.ts', setRepoRef: 't@' + SHA_A,
     setFacts: [facetRow('src/a.ts', 'hotspots', { path: 'x', revisions: 9, hotspot_score: 5 })],
@@ -183,7 +183,7 @@ t('C7 ok 态卡面不受收口影响（全 facet 直投+suppressed_facets 空）
   assert.deepEqual(card.kernel.suppressed_facets, []);
 });
 
-// ---------- D. miss 四类显式态 ----------
+// ---------- D. miss 四类明确态 ----------
 t('D1 never_collected：无观测集→miss+cli_guidance 可行动指引', () => {
   const card = FC.buildFileCard({
     subject: 'src/a.ts', setRepoRef: null, setFacts: [],
@@ -194,7 +194,7 @@ t('D1 never_collected：无观测集→miss+cli_guidance 可行动指引', () =>
   assert.equal(card.miss.state, 'never_collected');
   assert.ok(card.miss.cli_guidance.indexOf('audit file') >= 0);
 });
-t('D2 not_tracked_at_sha：集内无 subject 且无血缘→显式态+可用集清单', () => {
+t('D2 not_tracked_at_sha：集内无 subject 且无血缘→明确态+可用集清单', () => {
   const card = FC.buildFileCard({
     subject: 'src/ghost.ts', setRepoRef: 't@' + SHA_A,
     setFacts: [facetRow('src/a.ts', 'hotspots', { path: 'x', revisions: 9, hotspot_score: 5 })],
@@ -405,7 +405,7 @@ await tAsync('H2 补采批内非指名 constraint 错（CHECK trace_id）→整�
   let threw = false;
   try { await AF.runAuditFile({ input: dir, path: 'src/a.ts', db: db, collectors: poison }); }
   catch (e) { threw = true; assert.ok(String(e.message).indexOf('Constraint Error') >= 0, 'expect constraint error, got: ' + e.message); }
-  assert.equal(threw, true);                                          // 吞错收窄：非 fact_id UNIQUE 必上抛
+  assert.equal(threw, true);                                          // 吞错缩小范围：非 fact_id UNIQUE 必上抛
   const w2 = await S.openWriter(db);
   try {
     const rows = await (await w2.run('SELECT COUNT(*) FROM audit_fact')).getRows();
@@ -494,7 +494,7 @@ function renameEdge(from, to, commitSha, similarity, repoSha, observedAt) {
   });
 }
 
-t('L1 1-switch 成对件新名端：旧名 era 事实并入新名卡（行级 subject_ref 溯源＋lineage 账本＋F10 回归=不误进 new_file）', () => {
+t('L1 1-switch 成对件新名端：旧名 era 事实并入新名卡（行级 subject_ref 溯源＋lineage 记录＋F10 回归=不误进 new_file）', () => {
   const card = FC.buildFileCard({
     subject: 'new.ts', setRepoRef: 't@' + SHA_A,
     setFacts: [
@@ -519,7 +519,7 @@ t('L1 1-switch 成对件新名端：旧名 era 事实并入新名卡（行级 su
   assert.equal(card.derived.hotspot_score, 8);
 });
 
-t('L2 多跳链遍历：A→B→C 显式图遍历并入两跳旧名（非单路径 follow）', () => {
+t('L2 多跳链遍历：A→B→C 明确图遍历并入两跳旧名（非单路径 follow）', () => {
   const card = FC.buildFileCard({
     subject: 'c.ts', setRepoRef: 't@' + SHA_A,
     setFacts: [
@@ -550,7 +550,7 @@ t('L3 环检测：A→B→A 病态边图不绕死——cycle_detected=true 如�
     availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null
   });
   assert.equal(card.lineage.cycle_detected, true);
-  assert.deepEqual(card.lineage.stitched_from, ['b.ts']);         // 环边如实披露在账本
+  assert.deepEqual(card.lineage.stitched_from, ['b.ts']);         // 环边如实披露在记录
   assert.equal(card.lineage.edges.length, 2);                   // 两条边均消费披露（含被环停的）
   assert.equal(card.derived.revisions, 5);
 });
@@ -607,7 +607,7 @@ t('L6 0-switch 边界件逐类点名：never_collected/not_tracked_at_sha/not_ap
   assert.equal(mk({ setRepoRef: null, pinnedSha: 'f'.repeat(40) }).miss.state, 'not_tracked_at_sha');   // pin 观测集缺席（库在但 at 集未采）
   assert.equal(mk({ setFacts: [fact({ subject_ref: 'x.ts', metric: 'codelore.file_subject_skip', value_json: JSON.stringify({ raw_path: 'x.ts', reason: 'binary' }) })] }).miss.state, 'not_applicable');
   assert.equal(mk({ subject: 'gone.ts', setFacts: [renameEdge('gone.ts', 'new.ts', 'e'.repeat(40), 93)] }).miss.state, 'renamed_to');
-  // miss 卡 lineage=null 统一形状（成对件 miss 端不背缝合账本）
+  // miss 卡 lineage=null 统一形状（成对件 miss 端不背缝合记录）
   assert.equal(mk({ subject: 'gone.ts', setFacts: [renameEdge('gone.ts', 'new.ts', 'e'.repeat(40), 93)] }).lineage, null);
   // 失败态闭环：缝合并入的旧名历史抬高 revisions 出 insufficient/new_file（F10 语义）——L1 已钉 ok
   assert.equal(FC.buildFileCard({ subject: 'new.ts', setRepoRef: 't@' + SHA_A, setFacts: [facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 1 })], availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null }).failure_state, 'new_file');   // 无血缘对照组：仍 new_file

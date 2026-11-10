@@ -1,4 +1,4 @@
-// macro-c.test.mjs —— #84 Macro-C 一等面端到端断言（D-204②④ 产线化）
+// macro-c.test.mjs —— #84 Macro-C 正式入口端到端断言（D-204②④ 产线化）
 // 覆盖：CLI 实跑（audit --scale Macro-C）/回执契约/报告头+披露块/四象限形态/supersede 链扫描单元
 //   （whole/item/self-quote/unresolved/defer 五态）/facts.duckdb 同位写入/LLM 门控诚实披露/reproduce_cmd 取解析结果（K 组）。
 // 被测仓=临时合成 git 仓（被审计仓的 ADR 目录 supersede 对 + package.json 负对照），跑完即弃。
@@ -24,17 +24,17 @@ sh(['init'], REPO); sh(['config', 'user.email', 'a@b.c'], REPO); sh(['config', '
 writeFileSync(join(REPO, 'CONTEXT.md'), '# macro-c test repo' + NL, 'utf8');
 writeFileSync(join(REPO, 'package.json'), JSON.stringify({ name: 'tgt', private: true }) + NL, 'utf8');
 sh(['add', '-A'], REPO); sh(['commit', '-m', 'init'], REPO);
-const ADR2 = ['# ADR-002', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: test', '- Ledger: D-002', '', '## Context', 'base.', '', '## Decision', 'do.', '', '## Consequences', 'done; mentions ADR-001.'].join(NL);
-const ADR1 = ['# ADR-001', '', '- Status: superseded by ADR-002', '- Date: 2026-04-10', '', '## Context', 'old.', '', '## Decision', 'was.', '', '## Consequences', 'replaced.'].join(NL);
-const ADR3 = ['# ADR-003', '', '- Date: 2026-04-10', '', '## Context', 'c.', '', '## Decision', 'supersedes ADR-999 (does not exist).', '', '## Consequences', 'x.'].join(NL);
-writeFileSync(join(REPO, 'docs', 'adr', '002-two.md'), ADR2, 'utf8');
+const ADR2 = ['# ADR-9992', '', '- Status: accepted', '- Date: 2026-04-10', '- Deciders: test', '- Ledger: D-002', '', '## Context', 'base.', '', '## Decision', 'do.', '', '## Consequences', 'done; mentions ADR-9991.'].join(NL);
+const ADR1 = ['# ADR-9991', '', '- Status: superseded by ADR-9992', '- Date: 2026-04-10', '', '## Context', 'old.', '', '## Decision', 'was.', '', '## Consequences', 'replaced.'].join(NL);
+const ADR3 = ['# ADR-9993', '', '- Date: 2026-04-10', '', '## Context', 'c.', '', '## Decision', 'supersedes ADR-999 (does not exist).', '', '## Consequences', 'x.'].join(NL);
+writeFileSync(join(REPO, 'docs', 'adr', '9992-two.md'), ADR2, 'utf8');
 sh(['add', '-A'], REPO); sh(['commit', '-m', 'adr2'], REPO);
-writeFileSync(join(REPO, 'docs', 'adr', '001-one.md'), ADR1, 'utf8');
+writeFileSync(join(REPO, 'docs', 'adr', '9991-one.md'), ADR1, 'utf8');
 writeFileSync(join(REPO, 'docs', 'adr', '003-three.md'), ADR3, 'utf8');
 sh(['add', '-A'], REPO); sh(['commit', '-m', 'adr1+3'], REPO);
 const OUT = join(tmp, 'out');
 
-// ---------- S CLI 实跑（--scale Macro-C 一等面） ----------
+// ---------- S CLI 实跑（--scale Macro-C 正式入口） ----------
 const r1 = spawnSync('node', [CLI, 'audit', REPO, '--scale', 'Macro-C', '--out', OUT], { encoding: 'utf8', timeout: 180000 });
 t('S1 audit --scale Macro-C --out exit 0（产线化命令面）', r1.status === 0, 'status=' + r1.status + ' err=' + (r1.stderr || '').slice(0, 240));
 let rec = null;
@@ -59,14 +59,14 @@ t('R5 象限四件：strategy native / structure+behavior derived / supply_chain
 t('R6 structure 象限 slice_fields 六键=S3 族常量集（D-205 单一源）', !!side && JSON.stringify(Object.keys(side.quadrants[1].slice_fields).sort()) === JSON.stringify(['architecture-metrics', 'architecture-roles', 'dependency-cycles', 'god-classes', 'instability', 'modularity-violations']), JSON.stringify(side && Object.keys(side.quadrants[1].slice_fields)));
 t('R7 supply_chain 象限 ⚠ 数据未接（D-034③ 维持）', !!side && side.quadrants[3].verdict_gate.override_reason.indexOf('数据未接') >= 0);
 const meas = existsSync(join(OUT, 'audit-measurements.json')) ? JSON.parse(readFileSync(join(OUT, 'audit-measurements.json'), 'utf8')) : null;
-t('R8 measurements.supersede_chain：item-level=1 + self-quote=0 + unresolved=1（ADR-003→999）', !!meas && meas.supersede_chain.item_level_supersessions >= 1 && meas.supersede_chain.unresolved_refs.length === 1, JSON.stringify(meas && { e: meas.supersede_chain.edge_count, u: meas.supersede_chain.unresolved_refs.length }));
+t('R8 measurements.supersede_chain：item-level=1 + self-quote=0 + unresolved=1（ADR-9999→999）', !!meas && meas.supersede_chain.item_level_supersessions >= 1 && meas.supersede_chain.unresolved_refs.length === 1, JSON.stringify(meas && { e: meas.supersede_chain.edge_count, u: meas.supersede_chain.unresolved_refs.length }));
 t('R9 measurements.llm_gate 门控态在（configured 布尔——不伪造不真调）', !!meas && meas.llm_gate && typeof meas.llm_gate.configured === 'boolean');
 t('R10 measurements.pipeline 移植溯源在（source+recalibration）', !!meas && !!meas.pipeline && String(meas.pipeline.source).indexOf('38-macro-c-preview.mjs') >= 0 && String(meas.pipeline.recalibration).indexOf('85-check') >= 0);
-// R11/R12 溯源串可解析（#29／ADR-0027：报告溯源串改指仓内 contract fixtures 与归档索引）——
+// R11/R12 溯源串可解析（#29：报告溯源串改指仓内 contract fixtures 与归档索引）——
 //   gate_ref 两路径与 pipeline.source 首段路径必须是本仓现行文件；已退役 .scratch 回潮即红。
 const SELF = join(HERE, '..', '..');
 const gr = side && (side.gate_ref || (side.receipt && side.receipt.gate_ref));
-// 空串／缺字段必须判红：`join(SELF, '')` 会命中仓库根，existsSync 会把缺锚放行成通过
+// 空串／缺字段必须判失败：`join(SELF, '')` 会命中仓库根，existsSync 会把缺锚放行成通过
 const grPath = function (s) { const p = String(s || '').split(' ')[0]; return p === '' ? null : p; };
 const gateRefOk = function (g) {
   if (!g) return false;
@@ -75,17 +75,17 @@ const gateRefOk = function (g) {
     && existsSync(join(SELF, a)) && existsSync(join(SELF, b));
 };
 t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 .scratch；缺字段即红）', gateRefOk(gr), JSON.stringify(gr));
-// 负对照喂的是**接线后的判定函数**（不是 helper）：缺 criteria_path／空串／已退役 .scratch 三态必须判红
+// 负对照喂的是**接线后的判定函数**（不是 helper）：缺 criteria_path／空串／已退役 .scratch 三态必须判失败
 // 反例必须**只差一个维度**：basis 用真实存在的锚，否则「路径不存在」会把断言替死（删掉被测断言仍绿）
 const EXIST_ANCHOR = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
 const SCRATCHY = './.scratch/../' + EXIST_ANCHOR;   // 字符串含 .scratch，归一化后仍指向该存在文件
-t('R11-P 负对照：缺字段／空串／.scratch 三态各只差一维即判红（删任一断言此条即红）',
+t('R11-P 负对照：缺字段／空串／.scratch 三态各只差一维即判失败（删任一断言此条即红）',
   gateRefOk({ criteria_path: EXIST_ANCHOR, basis_path: EXIST_ANCHOR }) === true      // 正对照：两锚干净时放行
   && gateRefOk(null) === false
   && gateRefOk({ basis_path: EXIST_ANCHOR }) === false                               // 仅缺 criteria_path
   && gateRefOk({ criteria_path: '', basis_path: EXIST_ANCHOR }) === false             // 仅 criteria 为空串
   && existsSync(join(SELF, SCRATCHY))                                                // 该路径真实可解析
-  && gateRefOk({ criteria_path: SCRATCHY, basis_path: EXIST_ANCHOR }) === false       // 仅因 .scratch 判红
+  && gateRefOk({ criteria_path: SCRATCHY, basis_path: EXIST_ANCHOR }) === false       // 仅因 .scratch 判失败
   && grPath(EXIST_ANCHOR + ' D-1') === EXIST_ANCHOR);
 const pipeSrc = String((meas && meas.pipeline && meas.pipeline.source) || '');
 const PIPE_CARRIERS = ['engine/test/fixtures/contracts/38-macro-c-preview-report.json', 'docs/archive/decisions/ticket-index.md'];
@@ -119,12 +119,12 @@ t('R13 血缘两枚 commit 各归其名——两侧均解析为完整 commit 后
   idxFull !== '' && lineageIdxFull === idxFull && scriptFull !== '' && truthFull !== '' && scriptFull === truthFull && scriptFull !== idxFull,
   JSON.stringify({ index: idxCommit, script: lineageScript, idxFull: idxFull.slice(0, 12), scriptFull: scriptFull.slice(0, 12), truthFull: truthFull.slice(0, 12), shallow: shallowHist }));
 
-// R14 prereg 锚取值口径（tracker #100／R9-1）：Macro-C 发出面必须取显式哨兵，且 `38-*` 冻结件原文零改写。
+// R14 prereg 锚取值规则（tracker #100／R9-1）：Macro-C 发出面必须取明确哨兵，且 `38-*` 冻结件原文零改写。
 //   冻结件正是该字面量的出处——发出面归位到带标记形态，出处仍留原样，两侧各按各自身份读。
 const GG = await import(pathToFileURL(join(HERE, '..', 'dist', 'report', 'generate.js')).href);
 const FROZEN_MC = join(SELF, 'engine', 'test', 'fixtures', 'contracts', '38-macro-c-preview-report.json');
 const frozenMcText = existsSync(FROZEN_MC) ? readFileSync(FROZEN_MC, 'utf8') : '';
-t('R14 发出面取显式哨兵：值带 sentinel 前缀、不伪装成 commit 形，读者不读源码即可判别',
+t('R14 发出面取明确哨兵：值带 sentinel 前缀、不伪装成 commit 形，读者不读源码即可判别',
   !!gr && gr.prereg_commit === 'sentinel:38-script-const'
   && GG.classifyPreregAnchor(String(gr && gr.prereg_commit)) === 'sentinel', JSON.stringify(gr && gr.prereg_commit));
 t('R14-N 负对照：裸历史字面量已非法（只差前缀即判否）＋冻结件仍留原字面未被改写',
@@ -136,17 +136,17 @@ t('R14-N 负对照：裸历史字面量已非法（只差前缀即判否）＋�
 // ---------- U supersede 链扫描单元（五态确定性） ----------
 const MC = await import(pathToFileURL(join(HERE, '..', 'dist', 'audit', 'macro-c.js')).href);
 const docs = [
-  { path: 'docs/adr/001-a.md', text: ADR1.replace('superseded by ADR-002', 'supersedes ADR-002') },
-  { path: 'docs/adr/002-b.md', text: ADR2 },
-  { path: 'docs/adr/003-c.md', text: ADR3 },
-  { path: 'docs/adr/004-d.md', text: '# ADR-004' + NL + NL + 'ADR-004 is self-referenced here.' + NL + '- Status: superseded by ADR-004' + NL }
+  { path: 'docs/adr/9991-a.md', text: ADR1.replace('superseded by ADR-9992', 'supersedes ADR-9992') },
+  { path: 'docs/adr/9992-b.md', text: ADR2 },
+  { path: 'docs/adr/9993-c.md', text: ADR3 },
+  { path: 'docs/adr/9994-d.md', text: '# ADR-9994' + NL + NL + 'ADR-9994 is self-referenced here.' + NL + '- Status: superseded by ADR-9994' + NL }
 ];
 const adrs = MC.scanSupersedeAdrs(docs);
 const chain = MC.buildSupersedeChain(adrs, false);
 t('U1 自指 status 行 reclassify=whole 0/self-quote 1（38 §4 同序——自指改类先于计数）', chain.whole_adr_supersessions === 0 && chain.self_quote_artifacts === 1, JSON.stringify({ w: chain.whole_adr_supersessions, s: chain.self_quote_artifacts }));
-t('U2 item-level=1 + unresolved=1（ADR-001→002 成对 + ADR-003→999 断链）', chain.item_level_supersessions === 1 && chain.unresolved_refs.length === 1, JSON.stringify({ i: chain.item_level_supersessions, u: chain.unresolved_refs.length }));
-t('U3 self-quote-artifact 检出（ADR-004 自指边转类）', chain.self_quote_artifacts >= 1, JSON.stringify(chain.self_quote_artifacts));
-t('U4 back_reference 成对（001→002 回链=mentions 命中）', (function () { const m = JSON.stringify(chain); return m.indexOf('missing_backrefs') >= 0; })());
+t('U2 item-level=1 + unresolved=1（ADR-9999→002 成对 + ADR-9999→999 断链）', chain.item_level_supersessions === 1 && chain.unresolved_refs.length === 1, JSON.stringify({ i: chain.item_level_supersessions, u: chain.unresolved_refs.length }));
+t('U3 self-quote-artifact 检出（ADR-9994 自指边转类）', chain.self_quote_artifacts >= 1, JSON.stringify(chain.self_quote_artifacts));
+t('U4 back_reference 成对（9991→9992 回链=mentions 命中）', (function () { const m = JSON.stringify(chain); return m.indexOf('missing_backrefs') >= 0; })());
 t('U5 defer-ref resolved=false（registry 缺席）', chain.defer_ref_edges === 0 || JSON.stringify(chain).indexOf('defer-ref') >= 0);
 
 // ---------- D facts.duckdb 同位写入 ----------
@@ -162,7 +162,7 @@ let js2 = null;
 try { js2 = JSON.parse(r2.stdout); } catch (e) { }
 t('J1 --json stdout=sidecar 可解析 + schema_version 1.2.0', r2.status === 0 && !!js2 && js2.schema_version === '1.2.0', 'status=' + r2.status);
 
-// ---------- K 本地判定取 intake 的解析结果（tracker #34／ADR-0026） ----------
+// ---------- K 本地判定取 intake 的解析结果（tracker #34） ----------
 // classifyRepoInput('own/tgt') 归 owner-repo，repoAdd 本地优先消歧把它落进本机目录——url===null 而 kind 仍是 owner-repo。
 // 判据若只看 kind，原字面 `own/tgt` 会留在 reproduce_cmd 里，复现命令随之依赖跑它时的工作目录（S/K 两组的绝对路径输入
 // 都判得对，所以这条必须单独跑：它是唯一能区分 kind 与解析结果的输入形态）。

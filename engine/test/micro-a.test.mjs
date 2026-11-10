@@ -1,7 +1,7 @@
-// micro-a.test.mjs —— #85② Micro-A 一等面测试（cassette 离线回放；github-rest.test.mjs 同型注入）
+// micro-a.test.mjs —— #85② Micro-A 正式入口测试（cassette 离线回放；github-rest.test.mjs 同型注入）
 // 断言面：U 采集（适配器事实落 Micro-A scale＋token 永不入 fact）→ R 单 PR 报告（骨架交集＋披露块翻转＋判据 band）
-//   → F 拒绝件（merged=0 intake 显式拒绝）→ C CLI 接线（本地路径/名册外仓结构化拒绝 exit 2——离线安全面）
-//   → S prereg 锚取值口径（浅克隆合成 fixture 正负对照——tracker #100／R9-1）。
+//   → F 拒绝件（merged=0 intake 明确拒绝）→ C CLI 接线（本地路径/名册外仓结构化拒绝 exit 2——离线安全面）
+//   → S prereg 锚取值规则（浅克隆合成 fixture 正负对照——tracker #100／R9-1）。
 // 纪律：cassette 回放零网络；golden 腿不落真工件（outDir 隔离跑完即弃）；CLI happy-path 真网络面不入离线 smoke（predecl §1.2 偏差⑥）。
 import { spawnSync, execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
@@ -50,7 +50,7 @@ t('U1 采集事实>0 且 scale=Micro-A', collected.res.facts.length > 0 && colle
 t('U2 prs_listed>0＋strategy=env-token', collected.res.prs_listed > 0 && collected.res.strategy === 'env-token', collected.res.strategy);
 t('U3 token 进 wire 不入 fact', cap.every(function (q) { return q.token === 'TEST-PLACEHOLDER'; }) && JSON.stringify(collected.res.facts).indexOf('TEST-PLACEHOLDER') < 0);
 t('U4 ctx 契约（runId r48- 前缀＋traceId 32hex＋observedAt=runAt）', collected.ctx.runId.indexOf('r48-env-manager-') === 0 && new RegExp('^[0-9a-f]{32}$').test(collected.ctx.traceId) && collected.ctx.observedAt === runAt, collected.ctx.runId);
-t('U5 切片字段契约 ≥20＋credential_strategy/diff_channel 在', Array.isArray(MA.MICRO_A_SLICE_FIELDS) && MA.MICRO_A_SLICE_FIELDS.length >= 20 && MA.MICRO_A_SLICE_FIELDS.indexOf('credential_strategy') >= 0 && MA.MICRO_A_SLICE_FIELDS.indexOf('diff_channel') >= 0, String(MA.MICRO_A_SLICE_FIELDS.length));
+t('U5 字段契约 ≥20＋credential_strategy/diff_channel 在', Array.isArray(MA.MICRO_A_SLICE_FIELDS) && MA.MICRO_A_SLICE_FIELDS.length >= 20 && MA.MICRO_A_SLICE_FIELDS.indexOf('credential_strategy') >= 0 && MA.MICRO_A_SLICE_FIELDS.indexOf('diff_channel') >= 0, String(MA.MICRO_A_SLICE_FIELDS.length));
 t('U6 骨架交集机械导出面在', typeof MA.skeletonIntersectionReport === 'function');
 
 // ---------- R 单 PR 报告（PR64 golden 腿＋PR51 diff 缺席腿——48 goldenMain 同构） ----------
@@ -69,12 +69,12 @@ t('R8 报告文件双件在', existsSync(join(outDir, r64.outputs.md)) && exists
 const r51 = await MA.buildPrReportMicroA(t1, { n: 51, form: 'human' }, collected, gateOK, shared, { golden: true, outDir: outDir, measName: measName, factsName: factsName });
 t('R9 pr51 判据构建＋overall 三档域', ['supported', 'unsupported', 'insufficient'].indexOf(r51.overall) >= 0, r51.overall);
 t('R10 pr51 form=human', r51.form_actual === 'human' && r51.form_match === true, r51.form_actual);
-// R11/R12 溯源串可解析（#29／ADR-0027：报告溯源串改指仓内 contract fixtures 与归档索引）——
+// R11/R12 溯源串可解析（#29：报告溯源串改指仓内 contract fixtures 与归档索引）——
 //   gate_ref 两路径必须是本仓现行文件、且证据源零 .scratch；golden 再生见 48 契约件（48-check B4 齐备腿）。
 const SELF = join(HERE, '..', '..');
 const sc64 = JSON.parse(readFileSync(join(outDir, r64.outputs.sidecar), 'utf8'));
 const gr64 = sc64.gate_ref || (sc64.receipt && sc64.receipt.gate_ref);
-// 空串／缺字段必须判红：`join(SELF, '')` 会命中仓库根，existsSync 会把缺锚放行成通过
+// 空串／缺字段必须判失败：`join(SELF, '')` 会命中仓库根，existsSync 会把缺锚放行成通过
 const grPath = function (s) { const p = String(s || '').split(' ')[0]; return p === '' ? null : p; };
 const gateRefOk = function (g) {
   if (!g) return false;
@@ -83,19 +83,19 @@ const gateRefOk = function (g) {
     && existsSync(join(SELF, a)) && existsSync(join(SELF, b));
 };
 t('R11 gate_ref 溯源串可解析（criteria/basis 均仓内现行文件，零 .scratch；缺字段即红）', gateRefOk(gr64), JSON.stringify(gr64));
-// 负对照喂的是**接线后的判定函数**（不是 helper）：缺 criteria_path／空串／已退役 .scratch 三态必须判红
+// 负对照喂的是**接线后的判定函数**（不是 helper）：缺 criteria_path／空串／已退役 .scratch 三态必须判失败
 // 反例必须**只差一个维度**：basis 用真实存在的锚，否则「路径不存在」会把断言替死（删掉被测断言仍绿）
 const EXIST_ANCHOR = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
 const SCRATCHY = './.scratch/../' + EXIST_ANCHOR;   // 字符串含 .scratch，归一化后仍指向该存在文件
-t('R11-P 负对照：缺字段／空串／.scratch 三态各只差一维即判红（删任一断言此条即红）',
+t('R11-P 负对照：缺字段／空串／.scratch 三态各只差一维即判失败（删任一断言此条即红）',
   gateRefOk({ criteria_path: EXIST_ANCHOR, basis_path: EXIST_ANCHOR }) === true      // 正对照：两锚干净时放行
   && gateRefOk(null) === false
   && gateRefOk({ basis_path: EXIST_ANCHOR }) === false                               // 仅缺 criteria_path
   && gateRefOk({ criteria_path: '', basis_path: EXIST_ANCHOR }) === false             // 仅 criteria 为空串
   && existsSync(join(SELF, SCRATCHY))                                                // 该路径真实可解析
-  && gateRefOk({ criteria_path: SCRATCHY, basis_path: EXIST_ANCHOR }) === false       // 仅因 .scratch 判红
+  && gateRefOk({ criteria_path: SCRATCHY, basis_path: EXIST_ANCHOR }) === false       // 仅因 .scratch 判失败
   && grPath(EXIST_ANCHOR + ' D-1') === EXIST_ANCHOR);
-// 授权锚=EV(4) 票面授权锚＋EV(5) 判据预声明锚；条数钉死（filter 落空会让 .every 恒真——空集不构成正对照）
+// 授权锚=EV(4) 票面授权锚＋EV(5) 判据预声明锚；条数钉死（filter 落空会让 .every 永远通过——空集不构成正对照）
 const anchors = sc64.evidence.filter(function (e) { return /-(04|05)$/.test(e.evidence_id); });
 t('R12 证据源零退役 .scratch 且授权锚 grounded（EV(4)/EV(5) 恰两条，引文摘取成功）',
   anchors.length === 2 && anchors.every(function (e) { return e.grounded === true; })
@@ -104,7 +104,7 @@ t('R12 证据源零退役 .scratch 且授权锚 grounded（EV(4)/EV(5) 恰两条
 // grounded=true 只证明「摘到了某一行」，不证明是授权那一行——单 token 'D-049' 首先命中的是第 40 行「增量去向」索引条
 const ev04 = anchors.filter(function (e) { return /-04$/.test(e.evidence_id); })[0];
 const ev04Cells = String((ev04 && ev04.excerpt) || '').split('|');
-t('R13 EV(4) 票面授权锚引文=归档账本 D-049 决策行本体（首格即 D-049）',
+t('R13 EV(4) 票面授权锚引文=归档记录 D-049 决策行本体（首格即 D-049）',
   !!ev04 && ev04Cells[1] !== undefined && ev04Cells[1].trim() === 'D-049',
   ev04 ? ev04.locator + ' :: ' + String(ev04.excerpt).slice(0, 60) : 'EV(4) absent');
 
@@ -116,7 +116,7 @@ t('F1 gate 闸 merged=0 eligible=false', gp.merged_prs === 0 && gp.eligible === 
 const rf = await MA.buildRefusalReportMicroA({ name: gp.name, owner: gp.owner, repo: gp.repo, headSha: gp.headSha, root: null, facts: gp.facts, ctx: gp.ctx }, sharedZ, { golden: false, outDir: outDir, measName: measName });
 t('F2 拒绝件 overall=unsupported', rf.overall === 'unsupported', rf.overall);
 t('F3 拒绝件语义（无托管 PR 面＋前置条件＋intake-refused 象限标记）', (function () { const md = readFileSync(join(outDir, rf.outputs.md), 'utf8'); const sc = JSON.parse(readFileSync(join(outDir, rf.outputs.sidecar), 'utf8')); return md.indexOf('无托管 PR 面') >= 0 && md.indexOf('前置条件') >= 0 && sc.quadrants.every(function (q) { return q.conflict_markers.indexOf('intake-refused') >= 0; }) && sc.adjudication.entries.some(function (e) { return e.criterion_id === 'TC-4' && e.band === 'unsupported'; }); })());
-// REF-03 是「硬约束锚」：claim 引的约束句在 D-033 立法行（账本 :88）；原单 token '无托管 PR 面' 首先命中的 D-049 行（:54）不含该句
+// REF-03 是「硬约束锚」：claim 引的约束句在 D-033 立法行（记录 :88）；原单 token '无托管 PR 面' 首先命中的 D-049 行（:54）不含该句
 t('F4 REF-03 硬约束锚落在 D-033 决策行本体（首格即 D-033）', (function () { const sc = JSON.parse(readFileSync(join(outDir, rf.outputs.sidecar), 'utf8')); const e = (sc.evidence || []).filter(function (x) { return /-REF-03$/.test(x.evidence_id); })[0]; if (!e) { return false; } const cells = String(e.excerpt).split('|'); return cells[1] !== undefined && cells[1].trim() === 'D-033'; })(), 'REF-03 absent 或首格非 D-033');
 
 // ---------- C CLI 接线（离线安全面：input gate／scope gate 先于网络） ----------
@@ -126,11 +126,11 @@ const c2 = spawnSync('node', [CLI, 'audit', 'Xxx91n/not-a-pilot-repo', '--scale'
 t('C2 名册外仓 → exit 2 MICRO-A-SCOPE（D-049③ 票面写死；先于网络）', c2.status === 2 && (parseErr(c2.stderr) || {}).error === 'MICRO-A-SCOPE', c2.stderr.slice(0, 140));
 t('C3 MICRO-A-INPUT 载体带试点名册（message 内嵌——cli 泛型 catch 序列化面）', ((parseErr(c1.stderr) || {}).message || '').indexOf('Xxx91n/env-manager') >= 0);
 
-// ---------- S prereg 锚取值口径（tracker #100／R9-1：浅克隆不得静默取到边界 commit） ----------
+// ---------- S prereg 锚取值规则（tracker #100／R9-1：浅克隆不得悄悄取到边界 commit） ----------
 // 合成 fixture＝两枚 commit 的临时 git 仓：判据件落在 c1，c2 只改无关文件。
 //   完整仓 → c1（真末次变更锚）；浅克隆 → 只含 c2，裸 `git log -1 --format=%h -- <判据件>` 把判据件归到边界 commit c2。
-// S1 前提臂钉「失败形态确实复现」，S2/S3 才是判别臂——没有 S1，负对照可能只是恒真的空跑。
-// 纪律：local-path clone 会静默忽略 --depth（git 自带 warning「--depth is ignored in local clones」），
+// S1 前提臂钉「失败形态确实复现」，S2/S3 才是判别臂——没有 S1，负对照可能只是永远通过的空跑。
+// 纪律：local-path clone 会悄悄忽略 --depth（git 自带 warning「--depth is ignored in local clones」），
 //   必须 --no-local 走真传输，否则克隆根本不浅、fixture 全程失真而断言照绿。
 const SRC_REL = join('engine', 'test', 'fixtures', 'contracts', 'PREREG-CRITERIA.md').split('\\').join('/');
 const GIT_ENV = Object.assign({}, process.env, { GIT_AUTHOR_DATE: '2026-04-10T10:00:00Z', GIT_COMMITTER_DATE: '2026-04-10T10:00:00Z' });
@@ -148,14 +148,14 @@ writeFileSync(join(pSrc, 'later.md'), '# 后续无关变更' + NL, 'utf8');
 gitAt(pSrc, ['add', '-A']); gitAt(pSrc, ['commit', '-qm', 'c2: 无关变更']);
 const BOUNDARY_COMMIT = gitAt(pSrc, ['rev-parse', 'HEAD']);
 // 锚等不等，按 commit 全值判，不按 %h 字面判：git auto-abbrev 随对象库在 7↔8 跳变，两仓对象数不同即可能
-//   给出不同宽度（tracker #84 已定这条口径）。字面比较会让「退化成短写的边界 commit」溜过去＝假绿。
+//   给出不同宽度（tracker #84 已定这条规则）。字面比较会让「变成短写的边界 commit」溜过去＝假绿。
 function fullCommit(cwd, v) { try { return gitAt(cwd, ['rev-parse', '--verify', v + '^{commit}']); } catch (e) { return ''; } }
 const TRUE_ANCHOR_FULL = fullCommit(pSrc, TRUE_ANCHOR);
 const sameCommit = function (cwd, v, fullSha) { const r = fullCommit(cwd, v); return r !== '' && r === fullSha; };
 const pShallow = join(tmp, 'prereg-shallow');
 execFileSync('git', ['clone', '-q', '--depth', '1', '--no-local', pSrc, pShallow], { encoding: 'utf8', env: GIT_ENV });
 
-t('S1 前提臂：fixture 确为浅克隆，且裸命令在该形态下取到的 commit 就是边界 commit（失败形态复现，非恒真）',
+t('S1 前提臂：fixture 确为浅克隆，且裸命令在该形态下取到的 commit 就是边界 commit（失败形态复现，非永远通过）',
   gitAt(pShallow, ['rev-parse', '--is-shallow-repository']) === 'true'
   && TRUE_ANCHOR_FULL !== '' && TRUE_ANCHOR_FULL !== BOUNDARY_COMMIT
   && sameCommit(pShallow, gitAt(pShallow, ['log', '-1', '--format=%h', '--', SRC_REL]), BOUNDARY_COMMIT)
@@ -173,17 +173,17 @@ t('S3 票面字面判据：浅克隆结果既不指向边界 commit 也不指向
 t('S4 正对照：完整历史仓仍取判据件末次变更 commit——收紧没把好面一起拒掉',
   sameCommit(pSrc, MA.resolvePreregCommit(pSrc, SRC_REL), TRUE_ANCHOR_FULL), MA.resolvePreregCommit(pSrc, SRC_REL) + ' vs ' + TRUE_ANCHOR_FULL.slice(0, 12));
 
-t('S5 无源码仓根（安装态插件）落显式降级标记，不再落裸 unknown',
+t('S5 无源码仓根（安装态插件）落明确降级标记，不再落裸 unknown',
   MA.resolvePreregCommit(null, SRC_REL) === 'degraded:no-source-repo', MA.resolvePreregCommit(null, SRC_REL));
 
 t('S5b 判据件在该仓取不到 commit 时落具名降级，而非裸空值/unknown',
   MA.resolvePreregCommit(pSrc, 'engine/test/fixtures/contracts/NO-SUCH-CRITERIA.md') === 'degraded:no-criteria-history',
   MA.resolvePreregCommit(pSrc, 'engine/test/fixtures/contracts/NO-SUCH-CRITERIA.md'));
 
-t('S6 发出面合口径：本机完整克隆跑出的 Micro-A 报告 prereg_commit 仍是 commit 形（未误判为降级）',
+t('S6 发出面合规则：本机完整克隆跑出的 Micro-A 报告 prereg_commit 仍是 commit 形（未误判为降级）',
   GR.classifyPreregAnchor(String(gr64 && gr64.prereg_commit)) === 'commit', JSON.stringify(gr64 && gr64.prereg_commit));
 
-// 判不了深度必须降级而非抛出——机理记于 ADR-0027；本函数在模块加载期被调用，抛出即拖垮整条 Micro-A 面。
+// 判不了深度必须降级而非抛出——机理记于说明；本函数在模块加载期被调用，抛出即拖垮整条 Micro-A 面。
 const pNotRepo = join(tmp, 'prereg-not-a-repo');
 mkdirSync(pNotRepo, { recursive: true });
 let unprobed = '';
@@ -194,7 +194,7 @@ t('S7 判不了深度时降级而非抛出——非 git 目录喂进去不得抛
   unprobedErr !== null ? 'threw ' + unprobedErr : unprobed);
 
 // core.abbrev=4 时 `%h` 真会短到 4 位（git 忽略 <4 的设定，4 是下限）。这条钉的是**本票自引入的**失败模式：
-//   口径闸初版把 commit 下限写成 7，合法锚会被自己的闸判成模糊态，buildReceipt 在 Micro-A 落盘前就抛。
+//   规则闸初版把 commit 下限写成 7，合法锚会被自己的闸判成模糊态，buildReceipt 在 Micro-A 落盘前就抛。
 // 三条都要：① 裸命令确实落到 7 位以下（前提）；② **解析器原样交出那个短值**（不加宽）——少了这条，
 //   解析器哪怕偷偷 `--abbrev=7` 把值撑回 7 位，本臂照样绿，等于没验到「短值过闸」这件事本身；
 //   ③ 该短值过分类器仍判 commit 且解析回同一枚判据锚。

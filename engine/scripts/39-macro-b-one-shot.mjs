@@ -7,7 +7,7 @@
 //   → 裁决（PC-1/PC-2 正对照 + TC-1/2/3 真判据 + NC-1 负对照，阈值=22-criteria-pre-registration.md 预声明，跑后禁调）
 //   → 报告（buildReport + preview_disclosure「capability 1 of 5 · preview」）
 // 纪律：被测仓只读（git 只读子命令 + 文件读，绝不写）；唯一写动作 = --out 目录 39-* 工件。
-//       试点成功度量 = 反复接受非跑通（D-033）：裁定带 supported/unsupported/insufficient 三档如实落数。
+//       试点成功度量 = 反复接受非跑通（D-033）：裁定带 supported/unsupported/insufficient 三档照实写数字。
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -26,10 +26,10 @@ const C = await import(pathToFileURL(join(DIST, 'collect', 'collectors.js')).hre
 const G = await import(pathToFileURL(join(DIST, 'report', 'generate.js')).href);
 const S = await import(pathToFileURL(join(DIST, 'fact', 'schema.js')).href);
 const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
-const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同口径防跨版本漂移
+const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同规则防跨版本漂移
 const MB = await import(pathToFileURL(join(DIST, 'audit', 'macro-b.js')).href); // #42：探针同源 audit.ts（字段级分类/事件面）
 const Q = await import(pathToFileURL(join(DIST, 'intake', 'quarantine.js')).href);   // #78/D-109①：崩溃桶构造器复用——Q 只取崩溃/投影聚合导出（分类器/写库面禁引，D-118④）
-const STRICT_Q = process.env[Q.STRICT_QUARANTINE_ENV] === '1';   // #78/D-110④：env 只传开关——对照物无 quarantine 桶（病态恒硬崩=strict 恒真语义），env 值进证据面供 CI 对账
+const STRICT_Q = process.env[Q.STRICT_QUARANTINE_ENV] === '1';   // #78/D-110④：env 只传开关——对照物无 quarantine 桶（病态恒硬崩=strict 永远为真语义），env 值进证据面供 CI 对账
 const SR = await import(pathToFileURL(join(DIST, 'audit', 'safe-read.js')).href);
 const { listAdrFilesSafe, probeRepoEntry, readRepoFileSafe, makeFileSubjectSkipFact } = SR;
 
@@ -145,7 +145,7 @@ async function runOneShot(target) {
 
   // -- 采集：ADR 语料（adr-structure@v2 回退链） --
   // #113：每个被安全读取拒绝的输入都发 codelore.file_subject_skip 事实（进 JSONL/duckdb/报告披露），
-  //   不再静默丢弃——回归工作流跑本脚本对着不可信仓，看不见的拒绝=看不见的语料缺口。
+  //   不再悄悄丢弃——回归工作流跑本脚本对着不可信仓，看不见的拒绝=看不见的语料缺口。
   const skipFacts = [];
   const skipSeen = new Set();
   const pushSkip = function (rel, reason) {
@@ -328,19 +328,19 @@ async function runOneShot(target) {
   ];
   const strategyBand = G.deriveOverallBand(adjudicationEntries);
 
-  // -- 四象限切片（Macro-B 已上架采集面 = strategy 原生；其余 not_applicable 如实披露） --
+  // -- 四象限数据（Macro-B 已上架采集面 = strategy 原生；其余 not_applicable 如实披露） --
   const GATE = { protocol_version: G.ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'reports/39-macro-b-one-shot.mjs' };
   const quadrants = [
     { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(meas.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(meas.tc2.mean_ratio_4), adr_count: tc2Total, lag_judgeable_n: tc1Judgeable, intent_docs: intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: tc2Verdict === 'RED', decided_at: HEAD_DATE, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
-    { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_DATE, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23 首报同口径）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
+    { quadrant: 'structure', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_DATE, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——structure 无采集器（与 #23 首报同标准）', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
     { quadrant: 'behavior', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_DATE, override_reason: 'Macro-B 已上架采集面仅 strategy（S1+S2）——behavior 无采集器', audit_ref: GATE.audit_ref }, conflict_markers: ['out-of-scope-stage1'] },
     { quadrant: 'supply_chain', applicability: 'not_applicable', verdict: 'insufficient', score: null, confidence: 0, dimensions: [], slice_fields: {}, verdict_gate: { protocol_version: GATE.protocol_version, decision: 'insufficient', evidence_flag: false, decided_at: HEAD_DATE, override_reason: '⚠ 数据未接——Scorecard/repomix 按层需求队列接入不插队（D-034③）', audit_ref: GATE.audit_ref }, conflict_markers: ['data-not-connected'] }
   ];
   const recommendations = [
     { rec_id: 'R-39-' + R + '-1', priority: 'P1', action: '引入 ≥1 非自有公开仓经 URL opt-in 跑 Macro-B（衔接 #40 / D-013）', rationale: '三试点仓同主属 dogfooding——generative not evaluative（D-033）；one-shot 裁定只作校准+冒烟，不构成泛化证据，GA 前置须外部仓', expected_impact: '泛化证据链闭环，Macro-B GA 准入条件达成', effort: 'M', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-39-' + R + '-07'], degraded_note: null },
-    { rec_id: 'R-39-' + R + '-2', priority: 'P2', action: 'jiahao 持续回归由 6F 仓 .github/workflows/macro-b-regression.yml 承载（schedule 定时回归 + workflow_dispatch URL opt-in），jiahao 仅作审计对象不承载我方资产；本仓其余两仓维持只读 one-shot', rationale: 'D-033② 指派 jiahao 为 Macro-B 回归仓；D-046 回归 CI 迁回 6F 自有 CI；接入动作 = 多写者触发器 (a) 激活点（D-034④a）', expected_impact: '已上架层获得定时回归面；触发器 (a) 激活进值守通道', effort: 'S', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-39-' + R + '-07'], degraded_note: null }
+    { rec_id: 'R-39-' + R + '-2', priority: 'P2', action: 'jiahao 持续回归由 6F 仓 .github/workflows/macro-b-regression.yml 承载（schedule 定时回归 + workflow_dispatch URL opt-in），jiahao 仅作审计对象不承载我方资产；本仓其余两仓维持只读 one-shot', rationale: 'D-033② 指派 jiahao 为 Macro-B 回归仓；D-046 回归 CI 迁回 6F 自有 CI；接入动作 = 多写者触发器 (a) 激活点（D-034④a）', expected_impact: '已上架层获得定时回归面；触发器 (a) 激活进定期检查通道', effort: 'S', verdict_gate_stamp: G.ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-39-' + R + '-07'], degraded_note: null }
   ];
-  const HEADLINE = NAME + ' Macro-B one-shot（capability 1 of 5 · preview）：' + COMMIT_COUNT + ' commits / ADR ' + tc2Total + ' 份 / facts ' + realFacts.length + '——TC-1 ' + tc1Verdict + '（n=' + tc1Judgeable + '）、TC-2 ' + tc2Verdict + '（mean=' + meas.tc2.mean_ratio_4 + '）、TC-3 ' + tc3Verdict + '（' + meas.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '（反复接受非跑通：三档如实落数）。';
+  const HEADLINE = NAME + ' Macro-B one-shot（capability 1 of 5 · preview）：' + COMMIT_COUNT + ' commits / ADR ' + tc2Total + ' 份 / facts ' + realFacts.length + '——TC-1 ' + tc1Verdict + '（n=' + tc1Judgeable + '）、TC-2 ' + tc2Verdict + '（mean=' + meas.tc2.mean_ratio_4 + '）、TC-3 ' + tc3Verdict + '（' + meas.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '（反复接受非跑通：三档照实写数字）。';
 
   // -- Intake Health（#42：与 audit.ts 同源投影 probes；workflow 契约要求 fields 恒为数组） --
   const excludedCommits = commits.filter(function (c) { return c.date === null; }).length;
@@ -355,12 +355,12 @@ async function runOneShot(target) {
     recorded_at: probes.headDate
   };
 
-  // #113：被安全读取拒绝的输入必须进报告披露块（不静默）——与 audit.ts / macro-c.ts 同文案口径。
+  // #113：被安全读取拒绝的输入必须进报告披露块（不悄悄忽略）——与 audit.ts / macro-c.ts 同文案规则。
   const structuralLimitations = [
     '同主仓确认偏差：三试点仓与产品同主——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟，不构成泛化证据',
     '泛化证据缺口：Macro-B GA 前置须 ≥1 非自有公开仓经 URL opt-in（#40 / D-013）',
     'structure/behavior/supply_chain 象限 not_applicable：Macro-B 已上架采集面仅 strategy（S1+S2）；供应链象限 ⚠ 数据未接（D-034③）',
-    'one-shot 度量 = 反复接受非跑通：TC 三档裁定（supported/unsupported/insufficient）如实落数，不为跑通而跑通'
+    'one-shot 度量 = 反复接受非跑通：TC 三档裁定（supported/unsupported/insufficient）照实写数字，不为跑通而跑通'
   ];
   if (skipFacts.length > 0) {
     const skipPaths = skipFacts.map(function (f) { return JSON.parse(f.value_json).raw_path; });

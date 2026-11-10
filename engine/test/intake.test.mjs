@@ -50,12 +50,12 @@ check('L3 本地仓 full_depth_verified + shallow=false', r1.full_depth_verified
 check('L4 本地仓 url/cache_dir null + cloned=false', r1.url === null && r1.cache_dir === null && r1.cloned === false);
 check('L5 凭据=本地链 + 远程配置执行=disabled', r1.credentials === 'local-git-credential-chain' && r1.remote_config_execution === 'disabled');
 
-// --- S 浅 clone 显式拒绝 ---
+// --- S 浅 clone 明确拒绝 ---
 const shallow = join(tmp, 'shallow');
 const sc = git(['clone', '-q', '--depth', '1', 'file://' + src.replace(/\\/g, '/'), shallow], tmp);
 check('S1 预置浅 clone 成功（夹具）', sc.status === 0 && existsSync(shallow), String(sc.stderr));
 check('S2 夹具确为浅仓', I.isShallowRepo(shallow) === true);
-check('S3 浅仓本地输入显式拒绝', throwsCode(function () { I.repoAdd(shallow, { cwd: tmp }); }, 'SHALLOW-CLONE-REJECTED') === '');
+check('S3 浅仓本地输入明确拒绝', throwsCode(function () { I.repoAdd(shallow, { cwd: tmp }); }, 'SHALLOW-CLONE-REJECTED') === '');
 
 // --- O owner/repo 本地优先消歧 ---
 const ownDir = join(tmp, 'o');
@@ -95,7 +95,7 @@ check('F1 本地腿 snapshot_fetched_at=null（无 fetch 概念）', r1.snapshot
 check('F2 新 clone snapshot_fetched_at=ISO 非空＋cache_hit=false', typeof r3.snapshot_fetched_at === 'string' && /Z$/.test(r3.snapshot_fetched_at) && r3.cache_hit === false);
 check('F3 缓存命中：cache_hit=true＋refreshed=false＋snapshot_fetched_at 保旧 clone 时点（远端新提交不可见如实披露）', r4.cache_hit === true && r4.refreshed === false && typeof r4.snapshot_fetched_at === 'string');
 
-// --- R refresh 显式 opt-in（#55/D-059⑦）：不自动 pull，仅旗标触发 fetch+复位 ---
+// --- R refresh 明确 opt-in（#55/D-059⑦）：不自动 pull，仅旗标触发 fetch+复位 ---
 writeFileSync(join(src, 'b.txt'), 'b\n');
 git(['add', 'b.txt'], src); git(['commit', '-qm', 'second'], src);
 const srcSha2 = git(['rev-parse', 'HEAD'], src).stdout.trim();

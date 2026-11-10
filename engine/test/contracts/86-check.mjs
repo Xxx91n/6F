@@ -55,7 +55,7 @@ const UMD = await import(pathToFileURL(join(ENG, 'dist', 'audit', 'upstream-dime
 const LBL = UMD.SEMANTIC_DOMAIN_LABELS;
 t('A1 dist SEMANTIC_DOMAIN_LABELS 在且两键（structure/s3）', !!LBL && LBL.structure === 'structure/shape' && LBL.s3 === 'S3/budget-attribution', JSON.stringify(LBL));
 t('A3 断言三互等：常量↔词条标签逐键全等', predLabelEquality({ structure: LBL.structure, s3: LBL.s3 }, { structure: 'structure/shape', s3: 'S3/budget-attribution' }).length === 0);
-t('A4 src 映射面含常量（measure 层进映射面——D-205① 落点纪律）', readFileSync(join(ENG, 'src', 'audit', 'upstream-dimension-map.ts'), 'utf8').indexOf('SEMANTIC_DOMAIN_LABELS') >= 0);
+t('A4 src 映射面含常量（measure 层进映射面——D-205① 规则纪律）', readFileSync(join(ENG, 'src', 'audit', 'upstream-dimension-map.ts'), 'utf8').indexOf('SEMANTIC_DOMAIN_LABELS') >= 0);
 t('A5 本守卫自身无 BOM', noBom(join(HERE, '86-check.mjs')));
 
 // ---------- B. facts 层 golden 闸（6F 自审实跑产物；engine-deps 组级闸） ----------
@@ -82,7 +82,7 @@ if (groupProbe('86-check', 'B', DEPS_B)) {
   t('B4 断言二 opposing 成对准入：6/6 或 0，禁 1~5 孤面', pair.length === 0, JSON.stringify(pair));
   t('B5 摘帽措辞在场（override_reason 载 structure/shape 域标签）', !!sq && sq.applicability !== 'derived' ? sq.verdict_gate.override_reason.indexOf('D-205') >= 0 : sq.verdict_gate.override_reason.indexOf('structure/shape') >= 0 && sq.verdict_gate.override_reason.indexOf('S3/budget-attribution') >= 0, sq && sq.verdict_gate.override_reason && sq.verdict_gate.override_reason.slice(0, 80));
   t('B6 supply-chain 维持（D-206 续排——not_applicable＋数据未接）', !!side && (function () { const s = side.quadrants.filter(function (x) { return x.quadrant === 'supply_chain'; })[0]; return s && s.applicability === 'not_applicable' && s.verdict_gate.override_reason.indexOf('数据未接') >= 0; })());
-  t('B7 旧 queued 措辞退役（override_reason 无 双口径风险暂缓/D-054 queued）', !!sq && sq.verdict_gate.override_reason.indexOf('双口径风险暂缓') < 0);
+  t('B7 旧 queued 措辞退役（override_reason 无 双规则风险暂缓/D-054 queued）', !!sq && sq.verdict_gate.override_reason.indexOf('双规则风险暂缓') < 0);
   try { rmSync(tmpB, { recursive: true, force: true }); } catch (e) { }
 }
 

@@ -1,6 +1,6 @@
 // 56-checker-heldout-eval.mjs —— #56 修复后 held-out 首跑评测（D-064⑤ F5＋D-065；与 52a 标定语料分区存管）
 // 被测件=dist 的 checkAllCitations（presence-level 判定＋语境剥离）。
-// 口径：contract 层（positive/negation/pseudo/quoted/unbalanced/ungrounded）gold=checker 契约真值 100% 对齐；
+// 规则：contract 层（positive/negation/pseudo/quoted/unbalanced/ungrounded）gold=checker 契约真值 100% 对齐；
 //   disclosed 层（fn-paraphrase / attachment-ambiguous）gold=人类语义真值 supports、checker 如实判 insufficient
 //   → 记 disclosed_fn（presence-level 语义召回缺口归 human-in-loop，非契约违规）。
 // 纪律：只测不调——本脚本不改 checker；禁参照 52a 语料标签调参；held-out 只评一次首跑。

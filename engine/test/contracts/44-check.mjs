@@ -6,7 +6,7 @@
 //   ENFORCE 段（本票已 enforce，FAIL 即 exit 1）=
 //     A 锁表结构/种子行/枚举/禁 range·浮动、B binary 可解析时版本断言三方同值、
 //     C 日期格式/mtime/非未来登记上界（业务时钟∩UTC 较严者）断言、D README §3 绑定、E 三处 preview 标注同源、F 编年指针、
-//     G 文档账本、H BOM。
+//     G 文档记录、H BOM。
 //   ADVISORY 段（WARN 报警非失败，不 exit 1）=
 //     C5 锁表新鲜度逾期（next_review<today）、B4/B5 binary 不在 PATH 环境位。
 //   转 enforce 触发点 = 首发 tag 手动窗口（D-037④）或对应上游接入票落地；
@@ -33,7 +33,7 @@ function w(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } 
 function txt(p) { return readFileSync(p, 'utf8'); }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 // 仓内业务时钟：本机本地日期 ∪ macro-audit 日报文件名日期（YYYY-MM-DD-report.md=营业日语义）
-// ——新鲜度判定基准与宿主墙钟/UTC 偏移脱耦；不扫账本正文（内含未来截止/复审日会污染「今天」）
+// ——新鲜度判定基准与宿主墙钟/UTC 偏移脱耦；不扫记录正文（内含未来截止/复审日会污染「今天」）
 const _d = new Date();
 const LOCAL_TODAY = _d.getFullYear() + '-' + String(_d.getMonth() + 1).padStart(2, '0') + '-' + String(_d.getDate()).padStart(2, '0');
 let REPO_TODAY = LOCAL_TODAY;
@@ -46,7 +46,7 @@ if (existsSync(_repDir)) {
 }
 const TODAY = REPO_TODAY;
 // 非未来登记的上界＝业务时钟与 UTC 日之较严者：CI runner 没有 .scratch 日报输入，判的是 UTC 日；
-// 超前宿主（+08）在凌晨按本地日登记会「本地绿、CI 六腿红」（#43 实证）。上界收到两者之小，本机即复现那条红。
+// 超前宿主（+08）在凌晨按本地日登记会「本地绿、CI 六条任务红」（#43 实证）。上界收到两者之小，本机即复现那条红。
 const UTC_TODAY = _d.toISOString().slice(0, 10);
 const REVIEW_UPPER = TODAY < UTC_TODAY ? TODAY : UTC_TODAY;
 
@@ -94,7 +94,7 @@ t('A6 codelore 行 exact-version 0.28.0＋contract 含 --version pin 契约',
   byId.codelore && byId.codelore.version === '0.28.0' && byId.codelore.pin_type === 'exact-version' && (byId.codelore.contract || '').indexOf('--version') >= 0);
 const RANGE_RE = /(\^|~|>=|<=|>|<|\*|(?:^|[^.\d])x(?:\b|$)|latest|next\b|floating)/i;
 t('A7 禁 range/浮动 tag/latest：全行 version 串无 range/浮动字样', lock.upstreams.every(r => r.version === null || !RANGE_RE.test(String(r.version))), JSON.stringify(lock.upstreams.map(r => r.id + '=' + r.version)));
-t('A8 active 行 version+pin_type+contract 齐备（git-cli 例外=随宿主环境 contract 显式声明）',
+t('A8 active 行 version+pin_type+contract 齐备（git-cli 例外=随宿主环境 contract 明确声明）',
   lock.upstreams.filter(r => r.status === 'active').every(r => r.contract && ((r.version !== null && r.pin_type !== null) || (r.version === null && r.pin_type === null && r.contract.indexOf('随宿主环境') >= 0))));
 t('A9 planned/evaluating 行 contract 含接入前定 pin 注记（锁定先于依赖）',
   lock.upstreams.filter(r => r.status === 'planned' || r.status === 'evaluating').every(r => (r.contract || '').indexOf('pin') >= 0));
@@ -108,7 +108,7 @@ t('A12 duckdb-node-api 锁值 == package.json dependencies 精确值（锁表↔
 t('A13 upstream-lock.yaml 入 package.json files（provenance 锚随 tgz，D-037②）', pkg.files.indexOf('upstream-lock.yaml') >= 0);
 // ---------- A14-A16 upstream→dimension 映射表面（#68/D-078⑥：防映射渗入防腐层） ----------
 const UP_FILES = [join(ENG, 'src', 'upstream', 'codelore.ts'), join(ENG, 'src', 'upstream', 'github-rest.ts')];
-t('A14 upstream 适配器文件无 S1-S5 字样（映射=业务语义禁入防腐层，ADR-0014/D-078⑥）', UP_FILES.every(f => !existsSync(f) || !/\bS[1-5]\b/.test(txt(f))), UP_FILES.filter(f => existsSync(f) && /\bS[1-5]\b/.test(txt(f))).join(','));
+t('A14 upstream 适配器文件无 S1-S5 字样（映射=业务语义禁入防腐层，D-078⑥）', UP_FILES.every(f => !existsSync(f) || !/\bS[1-5]\b/.test(txt(f))), UP_FILES.filter(f => existsSync(f) && /\bS[1-5]\b/.test(txt(f))).join(','));
 t('A15 descriptor dimension:null 保留＋注释指针 upstream-dimension-map.md（两适配器逐件）', UP_FILES.every(f => txt(f).indexOf('dimension: null') >= 0 && txt(f).indexOf('upstream-dimension-map.md') >= 0), '');
 const DIMMAP = join(REPO, 'docs', 'upstream-dimension-map.md');
 t('A16 docs/upstream-dimension-map.md 在且结构齐（进入条件列＋永久排除行＋双挂＋复审两字段）', existsSync(DIMMAP) && ['进入条件', '永久排除', 'S5 ↔ S4', 'last_reviewed', 'next_review', 'dimension: null'].every(k => txt(DIMMAP).indexOf(k) >= 0), '');
@@ -184,7 +184,7 @@ t('E8 越界承诺机检（README 允许至 capability 4 of 5 · preview——#8
 const ecl = txt(join(ENG, 'CHANGELOG.md'));
 t('F8 engine/CHANGELOG Unreleased 条目引 upstream-lock.yaml（D-037⑥ CHANGELOG entry 引 lock diff）', ecl.indexOf('[Unreleased]') >= 0 && ecl.indexOf('upstream-lock.yaml') >= 0);
 
-// ---------- G. 文档与账本落文（ENFORCE） ----------
+// ---------- G. 文档与记录落文（ENFORCE） ----------
 const rep = existsSync(join(REPO,'engine','test','fixtures','contracts','44-report.md')) ? txt(join(REPO,'engine','test','fixtures','contracts','44-report.md')) : '';
 t('G8 44-report.md 在且六段齐备（①~⑥）', existsSync(join(REPO,'engine','test','fixtures','contracts','44-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(m => rep.indexOf(m) >= 0));
 

@@ -65,7 +65,7 @@ const evoInDoc = CL_EVOLUTION.every(a => docEvoList.indexOf(a) >= 0);
 t('B1 表行「演化主干 12」枚举 ⇔ 常量 CODELORE_EVOLUTION_FACETS 同源（逐项＋S4）',
   evoInDoc && docEvo.indexOf('| S4 |') >= 0 && !!M && CL_EVOLUTION.every(a => M.resolveCodeloreAnalysis(a).dimension === 'S4' && M.resolveCodeloreAnalysis(a).admitted === true),
   'doc-enum-miss=' + CL_EVOLUTION.filter(a => docEvoList.indexOf(a) < 0).join(','));
-t('B2 表行「s3 族 6」枚举 ⇔ 常量 S3＋opposing 准入（#51 双口径——单指标禁孤立入维）',
+t('B2 表行「s3 族 6」枚举 ⇔ 常量 S3＋opposing 准入（#51 双规则——单指标禁孤立入维）',
   docS3.indexOf('| S3 |') >= 0 && docS3.indexOf('opposing') >= 0 && CL_S3.every(a => docS3.indexOf(a) >= 0) &&
   !!M && CL_S3.every(a => { const r = M.resolveCodeloreAnalysis(a); return r.dimension === 'S3' && /opposing/.test(r.admission); }),
   'doc-enum-miss=' + CL_S3.filter(a => docS3.indexOf(a) < 0).join(','));
@@ -94,7 +94,7 @@ const clReg = reg.find(x => x.descriptor && x.descriptor.id === 'codelore-adapte
 t('C1 codelore descriptor 已注册（registered=true＋opt_in=binary+pin＋skipped 语义在）',
   !!clReg && clReg.registered === true && clReg.opt_in === 'binary+pin' && /blocked|缺席/.test(clReg.skipped_semantics), '');
 const clSrc = txt(join(ENG, 'src', 'upstream', 'codelore.ts'));
-t('C2 注册 descriptor=适配器原物（dimension:null 未改写＋注释指针在——ADR-0014/A15 双保留）',
+t('C2 注册 descriptor=适配器原物（dimension:null 未改写＋注释指针在——A15 保留）',
   clReg && clReg.descriptor.dimension === null && clSrc.indexOf('dimension: null') >= 0 && clSrc.indexOf('upstream-dimension-map.md') >= 0, '');
 
 // ---------- D. Macro-B 归位消费 ----------
@@ -116,7 +116,7 @@ function stripLineComments(line) {
   return line;
 }
 // 违规面=指向本仓 docs/ 树（不随包分发）的引用；豁免=主题仓采集面、`docs/adr`、`docs/archive/decisions` 的引文坐标。
-// Design: docs/archive/decisions 只放行出处坐标，运行时读写与 import 仍红 — ADR-0027
+// docs/archive/decisions 只放行出处坐标，运行时读写与 import 仍红
 // 实现边界：本守卫是行级扫描，看不到经变量间接传入的读取（如 addEvidence(EV(4), LEDGER_PATH, …)），该面由证据 grounded 兜底。
 const DOCREF_RE = /docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr(?:\/|['"])|archive\/decisions\/)/;
 const DOCIO_RE = /\b(?:(?:fs\s*\.\s*promises|fsp|promises|fs)\s*\.\s*[A-Za-z]+|readFile|writeFile|appendFile|readdir|mkdir|rm|unlink|copyFile|rename|stat|access|open|import|readFileSync|readdirSync|existsSync|createReadStream|openSync|writeFileSync|appendFileSync|mkdirSync|rmSync|unlinkSync|copyFileSync|renameSync)\s*\([^)]*['"`]docs\/|^\s*(import|export)\b[^;]*from\s*['"`]docs\//;
@@ -151,9 +151,9 @@ const walkCode = (dir) => {
 };
 walkCode(join(ENG, 'src'));
 walkCode(join(ENG, 'skills'));
-t('E1 engine/{src,skills} 无指向本仓 docs/ 树的引用与读写（upstream-dimension-map 引用仅限注释指针——D-083⑤；#29 收窄豁免 docs/archive/decisions/ 引文坐标，读写与 import 仍红——ADR-0025 归档只读）',
+t('E1 engine/{src,skills} 无指向本仓 docs/ 树的引用与读写（upstream-dimension-map 引用仅限注释指针——D-083⑤；#29 缩小范围豁免 docs/archive/decisions/ 引文坐标，读写与 import 仍红——归档只读）',
   docRefViolations.length === 0, docRefViolations.slice(0, 8).join(' '));
-// E1-P 判别臂活性（正/负对照——豁免收窄后必须仍然能红）：判定函数对十五类样本的判色
+// E1-P 判别臂活性（正/负对照——豁免缩小范围后必须仍然能红）：判定函数对十五类样本的判色
 const E1_PROBES = [
   ["const p = 'docs/spec.md';", true, '其余 docs/ 路径仍红'],
   ["const p = '../docs/spec.md';", true, '相对路径仍红'],
@@ -172,7 +172,7 @@ const E1_PROBES = [
   ["const p = 'docs/adr/0027-x.md';", false, 'ADR 指针放行']
 ];
 const e1Red = E1_PROBES.filter(function (x) { return docRefViolation(x[0]) !== x[1]; });
-t('E1-P 判别臂活性：十五类样本判色全对（红/绿两侧均非空——收窄后仍能红；豁免按目录边界，异步读写不逃逸）',
+t('E1-P 判别臂活性：十五类样本判色全对（红/绿两侧均非空——缩小范围后仍能红；豁免按目录边界，异步读写不逃逸）',
   e1Red.length === 0 && E1_PROBES.some(function (x) { return x[1]; }) && E1_PROBES.some(function (x) { return !x[1]; }),
   e1Red.map(function (x) { return x[2]; }).join(' '));
 

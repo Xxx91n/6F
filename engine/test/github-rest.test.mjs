@@ -40,7 +40,7 @@ check('R1 env token → env-token 主路', r1.strategy === 'env-token' && r1.deg
 const r2 = G.resolveGithubCredential({}, () => ({ available: true, token: 'GHTOK-PLACEHOLDER' }));
 check('R2 gh 已认证态借读 → gh-token 可选回退', r2.strategy === 'gh-token' && r2.degraded === false);
 const r3 = G.resolveGithubCredential({}, noGh);
-check('R3 无凭据 → unauthenticated 显式降级', r3.strategy === 'unauthenticated' && r3.degraded === true);
+check('R3 无凭据 → unauthenticated 明确降级', r3.strategy === 'unauthenticated' && r3.degraded === true);
 check('R4 降级披露含 60/h + 私仓 token 必需', r3.disclosures.join('|').includes('60') && r3.disclosures.join('|').includes('token'), JSON.stringify(r3.disclosures));
 check('R5 gh 存在但 token 空 → 降级不误借', G.resolveGithubCredential({}, () => ({ available: true, token: null })).strategy === 'unauthenticated');
 
@@ -104,7 +104,7 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const d2 = await G.resolvePrDiff(client2, 'Xxx91n', 'env-manager', 64, 'deadbeef'.repeat(5), 'feedbeef'.repeat(5), repo);
   check('D5 sha 本地缺席 → api 兜底通道', d2.ok && d2.channel === 'api' && d2.text.length > 1000);
   check('D6 api 兜底确实产生了调用', client2.callLog.length === 1);
-  // spec 收窄：sha 双解但本地 diff 失败（orphan 分支无 merge-base）→ 如实降级，不静默改道 API
+  // spec 缩小范围：sha 双解但本地 diff 失败（orphan 分支无 merge-base）→ 如实降级，不悄悄改道 API
   git(['checkout', '-q', '--orphan', 'orph']);
   git(['reset', '-q']); writeFileSync(join(repo, 'o.txt'), 'o\n');
   git(['add', 'o.txt']); git(['commit', '-qm', 'oc']);
@@ -113,7 +113,7 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const d3 = await G.resolvePrDiff(client3, 'o', 'r', 9, base, orphanSha, repo);
   check('D7 本地可解但 diff 失败 → local-git 降级不兜底 API', d3.ok === false && d3.channel === 'local-git' && d3.error_kind === 'local-diff' && client3.callLog.length === 0, JSON.stringify(d3).slice(0, 200));
 
-  // #116 安全审计：git diff range 拼接显式 SHA 十六进制校验（7~40位 hex）
+  // #116 安全审计：git diff range 拼接明确 SHA 十六进制校验（7~40位 hex）
   const hackOption = '--output=HACK.txt';
   const pathTraversal = '../../etc/passwd';
   const tooShort = 'deadbe';
@@ -122,29 +122,29 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
 
   // localThreeDotDiff 入口防线
   const badLocal1 = G.localThreeDotDiff(repo, hackOption, head);
-  check('D8 localThreeDotDiff 显式拒 --output 选项', badLocal1.ok === false && /invalid base or head git sha/i.test(badLocal1.detail || ''));
+  check('D8 localThreeDotDiff 明确拒 --output 选项', badLocal1.ok === false && /invalid base or head git sha/i.test(badLocal1.detail || ''));
   const badLocal2 = G.localThreeDotDiff(repo, base, pathTraversal);
-  check('D9 localThreeDotDiff 显式拒路径遍历', badLocal2.ok === false && /invalid base or head git sha/i.test(badLocal2.detail || ''));
+  check('D9 localThreeDotDiff 明确拒路径遍历', badLocal2.ok === false && /invalid base or head git sha/i.test(badLocal2.detail || ''));
   const badLocal3 = G.localThreeDotDiff(repo, tooShort, head);
-  check('D10 localThreeDotDiff 显式拒过短 SHA (<7)', badLocal3.ok === false && /invalid base or head git sha/i.test(badLocal3.detail || ''));
+  check('D10 localThreeDotDiff 明确拒过短 SHA (<7)', badLocal3.ok === false && /invalid base or head git sha/i.test(badLocal3.detail || ''));
   const badLocal4 = G.localThreeDotDiff(repo, base, tooLong);
-  check('D11 localThreeDotDiff 显式拒超长 SHA (>40)', badLocal4.ok === false && /invalid base or head git sha/i.test(badLocal4.detail || ''));
+  check('D11 localThreeDotDiff 明确拒超长 SHA (>40)', badLocal4.ok === false && /invalid base or head git sha/i.test(badLocal4.detail || ''));
   const badLocal5 = G.localThreeDotDiff(repo, nonHex, head);
-  check('D12 localThreeDotDiff 显式拒非十六进制字符', badLocal5.ok === false && /invalid base or head git sha/i.test(badLocal5.detail || ''));
+  check('D12 localThreeDotDiff 明确拒非十六进制字符', badLocal5.ok === false && /invalid base or head git sha/i.test(badLocal5.detail || ''));
 
   // resolvePrDiff 入口防线（结构化拒绝，local-diff，零 API 调用，零 git diff）
   const clientSec = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: async () => { throw new Error('must-not-call'); } });
   const badPr1 = await G.resolvePrDiff(clientSec, 'o', 'r', 10, hackOption, head, repo);
-  check('D13 resolvePrDiff 显式拒 --output 且不兜底 API', badPr1.ok === false && badPr1.channel === 'local-git' && badPr1.error_kind === 'local-diff' && clientSec.callLog.length === 0 && /invalid base or head git sha/i.test(badPr1.detail || ''));
+  check('D13 resolvePrDiff 明确拒 --output 且不兜底 API', badPr1.ok === false && badPr1.channel === 'local-git' && badPr1.error_kind === 'local-diff' && clientSec.callLog.length === 0 && /invalid base or head git sha/i.test(badPr1.detail || ''));
   const badPr2 = await G.resolvePrDiff(clientSec, 'o', 'r', 11, base, pathTraversal, repo);
-  check('D14 resolvePrDiff 显式拒路径遍历', badPr2.ok === false && badPr2.channel === 'local-git' && badPr2.error_kind === 'local-diff' && clientSec.callLog.length === 0);
+  check('D14 resolvePrDiff 明确拒路径遍历', badPr2.ok === false && badPr2.channel === 'local-git' && badPr2.error_kind === 'local-diff' && clientSec.callLog.length === 0);
 
   // 空 baseSha/headSha（PR 不在 listing/details 中）保持 API 兜底
   const clientEmpty = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: cassetteFetcher({ name: 'empty-sha', calls: [cas.calls[3]] }, []) });
   const emptyDiff = await G.resolvePrDiff(clientEmpty, 'Xxx91n', 'env-manager', 64, '', '', repo);
   check('D15 空 SHA 回退到 API diff 通道', emptyDiff.ok && emptyDiff.channel === 'api' && clientEmpty.callLog.length === 1);
 
-  // 合法 short SHA（如 7 位）允许通过显式十六进制校验
+  // 合法 short SHA（如 7 位）允许通过明确十六进制校验
   check('D16 isValidGitSha 校验函数导出且真值表正确', typeof G.isValidGitSha === 'function' && G.isValidGitSha('1234567') && G.isValidGitSha('a'.repeat(40)) && !G.isValidGitSha(hackOption) && !G.isValidGitSha('123456'));
 
   rmSync(tmp, { recursive: true, force: true });
@@ -205,7 +205,7 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const cas = fx('schema-drift.cassette.json');
   const r = await G.collectGithubPrFacts('Xxx91n', 'env-manager', { env: { GITHUB_TOKEN: 'T' }, ghTokenProbe: noGh, fetcher: cassetteFetcher(cas, []) }, CTX);
   const drift = byMetric(r.facts, 'github_rest.schema_drift');
-  check('S1 漂移行显式报（2 条 schema_drift）', drift.length === 2, 'got ' + drift.length);
+  check('S1 漂移行明确报（2 条 schema_drift）', drift.length === 2, 'got ' + drift.length);
   check('S2 漂移事实列缺失字段（user / head.sha）', drift.some((f) => val(f).missing.join(',').includes('user')) && drift.some((f) => val(f).missing.join(',').includes('head.sha')));
   check('S3 好行照出不假阳性（#64 summary 在）', byMetric(r.facts, 'github_rest.pr_summary').length === 1);
   const run = val(byMetric(r.facts, 'github_rest.run')[0]);
@@ -229,20 +229,20 @@ check('E2 https URL → ok', G.parseGithubRepoRef('https://github.com/Xxx91n/env
 check('E3 .git 尾缀 → ok', G.parseGithubRepoRef('https://github.com/Xxx91n/env-manager.git').ok === true);
 check('E4 git@ URL → ok', G.parseGithubRepoRef('git@github.com:Xxx91n/env-manager.git').ok === true);
 const ng = G.parseGithubRepoRef('https://gitlab.com/a/b');
-check('E5 非 github 托管显式拒', ng.ok === false && /unsupported/.test(ng.reason));
+check('E5 非 github 托管明确拒', ng.ok === false && /unsupported/.test(ng.reason));
 
 // --- K 常量钉死 ---
 check('K1 X-GitHub-Api-Version pin=2022-11-28', G.GITHUB_API_VERSION === '2022-11-28');
 check('K2 adapter id + family', G.GITHUB_REST_ADAPTER_ID === 'github-rest-adapter@v1' && G.GITHUB_REST_FAMILY === 'upstream-github-rest');
 check('K3 planned 面登记（review/comment 不入最小集）', G.GITHUB_REST_PLANNED_SURFACES.includes('pulls.reviews') && G.GITHUB_REST_PLANNED_SURFACES.includes('pulls.comments'));
 
-// --- L live opt-in 凭据腿（#72/D-080③：凭据缺席环境显式报告 SKIPPED 不算 PASS——防假绿） ---
+// --- L live opt-in 凭据腿（#72/D-080③：凭据缺席环境明确报告 SKIPPED 不算 PASS——防假绿） ---
 {
   const probe = G.resolveGithubCredential(process.env, G.probeGhAuthToken);
   if (probe.strategy === 'env-token' || probe.strategy === 'gh-token') {
     check('L1 live 凭据解析（真 token 在位——opt-in 门实走；不打网络只验门）', (probe.token || '').length > 10);
   } else {
-    console.log('SKIPPED L1 live 凭据腿——无 GITHUB_TOKEN 且 gh auth token 缺席（opt-in 缺位显式报告不算 PASS；strategy=' + probe.strategy + '）');
+    console.log('SKIPPED L1 live 凭据腿——无 GITHUB_TOKEN 且 gh auth token 缺席（opt-in 缺位明确报告不算 PASS；strategy=' + probe.strategy + '）');
   }
 }
 

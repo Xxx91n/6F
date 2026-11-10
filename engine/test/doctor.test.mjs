@@ -1,4 +1,4 @@
-// doctor.test.mjs — #62/D-059③ 运行时 doctor 探测测试（结构化输出＋三腿 probe＋失败非静默）
+// doctor.test.mjs — #62/D-059③ 运行时 doctor 探测测试（结构化输出＋三腿 probe＋失败非悄悄忽略）
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,10 +14,10 @@ const err = r.stderr || '';
 let doc = null;
 try { doc = JSON.parse(out.split('\n').filter(function (l) { return l.startsWith('{'); }).pop() || 'null'); } catch (e) { /* parse fail */ }
 
-check('D1 stdout 结构化 JSON 可解析（探测失败非静默）', doc && doc.doctor === '1.0.0', out.slice(0, 120));
+check('D1 stdout 结构化 JSON 可解析（探测失败非悄悄忽略）', doc && doc.doctor === '1.0.0', out.slice(0, 120));
 check('D2 三腿 probe 全在（duckdb/git/upstream）', doc && ['duckdb', 'git', 'upstream'].every(function (l) { return doc.legs.some(function (x) { return x.leg === l; }); }), doc ? doc.legs.map(function (x) { return x.leg; }).join(',') : 'no-doc');
 check('D3 status 枚举闭集（ok/degraded/fail）', doc && doc.legs.every(function (x) { return ['ok', 'degraded', 'fail'].indexOf(x.status) >= 0; }) && ['ok', 'degraded', 'fail'].indexOf(doc.overall) >= 0);
-check('D4 每腿 detail 非空（结构化报告非静默）', doc && doc.legs.every(function (x) { return typeof x.detail === 'string' && x.detail.length > 0; }));
+check('D4 每腿 detail 非空（结构化报告非悄悄忽略）', doc && doc.legs.every(function (x) { return typeof x.detail === 'string' && x.detail.length > 0; }));
 check('D5 overall=最差腿聚合', doc && doc.overall === (doc.legs.some(function (x) { return x.status === 'fail'; }) ? 'fail' : doc.legs.some(function (x) { return x.status === 'degraded'; }) ? 'degraded' : 'ok'));
 check('D6 exit 码语义（fail→1 否则 0）', (doc && doc.overall === 'fail') ? r.status === 1 : r.status === 0, 'exit=' + r.status);
 check('D7 git 腿实测 ok（本机 git 在）', doc && doc.legs.find(function (x) { return x.leg === 'git'; }).status === 'ok', doc ? JSON.stringify(doc.legs.find(function (x) { return x.leg === 'git'; })) : '');

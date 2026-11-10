@@ -1,4 +1,4 @@
-// 87-check.mjs —— #31 registry 可执行引用一致性守卫（ADR-0027／spec #38）
+// 87-check.mjs —— #31 registry 可执行引用一致性守卫（spec #38）
 // 断言面：A 策略面（meta.reference_resolution 齐备＋解析根实存）→ B 抽取规则自证（路径/裸名/_lib 命中，
 //   通配与占位不抽取）→ C 全量对账（每条 .mjs 引用可解析，或逐条登记 historical）→ D 反向对账
 //   （historical 必须仍被引用、必须不可解析、kind 与 reason 齐备且家族匹配）→ E 消费面活性
@@ -12,7 +12,7 @@ import { dirname, join, isAbsolute, relative } from 'node:path';
 
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
-const PROTECTED_SURFACE = '#31 registry 可执行引用一致性（ADR-0027）——.mjs 引用可解析或逐条 historical';
+const PROTECTED_SURFACE = '#31 registry 可执行引用一致性——.mjs 引用可解析或逐条 historical';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
@@ -124,7 +124,7 @@ const historical = (policy && policy.historical) || {};
 const violations = classify(refsAll, historical, function (r) { return resolveRef(r, roots); });
 const liveRefs = [...refsAll.keys()].filter(function (r) { return resolveRef(r, roots); });
 t('C1 每条 .mjs 引用可解析，或逐条登记 historical（零未登记死引用；含 historical reason 内替代指针）', violations.length === 0, violations.join(' ;; '));
-t('C2 对账面非空（refs>0 且 live>0——historical 清零属收敛态，不判红）', refsAll.size > 0 && liveRefs.length > 0,
+t('C2 对账面非空（refs>0 且 live>0——historical 清零属收敛态，不判失败）', refsAll.size > 0 && liveRefs.length > 0,
   'refs=' + refsAll.size + ' live=' + liveRefs.length + ' historical=' + Object.keys(historical).length);
 
 // ---------- D. 反向对账 ----------

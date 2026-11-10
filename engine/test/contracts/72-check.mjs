@@ -1,7 +1,7 @@
 // #72 守卫——github-rest 接线票·批2（D-080③ sibling 次票；GitHub REST+env token 主路的最小契约边界）
 // ① opt-in 注册：UPSTREAM_COLLECTOR_REGISTRY 含 github-rest-adapter@v1（registered，opt_in=token+network）
-//    ＋skipped 语义字段在——凭据缺席环境显式报告 skipped 不算 PASS（D-080③ 防假绿）
-// ② 凭据三级探测保真（env token→gh auth token→unauthenticated 显式降级——本地默认/URL opt-in 的输入纪律）
+//    ＋skipped 语义字段在——凭据缺席环境明确报告 skipped 不算 PASS（D-080③ 防假绿）
+// ② 凭据三级探测保真（env token→gh auth token→unauthenticated 明确降级——本地默认/URL opt-in 的输入纪律）
 //    ＋token 不进 facts/logs（cassette 断言面已锁——复述守卫不重复断言语义只查机制在位）
 // ③ §② github-rest 表行 ⇔ 常量逐行对账：pr_summary→S4／merge lead time→S4 仅人类 PR／
 //    Bot 占比→S5 平台声明措辞锁／review 覆盖→pending(event_bound) 非双挂二选一／
@@ -9,7 +9,7 @@
 // ④ event_bound 消费：review-coverage lane=pending-event_bound＋33-check H2 一致性镜像断言
 //    （pulls.reviews 在 PLANNED_SURFACES ⇔ pending 态——激活则两断言同翻，D-081③）
 // ⑤ golden/cassette 对账：5 cassette 覆盖认证/降级/限流/schema 漂移/平台声明 Bot 五面＋
-//    github-rest.test.mjs 实跑绿＋skipped 显式报告路径在（无 token 不产假绿）
+//    github-rest.test.mjs 实跑绿＋skipped 明确报告路径在（无 token 不产假绿）
 // ⑥ descriptor dimension:null 保留＋适配器不产维度事实（防腐层禁业务语义——A14 镜像）
 // 用法：node 72-check.mjs → 逐条 PASS/FAIL；exit 0=结构完整，exit 1=有 FAIL
 import fs from 'node:fs';
@@ -18,7 +18,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
-const PROTECTED_SURFACE = '#72 守卫——github-rest 接线票·批2（D-080③ sibling 次票／ADR-0020 最小契约边界）';
+const PROTECTED_SURFACE = '#72 守卫——github-rest 接线票·批2（D-080③ sibling 次票／最小契约边界）';
 
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -42,9 +42,9 @@ const reg = M ? M.UPSTREAM_COLLECTOR_REGISTRY : [];
 const ghReg = reg.find(x => x.descriptor && x.descriptor.id === 'github-rest-adapter@v1');
 t('A1 github-rest descriptor opt-in 注册（registered=true＋opt_in=token+network）',
   !!ghReg && ghReg.registered === true && ghReg.opt_in === 'token+network', '');
-t('A2 skipped 语义字段在且含「显式报告 skipped 不算 PASS」口径（D-080③ 防假绿）',
+t('A2 skipped 语义字段在且含「明确报告 skipped 不算 PASS」规则（D-080③ 防假绿）',
   !!ghReg && /skipped/.test(ghReg.skipped_semantics) && /不算 PASS|非绿|降级/.test(ghReg.skipped_semantics), ghReg ? ghReg.skipped_semantics.slice(0, 60) : 'reg-missing');
-t('A3 凭据三级探测机制在（env token→gh auth token→unauthenticated 显式降级——ADR-0009 opt-in 纪律）',
+t('A3 凭据三级探测机制在（env token→gh auth token→unauthenticated 明确降级——opt-in 纪律）',
   ghSrc.indexOf('process.env') >= 0 && ghSrc.indexOf('gh auth token') >= 0 && ghSrc.indexOf('unauthenticated') >= 0, '');
 
 // ---------- B. §② github-rest 表行 ⇔ 常量逐行对账 ----------
@@ -79,7 +79,7 @@ t('C1 pulls.reviews 在 PLANNED_SURFACES ⇔ review-coverage 仍 pending（激�
 t('C2 registry 事件锚在且 occurred=false（面激活前——33-check H 组镜像，激活后由 H2 执哨）',
   !!evH && evH.occurred === false, evH ? 'occurred=' + evH.occurred : 'event-missing');
 
-// ---------- D. golden/cassette 对账＋skipped 显式路径 ----------
+// ---------- D. golden/cassette 对账＋skipped 明确路径 ----------
 const fxDir = join(ENG, 'test', 'fixtures', 'github-rest');
 const cassettes = fs.existsSync(fxDir) ? fs.readdirSync(fxDir).filter(f => f.endsWith('.cassette.json')) : [];
 const CASSETTE_WANT = ['authenticated', 'platform-bot', 'rate-limit-exhausted', 'schema-drift', 'unauthenticated-degraded'];
@@ -93,7 +93,7 @@ t('D3 cassette 契约测试实跑绿（' + ((tr.stdout || '').match(/GH-REST-TES
   tr.status === 0, (tr.stderr || '').slice(0, 120));
 
 // ---------- E. descriptor dimension:null 保留＋防腐层无 S 维字样 ----------
-t('E1 github-rest descriptor dimension:null 保留（注册不改写——ADR-0014）',
+t('E1 github-rest descriptor dimension:null 保留（注册不改写）',
   !!ghReg && ghReg.descriptor.dimension === null && ghSrc.indexOf('dimension: null') >= 0, '');
 t('E2 适配器文件无 S1-S5 字样（映射=业务语义禁入防腐层——44-check A14 镜像）',
   !/\bS[1-5]\b/.test(ghSrc), '');

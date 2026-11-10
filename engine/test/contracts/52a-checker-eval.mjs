@@ -2,7 +2,7 @@
 // 被测件=dist 的 checkAllCitations（presence 判定）+ scanBandViolations（band 红线机检）。
 // 指标面：分类别 TP/FP/TN/FN＋precision/recall/F1（supports 类）＋FP/FN 分型（CiteEval：presence≠support）；
 //   band-leak 检出率（每模式＋总体＋干净对照假阳率）；κ 基线三报——checker-vs-gold κ（全集＋非对抗子集）
-//   ＋intra-rater κ（gold vs gold_b 双标子集=human-human 天花板替代位，单人二轮口径如实披露）
+//   ＋intra-rater κ（gold vs gold_b 双标子集=human-human 天花板替代位，单人二轮规则如实披露）
 //   ＋raw agreement＋bootstrap CI（2000 resample，种子 PRNG 确定性）。
 // 纪律：本脚本只测不改——checker 阈值零触碰（防调参泄漏）；暴露缺陷如实入 findings，另立修复票。
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -126,7 +126,7 @@ const results = {
   kappa: {
     checker_vs_gold_all: { kappa: kAll.kappa, raw_agreement: kAll.po, pe: kAll.pe, ci95: ciAll.ci95, n: pairsAll.length },
     checker_vs_gold_non_adversarial: { kappa: kNonAdv.kappa, raw_agreement: kNonAdv.po, pe: kNonAdv.pe, n: pairsNonAdv.length },
-    intra_rater_subset: { kappa: kRater.kappa, raw_agreement: kRater.po, pe: kRater.pe, ci95: ciRater.ci95, n: pairsRater.length, note: '单人二轮独立标注口径——inter-rater 天花板在合成语料退化为构造确定性，此值=标定一致性下限参考' }
+    intra_rater_subset: { kappa: kRater.kappa, raw_agreement: kRater.po, pe: kRater.pe, ci95: ciRater.ci95, n: pairsRater.length, note: '单人二轮独立标注规则——inter-rater 天花板在合成语料变成构造确定性，此值=标定一致性下限参考' }
   },
   band_leak: {
     injected: bandLeak.length, detected: bandDetect, detection_rate: bandLeak.length ? bandDetect / bandLeak.length : null,

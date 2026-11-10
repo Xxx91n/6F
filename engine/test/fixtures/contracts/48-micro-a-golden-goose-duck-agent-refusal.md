@@ -1,12 +1,12 @@
 # MA-48-GOOSEDUCKAGENT-REFUSAL — Micro-A 首报（Xxx91n/goose-duck-agent）
-> RECEIPT RCP-47855f19017680f3 chain=47855f19017680f3e1d59a20ec64b18f content=abcc5d4877749285 facts=3 adjudications=2 issued_at=1970-01-01T00:00:00.000Z commit=unanchored-no-local-clone tree=unanchored
+> RECEIPT RCP-fb360de1fdc171ae chain=fb360de1fdc171ae7301a7aa5d5c5871 content=a47e6a82a47bf6e9 facts=3 adjudications=2 issued_at=1970-01-01T00:00:00.000Z commit=unanchored-no-local-clone tree=unanchored
 >
 > 骨架 1.2.0（章顺序锁定，ADR-0006）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
 >
 > 披露块（preview 标注诚实 = 决策本体，ADR-0017；机器可读字段见侧车 preview_disclosure）
 > - capability: capability 3 of 5 · preview
 > - calibration_scope: 托管面资格闸拒绝件（failure 演示面）
-> - structural_limitations: golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计；拒绝语义：intake 阶段显式拒绝（D-033 硬约束逆用）——报告落 unsupported: 无托管 PR 面＋原因＋前置条件；票面前提漂移如实登记：anysearch-cli 票面撰写时无托管面（#37 实测 github_pr_total=0），本票复核托管枚举 merged=null——前提已漂移，failure 演示主体改取真负例 goose-duck-agent（merged=0）；适配器硬化面已落 engine 一等面（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts
+> - structural_limitations: golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计；拒绝语义：intake 阶段明确拒绝（D-033 硬约束逆用）——报告落 unsupported: 无托管 PR 面＋原因＋前置条件；票面前提漂移如实登记：anysearch-cli 票面撰写时无托管面（#37 实测 github_pr_total=0），本票复核托管枚举 merged=null——前提已漂移，failure 演示主体改取真负例 goose-duck-agent（merged=0）；适配器硬化面已落 engine 正式入口（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts
 > - not_in_preview: Macro-A
 
 ## C1 执行摘要
@@ -19,7 +19,7 @@
 - correlation_key: trace_id=4c10f5412bafacc93d38ceb90994f2cd baggage_id=c342b8667e33736f5332cb6600b26929
 - overall_verdict: unsupported
 - confidence: 0.9
-- headline: goose-duck-agent Micro-A preview 拒绝件：托管枚举 merged PR=0——无托管 PR 面，intake 显式拒绝（unsupported；非管线故障，枚举真实发生）
+- headline: goose-duck-agent Micro-A preview 拒绝件：托管枚举 merged PR=0——无托管 PR 面，intake 明确拒绝（unsupported；非管线故障，枚举真实发生）
 - degraded_mode: false
 - stale_data_marker: fresh（SLA 5s / 实测延迟 0s）
 - read_model_version: 1.2.0 · fact_watermark_version: 1
@@ -60,7 +60,7 @@
 - protocol_version: ADR-0013-C/v1
 - overall: unsupported · decided_at: 1970-01-01T00:00:00.000Z
 - PC-1: supported | basis=B1 | facts=dcefc237-7de8-4243-1941-365bddbbf7a4 | evidence=EV-48-GOOSEDUCKAGENT-REF-01 | 适配器 run 事实在案：calls=1 strategy=unauthenticated（枚举真实发生——拒绝非管线故障）
-- TC-4: unsupported | basis=B2 | facts=(none) | evidence=EV-48-GOOSEDUCKAGENT-REF-01 | 托管面资格闸未过：goose-duck-agent 托管枚举 merged PR=0 → intake 显式拒绝（D-033 硬约束逆用）。原因=无托管 PR 面（无可裁 PR 对象）；前置条件=仓接入托管 PR 流程且产出 ≥1 merged PR 后再复审
+- TC-4: unsupported | basis=B2 | facts=(none) | evidence=EV-48-GOOSEDUCKAGENT-REF-01 | 托管面资格闸未过：goose-duck-agent 托管枚举 merged PR=0 → intake 明确拒绝（D-033 硬约束逆用）。原因=无托管 PR 面（无可裁 PR 对象）；前置条件=仓接入托管 PR 流程且产出 ≥1 merged PR 后再复审
 - human_adjudication: pending（裁定仍由人做，见 B5）
 
 ## C3 证据

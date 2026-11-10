@@ -75,7 +75,7 @@ t('D6 输出契约 JSON 段集＋band 红线明文＋三态 stamp', rt.includes(
 // ---------- E. registry + 文档 ----------
 const reg = JSON.parse(txt(join(REPO,'engine','test','fixtures','contracts','33-gate-registry.json')));
 t('E1 narrative-surface-landed occurred=true', reg.events['narrative-surface-landed'].occurred === true);
-sealed('E2', 'ap-50-e2', 'registry 时点钉——narrative-eval-surface status 滚回 pending 属值守生命周期正常演进');
+sealed('E2', 'ap-50-e2', 'registry 时点钉——narrative-eval-surface status 滚回 pending 属定期检查生命周期正常演进');
 sealed('E3', 'ap-50-e3', 'BACKLOG 行格式换代（#52 拆 #52a/#52b）——验收时点行在证明 fired');
 t('E7 engine CHANGELOG 含 #50 条目', txt(join(ENG, 'CHANGELOG.md')).includes('#50'));
 t('E8 50-report.md 六段齐备', existsSync(join(REPO,'engine','test','fixtures','contracts','50-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every(function (x) { return txt(join(REPO,'engine','test','fixtures','contracts','50-report.md')).indexOf(x) >= 0; }));
