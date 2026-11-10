@@ -335,6 +335,15 @@ if (groupProbe('85-check', 'B', DEPS_B)) {
     && md.indexOf('reproduce_cmd: macro-audit audit <repo> --scale Macro-C --out <dir>') >= 0
     && ABS_PATH_RE.test(ABS_PROBE_CTRL),
     'md_hit=' + ABS_PATH_RE.test(md) + ' json_hit=' + ABS_PATH_RE.test(sideRaw) + ' placeholder=' + (md.indexOf('reproduce_cmd: macro-audit audit <repo>') >= 0) + ' probe=' + ABS_PATH_RE.test(ABS_PROBE_CTRL));
+  // B9 tracker #195：本仓的替代关系要能被机器看见——ADR-0028 的 Supersedes 标记＋authority §3 历史号 → TC-MC-1 转 supported。
+  // 直接跑本守卫能看到读数行；contracts-run 只回显尾部两行，CI 汇总里看不到（PASS 时 t() 也不回显 detail）。
+  const bandsB = {};
+  for (const e of (side && Array.isArray(side.adjudication.entries) ? side.adjudication.entries : [])) { bandsB[e.criterion_id] = e.band; }
+  const chainB = (meas && meas.supersede_chain) || null;
+  console.log('B9-CHAIN edge=' + (chainB ? chainB.edge_count : 'absent') + ' unresolved=' + (chainB ? chainB.unresolved_refs.length : 'absent') + ' missing=' + (chainB ? chainB.missing_backrefs.length : 'absent') + ' TC-MC-1=' + (bandsB['TC-MC-1'] || 'absent'));
+  t('B9 本仓自审替代链：edge_count>=1＋断链 0＋缺回链 0＋TC-MC-1=supported（tracker #195）',
+    !!chainB && chainB.edge_count >= 1 && chainB.unresolved_refs.length === 0 && chainB.missing_backrefs.length === 0 && bandsB['TC-MC-1'] === 'supported',
+    JSON.stringify({ e: chainB && chainB.edge_count, u: chainB && chainB.unresolved_refs.length, m: chainB && chainB.missing_backrefs.length, band: bandsB['TC-MC-1'] }));
   try { rmSync(tmpB, { recursive: true, force: true }); } catch (e) { }
 }
 
@@ -411,7 +420,8 @@ if (BUNDLE_HEAD_OK && BUNDLE_VERIFY && groupProbe('85-check', 'C', DEPS_C)) {
   const adrDateMapO = {};
   for (const f of adrFactsO) { if (f.metric === 'adr.decision_date') { const v = JSON.parse(f.value_json); if (v.date) { adrDateMapO[f.subject_ref] = String(v.date).slice(0, 10); } } }
   const gitFactsO = COL.collectGitlog({ commits: commits, paths: adrDocsO.map(function (d) { return d.path; }), adrDates: adrDateMapO }, oCtx);
-  // supersede 链（38 §4 逐行镜像——非 macro-c.ts 导出复用，独立性=编排层）
+  // supersede 链（38 §4 逐行镜像——非 macro-c.ts 导出复用，独立性=编排层；tracker #195 起两边同认带冒号的
+  // Supersedes 写法。历史号解析只加在引擎侧：tracker #195 之后基准仓没有 docs/authority.md，两边取值仍全等）
   const adrsO = [];
   for (const d of adrDocsO) {
     const num = d.path.split('/').pop().match(/^(\d+)/)[1];
@@ -420,7 +430,7 @@ if (BUNDLE_HEAD_OK && BUNDLE_VERIFY && groupProbe('85-check', 'C', DEPS_C)) {
     const wholeTo = (statusLine.match(/superseded\s+by\s+ADR-?(\d{3,})/i) || [])[1] || null;
     const inlineRefs = [];
     text.split('\n').forEach(function (line, i) {
-      const sm = line.match(/superseded\s+by\s+ADR-?(\d{3,})/i) || line.match(/supersedes?\s+ADR-?(\d{3,})/i);
+      const sm = line.match(/superseded\s+by\s+ADR-?(\d{3,})/i) || line.match(/supersedes?\s*[:：]\s*ADR-?(\d{3,})/i) || line.match(/supersedes?\s+ADR-?(\d{3,})/i);
       if (sm && !/^\s*[-*]?\s*status\s*[:：]/i.test(line)) { const negated = /(does not|do not|not a|no longer|never)\s+supersede/i.test(line); inlineRefs.push({ line: i + 1, to: sm[1], negated: negated }); }
     });
     const amends = [], refs = [], defers = [];
