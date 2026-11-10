@@ -110,7 +110,7 @@ for (const ch of G.REPORT_SKELETON) {
 check('A4', mdHappy.indexOf('RECEIPT ' + carHappy.receipt.receipt_id) >= 0 && carHappy.receipt.chain_hash.length === 64, 'Receipt 印记存在：' + carHappy.receipt.receipt_id + ' / chain 64 hex');
 check('A5', carHappy.evidence.length > 0 && carHappy.evidence.every(function (e) { return e.evidence_id && e.source && e.locator; }), '每条证据含可解析引文锚（evidence_id + source + locator）：' + carHappy.evidence.length + ' 条');
 
-// 旧 ADR 正文已随 #171 删除，但冻结首报里的引文仍要逐字可查。按 docs/authority.md §3
+// 旧 ADR 正文已随 tracker #171 删除，但冻结首报里的引文仍要逐字可查。按 docs/authority.md §3
 // 记的同一套回查办法，从删除提交的父提交取回最后一份正文；不把「路径已删」当成引文失配。
 function readCitationSource(src) {
   const local = join(REPO, src.replace(/^\.scratch\/architecture-recovery\/reports\//, 'engine/test/fixtures/contracts/'));
