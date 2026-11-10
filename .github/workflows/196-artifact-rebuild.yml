@@ -1,0 +1,45 @@
+name: 196-artifact-rebuild
+# Temporary helper for tracker #196: build dist + regenerate demo golden on a clean
+# ubuntu/Node 24 runner, then upload both as one artifact. This workflow is removed
+# before the ticket branch is finished; it never writes back to the repository.
+on:
+  push:
+    branches:
+      - 196-rebuild-dist-golden
+permissions:
+  contents: read
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0 (node24)
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0 (node24)
+        with:
+          node-version: 24
+      - name: install
+        working-directory: engine
+        run: npm ci
+      - name: gen
+        working-directory: engine
+        run: npm run gen
+      - name: build
+        working-directory: engine
+        run: npm run build
+      - name: demo golden
+        working-directory: engine
+        run: node scripts/gen-demo-golden.mjs
+      - name: show drift
+        shell: bash
+        run: |
+          git status --porcelain
+          node engine/scripts/check-dist.mjs
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 (node24)
+        with:
+          name: rebuilt-196
+          path: |
+            engine/dist
+            engine/fixtures/golden
+          retention-days: 7
