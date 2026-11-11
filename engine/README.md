@@ -18,7 +18,7 @@
 - npm test         # gen + build + smoke
 - npm run selftest       # 5 项自检（等同 node dist/cli.js selftest）
 - npm run demo:golden  # demo 三个场景的 golden 逐字节比对（definitions 改了要走 PR，规矩同前）
-- npm run check:docs   # 文档自检（生成的清单和索引跟仓里的是不是一致、各处指针有没有断，具体怎么查看脚本本身）
+- npm run check:docs   # 文档只读检查（生成的清单和索引跟仓里的一致不一致、各处指针有没有断；具体查什么看脚本本身）
 
 ## 命令行有哪些命令
 - `macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine]` —— 主审计命令（#53/D-060）：对真实仓库做审计。流程是先用 repoAdd 判断输入（本地路径默认可用 / owner-repo 先找本地 / URL 要明确同意），再走共享管线（`src/audit/macro-b.ts` 的策略部分 + codelore 的行为部分，和 demo 用同一套；`src/audit/macro-c.ts` 是 Macro-C 历史演化部分——#84/D-204②④，移植 38 管线，再用 anysearch-cli 的原始语料重新校对并核对；`src/audit/micro-a.ts` 是 Micro-A PR 部分——#85②/D-204③④，移植 48 管线），最后产出按报告模板生成的报告和 facts.duckdb。

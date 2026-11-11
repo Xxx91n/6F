@@ -44,7 +44,7 @@
 | `engine/dist/**` | `npm run build`（tsc 逐文件输出保留注释，所以**只改 `engine/src` 的注释也会动 dist**；`dist/cli.js` 另经 esbuild 压缩） | engine-ci 的 rebuild-diff 步（`DIST-DRIFT`）。`check-dist.mjs` 只管 `dist/cli.js` 的**体积只紧不松的限制**，不查内容有没有变 |
 | `docs/adr/README.md` | `npm run gen`（`gen-adr-index.mjs`，没有只读模式，跑就写） | docs-ci 的 `adr-index drift guard (docs/adr/README.md regenerated == committed)` 步（tracker #97）：`npm --prefix engine run gen` 后先查 `git ls-files --error-unmatch` 确认是 tracked、再 `git diff --exit-code` 逐字节核对——手改索引或新增 ADR 忘了 regen 就报错；复用同一条 gen 链，不建第二套 |
 | `engine/plugin.json`、`.claude-plugin/plugin.json`、`.mcp.json` | `npm run gen`（`gen-manifests.mjs` 先比后写） | 生成器自己：发现对不上就 `GEN-FAIL`，`npm run gen` 当场报错 |
-| README 双语对的致谢段 | `node scripts/gen-acknowledgments.mjs`（写两个文件；中文 README 开头如果有 `<!-- sync: … -->` 这个同步标记就刷新，没有就不加） | `gen-acknowledgments.mjs --check`（对不上就报错） |
+| README 双语对的致谢段 | `node scripts/gen-acknowledgments.mjs`（写双文件；zh 头如果有 `<!-- sync: … -->` 戳就刷新，没有就不加） | `gen-acknowledgments.mjs --check`（对不上就报错） |
 | `engine/test/fixtures/contracts/48-micro-a-golden-*`（在册**十二件**） | `node engine/test/contracts/48-micro-a-preview.mjs --golden --out engine/test/fixtures/contracts`（cassette 离线回放，结果固定，能重算；实写十二件。**必须全量检出**：浅克隆时锚会落 `degraded:shallow-clone`，写进存档会被 B9 报错；**重生成必须用 `SOURCE_DATE_EPOCH=0`**——检查脚本的子进程已经固定写 0，外部设了别的值只影响人手重生成） | `48-check.mjs` 的 B 组：凡是匹配 `48-micro-a-golden-*` 的在册件，一律和 `--golden` 现跑产物**逐字节核对**——清单、入库、现跑三个集合不等，或任一字节不同，就报错并点名该件；另带篡改、判据锚全值、锚宽三类对照，防止检查脚本变成永远为真。件内 `prereg_commit` 在 golden 模式下只收判据锚的**固定前 8 位**（先固定 `core.abbrev` 下限，挡住小检出 emit 7 位，再把因歧义加宽的 hex 截首 8 位——`%h` 的宽度随检出对象集变，不能直接入库），实际运行仍用 `%h` 原值。`85-check` E1~E9 是**跨实现逐值核对**（引擎侧 vs 生成器存档），范围只有 pr64／pr51 两件 JSON 侧车：六判据 band、那部分数值字段、fact_ids、overall_verdict、structural_limitations 两件都比，capability_label 与 not_in_preview 只比 pr64；它和上面的逐字节核对不能互相替代（十二件全量报错的是本行的 `48-check` B 组）。CI 不回写，golden 更新随 PR 审查（同 `golden-ci.yml` 的快照规则 D-030③） |
 
 文档只读检查：`cd engine && npm run check:docs`。
@@ -57,7 +57,7 @@
 - **新决定不再用 `D-NNN` / `A-NNN`**：产品决定写进 `docs/spec.md` 的 `R<n>-<m>` 条，架构决定写 `ADR-NNNN`。旧编号只作历史引用，不加新号。
   `ADR-0025` 原文写的是「改用 ADR 号或 spec A-code」——spec 现在用 `R<n>-<m>`，`A-NNN` 已经不再新增，所以这里按实际写法定。
 - 现行文本（代码注释、workflow 注释、门面文书）里不再保留旧 ADR 号，看到旧 ADR 号只能当历史，不能当现在还在用的位置；`D-NNN` / `A-NNN` / 旧票号的存量注释照旧保留，不改写（见下面「号码会撞」一条）。旧 ADR 号允许出现的地方 = 下面这个块列出的三处历史件和两个说明处；`docs/archive/` 按 §2 的历史查询面原样保留，检查脚本整目录不扫。按字节冻结的记录和冻住的存档可以保留原始现场（包括本机绝对路径），前提是归档处写明这是历史产物。
-- 两个固定名字不算旧号引用，原样保留：`ADR-NNNN-C/vN` 是裁决协议和报告叙事固定格式的版本串，schema 字段里的 `inherits:` 值是「这一列从哪份旧决定继承」的历史标签。只放行这两个形状，普通注释里的旧号照旧算死引用。
+- 两个固定名字不算旧号引用，原样保留：`ADR-NNNN-C/vN` 是裁决协议和报告叙事的盖章格式版本串，schema 字段里的 `inherits:` 值是「这一列从哪份旧决定继承」的历史标签。只放行这两个形状，普通注释里的旧号照旧算死引用。
 - `CONTEXT.md` 已经退役（`6626d08d` 删除），术语看 [`GLOSSARY.md`](../GLOSSARY.md)；历史文书（包括 ADR 正文和记录行）里提到 `CONTEXT.md` 的地方按历史编号读，不当现行位置。
 - **号码会撞**：GitHub issue/PR 和旧 BACKLOG 票号共用同一串号——旧 BACKLOG 覆盖 `#32`–`#94`，GitHub 号只增不减，两段重叠。新写的按 [`docs/spec.md`](spec.md) R8 的规则把 GitHub 引用写成 `tracker #N`；历史文本里的裸 `#NN`（代码注释、`NN-check` 脚本名、记录行）按 [`ticket-index.md` §撞号警示](archive/decisions/ticket-index.md#撞号警示) 分清，不要改写。
 - **旧 ADR 号是第四类历史编号**：`ADR-0001`–`ADR-0027` 只减不增；24 份正文已经删掉，正文只在 git 历史里，不再当现行位置；现行架构决定从 `ADR-0028` 起算。查法是先 `git log --diff-filter=D --name-only -- docs/adr` 找到删除提交，再 `git show <删除提交>^:docs/adr/<文件名>` 取回原文；完整的来龙去脉见 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
