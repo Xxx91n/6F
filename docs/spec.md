@@ -531,7 +531,7 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 
 ## R10 — 全仓大白话收尾（2026-11-11 grill 补记，tracker #200）
 
-> 本段接在 R9 后面，只记这一轮新定的事。上一轮的范围、人审办法和「黑话清单不加扫词脚本」沿用 tracker #148 的 spec，本段不重抄；具体怎么验收、扫词脚本这一条怎么定，见 R10-6。
+> 本段接在 R9 后面，只记这一轮新定的事。上一轮（tracker #148）的做法本轮沿用，本段不重抄。
 > 来源只写这几类：工单（一律写 `tracker #N`）、commit、现行文件；本段不加新的 D 编号，也不新增 ADR 编号。
 
 ### R10-1 — 这轮清什么
@@ -566,36 +566,35 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 ### R10-5 — 真会被读的登记表里的说明
 
 - [`engine/test/fixtures/contracts/33-gate-registry.json`](../engine/test/fixtures/contracts/33-gate-registry.json) 的 title / reason / evidence 这些说明文字要改成人话，这件事由 tracker #210 做；本段只定规矩，本段自己不动那份文件。键名、id、status、事件锚、事件成员不动。
-- 把「机器读的名字不许改」这条放宽，另开一票；本段不做。
 - 来源：tracker #200、tracker #210（这份文件的人话改造在那张票做）。
 
 ### R10-6 — 验收
 
-- 人读为准，用三份真材料当尺子：[`README.zh-CN.md`](../README.zh-CN.md)、本文件的 R1–R7、[`docs/upstream-dimension-map.md`](upstream-dimension-map.md)。用户读完说「懂了」才算过。
+- 人读为准，用三份真材料当尺子：[`README.zh-CN.md`](../README.zh-CN.md)、本文件的 R1–R7、[`docs/upstream-dimension-map.md`](upstream-dimension-map.md)。用户读完说「懂了」才算过。这三份里的旧叫法要等 tracker #203–#209 清完才换得到位，现在拿来看结构就行。
 - 人审按 tracker #148 的办法：一次交一份文件，给绝对路径和「原文 → 改后」清单；超长文件按章节分两三次交。
 - `check:docs` 和 `npm test` 在提交前各跑一遍，只当「别把链接、号、生成物弄坏」的保险；被脚本按字面钉住的字原样保留：`进入条件`、`永久排除`、`S5 ↔ S4`、`capability 1 of 5 · preview`、`capability 2 of 5 · preview`、`capability 3 of 5 · preview`、`capability 4 of 5 · preview`、`已接入（active`、`规划中（planned`、`GAP-078-01`、`解析失败` 等。
-- 不加扫词脚本（沿用 tracker #148 的决定）。
-- 来源：tracker #200、tracker #148（人审办法和「不加扫词脚本」这两条都是它定的）。
+- 不加扫词脚本，这是 tracker #148 定下的，本轮照旧。
+- 来源：tracker #200、tracker #148。
 
 ### R10-7 — 不在这轮里
 
-- 报告正文里印出来的存量中文（「摄入」「披露块」等）另开一票；改了要重算 demo golden。
-- 放宽机器名规矩另开一票。这两张另票都还没开，开了再补 `tracker #N`。
+- 报告正文里印出来的存量中文（「摄入」「披露块」等）另开一票，这票是 `tracker #211`；改了要重算 demo golden。
+- 放宽机器名规矩另开一票，这票是 `tracker #212`。两张都还只是开着，没做完。
 - 冻住的存档、生成物、机器名、键名不动；`examples/first-report` 四件报告一个字节不改。
-- 来源：tracker #200（「不在这轮里」的清单由它列）、tracker #148（上一轮的同类边界）。
+- 来源：tracker #200（「不在这轮里」的清单由它列）、tracker #148（上一轮的同类边界）、tracker #211、tracker #212。
 
 ### R10 Coverage（核对）
 
-| tracker #200 这轮定的事 | 覆盖的 R10 条 |
+| tracker #200 摘要上的事 | 覆盖的 R10 条 |
 |---|---|
-| 清什么 | R10-1 |
-| 术语以 GLOSSARY 为准 | R10-2 |
-| 旧号退到来源行 | R10-3 |
-| 英文保持英文 | R10-4 |
-| 真会被读的登记表只清说明 | R10-5 |
-| 验收靠人读 | R10-6 |
-| 留到别的票 | R10-7 |
+| 要解决什么／想做成什么样：把 R1–R7 和其余文档、注释、英文文书的旧叫法清掉 | R10-1 |
+| 12 条改名加 3 条新增，术语表只加不减 | R10-2 |
+| 正文里的旧决定号退到每节末尾的「来源」行；spec 的覆盖表保留 | R10-3 |
+| 英文文书保持英文，用日常说法 | R10-4 |
+| 真会被读的登记表只清 title / reason / evidence，键名不动 | R10-5 |
+| 验收靠人读三份真材料 | R10-6 |
+| 报告正文存量中文、放宽机器名规矩，各另开一票 | R10-7 |
 
 - 核对：7/7 覆盖，无去向记录清单 = 空。
-- 来源：tracker #200（本轮 spec 索引，本段全部七条都由它派生）、tracker #148（上一轮 spec，范围和人审办法沿用）、[`GLOSSARY.md`](../GLOSSARY.md)、[`docs/authority.md`](authority.md)。
-- 边界：本轮不改产品承诺，不改任何机器读的名字；上一轮的人审标准和「不加扫词脚本」继续有效（见 R10-6）；本段不新增 ADR 编号、不加新的 D 编号。
+- 来源：tracker #200（本轮 spec 索引）、tracker #148（上一轮 spec）、[`GLOSSARY.md`](../GLOSSARY.md)、[`docs/authority.md`](authority.md)。
+- 边界：本轮不改产品承诺；本段不新增 ADR 编号、不加新的 D 编号。
