@@ -48,10 +48,10 @@
 | Macro-B 单仓四象限档 | **capability 1 of 5 · preview**（自己审自己的首报样例见 [examples/first-report/](examples/first-report/)）；四个象限的状态：**strategy: active**（S1+S2 的数据已经接进来了）· **behavior: preview**（CodeLore 那块的改动频次、热点、耦合读法）· **structure: preview**（S3 族看形态：`structure/shape` 这类读数只作观测，不参与判定）· **supply-chain: queued**（排队，Scorecard 不插队） |
 | Macro-C 历史演化档 | **capability 2 of 5 · preview**（单个仓库的校对说明） |
 | Micro-A PR diff | **capability 3 of 5 · preview**（数据从托管平台的取数中间层来；这层加固完，它就成了 engine 的正式入口） |
-| Micro-B 单文件档 | **capability 4 of 5 · preview**（`audit file` 出文件卡；先拿来试的是自己名下的两个仓 jiahao 和 env-manager，用来追文件改名和校对：只给建议（`advisory`），结构上跟裁决隔开，建议永远不参与判定） |
+| Micro-B 单文件档 | **capability 4 of 5 · preview**（`audit file` 出文件卡；先拿来试的是自己名下的两个仓 jiahao 和 env-manager，用来追文件改名和校对：只给建议（`advisory`），从结构上就跟判定分开，建议不会变成判定） |
 | Macro-A 跨仓战略档 | Not yet in preview |
 
-来源：#85②、D-204③④（Micro-A 产线化）、D-205（structure 面）、D-034③（Scorecard 排队）、#51（behavior 面）。
+来源：#85②、D-204③④（Micro-A 产线化）、D-205（structure 象限）、D-034③（Scorecard 排队）、#51（behavior 象限）。
 
 ## 报告长什么样 {#what-a-report-looks-like}
 
@@ -84,7 +84,7 @@ npm run selftest
 
 ![三层架构：Agent Plugin 分发层 → 事实与裁决核心层 → 上游证据层](docs/assets/architecture.svg)
 
-最外面这层（命令行、skills 外壳、MCP 接口）架在我们自己写的核心里：一张只往后加的 `audit_fact` DuckDB 事实表、五档共用的一套判定规矩（`verdict-gate`），再加一张带两处校验的回执。证据只能从取数中间层进来，上游的原始内容不出这层。
+最外面这层（命令行、skills 外壳、MCP 接口）架在我们自己写的核心里：一张只往后加的 `audit_fact` DuckDB 事实表、五档共用的一道结论检查（`verdict-gate`），再加一张带两处校验的回执。证据只能从取数中间层进来，上游的原始内容不出这层。
 
 
 ## 用到的上游 {#upstream-components}
@@ -97,7 +97,7 @@ npm run selftest
 | OpenSSF Scorecard | 供应链健康打分 | Go 库 / CLI | 库走依赖；CLI 走中间层 | hash 锁定 / 锁版本 | 规划中（planned） |
 | GitHub REST API | 改动档（Micro-A）的 PR 数据源:  列 PR、取元数据、取 diff，平台给不出就走备选，本地 git 优先 | remote-api | 中间层 + 环境变量 token 三级探测 | X-GitHub-Api-Version 固定 + golden cassette 契约 | 已接入（active） |
 
-上游进来只有两条路：主力是加一层取数中间层、外面挂外部命令或库；装成库的上游用包管理器的 lockfile 把版本和哈希钉住。把上游源码整份拷进仓里是最后手段，只在上线离线分发、或者上游已经没人维护时才用。
+上游进来只有两条路：主力是加一层取数中间层、外面挂外部命令或库；装成库的上游用包管理器的 lockfile 把版本和哈希钉住。把上游源码整份拷进仓里是最后手段，只在离线分发、或者上游已经没人维护时才用。
 
 来源：D-020（两条路接上游）。
 
@@ -106,14 +106,14 @@ npm run selftest
 
 | 归属 | 组件 |
 |---|---|
-| **我们的** | 五档共用的判定规矩（`verdict-gate`）· DuckDB 事实表结构（只往后加，加跨档关联键）· 三道验收闸（A 看形式 / B 事前写好的判据 / C 人来改机器）· 带两处校验的回执 · 事前写好的判据（2 个正对照 + 3 条真判据 + 1 个负对照） |
+| **我们的** | 五档共用的结论检查（`verdict-gate`）· DuckDB 事实表结构（只往后加，加跨档关联键）· 三道验收闸（A 看形式 / B 事前写好的判据 / C 人来改机器）· 带两处校验的回执 · 事前写好的判据（2 个正对照 + 3 条真判据 + 1 个负对照） |
 | **上游的** | DuckDB 引擎本体 · git CLI · CodeLore（已接入·只读检查）· GitHub REST API（已接入·以 REST 为主，`gh` 可选回退）· OpenSSF Scorecard（规划中） |
 
 ## 几条规矩 {#contracts}
 
 - 每路数据一律**从取数中间层**写进事实表；上游的原始内容不出这层（这层只搬数据，不放业务规则）。
 - 换掉或者升级上游**不许动事实表结构**:  结构钉死，要变只能升版本号。
-- 每个上游都钉住版本，并且配一套 golden 输出测试；把上游源码整份拷进仓里只在上线离线分发、或者上游已经没人维护时用，而且必须带 UPSTREAM 清单和 patches/ 规矩。
+- 每个上游都钉住版本，并且配一套 golden 输出测试；把上游源码整份拷进仓里只在离线分发、或者上游已经没人维护时用，而且必须带 UPSTREAM 清单和 patches/ 规矩。
 
 ## 仓里都有什么 {#repository-map}
 
@@ -147,7 +147,7 @@ node dist/cli.js audit <repo> --scale Micro-A
 node dist/cli.js audit file <repo> <file> --db <facts.duckdb> [--at <sha>]
 ```
 
-- 公开仓的例子：[open-gsd/gsd-core](https://github.com/open-gsd/gsd-core)（本仓真接过一次：2026-09-16 跑了一遍 Macro-B，出 1424 条事实，判定 `unsupported` 就照实写下来:  TC-2 追下去发现是认不出 ADR 里「破折号 + 加粗」这种写法，当成覆盖缺口登记了；当时的实跑记录见执行记录 A-045）。
+- 公开仓的例子：[open-gsd/gsd-core](https://github.com/open-gsd/gsd-core)（本仓真接过一次：2026-09-16 跑了一遍 Macro-B，出 1424 条事实，判定 `unsupported` 就照实写下来:  TC-2 追下去发现是认不出 ADR 里「破折号 + 加粗」这种写法，当成覆盖缺口登记了）。
 - **⚠ 别人的仓一直在变**：内容和结构都跟着上游走，读数不可能跟 golden 对得上:  这个例子只说明怎么接进来，不保证任何一条判定。
 - `--scale` 只认已经做出来的那几档（`Macro-B` / `Macro-C` / `Micro-A`）；还没做的档会返回 `SCALE-NOT-IMPLEMENTED` 并退出码 2:  命令行不装作能跑没接上的档。
 

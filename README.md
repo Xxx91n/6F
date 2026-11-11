@@ -51,7 +51,7 @@
 | Micro-B, one file | **capability 4 of 5 · preview** (`audit file` gives you a file card; the first repos we tried it on are jiahao and env-manager, both ours, for tracking file renames and for calibration: advice only (`advisory`), kept apart from verdicts by design, and advice never turns into a verdict) |
 | Macro-A, several repos together | Not yet in preview |
 
-Sources: #85②, D-204③④ (Micro-A made official), D-205 (the structure side), D-034③ (Scorecard stays in line), #51 (the behavior side).
+Sources: #85②, D-204③④ (Micro-A made official), D-205 (the structure quadrant), D-034③ (Scorecard stays in line), #51 (the behavior quadrant).
 
 ## What a report looks like {#what-a-report-looks-like}
 
@@ -82,9 +82,9 @@ npm run selftest
 
 ## Three layers {#architecture-three-layers}
 
-![Three-layer architecture: Agent Plugin distribution layer → facts and verdict core → upstream evidence layer](docs/assets/architecture.svg)
+![Three-layer architecture: Agent Plugin distribution layer → facts and adjudication core → upstream evidence layer](docs/assets/architecture.svg)
 
-The outer layer (the CLI, the skills wrapper, the MCP surface) sits on a core we wrote ourselves: one `audit_fact` DuckDB table that only grows, one set of decision rules shared by all five scales (`verdict-gate`), and a receipt carrying two checks. Evidence comes in only through the data middle layer, and upstream raw content never leaves it.
+The outer layer (the CLI, the skills wrapper, the MCP surface) sits on a core we wrote ourselves: one `audit_fact` DuckDB table that only grows, the same verdict check shared by all five scales (`verdict-gate`), and a receipt carrying two checks. Evidence comes in only through the data middle layer, and upstream raw content never leaves it.
 
 
 ## Upstreams {#upstream-components}
@@ -106,7 +106,7 @@ Source: D-020 (the two routes).
 
 | owner | component |
 |---|---|
-| **Ours** | the decision rules all five scales share (`verdict-gate`) · the DuckDB fact table structure (only grows, plus keys that tie rows across scales) · three acceptance gates (A form / B criteria written before the run / C a human overrides the machine) · the receipt with two checks · criteria written before the run (2 positive controls + 3 real criteria + 1 negative control) |
+| **Ours** | the verdict check all five scales share (`verdict-gate`) · the DuckDB fact table structure (only grows, plus keys that tie rows across scales) · three acceptance gates (A form / B criteria written before the run / C a human overrides the machine) · the receipt with two checks · criteria written before the run (2 positive controls + 3 real criteria + 1 negative control) |
 | **Theirs** | the DuckDB engine itself · git CLI · CodeLore (connected · read-only check) · GitHub REST API (connected · REST first, `gh` as an optional fallback) · OpenSSF Scorecard (planned) |
 
 ## Rules {#contracts}
@@ -147,7 +147,7 @@ node dist/cli.js audit <repo> --scale Micro-A
 node dist/cli.js audit file <repo> <file> --db <facts.duckdb> [--at <sha>]
 ```
 
-- A public repo we tried: [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) (we really did take it in: on 2026-09-16 we ran Macro-B once, got 1424 facts, and wrote the `unsupported` verdict down as it came out:  TC-2 traced back to us not recognising ADRs written with a dash plus bold, and we logged that as a coverage gap; the run record is in execution record A-045).
+- A public repo we tried: [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) (we really did take it in: on 2026-09-16 we ran Macro-B once, got 1424 facts, and wrote the `unsupported` verdict down as it came out:  TC-2 traced back to us not recognising ADRs written with a dash plus bold, and we logged that as a coverage gap).
 - **⚠ someone else's repo keeps changing**:  its content and structure follow its upstream, so readings cannot be expected to match golden:  this example shows how to take a repo in, and promises nothing about any verdict.
 - `--scale` only accepts scales that already exist (`Macro-B` / `Macro-C` / `Micro-A`). A scale that does not exist yet returns `SCALE-NOT-IMPLEMENTED` and exit code 2:  the CLI does not pretend to run what is not wired in.
 

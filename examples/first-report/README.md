@@ -26,8 +26,10 @@
 - **四件和后来的契约对不上**：四件生成于 2026-09-13，比 `preview_disclosure` 披露块这套契约（ADR-0017 / D-037②，2026-09-16 才第一次做出来）早——机器读那两份没有 `preview_disclosure` 字段，这是时间先后的事实，不是漏了什么；演示用的披露块实例见 `engine demo` 合成数据出的产物。
 - **原件放在哪**：原件复制在 `engine/test/fixtures/contracts/`（是复制，不是搬走）；CI 重新渲染一遍再跟它 diff 的 golden 校验是 #43 登记的票（禁止自动重新生成直接进 main）。
 
-## CI 怎么核对，什么时候才允许更新（#43 / A-048 / D-030③）
+## CI golden 怎么核对，什么时候才允许更新
 
 - **怎么核对**：`.github/workflows/golden-ci.yml` 的 `golden` job 会在 CI 里把当时的工作树拼出来，然后逐字跑上面那条重新生成命令，产物与本目录四件逐字节比，不一致就 fail（非零退出，差异摘要进 job 日志）。拼工作树的办法：仓里的 `23-frozen-fc00d458.bundle` 把当时那个提交送进去（GitButler 快照，不在推上去的 ref 上）→ `git worktree` → 再按当时的文件状态补上 `23-first-report.mjs`/`engine/src/report/generate.ts`（e39468c 入库那版）和 `.scratch` README 这些签名覆盖（`23-frozen-readme-overlay.md`。当年那些脏文件没入库、已经丢了，top-20 关键词签名是拿 `23-facts.jsonl` 一个词一个词数回来的）。
 - **更新只走 PR 审查**：本目录四件和 `engine/fixtures/golden/` 要更新，一律由人重新渲染后随 PR 提交、进审查；**CI 里没有 commit/push/自动回写这一步**，diff 红了由人来修，禁止自动重新生成直接进 main（跟 Jest/Vitest 快照的老规矩一样：入库，走代码审查）。
 - **正确的更新法**：把工作树切到当时那个提交的状态，跑上面那条重新生成命令，核对读数为什么会变（判据或输入变了，得在 PR 说明里讲清楚），然后同步替换本目录四件和 fixtures 里的原件，再开 PR。engine 那边的 golden 对应 `cd engine && npm run demo:golden`（definitions 改了也是同一套规矩，走 PR）。
+
+来源：#43（这份样例的 golden CI）、A-048（CI 重新渲染再比对的执行记录）、D-030③（样例更新只走 PR 审查）。
