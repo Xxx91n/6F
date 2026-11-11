@@ -11,14 +11,14 @@
 - src/cli.ts（内核命令行；计划里一共四种外壳，现在只做了命令行这一种）
 
 ## 常用命令
-- npm run gen      # 生成两份清单（先比对再写）+ docs/adr/README.md 索引 + README 致谢段和中文 README 里的同步标记
+- npm run gen      # 生成两份清单（先比对再写）+ docs/adr/README.md 索引；README 致谢段不在这一条里，由 scripts/gen-acknowledgments.mjs 单独写
 - npm run build    # tsc 编译 + build-bundle（用 esbuild 把 dist/cli.js 覆写成单文件包；dist 跟着源码一起进仓 #59/D-067）
 - npm run package  # npm pack --dry-run
 - npm run smoke    # 快速试跑（进程能活着 + 最小一条端到端）
 - npm test         # gen + build + smoke
 - npm run selftest       # 5 项自检（等同 node dist/cli.js selftest）
 - npm run demo:golden  # demo 三个场景的 golden 逐字节比对（definitions 改了要走 PR，规矩同前）
-- npm run check:docs   # 文档只读检查（生成的清单和索引跟仓里的一致不一致、各处指针有没有断；具体查什么看脚本本身）
+- npm run check:docs   # 文档只读检查（致谢段跟锁定表对不对得上、各处文档指针和编号有没有断；具体查什么看脚本本身）
 
 ## 命令行有哪些命令
 - `macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh] [--strict-quarantine|--no-strict-quarantine]` —— 主审计命令（#53/D-060）：对真实仓库做审计。流程是先用 repoAdd 判断输入（本地路径默认可用 / owner-repo 先找本地 / URL 要明确同意），再走共享管线（`src/audit/macro-b.ts` 的策略部分 + codelore 的行为部分，和 demo 用同一套；`src/audit/macro-c.ts` 是 Macro-C 历史演化部分——#84/D-204②④，移植 38 管线，再用 anysearch-cli 的原始语料重新校对并核对；`src/audit/micro-a.ts` 是 Micro-A PR 部分——#85②/D-204③④，移植 48 管线），最后产出按报告模板生成的报告和 facts.duckdb。
@@ -54,7 +54,7 @@
 
 **Windows 上已知的问题**：Claude Code 在 hook 这边展开 `${CLAUDE_PLUGIN_ROOT}` 有还没关闭的 issue（anthropics/claude-code#43380 / #65579）；MCP stdio 的 exec-form 按官方说法只是纯字符串替换，理论上不受影响，但 Windows 实机还是要以 `/mcp` 实测结果为准。失败了怎么查：用 `claude --debug` 看 MCP init 日志；如果 server 没 connected，先跑 `node dist/cli.js selftest`，分清是「宿主没拉起来」还是「进程拉起来就崩」。
 
-**宿主兼容说明**（D-150④ 要求写注记②，R38-Q1 查过官方中英文两份资料）：CodeBuddy 官方声明兼容 Claude Code 插件规范——`${CODEBUDDY_PLUGIN_ROOT}` 优先，`${CLAUDE_PLUGIN_ROOT}` 和 `.claude-plugin/` 目录作为兼容项保留并自动识别——`.mcp.json` 里固定写成 `${CLAUDE_PLUGIN_ROOT}` **已经实测能用**（R38 T1 试用 CLI 2.151.0 时三个存疑点全部实测：marketplace.json 被读、插件级 `.mcp.json` 自动发现拉起、占位符在 Windows 能展开——证据件 `trials/codebuddy-r38-report.md` 已经随治理文档一起退役，git 历史里能查到）；IDE 形态还没覆盖（docs/known-gaps.md 里 GAP-HOST-01 这条已经按「接受这个风险」记在缺口表上，不能拿命令行的结果往外推；D-155②）。
+**宿主兼容说明**（D-150④ 要求写注记②，R38-Q1 查过官方中英文两份资料）：CodeBuddy 官方声明兼容 Claude Code 插件规范——`${CODEBUDDY_PLUGIN_ROOT}` 优先，`${CLAUDE_PLUGIN_ROOT}` 和 `.claude-plugin/` 目录作为兼容项保留并自动识别——`.mcp.json` 里固定写成 `${CLAUDE_PLUGIN_ROOT}` **已经实测能用**（R38 T1 试用 CLI 2.151.0 时三个存疑点全部实测：marketplace.json 被读、插件级 `.mcp.json` 自动发现拉起、占位符在 Windows 能展开——证据件 `trials/codebuddy-r38-report.md` 已经随治理文档一起退役，git 历史里能查到）；IDE 形态还没覆盖（docs/known-gaps.md 里 GAP-HOST-01 这条已经按 accepted-risk（接受这个风险）记在缺口登记册上，不能拿命令行的结果往外推；D-155②）。
 
 ## 验收
 编译通过、打包通过、能启动并通过活体测试；每个平台的测试都在仓根的 .github/workflows/engine-ci.yml 里跑（只监听 engine/** 的改动），push 之后以 CI run 的结果为准。

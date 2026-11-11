@@ -11,7 +11,7 @@
 ## 2. 报告契约（和产品版本分开）
 
 - `report_schema` 用自己的版本号，minor 只往后兼容。
-- 报告头固定字段：`stability: "preview"` ＋ `capabilities: [...]` ＋ 出处锚含锁定表快照 hash ＋ `superseded_by` 归档互链（旧报告不作废，只重新跑一份带新时间点的报告，老报告留着并在两边互指，按「新旧数并排」的规矩读）。
+- 报告头固定字段：`stability: "preview"` ＋ `capabilities: [...]` ＋ 出处锚含锁定表快照 hash ＋ `superseded_by` 归档互链（旧报告不作废，按「新旧数并排」的规矩读；具体怎么重跑、两边怎么互指，见 §4 最后一条）。
 - 说明块（机器键 `preview_disclosure`；内容含 synthetic fixture / ⚠ 数据未接 / capability N of 5）和本节字段是**同一个契约面**——报告 schema 票和 #45 各写一处引用，不要两处手抄。
 
 ## 3. 上游锁定表（`engine/upstream-lock.yaml`）
@@ -20,8 +20,8 @@
 - 字段：`id / kind / version / pin_type(exact-version|commit-sha|digest|api-version) / contract / status(active|planned|evaluating|retired) / adapter / last_reviewed / next_review`（`api-version` 是 #47/D-048 为 remote-api 行加的：远端 API 按 X-GitHub-Api-Version 头固定，不是制品版本）。
 - 复审要留说明的两字段（#43 引入，**不是**九字段契约面的一部分，值是一行说明）：`review_evidence`=这次实际跑过的复核命令和读数（刷新 `last_reviewed`/`next_review` 的凭据，没有它就不能刷新）；`review_deferred`=复审先缓办的标记＋原因＋什么时候重看（该行两个日期保留原值不刷新，仍由 `44-check` C5 提醒并点名）。`review_deferred`（复审先缓办）≠ registry 的 `deferred-faces`（还没采到的面还没归位）——同一个词、不同地方，引用时写清字段名。
 - **锁定表先于依赖存在**——planned 只登记目标契约，不许没固定版本就接入；retired 行不删（旧报告还要靠它回头查）；`^`/`>=`/浮动 tag 全禁。
-- 起步那几行（#44 写入，现在什么状态以 `engine/upstream-lock.yaml` 里写的为准）：codelore=active（exact-version＋`--version` 固定契约）／scorecard=planned、repomix=retired（D-056，什么时候重开的条件登记在 registry）／sqlite-dump=evaluating（风险说明）；github-rest=active（remote-api kind，#47/D-048——这几行刚写进去时是 planned，中间层做好了就翻成 active，`47-check E1` 检查）。
-- **校对用的固定语料单独记一张表（旧叫法「基准语料分册」，#33 这条规矩：校对用的固定语料自己留在仓里）**：被审计的同级仓按固定提交存下的快照**不归本表管**——只记在 `engine/baseline-lock.yaml`（字段 `id / kind / version / pin_type / status / contract / adapter / materialization / bundle / bundle_bytes / bundle_sha256 / last_reviewed / next_review`；另加复审要留说明的字段 `review_evidence`，规则同本节第 3 条；`status` 只有 active|retired；version＋bundle_sha256＋bundle_bytes 这三个固定值必须在同一个窗口一起改，`85-check` A10~A13 检查；多久复审一次同 §4）。这张表**不跟着 npm 包（tgz）一起发**（用它的是仓里的检查脚本，语料包放在测试夹具里，不进发布包）。理由：本表 status 那几个值的意思，和 README 致谢段跟着本表核对这件事，说的都是「产品上游」；校对用的固定语料是「拿来当尺子的基准仓」，是另一回事。老表硬拿 `status: planned` 去装已经生效的固定值，是在枚举位上凑合（#32）。
+- 起步那几行（#44 写入，现在什么状态以 `engine/upstream-lock.yaml` 里写的为准）：codelore=active（exact-version＋`--version` 固定契约）／scorecard=planned、repomix=retired（D-056，什么时候重开的条件登记在 registry 的触发器里）／sqlite-dump=evaluating（风险说明）；github-rest=active（remote-api kind，#47/D-048——这几行刚写进去时是 planned，中间层做好了就翻成 active，`47-check E1` 检查）。
+- **校对用的固定语料单独记一张表（旧叫法「基准语料分册」，#33 这条规矩：校对用的固定语料自己留在仓里）**：被审计的同级仓按固定提交存下的快照**不归本表管**——只记在 `engine/baseline-lock.yaml`（字段 `id / kind / version / pin_type / status / contract / adapter / materialization / bundle / bundle_bytes / bundle_sha256 / last_reviewed / next_review`；另加复审要留说明的字段 `review_evidence`，规则同本节第 3 条；`status` 只有 active|retired；version＋bundle_sha256＋bundle_bytes 这三个固定值必须在同一个窗口一起改，`85-check` A10~A13 检查；多久复审一次同 §4）。这张表**不跟着 npm 包（tgz）一起发**（用它的是仓里的检查脚本，语料包放在测试夹具里，不进发布包）。理由：本表 `status` 那几个可选值（active|planned|evaluating|retired）和「README 致谢段跟本表 active 集一一对账」这件事，说的都是「产品上游」的意思；校对用的固定语料是「拿来当尺子的基准仓」，是另一回事。老表硬拿 `status: planned` 去装已经生效的固定值，是在枚举位上凑合（#32）。
 
 ## 4. 更新节奏
 
