@@ -229,7 +229,7 @@ function findMatchingBrace(src, open) {
 
 // realConsumption：判真用上了没有——只认 import/require 具名引进来的，或者 stripComments(/stripMdComments( 这种调用位
 // （成员调用 x.stripComments( 也算——D-158① 原文写的就是「调用位」，没写「裸」；声明位 {stripComments:…} 没左括号不算）
-// 判的时候先剥字符串、再剥注释，然后才看消费位：标识符里、属性名里、注释里提一句名字，一概不算真用上
+// 判的时候调用方已经把注释剥掉了，这儿再把字符串抹平，然后才看消费位：标识符里、属性名里、注释里提一句名字，一概不算真用上
 export function realConsumption(strippedNoComments) {
   const noStr = blankStrings(strippedNoComments);
   const importBind = /\bimport\b[^'"\n]*\b(?:stripComments|stripMdComments)\b[^'"\n]*\bfrom\b\s*['"]/;

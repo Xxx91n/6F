@@ -161,7 +161,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     intentCandidates: AUDIT_INTENT_CANDIDATES, nc1Candidates: AUDIT_NC1_CANDIDATES,
     stopwords: MACRO_B_STOPWORDS, topN: TC3_TOPN,
     codelore: 'auto', // 真跑：二进制找不到或版本对不上，就把这事记成事实，行为面照实标不适用
-    fileLineage: { mode: 'on' }, // 真跑要追文件改名，改名关系算血缘事实；demo 那头关掉，图的是产物一字不差
+    fileLineage: { mode: 'on' }, // #80 步①：真跑要追文件改名，改名关系算血缘事实；demo 那头关掉，图的是产物一字不差
     extraCodeloreFacets: (CODELORE_S3_FACETS as unknown as readonly string[]).map(function (a) { return { analysis: a, group: 's3' as const, extraArgs: [] as readonly string[] }; }), // #87/D-205 结构摘帽接入：S3 族六面也采进来做形态测量；能不能进维度，在象限那道闸上判
     fixtureTag: 'AUDIT', pc2Sha: 'pc2fixture000000000000000000000000000053audit'
   }, ctx, probes);
