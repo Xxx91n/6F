@@ -2,7 +2,7 @@
 // ① 裁决面映射常量块 audit/upstream-dimension-map.ts 在且版本 v1.0＋复审两字段＋无权重列（D-084）
 // ② 「映射常量↔表逐行对账」：docs/upstream-dimension-map.md §③ codelore 表行 ⇔
 //    运行时常量（dist 模块为真值）——演化主干 12→S4／s3 族 6→S3 opposing／s5 族 12→S5／
-//    explain 族→S4 env 门控／behavior 族→QuadrantEntry／暂缓面集不映射；行级漂移=FAIL
+//    explain 族→S4 env 门控／behavior 族→QuadrantEntry／暂时不接的分析项组不映射；行级漂移=FAIL
 // ③ COLLECTOR 注册面：UPSTREAM_COLLECTOR_REGISTRY 含 codelore-adapter@v1（registered，opt_in=binary+pin）
 //    ＋descriptor dimension:null 保留（适配层禁业务语义，双保留）
 // ④ Macro-B 归位：audit.ts 消费 projectUpstreamDimensions→measurements.upstream_dimension_projection
@@ -59,7 +59,7 @@ const docS3 = docRows.find(l => l.indexOf('s3 族') >= 0) || '';
 const docS5 = docRows.find(l => l.indexOf('s5 族') >= 0) || '';
 const docExplain = docRows.find(l => l.indexOf('explain 族') >= 0) || '';
 const docBehavior = docRows.find(l => l.indexOf('behavior 族') >= 0) || '';
-const docDeferred = docRows.find(l => l.indexOf('暂缓面集') >= 0) || '';
+const docDeferred = docRows.find(l => l.indexOf('暂时不接的分析项组') >= 0) || '';
 const docEvoList = (docEvo.match(/\| ([^|]+) \| S4/) || [])[1] || '';
 const evoInDoc = CL_EVOLUTION.every(a => docEvoList.indexOf(a) >= 0);
 t('B1 表行「演化主干 12」枚举 ⇔ 常量 CODELORE_EVOLUTION_FACETS 同源（逐项＋S4）',
@@ -80,7 +80,7 @@ t('B4 表行「explain 族 9」枚举 ⇔ 常量 S4＋env 门控准入（成员�
 t('B5 表行「behavior 族」⇔ 常量 QuadrantEntry 归位（不直归 S 维——D-054③）',
   docBehavior.indexOf('QuadrantEntry') >= 0 && CL_BEHAVIOR.every(a => docBehavior.indexOf(a) >= 0) &&
   !!M && CL_BEHAVIOR.every(a => { const r = M.resolveCodeloreAnalysis(a); return r.dimension === null && r.lane === 'Macro-B-QuadrantEntry'; }), '');
-t('B6 表行「暂缓面集」⇔ 常量 deferred 不映射（未激活不归位——D-035④）',
+t('B6 表行「暂时不接的分析项组」⇔ 常量 deferred 不映射（未激活不归位——D-035④）',
   docDeferred.indexOf('不映射') >= 0 && !!M && M.resolveCodeloreAnalysis('function-coupling').dimension === null && M.isCodeloreDeferredAnalysis('function-coupling') === true, '');
 // 常量→文档反向对账：常量 codelore 分析面全在文档枚举（防幽灵行）
 //   ——analysis 行＋explain 族 group 行均覆盖（deferred-faces 组行属 B6 registry 枚举面除外；R23 审计 Spec-P1 补盲）
