@@ -6,7 +6,7 @@
 
 ## 1. 依据
 
-- **主依据**：reports/R50-Q1-atomcode-research.md（证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/reports/R50-Q1-atomcode-research.md；atomcode 降级版本承载——js-tokens P_VALUE/P_NONE 前驱三档分类＋Padolsey 翻车实录误删危险向＋V8 ScanRegExpPattern/TS lexical classifier 行尾强制闭合先例＋R39-Q2 手工豁免反例判例）。
+- **主依据**：reports/R50-Q1-atomcode-research.md（证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/reports/R50-Q1-atomcode-research.md；atomcode 降级形态承载——js-tokens P_VALUE/P_NONE 前驱三档分类＋Padolsey 翻车实录误删危险向＋V8 ScanRegExpPattern/TS lexical classifier 行尾强制闭合先例＋R39-Q2 手工豁免反形态判例）。
 - **决定锚**：decision-ledger.md **D-184**（R50-Q1 check-kit regex 盲区分步处理，2026-09-30 交用户批并采纳）。
 - **缺口条目**：docs/known-gaps.md `GAP-CK-01`（reason_code 族=instrument_dialect_blindspot）。
 - **实测证据**：check-kit.mjs `stripComments` 三态机（inStr/inLine/inBlock）没有 regex 字面量态——regex 字面量里的引号被当成字符串开头，inStr 跨行粘住，这期间的注释标记被当字符串内容留着（该剥的不剥）→下游盘点走样；轮50 普查实测=21/55 迁入 PASS（附录B 三条件判别不受污染）＋70-check 迁入后 E1 盘点走样→回退本地双轨＋D-181 勘误记档。

@@ -37,8 +37,8 @@
 - 事实表只让一个写者进来：`store.ts` 是唯一写入口，抢不到文件锁的一方立刻报错，不盲目重试；写进去的行串行追加，终读不重复。升级路径先留好，等真有并行写需求再往上走。
 - 上游坏输入分两级处理：整行格式坏就立刻停（协议级）；单个字段坏就隔离，审计接着跑（字段级）。坏字段单独记进 `quarantine_log`，记下原因码、原始字节指纹和处置结果；分类器返回状态、值、原因码和原始字节（`raw`），永不抛出。恒等式 `total = clean + normalized + quarantined` 要能在库里逐字段重算。原始字节按约 64 KiB 截断，同时记 `is_trunc` / `original_length` / `sha256_full` 三件套；完整现场用 `commit_sha` 从 git 对象还原。每个 commit 的事实和隔离记录同事务写入；任一 INSERT 失败整批回滚并非零退出，幂等重跑能自愈。`--strict-quarantine` 的基线只减不增，`unclassified` 永不可入基线；启用它时，基线外原因码或基线滞留码会直接报 `STRICT-QUARANTINE-VIOLATION` 并中止审计，这是「字段坏了还继续跑」的例外。
 - 报告里永远有「采数体检」一节，按固定报告结构排；写清楚坏字段的数量、受影响的提交和恒等式读数，零坏字段也要写「无」，不能省掉。
-- Micro-A 没有接仓库时跑的探针，采数体检一节写「未采集」，不写「无」，也不拿零异常冒充。
-- Macro-C 校准用的固定语料自己管：打成 frozen bundle 放进仓里，用独立的 `engine/baseline-lock.yaml` 记版本、体积和哈希，不混进产品上游的 `engine/upstream-lock.yaml`；`85-check` C 组读这份 lock 并物化仓内 bundle。
+- Micro-A 没有接仓库那一步的探针，采数体检一节写「未采集」，不写「无」，也不拿零异常冒充。
+- Macro-C 校对用的固定语料自己管：打成 frozen bundle 放进仓里，用独立的 `engine/baseline-lock.yaml` 记版本、体积和哈希，不混进产品上游的 `engine/upstream-lock.yaml`；`85-check` C 组读这份 lock 并物化仓内 bundle。
 
 ### 4. 报告和演示
 

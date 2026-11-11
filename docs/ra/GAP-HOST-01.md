@@ -14,7 +14,7 @@
 
 ## 1. 依据
 
-- Stage-2 公开推广判据包 **判据③**（D-162③；registry `stage2-launch-criteria.verify_method`）：「GAP-HOST-01 关闭（IDE 界面实测 verified，或按已接受风险、五个栏目写齐后关闭）」。
+- Stage-2 公开推广判据包 **判据③**（D-162③；registry `stage2-launch-criteria.verify_method`）：GAP-HOST-01 得关闭——要么 IDE 界面实测 verified，要么按已接受风险关掉（本档案走的是后一条：五个栏目写齐）。registry 那一行原话是「D-148 三要素齐备 accepted-risk」，本档案按后来 D-169-b② 的口径把栏目数写成五个。
 - 缺口条目：docs/known-gaps.md `GAP-HOST-01`（reason_code=`host_surface_unverified`；CLI=verified／IDE=observed-unverified）。
 - 证据：（证据档已随治理工件退役，git 历史可查原路径 .scratch/macro-audit/trials/codebuddy-r38-report.md）（CodeBuddy CLI 2.151.0，C1/C2/C3 三条判据命中；IDE 界面没跑，照实记下）。
 

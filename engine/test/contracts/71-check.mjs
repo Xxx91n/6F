@@ -1,4 +1,4 @@
-// #71 守卫——codelore 接线票·批1（D-080③ sibling 首票／D-078 映射表 v1.0 落地）
+// #71 守卫——codelore 接数据工单·批1（D-080③ 两张平行票里的第一张／D-078 映射表 v1.0 落地）
 // ① 裁决面映射常量块 audit/upstream-dimension-map.ts 在且版本 v1.0＋复审两字段＋无权重列（D-084）
 // ② 「映射常量↔表逐行对账」：docs/upstream-dimension-map.md §③ codelore 表行 ⇔
 //    运行时常量（dist 模块为真值）——演化主干 12→S4／s3 族 6→S3 opposing／s5 族 12→S5／
@@ -15,7 +15,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, posix } from 'node:path';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
-const PROTECTED_SURFACE = '#71 守卫——codelore 接线票·批1（D-080③ sibling 首票／D-078 映射表 v1.0 落地）';
+const PROTECTED_SURFACE = '#71 守卫——codelore 接数据工单·批1（D-080③ 两张平行票里的第一张／D-078 映射表 v1.0 落地）';
 
 
 const HERE = dirname(fileURLToPath(import.meta.url));
