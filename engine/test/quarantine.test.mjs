@@ -139,7 +139,7 @@ const OUT1 = join(tmpG, 'out-clean');
 let e1 = spawnSync('node', [CLI, 'audit', R1, '--out', OUT1], { encoding: 'utf8', timeout: 120000 });
 t('G1 干净仓 audit exit 0', e1.status === 0, (e1.stderr || '').slice(0, 200));
 const md1 = existsSync(join(OUT1, 'report.md')) ? readFileSync(join(OUT1, 'report.md'), 'utf8') : '';
-t('G2 Intake Health 节恒在+零病态阴性自证', md1.indexOf('## Intake Health') >= 0 && md1.indexOf('摄入无病态') >= 0, md1.split('## Intake Health')[1] ? md1.split('## Intake Health')[1].slice(0, 200) : 'absent');
+t('G2 Intake Health 节恒在+零病态阴性自证', md1.indexOf('## Intake Health') >= 0 && md1.indexOf('这次采数没查出问题') >= 0, md1.split('## Intake Health')[1] ? md1.split('## Intake Health')[1].slice(0, 200) : 'absent');
 const sc1 = existsSync(join(OUT1, 'report.json')) ? JSON.parse(readFileSync(join(OUT1, 'report.json'), 'utf8')) : null;
 t('G3 sidecar verdict 三面投影：摄入零病态→reason_class 属真判据族非摄入族', !!sc1 && sc1.verdict && ['supported', 'unsupported', 'insufficient'].indexOf(sc1.verdict.band) >= 0 && ['none', 'evidence_insufficient', 'criteria_unsupported'].indexOf(sc1.verdict.reason_class) >= 0, sc1 && sc1.verdict ? JSON.stringify(sc1.verdict) : 'absent');
 t('G4 receipt.verdict 投影在（band+reason_class 同 verdict 块一致）', !!sc1 && sc1.receipt && sc1.receipt.verdict && sc1.receipt.verdict.band === sc1.verdict.band && sc1.receipt.verdict.reason_class === sc1.verdict.reason_class);

@@ -79,7 +79,7 @@ check('D6 三场景侧车均载同一披露块（降级不丢披露义务）', D
 }));
 check('D7 markdown 报告头含披露块四印记（preview 诚实对外可见）', D.DEMO_SCENARIOS.every((s) => {
   const md = runs[s].report_markdown;
-  return md.indexOf('披露块') >= 0 && md.indexOf('capability 1 of 5 · preview') >= 0 && md.indexOf('fixture: synthetic') >= 0 && md.indexOf('⚠ unverified') >= 0;
+  return md.indexOf('预览说明块') >= 0 && md.indexOf('capability 1 of 5 · preview') >= 0 && md.indexOf('fixture: synthetic') >= 0 && md.indexOf('⚠ unverified') >= 0;
 }));
 
 // --- S 合成诚实（synthetic fixture 不冒充真实审计） ---

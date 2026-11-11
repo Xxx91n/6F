@@ -427,7 +427,7 @@ export function renderMarkdown(r: Report): string {
   out.push('# ' + r.report_id + ' — ' + r.scale + ' 首报（' + r.subject_ref + '）');
   out.push('> ' + r.receipt.mark);
   out.push('>');
-  out.push('> 骨架 ' + r.schema_version + '（章顺序锁定）· 裁定协议 ' + r.adjudication.protocol_version + ' · 生成于 ' + r.generated_at);
+  out.push('> 报告模板 ' + r.schema_version + '（章节顺序固定）· 裁决规则 ' + r.adjudication.protocol_version + ' · 生成于 ' + r.generated_at);
   if (r.stability !== null || r.capabilities.length > 0) {
     out.push('> - stability: ' + (r.stability !== null ? r.stability : 'unspecified') + (r.capabilities.length > 0 ? ' · capabilities: ' + r.capabilities.join(', ') : ''));
   }
@@ -437,7 +437,7 @@ export function renderMarkdown(r: Report): string {
   }
   if (r.preview_disclosure) {
     out.push('>');
-    out.push('> 披露块（preview 标注诚实，机器可读字段见侧车 preview_disclosure）');
+    out.push('> 预览说明块（预览期该说的都写明了，机器读的字段见随附的 JSON 里的 preview_disclosure）');
     out.push('> - capability: ' + r.preview_disclosure.capability_label);
     out.push('> - calibration_scope: ' + r.preview_disclosure.calibration_scope);
     out.push('> - structural_limitations: ' + escapeMarkdownExcerptInline(r.preview_disclosure.structural_limitations.join('；')));
@@ -461,7 +461,7 @@ export function renderMarkdown(r: Report): string {
       out.push('- stale_data_marker: ' + r.stale.marker + '（SLA ' + r.stale.sla_seconds + 's / 实测延迟 ' + r.stale.lag_seconds + 's）');
       out.push('- read_model_version: ' + r.stale.read_model_version + ' · fact_watermark_version: ' + r.stale.fact_watermark_version);
       out.push('- top_findings: ' + r.top_findings.join(', '));
-      out.push('- fact_ids: ' + r.fact_ids.length + ' 条（清单见侧车 JSON）');
+      out.push('- fact_ids: ' + r.fact_ids.length + ' 条（完整清单在随附的机器读 JSON 里）');
     } else if (ch.id === 'C2') {
       for (const q of r.quadrants) {
         out.push('### ' + q.quadrant + '（applicability=' + q.applicability + '）');
@@ -472,15 +472,15 @@ export function renderMarkdown(r: Report): string {
         out.push('- verdict_gate: ' + q.verdict_gate.protocol_version + ' / ' + q.verdict_gate.decision + ' / evidence_flag=' + q.verdict_gate.evidence_flag + ' / decided_at=' + q.verdict_gate.decided_at + ' / audit_ref=' + q.verdict_gate.audit_ref);
         out.push('');
       }
-      out.push('#### 结构化裁决块（agent 可消费）');
+      out.push('#### 裁决明细（机器能直接读）');
       out.push('- protocol_version: ' + r.adjudication.protocol_version);
       out.push('- overall: ' + r.adjudication.overall + ' · decided_at: ' + r.adjudication.decided_at);
       for (const e of r.adjudication.entries) {
         out.push('- ' + e.criterion_id + ': ' + e.band + ' | basis=' + e.basis_refs.join('+') + ' | facts=' + (e.anchored_fact_ids.length === 0 ? '(none)' : e.anchored_fact_ids.join(',')) + ' | evidence=' + (e.anchored_evidence_ids.length === 0 ? '(none)' : e.anchored_evidence_ids.join(',')) + ' | ' + e.rationale);
       }
-      out.push('- human_adjudication: ' + r.adjudication.human.status + '（裁定仍由人做，见 B5）');
+      out.push('- human_adjudication: ' + r.adjudication.human.status + '（最后拍板还是人来做，见 B5）');
       if (r.narrative_sections.length > 0) {
-        out.push('#### 叙事段（宿主 agent 生成、内核盖章，叙事内容不携带判定档位）');
+        out.push('#### 叙事段（宿主 agent 写、内核盖章，叙事里不许带判定档）');
         for (const ns of r.narrative_sections) {
           const grounded = ns.seal.checks.filter(function (c) { return c.support === 'supports'; }).length;
           out.push('- [' + ns.section_id + '] author=' + ns.author + ' model_id=' + (ns.model_id ? ns.model_id : '(none)') + ' stamp=' + ns.seal.stamp + ' grounded=' + grounded + '/' + ns.seal.checks.length);
@@ -500,7 +500,7 @@ export function renderMarkdown(r: Report): string {
         out.push('- 引文原文: ' + (e.excerpt.length > 0 ? escapeMarkdownExcerptInline(e.excerpt) : '（缺失 —— ' + UNVERIFIED_MARK + '）'));
         out.push('');
       }
-      out.push('#### 引文→结论支持关系校验');
+      out.push('#### 引文能不能撑住结论（逐条核对）');
       for (const c of r.adjudication.citation_checks) {
         out.push('- ' + c.claim_id + ' -> ' + c.evidence_id + ': ' + c.support + '（matched=' + c.matched_tokens.join('|') + ' missing=' + c.missing_tokens.join('|') + '）' + c.reason);
       }
@@ -520,25 +520,25 @@ export function renderMarkdown(r: Report): string {
   // ---------- 采数体检：有毛病没毛病都保持一个结构 ----------
   out.push('## Intake Health');
   out.push('');
-  out.push('- 契约：违约两级处置——整行协议格式破坏立刻中断，字段内容异常则放入隔离区单独记录');
+  out.push('- 规矩：格式坏到整行都读不出来就当场停；只是某个字段的内容不对，就单独记一笔放一边，审计照跑');
   if (r.intake_health === null) {
-    out.push('- 摄入无病态声明：quarantined=0 · normalized=0（未提供体检数据时默认无异常，证据缺席不等于证据为零）');
+    out.push('- 采数体检：没给体检数据的就按「没查出问题」处理（quarantined=0 · normalized=0）；没查出问题不等于没有问题，只是这次没有体检数据');
   } else {
     const ih = r.intake_health;
     for (const f of ih.fields) {
-      const eq = f.clean + f.normalized + f.quarantined === f.total ? '恒等式=PASS' : '恒等式=MISMATCH';
+      const eq = f.clean + f.normalized + f.quarantined === f.total ? '三样加起来对得上=PASS' : '三样加起来对不上=MISMATCH';
       out.push('- field ' + f.field_name + ': total=' + f.total + ' clean=' + f.clean + ' normalized=' + f.normalized + ' quarantined=' + f.quarantined + '（' + eq + '）');
     }
-    out.push('- affected_commits（quarantined 去重）: ' + ih.affected_commits);
+    out.push('- affected_commits（按提交去重后的条数）: ' + ih.affected_commits);
     // NULL 是什么意思写明，省得被当成没设置
-    out.push('- quarantine_log.recorded_at（写入时间）: ' + (ih.recorded_at === null ? 'NULL（因字段异常导致观测时间无法获取）' : ih.recorded_at));
+    out.push('- quarantine_log.recorded_at（什么时候记的）: ' + (ih.recorded_at === null ? 'NULL（字段坏了，那一刻的时间没拿到）' : ih.recorded_at));
     const totalCommits = ih.fields.filter(function (f) { return f.field_name === 'committer_date'; })[0];
-    out.push('- 统计排除声明：日期统计基于 ' + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + ' 次提交（已排除隔离的 ' + ih.excluded_commits + ' 次提交；异常提交不参与指标计算）');
-    out.push('- 阈值规则：单字段异常率超过 ' + ih.threshold_ratio + ' 则整份报告升级为 unsupported；escalation=' + ih.escalation);
+    out.push('- 统计时剔掉了哪些：日期统计按 ' + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + ' 次提交算（剔掉了被隔离的 ' + ih.excluded_commits + ' 次提交；这类提交不参与指标计算）');
+    out.push('- 什么时候会升级判定：单个字段出问题的比例超过 ' + ih.threshold_ratio + '，整份报告就改成不支持；escalation=' + ih.escalation);
     if (ih.quarantined_rows.length === 0) {
-      out.push('- quarantined rows: 无（摄入无病态）');
+      out.push('- quarantined rows: 无（这次采数没查出问题）');
     } else {
-      out.push('- quarantined-only SHA 表（sha | field | reason_code | raw_echo 截断呈现）：');
+      out.push('- 单列出来的提交表（只列被隔离的：sha | field | reason_code | raw_echo 太长就截断）：');
       out.push('');
       out.push('  | sha | field | reason_code | raw_echo |');
       out.push('  | --- | --- | --- | --- |');

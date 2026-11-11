@@ -1,9 +1,9 @@
 # MA-48-ENVMANAGER-PR64-PREVIEW — Micro-A 首报（Xxx91n/env-manager#64）
 > RECEIPT RCP-6de209b26f79e013 chain=6de209b26f79e0130595dfb8ef1a87ec content=1be64ee5bcba4cec facts=3 adjudications=6 issued_at=1970-01-01T00:00:00.000Z commit=f5423020e02a0369730c360b8238a234730be85c tree=unanchored
 >
-> 骨架 1.2.0（章顺序锁定）· 裁定协议 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
+> 报告模板 1.2.0（章节顺序固定）· 裁决规则 ADR-0013-C/v1 · 生成于 1970-01-01T00:00:00.000Z
 >
-> 披露块（preview 标注诚实，机器可读字段见侧车 preview_disclosure）
+> 预览说明块（预览期该说的都写明了，机器读的字段见随附的 JSON 里的 preview_disclosure）
 > - capability: capability 3 of 5 · preview
 > - calibration_scope: 同主试点仓 merged PR 最小集（env-manager×3 形态＋jiahao×1 全人基线；票面写死实例）
 > - structural_limitations: golden 回放：响应来自 cassette 录制非实时 API——本件为管道 golden 产物非真实审计；同主确认偏差：试点仓与产品同主（Xxx91n）——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟不构成泛化证据；判据范围收窄：preview 判据=证据完整性/托管面资格/选择性，非 PR 质量裁决——diff --llm 行级语义评审归 #50 叙事双轨（D-053）；reviews/comments 面 planned 未接（锁表 github-rest 契约面）——评审语义不在 preview 内；supply_chain 象限 not_applicable：Scorecard 未接（D-034③）；dependabot PR 的供应链信号仅作事实落库；适配器硬化面已落 engine 一等面（#85② 闭环，D-204③④）：宿主 API diff 工件双通道＋cassette 回放见 engine/src/audit/micro-a.ts（重校准背书=85-check E 组）
@@ -24,7 +24,7 @@
 - stale_data_marker: fresh（SLA 5s / 实测延迟 0s）
 - read_model_version: 1.2.0 · fact_watermark_version: 1
 - top_findings: EV-48-ENVMANAGER-PR64-01, EV-48-ENVMANAGER-PR64-02, EV-48-ENVMANAGER-PR64-03
-- fact_ids: 3 条（清单见侧车 JSON）
+- fact_ids: 3 条（完整清单在随附的机器读 JSON 里）
 
 ## C2 四象限与裁决
 
@@ -56,7 +56,7 @@
 - conflict_markers: out-of-scope-micro-a
 - verdict_gate: ADR-0013-C/v1 / insufficient / evidence_flag=false / decided_at=1970-01-01T00:00:00.000Z / audit_ref=reports/48-micro-a-preview.mjs
 
-#### 结构化裁决块（agent 可消费）
+#### 裁决明细（机器能直接读）
 - protocol_version: ADR-0013-C/v1
 - overall: supported · decided_at: 1970-01-01T00:00:00.000Z
 - PC-1: supported | basis=B1 | facts=cba7a84d-0276-1f6f-f4b6-bd27155c4721 | evidence=EV-48-ENVMANAGER-PR64-01 | 适配器 run 事实在案：prs_listed=62 calls=4 strategy=env-token（枚举真实发生）
@@ -65,7 +65,7 @@
 - TC-3: supported | basis=B2 | facts=1bff93d3-f0bb-ca11-69d7-e84b941a887a | evidence=EV-48-ENVMANAGER-PR64-03 | 作者形态披露齐备：bot_declared=true basis=platform-declared:user.type==Bot&&login~[bot]
 - TC-4: supported | basis=B2 | facts=(none) | evidence=EV-48-ENVMANAGER-PR64-01 | 托管面资格闸：env-manager 托管枚举 merged PR=17（≥1 即 eligible；D-033 硬约束逆用判据）
 - NC-1: supported | basis=B4 | facts=1bff93d3-f0bb-ca11-69d7-e84b941a887a | evidence=EV-48-ENVMANAGER-PR64-03 | 负对照：入选实例 machine-generated/release-please 票面写死；实测 form=machine-generated/release-please merged=true（closed-unmerged 不入集、形态错配即判负）
-- human_adjudication: pending（裁定仍由人做，见 B5）
+- human_adjudication: pending（最后拍板还是人来做，见 B5）
 
 ## C3 证据
 
@@ -99,7 +99,7 @@
 - reproduce_cmd: git -C <repo> show HEAD:engine/test/fixtures/contracts/48-micro-a-criteria.md
 - 引文原文: | TC-4 | 真判据（托管面资格闸） | 托管枚举 merged PR ≥1 → eligible；=0 → intake 显式拒绝（D-033 硬约束逆用） | supported | merged=0 → unsupported（拒绝成立） |
 
-#### 引文→结论支持关系校验
+#### 引文能不能撑住结论（逐条核对）
 - CL-48-ENVMANAGER-PR64-01 -> EV-48-ENVMANAGER-PR64-01: supports（matched=prs_listed missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）
 - CL-48-ENVMANAGER-PR64-02 -> EV-48-ENVMANAGER-PR64-02: supports（matched=diff --git missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）
 - CL-48-ENVMANAGER-PR64-03 -> EV-48-ENVMANAGER-PR64-03: supports（matched=github_rest.pr_metadata missing=）全部支撑锚在引文原文中逐字命中（语境剥离后 presence-level 成立——非语义蕴含）
@@ -125,6 +125,6 @@
 
 ## Intake Health
 
-- 契约：违约两级处置——整行协议格式破坏立刻中断，字段内容异常则放入隔离区单独记录
-- 摄入无病态声明：quarantined=0 · normalized=0（未提供体检数据时默认无异常，证据缺席不等于证据为零）
+- 规矩：格式坏到整行都读不出来就当场停；只是某个字段的内容不对，就单独记一笔放一边，审计照跑
+- 采数体检：没给体检数据的就按「没查出问题」处理（quarantined=0 · normalized=0）；没查出问题不等于没有问题，只是这次没有体检数据
 

@@ -266,7 +266,7 @@ export async function runAudit(opts) {
         { rec_id: 'R-AUDIT-' + R + '-1', priority: 'P2', action: '将本 run facts.duckdb 经 mcp.json MACRO_AUDIT_FACTS_DB 注册给宿主 agent——叙事段由宿主经 MCP facts 只读面生成（D-053 双轨）', rationale: 'audit 命令=kernel 面一等公民入口；叙事职责不外携，宿主 agent 经 facts 投影消费', expected_impact: '事实层→叙事层通道闭环', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-AUDIT-' + R + '-07'], degraded_note: null },
         { rec_id: 'R-AUDIT-' + R + '-2', priority: 'P2', action: intake.cache_hit && !intake.refreshed ? 'intake 缓存命中未刷新：远端新提交不可见——如需最新快照用 --refresh 显式 opt-in（不自动 pull 保隔离）' : '快照为本次 fetch/本地观测时点', rationale: '快照时点披露已落（snapshot_fetched_at）；缓存命中与刷新区分如实', expected_impact: 'staleness 风险如实披露', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-AUDIT-' + R + '-07'], degraded_note: null }
     ];
-    const HEADLINE = NAME + ' Macro-B audit（capability 1 of 5 · preview）：' + probes.commitCount + ' commits / ADR ' + ev.tc2.total + ' 份 / facts ' + col.realFacts.length + '——TC-1 ' + ev.tc1.verdict + '（n=' + ev.tc1.judgeable_n + '）、TC-2 ' + ev.tc2.verdict + '（mean=' + measurements.tc2.mean_ratio_4 + '）、TC-3 ' + ev.tc3.verdict + '（' + measurements.tc3.lowest_ratio_4 + '）' + (bhvRan ? '＋behavior ' + behaviorBand : '（behavior 象限 codelore 缺席如实 not_applicable）') + (intakeEscalation(probes.fieldStats) !== 'none' ? '＋quarantine 病态升级=' + intakeEscalation(probes.fieldStats) : '') + '→ 综合裁定 ' + strategyBand + '（三档如实落数' + (anchorQuarantined ? '；锚病态→facts.duckdb 仅 quarantine_log 行、fact 行不落库' : '') + '）。';
+    const HEADLINE = NAME + ' Macro-B audit（capability 1 of 5 · preview）：' + probes.commitCount + ' commits / ADR ' + ev.tc2.total + ' 份 / facts ' + col.realFacts.length + '——TC-1 ' + ev.tc1.verdict + '（n=' + ev.tc1.judgeable_n + '）、TC-2 ' + ev.tc2.verdict + '（mean=' + measurements.tc2.mean_ratio_4 + '）、TC-3 ' + ev.tc3.verdict + '（' + measurements.tc3.lowest_ratio_4 + '）' + (bhvRan ? '＋behavior ' + behaviorBand : '（behavior 象限 codelore 缺席如实 not_applicable）') + (intakeEscalation(probes.fieldStats) !== 'none' ? '＋采数有问题，判定升级=' + intakeEscalation(probes.fieldStats) : '') + '→ 综合裁定 ' + strategyBand + '（三档如实落数' + (anchorQuarantined ? '；HEAD 的日期字段坏了→facts.duckdb 只留隔离记录、事实行不落库' : '') + '）。';
     const limitations = [
         'one-shot 快照审计：本报告裁定=对 snapshot_fetched_at=' + String(intake.snapshot_fetched_at) + ' 时点快照的实测——' + (intake.cache_hit && !intake.refreshed ? 'intake 缓存命中未刷新，远端新提交不可见（--refresh 显式 opt-in 可刷新；不自动 pull 保隔离纪律）' : '快照时点如实披露'),
         '采集面=strategy（S1+S2）' + (bhvRan ? '＋behavior（codelore 行为三面）' : '；behavior 象限 codelore 未解析如实 not_applicable'),
@@ -274,7 +274,7 @@ export async function runAudit(opts) {
         '反复接受非跑通（D-033）：TC 三档裁定 supported/unsupported/insufficient 如实落数，one-shot 校准+冒烟不构成泛化证据'
     ];
     if (anchorQuarantined) {
-        limitations.push('锚字段病态：HEAD %cI quarantined（anchor_head_date_malformed）→ audit_fact 行不落库（observed_at NOT NULL 不落伪值）；quarantine_log 留痕 recorded_at=NULL，整仓 unsupported');
+        limitations.push('HEAD 的日期字段坏了：%cI 读出来不合规（anchor_head_date_malformed）→ audit_fact 不落行（observed_at 不许填假值）；quarantine_log 留了记录但 recorded_at=NULL，整个仓判 unsupported');
     }
     const fileSkips = col.realFacts.filter(function (f) { return f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read'; });
     if (fileSkips.length > 0) {
