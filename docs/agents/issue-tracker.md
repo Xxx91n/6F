@@ -31,7 +31,7 @@ Issues and PRs share one number space on GitHub, so a bare `#42` can be either. 
 
 Merging is an outward action — do it only once the user has explicitly asked for that merge (`AGENTS.md`).
 
-GitButler publishes *native* GitHub stacked pull requests when the repo is enrolled in GitHub's stacked-PR preview and the PR uses branches in the same repo. In every other case — preview not enabled, a PR from a fork, or `but config forge github-stacks disable` — it publishes an *ordinary* PR, and the PR description carries the stack details.
+GitButler publishes *native* GitHub stacked pull requests when the repo is enrolled in GitHub's stacked-PR preview, the PR uses branches in the same repo, and stacks have not been switched off. In every other case — preview not enabled, a PR from a fork, or `but config forge github-stacks disable` — it publishes an *ordinary* PR, and the PR description carries the stack details.
 
 - **Ordinary (non-stacked) PR** — the usual path works: `gh pr merge "$PR_NUMBER" --squash` (#65 in this repo merged this way).
 - **Native stacked PR** — the usual commands all refuse it, each with a different message: `gh pr merge` fails with a GraphQL error ("This pull request is part of a stack and must be merged using the asynchronous merge REST API"), while `PUT /repos/{owner}/{repo}/pulls/$PR_NUMBER/merge` returns 403 "Merging stacked PRs via this endpoint is not supported". Use the asynchronous merge API below. Once the merge is already authorized, either failure is the signal to take the other path; never test the endpoint before you have authorization, because a successful test *is* a merge.
