@@ -4,9 +4,9 @@ How the engineering skills should read this repo's domain documentation while th
 
 ## Before exploring, read these
 
-Which file holds a decision or a term is written once, in **[`docs/authority.md`](../authority.md)** — the one place that says so. The files below hold the content:
+Which file holds a decision or a term is written once, in **[`docs/authority.md`](../authority.md)** — the authority surface. The files below hold the content:
 
-- **`GLOSSARY.md`** at the repo root — the one name for each domain term.
+- **`GLOSSARY.md`** at the repo root — the primary name for each domain term.
 - **`docs/spec.md`** — product decisions.
 - **`docs/adr/`** — architecture decisions (context, options, consequences).
 - **`docs/known-gaps.md`** — known gaps already written down.

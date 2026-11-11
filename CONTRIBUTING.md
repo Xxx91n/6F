@@ -6,14 +6,14 @@ To be upfront: this project is in **preview** (0.x) and one person maintains it 
 
 - **Bug reports and feedback** — the most useful thing you can send at this stage. Please use the issue templates; adding your host, plugin version, OS, and `selftest` output saves us a back-and-forth.
 - **Documentation fixes** — typos, stale statements, unclear sections.
-- **Audit result reports** — run the audit on a real repository with a healthy git history, then share the verdict and its receipt. That tells us how well our judgments line up with what other people see.
+- **Audit result reports** — run the audit on a real repository with a healthy git history, then share the verdict and its receipt. This is useful calibration: it helps us check whether our judgments hold up.
 
 ## How to run and verify
 
 All the flags are in [engine/README.md](engine/README.md). The short version, run from `engine/`:
 
 - `npm test` — generates the manifests, builds, and runs a quick smoke check.
-- `npm run check:docs` — checks the thanks block and that every ADR number, decision number, and anchor still resolves.
+- `npm run check:docs` — checks the acknowledgments block and that every ADR number, decision number, and anchor still resolves.
 
 ## What not to change
 
@@ -34,7 +34,7 @@ Before you open a PR, go through the checklist in the PR template: scripts green
 
 - [AGENTS.md](AGENTS.md) — how humans and agents work together in this repo.
 - [docs/authority.md](docs/authority.md) — which file a decision or a term lives in.
-- [docs/versioning.md](docs/versioning.md) — 0.x version rules, how upstream versions are pinned, and how often they get reviewed.
+- [docs/versioning.md](docs/versioning.md) — 0.x version rules, how upstream versions are locked, and how often they get reviewed.
 - [docs/spec.md](docs/spec.md) — product decisions.
 - [GLOSSARY.md](GLOSSARY.md) — what the domain words mean.
 
@@ -49,7 +49,7 @@ Start with these:
 
 Skip these unless you are working on them:
 
-- `engine/dist/` — build output that is committed; do not read its diffs line by line. A CI guard rebuilds it and compares, so correctness does not depend on a human reading the diff.
+- `engine/dist/` — build output that is committed; do not read its diffs line by line. The rebuild-diff CI guard rebuilds it and compares, so correctness does not depend on a human reading the diff.
 - Closed decisions and past audit rounds — they explain how the project got here, not what it is now.
 
 ## License

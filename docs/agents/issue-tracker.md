@@ -1,6 +1,6 @@
 # Issue tracker: GitHub
 
-Issues and specs for this repo live as GitHub issues. Do everything with the `gh` CLI. Which file holds a decision or a term is written once, in [`docs/authority.md`](../authority.md). This file only explains how to work the GitHub tracker, and the `gh` commands and paths below stay exactly as written.
+Issues and specs for this repo live as GitHub issues. Do everything with the `gh` CLI. Which file holds a decision or a term is written once, in [`docs/authority.md`](../authority.md) — the authority surface. This file only explains how to work the GitHub tracker, and the `gh` commands and paths below stay exactly as written.
 
 ## Conventions
 
@@ -66,4 +66,4 @@ Used by `/wayfinder`. The **map** is one issue; its **child** issues are its tic
 - **Blocking**: GitHub's **native issue dependencies**; they show in GitHub's UI, so people can see what is blocked. Add an edge with `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>`, where `<blocker-db-id>` is the blocker's numeric **database id** (`gh api repos/<owner>/<repo>/issues/<n> --jq .id`, _not_ the `#number` or `node_id`). GitHub reports `issue_dependencies_summary.blocked_by` (open blockers only), which is the current block. If dependencies are not available, use a `Blocked by: #<n>, #<n>` line at the top of the child body instead. A ticket is unblocked when every blocker is closed.
 - **Frontier query**: list the map's open children (`gh issue list --state open`, scoped to the map's sub-issues / task list), drop any with an open blocker (`issue_dependencies_summary.blocked_by > 0`, or an open issue in the `Blocked by` line) or an assignee. Take the first one left in map order.
 - **Claim**: `gh issue edit <n> --add-assignee @me`; do this first in the session, before any other write.
-- **Resolve**: `gh issue comment <n> --body "<answer>"`, then `gh issue close <n>`, then add a short summary plus a link under the map's Decisions so far.
+- **Resolve**: `gh issue comment <n> --body "<answer>"`, then `gh issue close <n>`, then add a context pointer (a short summary plus a link) under the map's Decisions so far.

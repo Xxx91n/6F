@@ -2,16 +2,16 @@
 
 The engineering skills ask for five triage roles. This file maps each role to the label string this repo's tracker actually uses.
 
-Which file holds a decision or a term is written once, in [`docs/authority.md`](../authority.md).
+Which file holds a decision or a term is written once, in [`docs/authority.md`](../authority.md) — the authority surface.
 
 | Label in mattpocock/skills | Label in our tracker | Meaning                                                          |
 | -------------------------- | -------------------- | ---------------------------------------------------------------- |
 | `needs-triage`             | `needs-triage`       | A maintainer needs to look at this issue                          |
 | `needs-info`               | `needs-info`         | Waiting on the reporter for details                               |
-| `ready-for-agent`          | `ready-for-agent`    | Specified fully enough to hand to an agent that runs on its own   |
+| `ready-for-agent`          | `ready-for-agent`    | Fully specified, ready for an AFK agent                           |
 | `ready-for-human`          | `ready-for-human`    | Needs a human to do the work                                      |
 | `wontfix`                  | `wontfix`            | We will not act on this                                           |
 
 When a skill names a role (for example, "apply the AFK-ready triage label"), use the matching label string from this table.
 
-Keep the "Label in our tracker" column matching the labels this repo actually uses.
+Edit the "Label in our tracker" column to match the labels this repo actually uses.

@@ -1,10 +1,10 @@
 # Security Policy
 
-Which file holds a decision or a term is written once, in [`docs/authority.md`](docs/authority.md) — the one place that says so. This page only explains how to report a security problem.
+Which file holds a decision or a term is written once, in [`docs/authority.md`](docs/authority.md) — the authority surface. This page only explains how to report a security problem.
 
 ## Supported versions
 
-macro-audit is in **0.x preview**. Per [docs/versioning.md](docs/versioning.md), version numbers only go up, and older lines do not get fixes: **only the latest release is supported**.
+macro-audit is in **0.x preview**. Per [docs/versioning.md](docs/versioning.md), version numbers only go up, and older lines do not get patches: **only the latest release is supported**.
 
 | Version | Supported |
 |---|---|
@@ -27,6 +27,6 @@ Include what you can: the affected version or commit, steps to reproduce or a pr
 ## Scope notes
 
 - The audit kernel runs **read-only** git commands and file reads against the repository it is auditing. It never writes to that repository.
-- External repositories are only accessed after you explicitly pass a URL, and they are cloned into a separate cache with risky git features turned off: `hooksPath` is set to a noop, `protocol.ext.allow=never`, and shallow clones are rejected.
+- External repositories are only accessed after you explicitly pass a URL, and they are cloned into a separate cache with execution from the clone's remote configuration disabled: `hooksPath` is set to a noop, `protocol.ext.allow=never`, and shallow clones are rejected.
 - The kernel's MCP surface is read-only.
 - Third-party upstreams (git CLI, CodeLore, DuckDB, GitHub REST) are pinned in `engine/upstream-lock.yaml`. Report vulnerabilities in those projects to their own maintainers.
