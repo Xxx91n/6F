@@ -9,7 +9,7 @@ Where a decision or a term belongs is written once, in **[`docs/authority.md`](.
 - **`GLOSSARY.md`** at the repo root — the primary name for each domain term.
 - **`docs/spec.md`** — product decisions.
 - **`docs/adr/`** — architecture decisions (context, options, consequences).
-- **`docs/known-gaps.md`** — known gaps already written down.
+- **`docs/known-gaps.md`** — known gaps already registered.
 
 If one of these files is missing, keep going and do not mention it.
 
@@ -38,7 +38,7 @@ If the concept you need is not in the glossary, work out which case you are in: 
 
 When a diff touches `docs/authority.md`, `GLOSSARY.md`, or a file that points at it, check these:
 
-- **A pointer only points.** It names the target and stops. Where each kind of decision belongs is written once, in `docs/authority.md`.
+- **A pointer only points.** It names the target and stops. The map from carrier to decision type is written once, in `docs/authority.md`.
 - **A term definition defines.** It says what the term is. How it works — fields, paths, how a value is produced — belongs to the code and its comments; the reasons belong to the ADR or spec that owns it.
 - **A count is a rule or a reading.** A number read off something that keeps moving (a ticket range, an entry tally) is written as a direction ("only grows"), or replaced by the rule it stood for.
 

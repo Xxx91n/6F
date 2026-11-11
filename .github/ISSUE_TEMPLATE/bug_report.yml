@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for the report. This project is in **preview** — plain, exact reproduction details help more than a complete writeup.
+        Thanks for the report. This project is in **preview** — honest reproduction details help more than a complete writeup.
   - type: input
     id: host
     attributes:

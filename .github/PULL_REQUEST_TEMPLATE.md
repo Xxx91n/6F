@@ -4,7 +4,7 @@
 
 ## Self-check
 
-This repo audits itself. Run the checks that match what you changed; the same rule shows up in the engine's own reports.
+This repo audits itself. Run the checks that match what you changed; the same discipline shows up in the engine's own reports.
 
 - [ ] `cd engine && npm test` passes (gen + build + smoke)
 - [ ] If your change touches a contract, a checker, or the behavior they cover, the relevant `node engine/test/contracts/NN-check.mjs` exits 0

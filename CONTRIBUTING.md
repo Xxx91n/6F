@@ -6,11 +6,11 @@ To be upfront: this project is in **preview** (0.x) and one person maintains it 
 
 - **Bug reports and feedback** — the most useful thing you can send at this stage. Please use the issue templates; adding your host, plugin version, OS, and `selftest` output saves us a back-and-forth.
 - **Documentation fixes** — typos, stale statements, unclear sections.
-- **Audit result reports** — run the audit on a real repository with a healthy git history, then share the verdict and its receipt. This is useful calibration: it helps us check whether our judgments hold up.
+- **Audit result reports** — run the audit on a real repository with a healthy git history, then share the verdict and its receipt. That is useful calibration data.
 
 ## How to run and verify
 
-All the flags are in [engine/README.md](engine/README.md). The short version, run from `engine/`:
+The exact command flags live in [engine/README.md](engine/README.md). The short version, run from `engine/`:
 
 - `npm test` — generates the manifests, builds, and runs a quick smoke check.
 - `npm run check:docs` — checks the acknowledgments block and that every ADR number, decision number, and anchor still resolves.
@@ -18,7 +18,7 @@ All the flags are in [engine/README.md](engine/README.md). The short version, ru
 ## What not to change
 
 - **`engine/dist/` is generated, not hand-written.** Change `engine/src` and rebuild with `npm run build`; never edit the output by hand.
-- **Machine names stay as they are.** CLI commands and flags, error codes, JSON keys, database columns, environment variables, and file paths are read by scripts and other tools; renaming them breaks people who rely on them.
+- **Machine names stay as they are.** CLI commands and flags, error codes, JSON keys, database columns, environment variables, and file paths are read by scripts and consumers; renaming them breaks people.
 - **Each decision and each term has exactly one home.** [docs/authority.md](docs/authority.md) says which file that is; this page only points there and does not repeat it.
 
 ## Pull requests
@@ -44,8 +44,8 @@ This repo keeps a lot of its own history on purpose: the product audits engineer
 
 Start with these:
 
-1. [README.md](README.md) — what the product does, the five audit scales, and what is usable today.
-2. [GLOSSARY.md](GLOSSARY.md) — what the domain words mean; every term used elsewhere is defined here.
+1. [README.md](README.md) — what the product is, the five audit scales, and where each capability stands today.
+2. [GLOSSARY.md](GLOSSARY.md) — what the domain words mean; terms used elsewhere are defined here.
 
 Skip these unless you are working on them:
 
