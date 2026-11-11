@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for the report. This project is in **preview** — honest reproduction details matter more than completeness.
+        Thanks for the report. This project is in **preview** — plain, exact reproduction details help more than a complete writeup.
   - type: input
     id: host
     attributes:
@@ -49,6 +49,6 @@ body:
     id: logs
     attributes:
       label: Relevant logs / receipts
-      description: Command output, receipt JSON, or report excerpts. Redact tokens — the adapter is designed to keep credentials out of facts and logs.
+      description: Command output, receipt JSON, or report excerpts. Remove any tokens — the adapter is built to keep credentials out of facts and logs.
     validations:
       required: false
