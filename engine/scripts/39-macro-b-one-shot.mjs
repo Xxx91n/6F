@@ -477,7 +477,7 @@ for (const r of results) {
 console.log('[39] duckdb appended=' + appended + ' dedup_dropped=' + dedupDropped + ' ' + JSON.stringify(dbCounts.by_repo) + ' strict_quarantine=' + (STRICT_Q ? 'on' : 'off'));
 process.exit(0);
 } catch (e) {
-  // 崩溃桶等位落盘（D-109①/②）：error_code 取 e.code，取不到就取消息头一个词；工件写失败＝证据丢了＝照实说工业上的天花板（D-109③ 不设兜底）
+  // 崩溃桶等位落盘（D-109①/②）：error_code 取 e.code，取不到就取消息头一个词；工件写失败＝证据丢了＝就照实说能扛到哪儿为止（D-109③ 不设兜底）
   const msg = String((e && e.message) || e);
   const code = (e && e.code) || ((/^[A-Z][A-Z0-9-]+:/).test(msg) ? msg.match(/^([A-Z][A-Z0-9-]+):/)[1] : 'ONESHOT-UNCAUGHT');
   let artifactPath = null;

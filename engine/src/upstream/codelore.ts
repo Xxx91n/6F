@@ -465,12 +465,12 @@ export function reaggregateFileFacetRows(facts: readonly CollectedFact[]): Recor
 export interface FacetReconciliation { match: boolean; per_analysis: Record<string, { file_bearing: number; skipped: number; per_file: number; match: boolean }> }
 
 // 核对标准（D-124③）：单文件重算结果 ＝ 带文件路径的汇总行 － 跳过的那些原始路径行。
-// 怎么算「带文件路径」得跟 emitPerFileFacts 一个口径（成对的行要求 entity_a 和 entity_b 都不空；单行要求 path 或 entity 有个有效值）；
+// 怎么算「带文件路径」得跟 emitPerFileFacts 一个判法（成对的行要求 entity_a 和 entity_b 都不空；单行要求 path 或 entity 有个有效值）；
 // 跳过事实记的是没能输出出去的原始路径；不是文件粒度的（日期、版本这些）本来就不参加比。
 export function reconcilePerFileVsAggregate(facts: readonly CollectedFact[]): FacetReconciliation {
   const perFile = reaggregateFileFacetRows(facts);
   const canon = function (rows: readonly CodeloreRow[]): string { return rows.map(function (r) { return JSON.stringify(r); }).sort().join(String.fromCharCode(10)); };
-  // 成对行怎么认，跟输出那头一个口径：entity_a 和 entity_b 都不空才算一对。
+  // 成对行怎么认，跟输出那头一个判法：entity_a 和 entity_b 都不空才算一对。
   const pairEnds = function (r: CodeloreRow): [string, string] | null {
     const ea = r['entity_a'], eb = r['entity_b'];
     if (typeof ea === 'string' && typeof eb === 'string' && ea.length > 0 && eb.length > 0) { return [ea, eb]; }
