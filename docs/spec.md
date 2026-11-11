@@ -373,66 +373,66 @@ T1 到 T3 结题之后，照 CAPA reopen 的老规矩补记处置：在 architec
 - A-031 ~ A-036 共 6 条 → R4-D1 到 D6 各接 1 条 = 6 条都接上了，没去向的清单是空的。
 - 先后顺序（照任务书）：#26 → （#27 和 #28 并行）→ #29 → #30 → #31；只有 #27 和 #28 能同时跑，而且两边的验收都不拿对方当完成条件。
 
-## R5 — 阶段 3 铺开（2026-09-15 grill 轮 6）
+## R5 — 阶段 3：一层一层往外铺（2026-09-15 第 6 轮讨论）
 
-> 本段为指针段：决策全文以本文件 R5 段为准（原裁定、执行计划 R5-01 ~ R5-12 与 BACKLOG 票据包 #32~#43 已随治理工件退役，见 git 历史）。
-> 阶段 3 串行结构：扩面 → Macro-C → Micro-A → Micro-B → Macro-A；横切项挂触发器、非前置关卡。上架动作未授权（用户关卡）；preview 标注诚实是决策本体（Preview 分级发布）。
+> 这一节只指路：决定全文看本节 R5 段（原来那份裁定、执行计划 R5-01 ~ R5-12 和 BACKLOG 里那包票 #32~#43 已经随治理文书退役，原文见 git 历史）。
+> 阶段 3 一步一步来：先扩面，再 Macro-C，再 Micro-A，再 Micro-B，最后 Macro-A；横向那些事挂个触发条件，不当开跑的前置关卡。上架这个动作没得到授权（那一步得用户点头）；预览版该标的地方老实标，这本身就是决定（预览版一级一级发）。
 
-### Implementation Decisions（R5 执行轮，来源 A-037 ~ A-048，2026-09-15）
+### 定下来的决定（R5 这一轮，来源 A-037 ~ A-048，2026-09-15）
 
-> 核对闸：A-037 ~ A-048 每条至少被本节一个 R5-Dn 覆盖；无去向记录清单非空时禁止立票（当前：空）。
+> 核对闸：A-037 ~ A-048 这 12 条，每条至少要有本节一条 R5-Dn 接着；还没定去向的清单只要不是空的，就不许开票（现在是空的）。
 
-**R5-D1 B1.2 落地（31 份 prompts 黑体块）**（覆盖 A-037｜计划 R5-01｜issue 32）
-31 份 prompts/NN-*.md「## 收尾」段首黑体强提示块，措辞逐字 = 轮 6 整理时定的强提示块文本；范围 = 现存 31 份全量；handoffs 不加；未来新票由 WORKFLOW §4.2.6-6 模板纪律继承。已于轮 6 整理环节执行完毕。
+**R5-D1 收尾提示块落地（31 份 prompts 里的黑体块，即 25-checklist 的 B1.2）**（覆盖 A-037｜计划 R5-01｜issue 32）
+31 份 prompts/NN-*.md 里，「## 收尾」这段开头加一块黑体强提示，措辞照第 6 轮整理时定好的那段一字不改；范围是当时现存 31 份，全都要加；交接单不加；以后新开的票靠 WORKFLOW §4.2.6-6 那个模板规矩继承下去。这事在第 6 轮整理的时候已经做完了。
 
-**R5-D2 T7 到期提醒的机器检查**（覆盖 A-038｜计划 R5-02｜issue 33）
-统一检查脚本扫描全部到期提醒项的三字段（最迟拍板时点 / 触发事件 / 复审时点）到期报警；输入四族 = 25-checklist 到期提醒行 + 记录两字段登记项 + CodeLore 暂缓面集复审时点 + 多写者三触发器；定期检查规则 = 触发未拍 1 工作日升级 / 硬到期重组改绑一次 / 再到期升级用户。
+**R5-D2 到期提醒改成机器查**（覆盖 A-038｜计划 R5-02｜issue 33）
+写一个统一脚本，把所有到期提醒项按三个字段扫一遍，到期就报警：最迟什么时候得拍板、什么事件会触发、什么时候复审。要扫的输入有四大类：`25-checklist` 里的到期提醒行、记录里只登记了两个字段的条目、CodeLore 暂缓那批的复审时点、多写者那三个触发器。查的规矩：该拍板没拍，过 1 个工作日就往上提一级；硬到期了的，重组一次、把触发器改绑一次；再到期就往用户那里提。
 
-**R5-D3 plugin.json 合规修复**（覆盖 A-039｜计划 R5-03｜issue 34）
-engine/plugin.json 对齐 Agent Plugins 1.0.0：$schema const、schemaVersion/skills/mcp 范围收敛、extensions 改反向域名对象图；修元数据源（manifest.meta.json / gen-manifests.mjs）而非仅改产物；ajv 一次性校验留证 + 常驻检查脚本零依赖结构断言。上架硬前置链第一环。
+**R5-D3 把 plugin.json 修合规**（覆盖 A-039｜计划 R5-03｜issue 34）
+engine/plugin.json 要跟 Agent Plugins 1.0.0 对上：`$schema` 写成常量、schemaVersion/skills/mcp 的范围收紧、extensions 改成反向域名那种对象结构；要改就改元数据的源头（manifest.meta.json / gen-manifests.mjs），不能只改生成出来的产物；再用 ajv 校验一次、把结果留证，另外配一个常驻检查脚本做零依赖的结构断言。这是上架那串硬前置里的第一环。
 
-**R5-D4 CodeLore 扩面首批 ≈30 面**（覆盖 A-040｜计划 R5-04｜issue 35）
-演化主干 12 面＋S3 族 6 面＋S5 族 12 面，逐面 golden 契约测试（适配层禁业务规则、raw 语义不出适配层）；面名以 `codelore analyze --help` 实物枚举为准；Macro-C preview 前置。
+**R5-D4 CodeLore 扩到首批约 30 个分析项**（覆盖 A-040｜计划 R5-04｜issue 35）
+演化那条主干 12 项，加 S3 那族 6 项，加 S5 那族 12 项；每一项都配 golden 契约测试（适配层不许掺业务规则，原始语义不许漏出适配层）；分析项的名字以 `codelore analyze --help` 实际列出来的为准；这是 Macro-C 进预览版的前置。
 
-**R5-D5 CodeLore LLM 面独立票**（覆盖 A-041｜计划 R5-05｜issue 36）
-explain 族 env 门控（CODELORE_LLM_*）＋成本验收面；S4 ADR 假设抽取前置；独立验收不混入 #35。
+**R5-D5 CodeLore 接模型那一批单独立票**（覆盖 A-041｜计划 R5-05｜issue 36）
+explain 那一族要用环境变量开门（CODELORE_LLM_*），还要有成本验收面；这是 S4 从 ADR 抽假设的前置；这一票单独验收，不跟 #35 混一起。
 
-**R5-D6 试点面可用性审计**（覆盖 A-042｜计划 R5-06｜issue 37）
-env-manager / anysearch-cli / jiahao 三仓只读实测：PR 人/机比、supersede 链完整度、托管面有无；产出 层×仓 capacity 矩阵（Pilot-surface Audit 三问）。
+**R5-D6 试点那几个面的可用性审计**（覆盖 A-042｜计划 R5-06｜issue 37）
+对 env-manager / anysearch-cli / jiahao 三个仓只读实测：PR 里人和机器提的比例、替代链完不完整、有没有托管那一面；产出一张「层 × 仓」的容量表（Pilot-surface Audit 那三个问题）。
 
-**R5-D7 Macro-C preview（第二能力层）**（覆盖 A-043｜计划 R5-07｜issue 38）
-anysearch-cli 为校对语料（56 ADR＋supersede 链）；报告强制说明单仓校对的范围和结构性限制（报告字段名保持 `calibration_scope`）；完成定义含该层 happy+failure 演示双件（DoD 准入件）。
+**R5-D7 Macro-C 进预览版（第二个能力层）**（覆盖 A-043｜计划 R5-07｜issue 38）
+拿 anysearch-cli 当校对语料（56 份 ADR 加替代链）；报告里必须说明「只用一个仓校对」这个范围和结构上的限制（报告里那个字段名保持 `calibration_scope`）；这一层算做完，还得有顺利路径和失败路径两份演示（这是准入条件之一）。
 
-**R5-D8 Macro-B 三仓 one-shot＋jiahao 回归**（覆盖 A-044｜计划 R5-08｜issue 39）
+**R5-D8 Macro-B 三个仓各跑一次，jiahao 挂回归**（覆盖 A-044｜计划 R5-08｜issue 39）
 Macro-B 对三试点仓各跑一次 one-shot 泛化验证；jiahao 持续回归接入 CI——接入即触发多写者 self-probe 实测定下来（衔接 #33）。
 
-**R5-D9 非自有仓泛化验证**（覆盖 A-045｜计划 R5-09｜issue 40）
+**R5-D9 拿不属于自己的仓验一遍能不能通用**（覆盖 A-045｜计划 R5-09｜issue 40）
 ≥1 非自有公开仓经 URL opt-in（首实用户）跑通 Macro-B；Macro-B GA 前置条件。
 
 **R5-D10 分发收尾**（覆盖 A-046｜计划 R5-10｜issue 41）
-五子项：examples/first-report/ 复制四件＋说明 README／README·marketplace preview 标注＋0.x 语义＋changelog／listing 资产（未上架层「Not yet in preview」说明块）／Agent Plugins preview 字段查证＋竞品占位扫描（前置子任务）／凭据申请（已触发）。上架动作停用户关卡。
+五件事：把 examples/first-report/ 那四件复制过去、再写个说明 README；README 和 marketplace 上标清这是预览版、说清 0.x 是什么意思、写 changelog；listing 那套资产（还没上架的那层统一写「Not yet in preview」说明块）；查 Agent Plugins 的 preview 字段怎么写，顺手扫一遍竞品占了哪些位（这是前置子任务）；申请凭据（这个已经触发过了）。上架这个动作停在用户点头那一步。
 
-**R5-D11 上游队列定期检查**（覆盖 A-047｜计划 R5-11｜issue 42）
-Scorecard/repomix 只读检查按层需求拉动不插队；CodeLore sqlite/parquet dump 对照评估（采纳须另立 ADR）；Macro-B preview 供应链象限维持「⚠ 数据未接」说明。
+**R5-D11 上游队列定期看一眼**（覆盖 A-047｜计划 R5-11｜issue 42）
+Scorecard/repomix 只读检查，看哪一层需要了再拉，不插队；CodeLore 的 sqlite/parquet dump 做一次对照评估（真要采纳得另外立 ADR）；Macro-B 预览版的供应链这个面继续标着「⚠ 数据未接」。
 
 **R5-D12 样例 golden CI**（覆盖 A-048｜计划 R5-12｜issue 43）
-CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更新走 PR 审查；禁自动重生成直通 main；与 #33 同批立项、执行在 #41 样例放进后。
+CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就判失败，要更新就走 PR 审；不许自动重生成直接进 main；跟 #33 同一批立项，但要等 #41 把样例放进去以后才执行。
 
 #### R5 核对（2026-09-15）
 
-- A-037 ~ A-048 共 12 条 → R5-D1~D12 各覆盖 1 条 = 12 覆盖，无去向记录清单 = 空。
-- 波次序列化（按任务书分波）：#33 最优先 → #34/#35 并行首票 → #36/#37/#41 → #38/#39/#43 → #40；#42 触发器拉动不占波次；#32 已于轮 6 整理环节收尾。
+- A-037 ~ A-048 共 12 条 → R5-D1 到 D12 各接 1 条 = 12 条都接上了，没去向的清单是空的。
+- 先后顺序（照任务书分波）：#33 最先 → #34/#35 两个并列打头 → #36/#37/#41 → #38/#39/#43 → #40；#42 等触发条件拉动，不占波次；#32 在第 6 轮整理时已经收完。
 
-## R7 — W14 收尾裁决包（2026-09-16 grill 轮 8）
+## R7 — W14 收尾那一批裁定（2026-09-16 第 8 轮讨论）
 
-> 本段为指针段：决策全文以本文件 R7 段为准（原裁定、执行计划 R7-01 ~ R7-06 与 BACKLOG #41b/#46 已随治理工件退役，见 git 历史）。
+> 这一节只指路：决定全文看本节 R7 段（原来那份裁定、执行计划 R7-01 ~ R7-06 和 BACKLOG 的 #41b/#46 已经随治理文书退役，原文见 git 历史）。
 
-- #41b 上架面授权至提交前一刻（资产/查证/凭据申请随 DoR 开工，提交=用户关卡）；
-- 多写者域按判据意图读法跑通：SWMR 单写者门面成文、fail-fast 准入、L0→L3 升级阶梯（SWMR 单写者门面 + fail-fast + L0→L3 升级阶梯）；
-- desk-task15 触发器重绑 micro-a-preview-prep＋勘误留痕（分层记录：fired 记录不可变／绑定可修正）；
-- CodeLore 残余 4 面裁决清零：entity-effort→后续批次，architecture-violations/defect-validation/finding-hotspot-overlap→暂缓面集（逐项判据＋复审时点）；
-- Macro-B 回归 CI 迁回 6F 自有 CI（URL opt-in 公仓 clone，零 token），jiahao 仅留审计对象角色；
-- Micro-A preview 试点集 = {env-manager, jiahao}＋经典公开仓第三槽（挂托管 API 中间层前置）。
+- #41b 上架这件事，资产、查证、申请凭据这些准备工作可以做到提交前一刻就开跑，但真要提交得用户点头；
+- 多写者那块按判据的本意读下来能跑通：只留一个写入口这事写成文、出事就立刻停的准入、从 L0 到 L3 一级一级往上升的阶梯；
+- `desk-task15` 那个触发器改绑到 micro-a-preview-prep，并留下勘误痕迹（分层记：已经触发过的记录不许改，绑定关系可以修）；
+- CodeLore 剩下 4 个分析项逐个定了去向：entity-effort 归到后续批次，architecture-violations / defect-validation / finding-hotspot-overlap 进暂缓那批（每个都要写判据和复审时点）；
+- Macro-B 的回归 CI 搬回 6F 自己的 CI（拿 URL 主动选一个公开仓、克隆下来，不需要 token），jiahao 只留下「被审计的仓」这个角色；
+- Micro-A 预览版的试点仓 = env-manager 和 jiahao，再加一个第三方经典公开仓（前提是先接上托管平台接口那个中间层）。
 
 ---
 
