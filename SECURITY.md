@@ -1,6 +1,6 @@
 # Security Policy
 
-Which file holds a decision or a term is written once, in [`docs/authority.md`](docs/authority.md) — the authority surface. This page only explains how to report a security problem.
+Where a decision or a term belongs is written once, in [`docs/authority.md`](docs/authority.md) — the authority surface. This page only explains how to report a security problem.
 
 ## Supported versions
 
@@ -22,11 +22,11 @@ Where to send it:
 
 Include what you can: the affected version or commit, steps to reproduce or a proof of concept, and an impact assessment if you already have one.
 
-**What to expect, honestly**: one person maintains this project. We aim to reply within 7 days, but we cannot promise when a fix will land. If we accept the report, the fix goes into the next release. We credit you unless you ask us not to.
+**What to expect, honestly**: one person maintains this project. We aim to acknowledge a report within 7 days, but we cannot promise when a fix will land. If we accept the report, the fix goes into the next release. We credit you unless you ask us not to.
 
 ## Scope notes
 
-- The audit kernel runs **read-only** git commands and file reads against the repository it is auditing. It never writes to that repository.
+- The audit kernel runs **read-only** git subcommands and file reads against the repository it is auditing. It never writes to that repository.
 - External repositories are only accessed after you explicitly pass a URL, and they are cloned into a separate cache with execution from the clone's remote configuration disabled: `hooksPath` is set to a noop, `protocol.ext.allow=never`, and shallow clones are rejected.
 - The kernel's MCP surface is read-only.
 - Third-party upstreams (git CLI, CodeLore, DuckDB, GitHub REST) are pinned in `engine/upstream-lock.yaml`. Report vulnerabilities in those projects to their own maintainers.

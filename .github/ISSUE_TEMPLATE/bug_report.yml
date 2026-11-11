@@ -49,6 +49,6 @@ body:
     id: logs
     attributes:
       label: Relevant logs / receipts
-      description: Command output, receipt JSON, or report excerpts. Remove any tokens — the adapter is built to keep credentials out of facts and logs.
+      description: Command output, receipt JSON, or report excerpts. Redact tokens — the adapter is built to keep credentials out of facts and logs.
     validations:
       required: false

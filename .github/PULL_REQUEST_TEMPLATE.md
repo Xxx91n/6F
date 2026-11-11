@@ -13,5 +13,5 @@ This repo audits itself. Run the checks that match what you changed; the same ru
 - [ ] Wording follows [`GLOSSARY.md`](../GLOSSARY.md): one name per concept, and no retired or invented jargon outside the historical and frozen areas
 - [ ] Machine-read names, numbers, and links untouched: database columns, JSON keys, CLI flags and error codes, file paths, and pinned phrases
 - [ ] Decision made → recorded where decisions live (see [`docs/authority.md`](../docs/authority.md)) or explicitly confirmed not a decision
-- [ ] No claims beyond the evidence: preview labels, ⚠ markers, and `synthetic` marks preserved — the capability matrix changes only when the capability actually ships
+- [ ] No claims added beyond the evidence: preview labels, ⚠ markers, and `synthetic` marks preserved — the capability matrix changes only when the capability actually ships
 - [ ] No secrets or tokens; upstream credentials stay out of facts and logs
