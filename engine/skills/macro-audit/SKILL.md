@@ -1,13 +1,13 @@
 ---
 name: macro-audit
-description: 宏观加微观的工程内容审计。装进 agent 后，对一个仓库跑 Macro-B 四象限评审（结构 / 行为 / 供应链 / 战略）；宿主 agent 写出来的叙述，由内核逐句核对引文后盖章，叙述里永远不带判定档。
+description: 宏观加微观的工程内容审计。装进 agent 后，对一个仓库跑 Macro-B 四象限评审（结构 / 行为 / 供应链 / 战略）；宿主 agent 写出来的叙述，由内核把里面提交的 claim 逐条对过引文再盖章，叙述里永远不带判定档。
 ---
 
 # macro-audit —— 怎么用（只读）
 
 ## 一条红线：只读
 - 这里只能读：能读判据、能读证据，能调内核的 MCP 只读查询。
-- 判定、写库、出报告都不在壳里做——这些全在内核 CLI 外面跑。
+- 判定、写库、出报告都不在壳里做——这些全交给内核 CLI 去跑。
 
 ## 默认模式（R2-03）
 - C 类用户（在 agent 生态里自己干活的那种开发者）把插件嵌进 agent 工作流，就会触发 Macro-B；装一次、头一回给 MCP 授权，就能用。
@@ -19,7 +19,7 @@ description: 宏观加微观的工程内容审计。装进 agent 后，对一个
 - 哪几档能跑（D-204③④）：Micro-A 用 `audit --scale Micro-A`，已上架 preview（#85②——把 48 那套管线搬成 engine 的正式入口，再用 85-check E 组重新校对）；Macro-C 用 `audit --scale Macro-C`，已上架 preview（#84/D-204②④）。
 
 ## 叙述由谁写、由谁核（D-053）
-- 叙述正文交给宿主 agent 写（这一段看运气）；引文核对交给内核 `sealNarrative`（这一段是硬规矩）；兜底由内核自己套模板出一段（标 ⚠ unverified，不冒充正式叙述）。
+- 叙述正文交给宿主 agent 写（这一段看运气）；引文核对交给内核 `sealNarrative`，但它只查提交上来的 claim，没列成 claim 的句子不过引文那一道；判定档红线的机器检查是扫全段的，照旧躲不掉（这一段是硬规矩）；兜底由内核自己套模板出一段（标 ⚠ unverified，不冒充正式叙述）。
 - 取数主要走 `macro-audit mcp facts --db <duckdb> [--scale X] [--repo R] [--subject S]`（只读投影，不走 CodeLore 中间层）。
 
 ## references/ 加载条件（什么时候加载）
