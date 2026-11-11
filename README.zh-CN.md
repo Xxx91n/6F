@@ -14,11 +14,11 @@
 
 6F 是一个 **Claude Code Plugin**，用来审一个代码仓库。
 > 主要面向 git 记录完整、看得出历史的仓库。
-- Macro-A 跨仓战略分析
-- Micro-A PR Diff 分析
-- Macro-B 单仓四象限分析
-- Micro-B 单文件分析
-- Macro-C 历史演化分析
+- Macro-A：几个仓合起来看
+- Micro-A：一个 PR 改了什么
+- Macro-B：一个仓，四个象限一起看
+- Micro-B：一次看一个文件
+- Macro-C：一个仓是怎么走到今天这样的
 
 ## 安装 {#install}
 
@@ -45,7 +45,7 @@
 
 | 档位 | 到哪一步 |
 |---|---|
-| Macro-B 单仓四象限档 | **capability 1 of 5 · preview**（自己审自己的首报样例见 [examples/first-report/](examples/first-report/)）；四个面的状态：**strategy: active**（S1+S2 的数据已经接进来了）· **behavior: preview**（CodeLore 那块的改动频次、热点、耦合读法，#51）· **structure: preview**（S3 族看形态：`structure/shape` 这类读数归解释层，只作观测，不参与判定）· **supply-chain: queued**（排队，Scorecard 不插队） |
+| Macro-B 单仓四象限档 | **capability 1 of 5 · preview**（自己审自己的首报样例见 [examples/first-report/](examples/first-report/)）；四个象限的状态：**strategy: active**（S1+S2 的数据已经接进来了）· **behavior: preview**（CodeLore 那块的改动频次、热点、耦合读法）· **structure: preview**（S3 族看形态：`structure/shape` 这类读数只作观测，不参与判定）· **supply-chain: queued**（排队，Scorecard 不插队） |
 | Macro-C 历史演化档 | **capability 2 of 5 · preview**（单个仓库的校对说明） |
 | Micro-A PR diff | **capability 3 of 5 · preview**（数据从托管平台的取数中间层来；这层加固完，它就成了 engine 的正式入口） |
 | Micro-B 单文件档 | **capability 4 of 5 · preview**（`audit file` 出文件卡；先拿来试的是自己名下的两个仓 jiahao 和 env-manager，用来追文件改名和校对：只给建议（`advisory`），结构上跟裁决隔开，建议永远不参与判定） |
@@ -93,7 +93,7 @@ npm run selftest
 |---|---|---|---|---|---|
 | DuckDB（@duckdb/node-api） | 事实表底座 | Node 库 | 运行时依赖 | package-lock 精确锁定 | 已接入（active） |
 | git CLI | 挖仓库历史 / 确定性采集 | 外部 CLI | 中间层 + 外部 CLI | 随宿主环境；输出解析就是契约 | 已接入（active） |
-| CodeLore | 代码考古、出证据 | CLI | 中间层 + 外部 CLI | 死钉 0.28.0，另配 golden 契约测试 | 已接入（active；只读检查：explain/summary） |
+| CodeLore | 代码考古、出证据 | CLI | 中间层 + 外部 CLI | 钉在 0.28.0，另配 golden 契约测试 | 已接入（active；只读检查：explain/summary） |
 | OpenSSF Scorecard | 供应链健康打分 | Go 库 / CLI | 库走依赖；CLI 走中间层 | hash 锁定 / 锁版本 | 规划中（planned） |
 | GitHub REST API | 改动档（Micro-A）的 PR 数据源:  列 PR、取元数据、取 diff，平台给不出就走备选，本地 git 优先 | remote-api | 中间层 + 环境变量 token 三级探测 | X-GitHub-Api-Version 固定 + golden cassette 契约 | 已接入（active） |
 
@@ -129,7 +129,7 @@ npm run selftest
 
 ## 拿真仓库试一把 {#try-on-a-real-repository}
 
-别人的仓，得你给链接、明确点头才会接进来：先克隆到一个隔离的缓存目录（拿 sha256 当目录名），克隆时要求完整历史、浅克隆直接拒掉，远程配置里的东西不许执行，用你本地已有的那套 git 凭据。
+别人的仓，得你给链接、明确点头才会接进来：先克隆到一个隔离的缓存目录（拿 URL 算出的短 sha256 当目录名），克隆时要求完整历史、浅克隆直接拒掉，远程配置里的东西不许执行，用你本地已有的那套 git 凭据。
 
 ```bash
 cd engine && npm install && npm run build

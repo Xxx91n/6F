@@ -23,12 +23,12 @@ macro-audit（6F）——一个看工程内容的审计产品：多个仓库一�
 
 ### Issue tracker
 
-问题都记在这个仓的 GitHub Issues 里，用 `gh` 命令行读写。见 `docs/agents/issue-tracker.md`。
+Issues live in this repo's GitHub Issues, driven by the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
-五个固定的分诊角色，标签字跟角色名一模一样。见 `docs/agents/triage-labels.md`。
+The five canonical triage roles, with label strings equal to their names. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
-单上下文的仓，一份文档管全部。见 `docs/agents/domain.md`。
+Single-context repo. See `docs/agents/domain.md`.

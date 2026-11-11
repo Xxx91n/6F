@@ -16,7 +16,7 @@
 > It works best on repositories whose git history is complete and readable.
 - Macro-A: how several repos are doing together
 - Micro-A: what a pull request changes
-- Macro-B: one repo seen from four sides
+- Macro-B: one repo, four quadrants at once
 - Micro-B: one file at a time
 - Macro-C: how a repo got to where it is
 
@@ -45,10 +45,10 @@
 
 | scale | where it stands |
 |---|---|
-| Macro-B, one repo from four sides | **capability 1 of 5 · preview** (this repo's own first report: [examples/first-report/](examples/first-report/)); the four sides: **strategy: active** (S1+S2 data is wired in) · **behavior: preview** (the CodeLore part: churn, hotspots, coupling, #51) · **structure: preview** (the S3 family looks at shape: `structure/shape` readings belong to the reading layer, observation only, never used for a decision) · **supply-chain: queued** (parked in line; Scorecard does not jump ahead) |
+| Macro-B, one repo, four quadrants | **capability 1 of 5 · preview** (this repo's own first report: [examples/first-report/](examples/first-report/)); the four quadrants: **strategy: active** (S1+S2 data is wired in) · **behavior: preview** (the CodeLore part: churn, hotspots, coupling) · **structure: preview** (the S3 family looks at shape: `structure/shape` readings are observation only; they never feed a verdict) · **supply-chain: queued** (parked in line; Scorecard does not jump ahead) |
 | Macro-C, history of one repo | **capability 2 of 5 · preview** (a calibration note for a single repo) |
 | Micro-A PR diff | **capability 3 of 5 · preview** (reads data from the middle layer in front of the hosting platform; once that layer was hardened, it became an official way into the engine) |
-| Micro-B, one file | **capability 4 of 5 · preview** (`audit file` gives you a file card; the first repos we tried it on are jiahao and env-manager, both ours, for tracking file renames and for calibration: advice only (`advisory`), kept apart from adjudication by design, and advice never reaches a decision) |
+| Micro-B, one file | **capability 4 of 5 · preview** (`audit file` gives you a file card; the first repos we tried it on are jiahao and env-manager, both ours, for tracking file renames and for calibration: advice only (`advisory`), kept apart from verdicts by design, and advice never turns into a verdict) |
 | Macro-A, several repos together | Not yet in preview |
 
 Sources: #85②, D-204③④ (Micro-A made official), D-205 (the structure side), D-034③ (Scorecard stays in line), #51 (the behavior side).
@@ -82,7 +82,7 @@ npm run selftest
 
 ## Three layers {#architecture-three-layers}
 
-![Three-layer architecture: Agent Plugin distribution layer → facts and adjudication core → upstream evidence layer](docs/assets/architecture.svg)
+![Three-layer architecture: Agent Plugin distribution layer → facts and verdict core → upstream evidence layer](docs/assets/architecture.svg)
 
 The outer layer (the CLI, the skills wrapper, the MCP surface) sits on a core we wrote ourselves: one `audit_fact` DuckDB table that only grows, one set of decision rules shared by all five scales (`verdict-gate`), and a receipt carrying two checks. Evidence comes in only through the data middle layer, and upstream raw content never leaves it.
 
@@ -93,7 +93,7 @@ The outer layer (the CLI, the skills wrapper, the MCP surface) sits on a core we
 |---|---|---|---|---|---|
 | DuckDB（@duckdb/node-api） | base for the fact table | Node library | runtime dependency | exact lock in package-lock | 已接入（active） |
 | git CLI | dig through repo history / deterministic collection | external CLI | middle layer + external CLI | comes with the host; parsing its output is the contract | 已接入（active） |
-| CodeLore | code archaeology, supplies evidence | CLI | middle layer + external CLI | pinned dead at 0.28.0, plus golden contract tests | 已接入（active；只读检查：explain/summary） |
+| CodeLore | code archaeology, supplies evidence | CLI | middle layer + external CLI | pinned at 0.28.0, plus golden contract tests | 已接入（active；只读检查：explain/summary） |
 | OpenSSF Scorecard | supply-chain health score | Go library / CLI | library as a dependency; CLI through the middle layer | hash lock / locked version | 规划中（planned） |
 | GitHub REST API | PR data source for the change scale (Micro-A):  list PRs, fetch metadata, fetch diffs, fall back when the platform will not hand it over, local git first | remote-api | middle layer + three-level probe of the env token | X-GitHub-Api-Version fixed + golden cassette contract | 已接入（active） |
 
@@ -129,7 +129,7 @@ Source: D-020 (the two routes).
 
 ## Try it on a real repository {#try-on-a-real-repository}
 
-Someone else's repo only comes in when you hand over the link and say yes:  we clone it into an isolated cache directory (sha256 as the directory name), insist on full history and reject a shallow clone outright, never run anything from the remote config, and reuse the git credentials you already have locally.
+Someone else's repo only comes in when you hand over the link and say yes:  we clone it into an isolated cache directory (a short sha256 of the URL is the directory name), insist on full history and reject a shallow clone outright, never run anything from the remote config, and reuse the git credentials you already have locally.
 
 ```bash
 cd engine && npm install && npm run build
