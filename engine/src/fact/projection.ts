@@ -1,7 +1,7 @@
-// fact/projection.ts — MCP 事实只读阅读视图
-// 理由：使用方按需拉取阅读视图，不直连写入流程。
-// 外部读取事实数据的主要途径：使用固定的 SELECT 查询，不拼接裸 SQL，防止注入；
-// 使用只读连接打开数据库，投影字段对应事实表的 13 个常规列。
+// fact/projection.ts —— 给 MCP 用的只读事实视图
+// 用的人按需来取，不直接摸写入那头。
+// 外面读事实就走这儿：查询是写死的 SELECT，不拼裸 SQL，防注入；
+// 库用只读连接打开，投影出来的字段对应事实表那 13 个常规列。
 import { openReader, closeDuckdb } from './store.js';
 import { assertAppendOnly } from './schema.js';
 import type { FactEvent } from './store.js';
@@ -18,7 +18,7 @@ export interface FactProjectionFilter {
 const MAX_LIMIT = 500;
 const PROJECTION_COLUMNS = 'fact_id, trace_id, baggage_id, scale, quadrant, dimension, collector_id, repo_ref, subject_ref, evidence_ref, metric, value_json, CAST(observed_at AS VARCHAR) AS observed_at';
 
-// 仅允许在固定列上做等值过滤，参数走占位符绑定，不拼入 SQL 文本中。
+// 只准在固定那几列上做等值过滤，值走占位符绑定，不塞进 SQL 文本里。
 export function buildProjectionSql(filter: FactProjectionFilter): { sql: string; params: string[] } {
   const where: string[] = [];
   const params: string[] = [];
@@ -49,29 +49,29 @@ function normalizeFactRow(names: string[]): (r: unknown[]) => FactEvent {
     const o: Record<string, unknown> = {};
     names.forEach(function (n, i) {
       const v = r[i];
-      // 保证返回结果可直接 JSON 序列化：BigInt 转为数字，Date 转为 ISO 字符串
+      // 返回的东西得能直接转 JSON：BigInt 转数字，Date 转 ISO 字符串
       o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
     });
     return o as unknown as FactEvent;
   };
 }
 
-// ---------- file_card 只读阅读视图 ----------
-// 观测集规则：repo_ref=<name>@<head_sha> 作为一个完整观测集；默认取最新已采集的数据集；
-// 也可以指定 at:<sha> 精确匹配或用唯一前缀查询。
-// 本接口为纯只读模式：查不到数据时输出未采集状态及命令行补采指引，绝不在本流程执行写入。
+// ---------- file_card 的只读视图 ----------
+// 观测集怎么算：repo_ref=<name>@<head_sha> 这么一组；默认取采得最新的那一组；
+// 也可以指定 at:<sha> 精确对上，或者拿唯一前缀来查。
+// 这一路只管读：查不到就把「还没采」的状态和命令行怎么补的话一块儿给你，这流程里绝不写东西。
 export interface FileCardQuery {
-  repo: string;                    // 仓库名（对应 repo_ref 的 @ 之前部分）
-  subject: string;                 // 文件路径（卡片内部做统一格式处理）
-  at?: string;                     // 指定查询的提交号
-  current_head_sha?: string | null;   // 当前最新提交号（null 表示未知）
+  repo: string; // 仓库名（repo_ref 里 @ 前面那截）
+  subject: string; // 文件路径（卡里自己归整）
+  at?: string; // 要查哪个提交
+  current_head_sha?: string | null; // 当前最新提交号（null 就是不知道）
   source?: 'prefetch' | 'backfill' | 'unknown';
-  cli_guidance?: string | null;    // 未采集时的操作指引
-  lineage_edge_cap?: number;       // 改名边池上限（主要用于特定测试场景）
+  cli_guidance?: string | null; // 还没采的时候怎么办
+  lineage_edge_cap?: number; // 改名边池的上限（主要给特定测试用）
 }
 
-const FILE_CARD_SET_CAP = 200000;   // 观测集内事实数据条数上限（超过该值做截断处理）
-const FILE_CARD_LINEAGE_EDGE_CAP = 10000;   // 改名关联边池上限
+const FILE_CARD_SET_CAP = 200000; // 一组观测集里事实条数的上限（超了就截）
+const FILE_CARD_LINEAGE_EDGE_CAP = 10000; // 改名关联边池的上限
 
 function likeEscape(s: string): string {
   return s.split('!').join('!!').split('%').join('!%').split('_').join('!_');
@@ -93,7 +93,7 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
     let picked: { repo_ref: string; head_sha: string | null; last_obs: string } | null = null;
     let pinAmbiguous: string[] | undefined = undefined;
     if (q.at !== undefined && q.at !== null && q.at.length > 0) {
-      // 提交号匹配：全量 40 位直接精确匹配；7 位及以上前缀匹配如命中多个则记录歧义，不随意猜测。
+      // 提交号怎么对：40 位全写就是精确对；7 位及以上的前缀撞上好几个就记下歧义，不许瞎猜。
       const exact = sets.filter(function (s) { return s.head_sha === q.at; });
       if (exact.length > 0) {
         picked = exact[0];
@@ -108,7 +108,7 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
     const facts: FactEvent[] = [];
     let setTruncated = false;
     if (picked !== null) {
-      // 统计数据集中的事实数量是否超限并做好截断标记
+      // 数数数据集里的事实超没超上限，超了打截断标记
       const cSql = 'SELECT COUNT(*) FROM audit_fact WHERE scale = ? AND repo_ref = ?';
       assertAppendOnly(cSql);
       const cReader = await conn.run(cSql, ['Micro-B', picked.repo_ref] as never);
@@ -122,7 +122,7 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
       const norm = normalizeFactRow(names);
       for (const r of fRows) { facts.push(norm(r)); }
     }
-    // 跨观测集改名关系拉取：结合当前数据集与历史较早的数据集中的改名记录。
+    // 跨观测集拉改名关系：当前这组，连同更早那几组里的改名记录一块儿看。
     const lineageFacts: FactEvent[] = [];
     let lineageEdgeCapHit = false;
     if (picked !== null) {
@@ -138,7 +138,7 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
         const lRows = await lReader.getRows();
         const lNorm = normalizeFactRow(lReader.columnNames());
         for (const r of lRows) { lineageFacts.push(lNorm(r)); }
-        // 记录拉取数量是否触及上限截断
+        // 记一笔：拉的时候有没有顶到上限被截
         if (lRows.length >= edgeCap) { lineageEdgeCapHit = true; }
       }
     }
@@ -161,8 +161,8 @@ export async function projectFileCard(dbPath: string, q: FileCardQuery): Promise
   }
 }
 
-// ---------- quarantine_log 只读阅读视图 ----------
-// 提供隔离记录的安全只读查询接口，列名固定，参数绑定，限制最大查询条数。
+// ---------- quarantine_log 的只读视图 ----------
+// 查隔离记录的安全接口：列名写死，参数绑好，条数有上限。
 export interface QuarantineProjectionFilter {
   run_id?: string;
   field_name?: string;

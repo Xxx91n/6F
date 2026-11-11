@@ -1,7 +1,7 @@
-// report/generate.ts - 报告生成器的纯逻辑实现
-// 单模块约束：只依赖 node 内建模块（node:crypto），不引入额外依赖。
-// 结构继承：报告模板由共享固定结构和各档位自己的字段组成；章节顺序固定，降级时结构保持不变。
-// 纯逻辑约束：输入一律通过参数注入，不读文件系统、不起子进程、不发网络请求、不接大模型。
+// report/generate.ts —— 报告生成器，纯逻辑
+// 单模块：只吃 node 内建（node:crypto），不另拉依赖。
+// 结构照着老样子：报告模板是固定的骨架加各档自己的字段；章节顺序定死，降级了结构也不变。
+// 纯逻辑：输入全靠参数传，不读文件、不起子进程、不连网、不调大模型。
 
 import { createHash } from 'node:crypto';
 import { intakeEscalation, deriveReasonClass, VERDICT_REASON_CLASSES } from '../intake/quarantine.js';
@@ -10,14 +10,14 @@ import type { NarrativeSection, SealedNarrative } from './narrative.js';
 import { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations } from './citation.js';
 import type { EvidenceItem, ClaimAnchor, CitationCheck, SupportRelation } from './citation.js';
 
-// 引文核验逻辑已抽入独立模块 citation.ts；此处重新导出以保持既有引用路径不变。
+// 引文核对真正的实现在 citation.ts，这里只再导出一遍，原来引用这儿的地方不用改。
 export { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations };
 export type { EvidenceItem, ClaimAnchor, CitationCheck, SupportRelation };
 
-// 五个档位共享固定报告结构，各档位只放自己的那部分字段，章节顺序保持锁定
+// 五档共用同一个报告骨架，每档只放自己那摊字段，章节顺序不能动
 export const REPORT_SKELETON_VERSION = '1.2.0';
 export const REPORT_SKELETON_SOURCE = 'reports/14-skeleton-fields.json#skeleton';
-// 验收分为形式、内容和信任裁决，判定规则版本固定
+// 验收分形式、内容、信任三道，判定规则的版本号钉死
 export const ADJUDICATION_PROTOCOL_VERSION = 'ADR-0013-C/v1';
 
 export interface SkeletonChapter {
@@ -38,8 +38,8 @@ export const CHAPTER_COUNT = REPORT_SKELETON.length;
 
 
 /**
- * 输出编码（#114）：对被审计仓进入 report.md 的引文做 HTML 实体转义，
- * 防止 Markdown 渲染链中不可信输入触发存储型 XSS。
+ * 输出编码（#114）：被审计仓的引文要进 report.md，先做 HTML 实体转义，
+ * 免得 Markdown 渲染那一路被不可信输入钻空子，闹出存储型 XSS。
  */
 export function escapeMarkdownExcerpt(text: string): string {
   return text
@@ -51,9 +51,9 @@ export function escapeMarkdownExcerpt(text: string): string {
 }
 
 /**
- * 单行化（#113 返修 / #114 同面）：转义后再把换行折成 `⏎`。
- * 不折行时，引文里的 `> ` / `# ` / `|` 会落在行首，仍能跳出列表项与引用块、伪造标题或表格行——
- * HTML 实体只挡标签注入，挡不住 Markdown 块级语法。单行是这一层唯一可判定的形态。
+ * 折成一行（#113 返修 / #114 同一面）：转义之后再把换行折成 `⏎`。
+ * 不折的话，引文里的 `> ` / `# ` / `|` 落在行首，还能跳出列表和引用块、伪造标题或表格行——
+ * HTML 实体只挡标签，挡不住 Markdown 的块级语法。折成一行是这一层唯一说得准的形态。
  */
 export function escapeMarkdownExcerptInline(text: string): string {
   return escapeMarkdownExcerpt(text)
@@ -109,7 +109,7 @@ export interface AdjudicationBlock {
   citation_checks: CitationCheck[];
 }
 
-/** #61 r18① 守卫式提炼：anchored_fact_ids 取首件（空集→空数组）——audit/demo 六处同款守卫式统一 */
+/** #61 r18① 顺手收的一个小工具：anchored_fact_ids 只取头一件（空集就给空数组）——audit 和 demo 六处都这么用 */
 export function firstFactIds(list: readonly { fact_id: string }[]): string[] {
   return list.length > 0 ? [list[0].fact_id] : [];
 }
@@ -148,12 +148,12 @@ export interface GateRef {
   criterion_ids: readonly string[];
 }
 
-// prereg_commit 只接受能解析的提交哈希，或带 sentinel/degraded 前缀的明确标记，严禁模糊值
-const PREREG_COMMIT_FORM = /^[0-9a-f]{4,40}$/;   // 4 = git 能 emit 的最小缩写宽度；为何不是 7 见 spec §R9-1
+// prereg_commit 只认能解析出来的提交哈希，或者带着 sentinel/degraded 前缀的明话，含糊的值一律不要
+const PREREG_COMMIT_FORM = /^[0-9a-f]{4,40}$/; // 4 是 git 能吐的最短缩写宽度；为什么不是 7 看 spec §R9-1
 const PREREG_NAME_FORM = /^[0-9A-Za-z][0-9A-Za-z._-]*$/;
 export type PreregAnchorForm = 'commit' | 'sentinel' | 'degraded' | 'ambiguous';
 
-// 'sentinel' = 设计上就不是提交哈希（历史记录哨兵）；'degraded' = 本该取到提交哈希但取不到或不准确。
+// 'sentinel'＝这东西打一开始就不是提交哈希（历史记录里的哨兵）；'degraded'＝本该有哈希，可就是拿不到或者拿不准。
 export function classifyPreregAnchor(v: string): PreregAnchorForm {
   if (v.indexOf('sentinel:') === 0) { return PREREG_NAME_FORM.test(v.slice(9)) ? 'sentinel' : 'ambiguous'; }
   if (v.indexOf('degraded:') === 0) { return PREREG_NAME_FORM.test(v.slice(9)) ? 'degraded' : 'ambiguous'; }
@@ -167,7 +167,7 @@ function preregMarked(prefix: string, name: string): string {
 export function preregSentinel(name: string): string { return preregMarked('sentinel:', name); }
 export function preregDegraded(reason: string): string { return preregMarked('degraded:', reason); }
 
-// 模糊不清的锚点在进入回执哈希链之前当场报错拒收，避免将错误值签成凭证
+// 说不清的锚点在进回执哈希链之前就当场拒掉，免得把错值签成凭证
 export function assertDiscriminablePreregAnchor(v: string): void {
   if (classifyPreregAnchor(v) === 'ambiguous') {
     throw new Error('PREREG-ANCHOR-AMBIGUOUS: gate_ref.prereg_commit=' + JSON.stringify(v) + ' 既不是 4–40 位小写十六进制 commit，也不带 sentinel:/degraded: 标记前缀（取值规则见 spec §R9-1）');
@@ -182,10 +182,10 @@ export interface ContentDigest {
 
 export const CONTENT_DIGEST_CANONICALIZATION = 'json_utf8_entries_then_citation_checks';
 
-// 双锚依据：提交哈希本身可能有签名变动，而目录树哈希才是内容不可变主体，因此回执同时锚定 commit 和 tree。
+// 为啥拴两道：提交哈希本身可能因为签名变样，目录树哈希才是内容不变的那个主体，所以回执把 commit 和 tree 都拴上。
 export interface Receipt {
   receipt_id: string;
-  verdict?: { band: string; reason_class: string };   // 判定投影信息（回执面）；推导内容不计入哈希链
+  verdict?: { band: string; reason_class: string }; // 判定投影（给回执看）；推出来的东西不算进哈希链
   chain_hash: string;
   issued_at: string;
   commit_anchor: string;
@@ -199,7 +199,7 @@ export interface Receipt {
 }
 
 export function buildReceipt(args: { fact_ids: readonly string[]; adjudication: AdjudicationBlock; issued_at: string; commit_anchor: string; tree_anchor: string; gate_ref: GateRef; degraded: boolean }): Receipt {
-  // 校验关卡先于哈希计算：一旦模糊不清的锚点进入了链，回执哈希就会把错误值固定下来。
+  // 先查再算哈希：含糊的锚点一旦进了链，回执哈希就把错值钉死了。
   assertDiscriminablePreregAnchor(args.gate_ref.prereg_commit);
   const sorted = args.fact_ids.slice().sort();
   const adjParts: string[] = [];
@@ -278,7 +278,7 @@ export interface ReportStale {
   fact_watermark_version: string;
 }
 
-// 预览版如实说明能力范围，尚未实现的功能仅作为规划；可选字段非预览版为 null，结构保持不变。
+// 预览版把能力范围说清楚，还没做的只当规划；可选字段在非预览版写 null，结构照旧。
 export interface PreviewDisclosure {
   capability_label: string;
   calibration_scope: string;
@@ -286,17 +286,17 @@ export interface PreviewDisclosure {
   not_in_preview: readonly string[];
 }
 
-// ---------- 收仓体检：摄入健康节固定渲染 ----------
+// ---------- 采数体检：这一节不管有没有毛病，都按同一个样子渲染 ----------
 export interface IntakeFieldStatRow { field_name: string; total: number; clean: number; normalized: number; quarantined: number }
 export interface IntakeHealthRow { commit_sha: string; field_name: string; reason_code: string; raw_echo: string }
 export interface IntakeHealth {
   fields: IntakeFieldStatRow[];
-  affected_commits: number;     // 隔离行去重的提交数（仅作展示，不参与恒等校验）
-  excluded_commits: number;     // 日期统计明确排除的隔离提交数
+  affected_commits: number; // 去了重之后有几个提交被隔离（只给人看，不参加核对）
+  excluded_commits: number; // 日期统计里明确刨掉了几条被隔离的提交
   quarantined_rows: IntakeHealthRow[];
   threshold_ratio: number;
   escalation: 'none' | 'anchor' | 'threshold';
-  recorded_at: string | null;   // 隔离记录写入时间（NULL 表示异常导致时点不可得）
+  recorded_at: string | null; // 隔离记录写入时间；NULL 就是时点不可得（那会儿拿不到时间），不是没设置
 }
 
 export interface VerdictProjection { band: VerdictBand; reason_class: string }
@@ -304,8 +304,8 @@ export interface VerdictProjection { band: VerdictBand; reason_class: string }
 export interface ReportInput {
   report_id: string;
   schema_version?: string;
-  stability?: 'preview' | 'ga';              // 报告稳定性状态：如实标注预览版或正式版
-  capabilities?: readonly string[];          // 当前已提供的能力列表（预览期只列出真正实装的）
+  stability?: 'preview' | 'ga'; // 报告稳不稳：照实标预览版还是正式版
+  capabilities?: readonly string[]; // 眼下给到哪些能力（预览期只列真做了的）
   scale: string;
   subject_ref: string;
   generated_at: string;
@@ -328,14 +328,14 @@ export interface ReportInput {
   degraded: boolean;
   degraded_reason: string | null;
   preview_disclosure?: PreviewDisclosure;
-  intake_health?: IntakeHealth;  // 缺席时渲染无异常的同结构空表
+  intake_health?: IntakeHealth; // 没有就给一张同结构的空表
   human?: HumanAdjudication;
   narrative_sections?: readonly NarrativeSection[];
 }
 
 export interface Report {
   report_id: string;
-  // 报告结构独立版本化，头部包含固定的状态与能力字段
+  // 报告结构自己带版本号，头部固定写状态和能力字段
   schema_version: string;
   stability: 'preview' | 'ga' | null;
   capabilities: string[];
@@ -364,10 +364,10 @@ export interface Report {
 }
 
 export function buildReport(input: ReportInput): Report {
-  // 叙事生成：宿主 agent 生成的段落逐段盖章；降级报告没有正式叙事时，由内核模板生成兜底说明
+  // 叙事怎么出：宿主 agent 写的段落一段段盖章；降级报告没有正式叙事，就拿内核模板补一段兜底
   const narrativeInput = (input.narrative_sections || []).slice();
   if (input.degraded && narrativeInput.length === 0) {
-    // 标记为降级时，直接补充模板叙事兜底
+    // 标成降级就直接拿模板叙事补上
     narrativeInput.push(renderTemplateNarrative({ quadrants: input.quadrants.slice(), degraded_reason: input.degraded_reason }));
   }
   const adjudication = adjudicate({
@@ -377,7 +377,7 @@ export function buildReport(input: ReportInput): Report {
     decided_at: input.decided_at,
     human: input.human
   });
-  // 隔离升级：关键字段异常或单个字段异常率超标时，整份报告判定升级为不支持；原因记录在 reason_class 和收仓体检段落中。
+  // 隔离升级：要紧的字段坏了，或者单个字段的异常率超线，整份报告就升成不支持；原因写进 reason_class 和采数体检那一节。
   const intakeHealth = input.intake_health !== undefined ? input.intake_health : null;
   const escalation = intakeHealth ? intakeEscalation(intakeHealth.fields) : 'none';
   if (escalation !== 'none' && adjudication.overall !== 'unsupported') { adjudication.overall = 'unsupported'; }
@@ -517,7 +517,7 @@ export function renderMarkdown(r: Report): string {
     }
     out.push('');
   }
-  // ---------- 收仓体检：有无异常都保持相同结构 ----------
+  // ---------- 采数体检：有毛病没毛病都保持一个结构 ----------
   out.push('## Intake Health');
   out.push('');
   out.push('- 契约：违约两级处置——整行协议格式破坏立刻中断，字段内容异常则放入隔离区单独记录');
@@ -530,7 +530,7 @@ export function renderMarkdown(r: Report): string {
       out.push('- field ' + f.field_name + ': total=' + f.total + ' clean=' + f.clean + ' normalized=' + f.normalized + ' quarantined=' + f.quarantined + '（' + eq + '）');
     }
     out.push('- affected_commits（quarantined 去重）: ' + ih.affected_commits);
-    // 明确记录 NULL 含义，避免误解为未设置
+    // NULL 是什么意思写明，省得被当成没设置
     out.push('- quarantine_log.recorded_at（写入时间）: ' + (ih.recorded_at === null ? 'NULL（因字段异常导致观测时间无法获取）' : ih.recorded_at));
     const totalCommits = ih.fields.filter(function (f) { return f.field_name === 'committer_date'; })[0];
     out.push('- 统计排除声明：日期统计基于 ' + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + ' 次提交（已排除隔离的 ' + ih.excluded_commits + ' 次提交；异常提交不参与指标计算）');
@@ -555,10 +555,10 @@ export function renderMarkdown(r: Report): string {
 export interface Sidecar {
   schema_version: string;
   report_id: string;
-  verdict: VerdictProjection;         // 判定结果机读块（band + reason_class）
+  verdict: VerdictProjection; // 判定结果的机读块（band 加 reason_class）
   intake_health: IntakeHealth | null;
-  stability: 'preview' | 'ga' | null;   // 报告稳定性状态
-  capabilities: string[];              // 已上架能力列表
+  stability: 'preview' | 'ga' | null; // 报告稳不稳
+  capabilities: string[]; // 上了架的能力清单
   scale: string;
   subject_ref: string;
   generated_at: string;
@@ -725,8 +725,8 @@ export function degradeReport(r: Report, reason: string): Report {
     preview_disclosure: r.preview_disclosure,
     narrative_sections: []
   };
-  // 降级兜底：使用内核模板叙事作为降级补充说明。
-  // 已盖章的宿主叙事不悄悄丢弃，按降级后的证据重新盖章留痕，模板叙事追加在后面。
+  // 降级兜底：拿内核模板叙事补一段。
+  // 已经盖过章的宿主叙事不悄悄扔，按降级后的证据重新盖一遍留痕，模板叙事追加在后头。
   const hostKept: NarrativeSection[] = r.narrative_sections.map(function (s): NarrativeSection {
     return { section_id: s.section_id, author: s.author, model_id: s.model_id, text: s.text, claims: s.claims.slice() };
   });

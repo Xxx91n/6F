@@ -1,12 +1,12 @@
-// audit/audit.ts — `macro-audit audit` 命令行总入口
-// 语法：macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]
-// 流程：
-//   1. 接收仓库输入并解析路径（默认读取本地目录，owner/repo 形式优先使用本地同名目录，远程地址需主动同意）
-//   2. 调用单仓四象限档共享管线（信息探测、事实采集、行为指标分析、报告骨架组装）
-//   3. 若指定了历史演化档或改动档，则分发到对应的处理模块
-//   4. 将事实数据写入数据库和文件
-//   5. 组装并生成最终的 Markdown 与 JSON 报告
-// 原则：对仓库只读；默认不自动拉取远程最新更新（加 --refresh 明确同意才拉取）；遇到未支持的审计档位如实返回不支持。
+// audit/audit.ts —— `macro-audit audit` 命令的总入口
+// 用法：macro-audit audit <path|owner/repo|url> [--scale <S>] [--out <dir>] [--json] [--refresh]
+// 一条命令分五步走：
+// 1. 先把仓库接进来、把地址认准（默认读本地目录；owner/repo 先找本地同名目录；远端地址得本人点头才拉）
+// 2. 跑单仓四象限档那条共享管线：先探一遍，再采证据，再算行为面，最后拼报告骨架
+// 3. 要的是历史演化档或改动档，就转给对应的模块干活
+// 4. 事实写进库，也写进文件
+// 5. 拼出最后的 Markdown 和 JSON 报告
+// 几条死规矩：对仓库只读；不给 --refresh 就不去远端拿新东西；哪一档还没做，就照实说不支持，不装作能跑。
 
 import { mkdirSync, writeFileSync, existsSync, unlinkSync, readFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
@@ -27,7 +27,7 @@ import { reaggregateFileFacetRows, reconcilePerFileVsAggregate } from '../upstre
 
 const NL = String.fromCharCode(10);
 
-// 理由：规划覆盖 5 档审计规模；预览版按顺序逐步开放能力，未支持的档位明确说明不支持，不假装可用。
+// 规划上一共 5 档审计规模，现在做出来的就这三档；预览版一档一档往外开，没开的照实报不支持，不装作能跑。
 export const AUDIT_SCALES_IMPLEMENTED: readonly string[] = ['Macro-B', 'Macro-C', 'Micro-A'];
 const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（Macro-B/Macro-C/Micro-A 已上架 preview）';
 const SCALE_CANON: Record<string, string> = { 'microa': 'Micro-A', 'microb': 'Micro-B', 'macroa': 'Macro-A', 'macrob': 'Macro-B', 'macroc': 'Macro-C' };
@@ -52,7 +52,7 @@ export function normalizeAuditScale(raw: string | undefined): string {
   return req;
 }
 
-// 提取用于报告展示的仓库简称
+// 报告上要印的仓库简称，从输入里摘出来
 export function auditRepoName(input: string, resolvedRoot: string): string {
   const t = input.trim();
   if (/^(https?|ssh|git|file):\/\//.test(t) || t.indexOf('git@') === 0) {
@@ -66,10 +66,10 @@ export function auditRepoName(input: string, resolvedRoot: string): string {
 export interface AuditOptions {
   input: string;
   scale?: string;
-  outDir?: string;       // 结果输出目录，未指定则输出到标准输出
-  json?: boolean;        // 是否输出 JSON 格式
-  refresh?: boolean;     // 是否主动拉取更新
-  strictQuarantine?: boolean;  // 严格隔离模式：遇到不在已知范围内的异常字段时报错终止
+  outDir?: string; // 结果输出目录，不给就直接打到终端
+  json?: boolean; // 要不要输出 JSON
+  refresh?: boolean; // 要不要主动去远端拉新的
+  strictQuarantine?: boolean; // 严格隔离：碰到名单外的异常字段就报错停手
   cwd?: string;
 }
 
@@ -103,7 +103,7 @@ export interface AuditResult {
 }
 
 const AUDIT_INTENT_CANDIDATES: readonly string[] = ['CONTEXT.md', 'README.md', 'AGENTS.md'];
-// 负对照候选文件列表
+// 当负对照用的候选文件名
 const AUDIT_NC1_CANDIDATES: readonly string[] = ['package.json', 'README.md', 'README.adoc', 'README.rst', 'README', 'Cargo.toml', 'pom.xml', 'build.gradle', 'LICENSE', 'LICENSE.txt', 'pyproject.toml', 'go.mod', 'Makefile'];
 
 function pickExcerpt(absOrRelPath: string, tokens: readonly string[] | null, base: string | null): { line: number; text: string } {
@@ -127,24 +127,24 @@ function pickExcerpt(absOrRelPath: string, tokens: readonly string[] | null, bas
 
 export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   const scale = normalizeAuditScale(opts.scale);
-  if (scale === 'Macro-C') { return runMacroCAudit(opts); }   // 分发至历史演化档
-  if (scale === 'Micro-A') { return runMicroAAudit(opts); }   // 分发至改动档
+  if (scale === 'Macro-C') { return runMacroCAudit(opts); } // 转给历史演化档
+  if (scale === 'Micro-A') { return runMicroAAudit(opts); } // 转给改动档
   const cwd = opts.cwd || process.cwd();
 
-  // 接入仓库路径并解析
+  // 先把仓库接进来，地址解析也在这步
   const intake: RepoAddResult = repoAdd(opts.input, { cwd: cwd, refresh: opts.refresh === true });
   const repoRoot = intake.resolved_root;
   const NAME = auditRepoName(opts.input, repoRoot);
 
-  // 运行基础探测并提取提交记录
+  // 跑一遍基础探测，顺手把提交记录拿回来
   const probes = probeMacroBRepo(repoRoot, intake.head_sha);
   const ctx = macroBContext('audit-' + NAME, NAME, probes.headSha, probes.headDate, probes.headRaw);
-  // 提交时间异常时标记为隔离状态，避免伪造时间戳
+  // 提交时间读不出来就挂个隔离标记，不许编个时间填进去
   const HEAD_AT = probes.headDate === null ? 'quarantined(anchor_head_date_malformed)' : probes.headDate;
   const anchorQuarantined = probes.headDate === null;
   const excludedCommits = probes.commits.filter(function (c) { return c.date === null; }).length;
 
-  // 严格隔离模式：如果出现未预期的字段异常原因码则报错终止
+  // 严格隔离模式下，冒出名单里没有的异常码就当场报错停手
   if (opts.strictQuarantine === true) {
     const violations = strictQuarantineViolations(probes.fieldEvents).concat(ratchetIssues(probes.fieldEvents));
     if (violations.length > 0) {
@@ -160,14 +160,14 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   const col = collectMacroB(repoRoot, {
     intentCandidates: AUDIT_INTENT_CANDIDATES, nc1Candidates: AUDIT_NC1_CANDIDATES,
     stopwords: MACRO_B_STOPWORDS, topN: TC3_TOPN,
-    codelore: 'auto',   // audit=实跑面：binary 缺席/不 pin → resolution 事实留痕＋behavior 象限如实 not_applicable
-    fileLineage: { mode: 'on' },   // #80 步①：确定性 rename 检测→file.renamed 血缘事实（audit 实跑面；demo=off 保确定性）
-    extraCodeloreFacets: (CODELORE_S3_FACETS as unknown as readonly string[]).map(function (a) { return { analysis: a, group: 's3' as const, extraArgs: [] as readonly string[] }; }),   // #87/D-205 structure 摘帽接入：S3 族六面形态测量（成对准入在象限位闸）
+    codelore: 'auto', // 真跑：二进制找不到或版本对不上，就把这事记成事实，行为面照实标不适用
+    fileLineage: { mode: 'on' }, // #80 步①：真跑要追文件改名，改名关系算血缘事实；demo 那头关掉，图的是产物一字不差
+    extraCodeloreFacets: (CODELORE_S3_FACETS as unknown as readonly string[]).map(function (a) { return { analysis: a, group: 's3' as const, extraArgs: [] as readonly string[] }; }), // #87/D-205 结构摘帽接入：S3 族六面也采进来做形态测量；能不能进维度，在象限那道闸上判
     fixtureTag: 'AUDIT', pc2Sha: 'pc2fixture000000000000000000000000000053audit'
   }, ctx, probes);
   const ev = evaluateMacroB(col);
 
-  // 行为指标评估
+  // 行为面这组指标算一遍
   const facetFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_rows'; });
   const facetErrs = col.codeloreFacts.filter(function (f) { return /facet_(parse_)?error/.test(f.metric); });
   const fileFacetFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.file_facet_row'; });
@@ -189,7 +189,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   const bhvNc1 = BHV_DEFERRED.length > 0;
   const behaviorBand = bhvRan ? ((bhvPc1 && bhvTc1 && bhvTc2 && bhvNc1) ? 'supported' : 'insufficient') : 'insufficient';
 
-  // 记录实测指标数据
+  // 把这轮实测的数字记下来
   const persistOut = !!opts.outDir;
   const outDir = opts.outDir ? resolve(cwd, opts.outDir) : mkdtempSync(join(tmpdir(), 'macro-audit-run-'));
   mkdirSync(outDir, { recursive: true });
@@ -207,7 +207,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
       threshold_ratio: QUARANTINE_FIELD_RATIO_RED,
       strict_mode: opts.strictQuarantine === true
     },
-    // 工具写法差异记录与运行环境信息
+    // 工具版本不同引起的等价写法差异，连同运行环境一起记
     collection_environment: {
       git_version: probeGitVersion(),
       instrument_dialect: {
@@ -229,7 +229,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   };
   if (outDir) { writeFileSync(join(outDir, MEAS_NAME), JSON.stringify(measurements, null, 2) + NL, 'utf8'); }
 
-  // 整理结论与证明引文
+  // 挑出结论和撑着它的证据
   const evidence: EvidenceItem[] = [];
   const R = NAME.toUpperCase().split('-').join('').split('/').join('');
   const RUN_CMD = 'macro-audit audit ' + opts.input + (opts.outDir ? ' --out ' + opts.outDir : '');
@@ -257,7 +257,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     { claim_id: 'CL-AUDIT-' + R + '-06', evidence_id: 'EV-AUDIT-' + R + '-07', required_tokens: ['snapshot_fetched_at'] }
   ];
 
-  // 判据判定明细
+  // 一条条判据的判定明细
   const GATE_REF = {
     prereg_commit: '7395495',
     criteria_path: 'reports/22-criteria-pre-registration.md',
@@ -282,7 +282,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
   }
   const strategyBand = deriveOverallBand(adjudicationEntries);
 
-  // 四象限数据组装
+  // 四个象限的数据拼起来
   const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'engine/src/audit/audit.ts' };
   const S3_FACES = CODELORE_S3_FACETS as unknown as readonly string[];
   const s3FaceFacts = col.codeloreFacts.filter(function (f) { return f.metric === 'codelore.facet_rows' && S3_FACES.indexOf(f.subject_ref) >= 0; });
@@ -365,7 +365,7 @@ export async function runAudit(opts: AuditOptions): Promise<AuditResult> {
     intake_health: intakeHealth,
     human: { status: 'pending', adjudicator: 'user', text: null, decided_at: null }
   };
-  // 事实库写入
+  // 事实写进库
   const FACT_WRITE_BATCH = 500;
   const dbPath = join(outDir, 'facts.duckdb');
   if (existsSync(dbPath)) { unlinkSync(dbPath); }

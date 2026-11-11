@@ -1,10 +1,10 @@
-// demo/fixture-generator.ts — 确定性合成 git 仓生成器（D-038① FerrLabs 模式 / A-050 / #45）
-// 单模块约束：只依赖 node: 内建（fs/child_process/path），守卫脚本可直接 import 编译产物。
-// 确定性纪律：author/committer/date 全部 pin 自 definition.steps —— 同 definition 重复生成
-//   逐字节同 SHA（commit object = tree + parents + author + committer + message 全冻结），
-//   golden 可 diff；输出含 merge/多分支/tag 全要素。
-// 合成诚实纪律：本模块只生成 synthetic fixture 仓（author 恒为 Fixture Bot、
-//   email 域 .invalid 保留域），产物绝不冒充真实仓——披露义务在 demo.ts 披露块落实。
+// demo/fixture-generator.ts —— 造逐字节固定的合成 git 仓（D-038① 照 FerrLabs 那套 / A-050 / #45）
+// 单模块：只认 node: 内建（fs/child_process/path），守卫脚本能直接 import 编译产物。
+// 确定性怎么保证：author/committer/date 全从 definition.steps 里钉死——同一份 definition 来回生成
+// 出来的 SHA 逐字节一样（commit 对象=tree 加 parents 加 author 加 committer 加 message，全冻住），
+// golden 就能拿 diff 对；产物里 merge、多分支、tag 这些要素一个不少。
+// 合成的诚实规矩：这个模块只造合成 fixture 仓（author 永远叫 Fixture Bot，
+// 邮箱挂在 .invalid 保留域上），造出来的东西绝不冒充真仓——该说的在 demo.ts 披露块里说。
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
@@ -14,8 +14,8 @@ export const FIXTURE_AUTHOR_NAME = 'Fixture Bot';
 export const FIXTURE_AUTHOR_EMAIL = 'fixture@macro-audit.invalid';
 function gitEnv(date) {
     const env = { ...process.env, GIT_AUTHOR_NAME: FIXTURE_AUTHOR_NAME, GIT_AUTHOR_EMAIL: FIXTURE_AUTHOR_EMAIL, GIT_COMMITTER_NAME: FIXTURE_AUTHOR_NAME, GIT_COMMITTER_EMAIL: FIXTURE_AUTHOR_EMAIL };
-    // 宿主隔离：fixture 逐字节 SHA 契约要求与宿主 git config 完全脱钩——
-    // 禁 system/global 配置（autocrlf/user/hooks 等漂移源），与 intake.ts clone 纪律同型
+    // 把宿主的 git 配置隔开：fixture 要逐字节同 SHA，就不能沾宿主 config 的一点边——
+    // system/global 那层配置（autocrlf/user/hooks 这些漂移源）一律不读，跟 intake.ts 克隆那套一个路子
     env['GIT_CONFIG_NOSYSTEM'] = '1';
     env['GIT_CONFIG_GLOBAL'] = '';
     env['GIT_CONFIG_SYSTEM'] = '';
@@ -26,8 +26,8 @@ function gitEnv(date) {
     return env;
 }
 function git(args, cwd, date) {
-    // 每个 git 子进程统一挂 -c core.hooksPath=<noop>：fixture 仓为新建临时仓，指向 .git 下不存在的
-    // 空目录即可——宿主/全局 hook 一律不触达（参 intake.ts noop-hooks 同型纪律）
+    // 每个 git 子进程都挂上 -c core.hooksPath=<noop>：fixture 是新建的临时仓，指到 .git 下一个不存在的
+    // 空目录就行——宿主和全局的 hook 一律够不着（跟 intake.ts 那套 noop-hooks 一个规矩）
     const noopHooks = join(cwd, '.git', 'noop-hooks');
     const r = spawnSync('git', ['-c', 'core.hooksPath=' + noopHooks].concat(args), { cwd: cwd, encoding: 'utf8', env: gitEnv(date), windowsHide: true });
     if (r.error || r.status !== 0) {
@@ -58,7 +58,7 @@ export function generateFixtureRepo(def, targetDir) {
             for (const f of step.files) {
                 const p = join(targetDir, f.path);
                 mkdirSync(dirname(p), { recursive: true });
-                writeFileSync(p, f.content, 'utf8'); // LF 逐字写入——blob 内容确定
+                writeFileSync(p, f.content, 'utf8'); // 按 LF 逐字写进去——blob 的内容才定得下来
             }
             git(['add', '-A'], targetDir, null);
             git(['commit', '-q', '--no-gpg-sign', '-m', step.message], targetDir, step.date);

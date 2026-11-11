@@ -5,7 +5,7 @@ export function metaPath() {
     const here = dirname(fileURLToPath(import.meta.url));
     return join(here, '..', 'manifest.meta.json');
 }
-// 两个清单文件由同一个元数据源自动生成，不手工复制避免不一致
+// 两个清单文件都是从同一份元数据自动生成的，不手抄，省得两边对不上
 export function loadManifestMeta() {
     return JSON.parse(readFileSync(metaPath(), 'utf8'));
 }

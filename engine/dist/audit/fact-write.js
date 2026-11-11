@@ -1,9 +1,9 @@
-// audit/fact-write.ts —— 事实数据与隔离记录写入的公共处理逻辑
-// 理由：不同审计档位共用同一套只追加不修改的数据库写入通道。
-// audit.ts（单仓四象限档）与 macro-c.ts（历史演化档）共同复用：
-//   同一写入函数、相同的事务颗粒度（按提交划分事务，批量 500 条）、
-//   相同的事实编号规则（只追加写入、按内容寻址）、相同的数据一致性检查。
-// 单文件档补采（audit/file-card.ts）同样使用 appendFact 与 runInTransaction 原语，写入时机不同，但编号与写入规则保持一致。
+// audit/fact-write.ts —— 写事实和隔离记录的公共流水线
+// 几档审计共用同一套只往后加、不改老行的写库流程，所以抽到这里一份。
+// audit.ts（单仓四象限档）和 macro-c.ts（历史演化档）都走这里：
+// 同一个写入函数；同一套事务边界（一个提交一个事务，每批 500 条）；
+// 同一套事实编号规则（只追加、按内容算号）；同一套数量核对。
+// 单文件档的补采（audit/file-card.ts）也用 appendFact 和 runInTransaction，只是写的时候不一样；编号和写法规矩还是这一套。
 import { closeDuckdb, appendFact, appendQuarantineEvent, runInTransaction, AuditIoError, classifyWriteError } from '../fact/store.js';
 import { protocolCrashError, isProtocolCrash, countsFromStats } from '../intake/quarantine.js';
 export async function writeRunFactsAndEvents(writer, input) {
@@ -58,13 +58,13 @@ export async function writeRunFactsAndEvents(writer, input) {
                     await appendEvents(cEvents);
                 });
             }
-            // 检查当前提交写入隔离记录的计数是否一致
+            // 核对这个提交写进去的隔离事件条数对不对得上
             const cn = await (await writer.run('SELECT COUNT(*) FROM quarantine_log WHERE run_id = ? AND commit_sha = ?', [input.ctx.traceId, c.sha])).getRows();
             if (Number(cn[0][0]) !== cEvents.length) {
                 throw protocolCrashError('INTAKE-IDENTITY-MISMATCH', '逐 commit 增量恒等式断言失败：sha=' + c.sha + ' 期望 ' + cEvents.length + ' 库内 ' + Number(cn[0][0]), { crash_location: input.crashSource + ':per-commit-identity', run_context: crashCtx(c.sha), counts: crashCounts() });
             }
         }
-        // 非提交粒度的事实按 500 条分批写入，未绑定到提交的隔离事件随最后一批事务一起提交
+        // 不属于某个提交的事实按 500 条一批写；没挂到提交上的隔离事件跟最后一批一块儿提交
         const orphanEvents = input.fieldEvents.filter(function (fe) { return !commitShaSet.has(fe.commit_sha); });
         for (let i = 0; i < restFacts.length; i += FACT_WRITE_BATCH) {
             const batch = restFacts.slice(i, i + FACT_WRITE_BATCH);

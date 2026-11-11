@@ -1,10 +1,10 @@
-// report/narrative.ts — 叙事双轨的内核逻辑面（叙事不能带判定结果）
-// 职责边界：叙事由宿主 agent 来写（模型生成）；内核只做确定性的盖章——
-//   ① sealNarrative：逐条检查引文（是否落地、有没有证据以及对应的词句）；
-//   ② 判定结果红线机检：叙事段落里绝对不能带判定档位（比如 S1-S5 判定渗入叙事就违规）；
-//   ③ renderTemplateNarrative：内核模板叙事作为降级兜底（带上未验证标记，不能冒充正式叙事）；
-//   ④ 记录模型标识：宿主 agent 写的叙事必须记录 model_id。
-// 纯逻辑约束同 generate.ts：输入一律注入，不读文件系统、不起子进程、不发网络请求、不接大模型。
+// report/narrative.ts —— 叙事这一路的内核部分（叙事不许带判定结果）
+// 谁干什么分清楚：叙事是宿主 agent 写的（模型生成）；内核只管把该确定的事确定下来——
+// ① sealNarrative：一条条查引文（落没落地、有没有证据、对的是哪几个词）；
+// ② 判定结果红线机检：叙事里绝对不能冒出判定档位（比如把 S1-S5 的判断掺进叙事，就违规）；
+// ③ renderTemplateNarrative：内核模板叙事当降级兜底（得带未验证标记，不能冒充正式叙事）；
+// ④ 记下模型标识：宿主 agent 写的叙事必须记 model_id。
+// 纯逻辑的老规矩跟 generate.ts 一样：输入全靠传进来，不读文件、不起子进程、不连网、不调大模型。
 
 import { checkAllCitations, UNVERIFIED_MARK } from './citation.js';
 import type { CitationCheck, EvidenceItem } from './citation.js';
@@ -12,8 +12,8 @@ import type { Report } from './generate.js';
 
 export const NARRATIVE_SEAL_PROTOCOL = 'ADR-0013-C/v1+narrative-seal/v1';
 
-// 叙事内单条断言：claim_id 自命名（建议 NC-n），evidence_id 必须指向 C3 证据锚点，
-// required_tokens = 支撑锚词（和 checkCitationSupport 保持一致）。
+// 叙事里一条条断言：claim_id 自己起名（一般用 NC-n），evidence_id 必须指到 C3 的证据锚，
+// required_tokens 就是撑着它的锚词（跟 checkCitationSupport 一套）。
 export interface NarrativeClaim {
   claim_id: string;
   evidence_id: string;
@@ -51,11 +51,11 @@ export interface SealedNarrative {
   seal: NarrativeSeal;
 }
 
-// ---- 判定结果红线机检：叙事段只带引文盖章，不能带判定档位 ----
-// 命中即违规：维度判定赋值（S1-S5 后接判定符）、判定字段名（verdict/band/verdict_gate/overall_verdict）、
-// 判定赋值句式、中文裁定句式。只扫描叙事内容，不影响裁决块本身。
-// 这里的意图：verdict-field-en 裸词 \bverdict\b 命中即拦是刻意从严——
-// 叙事段里提到判定字段名本身就是越界信号（叙事事前探口风或事后复述判定都是违规），不予放行。
+// ---- 判定结果红线机检：叙事段只能带盖过章的引文，不许带判定档位 ----
+// 撞上就算违规：维度判定赋值（S1-S5 后头跟判定符）、判定字段名（verdict/band/verdict_gate/overall_verdict）、
+// 判定赋值句式、中文裁定句式。只查叙事内容，不动裁决块本身。
+// 这里的心思：verdict-field-en 那一路，光秃秃的 \bverdict\b 一撞就拦，是故意从严——
+// 叙事段里提判定字段名，本身就是越界信号（事前探口风也好，事后复述判定也好，都算），一律不放。
 const BAND_PATTERNS: readonly { name: string; re: RegExp }[] = [
   { name: 'dimension-band-assignment', re: new RegExp('\\bS[1-5]\\s*[:=：＝]') },
   { name: 'verdict-field-en', re: new RegExp('\\b(verdict|verdict_gate|overall_verdict|verdict_band)\\b', 'i') },
@@ -74,8 +74,8 @@ export function scanBandViolations(text: string): string[] {
   return out;
 }
 
-// ---- 盖章流程：宿主 agent 叙事段 → 内核 sealNarrative → 写入报告 ----
-// 返回 SealedNarrative：三种盖章状态 + 每条 claim 的检查明细（哪个 token 对应哪条证据）。
+// ---- 盖章怎么走：宿主 agent 的叙事段 → 内核 sealNarrative → 写进报告 ----
+// 返回 SealedNarrative：三种盖章状态，加上每条断言的检查明细（哪个词对上了哪条证据）。
 export function sealNarrative(section: NarrativeSection, evidence: readonly EvidenceItem[], sealedAt: string): SealedNarrative {
   const checks = checkAllCitations(
     section.claims.map(function (c) { return { claim_id: c.claim_id, evidence_id: c.evidence_id, required_tokens: c.required_tokens }; }),
@@ -109,7 +109,7 @@ export function sealNarrativeSections(sections: readonly NarrativeSection[], evi
 }
 
 // ---- 内核模板叙事兜底 ----
-// 专用于降级场景：只在降级报告中生效；内容不做超出裁决块的断言，判定结果一律指回 C2 裁决块。
+// 只给降级场景用：只在降级报告里生效；话不超出裁决块的范围，判定结果一律指回 C2 裁决块。
 export function renderTemplateNarrative(r: Pick<Report, 'quadrants' | 'degraded_reason'>): NarrativeSection {
   const quads = r.quadrants.map(function (q) { return q.quadrant; }).join('·');
   const text = [

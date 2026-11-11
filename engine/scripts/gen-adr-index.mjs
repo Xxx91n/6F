@@ -1,6 +1,6 @@
-// gen-adr-index.mjs —— #82/D-130②：docs/adr/README.md 生成式索引（序号-标题-状态-日期）。
-// 移植先例=anysearch-cli gen-adr-index.mjs / jiahao build-adr-index.js；产物=导览工件非审计判定面。
-// 用法：node scripts/gen-adr-index.mjs（npm run gen 链已挂）；docs/adr/README.md 禁手改。
+// gen-adr-index.mjs —— #82/D-130②：给 docs/adr/README.md 生成一份索引（号、标题、状态、日期）
+// 照着的先例＝anysearch-cli 的 gen-adr-index.mjs、jiahao 的 build-adr-index.js；产物是份导览，不是审计判定面。
+// 用法：node scripts/gen-adr-index.mjs（npm run gen 那条链已经挂上了）；docs/adr/README.md 不许手改。
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,15 +13,15 @@ const files = readdirSync(adrDir).filter(f => /^(\d{4})-.+\.md$/i.test(f)).sort(
 const rows = [];
 for (const f of files) {
   const head = readFileSync(join(adrDir, f), "utf8").split(String.fromCharCode(10)).slice(0, 20);
-  // 标题=首个 H1（老件裸标题/新件 "# ADR-NNNN: T" 两形兼容）
+  // 标题取头一个 H1（老件是光秃秃的标题，新件是 "# ADR-NNNN: T"，两种都认）
   const h1 = head.find(l => /^#\s/.test(l)) || "";
   const title = h1.replace(/^#\s*/, "").replace(/^ADR-\d+[:：]\s*/, "").trim();
-  // Status 两形："- Status: X"（新件）/ "**Status: X**"（老件）——取首个命中行去修饰
+  // Status 有两种写法："- Status: X"（新件）和 "**Status: X**"（老件）——取头一个撞上的行，把修饰符去掉
   const stLine = head.find(l => /Status[:：]/i.test(l)) || "";
   const status = stLine.replace(/^[\s>*-]*/, "").replace(/^Status[:：]\s*/i, "").replace(/\*+/g, "").trim();
   const dtLine = head.find(l => /^-\s*Date[:：]/i.test(l)) || "";
   let date = dtLine.replace(/^-\s*Date[:：]\s*/i, "").trim();
-  // 回退：无专用 - Date: 行时从 status 文本抽内联 ISO 日期（先例「Status: accepted（2026-09-12）｜…」）——不改恢复件本身
+  // 兜底：没有专门的 - Date 行，就从 status 那行正文里揪内联的 ISO 日期（先例「Status: accepted（2026-09-12）｜…」）——恢复件本身不动
   if (!date) { const m = status.match(/\d{4}-\d{2}-\d{2}/); if (m) date = m[0]; }
   rows.push({ file: f, id: "ADR-" + f.slice(0, 4), title, status, date });
 }

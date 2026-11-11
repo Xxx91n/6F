@@ -1,11 +1,11 @@
 name: docs-ci
 
-# tracker #47：文档权威检查的专用单条任务关卡。
-# 与 engine-ci 分工：engine-ci 的矩阵/路径不动（[22,24] 六条任务 + engine/** 触发）；
-# 本 workflow 只在文档面变化时跑 ubuntu/node24 单腿，复用 engine 的只读快道
-# `npm run check:docs`（致谢段只读比对 + docs-authority），不建第二套校验。
-# tracker #97 追加生成物对不上断言：npm run gen 后 docs/adr/README.md 必须与提交一致，
-# 手改索引或新增 ADR 忘 regen 即红；复用 engine-ci 同一条 gen 链，不建第二套。
+# tracker #47：文档权威检查专用的一条任务关卡。
+# 跟 engine-ci 怎么分工：engine-ci 的矩阵和路径一个字不动（[22,24] 六条任务，加 engine/** 触发）；
+# 本 workflow 只在文档面有变化时跑一条 ubuntu/node24 单腿，复用引擎那条只读快道
+# `npm run check:docs`（致谢段只读比对加 docs-authority 那道检查），不另建第二套校验。
+# tracker #97 又加了生成物对不上断言：npm run gen 跑完，docs/adr/README.md 必须跟提交进来的一致；
+# 手改索引、或者新加了 ADR 忘了 regen，就会红；复用 engine-ci 同一条 gen 链，不另建第二套。
 on:
   push:
     paths:
@@ -19,7 +19,7 @@ on:
       - "GLOSSARY.md"
       - "engine/README.md"
       - "engine/package.json"
-      # tracker #97/CodeRabbit：索引生成器本身改动也须触发对不上检查；engine/scripts 其余面仍归 engine-ci
+      # tracker #97/CodeRabbit：索引生成器本身改了也得触发对不上检查；engine/scripts 其余的面仍归 engine-ci
       - "engine/scripts/gen-adr-index.mjs"
       - "engine/test/contracts/docs-authority-check.mjs"
       - ".github/PULL_REQUEST_TEMPLATE.md"
@@ -39,7 +39,7 @@ on:
       - "GLOSSARY.md"
       - "engine/README.md"
       - "engine/package.json"
-      # tracker #97/CodeRabbit：索引生成器本身改动也须触发对不上检查；engine/scripts 其余面仍归 engine-ci
+      # tracker #97/CodeRabbit：索引生成器本身改了也得触发对不上检查；engine/scripts 其余的面仍归 engine-ci
       - "engine/scripts/gen-adr-index.mjs"
       - "engine/test/contracts/docs-authority-check.mjs"
       - ".github/PULL_REQUEST_TEMPLATE.md"
@@ -64,20 +64,20 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0 (node24)
         with:
           node-version: 24
-      # 只读快道：全部脚本只用 node 内置模块，无需 npm ci；不跑全链 smoke。
+      # 只读快道：脚本全用 node 内建模块，不用 npm ci；全链 smoke 也不跑。
       - name: docs authority guard + document self-checks (read-only)
         run: npm run check:docs
-      # tracker #97：生成物对不上断言——docs/adr/README.md 首行自述 GENERATED，手改或
-      # 新增 ADR 忘 regen 都会让它悄悄过期。gen 两个脚本只用 node 内置模块，无需 npm ci。
-      # 与 engine-ci 的 dist 检查不同，这里不带 --ignore-space-at-eol：那边六条任务矩阵含 Windows
-      # 检出的行尾噪声，本 workflow 单条任务 ubuntu 无此噪声，生成物逐字节核对。
-      # git diff 失败时自动打印 drift 文件与差异；gen 脚本确定性输出（不取当前时钟），未手改恒绿。
+      # tracker #97：生成物对不上断言——docs/adr/README.md 头一行自己写着 GENERATED，手改或者
+      # 新加 ADR 忘了 regen，它就会悄悄过期。gen 那两个脚本只用 node 内建模块，不用 npm ci。
+      # 跟 engine-ci 那边查 dist 不一样，这儿不带 --ignore-space-at-eol：那边六条任务的矩阵里有 Windows
+      # 检出来的行尾噪声，本 workflow 就一条 ubuntu 任务，没这噪声，生成物得逐字节对。
+      # git diff 报错时自己把对不上的文件和差异打出来；gen 脚本出的是定值（不读当前时钟），没手改就一直绿。
       - name: adr-index drift guard (docs/adr/README.md regenerated == committed)
         working-directory: ${{ github.workspace }}
         shell: bash
         run: |
           npm --prefix engine run gen
-          # CodeRabbit：untracked/被删的 README 不进 git diff——tracked 检查必须在 diff 之前
+          # CodeRabbit：没入库的、被删掉的 README 不进 git diff——所以查在不在库里这一步得排在 diff 前头
           if ! git ls-files --error-unmatch -- docs/adr/README.md > /dev/null 2>&1; then
             echo "ADR-INDEX-UNTRACKED: docs/adr/README.md 未纳入提交——npm run gen 后同 commit 提交"
             exit 1

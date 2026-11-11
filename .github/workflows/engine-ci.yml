@@ -23,7 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         # #36：下限 22.18——20-fact-schema-check / 21-collectors-check / 43-check / 23-first-report-check
-        # 四条检查脚本直读 .ts，依赖免 flag 的类型剥离（22.18+/23.6+）；Node 20 抛 ERR_UNKNOWN_FILE_EXTENSION，已 2026-04-30 EOL。
+        # 四条检查脚本直接读 .ts，靠的是免 flag 的类型剥离（22.18+/23.6+）；Node 20 会抛 ERR_UNKNOWN_FILE_EXTENSION，2026-04-30 已经 EOL 了。
         node: [22, 24]
     runs-on: ${{ matrix.os }}
     defaults:
@@ -32,10 +32,10 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0 (node24)
         with:
-          # R64 审计返修 P0-1：84-check B/C 面逐件校验真记录引用的历史 commit——浅克隆对象库不含历史必红（72 件级联实证）；
-          # golden-ci.yml:41 / macro-b-regression.yml:86 同例——对象位于历史深处，fetch-depth: 0 全量取回
+          # R64 审计返修 P0-1：84-check 的 B/C 面要逐个校验真记录里引用的历史 commit——浅克隆的对象库里没有那段历史，必红（72 件连着红就是这么来的）；
+          # golden-ci.yml:41 / macro-b-regression.yml:86 一个道理——对象埋在历史深处，fetch-depth: 0 整段拿回来
           fetch-depth: 0
-          # #117 / artipacked：CI 仅构建及本地检查，无需写远端；清凭据防泄露
+          # #117 / artipacked：CI 只做构建和本地检查，不用往远端写；凭据清掉防泄漏
           persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0 (node24)
         with:
@@ -43,8 +43,8 @@ jobs:
       - run: npm ci
       - run: npm run gen
       - run: npm run build
-      # #82/D-129③：只紧不松的限制断言挂 rebuild-diff 同链＋check-dist.yml 式两减痛件
-      # （--ignore-space-at-eol 容忍行尾空白差；失败时 upload-artifact 供异地复核）
+      # #82/D-129③：只管收紧的体积断言挂在 rebuild-diff 同一条链上，配 check-dist.yml 那套两处减轻痛感的做法
+      # （--ignore-space-at-eol 容忍行尾空白的差；失败时 upload-artifact，方便换个机器复核）
       - name: rebuild-diff guard (D-067 dist committed — src/dist drift fails)
         id: rebuilddiff
         shell: bash
@@ -59,7 +59,7 @@ jobs:
             exit 1
           fi
       - name: upload dist on rebuild-diff failure
-        # #83/F7j：job 级 failure() 缩小为步级 outcome——仅 rebuild-diff 检查本身失败才传 dist（前步失败不再触发上传）
+        # #83/F7j：job 级的 failure() 收窄成看这一步的 outcome——只有 rebuild-diff 这道检查本身挂了才传 dist（前面步骤失败不再触发上传）
         if: steps.rebuilddiff.outcome == 'failure'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 (node24)
         with:
@@ -68,16 +68,16 @@ jobs:
           retention-days: 7
       - run: npm run package
       - run: npm run smoke
-      # #58/D-066 真校验器 advisory：`claude plugin validate --strict`（WARN 不红；cli-absent=SKIP 非失败）
-      # 双触发之一=CI event_bound（manifest.meta.json/gen-manifests.mjs 变更随 engine/** 路径触发即含）；
-      # 双触发之二=pack/marketplace 前置手动窗口 npm run validate:plugin；转 enforce 判据=registry claude-validate-promotion-watch
+      # #58/D-066 真校验器，只报不拦：`claude plugin validate --strict`（WARN 不算红；命令行工具不在就是 SKIP，不算失败）
+      # 两个触发点之一＝CI 的 event_bound（manifest.meta.json / gen-manifests.mjs 一改，跟着 engine/** 路径触发就带上）；
+      # 之二＝打包、上架市场前的那道手动窗口 npm run validate:plugin；要转成真拦的判据挂 registry 的 claude-validate-promotion-watch
       - name: claude plugin validate (advisory)
         shell: bash
         working-directory: engine
         env:
           MACRO_AUDIT_CI: '1'
         run: node scripts/validate-plugin.mjs
-      # #64/D-072③ 自愈双腿：offline-sim（死 registry 三段回落断言）＋干净机 E2E smoke（真补拉→openWriter 读写）
+      # #64/D-072③ 自愈的两条腿：offline-sim（registry 死了三段回落的断言）＋干净机器上的 E2E smoke（真补拉一遍→openWriter 读写）
       - name: duckdb self-heal offline-sim
         shell: bash
         working-directory: engine

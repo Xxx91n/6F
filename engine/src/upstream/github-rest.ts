@@ -1,18 +1,18 @@
-// ---------- 上游适配器：GitHub REST（GitHub REST+env token 主通道、gh 登录态可选回退 / D-048 / #47）----------
-// 托管平台适配器以直接调用 GitHub REST API 并配合环境变量 token 为主，gh 命令行仅作为可选回退
-// 上游接口返回的原始数据不超出适配器范围，业务判定规则不进入这一层
-// 防腐层规则（同 codelore.ts）：本文件只做「HTTP 调用 + 原始响应解析」——状态码、限流响应头解析、
-// 数据结构校验在此处理；判定规则（判据/阈值/裁决）禁止进入本层；接口原始响应不传出本层（统一转换为规范的结构化类型或事实输出）。
-// 方案约定：以 REST 直连并固定 X-GitHub-Api-Version 为主；借用本机 gh 登录态只读使用属于可选回退
-// （尽力而为，非强依赖——git 是产品必需的基础工具，gh 只是可选命令行）；
-// 未提供认证凭据时明确降级（公仓每小时 60 次限流如实说明）；凭据按三级探测即用即清，不保存凭据、不引入 OAuth。
-// 最小数据范围 = PR 列表（平台声明的 Bot 身份双重校验：user.type==Bot 且 login 带 [bot] 后缀）＋PR 详细元数据
-// ＋diff 双通道（优先使用本地 git 计算 base...head，本地没有相应 commit 时才调用 API 获取）。
-// review/comment 等功能当前登记为 planned，不纳入最小集（按需引入）。
-// 限流处理（对齐 GitHub 官方文档）：每个响应解析 x-ratelimit-* 响应头，并将剩余额度写入事实库日志；
-// 主要配额耗尽（remaining=0）时不再等待直接停止，并记录重置时间戳；遇到 403 或 429 且带有 retry-after 时，在时间限制内等待后
-// 重试一次，仍被限流则停止；无 retry-after 且 remaining!=0 时（官方建议等待 60 秒以上，超出执行预算）直接明确停止。
-// 规则要求：Bot 身份仅作为「平台声明的 Bot 身份」记录，不做语义层面的人机推断；私有仓库场景明确提示「token 必需」。
+// ---------- 上游适配器：GitHub REST（REST 加环境变量 token 是主路，gh 登录态是可选回退 / D-048 / #47）----------
+// 取数主要靠直接调 GitHub REST，token 从环境变量拿；gh 命令行只是备用的回退
+// 上游接口吐出来的原始数据不出适配器这层，业务判定也不进这层
+// 隔离线跟 codelore.ts 一个划法：本文件只做「发 HTTP + 解原始响应」——状态码、限流响应头解析、
+// 数据结构校验都在这儿；判定的事（判据、阈值、裁决）不许进来；原始响应不出去（统一整成规范的类型或事实再往外递）。
+// 路子定成这样：REST 直连，X-GitHub-Api-Version 钉死，这是主路；借本机 gh 的登录态只读用，当可选回退
+// （能借就借，不硬依赖——git 是产品必须有的基础工具，gh 就是个可有可无的命令行）；
+// 没给凭据就明着降级（公仓一小时 60 次的限额照实说）；凭据三级探测，用完就清，不存、不搞 OAuth。
+// 最小要采的东西＝PR 列表（平台标的 Bot 身份要两头都验：user.type==Bot 且 login 带 [bot] 后缀）加 PR 详细元数据
+// 加 diff 双通道（先用本地 git 算 base...head，本地没有那个 commit 才去调接口）。
+// review/comment 这些眼下记成 planned，不进最小集（真要用的时候再说）。
+// 限流怎么处理（照 GitHub 官方文档来）：每个响应都看 x-ratelimit-* 头，剩下的额度写进事实库日志；
+// 主配额用光（remaining=0）就不等了，直接停，记下重置时间；撞上 403 或 429 但带 retry-after 的，等它说的时间再
+// 试一回，还被限流就停；没 retry-after 而 remaining 又不是 0 的（官方建议等 60 秒以上，超了执行预算）直接明着停。
+// 规矩：Bot 身份只记成「平台标的 Bot 身份」，不做语义上的人机推断；私有仓的场景明说「要 token」。
 
 import { spawnSync } from 'node:child_process';
 import type { CollectContext, CollectedFact, CollectorDescriptor } from '../collect/collectors.js';
@@ -28,17 +28,17 @@ export const DEFAULT_MAX_PAGES = 10;
 export const DEFAULT_PER_PAGE = 100;
 export const DEFAULT_MAX_RETRY_WAIT_SECONDS = 60;
 
-// 预定计划登记：本任务最小数据范围之外的平台接口，后续有实际需要时再引入
+// 记一下计划：这活儿最小范围之外的接口，哪天真要用再引进来
 export const GITHUB_REST_PLANNED_SURFACES: readonly string[] = ['pulls.reviews', 'pulls.comments', 'issues.comments'];
 
 export const GITHUB_REST_DESCRIPTOR: CollectorDescriptor = {
   id: GITHUB_REST_ADAPTER_ID,
   family: GITHUB_REST_FAMILY,
-  dimension: null, // 防腐层故意留白（上游适配层禁止放入业务判定规则）——维度映射见 docs/upstream-dimension-map.md（D-078）
+  dimension: null, // 这条故意留白（适配层不许塞业务判定）——维度怎么映射看 docs/upstream-dimension-map.md（D-078）
   quadrant: 'strategic'
 };
 
-// ---------- §1 凭据三级探测（即用即清：token 仅保存在内存中，禁止写入事实库、日志或序列化数据） ----------
+// ---------- §1 凭据三级探测（用完就清：token 只搁内存里，不许写进事实库、日志或序列化数据） ----------
 
 export type GithubCredentialStrategy = 'env-token' | 'gh-token' | 'unauthenticated';
 
@@ -52,7 +52,7 @@ export interface GithubCredentialResolution {
 export interface GhTokenProbeResult { available: boolean; token: string | null }
 export type GhTokenProbe = () => GhTokenProbeResult;
 
-// 借用 gh 登录态：只读取 gh auth token，不修改其登录状态；未安装 gh 时返回 available=false（不当作错误）。
+// 借 gh 的登录态：只读 gh auth token，不动它的登录状态；没装 gh 就返回 available=false（不算出错）。
 export function probeGhAuthToken(binary?: string): GhTokenProbeResult {
   const bin = binary || 'gh';
   const r = spawnSync(bin, ['auth', 'token'], { encoding: 'utf8', timeout: 15000, windowsHide: true });
@@ -85,7 +85,7 @@ export function resolveGithubCredential(
   };
 }
 
-// ---------- §2 HTTP 接口层（fetcher 可注入——测试时通过此接口离线回放录制数据） ----------
+// ---------- §2 HTTP 那层（fetcher 能换——测试时从这个口离线放录制好的数据） ----------
 
 export interface GithubHttpRequest {
   method: string;
@@ -125,7 +125,7 @@ export function realHttpFetcher(timeoutMs?: number): GithubHttpFetcher {
   };
 }
 
-// ---------- §3 限流响应头解析与客户端（每个响应读取 x-ratelimit-*，配额记录写入调用日志并存入事实库） ----------
+// ---------- §3 限流响应头怎么解、客户端怎么当（每个响应都读 x-ratelimit-*，配额记进调用日志再落进事实库） ----------
 
 export interface RateLimitSnapshot {
   limit: number | null;
@@ -215,11 +215,11 @@ export function createGithubRestClient(cred: GithubCredentialResolution, opts?: 
     return { ok: false, status: res.status, data: null, error_kind: 'http', rate_limit: rl, retried: false, detail: 'http ' + res.status };
   }
 
-  // 退避等待策略（与官方文档对齐，限制等待上限）：
-  //  主要限额耗尽（remaining==0）时立即停止，不在程序内空等重置时间；
-  //  次级限流带有 retry-after 且小于等于最大等待时间时，等待指定时间并重试一次；若仍被限流或超出等待上限则停止；
-  //  次级限流未提供 retry-after 时（官方建议至少等待 60 秒以上，超出执行预算）直接停止。
-  // 403 或 429 在记录时直接归类为 rate-limited——调用日志记录的是处理结论而非单纯的底层网络状态。
+  // 退避怎么等（照官方文档，等待上限管住）：
+  // 主配额用光（remaining==0）就立刻停，不在程序里干等它重置；
+  // 次级限流带 retry-after 且没超过最长等待，就等到点再试一回；还被限流或超了等待上限就停；
+  // 次级限流没给 retry-after 的（官方建议至少等 60 秒，超了执行预算）直接停。
+  // 403 或 429 记的时候就归成 rate-limited——调用日志记的是处理结论，不是光秃秃的网络状态。
   function logAttempt(path: string, r: GithubApiResult, retried: boolean): void {
     const kind = (r.status === 403 || r.status === 429) ? 'rate-limited' : r.error_kind;
     log.push({ path: path, status: r.status, rate_limit: r.rate_limit, retried: retried, error_kind: kind });
@@ -257,7 +257,7 @@ export function createGithubRestClient(cred: GithubCredentialResolution, opts?: 
   return { call: call, callLog: log };
 }
 
-// ---------- §4 数据结构校验与解析（格式不匹配时明确抛出错误，不掩盖异常） ----------
+// ---------- §4 数据结构校验和解析（格式不对就明着抛错，别把异常盖住） ----------
 
 export class GithubSchemaDrift extends Error {
   missing: string[];
@@ -292,7 +292,7 @@ function num(v: unknown): number | null { return typeof v === 'number' && isFini
 function str(v: unknown): string | null { return typeof v === 'string' ? v : null; }
 function boolOrNull(v: unknown): boolean | null { return typeof v === 'boolean' ? v : null; }
 
-// 平台声明的 Bot 身份双重校验：user.type=='Bot' 且 login 以 [bot] 结尾——缺一不认定为 Bot（照实记录，不主观推断）。
+// 平台标的 Bot 身份要两头都验：user.type=='Bot' 且 login 以 [bot] 结尾——差一样就不认（照实记，不瞎猜）。
 export function platformDeclaredBot(login: unknown, userType: unknown): boolean {
   return userType === 'Bot' && typeof login === 'string' && /\[bot\]$/i.test(login);
 }
@@ -371,7 +371,7 @@ export function parsePrDetail(row: unknown): PrDetail {
   };
 }
 
-// ---------- §5 diff 双通道（优先使用本地 git 计算 base...head；本地缺失相关 commit 时才调用 API） ----------
+// ---------- §5 diff 两条通道（先用本地 git 算 base...head；本地没那个 commit 才调接口） ----------
 
 export interface PrDiffStats {
   files_changed: number | null;
@@ -390,7 +390,7 @@ export interface PrDiffOutcome {
 
 const NULL_STATS: PrDiffStats = { files_changed: null, additions: null, deletions: null };
 
-// SHA 十六进制格式校验正则（#116 安全检查：防止参数注入、路径遍历或非法字符；限定 7 到 40 位十六进制字符）
+// SHA 十六进制校验正则（#116 安全：防参数注入、路径穿越和怪字符；只认 7 到 40 位十六进制）
 export const GIT_SHA_HEX_RE = /^[0-9a-f]{7,40}$/i;
 
 export function isValidGitSha(sha: string): boolean {
@@ -445,7 +445,7 @@ export async function resolvePrDiff(
   headSha: string,
   repoRoot?: string | null
 ): Promise<PrDiffOutcome> {
-  // 非空 SHA 必须满足十六进制校验；恶意参数/非法字符前置拒绝
+  // 非空的 SHA 必须过十六进制校验；恶意参数、怪字符在这儿就挡回去
   if ((baseSha && !isValidGitSha(baseSha)) || (headSha && !isValidGitSha(headSha))) {
     return { channel: 'local-git', ok: false, text: '', stats: NULL_STATS, detail: 'invalid base or head git sha: baseSha=' + JSON.stringify(baseSha) + ', headSha=' + JSON.stringify(headSha), error_kind: 'local-diff' };
   }
@@ -454,7 +454,7 @@ export async function resolvePrDiff(
   if (repoRoot && cleanBase && cleanHead && gitShaResolvable(repoRoot, cleanBase) && gitShaResolvable(repoRoot, cleanHead)) {
     const l = localThreeDotDiff(repoRoot, cleanBase, cleanHead);
     if (l.ok) { return { channel: 'local-git', ok: true, text: l.text, stats: l.stats, detail: null, error_kind: null }; }
-    // 规则限定（D-048）：API diff 仅在本地缺少 base 或 head 时作为备选；本地存在 commit 但 diff 执行失败时照实报错降级，不悄悄换通道
+    // 规矩卡死（D-048）：API diff 只在本地缺 base 或 head 时当备选；本地有 commit 但 diff 跑挂了，照实报错降级，不许悄悄换通道
     return { channel: 'local-git', ok: false, text: '', stats: NULL_STATS, detail: 'local-git diff failed: ' + (l.detail || 'unknown'), error_kind: 'local-diff' };
   }
   return apiDiff(client, owner, repo, prNumber);
@@ -468,7 +468,7 @@ async function apiDiff(client: GithubRestClient, owner: string, repo: string, pr
   return { channel: 'api', ok: true, text: String(res.data), stats: NULL_STATS, detail: 'api diff channel (base/head 本地缺席)', error_kind: null };
 }
 
-// ---------- §6 仓库引用解析（解析 owner/repo 与 github.com URL；非 GitHub 地址明确拒绝） ----------
+// ---------- §6 仓库地址怎么解（解 owner/repo 和 github.com 的 URL；不是 GitHub 的直接拒） ----------
 
 export type GithubRepoRef = { ok: true; owner: string; repo: string } | { ok: false; reason: string };
 
@@ -486,7 +486,7 @@ export function parseGithubRepoRef(input: string): GithubRepoRef {
   return { ok: false, reason: 'unparseable repo ref' };
 }
 
-// ---------- §7 采集入口（记录事实：resolution、rate_limit 运行日志、pr_summary、pr_metadata、pr_diff、run） ----------
+// ---------- §7 采集入口（记事实：resolution、rate_limit 运行日志、pr_summary、pr_metadata、pr_diff、run） ----------
 
 export interface CollectGithubPrOptions {
   state?: 'open' | 'closed' | 'all';
@@ -537,7 +537,7 @@ export async function collectGithubPrFacts(
   let stopped: string | null = null;
   const counters = { errors: 0, rate_limited: 0, schema_drift: 0, prs: 0, details: 0, diffs: 0, diffs_local: 0, diffs_api: 0 };
 
-  // 统一输出日志事实：按照调用记录真实输出 rate_limit 事实（列表、详情与 diff 统一来源）
+  // 日志事实统一出：照调用实况出 rate_limit 事实（列表、详情、diff 一个来源）
   function emitCallLog(fromIdx: number): void {
     for (let li = fromIdx; li < client.callLog.length; li++) {
       const le = client.callLog[li];
@@ -575,7 +575,7 @@ export async function collectGithubPrFacts(
     }
   }
 
-  // 获取 PR 列表（按每页条数分页，当返回条数少于每页要求时停止）
+  // 拉 PR 列表（一页一页拉，回来不够一页就停）
   const state = opts.state || 'all';
   const perPage = opts.perPage || DEFAULT_PER_PAGE;
   const maxPages = opts.maxPages || DEFAULT_MAX_PAGES;
@@ -619,7 +619,7 @@ export async function collectGithubPrFacts(
     if (rows.length < perPage) { break; }
   }
 
-  // 获取 PR 详情与 diff 内容（仅获取指定编号，遇到限流或错误时停止）
+  // 拉 PR 详情和 diff 内容（只拉指定的号，撞上限流或出错就停）
   const byNumber = new Map<number, PrSummary>();
   for (const s of summaries) { byNumber.set(s.number, s); }
   if (!stopped) {
