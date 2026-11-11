@@ -1,16 +1,16 @@
-// fact/subject.ts — 文件标准路径格式转换器
-// 理由：subject_ref 统一走标准相对路径格式，不折叠大小写。
-// 纯逻辑模块：不读文件系统、不启动子进程——符号链接与普通文件判定由外部传入。
-// 标准路径格式：基于五条相对路径规则加上明确的 Unicode NFC 规范化：
-//   基于仓库根目录的相对路径 / 统一用 '/' 分隔（Windows 反斜杠会自动转为正斜杠）/ 不含 '//' '.' '..' 空段 /
-//   明确做 Unicode NFC 转换 / 不折叠大小写（仅大小写不同的路径视为不同文件）。
-// 统一入口：上游数据中的 path/entity 字段与文件改名记录中的端点路径都由此函数处理。
+// fact/subject.ts —— 把文件路径整成标准形
+// subject_ref 全走标准相对路径，大小写不折叠。
+// 纯逻辑：不碰文件系统、不起子进程——是不是符号链接、是不是普通文件，外面传进来。
+// 标准形就是五条相对路径的规矩，外加明确的 Unicode NFC 规范化：
+// 以仓根为基准的相对路径 / 一律 '/' 分隔（Windows 的反斜杠自动转正斜杠）/ 不留 '//' '.' '..' 空段 /
+// 老老实实做 NFC 转换 / 大小写不折叠（只差大小写的两条路径就是两个文件）。
+// 统一入口：上游数据里的 path/entity 字段，还有改名记录两头的路径，都过这个函数。
 
 export interface SubjectNormResult {
   ok: boolean;
-  subject: string | null;     // 标准化路径（ok=true 时非空）
-  reason: string | null;      // 拒绝原因（ok=false）：empty / absolute / nul-byte / dotdot-segment / empty-after-normalize
-  warnings: string[];         // 格式清理过程的非致命记录（trimmed / backslash-normalized / dot-segment-dropped / empty-segment-dropped / nfc-normalized）
+  subject: string | null; // 归整后的路径（ok=true 时肯定不是空）
+  reason: string | null; // 为什么拒（ok=false）：empty / absolute / nul-byte / dotdot-segment / empty-after-normalize
+  warnings: string[]; // 清理格式时那些不致命的小动作（trimmed / backslash-normalized / dot-segment-dropped / empty-segment-dropped / nfc-normalized）
 }
 
 const ABSOLUTE_RE = /^([A-Za-z]:[\\/]|\\|\/\/|\/)/;
@@ -18,7 +18,7 @@ const ABSOLUTE_RE = /^([A-Za-z]:[\\/]|\\|\/\/|\/)/;
 export function normalizeSubjectPath(raw: string): SubjectNormResult {
   const warnings: string[] = [];
   if (typeof raw !== 'string') { return { ok: false, subject: null, reason: 'non-string', warnings: warnings }; }
-  if (raw.trim() !== raw) { warnings.push('trimmed'); }   // 去掉首尾空格并记录，避免悄悄合并路径
+  if (raw.trim() !== raw) { warnings.push('trimmed'); } // 两头有空格就削掉并记一笔，别悄悄把两条路径并成一条
   let s = raw.trim();
   if (s.length === 0) { return { ok: false, subject: null, reason: 'empty', warnings: warnings }; }
   if (s.indexOf(String.fromCharCode(0)) >= 0) { return { ok: false, subject: null, reason: 'nul-byte', warnings: warnings }; }
@@ -39,12 +39,12 @@ export function normalizeSubjectPath(raw: string): SubjectNormResult {
   let out = kept.join('/');
   const nfc = out.normalize('NFC');
   if (nfc !== out) { warnings.push('nfc-normalized'); out = nfc; }
-  // 不折叠大小写：字面路径原样保留，仅大小写冲突的情况由 detectCaseOnlyConflicts 单独检查。
+  // 大小写不折叠：字面路径原样留着；只有大小写撞车的，交给 detectCaseOnlyConflicts 单独查。
   return { ok: true, subject: out, reason: null, warnings: warnings };
 }
 
-// 仅大小写冲突检查：将路径转为小写后分组，若同一组存在多个不同的原写法，
-// 说明在不区分大小写的文件系统上会冲突。输出固定排序的路径对。
+// 只查大小写撞车：路径转小写分组，同一组里冒出好几个不同写法，
+// 说明在大小写不敏感的文件系统上会打架。结果按固定顺序排好输出。
 export function detectCaseOnlyConflicts(subjects: readonly string[]): { pairs: [string, string][] } {
   const buckets = new Map<string, string[]>();
   for (const s of subjects) {

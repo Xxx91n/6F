@@ -1,8 +1,8 @@
-// audit/file-card.ts — `audit file` 按需补采流程
-// 理由：按需补采与批量分析复用同一套单文件数据写入管线，MCP 查询面永远只读不写。
-// 命令行入口：未命中现有数据时重新执行采集管线并追加新事实（与批量分析共用同一套写入函数与编号规则）。
-// 检查目标提交是否在仓库对象库中存在；只读取 git 数据，不依赖本地工作区的未提交修改。
-// 补采写入连接先关闭，再打开只读连接进行结果查询展示。
+// audit/file-card.ts —— `audit file` 按需补采的那条路
+// 按需补采和批量分析共用同一套单文件写入流程；MCP 那头只看不写，所以补采只能在命令行做。
+// 命令行入口：库里没有这份文件的数据时，重跑一遍采集，把新事实追加进去（写入函数和编号规则跟批量分析一样）。
+// 先确认这个提交在仓库对象库里真能找到；只读 git，不碰工作区没提交的改动。
+// 写连接先关掉，再开一个只读连接去查结果、摆出来。
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync } from 'node:fs';
@@ -29,25 +29,25 @@ export function isAuditFileError(e: unknown): e is AuditFileError {
 }
 
 export interface AuditFileCollectors {
-  // 测试注入接口：默认调用真实采集管线；传入自定义函数用于测试
+  // 测试用的注射口：默认跑真采集，测试时换成自定义函数
   codelore?: (ctx: CollectContext, repoRoot: string) => CollectedFact[];
   lineage?: (ctx: CollectContext, repoRoot: string) => CollectedFact[];
 }
 
 export interface AuditFileOptions {
-  input: string;                    // repo 输入（repoAdd 三段式复用）
-  path: string;                     // 目标文件路径（卡内归一）
-  db: string;                       // facts.duckdb 路径（不存在则自动创建，只追加不覆盖）
-  at?: string;                      // 固定指定提交（固定历史提交时禁止补采，无数据则直接返回缺失）
+  input: string; // 仓库输入（跟 repo add 一样支持三种写法）
+  path: string; // 要看的那份文件；路径统一成仓根相对写法
+  db: string; // facts.duckdb 的路径；文件不在就建一个，只往后加不覆盖
+  at?: string; // 指定某个历史提交：这种情况下不许补采，库里没数据就直接说没有
   cwd?: string;
-  collectors?: AuditFileCollectors; // 测试注入缝
+  collectors?: AuditFileCollectors; // 测试时把采集器换掉的接口
 }
 
 export interface AuditFileResult {
   card: FileCard;
   backfilled: boolean;
-  emitted: number;                  // 本次补采新增事实数（0 表示纯读取未补采）
-  skipped: number;                  // 已存在事实的跳过数
+  emitted: number; // 这次补采新加了几条事实（0 就是只读没补）
+  skipped: number; // 库里本来就有、这次跳过的条数
   repo_ref: string;
   repo_name: string;
   head_sha: string;
@@ -57,7 +57,7 @@ function gitOut(root: string, args: readonly string[]): string {
   return execFileSync('git', ['-C', root].concat(args as string[]), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim();
 }
 
-// 默认补采管线：提取文件行为面指标（按单文件归纳）并结合文件改名记录。
+// 默认的补采流程：把这个文件的行为面指标按单文件归出来，再把改名记录一起取上
 function defaultCodeloreCollect(ctx: CollectContext, repoRoot: string): CollectedFact[] {
   return collectCodeloreFacets({ repoRoot: repoRoot, facets: CODELORE_BEHAVIOR_FACETS }, ctx);
 }
@@ -77,7 +77,7 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
   const repoRoot = intake.resolved_root;
   const name = auditRepoName(opts.input, repoRoot);
 
-  // 确认目标提交可解析：解析失败直接报错终止
+  // 先确认目标提交能解析出来；解析不了直接报错停手
   let headSha: string;
   try {
     headSha = gitOut(repoRoot, ['rev-parse', 'HEAD']);
@@ -85,7 +85,7 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
   } catch (e) {
     throw new AuditFileError('AUDIT-FILE-SHA-UNREACHABLE', '目标 SHA 对象库不可达（git rev-parse HEAD）：' + String((e as Error).message));
   }
-  // 提取观测时间：吸收时间格式差异，不触发错误隔离
+  // 取观测时间：写法差异先吸收掉，别当成字段异常去隔离
   const headRaw = gitOut(repoRoot, ['log', '-1', '--format=%cI']);
   const absorbed = absorbGitIsoDialect(headRaw);
   const cls = classifyGitIsoField(absorbed.value);
@@ -93,12 +93,12 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
   const repoRef = name + '@' + headSha;
   const pinned = opts.at !== undefined && opts.at.length > 0;
 
-  // 检查已有观测集：若指定了历史提交则不补采；若未指定且当前提交无数据则触发补采
+  // 先看库里有没有观测集：指定了历史提交就不补采；没指定、当前提交又没数据，才补
   let backfilled = false;
   let emitted = 0;
   let skipped = 0;
   if (!pinned) {
-    // 数据库文件不存在则直接补采，避免只读打开时报错
+    // 库文件压根不存在，直接补采，省得只读打开时报错
     const preCard = existsSync(opts.db)
       ? await projectFileCard(opts.db, { repo: name, subject: opts.path, current_head_sha: headSha })
       : null;
@@ -109,12 +109,12 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
       const codeloreFn = (opts.collectors && opts.collectors.codelore) || defaultCodeloreCollect;
       const lineageFn = (opts.collectors && opts.collectors.lineage) || defaultLineageCollect;
       const batch = codeloreFn(ctx, repoRoot).concat(lineageFn(ctx, repoRoot));
-      mkdirSync(dirname(opts.db), { recursive: true });   // 确保数据库目录存在
+      mkdirSync(dirname(opts.db), { recursive: true }); // 库所在的目录先建出来
       const writer = await openWriter(opts.db);
       try {
-        // 使用事务包裹：出错完整回滚，防止写入残缺数据
+        // 整段包在事务里：出错全回滚，不留半截数据
         emitted = await runInTransaction(writer, async function () {
-          // 写入前预查已存在的事实编号，已存在的直接跳过
+          // 写之前先查一遍库里已有的编号，有的就跳过
           const seen = await existingFactIds(writer, batch.map(function (f) { return f.fact_id; }));
           let n = 0;
           for (const f of batch) {
@@ -124,7 +124,7 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
               await appendFact(writer, f);
               n += 1;
             } catch (e) {
-              // 仅主键冲突允许跳过，其余写入异常直接抛出并回滚
+              // 只有主键撞车才允许跳过；别的写入报错一律往上抛、回滚
               if (!isFactIdUniqueViolation(e)) { throw e; }
               skipped += 1;
             }
@@ -132,7 +132,7 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
           return n;
         });
       } finally {
-        closeDuckdb(writer);   // 写入完成关闭连接，便于后续只读查询
+        closeDuckdb(writer); // 写完关连接，后面查询用只读那条
       }
       backfilled = true;
     }
@@ -146,7 +146,7 @@ export async function runAuditFile(opts: AuditFileOptions): Promise<AuditFileRes
       current_head_sha: headSha,
       source: backfilled ? 'backfill' : 'prefetch'
     })
-    : buildFileCard({   // 指定了历史提交但数据库不存在时，如实返回未采集，不伪造数据
+    : buildFileCard({ // 指定了历史提交但库文件没有：照实说没采过，不许编数据
       subject: opts.path, setRepoRef: null, setFacts: [], availableHeadShas: [],
       pinnedSha: pinned ? (opts.at as string) : null, currentHeadSha: headSha,
       source: 'unknown', cliGuidance: null

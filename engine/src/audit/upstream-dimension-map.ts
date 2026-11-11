@@ -1,20 +1,20 @@
-// upstream-dimension-map.ts — 上游事实到维度的运行时映射配置
-// 理由：战略象限固定为 S1 到 S5 五个维度，映射关系不得随意增减维度。
+// upstream-dimension-map.ts —— 上游事实归到哪一维，运行时就在这张表里定
+// 战略象限就 S1 到 S5 这五个维度，映射不许随手加维度、减维度。
 //
-// 规则依据：
-//   定义来源：docs/upstream-dimension-map.md
-//   本文件为该规则的运行时代码体现，保持与文档内容一致；
-//   上游适配器本身不包含业务维度的定义，具体映射只在本模块中处理。
+// 这张表从哪儿来：
+// 定义写在 docs/upstream-dimension-map.md
+// 这份代码就是那条规矩的运行版，内容得跟文档对得上
+// 上游适配器本身不带业务维度，维度怎么映射只在这儿处理
 //
-// 映射规则摘要：
-//   codelore：演化主干相关指标映射到 S4；结构与预算相关指标映射到 S3；
-//             所有权边界相关指标映射到 S5；explain 说明类指标映射到 S4；
-//             单仓四象限行为数据映射到行为象限，不直接作为战略维度。
-//   github-rest：PR 汇总映射到 S4；合并耗时排除平台声明的机器人后映射到 S4；
-//             机器人参与密度映射到 S5；
-//             接口报错、速率限制、演化差异等辅助字段不映射到战略维度。
+// 映射规则，一句话一摊：
+// codelore：演化主干那批指标进 S4；结构和预算那批进 S3；
+// 所有权边界那批进 S5；explain 说明类进 S4；
+// 单仓四象限的行为数据进行为象限，不当战略维度用。
+// github-rest：PR 汇总进 S4；合并耗时把平台自己标的机器人刨掉后进 S4；
+// 机器人参与密度进 S5；
+// 接口报错、速率限制、演化差异这些辅助字段不进战略维度。
 //
-// 复审日期常量对应文档中的复审日期。
+// 复审日期常量跟文档上写的复审日期对得上。
 
 import { CODELORE_DESCRIPTOR } from '../upstream/codelore.js';
 import { GITHUB_REST_DESCRIPTOR } from '../upstream/github-rest.js';
@@ -23,22 +23,22 @@ import type { CollectorDescriptor, CollectedFact } from '../collect/collectors.j
 export const UPSTREAM_DIMENSION_MAP_VERSION = 'v1.0';
 export const UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: '2026-10-25', next_review: '2026-11-24' } as const;
 
-// ---------- 映射取值范围 ----------
+// ---------- 映射的取值范围 ----------
 
 export type UpstreamDimension = 'S3' | 'S4' | 'S5';
 export type UpstreamLane = 'Micro-A' | 'Macro-B-QuadrantEntry' | 'deferred' | 'excluded' | 'pending-event_bound';
 
 export interface UpstreamMapRow {
   readonly adapter: 'codelore' | 'github-rest';
-  readonly surface: string;              // codelore 分析项或组别标签；github-rest 事实类型或切片名
+  readonly surface: string; // codelore 的分析项或组名；github-rest 这边是事实类型或切片名
   readonly surface_kind: 'analysis' | 'group' | 'fact_type' | 'slice';
-  readonly dimension: UpstreamDimension | null;   // null 表示不归入 S1-S5 维度
+  readonly dimension: UpstreamDimension | null; // null 就是不进 S1-S5 这五个维度
   readonly lane: UpstreamLane | 'S-dimension';
-  readonly admission: string;            // 准入条件说明
+  readonly admission: string; // 什么样的项才准进，写在这儿
   readonly note: string;
 }
 
-// ---------- codelore 映射配置 ----------
+// ---------- codelore 的映射配置 ----------
 
 const CL = (surface: string, kind: UpstreamMapRow['surface_kind'], dimension: UpstreamMapRow['dimension'], lane: UpstreamMapRow['lane'], admission: string, note: string): UpstreamMapRow =>
   ({ adapter: 'codelore', surface, surface_kind: kind, dimension, lane, admission, note });
@@ -46,10 +46,10 @@ const CL = (surface: string, kind: UpstreamMapRow['surface_kind'], dimension: Up
 export const CODELORE_EVOLUTION_FACETS = ['revisions', 'abs-churn', 'entity-churn', 'author-churn', 'hotspot-velocity', 'code-age', 'stale-code', 'architecture-trend', 'health-trend', 'lead-time', 'release-cadence', 'messages'] as const;
 export const CODELORE_S3_FACETS = ['god-classes', 'architecture-metrics', 'dependency-cycles', 'modularity-violations', 'instability', 'architecture-roles'] as const;
 
-// 读数归属层标签常量：同一个测量指标可以给多个判断层使用，具体归属由实际读取它的层决定。
+// 读数归哪一层用的标签：同一个读数可能好几层都要看，具体归哪层由读它的那层决定。
 export const SEMANTIC_DOMAIN_LABELS = {
-  structure: 'structure/shape',          // 结构象限的形态测量读数
-  s3: 'S3/budget-attribution'            // S3 维度的预算归因读数
+  structure: 'structure/shape', // 结构象限的形态测量读数
+  s3: 'S3/budget-attribution' // S3 维度的预算归因读数
 } as const;
 export const CODELORE_S5_FACETS = ['ownership', 'entity-ownership', 'bus-factor', 'main-dev', 'main-dev-by-revs', 'main-dev-by-deletions', 'knowledge-islands', 'communication', 'coordination-needs', 'team-composition', 'marginal-owner-risk', 'pair-programming'] as const;
 export const CODELORE_EXPLAIN_SURFACES = ['explain-repo', 'explain-brief', 'explain-adr', 'explain-query', 'explain-resolve', 'explain-execute', 'explain-dryrun', 'llm-narrative', 'capability-check'] as const;
@@ -64,7 +64,7 @@ export const CODELORE_DIMENSION_MAP: readonly UpstreamMapRow[] = [
   CL('deferred-faces', 'group', null, 'deferred', '暂缓面集=registry codelore-deferred-faces 枚举，未激活不映射（D-035④）', 'deferred 面集显式不映射'),
 ];
 
-// ---------- github-rest 行集 ----------
+// ---------- github-rest 那些行 ----------
 
 const GH = (surface: string, kind: UpstreamMapRow['surface_kind'], dimension: UpstreamMapRow['dimension'], lane: UpstreamMapRow['lane'], admission: string, note: string): UpstreamMapRow =>
   ({ adapter: 'github-rest', surface, surface_kind: kind, dimension, lane, admission, note });
@@ -82,13 +82,13 @@ export const GITHUB_REST_DIMENSION_MAP: readonly UpstreamMapRow[] = [
 
 export const UPSTREAM_DIMENSION_MAP: readonly UpstreamMapRow[] = [...CODELORE_DIMENSION_MAP, ...GITHUB_REST_DIMENSION_MAP];
 
-// ---------- 维度解析器（根据事实或指标块给出所属维度与准入判定） ----------
+// ---------- 维度解析器：拿一条事实或一块指标，说出它归哪维、够不够格进 ----------
 
 export interface UpstreamResolution {
   readonly dimension: UpstreamDimension | null;
-  readonly lane: UpstreamLane | 'S-dimension' | 'unmapped';   // unmapped 表示未登记的项目
+  readonly lane: UpstreamLane | 'S-dimension' | 'unmapped'; // unmapped 就是没登记过的项
   readonly admission: string;
-  readonly admitted: boolean;          // 是否满足准入条件并纳入维度
+  readonly admitted: boolean; // 够不够格进维度
   readonly reason: string;
 }
 
@@ -120,14 +120,14 @@ export function isGithubRestExcludedFactType(factType: string): boolean {
   return (GITHUB_REST_EXCLUDED_FACT_TYPES as readonly string[]).includes(factType);
 }
 
-// ---------- 上游采集器登记信息 ----------
-// 适配器描述中的 dimension 保持为 null，不带业务含义；此处仅记录消费面的连接状态。
+// ---------- 上游采集器的登记信息 ----------
+// 适配器描述里的 dimension 一直是 null，不带业务含义；这儿只记消费那头接通没接通。
 
 export interface UpstreamCollectorRegistration {
   readonly descriptor: CollectorDescriptor;
   readonly registered: boolean;
   readonly opt_in: 'binary+pin' | 'token+network';
-  readonly skipped_semantics: string;    // 环境缺失时明确报告跳过，不计入通过
+  readonly skipped_semantics: string; // 环境缺东西时照实报跳过，不算通过
 }
 
 export const UPSTREAM_COLLECTOR_REGISTRY: readonly UpstreamCollectorRegistration[] = [
@@ -145,7 +145,7 @@ export const UPSTREAM_COLLECTOR_REGISTRY: readonly UpstreamCollectorRegistration
   },
 ];
 
-// ---------- 单仓四象限档消费投影（将上游事实映射为对应维度输出） ----------
+// ---------- 单仓四象限档消费时的投影：把上游事实按维度摊开 ----------
 
 export interface UpstreamProjectionEntry {
   readonly fact_id: string;
@@ -162,14 +162,14 @@ export interface UpstreamProjection {
   readonly map_version: string;
   readonly map_review: typeof UPSTREAM_DIMENSION_MAP_REVIEW;
   readonly mapped: UpstreamProjectionEntry[];
-  readonly unmapped: UpstreamProjectionEntry[];   // 未归入维度的上游事实明确列出
+  readonly unmapped: UpstreamProjectionEntry[]; // 没归进维度的事实单列出来
 }
 
 export function projectUpstreamDimensions(facts: readonly CollectedFact[]): UpstreamProjection {
   const mapped: UpstreamProjectionEntry[] = [];
   const unmapped: UpstreamProjectionEntry[] = [];
   for (const f of facts) {
-    if (f.scale === 'Micro-B') { continue; }   // 单文件档事实不进入单仓四象限档的维度映射，避免结果文件过大
+    if (f.scale === 'Micro-B') { continue; } // 单文件档的事实不进单仓四象限档的维度映射，免得结果文件撑得太大
     const fam = f.metric.startsWith('codelore.') ? 'upstream-codelore'
       : f.metric.startsWith('github_rest.') ? 'upstream-github-rest' : null;
     if (fam === null) continue;
@@ -181,7 +181,7 @@ export function projectUpstreamDimensions(facts: readonly CollectedFact[]): Upst
       res = resolveCodeloreAnalysis(analysis);
     } else {
       const ft = f.metric.replace(/^github_rest\./, '');
-      // 检查平台声明的机器人身份
+      // 看看平台自己标没标这是机器人
       res = resolveGithubRestSlice(ft, { is_bot_via_platform_identity: v.bot_declared === true });
     }
     const entry: UpstreamProjectionEntry = {

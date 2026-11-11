@@ -55,7 +55,7 @@ export interface MacroCCollect {
         text: string;
         first_commit_date: string | null;
     }[];
-    /** docs/adr 目录是否可用，必须按此标志判断 ADR 是否存在 */
+    /** 这个标志决定 docs/adr 目录能不能用；ADR 在不在，只能看它 */
     adrDirUsable: boolean;
     adrFacts: CollectedFact[];
     gitFacts: CollectedFact[];
@@ -75,7 +75,7 @@ export interface MacroCCollect {
         pinned: boolean;
         error: string | null;
     } | null;
-    /** 负对照选材结果 */
+    /** 负对照挑出来的是哪几件 */
     ncSelection: {
         path: string | null;
         text: string | null;

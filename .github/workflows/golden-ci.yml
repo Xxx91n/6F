@@ -1,21 +1,21 @@
 name: golden-ci
-# 样例 golden 检查（#43 / A-048 / spec.md §R5-D12 / D-030③ 样例防失真机制）
+# 样例 golden 检查（#43 / A-048 / spec.md §R5-D12 / D-030③ 防样例走样的机制）
 #
-# 纪律（snapshot 纪律 = Jest/Vitest 同型：golden 入版本库＋code review）：
-#   - 本 job 只做「重渲染 + 逐字节 diff」，不一致即 fail（非零退出 + 差异摘要入日志）。
-#   - golden/样例更新只走 PR 审查：由人重渲染后随 PR 提交；本 workflow 不含任何
+# 规矩（snapshot 纪律＝Jest/Vitest 那一路：golden 入库加人看 diff）：
+# - 这个 job 只干「重出 + 逐字节 diff」，对不上就 fail（非零退出，差异摘要进日志）。
+# - golden/样例更新只走 PR 审查：人重出完随 PR 一起提交；本 workflow 里一个 commit / push / 自动回写的步骤都没有——diff 红了人去修，CI 绝不自动重生成直通 main。
 #     commit / push / 自动回写步骤——diff 红了由人修，CI 绝不自动重生成直通 main。
 #
-# 平台判定：单平台 ubuntu-latest + Node 24（不挂 3 平台矩阵）——
-#   重渲染确定性是逐字节级契约而非平台行为：#45 已验证 demo fixture 全 env pin
-#   （author/committer/date 固定）跨环境同 SHA；examples 腿输入全部固定在冻结 commit
-#   的对象上；仓根 .gitattributes 全仓 eol=lf 消除行尾平台差。矩阵重复跑同一确定性
-#   计算不产生新信号，故挂单平台，若未来发现平台相关变化须如实登记再加矩阵。
-# 勘误（2026-09-17 / #54 / D-059①）：「非平台行为」声明过宽——git %cI 对 UTC 偏移提交
-#   的输出拼写在 git 2.45 版本边界走样（<2.45 吐 +00:00，≥2.45 吐 Z），属工具版本变化
-#   而非平台变化，此前未纳入确定性论证。已处置：%cI 输出在解析边界归一化 +00:00→Z 并
-#   强断言 ISO 形状（engine/src/intake/intake.ts normalizeGitIsoDate，GITCLI-OUTPUT-CONTRACT）。
-#   单平台判定维持——走样来源已归一化并定下来，矩阵仍不产生新信号。
+# 平台怎么定：就 ubuntu-latest 加 Node 24 一档（不挂三平台矩阵）——
+# 重出这事的确定性是逐字节级的契约，跟平台行为没关系：#45 验过 demo fixture 全都 pin 死了
+# （author/committer/date 固定），换环境也是同一个 SHA；examples 那条腿输入全钉在冻住的 commit
+# 对象上；仓根的 .gitattributes 全仓 eol=lf，把行尾的平台差也抹了。矩阵重复跑同一套确定性
+# 计算不会多出什么信号，所以只挂一个平台；哪天真发现跟平台有关的变化，照实登记再加矩阵。
+# 勘误（2026-09-17 / #54 / D-059①）：「不是平台行为」这话说得太宽——git %cI 碰到 UTC 偏移的提交，
+# 拼法在 git 2.45 这个版本边界上会走样（<2.45 吐 +00:00，≥2.45 吐 Z），属于工具版本变化
+# 而非平台变化，之前没把这层算进确定性论证。处理完了：%cI 输出在解析边界归一化，+00:00 转成 Z，再
+# 强断言 ISO 形状（engine/src/intake/intake.ts 的 normalizeGitIsoDate，GITCLI-OUTPUT-CONTRACT）。
+# 单平台判定维持——走样的来源已经归一化并定下来了，矩阵还是生不出新信号。
 on:
   push:
     paths:
@@ -40,13 +40,13 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0 (node24)
         with:
           fetch-depth: 0 # bundle 前置对象 200b344 位于历史深处；git diff 需要基线
-          # #117 / artipacked：golden 核对不向远端 push；清凭据防泄露
+          # #117 / artipacked：golden 核对不往远端 push；把凭据清掉防泄漏
           persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0 (node24)
         with:
           node-version: 24 # 与 golden 生成环境同主版本；重生成脚本直 import engine/src/*.ts 依赖免 flag 类型剥离（22.18+/23.6+/24）
 
-      # ---------- Leg 1：engine/fixtures/golden 重渲染 + 逐字节 diff ----------
+      # ---------- 第一条腿：engine/fixtures/golden 重出 + 逐字节 diff ----------
       - name: re-render engine fixtures/golden
         working-directory: engine
         run: |
@@ -65,16 +65,16 @@ jobs:
           fi
           echo "engine golden: byte-identical"
 
-      # ---------- Leg 2：examples/first-report 重渲染 + 逐字节 diff ----------
-      # 重生成命令（examples/first-report/README.md 所录，逐字）：
+      # ---------- 第二条腿：examples/first-report 重出 + 逐字节 diff ----------
+      # 重出的命令（examples/first-report/README.md 里记着，逐字照抄）：
       #   node .scratch/architecture-recovery/reports/23-first-report.mjs
-      # 脚本审计 HEAD，须在工作树处于生成 commit fc00d458 的状态下运行方可复现。
-      # fc00d458 是 GitButler workspace 快照（不在任何 pushed ref 上），经仓内 bundle
-      # 23-frozen-fc00d458.bundle 传输（前置对象 200b344 在 main 历史中）。
-      # 其树外还需生成时点未入库的三件（随 e39468c 入库）：
+      # 脚本认的是 HEAD，得让工作树停在生成那次提交 fc00d458 上跑，才复现得出来。
+      # fc00d458 是 GitButler 的 workspace 快照（不在任何推进过的 ref 上），靠仓里的 bundle
+      # 23-frozen-fc00d458.bundle 传进来（前置对象 200b344 在 main 的历史里）。
+      # 树外头还缺三件生成时候没入库的（跟着 e39468c 进的库）：
       #   23-first-report.mjs / engine/src/report/generate.ts / .scratch README
-      # 其中原脏 README 已失——23-frozen-readme-overlay.md 为等签名重构
-      # （经 23-facts.jsonl 逐 keyword intent_count 复原 top-20 签名，实测四件逐字节一致）。
+      # 其中原来那份脏 README 已经丢了——23-frozen-readme-overlay.md 是按同样签名重构出来的
+      # （拿 23-facts.jsonl 里每个 keyword 的 intent_count 反推回 top-20 签名，实测四件逐字节一致）。
       - name: materialize frozen worktree (fc00d458 via in-repo bundle)
         run: |
           git bundle unbundle engine/test/fixtures/frozen/23-frozen-fc00d458.bundle

@@ -1,14 +1,14 @@
-// 40-macro-b-one-shot.mjs — Macro-B（已上架层）外部公开仓 URL opt-in 泛化验证（#40 / A-045 / R5-09 / spec §R5-D9）
-// 复用说明：本文件 = 40-macro-b-one-shot.mjs 同构复用——采集/裁决/报告管线与预声明阈值零改动；
-// [轮16/#53-D-060⑤] 本脚本已转 audit 一等命令（macro-audit audit）的回归对照物——非命令面主入口；audit 产物字段⊆本脚本产物字段，漂移即报警（53-check 断言）。
-//   差异仅：默认目标=外部仓 clone 缓存、产物命名 40-*、披露块 calibration_scope=外部仓、条目 id 前缀 40-。
-// 用法：
-//   node 40-macro-b-one-shot.mjs                                          # 默认外部仓（open-gsd/gsd-core @ 40-clone-cache）
-//   node 40-macro-b-one-shot.mjs --repo gsd-core --root <abs> --out <dir>   # 明确单仓形态
-// 链 = URL opt-in intake（engine intake repo add：隔离缓存+全深度+浅拒+禁远程配置执行）
-//   → 采集（gitlog + adr-structure@v2 + positioning）→ fact（40-*-facts.jsonl + 共享 40-audit-facts.duckdb）
-//   → 裁决（PC-1/PC-2 正对照 + TC-1/2/3 真判据 + NC-1 负对照，阈值=22-criteria-pre-registration.md）→ 报告。
-// 纪律：被测仓只读（git 只读子命令 + 文件读，绝不写）；唯一写动作 = --out 目录 40-* 工件。
+// 40-macro-b-one-shot.mjs —— 拿外面的公开仓（URL 得明着给）跑一遍单仓四象限档（#40 / A-045 / R5-09 / spec §R5-D9）
+// 怎么复用的：本文件跟 39-macro-b-one-shot.mjs 一个模子——采集、裁决、出报告那几条链和事先定死的门槛一个字没动；
+// [轮16/#53-D-060⑤] 这脚本现在是 audit 那条正式命令的回归对照物，不算命令入口；audit 产物的字段得是这脚本的子集，一旦漂移就报警（53-check 盯着）。
+// 不一样的就这几样：默认目标是外面那个仓的 clone 缓存、产物叫 40-*、披露块里 calibration_scope 写外部仓、条目 id 前缀用 40-。
+// 怎么跑：
+// node 40-macro-b-one-shot.mjs                                          # 默认外部仓（open-gsd/gsd-core @ 40-clone-cache）
+// node 40-macro-b-one-shot.mjs --repo gsd-core --root <abs> --out <dir>   # 指定单个仓来跑
+// 整条链＝URL 明着给才接（engine intake repo add：单独缓存、历史全拉、浅克隆拒、远端配置不许跑）
+// → 采（gitlog 加 adr-structure@v2 加 positioning）→ 落事实（40-*-facts.jsonl 加共用的 40-audit-facts.duckdb）
+// → 判（PC-1/PC-2 正对照，TC-1/2/3 真判据，NC-1 负对照；门槛照 22-criteria-pre-registration.md）→ 出报告。
+// 规矩：被审的仓只读（只跑 git 只读子命令和读文件，绝不写）；唯一往外写的就是 --out 目录里的 40-* 工件。
 import { readFileSync, readdirSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -26,7 +26,7 @@ const S = await import(pathToFileURL(join(DIST, 'fact', 'schema.js')).href);
 const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
 const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同规则防跨版本漂移
 
-// ---------- §0 参数：默认三仓全跑；--repo/--root/--out = 单仓 CI 形态 ----------
+// ---------- §0 参数：默认三仓全跑；--repo/--root/--out 是单仓的 CI 形态 ----------
 const EXT_URL = 'https://github.com/open-gsd/gsd-core.git';
 const EXT_CACHE_KEY = createHash('sha256').update(EXT_URL).digest('hex').slice(0, 16);
 const DEFAULT_REPOS = [
@@ -46,7 +46,7 @@ const TARGETS = ARGS.repo ? [{ repo: ARGS.repo, root: resolve(ARGS.root || '.') 
 const OUTDIR = resolve(ARGS.out);
 if (!existsSync(OUTDIR)) { mkdirSync(OUTDIR, { recursive: true }); }
 
-// ---------- §1 预声明阈值（与 22-criteria-pre-registration.md 逐字对齐，跑后禁调） ----------
+// ---------- §1 事先定死的门槛（跟 22-criteria-pre-registration.md 逐字对得上，跑完不许改） ----------
 const PRE_REG = 'engine/test/fixtures/contracts/22-criteria-pre-registration.md';
 const C_BASIS = 'engine/test/fixtures/contracts/22-c-adjudication-basis.md';
 const TC1_LAG_DAYS = 90;
@@ -61,7 +61,7 @@ const rawProbe = JSON.parse(readFileSync(join(REPO,'engine','test','fixtures','c
 const STOPWORDS = rawProbe.tc3_s1_coverage.stopwords;
 if (!Array.isArray(STOPWORDS)) { throw new Error('STOPWORDS-MISSING: 22-threshold-raw.json#tc3_s1_coverage.stopwords 不可解析'); }
 
-// ---------- §2 正/负对照夹具（与 23-first-report.mjs 同构；PC-2 日期随被测仓观测日漂移保持 lag>0） ----------
+// ---------- §2 正对照和负对照的夹具（跟 23-first-report.mjs 一个结构；PC-2 的日期跟着被审仓的观测日走，好让 lag 一直大于 0） ----------
 const GOLDEN_ADR = [
   '# ADR-9999: PC-1 golden fixture',
   '',
@@ -103,7 +103,7 @@ function pickExcerpt(absOrRelPath, tokens, base) {
   throw new Error('EXCERPT-MISS: ' + absOrRelPath + ' tokens=' + String(tokens));
 }
 
-// ---------- §3 单仓 one-shot 全链 ----------
+// ---------- §3 单仓 one-shot 整条链 ----------
 async function runOneShot(target) {
   const NAME = target.repo;
   const ROOT = target.root;
@@ -119,7 +119,7 @@ async function runOneShot(target) {
     observedAt: HEAD_DATE
   };
 
-  // -- 采集：gitlog（PROBE-INVARIANT：解析完整性先断言） --
+  // -- 采：gitlog（PROBE-INVARIANT：先断言解析是不是完整） --
   const rawLog = git(ROOT, ['log', '--pretty=format:__R__%H|%an|%cI', '--name-only']);
   const commits = [];
   let cur = null;
@@ -135,7 +135,7 @@ async function runOneShot(target) {
   }
   if (commits.length !== COMMIT_COUNT) { throw new Error('PROBE-INVARIANT-FAIL[' + NAME + ']: parsed ' + commits.length + ' != git rev-list ' + COMMIT_COUNT); }
 
-  // -- 采集：ADR 语料（adr-structure@v2 回退链） --
+  // -- 采：ADR 语料（adr-structure@v2 的回退链） --
   const adrDir = join(ROOT, 'docs', 'adr');
   const adrFiles = existsSync(adrDir) ? readdirSync(adrDir).filter(function (f) { return /^\d{3,}.*\.md$/i.test(f); }).sort() : [];
   const firstCommitOf = (p) => {
@@ -158,7 +158,7 @@ async function runOneShot(target) {
   }
   const gitFacts = C.collectGitlog({ commits: commits, paths: adrPaths, adrDates: adrDateMap }, ctx);
 
-  // -- 采集：positioning（意图面=仓根 CONTEXT/README/AGENTS 存在者；交付面=git log subjects） --
+  // -- 采：positioning（意图面＝仓根下的 CONTEXT/README/AGENTS，有才取；交付面＝git log 的提交标题） --
   const intentDocs = [];
   for (const cand of INTENT_CANDIDATES) {
     const p = join(ROOT, cand);
@@ -171,7 +171,7 @@ async function runOneShot(target) {
     : [];
   const realFacts = adrFacts.concat(posFacts, gitFacts);
 
-  // -- 正对照 PC-1 / PC-2（管线健康闸，夹具与被测仓无关） --
+  // -- 正对照 PC-1 / PC-2（管线还活着的闸，夹具跟被审仓没关系） --
   const pc1AdrFacts = C.collectAdrStructure({ documents: [{ path: 'fixtures/40-pc1-golden-adr.md', text: GOLDEN_ADR }] }, ctx);
   const pc1PosFacts = C.collectPositioning({ intentDocs: [{ path: 'fixtures/40-pc1-positioning.md', text: POS_DECL }], deliveryDocs: [{ path: 'fixtures/40-pc1-delivery.md', text: POS_DECL }], topN: TC3_TOPN, stopwords: STOPWORDS }, ctx);
   const pc1Five = pc1AdrFacts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
@@ -186,7 +186,7 @@ async function runOneShot(target) {
   const pc2Lag = pc2Facts.filter(function (f) { return f.metric === 'git.adr_lag_days'; });
   const pc2 = { pass: pc2Lag.length > 0 && JSON.parse(pc2Lag[0].value_json).delta_days > 0, delta_days: pc2Lag.length > 0 ? JSON.parse(pc2Lag[0].value_json).delta_days : null };
 
-  // -- 负对照 NC-1（被测仓内非 ADR 文件，五件套预期 0 命中） --
+  // -- 负对照 NC-1（被审仓里挑非 ADR 文件，五件套本来就该 0 命中） --
   let nc1Path = null;
   for (const cand of NC1_CANDIDATES) { if (existsSync(join(ROOT, cand))) { nc1Path = cand; break; } }
   if (!nc1Path) { throw new Error('NC1-CANDIDATE-MISS[' + NAME + ']'); }
@@ -196,7 +196,7 @@ async function runOneShot(target) {
   const nc1 = { path: nc1Path, fact_count: nc1Facts.length, five_piece_present: nc1Five ? JSON.parse(nc1Five.value_json).present : -1, supersede_present: nc1Sup ? JSON.parse(nc1Sup.value_json).present : null };
   nc1.pass = nc1.fact_count > 0 && nc1.five_piece_present === 0 && nc1.supersede_present === false;
 
-  // -- 真判据 TC-1 / TC-2 / TC-3（预声明阈值，实测） --
+  // -- 真判据 TC-1 / TC-2 / TC-3（门槛事先定死，这儿看实测） --
   const lagValues = gitFacts.filter(function (f) { return f.metric === 'git.adr_lag_days'; }).map(function (f) { return JSON.parse(f.value_json); });
   const tc1Judgeable = lagValues.length;
   const tc1Backfill = lagValues.filter(function (v) { return v.delta_days > TC1_LAG_DAYS; }).length;
@@ -220,14 +220,14 @@ async function runOneShot(target) {
   const tc3Ratio = tc3Lowest ? tc3Lowest.value.ratio : 0;
   const tc3Verdict = intentDocs.length === 0 ? 'INCONCLUSIVE' : (tc3Ratio < TC3_RED ? 'RED' : (tc3Ratio < TC3_GREEN ? 'AMBER' : 'GREEN'));
 
-  // -- fact：JSONL（只追加形态绑定 audit_fact 列；PC/NC 夹具不入流，与 #23 同构） --
+  // -- 落事实：JSONL（只追加的形态对齐 audit_fact 的列；PC/NC 的夹具不掺进来，跟 #23 一个结构） --
   const factRows = realFacts.map(function (f, i) {
     return { fact_seq: i + 1, fact_id: f.fact_id, schema_version: S.SCHEMA_VERSION_V0, trace_id: f.trace_id, baggage_id: f.baggage_id, scale: f.scale, quadrant: f.quadrant, dimension: f.dimension, collector_id: f.collector_id, repo_ref: f.repo_ref, subject_ref: f.subject_ref, evidence_ref: f.evidence_ref, metric: f.metric, value_json: f.value_json, observed_at: f.observed_at, ingested_at: HEAD_DATE };
   });
   const FACTS_PATH = join(OUTDIR, '40-macro-b-' + NAME + '-facts.jsonl');
   writeFileSync(FACTS_PATH, factRows.map(function (r) { return JSON.stringify(r); }).join(NL) + NL, 'utf8');
 
-  // -- 实测数落盘（供引文回查 + 39-check 断言面） --
+  // -- 实测数落盘（回头查引文用，39-check 也从这儿断言） --
   const meas = {
     repo: NAME, root: ROOT, observed_at: HEAD_DATE, head_sha: HEAD_SHA, tree_sha: TREE_SHA, commit_count: COMMIT_COUNT,
     adr_count: tc2Total, intent_docs: intentDocs.map(function (d) { return d.path; }), fact_count: realFacts.length,
@@ -239,7 +239,7 @@ async function runOneShot(target) {
   const MEAS_NAME = '40-macro-b-' + NAME + '-measurements.json';
   writeFileSync(join(OUTDIR, MEAS_NAME), JSON.stringify(meas, null, 2) + NL, 'utf8');
 
-  // -- 证据（C3）+ 结论→引文锚 --
+  // -- 证据（C3）加结论→引文锚 --
   const evidence = [];
   function addEvidence(id, path, token, claim, reproCmd, base) {
     const ex = pickExcerpt(path, token, base || null);
@@ -268,7 +268,7 @@ async function runOneShot(target) {
   addClaim('CL-40-' + R + '-05', 'EV-40-' + R + '-05', ['five_piece_present']);
   addClaim('CL-40-' + R + '-06', 'EV-40-' + R + '-07', ['非自有公开仓']);
 
-  // -- 裁决条目（C2；band 三档如实：supported/unsupported/insufficient） --
+  // -- 裁决条目（C2；band 三档照实写：supported/unsupported/insufficient） --
   function tcBand(v) {
     if (v === 'INCONCLUSIVE') { return 'insufficient'; }
     if (v === 'RED') { return 'unsupported'; }
@@ -293,7 +293,7 @@ async function runOneShot(target) {
   ];
   const strategyBand = G.deriveOverallBand(adjudicationEntries);
 
-  // -- 四象限数据（Macro-B 已上架采集面 = strategy 原生；其余 not_applicable 如实披露） --
+  // -- 四象限数据（单仓四象限档上了架的采集面＝strategy 原生；剩下几面照实标 not_applicable） --
   const GATE = { protocol_version: G.ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'reports/40-macro-b-one-shot.mjs' };
   const quadrants = [
     { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(meas.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(meas.tc2.mean_ratio_4), adr_count: tc2Total, lag_judgeable_n: tc1Judgeable, intent_docs: intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: tc2Verdict === 'RED', decided_at: HEAD_DATE, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
@@ -358,13 +358,13 @@ async function runOneShot(target) {
   };
 }
 
-// ---------- §4 主流程：逐仓 one-shot → 共享事实库 → 汇总实测 ----------
+// ---------- §4 主流程：一个仓一个仓跑 one-shot → 共用事实库 → 汇总实测 ----------
 const results = [];
 for (const t of TARGETS) {
   results.push(await runOneShot(t));
 }
 
-// 共享事实库：40-audit-facts.duckdb——三仓 Macro-B 事实同一 audit_fact 表同一 appendFact 写路径
+// 共用事实库：40-audit-facts.duckdb——三仓的单仓四象限档事实进同一张 audit_fact 表，走同一个 appendFact 写
 const DB = join(OUTDIR, '40-audit-facts.duckdb');
 if (existsSync(DB)) { unlinkSync(DB); }
 const writer = await STORE.openWriter(DB);

@@ -1,29 +1,29 @@
-// upstream-dimension-map.ts — 上游事实到维度的运行时映射配置
-// 理由：战略象限固定为 S1 到 S5 五个维度，映射关系不得随意增减维度。
+// upstream-dimension-map.ts —— 上游事实归到哪一维，运行时就在这张表里定
+// 战略象限就 S1 到 S5 这五个维度，映射不许随手加维度、减维度。
 //
-// 规则依据：
-//   定义来源：docs/upstream-dimension-map.md
-//   本文件为该规则的运行时代码体现，保持与文档内容一致；
-//   上游适配器本身不包含业务维度的定义，具体映射只在本模块中处理。
+// 这张表从哪儿来：
+// 定义写在 docs/upstream-dimension-map.md
+// 这份代码就是那条规矩的运行版，内容得跟文档对得上
+// 上游适配器本身不带业务维度，维度怎么映射只在这儿处理
 //
-// 映射规则摘要：
-//   codelore：演化主干相关指标映射到 S4；结构与预算相关指标映射到 S3；
-//             所有权边界相关指标映射到 S5；explain 说明类指标映射到 S4；
-//             单仓四象限行为数据映射到行为象限，不直接作为战略维度。
-//   github-rest：PR 汇总映射到 S4；合并耗时排除平台声明的机器人后映射到 S4；
-//             机器人参与密度映射到 S5；
-//             接口报错、速率限制、演化差异等辅助字段不映射到战略维度。
+// 映射规则，一句话一摊：
+// codelore：演化主干那批指标进 S4；结构和预算那批进 S3；
+// 所有权边界那批进 S5；explain 说明类进 S4；
+// 单仓四象限的行为数据进行为象限，不当战略维度用。
+// github-rest：PR 汇总进 S4；合并耗时把平台自己标的机器人刨掉后进 S4；
+// 机器人参与密度进 S5；
+// 接口报错、速率限制、演化差异这些辅助字段不进战略维度。
 //
-// 复审日期常量对应文档中的复审日期。
+// 复审日期常量跟文档上写的复审日期对得上。
 import { CODELORE_DESCRIPTOR } from '../upstream/codelore.js';
 import { GITHUB_REST_DESCRIPTOR } from '../upstream/github-rest.js';
 export const UPSTREAM_DIMENSION_MAP_VERSION = 'v1.0';
 export const UPSTREAM_DIMENSION_MAP_REVIEW = { last_reviewed: '2026-10-25', next_review: '2026-11-24' };
-// ---------- codelore 映射配置 ----------
+// ---------- codelore 的映射配置 ----------
 const CL = (surface, kind, dimension, lane, admission, note) => ({ adapter: 'codelore', surface, surface_kind: kind, dimension, lane, admission, note });
 export const CODELORE_EVOLUTION_FACETS = ['revisions', 'abs-churn', 'entity-churn', 'author-churn', 'hotspot-velocity', 'code-age', 'stale-code', 'architecture-trend', 'health-trend', 'lead-time', 'release-cadence', 'messages'];
 export const CODELORE_S3_FACETS = ['god-classes', 'architecture-metrics', 'dependency-cycles', 'modularity-violations', 'instability', 'architecture-roles'];
-// 读数归属层标签常量：同一个测量指标可以给多个判断层使用，具体归属由实际读取它的层决定。
+// 读数归哪一层用的标签：同一个读数可能好几层都要看，具体归哪层由读它的那层决定。
 export const SEMANTIC_DOMAIN_LABELS = {
     structure: 'structure/shape', // 结构象限的形态测量读数
     s3: 'S3/budget-attribution' // S3 维度的预算归因读数
@@ -39,7 +39,7 @@ export const CODELORE_DIMENSION_MAP = [
     ...CODELORE_BEHAVIOR_FACES.map(a => CL(a, 'analysis', null, 'Macro-B-QuadrantEntry', 'behavior 族不直归 S 维——QuadrantEntry 归位 D-054③', 'behavior 族→Macro-B 行为象限切片')),
     CL('deferred-faces', 'group', null, 'deferred', '暂缓面集=registry codelore-deferred-faces 枚举，未激活不映射（D-035④）', 'deferred 面集显式不映射'),
 ];
-// ---------- github-rest 行集 ----------
+// ---------- github-rest 那些行 ----------
 const GH = (surface, kind, dimension, lane, admission, note) => ({ adapter: 'github-rest', surface, surface_kind: kind, dimension, lane, admission, note });
 export const GITHUB_REST_EXCLUDED_FACT_TYPES = ['resolution', 'rate_limit', 'rate_limited', 'api_error', 'schema_drift', 'run', 'preflight'];
 export const GITHUB_REST_DIMENSION_MAP = [
@@ -98,7 +98,7 @@ export function projectUpstreamDimensions(facts) {
     for (const f of facts) {
         if (f.scale === 'Micro-B') {
             continue;
-        } // 单文件档事实不进入单仓四象限档的维度映射，避免结果文件过大
+        } // 单文件档的事实不进单仓四象限档的维度映射，免得结果文件撑得太大
         const fam = f.metric.startsWith('codelore.') ? 'upstream-codelore'
             : f.metric.startsWith('github_rest.') ? 'upstream-github-rest' : null;
         if (fam === null)
@@ -117,7 +117,7 @@ export function projectUpstreamDimensions(facts) {
         }
         else {
             const ft = f.metric.replace(/^github_rest\./, '');
-            // 检查平台声明的机器人身份
+            // 看看平台自己标没标这是机器人
             res = resolveGithubRestSlice(ft, { is_bot_via_platform_identity: v.bot_declared === true });
         }
         const entry = {

@@ -1,8 +1,8 @@
-// build-bundle.mjs — #59/D-067 分发自包含：esbuild 单文件 bundle dist/cli.js
-// git-clone 型插件安装无构建步 → 可运行体随源进仓（actions/javascript-action 先例）。
-// --packages=external：唯一运行时依赖 @duckdb/node-api 原生绑定不可内联，保持外部解析
-// （store.ts 懒加载已在缺 node_modules 时降级为 DUCKDB-UNAVAILABLE 结构化错误）。
-// tsc 先跑（模块树供测试 import），本脚本最后覆写 dist/cli.js 为自包含 bundle。
+// build-bundle.mjs —— #59/D-067 打包成一个能自己跑的随身件：esbuild 把东西都塞进 dist/cli.js
+// 从 git 拉下来直接装的插件没有构建这一步，所以能跑的东西得跟着源码一起进仓（actions/javascript-action 就这么干）。
+// --packages=external：唯一要的运行时依赖 @duckdb/node-api 是原生绑定，塞不进来，只能让外面去解析
+// （store.ts 已经是懒加载，没 node_modules 时会降成 DUCKDB-UNAVAILABLE 那个结构化错误）。
+// 先跑 tsc（好让测试能 import 那棵模块树），本脚本最后再把 dist/cli.js 覆写成能自己跑的包。
 import { buildSync } from 'esbuild';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -16,8 +16,8 @@ try {
     format: 'esm',
     packages: 'external',
     target: 'node20',
-    // D-217② minify 分层立法：whitespace+syntax 档保函数名/变量名/错误消息（stack trace 仍可定位，只失行号列号）；
-    //   禁 minifyIdentifiers（标识符改写留后续选项另裁）＋禁 sourcemap 入 dist（Claude Code 泄漏事故教训——map 翻倍体积且构成源码外泄面）。
+    // D-217② 压缩分两档：只压空白和语法，函数名、变量名、报错原文都留着（stack trace 还能定位，只是丢行号列号）；
+    // 不许压标识符（改名这事另案再说）＋不许把 sourcemap 塞进 dist（Claude Code 泄漏那次教训——map 让体积翻倍，还等于把源码往外送）。
     minifyWhitespace: true,
     minifySyntax: true,
     outfile: join(root, 'dist', 'cli.js'),

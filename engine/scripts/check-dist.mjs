@@ -1,6 +1,6 @@
-// check-dist.mjs —— #82/D-129③：dist/cli.js 体积限制（只紧不松）（size-limit 惯例：限值=实测×1.25 起步，
-// 抬限走 reviewed PR——改本常量=明确裁定）。CI 守卫链成员，非审计裁定面（禁写成 verdict/gate 语义）。
-// 用法：node scripts/check-dist.mjs（engine-ci rebuild-diff 链内调用）
+// check-dist.mjs —— #82/D-129③：管 dist/cli.js 的大小（许可只往小里收，不往大里放；照 size-limit 的惯例，上限先从实测的 1.25 倍起步，
+// 要往上抬得走有人看的 PR——改这个常量就等于明着裁定一回）。它是 CI 守卫链的一员，不是审计判定面（不许写成 verdict/gate 那种语义）。
+// 用法：node scripts/check-dist.mjs（engine-ci 的 rebuild-diff 那一步里调）
 import { existsSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,13 +8,13 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CLI = join(root, "dist", "cli.js");
 
-// 上限限制（D-129③）：初值=dist/cli.js 实测 231,516B（#81 修复后 build）×1.25 起步=289,395B。
-// 抬限纪律=reviewed PR（改此常量须 PR 评审留痕）；只紧不松的限制管悄悄增速非绝对百分比叙事。
-// 抬限记录（明确裁定，本行即留痕）：2026-10-03 R57 T1-A（#84/D-204②④）Macro-C 正式入口移植——
-// dist/cli.js 实测 307,980B（+18.1KiB），新帽=实测×1.25≈385,000B。裁定载体=预声明包 2026-10-03-r57-t1-predecl.md §5.1 勘误四＋feat commit Ledger-Refs D-204。
-// 降帽记录（明确裁定，D-129③ scoped 双向注记——reviewed-PR 纪律双向适用，实测下降经 reviewed PR 向下重推导=镜像应用非限制破例；Betterer/size-limit 官方语义一手反证「单向只升」误读）：
-// 2026-10-08 R67 #92（D-217/#90 核销）build-bundle.mjs 加 minifyWhitespace+minifySyntax（禁 identifiers/禁 sourcemap）——
-// dist/cli.js 实测 373,105B→297,074B（−80.6%），新帽=实测×1.25=floor(297,074×1.25)=371,342B。裁定载体=D-217＋BACKLOG #92＋R67 #92 报告。
+// 上限（D-129③）：起头是 dist/cli.js 实测 231,516B（#81 修完那次的 build）乘 1.25＝289,395B。
+// 抬上限的规矩＝走有人看的 PR（改这个常量必须在 PR 里留下评审痕迹）；这条只收紧不放宽，盯着的是体积悄悄长，不是拿百分比讲故事。
+// 抬过的记录（明着裁定的，写在这行就是留痕）：2026-10-03 R57 T1-A（#84/D-204②④）Macro-C 正式入口搬过来那回——
+// dist/cli.js 实测 307,980B（多了 18.1KiB），新上限＝实测乘 1.25 约 385,000B。裁定落在预声明包 2026-10-03-r57-t1-predecl.md §5.1 勘误四，加那条 feat 提交的 Ledger-Refs D-204。
+// 往下收的记录（明着裁定的，D-129③ 这条规矩两边都管——实测降了，走有人看的 PR 往下重算也是照规矩来，谈不上破例；Betterer/size-limit 官方文档本身就否定了「只能往上抬」这种误读）：
+// 2026-10-08 R67 #92（D-217/#90 收口）build-bundle.mjs 加了 minifyWhitespace 和 minifySyntax（不许压标识符、不许 sourcemap）——
+// dist/cli.js 实测从 373,105B 降到 297,074B（−80.6%），新上限＝实测乘 1.25＝floor(297,074×1.25)＝371,342B。裁定落在 D-217＋BACKLOG #92＋R67 #92 报告。
 export const DIST_CLI_SIZE_CAP_BYTES = 371342;
 
 if (!existsSync(CLI)) { console.error("DIST-RATCHET FAIL: dist/cli.js 缺席（先 npm run build）"); process.exit(1); }

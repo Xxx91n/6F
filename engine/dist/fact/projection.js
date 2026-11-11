@@ -1,13 +1,13 @@
-// fact/projection.ts — MCP 事实只读阅读视图
-// 理由：使用方按需拉取阅读视图，不直连写入流程。
-// 外部读取事实数据的主要途径：使用固定的 SELECT 查询，不拼接裸 SQL，防止注入；
-// 使用只读连接打开数据库，投影字段对应事实表的 13 个常规列。
+// fact/projection.ts —— 给 MCP 用的只读事实视图
+// 用的人按需来取，不直接摸写入那头。
+// 外面读事实就走这儿：查询是写死的 SELECT，不拼裸 SQL，防注入；
+// 库用只读连接打开，投影出来的字段对应事实表那 13 个常规列。
 import { openReader, closeDuckdb } from './store.js';
 import { assertAppendOnly } from './schema.js';
 import { buildFileCard, headShaOfRepoRef } from './file-card.js';
 const MAX_LIMIT = 500;
 const PROJECTION_COLUMNS = 'fact_id, trace_id, baggage_id, scale, quadrant, dimension, collector_id, repo_ref, subject_ref, evidence_ref, metric, value_json, CAST(observed_at AS VARCHAR) AS observed_at';
-// 仅允许在固定列上做等值过滤，参数走占位符绑定，不拼入 SQL 文本中。
+// 只准在固定那几列上做等值过滤，值走占位符绑定，不塞进 SQL 文本里。
 export function buildProjectionSql(filter) {
     const where = [];
     const params = [];
@@ -46,14 +46,14 @@ function normalizeFactRow(names) {
         const o = {};
         names.forEach(function (n, i) {
             const v = r[i];
-            // 保证返回结果可直接 JSON 序列化：BigInt 转为数字，Date 转为 ISO 字符串
+            // 返回的东西得能直接转 JSON：BigInt 转数字，Date 转 ISO 字符串
             o[n] = typeof v === 'bigint' ? Number(v) : (v instanceof Date ? v.toISOString() : v);
         });
         return o;
     };
 }
-const FILE_CARD_SET_CAP = 200000; // 观测集内事实数据条数上限（超过该值做截断处理）
-const FILE_CARD_LINEAGE_EDGE_CAP = 10000; // 改名关联边池上限
+const FILE_CARD_SET_CAP = 200000; // 一组观测集里事实条数的上限（超了就截）
+const FILE_CARD_LINEAGE_EDGE_CAP = 10000; // 改名关联边池的上限
 function likeEscape(s) {
     return s.split('!').join('!!').split('%').join('!%').split('_').join('!_');
 }
@@ -73,7 +73,7 @@ export async function projectFileCard(dbPath, q) {
         let picked = null;
         let pinAmbiguous = undefined;
         if (q.at !== undefined && q.at !== null && q.at.length > 0) {
-            // 提交号匹配：全量 40 位直接精确匹配；7 位及以上前缀匹配如命中多个则记录歧义，不随意猜测。
+            // 提交号怎么对：40 位全写就是精确对；7 位及以上的前缀撞上好几个就记下歧义，不许瞎猜。
             const exact = sets.filter(function (s) { return s.head_sha === q.at; });
             if (exact.length > 0) {
                 picked = exact[0];
@@ -94,7 +94,7 @@ export async function projectFileCard(dbPath, q) {
         const facts = [];
         let setTruncated = false;
         if (picked !== null) {
-            // 统计数据集中的事实数量是否超限并做好截断标记
+            // 数数数据集里的事实超没超上限，超了打截断标记
             const cSql = 'SELECT COUNT(*) FROM audit_fact WHERE scale = ? AND repo_ref = ?';
             assertAppendOnly(cSql);
             const cReader = await conn.run(cSql, ['Micro-B', picked.repo_ref]);
@@ -110,7 +110,7 @@ export async function projectFileCard(dbPath, q) {
                 facts.push(norm(r));
             }
         }
-        // 跨观测集改名关系拉取：结合当前数据集与历史较早的数据集中的改名记录。
+        // 跨观测集拉改名关系：当前这组，连同更早那几组里的改名记录一块儿看。
         const lineageFacts = [];
         let lineageEdgeCapHit = false;
         if (picked !== null) {
@@ -128,7 +128,7 @@ export async function projectFileCard(dbPath, q) {
                 for (const r of lRows) {
                     lineageFacts.push(lNorm(r));
                 }
-                // 记录拉取数量是否触及上限截断
+                // 记一笔：拉的时候有没有顶到上限被截
                 if (lRows.length >= edgeCap) {
                     lineageEdgeCapHit = true;
                 }

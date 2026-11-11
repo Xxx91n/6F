@@ -1,25 +1,25 @@
-// report/citation.ts — 引文核验独立模块
-// 纯逻辑约束同 generate.ts：输入一律注入、无 fs/子进程/网络/LLM。
-// 此模块为零依赖独立模块：generate.ts 与 narrative.ts 均从这里取引文核验与 UNVERIFIED_MARK。
+// report/citation.ts —— 查引文站不站得住，单独放这儿
+// 纯逻辑的老规矩跟 generate.ts 一样：输入全靠传进来，不碰文件系统、不起子进程、不连网、不调大模型。
+// 这个模块谁也不靠：generate.ts 和 narrative.ts 都从这儿拿引文核对和 UNVERIFIED_MARK。
 //
-// 语义边界说明：
-//   supports = presence-level 字面锚在场判定：required_tokens 在引文 excerpt 中逐字命中，
-//   且命中点经确定性语境剥离（引语/归属包裹掩蔽＋pre/post 否定窗 cue 表＋伪否定豁免表
-//   ＋CJK 独立否定词表）后仍存活。**supports 不是语义蕴含**——改写/同义而字面锚缺席者
-//   不升级（假阴性如实披露，归人工复核；内核内禁用任何概率模型）。
-//   fail-safe 从严：语境不确定的命中不计入 supports（宁可判定为证据不足，不可误判为支持）。
-//   输出空间维持两态 supports/insufficient，不增加第三态。
-//   context_flags 词表（机读）：absent:<tok>（字面缺席）/ context-stripped:<tok>（剥离吞没）/
-//   negated:<tok>:<kind>@<pos>（否定窗 cue 命中）/ non-asserted:<tok>:<kind>@<pos>（假想·示例语境，
-//   非否定但非断言式主张）/ verdict-label:<tok>:@<pos>（cue 词作裁决标签位）/
-//   <span-kind>@<pos>（引语/归属/言语/悬挂引号剥离区段）。
+// 这条线划在哪儿：
+// supports＝只认字面上看得到的锚：required_tokens 在引文 excerpt 里逐字撞上，
+// 并且撞上的那一点，经过一套结果固定的语境剥离（引号和归属包裹先遮掉、前后否定窗的词表、
+// 伪否定豁免表、中文单独的否定词表）之后还活着。注意 supports 不是「意思对上了」——
+// 换了说法、同义但字面锚不在的，不往上升（漏判就照实说出来，交给人复核；内核里不许用任何概率模型）。
+// 拿不准就往严里判：语境说不清的那些命中不算 supports（宁可说证据不够，不能错判成支持）。
+// 出来的只有 supports/insufficient 两种，不添第三种。
+// context_flags 这几个写法是给机器看的：absent:<tok>（字面就没有）/ context-stripped:<tok>（被剥离遮住了）
+// / negated:<tok>:<kind>@<pos>（撞上否定词）/ non-asserted:<tok>:<kind>@<pos>（假设、举例那种语境，
+// 不是否定但也不是在正儿八经地下结论）/ verdict-label:<tok>:@<pos>（cue 词被当成裁决标签用）/
+// <span-kind>@<pos>（引号、归属、说话、悬挂引号被剥掉的那一段）。
 
 export const UNVERIFIED_MARK = '⚠ unverified';
 
-// 清除未使用的枚举，仅保留实际生效的两态输出
+// 没用上的枚举清掉，只留真在跑的那两态
 export type SupportRelation = 'supports' | 'insufficient';
 
-// ---------- 语义边界披露（机读常量——测试断言其在位） ----------
+// ---------- 把这条线划在哪儿说清楚，做成机器能读的常量（测试要断言它还在） ----------
 
 export const PRESENCE_LIMITS = {
   semantics: 'presence-level 字面锚在场判定（语境剥离后逐字命中），非语义蕴含判定',
@@ -28,24 +28,24 @@ export const PRESENCE_LIMITS = {
   adversarial_fp_guard: '否定窗/引语包裹/归属引导内的字面命中经语境剥离后不计 supports；不确定语境从严降级 insufficient',
 };
 
-// ---------- 预声明窗口与四张确定性表（内核内零外源） ----------
+// ---------- 事先定好的窗口和四张死表（内核里不靠外面任何东西） ----------
 
-/** 预声明窗口（字符）：命中点向前找 pre-negation cue 的最大距离。 */
+/** 事先定好的窗口（按字符）：从撞上那点往前找否定词，最远找多远。 */
 export const NEG_WINDOW_PRE = 60;
-/** 预声明窗口（字符）：命中点向后找 post-negation cue 的最大距离（后置否定短，例「X 不成立」）。 */
+/** 事先定好的窗口（按字符）：从撞上那点往后找否定词，最远找多远（后置否定一般短，比如「X 不成立」）。 */
 export const NEG_WINDOW_POST = 40;
-/** 归属引导语掩蔽尾长（字符）：引导词到其归属段末（句读或长度先到者）。 */
+/** 归属引导语的遮罩尾长（按字符）：从引导词一直到它那段话结尾（碰到标点或长度先用完的那个）。 */
 export const ATTRIBUTION_TAIL = 80;
-/** 引语前置言语/归属 cue 回溯窗（字符）。 */
+/** 引号前面找说话/归属词的往回看窗口（按字符）。 */
 export const SPEECH_LOOKBACK = 24;
 
-// ---------- 词表规则（词表即判据） ----------
-// 各 cue 表注释统一模板：本表增删改变 supports/insufficient 判定面——改表三件义务：
-//   ① 同 commit 记录修改动机；② 评测集与基准对照阈值不回调；
-//   ③ 严禁对照评测语料标签来凑参数。
-// 规则变动须在提交中如实记录。
+// ---------- 词表就是判据 ----------
+// 这几张 cue 表的注释都照一个模子写：动这张表就等于动 supports/insufficient 的判定面——改表有三件事必须做：
+// ① 同一个提交里写清为什么改；② 评测集和基准对照的门槛不许跟着回调；
+// ③ 严禁照着评测语料的标签来调参数。
+// 规矩动了，提交里得照实记下来。
 
-/** pre-negation cue 表（EN，词边界匹配；n't 特例只查右界）；词表即判据——本表增删改变 supports/insufficient 判定面 */
+/** 否定词表（英文，按词边界匹配；n't 这种特例只看右边界）；词表就是判据——这张表一加一减，supports/insufficient 的结果就变了 */
 const EN_PRE_NEG_CUES: readonly string[] = [
   'not', 'no', 'never', "n't", 'cannot', 'do not', 'does not', 'did not',
   'is not', 'are not', 'was not', 'were not', 'has not', 'have not', 'had not',
@@ -59,10 +59,10 @@ const EN_PRE_NEG_CUES: readonly string[] = [
   'up to', 'no more than', 'other than', 'contrary to', 'lacking',
 ];
 
-/** non-asserted context cue 表（EN——假想/示例语境标记：非否定，但该处提及非断言式主张；
+/** 假设/举例语境的词表（英文——这类地方说的是「假如」「比如」，不是否定，但也不是在正儿八经下结论；
     与否定 cue 同置剥离面（fail-safe），flag kind 单列 'non-asserted' 以名实对齐（r18 审计 O2）；词表即判据——本表增删改变 supports/insufficient 判定面 */
 
-/** post-negation cue 表（EN，命中点之后短窗）；词表即判据——本表增删改变 supports/insufficient 判定面 */
+/** 后置否定词表（英文，撞上那点之后的一小段）；词表就是判据——加一个减一个，supports/insufficient 的结果就变 */
 const EN_POST_NEG_CUES: readonly string[] = [
   'not', "n't", 'never', 'cannot', 'could not', 'did not', 'does not', 'is not',
   'was not', 'were not', 'will not', 'would not', 'should not', 'must not', 'no longer',
@@ -72,7 +72,7 @@ const EN_POST_NEG_CUES: readonly string[] = [
   'inadequate', 'unreached', 'unmet', 'lacking', 'unreliable', 'disproven', 'disproved', 'negated',
 ];
 
-/** non-asserted context cue 表（EN——假想/示例语境标记：非否定，但该处提及非断言式主张；
+/** 假设/举例语境的词表（英文——这类地方说的是「假如」「比如」，不是否定，但也不是在正儿八经下结论；
     与否定 cue 同走剥离窗（fail-safe），flag kind 单列 'non-asserted' 名实对齐（r18 审计 O2） */
 const EN_NON_ASSERT_CUES: readonly string[] = [
   'for example', 'e.g.', 'for instance', 'as an example', 'as a hypothetical',
@@ -80,7 +80,7 @@ const EN_NON_ASSERT_CUES: readonly string[] = [
   'hypothetically', 'fictional', 'illustrative', 'if it were',
 ];
 
-/** pseudo-negation 豁免表（EN——形似否定实为肯定/修辞；cue 命中其覆盖区即作废）；词表即判据——本表增删改变 supports/insufficient 判定面 */
+/** 伪否定豁免表（英文——看着像否定其实是肯定或在打比方；cue 撞进它盖住的地方就作废）；词表就是判据——改了它就改判定面 */
 const EN_PSEUDO_NEG: readonly string[] = [
   'not only', 'not just', 'not merely', 'not simply', 'no doubt', 'not necessarily',
   'not because', 'notwithstanding', 'cannot but', 'not to mention', 'make no mistake',
@@ -89,7 +89,7 @@ const EN_PSEUDO_NEG: readonly string[] = [
   'not impossible', 'not uncommon', 'not unheard', 'not without', 'cannot help',
 ];
 
-/** pre-negation cue 表（CJK 独立词表——不 port 英文表；子串匹配无词边界）；词表即判据——本表增删改变 supports/insufficient 判定面 */
+/** 否定词表（中文单独一份——不照英文那份搬；按子串匹配，没有词边界这回事）；词表就是判据——改了它就改判定面 */
 const CJK_PRE_NEG_CUES: readonly string[] = [
   '不', '没', '未', '无', '非', '否', '别', '莫', '勿', '毋',
   '缺乏', '缺少', '缺失', '欠缺', '否认', '拒绝', '反对', '质疑',
@@ -98,14 +98,14 @@ const CJK_PRE_NEG_CUES: readonly string[] = [
   '鲜有', '罕见', '低于', '弱于', '不及', '达不到',
 ];
 
-/** post-negation cue 表（CJK）；词表即判据——本表增删改变 supports/insufficient 判定面 */
+/** 后置否定词表（中文）；词表就是判据——改了它就改判定面 */
 const CJK_POST_NEG_CUES: readonly string[] = [
   '不成立', '不正确', '不属实', '不实', '不存在', '未见', '未能', '无法', '无从',
   '不足', '不够', '未达', '不达标', '低于', '缺席', '缺失', '缺乏', '欠缺',
   '为假', '为误', '系误', '有误', '存疑', '可疑', '不可靠', '无效', '失真',
 ];
 
-/** pseudo-negation 豁免表（CJK——双重否定与固定词形非否定）；词表即判据——本表增删改变 supports/insufficient 判定面 */
+/** 伪否定豁免表（中文——双重否定和固定词形本来就不是否定）；词表就是判据——改了它就改判定面 */
 const CJK_PSEUDO_NEG: readonly string[] = [
   '不得不', '不能不', '不可不', '不无', '未必不', '并非不', '不是不', '不曾不', '未尝不', '未曾不',
   '非常', '非凡', '非同小可', '无可厚非', '非但', '莫非', '否则',
@@ -113,7 +113,7 @@ const CJK_PSEUDO_NEG: readonly string[] = [
   '无缘无故', '无非', '无论', '无辜', '无私', '无畏', '无疑', '毫无疑问', '别人', '别处', '别的', '别样', '莫名其妙',
 ];
 
-/** non-asserted context cue 表（CJK——假想/示例语境标记：非否定，但该处提及非断言式主张；
+/** 假设/举例语境的词表（中文——说的是「假如」「比如」，不是否定，但也不是在下结论；
     与否定 cue 同走剥离窗（fail-safe），flag kind 单列 'non-asserted' 名实对齐。
     假想语境表与否定表对称并列：
     词表即判据——本表增删改变 supports/insufficient 判定面（改表三件义务见 EN_PRE_NEG_CUES 表头）；
@@ -124,19 +124,19 @@ const CJK_NON_ASSERT_PRE_CUES: readonly string[] = [
   '假设', '假定', '假如', '假若', '倘若', '倘使', '试想', '设想', '假想', '设若',
 ];
 
-/** non-asserted context cue 表（CJK post 短窗——命中点之后短窗假想/限定语境；
+/** 假设/举例语境的词表（中文，撞上那点之后的一小段——在说「假设」「限定」这类口气；
     词表即判据——本表增删改变 supports/insufficient 判定面；「理论」不收「理论上」收（「理论物理」豁免） */
 const CJK_NON_ASSERT_POST_CUES: readonly string[] = [
   '理论上', '在理论上', '原则上', '纯属虚构', '仅为示例', '仅供参考',
 ];
 
-/** non-assert pseudo 豁免表（CJK——科学语域「假设」=名词性 hypothesis 一词两用；
+/** 假设语境的豁免表（中文——「假设」这个词在科研写法里就是个名词，一词两用；
     词表即判据——本表增删改变 supports/insufficient 判定面；逐词过单测为验收点（文献记载 FP/FN 主源） */
 const CJK_NON_ASSERT_PSEUDO: readonly string[] = [
   '假说', '假设性', '零假设', '假设检验', '工作假设',
 ];
 
-/** 引语包裹模式表（自设计）——成对引号；剥离条件=归属 cue 前置或引文为语句形态；词表即判据——本表增删改变 supports/insufficient 判定面 */
+/** 引号包裹的样式表（自己定的）——成对引号；什么时候剥＝前面有归属词或者引文本身是一句话；词表就是判据——改了它就改判定面 */
 const CUE_TOKEN_SET: ReadonlySet<string> = new Set(EN_PRE_NEG_CUES.concat(EN_POST_NEG_CUES, CJK_PRE_NEG_CUES, CJK_POST_NEG_CUES));
 
 const QUOTE_PAIRS: readonly { open: string; close: string }[] = [
@@ -145,7 +145,7 @@ const QUOTE_PAIRS: readonly { open: string; close: string }[] = [
   { open: '"', close: '"' },
 ];
 
-/** 归属引导语表（第三方主张——引导词至句读或 ATTRIBUTION_TAIL 掩蔽）；词表即判据——本表增删改变 supports/insufficient 判定面 */
+/** 归属引导语表（别人说的话——从引导词遮到标点或者 ATTRIBUTION_TAIL，谁先到算谁）；词表就是判据——改了它就改判定面 */
 const ATTRIBUTION_LEADS: readonly string[] = [
   '据称', '据说', '传说', '据悉', '有报道称', '有报告指出', '第三方称', '他人主张', '引用称', '引述称',
   '有文献称', '有资料称', '外界认为', '有评论称', '有网友称', '闻称',
@@ -153,7 +153,7 @@ const ATTRIBUTION_LEADS: readonly string[] = [
   'allegedly', 'purportedly', 'it is claimed', 'it is alleged', 'sources say', 'reports say',
 ];
 
-/** 言语/归属 cue 表（引语前置回溯用；EN 词边界、CJK 子串） */
+/** 说话/归属词表（往回看引号前面用；英文按词边界，中文按子串） */
 const EN_SPEECH_CUES: readonly string[] = [
   'said', 'says', 'say', 'claimed', 'claims', 'claim', 'argued', 'argues', 'argue',
   'asserted', 'asserts', 'stated', 'states', 'wrote', 'writes', 'alleges', 'alleged',
@@ -168,7 +168,7 @@ const CJK_SPEECH_CUES: readonly string[] = [
   '提到', '提及', '暗示', '警告', '注明', '记载', '记录为', '描述为',
 ];
 
-/** 伪言语豁免表（CJK——含言语字但非言语行为的固定词形）；词表即判据——本表增删改变 supports/insufficient 判定面 */
+/** 伪言语豁免表（中文——字面上带「说」但压根不是说话动作的固定词形）；词表就是判据——改了它就改判定面 */
 const CJK_SPEECH_PSEUDO: readonly string[] = [
   '名称', '简称', '对称', '俗称', '称呼', '称谓', '统称', '别称', '美称',
   '小说', '说教', '说笑', '说法', '图说', '难说',
@@ -181,14 +181,14 @@ function isWordChar(ch: string | undefined): boolean {
   return ch !== undefined && /[A-Za-z0-9_]/.test(ch);
 }
 
-/** 语句形态判定：多词句/双语长句/含句读终结符或 ≥6 CJK 字——语句（他人主张）而非术语引用；单词词组（含长 snake_case 键名）恒为术语不剥 */
+/** 判是不是一句话：好几个词、中英混着的长句、带句末标点、或者中文 ≥6 个字——这算一句话（别人说的），不是引用个术语；单个词（包括长 snake_case 键名）永远当术语，不剥 */
 function isClauseLike(s: string): boolean {
   const words = s.trim().split(/\s+/).filter(function (w) { return w.length > 0; });
   const cjkCount = (s.match(/[一-鿿]/g) || []).length;
   return words.length >= 3 || (words.length >= 2 && s.trim().length >= 12) || /[，。；：？！!?]/.test(s) || cjkCount >= 6;
 }
 
-/** EN cue 词边界扫描（n't 特例：左界必为词字符故只查右界） */
+/** 英文 cue 按词边界扫（n't 特例：左边肯定是词里的字，只管右边） */
 function enCuesIn(text: string, cues: readonly string[], offset: number): Span[] {
   const lower = text.toLowerCase();
   const out: Span[] = [];
@@ -225,13 +225,13 @@ function intersects(a: Span, spans: readonly Span[]): boolean {
   return spans.some(function (s) { return a.start < s.end && s.start < a.end; });
 }
 
-/** 语境剥离：引语包裹（归属 cue 或语句形态）＋归属引导段＋未闭合引号 fail-safe——返回等长掩蔽文本与命中区表 */
+/** 语境剥离：引号包裹（有归属词或者本身就是句话）＋归属引导那一段＋没配对的引号按最严处理——返回一段等长的遮罩文本和命中区表 */
 function stripContexts(excerpt: string): { text: string; spans: Span[] } {
   const spans: Span[] = [];
   const lower = excerpt.toLowerCase();
 
-  // 1) 成对引号：归属 cue 前置（SPEECH_LOOKBACK 内）或内容语句形态 → 掩蔽；
-  //    配对位不论剥离与否均登记（防止术语引号被误判悬挂开号）
+  // 1) 成对引号：前面有归属词（在 SPEECH_LOOKBACK 之内）或者里头是句话 → 遮掉；
+  // 配对位置不管剥没剥都记下来（免得术语的引号被当成没配对的引号）
   const paired = new Array<boolean>(excerpt.length).fill(false);
   for (const pair of QUOTE_PAIRS) {
     let pos = 0;
@@ -251,7 +251,7 @@ function stripContexts(excerpt: string): { text: string; spans: Span[] } {
     }
   }
 
-  // 2) 归属引导段：lead → 句读（。；！？\n;:）或 ATTRIBUTION_TAIL 先到者掩蔽
+  // 2) 归属引导那段：从引导词到标点（。；！？\n;:）或者到 ATTRIBUTION_TAIL，谁先到就遮到哪儿
   for (const lead of ATTRIBUTION_LEADS) {
     let i = 0;
     const leadLower = lead.toLowerCase();
@@ -267,8 +267,8 @@ function stripContexts(excerpt: string): { text: string; spans: Span[] } {
     }
   }
 
-  // 3) 言语子句剥离：speech cue → 最近句读/转折边界或 ATTRIBUTION_TAIL 先到者掩蔽
-  //    （无引号归属："the doc says X but our config disables them"——says 其后子句归属第三方）
+  // 3) 说话的后半截也剥：从说话词到最近一个标点/转折，或者到 ATTRIBUTION_TAIL，谁先到遮到哪儿
+  // （没引号的那种归属："the doc says X but our config disables them"——says 后面那截说的是别人）
   const SPEECH_BOUNDARY = /[，,、。；;!！?？:：\n]|\b(but|however|though|although|whereas|while|yet)\b|但/;
   const speechCues = enCuesIn(excerpt, EN_SPEECH_CUES, 0).concat(substrCuesIn(excerpt, CJK_SPEECH_CUES, 0));
   const speechPseudo = substrCuesIn(excerpt, CJK_SPEECH_PSEUDO, 0);
@@ -281,14 +281,14 @@ function stripContexts(excerpt: string): { text: string; spans: Span[] } {
     spans.push({ start: sc.start, end: end, kind: 'speech-quoted' });
   }
 
-  // 4) 未闭合引号 fail-safe：扫描已掩蔽区外的悬挂开/闭号
+  // 4) 没配对的引号按最严处理：把已经遮掉的地方以外，那些孤零零的开引号/闭引号扫一遍
   const masked = new Array<boolean>(excerpt.length).fill(false);
   for (const s of spans) { for (let k = s.start; k < s.end; k++) { masked[k] = true; } }
   const closers: ReadonlySet<string> = new Set(['”', '’', '」', '』']);
   for (let k = 0; k < excerpt.length; k++) {
     if (masked[k]) { continue; }
     const ch = excerpt[k];
-    // 悬挂开号（“‘「『）→ 掩蔽至文末；悬挂 " 开闭歧义不可判 → 全篇掩蔽（fail-safe 从严）；已配对位豁免
+    // 孤零零的开引号（“‘「『）→ 遮到文章末尾；孤零零的双引号分不清是开还是关 → 整篇都遮（宁可从严）；已经配对过的不动
     if ((ch === '“' || ch === '‘' || ch === '「' || ch === '『') && !paired[k]) {
       spans.push({ start: k, end: excerpt.length, kind: 'unbalanced-quote' });
       break;
@@ -297,20 +297,20 @@ function stripContexts(excerpt: string): { text: string; spans: Span[] } {
       spans.push({ start: 0, end: excerpt.length, kind: 'unbalanced-quote' });
       break;
     }
-    // 悬挂闭号（”’」』）→ 掩蔽文首至此（fail-safe：其前文本可能是未配对的引语）；已配对位豁免
+    // 孤零零的闭引号（”’」』）→ 从文章开头遮到这儿（从严：前面那些可能本来就是没配对的引文）；配对过的位置不动
     if (closers.has(ch) && !paired[k]) {
       spans.push({ start: 0, end: k + 1, kind: 'unbalanced-quote' });
       break;
     }
   }
 
-  // 生成等长掩蔽文本（剥离区→空格，保位）
+  // 生成一段等长的遮罩文本（剥掉的地方换成空格，位置不变）
   const chars = excerpt.split('');
   for (const s of spans) { for (let k = s.start; k < s.end; k++) { chars[k] = ' '; } }
   return { text: chars.join(''), spans: spans };
 }
 
-/** 否定窗检测：命中点 [start,end) 的前窗查 pre-cues、后窗查 post-cues；命中伪否定覆盖区即豁免 */
+/** 查否定窗：撞上那点 [start,end) 前头那段查否定词、后头那段查后置否定词；撞进伪否定盖住的地方就不算 */
 function negationHits(maskedText: string, start: number, end: number, pseudoSpans: readonly Span[], ctxPseudoSpans: readonly Span[]): Span[] {
   const hits: Span[] = [];
   const preBase = Math.max(0, start - NEG_WINDOW_PRE);
@@ -320,9 +320,9 @@ function negationHits(maskedText: string, start: number, end: number, pseudoSpan
   const cjkPre = substrCuesIn(preWin, CJK_PRE_NEG_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-neg' }; });
   const enPost = enCuesIn(postWin, EN_POST_NEG_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-neg' }; });
   const cjkPost = substrCuesIn(postWin, CJK_POST_NEG_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-neg' }; });
-  // non-assert 语境窗接线：
-  //   剥离窗口与否定 cue 同参数；flag kind=pre-ctx/post-ctx → 既有映射产 non-asserted；
-  //   伪表豁免各归各面（ctx 命中查 ctxPseudo，neg 命中查 pseudoSpans）；赋值豁免架构复用
+  // 假设/举例的窗口怎么接：
+  // 剥的窗口跟否定词用同一套参数；flag kind=pre-ctx/post-ctx → 走现有的映射，出来就是 non-asserted；
+  // 两张伪表各管各的（ctx 撞上就查 ctxPseudo，否定撞上就查 pseudoSpans）；赋值豁免那套照抄
   const enPreCtx = enCuesIn(preWin, EN_NON_ASSERT_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-ctx' }; });
   const cjkPreCtx = substrCuesIn(preWin, CJK_NON_ASSERT_PRE_CUES, preBase).map(function (s) { return { start: s.start, end: s.end, kind: 'pre-ctx' }; });
   const enPostCtx = enCuesIn(postWin, EN_NON_ASSERT_CUES, end).map(function (s) { return { start: s.start, end: s.end, kind: 'post-ctx' }; });
@@ -330,7 +330,7 @@ function negationHits(maskedText: string, start: number, end: number, pseudoSpan
   for (const h of enPre.concat(cjkPre, enPost, cjkPost, enPreCtx, cjkPreCtx, enPostCtx, cjkPostCtx)) {
     const isCtx = h.kind === 'pre-ctx' || h.kind === 'post-ctx';
     if (intersects(h, pseudoSpans) || (isCtx && intersects(h, ctxPseudoSpans))) { continue; }
-    // 赋值豁免：cue 紧邻 '=' 右侧（allow=never / mode=false 等配置取值非主张否定——ctx 命中同架构复用）
+    // 赋值豁免：cue 紧贴 '=' 右边（allow=never / mode=false 这类是配置的值，不是在否定什么主张——ctx 撞上走同一套）
     let j = h.start - 1;
     while (j >= 0 && maskedText[j] === ' ') { j--; }
     if (j >= 0 && maskedText[j] === '=') { continue; }
@@ -339,7 +339,7 @@ function negationHits(maskedText: string, start: number, end: number, pseudoSpan
   return hits;
 }
 
-/** 伪否定覆盖区全表（一次全文扫描；EN 词边界、CJK 子串） */
+/** 伪否定盖住的地方整张表（全文扫一遍；英文按词边界，中文按子串） */
 function pseudoSpansOf(maskedText: string): Span[] {
   const en = enCuesIn(maskedText, EN_PSEUDO_NEG, 0).map(function (s) { return { start: s.start, end: s.end, kind: 'pseudo' }; });
   const cjk = substrCuesIn(maskedText, CJK_PSEUDO_NEG, 0).map(function (s) { return { start: s.start, end: s.end, kind: 'pseudo' }; });
@@ -375,7 +375,7 @@ export interface CitationCheck {
   reason: string;
 }
 
-/** 纯函数缓存：stripContexts/pseudoSpansOf/ctxPseudo 为 evidence.excerpt 纯函数——按对象 WeakMap 缓存（多 claim 共享同 evidence 时免重算，输出等价） */
+/** 纯函数结果存起来：stripContexts/pseudoSpansOf/ctxPseudo 都是只看 evidence.excerpt 的纯函数——按对象拿 WeakMap 存（好几条断言用同一份证据时不必重算，结果一模一样） */
 const stripMemo = new WeakMap<EvidenceItem, { text: string; spans: Span[]; pseudo: Span[]; ctxPseudo: Span[] }>();
 
 export function checkCitationSupport(claim: ClaimAnchor, evidence: EvidenceItem): CitationCheck {
@@ -403,7 +403,7 @@ export function checkCitationSupport(claim: ClaimAnchor, evidence: EvidenceItem)
     const negCues: { klass: string; tag: string }[] = [];
     while (pos >= 0) {
       const hits = negationHits(hay, pos, pos + needle.length, pseudoSpans, ctxPseudo);
-      // 裁决标签位：锚本身是否定 cue 且紧邻 ':'（unsupported: / 不成立: 等标签非内容）
+      // 裁决标签位：锚本身是个否定词还紧挨着 ':'（unsupported: / 不成立: 这种是标签，不是内容）
       const labelLike = CUE_TOKEN_SET.has(needle) && hay[pos + needle.length] === ':';
       if (hits.length === 0 && !labelLike) { clean = true; break; }
       if (labelLike) { negCues.push({ klass: 'verdict-label', tag: '@' + pos }); }
@@ -413,7 +413,7 @@ export function checkCitationSupport(claim: ClaimAnchor, evidence: EvidenceItem)
     if (clean) { matched.push(tok); } else {
       missing.push(tok);
       if (negCues.length === 0) {
-        // 全文无存活命中：区分「剥离吞没」与「字面缺席」
+        // 全文一个活的命中都没有：分清是「被剥掉遮了」还是「字面上压根没有」
         if (hay.indexOf(needle) < 0 && evidence.excerpt.toLowerCase().indexOf(needle) >= 0) {
           flags.push('context-stripped:' + tok);
         } else {
