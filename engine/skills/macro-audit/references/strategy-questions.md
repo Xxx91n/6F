@@ -8,13 +8,13 @@
 1. 这一维有哪些**已经落地的事实**？（一条一条引 evidence_id，再给到行的 locator）
 2. 这些事实之间的**关系**是什么？（往一个方向加强 / 互相矛盾 / 谁先谁后）——有矛盾就写进 conflict_markers，别在叙述里抹平
 3. 这一维**缺什么证据**？（缺了就走下面 B 段补查；补不回来就直接写「⚠ 数据未接」）
-4. 哪些读数是**走了降级路子**出来的？（接口兜底 / 没认证的降级 / synthetic fixture——照实标出来是哪条路子）
+4. 哪些读数是**走降级那条路**出来的？（接口兜底 / 没认证的降级 / synthetic fixture——照实标出来走的是哪条）
 5. 叙述里每一条 claim，靠哪个**支撑锚词**立住？（claim 必须带 required_tokens，内核逐字核对）
 
 ## B. 证据不够时怎么经 MCP 补查（D-057④——补查这件事归宿主 agent 管，内核只判 insufficient，不另开一轮）
 
 叙述要用的证据面出了缺口，按这个顺序来：
-1. **先查只读投影**：`macro-audit mcp facts --db <duckdb> [--scale X] [--repo R] [--subject S] [--limit N]`——facts 这份只读投影是取数主路（不绕 CodeLore 中间层，中间层把上游隔在外面）；
+1. **先查只读投影**：`macro-audit mcp facts --db <duckdb> [--scale X] [--repo R] [--subject S] [--limit N]`——facts 这份只读投影是取数主路（不走 CodeLore 中间层，中间层把上游隔在外面）；
 2. **缺口还在**：叙述段照实标 `⚠ 数据未接`（没证据就别替它编，别把还在计划里的上游写成已经接上）；
 3. **内核判 insufficient 之后不会回头自己补**：内核不发起补查；补查这一轮由宿主 agent 来安排（提 GapRequest 是 agent 那边的事）；
 4. 补查拿到的新证据**重新走收集通道进库**；写叙述这一侧只读投影，不直接往库里写。

@@ -20,7 +20,7 @@ description: 宏观加微观的工程内容审计。装进 agent 后，对一个
 
 ## 叙述由谁写、由谁核（D-053）
 - 叙述正文交给宿主 agent 写（这一段看运气）；引文核对交给内核 `sealNarrative`（这一段是硬规矩）；兜底由内核自己套模板出一段（标 ⚠ unverified，不冒充正式叙述）。
-- 取数主要走 `macro-audit mcp facts --db <duckdb> [--scale X] [--repo R] [--subject S]`（只读投影，不绕 CodeLore 中间层）。
+- 取数主要走 `macro-audit mcp facts --db <duckdb> [--scale X] [--repo R] [--subject S]`（只读投影，不走 CodeLore 中间层）。
 
 ## references/ 加载条件（什么时候加载）
 - `references/quadrant-rubric.md` —— 写**战略象限**的叙述段时加载（S1-S5 判据怎么用）。
