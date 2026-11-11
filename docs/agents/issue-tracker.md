@@ -1,6 +1,6 @@
 # Issue tracker: GitHub
 
-Issues and specs for this repo live as GitHub issues. Do everything with the `gh` CLI. Where a decision or a term belongs is written once, in [`docs/authority.md`](../authority.md) — the authority surface. This file only explains how to work the GitHub tracker, and the `gh` commands and paths below stay exactly as written.
+Issues and specs for this repo live as GitHub issues. Do everything with the `gh` CLI. **[`docs/authority.md`](../authority.md) — the authority surface — is the one place that says where a decision or a term belongs.** This file only explains how to work the GitHub tracker, and the `gh` commands and paths below stay exactly as written.
 
 ## Conventions
 

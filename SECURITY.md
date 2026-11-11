@@ -1,6 +1,6 @@
 # Security Policy
 
-Where a decision or a term belongs is written once, in [`docs/authority.md`](docs/authority.md) — the authority surface. This page only explains how to report a security problem.
+**[`docs/authority.md`](docs/authority.md) — the authority surface — is the one place that says where a decision or a term belongs.** This page only explains how to report a security problem.
 
 ## Supported versions
 
