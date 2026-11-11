@@ -571,7 +571,7 @@ CI 重渲染 examples/first-report/ fixture 并 diff，不一致即 fail，更�
 
 ### R10-6 — 验收
 
-- 人读为准，用三份真材料当尺子：[`README.zh-CN.md`](../README.zh-CN.md)、本文件的 R1–R7、[`docs/upstream-dimension-map.md`](upstream-dimension-map.md)。用户读完说「懂了」才算过。这三份里的旧叫法要等 tracker #203–#209 清完才换得到位，现在拿来看结构就行。
+- 人读为准，用三份真材料当尺子：[`README.zh-CN.md`](../README.zh-CN.md)、本文件的 R1–R7、[`docs/upstream-dimension-map.md`](upstream-dimension-map.md)。用户读完说「懂了」才算过。这三份里的旧叫法要等 tracker #202–#209 清完才换得到位，现在拿来看结构就行。
 - 人审按 tracker #148 的办法：一次交一份文件，给绝对路径和「原文 → 改后」清单；超长文件按章节分两三次交。
 - `check:docs` 和 `npm test` 在提交前各跑一遍，只当「别把链接、号、生成物弄坏」的保险；被脚本按字面钉住的字原样保留：`进入条件`、`永久排除`、`S5 ↔ S4`、`capability 1 of 5 · preview`、`capability 2 of 5 · preview`、`capability 3 of 5 · preview`、`capability 4 of 5 · preview`、`已接入（active`、`规划中（planned`、`GAP-078-01`、`解析失败` 等。
 - 不加扫词脚本，这是 tracker #148 定下的，本轮照旧。

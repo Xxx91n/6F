@@ -334,8 +334,8 @@ _不要用_: 防腐层
 _别名_: dual-track adapter
 
 **分析项组**
-上游分析项按用途归的类，代码里用 `group` 字段标（值有 evolution、s3、s5、behavior）。
-_别名_: `group`、CodeloreFacetGroup
+上游分析项按用途归的类；同一类的分析项说的是一回事，能放在一起看。
+_别名_: CodeloreFacetGroup
 _不要用_: 面集
 
 **接数据工单**
