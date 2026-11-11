@@ -5,7 +5,7 @@
 // -z 出去的是原始字节路径，省得转义；怪字符和非 ASCII 交给路径规范函数统一处理）。
 // 事实长这样：file_renamed{from,to,head_sha,commit_sha,similarity,threshold,detector_version,git_version}
 // 检测用的参数全塞进事实里，回头能重算核一遍（D-125②）；detector_version 是仓里这套检测规格的固定版本号，
-// git_version 是这回调的 git 版本（跟着数据一起存，将来好核对）。
+// git_version 是这次检测实际用的 git 版本（跟着数据一起存，将来好核对）。
 // 怎么追血统：生成文件视图时顺着改名链往回追，看这个文件一路怎么走过来的（D-125③）；
 // 改名没追全就照实摆出分叉，别凭空给补一条。
 
@@ -22,9 +22,9 @@ export const FILE_LINEAGE_DESCRIPTOR: CollectorDescriptor = {
   quadrant: 'strategic'
 };
 
-// 检测规格的版本号（仓里这套流程钉死的；换个 git 版本也能复查，这回调的 git 版本另存在 git_version 里）
+// 检测规格的版本号（仓里这套流程钉死的；换个 git 版本也能复查，这次检测的 git 版本另存在 git_version 里）
 export const RENAME_DETECTOR_VERSION = 'rename-detector@v1';
-export const RENAME_DEFAULT_THRESHOLD = '50%'; // 默认阈值 50%
+export const RENAME_DEFAULT_THRESHOLD = '50%'; // 默认阈值 50%，这个数是 D-125⑤ 定下来的
 
 export interface RenameEdge {
   commit_sha: string;

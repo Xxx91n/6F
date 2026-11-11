@@ -125,7 +125,7 @@ export const SCHEMA_REGISTRY_DDL: string = buildCreateTableSql('schema_registry'
 // 幂等的唯一键：UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)，同一批跑两遍也不会插重复。
 // reason_code 拿命名规则去校，不把枚举值写死在 SQL 里，将来加码方便。
 // raw_bytes 有长度限制：十六进制文本最多 131072 个字符（合 64KB 原始字节），顺手记下截没截、原始多长、完整 sha256。
-// recorded_at 是这回调观测的时间戳，可以是空。
+// recorded_at 是这次观测到的时间戳，可以空着。
 export const QUARANTINE_LOG_FIELDS: readonly FactField[] = [
   { name: 'q_seq', type: 'UBIGINT', nullable: false, role: 'identity', constraints: ['NOT NULL', 'PRIMARY KEY'], inherits: 'D-106' },
   { name: 'run_id', type: 'CHAR(32)', nullable: false, role: 'correlation', constraints: ['NOT NULL', "CHECK(regexp_matches(run_id, '^[0-9a-f]{32}$'))"], inherits: 'D-108' },

@@ -14,9 +14,9 @@ name: macro-b-regression
 # - mw-trigger-a 这套说法不变：「单仓四象限档进 CI 定时回归」在 6F 的 CI 形态下照样成立（D-046④），D-043 的判定不受影响；
 # - repo_url 只收 https:// 的公开仓（D-013 的输入面）；ssh/file/ext:: 这些协议面一律拒，clone 守 #40 那套隔离；
 # - matrix.repo.* 进 run 一律走 env 绕一层（$REPO_URL/$REPO_NAME），堵住 $()/反引号穿进 JSON 注入；
-# clone 那条腿对 $REPO_URL 再跑一遍 https-only 的关卡（多一道保险，不信上游 resolve 的输出）；
+#   而 clone 那条腿对 $REPO_URL 再跑一遍 https-only 的关卡（多一道保险，不信上游 resolve 的输出）；
 # - 默认回归集＝jiahao（CI 撤了之后它还是审计对象，不挂我方资产，D-046）；
-# T3 那几个经典公开仓，用户定下来之后追加进 resolve job 的 DEFAULT JSON（一个仓一行）。
+#   T3 那几个经典公开仓，用户定下来之后追加进 resolve job 的 DEFAULT JSON（一个仓一行）。
 on:
   schedule:
     - cron: '17 3 * * 1'   # 每周一 03:17 UTC —— 定时回归（D-034④a 触发面）

@@ -1,4 +1,4 @@
-// mcp-server.ts —— 最小的 JSON-RPC 2.0 stdio 握手（A3 返工：跟 mcp.json 里注册的名实对上）
+// mcp-server.ts —— 最小的 JSON-RPC 2.0 stdio 握手（A3 返工时对齐了：这里的名字跟 mcp.json 里注册的是同一套）
 // mcp.json 把 `macro-audit mcp` 注册成 stdio 的 MCP 服务——以前实物就打个描述符就退，真 host 一挂上就死。
 // 这个模块把 MCP over stdio（NDJSON 一行一帧）这一圈做全：initialize / initialized / ping / tools/list / tools/call。
 // 只给只读查询：开 tools=facts / quarantine / file_card 三个只读工具，写操作和克隆一概不给。

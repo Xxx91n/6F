@@ -3,8 +3,7 @@ name: golden-ci
 #
 # 规矩（snapshot 纪律＝Jest/Vitest 那一路：golden 入库加人看 diff）：
 # - 这个 job 只干「重出 + 逐字节 diff」，对不上就 fail（非零退出，差异摘要进日志）。
-# - golden/样例更新只走 PR 审查：人重出完随 PR 一起提交；本 workflow 里一个 commit / push / 自动回写的步骤都没有——diff 红了人去修，CI 绝不自动重生成直通 main。
-#     commit / push / 自动回写步骤——diff 红了由人修，CI 绝不自动重生成直通 main。
+# - golden/样例更新只走 PR 审查：人重出完随 PR 一起提交；本 workflow 里一个 commit / push / 自动回写的步骤都没有——diff 红了由人修，CI 绝不自动重生成直通 main。
 #
 # 平台怎么定：就 ubuntu-latest 加 Node 24 一档（不挂三平台矩阵）——
 # 重出这事的确定性是逐字节级的契约，跟平台行为没关系：#45 验过 demo fixture 全都 pin 死了

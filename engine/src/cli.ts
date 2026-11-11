@@ -167,7 +167,7 @@ async function main(): Promise<void> {
       if (!repoInput || !filePath) { errExit('usage: macro-audit audit file <path|owner/repo|url> <file> --db <facts.duckdb> [--at <sha>]\n', 2); }
       if (!dbPath) { errExit('AUDIT-FILE-ARGS: --db <facts.duckdb> required（保存观测事实的数据库文件路径，不存在则自动新建）\n', 2); }
       try {
-        // 参数验过了，接着走
+        // 参数到这儿的都验过了，下面直接跑真的
         const r = await runAuditFile({ input: repoInput as string, path: filePath as string, db: dbPath as string, at: atSha });
         outExit(JSON.stringify({ card: r.card, backfilled: r.backfilled, emitted: r.emitted, skipped: r.skipped, repo_ref: r.repo_ref, head_sha: r.head_sha }) + '\n', 0);
       } catch (e) {

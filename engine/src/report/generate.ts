@@ -10,7 +10,7 @@ import type { NarrativeSection, SealedNarrative } from './narrative.js';
 import { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations } from './citation.js';
 import type { EvidenceItem, ClaimAnchor, CitationCheck, SupportRelation } from './citation.js';
 
-// 引文核对那块已经挪到 citation.ts，这里再导出一遍，原来引用这儿的地方不用改。
+// 引文核对真正的实现在 citation.ts，这里只再导出一遍，原来引用这儿的地方不用改。
 export { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations };
 export type { EvidenceItem, ClaimAnchor, CitationCheck, SupportRelation };
 

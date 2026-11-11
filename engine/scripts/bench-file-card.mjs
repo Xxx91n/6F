@@ -19,7 +19,7 @@ const FC = await import(pathToFileURL(join(root, 'dist', 'fact', 'file-card.js')
 // 当时登记的档值跟着治理工件一块儿退役了（翻 git 历史能看到 .scratch/macro-audit/reports/80-bench-thresholds.md）
 const THRESHOLDS = {
   small:  { target: 200,  danger: 800   }, // 不超过 5k 条事实（实测基线 p95 不到 72ms——target 按基线的 3 倍留点异机余量）
-  medium: { target: 800,  danger: 3000  },   // 5k~50k facts
+  medium: { target: 800,  danger: 3000  },   // 5 千到 5 万条事实
   large:  { target: 4000, danger: 12000 }, // 超过 5 万条事实（含病态血缘图施压——合成件实测 p95 约 85ms，纯建卡那一段）
 };
 

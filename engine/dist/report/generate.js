@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { intakeEscalation, deriveReasonClass, VERDICT_REASON_CLASSES } from '../intake/quarantine.js';
 import { sealNarrativeSections, renderTemplateNarrative, NARRATIVE_SEAL_PROTOCOL } from './narrative.js';
 import { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations } from './citation.js';
-// 引文核对那块已经挪到 citation.ts，这里再导出一遍，原来引用这儿的地方不用改。
+// 引文核对真正的实现在 citation.ts，这里只再导出一遍，原来引用这儿的地方不用改。
 export { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations };
 // 五档共用同一个报告骨架，每档只放自己那摊字段，章节顺序不能动
 export const REPORT_SKELETON_VERSION = '1.2.0';

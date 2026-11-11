@@ -22,7 +22,7 @@ import { strictQuarantineViolations, ratchetIssues, intakeIdentityIssues, protoc
 import { projectUpstreamDimensions, CODELORE_S3_FACETS, SEMANTIC_DOMAIN_LABELS } from './upstream-dimension-map.js';
 import { reaggregateFileFacetRows, reconcilePerFileVsAggregate } from '../upstream/codelore.js';
 const NL = String.fromCharCode(10);
-// 现在做出来的就这三档；预览版一档一档往外开，没开的照实报不支持，不装作能跑。
+// 规划上一共 5 档审计规模，现在做出来的就这三档；预览版一档一档往外开，没开的照实报不支持，不装作能跑。
 export const AUDIT_SCALES_IMPLEMENTED = ['Macro-B', 'Macro-C', 'Micro-A'];
 const SCALE_LAYER_ORDER = 'Macro-C→Micro-A→Micro-B→Macro-A（Macro-B/Macro-C/Micro-A 已上架 preview）';
 const SCALE_CANON = { 'microa': 'Micro-A', 'microb': 'Micro-B', 'macroa': 'Macro-A', 'macrob': 'Macro-B', 'macroc': 'Macro-C' };
@@ -128,7 +128,7 @@ export async function runAudit(opts) {
         stopwords: MACRO_B_STOPWORDS, topN: TC3_TOPN,
         codelore: 'auto', // 真跑：二进制找不到或版本对不上，就把这事记成事实，行为面照实标不适用
         fileLineage: { mode: 'on' }, // 真跑要追文件改名，改名关系算血缘事实；demo 那头关掉，图的是产物一字不差
-        extraCodeloreFacets: CODELORE_S3_FACETS.map(function (a) { return { analysis: a, group: 's3', extraArgs: [] }; }), // 把 S3 族六面也采进来做形态测量；能不能进维度，在象限那道闸上判
+        extraCodeloreFacets: CODELORE_S3_FACETS.map(function (a) { return { analysis: a, group: 's3', extraArgs: [] }; }), // #87/D-205 结构摘帽接入：S3 族六面也采进来做形态测量；能不能进维度，在象限那道闸上判
         fixtureTag: 'AUDIT', pc2Sha: 'pc2fixture000000000000000000000000000053audit'
     }, ctx, probes);
     const ev = evaluateMacroB(col);

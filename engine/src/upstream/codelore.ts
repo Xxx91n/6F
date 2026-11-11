@@ -53,7 +53,7 @@ function pushResolutionFact(out: CollectedFact[], ctx: CollectContext, res: Code
   }));
 }
 
-// 单文件档的 ctx 就从这一处出（r31 审计返修：四处字面量收到一处）——粒度按 subject 算，不按 run（D-124）；
+// 单文件档的 ctx 只从这一处出（r31 审计返修定的：原来四处各写一遍字面量，现在收到一处）——粒度按 subject 算，不按 run（D-124）；
 // 跳过和冲突这些说明事实统一用 scale=Micro-B，ctx 字段怎么映射只在这儿定义，免得走样。
 function microBCtx(ctx: CollectContext): CollectContext {
   return { runId: ctx.runId, traceId: ctx.traceId, repoRef: ctx.repoRef, scale: 'Micro-B', observedAt: ctx.observedAt };

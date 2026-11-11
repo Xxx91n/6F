@@ -127,7 +127,7 @@ export function recordFieldInstance(stat, events, cls, commitSha, fieldName) {
 }
 // ---------- §6 严格隔离这道关（D-110） ----------
 // 基线是仓里版本化的常量：空的基线就是零容忍；要调基线必须走 PR 审查，并白纸黑字同意接受新的异常类别；
-// 规矩只紧不松（基线里写了、这回调根本没出现，判失败）；UNCLASSIFIED 永远不许进基线（默认拒）。
+// 规矩只紧不松（基线里写着的码，这次跑下来压根没出现，一样判失败）；UNCLASSIFIED 永远不许进基线（默认拒）。
 // 命令行参数和环境变量只传开关，基线内容永远读这个常量（D-110④）。
 export const ACCEPTED_REASON_CODES = [];
 export function baselineIssues() {
@@ -163,7 +163,7 @@ export function strictQuarantineViolations(events) {
 }
 // 只紧不松怎么查（D-110③）：基线声明了的码这趟隔离里压根没露面，就直接判失败
 // （学常见代码质量工具那套：已经不犯的毛病还挂在那儿，等于悄悄把检查范围放水了）。
-// 拿这回调实际冒出来的事件集来对（基线是仓级的声明，每趟都得核一遍对不对得上实情）。
+// 拿这次跑下来实际冒出来的事件集来对（基线是仓级的声明，每趟都得核一遍对不对得上实情）。
 export function ratchetIssues(events) {
     const observed = new Set(events.filter(function (e) { return e.disposition === 'quarantined'; }).map(function (e) { return e.reason_code; }));
     const out = [];

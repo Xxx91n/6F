@@ -3,7 +3,7 @@ name: docs-ci
 # tracker #47：文档权威检查专用的一条任务关卡。
 # 跟 engine-ci 怎么分工：engine-ci 的矩阵和路径一个字不动（[22,24] 六条任务，加 engine/** 触发）；
 # 本 workflow 只在文档面有变化时跑一条 ubuntu/node24 单腿，复用引擎那条只读快道
-# `npm run check:docs`（致谢段只读比对加文档权威检查），不另建第二套校验。
+# `npm run check:docs`（致谢段只读比对加 docs-authority 那道检查），不另建第二套校验。
 # tracker #97 又加了生成物对不上断言：npm run gen 跑完，docs/adr/README.md 必须跟提交进来的一致；
 # 手改索引、或者新加了 ADR 忘了 regen，就会红；复用 engine-ci 同一条 gen 链，不另建第二套。
 on:
