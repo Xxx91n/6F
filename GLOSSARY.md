@@ -190,7 +190,7 @@ _别名_: Semantic Domain、`structure/shape`、`S3/budget-attribution`
 _不要用_: 读数归属层、把结构观测直接当 S3 裁决
 
 **暂挂两边**
-同一件事实还没定归哪个维度时，先临时挂在两个维度上；等接数据工单落地再定。
+一件事实还没定最终归哪个维度时，先按它的不同部分各挂一个维度，等接数据工单落地再定。这是中间状态，不是最终状态。
 _别名_: pending(event_bound)、pending-event_bound
 _不要用_: 双挂、两边都算
 
@@ -334,8 +334,8 @@ _不要用_: 防腐层
 _别名_: dual-track adapter
 
 **分析项组**
-上游同一族的分析项归在一起算的一组，比如演化主干、s3 族、s5 族各算一组。
-_别名_: Facet Group、`group`
+上游分析项按用途归的类，代码里用 `group` 字段标（值有 evolution、s3、s5、behavior）。
+_别名_: `group`、CodeloreFacetGroup
 _不要用_: 面集
 
 **接数据工单**
