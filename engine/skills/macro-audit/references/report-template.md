@@ -1,7 +1,7 @@
 # report-template —— 叙述段输出模板（宿主 agent 照着写的地方）
 
 > 什么时候加载：宿主 agent 交叙述段之前加载——输出格式就按这份来（不许自己写成散文）。
-> 盖章流程：先按这份格式写 → 交给内核 `sealNarrative`（逐条核对引文 + 机器检查判定档那几条红线）→ 合格了才进报告的 C2 叙述段。
+> 盖章流程：先按这份格式写 → 交给内核 `sealNarrative`（checkAllCitations + 判定档红线机器检查）→ 合格了才进报告的 C2 叙述段。
 
 ## 输出格式（JSON 段集）
 
@@ -30,7 +30,7 @@
 
 ## 红线
 
-叙述段**只带引文盖章，不得携带裁决 band**（D-053；C 层由人定 / D-026）：
+叙述段**只带 citation 盖章，不得携带裁决 band**（D-053；C 层由人定 / D-026）：
 - 不许写维度判定档赋值（`S1: supported`），不许写裁决字段名（verdict/verdict_gate/overall_verdict/band=），不许写中文判定句式（检测器认哪些字面，看 `engine/src/report/narrative.ts`；换成大白话也照样别带进叙述段）；
 - 叙述可以写「证据显示……」「引文见 EV-x」——不能写「所以这一维判 supported」。
 - 踩线的段 seal=rejected，违规明细 band_violations 照实进报告。
