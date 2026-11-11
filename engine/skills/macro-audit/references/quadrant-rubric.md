@@ -1,22 +1,22 @@
-# quadrant-rubric — 战略象限 S1-S5 判据怎么用（v0.1 / D-004 文字版）
+# quadrant-rubric —— 战略象限 S1-S5 判据怎么用（v0.1 / D-004 文字版）
 
-> 什么时候加载：宿主 agent 为**战略（strategic）象限**写叙述段时加载；其他象限不加载。
-> 定位：本文件是 spec.md 战略 quadrant 判据簇（Decision 4.1~4.6）、ADR-0028 §2（战略象限 S1-S5）和 GLOSSARY.md S1-S5 词条的文书化说明（文字版）——不加新判据，不设新阈值；阈值初版参数以 spec 原文为准，要改就走 PR 评审。
-> 红线：本文件只帮叙述组织证据；**判据数值不得出现在叙述段的判定档断言里**（判定档由 C 层人定，D-026）。
-> - **事实到维度的归位**：归位规则不在本文件（在 kernel 裁决面）。叙述段只按已有事实组织证据，**不得引用进入条件或自己归位维度**——归位是 kernel/接线票的确定动作，不是叙述判断。
+> 什么时候加载：宿主 agent 给**战略（strategic）象限**写叙述段时加载；别的象限不加载。
+> 这份文件干什么：把 `spec.md` 里战略象限那一组判据（Decision 4.1~4.6）、`ADR-0028` §2（战略象限 S1-S5）和 `GLOSSARY.md` 的 S1-S5 词条，摊成一份给人看的文书化说明（文字版）。这里不加新判据、不设新阈值；阈值第一版是多少，以 spec 原文为准，要改就走 PR 评审。
+> 红线：这份文件只帮着把证据摆整齐；**判据算出来的数字不许写进叙述段的判定档断言里**（判定档由 C 层的人来定，D-026）。
+> - **一条事实该归哪个维度**：归位规则不在这份文件里（在内核裁决面）。叙述段只按已有事实摆证据，**不许自己引用进入条件、也不许自己给事实归位**——归位是内核或接数据工单那边定死的动作，不是写叙述时随手判断的事。
 
-## 维度速查（判据名 → 怎么用）
+## 维度速查（判据叫什么 → 拿来干什么）
 
-| 维 | 判什么 | 证据源 | 初版参数 / 回退 |
+| 维 | 判什么 | 证据从哪来 | 初版参数 / 拿不到怎么办 |
 |---|---|---|---|
-| S1 Positioning Convergence（定位收敛） | 「意图声明」（README 一句话定位、roadmap、epic 目标）和「实际交付内容」（功能面、PR 主题、issue 分流）有多一致 | README/docs/roadmap/CHANGELOG/git log/issue+label/PR 标题 | 定位关键词覆盖率＋走样起点检测；**不锁 70% hard rule**——交付试点仓清单＋校对流程（embedding 选型主路，关键词 fallback，人工抽检）；跨仓校对预留 |
-| S2 ADR Quality（ADR 质量） | ADR 是不是「真决定」：Context 张力/Considered Options/正负 Consequences/immutable+supersede 链/决定当时写而不是事后补；含决定可逆性（confidence＋门类型 one-way/two-way＋回滚路径） | 被审计仓 ADR 目录全量扫描＋git log --follow＋TODO/FIXME 密度对照 | 事后补写判定=YAML 时间戳头一致性检查清单；缺头→回退方案；初版阈值「事后补写>90天占比>20% 判失败」预留跨仓校对 |
-| S3 Facade-vs-Structure Budget（门面预算 vs 结构预算） | 维护预算花在「门面」（God Object/巨类/单实现抽象/范式通胀）还是「结构」（边界清楚/内聚/适度抽象） | CodeLore 上帝对象分析＋抽象利用率＋shearing layers 识别 | spec 4.x 没单列本维判定参数——叙述只能组织已有的结构象限事实，不得自创预算阈值；信号不够→标「⚠ 数据未接」 |
-| S4 Evolution Direction（演化方向） | 系统是沿声明方向演化，还是走样/侵蚀；含空位和负向声明（YAGNI 注释/被否选项/out-of-scope 记录）的诚实度 | 被审计仓 ADR 假设段＋依赖方向违规趋势＋ADR supersede 链 | 主战场 Macro-C：ADR 假设提取=LLM 抽取＋人工复核回路（不能只信 LLM）；输出假设失效集对照表 |
-| S5 Ownership Boundary Fit（所有权边界匹配） | 模块分解和所有权分解（git author 矩阵/CODEOWNERS/AGENTS.md）是不是同一结构（Conway's Law 工程化） | CODEOWNERS＋git blame 作者-模块矩阵＋bus factor＋PR reviewer 分布 | **单人仓这个维度的信号弱，必须降权**：团队规模归一化曲线（单作者模块占比 vs 团队规模分桶）；报告明确标「信号不够」的回退路径 |
+| S1 Positioning Convergence（定位收敛） | 「说自己要做的事」（README 一句话定位、roadmap、epic 目标）和「实际做出来的东西」（功能面、PR 主题、issue 分流）对得上几分 | README/docs/roadmap/CHANGELOG/git log/issue+label/PR 标题 | 算定位关键词覆盖了多少、从哪开始跑偏；**不把 70% 定成硬规矩**——先交试点仓清单和校对流程（主路用 embedding，关键词当备选，再人工抽检）；跨仓校对先留着 |
+| S2 ADR Quality（ADR 质量） | ADR 是不是「真的做过一次决定」：Context（当时有什么张力）／Considered Options（列没列别的选项）／Consequences（正反后果写没写）三段齐不齐、有没有改成不可变并接上 supersede（替代）链、是不是决定当时就写下来的（不是事后补的）；还要看决定能不能收回（confidence＋门类型 one-way / two-way＋回滚路径） | 把被审计仓的 ADR 目录整个扫一遍＋git log --follow＋对照 TODO/FIXME 的密度 | 判「事后补写」＝查 YAML 时间戳头对不对得上；缺头就走回退方案；初版阈值「事后补写超过 90 天的那部分，占比要超过 20%（正好两成不算）才判失败」先留着，等跨仓校对 |
+| S3 Facade-vs-Structure Budget（门面预算 vs 结构预算） | 维护的力气花在「门面」上还是「结构」上（门面＝上帝对象、巨类、只有一个实现的抽象、范式通胀；结构＝边界清楚、内聚、抽象利用率适度） | CodeLore 的上帝对象分析＋抽象利用率＋shearing layers 认得不认得 | spec 4.x 没给这一维单列判定参数——叙述只能拿已有的结构象限事实来摆，不许自己造一个预算阈值；信号不够就标「⚠ 数据未接」 |
+| S4 Evolution Direction（演化方向） | 系统是顺着自己声明的方向走，还是走歪了、被侵蚀了；还要看它诚不诚实：空着的地方、明确说不做的事（YAGNI 注释、被否掉的选项、写在范围外的记录）有没有照实说 | 被审计仓 ADR 里的假设段＋依赖方向违规的趋势＋ADR 替代链 | 主战场是 Macro-C：ADR 假设靠 LLM 抽出来，再人工复核回来（不能光信 LLM）；最后出一张假设失效集对照表 |
+| S5 Ownership Boundary Fit（所有权边界匹配） | 模块怎么切，和所有权怎么切（git author 矩阵、CODEOWNERS、AGENTS.md），是不是同一套切法（Conway 定律那套工程化） | CODEOWNERS＋git blame 拉作者-模块矩阵＋bus factor＋PR 谁来审 | **单人仓这一维信号很弱，必须降权**：按团队规模分桶看单作者模块占比（团队规模归一化曲线）；报告里明确写「信号不够」，并给出这条路怎么退 |
 
-## 叙述怎么组织（不是判据）
+## 叙述怎么摆（这不是判据）
 
-- 每维叙述只回答：证据显示了什么（引 evidence_id 锚）——**不评判定档**。
-- 维度没有证据→直接写「该维证据面没接上/不够」，不要用修辞盖住。
-- S1-S5 判据要改=改 spec.md 战略 quadrant 判据簇（Decision 4.1~4.6）或 ADR-0028 §2，走 PR 评审，本文件跟着改版本号。
+- 每一维的叙述只回答一件事：证据显示出了什么（用 evidence_id 做锚）——**不评判定档**。
+- 某一维没证据，就直接写「这一维的证据面没接上 / 不够」，别用漂亮话盖过去。
+- S1-S5 判据要改，就去改 `spec.md` 里战略象限那一组判据（Decision 4.1~4.6）或 `ADR-0028` §2，走 PR 评审，这份文件跟着改版本号。
