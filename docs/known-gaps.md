@@ -20,7 +20,7 @@
 - **is_trunc 命名说明**：列名是 `is_trunc`，不是 `is_truncated`——append-only 的拦截清单按子串扫，`TRUNCATE` 会误伤含这个子串的名字；意思不变（D-117 截断标记位）。
 - **多久看一次**：review_by 到期的行要重新看 status（防止这张表过 18 个月还列着已经不存在的系统）。
 
-## 批2-β 登记批（轮39 D-155①/D-156②——技术债和宿主观察面：一节一条，每条都把这五节写齐）
+## 批2-β 登记批（轮39 D-155①/D-156②——技术债和宿主观察面：一节一条，每条都把登记项填齐：gap_id、证据链、owner、notes、review_by、trigger_id）
 
 > 退役和历史编号说明：本表 `first_seen` 列里的旧检查脚本（`75a-check.mjs`、`41a-check.mjs`、`guard-all-run.mjs`、`37-check.mjs`、`25-check.mjs`、`01-extract.mjs` 等，原路径在 `.scratch/architecture-recovery/reports/`）和 `trials/` 档案（原路径在 `.scratch/macro-audit/trials/`）都已经随治理工件一起退役了，算历史编号，git 历史里查得到。
 
