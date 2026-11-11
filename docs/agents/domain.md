@@ -4,7 +4,7 @@ How the engineering skills should read this repo's domain documentation while th
 
 ## Before exploring, read these
 
-Where a decision or a term belongs is written once, in **[`docs/authority.md`](../authority.md)** — the authority surface. The files below hold the content:
+**[`docs/authority.md`](../authority.md) — the authority surface — is the one place that says where a decision or a term belongs.** The files below hold the content:
 
 - **`GLOSSARY.md`** at the repo root — the primary name for each domain term.
 - **`docs/spec.md`** — product decisions.

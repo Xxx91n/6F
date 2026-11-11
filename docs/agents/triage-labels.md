@@ -2,7 +2,7 @@
 
 The engineering skills ask for five triage roles. This file maps each role to the label string this repo's tracker actually uses.
 
-Where a decision or a term belongs is written once, in [`docs/authority.md`](../authority.md) — the authority surface.
+**[`docs/authority.md`](../authority.md) — the authority surface — is the one place that says where a decision or a term belongs.**
 
 | Label in mattpocock/skills | Label in our tracker | Meaning                                      |
 | -------------------------- | -------------------- | -------------------------------------------- |
