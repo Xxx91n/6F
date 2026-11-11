@@ -1,11 +1,11 @@
-// check-kit.mjs — 检查脚本共用工具包（#75批1 / D-094③「名↔检剥注释」通用化实现位置；20-check A5 先例收敛）
-// 约定：零三方依赖；本目录仅放共享纯函数，不参与 *-check.mjs 命名枚举（70-check/75a 普查枚举面豁免）。
+// check-kit.mjs —— 检查脚本共用的一套工具（#75 批1 / D-094③ 「名↔检剥注释」这个通用活就落在这儿；照着 20-check A5 的先例收拢的）
+// 约定：不引任何三方依赖；这个目录只放共用的纯函数，不参加 *-check.mjs 那套按名字的枚举（70-check / 75a 普查枚举面已经明着放行了）。
 
 import { spawnSync } from 'node:child_process';
 
-// 剥 JS/TS 源码注释：行注 // 与块注 /* */（含字符串/regex/template 内 // 保护）
-// R51-T1A（D-184②④）：补 regex 字面量态——js-tokens 前驱 token 启发式＋行尾强制闭合；歧义全偏除号=安全向（Padolsey 实录）
-// 前驱三分类：identifier/数字/字符串尾/)/]/} 后 slash = 除号；其余 = regex
+// 剥 JS/TS 源码里的注释：行注 // 和块注 /* */（顺手保一下字符串、正则、模板串里的 // 别被误剥）
+// R51-T1A（D-184②④）：把正则字面量那种也补上了——看前面一个 token 是什么来猜，碰上行尾就强制闭合；拿不准的一律按除号算（往安全那边偏，Padolsey 有实录）
+// 前一个 token 分三类看：标识符、数字、字符串尾巴、)/]/} 后头跟的 slash 是除号；剩下的当正则
 export function stripComments(src) {
   const out = [];
   let i = 0, inStr = null, inLine = false, inBlock = false, inRegex = false, inRegexClass = false, lastSig = '';
@@ -83,23 +83,23 @@ export function stripComments(src) {
   return out.join('');
 }
 
-// 迁入闸探测（D-184②——三形态命中即阻断）：regex-引号形／歧义除号位／模板串内 regex
+// 能不能迁进来的探测（D-184②——三种形态撞上一个就拦）：正则引号形／拿不准的除号位／模板串里裹的正则
 export function detectRegexHazards(src) {
   const hits = [];
   const lines = src.split('\n');
   for (let li = 0; li < lines.length; li++) {
     const line = lines[li];
-    // 模板串内 regex
+    // 模板串里裹的正则
     if (/\$\{[^}]*\/.+\/[^}]*\}/.test(line)) {
       hits.push({ kind: 'tpl-inner-regex', lno: li + 1, line: line.trim().slice(0, 80) });
     }
-    // regex-引号形
+    // 正则引号形
     const reQuote = /(?:^|[=(,\[{!&|?:;]\s*)\/(?:[^/\\\n]|\\.)*['][^/\\\n]*\/[gimsuy]*/;
     const reQuote2 = /(?:^|[=(,\[{!&|?:;]\s*)\/(?:[^/\\\n]|\\.)*["][^/\\\n]*\/[gimsuy]*/;
     if ((reQuote.test(line) || reQuote2.test(line)) && !/^\s*['"]/.test(line)) {
       hits.push({ kind: 'regex-quote-form', lno: li + 1, line: line.trim().slice(0, 80) });
     }
-    // 歧义除号位
+    // 拿不准的除号位
     if (/[\w$\)\]\}]\s*\/[^\s/*=]/.test(line) && line.indexOf('//') < 0 && line.indexOf('/*') < 0) {
       const m = line.match(/([\w$\)\]\}])\s*\/([^\s/*=])/);
       if (m) hits.push({ kind: 'ambiguous-div', lno: li + 1, line: line.trim().slice(0, 80), prev: m[1] });
@@ -108,19 +108,19 @@ export function detectRegexHazards(src) {
   return hits;
 }
 
-// D-213① 危险正则形态机检（zero-backslash 纪律边界成文伴生断言）：
-//   「[^]」起头＝JS 否定空字符类语义陷阱（[^]=任意字符＋字面 ]，P0-2 死正则事故形态）。
-//   适用域=字符串/模板串写入语境；正则字符类内部豁免零反斜杠纪律（[^\]]/[^\x5D] 物理必需）。
-//   扫描面以误语义高风险形态为限不做完整转义矩阵立法（防滑向过度立法）——「[^]」是唯一无歧义可机检的死形态
-//   （ESLint no-empty-character-class＋Biome negated-empty-class＋eslint-plugin-regexp 三重先例同构）；
-//   「否定字符类内裸 ]」在合法 [^a]/[^abc] 单成员否定类下不可与误用区分（须完整 regex 解析），超出本探测器有界范围。
-//   入参=剥注释后源码（stripComments 产物）；返回 hits 数组（kind/lno/line）。合法 [^\]] 因 \] 转义不中（负对照钉住）。
+// D-213① 危险正则形态的机器检查（零反斜杠那条纪律的边界，成文时就配着这道断言）：
+// 以「[^]」打头＝JS 里否定空字符类的语义陷阱（[^] 匹配任意字符，后面那个 ] 是字面成员，不是闭合——P0-2 那条死正则就是这么出的）。
+// 管的地方＝往字符串、模板串里写的语境；正则字符类里头不适用零反斜杠纪律（[^\]] / [^\x5D] 那是物理上少不了的）。
+// 扫的面只限真容易理解错的高危形态，不搞一整套完整转义矩阵（免得越立越多变成过度立法）——「[^]」是唯一没有歧义、机器查得出的死形态
+// （ESLint 的 no-empty-character-class＋Biome 的 negated-empty-class＋eslint-plugin-regexp，三家先例都一个路子）；
+// 「否定字符类里光秃秃一个 ]」在合法的 [^a]/[^abc] 这种单成员否定类下跟真用错分不出来（得完整解析正则才行），超出这个探测器的能力范围。
+// 进来的是剥完注释的源码（stripComments 的产物）；回一个 hits 数组（kind/lno/line）。合法的 [^\]] 因为 \] 转了义，撞不上（负对照钉住了）。
 export function detectDangerousRegexForms(strippedSrc) {
   const hits = [];
   const lines = strippedSrc.split('\n');
   for (let li = 0; li < lines.length; li++) {
     const line = lines[li];
-    // [^] 起头（否定空字符类——JS 中 [^] 匹配任意字符，其后 ] 为字面成员非闭合；P0-2 死正则事故形态）
+    // [^] 打头（否定空字符类——JS 里 [^] 匹配任意字符，后头那个 ] 是字面成员不是闭合；P0-2 死正则那个形态）
     if (/\[\^\]/.test(line)) {
       hits.push({ kind: 'negated-empty-class', lno: li + 1, line: line.trim().slice(0, 80) });
     }
@@ -131,8 +131,8 @@ export function stripMdComments(src) {
   return src.replace(/<!--[\s\S]*?-->/g, '');
 }
 
-// ---- git 票面机件（R38/#75批2，r37 审计 P-5 收编：26/28/30-check「git log --grep + show --name-only 触及面」机件三份复制去重） ----
-// spawnSync argv 形态无 shell 拼接面；统一 -c core.quotePath=false（非 ASCII 路径不引号逃逸——28 原 execSync 串已带此参，26/30 原 argv 缺此为潜在漏洞顺带补齐）。
+// ---- git 票面的那套机件（R38/#75 批2，r37 审计 P-5 收进来的：26/28/30-check 里「git log --grep 加 show --name-only 摸触及面」这套机件三份复制，去重） ----
+// 用 spawnSync 走 argv，没有 shell 拼接那点事；统一加 -c core.quotePath=false（非 ASCII 路径不会被引号逃掉——28 原来的 execSync 串就带着这个参数，26/30 原来的 argv 少了它是潜在漏洞，顺手补齐）。
 export function gitOut(root, args) {
   const r = spawnSync('git', ['-c', 'core.quotePath=false'].concat(args), { cwd: root, encoding: 'utf8' });
   return r.stdout || '';
@@ -151,15 +151,15 @@ export function touchedPaths(root, shas) {
 export function lastChangeSha(root, relPath) {
   return gitOut(root, ['log', '-1', '--format=%H', '--', relPath]).trim();
 }
-// ---- 守卫自声明 + skip 三态原语（R40-T1：D-159②③ tier 自声明强制＋SKIP 呈现契约＋D-160③ protected_surface 双字段） ----
-// tier 自声明形态（每件守卫文件头声明；未声明=红——75a-T 组普查断言）：
+// ---- 守卫自声明加 skip 三态那套原语（R40-T1：D-159②③ tier 必须自己声明＋SKIP 怎么呈现的契约＋D-160③ protected_surface 两个字段） ----
+// tier 自己声明的样子（每件守卫在文件头写上；不写＝红——75a-T 组一道普查就断言这个）：
 //   const TIER = 'portable' | 'env-contract';
-//   const PROTECTED_SURFACE = '<守护面描述>';
+// const PROTECTED_SURFACE = '<这个守卫守的是什么>';
 export const GUARD_TIERS = ['portable', 'env-contract'];
 
-// skip 原语：环境缺席→SKIP-with-reason 三态退出（exit 0；GUARD-RESULT: SKIP 行供 guard-all-run 分类——
-// skip 不进 allOk 禁折 pass、禁门禁计数〔kit #518/startaitools 实证〕；skip≠xfail 不可混标——
-// 环境没有=skip、该工作但物不在=xfail/known-red，混标丢环境修复后自动转红的哨兵价值）
+// skip 原语：环境缺东西就按 SKIP 加原因的三态退出（exit 0；GUARD-RESULT: SKIP 那一行给 guard-all-run 分门别类——
+// skip 不算绿、不许折成 pass、不进闸的门禁计数〔kit #518/startaitools 有实证〕；skip 别跟 xfail 混标——
+// 环境没有算 skip、本该有却没有算 xfail/known-red，混着标就把「环境修好后它自己转红」这个哨兵的价值丢了）
 export function guardSkip(guardName, reasons) {
   const rs = (Array.isArray(reasons) ? reasons : [reasons]).join('; ');
   console.log('SKIP ' + guardName + ' | ' + rs);
@@ -167,16 +167,16 @@ export function guardSkip(guardName, reasons) {
   process.exit(0);
 }
 
-// 自声明解析（75a-T 组与 runner 共用——声明形态钉死利于普查）
+// 解析自声明（75a-T 组和 runner 共用——写法钉死好普查）
 export function guardDeclaredTier(src) { const m = src.match(/^const TIER = '(portable|env-contract)';$/m); return m ? m[1] : null; }
 export function guardDeclaredSurface(src) { const m = src.match(/^const PROTECTED_SURFACE = '([^'\n]+)';$/m); return m ? m[1] : null; }
-// D-214① consumption_forms 消费形态枚举自声明解析（与 tier 同 commit、同 T 组机检「未声明=红」）。
-//   声明形态：const CONSUMPTION_FORMS = ['dev-full', ...]; ——单 dev 消费方守卫登记 ['dev-full'] 一行即闭环（不设枚举税），
-//   多形态消费方（groupProbe 组级 need 守卫）须枚举真实消费形态。返回数组或 null（未声明）。
+// D-214① consumption_forms 消费形态的枚举自声明解析（跟 tier 同一个提交、同一道 T 组机检「没声明＝红」）。
+// 写法：const CONSUMPTION_FORMS = ['dev-full', ...]; ——只有一种消费方式的守卫登记一行 ['dev-full'] 就完了（不额外收税），
+// 好几种消费方式的（groupProbe 组级 need 那种守卫）得把真实用到的都写上。返回数组，没声明就返回 null。
 export function guardDeclaredConsumptionForms(src) { const m = src.match(/^const CONSUMPTION_FORMS = \[([^\]]*)\];$/m); if (!m) return null; const inner = m[1].trim(); if (inner === '') return []; return inner.split(',').map((s) => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean); }
 
-// blankStrings：剥除字符串/模板字面量内容的遮罩——引号串内容抹为空格（保引号边界），模板体抹空格而 ${...} 内代码递归保留，全长/行号不动
-// 面态判定专用：字符串内容/属性名/标识符内提名不构成消费位；注释剥离仍由 stripComments 担纲
+// blankStrings：把字符串、模板字面量里的内容抹成一片空白的遮罩——引号里抹成空格（引号的边界留着），模板体抹空格但 ${...} 里的代码递归保留，总长和行号一点不动
+// 专给判「是不是真在用」使：字符串内容、属性名、标识符里提到名字都不算消费位；剥注释那事还是 stripComments 干
 export function blankStrings(src) {
   let out = '', i = 0;
   while (i < src.length) {
@@ -227,10 +227,9 @@ function findMatchingBrace(src, open) {
   return src.length - 1;
 }
 
-// realConsumption：真消费形态判定——仅认 import/require 具名引入 或 stripComments(/stripMdComments( 调用位
-//   （含成员调用 x.stripComments(——D-158① 原文「调用位」无「裸」字；声明位 {stripComments:…} 无左括号不中）
-// 字符串/属性名/标识符内提名不豁免（先剥字符串再判）；调用位用左括号锚定而非词缀（探测判定锚消费位：先剥注释再判，注释内提名不豁免）
-// 豁免判据落在剥注释后的消费位，注释提名不豁免
+// realConsumption：判真用上了没有——只认 import/require 具名引进来的，或者 stripComments(/stripMdComments( 这种调用位
+// （成员调用 x.stripComments( 也算——D-158① 原文写的就是「调用位」，没写「裸」；声明位 {stripComments:…} 没左括号不算）
+// 判的时候调用方已经把注释剥掉了，这儿再把字符串抹平，然后才看消费位：标识符里、属性名里、注释里提一句名字，一概不算真用上
 export function realConsumption(strippedNoComments) {
   const noStr = blankStrings(strippedNoComments);
   const importBind = /\bimport\b[^'"\n]*\b(?:stripComments|stripMdComments)\b[^'"\n]*\bfrom\b\s*['"]/;

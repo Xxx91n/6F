@@ -49,7 +49,7 @@ const EN_PRE_NEG_CUES = [
     'up to', 'no more than', 'other than', 'contrary to', 'lacking',
 ];
 /** 假设/举例语境的词表（英文——这类地方说的是「假如」「比如」，不是否定，但也不是在正儿八经下结论；
-    与否定 cue 同置剥离面（fail-safe），flag kind 单列 'non-asserted' 以名实对齐（r18 审计 O2）；词表即判据——本表增删改变 supports/insufficient 判定面 */
+    与否定 cue 同置剥离面（fail-safe），flag kind 单列 'non-asserted' 以名实对齐（r18 审计 O2）；词表就是判据——本表增删改变 supports/insufficient 判定面 */
 /** 后置否定词表（英文，撞上那点之后的一小段）；词表就是判据——加一个减一个，supports/insufficient 的结果就变 */
 const EN_POST_NEG_CUES = [
     'not', "n't", 'never', 'cannot', 'could not', 'did not', 'does not', 'is not',
@@ -98,7 +98,7 @@ const CJK_PSEUDO_NEG = [
 /** 假设/举例语境的词表（中文——说的是「假如」「比如」，不是否定，但也不是在下结论；
     与否定 cue 同走剥离窗（fail-safe），flag kind 单列 'non-asserted' 名实对齐。
     假想语境表与否定表对称并列：
-    词表即判据——本表增删改变 supports/insufficient 判定面（改表三件义务见 EN_PRE_NEG_CUES 表头）；
+    词表就是判据——本表增删改变 supports/insufficient 判定面（改表三件义务见 EN_PRE_NEG_CUES 表头）；
     ≥2 字词形禁单字（子串误吞灾难）；「严格来说」不收（限定语非假想语境）；
     种子表一次先验声明，禁后续参照标签渐进调参 */
 const CJK_NON_ASSERT_PRE_CUES = [
@@ -106,12 +106,12 @@ const CJK_NON_ASSERT_PRE_CUES = [
     '假设', '假定', '假如', '假若', '倘若', '倘使', '试想', '设想', '假想', '设若',
 ];
 /** 假设/举例语境的词表（中文，撞上那点之后的一小段——在说「假设」「限定」这类口气；
-    词表即判据——本表增删改变 supports/insufficient 判定面；「理论」不收「理论上」收（「理论物理」豁免） */
+    词表就是判据——本表增删改变 supports/insufficient 判定面；「理论」不收「理论上」收（「理论物理」豁免） */
 const CJK_NON_ASSERT_POST_CUES = [
     '理论上', '在理论上', '原则上', '纯属虚构', '仅为示例', '仅供参考',
 ];
 /** 假设语境的豁免表（中文——「假设」这个词在科研写法里就是个名词，一词两用；
-    词表即判据——本表增删改变 supports/insufficient 判定面；逐词过单测为验收点（文献记载 FP/FN 主源） */
+    词表就是判据——本表增删改变 supports/insufficient 判定面；逐词过单测为验收点（文献记载 FP/FN 主源） */
 const CJK_NON_ASSERT_PSEUDO = [
     '假说', '假设性', '零假设', '假设检验', '工作假设',
 ];
