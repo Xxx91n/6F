@@ -31,7 +31,7 @@
 
 - 敢认跑不通——支持、不支持、证据不够这三档判定都照实写数字，不为了好看硬说跑通；
 - 每条声明都带出处坐标和复跑命令；降级产物带 `⚠ unverified` 标记；没接上的证据范围写「⚠ 数据未接」；合成 fixture 带 `synthetic` 标记，不冒充真实审计；
-- 被测仓库只读（只用 git 的只读子命令，只读文件）；外部仓库一律要明确同意才用 URL，并做收仓隔离（hooksPath=noop / ext.allow=never / 全深度校验、拒绝浅克隆）；
+- 被测仓库只读（只用 git 的只读子命令，只读文件）；外部仓库一律要明确同意才用 URL，并做接仓库时的隔离（hooksPath=noop / ext.allow=never / 全深度校验、拒绝浅克隆）；
 - `defaultEnabled:false` 的建议（审计这类插件默认不该自动开）；MCP 这边只读。
 
 ## version
