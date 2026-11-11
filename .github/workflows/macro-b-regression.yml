@@ -3,9 +3,9 @@ name: macro-b-regression
 # #46 / D-046 / spec-phase-tasks R7-05 —— 单仓四象限档的回归 CI 搬回 6F 自己的 CI（把 #39 挂在 jiahao 那边的那条回归腿接过来）
 #
 # 链：resolve（定下要跑哪几个仓）→ engine 装依赖/gen/build → clone 被审的公开仓（URL 明着给、不用 token；
-# intake 的隔离纪律 #40：core.hooksPath=noop + protocol.ext.allow=never + 全深度卡浅克隆）
+#   intake 的隔离纪律 #40：core.hooksPath=noop + protocol.ext.allow=never + 全深度卡浅克隆）
 #   → 39-macro-b-one-shot.mjs --repo <name> --root audited-repo --out macro-b-artifacts
-# → 工件断言（receipt + sidecar + md + facts + duckdb；test -s 非零字节 + RCP 强断言）→ upload-artifact。
+#   → 工件断言（receipt + sidecar + md + facts + duckdb；test -s 非零字节 + RCP 强断言）→ upload-artifact。
 #
 # 什么时候跑：schedule（每周一 03:17 UTC，照 #39 的节拍）+ workflow_dispatch（给 repo_url，或者把默认那组重跑一遍）。
 #   - 不接 push / pull_request：这一面是定时审计回归，不是 PR 关卡（跟 D-034④a 一个规矩）；

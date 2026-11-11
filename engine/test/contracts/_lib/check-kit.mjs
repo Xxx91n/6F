@@ -154,7 +154,7 @@ export function lastChangeSha(root, relPath) {
 // ---- 守卫自声明加 skip 三态那套原语（R40-T1：D-159②③ tier 必须自己声明＋SKIP 怎么呈现的契约＋D-160③ protected_surface 两个字段） ----
 // tier 自己声明的样子（每件守卫在文件头写上；不写＝红——75a-T 组一道普查就断言这个）：
 //   const TIER = 'portable' | 'env-contract';
-// const PROTECTED_SURFACE = '<这个守卫守的是什么>';
+//   const PROTECTED_SURFACE = '<这个守卫守的是什么>';
 export const GUARD_TIERS = ['portable', 'env-contract'];
 
 // skip 原语：环境缺东西就按 SKIP 加原因的三态退出（exit 0；GUARD-RESULT: SKIP 那一行给 guard-all-run 分门别类——
