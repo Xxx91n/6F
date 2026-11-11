@@ -13,47 +13,49 @@
 <p align="center"><a href="README.md">English</a> &middot; <a href="README.zh-CN.md">&#31616;&#20307;&#20013;&#25991;</a></p>
 
 6F is a **Claude Code Plugin** that audits a code repository.
-> It mainly targets repositories with a healthy git history.
-- Macro-A cross-repo strategy analysis
-- Micro-A PR diff analysis
-- Macro-B single-repo four-quadrant analysis
-- Micro-B single-file analysis
-- Macro-C history evolution analysis
+> It works best on repositories whose git history is complete and readable.
+- Macro-A: how several repos are doing together
+- Micro-A: what a pull request changes
+- Macro-B: one repo seen from four sides
+- Micro-B: one file at a time
+- Macro-C: how a repo got to where it is
 
 ## Install {#install}
 
-**Prerequisites**: Node.js ≥ 22.18
+**What you need first**: Node.js ≥ 22.18
 
 ```text
 /plugin marketplace add Xxx91n/6F
 /plugin install 6f@xxx91n
 ```
 
-## Mental model {#highlights}
+## How it thinks {#highlights}
 
-- **Facts** :  every claim lands in the same append-only fact table (Hub-of-Facts: one shared fact table, each scale does its own adjudication).
-- **Federation** :  every verdict passes the same `verdict-gate` decision checkpoint; the rules sit on that shared fact table.
-- **Forensics** :  the history evolution scale (Macro-C) turns repository history into evidence.
-- **Five scales** :  the five audit scales share one fact table; all five are planned, not a cut-down first version.
-- **Frankness** :  preview, degraded output, and things marked `synthetic` say what they are, under staged preview releases.
-- **Fingerprints** :  every verdict comes with a receipt with two checks, so you can check it offline.
+- **Facts** :  every claim goes into one table that only grows; old rows are never rewritten. All five scales share that table, and each one draws its own conclusions.
+- **Federation** :  every conclusion runs through the same checkpoint (`verdict-gate`), and the rules behind it sit on that shared fact table.
+- **Forensics** :  the history scale (Macro-C) treats the repo's own past as evidence.
+- **Five scales** :  all five audit scales share one fact table, and all five are planned. This is not one scale cut down and shipped.
+- **Frankness** :  preview builds, degraded output, and demo repos marked `synthetic` all say which one they are, under a release that opens up one step at a time.
+- **Fingerprints** :  each verdict comes with a receipt and two checks, so you can verify it offline.
 
 > [!NOTE]
-> Current status: Macro-B, Macro-C, Micro-A, and Micro-B are in preview; Macro-A is planned.
+> Where it stands: Macro-B, Macro-C, Micro-A, and Micro-B are in preview. Macro-A is still only planned.
 
-## Current status {#capability-matrix}
+## Where it stands {#capability-matrix}
 
-| scale | status |
+| scale | where it stands |
 |---|---|
-| Macro-B single-repo four quadrants | **capability 1 of 5 · preview** (self-audit first report: [examples/first-report/](examples/first-report/)); quadrant statuses: **strategy: active** (S1+S2 collection is connected) · **behavior: preview** (the codelore churn/hotspot/coupling part, #51) · **structure: preview** (shape observations from the S3 family:  `structure/shape` readings in the reading layer, observation only, not used for decisions, D-205) · **supply-chain: queued** (D-034③ Scorecard does not jump the queue) |
-| Macro-C history evolution scale | **capability 2 of 5 · preview** (single-repo calibration note) |
-| Micro-A PR diff | **capability 3 of 5 · preview** (consumer of the hosted-platform data middle layer; after hardening, this layer is now an official engine entry point:  #85②, D-204③④) |
-| Micro-B single-file scale | **capability 4 of 5 · preview** (`audit file` file card; the pilot repos are two repos under the same owner, jiahao and env-manager, used for file-rename tracking and calibration:  advice only (`advisory` / advisory-only), kept structurally apart from adjudication, advice never enters the decision checkpoint) |
-| Macro-A cross-repo strategy scale | Not yet in preview |
+| Macro-B, one repo from four sides | **capability 1 of 5 · preview** (this repo's own first report: [examples/first-report/](examples/first-report/)); the four sides: **strategy: active** (S1+S2 data is wired in) · **behavior: preview** (the CodeLore part: churn, hotspots, coupling, #51) · **structure: preview** (the S3 family looks at shape: `structure/shape` readings belong to the reading layer, observation only, never used for a decision) · **supply-chain: queued** (parked in line; Scorecard does not jump ahead) |
+| Macro-C, history of one repo | **capability 2 of 5 · preview** (a calibration note for a single repo) |
+| Micro-A PR diff | **capability 3 of 5 · preview** (reads data from the middle layer in front of the hosting platform; once that layer was hardened, it became an official way into the engine) |
+| Micro-B, one file | **capability 4 of 5 · preview** (`audit file` gives you a file card; the first repos we tried it on are jiahao and env-manager, both ours, for tracking file renames and for calibration: advice only (`advisory`), kept apart from adjudication by design, and advice never reaches a decision) |
+| Macro-A, several repos together | Not yet in preview |
+
+Sources: #85②, D-204③④ (Micro-A made official), D-205 (the structure side), D-034③ (Scorecard stays in line), #51 (the behavior side).
 
 ## What a report looks like {#what-a-report-looks-like}
 
-This is a real excerpt from this repository's self-audit ([examples/first-report/23-first-report.md](examples/first-report/23-first-report.md)):  verdicts are written down as measured, not rounded up:
+Here is a real excerpt from this repo auditing itself ([examples/first-report/23-first-report.md](examples/first-report/23-first-report.md)):  verdicts are written down exactly as measured, never rounded up:
 
 ```text
 # MA-23-6F-FIRST-REPORT :  Macro-B first report (6F@fc00d458…)
@@ -65,14 +67,14 @@ This is a real excerpt from this repository's self-audit ([examples/first-report
   Status/Date missing 84.62%); TC-1 INCONCLUSIVE; TC-3 AMBER
 ```
 
-## Quick check {#quick-verification}
+## Run it yourself {#quick-verification}
 
-Run from source (Node ≥ 22.18):
+From source (Node ≥ 22.18):
 
 ```bash
 cd engine
 npm install
-npm test         # gen manifests → tsc build → smoke (launch & liveness)
+npm test         # generate the manifests, build, then smoke test (does it start and run)
 npm run selftest
 ```
 ---
@@ -82,70 +84,74 @@ npm run selftest
 
 ![Three-layer architecture: Agent Plugin distribution layer → facts and adjudication core → upstream evidence layer](docs/assets/architecture.svg)
 
-The distribution layer (CLI, skills shell, MCP surface) sits on a core we built: an append-only `audit_fact` DuckDB fact table, shared `verdict-gate` decision rules, and a receipt with two checks. Evidence comes in only through the data middle layer; upstream raw content never leaves that layer.
+The outer layer (the CLI, the skills wrapper, the MCP surface) sits on a core we wrote ourselves: one `audit_fact` DuckDB table that only grows, one set of decision rules shared by all five scales (`verdict-gate`), and a receipt carrying two checks. Evidence comes in only through the data middle layer, and upstream raw content never leaves it.
 
 
 ## Upstreams {#upstream-components}
 
-| upstream | what it does | form | how it is brought in (D-020 dual-track) | lock method | status |
+| upstream | what it does | form | how it comes in | how it is pinned | status |
 |---|---|---|---|---|---|
-| DuckDB（@duckdb/node-api） | fact-table base | Node library | runtime dependency | package-lock exact lock | 已接入（active） |
-| git CLI | dig repository history / deterministic collection | external CLI | middle layer + external CLI | comes with the host; parsing its output is the contract | 已接入（active） |
-| CodeLore | code archaeology / evidence layer | CLI | middle layer + external CLI | exact pin 0.28.0 + golden contract tests | 已接入（active；只读检查：explain/summary） |
-| OpenSSF Scorecard | supply-chain health score | Go library / CLI | library → dependency; CLI → middle layer | hash lock / locked version | 规划中（planned） |
-| GitHub REST API | PR data source for the change scale (Micro-A):  enumeration/metadata/diff fallback; local git first | remote-api | middle layer + env token three-level probe | X-GitHub-Api-Version fixed + golden cassette contract | 已接入（active） |
+| DuckDB（@duckdb/node-api） | base for the fact table | Node library | runtime dependency | exact lock in package-lock | 已接入（active） |
+| git CLI | dig through repo history / deterministic collection | external CLI | middle layer + external CLI | comes with the host; parsing its output is the contract | 已接入（active） |
+| CodeLore | code archaeology, supplies evidence | CLI | middle layer + external CLI | pinned dead at 0.28.0, plus golden contract tests | 已接入（active；只读检查：explain/summary） |
+| OpenSSF Scorecard | supply-chain health score | Go library / CLI | library as a dependency; CLI through the middle layer | hash lock / locked version | 规划中（planned） |
+| GitHub REST API | PR data source for the change scale (Micro-A):  list PRs, fetch metadata, fetch diffs, fall back when the platform will not hand it over, local git first | remote-api | middle layer + three-level probe of the env token | X-GitHub-Api-Version fixed + golden cassette contract | 已接入（active） |
 
-Upstreams are brought in on two tracks: middle layer + external CLI/library is the main line; library-form upstreams are fixed by package-manager lockfile hash; copying upstream source into the repo is the last resort, only for offline distribution or abandoned upstreams.
+Upstreams come in one of two ways: the main route is a data middle layer with an external command or library in front of it; upstreams that ship as libraries get their version and hash pinned in the package manager lockfile. Copying upstream source into the repo is the last resort, only for offline distribution or when the upstream is no longer maintained.
+
+Source: D-020 (the two routes).
 
 
 ## Who owns what {#ownership-boundary}
 
 | owner | component |
 |---|---|
-| **Ours** | shared decision-checkpoint rules (`verdict-gate`) · DuckDB fact-table structure (append-only + cross-scale correlation keys) · three acceptance gates (A form / B criteria written before the run / C human override) · receipt with two checks · criteria written before the run (2 positive controls + 3 real criteria + 1 negative control) |
-| **Upstream** | DuckDB engine itself · git CLI · CodeLore (connected · read-only check) · GitHub REST API (connected · REST primary + optional `gh` fallback) · OpenSSF Scorecard (planned) |
+| **Ours** | the decision rules all five scales share (`verdict-gate`) · the DuckDB fact table structure (only grows, plus keys that tie rows across scales) · three acceptance gates (A form / B criteria written before the run / C a human overrides the machine) · the receipt with two checks · criteria written before the run (2 positive controls + 3 real criteria + 1 negative control) |
+| **Theirs** | the DuckDB engine itself · git CLI · CodeLore (connected · read-only check) · GitHub REST API (connected · REST first, `gh` as an optional fallback) · OpenSSF Scorecard (planned) |
 
 ## Rules {#contracts}
 
-- Upstream components write to the fact table **only through the data middle layer**; upstream raw content never leaves that layer (isolation rule: no business rules in the middle layer).
-- Replacing or upgrading an upstream **must not change the fact-table structure**:  the structure is fixed; changes only go through version numbers.
-- Every upstream is version-locked and has golden output contract tests; copying upstream source into the repo is only for offline distribution or abandoned upstreams, and must carry an UPSTREAM manifest and patches/ rules.
+- Every data path writes into the fact table **only through the data middle layer**, and upstream raw content never leaves that layer (this layer moves data; business rules stay out of it).
+- Replacing or upgrading an upstream **must not touch the fact table structure**:  the structure is fixed, and change only comes through a new version number.
+- Every upstream is pinned and comes with a set of golden output tests. Copying upstream source into the repo is only for offline distribution or when the upstream is no longer maintained, and it must carry an UPSTREAM manifest and patches/ rules.
 
-## Repository layout {#repository-map}
+## What is in the repo {#repository-map}
 
 | path | contents |
 |---|---|
-| [docs/authority.md](docs/authority.md) | decisions and terms |
+| [docs/authority.md](docs/authority.md) | the one place that says where a decision goes and where a term goes |
 | [GLOSSARY.md](GLOSSARY.md) | glossary:  what each domain word means |
-| [docs/spec.md](docs/spec.md) | product decisions (gaps: docs/known-gaps.md; risk records: docs/ra/) |
-| [docs/adr/](docs/adr/) | architecture decisions (background / options / consequences) |
-| [engine/](engine/) | kernel CLI + Agent Plugin five-layer box (build / command details in [engine/README.md](engine/README.md)) |
-| [examples/first-report/](examples/first-report/) | release sample: 6F self-audit Macro-B first report, four files (happy + failure pair, explanation rules) |
-| [engine/CHANGELOG.md](engine/CHANGELOG.md) | product version record |
+| [docs/spec.md](docs/spec.md) | product decisions (what is not covered yet is in docs/known-gaps.md; accepted risks are in docs/ra/) |
+| [docs/adr/](docs/adr/) | architecture decisions (the background, the options we tried, the consequences we took on) |
+| [engine/](engine/) | kernel CLI + Agent Plugin, five layers inside (build and command details in [engine/README.md](engine/README.md)) |
+| [examples/first-report/](examples/first-report/) | release sample: 6F auditing itself, the four files of its Macro-B first report (one happy, one failure, with the explanation beside them) |
+| [engine/CHANGELOG.md](engine/CHANGELOG.md) | what changed in each product version |
 
 ## Try it on a real repository {#try-on-a-real-repository}
 
-External repos only come in through URL opt-in (D-013 local first + URL opt-in): clone to an isolated cache (sha256 as key) + full-depth check + shallow clone rejected outright + remote config must not run + reuse the local git credential chain.
+Someone else's repo only comes in when you hand over the link and say yes:  we clone it into an isolated cache directory (sha256 as the directory name), insist on full history and reject a shallow clone outright, never run anything from the remote config, and reuse the git credentials you already have locally.
 
 ```bash
 cd engine && npm install && npm run build
 
-# intake: local path | owner/repo (local-first) | URL opt-in isolated clone
+# intake: local path | owner/repo (local first) | a link you opt into, cloned into an isolated cache
 node dist/cli.js repo add https://github.com/open-gsd/gsd-core.git
 node dist/cli.js repo add /path/to/local/repo
 
-# audit: first-class command :  Macro-B default; Macro-C / Micro-A also shipped
+# audit: Macro-B is the default scale; Macro-C / Micro-A also run
 node dist/cli.js audit /path/to/local/repo
 node dist/cli.js audit <repo> --scale Macro-C
 node dist/cli.js audit <repo> --scale Micro-A
 
-# Micro-B file card (lazy supplementary collection, --db required)
+# Micro-B file card (collect more only for the file you asked about; --db is required)
 node dist/cli.js audit file <repo> <file> --db <facts.duckdb> [--at <sha>]
 ```
 
-- Opt-in public repo example: [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) (this repo has actually onboarded it: on 2026-09-16 it ran Macro-B once, produced 1424 facts, and wrote the `unsupported` verdict down as measured:  TC-2 traced to a detection gap for ADR dash+bold formatting, registered as a coverage gap; the run record is in execution record A-045).
-- **⚠ external content changes with its upstream**: external repo content and structure follow their upstream, so audit readings cannot be expected to match golden:  this example only shows the intake path, not a promise about any verdict.
-- `--scale` only accepts the scales that are already built (`Macro-B` / `Macro-C` / `Micro-A`); a scale that is not built returns structured `SCALE-NOT-IMPLEMENTED` + exit 2:  the CLI does not pretend to run scales that are not connected.
+- A public repo we tried: [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) (we really did take it in: on 2026-09-16 we ran Macro-B once, got 1424 facts, and wrote the `unsupported` verdict down as it came out:  TC-2 traced back to us not recognising ADRs written with a dash plus bold, and we logged that as a coverage gap; the run record is in execution record A-045).
+- **⚠ someone else's repo keeps changing**:  its content and structure follow its upstream, so readings cannot be expected to match golden:  this example shows how to take a repo in, and promises nothing about any verdict.
+- `--scale` only accepts scales that already exist (`Macro-B` / `Macro-C` / `Micro-A`). A scale that does not exist yet returns `SCALE-NOT-IMPLEMENTED` and exit code 2:  the CLI does not pretend to run what is not wired in.
+
+Sources: D-013 (how someone else's repo comes in), A-045 (the gsd-core run record).
 
 <!-- acknowledgments:start — GENERATED by engine/scripts/gen-acknowledgments.mjs; do not edit by hand (regen: node engine/scripts/gen-acknowledgments.mjs) -->
 ## Acknowledgments {#acknowledgments}

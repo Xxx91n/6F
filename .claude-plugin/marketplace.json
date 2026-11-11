@@ -1,6 +1,6 @@
 {
   "name": "xxx91n",
-  "description": "Xxx91n 的 Claude Code 插件市场——当前上架 6f（宏观+微观工程内容审计，Hub-of-Facts + 联邦裁定）",
+  "description": "Xxx91n 的 Claude Code 插件市场——目前上架的是 6f（审工程内容：大到一个仓库、小到一个文件都能看；五档共用一张事实表，各档自己下结论）",
   "owner": {
     "name": "Xxx91n",
     "email": "xxx91n@duck.com",
@@ -10,7 +10,7 @@
     {
       "name": "6f",
       "source": "./engine",
-      "description": "宏观+微观工程内容审计（Agent Plugin；5 scale：Macro-A/B・Macro-C・Micro-A/B；Hub-of-Facts + 联邦裁定。preview 阶段：Macro-B/Macro-C/Micro-B/Micro-A 四层在架（层位至 capability 4 of 5 漏斗——Micro-A 产线化 #85②，D-204③④）；Macro-A 未上架）",
+      "description": "审工程内容的 Agent 插件：五个档位（Macro-A/B、Macro-C、Micro-A/B）共用一张只往后加的事实表，各档自己下结论。现在有四档放开预览——四层在架，能用到 capability 4 of 5（Micro-A 已转成 engine 的正式入口，#85②／D-204③④）；Macro-A 未上架",
       "version": "0.3.0",
       "author": {
         "name": "Xxx91n",
