@@ -12,7 +12,7 @@ macro-audit（6F）——一个看工程内容的审计产品：多个仓库一�
 - 决定和术语各写在哪，只在 [`docs/authority.md`](docs/authority.md) 里讲一次；门面文书只留链接，不另抄一份。
 
 ## 别动
-- `engine/dist/` 是自动生成的：改了 `engine/src` 就得 `npm run build`，提交前跑 `cd engine && node scripts/check-dist.mjs`，确认没有对不上的地方。
+- `engine/dist/` 是自动生成的：改了 `engine/src` 就得 `npm run build`，把 dist 跟源码一起提交（内容有没有对上是 engine-ci 的 rebuild-diff 在查）；`cd engine && node scripts/check-dist.mjs` 只管 `dist/cli.js` 的体积帽，别当它是查内容漂移的。
 
 ## 坑
 - DuckDB 靠 `@duckdb/node-api` 的原生绑定；测试是直接跑的 `.test.mjs`，没套测试框架。

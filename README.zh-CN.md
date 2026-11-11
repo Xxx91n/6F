@@ -13,7 +13,7 @@
 <p align="center"><a href="README.md">English</a> &middot; <a href="README.zh-CN.md">&#31616;&#20307;&#20013;&#25991;</a></p>
 
 6F 是一个 **Claude Code Plugin**，用来审一个代码仓库。
-> 主要面向 git 记录完整、看得出历史的仓库。
+> 它适合 git 记录完整、看得出历史的仓库。
 - Macro-A：几个仓合起来看
 - Micro-A：一个 PR 改了什么
 - Macro-B：一个仓，四个象限一起看

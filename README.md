@@ -13,7 +13,7 @@
 <p align="center"><a href="README.md">English</a> &middot; <a href="README.zh-CN.md">&#31616;&#20307;&#20013;&#25991;</a></p>
 
 6F is a **Claude Code Plugin** that audits a code repository.
-> It works best on repositories whose git history is complete and readable.
+> It suits repositories whose git history is complete and readable.
 - Macro-A: how several repos are doing together
 - Micro-A: what a pull request changes
 - Macro-B: one repo, four quadrants at once
