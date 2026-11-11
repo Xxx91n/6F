@@ -54,7 +54,7 @@
 
 **Windows 上已知的问题**：Claude Code 在 hook 这边展开 `${CLAUDE_PLUGIN_ROOT}` 有还没关闭的 issue（anthropics/claude-code#43380 / #65579）；MCP stdio 的 exec-form 按官方说法只是纯字符串替换，理论上不受影响，但 Windows 实机还是要以 `/mcp` 实测结果为准。失败了怎么查：用 `claude --debug` 看 MCP init 日志；如果 server 没 connected，先跑 `node dist/cli.js selftest`，分清是「宿主没拉起来」还是「进程拉起来就崩」。
 
-**宿主兼容说明**（D-150④ 要求写注记②，R38-Q1 查过官方中英文两份资料）：CodeBuddy 官方声明兼容 Claude Code 插件规范——`${CODEBUDDY_PLUGIN_ROOT}` 优先，`${CLAUDE_PLUGIN_ROOT}` 和 `.claude-plugin/` 目录作为兼容项保留并自动识别——`.mcp.json` 里固定写成 `${CLAUDE_PLUGIN_ROOT}` **已经实测能用**（R38 T1 试用 CLI 2.151.0 时三个存疑点全部实测：marketplace.json 被读、插件级 `.mcp.json` 自动发现拉起、占位符在 Windows 能展开——证据件 `trials/codebuddy-r38-report.md` 已经随治理文档一起退役，git 历史里能查到）；IDE 形态还没覆盖（docs/known-gaps.md 里 GAP-HOST-01 这条已经按 accepted-risk（接受这个风险）记在缺口登记册上，不能拿命令行的结果往外推；D-155②）。
+**宿主兼容说明**（D-150④ 要求写注记②，R38-Q1 查过官方中英文两份资料）：CodeBuddy 官方声明兼容 Claude Code 插件规范——`${CODEBUDDY_PLUGIN_ROOT}` 优先，`${CLAUDE_PLUGIN_ROOT}` 和 `.claude-plugin/` 目录作为兼容项保留并自动识别——`.mcp.json` 里固定写成 `${CLAUDE_PLUGIN_ROOT}` **已经实测能用**（R38 T1 试用 CLI 2.151.0 时三个存疑点全部实测：marketplace.json 被读、插件级 `.mcp.json` 自动发现拉起、占位符在 Windows 能展开——证据件 `trials/codebuddy-r38-report.md` 已经随治理文档一起退役，git 历史里能查到）；IDE 形态还没覆盖（docs/known-gaps.md 里 GAP-HOST-01 这条已经按「已接受风险」记在缺口登记册上，不能拿命令行的结果往外推；D-155②）。
 
 ## 验收
 编译通过、打包通过、能启动并通过活体测试；每个平台的测试都在仓根的 .github/workflows/engine-ci.yml 里跑（只监听 engine/** 的改动），push 之后以 CI run 的结果为准。
