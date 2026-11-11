@@ -48,7 +48,7 @@
 | Macro-B, one repo, four quadrants | **capability 1 of 5 · preview** (this repo's own first report: [examples/first-report/](examples/first-report/)); the four quadrants: **strategy: active** (S1+S2 data is wired in) · **behavior: preview** (the CodeLore part: churn, hotspots, coupling) · **structure: preview** (the S3 family looks at shape: `structure/shape` readings are observation only; they never feed a verdict) · **supply-chain: queued** (parked in line; Scorecard does not jump ahead) |
 | Macro-C, history of one repo | **capability 2 of 5 · preview** (a calibration note for a single repo) |
 | Micro-A PR diff | **capability 3 of 5 · preview** (reads data from the middle layer in front of the hosting platform; once that layer was hardened, it became an official way into the engine) |
-| Micro-B, one file | **capability 4 of 5 · preview** (`audit file` gives you a file card; the first repos we tried it on are jiahao and env-manager, both ours, for tracking file renames and for calibration: advice only (`advisory`), kept apart from verdicts by design, and advice never turns into a verdict) |
+| Micro-B, one file | **capability 4 of 5 · preview** (`audit file` gives you a file card; the first repos we tried it on are jiahao and env-manager, both ours, for tracking file renames and for calibration: advice only (`advisory`), kept structurally apart from verdicts, and advice never turns into a verdict) |
 | Macro-A, several repos together | Not yet in preview |
 
 Sources: #85②, D-204③④ (Micro-A made official), D-205 (the structure quadrant), D-034③ (Scorecard stays in line), #51 (the behavior quadrant).
@@ -101,7 +101,6 @@ Upstreams come in one of two ways: the main route is a data middle layer with an
 
 Source: D-020 (the two routes).
 
-
 ## Who owns what {#ownership-boundary}
 
 | owner | component |
@@ -111,7 +110,7 @@ Source: D-020 (the two routes).
 
 ## Rules {#contracts}
 
-- Every data path writes into the fact table **only through the data middle layer**, and upstream raw content never leaves that layer (this layer moves data; business rules stay out of it).
+- Upstream components write to the fact table **only through the data middle layer**, and upstream raw content never leaves that layer (this layer moves data; business rules stay out of it).
 - Replacing or upgrading an upstream **must not touch the fact table structure**:  the structure is fixed, and change only comes through a new version number.
 - Every upstream is pinned and comes with a set of golden output tests. Copying upstream source into the repo is only for offline distribution or when the upstream is no longer maintained, and it must carry an UPSTREAM manifest and patches/ rules.
 
@@ -119,7 +118,7 @@ Source: D-020 (the two routes).
 
 | path | contents |
 |---|---|
-| [docs/authority.md](docs/authority.md) | the one place that says where a decision goes and where a term goes |
+| [docs/authority.md](docs/authority.md) | the one place that says where a decision goes and where a term goes, and it is not repeated anywhere else |
 | [GLOSSARY.md](GLOSSARY.md) | glossary:  what each domain word means |
 | [docs/spec.md](docs/spec.md) | product decisions (what is not covered yet is in docs/known-gaps.md; accepted risks are in docs/ra/) |
 | [docs/adr/](docs/adr/) | architecture decisions (the background, the options we tried, the consequences we took on) |
