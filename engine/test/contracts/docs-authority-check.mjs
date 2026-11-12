@@ -138,10 +138,14 @@ const ADR = collectAdr(TRACKED, p => existsSync(join(REPO, p)));
 const ADR_FILES = ADR.files;
 const ADR_NUMBERS = ADR.numbers;
 const authorityText = txt('docs/authority.md');
-// authority.md §3 的 yaml 块是历史号、现行起点号、历史路径和说明处的唯一来源；脚本不自带第二份清单。
+// authority.md §3 的 yaml 块是历史号、起点号、历史路径和说明处的来源，脚本从块读；
+// 块里的 entry 是脚本读到的起点号；它必须正好是 0028（见 C0b），改了就红。
 function parseHistoricalAdr(text) {
   const fences = [...text.matchAll(/```yaml\r?\n([\s\S]*?)```/g)].map(m => m[1]);
-  const block = fences.find(b => b.includes('historical_adr:')) || null;
+  const blocks = fences.filter(b => b.includes('historical_adr:'));
+  // 两份同名的块等于两个来源，直接按空处理交给调用处判红，不悄悄取第一个。
+  if (blocks.length !== 1) { return null; }
+  const block = blocks[0];
   if (!block) { return null; }
   const lines = block.split(/\r?\n/);
   const numbersLine = lines.find(l => /^\s*numbers:\s*\[/.test(l)) || '';
@@ -168,9 +172,10 @@ const HIST_NUMBERS = new Set(HIST ? HIST.numbers : []);
 const HIST_PATHS = HIST ? HIST.paths : [];
 const HIST_EXPLAINED = new Set(HIST ? HIST.explained_in : []);
 const ENTRY_ADR = HIST ? HIST.entry : null;
-// 现行纪元的起点号固定是 0028（票面点名的字面条件，冻结事实，不是「现在哪份现行」那种会移动的说法）。
-// 块里的 entry 是它的第二处写法，所以 C0 会把两边对一遍：不一致就红，免得改了块那边这边还绿。
-const ADR_EPOCH_START = '0028';
+// 现行纪元的起点号只从块里读，脚本不再写第二份（authority §3 那条「不在脚本里抄第二份」说话算话）。
+// 票面要求「C0 至少含 0028」：块里的 entry 是什么就核什么，但 0028 本身还得靠一条负对照钉住——
+// 谁把块里那个数改成别的，C0 的「至少含 0028」就没人验了，所以 0028 另写一条 C0b 断言。
+const EPOCH_START_EXPECTED = '0028';
 // 在仓集合 = 盘上的号里剔掉历史号。按文件算、不按 Status 算：还没接受的提案也算在仓。
 // 同一个号出现两份文件算红：去掉「只有一份」不等于允许同号并存。
 function adrFloorVerdict(adrFiles, adrNumbers, historicalNumbers, epochStart) {
@@ -183,9 +188,9 @@ function adrFloorVerdict(adrFiles, adrNumbers, historicalNumbers, epochStart) {
     ok: current.length > 0 && current.includes(epochStart) && revived.length === 0 && adrFiles.duplicates.length === 0,
   };
 }
-const CURRENT_VERDICT = adrFloorVerdict(ADR, ADR_NUMBERS, HIST_NUMBERS, ADR_EPOCH_START);
+const CURRENT_VERDICT = adrFloorVerdict(ADR, ADR_NUMBERS, HIST_NUMBERS, ENTRY_ADR);
 // 起点号那份文件，C5 拿它核对 explained_in。
-const epochStartFiles = ADR_FILES.filter(p => p.startsWith('docs/adr/' + ADR_EPOCH_START + '-'));
+const epochStartFiles = ENTRY_ADR ? ADR_FILES.filter(p => p.startsWith('docs/adr/' + ENTRY_ADR + '-')) : [];
 // C6d 的对照：不走 collectAdr，改成直接读目录（readdir）再按同一套命名规则筛一遍。
 // 两路互相独立：一路是 git ls-files + existsSync，一路是文件系统列举。
 // 目录侧只留被 git 跟踪的那些比——本地刚建、还没 add 的文件是正常的中间状态，不该判红。
@@ -264,12 +269,16 @@ for (const { path, text } of CORPUS) {
     if (!existsSync(join(REPO, resolved))) { adrLinks.push(path + ' -> ' + raw + ' (' + resolved + ')'); }
   }
 }
-// C0 认四条：在仓集合非空、里面有 0028（票面点名的字面条件）、盘上没有历史号复活、
+// C0 认四条：在仓集合非空、里面含块里那个起点号、盘上没有历史号复活、
 // 同一个号没有两份文件。最后一条是去掉「只有一份」时补的口子——删掉那份检查不等于允许同号并存。
-// 另外块里的 entry 必须就是 0028：那两个来源一旦分家，就是脚本自己抄了第二份，C0 也就白判了。
-t('C0 在仓 ADR 非空、含 0028、没有历史号复活、同一个号没有两份、块里 entry 也是 0028',
-  CURRENT_VERDICT.ok && ENTRY_ADR === ADR_EPOCH_START,
-  'epoch=' + ADR_EPOCH_START + ' entry=' + (ENTRY_ADR || '<unparsed>') + ' in-repo=' + CURRENT_VERDICT.current.join(',') + ' revived=' + CURRENT_VERDICT.revived.join(',') + ' dup=' + CURRENT_VERDICT.duplicates.join(',') + ' files=' + ADR_FILES.join(','));
+t('C0 在仓 ADR 非空、含块里的起点号、没有历史号复活、同一个号没有两份',
+  CURRENT_VERDICT.ok,
+  'entry=' + (ENTRY_ADR || '<unparsed>') + ' in-repo=' + CURRENT_VERDICT.current.join(',') + ' revived=' + CURRENT_VERDICT.revived.join(',') + ' dup=' + CURRENT_VERDICT.duplicates.join(',') + ' files=' + ADR_FILES.join(','));
+// C0b 把票面点名的那个字面钉住：script 不写第二份是好事，但不能因此没人验「起点到底还是不是 0028」。
+// 期望值只出现在这一处，且它验的是块里读出来的值，所以「块里改成 0029」会在这里红。
+t('C0b 起点号就是 0028（票面点名的字面条件；块里改了就红）',
+  ENTRY_ADR === EPOCH_START_EXPECTED,
+  'entry=' + (ENTRY_ADR || '<unparsed>') + ' expected=' + EPOCH_START_EXPECTED);
 t('C1 现行文本的 ADR-NNNN 只指向在仓 ADR 或历史引用面（哨兵与固定机器名除外）',
   adrRefCount > 0 && badAdr.length === 0, 'refs=' + adrRefCount + ' dangling=' + [...new Set(badAdr)].join(','));
 t('C1b 哨兵豁免只覆盖 engine 代码/测试（engine/README.md 不在内）',
@@ -288,16 +297,16 @@ t('C4 历史路径清单非空，每条都在仓里（清单从 §3 读，不在
   'paths=' + HIST_PATHS.join(',') + ' missing=' + missingHistPaths.join(','));
 const missingExplained = [...HIST_EXPLAINED].filter(p => !historicalPathExists(p));
 // explained_in 要含 authority.md 和起点号那份。起点号那份不在仓里也算红：那是「起点 ADR 被删」。
-t('C5 explained_in 非空、每条都在仓里，且含 authority.md 与起点 0028 那份',
+t('C5 explained_in 非空、每条都在仓里，且含 authority.md 与块里起点号那份',
   HIST_EXPLAINED.size > 0 && missingExplained.length === 0 && epochStartFiles.length > 0 &&
   HIST_EXPLAINED.has('docs/authority.md') && epochStartFiles.some(p => HIST_EXPLAINED.has(p)),
   'explained=' + [...HIST_EXPLAINED].join(',') + ' epoch-start=' + (epochStartFiles.join(',') || '<none>') + ' missing=' + missingExplained.join(','));
 // 起点号本身还要过两条：不能是历史号（否则「起算」那句话指向已退役的旧号），
 // 盘上得真有 0028 那份文件（否则起点 ADR 被删了还写着它）。
 // 这里核的是 0028 这个权威值，不是块里写什么就认什么——否则 entry 改成 0029 也能过。
-t('C5b 起点 0028 不是历史号、且盘上有对应文件（起点被删或指着旧号都红）',
-  !HIST_NUMBERS.has(ADR_EPOCH_START) && ADR_NUMBERS.has(ADR_EPOCH_START) && epochStartFiles.length > 0,
-  'epoch=' + ADR_EPOCH_START + ' is-historical=' + HIST_NUMBERS.has(ADR_EPOCH_START) + ' files=' + (epochStartFiles.join(',') || '<none>'));
+t('C5b 块里的起点号不是历史号、且盘上有对应文件（起点被删或指着旧号都红）',
+  !!ENTRY_ADR && !HIST_NUMBERS.has(ENTRY_ADR) && ADR_NUMBERS.has(ENTRY_ADR) && epochStartFiles.length > 0,
+  'entry=' + (ENTRY_ADR || '<unparsed>') + ' is-historical=' + (ENTRY_ADR ? HIST_NUMBERS.has(ENTRY_ADR) : 'n/a') + ' files=' + (epochStartFiles.join(',') || '<none>'));
 const HIST_SCREEN = HIST_PATHS[0] || '<missing-historical-path>';
 t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判红；历史路径不放行任意旧号', // NEGATIVE-CONTROL
   adrRefClass(HIST_SCREEN, '0001') === 'historical' && // NEGATIVE-CONTROL
@@ -305,9 +314,9 @@ t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判�
   adrRefClass(HIST_SCREEN, '9998') === 'dead', // NEGATIVE-CONTROL
   'hist=' + adrRefClass(HIST_SCREEN, '0001') + ' current=' + adrRefClass('README.md', '0001'));
 // 起点号落在现行面这一条要单独算正向检查，不能混进 C6：它依赖真仓的号，混进去 C6 就叫错了名字。
-t('C6c 起点 0028 在现行面上（不看历史面、不算死引用）',
-  ADR_NUMBERS.has(ADR_EPOCH_START) && !HIST_NUMBERS.has(ADR_EPOCH_START) && adrRefClass('README.md', ADR_EPOCH_START) === 'current',
-  'epoch=' + ADR_EPOCH_START + ' classified=' + adrRefClass('README.md', ADR_EPOCH_START));
+t('C6c 块里的起点号在现行面上（不看历史面、不算死引用）',
+  !!ENTRY_ADR && ADR_NUMBERS.has(ENTRY_ADR) && !HIST_NUMBERS.has(ENTRY_ADR) && adrRefClass('README.md', ENTRY_ADR) === 'current',
+  'entry=' + (ENTRY_ADR || '<unparsed>') + ' classified=' + (ENTRY_ADR ? adrRefClass('README.md', ENTRY_ADR) : 'n/a'));
 // C6b 证伪的是「发现 + 判断」整条链，所以走的是真函数 collectAdr/adrFloorVerdict，
 // 只把输入换成合成路径假装的 tracked 列表和 existsSync —— 不碰真仓，也不会因为仓坏了跟着红。
 // 号段取 4 位里用不到的合成值，不把真号搬回脚本。
