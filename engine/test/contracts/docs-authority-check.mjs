@@ -153,10 +153,12 @@ function parseHistoricalAdr(text) {
   const numbersLine = lines.find(l => new RegExp(TOP_FIELD + 'numbers:\\s*\\[').test(l)) || '';
   const numbers = [...numbersLine.matchAll(/"(\d{4})"/g)].map(m => m[1]);
   // 起点号扫全块的行，不是只看第一行：写了两行也得算「不止一个」，返回 null 交给调用处判红。
-  // 一行只认严格形态 `entry: "NNNN"`，其余写法（没引号、位数不对、缩进不对）都记成坏行。
+  // 一行只认严格形态 `entry: "NNNN"`（2 个空格缩进），其余写法（没引号、位数不对、缩进不对、空值）
+  // 都记成坏行。「存在」只认冒号本身，不看冒号后有没有内容——空值 `entry:` 也是一行坏写法，
+  // 要求冒号后有字符会把这类行悄悄漏掉，那就等于放过了一个错。
   const entryLineRe = new RegExp(TOP_FIELD + 'entry:\\s*"\\d{4}"\\s*$');
-  const entryAnyIndentRe = new RegExp('^\\s*entry:\\s*\\S');
-  const entryLines = lines.filter(l => entryAnyIndentRe.test(l));
+  const entryAnyLineRe = new RegExp('^\\s*entry:');
+  const entryLines = lines.filter(l => entryAnyLineRe.test(l));
   const entryValues = entryLines
     .filter(l => entryLineRe.test(l))
     .map(l => (l.match(new RegExp(TOP_FIELD + 'entry:\\s*"(\\d{4})"\\s*$')) || [])[1]);
@@ -350,7 +352,10 @@ t('C6b 发现链与判法负对照：新加一份仍绿、删起点号红、号�
       // 层级负对照：entry 挪进子键下就不是 historical_adr 的直接字段了，不能照样读成顶层。
       parseHistoricalAdr('```yaml\nhistorical_adr:\n  metadata:\n    entry: "9001"\n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
       parseHistoricalAdr('```yaml\nhistorical_adr:\n entry: "9001"\n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
-      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: 9001\n  numbers: ["9003"]\n```').entry === null; // NEGATIVE-CONTROL
+      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: 9001\n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
+      // 空值行也算坏写法：`entry:` 后面什么都没写，不能被当成「这行不存在」悄悄放过。
+      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  entry:\n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
+      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  entry:   \n  numbers: ["9003"]\n```').entry === null; // NEGATIVE-CONTROL
   })()); // NEGATIVE-CONTROL
 // C6d 把「发现链在真仓上跑出来的结果」和「独立从 tracked 列表重算的结果」对一遍。
 // 那条正对照（加一份新 ADR 不用改脚本）没法测未来，但能测「发现链有没有如实反映盘上事实」：
