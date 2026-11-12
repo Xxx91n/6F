@@ -8,7 +8,7 @@
   "watch_rule": "触发已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次；再到期升级用户（D-026⑤）",
   "extended": "A-053（2026-09-16）#33-ext：把 manual_watch 的五要素补全（owner/review_event/verify_method 都写上，confirmations 字段统一口径），再登记 micro-a-preview-prep 事件，守卫那边补上 fail-closed 的事件引用和 event_bound 覆盖率检查、扩展 risk_accepted 候选名单——这是 round8-35-audit W6 补的洞",
   "watch_schema": "watch 分三种：event_bound 是默认值，要求 trigger_event 或 deadline_event 至少挂一个锚；manual_watch 要五样东西——标记就是 watch 字段本身，再加责任人 owner、复审时点 review_at（用文字写清）、review_event 机读锚、验证方法 verify_method、确认留痕 confirmations[]；risk_accepted 要三样——acceptor、reason、expires_at，改不改状态由人拍板，守卫只输出一份 RISK-ACCEPTED-CANDIDATE 候选名单，不自动改 status",
-  "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签",
+  "confirmation_schema": "confirmations[] 每条记录该有哪些键、哪些必填，清单只在 engine/test/contracts/87-check.mjs 的 CONFIRMATION_ALLOWED／CONFIRMATION_REQUIRED 两个常量里写一份，本表不抄第二份。行为：必填的那几项要写、不能是空白；evidence 可以整个不写，不写时得在 87-check 的豁免名单里逐条写明理由，写了却给空串或给的不是字符串照样算红。多写别的键、少了必填项，都由 87-check E3 判红",
   "reference_resolution": {
    "rule": "registry 内每个 .mjs 引用按 resolution_roots 逐根解析，只认 git 已跟踪文件；解析失败者必须在 historical 逐条登记（kind＋reason），否则 87-check 判红。historical 是历史登记，不代表该脚本仍可执行；guards[]/verify_method 中的 historical 引用按历史留痕读，现行载体见各条 reason 与 registry 的 watch_rule。historical 条目须仍被本表引用且在工作树不可解析——复活即红。reports/* 归档路径 kind=archived-path，已删脚本 kind=retired-script。通配/占位写法（*-check.mjs、NN-check.mjs）不是文件引用，不参与解析。本守卫只判可执行引用（.mjs）；非执行证据路径（.json/.md 等）不在判定面。historical reason 内的 .mjs 替代指针同样参与解析对账；D3 的「仍被引用」只认声明面之外的引用（防自证）。",
    "resolution_roots": [

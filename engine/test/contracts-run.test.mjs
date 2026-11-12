@@ -26,13 +26,26 @@ try {
   const checks = join(runnerDir, 'contracts');
   mkdirSync(checks, { recursive: true });
   cpSync(join(engine, 'test/contracts-run.mjs'), join(runnerDir, 'contracts-run.mjs'));
-  writeFileSync(join(checks, 'a-check.mjs'), "console.log('GUARD-RESULT: SKIP-GROUP example'); console.log('PASS a');\n");
+  writeFileSync(join(checks, 'a-check.mjs'), "console.log('GUARD-RESULT: SKIP-GROUP example'); console.log('AUDIT-DISCLOSURE example disclosure line'); console.log('PASS a');\n");
+  // 两条披露合计超过 400 字：先拼后截会把后面那条切掉，新加的通道必须逐条打全（tracker #229 的返修意见）。
+  const longA = 'AUDIT-DISCLOSURE first long disclosure ' + 'x'.repeat(260);
+  const longB = 'AUDIT-DISCLOSURE second long disclosure ' + 'HEAD-MARKER' + 'y'.repeat(260) + ' TAIL-MARKER';
+  writeFileSync(join(checks, 'c-check.mjs'), "console.log(" + JSON.stringify(longA) + "); console.log(" + JSON.stringify(longB) + "); console.log('PASS c');\n");
   writeFileSync(join(checks, 'b-check.mjs'), "setTimeout(() => {}, 5000);\n");
   let r = run([join(runnerDir, 'contracts-run.mjs')], { CONTRACTS_ONLY: '^a-' });
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /PASS 1\/1 contract checks SKIP-GROUPS=1/);
   assert.match(r.stdout, /SKIP-GROUP  a-check/);
+  // 绿着跑的时候披露行也要单独露出来——汇总窗口只留最后两条 PASS 行，它挤不进去（tracker #229）。
+  assert.match(r.stdout, /DISCLOSURE  a-check\.mjs  — AUDIT-DISCLOSURE example disclosure line/);
   assert.doesNotMatch(r.stdout, /b-check/);
+  r = run([join(runnerDir, 'contracts-run.mjs')], { CONTRACTS_ONLY: '^c-' });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  // 两条都完整打到，后面那条的尾巴不能被截掉
+  assert.match(r.stdout, new RegExp('DISCLOSURE  c-check\\.mjs  — ' + longA));
+  assert.match(r.stdout, new RegExp('DISCLOSURE  c-check\\.mjs  — ' + longB.replace(/([.*+?^${}()|[\]\\])/g, '\\$1') + '$', 'm'));
+  assert.match(r.stdout, /TAIL-MARKER/);
+  assert.match(r.stdout, /HEAD-MARKER/);
   r = run([join(runnerDir, 'contracts-run.mjs')], { CONTRACTS_ONLY: '^b-', CONTRACTS_TIMEOUT_MS: '100' });
   assert.equal(r.status, 1); assert.match(r.stdout, /FAIL\(TIMEOUT\).*超时 100ms signal=/); assert.doesNotMatch(r.stdout, /FAIL\(null\)/);
   for (const [env, message] of [

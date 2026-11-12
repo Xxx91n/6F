@@ -52,7 +52,7 @@
 
 按现在的写法，读 `33-gate-registry.json` 字段的地方是这些：
 
-- `engine/test/contracts/87-check.mjs` A1 读 `meta.reference_resolution`；E 组读 `items[].guards`、`items[].confirmations[].evidence` 和 `confirmations[].reason`。
+- `engine/test/contracts/87-check.mjs` A1 读 `meta.reference_resolution`；E 组读 `items[].guards`、`items[].confirmations[].evidence` 和 `confirmations[].reason`；E3（tracker #229 补的）逐条校验 `confirmations[]` 的必备字段和允许的键。清单只在脚本的 `CONFIRMATION_ALLOWED`／`CONFIRMATION_REQUIRED` 两个常量里写一份，本文和 registry 那句声明都不再抄。
 - `engine/test/contracts/48-check.mjs` E1、E2、E3 读 `events[].occurred`、`events[].evidence`、`items[].id`、`items[].status`、`confirmations[].decision`、`confirmations[].by`。
 - `engine/test/contracts/45-check.mjs` H8 读 `items[].id`、`items[].status`、`items[].decision`。
 - `engine/test/contracts/50-check.mjs` E1 读 `events[].occurred`。
@@ -72,11 +72,15 @@
 改完之后谁来拦——分两种情况，别一概说成「都会红」：
 
 - **删掉整段或整族会被拦。** 比如 `items[]` 没了，或 `events[].occurred` 改名，50-check E1、72-check C2 读到 `undefined` 会直接判红。
-- **只改一个字段名，不一定红。** `87-check` E2 把 `confirmations[].evidence` 和 `confirmations[].reason` 合并抽取后只做整表汇总，旧键读出 `undefined` 会被 `filter(Boolean)` 悄悄丢掉；只要同一条的另一半、或别的条目里还有能解析的引用，E2 就照样通过。这类改名机器拦不住。
+- **只改一个字段名，现在也拦得住——但只限 `confirmations[]` 里面的记录字段。** `87-check` 的 E2 只做整表汇总（`confirmations[].evidence` 与 `confirmations[].reason` 合并抽取），单改一个字段名它确实看不出来——旧键读出 `undefined` 会被 `filter(Boolean)` 悄悄丢掉。tracker #229 补的 E3 把这个口子堵在这一层：逐条校验 `confirmations[]`，必备字段要齐，也只认 `CONFIRMATION_ALLOWED` 那六个键（清单只在 87-check 里写一份）。把 `evidence` 改成 `proof` 报 `UNKNOWN-KEY`，把 `reason` 改成 `why` 同时报 `UNKNOWN-KEY` 和 `MISSING-FIELD`，把 `evidence` 键整个删掉报 `MISSING-EVIDENCE`（两条历史登记轮按豁免名单放行的除外，它们本来就是「没证据」），三种都在退出码上见红。改名和负对照都实测过（改名后 87-check 退出码 1，改回后全绿），判定本身由 87-check 的 H 组守着，以后谁把它改松当场红。
+  这条只管 `confirmations[]` 里每一条记录内部的键，而且只管那些真的还挂着 `confirmations` 的条目。两种情形会漏：
+  - **整条数组的键名改名**（`items[].confirmations` 本身）。全表一起改，87-check 的 E2 会读到空集判红；只改其中一两个条目，E2 剩下的引用够它判绿，就漏过去了。
+  - **把某一项的 `confirmations` 整个删掉**。这一项在 E3 里直接跳过。会不会被别处抓到看运气：有专门断言的项（比如 `desk-task15`，48-check E2 盯着）会红；没人断言的项（比如 `25-P1`）全仓跑下来仍然全绿——这条已实测。
+  这两种本票没堵，照旧靠人审，别当成已经拦住了。
 
-所以真正的防线是两样：同一笔提交把读的地方改全，加人审。`87-check` 没有逐条校验 `evidence`、`reason` 是否各自非空，这一点如实记在这里，别指望它。
+所以真正的防线是三样：机器这一道的逐条结构校验（E3）、同一笔提交把读的地方改全、加人审。
 
-**另外拦不住的一种**：把字段换成另一个「存在但意思不同」的字段，检查也不会红。同样是靠人审。这是放宽换来的代价，不许以后当成没发生。
+**另外拦不住的一种**：把字段换成另一个「存在但意思不同」的字段——两边都在允许键集里，E3 只看名字合不合法，看不出意思换没换。这仍然是靠人审。这是放宽换来的代价，不许以后当成没发生。
 
 ### 4. 老报告和老事实表怎么办
 
@@ -87,14 +91,15 @@
 
 ### 5. 87-check 开头那句怎么办
 
-不动。它现在说的还是「防字段改名后守卫空转」，本 ADR 生效后它的意思变成：改名时消费面必须跟着改，而且改完仍然有引用可查。E 组要求 `guards[]`、`confirmations[]` 两族各有引用这件事不变。
+原来的意思保留，另加实情。它的主线还是「防字段改名后守卫空转」，本 ADR 生效后它的意思是：改名时消费面必须跟着改，而且改完仍然有引用可查；`guards[]`、`confirmations[]` 两族各有引用这件事不变。tracker #229 又给它补了 E3、E4 两条断言和 H 组负对照，所以开头那段注释里「查什么」的清单也加上了这一组、并把新加的 H 组排到 F 和 G 之间——那是描述现状，不是改判据。E1、E2 的断言原样没动；新增的是另外几条，不挤掉原来的，详见第 3 条。
 
 ### 6. 本 ADR 不做的事
 
-- 不改任何键名、不改任何检查脚本、不改任何已经冻住的存档。
+- 不改任何键名、不改任何已经冻住的存档。
 - 不放宽出仓的那一类，不加新的「并存期」例外。
 - 不新增编号体系，不动 `docs/authority.md` §3 的历史号政策。
 - 改键名的实现票另开；tracker #212 那张只写决定，不做改名。
+- 「不改任何检查脚本」这句在本票（#212）成立，但不再是永久限制：tracker #229 就是照本 ADR 第 3 条补防线的那张实现票，它改的是 `87-check.mjs` 和 registry 那句声明，不改任何键名。第 6 条限的是本票自己的范围。
 
 ## Considered Options
 
@@ -112,4 +117,4 @@
 - 本 ADR 现在是现行，够资格当 `Design:` 指针的目标。
 - `engine/test/contracts/docs-authority-check.mjs` 的头注释和 C0 标题还写着「现行 ADR 只有 0028」，接受本文件之后这话就过期了。改那处口径的活单独在 tracker #230 里做，本票不动检查脚本；在那之前脚本照旧全绿，因为它只核 0028 恰有一份、历史号没复活，不数现行 ADR 有几份。
 - 当时留下的存档不追改这一条把历史报告保住了：老报告还在，按当时的样子读，不会因为以后的改名失效。
-- 这次改动不动产品功能，不改任何键名，不改任何检查逻辑。
+- 这次改动（tracker #212 那份提案本身）不动产品功能、不改任何键名、不改任何检查逻辑。后来 tracker #229 照本 ADR 第 3 条补了 E3/E4 两条断言，那是另一张票的事，写在第 3 条里。

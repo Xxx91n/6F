@@ -32,6 +32,11 @@ for (const f of files) {
   const skipped = lines.filter(l => /^GUARD-RESULT: SKIP-GROUP\b|^SKIP \S+\/\S+\b/.test(l));
   if (skipped.length) console.log('SKIP-GROUP  ' + f + '  — ' + skipped.join(' | ').slice(0, 300));
   skipGroups += lines.filter(l => /^GUARD-RESULT: SKIP-GROUP\b/.test(l)).length;
+  // AUDIT-DISCLOSURE 是同一类毛病（tracker #229）：检查绿着跑也有一条「放行了什么」要如实露出来，
+  // 而「最后 2 行」的窗口写的是 PASS 汇总行，把它挤掉。所以单独捞出来打，不改判定、不改退出码。
+  // 逐条打，不拼起来再截断——两条披露加起来超过 400 字时，先拼后截会把后面那条（往往正是豁免明细）切掉。
+  const disclosures = lines.filter(l => /^AUDIT-DISCLOSURE\b/.test(l));
+  for (const disclosure of disclosures) console.log('DISCLOSURE  ' + f + '  — ' + disclosure);
   const tail = lines.filter(l => /PASS|FAIL|SKIP|WARN|error/i.test(l)).slice(-2).join(' | ');
   if (r.status === 0) { console.log('PASS  ' + f + (tail ? '  — ' + tail.slice(0, 140) : '')); }
   else { fails++; console.log('FAIL(' + (timedOut ? 'TIMEOUT' : (r.status === null ? (r.signal || (r.error && r.error.code) || 'UNKNOWN') : r.status)) + ') ' + f + '  — ' + (timedOut ? '超时 ' + timeout + 'ms signal=' + (r.signal || 'none') : (tail || out.slice(-200) || (r.error && r.error.message) || '')).slice(0, 200)); }
