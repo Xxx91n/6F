@@ -81,7 +81,7 @@ function parseArgs(argv) {
   return out;
 }
 const ARGS = parseArgs(process.argv.slice(2));
-// 设计：golden 存档的锚必须跟这次检出无关——固定长度，只取判据锚的前 GOLDEN_ABBREV 位；真跑这一面原样返回 — spec §R9-1
+// Design: golden 存档的锚必须跟这次检出无关——固定长度，只取判据锚的前 GOLDEN_ABBREV 位；真跑这一面原样返回 — spec §R9-1
 // %h 的宽度跟着这次检出的对象集合走（小检出只吐 7 位、前缀有歧义时 git 会自动加长），而锚值会被算进
 // receipt_id／chain_hash／mark。所以 golden 这一侧两头都收口：固定下限挡住「<8」，截断挡住「>8」。
 const GOLDEN_ABBREV = 8;
@@ -101,7 +101,7 @@ function git(root, args) { return execFileSync('git', ['-C', root].concat(args),
 function tryGit(root, args) { try { return git(root, args).trim(); } catch (e) { return null; } }
 // D-179① 一起保证确定性：prereg_commit 固定到判据预声明那件最后一次变更的 commit（名字跟实际对上——是「预声明锚」，不是运行时 HEAD；
 //   原来用 rev-parse HEAD，每次 commit 之后整批 golden 必然漂，改成固定 CRITERIA_PATH 这个锚＝判据不动就恒值）
-// 设计：取值走引擎里同一个 resolvePreregCommit——这个生成器和 dist 引擎不能各判各的锚 — spec §R9-1
+// Design: 取值走引擎里同一个 resolvePreregCommit——这个生成器和 dist 引擎不能各判各的锚 — spec §R9-1
 const MA48 = await import(pathToFileURL(join(DIST, 'audit', 'micro-a.js')).href);
 // 取值还是由产品里的 resolver 给（85-check A17 的溯源这一项要求就是这个字面形，不许换成自己造的包装）；
 // golden 这一侧再把它收成固定长度：固定了下限之后 %h ≥ 8，所以 hex 形要么正好 8（原样）、要么 >8（截前 8 位——

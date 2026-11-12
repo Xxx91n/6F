@@ -578,11 +578,11 @@ if (distReady && symlinkProbe && duckdbReady) {
     const negFacts = exists(negFactsPath) ? txt(negFactsPath).split(NL).filter(l => l.trim().length > 0).map(l => JSON.parse(l)) : [];
     const negFive = negFacts.filter(f => f.metric === 'adr.five_piece_completeness');
     const negSkips = negFacts.filter(f => f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read');
-    t('D4 负对照（旧行为替换读取单点，走真实 one-shot 入口）：拒绝和披露整块都消失（0 条 skip 事实）——C2/C8 不是永远通过',
+    t('D4 负对照（把旧行为换回读取那一处，走真的 one-shot 入口）：拒绝和披露整块都不见了（0 条 skip 事实）——说明 C2/C8 不是在走个过场',
       rNeg.status === 0 && negSkips.length === 0,
       'exit=' + String(rNeg.status) + ' skips=' + String(negSkips.length)
         + ' stdout=' + String(rNeg.stdout || '').slice(-200));
-    t('D5 负对照（判据会不会翻转）：旧行为下 ADR 语料由 3 涨到 9（3 贫瘠＋1 仓外密钥样＋5 仓外完整）——C7 的「恒 3」不是永远通过',
+    t('D5 负对照（看判据会不会翻过来）：换成旧行为之后 ADR 语料从 3 涨到 9（3 份贫瘠＋1 份仓外密钥样＋5 份仓外完整）——说明 C7 那句「一直是 3」不是在走个过场',
       negFive.length === 9, 'five=' + String(negFive.length));
   } finally {
     try { fs.rmSync(ctrlTmp, { recursive: true, force: true }); } catch { /* noop */ }

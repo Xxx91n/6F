@@ -53,7 +53,7 @@ if (wf !== null) {
   t('A17 verify 步强断言：test -s 非零字节 + receipt_id RCP-[0-9a-f]{16} 格式断言', wf.indexOf('test -s') >= 0 && wf.indexOf('RCP-[0-9a-f]{16}') >= 0 && wf.indexOf('"receipt_id"') >= 0);
 }
 
-// A18（D-176②）：.github/workflows/*.yml parse 档病态闸——拦 L144 未引号 plain 标量含 ': '（冒号+空白）死件同型
+// A18（D-176②）：.github/workflows/*.yml 解析这一层要拦坏写法——值没加引号又带 ': '（冒号加空格）的，当初就出过这种把文件写坏的事
 // 零依赖手写最小结构闸（D-176 scoping：yaml 包/全量 parse 升格=条件项，引入须独立 commit 走 D-139）；命中=文件名:行号+行摘
 const WF_DIR = join(REPO, '.github', 'workflows');
 const wfSick = [];
@@ -76,7 +76,7 @@ for (const f of wfFiles) {
     if (/:(\s|$)/.test(bare)) wfSick.push(f + ':' + (i + 1) + ' ' + line.trim().slice(0, 80));
   });
 }
-t('A18 workflows/*.yml 无未引号标量含 ": " 病态模式（parse 档闸——拦 macro-b 死件同型，files=' + wfFiles.length + '）', wfFiles.length > 0 && wfSick.length === 0, wfSick.join(' | '));
+t('A18 workflows/*.yml 里没有不加引号又带 ": " 的坏写法（当初 macro-b 就是这么写坏的，files=' + wfFiles.length + '）', wfFiles.length > 0 && wfSick.length === 0, wfSick.join(' | '));
 
 // ---------- B. jiahao 单文件撤除（T2 交付面） ----------
 const JH46 = [need('sibling:jiahao', existsSync(JIAHAO))];

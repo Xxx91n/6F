@@ -1,5 +1,5 @@
 // 86-check.mjs —— #87 structure 摘帽接入检查脚本（D-205②③；判据先于实跑的预声明纪律，见 2026-10-03-r57-t1-predecl.md §4）
-// 查什么：A 枚举↔常量块互等（SEMANTIC_DOMAIN_LABELS dist 常量 ↔ CONTEXT「语义域」词条——71-check B1 同型对账）
+// 查什么：A 两边必须相等（SEMANTIC_DOMAIN_LABELS 这个 dist 常量 ↔ CONTEXT 里的「语义域」词条——跟 71-check B1 是同一套对账办法）
 //   → B facts 层 golden 闸（6F 自审实跑产物：同源引用互等＋opposing 谓词成对——单指标禁孤立入维）
 //   → C 自检组（正负对照命中方向跑前声明：A1 异源检出红／A2 孤面拒绝红／A3 常量漂移检出红；负对照全绿）
 // 纪律：机检闸只判 facts 层关系谓词不判叙事矛盾（D-205 负向）；exit 0 + PASS N/N 绿。
@@ -42,7 +42,7 @@ function predPairAdmission(applicability, sliceKeys) {
   if (applicability === 'not_applicable') { return n === 0 ? [] : ['not_applicable-but-partial:' + n + '/6']; }
   return ['unexpected-applicability:' + applicability];
 }
-// 断言三（枚举↔常量块互等）：域标签对逐键全等（71 同型）
+// 第三条（两边必须相等）：域标签逐个键比，全都要一样（跟 71 那边同一个办法）
 function predLabelEquality(constLabels, docLabels) {
   const v = [];
   for (const k of Object.keys(constLabels)) { if (constLabels[k] !== docLabels[k]) { v.push(k + ':' + constLabels[k] + '!=' + docLabels[k]); } }
@@ -50,7 +50,7 @@ function predLabelEquality(constLabels, docLabels) {
   return v;
 }
 
-// ---------- A. 枚举↔常量块互等（71-check B1/B2 同型对账） ----------
+// ---------- A. 两边必须相等（跟 71-check 的 B1/B2 是同一个对账办法） ----------
 const UMD = await import(pathToFileURL(join(ENG, 'dist', 'audit', 'upstream-dimension-map.js')).href);
 const LBL = UMD.SEMANTIC_DOMAIN_LABELS;
 t('A1 dist SEMANTIC_DOMAIN_LABELS 在且两键（structure/s3）', !!LBL && LBL.structure === 'structure/shape' && LBL.s3 === 'S3/budget-attribution', JSON.stringify(LBL));

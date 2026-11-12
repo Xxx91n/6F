@@ -26,7 +26,7 @@ const map = JSON.parse(readFileSync(MAP_JSON, 'utf8'));
 const S = await import(pathToFileURL(SCHEMA_TS).href);
 const C = await import(pathToFileURL(COLLECT_TS).href);
 const src = readFileSync(COLLECT_TS, 'utf8');
-// stripComments: 共用剥面 _lib/check-kit.mjs（D-183 普查命中修复——原手搓 indexOf(//) 截断无字符串保护）
+// stripComments：剥注释这件事统一走 _lib/check-kit.mjs（D-183 那次扫描找到的毛病——原来是手搓的，被 indexOf(//) 一截就断，字符串也没保住）
 const code = stripComments(src);
 const codeLower = code.toLowerCase();
 

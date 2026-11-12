@@ -39,9 +39,9 @@ let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
 function txt(p) { return readFileSync(p, 'utf8'); }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
-// 坏 JSON 不得抛穿整条检查：未捕获异常会把「有名判失败」降成无名的 status=1（tracker #72 同型）。
+// 坏掉的 JSON 不许把整条检查抛穿：未捕获的异常会让「有名字的判失败」退化成没名字的 status=1（跟 tracker #72 那次一个毛病）。
 // 能 parse 但形状不对（{}、[]、数字、无 checks）同样不许在下游取属性时抛，故 B2/B3 另用 Array.isArray 接住。
-/** 安全 JSON 读：文件缺席或内容坏掉时返回 null，不抛穿检查（tracker #72 同型）。 */
+/** 安全地读 JSON：文件不在或者内容坏了就返回 null，不抛穿检查（跟 tracker #72 那次一个毛病）。 */
 function safeJson(p) { try { return existsSync(p) ? JSON.parse(txt(p)) : null; } catch (e) { return null; } }
 
 // ---------- A. 管道 + 判据 + 导出契约 ----------
@@ -79,9 +79,9 @@ t('B4 golden 工件齐备（在册十二件全在场——含 pr64.diff 与 asse
 // Design: 存档宽度须与现跑一致，身份（不是宽度）另有 B9 全值校验 — spec §R9-1
 const GEN = await import(pathToFileURL(join(REPO, 'engine', 'dist', 'report', 'generate.js')).href);
 /**
- * 逐字节对账：把 baseDir 的在册件与 otherDir 的同名件按字节比，返回漂移清单（含缺席）。
- * @param {string} baseDir 对照目录（入库件）
- * @param {string} otherDir 对侧目录（现跑产物）
+ * 逐字节对账：把 baseDir 里在册的那些件，跟 otherDir 里同名的件按字节比，返回对不上的清单（缺席的也算）。
+ * @param {string} baseDir 入库的那份（基准）
+ * @param {string} otherDir 现在跑出来的那份
  * @param {string[]} names 在册件名（唯一清单 GOLDEN_NAMES）
  * @returns {{name: string, why: string}[]} 空数组＝十二件全等
  */
@@ -108,7 +108,7 @@ t('B5 golden 逐字节对账十二件（现跑 vs 入库，漂移即红）', dri
 const TAMPER_DIRS = [];
 /**
  * 复制现跑十二件到临时目录，再篡改其中一件，供这道正对照证明检查真能判出来。
- * 源件缺席时不抛错，返回残缺副本交给下游判失败（tracker #72 同型）。
+ * 源件不在的时候不抛错，返回一份残缺的副本，交给下游去判失败（跟 tracker #72 那次一个毛病）。
  * @param {string} name 要篡改的在册件名
  * @param {(text: string) => string} mutate 就地改写该件正文
  * @returns {string} 临时目录（已登记进 TAMPER_DIRS 待清理）
@@ -121,7 +121,7 @@ function tamperedCopy(name, mutate) {
     if (existsSync(src)) { copyFileSync(src, join(dir, n)); }
   }
   const p = join(dir, name);
-  // B1 没产出该件时不许在此抛 ENOENT 拖垮整条检查——照常返回残缺副本，让下游的正对照判失败并留下可读原因（tracker #72 同型）
+  // B1 没产出那一件的时候，这里不许抛 ENOENT 把整条检查拖垮——照常返回残缺的副本，让下游的正对照判失败，并留下看得懂的原因（跟 tracker #72 那次一个毛病）
   if (!existsSync(p)) { return dir; }
   writeFileSync(p, mutate(readFileSync(p, 'utf8')), 'utf8');
   return dir;
@@ -177,7 +177,7 @@ const preregPerturbed = scanRepo.carriers.length > 0 ? scanRepo.carriers[0].v.sl
 const tamAnchorDir = tamperedCopy(TAM_PR64_JSON, function (s) { return s.replace(/("prereg_commit":\s*")[0-9a-f]{4,40}(")/, '$1' + preregPerturbed + '$2'); });
 const scanTamper = preregOffenders(tamAnchorDir);
 // 差分断言而非绝对计数：只许「篡改多出一件」，不许别的件的判定被这次篡改带偏。绝对计数在现跑侧本身已违规时
-// 会因错而红，那种红证不了这道判定真在检，只会把 B9 的问题重复一遍。
+// 因为出错而红，那种红说明不了这道判定真在检，只会把 B9 的问题再重复一遍。
 const tamperAdded = scanTamper.bad.filter(function (x) { return scanRegen.bad.indexOf(x) < 0; });
 t('B10 正对照：锚短写改同宽异值 → 恰该件多判失败一件（不留洞）', preregPerturbed.length >= 4 && tamperAdded.length === 1 && tamperAdded[0].indexOf(TAM_PR64_JSON) === 0, 'perturbed=' + preregPerturbed + ' 新增=' + tamperAdded.join(','));
 // 等长篡改对照：B6／B7 改的都动了长度，只能证「长度变了会红」；comparator 若失效成只比长度，这两条照样绿。

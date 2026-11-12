@@ -87,7 +87,7 @@ const gBad = detectDangerousRegexForms(stripComments("const r = /[^]/;"));
 t('G1 正对照：合成 [^] 否定空字符类必抓（negated-empty-class——P0-2 死正则事故形态）', gBad.some(function (h) { return h.kind === 'negated-empty-class'; }), JSON.stringify(gBad.map(function (h) { return h.kind; })));
 const gGood = detectDangerousRegexForms(stripComments("const e = /[^\\]]/; const h = /[^\\x5D]/; const n = /[^abc]/; const m = /[^=]/;"));
 t('G2 负对照：合法 [^\\]]/[^\\x5D]/普通否定类/单成员否定类不误报（正则字符类内部零反斜杠豁免——物理必需转义不中；[^a] 单成员否定类非危险形态）', gGood.length === 0, JSON.stringify(gGood.map(function (h) { return h.kind; })));
-// 同型全量扫一遍（D-183 通道）：有界扫全 NN-check 检查项里的 regex 字面量，找同型死形态，命中即红
+// 同一个毛病全仓扫一遍（D-183 那套）：把 NN-check 检查项里的正则字面量都扫一遍，找同一种坏写法，找到就红
 //   排除本件自身（G1 正对照合成串含 [^]，那是正则检测器自己，不算检查脚本的检查项）
 const gFiles = readdirSync(HERE).filter(function (f) { return /-check\.mjs$/.test(f) || f === 'xfail-run.mjs'; });
 let gCensusHits = [];
@@ -96,7 +96,7 @@ for (const gf of gFiles) {
   const gs = stripComments(readFileSync(join(HERE, gf), 'utf8'));
   for (const gh of detectDangerousRegexForms(gs)) gCensusHits.push(gf + ':' + gh.lno + ' ' + gh.kind);
 }
-t('G3 同型全量扫一遍：全 NN-check 检查项零危险正则形态（命中即红——D-183 同型全量扫一遍＋零命中登记；本件自指豁免已注记）', gCensusHits.length === 0, gCensusHits.slice(0, 5).join(' | '));
+t('G3 同一个毛病全仓扫一遍：NN-check 检查项里一个危险正则都没有（找到就红——D-183 那一趟扫下来零命中；本件自己也扫，已注明）', gCensusHits.length === 0, gCensusHits.slice(0, 5).join(' | '));
 
 console.log('---');
 console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));

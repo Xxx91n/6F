@@ -118,7 +118,7 @@ if (groupProbe('53-check', 'E', DEP53)) {
     const coreMiss = core.filter(function (k) { return !(k in mAu); });
     t('E4 audit measurements 含 39 全部核心字段（39 集合 ⊆ audit 集合；audit 扩展项=intake/behavior 披露面）', coreMiss.length === 0, 'miss=' + coreMiss.join(','));
     t('E5 39 侧车 intake_health.fields 为数组且非空（#42 workflow 断言同一来源）', !!s39.intake_health && Array.isArray(s39.intake_health.fields) && s39.intake_health.fields.length > 0, 'fields=' + (s39.intake_health && Array.isArray(s39.intake_health.fields) ? s39.intake_health.fields.length : 'absent/null'));
-    // #42 复审（CodeRabbit nitpick）：paths() 只对对象下钻，数组元素字段面 E2 看不见——intake_health.fields 条目另比（E3 同型补位）。
+    // #42 复审（CodeRabbit 提的小意见）：paths() 只往对象里钻，数组元素上的字段 E2 看不到——所以 intake_health.fields 的条目另比一遍（E3 用同一个办法补上）。
     // 不做通用数组下钻：实测会把 quadrants[].slice_fields 的引擎扩展项一并拉进无豁免比较（FAIL E2 drift=6 项）——那是另一张票的豁免议题。
     // 39 侧 quarantined_rows 恒空（首个病态即 normalizeGitIsoDate 抛＝崩溃桶无 sidecar），对其条目断言必永远通过，故只比 fields。
     const ih39Fields = (s39.intake_health || {}).fields || [];

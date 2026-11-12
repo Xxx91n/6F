@@ -1,4 +1,4 @@
-// micro-a.test.mjs —— #85② Micro-A 正式入口测试（cassette 离线回放；github-rest.test.mjs 同型注入）
+// micro-a.test.mjs —— #85② Micro-A 正式入口的测试（拿 cassette 离线回放；注入方式跟 github-rest.test.mjs 一样）
 // 查什么：U 采集（适配器事实落 Micro-A scale＋token 永不入 fact）→ R 单 PR 报告（骨架交集＋披露块翻转＋判据落在哪一档）
 //   → F 拒绝件（merged=0 intake 明确拒绝）→ C CLI 接线（本地路径/名册外仓结构化拒绝 exit 2——离线安全面）
 //   → S prereg 锚取值规则（浅克隆合成 fixture 正负对照——tracker #100／R9-1）。
@@ -155,7 +155,7 @@ const sameCommit = function (cwd, v, fullSha) { const r = fullCommit(cwd, v); re
 const pShallow = join(tmp, 'prereg-shallow');
 execFileSync('git', ['clone', '-q', '--depth', '1', '--no-local', pSrc, pShallow], { encoding: 'utf8', env: GIT_ENV });
 
-t('S1 前提先立住：fixture 确为浅克隆，且裸命令在该形态下取到的 commit 就是边界 commit（失败形态复现，非永远通过）',
+t('S1 前提先立住：fixture 确实是个浅克隆，而且裸命令在这种仓上取到的 commit 就是边界那个 commit（把出问题的情形照样造出来，不是走个过场）',
   gitAt(pShallow, ['rev-parse', '--is-shallow-repository']) === 'true'
   && TRUE_ANCHOR_FULL !== '' && TRUE_ANCHOR_FULL !== BOUNDARY_COMMIT
   && sameCommit(pShallow, gitAt(pShallow, ['log', '-1', '--format=%h', '--', SRC_REL]), BOUNDARY_COMMIT)

@@ -68,7 +68,7 @@ for (const [name, spec] of Object.entries(manifest.facets)) {
   });
 }
 
-// ---------- C. 红证：漂移/畸形输入拒绝 ----------
+// ---------- C. 坏输入要能判红：漂移的、形状不对的输入都得拒掉 ----------
 t('C1 非数组 JSON 被拒', () => {
   assert.throws(() => C.parseJsonRows('{"a":1}'), /not an array/);
 });

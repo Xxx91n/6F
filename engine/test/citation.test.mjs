@@ -1,6 +1,6 @@
 // citation.test.mjs —— #56 checker 语义边界测试（D-065：presence-level 文档化＋三表否定剥离＋引语表＋fail-safe＋二态维持）
 // 分层：positive / neg-pre / neg-post / pseudo-neg / quoted / attributed / CJK / unbalanced / ungrounded / 披露 / non-assert
-// #61 r18⑤：assert→check() 布尔风格（sql-literal.test.mjs 同型——results 数组＋逐条 PASS/FAIL 印出）
+// #61 r18⑤：用 check() 收布尔值这种写法（跟 sql-literal.test.mjs 一个样子——攒到 results 数组里，逐条打 PASS/FAIL）
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
