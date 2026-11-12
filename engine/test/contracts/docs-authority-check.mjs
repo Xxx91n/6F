@@ -122,7 +122,7 @@ t('B0 门面标记与 authorityPointer 同形：外链不算、fragment 算',
 
 // ---------- C. 现行 ADR 从 §3 推出来，旧号只在历史引用面 ----------
 // 号只认「既被 git 跟踪、盘上也真有一份」的文件：工作区把文件删了但还没提交时，git 仍列着它，
-// 不能让它继续算现行，否则「删掉起点 ADR」这种改动会被当成没事。
+// 这时 A4 已因读不到而判红；这里不再把它算成现行号，让 C0 也直接说清「少了哪份」。
 const ADR_FILES = TRACKED.filter(p => /^docs\/adr\/\d{4}-.+\.md$/.test(p)).filter(p => existsSync(join(REPO, p)));
 const ADR_NUMBERS = new Set(ADR_FILES.map(p => p.match(/^docs\/adr\/(\d{4})-/)[1]));
 const authorityText = txt('docs/authority.md');
@@ -156,7 +156,8 @@ const HIST_NUMBERS = new Set(HIST ? HIST.numbers : []);
 const HIST_PATHS = HIST ? HIST.paths : [];
 const HIST_EXPLAINED = new Set(HIST ? HIST.explained_in : []);
 const ENTRY_ADR = HIST ? HIST.entry : null;
-// 现行 = docs/adr/ 下有文件、号又不在 §3 的历史号清单里；加一份新 ADR 不用回改脚本。
+// 在仓 = docs/adr/ 下有正文、号又不在 §3 的历史号清单里。加一份新 ADR 不用回改脚本。
+// 这个集合按文件算，不按 Status 算：还没接受的提案也算「在仓」，接受与否看它自己的 Status 行。
 // 同时算「历史号复活」：盘上的号又出现在历史清单里，就是有人想拿加号洗历史。
 function currentAdrVerdict(adrNumbers, historicalNumbers, entry) {
   const current = [...adrNumbers].filter(n => !historicalNumbers.has(n)).sort();
@@ -164,7 +165,7 @@ function currentAdrVerdict(adrNumbers, historicalNumbers, entry) {
   return { current, revived, ok: !!entry && current.length > 0 && current.includes(entry) && revived.length === 0 };
 }
 const CURRENT_VERDICT = currentAdrVerdict(ADR_NUMBERS, HIST_NUMBERS, ENTRY_ADR);
-// 起点号在盘上应该有且只有一份；C0 判过后 C5 直接拿去核对 explained_in，不再自己重算。
+// 起点号那份文件，C5 拿它核对 explained_in；「有几份」这一条由 C5 自己判。
 const entryAdrFiles = ADR_FILES.filter(p => ENTRY_ADR && p.startsWith('docs/adr/' + ENTRY_ADR + '-'));
 // 历史路径按前缀匹配目录，说明处按整文件匹配；两者都要求号在 numbers 清单里。
 function inHistoricalSurface(path, num) {
@@ -232,11 +233,11 @@ for (const { path, text } of CORPUS) {
     if (!existsSync(join(REPO, resolved))) { adrLinks.push(path + ' -> ' + raw + ' (' + resolved + ')'); }
   }
 }
-// C0 只认三条：现行集合非空、里面有 §3 块点名的起点号、盘上没有历史号复活。
+// C0 只认三条：在仓集合非空、里面有 §3 块点名的起点号、盘上没有历史号复活。
 // 不再要求「只有一份」——那样加一份新 ADR 就得回来改脚本，也正是这回要修的病。
-t('C0 现行 ADR 从 §3 块推出来：非空、含块里的起点号、没有历史号复活（不写死编号、不要求只有一份）',
+t('C0 在仓 ADR 从 §3 块推出来：非空、含块里的起点号、没有历史号复活（不写死编号、不要求只有一份）',
   CURRENT_VERDICT.ok,
-  'entry=' + (ENTRY_ADR || '<unparsed>') + ' current=' + CURRENT_VERDICT.current.join(',') + ' revived=' + CURRENT_VERDICT.revived.join(',') + ' files=' + ADR_FILES.join(','));
+  'entry=' + (ENTRY_ADR || '<unparsed>') + ' in-repo=' + CURRENT_VERDICT.current.join(',') + ' revived=' + CURRENT_VERDICT.revived.join(',') + ' files=' + ADR_FILES.join(','));
 t('C1 现行文本的 ADR-NNNN 只指向现行 ADR 或历史引用面（哨兵与固定机器名除外）',
   adrRefCount > 0 && badAdr.length === 0, 'refs=' + adrRefCount + ' dangling=' + [...new Set(badAdr)].join(','));
 t('C1b 哨兵豁免只覆盖 engine 代码/测试（engine/README.md 不在内）',
@@ -254,10 +255,10 @@ t('C4 历史路径清单非空，每条都在仓里（清单从 §3 读，不在
   HIST_PATHS.length > 0 && missingHistPaths.length === 0,
   'paths=' + HIST_PATHS.join(',') + ' missing=' + missingHistPaths.join(','));
 const missingExplained = [...HIST_EXPLAINED].filter(p => !historicalPathExists(p));
-// C5 explained_in 非空、每条都在仓里，且含 authority.md 与块里点名的起点 ADR
+// explained_in 要含 authority.md 和起点号那份。起点号那份不在仓里也算红：那是「起点 ADR 被删」。
 t('C5 explained_in 非空、每条都在仓里，且含 authority.md 与 §3 块点名的起点 ADR',
-  HIST_EXPLAINED.size > 0 && missingExplained.length === 0 && entryAdrFiles.length === 1 &&
-  HIST_EXPLAINED.has('docs/authority.md') && HIST_EXPLAINED.has(entryAdrFiles[0]),
+  HIST_EXPLAINED.size > 0 && missingExplained.length === 0 && !!ENTRY_ADR && entryAdrFiles.length > 0 &&
+  HIST_EXPLAINED.has('docs/authority.md') && entryAdrFiles.some(p => HIST_EXPLAINED.has(p)),
   'explained=' + [...HIST_EXPLAINED].join(',') + ' entry=' + (entryAdrFiles.join(',') || '<none>') + ' missing=' + missingExplained.join(','));
 const HIST_SCREEN = HIST_PATHS[0] || '<missing-historical-path>';
 t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判红；历史路径不放行任意旧号', // NEGATIVE-CONTROL
@@ -268,7 +269,7 @@ t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判�
   'hist=' + adrRefClass(HIST_SCREEN, '0001') + ' current=' + adrRefClass('README.md', '0001'));
 // C6b 要证伪「推法」本身，所以不用真仓的号：真号写进来等于把「写死编号」这毛病搬回脚本，
 // 而且仓一坏控制项会跟着红，分不清是推法坏了还是仓坏了。号段取 4 位里用不到的合成值。
-t('C6b 现行 ADR 推法负对照：多一份仍绿、删起点号红、现行号塞进历史清单红、起点号缺失红', // NEGATIVE-CONTROL
+t('C6b 在仓 ADR 推法负对照：多一份仍绿、删起点号红、在仓号塞进历史清单红、起点号缺失红', // NEGATIVE-CONTROL
   (() => { // NEGATIVE-CONTROL
     const adr = new Set(['9001', '9002']); // NEGATIVE-CONTROL
     const hist = new Set(['9003']); // NEGATIVE-CONTROL
