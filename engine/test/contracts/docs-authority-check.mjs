@@ -142,7 +142,9 @@ const authorityText = txt('docs/authority.md');
 // 块里的 entry 是脚本读到的起点号；它必须正好是 0028（见 C0b），改了就红。
 function parseHistoricalAdr(text) {
   const fences = [...text.matchAll(/```yaml\r?\n([\s\S]*?)```/g)].map(m => m[1]);
-  const blocks = fences.filter(b => b.includes('historical_adr:'));
+  // 认块按「行首根键」，不按子串：文档里另放一个 yaml 示例、注释里写着 `# historical_adr: ...`，
+  // 子串筛会把它当第二份块，于是报「两份来源」误红——配置一点没动却判错。
+  const blocks = fences.filter(b => b.split(/\r?\n/).some(l => /^historical_adr:\s*$/.test(l)));
   // 两份同名的块等于两个来源，直接按空处理交给调用处判红，不悄悄取第一个。
   if (blocks.length !== 1) { return null; }
   const block = blocks[0];
@@ -355,7 +357,10 @@ t('C6b 发现链与判法负对照：新加一份仍绿、删起点号红、号�
       parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: 9001\n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
       // 空值行也算坏写法：`entry:` 后面什么都没写，不能被当成「这行不存在」悄悄放过。
       parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  entry:\n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
-      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  entry:   \n  numbers: ["9003"]\n```').entry === null; // NEGATIVE-CONTROL
+      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  entry:   \n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
+      // 认块按行首根键：另一个 yaml 示例里只在注释提到它，不该被当成第二份块。
+      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  numbers: ["9003"]\n```\n\n```yaml\n# historical_adr: 只是注释举例\nx: 1\n```').entry === '9001' && // NEGATIVE-CONTROL
+      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  numbers: ["9003"]\n```\n\n```yaml\nhistorical_adr:\n  entry: "9002"\n```') === null; // NEGATIVE-CONTROL
   })()); // NEGATIVE-CONTROL
 // C6d 把「发现链在真仓上跑出来的结果」和「独立从 tracked 列表重算的结果」对一遍。
 // 那条正对照（加一份新 ADR 不用改脚本）没法测未来，但能测「发现链有没有如实反映盘上事实」：
