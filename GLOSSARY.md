@@ -322,9 +322,14 @@ _别名_: advisory-only、`advisory`
 拿已知答案的语料调准判据。
 _别名_: calibration
 
+**校对样本**
+挑出来放进 golden、决定「算不算数」的那几条具体 PR。名册管能不能跑，它管算不算数。
+_别名_: golden、golden set
+_不要用_: 基准集、评测集
+
 **试点仓**
 先拿来试的那几个仓库。
-_别名_: pilot set、pilot
+_别名_: pilot set、pilot、名册
 
 **同主**
 自己名下的仓库；在同主仓上跑要说明偏差。
