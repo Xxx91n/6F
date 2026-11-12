@@ -21,6 +21,14 @@ _别名_: Design Pointer
 _别名_: Historical Fingerprint
 _不要用_: 拿历史编号写新决定
 
+**现行 ADR 起点号**
+现行架构决定从哪一份 ADR 开始算的那个号，固定是 `0028`。
+_别名_: Entry ADR
+
+**在仓 ADR**
+`docs/adr/` 下真正有正文的架构决定文件（`NNNN-名字.md`）；号已经进了历史清单的不算。还没接受、标着 proposed 的提案也算。
+_别名_: In-repo ADR
+
 **校对用的固定语料**
 重新校对用的外部语料，按版本固定住，不跟着产品上游变。
 _别名_: Baseline Corpus
