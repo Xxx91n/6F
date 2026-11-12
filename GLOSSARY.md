@@ -26,7 +26,7 @@ _不要用_: 拿历史编号写新决定
 _别名_: Entry ADR
 
 **在仓 ADR**
-`docs/adr/` 下真正有正文的架构决定文件。还没接受、标着 proposed 的提案也算。
+`docs/adr/` 下真正有正文、号又不在 `docs/authority.md` §3 历史号清单里的架构决定文件。还没接受、标着 proposed 的提案也算在仓。
 _别名_: In-repo ADR
 
 **校对用的固定语料**

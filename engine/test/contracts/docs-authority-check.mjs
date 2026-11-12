@@ -2,7 +2,7 @@
 // 查什么：
 //   A 本检查自报身份（guard-meta）、*-check.mjs 命名、扫描范围非空（防扫不到东西就假装通过）
 //   B 门面文书集合（按「声明位置」内容派生，不硬编码五/六处计数）→ 逐文件 markdown 链接指回 docs/authority.md 本体
-//   C 现行 ADR 从 §3 的历史号清单推出来（可以不止一份，不由脚本写死）；旧号只准出现在 §3 声明的历史引用面（哨兵与固定机器名除外）；docs/adr/ 链接可解析
+//   C 在仓 ADR 从 §3 的块推出来（可以不止一份，不由脚本写死）；旧号只准出现在 §3 声明的历史引用面（哨兵与固定机器名除外）；docs/adr/ 链接可解析
 //   D D-NNN 引用 ⊆ 归档索引；D-NNN 集合只减不增（冻结记录的 blob 值锁死＋散文假阳性五项锁死）
 //   E §D-NNN / §A-NNN 死锚拒绝（2+ 位退役码形态；1 位是节号，不在此列）
 //   F 门面文书不得自称权威；专题「唯一权威」白名单只从 docs/authority.md §2 读一处
@@ -120,7 +120,7 @@ t('B0 门面标记与 authorityPointer 同形：外链不算、fragment 算',
   !LANDING_MARK.test('](https://example.com/authority.md)') &&
   LANDING_MARK.test('](docs/authority.md#section)'));
 
-// ---------- C. 现行 ADR 从 §3 推出来，旧号只在历史引用面 ----------
+// ---------- C. 在仓 ADR 从 §3 推出来，旧号只在历史引用面 ----------
 // 号只认「既被 git 跟踪、盘上也真有一份」的文件：工作区把文件删了但还没提交时，git 仍列着它，
 // 这时 A4 已因读不到而判红；这里不再把它算成现行号，让 C0 也直接说清「少了哪份」。
 const ADR_FILES = TRACKED.filter(p => /^docs\/adr\/\d{4}-.+\.md$/.test(p)).filter(p => existsSync(join(REPO, p)));
@@ -136,7 +136,7 @@ function parseHistoricalAdr(text) {
   const numbers = [...numbersLine.matchAll(/"(\d{4})"/g)].map(m => m[1]);
   // 起点号扫全块，不是只看第一行：写了两行也得算「不止一个」，返回 null 交给调用处判红。
   const entryValues = [...block.matchAll(/^\s*entry:\s*"(\d{4})"/gm)].map(m => m[1]);
-  const hasBadEntryLine = block.split(/\r?\n/).some(l => /^\s*entry:\s*\S/.test(l) && !/^\s*entry:\s*"\d{4}"\s*$/.test(l));
+  const hasBadEntryLine = lines.some(l => /^\s*entry:\s*\S/.test(l) && !/^\s*entry:\s*"\d{4}"\s*$/.test(l));
   function list(key) {
     const start = lines.findIndex(l => new RegExp('^\\s+' + key + ':\\s*$').test(l));
     if (start < 0) { return []; }
@@ -290,7 +290,7 @@ t('C7 固定机器名放行：协议版本串和 schema inherits 历史标签不
   !frozenMachineLabel('engine/src/audit/x.ts', { code: 'ADR-0005', line: '// ADR-0005' }) && // NEGATIVE-CONTROL
   !frozenMachineLabel('README.md', { code: 'ADR-0013', line: "'ADR-0013-C/v1'" })); // NEGATIVE-CONTROL
 // explained_in 是整文件豁免；活指针仍须守「不指旧号」——单独一条，避免整文件豁免把它一并放过。
-// 三处「历史件」原样保留，不按活指针判；其余面（含两处 explained_in）照常扫。
+// 块里列的历史件路径原样保留，不按活指针判；其余面（含 explained_in 的说明处）照常扫。
 const historicalDesignPointers = [];
 for (const { path, text } of CORPUS) {
   if (HIST_PATHS.some(p => path === p || path.startsWith(p.endsWith('/') ? p : p + '/'))) { continue; }

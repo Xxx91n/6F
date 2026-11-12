@@ -60,7 +60,7 @@
 - 两个固定名字不算旧号引用，原样保留：`ADR-NNNN-C/vN` 是裁决协议和报告叙事盖章用的协议版本串，schema 字段里的 `inherits:` 值是「这一列从哪份旧决定继承」的历史标签。这两个形状只在 `engine/src`、`engine/scripts`、`engine/test` 里放行；写到别的文档里照旧按普通旧号判。
 - `CONTEXT.md` 已经退役（`6626d08d` 删除），术语看 [`GLOSSARY.md`](../GLOSSARY.md)；历史文书（包括 ADR 正文和记录行）里提到 `CONTEXT.md` 的地方按历史编号读，不当现行位置。
 - **号码会撞**：GitHub issue/PR 和旧 BACKLOG 票号共用同一串号——旧 BACKLOG 覆盖 `#32`–`#94`，GitHub 号只增不减，两段重叠。新写的按 [`docs/spec.md`](spec.md) R8 的规则把 GitHub 引用写成 `tracker #N`；历史文本里的裸 `#NN`（代码注释、`NN-check` 脚本名、记录行）按 [`ticket-index.md` §撞号警示](archive/decisions/ticket-index.md#撞号警示) 分清，不要改写。
-- **旧 ADR 号是第四类历史编号**：`ADR-0001`–`ADR-0027` 只减不增；24 份正文已经删掉，正文只在 git 历史里，不再当现行位置；现行架构决定从下面块里的 `entry` 号起算，那份就是现行纪元的起点。查法是先 `git log --diff-filter=D --name-only -- docs/adr` 找到删除提交，再 `git show <删除提交>^:docs/adr/<文件名>` 取回原文；完整的来龙去脉见 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
+- **旧 ADR 号是第四类历史编号**：`ADR-0001`–`ADR-0027` 只减不增；24 份正文已经删掉，正文只在 git 历史里，不再当现行位置；现行的起点号写在下面块的 `entry`，现行集合必须包含它。查法是先 `git log --diff-filter=D --name-only -- docs/adr` 找到删除提交，再 `git show <删除提交>^:docs/adr/<文件名>` 取回原文；完整的来龙去脉见 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
 - `ADR-0028` 替代 `ADR-0025` 里「从 `6626d08d^` 恢复 21 份现行 ADR」那条决定；三类文件的分工和归档政策继续沿用，不另起一套。完整内容写在 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
 - 检查脚本只读下面这个块，不在脚本里抄第二份；块里的历史号、现行起点号、历史件路径和说明处是脚本认的全部来源。哨兵号（合成夹具和报告解析器里写出来的占位号，一种占空位、一种当越界探针，只出现在 engine 的代码和测试里）和 `engine/fixtures/definitions/` 下的手写合成夹具是测试样本，不是历史编号，放行规则只在脚本注释里；固定机器名的放行规则见本节「两个固定名字不算旧号引用」那一条。
 
@@ -89,7 +89,7 @@ Design: <一句话约束> — ADR-NNNN
 - 指针指向的必须是 `docs/adr/` 下能打开的现行 ADR（哪几份是现行，看 [`docs/adr/README.md`](adr/README.md) 的状态列）。旧号一律不再当指针目标。
 - 产品级约束指向 `docs/spec.md` 的节时写成 `Design: <一句话约束> — spec §R<n>`；术语约束指向 `GLOSSARY.md` 词条。
 - 一份 ADR 可以被多处指针引用；指针本身不是决定记录，删指针不删决定。
-- 现在仓里没有指向旧 ADR 号的 `Design:` 指针；产品级指针还可以指 spec 的节（例如 `spec §R9-1`）。新增的按本节写，目标只能是现行 ADR 或 spec 节。约束正文可以在 `ADR-0028` 的对应小节找；例如事实表单写者约束写在 `ADR-0028` §3，执行面在 `engine/src/fact/store.ts`。机器读的名字哪些能改，写在 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)。
+- 现在仓里没有指向旧 ADR 号的 `Design:` 指针；产品级指针还可以指 spec 的节（例如 `spec §R9-1`）。新增的按本节写，目标只能是已经 accepted 的 ADR 或 spec 节。约束正文可以在 `ADR-0028` 的对应小节找；例如事实表单写者约束写在 `ADR-0028` §3，执行面在 `engine/src/fact/store.ts`。机器读的名字哪些能改，写在 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)。
 - 旧的 `Design:` 指针已随代码注释票清零；若再看到指旧号的指针，按死引用处理，不能当成第二套现行规则。
 
 ## 5. 改这份文件时
