@@ -2269,7 +2269,7 @@
    "review_at": "每审计窗核对四判据读数（T3 值守并入）；判据①执行时重查 agent-plugin 标注规范悬置条款（D-031⑤ 义务挂判据①——R40-Q6 调研再证未成文维持悬置）",
    "status": "decided",
    "owner": "macro-audit 队列值守",
-   "verify_method": "判据原文见 docs/spec.md §R11：四条判据=R11-2、静观期怎么算=R11-3、摄入分诊四态=R11-4、谁签字和证据保鲜=R11-5。本项只剩机读读数和证据锚，不再自己写一份判据正文。",
+   "verify_method": "判据原文见 docs/spec.md §R11：四条判据=R11-2、静观期怎么算=R11-3、试点意见分诊四态=R11-4、谁签字和证据保鲜=R11-5。本项只剩机读读数和证据锚，不再自己写一份判据正文；旧的可操作口径（env-contract tier 防双裁、30 日回流参数）留在本项历史确认行里。",
    "review_event": "next-audit-window",
    "watch": "manual_watch",
    "confirmations": [
@@ -2356,10 +2356,42 @@
     {
      "at": "2026-11-13",
      "by": "tracker #27 grill 执行",
-     "criterion_version": "R11-1~R11-7（spec 收回判据原文）",
+     "criterion_version": "spec R11（2026-11-13 版）",
      "decision": "criteria-source-moved-to-spec",
-     "reason": "四条判据的原文从一份已经退役的文件收回 docs/spec.md R11：判据本体、静观期起点、摄入分诊四态、证据保鲜都写成现行条文；本项以后只留机读读数和证据锚，不再自己写一份判据正文。四项读数一条没动——①阻塞、②通过但过期、③达标、④没开始，静观期维持 not_started。",
-     "evidence": "docs/spec.md §R11；本项 verify_method 改成指向 R11；node engine/test/contracts/87-check.mjs PASS 37/37；engine 下 npm run check:docs PASS 56/56"
+     "reason": "四条判据的原文从一份已经退役的文件收回 docs/spec.md R11：判据本体、静观期起点、试点意见分诊四态、证据保鲜都写成现行条文；本项以后只留机读读数和证据锚，不再自己写一份判据正文。四项读数一条没动——①阻塞、②通过但过期、③达标、④没开始，静观期维持 not_started。",
+     "evidence": "docs/spec.md §R11；本项 verify_method 改成指向 R11；engine 下 npm test 退出码 0，末尾 PASS 30/30 contract checks SKIP-GROUPS=0"
+    },
+    {
+     "at": "2026-11-13",
+     "by": "tracker #27 读数批",
+     "criterion_version": "spec R11（2026-11-13 版）",
+     "decision": "criterion-01-blocked-read",
+     "reason": "判据①阻塞：五档里只差跨仓战略档（Macro-A），它没进预览。卡在自己的启动条件第二条——至少两个真实仓库的生产数据上把跨仓对照跑通，调研用的仓不算数。钥匙在用户手上，Agent 造不出来；放宽口径另开 tracker #243 裁。",
+     "evidence": "README.md 的能力状态表（Macro-A = Not yet in preview）＋docs/spec.md §R8-4 状态快照＋spec §R11-2①；2026-11-13 核过"
+    },
+    {
+     "at": "2026-11-13",
+     "by": "tracker #27 读数批",
+     "criterion_version": "spec R11（2026-11-13 版）",
+     "decision": "criterion-02-stale-read",
+     "reason": "判据②读数通过但已过期：2026-10-05 R63 T1 执行批那次干净克隆实测，干净 HEAD 09c73858，ran=65 green=65 red=0 problems=0，唯一 group-skip 是 40-B 且带了原因。到 2026-11-13 已经 39 天，超过 R11-5 定的 30 天保鲜期，开窗前必须重跑一次；本轮不重跑，因为静观窗不启动。",
+     "evidence": "本 registry 文件 fresh-clone-rerun-watch 的 2026-10-05 确认行（decision=fresh-clone-green）＋spec §R11-6②"
+    },
+    {
+     "at": "2026-11-13",
+     "by": "tracker #27 读数批",
+     "criterion_version": "spec R11（2026-11-13 版）",
+     "decision": "criterion-03-closed-read",
+     "reason": "判据③达标：GAP-HOST-01 按已接受风险关档，风险档案五节齐备，用户 2026-09-28 批准，复查钩挂 2026-12-27。读数措辞只能是「风险接受、已关档」，不许写成「IDE 已验证」——CLI 的证据不外推到 IDE。",
+     "evidence": "docs/ra/GAP-HOST-01.md（状态=已批准=结案）＋docs/known-gaps.md 的 GAP-HOST-01 行（accepted-risk，复查钩 min(下次 IDE 形态会话,2026-12-27)）＋spec §R11-2③"
+    },
+    {
+     "at": "2026-11-13",
+     "by": "tracker #27 读数批",
+     "criterion_version": "spec R11（2026-11-13 版）",
+     "decision": "criterion-04-not-started",
+     "reason": "判据④没开始：Stage-1 一个试点都没有，charter 是空集，静观期三个起点（pilot_started／findings_all_closed／freeze_declared）一个都没注册，window_state=not_started、start_event=null。零试点时「没有未分诊残留」是空真，照实标注，不当达标；要启动得先有真试点，另开 tracker #242 裁。",
+     "evidence": "本项 window_state／window 两个字段机器读＋spec §R11-3、§R11-6④"
     }
    ],
    "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）",
