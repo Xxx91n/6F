@@ -86,7 +86,7 @@ let r4 = spawnSync('node', [CLI, 'audit', REPO], { encoding: 'utf8', timeout: 12
 t('M1 省略 --out → stdout=报告 markdown', r4.status === 0 && r4.stdout.indexOf('# MA-AUDIT-') >= 0 && r4.stdout.indexOf('RECEIPT RCP-') >= 0);
 
 // ---------- N 不带叙事职责（kernel 这一块如实说） ----------
-t('N1 报告没有宿主叙事段（narrative_sections 空或 sealed 模板把最后一道兜住，D-053 不外携）', !!side && (side.narrative_sections.length === 0 || side.narrative_sections.every(function (s) { return s.author === 'kernel-template' || s.author === 'host'; })));
+t('N1 报告没有宿主叙事段（narrative_sections 空或 sealed 模板把最后一道兜住，D-053 不外携）', !!side && (side.narrative_sections.length === 0 || side.narrative_sections.every(function (s) { return s.author === 'kernel-template'; })));
 
 // ---------- E 出错时的表现 ----------
 let r5 = spawnSync('node', [CLI, 'audit', join(tmp, 'nonexistent-path-xyz')], { encoding: 'utf8' });

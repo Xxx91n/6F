@@ -150,7 +150,7 @@ if (groupProbe('53-check', 'F', DEP53)) {
 // ---------- G. 不携叙事职责 ----------
 if (groupProbe('53-check', 'G', DEP53)) {
   const sAu2 = existsSync(join(OUTA, 'report.json')) ? JSON.parse(txt(join(OUTA, 'report.json'))) : null;
-  t('G1 narrative_sections 空或仅 kernel/host 的退路（audit 不担宿主叙事生成职责）', !!sAu2 && (sAu2.narrative_sections.length === 0 || sAu2.narrative_sections.every(function (s) { return s.author === 'kernel-template' || s.author === 'host'; })), 'n=' + (sAu2 ? sAu2.narrative_sections.length : 'n/a'));
+  t('G1 narrative_sections 空或仅内核模板的退路（audit 不担宿主叙事生成职责）', !!sAu2 && (sAu2.narrative_sections.length === 0 || sAu2.narrative_sections.every(function (s) { return s.author === 'kernel-template'; })), 'n=' + (sAu2 ? sAu2.narrative_sections.length : 'n/a'));
 }
 
 // ---------- H. BOM ----------
