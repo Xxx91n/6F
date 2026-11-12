@@ -175,9 +175,9 @@ const HIST_NUMBERS = new Set(HIST ? HIST.numbers : []);
 const HIST_PATHS = HIST ? HIST.paths : [];
 const HIST_EXPLAINED = new Set(HIST ? HIST.explained_in : []);
 const ENTRY_ADR = HIST ? HIST.entry : null;
-// 现行纪元的起点号只从块里读，脚本不再写第二份（authority §3 那条「不在脚本里抄第二份」说话算话）。
-// 票面要求「C0 至少含 0028」：块里的 entry 是什么就核什么，但 0028 本身还得靠一条负对照钉住——
-// 谁把块里那个数改成别的，C0 的「至少含 0028」就没人验了，所以 0028 另写一条 C0b 断言。
+// 起点号从块里的 entry 读（authority §3 说另抄一份清单就判红，所以这里不存号，只存期望值）。
+// 票面点名「C0 至少含 0028」，可 C0 只核「在仓集合里有没有块里那个数」——块改成别的它也绿。
+// 所以 0028 这个字面单独落成 C0b：读来的值必须等于期望值，改了块就红。
 const EPOCH_START_EXPECTED = '0028';
 // 在仓集合 = 盘上的号里剔掉历史号。按文件算、不按 Status 算：还没接受的提案也算在仓。
 // 同一个号出现两份文件算红：去掉「只有一份」不等于允许同号并存。
@@ -194,10 +194,10 @@ function adrFloorVerdict(adrFiles, adrNumbers, historicalNumbers, epochStart) {
 const CURRENT_VERDICT = adrFloorVerdict(ADR, ADR_NUMBERS, HIST_NUMBERS, ENTRY_ADR);
 // 起点号那份文件，C5 拿它核对 explained_in。
 const epochStartFiles = ENTRY_ADR ? ADR_FILES.filter(p => p.startsWith('docs/adr/' + ENTRY_ADR + '-')) : [];
-// C6d 的对照：不走 collectAdr，改成直接读目录（readdir）再按同一套命名规则筛一遍。
-// 两路互相独立：一路是 git ls-files + existsSync，一路是文件系统列举。
-// 目录侧只留被 git 跟踪的那些比——本地刚建、还没 add 的文件是正常的中间状态，不该判红。
-// 注意：目录侧取号不能复用 ADR_NAME_RE，否则发现器坏了它就跟着坏、查不出问题。
+// C6d 的对照：一路走 collectAdr（git ls-files + 全路径正则 + existsSync），
+// 一路走文件系统列举（readdir + 文件名正则），只看最后拿到的文件名清单是否一致。
+// 两侧筛选方式不同，所以「全路径正则写错」这种毛病会被这一条抓到；
+// 但两侧都拿 TRACKED 做交集，git 索引本身残缺时两边会一起少，这条看不见——那是另一类问题。
 const ADR_DIR_FILES = (() => {
   const dir = join(REPO, 'docs', 'adr');
   const trackedSet = new Set(TRACKED);
@@ -291,6 +291,7 @@ function contiguousFromOne(nums) {
   const sorted = [...new Set(nums)].sort();
   return sorted.length === nums.length && sorted.every((n, i) => n === String(i + 1).padStart(4, '0'));
 }
+// C3 的「恰 27 个」是刻意冻结过去，不是本票的过期说法问题（票面把它划在范围外），保持原样。
 t('C3 历史号解析恰为 0001–0027（27 个、连续、无重复；从 §3 读）',
   !!HIST && HIST.numbers.length === 27 && contiguousFromOne(HIST.numbers),
   HIST ? 'n=' + HIST.numbers.length + ' first=' + HIST.numbers[0] + ' last=' + HIST.numbers[HIST.numbers.length - 1] : 'block=absent');
@@ -311,9 +312,8 @@ t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判�
   adrRefClass('README.md', '0001') === 'dead' && // NEGATIVE-CONTROL
   adrRefClass(HIST_SCREEN, '9998') === 'dead', // NEGATIVE-CONTROL
   'hist=' + adrRefClass(HIST_SCREEN, '0001') + ' current=' + adrRefClass('README.md', '0001'));
-// 起点号落在现行面这一条与 C0 同义（C0 的 current.includes(entry) 已经保证它不在历史号里、
-// 且被算进在仓集合）；adrRefClass 对「在 ADR_NUMBERS 里」就返回 current，也是同一句话。
-// 所以不再单开 C6c。
+// 起点号落在现行面这件事由 C0（current.includes(entry) 已保证它不在历史号里、也算进了在仓集合）
+// 和 C5（explained_in 含它那份文件）覆盖，不另开一条重复的。
 // C6b 证伪的是「发现 + 判断」整条链，所以走的是真函数 collectAdr/adrFloorVerdict，
 // 只把输入换成合成路径假装的 tracked 列表和 existsSync —— 不碰真仓，也不会因为仓坏了跟着红。
 // 号段取 4 位里用不到的合成值，不把真号搬回脚本。
@@ -324,7 +324,10 @@ t('C6b 发现链与判法负对照：新加一份仍绿、删起点号红、号�
     const base = ['9001-base', '9002-next']; // NEGATIVE-CONTROL
     const hist = new Set(['9003']); // NEGATIVE-CONTROL
     const epoch = '9001'; // NEGATIVE-CONTROL
-    const verdictOf = (tracked, exists, historical) => adrFloorVerdict(collectAdr(tracked, exists), collectAdr(tracked, exists).numbers, historical, epoch); // NEGATIVE-CONTROL
+    const verdictOf = (tracked, exists, historical) => { // NEGATIVE-CONTROL
+      const adr = collectAdr(tracked, exists); // NEGATIVE-CONTROL
+      return adrFloorVerdict(adr, adr.numbers, historical, epoch); // NEGATIVE-CONTROL
+    }; // NEGATIVE-CONTROL
     return verdictOf(trackedWith([...base, '9004-added']), allExist, hist, epoch).ok && // NEGATIVE-CONTROL
       // 新加那份必须真被认出来：只看“绿”不够，被漏掉也绿。
       verdictOf(trackedWith([...base, '9004-added']), allExist, hist, epoch).current.includes('9004') && // NEGATIVE-CONTROL
