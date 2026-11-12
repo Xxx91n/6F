@@ -89,7 +89,7 @@ Design: <一句话约束> — ADR-NNNN
 - 指针指向的必须是 `docs/adr/` 下能打开的现行 ADR（哪几份是现行，看 [`docs/adr/README.md`](adr/README.md) 的状态列）。旧号一律不再当指针目标。
 - 产品级约束指向 `docs/spec.md` 的节时写成 `Design: <一句话约束> — spec §R<n>`；术语约束指向 `GLOSSARY.md` 词条。
 - 一份 ADR 可以被多处指针引用；指针本身不是决定记录，删指针不删决定。
-- 现在仓里没有指向旧 ADR 号的 `Design:` 指针；产品级指针还可以指 spec 的节（例如 `spec §R9-1`）。新增的按本节写，目标只能是已经 accepted 的 ADR 或 spec 节。约束正文可以在 `ADR-0028` 的对应小节找；例如事实表单写者约束写在 `ADR-0028` §3，执行面在 `engine/src/fact/store.ts`。机器读的名字哪些能改，写在 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)。
+- 现在仓里没有指向旧 ADR 号的 `Design:` 指针；产品级指针还可以指 spec 的节（例如 `spec §R9-1`）。新增的按本节写，目标只能是现行 ADR 或 spec 节。约束正文可以在 `ADR-0028` 的对应小节找；例如事实表单写者约束写在 `ADR-0028` §3，执行面在 `engine/src/fact/store.ts`。机器读的名字哪些能改，写在 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)。
 - 旧的 `Design:` 指针已随代码注释票清零；若再看到指旧号的指针，按死引用处理，不能当成第二套现行规则。
 
 ## 5. 改这份文件时
