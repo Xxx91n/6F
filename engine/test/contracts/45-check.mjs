@@ -84,7 +84,7 @@ t('D4 印记② capability_label = "capability 1 of 5 · preview"', pd.capabilit
 t('D5 印记③ limitations 首项 "not an audit of any real repository"', pd.structural_limitations.some(x => x.indexOf('not an audit of any real repository') === 0));
 t('D6 印记④ limitations 含 "supply-chain: ⚠ unverified"', pd.structural_limitations.some(x => x.indexOf('supply-chain: ⚠ unverified') === 0));
 t('D7 三场景侧车披露块同源齐备（降级不丢披露）', SCENARIOS.every(s => { const p = json(join(runs[s].outDir, 'report.json')).preview_disclosure; return p && p.capability_label === 'capability 1 of 5 · preview' && p.calibration_scope.indexOf('fixture: synthetic') === 0; }));
-t('D8 markdown 报告头披露块四印记渲染（preview 诚实对外可见）', SCENARIOS.every(s => { const md = readFileSync(join(runs[s].outDir, 'report.md'), 'utf8'); return md.indexOf('披露块') >= 0 && md.indexOf('capability 1 of 5 · preview') >= 0 && md.indexOf('fixture: synthetic') >= 0 && md.indexOf('⚠ unverified') >= 0; }));
+t('D8 markdown 报告头披露块四印记渲染（preview 诚实对外可见）', SCENARIOS.every(s => { const md = readFileSync(join(runs[s].outDir, 'report.md'), 'utf8'); return md.indexOf('预览说明块') >= 0 && md.indexOf('capability 1 of 5 · preview') >= 0 && md.indexOf('fixture: synthetic') >= 0 && md.indexOf('⚠ unverified') >= 0; }));
 
 // ---------- E. synthetic 诚实（合成数据不冒充真实审计——D-038 硬契约） ----------
 t('E1 subject_ref 以 fixture- 署名（合成语料身份机检）', SCENARIOS.every(s => json(join(runs[s].outDir, 'report.json')).subject_ref.indexOf('fixture-') === 0));

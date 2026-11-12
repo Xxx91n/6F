@@ -114,7 +114,7 @@ export function renderTemplateNarrative(r: Pick<Report, 'quadrants' | 'degraded_
   const quads = r.quadrants.map(function (q) { return q.quadrant; }).join('·');
   const text = [
     '本段为内核模板叙事（降级兜底 ' + UNVERIFIED_MARK + '）：',
-    '四象限覆盖 ' + quads + '，各维度判定见 C2 结构化裁决块（本段不重复断言任何判定）；',
+    '四象限覆盖 ' + quads + '，各维度判定见 C2 的裁决明细（本段不重复断言任何判定）；',
     '证据与引文支持关系见 C3；降级原因：' + (r.degraded_reason ? r.degraded_reason : '未声明') + '。',
     '正式叙事由宿主 agent 通过事实表只读投影取数后生成，模板叙事不替代正式叙事。'
   ].join('');

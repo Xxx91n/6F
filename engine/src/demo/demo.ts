@@ -241,7 +241,7 @@ export function runDemo(opts: DemoOptions): DemoResult {
     ];
     const recommendations: Recommendation[] = [
       { rec_id: 'R-45-' + R + '-1', priority: 'P1', action: '对真实目标仓跑同一链路：`macro-audit repo add <path|url>` 接入后按 Macro-B 标准进行审计——本报告为合成 fixture 演示，not an audit of any real repository', rationale: 'D-038 硬契约：合成数据不冒充真实审计结论；本演示只证管线形态与披露面', expected_impact: '获得真实审计结论而非演示数据', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-45-' + R + '-07'], degraded_note: null },
-      { rec_id: 'R-45-' + R + '-2', priority: 'P3', action: '供应链象限维持「⚠ 数据未接」：Scorecard/repomix 按层需求队列接入不插队（D-034③④）', rationale: 'preview 诚实形态保持——supply-chain: ' + UNVERIFIED_MARK + ' 为披露块常驻印记', expected_impact: '披露诚实性保持', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-45-' + R + '-01'], degraded_note: null }
+      { rec_id: 'R-45-' + R + '-2', priority: 'P3', action: '供应链象限维持「⚠ 数据未接」：Scorecard/repomix 按层需求队列接入不插队（D-034③④）', rationale: 'preview 诚实形态保持——supply-chain: ' + UNVERIFIED_MARK + ' 是预览说明里固定要带的一条', expected_impact: '披露诚实性保持', effort: 'S', verdict_gate_stamp: ADJUDICATION_PROTOCOL_VERSION + ' / ' + strategyBand, evidence_refs: ['EV-45-' + R + '-01'], degraded_note: null }
     ];
     const HEADLINE = def.repo.name + ' demo（capability 1 of 5 · preview · synthetic fixture）：' + probes.commitCount + ' commits / ADR ' + ev.tc2.total + ' 份 / facts ' + col.realFacts.length + '——TC-1 ' + ev.tc1.verdict + '（n=' + ev.tc1.judgeable_n + '）、TC-2 ' + ev.tc2.verdict + '（mean=' + measurements.tc2.mean_ratio_4 + '）、TC-3 ' + ev.tc3.verdict + '（' + measurements.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '。not an audit of any real repository——合成语料不冒充真实审计（D-038）。';
 

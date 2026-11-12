@@ -743,7 +743,7 @@
       "rec_id": "R-45-HAPPYPATH-2",
       "priority": "P3",
       "action": "供应链象限维持「⚠ 数据未接」：Scorecard/repomix 按层需求队列接入不插队（D-034③④）",
-      "rationale": "preview 诚实形态保持——supply-chain: ⚠ unverified 为披露块常驻印记",
+      "rationale": "preview 诚实形态保持——supply-chain: ⚠ unverified 是预览说明里固定要带的一条",
       "expected_impact": "披露诚实性保持",
       "effort": "S",
       "verdict_gate_stamp": "ADR-0013-C/v1 / supported",
