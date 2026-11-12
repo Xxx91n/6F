@@ -9,7 +9,7 @@
 //   G docs-ci 只跑一条的规矩：ubuntu/node24、paths 覆盖、复用 check:docs、#97 的 drift 检查（gen 后 diff 即红）、不建第二套校验
 //   H engine-ci 矩阵/路径边界：仍为 [22,24]，不承载文档检查
 //   I contracts-run 以 *-check.mjs 命名自动纳入；smoke 链与 check:docs 链同源
-//   K 版本账引用形制：[Unreleased] 节零裸 GitHub 引用（tracker #N 口径，tracker #106；旧票 #N 与反引号字面量豁免）
+//   K 版本记录引用形制：[Unreleased] 节零裸 GitHub 引用（tracker #N 口径，tracker #106；旧票 #N 与反引号字面量豁免）
 //   J 本检查无 BOM + LF
 // 负对照（注入普查面后必须 exit 1）：--inject-adr=ADR-9998 / --inject-dcode=D-999 / --inject-anchor=§D-004
 // 纪律：只读不写（git ls-files / git hash-object 只读 + fs 读），零写仓内状态；exit 0 + PASS N/N 为绿。
@@ -629,11 +629,11 @@ const checkDocs = String(pkg.scripts['check:docs'] || '');
 t('I4 check:docs 一处配齐 ack/docs-authority 两段',
   ['gen-acknowledgments.mjs --check', 'docs-authority-check.mjs'].every(s => checkDocs.includes(s)));
 
-// ---------- K. 版本账 GitHub 引用形制（tracker #N 口径，tracker #106） ----------
+// ---------- K. 版本记录 GitHub 引用形制（tracker #N 口径，tracker #106） ----------
 // authority §3「新写按节判」的执行面：[Unreleased] 节永远算现行文本，节内 GitHub 引用一律
 // `tracker #N`；已发布节随 release cut 冻结成历史文本，本检查不碰。豁免两形：`旧票 #N`（旧
 // BACKLOG 号不是 GitHub 引用，加 tracker 前缀反而造错——本仓评审实证过的坑）和反引号内的
-// 字面量。其余文件不设机检边界（PR 人审顺手归一），这里只钉版本账这一节。
+// 字面量。其余文件不设机检边界（PR 人审顺手归一），这里只钉版本记录这一节。
 // [Unreleased] 节正文：从标题行到下一个 `## ` 标题行为止；没有这一节返回 null，交给调用处判红。
 function unreleasedSection(text) {
   const lines = text.split('\n');
