@@ -1,13 +1,13 @@
-// 47-check.mjs — #47 托管平台 API 适配器守卫（R8-01 / A-055 / D-048；GitHub REST+env token 主路、gh 认证态可选回退）
-// 断言面：A 适配器源+dist 产物标记 → B 五 cassette（存在/recorded 标注/token 泄漏扫描/关键响应头）
-//   → C 测试在 smoke 链且实跑 PASS → D dist 模块契约语义（三级探测/Bot 双检/仓引用/限流）
-//   → E 锁表 github-rest→active＋README/CHANGELOG 同源 → F 文档记录回写 → G BOM
-// 纪律：只读断言 + node test 子进程（cassette 离线回放，零网络）；exit 0 + PASS N/N 为绿。
+// 47-check.mjs — #47 托管平台 API 适配器的检查（R8-01 / A-055 / D-048；GitHub REST 加 env token 走主路、gh 认证态可选回退）
+// 查这几面：A 适配器源码和 dist 产物有没有标记 → B 五个 cassette（在不在、recorded 怎么标、有没有 token 泄漏、关键响应头对不对）
+//   → C 测试在不在 smoke 链里、真跑过不过 → D dist 模块的契约语义（三级探测/Bot 双检/仓引用/限流）
+//   → E 锁表 github-rest→active，README/CHANGELOG 同源 → F 文档记录写回去了 → G 有没有 BOM
+// 纪律：只读检查 + node test 子进程（cassette 离线回放，不联网）；exit 0 加 PASS N/N 就是绿。
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
-// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+// guard-meta（D-159②/D-160③ 得自己声明——声明缺了就是红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '#47 托管平台 API 适配器守卫（R8-01 / A-055 / D-048）';
 
@@ -25,7 +25,7 @@ function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } 
 function txt(p) { return readFileSync(p, 'utf8'); }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 
-// ---------- A. 适配器源 + dist 产物 ----------
+// ---------- A. 适配器源码和 dist 产物 ----------
 t('A1 src/upstream/github-rest.ts 在', existsSync(SRC));
 const src = existsSync(SRC) ? txt(SRC) : '';
 t('A2 API 版本常量 pin=2022-11-28', src.includes("GITHUB_API_VERSION = '2022-11-28'"));
@@ -41,12 +41,12 @@ t('A7 planned 面登记（pulls.reviews/comments 不入最小集）',
   src.includes('pulls.reviews') && src.includes('pulls.comments'));
 t('A8 raw 响应不出边界 + 凭据不建存储文案', src.includes('credential_storage') || src.includes('即用即清'));
 t('A9 dist/upstream/github-rest.js 编译产物在（测试作用于 dist）', existsSync(DIST));
-t('A10 diff 兜底缩小范围至 spec（本地 diff 失败不再改道 API——无 -> api fallback 残留）',
+t('A10 本地 diff 失败就缩到 spec，不再绕去 API（源码里没有 -> api fallback 这个残留）',
   !src.includes('-> api fallback') && src.includes("error_kind: 'local-diff'") && src.includes('api diff channel (base/head 本地缺席)'));
 t('A11 callLog 条目携带 retried/error_kind 真值 + 共用发射器 emitCallLog 三路径同源',
   src.includes('retried: boolean;') && src.includes('error_kind: GithubApiErrorKind;') && src.includes('emitCallLog') && src.includes('logAttempt'));
 
-// ---------- B. golden cassette ×5 ----------
+// ---------- B. 五份 golden cassette ----------
 const cassettes = ['authenticated', 'unauthenticated-degraded', 'rate-limit-exhausted', 'schema-drift', 'platform-bot'];
 t('B1 五 cassette 全在', cassettes.every((n) => existsSync(join(FXD, n + '.cassette.json'))));
 const casObjs = cassettes.map((n) => (existsSync(join(FXD, n + '.cassette.json')) ? JSON.parse(txt(join(FXD, n + '.cassette.json'))) : null));
@@ -64,7 +64,7 @@ t('B6 漂移带=实录制派生（derived）且行缺字段', drift && drift.rec
 t('B7 无认证带 source 标注诚实（无 gh/借读/token 字样，含无认证自述）',
   unauth && typeof unauth.source === 'string' && !/gh|借读|token/i.test(unauth.source) && /无认证|unauth/i.test(unauth.source));
 
-// ---------- C. 测试入 smoke 链且实跑 PASS ----------
+// ---------- C. 测试在 smoke 链里，真跑过不过 ----------
 const testP = join(ENG, 'test', 'github-rest.test.mjs');
 t('C1 test/github-rest.test.mjs 在', existsSync(testP));
 const pkg = JSON.parse(txt(join(ENG, 'package.json')));
@@ -74,7 +74,7 @@ const tout = (tr.stdout || '') + (tr.stderr || '');
 const m = tout.match(/GITHUB-REST (\d+)\/(\d+)/);
 t('C3 github-rest 测试实跑 exit 0 + PASS N/N（同值判）', tr.status === 0 && m && m[1] === m[2] && Number(m[1]) >= 40, m ? m[0] : tout.slice(-200));
 
-// ---------- D. dist 模块契约语义（纯函数面，零网络） ----------
+// ---------- D. dist 模块的契约语义（纯函数这一面，不联网） ----------
 const G = await import(pathToFileURL(DIST).href);
 t('D1 凭据三级探测纯函数：env-token/gh-token/unauthenticated 三态可达',
   G.resolveGithubCredential({ GITHUB_TOKEN: 'X' }, () => ({ available: false, token: null })).strategy === 'env-token' &&
@@ -93,19 +93,19 @@ t('D5 schema 漂移明确抛 GithubSchemaDrift',
   (() => { try { G.parsePrSummaryRow({ number: 1 }); return false; } catch (e) { return e.name === 'GithubSchemaDrift'; } })());
 t('D6 限流头解析字段齐备', (() => { const r = G.parseRateLimitHeaders({ 'x-ratelimit-limit': '5000', 'x-ratelimit-remaining': '4999', 'x-ratelimit-used': '1', 'x-ratelimit-reset': '1', 'retry-after': '5' }); return r && r.limit === 5000 && r.remaining === 4999 && r.retry_after_seconds === 5; })());
 
-// ---------- E. 锁表 + 文档同源 ----------
+// ---------- E. 锁表和文档同源 ----------
 const lock = txt(LOCK);
 const gi = lock.indexOf('id: github-rest');
 const grow = lock.slice(gi, lock.indexOf('next_review:', gi));
 t('E1 锁表 github-rest status=active', /status: active/.test(grow));
-t('E2 锁表 adapter 指针回填', /adapter: "engine\/src\/upstream\/github-rest\.ts/.test(grow));
+t('E2 锁表里的 adapter 指针补写回去了', /adapter: "engine\/src\/upstream\/github-rest\.ts/.test(grow));
 t('E3 锁表 version/pin_type=api-version 填实', grow.includes('version: "2022-11-28"') && grow.includes('pin_type: api-version'));
 const rd = txt(join(REPO, 'README.md'));
 t('E4 README §3 GitHub REST 行=已接入（active）', /\| GitHub REST API \|[^\n]*已接入（active） \|/.test(rd));
 const ec = txt(join(ENG, 'CHANGELOG.md'));
 t('E5 engine CHANGELOG Unreleased 含 #47 条目引锁表', ec.includes('#47') && ec.includes('github-rest'));
 
-// ---------- F. 文档记录回写 ----------
+// ---------- F. 文档记录写回去了 ----------
 const rep = existsSync(join(REPO,'engine','test','fixtures','contracts','47-report.md')) ? txt(join(REPO,'engine','test','fixtures','contracts','47-report.md')) : '';
 t('F5 47-report.md 在且六段齐备（①~⑥）', existsSync(join(REPO,'engine','test','fixtures','contracts','47-report.md')) && ['①', '②', '③', '④', '⑤', '⑥'].every((x) => rep.indexOf(x) >= 0));
 

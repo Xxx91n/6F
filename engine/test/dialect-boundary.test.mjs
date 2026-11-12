@@ -1,7 +1,7 @@
 // dialect-boundary.test.mjs —— #81 quarantine 方言归一缺陷修回归册（D-128；字段级病态三态分流）
 // A=边界吸收器纯契约（确定性枚举面）/ B=dormant 防御纵深（分类器直接收 +00:00 仍留痕）
 // C=gitRunner 注入缝集成：合成 +00:00/Z 双语料→跨方言计数一致＋吸收事件独立面
-// D=真机探针：本仓实跑——跨宿主 stats 归 clean（缺陷实证面）
+// D=真机跑一遍：本仓实跑——跨宿主 stats 归 clean（缺陷实证面）
 import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -33,7 +33,7 @@ t('A6 边界不 throw（null/undefined/空串原样放行）', (function () { tr
 
 // ---------- B. dormant 防御纵深（D-128③ impl 裁定：词表+分类器路径保留） ----------
 const b1 = Q.classifyGitIsoField('2005-04-07T22:13:13+00:00');
-t('B1 分类器直收 +00:00（旁路）仍 normalized/normalized_tz_offset——dormant 保留 defense-in-depth', b1.status === 'normalized' && b1.value === '2005-04-07T22:13:13Z' && b1.reason_code === 'normalized_tz_offset');
+t('B1 分类器直接收 +00:00（绕过边界）仍 normalized/normalized_tz_offset——dormant 保留 defense-in-depth', b1.status === 'normalized' && b1.value === '2005-04-07T22:13:13Z' && b1.reason_code === 'normalized_tz_offset');
 t('B2 normalized_tz_offset 仍在词表（删改破坏纪律——码不删只休眠）', Q.QUARANTINE_REASON_CODES.indexOf('normalized_tz_offset') >= 0);
 
 // ---------- C. gitRunner 注入缝：合成 +00:00/Z 双语料跨方言计数一致（#81 票面 e 款） ----------
@@ -62,7 +62,7 @@ t('C5 headDate 跨方言一致（锚值规范形）', pZ.headDate === pOff.headD
 t('C6 fieldEvents 双语料均空（方言事件不入 quarantine 域——披露面与测量面分离）', pOff.fieldEvents.length === 0 && pZ.fieldEvents.length === 0);
 t('C7 吸收事件形={field_name,commit_sha,rule_id,raw,canonical}', pOff.dialectAbsorptions.every(function (e) { return e.field_name && e.commit_sha && e.rule_id && e.raw && e.canonical; }) && pOff.dialectAbsorptions.filter(function (e) { return e.field_name === 'head_date'; }).length === 1);
 
-// ---------- D. 真机探针：本仓实跑（宿主 git 方言无关——stats 归 clean 跨宿主稳定） ----------
+// ---------- D. 真机跑一遍：本仓实跑（和宿主 git 方言无关——stats 归 clean、跨宿主稳定） ----------
 let realHead = '';
 try { realHead = execFileSync('git', ['-C', REPO, 'rev-parse', '--verify', 'HEAD'], { encoding: 'utf8' }).trim(); } catch (e) {}
 if (realHead) {

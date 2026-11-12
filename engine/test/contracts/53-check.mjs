@@ -1,10 +1,10 @@
-// 53-check.mjs —— #53 `macro-audit audit` 一等命令守卫（D-060 八要素）
-// 断言面：A=签名面（cli.ts audit 分发 + usage 行 + README 同票绑定）
+// 53-check.mjs —— #53 `macro-audit audit` 一等命令检查（D-060 八要素）
+// 查什么：A=签名面（cli.ts audit 分发 + usage 行 + README 同票绑定）
 //   → B=--scale 诚实拒绝（未实装层 exit 2 + SCALE-NOT-IMPLEMENTED 结构化 JSON，不假装）
-//   → C=--out 双通道实跑（五工件落盘 + stdout 回执 JSON 契约字段集）＋省略 --out 报告 md 走 stdout＋C4 verdict_gate 改名钉（F11/D-064①）
+//   → C=--out 双通道实跑（五工件落盘 + stdout 回执 JSON 契约字段集）＋省略 --out 报告 md 走 stdout＋C4 verdict_gate 改名要固定住（F11/D-064①）
 //   → D=共享管线消费（audit.ts/demo.ts 同 import audit/macro-b.ts 链件）
 //   → E=golden parity：audit sidecar 字段路径 ⊆ 39 one-shot 复跑产物（39/40=回归对照物非主入口）
-//   → F=报告头 preview 披露（stability=preview + capabilities=[macro-b] 机读面）＋快照时点披露
+//   → F=报告头 preview 披露（stability=preview + capabilities=[macro-b] 机器能读的字段）＋快照时点披露
 //   → G=audit 不携叙事职责（kernel 面 facts+骨架；叙事=宿主 MCP 读数）
 //   → H=本票新增/改动文件无 BOM（UTF-8 禁字节序标记）
 // 纪律：只读断言＋临时目录实跑（合成 git 仓，跑完即弃）；exit 0 + PASS N/N 为绿。
@@ -16,7 +16,7 @@ import { tmpdir } from 'node:os';
 import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
-// D-214① consumption_forms（多形态消费方——B3/C/E/F/G 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→对应组 SKIP，仓内段照跑）。
+// D-214① consumption_forms（多形态消费方——B3/C/E/F/G 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位，全部检查项都判；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→对应组 SKIP，仓内段照跑）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#53 `macro-audit audit` 一等命令守卫（D-060 八要素）';
 
@@ -117,8 +117,8 @@ if (groupProbe('53-check', 'E', DEP53)) {
     const core = ['repo', 'root', 'observed_at', 'head_sha', 'tree_sha', 'commit_count', 'adr_count', 'intent_docs', 'fact_count', 'tc1', 'tc2', 'tc3', 'nc1', 'pc1', 'pc2'];
     const coreMiss = core.filter(function (k) { return !(k in mAu); });
     t('E4 audit measurements 含 39 全部核心字段（39 集合 ⊆ audit 集合；audit 扩展项=intake/behavior 披露面）', coreMiss.length === 0, 'miss=' + coreMiss.join(','));
-    t('E5 39 侧车 intake_health.fields 为数组且非空（#42 workflow 断言同源守卫）', !!s39.intake_health && Array.isArray(s39.intake_health.fields) && s39.intake_health.fields.length > 0, 'fields=' + (s39.intake_health && Array.isArray(s39.intake_health.fields) ? s39.intake_health.fields.length : 'absent/null'));
-    // #42 复审（CodeRabbit nitpick）：paths() 只对对象下钻，数组元素字段面 E2 看不见——intake_health.fields 条目另比（E3 同型补位）。
+    t('E5 39 侧车 intake_health.fields 为数组且非空（#42 workflow 断言同一来源）', !!s39.intake_health && Array.isArray(s39.intake_health.fields) && s39.intake_health.fields.length > 0, 'fields=' + (s39.intake_health && Array.isArray(s39.intake_health.fields) ? s39.intake_health.fields.length : 'absent/null'));
+    // #42 复审（CodeRabbit 提的小意见）：paths() 只往对象里钻，数组元素上的字段 E2 看不到——所以 intake_health.fields 的条目另比一遍（E3 用同一个办法补上）。
     // 不做通用数组下钻：实测会把 quadrants[].slice_fields 的引擎扩展项一并拉进无豁免比较（FAIL E2 drift=6 项）——那是另一张票的豁免议题。
     // 39 侧 quarantined_rows 恒空（首个病态即 normalizeGitIsoDate 抛＝崩溃桶无 sidecar），对其条目断言必永远通过，故只比 fields。
     const ih39Fields = (s39.intake_health || {}).fields || [];
@@ -150,7 +150,7 @@ if (groupProbe('53-check', 'F', DEP53)) {
 // ---------- G. 不携叙事职责 ----------
 if (groupProbe('53-check', 'G', DEP53)) {
   const sAu2 = existsSync(join(OUTA, 'report.json')) ? JSON.parse(txt(join(OUTA, 'report.json'))) : null;
-  t('G1 narrative_sections 空或仅 kernel/host 兜底（audit 不携宿主叙事生成职责）', !!sAu2 && (sAu2.narrative_sections.length === 0 || sAu2.narrative_sections.every(function (s) { return s.author === 'kernel-template' || s.author === 'host'; })), 'n=' + (sAu2 ? sAu2.narrative_sections.length : 'n/a'));
+  t('G1 narrative_sections 空或仅 kernel/host 的退路（audit 不担宿主叙事生成职责）', !!sAu2 && (sAu2.narrative_sections.length === 0 || sAu2.narrative_sections.every(function (s) { return s.author === 'kernel-template' || s.author === 'host'; })), 'n=' + (sAu2 ? sAu2.narrative_sections.length : 'n/a'));
 }
 
 // ---------- H. BOM ----------

@@ -1,7 +1,7 @@
 // codelore-batch1.test.mjs — 首批 30 面逐面 golden 契约测试（#35/A-040/D-035①；#31 cassette 回放先例扩展）
-// 断言面 = cassette 字节未漂（sha256）+ 行数/列契约 vs manifest（独立计量源）+ 首行 spot 值钉死
-//        + 漂移/畸形输入拒绝（红证）+ collect 注入面（无真二进制依赖，CI 可跑）+ 适配层零业务规则词。
-// 测试绝不调真实 codelore 二进制——录制/探针在 reports/35-probe.mjs。
+// 查什么 = cassette 字节未漂（sha256）+ 行数/列契约 vs manifest（另一份独立计量源）+ 首行 spot 值固定住
+//        + 漂移/畸形输入拒绝（证明这里真会红）+ collect 注入面（没有真二进制依赖，CI 可跑）+ 适配层零业务规则词。
+// 测试绝不调真实的 codelore 二进制——录制和先试的那段在 reports/35-probe.mjs。
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -19,7 +19,7 @@ const ADAPTER_SRC = readFileSync(join(root, 'src', 'upstream', 'codelore.ts'), '
 let n = 0;
 const t = (name, fn) => { fn(); n++; };
 
-// ---------- A. 面集对账（适配器契约表 == manifest == 首批名单） ----------
+// ---------- A. 分析项组对账（适配器契约表 == manifest == 首批名单） ----------
 t('A1 manifest 契约面=30 且族划分 12+6+12', () => {
   const names = Object.keys(manifest.facets);
   assert.equal(names.length, 30);
@@ -56,7 +56,7 @@ for (const [name, spec] of Object.entries(manifest.facets)) {
       assert.deepEqual(C.facetColumns(rows), spec.columns, name + ' columns drift');
       assert.equal(rows[0][spec.spot.key], spec.spot.value, name + ' spot value drift');
     } else {
-      // 空结果面：json 断言空数组语义；列契约由 csv cassette 逐字节钉死（sha256 回验）
+      // 空结果面：json 断言空数组语义；列契约由 csv cassette 逐字节固定住（sha256 回验）
       assert.deepEqual(rows, []);
       assert.ok(spec.columns.length > 0 && spec.columns_source === 'csv-header', name + ' empty-facet column contract missing');
       const csvPath = join(FX, spec.csv_file);
@@ -68,7 +68,7 @@ for (const [name, spec] of Object.entries(manifest.facets)) {
   });
 }
 
-// ---------- C. 红证：漂移/畸形输入拒绝 ----------
+// ---------- C. 坏输入要能判红：漂移的、形状不对的输入都得拒掉 ----------
 t('C1 非数组 JSON 被拒', () => {
   assert.throws(() => C.parseJsonRows('{"a":1}'), /not an array/);
 });

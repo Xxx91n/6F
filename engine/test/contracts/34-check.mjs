@@ -1,11 +1,11 @@
-// #34 常驻守卫 —— plugin.json Agent Plugins 1.0.0 结构断言（零依赖；ajv 一次性校验留证见 34-report.md）
-// 断言面：$schema const / required 字段 / additionalProperties 白名单 / name pattern / extensions 反向域名对象图 / gen 产物一致性
+// #34 常驻检查 —— plugin.json 的 Agent Plugins 1.0.0 结构断言（不引三方依赖；ajv 一次性校验留证见 34-report.md）
+// 查这些：$schema const / required 字段 / additionalProperties 白名单 / name pattern / extensions 反向域名对象图 / gen 产物一致性
 import fs from 'node:fs';
 import { execSync, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+// guard-meta（D-159②/D-160③ 得自己声明——声明缺了就是红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '#34 常驻守卫 —— plugin.json Agent Plugins 1.0.0 结构断言（零依赖；ajv 一次性校验留证见 34-rep';
 
@@ -47,7 +47,7 @@ const srv = m2.mcpServers && m2.mcpServers['macro-audit-kernel'];
 t('G9 claude 侧 manifest 不回归（skills 路径形+.mcp.json 自动发现位=node+${CLAUDE_PLUGIN_ROOT} 自包含）', Array.isArray(p2.skills) && p2.skills.every(s => typeof s === 'string' && s.startsWith('./skills/')) && srv && srv.command === 'node' && Array.isArray(srv.args) && srv.args[0] === '${CLAUDE_PLUGIN_ROOT}/dist/cli.js' && srv.args[1] === 'mcp');
 t('G10 版本三方一致', pj.version === p2.version && p2.version === meta.version);
 
-// G11: gen 重跑产物幂等——幂等断言故意实跑生成器，检出漂移即恢复三产物原件（守卫不在被检树留改写）
+// G11: gen 重跑出来的产物要幂等——幂等这条断言故意真跑一遍生成器，一发现漂移就把三份产物恢复原样（本检查不在被检树里留改写）
 const WATCH = ['plugin.json', '.claude-plugin/plugin.json', '.mcp.json'];
 const snapshots = WATCH.map(f => fs.readFileSync(join(ENGINE, f)));
 try {
@@ -60,8 +60,8 @@ try {
   t('G11 gen 重跑幂等', false, String(e).slice(0, 120));
 }
 
-// G12~G14: #59/D-067 kernel 自包含分发面——command 禁裸名 PATH 反模式钉死＋dist 可运行体随源进仓
-t('G12 .mcp.json command 禁裸名（node 或含 ${CLAUDE_PLUGIN_ROOT}——官方排错表反模式钉死）', srv && (srv.command === 'node' || (typeof srv.command === 'string' && srv.command.indexOf('${CLAUDE_PLUGIN_ROOT}') >= 0)));
+// G12~G14: #59/D-067 kernel 自包含分发这一面——command 不许写裸名字（PATH 反模式固定住）＋dist 可运行体随源码进仓
+t('G12 .mcp.json 的 command 不许写裸名字（node 或者带 ${CLAUDE_PLUGIN_ROOT}——官方排错表里的反模式，固定住）', srv && (srv.command === 'node' || (typeof srv.command === 'string' && srv.command.indexOf('${CLAUDE_PLUGIN_ROOT}') >= 0)));
 const distCliPath = join(ENGINE, 'dist', 'cli.js');
 const distSrc = fs.existsSync(distCliPath) ? fs.readFileSync(distCliPath, 'utf8') : '';
 t('G13 dist/cli.js 在且自包含 bundle（无相对模块 import——git-clone 可运行体随源进仓）', distSrc.length > 0 && !/from\s+['"]\.{1,2}\/|require\(\s*['"]\.{1,2}\//.test(distSrc) && distSrc.startsWith('#!'));
@@ -69,7 +69,7 @@ t('G14 engine/.gitignore 放开 dist/（dist 入库前置）', !/^dist\/?\s*$/m.
 
 
 // ---------- #58 / D-066 manifest 契约链扩 ----------
-// shape 钉 enforce：skills ^\./ 裸名 fail／mcp 裸字段 fail／单一 .mcp.json＋无兄弟 mcp.json 同位遮蔽（cursor#252）；
+// 形状这一面要严：skills ^\./ 写裸名就 fail／mcp 写裸字段就 fail／只留一个 .mcp.json、不许有兄弟 mcp.json 盖住它（cursor#252）；
 // unknown-field=WARN（SchemaStore 滞后容忍勿照搬 fatal）；advisory=`claude plugin validate --strict`（WARN 不红＋SKIP 硬化）
 let warn58 = 0;
 const w58 = (name, ok, extra) => { console.log((ok ? 'PASS ' : 'WARN ') + name + (extra ? ' | ' + extra : '')); ok ? pass++ : warn58++; };
@@ -80,14 +80,14 @@ const ccKeys = Object.keys(p2);
 const ccUnknown = ccKeys.filter(k => WL58.indexOf(k) < 0);
 const skillPath = s => typeof s === 'string' && s.indexOf('./') === 0;
 
-t('G15 两份 plugin.json skills 值 ^\./ 路径形（裸名 fail——事故①钉死）',
+t('G15 两份 plugin.json 的 skills 值都是 ^\./ 这种路径形（写裸名就 fail——事故①，固定住）',
   (!('skills' in pj) || (Array.isArray(pj.skills) && pj.skills.every(skillPath)))
   && Array.isArray(p2.skills) && p2.skills.every(skillPath),
   'cc.skills=' + JSON.stringify(p2.skills));
 
 t('G16a SchemaStore 快照本体合法（title＋properties 非空——进仓快照，禁运行时拉取）',
   !!SCHEMA58.title && Object.keys(SCHEMA58.properties || {}).length > 0, 'title=' + SCHEMA58.title);
-t('G16b claude manifest 无 mcp 裸字段（事故②钉死——FAIL）', ccKeys.indexOf('mcp') < 0, 'keys=' + ccKeys.join(','));
+t('G16b claude 侧 manifest 没有 mcp 裸字段（事故②，固定住——FAIL）', ccKeys.indexOf('mcp') < 0, 'keys=' + ccKeys.join(','));
 w58('G16c claude manifest 顶层字段白名单＝SchemaStore props∪$schema（unknown-field=WARN 勿照搬 fatal）',
   ccUnknown.length === 0, 'unknown=' + ccUnknown.join(','));
 

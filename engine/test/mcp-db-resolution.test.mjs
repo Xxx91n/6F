@@ -14,7 +14,7 @@ function check(name, pass, detail) { results.push([name, !!pass, detail || '']);
 M.setMcpServerConfig({ db: 'C:/srv/db.duckdb' });
 delete process.env.MACRO_AUDIT_FACTS_DB;
 check('R1 arguments.db 优先（明确入参压一切）', M.resolveFactsDb('D:/arg/x.duckdb') === 'D:/arg/x.duckdb');
-check('R2 server --db argv 兜底（mcp.json args 配置面）', M.resolveFactsDb(undefined) === 'C:/srv/db.duckdb');
+check('R2 server --db argv 退路（mcp.json args 配置面）', M.resolveFactsDb(undefined) === 'C:/srv/db.duckdb');
 process.env.MACRO_AUDIT_FACTS_DB = 'E:/env/facts.duckdb';
 check('R3 env 在 argv 缺席时补位但让位 argv', M.resolveFactsDb(undefined) === 'C:/srv/db.duckdb');
 M.setMcpServerConfig({});

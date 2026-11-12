@@ -1,16 +1,16 @@
-// _lib/env-contract.mjs — 守卫环境契约 SSOT（D-159④ 下沉；D-163①③④⑥ 泛化扩展；D-164-a groupProbe 组级探测）
+// _lib/env-contract.mjs — 检查脚本的环境契约，只写这一处（D-159④ 下沉；D-163①③④⑥ 泛化扩展；D-164-a groupProbe 组级探测）
 //   need 类型五族（原四族；第五类 git-history: 由 D-215② 入册——D-163①「四类→五类」scoped 勘误注记三同窗之一，D-146⑤ 文法）：
 //     sibling:<name>     —— GUARD_SIBLING_ROOT 下外部仓工作树（画像/对照组前置）
-//     git-object:<sha>   —— 冻结 commit/tree 对象（幽灵钉——非分支祖先 clone 不携带；
+//     git-object:<sha>   —— 冻住的 commit/tree 对象（不是任何分支的祖先，clone 带不回来；
 //                          首选临时仓零写入读法物化：mkdtemp init→unbundle 借主仓 objects→
 //                          主仓 GIT_ALTERNATE_OBJECT_DIRECTORIES 反借，零写主仓 object store〔D-074〕）
 //     engine-deps:<spec> —— engine/node_modules 原生绑定等可 require 依赖（dist 已入库≠依赖已装）
 //     asset:<spec>       —— gitignored 外部资产（如 40-clone-cache——设计不入仓须另行播种）
 //     git-history:<spec> —— 完整历史可达性（浅克隆检出·对象库形状不含深历史·历史可达性子面本环境不可判；
-//                          历史可达性子面本环境不可判；粒度=portable 守卫组级 need 非整件 env-contract 前置〔D-215③〕；
-//                          修复面禁在守卫运行主仓 fetch 写 object store〔D-074〕）
+//                          历史可达性子面本环境不可判；粒度=portable 检查脚本的组级 need，不是整件的 env-contract 前置〔D-215③〕；
+//                          修复面禁在检查脚本运行的主仓里 fetch 写 object store〔D-074〕）
 //   SKIP reason 三段式（D-072 修复指引文法）：原因 → 手动修复命令 → 无网影响面。
-//   envProbe=整件级前置闸（缺一即整件 SKIP 出 0）；groupProbe=组级前置闸（缺一组跳一组，
+//   envProbe=整件级的前置闸（缺一即整件 SKIP 出 0）；groupProbe=组级的前置闸（缺一组跳一组，
 //   其余组照跑——46-check B/C 挂 sibling 而 A/D/E 零需 portable 段的精化面）。
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { join, isAbsolute, delimiter } from 'node:path';
@@ -19,7 +19,7 @@ import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { guardSkip } from './check-kit.mjs';
 
-// 本仓画像的 sibling 根——守卫一律走 siblingPath()，禁散落字面路径
+// 本仓画像的 sibling 根——检查脚本一律走 siblingPath()，禁散落字面路径
 export const GUARD_SIBLING_ROOT = process.env.GUARD_SIBLING_ROOT || 'D:/Aworker';
 
 // sibling 仓名 → 磁盘目录名（仓 rename 只改这处，D-159④）
@@ -47,7 +47,7 @@ const FIX = {
   'engine-deps:': (name) => '原因：engine/node_modules 原生依赖 ' + name.slice('engine-deps:'.length) + ' 不可加载（dist 随仓入库但 npm 依赖未装，或其平台原生绑定缺席）；手动修复：cd engine && npm ci（package-lock 锁定树；npm 新版默认关 install-scripts 时 @duckdb 绑定走依赖包通道不受影响）；无网影响面：npm ci 需 registry 访问，离线环境不可修、维持 SKIP',
   'asset:': (name) => '原因：gitignored 外部资产 ' + name.slice('asset:'.length) + ' 缺席（设计不入仓）；手动修复：重新播种或从已有机位复制该目录；无网影响面：视播种源而定——远端 clone 源须联网一次',
   // D-215① 第五类三段式（修正 C 草稿）：历史可达性子面前置——浅克隆对象库形状不含深历史，需 cat-file 的历史判定环境性不可判。
-  //   修复面禁在守卫运行主仓 fetch --unshallow/--deepen 写 object store（D-074 红线）；加深克隆须联网→离线维持 SKIP-GROUP。
+  //   修复面禁在检查脚本运行的主仓里 fetch --unshallow/--deepen 写 object store（D-074 红线）；加深克隆须联网→离线维持 SKIP-GROUP。
   'git-history:': (name) => '原因：' + name.slice('git-history:'.length) + ' 完整历史在本检出不可得（--is-shallow-repository 为真·对象库形状不含深历史·历史可达性子面本环境不可判）；手动修复：CI checkout 配置 fetch-depth:0 或以完整克隆于独立路径物化后重跑（禁在守卫运行主仓 fetch 写 object store——D-074 边界）；无网影响面：加深克隆须联网·离线环境不可修·该组维持 SKIP-GROUP',
 };
 
@@ -67,9 +67,9 @@ export function envProbe(guardName, needs) {
   if (missing.length) guardSkip(guardName, missing.map(reasonText));
 }
 
-// 组级前置闸（D-164-a①）：needs 缺一即本组跳过（非整件退出）——
-//   吐 SKIP <guard>/<group> 行 + GUARD-RESULT: SKIP-GROUP 机读行，返回 false 供调用面包 if。
-//   组级仍守 D-159③ 三态纪律：SKIP 不算绿、不进 allOk、不算闸过。
+// 组级的前置闸（D-164-a①）：needs 缺一即本组跳过（不是整件退出）——
+//   输出 SKIP <guard>/<group> 行 + GUARD-RESULT: SKIP-GROUP 机器能读的行，返回 false 供调用方包 if。
+//   组级仍守 D-159③ 三态纪律：SKIP 不算绿、不进 allOk、不算通过。
 export function groupProbe(guardName, group, needs) {
   const missing = needs.filter((n) => !n.ok);
   if (!missing.length) return true;
@@ -85,14 +85,14 @@ export function gitObjectOk(repoRoot, sha) {
   return r.status === 0;
 }
 
-// 自仓内 bundle 物化冻结对象：mkdtemp 临时仓 init → unbundle（GIT_ALTERNATE_OBJECT_DIRECTORIES
+// 自仓内 bundle 物化冻住的对象：mkdtemp 临时仓 init → unbundle（GIT_ALTERNATE_OBJECT_DIRECTORIES
 //   借主仓 objects 补 prereq，对象落临时仓）→ 返回 { objectsDir, cleanup }；
 //   调用方把 objectsDir 写入 process.env.GIT_ALTERNATE_OBJECT_DIRECTORIES 后主仓全部 git
-//   只读命令即见冻结对象（alternates 语义天然只读，主仓 object store 零写）。
+//   只读命令即见冻住的对象（alternates 语义天然只读，主仓 object store 零写）。
 export function materializeGitObjects(repoRoot, bundlePath) {
   if (!existsSync(bundlePath)) return null;
   // 临时目录创建也必须在失败路径内：mkdtempSync 抛出的异常若逃出去，调用方（如 43-check 的 B5-GATE）
-  //   就没机会把它报成一条 FAIL，整条 contracts-run 会被栈回溯拉红——与「bundle 缺席」同型（#72）。
+  //   就没机会把它报成一条 FAIL，整条 contracts-run 会被栈回溯拉红——跟「bundle 不在」是一回事（#72）。
   let tmp = null;
   const cleanup = () => { if (!tmp) { return; } try { rmSync(tmp, { recursive: true, force: true }); } catch (_) { /* best-effort */ } };
   try {
@@ -123,9 +123,9 @@ export function gitObjectNeedOk(repoRoot, sha, bundlePath) {
 }
 process.on('exit', () => { for (const c of _gobjCleanups) { try { c(); } catch (_) { /* best-effort */ } } });
 
-// ---------- 基准语料 bundle 的只读物化（#33；D-074 边界） ----------
-// 与 materializeGitObjects 的分工：后者补「主仓对象库里没有的冻结对象」（借 alternates 只读反借，
-//   目标是让主仓的只读 git 命令看得见该对象）；本条补「本仓根本不持有的外部仓语料」——钉的是另一座仓的提交，
+// ---------- 校对用的固定语料 bundle 的只读物化（#33；D-074 边界） ----------
+// 与 materializeGitObjects 的分工：后者补「主仓对象库里没有的冻住的对象」（借 alternates 只读反借，
+//   目标是让主仓的只读 git 命令看得见该对象）；本条补「本仓根本不持有的外部仓语料」——固定住的是另一座仓的提交，
 //   对象永不进主仓对象库，且消费方要的是可 walk 的工作树（docs/adr/*.md 等实物），不是对象可见性。
 // 读法：`git clone <bundle> <dest>` 只写 dest（调用方给 OS 临时目录），bundle 作为 URL 由 git 自己解包，
 //   主仓 objects 零写、零 fetch、零 unbundle 进主仓；bundle 自足（零 prerequisite）故零联网。
@@ -145,7 +145,7 @@ export function engineDepsOk(engRoot, spec) {
 }
 
 // ---------- D-179① 确定性种子化（SOURCE_DATE_EPOCH 式 env 注入；缺席=固定默认 epoch 不取墙钟） ----------
-// 守卫伴生再生面 run 时戳唯一熵源收敛：env 注入=可复现定值（reproducible-builds.org 惯例，秒级 unix epoch）；
+// 检查脚本重跑时，时戳只从一个地方来：env 注入=可复现的定值（reproducible-builds.org 惯例，秒级 unix epoch）；
 //   缺席→固定默认 epoch 0（确定性=默认行为非隐藏开关——D-179⑥）；非法值→throw fail-closed
 //   （悄悄回落会使「明确注入」与「缺席」不可分辨——同 D-179⑥ 语义合）。
 export function deterministicRunAt() {

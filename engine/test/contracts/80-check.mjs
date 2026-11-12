@@ -1,5 +1,5 @@
-// 80-check.mjs — #80 Micro-B 步①守卫（per-file 一等事实发射 + facet_rows raw 证据位 + file_renamed 血缘 + fixture golden）
-// 断言面：A 归一器/血缘/发射源标记在（dist+src 双锚）　→ B facet_rows raw 证据位（role=raw_evidence+append-only 保留）
+// 80-check.mjs — #80 Micro-B 步①检查脚本（per-file 一等事实发射 + facet_rows raw 证据位 + file_renamed 血缘 + fixture golden）
+// 查什么：A 归一器/血缘/发射源标记在（dist+src 双锚）　→ B facet_rows raw 证据位（role=raw_evidence+append-only 保留）
 //   → C 消费面迁移（audit.ts 读源=per-file 重聚合+对账判据调用）　→ D fixture golden（骨架锁 regen→diff empty+测试在 smoke 链）
 //   → E 禁项集反面断言（禁大小写折叠/血缘不进身份/stale 不拒答/miss 不单态——步①可达子集）　→ F BOM/ledger 纪律
 //     ＋ need 族语义与 gitattributes 语义机检（#33 复盘：两者都是「写错了不会红」的悄悄失效型）
@@ -11,7 +11,7 @@ import { dirname, join } from 'node:path';
 import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
-// D-214① consumption_forms（多形态消费方——G8 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→G8 组 SKIP）。
+// D-214① consumption_forms（多形态消费方——G8 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位，所有检查项都能跑；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→G8 组 SKIP）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#80 Micro-B 步①守卫（per-file 一等事实发射 + facet_rows raw 证据位 + file_renamed 血缘 ';
 
@@ -32,7 +32,7 @@ t('A1 subject 归一器 src+dist 在（normalizeSubjectPath/detectCaseOnlyConfli
   /export function normalizeSubjectPath/.test(subjSrc) && /detectCaseOnlyConflicts/.test(subjSrc) && /normalizeSubjectPath/.test(subjDist), '');
 const linSrc = exists(join(ENG, 'src', 'collect', 'file-lineage.ts')) ? txt(join(ENG, 'src', 'collect', 'file-lineage.ts')) : '';
 const linDist = exists(join(ENG, 'dist', 'collect', 'file-lineage.js')) ? txt(join(ENG, 'dist', 'collect', 'file-lineage.js')) : '';
-t('A2 file-lineage src+dist 在（parseRenameLogZ/collectFileLineage/gitRenameLogArgs/detector 版本钉）',
+t('A2 file-lineage src+dist 在（parseRenameLogZ/collectFileLineage/gitRenameLogArgs/detector 版本固定住）',
   /parseRenameLogZ/.test(linSrc) && /collectFileLineage/.test(linSrc) && /gitRenameLogArgs/.test(linSrc) && /rename-detector@v1/.test(linSrc) && /parseRenameLogZ/.test(linDist), '');
 const clSrc = txt(join(ENG, 'src', 'upstream', 'codelore.ts'));
 t('A3 发射边界 per-file 件（emitPerFileFacts/file_facet_row/subjectProbe 注入缝）',
@@ -85,7 +85,7 @@ t('E3 跨版本可复算验证件：e2e 真 git rename 断言在测试内（非�
 // ---------- G. 步② 投影+查询语义（D-123/D-126） ----------
 const fcSrc = exists(join(ENG, 'src', 'fact', 'file-card.ts')) ? txt(join(ENG, 'src', 'fact', 'file-card.ts')) : '';
 const fcDist = exists(join(ENG, 'dist', 'fact', 'file-card.js')) ? txt(join(ENG, 'dist', 'fact', 'file-card.js')) : '';
-t('G1 卡构建器 src+dist 在（buildFileCard+规则版本钉+miss 四类枚举）',
+t('G1 卡构建器 src+dist 在（buildFileCard+规则版本固定住+miss 四类枚举）',
   /export function buildFileCard/.test(fcSrc) && /hotspot_priority_v1/.test(fcSrc) && /never_collected/.test(fcSrc) && /not_tracked_at_sha/.test(fcSrc) && /not_applicable/.test(fcSrc) && /renamed_to/.test(fcSrc) && /buildFileCard/.test(fcDist), '');
 const projSrc = txt(join(ENG, 'src', 'fact', 'projection.ts'));
 t('G2 投影层 projectFileCard（观测集=repo_ref@sha 分组+最新集默认+at pin 常量纪律+ESCAPE 防注入）',
@@ -103,7 +103,7 @@ t('G6 miss 四类+advisory:true+无 verdict/gate 字段+staleness 双字段+rena
   /advisory: true/.test(fcSrc) && /observed_head_sha/.test(fcSrc) && /current_head_sha/.test(fcSrc) && /revalidated/.test(fcSrc) && !/^\s*(verdict|gate_score|gate_)\w*\s*[:=]/m.test(fcSrc), '');
 const fcTest = txt(join(ENG, 'test', 'file-card.test.mjs'));
 const pkgJson = JSON.parse(txt(join(ENG, 'package.json')));
-t('G7 file-card 测试在 smoke 链+断言面覆盖（pin/staleness/miss 四类/补采幂等）',
+t('G7 file-card 测试在 smoke 链+检查项覆盖（pin/staleness/miss 四类/补采幂等）',
   pkgJson.scripts.smoke.indexOf('file-card.test.mjs') >= 0 && /renamed_to/.test(fcTest) && /pin_matches_observed_head/.test(fcTest) && /staleness/.test(fcTest), '');
 // engine-deps 前置（D-163③）：file-card.test 写读真库需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
 if (groupProbe('80-check', 'G8', [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))])) {
@@ -113,13 +113,13 @@ if (groupProbe('80-check', 'G8', [need('engine-deps:@duckdb/node-api', engineDep
 
 // ---------- F. 纪律 ----------
 t('F1 新增源/测试/fixture 文件无 BOM', (() => {
-  // F7i（#83）：钉面更新至步②文件全量（冻结在步①清单=滞后已修——本票面新增件逐件钉）
+  // F7i（#83）：覆盖面更新至步②文件全量（冻在步①清单=滞后已修——本票面新增件逐件固定住）
   const files = ['src/fact/subject.ts', 'src/collect/file-lineage.ts', 'src/fact/file-card.ts', 'src/fact/projection.ts', 'src/fact/store.ts', 'src/audit/file-card.ts', 'src/mcp-server.ts', 'src/cli.ts', 'test/micro-b-emit.test.mjs', 'test/file-card.test.mjs', 'scripts/gen-micro-b-emission-golden.mjs', 'test/fixtures/micro-b/emission-input.json', 'test/fixtures/micro-b/rename-log.ztxt', 'test/fixtures/micro-b/manifest.json', 'test/fixtures/micro-b/emission-skeleton.golden.json'];
   return files.every(f => { const b = fs.readFileSync(join(ENG, f)); return b[0] !== 0xEF; });
 })());
 
 // F2/F3（#33 复盘）：need 族语义与 gitattributes 语义的机检——两者都是「写错了不会有东西红」的悄悄失效型。
-//   F2 的由来：C 组曾把**在仓** frozen bundle 挂进 groupProbe，于是「换钉不一致」失效成 SKIP＝套件仍绿；
+//   F2 的由来：C 组曾把**在仓** frozen bundle 挂进 groupProbe，于是「换的值对不上」失效成 SKIP＝套件仍绿；
 //   asset: 族的语义就是「gitignored 外部资产」，拿它承载在仓制品即违约，而族义是 SSOT，形状错了族义就废了。
 // 只认字面量（末尾紧跟 `+` 的是拼接形态，静态不可判——如 `need('git-object:' + sha)` 这种写法，跳过）；
 // 单双引号都收：只认单引号时，双引号写法的 asset 声明会悄悄漏检，而漏检的表现是「扫不到」＝全绿。
@@ -146,13 +146,13 @@ const f2 = (() => {
   }
   const tracked = spec => spawnSync('git', ['-C', ROOT, 'ls-files', '--', spec], { encoding: 'utf8' }).stdout.trim().length > 0;
   const real = needShapeViolations(needEntries, tracked);
-  // 判别臂活性自证一：抽取面——单引号、双引号都要抽到，拼接形态必须跳过（漏抽＝扫不到＝全绿）
-  //   探针串用字符码拼装：本文件也在扫描范围内，写成字面量会被自己当成真声明抓出来（自指）
+  // 第一道判定证明自己真在检：抽取这一面——单引号、双引号都要抽到，拼接形态必须跳过（漏抽＝扫不到＝全绿）
+  //   试探的那段用字符码拼起来：本文件也在扫描范围内，写成字面量会被自己当成真声明抓出来（自指）
   const q1 = String.fromCharCode(39), q2 = String.fromCharCode(34);
   const probeSrc = ['need(', q1, 'engine-deps:@a/b', q1, ', x); need(', q2, 'asset:engine/baseline-lock.yaml', q2, ', y); need(', q1, 'git-object:', q1, ' + SHA, z);'].join('');
   const probeHits = Array.from(probeSrc.matchAll(NEED_LIT_RE)).map(m => m[2] + ':' + m[3]);
   const extractOk = probeHits.length === 2 && probeHits[0] === 'engine-deps:@a/b' && probeHits[1] === 'asset:engine/baseline-lock.yaml';
-  // 判别臂活性自证二：判据面——三条合成违规必须全检出
+  // 第二道判定证明自己真在检：判据这一面——三条合成违规必须全检出
   const synthetic = needShapeViolations([
     { file: 'x', family: 'asset', spec: 'baseline-bundle' },
     { file: 'x', family: 'asset', spec: 'engine/baseline-lock.yaml' },
@@ -164,7 +164,7 @@ t('F2 need 族名称形状合法（asset: 须仓库外路径且未被 git 跟踪
 const f3 = (() => {
   const attrFiles = [join(ROOT, '.gitattributes'), join(ENG, '.gitattributes')].filter(f => exists(f));
   const noBrace = attrFiles.every(f => txt(f).split(/\r?\n/).every(l => !l.trim() || l.trim().startsWith('#') || l.indexOf('{') < 0));
-  // 探针覆盖根 .gitattributes 的**全部**二进制后缀（少探一个＝删了那条规则也不会红），外加 engine/ 深层三件
+  // 下面这份试探清单覆盖根 .gitattributes 的**全部**二进制后缀（少探一个＝删了那条规则也不会红），外加 engine/ 深层三件
   const probes = [
     'docs/x.png', 'x.ico', 'x.icns', 'x.jpg', 'x.jpeg', 'x.gif', 'x.webp',
     'x.exe', 'x.dll', 'x.node', 'x.pdb', 'x.msi', 'x.so', 'x.dylib',

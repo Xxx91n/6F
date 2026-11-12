@@ -1,7 +1,7 @@
 // micro-b-emit.test.mjs — #80 步① per-file 一等事实发射契约测试（D-124/D-125；Micro-B 文件卡=预采集投影×per-file subject×血缘事实）
-// 断言面：A subject 归一器五规则+NFC+禁折叠 / B per-file 发射（行对象形态+role 标记+skip 披露+
+// 查什么：A subject 归一器五规则+NFC+禁折叠 / B per-file 发射（行对象形态+role 标记+skip 披露+
 //   case-only 冲突告警+成对端点双发射）/ C file_renamed 血缘（-z 解析+载荷五字段+e2e 真 git 可复算）/
-//   D facet_rows raw 证据位+对账判据 / E golden 骨架锁（字段骨架非内容值）。
+//   D facet_rows raw 证据位+对账判据 / E golden 骨架锁（字段骨架，不是内容值）。
 import assert from 'node:assert/strict';
 import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -46,7 +46,7 @@ t('A4 case-only 冲突检测=同桶多字面成对输出', () => {
   assert.deepEqual(S.detectCaseOnlyConflicts(['a.ts', 'b.ts']).pairs, []);
 });
 
-// ---------- B. per-file 发射（fixture 驱动，注入假探针） ----------
+// ---------- B. per-file 发射（fixture 驱动，注入假的试探实现） ----------
 const input = JSON.parse(readFileSync(join(FX, 'emission-input.json'), 'utf8'));
 const CTX = { runId: 'ut80', traceId: 't'.padEnd(32, '0'), repoRef: 'fixture@' + 'a'.repeat(40), scale: 'Macro-B', observedAt: '2026-09-23T00:00:00Z' };
 const resolver = () => ({ strategy: 'binary-discovery', binary: 'fake', version: '0.28.0', pinned: true, error: null });
@@ -95,7 +95,7 @@ t('B5 per-file/血缘事实 scale=Micro-B（粒度按 subject 非 run），聚�
   assert.ok(fileFacts.every((f) => f.scale === 'Micro-B'));
   assert.ok(facts.filter((f) => f.metric === 'codelore.facet_rows').every((f) => f.scale === 'Macro-B'));
 });
-t('B6 entity 字段=文件 subject（实物钉 cassette 实证）', () => {
+t('B6 entity 字段=文件 subject（拿真 cassette 产物固定住的实证）', () => {
   const rev = fileFacts.find((f) => JSON.parse(f.value_json).analysis === 'revisions');
   assert.ok(rev && rev.subject_ref === 'src/alpha.ts');
 });
@@ -120,7 +120,7 @@ t('C2 file.renamed 载荷五字段+provenance（from/to/head_sha/threshold/detec
   assert.ok(scan);
   assert.equal(JSON.parse(scan.value_json).edges, 1);
 });
-t('C3 e2e 真 git rename 检测可复算（跨 git 版本验证项——各 CI 腿重跑同断言）', () => {
+t('C3 e2e 真 git rename 检测可复算（跨 git 版本都要验——各 CI 那一路重跑同一条断言）', () => {
   const dir = mkdtempSync(join(tmpdir(), 'micro-b-e2e-'));
   try {
     const g = (args) => execFileSync('git', ['-C', dir].concat(args), { encoding: 'utf8' });
@@ -132,7 +132,7 @@ t('C3 e2e 真 git rename 检测可复算（跨 git 版本验证项——各 CI �
     const head = g(['rev-parse', 'HEAD']).trim();
     const raw = g(FL.gitRenameLogArgs('50%'));
     const edges = FL.parseRenameLogZ(raw);
-    assert.equal(edges.length, 1);   // 重跑同断言=跨版本可复算实测载体
+    assert.equal(edges.length, 1);   // 重跑同一条断言=跨版本可复算的实测载体
     assert.equal(edges[0].from, 'src/alpha.ts');
     assert.equal(edges[0].to, 'src/beta.ts');
     assert.equal(edges[0].similarity, 100);
@@ -163,9 +163,9 @@ t('D2 对账判据：per-file 重算 == file-bearing 聚合行 − skipped（同
   assert.equal(recon.per_analysis.hotspots.file_bearing, 9);
   assert.equal(recon.per_analysis.hotspots.skipped, 2);
   assert.equal(recon.per_analysis.hotspots.per_file, 7);
-  assert.equal(recon.per_analysis['lead-time'].match, true);   // 非文件粒度面天然对账真
+  assert.equal(recon.per_analysis['lead-time'].match, true);   // 不是文件粒度的面，天生就对得上
 });
-t('D3 reaggregateFileFacetRows=消费面迁移读源（成对行去重还原）', () => {
+t('D3 reaggregateFileFacetRows=喂给消费方的那一端换过来读（成对行去重还原）', () => {
   const byFace = C.reaggregateFileFacetRows(facts);
   assert.equal(byFace.coupling.length, 1);   // 双端 2 fact→1 对行
   assert.equal(byFace.coupling[0].entity_a, 'src/alpha.ts');

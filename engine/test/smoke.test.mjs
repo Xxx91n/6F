@@ -8,22 +8,22 @@ const cli = join(root, 'dist', 'cli.js');
 const results = [];
 function check(name, pass, detail) { results.push([name, pass, detail || '']); }
 
-check('dist/cli.js exists (build ran)', existsSync(cli), cli);
+check('dist/cli.js 在（说明 build 跑过了）', existsSync(cli), cli);
 
 const v = spawnSync(process.execPath, [cli, '--version'], { encoding: 'utf8' });
-check('cli --version exits 0', v.status === 0, 'status=' + v.status);
+check('cli --version 退出码是 0', v.status === 0, 'status=' + v.status);
 let vj = null;
 try { vj = JSON.parse(v.stdout); } catch (e) {}
-check('cli --version JSON has name+version', !!vj && !!vj.name && !!vj.version, String(v.stdout).trim());
+check('cli --version 打出来的 JSON 里 name 和 version 都有', !!vj && !!vj.name && !!vj.version, String(v.stdout).trim());
 
 const s = spawnSync(process.execPath, [cli, 'selftest'], { encoding: 'utf8' });
-check('cli selftest exits 0 (liveness)', s.status === 0, 'status=' + s.status);
+check('cli selftest 退出码是 0（说明程序还活着）', s.status === 0, 'status=' + s.status);
 let sj = null;
 try { sj = JSON.parse(s.stdout); } catch (e) {}
-check('selftest ok=true (spec-constant self-check)', !!sj && sj.ok === true, String(s.stdout).trim());
+check('selftest 回 ok=true（它拿 spec 里的常量自查了一遍）', !!sj && sj.ok === true, String(s.stdout).trim());
 
 const g = spawnSync(process.execPath, [join(root, 'scripts', 'gen-manifests.mjs')], { encoding: 'utf8' });
-check('gen-manifests exits 0 (dual manifest no drift)', g.status === 0, 'status=' + g.status);
+check('gen-manifests 退出码是 0（两份清单没走样）', g.status === 0, 'status=' + g.status);
 
 let ok = true;
 for (const r of results) {

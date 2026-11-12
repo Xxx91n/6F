@@ -1,11 +1,11 @@
-// audit-zero-write.test.mjs —— D-074③ fixture 承接面（#65）：「审计管线对被测仓零写入」工具不变量
-// 承接的 sealed 断言（attestation 册务件已随治理工件退役，git 历史可查 .scratch/architecture-recovery/reports/acceptance-probe-attestation.jsonl）：
+// audit-zero-write.test.mjs —— D-074③ fixture 承接面（#65）：「审计管线对被测仓零写入」这条不能破
+// 承接过来的 sealed 检查项（attestation 那本账册已跟治理工件一起退役，git 历史可查 .scratch/architecture-recovery/reports/acceptance-probe-attestation.jsonl）：
 //   ap-38-h4（38-check H4 anysearch-cli 零写入）/ ap-39-i1（env-manager）/ ap-39-i2（anysearch-cli）
-//   ——1:1 迁移对应表写入 attestation 行 migrated_to 字段。
-// 机制（hermetic 处方）：fs.mkdtemp 玩具仓（cassette 化抽样真实 sibling 结构：被审计仓的 ADR 目录+CONTEXT.md+package.json+src，
-//   仿 fixtures/github-rest cassette 先例）→ node dist/cli.js audit <repo> --out <tmp>/out → git status --porcelain 断言空 → 清理。
-//   ephemeral 每次新建不 clone 真实 sibling（真实仓内容漂移违反 hermetic）；自检「审计确实产出 facts」防 vacuous pass。
-//   原验收时点真实仓实测证据承接历史性（attestation evidence 字段），本测试承接持续性（挂 smoke 链每次实跑）。
+//   ——1:1 迁移对应表写入 attestation 行的 migrated_to 字段。
+// 做法（自给自足的处方）：fs.mkdtemp 起一个玩具仓（用 cassette 的思路抽样真实 sibling 的结构：被审计仓的 ADR 目录+CONTEXT.md+package.json+src，
+//   仿 fixtures/github-rest cassette 先例）→ node dist/cli.js audit <repo> --out <tmp>/out → git status --porcelain 必须为空 → 清理。
+//   每次现建，不 clone 真 sibling（真仓内容会漂，就不自给自足了）；自己再查一遍「审计确实产出了 facts」，防白跑一趟。
+//   验收那一刻真实仓的实测证据留在历史里（attestation 的 evidence 字段），本测试负责持续那部分（挂 smoke 链每次实跑）。
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -19,7 +19,7 @@ const NL = String.fromCharCode(10);
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
 
-// Windows mkdtemp/git 偶发竞态——重试一次（R22-Q2 §5.4 处方）；失败时 stderr 归因输出。
+// Windows mkdtemp/git 偶发竞态——重试一次（R22-Q2 §5.4 处方）；实在失败就把 stderr 归因打出来。
 function git(args, cwd) {
   for (let i = 0; i < 2; i++) {
     try { return execFileSync('git', args, { cwd: cwd, encoding: 'utf8' }).trim(); }
@@ -28,7 +28,7 @@ function git(args, cwd) {
 }
 function gitOr(args, cwd, fallback) { try { return git(args, cwd); } catch (e) { return fallback; } }
 
-// ---------- 玩具仓（cassette 抽样：README+CONTEXT+ADR+package.json+src，3 commits 触发 git/adr 采集面） ----------
+// ---------- 玩具仓（照 cassette 的路子抽样建：README+CONTEXT+ADR+package.json+src，3 个 commit 才够触发 git/adr 采集面） ----------
 const tmp = mkdtempSync(join(tmpdir(), 'azw-'));
 const REPO = join(tmp, 'tgt');
 let cleaned = false;
@@ -68,9 +68,9 @@ try {
   try { rec = JSON.parse(r.stdout || ''); } catch (e) { }
   const factsPath = join(OUT, 'audit-facts.jsonl');
   const factsN = existsSync(factsPath) ? readFileSync(factsPath, 'utf8').trim().split(NL).filter(Boolean).length : 0;
-  t('audit-zero-write-facts-produced 自检防 vacuous：审计确实产出 facts（回执 fact_count>0 且 audit-facts.jsonl 行数>0）', !!rec && (rec.fact_count || 0) > 0 && factsN > 0, 'fact_count=' + (rec && rec.fact_count) + ' jsonl=' + factsN);
+  t('audit-zero-write-facts-produced 自己先查一遍防白跑：审计确实产出 facts（回执 fact_count>0 且 audit-facts.jsonl 行数>0）', !!rec && (rec.fact_count || 0) > 0 && factsN > 0, 'fact_count=' + (rec && rec.fact_count) + ' jsonl=' + factsN);
 
-  // ---------- 零写入不变量（断言名明确写不变量语义；porcelain 含 untracked） ----------
+  // ---------- 零写入这条不能破（检查项名里写明这层意思；porcelain 也算 untracked） ----------
   const status = gitOr(['status', '--porcelain'], REPO, 'PROBE-FAILED');
   t('audit-zero-write-porcelain-clean 审计管线对被测仓工作树零写入（git status --porcelain 空）', status === '', JSON.stringify(status).slice(0, 160));
   const headAfter = gitOr(['rev-parse', 'HEAD'], REPO, 'UNKNOWN');

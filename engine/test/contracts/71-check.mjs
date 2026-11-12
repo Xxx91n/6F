@@ -1,12 +1,12 @@
-// #71 守卫——codelore 接数据工单·批1（D-080③ 两张平行票里的第一张／D-078 映射表 v1.0 落地）
-// ① 裁决面映射常量块 audit/upstream-dimension-map.ts 在且版本 v1.0＋复审两字段＋无权重列（D-084）
+// #71 检查脚本——codelore 接数据工单·批1（D-080③ 两张平行票里的第一张／D-078 映射表 v1.0 落地）
+// ① 裁决这一层用到的映射常量块 audit/upstream-dimension-map.ts 在且版本 v1.0＋复审两字段＋无权重列（D-084）
 // ② 「映射常量↔表逐行对账」：docs/upstream-dimension-map.md §③ codelore 表行 ⇔
 //    运行时常量（dist 模块为真值）——演化主干 12→S4／s3 族 6→S3 opposing／s5 族 12→S5／
 //    explain 族→S4 env 门控／behavior 族→QuadrantEntry／暂时不接的分析项组不映射；行级漂移=FAIL
-// ③ COLLECTOR 注册面：UPSTREAM_COLLECTOR_REGISTRY 含 codelore-adapter@v1（registered，opt_in=binary+pin）
+// ③ COLLECTOR 注册列表：UPSTREAM_COLLECTOR_REGISTRY 含 codelore-adapter@v1（registered，opt_in=binary+pin）
 //    ＋descriptor dimension:null 保留（适配层禁业务语义，双保留）
 // ④ Macro-B 归位：audit.ts 消费 projectUpstreamDimensions→measurements.upstream_dimension_projection
-// ⑤ 「engine/skills/ 不引 docs/」断言（D-083⑤ F1 悬空指针防御——docs 不随包分发；注释指针豁免 A15 同构）
+// ⑤ 「engine/skills/ 不引 docs/」断言（D-083⑤ F1 悬空指针防御——docs 不随包分发；注释里的指针豁免 A15 同构）
 // ⑥ 引擎测试闭环：upstream-map.test.mjs 入 smoke 链＋实跑绿（test 闭环非只引入）
 // 用法：node 71-check.mjs → 逐条 PASS/FAIL；exit 0=结构完整，exit 1=有 FAIL
 import fs from 'node:fs';
@@ -36,10 +36,10 @@ const revM = (mapSrc.match(/last_reviewed:\s*'([^']+)'/) || [])[1];
 const nextM = (mapSrc.match(/next_review:\s*'([^']+)'/) || [])[1];
 const revD = (docA1.match(/last_reviewed (\d{4}-\d{2}-\d{2})/) || [])[1];
 const nextD = (docA1.match(/next_review (\d{4}-\d{2}-\d{2})/) || [])[1];
-t('A1 映射常量块在且版本 v1.0＋复审两字段与表头互等（last_reviewed/next_review 常量⇔doc 同步——不钉字面值，漂移失配即 FAIL，R23 审计 S2 修复）',
+t('A1 映射常量块在且版本 v1.0＋复审两字段与表头互等（last_reviewed/next_review 常量⇔doc 同步——不把字面值固定死，漂移失配即 FAIL，R23 审计 S2 修复）',
   mapSrc.indexOf("UPSTREAM_DIMENSION_MAP_VERSION = 'v1.0'") >= 0 && !!revM && !!nextM && revM === revD && nextM === nextD,
   'map=' + revM + '/' + nextM + ' doc=' + revD + '/' + nextD);
-t('A2 常量块无权重字段（D-084——映射行形制禁权重列，权重归 rubric/聚合面另立案）',
+t('A2 常量块无权重字段（D-084——映射行形制禁权重列，权重归 rubric/聚合那一层另立案）',
   !/\bweight\b|weight_coefficient/i.test(mapSrc), '');
 let M = null;
 try { M = await import(pathToFileURL(MAP_DIST).href); } catch (e) { M = null; }
@@ -73,7 +73,7 @@ t('B3 表行「s5 族 12」枚举 ⇔ 常量 S5',
   docS5.indexOf('| S5 |') >= 0 && CL_S5.every(a => docS5.indexOf(a) >= 0) &&
   !!M && CL_S5.every(a => M.resolveCodeloreAnalysis(a).dimension === 'S5'),
   'doc-enum-miss=' + CL_S5.filter(a => docS5.indexOf(a) < 0).join(','));
-t('B4 表行「explain 族 9」枚举 ⇔ 常量 S4＋env 门控准入（成员级对账——未设=不产面非降级非缺失，R23 审计 Spec-P1 补盲）',
+t('B4 表行「explain 族 9」枚举 ⇔ 常量 S4＋env 门控准入（成员级对账——没设就不产这一项，不是降级也不是缺失，R23 审计 Spec-P1 补盲）',
   docExplain.indexOf('| S4 |') >= 0 && docExplain.indexOf('env 门控') >= 0 && CL_EXPLAIN.every(a => docExplain.indexOf(a) >= 0) &&
   !!M && M.CODELORE_EXPLAIN_SURFACES.length === CL_EXPLAIN.length && M.CODELORE_EXPLAIN_SURFACES.every(a => { const r = M.resolveCodeloreAnalysis(a); return r.dimension === 'S4' && /env 门控/.test(r.admission); }),
   'doc-enum-miss=' + CL_EXPLAIN.filter(a => docExplain.indexOf(a) < 0).join(','));
@@ -82,13 +82,13 @@ t('B5 表行「behavior 族」⇔ 常量 QuadrantEntry 归位（不直归 S 维�
   !!M && CL_BEHAVIOR.every(a => { const r = M.resolveCodeloreAnalysis(a); return r.dimension === null && r.lane === 'Macro-B-QuadrantEntry'; }), '');
 t('B6 表行「暂时不接的分析项组」⇔ 常量 deferred 不映射（未激活不归位——D-035④）',
   docDeferred.indexOf('不映射') >= 0 && !!M && M.resolveCodeloreAnalysis('function-coupling').dimension === null && M.isCodeloreDeferredAnalysis('function-coupling') === true, '');
-// 常量→文档反向对账：常量 codelore 分析面全在文档枚举（防幽灵行）
-//   ——analysis 行＋explain 族 group 行均覆盖（deferred-faces 组行属 B6 registry 枚举面除外；R23 审计 Spec-P1 补盲）
+// 常量→文档反向对账：常量的 codelore 分析项全在文档枚举里（防幽灵行）
+//   ——analysis 行＋explain 族 group 行都覆盖（deferred-faces 组行属 B6 registry 枚举，除外；R23 审计 Spec-P1 补盲）
 const docAll = docEvoList + docS3 + docS5 + docBehavior + docExplain;
 const phantom = M ? M.CODELORE_DIMENSION_MAP.filter(r => r.surface_kind === 'analysis' || (r.surface_kind === 'group' && r.surface !== 'deferred-faces')).filter(r => docAll.indexOf(r.surface) < 0).map(r => r.surface) : [];
 t('B7 常量 analysis＋explain group 行全在文档枚举（无幽灵映射——反向对账）', phantom.length === 0, phantom.join(','));
 
-// ---------- C. COLLECTOR 注册面 ----------
+// ---------- C. COLLECTOR 注册列表 ----------
 const reg = M ? M.UPSTREAM_COLLECTOR_REGISTRY : [];
 const clReg = reg.find(x => x.descriptor && x.descriptor.id === 'codelore-adapter@v1');
 t('C1 codelore descriptor 已注册（registered=true＋opt_in=binary+pin＋skipped 语义在）',
@@ -99,7 +99,7 @@ t('C2 注册 descriptor=适配器原物（dimension:null 未改写＋注释指�
 
 // ---------- D. Macro-B 归位消费 ----------
 const auditSrc = txt(join(ENG, 'src', 'audit', 'audit.ts'));
-t('D1 audit.ts 消费 projectUpstreamDimensions→measurements.upstream_dimension_projection（归位=裁决面消费非 descriptor 改写）',
+t('D1 audit.ts 消费 projectUpstreamDimensions→measurements.upstream_dimension_projection（归位＝裁决时消费它，不是改写 descriptor）',
   auditSrc.indexOf("from './upstream-dimension-map.js'") >= 0 && auditSrc.indexOf('projectUpstreamDimensions(col.realFacts)') >= 0 && auditSrc.indexOf('upstream_dimension_projection') >= 0, '');
 
 // ---------- E. 「engine/skills/ 不引 docs/」断言（D-083⑤ F1 悬空指针防御） ----------
@@ -115,9 +115,9 @@ function stripLineComments(line) {
   }
   return line;
 }
-// 违规面=指向本仓 docs/ 树（不随包分发）的引用；豁免=主题仓采集面、`docs/adr`、`docs/archive/decisions` 的引文坐标。
+// 违规的是：指向本仓 docs/ 树（不随包分发）的引用；豁免的是：主题仓采集这一块、`docs/adr`、`docs/archive/decisions` 的引文坐标。
 // docs/archive/decisions 只放行出处坐标，运行时读写与 import 仍红
-// 实现边界：本守卫是行级扫描，看不到经变量间接传入的读取（如 addEvidence(EV(4), LEDGER_PATH, …)），该面由证据 grounded 兜底。
+// 实现边界：这个检查脚本是行级扫描，看不到经变量间接传入的读取（如 addEvidence(EV(4), LEDGER_PATH, …)），那一块最后一道靠证据 grounded 兜住。
 const DOCREF_RE = /docs\/upstream-dimension-map|upstream-dimension-map\.md|\.\.[\/\\]docs[\/\\]|join\(\s*(ROOT|REPO|HERE|MA|AR|ENG)\s*,\s*'docs'|['"]docs\/(?!adr(?:\/|['"])|archive\/decisions\/)/;
 const DOCIO_RE = /\b(?:(?:fs\s*\.\s*promises|fsp|promises|fs)\s*\.\s*[A-Za-z]+|readFile|writeFile|appendFile|readdir|mkdir|rm|unlink|copyFile|rename|stat|access|open|import|readFileSync|readdirSync|existsSync|createReadStream|openSync|writeFileSync|appendFileSync|mkdirSync|rmSync|unlinkSync|copyFileSync|renameSync)\s*\([^)]*['"`]docs\/|^\s*(import|export)\b[^;]*from\s*['"`]docs\//;
 // 目录穿越：字面量以豁免目录开头、但归一化后越界（`docs/archive/decisions/../../spec.md`）——豁免按归一化结果判，不按前缀
@@ -153,7 +153,7 @@ walkCode(join(ENG, 'src'));
 walkCode(join(ENG, 'skills'));
 t('E1 engine/{src,skills} 无指向本仓 docs/ 树的引用与读写（upstream-dimension-map 引用仅限注释指针——D-083⑤；#29 缩小范围豁免 docs/archive/decisions/ 引文坐标，读写与 import 仍红——归档只读）',
   docRefViolations.length === 0, docRefViolations.slice(0, 8).join(' '));
-// E1-P 判别臂活性（正/负对照——豁免缩小范围后必须仍然能红）：判定函数对十五类样本的判色
+// E1-P 判定手段确实管用（正/负对照——豁免缩小范围后必须仍然能红）：判定函数对十五类样本该红的红、该绿的绿
 const E1_PROBES = [
   ["const p = 'docs/spec.md';", true, '其余 docs/ 路径仍红'],
   ["const p = '../docs/spec.md';", true, '相对路径仍红'],
@@ -172,7 +172,7 @@ const E1_PROBES = [
   ["const p = 'docs/adr/0027-x.md';", false, 'ADR 指针放行']
 ];
 const e1Red = E1_PROBES.filter(function (x) { return docRefViolation(x[0]) !== x[1]; });
-t('E1-P 判别臂活性：十五类样本判色全对（红/绿两侧均非空——缩小范围后仍能红；豁免按目录边界，异步读写不逃逸）',
+t('E1-P 判定手段确实管用：十五类样本该红的红、该绿的绿，全对（红/绿两侧都非空——缩小范围后仍能红；豁免按目录边界，异步读写逃不掉）',
   e1Red.length === 0 && E1_PROBES.some(function (x) { return x[1]; }) && E1_PROBES.some(function (x) { return !x[1]; }),
   e1Red.map(function (x) { return x[2]; }).join(' '));
 

@@ -1,15 +1,15 @@
-// 83-check.mjs — #83 R32 审计建议修批守卫（D-134 吞错缩小范围 / D-135 修批票面 / D-136 失败态收尾 / F5/F6/F7a~j）
-// 断言面：A 必修缩小范围（精确指认+预查+skipped 披露+毒事实回归）→ B 契约符合性（F5 缺库卡/F6 可用集/D-136 收尾/F7a 歧义验重）
-//   → C 卫生组（F7c~f/h/j 逐件）→ D 纪律（BOM 钉面/BACKLOG/smoke 链）→ G 实跑绿
+// 83-check.mjs — #83 R32 审计建议修批检查（D-134 吞错缩小范围 / D-135 修批票面 / D-136 失败态收尾 / F5/F6/F7a~j）
+// 查什么：A 必修缩小范围（精确指认+预查+skipped 披露+毒事实回归）→ B 契约符合性（F5 缺库卡/F6 可用集/D-136 收尾/F7a 歧义验重）
+//   → C 卫生组（F7c~f/h/j 逐件）→ D 纪律（BOM 检查面/BACKLOG/smoke 链）→ G 实跑绿
 // 用法：node 83-check.mjs → 逐条 PASS/FAIL；exit 0=全 PASS
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
-// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+// guard-meta（D-159②/D-160③ 自己声明——没写就是红）
 const TIER = 'env-contract';
-// D-214① consumption_forms（多形态消费方——G 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→G 组 SKIP）。
+// D-214① consumption_forms（多形态消费方——G 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位，所有检查项都能跑；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→G 组 SKIP）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#83 R32 审计建议修批守卫（D-134 吞错缩小范围 / D-135 修批票面 / D-136 失败态收尾 / F5/F6/F7a~j）';
 
@@ -26,7 +26,7 @@ const exists = p => fs.existsSync(p);
 // ---------- A. D-134 必修缩小范围 ----------
 const stSrc = txt(join(ENG, 'src', 'fact', 'store.ts'));
 const stDist = exists(join(ENG, 'dist', 'fact', 'store.js')) ? txt(join(ENG, 'dist', 'fact', 'store.js')) : '';
-t('A1 store 精确指认+预查双出口 src+dist 双锚（isFactIdUniqueViolation/existingFactIds）',
+t('A1 store 精确指认+预查双出口，src 和 dist 各查一处（isFactIdUniqueViolation/existingFactIds）',
   stSrc.indexOf('export function isFactIdUniqueViolation') >= 0 && stSrc.indexOf('export async function existingFactIds') >= 0 && stDist.indexOf('isFactIdUniqueViolation') >= 0);
 const afSrc = txt(join(ENG, 'src', 'audit', 'file-card.ts'));
 t('A2 写循环预查已存 fact_id＋缩小范围 catch（撞键消除在判定层非吞错层）',
@@ -38,7 +38,7 @@ t('A4 emitted/skipped 分列披露（AuditFileResult.skipped＋cli 输出带 ski
   return afSrc.indexOf('skipped: number') >= 0 && afSrc.indexOf('skipped: skipped') >= 0 && cli.indexOf('skipped: r.skipped') >= 0;
 })());
 const fcTest = txt(join(ENG, 'test', 'file-card.test.mjs'));
-t('A5 毒事实回归断言在（非指名错上抛+回滚零行+真 DuckDB 消息形态钉）',
+t('A5 毒事实回归的检查还在（非指明错要上抛＋回滚零行＋真 DuckDB 消息形态）',
   fcTest.indexOf('isFactIdUniqueViolation') >= 0 && fcTest.indexOf('Constraint Error') >= 0 && fcTest.indexOf('回滚零行') >= 0);
 
 // ---------- B. 契约符合性（F5/F6/D-136/F7a） ----------
@@ -52,7 +52,7 @@ t('B2 F6 集内 not_tracked_at_sha 补 available_head_shas（本枝新增、pin 
 t('B3 D-136 失败态收尾：closed 枚举双集＋suppressed_facets src+dist',
   fcSrc.indexOf('FILE_CARD_HISTORY_DERIVED_FACETS') >= 0 && fcSrc.indexOf('FILE_CARD_STATIC_FACETS') >= 0 && fcSrc.indexOf('suppressed_facets') >= 0 && fcDist.indexOf('FILE_CARD_HISTORY_DERIVED_FACETS') >= 0);
 const projSrc = txt(join(ENG, 'src', 'fact', 'projection.ts'));
-t('B4 F7a pin ≥7 前缀歧义验重（pinnedAmbiguous 上卡面，>1 命中不猜最新）',
+t('B4 F7a pin ≥7 前缀有歧义时验重（pinnedAmbiguous 报到文件卡片上，>1 个命中不猜最新）',
   fcSrc.indexOf('pinnedAmbiguous') >= 0 && projSrc.indexOf('pinAmbiguous') >= 0);
 
 // ---------- C. 卫生组 ----------
@@ -64,7 +64,7 @@ t('C3 F7e 死引用清除（audit/file-card.ts 不再点名 microBCtx）',
   afSrc.indexOf('microBCtx') < 0);
 t('C4 F7f 测试文件无 existsSync unused import',
   fcTest.indexOf('existsSync') < 0);
-t('C5 F7h FILE_CARD_SET_CAP 截断卡面标记（kernel.set_truncated＋COUNT 判定）',
+t('C5 F7h FILE_CARD_SET_CAP 截断时在文件卡片上留标记（kernel.set_truncated＋COUNT 判定）',
   fcSrc.indexOf('set_truncated') >= 0 && projSrc.indexOf('setTruncated') >= 0 && projSrc.indexOf('SELECT COUNT(*)') >= 0);
 const ci = txt(join(ROOT, '.github', 'workflows', 'engine-ci.yml'));
 t('C6 F7j upload-artifact 缩小范围为步级 outcome（不再 job 级 failure()）',
@@ -84,7 +84,7 @@ t('D3 file-card.test.mjs 在 smoke 链（test 闭环非只引入）', pkgJson.sc
 // engine-deps 前置（D-163③）：file-card.test 写读真库需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
 if (groupProbe('83-check', 'G', [need('engine-deps:@duckdb/node-api', engineDepsOk(ENG, '@duckdb/node-api'))])) {
   const r = spawnSync('node', [join(ENG, 'test', 'file-card.test.mjs')], { encoding: 'utf8', timeout: 240000, env: { ...process.env, NODE_OPTIONS: '' } });
-  t('G1 file-card.test.mjs 实跑绿（FILE-CARD n/n 含 #83 断言组 C4~C7/D2扩展/E3/H2/H3/J1/K1）', r.status === 0 && /FILE-CARD [0-9]+[/][0-9]+/.test(r.stdout), String(r.stdout).trim().split(String.fromCharCode(10)).slice(-1)[0] || String(r.stderr).slice(-160));
+  t('G1 file-card.test.mjs 实跑绿（FILE-CARD n/n 含 #83 的检查项 C4~C7/D2扩展/E3/H2/H3/J1/K1）', r.status === 0 && /FILE-CARD [0-9]+[/][0-9]+/.test(r.stdout), String(r.stdout).trim().split(String.fromCharCode(10)).slice(-1)[0] || String(r.stderr).slice(-160));
 }
 
 console.log('');
