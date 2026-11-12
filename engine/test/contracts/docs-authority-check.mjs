@@ -160,8 +160,9 @@ const ENTRY_ADR = HIST ? HIST.entry : null;
 // 这个集合按文件算，不按 Status 算：还没接受的提案也算「在仓」，接受与否看它自己的 Status 行。
 // 同时算「历史号复活」：盘上的号又出现在历史清单里，就是有人想拿加号洗历史。
 function currentAdrVerdict(adrNumbers, historicalNumbers, entry) {
-  const current = [...adrNumbers].filter(n => !historicalNumbers.has(n)).sort();
-  const revived = [...adrNumbers].filter(n => historicalNumbers.has(n)).sort();
+  const all = [...adrNumbers].sort();
+  const current = all.filter(n => !historicalNumbers.has(n));
+  const revived = all.filter(n => historicalNumbers.has(n));
   return { current, revived, ok: !!entry && current.length > 0 && current.includes(entry) && revived.length === 0 };
 }
 const CURRENT_VERDICT = currentAdrVerdict(ADR_NUMBERS, HIST_NUMBERS, ENTRY_ADR);
@@ -238,7 +239,7 @@ for (const { path, text } of CORPUS) {
 t('C0 在仓 ADR 从 §3 块推出来：非空、含块里的起点号、没有历史号复活（不写死编号、不要求只有一份）',
   CURRENT_VERDICT.ok,
   'entry=' + (ENTRY_ADR || '<unparsed>') + ' in-repo=' + CURRENT_VERDICT.current.join(',') + ' revived=' + CURRENT_VERDICT.revived.join(',') + ' files=' + ADR_FILES.join(','));
-t('C1 现行文本的 ADR-NNNN 只指向现行 ADR 或历史引用面（哨兵与固定机器名除外）',
+t('C1 现行文本的 ADR-NNNN 只指向在仓 ADR 或历史引用面（哨兵与固定机器名除外）',
   adrRefCount > 0 && badAdr.length === 0, 'refs=' + adrRefCount + ' dangling=' + [...new Set(badAdr)].join(','));
 t('C1b 哨兵豁免只覆盖 engine 代码/测试（engine/README.md 不在内）',
   ADR_SENTINEL_PATH.test('engine/src/audit/macro-b.ts') && !ADR_SENTINEL_PATH.test('engine/README.md'));
@@ -264,9 +265,11 @@ const HIST_SCREEN = HIST_PATHS[0] || '<missing-historical-path>';
 t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判红；历史路径不放行任意旧号', // NEGATIVE-CONTROL
   adrRefClass(HIST_SCREEN, '0001') === 'historical' && // NEGATIVE-CONTROL
   adrRefClass('README.md', '0001') === 'dead' && // NEGATIVE-CONTROL
-  adrRefClass('README.md', ENTRY_ADR) === 'current' && // NEGATIVE-CONTROL
   adrRefClass(HIST_SCREEN, '9998') === 'dead', // NEGATIVE-CONTROL
   'hist=' + adrRefClass(HIST_SCREEN, '0001') + ' current=' + adrRefClass('README.md', '0001'));
+// 起点号落在现行面这一条要单独算正向检查，不能混进 C6：它依赖真仓的号，混进去 C6 就叫错了名字。
+t('C6c 真仓的起点号在现行面上（不看历史面、不算死引用）',
+  !!ENTRY_ADR && adrRefClass('README.md', ENTRY_ADR) === 'current', 'entry=' + (ENTRY_ADR || '<unparsed>'));
 // C6b 要证伪「推法」本身，所以不用真仓的号：真号写进来等于把「写死编号」这毛病搬回脚本，
 // 而且仓一坏控制项会跟着红，分不清是推法坏了还是仓坏了。号段取 4 位里用不到的合成值。
 t('C6b 在仓 ADR 推法负对照：多一份仍绿、删起点号红、在仓号塞进历史清单红、起点号缺失红', // NEGATIVE-CONTROL

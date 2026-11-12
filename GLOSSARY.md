@@ -22,12 +22,11 @@ _别名_: Historical Fingerprint
 _不要用_: 拿历史编号写新决定
 
 **现行 ADR 起点号**
-现行架构决定从哪一份 ADR 开始算的那个号；只在 [`docs/authority.md`](docs/authority.md) §3 的块里写一次。
+现行架构决定从哪一份 ADR 开始算的那个号（`docs/authority.md` §3 的 `entry`）。
 _别名_: Entry ADR
-_不要用_: 在脚本里再写一份这个号
 
 **在仓 ADR**
-`docs/adr/` 下真正有正文的架构决定文件；旧号不算在内（按 [`docs/authority.md`](docs/authority.md) §3 的块分）。还没接受、标着 proposed 的提案也算在仓。
+`docs/adr/` 下真正有正文的架构决定文件。还没接受、标着 proposed 的提案也算。
 _别名_: In-repo ADR
 
 **校对用的固定语料**
