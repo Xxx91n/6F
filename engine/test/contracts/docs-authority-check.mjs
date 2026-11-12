@@ -9,6 +9,7 @@
 //   G docs-ci 只跑一条的规矩：ubuntu/node24、paths 覆盖、复用 check:docs、#97 的 drift 检查（gen 后 diff 即红）、不建第二套校验
 //   H engine-ci 矩阵/路径边界：仍为 [22,24]，不承载文档检查
 //   I contracts-run 以 *-check.mjs 命名自动纳入；smoke 链与 check:docs 链同源
+//   K 版本账引用形制：[Unreleased] 节零裸 GitHub 引用（tracker #N 口径，tracker #106；旧票 #N 与反引号字面量豁免）
 //   J 本检查无 BOM + LF
 // 负对照（注入普查面后必须 exit 1）：--inject-adr=ADR-9998 / --inject-dcode=D-999 / --inject-anchor=§D-004
 // 纪律：只读不写（git ls-files / git hash-object 只读 + fs 读），零写仓内状态；exit 0 + PASS N/N 为绿。
@@ -627,6 +628,59 @@ t('I3 check:docs 链含本检查（docs-ci 单命令复用）', String(pkg.scrip
 const checkDocs = String(pkg.scripts['check:docs'] || '');
 t('I4 check:docs 一处配齐 ack/docs-authority 两段',
   ['gen-acknowledgments.mjs --check', 'docs-authority-check.mjs'].every(s => checkDocs.includes(s)));
+
+// ---------- K. 版本账 GitHub 引用形制（tracker #N 口径，tracker #106） ----------
+// authority §3「新写按节判」的执行面：[Unreleased] 节永远算现行文本，节内 GitHub 引用一律
+// `tracker #N`；已发布节随 release cut 冻结成历史文本，本检查不碰。豁免两形：`旧票 #N`（旧
+// BACKLOG 号不是 GitHub 引用，加 tracker 前缀反而造错——本仓评审实证过的坑）和反引号内的
+// 字面量。其余文件不设机检边界（PR 人审顺手归一），这里只钉版本账这一节。
+// [Unreleased] 节正文：从标题行到下一个 `## ` 标题行为止；没有这一节返回 null，交给调用处判红。
+function unreleasedSection(text) {
+  const lines = text.split('\n');
+  const start = lines.findIndex(l => /^## \[Unreleased\]/.test(l));
+  if (start < 0) { return null; }
+  const out = [];
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^## /.test(lines[i])) { break; }
+    out.push(lines[i]);
+  }
+  return out.join('\n');
+}
+// 裸引用位点（纯函数，判别臂与主检查共用同一个，避免「测的不是判的」）：`#数字` 前面不是
+// `tracker ` / `旧票 `、也不在反引号字面量里，就算裸。反引号剥除用等长空格替换，保住
+// matchAll 的下标仍对应原文位置。
+function bareTrackerRefs(text) {
+  const masked = text.replace(/`[^`\n]*`/g, s => ' '.repeat(s.length));
+  const out = [];
+  for (const m of masked.matchAll(/#(\d+)/g)) {
+    const before = masked.slice(Math.max(0, m.index - 16), m.index);
+    if (/(?:tracker|旧票)\s*$/.test(before)) { continue; }
+    const lineStart = masked.lastIndexOf('\n', m.index - 1) + 1;
+    const lineEnd = text.indexOf('\n', m.index);
+    const line = text.slice(lineStart, lineEnd < 0 ? text.length : lineEnd).trim();
+    out.push('#' + m[1] + ' :: ' + (line.length > 50 ? line.slice(0, 50) + '…' : line));
+  }
+  return out;
+}
+const CHANGELOG = 'engine/CHANGELOG.md';
+const unreleased = unreleasedSection(txt(CHANGELOG));
+const bareRefs = unreleased === null ? [] : bareTrackerRefs(unreleased);
+t('K1 [Unreleased] 节在位（形制判据的对象存在；节没了或改名都红，不给扫描留静默空转）',
+  unreleased !== null);
+t('K2 [Unreleased] 节零裸 GitHub 引用（tracker #N 口径；旧票 #N 与反引号字面量豁免）',
+  bareRefs.length === 0, 'hits=' + bareRefs.join(' | '));
+t('K3 判别臂：裸 #NN 必判红（含 PR 前缀与同句第二枚）、tracker/旧票/反引号放行、节提取到下一个 ## 为止、节缺失返 null', // NEGATIVE-CONTROL
+  (() => { // NEGATIVE-CONTROL
+    const hits = (s) => bareTrackerRefs(s).length; // NEGATIVE-CONTROL
+    return hits('（#123）') === 1 && // NEGATIVE-CONTROL
+      hits('PR #105 落地') === 1 && // NEGATIVE-CONTROL
+      hits('tracker #123 与 #124 同句') === 1 && // NEGATIVE-CONTROL
+      hits('父票 tracker #38 与 epic tracker #109') === 0 && // NEGATIVE-CONTROL
+      hits('旧票 #38 是旧 BACKLOG 号') === 0 && // NEGATIVE-CONTROL
+      hits('反引号字面量 `#38` 不算 GitHub 引用') === 0 && // NEGATIVE-CONTROL
+      unreleasedSection('## [Unreleased]\n- A（#123）\n## [0.3.0]\n- B #55\n') === '- A（#123）' && // NEGATIVE-CONTROL
+      unreleasedSection('## [0.3.0]\n- B\n') === null; // NEGATIVE-CONTROL
+  })()); // NEGATIVE-CONTROL
 
 // ---------- J. 编码纪律 ----------
 t('J1 本检查无 BOM + LF', noBom(readFileSync(fileURLToPath(import.meta.url))) && selfText.indexOf('\r') < 0);
