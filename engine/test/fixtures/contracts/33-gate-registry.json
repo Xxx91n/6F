@@ -2269,7 +2269,7 @@
    "review_at": "每审计窗核对四判据读数（T3 值守并入）；判据①执行时重查 agent-plugin 标注规范悬置条款（D-031⑤ 义务挂判据①——R40-Q6 调研再证未成文维持悬置）",
    "status": "decided",
    "owner": "macro-audit 队列值守",
-   "verify_method": "四判据机查/台账可核：①capability 5/5（Macro-A 层 preview 上架=ADR-0017 漏斗终点）②fresh clone 不红海（操作性定义=D-159 env-contract tier 判据防双裁）③GAP-HOST-01 关闭（IDE 面 verified 或 D-148 三要素齐备 accepted-risk）④试点 findings 全部过摄入分诊四态封闭处置——无未分诊残留（D-162⑥ 措辞：禁「无 pending」）；参数 A(a)=判据④封闭处置后 30 日无新增 finding 回流方算达标（KEP-5241 两周先例放宽至月度窗）",
+   "verify_method": "判据原文见 docs/spec.md §R11：四条判据=R11-2、静观期怎么算=R11-3、摄入分诊四态=R11-4、谁签字和证据保鲜=R11-5。本项只剩机读读数和证据锚，不再自己写一份判据正文。",
    "review_event": "next-audit-window",
    "watch": "manual_watch",
    "confirmations": [
@@ -2352,6 +2352,14 @@
      "decision": "status-unchanged",
      "reason": "四判据复核读数：①capability 5/5 阻塞维持（Macro-A 绑 DoR-b，≥2 个真实仓 facts 还是没有——如实报，不绕闸）②fresh-clone PASS 维持（R42 的 criterion-02-pass-read 在案）③GAP-HOST-01 的 RA-closed 维持（docs/ra/ 里两份档案在册）④window_state=not_started（start_event=null，零试点，窗没启动——不报「计时中」）——Stage-2 维持关闭（①④没到）",
      "evidence": "registry 里本项的 window_state=not_started 机器读得到＋docs/ra/GAP-HOST-01.md 和 r1-*.md 都还在"
+    },
+    {
+     "at": "2026-11-13",
+     "by": "tracker #27 grill 执行",
+     "criterion_version": "R11-1~R11-7（spec 收回判据原文）",
+     "decision": "criteria-source-moved-to-spec",
+     "reason": "四条判据的原文从一份已经退役的文件收回 docs/spec.md R11：判据本体、静观期起点、摄入分诊四态、证据保鲜都写成现行条文；本项以后只留机读读数和证据锚，不再自己写一份判据正文。四项读数一条没动——①阻塞、②通过但过期、③达标、④没开始，静观期维持 not_started。",
+     "evidence": "docs/spec.md §R11；本项 verify_method 改成指向 R11；node engine/test/contracts/87-check.mjs PASS 37/37；engine 下 npm run check:docs PASS 56/56"
     }
    ],
    "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）",
