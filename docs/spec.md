@@ -557,7 +557,7 @@ CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就
 
 - 正文讲白话；旧号退到每节末尾的「来源」行，想查再顺着号查。
 - `docs/spec.md` 的覆盖表保留，它就是拿号对账用的。
-- 出仓的机器读名字一律不动：命令、参数、错误码、JSON 键、数据库列、环境变量、文件路径、`preview_disclosure` 这类字段。只在本仓里被读的名字（比如 `33-gate-registry.json` 的字段键名）能不能改，按 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) 判，该文件已被 tracker #231 接受、是现行决定。
+- 出仓的机器读名字一律不动：命令、参数、错误码、JSON 键、数据库列、环境变量、文件路径、`preview_disclosure` 这类字段。仓内才读的名字能不能改、怎么改，看 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)，tracker #231 已接受、现在就是现行决定。
 - 来源：tracker #200、tracker #148（旧号退到来源行这套写法是上一轮定下的）、tracker #212（机器名分类的决定写进 ADR-0029）、tracker #231（ADR-0029 接受，按它改口径）。
 
 ### R10-4 — 英文文书
@@ -568,7 +568,7 @@ CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就
 
 ### R10-5 — 真会被读的登记表里的说明
 
-- [`engine/test/fixtures/contracts/33-gate-registry.json`](../engine/test/fixtures/contracts/33-gate-registry.json) 的 title / reason / evidence 这些说明文字要改成人话，这件事由 tracker #210 做；本段只定规矩，本段自己不动那份文件。键名、id、status、事件锚、事件成员，tracker #210 那轮不动。现在能不能改、改了谁跟着动，按 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) 判：这些名字只在本仓被读，可以改，但要同一笔改动把读它的脚本和文档一起改到全绿；实际改名另开实现票，本段不做。
+- [`engine/test/fixtures/contracts/33-gate-registry.json`](../engine/test/fixtures/contracts/33-gate-registry.json) 的 title / reason / evidence 这些说明文字要改成人话，这件事由 tracker #210 做；本段只定规矩，本段自己不动那份文件。键名、id、status、事件锚、事件成员，tracker #210 那轮不动。这些键名算哪一类、能不能改，看 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)；实际改名另开实现票，本段不做。
 - 来源：tracker #200、tracker #210（这份文件的人话改造在那张票做）、tracker #212（键名分类的决定写进 ADR-0029）、tracker #231（ADR-0029 接受）。
 
 ### R10-6 — 验收

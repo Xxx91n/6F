@@ -3,7 +3,7 @@
 决定和术语分别记在哪，只看这一份。[`AGENTS.md`](../AGENTS.md)、[`README.md`](../README.md)、[`README.zh-CN.md`](../README.zh-CN.md)、
 [`CONTRIBUTING.md`](../CONTRIBUTING.md)、[`engine/README.md`](../engine/README.md)、
 [`docs/agents/domain.md`](agents/domain.md) 这些门面文书只放链接，不重复写。
-现在的架构决定有两份：[`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md) 和 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)。0029 讲机器读的名字哪些能改、哪些不能改，tracker #231 接受后就是现行。
+架构决定都写在 [`docs/adr/`](adr/) 里；有哪几份、各是什么状态，看那份按文件列表生成的索引 [`docs/adr/README.md`](adr/README.md)，这里不再抄一份。机器读的名字哪些能改、哪些不能改，看 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)。
 
 ## 1. 三类文件
 
@@ -85,7 +85,7 @@ Design: <一句话约束> — ADR-NNNN
 ```
 
 - 只写「为什么这里必须这样」，并给出 ADR 号；**不抄 ADR 正文**，不写多行块注释。
-- 指针指向的必须是 `docs/adr/` 下能打开的现行 ADR；现在现行的是 `ADR-0028` 和 `ADR-0029`。旧号一律不再当指针目标。
+- 指针指向的必须是 `docs/adr/` 下能打开的现行 ADR（哪几份是现行，看 [`docs/adr/README.md`](adr/README.md) 的状态列）。旧号一律不再当指针目标。
 - 产品级约束指向 `docs/spec.md` 的节时写成 `Design: <一句话约束> — spec §R<n>`；术语约束指向 `GLOSSARY.md` 词条。
 - 一份 ADR 可以被多处指针引用；指针本身不是决定记录，删指针不删决定。
 - 现在仓里没有指向旧 ADR 号的 `Design:` 指针；产品级指针还可以指 spec 的节（例如 `spec §R9-1`）。新增的按本节写，目标只能是现行 ADR 或 spec 节。约束正文可以在 `ADR-0028` 的对应小节找；例如事实表单写者约束写在 `ADR-0028` §3，执行面在 `engine/src/fact/store.ts`。机器读的名字哪些能改，写在 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)。
