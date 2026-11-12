@@ -147,14 +147,19 @@ function parseHistoricalAdr(text) {
   if (blocks.length !== 1) { return null; }
   const block = blocks[0];
   const lines = block.split(/\r?\n/);
-  const numbersLine = lines.find(l => /^\s*numbers:\s*\[/.test(l)) || '';
+  // 字段层级钉死在 historical_adr 下面那一层（恰好 2 个空格），不用 `\s*`：
+  // 否则把 entry 挪进子键（如 metadata: 下面）也会被当成顶层字段读走，等于放宽了块的结构却不报错。
+  const TOP_FIELD = '^  ';
+  const numbersLine = lines.find(l => new RegExp(TOP_FIELD + 'numbers:\\s*\\[').test(l)) || '';
   const numbers = [...numbersLine.matchAll(/"(\d{4})"/g)].map(m => m[1]);
   // 起点号扫全块的行，不是只看第一行：写了两行也得算「不止一个」，返回 null 交给调用处判红。
-  // 一行只认严格形态 `entry: "NNNN"`，其余写法（没引号、位数不对）都记成坏行。
-  const entryLines = lines.filter(l => /^\s*entry:\s*\S/.test(l));
+  // 一行只认严格形态 `entry: "NNNN"`，其余写法（没引号、位数不对、缩进不对）都记成坏行。
+  const entryLineRe = new RegExp(TOP_FIELD + 'entry:\\s*"\\d{4}"\\s*$');
+  const entryAnyIndentRe = new RegExp('^\\s*entry:\\s*\\S');
+  const entryLines = lines.filter(l => entryAnyIndentRe.test(l));
   const entryValues = entryLines
-    .map(l => (l.match(/^\s*entry:\s*"(\d{4})"\s*$/) || [])[1])
-    .filter(Boolean);
+    .filter(l => entryLineRe.test(l))
+    .map(l => (l.match(new RegExp(TOP_FIELD + 'entry:\\s*"(\\d{4})"\\s*$')) || [])[1]);
   function list(key) {
     const start = lines.findIndex(l => new RegExp('^\\s+' + key + ':\\s*$').test(l));
     if (start < 0) { return []; }
@@ -317,7 +322,7 @@ t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判�
 // C6b 证伪的是「发现 + 判断」整条链，所以走的是真函数 collectAdr/adrFloorVerdict，
 // 只把输入换成合成路径假装的 tracked 列表和 existsSync —— 不碰真仓，也不会因为仓坏了跟着红。
 // 号段取 4 位里用不到的合成值，不把真号搬回脚本。
-t('C6b 发现链与判法负对照：新加一份仍绿、删起点号红、号塞进历史清单红、同号两份红、发现器认不出新文件时也红', // NEGATIVE-CONTROL
+t('C6b 发现链与判法负对照：新加一份仍绿、删起点号红、号塞进历史清单红、同号两份红、发现器认不出新文件时也红、entry 写错层级/缩进/格式也红', // NEGATIVE-CONTROL
   (() => { // NEGATIVE-CONTROL
     const trackedWith = (names) => names.map(n => 'docs/adr/' + n + '.md'); // NEGATIVE-CONTROL
     const allExist = () => true; // NEGATIVE-CONTROL
@@ -341,7 +346,11 @@ t('C6b 发现链与判法负对照：新加一份仍绿、删起点号红、号�
       !collectAdr(trackedWith([...base, '9004-added']), (p) => !p.includes('9004')).numbers.has('9004') && // NEGATIVE-CONTROL
       parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  numbers: ["9003"]\n```').entry === '9001' && // NEGATIVE-CONTROL
       parseHistoricalAdr('```yaml\nhistorical_adr:\n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
-      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  entry: "9002"\n  numbers: []\n```').entry === null; // NEGATIVE-CONTROL
+      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  entry: "9002"\n  numbers: []\n```').entry === null && // NEGATIVE-CONTROL
+      // 层级负对照：entry 挪进子键下就不是 historical_adr 的直接字段了，不能照样读成顶层。
+      parseHistoricalAdr('```yaml\nhistorical_adr:\n  metadata:\n    entry: "9001"\n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
+      parseHistoricalAdr('```yaml\nhistorical_adr:\n entry: "9001"\n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
+      parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: 9001\n  numbers: ["9003"]\n```').entry === null; // NEGATIVE-CONTROL
   })()); // NEGATIVE-CONTROL
 // C6d 把「发现链在真仓上跑出来的结果」和「独立从 tracked 列表重算的结果」对一遍。
 // 那条正对照（加一份新 ADR 不用改脚本）没法测未来，但能测「发现链有没有如实反映盘上事实」：
