@@ -4,7 +4,7 @@
 - Date: 2026-11-12
 - Supersedes: 无
 - 来由：tracker #212 提的四条取舍。tracker #231 由用户点头接受，本文件从此是现行决定。
-- 同批文档面改动：`docs/spec.md` §R10-3（禁令那句收窄成「出仓的机器读名字一律不动」，并加指向本文件的链接）、§R10-5 与 §R10-7 改成指向本文件、R10 覆盖表一行；`docs/authority.md` 顶段、§2 表里 `engine/test/fixtures/contracts/` 那一行、§4 那条；`docs/adr/0028` 的入口那句。判据只写在本文件。
+- 同批文档面改动：`docs/spec.md` §R10-3（禁令那句收窄成「出仓的机器读名字一律不动」，并加指向本文件的链接）、§R10-5 与 §R10-7 改成指向本文件、R10 覆盖表一行；`docs/authority.md` 顶段、§2 表里 `engine/test/fixtures/contracts/` 那一行、§4 那条；`docs/adr/0028` 的入口那句。判据写在本文第 1、2 条；spec 那三处留的是禁令本身和一句话指针，不重复判据。
 
 ## Context
 
