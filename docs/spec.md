@@ -557,8 +557,8 @@ CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就
 
 - 正文讲白话；旧号退到每节末尾的「来源」行，想查再顺着号查。
 - `docs/spec.md` 的覆盖表保留，它就是拿号对账用的。
-- 机器读的名字一律不动：命令、参数、错误码、JSON 键、数据库列、环境变量、文件路径、`preview_disclosure` 这类字段。
-- 来源：tracker #200、tracker #148（旧号退到来源行这套写法是上一轮定下的）。
+- 机器读的名字一律不动：命令、参数、错误码、JSON 键、数据库列、环境变量、文件路径、`preview_disclosure` 这类字段。[`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) 是待接受的提案，讲以后哪些名字可以改；它没被接受之前，这条禁令照旧有效。
+- 来源：tracker #200、tracker #148（旧号退到来源行这套写法是上一轮定下的）、tracker #212（机器名分类的决定写进 ADR-0029）。
 
 ### R10-4 — 英文文书
 
@@ -568,8 +568,8 @@ CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就
 
 ### R10-5 — 真会被读的登记表里的说明
 
-- [`engine/test/fixtures/contracts/33-gate-registry.json`](../engine/test/fixtures/contracts/33-gate-registry.json) 的 title / reason / evidence 这些说明文字要改成人话，这件事由 tracker #210 做；本段只定规矩，本段自己不动那份文件。键名、id、status、事件锚、事件成员不动。
-- 来源：tracker #200、tracker #210（这份文件的人话改造在那张票做）。
+- [`engine/test/fixtures/contracts/33-gate-registry.json`](../engine/test/fixtures/contracts/33-gate-registry.json) 的 title / reason / evidence 这些说明文字要改成人话，这件事由 tracker #210 做；本段只定规矩，本段自己不动那份文件。键名、id、status、事件锚、事件成员，tracker #210 那轮不动，现在也不动；以后哪些名字能改、改了谁跟着动，写在待接受的 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) 里。
+- 来源：tracker #200、tracker #210（这份文件的人话改造在那张票做）、tracker #212（键名分类的决定写进 ADR-0029）。
 
 ### R10-6 — 验收
 
@@ -582,8 +582,8 @@ CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就
 ### R10-7 — 不在这轮里
 
 - 报告正文里印出来的存量中文（「摄入」「披露块」等）另开一票，这票是 `tracker #211`；改了要重算 demo golden。
-- 放宽机器名规矩另开一票，这票是 `tracker #212`。两张都还只是开着，没做完。
-- 冻住的存档、生成物、机器名、键名不动；`examples/first-report` 四件报告一个字节不改。
+- 放宽机器名规矩的这张票是 `tracker #212`：它在 `ADR-0029`（待接受提案）里按「谁在读」把名字分成出仓的、只在本仓读的、当时留下的存档三种处理方式，键名实际的改名另开实现票，不在这轮里。
+- 冻住的存档、生成物，以及发到仓外的机器名不动；`examples/first-report` 四件报告一个字节不改。只在仓里流转的键名怎么处理，写在待接受的 `ADR-0029` 里；那份提案没被接受之前，键名照旧不动，这轮也不做。
 - 来源：tracker #200（「不在这轮里」的清单由它列）、tracker #148（上一轮的同类边界）、tracker #211、tracker #212。
 
 ### R10 Coverage（核对）
@@ -594,7 +594,7 @@ CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就
 | 12 条改名加 3 条新增，术语表只加不减 | R10-2 |
 | 正文里的旧决定号退到每节末尾的「来源」行；spec 的覆盖表保留 | R10-3 |
 | 英文文书保持英文，用日常说法 | R10-4 |
-| 真会被读的登记表只清 title / reason / evidence，键名不动 | R10-5 |
+| 真会被读的登记表只清 title / reason / evidence，键名改动的方式看 ADR-0029 | R10-5 |
 | 验收靠人读三份真材料 | R10-6 |
 | 报告正文存量中文、放宽机器名规矩，各另开一票 | R10-7 |
 

@@ -4,6 +4,7 @@
 [`CONTRIBUTING.md`](../CONTRIBUTING.md)、[`engine/README.md`](../engine/README.md)、
 [`docs/agents/domain.md`](agents/domain.md) 这些门面文书只放链接，不重复写。
 现在的架构决定收在 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
+[`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) 是待接受的提案，讲机器读的名字哪些能改；等它被接受才转成现行。
 
 ## 1. 三类文件
 
@@ -31,7 +32,7 @@
 | [`docs/known-gaps.md`](known-gaps.md) | 缺口是什么意思的登记册 |
 | [`docs/upstream-dimension-map.md`](upstream-dimension-map.md) | 上游到维度的映射表（每行记 `last_reviewed` / `next_review`；节奏和字段规则看 `docs/versioning.md`） |
 | [`docs/ra/`](ra/) | 已接受风险的档案（谁批的写名字，批的人是用户） |
-| [`engine/test/fixtures/contracts/`](../engine/test/fixtures/contracts/) | 同一目录里有两类文件：测试实际会读的**活契约**（Live Contract，比如 `33-gate-registry.json`），和按字节冻结、只保证能回头查的**冻结件**（Frozen Artifact，比如 `23-frozen-fc00d458.bundle`、`38-macro-c-facts.jsonl`）；两类不能互当现行基准 |
+| [`engine/test/fixtures/contracts/`](../engine/test/fixtures/contracts/) | 同一目录里有两类文件：测试实际会读的**活契约**（Live Contract，比如 `33-gate-registry.json`），和按字节冻结、只保证能回头查的**冻结件**（Frozen Artifact，比如 `23-frozen-fc00d458.bundle`、`38-macro-c-facts.jsonl`）；两类不能互当现行基准。前一类（真会被读的登记表）的键名哪些能改、改了谁跟着动，看 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) |
 | [`engine/CHANGELOG.md`](../engine/CHANGELOG.md) | 产品版本记录 |
 | [`docs/archive/decisions/`](archive/decisions/) | 历史编号的查询入口——**非权威、只读** |
 
@@ -85,10 +86,10 @@ Design: <一句话约束> — ADR-NNNN
 ```
 
 - 只写「为什么这里必须这样」，并给出 ADR 号；**不抄 ADR 正文**，不写多行块注释。
-- 指针指向的必须是 `docs/adr/` 下能打开的现行 ADR；现在只有 `ADR-0028`。旧号一律不再当指针目标。
+- 指针指向的必须是 `docs/adr/` 下能打开的现行 ADR；现在现行的是 `ADR-0028`，`ADR-0029` 待接受。旧号一律不再当指针目标。
 - 产品级约束指向 `docs/spec.md` 的节时写成 `Design: <一句话约束> — spec §R<n>`；术语约束指向 `GLOSSARY.md` 词条。
 - 一份 ADR 可以被多处指针引用；指针本身不是决定记录，删指针不删决定。
-- 现在仓里没有指向旧 ADR 号的 `Design:` 指针；产品级指针还可以指 spec 的节（例如 `spec §R9-1`）。新增的按本节写，目标只能是现行 ADR 或 spec 节。约束正文可以在 `ADR-0028` 的对应小节找；例如事实表单写者约束写在 `ADR-0028` §3，执行面在 `engine/src/fact/store.ts`。
+- 现在仓里没有指向旧 ADR 号的 `Design:` 指针；产品级指针还可以指 spec 的节（例如 `spec §R9-1`）。新增的按本节写，目标只能是现行 ADR 或 spec 节。约束正文可以在 `ADR-0028` 的对应小节找；例如事实表单写者约束写在 `ADR-0028` §3，执行面在 `engine/src/fact/store.ts`。机器读的名字哪些能改，写在 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)。
 - 旧的 `Design:` 指针已随代码注释票清零；若再看到指旧号的指针，按死引用处理，不能当成第二套现行规则。
 
 ## 5. 改这份文件时
