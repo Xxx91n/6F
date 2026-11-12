@@ -651,10 +651,14 @@ function unreleasedSection(text) {
 // matchAll 的下标仍对应原文位置。
 function bareTrackerRefs(text) {
   const masked = text.replace(/`[^`\n]*`/g, s => ' '.repeat(s.length));
+  // 豁免前缀的回看窗口：16 个字符足够容纳「epic tracker 」这类最长的合法前缀。
+  const EXEMPT_PREFIX_WINDOW = 16;
   const out = [];
   for (const m of masked.matchAll(/#(\d+)/g)) {
-    const before = masked.slice(Math.max(0, m.index - 16), m.index);
-    if (/(?:tracker|旧票)\s*$/.test(before)) { continue; }
+    const before = masked.slice(Math.max(0, m.index - EXEMPT_PREFIX_WINDOW), m.index);
+    // 只认「前缀 + 至少一个空格/tab」：tracker#N（无空格）与「tracker 换行 #N」（跨行）
+    // 都不放行——前者不是成文形制，后者会让下一行行首的裸 #NN 借上一行的尾巴逃掉。
+    if (/(?:tracker|旧票)[ \t]+$/.test(before)) { continue; }
     const lineStart = masked.lastIndexOf('\n', m.index - 1) + 1;
     const lineEnd = text.indexOf('\n', m.index);
     const line = text.slice(lineStart, lineEnd < 0 ? text.length : lineEnd).trim();
@@ -675,6 +679,8 @@ t('K3 判别臂：裸 #NN 必判红（含 PR 前缀与同句第二枚）、track
     return hits('（#123）') === 1 && // NEGATIVE-CONTROL
       hits('PR #105 落地') === 1 && // NEGATIVE-CONTROL
       hits('tracker #123 与 #124 同句') === 1 && // NEGATIVE-CONTROL
+      hits('tracker#123 无空格不是成文形制') === 1 && // NEGATIVE-CONTROL
+      hits('tracker\n#123 跨行借不到上一行的前缀') === 1 && // NEGATIVE-CONTROL
       hits('父票 tracker #38 与 epic tracker #109') === 0 && // NEGATIVE-CONTROL
       hits('旧票 #38 是旧 BACKLOG 号') === 0 && // NEGATIVE-CONTROL
       hits('反引号字面量 `#38` 不算 GitHub 引用') === 0 && // NEGATIVE-CONTROL
