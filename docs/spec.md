@@ -557,8 +557,8 @@ CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就
 
 - 正文讲白话；旧号退到每节末尾的「来源」行，想查再顺着号查。
 - `docs/spec.md` 的覆盖表保留，它就是拿号对账用的。
-- 机器读的名字一律不动：命令、参数、错误码、JSON 键、数据库列、环境变量、文件路径、`preview_disclosure` 这类字段。[`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) 是待接受的提案，讲以后哪些名字可以改；它没被接受之前，这条禁令照旧有效。
-- 来源：tracker #200、tracker #148（旧号退到来源行这套写法是上一轮定下的）、tracker #212（机器名分类的决定写进 ADR-0029）。
+- 出仓的机器读名字一律不动：命令、参数、错误码、JSON 键、数据库列、环境变量、文件路径、`preview_disclosure` 这类字段。只在本仓里被读的名字（比如 `33-gate-registry.json` 的字段键名）能不能改，按 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) 判，该文件已被 tracker #231 接受、是现行决定。
+- 来源：tracker #200、tracker #148（旧号退到来源行这套写法是上一轮定下的）、tracker #212（机器名分类的决定写进 ADR-0029）、tracker #231（ADR-0029 接受，按它改口径）。
 
 ### R10-4 — 英文文书
 
@@ -568,8 +568,8 @@ CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就
 
 ### R10-5 — 真会被读的登记表里的说明
 
-- [`engine/test/fixtures/contracts/33-gate-registry.json`](../engine/test/fixtures/contracts/33-gate-registry.json) 的 title / reason / evidence 这些说明文字要改成人话，这件事由 tracker #210 做；本段只定规矩，本段自己不动那份文件。键名、id、status、事件锚、事件成员，tracker #210 那轮不动，现在也不动；以后哪些名字能改、改了谁跟着动，写在待接受的 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) 里。
-- 来源：tracker #200、tracker #210（这份文件的人话改造在那张票做）、tracker #212（键名分类的决定写进 ADR-0029）。
+- [`engine/test/fixtures/contracts/33-gate-registry.json`](../engine/test/fixtures/contracts/33-gate-registry.json) 的 title / reason / evidence 这些说明文字要改成人话，这件事由 tracker #210 做；本段只定规矩，本段自己不动那份文件。键名、id、status、事件锚、事件成员，tracker #210 那轮不动。现在能不能改、改了谁跟着动，按 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) 判：这些名字只在本仓被读，可以改，但要同一笔改动把读它的脚本和文档一起改到全绿；实际改名另开实现票，本段不做。
+- 来源：tracker #200、tracker #210（这份文件的人话改造在那张票做）、tracker #212（键名分类的决定写进 ADR-0029）、tracker #231（ADR-0029 接受）。
 
 ### R10-6 — 验收
 
@@ -582,9 +582,9 @@ CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就
 ### R10-7 — 不在这轮里
 
 - 报告正文里印出来的存量中文（「摄入」「披露块」等）另开一票，这票是 `tracker #211`；改了要重算 demo golden。
-- 放宽机器名规矩的这张票是 `tracker #212`：它在 `ADR-0029`（待接受提案）里按「谁在读」把名字分成出仓的、只在本仓读的、当时留下的存档三种处理方式，键名实际的改名另开实现票，不在这轮里。
-- 冻住的存档、生成物，以及发到仓外的机器名不动；`examples/first-report` 四件报告一个字节不改。只在仓里流转的键名怎么处理，写在待接受的 `ADR-0029` 里；那份提案没被接受之前，键名照旧不动，这轮也不做。
-- 来源：tracker #200（「不在这轮里」的清单由它列）、tracker #148（上一轮的同类边界）、tracker #211、tracker #212。
+- 放宽机器名规矩的这张票是 `tracker #212`：它在 `ADR-0029` 里按「谁在读」把名字分成出仓的、只在本仓读的、当时留下的存档三种处理方式，键名实际的改名另开实现票，不在这轮里。ADR-0029 由 tracker #231 接受，已是现行决定。
+- 冻住的存档、生成物，以及发到仓外的机器名不动；`examples/first-report` 四件报告一个字节不改。只在仓里流转的键名怎么处理，写在 `ADR-0029` 里；那份 ADR 现在是现行，但键名实际改名这轮不做，另开实现票。
+- 来源：tracker #200（「不在这轮里」的清单由它列）、tracker #148（上一轮的同类边界）、tracker #211、tracker #212、tracker #231（ADR-0029 接受）。
 
 ### R10 Coverage（核对）
 
