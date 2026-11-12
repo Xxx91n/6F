@@ -646,13 +646,45 @@ function unreleasedSection(text) {
   }
   return out.join('\n');
 }
+// 反引号掩码（等长空格替换，保住 matchAll 的下标仍对应原文位置）。代码跨按 CommonMark
+// 配对认：开跨＝完整反引号连续段，闭跨＝**同长度**的完整连续段，跨内允许出现更短的连续段
+// （``a`b`` 合法）。两条边界（CodeRabbit PR #237 第二轮 Minor）：两端不等长不构成跨子
+// （`a`` 里 a 照裸判），否则 1 枚反引号会被 2 枚连续段的第一枚错关掉；跨内更短连续段不算关，
+// 否则合法跨子 ``#N `x` `` 会被拆碎误红。跨子不跨行；未配对不构成跨子，里面的字面量照裸判。
+function maskCodeSpans(text) {
+  const out = [];
+  let i = 0;
+  while (i < text.length) {
+    if (text[i] !== '`') { out.push(text[i]); i += 1; continue; }
+    let n = 0;
+    while (i + n < text.length && text[i + n] === '`') { n += 1; }
+    let j = i + n;
+    let close = -1;
+    while (j < text.length && text[j] !== '\n') {
+      if (text[j] === '`') {
+        let m = 0;
+        while (j + m < text.length && text[j + m] === '`') { m += 1; }
+        if (m === n) { close = j; break; }
+        j += m; // 长度不等的连续段是跨内字面量，不算关
+      } else {
+        j += 1;
+      }
+    }
+    if (close >= 0) {
+      const end = close + n;
+      out.push(' '.repeat(end - i));
+      i = end;
+    } else {
+      out.push(' '.repeat(n)); // 未配对：只掩反引号本身，后面的内容不豁免
+      i += n;
+    }
+  }
+  return out.join('');
+}
 // 裸引用位点（纯函数，判别臂与主检查共用同一个，避免「测的不是判的」）：`#数字` 前面不是
-// `tracker ` / `旧票 `、也不在反引号字面量里，就算裸。反引号剥除用等长空格替换，保住
-// matchAll 的下标仍对应原文位置。代码跨按配对反引号长度认（``#N`` 双反引号跨子同样豁免）：
-// 只认单反引号会把双反引号跨子只掩掉首尾、把跨子里的 #N 漏成裸引用，合规文档误红
-// （CodeRabbit PR #237 Minor）。跨子不跨行；反引号未配对就不构成跨子，里面的字面量照裸判。
+// `tracker ` / `旧票 `、也不在反引号字面量里，就算裸。
 function bareTrackerRefs(text) {
-  const masked = text.replace(/(`+)[^\n`]*?\1/g, s => ' '.repeat(s.length));
+  const masked = maskCodeSpans(text);
   // 豁免前缀的回看窗口：16 个字符足够容纳「epic tracker 」这类最长的合法前缀。
   const EXEMPT_PREFIX_WINDOW = 16;
   const out = [];
@@ -688,6 +720,8 @@ t('K3 判别臂：裸 #NN 必判红（含 PR 前缀与同句第二枚）、track
       hits('反引号字面量 `#38` 不算 GitHub 引用') === 0 && // NEGATIVE-CONTROL
       hits('双反引号跨子 ``#123`` 同样豁免') === 0 && // NEGATIVE-CONTROL
       hits('跨子 ``a`` 外的裸 #123 照判') === 1 && // NEGATIVE-CONTROL
+      hits('`#123`` 两端不等长不构成跨子') === 1 && // NEGATIVE-CONTROL
+      hits('合法跨子 ``#123 `x` `` 内含短连续段') === 0 && // NEGATIVE-CONTROL
       unreleasedSection('## [Unreleased]\n- A（#123）\n## [0.3.0]\n- B #55\n') === '- A（#123）' && // NEGATIVE-CONTROL
       unreleasedSection('## [0.3.0]\n- B\n') === null; // NEGATIVE-CONTROL
   })()); // NEGATIVE-CONTROL
