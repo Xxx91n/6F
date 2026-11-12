@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Capability boundaries are recorded honestly — check the README capability matrix first. Macro-B / Macro-C / Micro-A are in preview; Micro-B / Macro-A are **Not yet in preview** (roadmap, not a usable promise).
+        Capability boundaries are recorded honestly — check the README capability matrix first. Macro-B / Macro-C / Micro-A / Micro-B are in preview; Macro-A is **Not yet in preview** (roadmap, not a usable promise).
   - type: textarea
     id: problem
     attributes:
@@ -29,7 +29,7 @@ body:
         - Macro-B (repo quadrant)
         - Macro-C (evolution archaeology)
         - Micro-A (PR diff)
-        - Micro-B (file level — not yet in preview)
+        - Micro-B (file level)
         - Macro-A (cross-repo — not yet in preview)
         - Not sure / cross-cutting
     validations:
