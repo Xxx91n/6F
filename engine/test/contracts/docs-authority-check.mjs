@@ -646,16 +646,16 @@ function unreleasedSection(text) {
   }
   return out.join('\n');
 }
-// 反引号掩码（等长空格替换，保住 matchAll 的下标仍对应原文位置）。代码跨按 CommonMark
-// 配对认：开跨＝完整反引号连续段，闭跨＝**同长度**的完整连续段，跨内允许出现更短的连续段
-// （``a`b`` 合法）。两条边界（CodeRabbit PR #237 第二轮 Minor）：两端不等长不构成跨子
-// （`a`` 里 a 照裸判），否则 1 枚反引号会被 2 枚连续段的第一枚错关掉；跨内更短连续段不算关，
-// 否则合法跨子 ``#N `x` `` 会被拆碎误红。跨子不跨行；未配对不构成跨子，里面的字面量照裸判。
-function maskCodeSpans(text) {
-  const out = [];
+// 代码跨区间（[start, end) 清单）。CommonMark 配对：开跨＝完整反引号连续段，闭跨＝
+// **同长度**的完整连续段，跨内允许出现更短的连续段（``a`b`` 合法）。两条边界
+// （CodeRabbit PR #237 第二轮 Minor）：两端不等长不构成跨子（`a`` 里 a 照裸判），
+// 否则 1 枚反引号会被 2 枚连续段的第一枚错关掉；跨内更短连续段不算关，否则合法跨子
+// ``#N `x` `` 会被拆碎误红。跨子不跨行；未配对不构成跨子。
+function codeSpanRanges(text) {
+  const ranges = [];
   let i = 0;
   while (i < text.length) {
-    if (text[i] !== '`') { out.push(text[i]); i += 1; continue; }
+    if (text[i] !== '`') { i += 1; continue; }
     let n = 0;
     while (i + n < text.length && text[i + n] === '`') { n += 1; }
     let j = i + n;
@@ -672,28 +672,32 @@ function maskCodeSpans(text) {
     }
     if (close >= 0) {
       const end = close + n;
-      out.push(' '.repeat(end - i));
+      ranges.push([i, end]);
       i = end;
     } else {
-      out.push(' '.repeat(n)); // 未配对：只掩反引号本身，后面的内容不豁免
-      i += n;
+      i += n; // 未配对：这一段反引号是字面量，不构成跨子
     }
   }
-  return out.join('');
+  return ranges;
 }
-// 裸引用位点（纯函数，判别臂与主检查共用同一个，避免「测的不是判的」）：`#数字` 前面不是
-// `tracker ` / `旧票 `、也不在反引号字面量里，就算裸。
+// 裸引用位点（纯函数，判别臂与主检查共用同一个，避免「测的不是判的」）：在**原文**上找
+// `#数字`，落在代码跨内的豁免；前缀判据同样只看原文——掩码把反引号换成空格会凭空造出
+// 「tracker 」这样的豁免前缀，把 tracker`#123（未配对）和 tracker`x`#123（完整跨子）
+// 这类真裸引用漏掉（CodeRabbit PR #237 第三轮 Minor）。
 function bareTrackerRefs(text) {
-  const masked = maskCodeSpans(text);
+  const spans = codeSpanRanges(text);
+  const inSpan = (idx) => spans.some(([s, e]) => idx >= s && idx < e);
   // 豁免前缀的回看窗口：16 个字符足够容纳「epic tracker 」这类最长的合法前缀。
   const EXEMPT_PREFIX_WINDOW = 16;
   const out = [];
-  for (const m of masked.matchAll(/#(\d+)/g)) {
-    const before = masked.slice(Math.max(0, m.index - EXEMPT_PREFIX_WINDOW), m.index);
-    // 只认「前缀 + 至少一个空格/tab」：tracker#N（无空格）与「tracker 换行 #N」（跨行）
-    // 都不放行——前者不是成文形制，后者会让下一行行首的裸 #NN 借上一行的尾巴逃掉。
+  for (const m of text.matchAll(/#(\d+)/g)) {
+    if (inSpan(m.index)) { continue; }
+    const before = text.slice(Math.max(0, m.index - EXEMPT_PREFIX_WINDOW), m.index);
+    // 只认「前缀 + 至少一个空格/tab」直接贴到 #：tracker#N（无空格）、tracker`x`#123
+    // （中间隔着代码跨）、「tracker 换行 #N」（跨行）都不放行——前者和后两类不是成文形制，
+    // 跨行那类会让下一行行首的裸 #NN 借上一行的尾巴逃掉。
     if (/(?:tracker|旧票)[ \t]+$/.test(before)) { continue; }
-    const lineStart = masked.lastIndexOf('\n', m.index - 1) + 1;
+    const lineStart = text.lastIndexOf('\n', m.index - 1) + 1;
     const lineEnd = text.indexOf('\n', m.index);
     const line = text.slice(lineStart, lineEnd < 0 ? text.length : lineEnd).trim();
     out.push('#' + m[1] + ' :: ' + (line.length > 50 ? line.slice(0, 50) + '…' : line));
@@ -722,6 +726,8 @@ t('K3 判别臂：裸 #NN 必判红（含 PR 前缀与同句第二枚）、track
       hits('跨子 ``a`` 外的裸 #123 照判') === 1 && // NEGATIVE-CONTROL
       hits('`#123`` 两端不等长不构成跨子') === 1 && // NEGATIVE-CONTROL
       hits('合法跨子 ``#123 `x` `` 内含短连续段') === 0 && // NEGATIVE-CONTROL
+      hits('tracker`#123 未配对反引号不造豁免前缀') === 1 && // NEGATIVE-CONTROL
+      hits('tracker`x`#123 代码跨不是豁免前缀') === 1 && // NEGATIVE-CONTROL
       unreleasedSection('## [Unreleased]\n- A（#123）\n## [0.3.0]\n- B #55\n') === '- A（#123）' && // NEGATIVE-CONTROL
       unreleasedSection('## [0.3.0]\n- B\n') === null; // NEGATIVE-CONTROL
   })()); // NEGATIVE-CONTROL
