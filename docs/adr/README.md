@@ -7,3 +7,4 @@ Architecture decision records — generated index (navigation surface; not an au
 | ADR | title | status | date |
 | --- | --- | --- | --- |
 | [ADR-0028](0028-current-architecture-and-docs-authority.md) | 现行架构决定与文档权威 | accepted | 2026-11-10 |
+| [ADR-0029](0029-relax-machine-read-name-rule.md) | 放宽「机器读的名字不许改」这条规矩 | proposed | 2026-11-12 |
