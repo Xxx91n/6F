@@ -2,7 +2,7 @@
 // 查什么：
 //   A 本检查自报身份（guard-meta）、*-check.mjs 命名、扫描范围非空（防扫不到东西就假装通过）
 //   B 门面文书集合（按「声明位置」内容派生，不硬编码五/六处计数）→ 逐文件 markdown 链接指回 docs/authority.md 本体
-//   C 现行 ADR 只有 0028；旧号只准出现在 authority.md §3 声明的历史引用面（哨兵与固定机器名除外）；docs/adr/ 链接可解析
+//   C 现行 ADR 从 §3 的历史号清单推出来（可以不止一份，不由脚本写死）；旧号只准出现在 §3 声明的历史引用面（哨兵与固定机器名除外）；docs/adr/ 链接可解析
 //   D D-NNN 引用 ⊆ 归档索引；D-NNN 集合只减不增（冻结记录的 blob 值锁死＋散文假阳性五项锁死）
 //   E §D-NNN / §A-NNN 死锚拒绝（2+ 位退役码形态；1 位是节号，不在此列）
 //   F 门面文书不得自称权威；专题「唯一权威」白名单只从 docs/authority.md §2 读一处
@@ -120,10 +120,11 @@ t('B0 门面标记与 authorityPointer 同形：外链不算、fragment 算',
   !LANDING_MARK.test('](https://example.com/authority.md)') &&
   LANDING_MARK.test('](docs/authority.md#section)'));
 
-// ---------- C. 现行 ADR 唯一，旧号只在历史引用面 ----------
-const ADR_FILES = TRACKED.filter(p => /^docs\/adr\/\d{4}-.+\.md$/.test(p));
+// ---------- C. 现行 ADR 从 §3 推出来，旧号只在历史引用面 ----------
+// 号只认「既被 git 跟踪、盘上也真有一份」的文件：工作区删了却还没提交时，不能继续算现行，
+// 否则删掉起点 ADR 也照样绿——这正是 C0 下面那条正对照要拦的。
+const ADR_FILES = TRACKED.filter(p => /^docs\/adr\/\d{4}-.+\.md$/.test(p)).filter(p => existsSync(join(REPO, p)));
 const ADR_NUMBERS = new Set(ADR_FILES.map(p => p.match(/^docs\/adr\/(\d{4})-/)[1]));
-const CURRENT_ADR = '0028';
 const authorityText = txt('docs/authority.md');
 // authority.md §3 的 yaml 块是历史号、历史路径和说明处的唯一来源；脚本不自带第二份清单。
 function parseHistoricalAdr(text) {
@@ -150,6 +151,21 @@ const HIST = parseHistoricalAdr(authorityText);
 const HIST_NUMBERS = new Set(HIST ? HIST.numbers : []);
 const HIST_PATHS = HIST ? HIST.paths : [];
 const HIST_EXPLAINED = new Set(HIST ? HIST.explained_in : []);
+// 「现行架构决定从 ADR-NNNN 起算」这一句是现行纪元的起点，只有 authority.md §3 一处写着。
+// 从文书里解析，不在脚本里写死；解析不到或解析出多个就是红，不能退回默认值悄悄放行。
+function parseEntryAdr(text) {
+  const hits = [...text.matchAll(/现行架构决定从\s*`ADR-(\d{4})`\s*起算/g)].map(m => m[1]);
+  return hits.length === 1 ? hits[0] : null;
+}
+const ENTRY_ADR = parseEntryAdr(authorityText);
+// 现行 = docs/adr/ 下有文件、号又不在 §3 的历史号清单里。新增一份现行 ADR 不用改脚本。
+function deriveCurrentAdr(adrNumbers, historicalNumbers) {
+  return [...adrNumbers].filter(n => !historicalNumbers.has(n)).sort();
+}
+function revivedAdr(adrNumbers, historicalNumbers) {
+  return [...adrNumbers].filter(n => historicalNumbers.has(n)).sort();
+}
+const entryAdrFiles = ENTRY_ADR ? ADR_FILES.filter(p => p.startsWith('docs/adr/' + ENTRY_ADR + '-')) : [];
 // 历史路径按前缀匹配目录，说明处按整文件匹配；两者都要求号在 numbers 清单里。
 function inHistoricalSurface(path, num) {
   if (!HIST_NUMBERS.has(num)) { return false; }
@@ -216,10 +232,20 @@ for (const { path, text } of CORPUS) {
     if (!existsSync(join(REPO, resolved))) { adrLinks.push(path + ' -> ' + raw + ' (' + resolved + ')'); }
   }
 }
-const currentAdrFiles = ADR_FILES.filter(p => new RegExp('^docs/adr/' + CURRENT_ADR + '-').test(p));
-t('C0 docs/adr 下有 0028 且仅一份，没有历史号 ADR 复活（旧 24 份正文已删）',
-  ADR_NUMBERS.has(CURRENT_ADR) && currentAdrFiles.length === 1 && ![...ADR_NUMBERS].some(n => HIST_NUMBERS.has(n)),
-  'files=' + ADR_FILES.join(','));
+// C0 只认三条：现行集合非空、里面有 §3 点名的起点号、盘上没有历史号复活。
+// 不再要求「只有一份」——那样加一份新 ADR 就得回来改脚本，也正是这回要修的病。
+function currentAdrVerdict(adrNumbers, historicalNumbers, entry) {
+  const current = deriveCurrentAdr(adrNumbers, historicalNumbers);
+  return {
+    current,
+    revived: revivedAdr(adrNumbers, historicalNumbers),
+    ok: !!entry && current.length > 0 && current.includes(entry) && revivedAdr(adrNumbers, historicalNumbers).length === 0,
+  };
+}
+const CURRENT_VERDICT = currentAdrVerdict(ADR_NUMBERS, HIST_NUMBERS, ENTRY_ADR);
+t('C0 现行 ADR 从 §3 推出来：非空、含 §3 点名的起点号、没有历史号复活（不写死编号、不要求只有一份）',
+  !!ENTRY_ADR && CURRENT_VERDICT.ok,
+  'entry=' + (ENTRY_ADR || '<unparsed>') + ' current=' + CURRENT_VERDICT.current.join(',') + ' revived=' + CURRENT_VERDICT.revived.join(',') + ' files=' + ADR_FILES.join(','));
 t('C1 现行文本的 ADR-NNNN 只指向现行 ADR 或历史引用面（哨兵与固定机器名除外）',
   adrRefCount > 0 && badAdr.length === 0, 'refs=' + adrRefCount + ' dangling=' + [...new Set(badAdr)].join(','));
 t('C1b 哨兵豁免只覆盖 engine 代码/测试（engine/README.md 不在内）',
@@ -237,17 +263,31 @@ t('C4 历史路径清单非空，每条都在仓里（清单从 §3 读，不在
   HIST_PATHS.length > 0 && missingHistPaths.length === 0,
   'paths=' + HIST_PATHS.join(',') + ' missing=' + missingHistPaths.join(','));
 const missingExplained = [...HIST_EXPLAINED].filter(p => !historicalPathExists(p));
-t('C5 explained_in 非空、每条都在仓里，且含 authority.md 与现行 ADR',
-  HIST_EXPLAINED.size > 0 && missingExplained.length === 0 && currentAdrFiles.length === 1 &&
-  HIST_EXPLAINED.has('docs/authority.md') && HIST_EXPLAINED.has(currentAdrFiles[0]),
-  'explained=' + [...HIST_EXPLAINED].join(',') + ' missing=' + missingExplained.join(','));
+t('C5 explained_in 非空、每条都在仓里，且含 authority.md 与 §3 点名的起点 ADR',
+  HIST_EXPLAINED.size > 0 && missingExplained.length === 0 && entryAdrFiles.length === 1 &&
+  HIST_EXPLAINED.has('docs/authority.md') && HIST_EXPLAINED.has(entryAdrFiles[0]),
+  'explained=' + [...HIST_EXPLAINED].join(',') + ' entry=' + (entryAdrFiles.join(',') || '<none>') + ' missing=' + missingExplained.join(','));
 const HIST_SCREEN = HIST_PATHS[0] || '<missing-historical-path>';
 t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判红；历史路径不放行任意旧号', // NEGATIVE-CONTROL
   adrRefClass(HIST_SCREEN, '0001') === 'historical' && // NEGATIVE-CONTROL
   adrRefClass('README.md', '0001') === 'dead' && // NEGATIVE-CONTROL
-  adrRefClass('README.md', CURRENT_ADR) === 'current' && // NEGATIVE-CONTROL
+  adrRefClass('README.md', ENTRY_ADR) === 'current' && // NEGATIVE-CONTROL
   adrRefClass(HIST_SCREEN, '9998') === 'dead', // NEGATIVE-CONTROL
   'hist=' + adrRefClass(HIST_SCREEN, '0001') + ' current=' + adrRefClass('README.md', '0001'));
+// C6b 的推法要能证伪，但它自己不能用真仓当前状态当输入：仓一坏，控制项跟着红，
+// 就分不清「推法坏了」还是「仓坏了」。所以输入全用合成集合。
+t('C6b 现行 ADR 推法负对照：多一份仍绿、删起点号红、现行号塞进历史清单红、起点号缺失红', // NEGATIVE-CONTROL
+  (() => { // NEGATIVE-CONTROL
+    const adr = new Set(['0028', '0029']); // NEGATIVE-CONTROL
+    const hist = new Set(['0001']); // NEGATIVE-CONTROL
+    return currentAdrVerdict(new Set([...adr, '0030']), hist, '0028').ok && // NEGATIVE-CONTROL
+      !currentAdrVerdict(new Set([...adr].filter(n => n !== '0028')), hist, '0028').ok && // NEGATIVE-CONTROL
+      !currentAdrVerdict(adr, new Set([...hist, '0029']), '0028').ok && // NEGATIVE-CONTROL
+      !currentAdrVerdict(adr, hist, null).ok && // NEGATIVE-CONTROL
+      parseEntryAdr('现行架构决定从 `ADR-0077` 起算') === '0077' && // NEGATIVE-CONTROL
+      parseEntryAdr('没有这句话') === null && // NEGATIVE-CONTROL
+      parseEntryAdr('现行架构决定从 `ADR-0077` 起算，现行架构决定从 `ADR-0078` 起算') === null; // NEGATIVE-CONTROL
+  })()); // NEGATIVE-CONTROL
 t('C7 固定机器名放行：协议版本串和 schema inherits 历史标签不算死引用，普通旧号仍算', // NEGATIVE-CONTROL
   frozenMachineLabel('engine/src/report/generate.ts', { code: 'ADR-0013', line: "const V = 'ADR-0013-C/v1';" }) && // NEGATIVE-CONTROL
   frozenMachineLabel('engine/src/fact/schema.ts', { code: 'ADR-0005', line: "inherits: 'ADR-0005'" }) && // NEGATIVE-CONTROL
