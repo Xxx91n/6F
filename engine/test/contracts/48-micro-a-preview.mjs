@@ -1,17 +1,17 @@
-// 48-micro-a-preview.mjs — Micro-A preview：托管 API 适配器消费侧管道（#48 / A-056 / spec R8-02 / D-049）
-// 链 = PR intake（github-rest-adapter@v1：PR 枚举＋元数据＋diff 双通道）→ fact（JSONL＋48-audit-facts.duckdb，scale=Micro-A）
-//   → 裁决（48-micro-a-criteria.md 预声明判据 PC-1 / TC-1~4 / NC-1，跑后禁调）
-//   → 报告（buildReport 骨架 1.2.0 共享四章＋Micro-A 字段＋preview_disclosure「capability 3 of 5 · preview」）
-// 模式：default=真跑（凭据三级探测 env-token→gh-token→unauthenticated 如实降级）；
-//   --golden=cassette 离线回放（engine/test/fixtures/github-rest/authenticated.cassette.json；只锁字段骨架不锁内容值）；
-//   --repo <name> 单仓过滤（env-manager|jiahao|anysearch-cli|goose-duck-agent）。
-// PR 集 = 恰 4 条已 merged（票面写死实例不给通用公式，D-049③）：
-//   env-manager #64 release-please 机器生成（github-actions[bot]/Bot · chore(main): release 标题签名——#37 教训缩小范围到产物形态）
-//   env-manager #55 dependabot[bot]/Bot（平台声明 Bot 双检命中）  env-manager #51 人类（Xxx91n/User）  jiahao #6 人类（全人基线 merged）
-// failure 件 = D-033 硬约束逆用：托管枚举 merged PR=0 → intake 明确拒绝 → 报告落 unsupported「无托管 PR 面＋原因＋前置条件」；
-//   票面前提漂移如实登记——anysearch-cli 票面撰写时无托管面（#37 实测 github_pr_total=0），本票复核其托管枚举 merged≥1，
-//   故 failure 演示主体改取真负例 goose-duck-agent（托管仓 merged PR=0，拒绝路径如实演示）。
-// 纪律：被测仓只读（git 只读子命令＋REST GET）；凭据即用即清永不入工件；唯一写动作 = --out 目录 48-* 工件。
+// 48-micro-a-preview.mjs — Micro-A 预览版：从托管 API 适配器这一侧往下跑整条管道（#48 / A-056 / spec R8-02 / D-049）
+// 链 = PR 接进来（github-rest-adapter@v1：PR 枚举＋元数据＋diff 两个通道）→ 事实（JSONL＋48-audit-facts.duckdb，scale=Micro-A）
+//   → 裁决（48-micro-a-criteria.md 预声明的判据 PC-1 / TC-1~4 / NC-1，跑完之后不许调）
+//   → 报告（buildReport 骨架 1.2.0 的共享四章＋Micro-A 字段＋预览说明块「capability 3 of 5 · preview」）
+// 模式：default=真跑（凭据三级探测 env-token→gh-token→unauthenticated，缺了就如实降级）；
+//   --golden=cassette 离线回放（engine/test/fixtures/github-rest/authenticated.cassette.json；只锁字段骨架，不锁内容值）；
+//   --repo <name> 只跑一个仓（env-manager|jiahao|anysearch-cli|goose-duck-agent）。
+// PR 集 = 正好 4 条已经 merged 的（票面写死实例，不给通用公式，D-049③）：
+//   env-manager #64 release-please 机器生成（github-actions[bot]/Bot · chore(main): release 标题签名——#37 的教训：缩小范围到产物形态）
+//   env-manager #55 dependabot[bot]/Bot（平台声明的 Bot 双检命中）  env-manager #51 人类（Xxx91n/User）  jiahao #6 人类（全人基线 merged）
+// failure 那份 = 把 D-033 硬约束反着用：托管枚举 merged PR=0 → 接进来时明确拒绝 → 报告落 unsupported「没有托管 PR 面＋原因＋前置条件」；
+//   票面前提漂移照实登记——anysearch-cli 票面写的时候还没有托管面（#37 实测 github_pr_total=0），本票复核它的托管枚举 merged≥1，
+//   所以 failure 演示的主体改成真负例 goose-duck-agent（托管仓 merged PR=0，拒绝路径照实演示）。
+// 纪律：被测仓只读（git 只用读的子命令＋REST GET）；凭据用完就清、永不进工件；唯一写动作 = --out 目录下的 48-* 工件。
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -32,8 +32,8 @@ const STORE = await import(pathToFileURL(join(DIST, 'fact', 'store.js')).href);
 const GH = await import(pathToFileURL(join(DIST, 'upstream', 'github-rest.js')).href);
 const I = await import(pathToFileURL(join(DIST, 'intake', 'intake.js')).href);// #54/D-059①：%cI 输出经归一化（+00:00→Z）＋严格形状断言，与引擎同规则
 
-// ---------- §0 Micro-A 字段契约（唯一事实源） ----------
-// NN-check 由本常量 ∩ dist REPORT_SKELETON.required_fields 机械导出断言集——禁手抄漂移（D-049⑤）。
+// ---------- §0 Micro-A 字段契约（唯一的事实来源） ----------
+// NN-check 从本常量 ∩ dist REPORT_SKELETON.required_fields 机械导出一套断言，禁止手抄出漂移（D-049⑤）。
 export const MICRO_A_SLICE_FIELDS = [
   'pr_number', 'pr_title', 'pr_state', 'merged', 'merged_at',
   'author_login', 'author_type', 'bot_declared', 'bot_basis', 'author_form',
@@ -42,7 +42,7 @@ export const MICRO_A_SLICE_FIELDS = [
   'credential_strategy', 'credential_degraded', 'api_calls', 'rate_limit_remaining'
 ];
 
-// ---------- §1 票面写死实例（恰 4 条 merged；D-049③）----------
+// ---------- §1 票面写死的实例（正好 4 条 merged；D-049③）----------
 const PILOTS = [
   {
     name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', root: siblingPath('env-manager'),
@@ -57,13 +57,13 @@ const PILOTS = [
     prs: [{ n: 6, form: 'human' }]
   }
 ];
-// 托管面资格闸探针：anysearch-cli=票面前提漂移核查（#37 实测 github_pr_total=0 → 本票复核枚举 merged 数）；
-// goose-duck-agent=真负例拒绝主体（托管仓 merged PR=0 → intake 明确拒绝）。
+// 托管面资格这一关先试一下：anysearch-cli=票面前提漂移的核查（#37 实测 github_pr_total=0 → 本票复核枚举 merged 数）；
+// goose-duck-agent=真负例，用来演示拒绝（托管仓 merged PR=0 → 接进来时明确拒绝）。
 const GATE_PROBES = [
   { name: 'anysearch-cli', owner: 'Xxx91n', repo: 'anysearch-cli' },
   { name: 'goose-duck-agent', owner: 'Xxx91n', repo: 'goose-duck-agent', root: siblingPath('goose-duck-agent'), refusal: true }
 ];
-// golden 回放面：authenticated cassette 录制 = list(62)+detail#64+detail#51+diff#64——golden 选定子集与之逐字对齐。
+// golden 回放这一面：authenticated cassette 录的是 list(62)+detail#64+detail#51+diff#64——golden 选的子集跟它逐字对齐。
 const GOLDEN_PRS = [{ n: 64, form: 'machine-generated/release-please' }, { n: 51, form: 'human' }];
 const GOLDEN_DIFFS = [64];
 const CRITERIA_PATH = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
@@ -81,13 +81,13 @@ function parseArgs(argv) {
   return out;
 }
 const ARGS = parseArgs(process.argv.slice(2));
-// Design: golden 存档的锚须与检出无关 —— 定长取判据锚前 GOLDEN_ABBREV 位；真跑面原样返回 — spec §R9-1
-// %h 的宽度随该检出的对象集合走（小检出 emit 7 位、前缀有歧义时 git 自动加长），而锚值被算进
-// receipt_id／chain_hash／mark。故 golden 侧两头都收尾：钉下限挡住「<8」，截断挡住「>8」。
+// 设计：golden 存档的锚必须跟这次检出无关——固定长度，只取判据锚的前 GOLDEN_ABBREV 位；真跑这一面原样返回 — spec §R9-1
+// %h 的宽度跟着这次检出的对象集合走（小检出只吐 7 位、前缀有歧义时 git 会自动加长），而锚值会被算进
+// receipt_id／chain_hash／mark。所以 golden 这一侧两头都收口：固定下限挡住「<8」，截断挡住「>8」。
 const GOLDEN_ABBREV = 8;
 if (ARGS.golden) {
-  // core.abbrev 是下限不是等宽，这里只解决「小检出 emit 7 位」；歧义加宽交给下面 PREREG_COMMIT 那步截断。
-  // 追加而非覆写：GIT_CONFIG_* 是 git 的通用注入位，可能已被用户/CI 占用，覆写会把人家的配置顶掉。
+  // core.abbrev 是下限不是等宽，这里只解决「小检出只吐 7 位」；有歧义要加宽交给下面 PREREG_COMMIT 那步截断。
+  // 改成追加而不是覆写：GIT_CONFIG_* 是 git 的通用注入位，可能已经被用户/CI 占了，覆写会把人家配的东西顶掉。
   const n = parseInt(process.env.GIT_CONFIG_COUNT || '0', 10) || 0;
   process.env['GIT_CONFIG_KEY_' + n] = 'core.abbrev';
   process.env['GIT_CONFIG_VALUE_' + n] = String(GOLDEN_ABBREV);
@@ -99,14 +99,14 @@ if (!existsSync(OUTDIR)) { mkdirSync(OUTDIR, { recursive: true }); }
 // ---------- §2 小工具 ----------
 function git(root, args) { return execFileSync('git', ['-C', root].concat(args), { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }); }
 function tryGit(root, args) { try { return git(root, args).trim(); } catch (e) { return null; } }
-// D-179① 伴生确定性：prereg_commit 钉判据预声明件最后变更 commit（名实归位——「预声明锚」非运行时 HEAD；
-//   原 rev-parse HEAD 令每次 commit 后整批 golden 必漂，改钉 CRITERIA_PATH 锚=判据不动即恒值）
-// Design: 取值走引擎同一个 resolvePreregCommit——本生成器与 dist 引擎不得各判各的锚 — spec §R9-1
+// D-179① 一起保证确定性：prereg_commit 固定到判据预声明那件最后一次变更的 commit（名字跟实际对上——是「预声明锚」，不是运行时 HEAD；
+//   原来用 rev-parse HEAD，每次 commit 之后整批 golden 必然漂，改成固定 CRITERIA_PATH 这个锚＝判据不动就恒值）
+// 设计：取值走引擎里同一个 resolvePreregCommit——这个生成器和 dist 引擎不能各判各的锚 — spec §R9-1
 const MA48 = await import(pathToFileURL(join(DIST, 'audit', 'micro-a.js')).href);
-// 取值仍由产品 resolver 给出（85-check A17 的溯源臂要求这一字面形，不得换成自造包装）；
-// golden 侧再把它收成定长：钉下限后 %h ≥ 8，故 hex 形要么恰好 8（原样）、要么 >8（截首 8 位——
-// 同一 commit 的前缀，跨检出恒定）；degraded:/sentinel: 不匹配该正则、原样保留。
-// 真跑面 replacer 取 '$&'（整段照抄），一个字节都不动。
+// 取值还是由产品里的 resolver 给（85-check A17 的溯源这一项要求就是这个字面形，不许换成自己造的包装）；
+// golden 这一侧再把它收成固定长度：固定了下限之后 %h ≥ 8，所以 hex 形要么正好 8（原样）、要么 >8（截前 8 位——
+// 同一个 commit 的前缀，跨检出不变）；degraded:/sentinel: 不匹配这个正则，原样保留。
+// 真跑这一面的 replacer 取 '$&'（整段照抄），一个字节都不动。
 const PREREG_COMMIT = MA48.resolvePreregCommit(REPO, CRITERIA_PATH).replace(/^([0-9a-f]{8})[0-9a-f]+$/, ARGS.golden ? '$1' : '$&');
 function pickExcerpt(absOrRelPath, tokens, base) {
   const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
@@ -126,7 +126,7 @@ function prFact(facts, metric, n) {
   const hit = facts.filter(function (f) { return f.metric === metric && f.subject_ref.slice(-('#' + n).length) === '#' + n; });
   return hit.length > 0 ? hit[0] : null;
 }
-// 作者形态三类：release-please 机器生成（标题产物签名）/ 平台声明 Bot（双检）/ 人类。措辞=平台声明的 Bot 身份，不自创机器归因。
+// 作者形态就三类：release-please 机器生成（看标题的产物签名）/ 平台声明的 Bot（双检）/ 人类。措辞用平台声明的 Bot 身份，不自己发明机器归因。
 function classifyForm(v) {
   if (v.bot_declared === true && /dependabot/i.test(v.author_login)) { return 'platform-declared-bot/dependabot'; }
   if (v.bot_declared === true && RELEASE_TITLE.test(v.title)) { return 'machine-generated/release-please'; }
@@ -146,7 +146,7 @@ function cassetteFetcher(cas, cap) {
     return { status: c.response.status, headers: c.response.headers || {}, body: typeof c.response.body === 'string' ? c.response.body : JSON.stringify(c.response.body) };
   };
 }
-// ---------- §3 骨架交集机械导出（desk-task15 判据断言面；禁手抄漂移） ----------
+// ---------- §3 把骨架交集机械导出来（desk-task15 判据这一面；禁手抄出漂移） ----------
 export function skeletonIntersectionReport(sidecar, mdText) {
   const missing = [];
   const rename = { stale_data_marker: 'stale.marker', staleness_sla_seconds: 'stale.sla_seconds', read_model_lag_seconds: 'stale.lag_seconds', read_model_version: 'stale.read_model_version', fact_watermark_version: 'stale.fact_watermark_version', evidence_items: 'evidence' };
@@ -203,7 +203,7 @@ async function collectTarget(t, shared, diffsOverride) {
   return { t: t, ctx: ctx, res: res, summaries: summaries, mergedCount: mergedCount, headSha: headSha, headDate: headDate };
 }
 
-// 托管面资格闸（D-033 硬约束逆用）：merged PR ≥1 → eligible；=0 → intake 明确拒绝。
+// 托管面资格看的是（D-033 硬约束反着用）：merged PR ≥1 → eligible；=0 → 接进来时明确拒绝。
 async function gateProbe(g, shared) {
   const t = { name: g.name, owner: g.owner, repo: g.repo, root: g.root || null, prs: [] };
   const r = await collectTarget(t, shared, []);
@@ -216,7 +216,7 @@ async function gateProbe(g, shared) {
   };
 }
 
-// ---------- §5 diff 工件（与适配器同路径再现：local-git 优先 / api 兜底；写 .diff 供行级引文锚） ----------
+// ---------- §5 diff 工件（跟适配器同一个路径再出一份：local-git 优先 / API 退一步；写 .diff 给行级引文坐标） ----------
 async function fetchDiffArtifact(t, n, baseSha, headSha, shared, outName) {
   const cred = shared.cred || GH.resolveGithubCredential(shared.env || process.env, shared.ghTokenProbe);
   const client = GH.createGithubRestClient(cred, shared.fetcher ? { fetcher: shared.fetcher } : {});
@@ -247,7 +247,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
   const formActual = meta !== null ? classifyForm(meta) : (sum !== null ? classifyForm(sum) : 'unknown');
   const formMatch = formActual === pin.form;
 
-  // diff 工件：与采集同路径再现（local-git 优先 / api 兜底——走主路/回退如实标注）
+  // diff 工件：跟采集同一个路径再出一份（local-git 优先 / API 退一步——走主路还是走回退，照实标注）
   const artName = PRE + NAME + '-pr' + pin.n + '.diff';
   const art = await fetchDiffArtifact(t, pin.n, sum ? sum.base_sha : '', sum ? sum.head_sha : '', shared, artName);
 
@@ -255,7 +255,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
   const tripleOk = sumF !== null && metaF !== null && diffF !== null && merged === true;
   const numStatsOk = diff !== null && typeof diff.files_changed === 'number' && typeof diff.additions === 'number' && typeof diff.deletions === 'number';
   const channelOk = diff !== null && (diff.channel === 'local-git' || diff.channel === 'api') && typeof diff.bytes === 'number' && diff.bytes > 0;
-  // api 腿契约=NULL_STATS 如实缺席（适配器 apiDiff 不算 numstat）——api 腿改判 detail 注记在场；local-git 腿须数值齐备
+  // 走 API 这一路时契约是 NULL_STATS，照实缺席（适配器 apiDiff 不算 numstat）——走 API 这一路要改判成 detail 注记在场；走 local-git 这一路数值必须齐备
   const tc2ok = channelOk && (diff.channel === 'api' ? (typeof diff.detail === 'string' && diff.detail.length > 0) : numStatsOk);
   const botFieldsOk = sum !== null && typeof sum.bot_declared === 'boolean' && typeof sum.bot_basis === 'string' && sum.bot_basis.indexOf('platform-declared') === 0;
   const EV = function (k) { return 'EV-48-' + R + '-PR' + pin.n + '-0' + k; };
@@ -296,7 +296,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
     rate_limit_remaining: run ? run.final_remaining : null
   };
 
-  // 证据（C3：行级引文锚——diff 工件行 / 实测文件行 / 记录行；摘取失败如实 grounded=false）
+  // 证据（C3：行级引文坐标——diff 工件的行 / 实测文件的行 / 记录行；摘不到就照实 grounded=false）
   const evidence = [];
   function addEvidence(id, src, tokens, claim, repro, base) {
     let ex = null;
@@ -326,7 +326,7 @@ async function buildPrReport(t, pin, collected, gate, shared, opts) {
     { claim_id: 'CL-48-' + R + '-PR' + pin.n + '-05', evidence_id: EV(5), required_tokens: ['TC-4'] }
   ];
 
-  // 四象限（Micro-A：behavior=native 单面；其余 not_applicable 如实披露）
+  // 四象限（Micro-A 只有 behavior 这一面是 native；其余 not_applicable，照实披露）
   const GATE = { protocol_version: G.ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'reports/48-micro-a-preview.mjs' };
   const isDep = formActual === 'platform-declared-bot/dependabot';
   const quadrants = [
@@ -517,7 +517,7 @@ async function goldenMain() {
   const t = { name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', root: null, prs: GOLDEN_PRS };
   const rr = await runRepo(t, shared, { golden: true, factsName: '48-micro-a-golden-env-manager-facts.jsonl', measName: '48-micro-a-golden-env-manager-measurements.json' });
 
-  // golden 拒绝腿：合成 0-PR cassette（如实标注 synthetic）
+  // golden 这条拒绝路径：造一个 0 个 PR 的 cassette（照实标 synthetic）
   const zeroCas = {
     name: 'zero-pr-synthetic', recorded: 'synthetic', calls: [
       { request: { method: 'GET', path: '/repos/Xxx91n/goose-duck-agent/pulls?state=all&per_page=100&page=1' }, response: { status: 200, headers: { 'x-ratelimit-limit': '60', 'x-ratelimit-remaining': '59', 'x-ratelimit-used': '1', 'x-ratelimit-reset': '0', 'x-ratelimit-resource': 'core' }, body: [] } }
@@ -562,7 +562,7 @@ async function goldenMain() {
   return { reports: rr.reports, refusal: refusal };
 }
 
-// ---------- §10 真跑主流程：资格闸探针 → 拒绝件 → 双试点实跑 → 共享事实库 → 汇总 ----------
+// ---------- §10 真跑的主流程：资格这一关先试 → 拒绝件 → 两个试点仓真跑 → 共享事实库 → 汇总 ----------
 async function realMain() {
   const shared = {};
   const allFacts = [];

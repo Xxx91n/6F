@@ -16,7 +16,7 @@ const NL = String.fromCharCode(10);
 let pass = 0, fail = 0;
 function t(name, ok, detail) { if (ok) { pass++; console.log('PASS ' + name); } else { fail++; console.log('FAIL ' + name + (detail ? ' :: ' + detail : '')); } }
 
-// ---- 合成被测仓（git env 钉时戳；被审计仓 ADR 目录：两条互相 supersede 的 ADR + 一条断链 ADR + package.json 负对照） ----
+// ---- 合成被测仓（git env 把时间戳固定住；被审计仓 ADR 目录：两条互相 supersede 的 ADR + 一条断链 ADR + package.json 负对照） ----
 const tmp = mkdtempSync(join(tmpdir(), 'macro-c-test-'));
 const REPO = join(tmp, 'own', 'tgt');
 mkdirSync(join(REPO, 'docs', 'adr'), { recursive: true });
@@ -37,7 +37,7 @@ const OUT = join(tmp, 'out');
 
 // ---------- S CLI 实跑（--scale Macro-C 正式入口） ----------
 const r1 = spawnSync('node', [CLI, 'audit', REPO, '--scale', 'Macro-C', '--out', OUT], { encoding: 'utf8', timeout: 180000 });
-t('S1 audit --scale Macro-C --out exit 0（产线化命令面）', r1.status === 0, 'status=' + r1.status + ' err=' + (r1.stderr || '').slice(0, 240));
+t('S1 audit --scale Macro-C --out exit 0（已经上产线的命令）', r1.status === 0, 'status=' + r1.status + ' err=' + (r1.stderr || '').slice(0, 240));
 let rec = null;
 try { rec = JSON.parse(r1.stdout); } catch (e) { }
 t('S2 回执=JSON receipt_id RCP- 形', !!rec && /^RCP-[0-9a-f]{16}$/.test(rec.receipt_id || ''), (r1.stdout || '').slice(0, 200));
@@ -49,7 +49,7 @@ if (rec) {
 const ART = ['report.md', 'report.json', 'audit-facts.jsonl', 'audit-measurements.json', 'facts.duckdb'];
 t('S6 --out 五工件齐备（Macro-B 同族 artifacts 契约）', ART.every(function (f) { return existsSync(join(OUT, f)); }), ART.filter(function (f) { return !existsSync(join(OUT, f)); }).join(','));
 
-// ---------- R 报告面 ----------
+// ---------- R 报告这一块 ----------
 const md = existsSync(join(OUT, 'report.md')) ? readFileSync(join(OUT, 'report.md'), 'utf8') : '';
 t('R1 报告头 stability: preview + capabilities: macro-c', md.indexOf('stability: preview') >= 0 && md.indexOf('capabilities: macro-c') >= 0);
 t('R2 披露块 capability 2 of 5 · preview 在（38 同款标注）', md.indexOf('capability 2 of 5 · preview') >= 0);
@@ -94,14 +94,14 @@ t('R12 pipeline.source 两类载体具名齐备且现行可解析、零 .scratch
   pipeSrc.indexOf('.scratch') < 0 && PIPE_CARRIERS.every(function (p) { return pipeSrc.indexOf(p) >= 0 && existsSync(join(SELF, p)); })
   && (pipeSrc.match(/(?:engine|docs)\/[A-Za-z0-9_./-]+/g) || []).every(function (p) { return existsSync(join(SELF, p)); }),
   pipeSrc.slice(0, 150));
-// commit 是裸字面量，路径腿看不见——索引换钉而报告串不动会绿着过期，故与归档索引 #38 行逐字对账
+// commit 是裸字面量，走路径的那一路看不见——索引换了固定值而报告串不动，会绿着过期，故与归档索引 #38 行逐字对账
 const idxTxt = existsSync(join(SELF, PIPE_CARRIERS[1])) ? readFileSync(join(SELF, PIPE_CARRIERS[1]), 'utf8') : '';
 const idxCommit = (idxTxt.match(/^\| #38 \| `([0-9a-f]{7,40})`/m) || [])[1] || '';
 const namedCommit = function (label) { const m = pipeSrc.match(new RegExp(label + ' commit ([0-9a-f]{7,40})')); return m ? m[1] : ''; };
 const lineageIdx = namedCommit('记号首次出现'), lineageScript = namedCommit('脚本引入');
 // 「脚本引入」不许凭「与索引值不同」就放行（`0000000` 也算不同），也不许拿 `%h` 字面量跨环境比相等——
 // 本仓 D-094(b) 已实证 `%h` auto-abbrev 随对象库在 7↔8 跳变（23-first-report-check 的 R37 返修注记，
-// 本条曾被它在 CI 上打红 12 腿：git 给 `04adb24`、串里写 `04adb24d`）。故预言机取 `%H` 全值。
+// 本条曾被它在 CI 上打红 12 条跑路：git 给 `04adb24`、串里写 `04adb24d`）。故预言机取 `%H` 全值。
 let scriptTruth = '';
 try { scriptTruth = execFileSync('git', ['log', '--all', '--diff-filter=A', '--format=%H', '-1', '--', '.scratch/architecture-recovery/reports/38-macro-c-preview.mjs'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { scriptTruth = ''; }
 // 两侧都先解析成完整 commit 再比——前缀等值本身有洞：`84f571a60` 以 `84f571a6` 开头，
@@ -116,19 +116,19 @@ const idxFull = resolveCommit(idxCommit), lineageIdxFull = resolveCommit(lineage
 const scriptFull = resolveCommit(lineageScript);
 let shallowHist = 'unknown';
 try { shallowHist = execFileSync('git', ['rev-parse', '--is-shallow-repository'], { cwd: SELF, encoding: 'utf8' }).trim(); } catch (e) { shallowHist = 'unknown'; }
-t('R13 血缘两枚 commit 各归其名——两侧均解析为完整 commit 后比全值：索引腿＝#38 行对象，脚本腿＝git 新增该脚本的对象（不可解析、对调、指错真值皆红；宽度差不红）',
+t('R13 血缘两枚 commit 各归其名——两侧都解析成完整 commit 再比全值：索引这一路＝#38 行对象，脚本这一路＝git 新增该脚本的对象（不可解析、对调、指错真值皆红；宽度差不红）',
   idxFull !== '' && lineageIdxFull === idxFull && scriptFull !== '' && truthFull !== '' && scriptFull === truthFull && scriptFull !== idxFull,
   JSON.stringify({ index: idxCommit, script: lineageScript, idxFull: idxFull.slice(0, 12), scriptFull: scriptFull.slice(0, 12), truthFull: truthFull.slice(0, 12), shallow: shallowHist }));
 
-// R14 prereg 锚取值规则（tracker #100／R9-1）：Macro-C 发出面必须取明确哨兵，且 `38-*` 冻结件原文零改写。
-//   冻结件正是该字面量的出处——发出面归位到带标记形态，出处仍留原样，两侧各按各自身份读。
+// R14 prereg 锚取值规则（tracker #100／R9-1）：Macro-C 往外发的时候必须取明确哨兵，且 `38-*` 冻住的存档原文零改写。
+//   冻住的存档正是这个字面量的出处——发出去时归位到带标记的形态，出处仍留原样，两边各按各自身份读。
 const GG = await import(pathToFileURL(join(HERE, '..', 'dist', 'report', 'generate.js')).href);
 const FROZEN_MC = join(SELF, 'engine', 'test', 'fixtures', 'contracts', '38-macro-c-preview-report.json');
 const frozenMcText = existsSync(FROZEN_MC) ? readFileSync(FROZEN_MC, 'utf8') : '';
-t('R14 发出面取明确哨兵：值带 sentinel 前缀、不伪装成 commit 形，读者不读源码即可判别',
+t('R14 往外发的时候取明确哨兵：值带 sentinel 前缀、不伪装成 commit 形，读者不读源码就能判别',
   !!gr && gr.prereg_commit === 'sentinel:38-script-const'
   && GG.classifyPreregAnchor(String(gr && gr.prereg_commit)) === 'sentinel', JSON.stringify(gr && gr.prereg_commit));
-t('R14-N 负对照：裸历史字面量已非法（只差前缀即判否）＋冻结件仍留原字面未被改写',
+t('R14-N 负对照：裸历史字面量已非法（只差前缀即判否）＋冻住的存档仍留原字面，没被改写',
   GG.classifyPreregAnchor('38-script-const') === 'ambiguous'
   && frozenMcText.indexOf('"prereg_commit": "38-script-const"') >= 0
   && frozenMcText.indexOf('sentinel:38-script-const') < 0,
@@ -166,7 +166,7 @@ t('U9 历史号解析：只读 yaml 块里的 numbers；缺块或形状不对按
   JSON.stringify(MC.parseHistoricalAdrNumbers(histBlock)) === JSON.stringify(['0001', '0002', '0003']) &&
   JSON.stringify(MC.parseHistoricalAdrNumbers('no block here')) === JSON.stringify([]) &&
   JSON.stringify(MC.parseHistoricalAdrNumbers('```yaml' + NL + 'historical_adr:' + NL + '  paths: []' + NL + '```')) === JSON.stringify([]));
-// 本仓语料等价断言：ADR-0028 的替代标记＋§3 历史号 → TC-MC-1 谓词成立（完整链路由 85-check B9 实测兜底）
+// 本仓语料等价断言：ADR-0028 的替代标记＋§3 历史号 → TC-MC-1 谓词成立（完整链路由 85-check B9 实测把最后一道兜住）
 const adrDir = join(SELF, 'docs', 'adr');
 const currentAdrFile = readdirSync(adrDir).filter(function (f) { return /^0028-/.test(f); })[0] || '';
 const realHistNumbers = MC.parseHistoricalAdrNumbers(readFileSync(join(SELF, 'docs', 'authority.md'), 'utf8'));
@@ -183,7 +183,7 @@ const rows = await (await conn.run('SELECT scale, COUNT(*) FROM audit_fact GROUP
 STORE.closeDuckdb(conn);
 t('D1 facts.duckdb 可读 + scale=Macro-C 行>0（同位 appendFact 产物）', rows.some(function (r) { return String(r[0]) === 'Macro-C' && Number(r[1]) > 0; }), rows.map(function (r) { return String(r[0]) + '=' + String(r[1]); }).join(','));
 
-// ---------- J --json 报告面 ----------
+// ---------- J --json 报告这一块 ----------
 const r2 = spawnSync('node', [CLI, 'audit', REPO, '--scale', 'Macro-C', '--json'], { encoding: 'utf8', timeout: 180000 });
 let js2 = null;
 try { js2 = JSON.parse(r2.stdout); } catch (e) { }
@@ -196,14 +196,14 @@ t('J1 --json stdout=sidecar 可解析 + schema_version 1.2.0', r2.status === 0 &
 const KOUT = join(tmp, 'out-rel');
 const rk = spawnSync('node', [CLI, 'audit', 'own/tgt', '--scale', 'Macro-C', '--out', KOUT], { cwd: tmp, encoding: 'utf8', timeout: 180000 });
 const kmeas = existsSync(join(KOUT, 'audit-measurements.json')) ? JSON.parse(readFileSync(join(KOUT, 'audit-measurements.json'), 'utf8')) : null;
-t('K1 前提臂：owner/repo 形态的相对路径解析到本机目录（intake.kind=owner-repo＋url=null）',
+t('K1 前提这一路：owner/repo 形态的相对路径解析到本机目录（intake.kind=owner-repo＋url=null）',
   rk.status === 0 && !!kmeas && kmeas.intake.kind === 'owner-repo' && kmeas.intake.url === null,
   'status=' + rk.status + ' err=' + (rk.stderr || '').slice(0, 160) + ' intake=' + JSON.stringify(kmeas && kmeas.intake));
 const KCMD = 'macro-audit audit <repo> --scale Macro-C --out <dir>';
 const kmd = existsSync(join(KOUT, 'report.md')) ? readFileSync(join(KOUT, 'report.md'), 'utf8') : '';
 const kjson = existsSync(join(KOUT, 'report.json')) ? readFileSync(join(KOUT, 'report.json'), 'utf8') : '';
 const kcmds = kmd.match(/reproduce_cmd:.*/g) || [];
-t('K2 判别臂：该形态下报告两件 reproduce_cmd 全取 <repo> 占位、原字面不入报告面（退回判 kind 即红）',
+t('K2 判定这一道：该形态下报告两件 reproduce_cmd 全取 <repo> 占位、原字面不进报告（退回判 kind 即红）',
   kcmds.length > 0 && kcmds.every(function (s) { return s.trim() === 'reproduce_cmd: ' + KCMD; })
   && kjson.indexOf('"reproduce_cmd": "' + KCMD + '"') >= 0
   && kmd.indexOf('own/tgt') < 0 && kjson.indexOf('own/tgt') < 0,

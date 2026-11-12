@@ -1,5 +1,5 @@
 // 51-macro-b-behavior.mjs — Macro-B behavior 象限接入管道（#51 / A-058 / D-054）
-// 链 = codelore analyze 行为面集（hotspots/coupling/function-hotspots，env-manager 实物跑 schema 已确认）
+// 链 = codelore analyze 行为分析项组（hotspots/coupling/function-hotspots，env-manager 实物跑 schema 已确认）
 //   → fact（51-macro-b-env-manager-facts.jsonl＋51-audit-facts.duckdb，scale=Macro-B）
 //   → 判据（51-behavior-criteria.md 预声明 PC-1/TC-1/TC-2/NC-1，跑后禁调）
 //   → Macro-B 报告（behavior 象限 native 那部分；strategy/structure/supply_chain 如实 not_applicable＋queued 理由）

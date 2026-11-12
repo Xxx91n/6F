@@ -1,5 +1,5 @@
-// 44-check.mjs — #44 版本与上游锁定制度化守卫（R6-01 / A-049 / D-037·D-039③）
-// 断言面：upstream-lock.yaml 结构+种子行 → 版本断言（实跑 codelore --version 三方同值）
+// 44-check.mjs — #44 版本与上游锁定的制度化检查（R6-01 / A-049 / D-037·D-039③）
+// 查什么：upstream-lock.yaml 结构+种子行 → 版本断言（实跑 codelore --version 三方同值）
 //   → 锁表新鲜度（mtime/日期断言）→ README §3 状态列绑锁表 → 三处 preview 标注同源
 //
 // 两段式（D-037⑤ deterministic-deps 模式，本票按任务书写明哪段已 enforce）：
@@ -10,7 +10,7 @@
 //   ADVISORY 段（WARN 报警非失败，不 exit 1）=
 //     C5 锁表新鲜度逾期（next_review<today）、B4/B5 binary 不在 PATH 环境位。
 //   转 enforce 触发点 = 首发 tag 手动窗口（D-037④）或对应上游接入票落地；
-//   golden diff 段已由 #43 golden-ci.yml enforce（本守卫不重复造腿，G/D 组引用锚）。
+//   golden diff 段已由 #43 golden-ci.yml enforce（本检查不再多跑一遍，G/D 组引用锚）。
 //
 // 纪律：只读断言（唯一外部调用=`codelore --version` 只读）；仓内状态零写；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
@@ -106,12 +106,12 @@ t('A11 表头纪律注记齐备（唯一机器读来源/先于依赖存在/retir
 const pkg = JSON.parse(txt(join(ENG, 'package.json')));
 t('A12 duckdb-node-api 锁值 == package.json dependencies 精确值（锁表↔package 同源）', byId['duckdb-node-api'] && byId['duckdb-node-api'].version === pkg.dependencies['@duckdb/node-api'], 'lock=' + (byId['duckdb-node-api'] && byId['duckdb-node-api'].version) + ' pkg=' + pkg.dependencies['@duckdb/node-api']);
 t('A13 upstream-lock.yaml 入 package.json files（provenance 锚随 tgz，D-037②）', pkg.files.indexOf('upstream-lock.yaml') >= 0);
-// ---------- A14-A16 upstream→dimension 映射表面（#68/D-078⑥：防映射渗入防腐层） ----------
+// ---------- A14-A16 upstream→dimension 映射表面（#68/D-078⑥：防映射渗进隔离墙） ----------
 const UP_FILES = [join(ENG, 'src', 'upstream', 'codelore.ts'), join(ENG, 'src', 'upstream', 'github-rest.ts')];
-t('A14 upstream 适配器文件无 S1-S5 字样（映射=业务语义禁入防腐层，D-078⑥）', UP_FILES.every(f => !existsSync(f) || !/\bS[1-5]\b/.test(txt(f))), UP_FILES.filter(f => existsSync(f) && /\bS[1-5]\b/.test(txt(f))).join(','));
+t('A14 upstream 适配器文件无 S1-S5 字样（映射=业务语义，禁进隔离墙，D-078⑥）', UP_FILES.every(f => !existsSync(f) || !/\bS[1-5]\b/.test(txt(f))), UP_FILES.filter(f => existsSync(f) && /\bS[1-5]\b/.test(txt(f))).join(','));
 t('A15 descriptor dimension:null 保留＋注释指针 upstream-dimension-map.md（两适配器逐件）', UP_FILES.every(f => txt(f).indexOf('dimension: null') >= 0 && txt(f).indexOf('upstream-dimension-map.md') >= 0), '');
 const DIMMAP = join(REPO, 'docs', 'upstream-dimension-map.md');
-t('A16 docs/upstream-dimension-map.md 在且结构齐（进入条件列＋永久排除行＋双挂＋复审两字段）', existsSync(DIMMAP) && ['进入条件', '永久排除', 'S5 ↔ S4', 'last_reviewed', 'next_review', 'dimension: null'].every(k => txt(DIMMAP).indexOf(k) >= 0), '');
+t('A16 docs/upstream-dimension-map.md 在且结构齐（进入条件列＋永久排除行＋暂挂两边＋复审两字段）', existsSync(DIMMAP) && ['进入条件', '永久排除', 'S5 ↔ S4', 'last_reviewed', 'next_review', 'dimension: null'].every(k => txt(DIMMAP).indexOf(k) >= 0), '');
 
 // ---------- B. 版本断言（binary 可解析→ENFORCE；缺席→ADVISORY WARN） ----------
 const clSrc = txt(join(ENG, 'src', 'upstream', 'codelore.ts'));

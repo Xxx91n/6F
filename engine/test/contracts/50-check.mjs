@@ -1,5 +1,5 @@
-// 50-check.mjs — #50 叙事双轨守卫（R9-01 / A-057 / D-053+D-057④）
-// 断言面：A kernel 叙事模块源+dist 契约 → B 报告接入（C2 渲染/侧车/降级注入）→ C mcp facts 投影面
+// 50-check.mjs — #50 叙事双轨检查（R9-01 / A-057 / D-053+D-057④）
+// 查什么：A kernel 叙事模块源+dist 契约 → B 报告接入（C2 渲染/侧车/降级注入）→ C mcp facts 投影面
 //   → D references 三件+SKILL.md（R2-Q7 #4/#5 闭环）→ E registry 事件闭环+文档回写 → F 测试实跑+BOM
 // acceptance-probe: sealed 2026-09-18 D-073 — E2 E3（attestation=acceptance-probe-attestation.jsonl）
 import { readFileSync, existsSync } from 'node:fs';
@@ -9,7 +9,7 @@ import { dirname, join } from 'node:path';
 import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
-// D-214① consumption_forms（多形态消费方——F1 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→F1 组 SKIP）。
+// D-214① consumption_forms（多形态消费方——F1 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位，全部检查项都判；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→F1 组 SKIP）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#50 叙事双轨守卫（R9-01 / A-057 / D-053+D-057④）';
 
@@ -36,7 +36,7 @@ const ns = existsSync(NAR) ? txt(NAR) : '';
 t('A2 sealNarrative 三态 stamp 契约', ns.includes('sealed-with-gaps') && ns.includes('rejected') && ns.includes('sealed'));
 t('A3 BAND_PATTERNS ≥5 模（红线机检）', (ns.match(/name: '/g) || []).length >= 5);
 t('A4 model_id 必录（host-agent 缺即 rejected）', ns.includes('model_id_recorded') && ns.includes('host-agent'));
-t('A5 renderTemplateNarrative=kernel-template/degraded 兜底位', ns.includes('renderTemplateNarrative') && ns.includes('kernel-template') && ns.includes('UNVERIFIED_MARK'));
+t('A5 renderTemplateNarrative=kernel-template/degraded 的退路', ns.includes('renderTemplateNarrative') && ns.includes('kernel-template') && ns.includes('UNVERIFIED_MARK'));
 t('A6 dist 产物在（测试作用于 dist）', existsSync(NARD));
 const NM = await import(pathToFileURL(NARD).href);
 t('A7 dist 语义：band 违规→rejected', NM.sealNarrative({ section_id: 'x', author: 'host-agent', model_id: 'm', text: 'S1: supported', claims: [] }, [], '2026-01-01T00:00:00Z').seal.stamp === 'rejected');

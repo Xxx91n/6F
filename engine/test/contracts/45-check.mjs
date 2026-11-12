@@ -1,8 +1,8 @@
-// 45-check.mjs — #45 演示入口守卫（R6-02 / A-050 / D-038）
-// 断言面：三场景 definitions 在+名逐字 → golden 在 → demo --scenario 实跑 exit 0
+// 45-check.mjs — #45 演示入口检查脚本（R6-02 / A-050 / D-038）
+// 查什么：三场景 definitions 在+名逐字 → golden 在 → demo --scenario 实跑 exit 0
 //   → 披露块字段与 #38 preview_disclosure 同一契约 → synthetic 印记（不冒充真实审计）
-//   → intake 本地腿（D-013）→ 跑完即弃 → golden 逐字节 diff → upstream 层零业务改动 → 文档记录
-// 纪律：本守卫只写 os.tmpdir() 临时目录（实跑产物），仓内状态零写；exit 0 + PASS N/N 为绿。
+//   → intake 本地这一路（D-013）→ 跑完即弃 → golden 逐字节 diff → upstream 层零业务改动 → 文档记录
+// 纪律：这个脚本只写 os.tmpdir() 临时目录（实跑产物），仓内状态零写；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -44,9 +44,9 @@ const cliSrc = readFileSync(join(ENG, 'src', 'cli.ts'), 'utf8');
 const pkg = json(join(ENG, 'package.json'));
 t('B1 生成器 pin author/committer/date（确定性根基）', genSrc.indexOf('GIT_AUTHOR_DATE') >= 0 && genSrc.indexOf('GIT_COMMITTER_DATE') >= 0 && genSrc.indexOf('Fixture Bot') >= 0);
 t('B2 生成器支持 merge/多分支/tag 步型（FerrLabs 模式）', genSrc.indexOf("'merge'") >= 0 && genSrc.indexOf("'branch'") >= 0 && genSrc.indexOf("'tag'") >= 0);
-t('B3 demo 管线走 Repo Intake 本地腿（import repoAdd，不设新输入面 D-013）', demoSrc.indexOf("from '../intake/intake.js'") >= 0 && demoSrc.indexOf('repoAdd(') >= 0);
+t('B3 demo 管线走 Repo Intake 本地这一路（import repoAdd，不设新输入面 D-013）', demoSrc.indexOf("from '../intake/intake.js'") >= 0 && demoSrc.indexOf('repoAdd(') >= 0);
 t('B4 披露块复用 preview_disclosure 同一契约（PreviewDisclosure 类型 + buildReport 通道）', demoSrc.indexOf('PreviewDisclosure') >= 0 && demoSrc.indexOf('preview_disclosure: demoDisclosure()') >= 0);
-t('B5 demo 不 import upstream 层（上游适配层零业务改动；codelore 仅许 off 配置——D-094(b) 字面钉合法演化：demo.ts 增 codelore:\u0027off\u0027 明确禁用配置后裸子串断言失配）', demoSrc.indexOf('upstream/') < 0 && !/(?:import|from|require)[^\n;]*codelore/.test(demoSrc) && demoSrc.indexOf("codelore: 'off'") >= 0);
+t('B5 demo 不 import upstream 层（上游适配层零业务改动；codelore 只允许 off 配置——D-094(b) 字面固定住合法演化：demo.ts 增 codelore:\u0027off\u0027 明确禁用配置后裸子串断言失配）', demoSrc.indexOf('upstream/') < 0 && !/(?:import|from|require)[^\n;]*codelore/.test(demoSrc) && demoSrc.indexOf("codelore: 'off'") >= 0);
 t('B6 CLI 挂 demo 子命令（--scenario/--out/--json/--keep/--list）', cliSrc.indexOf("cmd === 'demo'") >= 0 && cliSrc.indexOf('--scenario') >= 0 && cliSrc.indexOf('--list') >= 0);
 t('B7 package.json files 含 fixtures（随 tgz 分发）+ smoke 链挂 demo.test.mjs', pkg.files.indexOf('fixtures') >= 0 && pkg.scripts.smoke.indexOf('demo.test.mjs') >= 0);
 t('B8 dist 编译产物在位（demo.js + fixture-generator.js）', existsSync(join(ENG, 'dist', 'demo', 'demo.js')) && existsSync(join(ENG, 'dist', 'demo', 'fixture-generator.js')));
@@ -94,7 +94,7 @@ t('E4 degraded 报告 receipt.degraded=true + ⚠ unverified 印记', SCENARIOS.
 t('E5 测量工件 synthetic=true + generator 印记', SCENARIOS.every(s => { const m = json(join(runs[s].outDir, 'demo-measurements.json')); return m.synthetic === true && m.generator === 'fixture-generator@1.0.0'; }));
 t('E6 骨架 C1-C4 章序锁定（降级不改骨架）', SCENARIOS.every(s => { const md = readFileSync(join(runs[s].outDir, 'report.md'), 'utf8'); const ids = (md.match(/^## C\d /gm) || []).map(x => x.slice(3, 5)); return JSON.stringify(ids) === JSON.stringify(['C1', 'C2', 'C3', 'C4']); }));
 
-// ---------- F. intake 本地腿 + 跑完即弃 ----------
+// ---------- F. intake 本地这一路 + 跑完即弃 ----------
 t('F1 三场景 intake_kind=local（同一 Repo Intake 本地路径 D-013）', SCENARIOS.every(s => runs[s].summary.intake_kind === 'local'));
 t('F2 测量工件 intake 纪律位（shallow=false + full_depth + remote_config_execution=disabled）', SCENARIOS.every(s => { const i = json(join(runs[s].outDir, 'demo-measurements.json')).intake; return i.kind === 'local' && i.shallow === false && i.full_depth_verified === true && i.remote_config_execution === 'disabled'; }));
 t('F3 跑完即弃：temp_discarded=true + 工件内无临时仓绝对路径泄漏', SCENARIOS.every(s => runs[s].summary.temp_discarded === true) && SCENARIOS.every(s => { const md = readFileSync(join(runs[s].outDir, 'report.md'), 'utf8'); return md.indexOf('macro-audit-demo-') < 0; }));

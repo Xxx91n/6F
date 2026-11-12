@@ -1,8 +1,8 @@
 // 78-check.mjs —— #78 quarantine 引擎验收闸（协议级 fail-fast / 字段级隔离；D-103~D-120）
-// load-bearing: 独立对账守卫——承载性冗余（独立代码路径自持 SQL+git 重放恒等式，禁当重复代码删除；D-116②）。已挂载 engine-ci.yml。
-// 断言面：A=契约层导出+intake 委托 / B=schema+store 持久化面 / C=macro-b+audit+report 接线
+// load-bearing: 独立对账检查——换一条代码路径自己算 SQL+git 重放、两边必须相等（别当重复代码删了；D-116②）。已挂载 engine-ci.yml。
+// 查什么：A=契约层导出+intake 委托 / B=schema+store 持久化面 / C=macro-b+audit+report 接线
 //   D=39/40 one-shot 同规则 / E=quarantine.test.mjs 实跑 / F=病态仓双通道 disposition parity 独立对账
-// 用法：node 78-check.mjs（须先 npm run build——dist 面被断言）
+// 用法：node 78-check.mjs（须先 npm run build——dist 产物要被查）
 import { readFileSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, readdirSync as _rs } from 'node:fs';
 import * as fs2 from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { need, groupProbe, engineDepsOk } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
-// D-214① consumption_forms（多形态消费方——E/F 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位全断言面；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→对应组 SKIP，仓内段照跑）。
+// D-214① consumption_forms（多形态消费方——E/F 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位就全查；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→对应组 SKIP，仓内段照跑）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#78 quarantine 引擎验收闸（D-103~D-120）';
 
@@ -36,7 +36,7 @@ const quar = txt(join(ENG, 'src', 'intake', 'quarantine.ts'));
 const intake = txt(join(ENG, 'src', 'intake', 'intake.ts'));
 t('A1 分类器+三态+词表导出', /export function classifyGitIsoField/.test(quar) && quar.indexOf("'clean' | 'normalized' | 'quarantined'") >= 0 && /export const QUARANTINE_REASON_CODES/.test(quar));
 t('A2 指纹+截断上界 64KiB 导出', /export function rawBytesFingerprint/.test(quar) && quar.indexOf('RAW_BYTES_CAP = 65536') >= 0);
-t('A3 strict 门禁+恒等式+崩溃桶导出', /export function strictQuarantineViolations/.test(quar) && /export function intakeIdentityIssues/.test(quar) && /export function buildCrashArtifact/.test(quar) && /export function protocolCrashError/.test(quar) && /export function isProtocolCrash/.test(quar));
+t('A3 strict 门禁+两边必须相等的关系+崩溃桶导出', /export function strictQuarantineViolations/.test(quar) && /export function intakeIdentityIssues/.test(quar) && /export function buildCrashArtifact/.test(quar) && /export function protocolCrashError/.test(quar) && /export function isProtocolCrash/.test(quar));
 t('A4 normalizeGitIsoDate 委托分类器（抛型回执兼容旧调用方）', intake.indexOf('classifyGitIsoField') >= 0 && intake.indexOf('GITCLI-OUTPUT-CONTRACT') >= 0);
 t('A5 ACCEPTED_REASON_CODES 仓级版本化基线常量', /export const ACCEPTED_REASON_CODES/.test(quar));
 
@@ -47,7 +47,7 @@ t('B1 quarantine_log 字段集+DDL 常量', schema.indexOf('QUARANTINE_LOG_FIELD
 t('B2 自然键 UNIQUE(run_id,commit_sha,field_name,reason_code,disposition)', schema.indexOf('UNIQUE(run_id, commit_sha, field_name, reason_code, disposition)') >= 0);
 t('B3 reason_code 命名公约 CHECK + sha256 CHAR(64) + raw_bytes_hex 上界', schema.indexOf('regexp_matches(reason_code') >= 0 && schema.indexOf("'sha256_full', type: 'CHAR(64)'") >= 0 && schema.indexOf('131072') >= 0);
 t('B4 写路径=appendQuarantineEvent + ON CONFLICT DO NOTHING 幂等', /export async function appendQuarantineEvent/.test(store) && store.indexOf('ON CONFLICT DO NOTHING') >= 0);
-t('B5 事务面 runInTransaction + 恒等式半层 queryQuarantineCounts', /export async function runInTransaction/.test(store) && /export async function queryQuarantineCounts/.test(store));
+t('B5 事务跑法 runInTransaction + 记账那一半 queryQuarantineCounts', /export async function runInTransaction/.test(store) && /export async function queryQuarantineCounts/.test(store));
 t('B6 schema_registry v2 幂等注册', store.indexOf('quarantine_log_seq') >= 0 && store.indexOf('schema_registry') >= 0);
 
 // ---------- C. macro-b / audit / report / cli 接线 ----------
@@ -58,14 +58,14 @@ const cli = txt(join(ENG, 'src', 'cli.ts'));
 // #81/D-128②：接线序改为 absorbGitIsoDialect（边界方言归一）→ classifyGitIsoField（规范流分类）——断言更新为吸收在分类器上游。
 t('C1 probe 锚位+逐 commit 双分类接线（#81：边界吸收→分类器）', mb.indexOf('absorbGitIsoDialect(headRaw)') >= 0 && mb.indexOf('classifyGitIsoField(headAbs.value, { anchor: true })') >= 0 && mb.indexOf('absorbGitIsoDialect(parts[2])') >= 0 && mb.indexOf('classifyGitIsoField(abs.value)') >= 0);
 t('C2 probe 输出带 fieldStats/fieldEvents', mb.indexOf('fieldStats') >= 0 && mb.indexOf('fieldEvents') >= 0);
-t('C3 audit 装配：strict 闸+事务写+恒等式断言', audit.indexOf('strictQuarantineViolations') >= 0 && audit.indexOf('runInTransaction') >= 0 && audit.indexOf('intakeIdentityIssues') >= 0);
+t('C3 audit 装配：strict 闸+事务写+两边必须相等的关系也要查', audit.indexOf('strictQuarantineViolations') >= 0 && audit.indexOf('runInTransaction') >= 0 && audit.indexOf('intakeIdentityIssues') >= 0);
 t('C4 Intake Health 恒在节+verdict 三面投影', gen.indexOf('## Intake Health') >= 0 && gen.indexOf('reason_class') >= 0 && gen.indexOf('VERDICT_REASON_CLASSES') >= 0);
 t('C5 cli --strict-quarantine 旗 + crash 工件 + 三值退出码', cli.indexOf('--strict-quarantine') >= 0 && cli.indexOf('crashArtifactFromError') >= 0 && cli.indexOf('STRICT-QUARANTINE-VIOLATION') >= 0);
 t('C6 collectors null-date 明确跳过（不悄悄转 0）', txt(join(ENG, 'src', 'collect', 'collectors.ts')).indexOf('date === null') >= 0 || txt(join(ENG, 'src', 'collect', 'collectors.ts')).indexOf('date: string | null') >= 0);
 t('C7 strict env 通道：cli flag>env precedence（STRICT_QUARANTINE_ENV+strictQuarantineEnabled 单点）', cli.indexOf('STRICT_QUARANTINE_ENV') >= 0 && cli.indexOf('strictQuarantineEnabled') >= 0 && quar.indexOf('STRICT_QUARANTINE_ENV') >= 0);
 t('C8 D-115③ 错误码分流：AuditIoError+classifyWriteError+exit 4 类', store.indexOf('AuditIoError') >= 0 && store.indexOf('classifyWriteError') >= 0 && cli.indexOf('EXIT_IO_FAILURE') >= 0 && audit.indexOf('classifyWriteError') >= 0);
 t('C9 D-110③ 限制机化 ratchetIssues+strict 闸接线', quar.indexOf('ratchetIssues') >= 0 && audit.indexOf('ratchetIssues') >= 0);
-t('C10 D-117② raw_echo 截断谓词单点共享（rawEcho 导出+双消费面零裸字面量）', quar.indexOf('RAW_ECHO_CAP') >= 0 && quar.indexOf('export function rawEcho') >= 0 && audit.indexOf('rawEcho(e.raw)') >= 0 && txt(join(ENG, 'src', 'demo', 'demo.ts')).indexOf('rawEcho(e.raw)') >= 0);
+t('C10 D-117② raw_echo 截断条件只写一处（rawEcho 导出+两个消费方都不写裸字面量）', quar.indexOf('RAW_ECHO_CAP') >= 0 && quar.indexOf('export function rawEcho') >= 0 && audit.indexOf('rawEcho(e.raw)') >= 0 && txt(join(ENG, 'src', 'demo', 'demo.ts')).indexOf('rawEcho(e.raw)') >= 0);
 t('C11 D-115①/D-116① 逐 commit 事务+增量断言接线（#84 §8 抽取→fact-write.ts 同位共享核——audit/macro-c 同消费）', (function () { const fw = txt(join(ENG, 'src', 'audit', 'fact-write.ts')); return fw.indexOf('per-commit-identity') >= 0 && fw.indexOf('FACT_WRITE_BATCH') >= 0 && audit.indexOf('writeRunFactsAndEvents') >= 0 && txt(join(ENG, 'src', 'audit', 'macro-c.ts')).indexOf('writeRunFactsAndEvents') >= 0; })());
 t('C12 D-109② 工件 schema 三桶+run_context 关联键补齐', quar.indexOf('records_parsed') >= 0 && quar.indexOf('head_date') >= 0 && quar.indexOf('collector') >= 0 && quar.indexOf('countsFromStats') >= 0);
 t('C13 D-108④ NULL 语义呈现面双固化（报告节+接口注释）', gen.indexOf('recorded_at') >= 0 && gen.indexOf('时点不可得') >= 0);
@@ -77,9 +77,9 @@ for (const NN of ['39', '40']) {
   t('D-' + NN + '2 对照物保留自身归一化（normalizeGitIsoDate=病态即抛=「解析失败」分歧类的可观测代理）', s.indexOf('normalizeGitIsoDate') >= 0 && s.indexOf('%cI') >= 0);
 }
 const s39 = txt(ONESHOT39);
-t('D-393 39 等位 catch：崩溃桶工件落盘+stderr 结构化（D-109① 第二腿）', s39.indexOf('crashArtifactFromError') >= 0 && s39.indexOf('buildCrashArtifact') >= 0 && s39.indexOf('39-crash-') >= 0 && s39.indexOf('process.exit(isDivergence ? 2 : 4)') >= 0);
-t('D-394 39 env 腿：MACRO_AUDIT_STRICT_QUARANTINE 读取+证据面回声', s39.indexOf('STRICT_QUARANTINE_ENV') >= 0 && s39.indexOf('strict_quarantine') >= 0);
-t('D-403 40 零 crash/env 引入（40 未在 D-109①/D-110④ 挂载面——保持纯对照）', txt(join(REPO,'engine','scripts','40-macro-b-one-shot.mjs')).indexOf('quarantine.js') < 0);
+t('D-393 39 同等位的 catch：崩溃桶工件落盘+stderr 结构化（D-109① 第二条路）', s39.indexOf('crashArtifactFromError') >= 0 && s39.indexOf('buildCrashArtifact') >= 0 && s39.indexOf('39-crash-') >= 0 && s39.indexOf('process.exit(isDivergence ? 2 : 4)') >= 0);
+t('D-394 39 靠 env 的那一路：MACRO_AUDIT_STRICT_QUARANTINE 读取+证据侧回声', s39.indexOf('STRICT_QUARANTINE_ENV') >= 0 && s39.indexOf('strict_quarantine') >= 0);
+t('D-403 40 不引 crash/env（40 未挂到 D-109①/D-110④ 那条线上——保持纯对照）', txt(join(REPO,'engine','scripts','40-macro-b-one-shot.mjs')).indexOf('quarantine.js') < 0);
 
 // ---------- E. quarantine.test.mjs 实跑 ----------
 // engine-deps 前置（D-163③）：quarantine.test 写读真库需 @duckdb 原生绑定——缺席→组级 SKIP 非误红
@@ -124,10 +124,10 @@ t('F2 one-shot39 病态仓=解析失败格（exit 2 + GITCLI-OUTPUT-CONTRACT 命
 const crash39 = existsSync(OUT_39) ? fs2.readdirSync(OUT_39).filter(function (f) { return f.indexOf('39-crash-') === 0; }) : [];
 let crash39j = null; try { crash39j = JSON.parse(txt(join(OUT_39, crash39[0]))); } catch (_) { }
 t('F2b 39 crash 工件落盘 quarantine-crash-artifact/v1（D-109① 双通道实物）', crash39.length === 1 && !!crash39j && crash39j.schema === 'quarantine-crash-artifact/v1' && crash39j.error_code === 'GITCLI-OUTPUT-CONTRACT', crash39.join(';'));
-// env 腿实证：STRICT env=1 时 39 stderr 回声 strict_quarantine:true（对照物语义恒硬崩，env 只进证据面）
+// env 那一路的实证：STRICT env=1 时 39 stderr 回声 strict_quarantine:true（对照物语义是恒硬崩，env 只进证据这一侧）
 const r39s = spawnSync('node', [ONESHOT39, '--repo', 'fx', '--root', FX, '--out', join(tmp, 'out-39-strict')], { encoding: 'utf8', timeout: 120000, env: Object.assign({}, process.env, { MACRO_AUDIT_STRICT_QUARANTINE: '1' }) });
-t('F2c 39 env 腿实证：MACRO_AUDIT_STRICT_QUARANTINE=1 → stderr 回声 strict_quarantine:true', r39s.status === 2 && (r39s.stderr || '').indexOf('"strict_quarantine":true') >= 0, 'err=' + (r39s.stderr || '').slice(0, 200));
-// #42 复审（CodeRabbit major）：探针不变量/环境失败必须阻断（exit 4），不得落 workflow 的 exit-2 预期分歧格。
+t('F2c 39 靠 env 这路的实证：MACRO_AUDIT_STRICT_QUARANTINE=1 → stderr 回声 strict_quarantine:true', r39s.status === 2 && (r39s.stderr || '').indexOf('"strict_quarantine":true') >= 0, 'err=' + (r39s.stderr || '').slice(0, 200));
+// #42 复审（CodeRabbit major）：那次试探的不变量/环境失败必须阻断（exit 4），不得落 workflow 的 exit-2 预期分歧格。
 const FXB = join(tmp, 'fx-broken-object');
 mkdirSync(FXB, { recursive: true });
 gitR(['init'], FXB); gitR(['config', 'user.email', 'a@b.c'], FXB); gitR(['config', 'user.name', 't'], FXB); gitR(['config', 'commit.gpgsign', 'false'], FXB);

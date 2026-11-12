@@ -1,7 +1,7 @@
-// #64/D-072→#66/D-075 离线＋分层门控模拟断言：挪走平台绑定包 →
-//   A) 非 TTY 缺省（spawnSync 管道面）：永不自动拉包——无 DUCKDB-SELFHEAL 事件，四段披露结构化回落；
+// #64/D-072→#66/D-075 离线＋分层门控模拟检查：挪走平台绑定包 →
+//   A) 非 TTY 缺省（spawnSync 管道面）：永不自动拉包——没有 DUCKDB-SELFHEAL 事件，四段披露结构化回落；
 //   B) MACRO_AUDIT_SELFHEAL=1 opt-in＋死 registry：允许补拉但离线失败——start/fallback 事件＋四段披露。
-// 不在默认 smoke 链（改 node_modules＋需模拟网络面）——CI engine-ci「duckdb self-heal offline-sim」步明确跑。
+// 不在默认 smoke 链（会改 node_modules＋需要模拟网络）——CI engine-ci 的「duckdb self-heal offline-sim」这一步明确跑。
 import { renameSync, existsSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -28,7 +28,7 @@ if (!existsSync(pkg)) {
 } else {
   renameSync(pkg, parked);
   try {
-    // —— A) 非 TTY 缺省面：D-075① 永不自动拉包（无人定期检查无人可询问） ——
+    // —— A) 非 TTY 缺省面：D-075① 永不自动拉包（没人定期检查、也没人能问） ——
     const ra = spawnSync('node', ['--input-type=module', '-e', child, tmpDb], {
       cwd: root, encoding: 'utf8', timeout: 120000,
       env: { ...process.env, ...DEAD }
@@ -49,7 +49,7 @@ if (!existsSync(pkg)) {
     });
     const outB = (rb.stdout || '') + (rb.stderr || '');
     t('B1 opt-in 子进程受控退出非崩溃', rb.status === 0, 'exit=' + rb.status);
-    t('B2 自愈事件 DUCKDB-SELFHEAL trigger=opt-in（D-075⑥ 可审计性）', /DUCKDB-SELFHEAL \{[^}]*"trigger":"opt-in"/.test(outB));
+    t('B2 自愈事件 DUCKDB-SELFHEAL trigger=opt-in（D-075⑥ 事后查得清、可审计）', /DUCKDB-SELFHEAL \{[^}]*"trigger":"opt-in"/.test(outB));
     t('B3 离线补拉失败 result=fallback', /DUCKDB-SELFHEAL \{[^}]*"result":"fallback"/.test(outB));
     t('B4 回落仍四段披露（doctor --fix＋opt-in＋边界）', outB.includes('doctor --fix') && outB.includes('MACRO_AUDIT_SELFHEAL') && outB.includes('其余命令不受影响'));
     t('B5 DUCKDB-UNAVAILABLE 结构化错误', outB.includes('DUCKDB-UNAVAILABLE'));

@@ -63,14 +63,14 @@ check('H3 悬挂 CJK 开号：其后命中掩蔽、其前命中存活', sup('「
 // ---------- I. 二态与结构 ----------
 { const outs = C.checkAllCitations([cl(['x']), cl(['y'])], [ev('x present'), ev('no y here')]); check('I1 输出恒二态（supports/insufficient 无第三态）', outs.every(function (r) { return r.support === 'supports' || r.support === 'insufficient'; })); }
 check('I2 ungrounded → insufficient 一票否决', C.checkCitationSupport(cl(['coverage']), ev('coverage 0.85', false)).support === 'insufficient');
-{ const r = support('coverage does not reach 0.85', ['coverage', '0.85']); check('I3 context_flags 记录剥离明细（negated 机读位）', r.context_flags.some(function (f) { return f.indexOf('negated') === 0; }), JSON.stringify(r.context_flags)); }
+{ const r = support('coverage does not reach 0.85', ['coverage', '0.85']); check('I3 context_flags 记下剥离明细（negated 这个机器能读的字段）', r.context_flags.some(function (f) { return f.indexOf('negated') === 0; }), JSON.stringify(r.context_flags)); }
 { const r = C.checkAllCitations([{ claim_id: 'X', evidence_id: 'MISSING', required_tokens: ['a'] }], [ev('a')]); check('I4 evidence_id 不可解析 → insufficient', r[0].support === 'insufficient'); }
 
 // ---------- J. 语义边界披露 ----------
 { const L = C.PRESENCE_LIMITS; check('J1 PRESENCE_LIMITS 语义边界披露四键全（supports 非语义蕴含）', L.semantics.indexOf('presence-level') >= 0 && L.semantics.indexOf('非语义蕴含') >= 0 && JSON.stringify([...L.output_states]) === JSON.stringify(['supports', 'insufficient']) && L.fn_disclosure.indexOf('human-in-loop') >= 0 && L.adversarial_fp_guard.length > 0); }
 check('J2 预声明窗口常量导出（NEG_WINDOW_PRE/POST 正值）', C.NEG_WINDOW_PRE > 0 && C.NEG_WINDOW_POST > 0);
 
-// ---------- K. CJK non-assert 语境窗（#61/D-069①——假想/示例语境非断言式主张，flag kind=non-asserted） ----------
+// ---------- K. CJK non-assert 语境窗（#61/D-069①——假想/示例语境不算当真主张，flag kind=non-asserted） ----------
 check('K1 CJK pre 假想/示例 cue → insufficient＋non-asserted', naEvery(['假设覆盖率 0.85 已达标', '譬如覆盖率 0.85 已达标', '举例来说覆盖率 0.85 已达标', '设想覆盖率 0.85 已达标'], ['覆盖率', '0.85']));
 check('K2 CJK post 限定 cue → insufficient＋non-asserted', naEvery(['覆盖率 0.85 理论上成立', '覆盖率 0.85 原则上成立', '覆盖率 0.85 仅供参考'], ['覆盖率', '0.85']));
 check('K3 CJK non-assert 伪表逐词豁免 → supports（一词两用：假设=名词性 hypothesis）', every(['零假设检验下覆盖率 0.85', '假设检验覆盖率 0.85 已达标', '工作假设覆盖率 0.85 已达标', '假设性覆盖率 0.85 已达标'], ['覆盖率', '0.85'], 'supports'));

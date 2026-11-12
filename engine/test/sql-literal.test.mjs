@@ -1,6 +1,6 @@
-// sql-literal.test.mjs — SQL 黑名单剥字面量误伤修复测试（#55 / D-059④；作用于 dist 编译产物）
-// 裁定：匹配前剥字面量（拒 AST 强主张——OWASP 分级下字符串黑名单在非注入面合法）。
-// 覆盖：字面量内 UPDATE/DELETE 字样不再误伤；真实改写语句仍拒；未闭合引号保守拒。
+// sql-literal.test.mjs — SQL 黑名单剥字面量、防误伤的修复测试（#55 / D-059④；作用于 dist 编译产物）
+// 结论：匹配之前先把字面量剥掉（不主张 AST 那套强做法——OWASP 分级下，字符串黑名单在不会注入的场合是合法的）。
+// 覆盖：字面量里的 UPDATE/DELETE 字样不再被误伤；真的改写语句仍然拒；引号没闭合时保守地拒。
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -11,7 +11,7 @@ const results = [];
 function check(name, pass, detail) { results.push([name, !!pass, detail || '']); }
 const allow = (s) => S.classifyStatement(s).allow;
 
-// -- 误伤修复面（字面量内黑名单字样不该拒） --
+// -- 防误伤这一块（字面量里出现黑名单字样，不该拒） --
 check('L1 字符串字面量含 DELETE 不再误伤', allow("SELECT * FROM audit_fact WHERE metric='DELETE counter'") === true);
 check('L2 INSERT 值含 UPDATE/DELETE 字面量不再误伤', allow("INSERT INTO audit_fact (fact_id, value_json) VALUES ('f1', '{\"op\":\"DELETE FROM t\"}')") === true);
 check('L3 双引号标识符含 update 字样不误伤', allow('SELECT "update_time" FROM audit_fact') === true);
@@ -27,12 +27,12 @@ check('D4 MERGE INTO 仍拒', allow('MERGE INTO audit_fact USING t ON true WHEN 
 check('D5 ON CONFLICT DO UPDATE 仍拒', allow('INSERT INTO audit_fact (fact_id) VALUES (1) ON CONFLICT DO UPDATE SET fact_id = 2') === false);
 check('D6 COPY 仍拒', allow("COPY audit_fact TO 'out.parquet'") === false);
 
-// -- 边界：未闭合引号保守拒（不可解析=不放大） --
+// -- 边界情况：引号没闭合就保守地拒（解析不了就不放大） --
 check('E1 未闭合引号内 UPDATE 字样仍拒（保守方向）', allow("SELECT 'x UPDATE") === false);
 check('E2 空语句仍拒', allow('   ') === false);
 check('E3 裸注释残留仍拒', allow('-- UPDATE something') === false);
 
-// -- assertAppendOnly 走同一字面量剥离路径 --
+// -- assertAppendOnly 走的是同一套剥字面量的路子 --
 let threw = false;
 try { S.assertAppendOnly("INSERT INTO audit_fact (fact_id, value_json) VALUES ('f1', '{\"note\":\"DELETE later\"}')"); } catch (e) { threw = true; }
 check('F1 assertAppendOnly 放行字面量内 DELETE', threw === false);

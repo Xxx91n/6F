@@ -1,5 +1,5 @@
-// 52a-check.mjs —— #52a checker 仪器标定守卫（D-061）
-// 断言面：A=语料存在且版本化（sha 指纹一致＋分层齐全＋双标子集）；B=eval 结果契约（指标全项
+// 52a-check.mjs —— #52a checker 仪器标定检查脚本（D-061）
+// 查什么：A=语料存在且版本化（sha 指纹一致＋分层齐全＋双标子集）；B=eval 结果契约（指标全项
 //   ＋预声明阈值＋bootstrap CI＋raw agreement 双报）；C=κ 基线三报（intra-rater=天花板替代≥0.6 断言，
 //   checker-vs-gold 如实报——对抗面构造预期压低，<floor 须 findings 登记另立修复票）；
 //   D=band-leak 检出率＋干净对照假阳；E=只测不修纪律（eval 不改 checker 行为）＋合成限制披露；
@@ -63,7 +63,7 @@ t('D3 干净对照假阳率如实记（0 或有值皆可——verdictless 类词
 // ---------- E. 纪律与披露 ----------
 const fpFinding = res.findings.find(function (f) { return f.kind === 'fp-negation-context'; });
 const fnFinding = res.findings.find(function (f) { return f.kind === 'fn-paraphrase'; });
-t('E1 findings 如实落（#56 修复后复测：FN 类披露维持＋FP 类改善方向钉 ≤r16 基线 13 或清零）', !!fnFinding && (!fpFinding || fpFinding.count <= 13) && !!res.post_repair && res.post_repair.ticket === '#56', 'fn=' + (fnFinding ? fnFinding.count : 'absent') + ' fp=' + (fpFinding ? fpFinding.count : 0));
+t('E1 findings 如实落（#56 修复后复测：FN 类披露维持＋FP 类改善方向锁在 ≤r16 基线 13 或清零）', !!fnFinding && (!fpFinding || fpFinding.count <= 13) && !!res.post_repair && res.post_repair.ticket === '#56', 'fn=' + (fnFinding ? fnFinding.count : 'absent') + ' fp=' + (fpFinding ? fpFinding.count : 0));
 t('E2 合成限制披露随结果走（limitations 三条在）', res.disclosure.synthetic === true && res.disclosure.limitations.length >= 3);
 const evalSrc = readFileSync(join(HERE, '52a-checker-eval.mjs'), 'utf8');
 t('E3 只测不修纪律：eval 脚本无 checker 源码写操作（不写 engine/src）', evalSrc.indexOf('writeFileSync') >= 0 && evalSrc.indexOf('engine/src') < 0 && evalSrc.indexOf('src/report') < 0);

@@ -1,5 +1,5 @@
-// 51-check.mjs — #51 Macro-B behavior 象限守卫（R9-02 / A-058 / D-054）
-// 断言面：A 面集源契约 → B 实物 schema 留痕 → C 判据产物（criteria/报告/facts/duckdb/测量）
+// 51-check.mjs — #51 Macro-B behavior 象限检查脚本（R9-02 / A-058 / D-054）
+// 查什么：A 分析项组的源契约 → B 实物 schema 留痕 → C 判据产物（criteria/报告/facts/duckdb/测量）
 //   → D 判据复跑（committed facts 离线重评估=确定性回放）→ E 能力矩阵缩小范围+文档 → F registry/记录 → G BOM
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -21,12 +21,12 @@ function txt(p) { return readFileSync(p, 'utf8'); }
 function noBom(p) { const b = readFileSync(p); return !(b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF); }
 const j = (p) => JSON.parse(txt(p));
 
-// ---------- A. 面集源契约 ----------
+// ---------- A. 分析项组的源契约 ----------
 const cs = txt(join(ENG, 'src', 'upstream', 'codelore.ts'));
 t('A1 CODELORE_BEHAVIOR_FACETS 存在', cs.includes('CODELORE_BEHAVIOR_FACETS'));
-t('A2 三面集=hotspots/coupling/function-hotspots group=behavior', /hotspots'.*behavior/s.test(cs) && /coupling'.*behavior/s.test(cs) && /function-hotspots'.*behavior/s.test(cs));
+t('A2 三个分析项组=hotspots/coupling/function-hotspots group=behavior', /hotspots'.*behavior/s.test(cs) && /coupling'.*behavior/s.test(cs) && /function-hotspots'.*behavior/s.test(cs));
 t('A3 CodeloreFacetGroup 含 behavior', cs.includes("'behavior'"));
-t('A4 function-coupling 暂缓注记在源（--target 面形态）', cs.includes('function-coupling') && cs.includes('--target'));
+t('A4 function-coupling 暂缓的注记写在源里（--target 这一项的形态）', cs.includes('function-coupling') && cs.includes('--target'));
 t('A5 quadrant 归位规则注记在源（切片决策 D-054③）', cs.includes('切片决策') || cs.includes('归位'));
 const NAR = await import(pathToFileURL(join(ENG, 'dist', 'upstream', 'codelore.js')).href);
 t('A6 dist 导出 CODELORE_BEHAVIOR_FACETS 长 3', NAR.CODELORE_BEHAVIOR_FACETS && NAR.CODELORE_BEHAVIOR_FACETS.length === 3);
@@ -35,7 +35,7 @@ t('A6 dist 导出 CODELORE_BEHAVIOR_FACETS 长 3', NAR.CODELORE_BEHAVIOR_FACETS 
 const schPath = join(REPO,'engine','test','fixtures','contracts','51-behavior-schema.json');
 t('B1 51-behavior-schema.json 在', existsSync(schPath));
 const sch = existsSync(schPath) ? j(schPath) : { faces: {} };
-t('B2 三面列集留痕（hotspots/coupling/function-hotspots）', !!(sch.faces && sch.faces.hotspots && sch.faces.coupling && sch.faces['function-hotspots']));
+t('B2 三个分析项组的列集留痕（hotspots/coupling/function-hotspots）', !!(sch.faces && sch.faces.hotspots && sch.faces.coupling && sch.faces['function-hotspots']));
 t('B3 hotspots 列含 revisions+hotspot_score', (sch.faces.hotspots || []).includes('revisions') && (sch.faces.hotspots || []).includes('hotspot_score'));
 t('B4 coupling 列含 entity_a/entity_b/degree/fisher_p', ['entity_a', 'entity_b', 'degree', 'fisher_p'].every(c => (sch.faces.coupling || []).includes(c)));
 t('B5 codelore_version=0.28.0（pin 一致）', sch.codelore_version === '0.28.0');
@@ -56,8 +56,8 @@ const facetRows = factLines.filter(f => f.metric === 'codelore.facet_rows').map(
 const hf = facetRows.find(v => v.analysis === 'hotspots');
 const cf = facetRows.find(v => v.analysis === 'coupling');
 const ff = facetRows.find(v => v.analysis === 'function-hotspots');
-t('D1 三面 facet_rows 事实齐备', facetRows.length === 3 && !!hf && !!cf && !!ff);
-t('D2 PC-1 复跑：三面 row_count>0', facetRows.every(v => v.row_count > 0));
+t('D1 三个分析项组各自的 facet_rows 事实齐备', facetRows.length === 3 && !!hf && !!cf && !!ff);
+t('D2 PC-1 复跑：三个分析项组的 row_count 都>0', facetRows.every(v => v.row_count > 0));
 t('D3 TC-1 复跑：hotspots min(revisions)>=5', hf && hf.rows.every(r => r.revisions >= 5));
 t('D4 TC-2 复跑：coupling shared>=2&degree>0 占比>=0.5', cf && cf.rows.length > 0 && (cf.rows.filter(r => r.shared >= 2 && r.degree > 0).length / cf.rows.length) >= 0.5);
 t('D5 fact.quadrant=strategic（provenance 不改写，归位在对应层）', factLines.every(f => f.quadrant === 'strategic'));
@@ -75,7 +75,7 @@ const rd = txt(join(REPO, 'README.md'));
 t('E1 README 象限矩阵：strategy:active·behavior:preview·structure 摘帽 preview(structure/shape 域,D-205 #87)·supply-chain:queued 维持', /strategy:?\s*active/.test(rd) && /behavior:?\s*preview/.test(rd) && /structure:?\s*preview/.test(rd) && rd.indexOf('structure/shape') >= 0 && /supply-chain:?\s*queued/.test(rd) && rd.indexOf('双规则风险暂缓') < 0 && rd.indexOf('双' + '口' + '径' + '风险暂缓') < 0);
 const skm = txt(join(ENG, 'skills', 'macro-audit', 'SKILL.md'));
 t('E2 SKILL.md 能力矩阵措辞同步缩小范围', /behavior=preview|behavior:?\s*preview/.test(skm) && /queued/.test(skm));
-t('E7 51-report.md 在且含判据复盘面', existsSync(join(REPO,'engine','test','fixtures','contracts','51-report.md')) && txt(join(REPO,'engine','test','fixtures','contracts','51-report.md')).includes('supported'));
+t('E7 51-report.md 在且含判据复盘', existsSync(join(REPO,'engine','test','fixtures','contracts','51-report.md')) && txt(join(REPO,'engine','test','fixtures','contracts','51-report.md')).includes('supported'));
 
 // ---------- F. registry + 实跑一致性 ----------
 const reg = j(join(REPO,'engine','test','fixtures','contracts','33-gate-registry.json'));

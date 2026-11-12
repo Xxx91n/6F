@@ -1,7 +1,7 @@
-// 113-check.mjs —— #113 审计对象仓符号链接与路径穿透安全防护守卫
-// 断言面（对应本票 Acceptance criteria，按 PASS/FAIL 规则；能力不可得时给 SKIP 而不是假绿）：
-//   A 静态契约：安全读取单点在位、四个读取面与 39 one-shot 全部接入、url 腿保留 `core.symlinks=false`、
-//     回归克隆腿**不**带该旗标（带了就把链接物化成普通文件→遮住本票要证明的拒绝+披露路径）
+// 113-check.mjs —— #113 审计对象仓符号链接与路径穿透安全防护检查脚本
+// 检查项（对应本票 Acceptance criteria，按 PASS/FAIL 规则；能力不可得时给 SKIP，而不是假装通过）：
+//   A 静态契约：安全读取单点在位、四个读取位置与 39 one-shot 全部接入、url 这一路保留 `core.symlinks=false`、
+//     回归克隆这一路**不**带该旗标（带了就把链接物化成普通文件→遮住本票要证明的拒绝+披露路径）
 //   B 安全读取单点行为：仓内常规文件放行 / 仓外文件链接拒绝 / 悬空链接拒绝（专门 reason）/
 //     仓内目录链接放行 / 仓外目录 junction 拒绝 / 目录枚举单点同判定
 //   C 端到端（走真实入口，不自造事实）：
@@ -10,7 +10,7 @@
 //     C2 TC-2 判据防翻转：对照 3 份贫瘠 ADR 恒 RED，注入 5 份仓外完整 ADR 后仍 RED（total 恒 3）
 //     C3 `39-macro-b-one-shot.mjs`（CI 实跑脚本）——同样落 skip 事实进 JSONL 与报告披露块
 //     C4 目录 junction 合成仓——零仓外语料、有 dir-junction-outside 披露事实、PC-MC-1 不因 skip 事实转阳性
-//   D 守卫卫生：新增文件无 BOM
+//   D 检查脚本自身的卫生：新增文件无 BOM
 // 纪律：被测仓一律建在 OS temp（PRODUCTION_SAFE，跑完即弃）；只读断言仓内文件，不写主仓。
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -20,7 +20,7 @@ import { tmpdir } from 'node:os';
 
 // guard-meta（D-159②/D-160③ 自声明）
 const TIER = 'portable';
-// D-214① consumption_forms：端到端面需要 engine/node_modules（duckdb 原生绑定）——dev-full 全断言面；
+// D-214① consumption_forms：端到端需要 engine/node_modules（duckdb 原生绑定）——dev-full 跑全部检查项；
 // ci-shallow（CI 浅克隆）下 C1/C3 的 duckdb 落库断言组级 SKIP，其余组照跑。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '#113 审计对象仓符号链接安全防护——不可信输入边界贯穿与判据翻转防护';
@@ -38,7 +38,7 @@ const t = (name, ok, extra = '') => {
   console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? ' | ' + extra : ''));
   if (ok) { pass++; } else { fail++; failedNames.push(name); }
 };
-// 能力缺组统一走这里：吐 SKIP + SKIP-GROUP 机读行，不悄悄吞掉也不算通过（D-159③ 三态纪律）。
+// 能力缺组统一走这里：吐 SKIP + SKIP-GROUP 机器可读的行，不悄悄吞掉也不算通过（D-159③ 三态纪律）。
 const skipGroup = (group, reason) => {
   console.log('SKIP 113-check/' + group + ' | ' + reason);
   console.log('GUARD-RESULT: SKIP-GROUP 113-check group=' + group + ' reason=' + reason);
@@ -47,7 +47,7 @@ const skipGroup = (group, reason) => {
 const txt = p => fs.readFileSync(p, 'utf8');
 const exists = p => fs.existsSync(p);
 
-// ---------- 能力探测（前置条件不可得＝SKIP，不假绿） ----------
+// ---------- 能力探测（前置条件不可得＝SKIP，不假装通过） ----------
 const nodeMajor = Number(process.versions.node.split('.')[0]);
 const distReady = exists(CLI) && exists(join(ENG, 'dist', 'audit', 'safe-read.js'));
 const duckdbReady = (() => {
@@ -55,7 +55,7 @@ const duckdbReady = (() => {
 })();
 // 符号链接能力：POSIX 上恒有；Windows 上需开发者模式/管理员。探测一次，后续按能力选组。
 // 三种链接能力分别探测：Windows 上文件链接与目录链接是两种 mklink 形态，且 junction 与目录符号链接
-// 权限面不同（junction 免开发者模式）——一律先探后用，缺哪种就跳过对应组，绝不靠猜 link 类型硬造而红。
+// 权限要求不同（junction 免开发者模式）——一律先试一下再用，缺哪种就跳过对应组，绝不靠猜 link 类型硬造而红。
 const linkCap = (() => {
   const dir = fs.mkdtempSync(join(tmpdir(), '6f-113-cap-'));
   const probe = (mk) => { try { mk(); return true; } catch { return false; } };
@@ -65,7 +65,7 @@ const linkCap = (() => {
     const sub = join(dir, 'sub');
     fs.mkdirSync(sub);
     // 悬空目标单列一支：Windows 上「目标在场」与「悬空目标」的建链行为不同（后者无类型可猜即 EPERM），
-    //   把它当无条件能力会用假绿换真红——b3 组按这一支门控。
+    //   把它当无条件能力，就是拿假装通过换真红——b3 组按这一支门控。
     return {
       file: probe(() => fs.symlinkSync(target, join(dir, 'link.txt'), 'file')),
       dir: probe(() => fs.symlinkSync(sub, join(dir, 'link-dir'), 'dir')),
@@ -80,7 +80,7 @@ const symlinkProbe = linkCap.file;
 try {
 // ---------- A. 静态源码断言 ----------
 const safeSrc = txt(join(ENG, 'src', 'audit', 'safe-read.ts'));
-t('A1 safe-read.ts 导出读取/列目录/探针/披露事实四件（readRepoFileSafe·readRepoDirSafe·probeRepoEntry·makeFileSubjectSkipFact）',
+t('A1 safe-read.ts 导出四件：读取、列目录、先探一下、披露事实（readRepoFileSafe·readRepoDirSafe·probeRepoEntry·makeFileSubjectSkipFact）',
   /export function readRepoFileSafe/.test(safeSrc) &&
   /export function readRepoDirSafe/.test(safeSrc) &&
   /export function probeRepoEntry/.test(safeSrc) &&
@@ -105,7 +105,7 @@ t('A3b macro-c.ts 接入安全读取（读取＋列目录＋披露事实；ADR �
   mcSrc.includes('readRepoFileSafe') && mcSrc.includes('listAdrFilesSafe') && mcSrc.includes('makeFileSubjectSkipFact') &&
   mcSrc.includes('adrDirUsable') && !/col\.adrFacts\.length\s*>\s*0/.test(mcSrc), '');
 
-t('A3c macro-c.ts 不再对被审计仓做 existsSync 存在性探针（跟随链接＝仓外文件可解 defer-ref 边）',
+t('A3c macro-c.ts 不再对被审计仓做 existsSync 存在性试探（跟随链接＝仓外文件可解 defer-ref 边）',
   !/existsSync\(\s*join\(\s*repoRoot/.test(mcSrc) && /DEFER_REL/.test(mcSrc), '');
 
 const auditSrc = txt(join(ENG, 'src', 'audit', 'audit.ts'));
@@ -122,15 +122,15 @@ t('A4c 39-macro-b-one-shot.mjs 接入安全读取并就拒绝输入发射披露�
   oneShotSrc.includes('pushSkip(') && oneShotSrc.includes('语料来源经链接解析被拒'), '');
 
 const intakeSrc = txt(join(ENG, 'src', 'intake', 'intake.ts'));
-t('A5 url 腿克隆保留 core.symlinks=false（defense-in-depth 真作用位）',
+t('A5 url 这一路克隆保留 core.symlinks=false（真正起作用的地方）',
   intakeSrc.includes('core.symlinks=false'), '');
 
 const wfSrc = txt(join(ROOT, '.github', 'workflows', 'macro-b-regression.yml'));
 // 注释里说明「为什么不用它」是允许的；只有真接进 `git clone` 命令行才算违约——按去注释后的行判。
 const wfCodeLines = wfSrc.split(NL).map(l => l.replace(/(^|\s)#.*$/, '')).join(NL);
-t('A6 回归克隆腿不带 core.symlinks=false（带则链接被物化成普通文件，遮住拒绝+披露路径）',
+t('A6 回归克隆这一路不带 core.symlinks=false（带了链接就被物化成普通文件，遮住拒绝+披露路径）',
   wfCodeLines.indexOf('core.symlinks=false') < 0, '');
-t('A7 回归克隆腿保留链接可见性断言（链接面不被悄悄降级）',
+t('A7 回归克隆这一路保留链接可见性断言（链接这一层不被悄悄降级）',
   wfSrc.includes('120000') && wfSrc.includes('symlink entries'), '');
 
 const genSrc = txt(join(ENG, 'src', 'report', 'generate.ts'));
@@ -238,7 +238,7 @@ if (!symlinkProbe) {
       } catch { /* ELOOP 建不出来就算了，下面的断言跳过 */ }
       const loopRead = SR.readRepoFileSafe(join(testTmp, 'repo'), 'docs/self-loop.md');
       const loopProbe = SR.probeRepoEntry(join(testTmp, 'repo'), 'docs/self-loop.md');
-      t('B10 ELOOP 自环报拒绝（既不是 missing，也不被探针当 absent 悄悄吞掉）',
+      t('B10 ELOOP 自环报拒绝（既不是 missing，也不被试探那一下当 absent 悄悄吞掉）',
         loopRead.ok === false && loopRead.reason !== 'missing' && loopProbe !== 'absent',
         loopRead.ok ? 'unexpected-ok' : loopRead.reason + '/' + loopProbe);
     } else {
@@ -257,9 +257,9 @@ if (!symlinkProbe) {
   }
 
   // ---------- C. 端到端（真实入口） ----------
-  // C 组要同时具备两件：构建产物（入口可跑）＋原生绑定（duckdb 落库面）。
+  // C 组要同时具备两件：构建产物（入口可跑）＋原生绑定（duckdb 落库这一层）。
   //   engine/dist 是入库产物——只查 distReady 时 ci-shallow（无 node_modules）会「看起来能跑」，
-  //   随后 C0/C1/C8 断言入口产物存在即红；故整组按两件能力门控，缺一即组级 SKIP（不假绿也不假红）。
+  //   随后 C0/C1/C8 断言入口产物存在即红；故整组按两件能力门控，缺一即整组 SKIP（不假装通过，也不假装红）。
   if (!distReady || !exists(join(ENG, 'dist', 'audit', 'macro-b.js'))) {
     skipGroup('C', 'env-missing:engine-dist（先 cd engine && npm run build）');
   } else if (!duckdbReady) {
@@ -287,7 +287,7 @@ if (!symlinkProbe) {
       git(repoA, ['add', '-A']);
       git(repoA, ['commit', '-qm', 'init poor adrs']);
 
-      // 基线：注入前先跑一次（同一条命令，只差链接是否在场）——判据翻转的对照臂
+      // 基线：注入前先跑一次（同一条命令，只差链接是否在场）——判据翻转对照的那一路
       const runAudit = (repo, outDir, scale) => spawnSync('node',
         [CLI, 'audit', repo, '--scale', scale, '--out', outDir, '--json'],
         { encoding: 'utf8', timeout: 300000, cwd: e2eTmp });
@@ -331,7 +331,7 @@ if (!symlinkProbe) {
       t('C4 越界意图文档链接也被拒并披露（AGENTS.md→仓外）',
         skips.some(f => JSON.parse(f.value_json).raw_path === 'AGENTS.md'), '');
 
-      // 仓外内容不得出现在任何产物里（report.md / facts.jsonl / facts.duckdb 三面）
+      // 仓外内容不得出现在任何产物里（report.md / facts.jsonl / facts.duckdb 这三个地方）
       const artifacts = fs.readdirSync(attackOut);
       const leaked = artifacts.filter(a => a.endsWith('.md') || a.endsWith('.jsonl') || a.endsWith('.duckdb'))
         .filter(a => {
@@ -341,7 +341,7 @@ if (!symlinkProbe) {
             return buf.indexOf('FAKE PRIVATE KEY') >= 0 || buf.indexOf('ADR-9999: Rich') >= 0;
           } catch { return false; }
         });
-      t('C5 报告/事实库/duckdb 均不含仓外内容（三面逐件扫）', leaked.length === 0, 'leaked=' + leaked.join(','));
+      t('C5 报告/事实库/duckdb 都不含仓外内容（这三处逐件扫）', leaked.length === 0, 'leaked=' + leaked.join(','));
 
       // 报告披露块如实写明跳过数与路径
       const mdA = artifacts.filter(a => a.endsWith('.md')).map(a => txt(join(attackOut, a))).join(NL);
@@ -373,7 +373,7 @@ if (!symlinkProbe) {
         r39.status === 0 && skips39.length >= 7, 'exit=' + String(r39.status) + ' skips=' + String(skips39.length));
       const md39Path = join(oneShotOut, '39-macro-b-synthA.md');
       const md39 = exists(md39Path) ? txt(md39Path) : '';
-      t('C9 39 one-shot 报告披露块写明跳过语料（与 audit 面同文案规则）',
+      t('C9 39 one-shot 报告披露块写明跳过语料（跟 audit 那边同一套文案规则）',
         md39.indexOf('语料来源经链接解析被拒') >= 0, '');
       t('C10 39 one-shot 产物不含仓外内容',
         facts39.every(f => f.value_json.indexOf('FAKE PRIVATE KEY') < 0) && md39.indexOf('FAKE PRIVATE KEY') < 0, '');
@@ -449,7 +449,7 @@ if (!symlinkProbe) {
         'exit=' + String(rDefer.status) + ' skips=' + String(deferSkips.length)
           + ' deferEdges=' + String(deferEdgeN) + ' unresolvedDefer=' + String(deferUnresolved));
 
-      // ---- C13：duckdb 落库面（原生绑定不在位即 SKIP，不假绿）----
+      // ---- C13：duckdb 落库这一层（原生绑定不在位即 SKIP，不假装通过）----
       if (!duckdbReady) {
         console.log('SKIP 113-check/C13 | env-missing:engine-deps:@duckdb/node-api——duckdb 落库面跳过，不计绿');
         console.log('GUARD-RESULT: SKIP-GROUP 113-check group=C13 reason=engine-deps-missing');
@@ -470,7 +470,7 @@ if (!symlinkProbe) {
         `], { encoding: 'utf8', timeout: 120000 });
         let dbSkips = -1;
         try { dbSkips = JSON.parse((probe.stdout || '{}').trim().split(NL).pop()).n; } catch { dbSkips = -1; }
-        t('C13 facts.duckdb 内同样落有披露事实（落库面与 JSONL 同源）',
+        t('C13 facts.duckdb 里同样落有披露事实（落库这一层与 JSONL 同源）',
           probe.status === 0 && dbSkips >= 7,
           'db_skips=' + String(dbSkips) + ' exit=' + String(probe.status)
             + (probe.status === 0 ? '' : ' stderr=' + String(probe.stderr || '').trim().split(NL).slice(-2).join(' ').slice(0, 300)));
@@ -481,9 +481,9 @@ if (!symlinkProbe) {
   }
 }
 
-// ---------- D. 负对照（守卫自检：判据确实会红，不是永远通过断言） ----------
+// ---------- D. 负对照（检查脚本自检：判据确实会红，不是永远通过断言） ----------
 // 在临时副本里用**旧行为**（裸 readFileSync 跟随链接）替换安全读取单点——端到端必须出现仓外内容/判据翻转，
-// 否则说明 C 组断言与被测面脱节（永远通过教训：Autonoma 永远通过断言五形态，D-153②）。
+// 否则说明 C 组断言跟被测的地方脱节了（永远通过教训：Autonoma 永远通过断言五形态，D-153②）。
 if (distReady && symlinkProbe && duckdbReady) {
   const ctrlTmp = fs.mkdtempSync(join(tmpdir(), '6f-113-neg-'));
   try {
@@ -520,7 +520,7 @@ if (distReady && symlinkProbe && duckdbReady) {
     let nmLinked = true;
     try { fs.symlinkSync(join(ENG, 'node_modules'), join(engCopy, 'node_modules'), linkCap.junction ? 'junction' : 'dir'); }
     catch { nmLinked = false; }
-    // 39 脚本读预声明阈值夹具（REPO 推算为 engine 副本的父目录）——只补这一件，不搬整个 fixtures 面。
+    // 39 脚本读预声明阈值夹具（REPO 推算为 engine 副本的父目录）——只补这一件，不把整个 fixtures 目录搬过来。
     fs.mkdirSync(join(engCopy, 'test', 'fixtures', 'contracts'), { recursive: true });
     fs.copyFileSync(join(ENG, 'test', 'fixtures', 'contracts', '22-threshold-raw.json'),
       join(engCopy, 'test', 'fixtures', 'contracts', '22-threshold-raw.json'));
@@ -578,11 +578,11 @@ if (distReady && symlinkProbe && duckdbReady) {
     const negFacts = exists(negFactsPath) ? txt(negFactsPath).split(NL).filter(l => l.trim().length > 0).map(l => JSON.parse(l)) : [];
     const negFive = negFacts.filter(f => f.metric === 'adr.five_piece_completeness');
     const negSkips = negFacts.filter(f => f.metric === 'codelore.file_subject_skip' && f.collector_id === 'audit-safe-read');
-    t('D4 负对照（旧行为替换读取单点，走真实 one-shot 入口）：拒绝+披露面整体消失（0 条 skip 事实）——C2/C8 不是永远通过',
+    t('D4 负对照（旧行为替换读取单点，走真实 one-shot 入口）：拒绝和披露整块都消失（0 条 skip 事实）——C2/C8 不是永远通过',
       rNeg.status === 0 && negSkips.length === 0,
       'exit=' + String(rNeg.status) + ' skips=' + String(negSkips.length)
         + ' stdout=' + String(rNeg.stdout || '').slice(-200));
-    t('D5 负对照（判据翻转面）：旧行为下 ADR 语料由 3 涨到 9（3 贫瘠＋1 仓外密钥样＋5 仓外完整）——C7 的「恒 3」不是永远通过',
+    t('D5 负对照（判据会不会翻转）：旧行为下 ADR 语料由 3 涨到 9（3 贫瘠＋1 仓外密钥样＋5 仓外完整）——C7 的「恒 3」不是永远通过',
       negFive.length === 9, 'five=' + String(negFive.length));
   } finally {
     try { fs.rmSync(ctrlTmp, { recursive: true, force: true }); } catch { /* noop */ }
@@ -595,7 +595,7 @@ if (distReady && symlinkProbe && duckdbReady) {
 // ---------- E. 卫生规范 ----------
 t('E1 safe-read.ts 无 BOM', !txt(join(ENG, 'src', 'audit', 'safe-read.ts')).startsWith('\uFEFF'), '');
 t('E2 113-check.mjs 自身无 BOM', !txt(join(HERE, '113-check.mjs')).startsWith('\uFEFF'), '');
-t('E3 主仓工作区未被守卫写入（守卫只写 OS temp）', !exists(join(ENG, 'audit-facts.jsonl')), '');
+t('E3 主仓工作区没被这个检查脚本写入（它只写 OS temp）', !exists(join(ENG, 'audit-facts.jsonl')), '');
 
 } catch (e) {
   // 崩溃同样要能被 CI 侧看见（否则只有一句 exit code 1）——ENV-SKIP 走 SKIP 语义，其余算红。
