@@ -21,6 +21,16 @@ _别名_: Design Pointer
 _别名_: Historical Fingerprint
 _不要用_: 拿历史编号写新决定
 
+**现行 ADR 起点号**
+现行架构决定从哪一份 ADR 开始算的那个号；只在 [`docs/authority.md`](docs/authority.md) §3 的块里写一次。
+_别名_: Entry ADR
+_不要用_: 在脚本里再写一份这个号
+
+**现行 ADR**
+`docs/adr/` 下真正有正文、号又不在 §3 历史号清单里的决定；不止一份，加一份不用改检查脚本。
+_别名_: Current ADR
+_不要用_: 只认一个写死的号
+
 **校对用的固定语料**
 重新校对用的外部语料，按版本固定住，不跟着产品上游变。
 _别名_: Baseline Corpus
