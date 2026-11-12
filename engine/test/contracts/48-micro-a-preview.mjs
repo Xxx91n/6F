@@ -203,7 +203,7 @@ async function collectTarget(t, shared, diffsOverride) {
   return { t: t, ctx: ctx, res: res, summaries: summaries, mergedCount: mergedCount, headSha: headSha, headDate: headDate };
 }
 
-// 托管面资格看的是（D-033 硬约束反着用）：merged PR ≥1 → eligible；=0 → 接进来时明确拒绝。
+// 能不能进试点，看的是这个（D-033 那条硬约束反过来用）：merged 的 PR 至少一条才算 eligible；一条都没有，接进来时就明确拒掉。
 async function gateProbe(g, shared) {
   const t = { name: g.name, owner: g.owner, repo: g.repo, root: g.root || null, prs: [] };
   const r = await collectTarget(t, shared, []);

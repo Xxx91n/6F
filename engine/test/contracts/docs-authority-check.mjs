@@ -10,7 +10,7 @@
 //   H engine-ci 矩阵/路径边界：仍为 [22,24]，不承载文档检查
 //   I contracts-run 以 *-check.mjs 命名自动纳入；smoke 链与 check:docs 链同源
 //   J 本检查无 BOM + LF
-// 负对照（注入扫描范围后必须 exit 1）：--inject-adr=ADR-9998 / --inject-dcode=D-999 / --inject-anchor=§D-004
+// 负对照（注入普查面后必须 exit 1）：--inject-adr=ADR-9998 / --inject-dcode=D-999 / --inject-anchor=§D-004
 // 纪律：只读不写（git ls-files / git hash-object 只读 + fs 读），零写仓内状态；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';

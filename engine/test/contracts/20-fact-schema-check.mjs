@@ -21,7 +21,7 @@ const PKG_JSON = join(REPO, 'engine', 'package.json');
 const results = [];
 function check(id, pass, detail) { results.push([id, !!pass, String(detail)]); }
 
-// R38/#75批2（r37 审计 P-4/20-A5）：本地裸「//」剥离器退役——不剥 /* */ 块注会让注释里的 SQL 词误报，也不保字符串字面量；改用 _lib 库版（54-check B 先例同型）。
+// R38/#75批2（r37 审计 P-4/20-A5）：本地那个只会剥「//」的旧工具撤了——它不剥 /* */ 块注释，注释里的 SQL 词会被误报，字符串字面量也保不住；改用 _lib 里那份（54-check B 早就这么干过）。
 
 function exportedFnNames(src) {
   const out = [];

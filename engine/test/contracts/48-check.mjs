@@ -80,8 +80,8 @@ t('B4 golden 工件齐备（在册十二件全在场——含 pr64.diff 与 asse
 const GEN = await import(pathToFileURL(join(REPO, 'engine', 'dist', 'report', 'generate.js')).href);
 /**
  * 逐字节对账：把 baseDir 里在册的那些件，跟 otherDir 里同名的件按字节比，返回对不上的清单（缺席的也算）。
- * @param {string} baseDir 入库的那份（基准）
- * @param {string} otherDir 现在跑出来的那份
+ * @param {string} baseDir 拿来当对照基准的那一份
+ * @param {string} otherDir 跟它比的那一份
  * @param {string[]} names 在册件名（唯一清单 GOLDEN_NAMES）
  * @returns {{name: string, why: string}[]} 空数组＝十二件全等
  */

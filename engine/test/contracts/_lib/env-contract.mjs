@@ -10,7 +10,7 @@
 //                          历史可达性子面本环境不可判；粒度=portable 检查脚本的组级 need，不是整件的 env-contract 前置〔D-215③〕；
 //                          修复面禁在检查脚本运行的主仓里 fetch 写 object store〔D-074〕）
 //   SKIP reason 三段式（D-072 修复指引文法）：原因 → 手动修复命令 → 无网影响面。
-//   envProbe=整件级的前置关（缺一即整件 SKIP 出 0）；groupProbe=组级的前置关（缺一组跳一组，
+//   envProbe=整件级的前置闸（缺一即整件 SKIP 出 0）；groupProbe=组级的前置闸（缺一组跳一组，
 //   其余组照跑——46-check B/C 挂 sibling 而 A/D/E 零需 portable 段的精化面）。
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { join, isAbsolute, delimiter } from 'node:path';
@@ -67,7 +67,7 @@ export function envProbe(guardName, needs) {
   if (missing.length) guardSkip(guardName, missing.map(reasonText));
 }
 
-// 组级的前置关（D-164-a①）：needs 缺一即本组跳过（不是整件退出）——
+// 组级的前置闸（D-164-a①）：needs 缺一即本组跳过（不是整件退出）——
 //   输出 SKIP <guard>/<group> 行 + GUARD-RESULT: SKIP-GROUP 机器能读的行，返回 false 供调用方包 if。
 //   组级仍守 D-159③ 三态纪律：SKIP 不算绿、不进 allOk、不算通过。
 export function groupProbe(guardName, group, needs) {
@@ -92,7 +92,7 @@ export function gitObjectOk(repoRoot, sha) {
 export function materializeGitObjects(repoRoot, bundlePath) {
   if (!existsSync(bundlePath)) return null;
   // 临时目录创建也必须在失败路径内：mkdtempSync 抛出的异常若逃出去，调用方（如 43-check 的 B5-GATE）
-  //   就没机会把它报成一条 FAIL，整条 contracts-run 会被栈回溯拉红——与「bundle 缺席」同型（#72）。
+  //   就没机会把它报成一条 FAIL，整条 contracts-run 会被栈回溯拉红——跟「bundle 不在」是一回事（#72）。
   let tmp = null;
   const cleanup = () => { if (!tmp) { return; } try { rmSync(tmp, { recursive: true, force: true }); } catch (_) { /* best-effort */ } };
   try {
