@@ -2,7 +2,7 @@
 // 查什么：
 //   A 本检查自报身份（guard-meta）、*-check.mjs 命名、扫描范围非空（防扫不到东西就假装通过）
 //   B 门面文书集合（按「声明位置」内容派生，不硬编码五/六处计数）→ 逐文件 markdown 链接指回 docs/authority.md 本体
-//   C 在仓 ADR 从 §3 的块推出来（可以不止一份，不由脚本写死）；C0 另核起点号 0028 在不在、同号有没有两份；旧号只准出现在 §3 声明的历史引用面（哨兵与固定机器名除外）；docs/adr/ 链接可解析
+//   C 在仓 ADR 从 §3 的块推出来（可以不止一份，不由脚本写死）；C0 另核起点号 0028 在不在（且与块里 entry 一致）、同号有没有两份；旧号只准出现在 §3 声明的历史引用面（哨兵与固定机器名除外）；docs/adr/ 链接可解析
 //   D D-NNN 引用 ⊆ 归档索引；D-NNN 集合只减不增（冻结记录的 blob 值锁死＋散文假阳性五项锁死）
 //   E §D-NNN / §A-NNN 死锚拒绝（2+ 位退役码形态；1 位是节号，不在此列）
 //   F 门面文书不得自称权威；专题「唯一权威」白名单只从 docs/authority.md §2 读一处
@@ -168,25 +168,24 @@ const HIST_NUMBERS = new Set(HIST ? HIST.numbers : []);
 const HIST_PATHS = HIST ? HIST.paths : [];
 const HIST_EXPLAINED = new Set(HIST ? HIST.explained_in : []);
 const ENTRY_ADR = HIST ? HIST.entry : null;
-// 现行纪元的起点号。这是冻结的历史事实（从这一份起算，以后不再变），不是「现在现行是哪份」
-// 那种会随新增 ADR 移动的说法。票面点名 C0 至少含 0028，所以它按字面留在这里；
-// 块里的 entry 另外还要过 C5b 那两条（不是历史号、盘上有那份文件）。
-const ADR_FLOOR = '0028';
+// 现行纪元的起点号固定是 0028（票面点名的字面条件，冻结事实，不是「现在哪份现行」那种会移动的说法）。
+// 块里的 entry 是它的第二处写法，所以 C0 会把两边对一遍：不一致就红，免得改了块那边这边还绿。
+const ADR_EPOCH_START = '0028';
 // 在仓集合 = 盘上的号里剔掉历史号。按文件算、不按 Status 算：还没接受的提案也算在仓。
 // 同一个号出现两份文件算红：去掉「只有一份」不等于允许同号并存。
-function adrFloorVerdict(adrFiles, adrNumbers, historicalNumbers, floor) {
+function adrFloorVerdict(adrFiles, adrNumbers, historicalNumbers, epochStart) {
   const current = [...adrNumbers].filter(n => !historicalNumbers.has(n)).sort();
   const revived = [...adrNumbers].filter(n => historicalNumbers.has(n)).sort();
   return {
     current,
     revived,
     duplicates: adrFiles.duplicates,
-    ok: current.length > 0 && current.includes(floor) && revived.length === 0 && adrFiles.duplicates.length === 0,
+    ok: current.length > 0 && current.includes(epochStart) && revived.length === 0 && adrFiles.duplicates.length === 0,
   };
 }
-const CURRENT_VERDICT = adrFloorVerdict(ADR, ADR_NUMBERS, HIST_NUMBERS, ADR_FLOOR);
+const CURRENT_VERDICT = adrFloorVerdict(ADR, ADR_NUMBERS, HIST_NUMBERS, ADR_EPOCH_START);
 // 起点号那份文件，C5 拿它核对 explained_in。
-const entryAdrFiles = ENTRY_ADR ? ADR_FILES.filter(p => p.startsWith('docs/adr/' + ENTRY_ADR + '-')) : [];
+const epochStartFiles = ADR_FILES.filter(p => p.startsWith('docs/adr/' + ADR_EPOCH_START + '-'));
 // C6d 的对照：不走 collectAdr，改成直接读目录（readdir）再按同一套命名规则筛一遍。
 // 两路互相独立：一路是 git ls-files + existsSync，一路是文件系统列举。
 // 目录侧只留被 git 跟踪的那些比——本地刚建、还没 add 的文件是正常的中间状态，不该判红。
@@ -265,11 +264,12 @@ for (const { path, text } of CORPUS) {
     if (!existsSync(join(REPO, resolved))) { adrLinks.push(path + ' -> ' + raw + ' (' + resolved + ')'); }
   }
 }
-// C0 认四条：在仓集合非空、里面有起点号 0028（票面点名的字面条件）、盘上没有历史号复活、
+// C0 认四条：在仓集合非空、里面有 0028（票面点名的字面条件）、盘上没有历史号复活、
 // 同一个号没有两份文件。最后一条是去掉「只有一份」时补的口子——删掉那份检查不等于允许同号并存。
-t('C0 在仓 ADR 非空、含起点号 0028、没有历史号复活、同一个号没有两份（不写死「只有一份」）',
-  CURRENT_VERDICT.ok && !!ENTRY_ADR,
-  'floor=' + ADR_FLOOR + ' in-repo=' + CURRENT_VERDICT.current.join(',') + ' revived=' + CURRENT_VERDICT.revived.join(',') + ' dup=' + CURRENT_VERDICT.duplicates.join(',') + ' files=' + ADR_FILES.join(','));
+// 另外块里的 entry 必须就是 0028：那两个来源一旦分家，就是脚本自己抄了第二份，C0 也就白判了。
+t('C0 在仓 ADR 非空、含 0028、没有历史号复活、同一个号没有两份、块里 entry 也是 0028',
+  CURRENT_VERDICT.ok && ENTRY_ADR === ADR_EPOCH_START,
+  'epoch=' + ADR_EPOCH_START + ' entry=' + (ENTRY_ADR || '<unparsed>') + ' in-repo=' + CURRENT_VERDICT.current.join(',') + ' revived=' + CURRENT_VERDICT.revived.join(',') + ' dup=' + CURRENT_VERDICT.duplicates.join(',') + ' files=' + ADR_FILES.join(','));
 t('C1 现行文本的 ADR-NNNN 只指向在仓 ADR 或历史引用面（哨兵与固定机器名除外）',
   adrRefCount > 0 && badAdr.length === 0, 'refs=' + adrRefCount + ' dangling=' + [...new Set(badAdr)].join(','));
 t('C1b 哨兵豁免只覆盖 engine 代码/测试（engine/README.md 不在内）',
@@ -288,15 +288,16 @@ t('C4 历史路径清单非空，每条都在仓里（清单从 §3 读，不在
   'paths=' + HIST_PATHS.join(',') + ' missing=' + missingHistPaths.join(','));
 const missingExplained = [...HIST_EXPLAINED].filter(p => !historicalPathExists(p));
 // explained_in 要含 authority.md 和起点号那份。起点号那份不在仓里也算红：那是「起点 ADR 被删」。
-t('C5 explained_in 非空、每条都在仓里，且含 authority.md 与 §3 块点名的起点 ADR',
-  HIST_EXPLAINED.size > 0 && missingExplained.length === 0 && !!ENTRY_ADR && entryAdrFiles.length > 0 &&
-  HIST_EXPLAINED.has('docs/authority.md') && entryAdrFiles.some(p => HIST_EXPLAINED.has(p)),
-  'explained=' + [...HIST_EXPLAINED].join(',') + ' entry=' + (entryAdrFiles.join(',') || '<none>') + ' missing=' + missingExplained.join(','));
+t('C5 explained_in 非空、每条都在仓里，且含 authority.md 与起点 0028 那份',
+  HIST_EXPLAINED.size > 0 && missingExplained.length === 0 && epochStartFiles.length > 0 &&
+  HIST_EXPLAINED.has('docs/authority.md') && epochStartFiles.some(p => HIST_EXPLAINED.has(p)),
+  'explained=' + [...HIST_EXPLAINED].join(',') + ' epoch-start=' + (epochStartFiles.join(',') || '<none>') + ' missing=' + missingExplained.join(','));
 // 起点号本身还要过两条：不能是历史号（否则「起算」那句话指向已退役的旧号），
-// 盘上得真有它那份文件（否则起点 ADR 被删了还写着它）。
-t('C5b 块里的起点号不是历史号、且盘上有对应文件（起点被删或指着旧号都红）',
-  !!ENTRY_ADR && !HIST_NUMBERS.has(ENTRY_ADR) && entryAdrFiles.length > 0,
-  'entry=' + (ENTRY_ADR || '<unparsed>') + ' is-historical=' + (ENTRY_ADR ? HIST_NUMBERS.has(ENTRY_ADR) : 'n/a') + ' files=' + (entryAdrFiles.join(',') || '<none>'));
+// 盘上得真有 0028 那份文件（否则起点 ADR 被删了还写着它）。
+// 这里核的是 0028 这个权威值，不是块里写什么就认什么——否则 entry 改成 0029 也能过。
+t('C5b 起点 0028 不是历史号、且盘上有对应文件（起点被删或指着旧号都红）',
+  !HIST_NUMBERS.has(ADR_EPOCH_START) && ADR_NUMBERS.has(ADR_EPOCH_START) && epochStartFiles.length > 0,
+  'epoch=' + ADR_EPOCH_START + ' is-historical=' + HIST_NUMBERS.has(ADR_EPOCH_START) + ' files=' + (epochStartFiles.join(',') || '<none>'));
 const HIST_SCREEN = HIST_PATHS[0] || '<missing-historical-path>';
 t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判红；历史路径不放行任意旧号', // NEGATIVE-CONTROL
   adrRefClass(HIST_SCREEN, '0001') === 'historical' && // NEGATIVE-CONTROL
@@ -304,8 +305,9 @@ t('C6 负对照：同一枚 ADR-0001 在历史路径通过、在现行路径判�
   adrRefClass(HIST_SCREEN, '9998') === 'dead', // NEGATIVE-CONTROL
   'hist=' + adrRefClass(HIST_SCREEN, '0001') + ' current=' + adrRefClass('README.md', '0001'));
 // 起点号落在现行面这一条要单独算正向检查，不能混进 C6：它依赖真仓的号，混进去 C6 就叫错了名字。
-t('C6c 真仓的起点号在现行面上（不看历史面、不算死引用）',
-  !!ENTRY_ADR && adrRefClass('README.md', ENTRY_ADR) === 'current', 'entry=' + (ENTRY_ADR || '<unparsed>'));
+t('C6c 起点 0028 在现行面上（不看历史面、不算死引用）',
+  ADR_NUMBERS.has(ADR_EPOCH_START) && !HIST_NUMBERS.has(ADR_EPOCH_START) && adrRefClass('README.md', ADR_EPOCH_START) === 'current',
+  'epoch=' + ADR_EPOCH_START + ' classified=' + adrRefClass('README.md', ADR_EPOCH_START));
 // C6b 证伪的是「发现 + 判断」整条链，所以走的是真函数 collectAdr/adrFloorVerdict，
 // 只把输入换成合成路径假装的 tracked 列表和 existsSync —— 不碰真仓，也不会因为仓坏了跟着红。
 // 号段取 4 位里用不到的合成值，不把真号搬回脚本。
@@ -315,15 +317,19 @@ t('C6b 发现链与判法负对照：新加一份仍绿、删起点号红、号�
     const allExist = () => true; // NEGATIVE-CONTROL
     const base = ['9001-base', '9002-next']; // NEGATIVE-CONTROL
     const hist = new Set(['9003']); // NEGATIVE-CONTROL
-    const floor = '9001'; // NEGATIVE-CONTROL
-    const ok = (tracked, exists) => adrFloorVerdict(collectAdr(tracked, exists), collectAdr(tracked, exists).numbers, hist, floor).ok; // NEGATIVE-CONTROL
-    const discovered = (names, exists) => collectAdr(trackedWith(names), exists).files; // NEGATIVE-CONTROL
-    return ok(trackedWith([...base, '9004-added']), allExist) && // NEGATIVE-CONTROL
-      !ok(trackedWith(['9002-next', '9004-added']), allExist) && // NEGATIVE-CONTROL
-      !adrFloorVerdict(collectAdr(trackedWith(base), allExist), collectAdr(trackedWith(base), allExist).numbers, new Set([...hist, '9001']), floor).ok && // NEGATIVE-CONTROL
-      !adrFloorVerdict(collectAdr(trackedWith([...base, '9001-copy']), allExist), collectAdr(trackedWith([...base, '9001-copy']), allExist).numbers, hist, floor).ok && // NEGATIVE-CONTROL
-      discovered(['9001-base', 'not-an-adr-name', 'docs/adr/9002-next.markdown'], allExist).length === 1 && // NEGATIVE-CONTROL
-      discovered([...base, '9004-added'], (p) => !p.includes('9004')).length === base.length && // NEGATIVE-CONTROL
+    const epoch = '9001'; // NEGATIVE-CONTROL
+    const verdictOf = (tracked, exists, historical) => adrFloorVerdict(collectAdr(tracked, exists), collectAdr(tracked, exists).numbers, historical, epoch); // NEGATIVE-CONTROL
+    return verdictOf(trackedWith([...base, '9004-added']), allExist, hist, epoch).ok && // NEGATIVE-CONTROL
+      // 新加那份必须真被认出来：只看“绿”不够，被漏掉也绿。
+      verdictOf(trackedWith([...base, '9004-added']), allExist, hist, epoch).current.includes('9004') && // NEGATIVE-CONTROL
+      !verdictOf(trackedWith(['9002-next', '9004-added']), allExist, hist, epoch).ok && // NEGATIVE-CONTROL
+      !verdictOf(trackedWith(base), allExist, new Set([...hist, '9001']), epoch).ok && // NEGATIVE-CONTROL
+      !verdictOf(trackedWith([...base, '9001-copy']), allExist, hist, epoch).ok && // NEGATIVE-CONTROL
+      // 命名规则要真挡得住：.markdown 不算，非 docs/adr 路径不算。这里喂完整路径，不靠 trackedWith 补后缀。
+      collectAdr(['docs/adr/9001-base.md', 'docs/adr/9002-next.markdown'], allExist).files.length === 1 && // NEGATIVE-CONTROL
+      collectAdr(['not-an-adr/docs/adr/9001-x.md'], allExist).files.length === 0 && // NEGATIVE-CONTROL
+      // existsSync 一侧要真起作用：盘上没了的那份不算在仓。
+      !collectAdr(trackedWith([...base, '9004-added']), (p) => !p.includes('9004')).numbers.has('9004') && // NEGATIVE-CONTROL
       parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  numbers: ["9003"]\n```').entry === '9001' && // NEGATIVE-CONTROL
       parseHistoricalAdr('```yaml\nhistorical_adr:\n  numbers: ["9003"]\n```').entry === null && // NEGATIVE-CONTROL
       parseHistoricalAdr('```yaml\nhistorical_adr:\n  entry: "9001"\n  entry: "9002"\n  numbers: []\n```').entry === null; // NEGATIVE-CONTROL
@@ -333,12 +339,10 @@ t('C6b 发现链与判法负对照：新加一份仍绿、删起点号红、号�
 // 两条独立算法给出不同答案，就说明发现链本身坏了（正则、git 过滤、existsSync 任一处）。
 t('C6d 真仓发现链与独立列举一致（git 侧和目录侧答案不同、或有文件只在一侧，都红）',
   ADR_FILES.length > 0 && ADR_DIR_FILES.length > 0 &&
-  JSON.stringify([...ADR_FILES].sort()) === JSON.stringify(ADR_DIR_FILES) &&
-  ADR_FILES.every(p => existsSync(join(REPO, p))),
+  JSON.stringify([...ADR_FILES].sort()) === JSON.stringify(ADR_DIR_FILES),
   'git-side=' + ADR_FILES.join(',') + ' dir-side=' + ADR_DIR_FILES.join(','));
-t('C6e 起点号那份文件确实被真发现链认了出来（C0 的「含起点号」有实物托底）',
-  entryAdrFiles.length > 0 && ADR_FILES.some(p => entryAdrFiles.includes(p)),
-  'entry=' + (ENTRY_ADR || '<unparsed>') + ' files=' + (entryAdrFiles.join(',') || '<none>'));
+// 「起点 ADR 那份文件真的在盘上」由 C5b（ADR_NUMBERS）和 C6d（两路列举含它）一起兜住，
+// 不再单开一条自查——那只会是 C5b 的同一句话重复一遍。
 t('C7 固定机器名放行：协议版本串和 schema inherits 历史标签不算死引用，普通旧号仍算', // NEGATIVE-CONTROL
   frozenMachineLabel('engine/src/report/generate.ts', { code: 'ADR-0013', line: "const V = 'ADR-0013-C/v1';" }) && // NEGATIVE-CONTROL
   frozenMachineLabel('engine/src/fact/schema.ts', { code: 'ADR-0005', line: "inherits: 'ADR-0005'" }) && // NEGATIVE-CONTROL

@@ -71,7 +71,7 @@
 - Node 下限 22.18，CI 矩阵 [22, 24]；不保留 Node 20 的跳过分支。
 - 文档权威由 `engine/test/contracts/docs-authority-check.mjs` 检查，CI 单腿是 `.github/workflows/docs-ci.yml`：门面指回 `docs/authority.md`、ADR 编号能打开、D 编号都归到归档索引、退役死锚拒绝、门面不自称权威。tracker #47 复盘又补了两条：`§D-NNN` / `§A-NNN`（2 位以上）的退役死锚拒绝；门面里的「唯一权威」按 `docs/authority.md` §2 的放行清单判。
 - `33-gate-registry.json` 是真会被读的登记表，每条可执行引用都必须能打开；已经删掉的脚本逐条标 `historical`。
-- 「现行 ADR」不再是一个写死的号：在仓 ADR 集合 = `docs/adr/` 下被 git 跟踪、盘上真有文件的那些 `NNNN-名字.md`，再剔掉 `docs/authority.md` §3 块 `numbers` 清单里的历史号。加一份新 ADR 不用回改脚本。起点号（现行纪元从头算起的那一份，`ADR-0028`）也只在那个块里写一次（`entry`），脚本从块读；它还要过两条——不能是历史号、盘上得有它那份文件。同一个号出现两份文件算红（去掉「只有一份」不等于允许同号并存）。哪份被接受了、能不能当指针目标，靠人看各自的 `Status:` 行，脚本不解析它。（tracker #230）
+- 「现行 ADR」不再是一个写死的号：在仓 ADR 集合 = `docs/adr/` 下被 git 跟踪、盘上真有文件的那些 `NNNN-名字.md`，再剔掉 `docs/authority.md` §3 块 `numbers` 清单里的历史号。加一份新 ADR 不用回改脚本。起点号固定是 `ADR-0028`（现行纪元从头算起的那一份），块里的 `entry` 写的必须是它、不一致就红；脚本里那份常量与块里的 `entry` 互相校验，两边分家就是红。同一个号出现两份文件算红（去掉「只有一份」不等于允许同号并存）。哪份被接受了、能不能当指针目标，靠人看各自的 `Status:` 行，脚本不解析它。（tracker #230）
 - 首报检查 `23-first-report-check.mjs` 读仓内冻住的存档，不重新渲染；golden-ci 负责重新渲染后的逐字节比对。
 - 检查脚本的豁免判据看实际使用位置，不看注释或字面提名；多命中探针要覆盖 `.includes(` / `.test(` 这些写法和 `.scratch/macro-audit/` 目录，防止只在某一种写法上生效。
 - 本仓源码检出只支持全量历史：CI 的三条 workflow 都是 `fetch-depth: 0`；浅克隆和 `--filter=` 一类部分历史不在支持范围内，部分历史目前也不判降级，仍可能交出边界 commit。报告锚点取不到真值时落 `degraded:` 标记，不返回边界 commit。

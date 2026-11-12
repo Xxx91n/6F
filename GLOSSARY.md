@@ -22,7 +22,7 @@ _别名_: Historical Fingerprint
 _不要用_: 拿历史编号写新决定
 
 **现行 ADR 起点号**
-现行架构决定从哪一份 ADR 开始算的那个号（`docs/authority.md` §3 的 `entry`）。
+现行架构决定从哪一份 ADR 开始算的那个号，固定是 `0028`；块里的 `entry` 只用来对账，写错就红。
 _别名_: Entry ADR
 
 **在仓 ADR**
