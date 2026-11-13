@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { mkdtempSync, copyFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { siblingPath } from './_lib/env-contract.mjs';
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '#48 Micro-A preview 守卫（R8-02 / A-056 / D-049）';
@@ -56,6 +57,84 @@ t('A5 导出 MICRO_A_SLICE_FIELDS ≥20 字段', Array.isArray(MOD.MICRO_A_SLICE
 t('A6 导出 skeletonIntersectionReport 函数', typeof MOD.skeletonIntersectionReport === 'function');
 t('A7 管道含三形态+真负例+漂移注记', pipe.indexOf('release-please') >= 0 && pipe.indexOf('dependabot') >= 0 && pipe.indexOf('goose-duck-agent') >= 0 && pipe.indexOf('anysearch-cli') >= 0);
 t('A8 走主路还是走回退，都有标注字段（credential_strategy + diff_channel 入字段）', MOD.MICRO_A_SLICE_FIELDS.indexOf('credential_strategy') >= 0 && MOD.MICRO_A_SLICE_FIELDS.indexOf('diff_channel') >= 0);
+
+const MA = await import(pathToFileURL(join(REPO, 'engine', 'dist', 'audit', 'micro-a.js')).href);
+/** 只比较名册字段；生成器把 pins 叫作 prs。 */
+function samePilots(pilots, roster) {
+  const actual = pilots.map(function (p) { return { name: p.name, owner: p.owner, repo: p.repo, pins: p.prs }; });
+  const expected = roster.map(function (p) { return { name: p.name, owner: p.owner, repo: p.repo, pins: p.pins }; });
+  return JSON.stringify(actual) === JSON.stringify(expected);
+}
+t('A9 生成器的仓和 PR 清单与引擎名册一致', Array.isArray(MOD.PILOTS) && samePilots(MOD.PILOTS, MA.MICRO_A_PILOTS));
+
+// 只改本进程里的名册，再重新加载生成器；跑完恢复，不碰源码或存档。
+const savedPilots = MA.MICRO_A_PILOTS.slice();
+let changedRosterOK = false, changedGoldenOK = false, missingPrOK = false, missingRepoOK = false, pathsOK = false, strictPathOK = false, rosterError = '';
+try {
+  const pins = MA.MICRO_A_GOLDEN_PRS.map(function (p, i) { return { n: p.n, form: '测试形态-' + i }; }).reverse();
+  const changed = [
+    { name: 'env-manager', owner: 'test-owner', repo: 'test-repo', pins: pins },
+    { name: 'new-roster-repo', owner: 'test-owner', repo: 'new-roster-repo', pins: [{ n: 7, form: 'human' }] }
+  ];
+  MA.MICRO_A_PILOTS.splice(0, MA.MICRO_A_PILOTS.length, ...changed);
+  const altered = await import(pathToFileURL(PIPE).href + '?roster-test');
+  changedRosterOK = samePilots(altered.PILOTS, changed) && !samePilots(MOD.PILOTS, changed);
+  const newTarget = altered.realPilot(altered.PILOTS[1]);
+  const inheritedName = altered.realPilot({ name: 'constructor', owner: 'test-owner', repo: 'constructor', prs: [] });
+  pathsOK = newTarget.root === null && newTarget.repo === changed[1].repo && newTarget.prs === changed[1].pins && inheritedName.root === null;
+  try { siblingPath(changed[1].name); } catch (e) { strictPathOK = String(e.message).includes('unknown sibling repo'); }
+  const target = altered.goldenPilot();
+  const expectedPrs = MA.MICRO_A_GOLDEN_PRS.map(function (p) { return pins.find(function (pin) { return pin.n === p.n; }); });
+  changedGoldenOK = target.name === changed[0].name && target.owner === changed[0].owner && target.repo === changed[0].repo && target.root === null && JSON.stringify(target.prs) === JSON.stringify(expectedPrs);
+  const removed = pins.shift();
+  try { altered.goldenPilot(); } catch (e) { missingPrOK = !!removed && String(e.message).includes('env-manager#' + removed.n); }
+  altered.PILOTS.splice(0, 1);
+  try { altered.goldenPilot(); } catch (e) { missingRepoOK = String(e.message).includes('样本仓 env-manager'); }
+} catch (e) {
+  rosterError = String(e && e.message ? e.message : e);
+} finally {
+  MA.MICRO_A_PILOTS.splice(0, MA.MICRO_A_PILOTS.length, ...savedPilots);
+}
+t('A10 名册增删或修改后，生成器跟着变', changedRosterOK, rosterError);
+t('A11 golden 回放也从名册取仓和 PR 形态', changedGoldenOK, rosterError);
+t('A12 golden 所需 PR 不在名册时明确报错', missingPrOK, rosterError);
+t('A13 golden 所需仓不在名册时明确报错', missingRepoOK, rosterError);
+t('A14 新仓没有本地路径时走托管接口', pathsOK, rosterError);
+t('A15 其他调用方仍须先登记本地路径', strictPathOK, rosterError);
+
+// 仓主或仓名变了，不能继续把旧的本地仓当成新仓。
+const originRepo = mkdtempSync(join(tmpdir(), '48-pilot-origin-'));
+let originOK = false, localOriginOK = false, remoteOriginOK = false, originError = '';
+try {
+  const git = function (args) {
+    const r = spawnSync('git', args, { encoding: 'utf8' });
+    if (r.status !== 0) { throw new Error(r.stderr || String(r.error || r.status)); }
+  };
+  git(['init', '--quiet', '--bare', '--initial-branch=fixture', originRepo]);
+  git(['-C', originRepo, 'remote', 'add', 'origin', 'https://github.com/Xxx91n/env-manager.git']);
+  const pilot = { name: 'env-manager', owner: 'xxx91n', repo: 'ENV-MANAGER', prs: [] };
+  const matched = MOD.realPilot(pilot, originRepo);
+  const changedOwner = MOD.realPilot({ ...pilot, owner: 'other-owner' }, originRepo);
+  const changedRepo = MOD.realPilot({ ...pilot, repo: 'other-repo' }, originRepo);
+  git(['-C', originRepo, 'remote', 'set-url', 'origin', 'Xxx91n/env-manager']);
+  const localOrigin = MOD.realPilot(pilot, originRepo);
+  git(['-C', originRepo, 'remote', 'set-url', 'origin', 'git@github.com:Xxx91n/env-manager.git']);
+  const sshOrigin = MOD.realPilot(pilot, originRepo);
+  git(['-C', originRepo, 'remote', 'set-url', 'origin', 'https://github.com.example/Xxx91n/env-manager']);
+  const otherHostOrigin = MOD.realPilot(pilot, originRepo);
+  git(['-C', originRepo, 'remote', 'remove', 'origin']);
+  const noOrigin = MOD.realPilot(pilot, originRepo);
+  originOK = matched.root === originRepo && changedOwner.root === null && changedRepo.root === null && noOrigin.root === null;
+  localOriginOK = localOrigin.root === null;
+  remoteOriginOK = sshOrigin.root === originRepo && otherHostOrigin.root === null;
+} catch (e) {
+  originError = String(e && e.message ? e.message : e);
+} finally {
+  rmSync(originRepo, { recursive: true, force: true });
+}
+t('A16 本地仓须与名册一致，否则走托管接口', originOK, originError);
+t('A17 相对路径不能当 GitHub origin', localOriginOK, originError);
+t('A18 GitHub SSH 地址可用，其他主机走托管接口', remoteOriginOK, originError);
 
 // ---------- B. golden 实跑（cassette 离线回放） ----------
 const GOLDEN_OUT = mkdtempSync(join(tmpdir(), '48-golden-'));

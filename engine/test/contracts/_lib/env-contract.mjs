@@ -30,9 +30,13 @@ const SIBLING_DIRS = {
   'goose-duck-agent': 'eys',
 };
 
-export function siblingPath(name) {
-  const dir = SIBLING_DIRS[name];
-  if (!dir) throw new Error('unknown sibling repo: ' + name + '（名册外引用须先登记 SIBLING_DIRS）');
+// optional 只给能走托管接口的调用方用；其他调用方仍须先登记本地路径。
+export function siblingPath(name, { optional = false } = {}) {
+  const dir = Object.hasOwn(SIBLING_DIRS, name) ? SIBLING_DIRS[name] : null;
+  if (!dir) {
+    if (optional) return null;
+    throw new Error('unknown sibling repo: ' + name + '（名册外引用须先登记 SIBLING_DIRS）');
+  }
   return join(GUARD_SIBLING_ROOT, dir);
 }
 
