@@ -36,6 +36,20 @@ const LEDGER_REPRO = 'git -C <repo> show HEAD:' + LEDGER_PATH;
 const CRITERION_IDS = ['PC-1', 'TC-1', 'TC-2', 'TC-3', 'TC-4', 'NC-1'];
 export const MICRO_A_GOLDEN_PRS = [{ n: 64, form: 'machine-generated/release-please' }, { n: 51, form: 'human' }];
 export const MICRO_A_GOLDEN_DIFFS = [64];
+// 校对样本台账（spec §R8-2「校对样本要记的字段」，tracker #241）：一条样本一行，
+// 键是稳定 ID（仓名#PR 号），记「哪一版进的样本」和「为什么退出样本」。
+// 「合并时间」没在这里再抄一份：事实层的 merged_at 一查就有，抄两份迟早对不上。
+// added_in 是倒查 git 历史得出的真值，不是一律填当前版本：四条样本都是随 #48 那次（3e588e0，2026-09-17）
+// 一起写死进管道写死名单的，那条提交落在 0.1.0 发行之后、0.2.0 之前，所以算进 0.1.0。
+export const MICRO_A_SAMPLE_ADDED = {
+    'env-manager#64': { added_in: '0.1.0' },
+    'env-manager#55': { added_in: '0.1.0' },
+    'env-manager#51': { added_in: '0.1.0' },
+    'jiahao#6': { added_in: '0.1.0' }
+};
+// 退役登记。现在四条样本都还在用，所以是空的；退出样本时在这里补一行，写清原因。
+// 没了这一格，以后没人说得清一条样本为什么不在（spec 原话「少了退役原因，没人说得清」）。
+export const MICRO_A_SAMPLE_RETIRED = {};
 export const MICRO_A_PILOTS = [
     { name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', pins: [
             { n: 64, form: 'machine-generated/release-please' },
@@ -44,6 +58,42 @@ export const MICRO_A_PILOTS = [
         ] },
     { name: 'jiahao', owner: 'Xxx91n', repo: 'jiahao', pins: [{ n: 6, form: 'human' }] }
 ];
+// 校对样本台账的拼装（spec §R8-2「校对样本要记的字段」，tracker #241）——
+// 引擎侧和 48 生成器读同一份台账常量，两边拼出来的行一模一样。
+// 一条样本记五样：稳定 ID、来源仓、合并时间、加入版本、退役原因。前两样从名册现算，
+// 合并时间在事实层（github_rest.pr_metadata 的 merged_at，一查就有，不在这儿再抄一份），
+// 后两样机器算不出来，只能读写死的台账。
+// 名册和台账对不上就当场报错：名册里有、台账缺行（说不出哪一版进的），或者写了退役却还留在名册里。
+// 宁可停下让人改清楚，也不许报告里悄悄漏一条——spec 原话「少了退役原因，以后没人说得清」。
+export function microASampleLedger(pilots = MICRO_A_PILOTS, added = MICRO_A_SAMPLE_ADDED, retired = MICRO_A_SAMPLE_RETIRED) {
+    const rows = [];
+    for (const pilot of pilots) {
+        for (const pr of pilot.pins) {
+            const id = pilot.name + '#' + String(pr.n);
+            const add = added[id];
+            if (!add || typeof add.added_in !== 'string' || add.added_in.length === 0) {
+                throw new Error('校对样本台账缺「加入版本」：' + id + '（在 MICRO_A_SAMPLE_ADDED 里补一行）');
+            }
+            if (retired[id]) {
+                throw new Error('校对样本台账对不上：' + id + ' 已登记退役，却还留在名册里（两条只能留一条）');
+            }
+            rows.push({ id: id, repo: pilot.name, pr: pr.n, added_in: add.added_in, retired_in: null, retired_reason: null });
+        }
+    }
+    for (const id of Object.keys(retired)) {
+        if (rows.some(function (r) { return r.id === id; })) {
+            continue;
+        }
+        const r = retired[id];
+        if (typeof r.retired_in !== 'string' || r.retired_in.length === 0 || typeof r.reason !== 'string' || r.reason.length === 0) {
+            throw new Error('校对样本台账的退役登记写不全（要写哪一版退的、为什么退）：' + id);
+        }
+        // 已退出的样本不在名册里了：仓名和 PR 号从稳定 ID 上拆回来，来源仓照样能查。
+        const hash = id.lastIndexOf('#');
+        rows.push({ id: id, repo: hash > 0 ? id.slice(0, hash) : id, pr: hash > 0 ? Number(id.slice(hash + 1)) : null, added_in: added[id] ? added[id].added_in : null, retired_in: r.retired_in, retired_reason: r.reason });
+    }
+    return rows;
+}
 export function isMicroAInputError(e) {
     return !!e && typeof e === 'object' && (e.code === 'MICRO-A-INPUT' || e.code === 'MICRO-A-SCOPE');
 }
@@ -572,7 +622,7 @@ export async function runMicroAAudit(opts) {
         strategy: collected.res.strategy, degraded: collected.res.degraded,
         calls: collected.res.calls, prs_listed: collected.res.prs_listed,
         merged_prs: gate.merged_prs, eligible: gate.eligible, stopped_reason: collected.res.stopped_reason,
-        fact_count: collected.res.facts.length, per_pr: [],
+        fact_count: collected.res.facts.length, sample_ledger: microASampleLedger(MICRO_A_PILOTS), per_pr: [],
         pipeline: { source: '48-micro-a-preview.mjs 移植（#85②/D-204③④）', recalibration: '85-check E 组差分对账（golden cassette：引擎面 vs 48 生成器双通道）', fact_emission: 'fact-write.ts 共享核（PR 粒度零 commit grain，节拍批）' }
     };
     const perPr = meas.per_pr;

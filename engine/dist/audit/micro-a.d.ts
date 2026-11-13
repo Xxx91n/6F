@@ -9,6 +9,15 @@ export declare const MICRO_A_GOLDEN_PRS: {
     form: string;
 }[];
 export declare const MICRO_A_GOLDEN_DIFFS: number[];
+export interface MicroASampleAdded {
+    added_in: string;
+}
+export declare const MICRO_A_SAMPLE_ADDED: Readonly<Record<string, MicroASampleAdded>>;
+export interface MicroASampleRetired {
+    retired_in: string;
+    reason: string;
+}
+export declare const MICRO_A_SAMPLE_RETIRED: Readonly<Record<string, MicroASampleRetired>>;
 export interface MicroAPin {
     n: number;
     form: string;
@@ -26,6 +35,15 @@ export interface MicroAInputError {
     pilots: readonly string[];
     requested: string;
 }
+export interface MicroASampleRow {
+    id: string;
+    repo: string;
+    pr: number | null;
+    added_in: string | null;
+    retired_in: string | null;
+    retired_reason: string | null;
+}
+export declare function microASampleLedger(pilots?: readonly MicroAPilot[], added?: Readonly<Record<string, MicroASampleAdded>>, retired?: Readonly<Record<string, MicroASampleRetired>>): MicroASampleRow[];
 export declare function isMicroAInputError(e: unknown): e is MicroAInputError;
 export declare function deterministicRunAt(): string;
 export interface MicroAGhTokenProbe {

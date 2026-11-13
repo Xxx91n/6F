@@ -1,6 +1,7 @@
 // 48-check.mjs — #48 Micro-A preview 检查脚本（R8-02 / A-056 / D-049）
 // 查什么：A 管道+判据文件+模块导出契约 → B golden 实跑＋十二件逐字节对账（cassette 回放，离线；漂移即红 tracker #88）→ C 真跑工件齐备
-//   → D 报告语义（4 PR supported＋拒绝件 unsupported＋所含字段∩骨架机械断言＋披露四字段）→ E 事件闭环+文档回写 → F token 泄漏+BOM
+//   → D 报告语义（4 PR supported＋拒绝件 unsupported＋所含字段∩骨架机械断言＋披露四字段）→ E 事件闭环+文档回写
+//   → G 校对样本台账五字段＋正反对照（spec §R8-2，tracker #241）→ F token 泄漏+BOM
 // 纪律：只读断言＋golden 子进程（cassette 离线回放零网络）；真跑工件为已落盘实证不重复实跑；exit 0 + PASS N/N 为绿。
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -310,7 +311,7 @@ const REAL = ['env-manager-pr64', 'env-manager-pr55', 'env-manager-pr51', 'jiaha
 t('C1 4 PR 报告双件（md+json）+diff 工件', REAL.every(function (s) { return existsSync(join(FX, '48-micro-a-' + s + '.md')) && existsSync(join(FX, '48-micro-a-' + s + '.json')) && existsSync(join(FX, '48-micro-a-' + s + '.diff')); }));
 t('C2 拒绝件双件', existsSync(join(REPO,'engine','test','fixtures','contracts','48-micro-a-goose-duck-agent-refusal.md')) && existsSync(join(REPO,'engine','test','fixtures','contracts','48-micro-a-goose-duck-agent-refusal.json')));
 t('C3 事实 JSONL×4（env-manager/jiahao/anysearch-cli/goose-duck-agent）', ['env-manager', 'jiahao', 'anysearch-cli', 'goose-duck-agent'].every(function (n) { return existsSync(join(FX, '48-micro-a-' + n + '-facts.jsonl')); }));
-t('C4 measurements×2 + gate-probes + 汇总 + 共享库', ['48-micro-a-env-manager-measurements.json', '48-micro-a-jiahao-measurements.json', '48-micro-a-gate-probes.json', '48-micro-a-measurements.json', '48-audit-facts.duckdb'].every(function (f) { return existsSync(join(FX, f)); }));
+t('C4 golden measurements＋gate-probes＋汇总＋共享库（四个 golden 件留在 B 组的十二件清单里查，这里只查真跑那几件）', ['48-micro-a-env-manager-measurements.json', '48-micro-a-jiahao-measurements.json', '48-micro-a-gate-probes.json', '48-micro-a-measurements.json', '48-audit-facts.duckdb'].every(function (f) { return existsSync(join(FX, f)); }));
 
 // ---------- D. 报告语义 ----------
 const sc = {}; const md = {};
@@ -359,6 +360,68 @@ const allTxt = f48.filter(function (f) { return /\.(json|jsonl|md|mjs)$/.test(f)
 t('F1 全部 48-* 工件零 token 泄漏（gho_/ghp_/github_pat_/Bearer 实值）', !/(gho_[A-Za-z0-9]|ghp_[A-Za-z0-9]|github_pat_[A-Za-z0-9])/.test(allTxt));
 t('F2 全部 48-* 工件无 BOM', f48.every(function (f) { return noBom(join(FX, f)); }), f48.filter(function (f) { return !noBom(join(FX, f)); }).join(','));
 t('F3 检查脚本自身无 BOM', noBom(join(HERE, '48-check.mjs')));
+
+// ---------- G. 校对样本台账：五样都得记全（spec §R8-2「校对样本要记的字段」，tracker #241） ----------
+// 票面原话：一条样本要记稳定 ID、来源仓、合并时间、加入版本、退役原因，少了退役原因以后没人说得清。
+// 前四样机器能核；退役原因现在四条样本都还在用，所以只核「这一格在册、而且没跟名册打架」，
+// 真有样本退出时由生成器的 sampleLedger 当场报错（48-micro-a-preview.mjs 里那两条 throw）。
+// 加入版本是倒查 git 历史来的真值：四条样本都在 3e588e0（2026-09-17，#48 那次）一起写死进名册，
+// 那条提交在 0.1.0 发行之后、0.2.0 之前，所以是 0.1.0。写死这一份，是为了有人把它改成「当前版本」时当场红。
+const SAMPLE_ADDED_PINNED = { 'env-manager#64': '0.1.0', 'env-manager#55': '0.1.0', 'env-manager#51': '0.1.0', 'jiahao#6': '0.1.0' };
+const LEDGER_FIELDS = ['id', 'repo', 'pr', 'added_in', 'retired_in', 'retired_reason'];
+function ledgerProblems(rows) {
+  const bad = [];
+  if (!Array.isArray(rows)) { return ['台账不是数组']; }
+  for (const r of rows) {
+    if (r === null || typeof r !== 'object') { bad.push('有一行不是对象'); continue; }
+    const miss = LEDGER_FIELDS.filter(function (f) { return !(f in r); });
+    if (miss.length) { bad.push(String(r.id || '?') + ' 缺字段=' + miss.join('/')); }
+  }
+  return bad;
+}
+// 名册里的每一条样本都要有一行，行里的稳定 ID 是「仓名#PR 号」，来源仓和 PR 号得跟名册对得上。
+const ROSTER_SAMPLES = MA.MICRO_A_PILOTS.reduce(function (acc, p) {
+  for (const pin of p.pins) { acc.push({ id: p.name + '#' + pin.n, repo: p.name, pr: pin.n }); }
+  return acc;
+}, []);
+// 台账读 golden measurements 那份：它是 48 生成器用 cassette 离线回放现跑出来、再和入库件逐字节对过的
+// （B 组十二件之一），所以这里读到的就是「生成器现在会写出来的东西」。真跑汇总
+// 48-micro-a-measurements.json 是 2026-09-16 那次真跑留下的记录，离线重算不出来，不去动它。
+const goldenMeas = JSON.parse(txt(join(FX, '48-micro-a-golden-env-manager-measurements.json')));
+const LEDGER_G = goldenMeas.sample_ledger;
+const LEDGER_BAD = ledgerProblems(LEDGER_G);
+const LEDGER_BY_ID = {};
+if (Array.isArray(LEDGER_G)) { for (const r of LEDGER_G) { LEDGER_BY_ID[r.id] = r; } }
+const LEDGER_MISSING = ROSTER_SAMPLES.filter(function (s) { return !LEDGER_BY_ID[s.id]; }).map(function (s) { return s.id; });
+const LEDGER_UNMATCHED = ROSTER_SAMPLES.filter(function (s) {
+  const r = LEDGER_BY_ID[s.id];
+  return !r || r.repo !== s.repo || r.pr !== s.pr;
+}).map(function (s) { return s.id; });
+const LEDGER_ADDED_WRONG = ROSTER_SAMPLES.filter(function (s) {
+  const r = LEDGER_BY_ID[s.id];
+  return !r || r.added_in !== SAMPLE_ADDED_PINNED[s.id];
+}).map(function (s) { return s.id + '=' + (LEDGER_BY_ID[s.id] ? LEDGER_BY_ID[s.id].added_in : '缺席'); });
+const LEDGER_RETIRED_BAD = ROSTER_SAMPLES.filter(function (s) {
+  const r = LEDGER_BY_ID[s.id];
+  return !r || r.retired_in !== null || r.retired_reason !== null;
+}).map(function (s) { return s.id; });
+t('G1 台账每行五样齐（稳定 ID＋来源仓＋PR 号＋加入版本＋退役原因那一格）', LEDGER_BAD.length === 0 && Array.isArray(LEDGER_G), LEDGER_BAD.join(' '));
+t('G2 名册里的每条样本在台账里都有行，来源仓＋PR 号对得上', LEDGER_MISSING.length === 0 && LEDGER_UNMATCHED.length === 0 && ROSTER_SAMPLES.length === 4, '缺=' + LEDGER_MISSING.join(',') + ' 对不上=' + LEDGER_UNMATCHED.join(','));
+t('G3 加入版本是历史真值（四条都是 0.1.0，不是一律填当前版本）', LEDGER_ADDED_WRONG.length === 0, LEDGER_ADDED_WRONG.join(' '));
+t('G4 还在用的样本，退役那两格必须是空的（退役原因只给真退出的样本填）', LEDGER_RETIRED_BAD.length === 0, LEDGER_RETIRED_BAD.join(' '));
+// 台账得能被打红，不然上面四条永远是绿的：拿同一份判定喂三份坏台账，缺字段、填错加入版本、没退却写了退役原因都要点名。
+const LEDGER_TAMP = [
+  ledgerProblems([{ id: 'env-manager#64', repo: 'env-manager', pr: 64, added_in: '0.1.0' }]),
+  ledgerProblems([{ id: 'x', repo: 'x', pr: 1, added_in: '0.1.0', retired_in: null, retired_reason: null }, null]),
+  ledgerProblems('不是数组')
+];
+// 加入版本被改成「当前版本」那种走法：四条全填 0.3.0，按 G3 的判法必须一条都过不了。
+const TAMPERED_ADDED = ROSTER_SAMPLES.map(function (s) { return { id: s.id, repo: s.repo, pr: s.pr, added_in: '0.3.0', retired_in: null, retired_reason: null }; });
+const TAMPERED_ADDED_WRONG = TAMPERED_ADDED.filter(function (r) { return r.added_in !== SAMPLE_ADDED_PINNED[r.id]; });
+t('G5 正反对照：缺字段／行不是对象／台账不是数组都要点名，加入版本被改成当前版本必须判红',
+  LEDGER_TAMP[0].length === 1 && LEDGER_TAMP[0][0].indexOf('retired_in') >= 0 && LEDGER_TAMP[1].length === 1 && LEDGER_TAMP[2].length === 1
+  && TAMPERED_ADDED_WRONG.length === TAMPERED_ADDED.length,
+  '缺字段=' + JSON.stringify(LEDGER_TAMP[0]) + ' 非对象=' + JSON.stringify(LEDGER_TAMP[1]) + ' 非数组=' + JSON.stringify(LEDGER_TAMP[2]) + ' 改版本判红=' + TAMPERED_ADDED_WRONG.length + '/' + TAMPERED_ADDED.length);
 
 console.log('---');
 console.log(fail === 0 ? 'PASS ' + pass + '/' + (pass + fail) : 'FAIL ' + fail + '/' + (pass + fail));

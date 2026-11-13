@@ -74,6 +74,36 @@ t('U7-P 判别臂：假导出或源码残留必拦住（防止检查变成永远
   && deadFaceLeftovers({}, 'export const MICRO_A_DRIFT_FACE = {};', '').indexOf('src:MICRO_A_DRIFT_FACE') >= 0
   && deadFaceLeftovers({}, '', 'export declare const MICRO_A_REFUSAL_FACE: {};').indexOf('dts:MICRO_A_REFUSAL_FACE') >= 0);
 
+// ---------- U8~U12 校对样本台账（spec §R8-2「校对样本要记的字段」，tracker #241） ----------
+// 一条样本五行：稳定 ID、来源仓、PR 号、加入版本、退役原因那一格。四条样本都是随 #48 那次
+// （3e588e0，2026-09-17）写死进名册的，那条提交在 0.1.0 发行之后、0.2.0 之前，所以加入版本是 0.1.0。
+const LEDGER_ROWS = MA.microASampleLedger();
+const LEDGER_IDS = LEDGER_ROWS.map(function (r) { return r.id; });
+const ROSTER_IDS = MA.MICRO_A_PILOTS.reduce(function (acc, p) {
+  for (const pin of p.pins) { acc.push(p.name + '#' + pin.n); }
+  return acc;
+}, []);
+t('U8 台账跟名册一条对一条，稳定 ID 是「仓名#PR 号」', JSON.stringify(LEDGER_IDS) === JSON.stringify(ROSTER_IDS) && LEDGER_ROWS.length === 4, JSON.stringify(LEDGER_IDS));
+t('U9 五样都记了：稳定 ID、来源仓、PR 号、加入版本、退役原因那一格', LEDGER_ROWS.every(function (r) {
+  return typeof r.id === 'string' && r.id.indexOf('#') > 0 && typeof r.repo === 'string' && r.repo.length > 0
+    && typeof r.pr === 'number' && r.added_in === '0.1.0' && r.retired_in === null && r.retired_reason === null;
+}), JSON.stringify(LEDGER_ROWS[0]));
+t('U10 加入版本是历史真值，不是一律填当前版本', LEDGER_ROWS.every(function (r) { return r.added_in === '0.1.0'; }) && LEDGER_ROWS.every(function (r) { return r.added_in !== '0.3.0'; }));
+function ledgerThrew(pilots, added, retired) {
+  try { MA.microASampleLedger(pilots, added, retired); return false; } catch (e) { return true; }
+}
+const ONE_PILOT = [{ name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', pins: [{ n: 64, form: 'machine-generated/release-please' }] }];
+t('U11 名册加了一条样本、台账没跟上 → 当场报错（不是悄悄漏一条）',
+  ledgerThrew(ONE_PILOT.concat([{ name: 'new-roster-repo', owner: 'X', repo: 'new-roster-repo', pins: [{ n: 7, form: 'human' }] }]), { 'env-manager#64': { added_in: '0.1.0' } }, {}));
+t('U12 登记了退役却还留在名册里 → 当场报错；真退出的样本不在名册里仍能查到来源仓和退役原因',
+  ledgerThrew(ONE_PILOT, { 'env-manager#64': { added_in: '0.1.0' } }, { 'env-manager#64': { retired_in: '0.1.0', reason: '换样本' } })
+  && ledgerThrew([], { 'x#1': { added_in: '0.1.0' } }, { 'x#1': { retired_in: '0.1.0', reason: '' } })
+  && (function () {
+    const rows = MA.microASampleLedger([], { 'x#1': { added_in: '0.1.0' }, 'y#2': { added_in: '0.1.0' } }, { 'y#2': { retired_in: '0.1.0', reason: '仓归档' } });
+    const y = rows.filter(function (r) { return r.id === 'y#2'; })[0];
+    return rows.length === 1 && !!y && y.repo === 'y' && y.pr === 2 && y.added_in === '0.1.0' && y.retired_in === '0.1.0' && y.retired_reason === '仓归档';
+  })());
+
 // ---------- R 单 PR 报告（PR64 golden 那一路＋PR51 diff 缺席那一路——48 goldenMain 同构） ----------
 writeFileSync(join(outDir, measName), JSON.stringify({ repos: ['env-manager', 'goose-duck-agent'], prs_listed: collected.res.prs_listed }, null, 2) + NL, 'utf8');
 writeFileSync(join(outDir, factsName), collected.res.facts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');

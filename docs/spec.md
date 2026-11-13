@@ -463,6 +463,7 @@ CI 把 examples/first-report/ 的样例重新渲染一遍再 diff，对不上就
 - **扩编后的重校准五步**：一、改 `MICRO_A_PILOTS`；二、决定新仓的 PR 进不进校对样本，进就至少选一条已合并 PR；三、同步改报告里的校准范围披露（`calibration_scope`），写明样本是哪个仓的哪几条 PR、合并时间落在什么区间、新仓有没有进样本；四、重跑 48 生成器，golden 变动随提交一起走；五、`48-check` B 组和 `85-check` E 组全绿。
 - **漏步拦截**：CI 加一条断言——`calibration_scope` 必须点名 `MICRO_A_PILOTS` 里的每一个仓；加仓不改披露当场报错。
 - **校对样本要记的字段**：稳定 ID（仓名＋PR 号）、来源仓、合并时间（事实层已有 `merged_at`）、加入版本、退役原因。少了退役原因，以后没人说得清一条样本为什么不在了。
+  这五样落成一张样本台账，登记处是 `engine/src/audit/micro-a.ts` 的 `MICRO_A_SAMPLE_ADDED`（按稳定 ID 记加入版本）和 `MICRO_A_SAMPLE_RETIRED`（退出样本时记哪一版退的、为什么退）；`microASampleLedger()` 把它们和名册拼成一行一条的台账，写进 `audit-measurements.json` 和 48 生成器的 measurements 工件，字段名 `sample_ledger`。合并时间不在这张表里另抄一份，仍以事实层的 `merged_at` 为准。台账和名册对不上就当场报错——名册里的样本在 `MICRO_A_SAMPLE_ADDED` 缺行，或者登记了退役却还留在名册里，`microASampleLedger()` 直接抛出；`48-check` G 组和 `micro-a.test.mjs` 的 U 组两边都验。加入版本按样本真实进来的那一版填，不许一律填当前版本。
 - **样本不够就说出不来**：校对样本按 PR 形态分桶，披露里写每桶几条；条数撑不起结论时，报告必须写「样本不足，不出泛化结论」，不许因为名册多几个仓就说已经泛化。
 - **来源**：commits `29c31fba`（做成正式入口）、`2066d412`（预览状态翻转）、tracker #26（名册扩编判据）、`engine/src/audit/micro-a.ts`、`engine/CHANGELOG.md` §0.2.0。
 

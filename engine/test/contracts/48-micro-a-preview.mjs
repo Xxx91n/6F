@@ -98,6 +98,39 @@ const PREREG_COMMIT = MA48.resolvePreregCommit(REPO, CRITERIA_PATH).replace(/^([
 export const PILOTS = MA48.MICRO_A_PILOTS.map(function (pilot) {
   return { name: pilot.name, owner: pilot.owner, repo: pilot.repo, prs: pilot.pins };
 });
+// ---------- 校对样本台账（spec §R8-2「校对样本要记的字段」，tracker #241） ----------
+// 一条样本记五样：稳定 ID、来源仓、合并时间、加入版本、退役原因。前两样从名册现算，
+// 合并时间在事实层（github_rest.pr_metadata 的 merged_at），这里只把后两样抄下来——
+// 加入版本、退役原因机器算不出来，只能由引擎的台账写死（MICRO_A_SAMPLE_ADDED / MICRO_A_SAMPLE_RETIRED）。
+// 名字对不上就当场报错：名册里的样本在台账缺行（或者写了退役又还在名册里），都要人先改清楚，
+// 不许报告里悄悄漏掉一条、「为什么不在」没人说得清（spec 原话）。
+export function sampleLedger(pilots = PILOTS, added = MA48.MICRO_A_SAMPLE_ADDED, retired = MA48.MICRO_A_SAMPLE_RETIRED) {
+  const rows = [];
+  for (const pilot of pilots) {
+    for (const pr of pilot.prs) {
+      const id = pilot.name + '#' + pr.n;
+      const add = added[id];
+      if (!add || typeof add.added_in !== 'string' || add.added_in.length === 0) {
+        throw new Error('校对样本台账缺「加入版本」：' + id + '（在 engine/src/audit/micro-a.ts 的 MICRO_A_SAMPLE_ADDED 里补一行）');
+      }
+      if (retired[id]) {
+        throw new Error('校对样本台账对不上：' + id + ' 已登记退役，却还留在名册里（两条只能留一条）');
+      }
+      rows.push({ id: id, repo: pilot.name, pr: pr.n, added_in: add.added_in, retired_in: null, retired_reason: null });
+    }
+  }
+  for (const id of Object.keys(retired)) {
+    if (rows.some(function (r) { return r.id === id; })) { continue; }
+    const r = retired[id];
+    if (typeof r.retired_in !== 'string' || r.retired_in.length === 0 || typeof r.reason !== 'string' || r.reason.length === 0) {
+      throw new Error('校对样本台账的退役登记写不全（要写哪一版退的、为什么退）：' + id);
+    }
+    // 退出的样本已经不在名册里：仓名和 PR 号从稳定 ID 上拆回来，来源仓照旧能查。
+    const hash = id.lastIndexOf('#');
+    rows.push({ id: id, repo: hash > 0 ? id.slice(0, hash) : id, pr: hash > 0 ? Number(id.slice(hash + 1)) : null, added_in: added[id] ? added[id].added_in : null, retired_in: r.retired_in, retired_reason: r.reason });
+  }
+  return rows;
+}
 /** 只核对 origin 配置，不证明本地仓来源；对不上就从托管接口读取。 */
 export function realPilot(pilot, root = siblingPath(pilot.name, { optional: true })) {
   if (root && existsSync(root)) {
@@ -495,7 +528,7 @@ async function runRepo(t, shared, opts) {
     strategy: collected.res.strategy, degraded: collected.res.degraded,
     calls: collected.res.calls, prs_listed: collected.res.prs_listed,
     merged_prs: gate.merged_prs, eligible: gate.eligible, stopped_reason: collected.res.stopped_reason,
-    fact_count: collected.res.facts.length, per_pr: []
+    fact_count: collected.res.facts.length, sample_ledger: sampleLedger(), per_pr: []
   };
   writeFileSync(join(OUTDIR, opts.measName), JSON.stringify(meas, null, 2) + NL, 'utf8');
   const reports = [];
