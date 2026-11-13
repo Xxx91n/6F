@@ -8,6 +8,8 @@
 //       A16 复现命令可移植形（src＋dist 静态面，不随 duckdb 缺席 SKIP）、B8 报告输出面不落盘符锚（这条要实跑）
 //     ＋溯源锚取值规则（tracker #100／R9-1）：A17 现算九个发出面的 prereg 锚必须全部落进三种形态，模糊态就红
 //       （commit 形的可解析性子判据依赖全量历史，单独走 `git-history:` 那道组闸——浅克隆下计 SKIP-GROUPS，不会隐身）
+//     ＋名册口径（spec §R8-2「漏步拦截」，tracker #238）：E10 拿 `MICRO_A_PILOTS` 逐仓去点 `calibration_scope` 的名，
+//       名册加了仓、报告还写旧口径，就在这条链路上当场红（不新起一套检查）
 //   → D 自检组（正负对照：故意造偏差必须被揪出来——§2.4 命中方向跑前就声明）
 // 纪律：只读检查＋临时目录写运行产物（跑完即弃）；bundle 物化走 `git clone <bundle>` 至 OS temp（主仓对象库零写，D-074）；
 //   exit 0 + PASS N/N 绿。
@@ -23,7 +25,7 @@ import { need, groupProbe, engineDepsOk, cloneBundleWorktree } from './_lib/env-
 const TIER = 'env-contract';
 // D-214① consumption_forms（多形态消费方——B/C/E 组级 need engine-deps:）：dev-full=完整克隆＋engine/node_modules 在位就全查；ci-shallow=CI 浅克隆（duckdb 原生绑定缺席→对应组 SKIP，仓内段照跑）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
-const PROTECTED_SURFACE = '#84 Macro-C＋#85② Micro-A 产线化正式入口守卫（D-204②③④）——静态契约+CLI 测活+anysearch-cli 差分重校准+Micro-A cassette 差分重校准';
+const PROTECTED_SURFACE = '#84 Macro-C＋#85② Micro-A 产线化正式入口守卫（D-204②③④）——静态契约+CLI 测活+anysearch-cli 差分重校准+Micro-A cassette 差分重校准＋名册口径漏步拦截（tracker #238／spec §R8-2：名册加仓不改 calibration_scope 当场红）';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..', '..', '..');
@@ -557,6 +559,58 @@ if (groupProbe('85-check', 'E', DEPS_E)) {
   const tampered = Object.assign({}, b64G, { 'TC-1': 'insufficient' });
   t('E8 正对照：band 篡改必须检出（红）', diffKeys(b64G, tampered).indexOf('TC-1') >= 0);
   t('E9 overall_verdict＋structural_limitations 双侧全等（pr64＋pr51——predecl §1.3 等值集补位，R64 审计返修 P2-2）', e64sc.overall_verdict === g64.overall_verdict && e51sc.overall_verdict === g51.overall_verdict && JSON.stringify(e64sc.preview_disclosure.structural_limitations) === JSON.stringify(g64.preview_disclosure.structural_limitations) && JSON.stringify(e51sc.preview_disclosure.structural_limitations) === JSON.stringify(g51.preview_disclosure.structural_limitations), JSON.stringify({ e: e64sc.overall_verdict, g: g64.overall_verdict }));
+
+  // E10 名册加了仓，披露没跟上要当场红（spec §R8-2「漏步拦截」，tracker #238）。
+  //   病根：名册 `MICRO_A_PILOTS` 是「哪些仓能跑」的唯一真源，而 `calibration_scope` 是一句手写的话。
+  //   两者之间原来没有任何断言连着——48-check B 组只拿 golden 跟现跑逐字节对，85-check E6/E9 只核
+  //   capability_label、not_in_preview、structural_limitations，谁都没读这句。于是名册加一个仓，
+  //   报告还在说旧口径，一路绿着发出去。
+  //   认法按整词：仓名后面紧跟 [A-Za-z0-9_.-] 说明那是另一个更长的仓名（`env-manager-2` 顶不了 `env-manager`）。
+  //   拒绝件那句披露（「托管面资格闸拒绝件」）不是名册口径，不在这条的射程内。
+  function unlistedPilots(scope, pilots) {
+    const text = typeof scope === 'string' ? scope : '';
+    return pilots.map(function (p) { return p.name; }).filter(function (name) {
+      if (!name) { return true; }                       // 名册里空名字＝披露永远点不到，照实算漏
+      const re = new RegExp('(^|[^A-Za-z0-9_.-])' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![A-Za-z0-9_.-])');
+      return !re.test(text);
+    });
+  }
+  const ROSTER_E = MAM.MICRO_A_PILOTS.map(function (p) { return p.name; });
+  // 取不到披露就当空串往下判：缺字段要报成「点名缺仓」这条红，不能抛穿把整条检查变成没名字的崩溃。
+  function scopeOf(sidecar) {
+    const pd = sidecar && sidecar.preview_disclosure;
+    return pd ? pd.calibration_scope : null;
+  }
+  const SCOPES_E = [
+    { where: '引擎面 pr64', scope: scopeOf(e64sc) },
+    { where: '引擎面 pr51', scope: scopeOf(e51sc) },
+    { where: '48 存档 pr64', scope: scopeOf(g64) },
+    { where: '48 存档 pr51', scope: scopeOf(g51) }
+  ];
+  const SCOPES_MISS = SCOPES_E
+    .map(function (c) { const m = unlistedPilots(c.scope, MAM.MICRO_A_PILOTS); return m.length ? c.where + '漏=' + m.join('/') : null; })
+    .filter(Boolean);
+  // 判据自己也得能被证伪（判别臂，票面要求的负对照）：
+  //   ① 把真披露里排在最后的那个仓名抹掉 → 同一条判据必须点名它（红）；
+  //   ② 抹之前必须一条不漏（绿）——两个方向都得在，否则「永远为真」也能装成通过；
+  //   ③ 只写更长的仓名（`<名>-2`）不许顶替真仓名。
+  const SCOPE_REAL = scopeOf(e64sc);
+  const ROSTER_LAST = ROSTER_E[ROSTER_E.length - 1];
+  const DROP_LAST = unlistedPilots(typeof SCOPE_REAL === 'string' ? SCOPE_REAL.split(ROSTER_LAST).join('') : '', MAM.MICRO_A_PILOTS);
+  const LONGER_ONLY = unlistedPilots(ROSTER_E[0] + '-2 一个仓', MAM.MICRO_A_PILOTS);
+  // 只有真披露在场、判别面才有对象可判：披露整块缺席时判红，但不能把「判别臂空转」也算成通过。
+  const CONTROL_LIVE = typeof SCOPE_REAL === 'string' && SCOPE_REAL.length > 0;
+  t('E10 校准范围披露点名名册里的每一个仓（spec §R8-2 漏步拦截——名册加仓不改披露当场红）',
+    ROSTER_E.length >= 1 && ROSTER_E.every(function (n) { return !!n; })
+    && SCOPES_MISS.length === 0
+    && CONTROL_LIVE
+    && DROP_LAST.length === 1 && DROP_LAST[0] === ROSTER_LAST
+    && LONGER_ONLY.indexOf(ROSTER_E[0]) >= 0,
+    'offenders=' + (SCOPES_MISS.join(',') || 'none')
+    + ' roster=' + JSON.stringify(ROSTER_E)
+    + ' control_live=' + CONTROL_LIVE
+    + ' drop_control=' + JSON.stringify(DROP_LAST)
+    + ' longer_only=' + JSON.stringify(LONGER_ONLY));
   try { rmSync(tmpE, { recursive: true, force: true }); } catch (e) { }
 }
 console.log('---');
