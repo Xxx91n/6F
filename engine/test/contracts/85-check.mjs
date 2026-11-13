@@ -560,23 +560,25 @@ if (groupProbe('85-check', 'E', DEPS_E)) {
   t('E8 正对照：band 篡改必须检出（红）', diffKeys(b64G, tampered).indexOf('TC-1') >= 0);
   t('E9 overall_verdict＋structural_limitations 双侧全等（pr64＋pr51——predecl §1.3 等值集补位，R64 审计返修 P2-2）', e64sc.overall_verdict === g64.overall_verdict && e51sc.overall_verdict === g51.overall_verdict && JSON.stringify(e64sc.preview_disclosure.structural_limitations) === JSON.stringify(g64.preview_disclosure.structural_limitations) && JSON.stringify(e51sc.preview_disclosure.structural_limitations) === JSON.stringify(g51.preview_disclosure.structural_limitations), JSON.stringify({ e: e64sc.overall_verdict, g: g64.overall_verdict }));
 
-  // E10 名册加了仓，披露没跟上要当场红（spec §R8-2「漏步拦截」，tracker #238）。
-  //   病根：名册 `MICRO_A_PILOTS` 是「哪些仓能跑」的唯一真源，而 `calibration_scope` 是一句手写的话。
-  //   两者之间原来没有任何断言连着——48-check B 组只拿 golden 跟现跑逐字节对，85-check E6/E9 只核
-  //   capability_label、not_in_preview、structural_limitations，谁都没读这句。于是名册加一个仓，
-  //   报告还在说旧口径，一路绿着发出去。
-  //   认法按整词：仓名后面紧跟 [A-Za-z0-9_.-] 说明那是另一个更长的仓名（`env-manager-2` 顶不了 `env-manager`）。
-  //   拒绝件那句披露（「托管面资格闸拒绝件」）不是名册口径，不在这条的射程内。
+  // E10 名册加了仓、披露没跟上，就要当场红（spec §R8-2「漏步拦截」，tracker #238）。
+  //   要堵的漏：名册 `MICRO_A_PILOTS` 是「哪些仓能跑」的唯一出处，`calibration_scope` 却只是一句手写的话。
+  //   以前没有哪条断言把这两个连起来——48-check B 组只拿 golden 跟现跑逐字节对，85-check E6/E9 只看
+  //   capability_label、not_in_preview、structural_limitations，都没读这句。所以名册多一个仓，
+  //   报告照样说旧口径，检查全绿就发出去了。
+  //   怎么认：按整词对。仓名后面紧跟字母、数字、下划线、点或横杠，说明那是另一个更长的仓名
+  //   （`env-manager-2` 不能顶 `env-manager`）。
+  //   拒绝件那句披露（「托管面资格闸拒绝件」）说的是另一件事，不在这一条的范围里。
   function unlistedPilots(scope, pilots) {
     const text = typeof scope === 'string' ? scope : '';
     return pilots.map(function (p) { return p.name; }).filter(function (name) {
-      if (!name) { return true; }                       // 名册里空名字＝披露永远点不到，照实算漏
+      if (!name) { return true; }                       // 名册里空名字：披露永远点不到，算漏
       const re = new RegExp('(^|[^A-Za-z0-9_.-])' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![A-Za-z0-9_.-])');
       return !re.test(text);
     });
   }
   const ROSTER_E = MAM.MICRO_A_PILOTS.map(function (p) { return p.name; });
-  // 取不到披露就当空串往下判：缺字段要报成「点名缺仓」这条红，不能抛穿把整条检查变成没名字的崩溃。
+  // 取不到披露就当空串往下判：缺字段要报成「点名缺仓」这条红，
+  //   不能抛出异常把整条检查变成没名字的崩溃（跟 tracker #72 那次一个毛病）。
   function scopeOf(sidecar) {
     const pd = sidecar && sidecar.preview_disclosure;
     return pd ? pd.calibration_scope : null;
@@ -590,15 +592,15 @@ if (groupProbe('85-check', 'E', DEPS_E)) {
   const SCOPES_MISS = SCOPES_E
     .map(function (c) { const m = unlistedPilots(c.scope, MAM.MICRO_A_PILOTS); return m.length ? c.where + '漏=' + m.join('/') : null; })
     .filter(Boolean);
-  // 判据自己也得能被证伪（判别臂，票面要求的负对照）：
+  // 这条判据自己也得能被打红（就是票面要的负对照）：
   //   ① 把真披露里排在最后的那个仓名抹掉 → 同一条判据必须点名它（红）；
-  //   ② 抹之前必须一条不漏（绿）——两个方向都得在，否则「永远为真」也能装成通过；
-  //   ③ 只写更长的仓名（`<名>-2`）不许顶替真仓名。
+  //   ② 抹之前必须一个不漏（绿）——两个方向都得在，否则「永远为真」也能装成通过；
+  //   ③ 只写更长的仓名（`<名>-2`）不能顶替真仓名。
   const SCOPE_REAL = scopeOf(e64sc);
   const ROSTER_LAST = ROSTER_E[ROSTER_E.length - 1];
   const DROP_LAST = unlistedPilots(typeof SCOPE_REAL === 'string' ? SCOPE_REAL.split(ROSTER_LAST).join('') : '', MAM.MICRO_A_PILOTS);
   const LONGER_ONLY = unlistedPilots(ROSTER_E[0] + '-2 一个仓', MAM.MICRO_A_PILOTS);
-  // 只有真披露在场、判别面才有对象可判：披露整块缺席时判红，但不能把「判别臂空转」也算成通过。
+  // 真披露在场，下面那两臂才有东西可判：整块缺席时判红，但别把「两臂空转」也算成通过。
   const CONTROL_LIVE = typeof SCOPE_REAL === 'string' && SCOPE_REAL.length > 0;
   t('E10 校准范围披露点名名册里的每一个仓（spec §R8-2 漏步拦截——名册加仓不改披露当场红）',
     ROSTER_E.length >= 1 && ROSTER_E.every(function (n) { return !!n; })
