@@ -568,13 +568,26 @@ if (groupProbe('85-check', 'E', DEPS_E)) {
   //   怎么认：按整词对。仓名后面紧跟字母、数字、下划线、点或横杠，说明那是另一个更长的仓名
   //   （`env-manager-2` 不能顶 `env-manager`）。
   //   拒绝件那句披露（「托管面资格闸拒绝件」）说的是另一件事，不在这一条的范围里。
+  // 仓名两头都得是「边界」：前面是行首或一个非仓名字符，后面紧跟着的那个字符也不是仓名字符。
+  //   两个字符类分开写——前面那个是取反的（`[^…]`），后面那个是正的（`[A-Za-z0-9_.-]`），
+  //   写成同一个会把后一条断言取反，等于要求仓名后面必须紧跟字母数字才算命中。
+  const NOT_NAME_CHAR = '[^A-Za-z0-9_.-]';
+  const NAME_CHAR = '[A-Za-z0-9_.-]';
+  function pilotRe(name) {
+    const body = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp('(^|' + NOT_NAME_CHAR + ')' + body + '(?!' + NAME_CHAR + ')');
+  }
   function unlistedPilots(scope, pilots) {
     const text = typeof scope === 'string' ? scope : '';
     return pilots.map(function (p) { return p.name; }).filter(function (name) {
       if (!name) { return true; }                       // 名册里空名字：披露永远点不到，算漏
-      const re = new RegExp('(^|[^A-Za-z0-9_.-])' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![A-Za-z0-9_.-])');
-      return !re.test(text);
+      return !pilotRe(name).test(text);
     });
+  }
+  // 只删独立出现的那个仓名：`env` 是 `env-manager` 的一部分时，split('env') 会把两边一起删掉，
+  //   负对照就误报成漏了两个仓（名册真加了这种仓，一个合规的披露会被这条自检判红）。
+  function dropPilot(scope, name) {
+    return String(scope).replace(new RegExp(pilotRe(name).source, 'g'), '$1');
   }
   const ROSTER_E = MAM.MICRO_A_PILOTS.map(function (p) { return p.name; });
   // 取不到披露就当空串往下判：缺字段要报成「点名缺仓」这条红，
@@ -595,11 +608,17 @@ if (groupProbe('85-check', 'E', DEPS_E)) {
   // 这条判据自己也得能被打红（就是票面要的负对照）：
   //   ① 把真披露里排在最后的那个仓名抹掉 → 同一条判据必须点名它（红）；
   //   ② 抹之前必须一个不漏（绿）——两个方向都得在，否则「永远为真」也能装成通过；
-  //   ③ 只写更长的仓名（`<名>-2`）不能顶替真仓名。
+  //   ③ 只写更长的仓名（`<名>-2`）不能顶替真仓名；
+  //   ④ 名册里一个仓名是另一个的一部分（`env` ⊂ `env-manager`）时，披露写全了仍要判绿，
+  //      只删独立出现的 `env` 也只点名 `env`——不然真加了这种仓，合规的披露反倒被自检判红。
   const SCOPE_REAL = scopeOf(e64sc);
   const ROSTER_LAST = ROSTER_E[ROSTER_E.length - 1];
-  const DROP_LAST = unlistedPilots(typeof SCOPE_REAL === 'string' ? SCOPE_REAL.split(ROSTER_LAST).join('') : '', MAM.MICRO_A_PILOTS);
+  const DROP_LAST = unlistedPilots(typeof SCOPE_REAL === 'string' ? dropPilot(SCOPE_REAL, ROSTER_LAST) : '', MAM.MICRO_A_PILOTS);
   const LONGER_ONLY = unlistedPilots(ROSTER_E[0] + '-2 一个仓', MAM.MICRO_A_PILOTS);
+  // ④ 名字套名字的那种仓（合成样本，不动真名册）：披露写全要绿，删掉短的那个只点名它。
+  const NESTED = [{ name: 'env-manager' }, { name: 'env' }];
+  const NESTED_FULL = unlistedPilots('env-manager×3＋env×1', NESTED);
+  const NESTED_DROP = unlistedPilots(dropPilot('env-manager×3＋env×1', 'env'), NESTED);
   // 真披露在场，下面那两臂才有东西可判：整块缺席时判红，但别把「两臂空转」也算成通过。
   const CONTROL_LIVE = typeof SCOPE_REAL === 'string' && SCOPE_REAL.length > 0;
   t('E10 校准范围披露点名名册里的每一个仓（spec §R8-2 漏步拦截——名册加仓不改披露当场红）',
@@ -607,12 +626,15 @@ if (groupProbe('85-check', 'E', DEPS_E)) {
     && SCOPES_MISS.length === 0
     && CONTROL_LIVE
     && DROP_LAST.length === 1 && DROP_LAST[0] === ROSTER_LAST
-    && LONGER_ONLY.indexOf(ROSTER_E[0]) >= 0,
+    && LONGER_ONLY.indexOf(ROSTER_E[0]) >= 0
+    && NESTED_FULL.length === 0
+    && NESTED_DROP.length === 1 && NESTED_DROP[0] === 'env',
     'offenders=' + (SCOPES_MISS.join(',') || 'none')
     + ' roster=' + JSON.stringify(ROSTER_E)
     + ' control_live=' + CONTROL_LIVE
     + ' drop_control=' + JSON.stringify(DROP_LAST)
-    + ' longer_only=' + JSON.stringify(LONGER_ONLY));
+    + ' longer_only=' + JSON.stringify(LONGER_ONLY)
+    + ' nested_full=' + JSON.stringify(NESTED_FULL) + ' nested_drop=' + JSON.stringify(NESTED_DROP));
   try { rmSync(tmpE, { recursive: true, force: true }); } catch (e) { }
 }
 console.log('---');
