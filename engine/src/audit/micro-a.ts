@@ -43,12 +43,13 @@ const CRITERION_IDS = ['PC-1', 'TC-1', 'TC-2', 'TC-3', 'TC-4', 'NC-1'];
 export const MICRO_A_GOLDEN_PRS = [{ n: 64, form: 'machine-generated/release-please' }, { n: 51, form: 'human' }];
 export const MICRO_A_GOLDEN_DIFFS = [64];
 
+export interface MicroASampleAdded { added_in: string }
+export interface MicroASampleRetired { retired_in: string; reason: string }
 // 校对样本台账（spec §R8-2「校对样本要记的字段」，tracker #241）：一条样本一行，
 // 键是稳定 ID（仓名#PR 号），记「哪一版进的样本」和「为什么退出样本」。
 // 「合并时间」没在这里再抄一份：事实层的 merged_at 一查就有，抄两份迟早对不上。
-// added_in 是倒查 git 历史得出的真值，不是一律填当前版本：四条样本都是随 #48 那次（3e588e0，2026-09-17）
-// 一起写死进管道写死名单的，那条提交落在 0.1.0 发行之后、0.2.0 之前，所以算进 0.1.0。
-export interface MicroASampleAdded { added_in: string }
+// added_in 是倒查 git 历史得出的真值，不是一律填当前版本：四条样本都是随 tracker #48 那次
+// （3e588e0，2026-09-17）一起写死进管道写死名单的，那条提交落在 0.1.0 发行之后、0.2.0 之前，所以算进 0.1.0。
 export const MICRO_A_SAMPLE_ADDED: Readonly<Record<string, MicroASampleAdded>> = {
   'env-manager#64': { added_in: '0.1.0' },
   'env-manager#55': { added_in: '0.1.0' },
@@ -57,7 +58,6 @@ export const MICRO_A_SAMPLE_ADDED: Readonly<Record<string, MicroASampleAdded>> =
 };
 // 退役登记。现在四条样本都还在用，所以是空的；退出样本时在这里补一行，写清原因。
 // 没了这一格，以后没人说得清一条样本为什么不在（spec 原话「少了退役原因，没人说得清」）。
-export interface MicroASampleRetired { retired_in: string; reason: string }
 export const MICRO_A_SAMPLE_RETIRED: Readonly<Record<string, MicroASampleRetired>> = {};
 
 // 试点用例的固定定义
@@ -72,6 +72,7 @@ export const MICRO_A_PILOTS: readonly MicroAPilot[] = [
   { name: 'jiahao', owner: 'Xxx91n', repo: 'jiahao', pins: [{ n: 6, form: 'human' }] }
 ];
 
+export interface MicroASampleRow { id: string; repo: string; pr: number | null; added_in: string | null; retired_in: string | null; retired_reason: string | null }
 // 校对样本台账的拼装（spec §R8-2「校对样本要记的字段」，tracker #241）——
 // 引擎侧和 48 生成器读同一份台账常量，两边拼出来的行一模一样。
 // 一条样本记五样：稳定 ID、来源仓、合并时间、加入版本、退役原因。前两样从名册现算，
@@ -79,7 +80,6 @@ export const MICRO_A_PILOTS: readonly MicroAPilot[] = [
 // 后两样机器算不出来，只能读写死的台账。
 // 名册和台账对不上就当场报错：名册里有、台账缺行（说不出哪一版进的），或者写了退役却还留在名册里。
 // 宁可停下让人改清楚，也不许报告里悄悄漏一条——spec 原话「少了退役原因，以后没人说得清」。
-export interface MicroASampleRow { id: string; repo: string; pr: number | null; added_in: string | null; retired_in: string | null; retired_reason: string | null }
 export function microASampleLedger(
   pilots: readonly MicroAPilot[] = MICRO_A_PILOTS,
   added: Readonly<Record<string, MicroASampleAdded>> = MICRO_A_SAMPLE_ADDED,

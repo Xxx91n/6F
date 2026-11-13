@@ -12,11 +12,11 @@ export declare const MICRO_A_GOLDEN_DIFFS: number[];
 export interface MicroASampleAdded {
     added_in: string;
 }
-export declare const MICRO_A_SAMPLE_ADDED: Readonly<Record<string, MicroASampleAdded>>;
 export interface MicroASampleRetired {
     retired_in: string;
     reason: string;
 }
+export declare const MICRO_A_SAMPLE_ADDED: Readonly<Record<string, MicroASampleAdded>>;
 export declare const MICRO_A_SAMPLE_RETIRED: Readonly<Record<string, MicroASampleRetired>>;
 export interface MicroAPin {
     n: number;
@@ -29,12 +29,6 @@ export interface MicroAPilot {
     pins: readonly MicroAPin[];
 }
 export declare const MICRO_A_PILOTS: readonly MicroAPilot[];
-export interface MicroAInputError {
-    code: 'MICRO-A-INPUT' | 'MICRO-A-SCOPE';
-    message: string;
-    pilots: readonly string[];
-    requested: string;
-}
 export interface MicroASampleRow {
     id: string;
     repo: string;
@@ -44,6 +38,12 @@ export interface MicroASampleRow {
     retired_reason: string | null;
 }
 export declare function microASampleLedger(pilots?: readonly MicroAPilot[], added?: Readonly<Record<string, MicroASampleAdded>>, retired?: Readonly<Record<string, MicroASampleRetired>>): MicroASampleRow[];
+export interface MicroAInputError {
+    code: 'MICRO-A-INPUT' | 'MICRO-A-SCOPE';
+    message: string;
+    pilots: readonly string[];
+    requested: string;
+}
 export declare function isMicroAInputError(e: unknown): e is MicroAInputError;
 export declare function deterministicRunAt(): string;
 export interface MicroAGhTokenProbe {
