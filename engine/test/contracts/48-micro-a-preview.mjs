@@ -4,8 +4,8 @@
 //   → 报告（buildReport 骨架 1.2.0 的共享四章＋Micro-A 字段＋预览说明块「capability 3 of 5 · preview」）
 // 模式：default=真跑（凭据三级探测 env-token→gh-token→unauthenticated，缺了就如实降级）；
 //   --golden=cassette 离线回放（engine/test/fixtures/github-rest/authenticated.cassette.json；只锁字段骨架，不锁内容值）；
-//   --repo <name> 只跑一个仓（env-manager|jiahao|anysearch-cli|goose-duck-agent）。
-// PR 集 = 正好 4 条已经 merged 的（票面写死实例，不给通用公式，D-049③）：
+//   --repo <name> 只跑指定的仓；试点仓从引擎名册读取。
+// 当前名册有 4 条已合并的 PR（D-049③）：
 //   env-manager #64 release-please 机器生成（github-actions[bot]/Bot · chore(main): release 标题签名——#37 的教训：缩小范围到产物形态）
 //   env-manager #55 dependabot[bot]/Bot（平台声明的 Bot 双检命中）  env-manager #51 人类（Xxx91n/User）  jiahao #6 人类（全人基线 merged）
 // failure 那份 = 把 D-033 硬约束反着用：托管枚举 merged PR=0 → 接进来时明确拒绝 → 报告落 unsupported「没有托管 PR 面＋原因＋前置条件」；
@@ -14,7 +14,7 @@
 // 纪律：被测仓只读（git 只用读的子命令＋REST GET）；凭据用完就清、永不进工件；唯一写动作 = --out 目录下的 48-* 工件。
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { siblingPath, deterministicRunAt } from './_lib/env-contract.mjs'; // D-159⑥ env SSOT 收敛
@@ -42,29 +42,14 @@ export const MICRO_A_SLICE_FIELDS = [
   'credential_strategy', 'credential_degraded', 'api_calls', 'rate_limit_remaining'
 ];
 
-// ---------- §1 票面写死的实例（正好 4 条 merged；D-049③）----------
-const PILOTS = [
-  {
-    name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', root: siblingPath('env-manager'),
-    prs: [
-      { n: 64, form: 'machine-generated/release-please' },
-      { n: 55, form: 'platform-declared-bot/dependabot' },
-      { n: 51, form: 'human' }
-    ]
-  },
-  {
-    name: 'jiahao', owner: 'Xxx91n', repo: 'jiahao', root: siblingPath('jiahao'),
-    prs: [{ n: 6, form: 'human' }]
-  }
-];
+// ---------- §1 资格检查和回放参数 ----------
 // 托管面资格这一关先试一下：anysearch-cli=票面前提漂移的核查（#37 实测 github_pr_total=0 → 本票复核枚举 merged 数）；
 // goose-duck-agent=真负例，用来演示拒绝（托管仓 merged PR=0 → 接进来时明确拒绝）。
 const GATE_PROBES = [
   { name: 'anysearch-cli', owner: 'Xxx91n', repo: 'anysearch-cli' },
   { name: 'goose-duck-agent', owner: 'Xxx91n', repo: 'goose-duck-agent', root: siblingPath('goose-duck-agent'), refusal: true }
 ];
-// golden 回放这一面：authenticated cassette 录的是 list(62)+detail#64+detail#51+diff#64——golden 选的子集跟它逐字对齐。
-const GOLDEN_PRS = [{ n: 64, form: 'machine-generated/release-please' }, { n: 51, form: 'human' }];
+// golden 回放：cassette 只录了 env-manager 的部分 PR；选哪些 PR 沿用引擎的 MICRO_A_GOLDEN_PRS。
 const GOLDEN_DIFFS = [64];
 const CRITERIA_PATH = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
 const CRITERION_IDS = ['PC-1', 'TC-1', 'TC-2', 'TC-3', 'TC-4', 'NC-1'];
@@ -108,6 +93,20 @@ const MA48 = await import(pathToFileURL(join(DIST, 'audit', 'micro-a.js')).href)
 // 同一个 commit 的前缀，跨检出不变）；degraded:/sentinel: 不匹配这个正则，原样保留。
 // 真跑这一面的 replacer 取 '$&'（整段照抄），一个字节都不动。
 const PREREG_COMMIT = MA48.resolvePreregCommit(REPO, CRITERIA_PATH).replace(/^([0-9a-f]{8})[0-9a-f]+$/, ARGS.golden ? '$1' : '$&');
+
+// 名册和 PR 清单都从引擎读取；本地路径只在真跑对应仓时查找。
+export const PILOTS = MA48.MICRO_A_PILOTS.map(function (pilot) {
+  return { name: pilot.name, owner: pilot.owner, repo: pilot.repo, prs: pilot.pins };
+});
+/** 本地仓的 origin 与名册一致才用；对不上就从托管接口读取。 */
+export function realPilot(pilot, root = siblingPath(pilot.name, { optional: true })) {
+  if (root && existsSync(root)) {
+    const origin = spawnSync('git', ['-C', root, 'remote', 'get-url', 'origin'], { encoding: 'utf8' });
+    const ref = GH.parseGithubRepoRef(origin.status === 0 ? origin.stdout.trim() : '');
+    if (!ref.ok || ref.owner.toLowerCase() !== pilot.owner.toLowerCase() || ref.repo.toLowerCase() !== pilot.repo.toLowerCase()) { root = null; }
+  }
+  return { name: pilot.name, owner: pilot.owner, repo: pilot.repo, root: root, prs: pilot.prs };
+}
 function pickExcerpt(absOrRelPath, tokens, base) {
   const text = readFileSync(base ? join(base, absOrRelPath) : absOrRelPath, 'utf8');
   const lines = text.split(NL);
@@ -507,6 +506,18 @@ async function runRepo(t, shared, opts) {
 }
 
 // ---------- §9 golden 模式：cassette 离线回放全链（只锁字段骨架不锁内容值） ----------
+/** 从名册里取离线回放用的仓和 PR；缺了就报错，别悄悄用旧名单。 */
+export function goldenPilot() {
+  const pilot = PILOTS.find(function (p) { return p.name === 'env-manager'; });
+  if (!pilot) { throw new Error('golden 样本仓 env-manager 不在 MICRO_A_PILOTS 中'); }
+  const prs = MA48.MICRO_A_GOLDEN_PRS.map(function (sample) {
+    const pin = pilot.prs.find(function (p) { return p.n === sample.n; });
+    if (!pin) { throw new Error('golden 样本 env-manager#' + sample.n + ' 不在 MICRO_A_PILOTS 中'); }
+    return pin;
+  });
+  return { name: pilot.name, owner: pilot.owner, repo: pilot.repo, root: null, prs: prs };
+}
+
 async function goldenMain() {
   const casPath = join(REPO, 'engine', 'test', 'fixtures', 'github-rest', 'authenticated.cassette.json');
   const cas = JSON.parse(readFileSync(casPath, 'utf8'));
@@ -514,7 +525,7 @@ async function goldenMain() {
   const cap = [];
   const noGh = function () { return { available: false, token: null }; };
   const shared = { env: { GITHUB_TOKEN: 'GOLDEN-PLACEHOLDER' }, ghTokenProbe: noGh, fetcher: cassetteFetcher(casAug, cap) };
-  const t = { name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', root: null, prs: GOLDEN_PRS };
+  const t = goldenPilot();
   const rr = await runRepo(t, shared, { golden: true, factsName: '48-micro-a-golden-env-manager-facts.jsonl', measName: '48-micro-a-golden-env-manager-measurements.json' });
 
   // golden 这条拒绝路径：造一个 0 个 PR 的 cassette（照实标 synthetic）
@@ -562,7 +573,7 @@ async function goldenMain() {
   return { reports: rr.reports, refusal: refusal };
 }
 
-// ---------- §10 真跑的主流程：资格这一关先试 → 拒绝件 → 两个试点仓真跑 → 共享事实库 → 汇总 ----------
+// ---------- §10 真跑的主流程：先查资格 → 拒绝件 → 跑名册里的仓 → 共享事实库 → 汇总 ----------
 async function realMain() {
   const shared = {};
   const allFacts = [];
@@ -587,8 +598,9 @@ async function realMain() {
     }
   }
 
-  for (const t of PILOTS) {
-    if (ARGS.repo && t.name !== ARGS.repo) { continue; }
+  for (const pilot of PILOTS) {
+    if (ARGS.repo && pilot.name !== ARGS.repo) { continue; }
+    const t = realPilot(pilot);
     const rr = await runRepo(t, shared, { golden: false, factsName: '48-micro-a-' + t.name + '-facts.jsonl', measName: '48-micro-a-' + t.name + '-measurements.json' });
     allFacts.push.apply(allFacts, rr.collected.res.facts);
     out.pilots.push({ repo: t.name, head_sha: rr.collected.headSha, merged_prs: rr.gate.merged_prs, calls: rr.collected.res.calls, strategy: rr.collected.res.strategy, per_pr: rr.meas.per_pr, outputs: rr.reports.map(function (r) { return r.outputs; }) });
