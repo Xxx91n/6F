@@ -52,6 +52,27 @@ t('U3 token 进 wire 不入 fact', cap.every(function (q) { return q.token === '
 t('U4 ctx 契约（runId r48- 前缀＋traceId 32hex＋observedAt=runAt）', collected.ctx.runId.indexOf('r48-env-manager-') === 0 && new RegExp('^[0-9a-f]{32}$').test(collected.ctx.traceId) && collected.ctx.observedAt === runAt, collected.ctx.runId);
 t('U5 字段契约 ≥20＋credential_strategy/diff_channel 在', Array.isArray(MA.MICRO_A_SLICE_FIELDS) && MA.MICRO_A_SLICE_FIELDS.length >= 20 && MA.MICRO_A_SLICE_FIELDS.indexOf('credential_strategy') >= 0 && MA.MICRO_A_SLICE_FIELDS.indexOf('diff_channel') >= 0, String(MA.MICRO_A_SLICE_FIELDS.length));
 t('U6 骨架交集有能直接调用的导出函数', typeof MA.skeletonIntersectionReport === 'function');
+// 删掉那两个没人读的空壳常量后防回流：源码、类型声明和编译输出里都不许再出现
+const DEAD_FACE_EXPORTS = ['MICRO_A_REFUSAL_FACE', 'MICRO_A_DRIFT_FACE'];
+function deadFaceLeftovers(mod, srcText, dtsText) {
+  const hits = [];
+  for (const sym of DEAD_FACE_EXPORTS) {
+    if (Object.prototype.hasOwnProperty.call(mod, sym)) { hits.push('export:' + sym); }
+    const re = new RegExp('\\b' + sym + '\\b');
+    if (re.test(srcText)) { hits.push('src:' + sym); }
+    if (re.test(dtsText)) { hits.push('dts:' + sym); }
+  }
+  return hits;
+}
+const microASrc = readFileSync(join(HERE, '..', 'src', 'audit', 'micro-a.ts'), 'utf8');
+const microADts = readFileSync(join(HERE, '..', 'dist', 'audit', 'micro-a.d.ts'), 'utf8');
+const deadLeftovers = deadFaceLeftovers(MA, microASrc, microADts);
+t('U7 两个没人读的空壳常量已彻底删干净（编译产物、源码与类型声明都找不到）',
+  deadLeftovers.length === 0, deadLeftovers.join(','));
+t('U7-P 判别臂：假导出或源码残留必拦住（防止检查变成永远放行）',
+  deadFaceLeftovers({ MICRO_A_REFUSAL_FACE: {} }, '', '').indexOf('export:MICRO_A_REFUSAL_FACE') >= 0
+  && deadFaceLeftovers({}, 'export const MICRO_A_DRIFT_FACE = {};', '').indexOf('src:MICRO_A_DRIFT_FACE') >= 0
+  && deadFaceLeftovers({}, '', 'export declare const MICRO_A_REFUSAL_FACE: {};').indexOf('dts:MICRO_A_REFUSAL_FACE') >= 0);
 
 // ---------- R 单 PR 报告（PR64 golden 那一路＋PR51 diff 缺席那一路——48 goldenMain 同构） ----------
 writeFileSync(join(outDir, measName), JSON.stringify({ repos: ['env-manager', 'goose-duck-agent'], prs_listed: collected.res.prs_listed }, null, 2) + NL, 'utf8');

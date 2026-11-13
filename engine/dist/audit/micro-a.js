@@ -44,8 +44,6 @@ export const MICRO_A_PILOTS = [
         ] },
     { name: 'jiahao', owner: 'Xxx91n', repo: 'jiahao', pins: [{ n: 6, form: 'human' }] }
 ];
-export const MICRO_A_REFUSAL_FACE = { name: 'goose-duck-agent', owner: 'Xxx91n', repo: 'goose-duck-agent' }; // 负对照那个仓（合并的 PR 数是 0）
-export const MICRO_A_DRIFT_FACE = { name: 'anysearch-cli', owner: 'Xxx91n', repo: 'anysearch-cli' };
 export function isMicroAInputError(e) {
     return !!e && typeof e === 'object' && (e.code === 'MICRO-A-INPUT' || e.code === 'MICRO-A-SCOPE');
 }
