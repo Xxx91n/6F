@@ -1,8 +1,8 @@
 // file-card.test.mjs — #80 步② 文件级审计卡投影+查询语义契约测试（D-122/D-123/D-126；预采集投影×per-file subject×血缘事实）
-// 断言面：A kernel 逐字段直投+citation 锚 / B derived 确定性派生（percentile/top_n/priority_band 规则版本）/
+// 查什么：A kernel 逐字段直投+citation 锚 / B derived 确定性派生（percentile/top_n/priority_band 规则版本）/
 //   C 失败三态（new_file/insufficient_history→derived 抑制；not_applicable 不出空卡）/ D miss 四类明确态 /
 //   E at:<sha> pin+staleness 双字段（E3 前缀歧义验重） / F narrative 键存在性校验 / G projectFileCard DuckDB 投影层 /
-//   H runAuditFile lazy 补采（注入缝=确定性合成事实；幂等复跑 emitted=0；H2 毒事实回滚零行/H3 skipped 披露+消息钉）/
+//   H runAuditFile lazy 补采（注入缝=确定性合成事实；幂等复跑 emitted=0；H2 毒事实回滚零行/H3 skipped 披露+错误消息固定住）/
 //   I advisory 结构性隔离 / J MCP 缺库 never_collected 卡 / K set_truncated 标记。C4~C7=D-136 失败态收尾断言组（#83）。
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
@@ -414,8 +414,8 @@ await tAsync('H2 补采批内非指名 constraint 错（CHECK trace_id）→整�
   rmSync(dir, { recursive: true, force: true });
 });
 
-// ---------- H3. D-134 skipped 披露 + fact_id UNIQUE 消息形态实物钉 ----------
-await tAsync('H3 fact_id UNIQUE 撞键=幂等跳过 skipped 计数；消息形态钉（真 DuckDB）', async () => {
+// ---------- H3. D-134 skipped 披露 + fact_id UNIQUE 的错误消息形态实物固定住 ----------
+await tAsync('H3 fact_id UNIQUE 撞键=幂等跳过 skipped 计数；错误消息形态固定住（真 DuckDB）', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'fcard-repo3-'));
   execFileSync('git', ['init', '-q'], { cwd: dir });
   execFileSync('git', ['config', 'user.email', 't@t'], { cwd: dir });
@@ -439,7 +439,7 @@ await tAsync('H3 fact_id UNIQUE 撞键=幂等跳过 skipped 计数；消息形�
   assert.equal(r2.backfilled, true);
   assert.equal(r2.emitted, 1);
   assert.equal(r2.skipped, 1);                                        // 已存 fact_id 命中=跳过可观测非吞错
-  // 消息形态钉：真 DuckDB dup insert 产 Constraint Error + "fact_id: 指认三件套（D-059① 防措辞漂移先例）
+  // 错误消息形态固定住：真 DuckDB dup insert 产 Constraint Error + "fact_id: 指认三件套（D-059① 防措辞漂移先例）
   const w3 = await S.openWriter(db);
   try {
     let shape = null;
@@ -587,8 +587,8 @@ await tAsync('L5 投影层跨集实物：边在祖先 repo_ref 集、行在选�
   assert.deepEqual(card.lineage.stitched_from, ['old.ts', 'gone.ts']);   // 祖先集两边参与解析（BFS 序）
   assert.equal(card.kernel.facet_rows.revisions.length, 2);
   assert.equal(card.derived.revisions, 7);
-  // 反向腿：旧名查询→renamed_to 条件跳转（祖先集边同样兑现——miss 侧跨集解析）
-  // 反向腿（真实断言）：gone.ts 无任何集内有行——其血缘边仅存祖先集→miss 侧跨集解析实证
+  // 反向那一路：旧名查询→renamed_to 条件跳转（祖先集边同样兑现——miss 侧跨集解析）
+  // 反向那一路（真实断言）：gone.ts 无任何集内有行——其血缘边仅存祖先集→miss 侧跨集解析实证
   const miss = await P.projectFileCard(db, { repo: 't', subject: 'gone.ts' });
   assert.equal(miss.card_type, 'miss');
   assert.equal(miss.miss.state, 'renamed_to');
@@ -609,7 +609,7 @@ t('L6 0-switch 边界件逐类点名：never_collected/not_tracked_at_sha/not_ap
   assert.equal(mk({ subject: 'gone.ts', setFacts: [renameEdge('gone.ts', 'new.ts', 'e'.repeat(40), 93)] }).miss.state, 'renamed_to');
   // miss 卡 lineage=null 统一形状（成对件 miss 端不背缝合记录）
   assert.equal(mk({ subject: 'gone.ts', setFacts: [renameEdge('gone.ts', 'new.ts', 'e'.repeat(40), 93)] }).lineage, null);
-  // 失败态闭环：缝合并入的旧名历史抬高 revisions 出 insufficient/new_file（F10 语义）——L1 已钉 ok
+  // 失败态闭环：缝合并入的旧名历史抬高 revisions 出 insufficient/new_file（F10 语义）——L1 已固定住 ok
   assert.equal(FC.buildFileCard({ subject: 'new.ts', setRepoRef: 't@' + SHA_A, setFacts: [facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 1 })], availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null }).failure_state, 'new_file');   // 无血缘对照组：仍 new_file
   assert.equal(FC.buildFileCard({ subject: 'new.ts', setRepoRef: 't@' + SHA_A, setFacts: [facetRow('new.ts', 'revisions', { path: 'new.ts', n_revs: 2 })], availableHeadShas: [SHA_A], pinnedSha: null, currentHeadSha: SHA_A, source: 'prefetch', cliGuidance: null }).failure_state, 'insufficient_history');   // 对照组：revisions=2→insufficient_history 实物断言
 });

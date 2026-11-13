@@ -1,8 +1,8 @@
-// mcp-server.ts — 最小 JSON-RPC 2.0 stdio 握手（A3 返工：mcp.json 注册面名实相符）
-// mcp.json 把 `macro-audit mcp` 注册为 stdio MCP server——此前实物只打印描述符即退，真 host 挂上即死。
-// 本模块实现 MCP over stdio（NDJSON 行帧）最小闭环：initialize / initialized / ping / tools/list / tools/call。
-// 只提供只读查询：暴露 tools=facts / quarantine / file_card 三个只读工具，不提供写操作和克隆功能。
-// #64/D-072⑧：MCP stdio 面 stdout 属 JSON-RPC 行帧——自愈结构化事件改落 stderr 避让协议通道
+// mcp-server.ts —— 最小的 JSON-RPC 2.0 stdio 握手（A3 返工时对齐了：这里的名字跟 mcp.json 里注册的是同一套）
+// mcp.json 把 `macro-audit mcp` 注册成 stdio 的 MCP 服务——以前实物就打个描述符就退，真 host 一挂上就死。
+// 这个模块把 MCP over stdio（NDJSON 一行一帧）这一圈做全：initialize / initialized / ping / tools/list / tools/call。
+// 只给只读查询：开 tools=facts / quarantine / file_card 三个只读工具，写操作和克隆一概不给。
+// #64/D-072⑧：MCP stdio 那头的 stdout 是 JSON-RPC 的帧——自愈的那堆结构化事件改走 stderr，让开协议通道
 process.env.MACRO_AUDIT_MCP_STDIO = '1';
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -24,8 +24,8 @@ const QUARANTINE_TOOL = {
         additionalProperties: false
     }
 };
-// Micro-B 文件审计卡只读查询——MCP 服务端只读不写：
-//   未采集时返回明确提示和补采命令行指引（补采只能在命令行中执行）。
+// 单文件审计卡只读查询——MCP 服务端只看不写：
+// 没采过就把话说明白，并告诉你在命令行上怎么补（补采只能在命令行做）。
 const FILE_CARD_TOOL = {
     name: 'file_card',
     description: '只读 Micro-B 单文件审计卡查询：包含代码质量维度字段、改动热点优先级以及说明文本，仅供参考（不直接作为门禁裁定字段）。未采集时会返回对应状态及补采命令行指引。支持指定具体 commit SHA 以及比对最新 HEAD。',
@@ -72,7 +72,7 @@ function fail(id, code, message) {
 function asStr(v) {
     return typeof v === 'string' && v.length > 0 ? v : undefined;
 }
-// 单条 JSON-RPC 消息处理；notification（无 id）返回 null=不应答。
+// 处理一条 JSON-RPC 消息；notification（没 id 的）返回 null，不应答。
 export async function handleRpcMessage(msg) {
     const id = msg.id === undefined ? null : msg.id;
     const isNotification = msg.id === undefined;
@@ -119,7 +119,7 @@ export async function handleRpcMessage(msg) {
             if (!repo || !path) {
                 return fail(id, -32602, 'file_card requires repo + path');
             }
-            // staleness 当前锚=可选只读探针（repo_path 给才探；不给→drift=unknown 照答不拒答，D-126）
+            // stale 不 stale 那个锚是个可选只读探针（给了 repo_path 才探；不给就 drift=unknown，照答不拒，D-126）
             let currentHead = null;
             const rp = asStr(a.repo_path);
             if (rp) {
@@ -133,12 +133,12 @@ export async function handleRpcMessage(msg) {
                     currentHead = null;
                 }
             }
-            // F4 返修：repo 名非 repoAdd 可解输入（audit file 实测 PATH-NOT-FOUND）——
-            //   指引串 repo 槽位用本地仓路径（repo_path 给则代入实测可跑；缺则占位符明示待填）
+            // F4 返修：repo 名那种写法 repoAdd 认不出来（audit file 实测 PATH-NOT-FOUND）——
+            // 指引串里 repo 那个槽就填本地仓路径（给了 repo_path 就填实测能跑的；没给就留个占位的明说待填）
             const guidance = 'macro-audit audit file ' + (rp ? '"' + rp + '"' : '<repo-path>') + ' "' + path + '" --db ' + db;
             try {
-                // F5（#83）：库文件缺席=零观测集→结构化 never_collected 卡（D-126③ miss 首义形态到达 MCP 面），
-                //   非 isError 文本——库在而查询失败才走 MCP-FILECARD-ERROR
+                // F5（#83）：库文件不在＝一组观测都没有→结构化 never_collected 卡（D-126③ 那套「没采过」的说法到 MCP 这头了），
+                // 不写成 isError 文本——库在、可查询挂了，才走 MCP-FILECARD-ERROR
                 const card = existsSync(db)
                     ? await projectFileCard(db, {
                         repo: repo,
@@ -208,8 +208,8 @@ export async function handleRpcMessage(msg) {
     }
     return fail(id, -32601, 'method not found: ' + method);
 }
-// NDJSON 行帧服务：stdin 每行一条 JSON-RPC 消息，应答逐行写 stdout。
-// 解析失败行回 -32700；notification 不应答；流结束即退。
+// NDJSON 一行一帧的服务：stdin 一行一条 JSON-RPC 消息，应答一行行写回 stdout。
+// 解析不了的行走 -32700；notification 不应答；流到头就退。
 export async function serveMcpStdio(input, output) {
     let buf = '';
     const pending = [];
@@ -247,6 +247,6 @@ export async function serveMcpStdio(input, output) {
         input.on('close', function () { resolve(); });
         input.resume();
     });
-    // 流结束后仍可能在途 tools/call——应答写完才算服务收敛
+    // 流到头了，tools/call 可能还在路上——应答全写完，这服务才算收干净
     await Promise.all(pending);
 }

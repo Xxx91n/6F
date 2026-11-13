@@ -1,8 +1,8 @@
-// collect/collectors.ts — 三组确定性采集器（A-022 / spec.md §R3-D3）
-// 模块独立性要求：不包含任何相对路径 import，方便测试脚本直接在 Node 中引入。
-// 纯逻辑规则：所有输入由外部传入；不读写文件系统、不启动子进程、不发网络请求、不调用大模型。
-// 方案约定继承：确定性与不调用大模型、已知答案对照与实际检查项同源、统一关联标识。
-// 价值验证初始阶段要求使用结果确定的采集器，不引入大模型
+// collect/collectors.ts —— 三组结果可复现的采集器（A-022 / spec.md §R3-D3）
+// 模块独立性：不 import 任何相对路径，别的测试脚本能直接把这份代码拽进 Node 跑。
+// 纯逻辑：输入全从外面传进来；不碰文件系统、不起子进程、不连网、不调大模型。
+// 沿用的老规矩：结果可复现、不调大模型；已知答案的对照和真判据同源；关联标识全仓统一。
+// 价值验证的头一程只吃结果确定的采集器，大模型先不上
 import { createHash } from 'node:crypto';
 export function sha256Hex(input) {
     return createHash('sha256').update(input, 'utf8').digest('hex');
@@ -47,7 +47,7 @@ export function daysBetweenUtc(a, b) {
     }
     return Math.round((ta - tb) / 86400000);
 }
-// ---------- §2 第一组：adr-structure（S2 架构决策记录结构扫描） ----------
+// ---------- §2 第一组：adr-structure（扫 S2 架构决策记录的结构） ----------
 export const ADR_STRUCTURE_ID = 'adr-structure@v1';
 export const ADR_STRUCTURE_FAMILY = 'adr-structure';
 export const ADR_HEADER_FIELDS = ['Status', 'Date', 'Deciders', 'Ledger'];
@@ -186,9 +186,9 @@ export function adrDates(input) {
     }
     return out;
 }
-// ---------- §2b 第一组 v2：adr-structure 兼容匹配链（A-002 接入；v1 归档保留） ----------
-// 匹配规则保存在 reports/27-prereg.md：字段匹配先尝试短横线前缀，再尝试行内键值对；
-// 日期先尝试前 60 行中的 ISO 日期，再尝试 git 首次提交日期（外部传入）；章节匹配先尝试 ## 标题，再尝试行首标签。
+// ---------- §2b 第一组 v2：adr-structure 的兼容匹配链（A-002 接进来的；v1 原样归档） ----------
+// 匹配规则记在 reports/27-prereg.md：字段先找短横线前缀，再找行内键值对；
+// 日期先在前 60 行里找 ISO 日期，再退到 git 首次提交日期（外面传进来）；章节先找 ## 标题，再找行首标签。
 export const ADR_STRUCTURE_V2_ID = 'adr-structure@v2';
 export const ADR_STRUCTURE_V2_DESCRIPTOR = {
     id: ADR_STRUCTURE_V2_ID,
@@ -327,7 +327,7 @@ export function collectAdrStructureV2(input, ctx) {
     }
     return out;
 }
-// ---------- §3 第二组：positioning（S1 定位文本分析） ----------
+// ---------- §3 第二组：positioning（看 S1 的定位文本） ----------
 export const POSITIONING_ID = 'positioning@v1';
 export const POSITIONING_FAMILY = 'positioning';
 export const POSITIONING_DESCRIPTOR = {
@@ -421,7 +421,7 @@ export function collectPositioning(input, ctx) {
     }
     return out;
 }
-// ---------- §4 第三组：gitlog（提交历史分析） ----------
+// ---------- §4 第三组：gitlog（看提交历史） ----------
 export const GITLOG_ID = 'gitlog@v1';
 export const GITLOG_FAMILY = 'gitlog';
 export const GITLOG_DESCRIPTOR = {
@@ -437,8 +437,8 @@ export function collectGitlog(input, ctx) {
         if (touching.length === 0) {
             continue;
         }
-        // 缺失日期的异常值明确跳过（D-100②）：first_commit 和 adr_lag 只在日期有效的数据上排序；
-        // 排除的提交数量会在入口健康检查中的 excluded_commits 中说明。
+        // 日期缺失的坏值直接跳过（D-100②）：first_commit 和 adr_lag 只在日期好使的数据上排序；
+        // 排除了几条提交，会在采数体检的 excluded_commits 里写出来。
         const dated = touching.filter(function (c) { return c.date !== null; });
         const sorted = dated.slice().sort(function (a, b) {
             if (a.date < b.date) {
@@ -497,7 +497,7 @@ export function collectGitlog(input, ctx) {
     }
     return out;
 }
-// ---------- §5 采集器清单与检测器关联声明 ----------
+// ---------- §5 采集器清单和检测器对应关系 ----------
 export const COLLECTOR_DESCRIPTORS = [
     ADR_STRUCTURE_DESCRIPTOR,
     POSITIONING_DESCRIPTOR,

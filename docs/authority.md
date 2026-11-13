@@ -3,7 +3,7 @@
 决定和术语分别记在哪，只看这一份。[`AGENTS.md`](../AGENTS.md)、[`README.md`](../README.md)、[`README.zh-CN.md`](../README.zh-CN.md)、
 [`CONTRIBUTING.md`](../CONTRIBUTING.md)、[`engine/README.md`](../engine/README.md)、
 [`docs/agents/domain.md`](agents/domain.md) 这些门面文书只放链接，不重复写。
-现在的架构决定收在 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
+架构决定都写在 [`docs/adr/`](adr/) 里；有哪几份、各是什么状态，看那份按文件列表生成的索引 [`docs/adr/README.md`](adr/README.md)，这里不再抄一份。机器读的名字哪些能改、哪些不能改，看 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)。
 
 ## 1. 三类文件
 
@@ -31,7 +31,7 @@
 | [`docs/known-gaps.md`](known-gaps.md) | 缺口是什么意思的登记册 |
 | [`docs/upstream-dimension-map.md`](upstream-dimension-map.md) | 上游到维度的映射表（每行记 `last_reviewed` / `next_review`；节奏和字段规则看 `docs/versioning.md`） |
 | [`docs/ra/`](ra/) | 已接受风险的档案（谁批的写名字，批的人是用户） |
-| [`engine/test/fixtures/contracts/`](../engine/test/fixtures/contracts/) | 同一目录里有两类文件：测试实际会读的**活契约**（Live Contract，比如 `33-gate-registry.json`），和按字节冻结、只保证能回头查的**冻结件**（Frozen Artifact，比如 `23-frozen-fc00d458.bundle`、`38-macro-c-facts.jsonl`）；两类不能互当现行基准 |
+| [`engine/test/fixtures/contracts/`](../engine/test/fixtures/contracts/) | 同一目录里有两类文件：测试实际会读的**活契约**（Live Contract，比如 `33-gate-registry.json`），和按字节冻结、只保证能回头查的**冻结件**（Frozen Artifact，比如 `23-frozen-fc00d458.bundle`、`38-macro-c-facts.jsonl`）；两类不能互当现行基准。前一类（真会被读的登记表）的键名哪些能改、改了谁跟着动，看 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md) |
 | [`engine/CHANGELOG.md`](../engine/CHANGELOG.md) | 产品版本记录 |
 | [`docs/archive/decisions/`](archive/decisions/) | 历史编号的查询入口——**非权威、只读** |
 
@@ -56,16 +56,18 @@
 - `D-NNN`、`A-NNN` 和旧 BACKLOG 票号能从 [`docs/archive/decisions/`](archive/decisions/)（记录原文 + 索引）逐号查到；旧 ADR 号按下一段说的 git 查法查。能查到，不等于能拿来判。
 - **新决定不再用 `D-NNN` / `A-NNN`**：产品决定写进 `docs/spec.md` 的 `R<n>-<m>` 条，架构决定写 `ADR-NNNN`。旧编号只作历史引用，不加新号。
   `ADR-0025` 原文写的是「改用 ADR 号或 spec A-code」——spec 现在用 `R<n>-<m>`，`A-NNN` 已经不再新增，所以这里按实际写法定。
-- 现行文本（代码注释、workflow 注释、门面文书）里不再保留旧 ADR 号，看到旧 ADR 号只能当历史，不能当现行落点；`D-NNN` / `A-NNN` / 旧票号的存量注释照旧保留，不改写（见下面「号码会撞」一条）。旧 ADR 号的允许落点 = 下面这个块列出的三处历史件和两个说明处；`docs/archive/` 按 §2 的历史查询面原样保留，检查脚本整目录不扫。按字节冻结的记录和冻结件可以保留原始现场（包括本机绝对路径），前提是归档处写明这是历史产物。
-- 两个固定名字不算旧号引用，原样保留：`ADR-NNNN-C/vN` 是裁决协议和叙事封条的版本串，schema 字段里的 `inherits:` 值是「这一列从哪份旧决定继承」的历史标签。只放行这两个形状，普通注释里的旧号照旧算死引用。
+- 现行文本（代码注释、workflow 注释、门面文书）里不再保留旧 ADR 号，看到旧 ADR 号只能当历史看，不能当成现在还在用的地方；`D-NNN` / `A-NNN` / 旧票号的存量注释照旧保留，不改写（见下面「号码会撞」一条）。旧 ADR 号允许出现的地方 = 下面这个块列出的历史件路径和说明处，具体哪几处以块里的清单为准；`docs/archive/` 按 §2 的历史查询面原样保留，检查脚本整目录不扫。按字节冻结的记录和冻住的存档可以保留原始现场（包括本机绝对路径），前提是归档处写明这是历史产物。
+- 两个固定名字不算旧号引用，原样保留：`ADR-NNNN-C/vN` 是裁决协议和报告叙事盖章用的协议版本串，schema 字段里的 `inherits:` 值是「这一列从哪份旧决定继承」的历史标签。这两个形状只在 `engine/src`、`engine/scripts`、`engine/test` 里放行；写到别的文档里照旧按普通旧号判。
 - `CONTEXT.md` 已经退役（`6626d08d` 删除），术语看 [`GLOSSARY.md`](../GLOSSARY.md)；历史文书（包括 ADR 正文和记录行）里提到 `CONTEXT.md` 的地方按历史编号读，不当现行位置。
 - **号码会撞**：GitHub issue/PR 和旧 BACKLOG 票号共用同一串号——旧 BACKLOG 覆盖 `#32`–`#94`，GitHub 号只增不减，两段重叠。新写的按 [`docs/spec.md`](spec.md) R8 的规则把 GitHub 引用写成 `tracker #N`；历史文本里的裸 `#NN`（代码注释、`NN-check` 脚本名、记录行）按 [`ticket-index.md` §撞号警示](archive/decisions/ticket-index.md#撞号警示) 分清，不要改写。
-- **旧 ADR 号是第四类历史编号**：`ADR-0001`–`ADR-0027` 只减不增；24 份正文已经删掉，正文只在 git 历史里，不再当现行位置；现行架构决定从 `ADR-0028` 起算。查法是先 `git log --diff-filter=D --name-only -- docs/adr` 找到删除提交，再 `git show <删除提交>^:docs/adr/<文件名>` 取回原文；完整的来龙去脉见 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
+- **「新写」按节判（版本记录）**：[`engine/CHANGELOG.md`](../engine/CHANGELOG.md) 的 `[Unreleased]` 节永远算现行文本，节里的 GitHub 引用随时按上一条归一成 `tracker #N`；release cut 时整节转进版本节、随节冻结成历史文本，已发布节一律不改写。其余文件不设机检边界：改到哪行哪行按上一条归一，不回头清偿。`旧票 #N` 是旧 BACKLOG 号、不是 GitHub 引用，加 `tracker` 前缀反而造错——机检把它和反引号里的字面量一起显式豁免。机检落在 [`docs-authority-check.mjs`](../engine/test/contracts/docs-authority-check.mjs)（只钉 `[Unreleased]` 节）。
+- **旧 ADR 号是第四类历史编号**：`ADR-0001`–`ADR-0027` 只减不增；24 份正文已经删掉，正文只在 git 历史里，不再当现行位置；现行纪元的起点固定是 `ADR-0028`，块里 `entry` 写的就是它，不一致就红。查法是先 `git log --diff-filter=D --name-only -- docs/adr` 找到删除提交，再 `git show <删除提交>^:docs/adr/<文件名>` 取回原文；完整的来龙去脉见 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
 - `ADR-0028` 替代 `ADR-0025` 里「从 `6626d08d^` 恢复 21 份现行 ADR」那条决定；三类文件的分工和归档政策继续沿用，不另起一套。完整内容写在 [`ADR-0028`](adr/0028-current-architecture-and-docs-authority.md)。
-- 检查脚本只读下面这个块，不在脚本里抄第二份；块里的历史号、三处历史件路径和两个说明处是脚本认的历史来源。哨兵号和 `engine/fixtures/definitions/` 下的手写合成夹具是测试样本，不是历史编号，放行规则只在脚本注释里；固定机器名的放行规则见本节「两个固定名字不算旧号引用」那一条。
+- 检查脚本只从下面这个块读历史号、起点号、历史件路径和说明处，另抄一份清单就判红。起点号取自块里的 `entry`，票面要求它是 `0028`；脚本另外只留一个「期望值 0028」用来核对，读的和期望的不一致就红——它不是第二个权威，是防止这边悄悄漂走。哨兵号（合成夹具和报告解析器里写出来的占位号，一种占空位、一种当越界探针，只出现在 engine 的代码和测试里）和 `engine/fixtures/definitions/` 下的手写合成夹具是测试样本，不是历史编号，放行规则只在脚本注释里；固定机器名的放行规则见本节「两个固定名字不算旧号引用」那一条。
 
 ```yaml
 historical_adr:
+  entry: "0028"
   numbers: ["0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018", "0019", "0020", "0021", "0022", "0023", "0024", "0025", "0026", "0027"]
   paths:
     - examples/first-report/
@@ -85,10 +87,10 @@ Design: <一句话约束> — ADR-NNNN
 ```
 
 - 只写「为什么这里必须这样」，并给出 ADR 号；**不抄 ADR 正文**，不写多行块注释。
-- 指针指向的必须是 `docs/adr/` 下能打开的现行 ADR；现在只有 `ADR-0028`。旧号一律不再当指针目标。
+- 指针指向的必须是 `docs/adr/` 下能打开的现行 ADR（哪几份是现行，看 [`docs/adr/README.md`](adr/README.md) 的状态列）。旧号一律不再当指针目标。
 - 产品级约束指向 `docs/spec.md` 的节时写成 `Design: <一句话约束> — spec §R<n>`；术语约束指向 `GLOSSARY.md` 词条。
 - 一份 ADR 可以被多处指针引用；指针本身不是决定记录，删指针不删决定。
-- 现在仓里没有指向旧 ADR 号的 `Design:` 指针；产品级指针还可以指 spec 的节（例如 `spec §R9-1`）。新增的按本节写，目标只能是现行 ADR 或 spec 节。约束正文可以在 `ADR-0028` 的对应小节找；例如事实表单写者约束写在 `ADR-0028` §3，执行面在 `engine/src/fact/store.ts`。
+- 现在仓里没有指向旧 ADR 号的 `Design:` 指针；产品级指针还可以指 spec 的节（例如 `spec §R9-1`）。新增的按本节写，目标只能是现行 ADR 或 spec 节。约束正文可以在 `ADR-0028` 的对应小节找；例如事实表单写者约束写在 `ADR-0028` §3，执行面在 `engine/src/fact/store.ts`。机器读的名字哪些能改，写在 [`ADR-0029`](adr/0029-relax-machine-read-name-rule.md)。
 - 旧的 `Design:` 指针已随代码注释票清零；若再看到指旧号的指针，按死引用处理，不能当成第二套现行规则。
 
 ## 5. 改这份文件时

@@ -1,9 +1,9 @@
-// doctor.ts — 运行环境诊断（#62/D-059③）
-// 检查项：duckdb 能否正常打开数据库（通过 loadDuckdb 自动修复流程）／
-//   git 命令是否可用（git --version）／网络与 npm 镜像连通性（检测能否拉取依赖）。
-// 结构化输出：{doctor, legs:[{leg,status,detail}], overall}——检查失败时明确返回结构化信息，不悄悄吞掉错误；
-// status：ok（正常）/ degraded（降级，如离线时 facts/audit 无法使用但其它命令正常）/ fail（严重故障）。
-// selftest 专门负责清单对账，不混在一起（D-059③ 两者职责分离）——本文件专做环境诊断。
+// doctor.ts —— 看看这台机器能不能跑（#62/D-059③）
+// 查这几样：duckdb 能不能把库打开（走 loadDuckdb 那套自动修复流程）／
+// git 命令有没有（git --version）／网络和 npm 源通不通（能不能把依赖拉下来）。
+// 输出是结构化的：{doctor, legs:[{leg,status,detail}], overall}——查挂了就把结构化信息摆出来，不许把错误悄悄咽了；
+// status 三档：ok（都好）/ degraded（降了级，比如断网时 facts/audit 用不了但别的命令照常）/ fail（真坏了）。
+// selftest 那头专管清单对账，两件事不掺一块儿（D-059③ 职责分开）——这个文件只做环境诊断。
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { get } from 'node:https';
@@ -36,7 +36,7 @@ async function probeDuckdb(fix) {
     catch (e) {
         const msg = String(e && e.message || e);
         if (msg.indexOf('DUCKDB-UNAVAILABLE') === 0) {
-            // D-075③：doctor --fix 专门用于主动修复依赖；成功后重新打开数据库验证。
+            // D-075③：doctor --fix 就是拿来自动修依赖的；修完再把库打开验证一遍。
             if (fix) {
                 const heal = healDuckdbBinding();
                 if (!heal.ok) {
@@ -76,7 +76,7 @@ function probeGit() {
     }
     return { leg: 'git', status: 'fail', detail: 'git --version exit=' + String(r.status) + ' ' + String(r.error || r.stderr || '').replace(/\s+/g, ' ').slice(0, 120) };
 }
-// 检查 npm registry 源连通性（优先读取用户配置的 npm registry，读取不到再回退到官方源）
+// 看看 npm 源通不通（先读用户自己配的 registry，读不到再退回官方源）
 function probeUpstream() {
     const conf = process.platform === 'win32' ? spawnSync('cmd.exe', ['/d', '/s', '/c', 'npm', 'config', 'get', 'registry'], { encoding: 'utf8', timeout: 10000 }) : spawnSync('npm', ['config', 'get', 'registry'], { encoding: 'utf8', timeout: 10000 });
     const configured = conf.status === 0 ? String(conf.stdout || '').trim() : '';
@@ -96,8 +96,8 @@ function probeUpstream() {
         });
     });
 }
-// #66④ doctor.bindings 检查项（r22 审计补缺腿）：绑定包磁盘在位＋版本可辨——独立于 duckdb 开库腿
-// （装成功≠载成功双面各报：bindings=装在盘事实，duckdb=载得动事实）。
+// #66④ doctor.bindings 这条腿（r22 审计补的漏项）：绑定包在不在盘上、版本还认不认得出——跟开库那条腿各算各的
+// （装上了不等于载得动，两面分开报：bindings 说的是装在盘上，duckdb 说的是能不能载起来）。
 function probeBindings() {
     const sfx = platformPackageSuffix();
     if (sfx === null)

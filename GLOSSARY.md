@@ -21,6 +21,14 @@ _别名_: Design Pointer
 _别名_: Historical Fingerprint
 _不要用_: 拿历史编号写新决定
 
+**现行 ADR 起点号**
+现行架构决定从哪一份 ADR 开始算的那个号，固定是 `0028`。
+_别名_: Entry ADR
+
+**在仓 ADR**
+`docs/adr/` 下真正有正文的架构决定文件（`NNNN-名字.md`）；号已经进了历史清单的不算。还没接受、标着 proposed 的提案也算。
+_别名_: In-repo ADR
+
 **校对用的固定语料**
 重新校对用的外部语料，按版本固定住，不跟着产品上游变。
 _别名_: Baseline Corpus
@@ -314,9 +322,14 @@ _别名_: advisory-only、`advisory`
 拿已知答案的语料调准判据。
 _别名_: calibration
 
+**校对样本**
+挑出来放进 golden、决定「算不算数」的那几条具体 PR。名册管能不能跑，它管算不算数。
+_别名_: golden、golden set
+_不要用_: 基准集、评测集
+
 **试点仓**
 先拿来试的那几个仓库。
-_别名_: pilot set、pilot
+_别名_: pilot set、pilot、名册
 
 **同主**
 自己名下的仓库；在同主仓上跑要说明偏差。
@@ -368,5 +381,5 @@ _别名_: kernel、agent
 _别名_: canonical / derived
 
 **公开三步**
-先被动挂牌，再定向邀请，最后公开推广；最后一步要过四道判据和 30 天静观期。
+先被动挂牌，再定向邀请，最后公开推广；最后一步要过四道判据和 30 天静观期。四道判据是什么、静观期怎么算、外面的意见怎么分诊，原文在 [`docs/spec.md`](docs/spec.md) §R11。
 _别名_: Stage-0 / Stage-1 / Stage-2

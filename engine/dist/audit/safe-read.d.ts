@@ -58,33 +58,33 @@ export interface CollectorDescriptor {
 }
 export declare const AUDIT_DESCRIPTOR: CollectorDescriptor;
 /**
- * 记录安全读取拒绝事件，输出 codelore.file_subject_skip 事实。
+ * 记一条安全读取的拒绝，写成 codelore.file_subject_skip 事实。
  * @param ctx 采集上下文
- * @param rawPath 调用方传入的相对路径
- * @param reason 拒绝原因
- * @param descriptor 采集器描述符
+ * @param rawPath 调用方给的相对路径
+ * @param reason 为什么拒
+ * @param descriptor 采集器的描述
  */
 export declare function makeFileSubjectSkipFact(ctx: CollectContext, rawPath: string, reason: string, descriptor?: CollectorDescriptor): CollectedFact;
 /**
- * 检查目标路径是否属于仓库内部。
- * 依据真实物理路径判断：不存在、悬空链接、仓外目标均返回 false。
+ * 看目标路径在不在仓里。
+ * 按实际物理路径判：不存在、悬空链接、落在仓外，一律返回 false。
  */
 export declare function isPathContainedInRepo(repoRoot: string, targetPath: string): boolean;
 /**
- * 安全读取仓库内文件，拦截逃逸符号链接、悬空链接、外部目录链接及非普通文件。
+ * 在仓里安全地读文件：逃逸的符号链接、悬空链接、指到外面的目录链接、非普通文件，全拦下。
  */
 export declare function readRepoFileSafe(repoRoot: string, relOrAbsPath: string): SafeReadResult;
 /**
- * 安全列出目录内容：目标可以为仓库内普通目录或指向仓内目录的符号链接；
- * 若指向仓外或悬空则拒绝并返回 dir-junction-outside。
+ * 安全地列目录：目标可以是仓里的普通目录，也可以是指向仓里目录的符号链接；
+ * 指到仓外或悬空的就拒，返回 dir-junction-outside。
  */
 export declare function readRepoDirSafe(repoRoot: string, relOrAbsPath: string): SafeDirResult;
 /**
- * 探测文件或目录是否存在（不读取内容），用于将“文件不存在”与“存在但因安全规则被拦截”区分开来。
+ * 只看文件或目录在不在（不读内容），用来分清「压根没有」和「有，但被安全规则拦了」。
  * 返回 'absent' | 'link' | 'file' | 'dir' | 'other'。
  */
 export declare function probeRepoEntry(repoRoot: string, relOrAbsPath: string): 'absent' | 'link' | 'file' | 'dir' | 'other';
-/** 安全列出 ADR 目录下的文件（匹配以数字开头的 .md 文件）。 */
+/** 安全地列 ADR 目录里的文件（只认数字开头、.md 结尾的）。 */
 export declare function listAdrFilesSafe(repoRoot: string, relDir: string): {
     ok: true;
     files: string[];

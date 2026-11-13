@@ -1,17 +1,17 @@
-// report/generate.ts - 报告生成器的纯逻辑实现
-// 单模块约束：只依赖 node 内建模块（node:crypto），不引入额外依赖。
-// 结构继承：报告模板由共享固定结构和各档位自己的字段组成；章节顺序固定，降级时结构保持不变。
-// 纯逻辑约束：输入一律通过参数注入，不读文件系统、不起子进程、不发网络请求、不接大模型。
+// report/generate.ts —— 报告生成器，纯逻辑
+// 单模块：只吃 node 内建（node:crypto），不另拉依赖。
+// 结构照着老样子：报告模板是固定的骨架加各档自己的字段；章节顺序定死，降级了结构也不变。
+// 纯逻辑：输入全靠参数传，不读文件、不起子进程、不连网、不调大模型。
 import { createHash } from 'node:crypto';
 import { intakeEscalation, deriveReasonClass, VERDICT_REASON_CLASSES } from '../intake/quarantine.js';
 import { sealNarrativeSections, renderTemplateNarrative, NARRATIVE_SEAL_PROTOCOL } from './narrative.js';
 import { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations } from './citation.js';
-// 引文核验逻辑已抽入独立模块 citation.ts；此处重新导出以保持既有引用路径不变。
+// 引文核对真正的实现在 citation.ts，这里只再导出一遍，原来引用这儿的地方不用改。
 export { UNVERIFIED_MARK, checkCitationSupport, checkAllCitations };
-// 五个档位共享固定报告结构，各档位只放自己的那部分字段，章节顺序保持锁定
+// 五档共用同一个报告骨架，每档只放自己那摊字段，章节顺序不能动
 export const REPORT_SKELETON_VERSION = '1.2.0';
 export const REPORT_SKELETON_SOURCE = 'reports/14-skeleton-fields.json#skeleton';
-// 验收分为形式、内容和信任裁决，判定规则版本固定
+// 验收分形式、内容、信任三道，判定规则的版本号钉死
 export const ADJUDICATION_PROTOCOL_VERSION = 'ADR-0013-C/v1';
 export const REPORT_SKELETON = [
     { id: 'C1', ordinal: 1, name: '执行摘要', required_fields: ['report_id', 'schema_version', 'scale', 'subject_ref', 'generated_at', 'correlation_key', 'overall_verdict', 'confidence', 'headline', 'top_findings', 'degraded_mode', 'stale_data_marker', 'staleness_sla_seconds', 'read_model_lag_seconds', 'read_model_version', 'fact_watermark_version'] },
@@ -21,8 +21,8 @@ export const REPORT_SKELETON = [
 ];
 export const CHAPTER_COUNT = REPORT_SKELETON.length;
 /**
- * 输出编码（#114）：对被审计仓进入 report.md 的引文做 HTML 实体转义，
- * 防止 Markdown 渲染链中不可信输入触发存储型 XSS。
+ * 输出编码（#114）：被审计仓的引文要进 report.md，先做 HTML 实体转义，
+ * 免得 Markdown 渲染那一路被不可信输入钻空子，闹出存储型 XSS。
  */
 export function escapeMarkdownExcerpt(text) {
     return text
@@ -33,9 +33,9 @@ export function escapeMarkdownExcerpt(text) {
         .replace(/'/g, '&#39;');
 }
 /**
- * 单行化（#113 返修 / #114 同面）：转义后再把换行折成 `⏎`。
- * 不折行时，引文里的 `> ` / `# ` / `|` 会落在行首，仍能跳出列表项与引用块、伪造标题或表格行——
- * HTML 实体只挡标签注入，挡不住 Markdown 块级语法。单行是这一层唯一可判定的形态。
+ * 折成一行（#113 返修 / #114 同一面）：转义之后再把换行折成 `⏎`。
+ * 不折的话，引文里的 `> ` / `# ` / `|` 落在行首，还能跳出列表和引用块、伪造标题或表格行——
+ * HTML 实体只挡标签，挡不住 Markdown 的块级语法。折成一行是这一层唯一说得准的形态。
  */
 export function escapeMarkdownExcerptInline(text) {
     return escapeMarkdownExcerpt(text)
@@ -68,7 +68,7 @@ export function skeletonOf(markdown) {
     }
     return out;
 }
-/** #61 r18① 守卫式提炼：anchored_fact_ids 取首件（空集→空数组）——audit/demo 六处同款守卫式统一 */
+/** #61 r18① 顺手收的一个小工具：anchored_fact_ids 只取头一件（空集就给空数组）——audit 和 demo 六处都这么用 */
 export function firstFactIds(list) {
     return list.length > 0 ? [list[0].fact_id] : [];
 }
@@ -109,10 +109,10 @@ export function adjudicate(args) {
         citation_checks: checks
     };
 }
-// prereg_commit 只接受能解析的提交哈希，或带 sentinel/degraded 前缀的明确标记，严禁模糊值
-const PREREG_COMMIT_FORM = /^[0-9a-f]{4,40}$/; // 4 = git 能 emit 的最小缩写宽度；为何不是 7 见 spec §R9-1
+// prereg_commit 只认能解析出来的提交哈希，或者带着 sentinel/degraded 前缀的明话，含糊的值一律不要
+const PREREG_COMMIT_FORM = /^[0-9a-f]{4,40}$/; // 4 是 git 能吐的最短缩写宽度；为什么不是 7 看 spec §R9-1
 const PREREG_NAME_FORM = /^[0-9A-Za-z][0-9A-Za-z._-]*$/;
-// 'sentinel' = 设计上就不是提交哈希（历史记录哨兵）；'degraded' = 本该取到提交哈希但取不到或不准确。
+// 'sentinel'＝这东西打一开始就不是提交哈希（历史记录里的哨兵）；'degraded'＝本该有哈希，可就是拿不到或者拿不准。
 export function classifyPreregAnchor(v) {
     if (v.indexOf('sentinel:') === 0) {
         return PREREG_NAME_FORM.test(v.slice(9)) ? 'sentinel' : 'ambiguous';
@@ -130,7 +130,7 @@ function preregMarked(prefix, name) {
 }
 export function preregSentinel(name) { return preregMarked('sentinel:', name); }
 export function preregDegraded(reason) { return preregMarked('degraded:', reason); }
-// 模糊不清的锚点在进入回执哈希链之前当场报错拒收，避免将错误值签成凭证
+// 说不清的锚点在进回执哈希链之前就当场拒掉，免得把错值签成凭证
 export function assertDiscriminablePreregAnchor(v) {
     if (classifyPreregAnchor(v) === 'ambiguous') {
         throw new Error('PREREG-ANCHOR-AMBIGUOUS: gate_ref.prereg_commit=' + JSON.stringify(v) + ' 既不是 4–40 位小写十六进制 commit，也不带 sentinel:/degraded: 标记前缀（取值规则见 spec §R9-1）');
@@ -138,7 +138,7 @@ export function assertDiscriminablePreregAnchor(v) {
 }
 export const CONTENT_DIGEST_CANONICALIZATION = 'json_utf8_entries_then_citation_checks';
 export function buildReceipt(args) {
-    // 校验关卡先于哈希计算：一旦模糊不清的锚点进入了链，回执哈希就会把错误值固定下来。
+    // 先查再算哈希：含糊的锚点一旦进了链，回执哈希就把错值钉死了。
     assertDiscriminablePreregAnchor(args.gate_ref.prereg_commit);
     const sorted = args.fact_ids.slice().sort();
     const adjParts = [];
@@ -180,10 +180,10 @@ export function buildReceipt(args) {
     };
 }
 export function buildReport(input) {
-    // 叙事生成：宿主 agent 生成的段落逐段盖章；降级报告没有正式叙事时，由内核模板生成兜底说明
+    // 叙事怎么出：宿主 agent 写的段落一段段盖章；降级报告没有正式叙事，就拿内核模板补一段兜底
     const narrativeInput = (input.narrative_sections || []).slice();
     if (input.degraded && narrativeInput.length === 0) {
-        // 标记为降级时，直接补充模板叙事兜底
+        // 标成降级就直接拿模板叙事补上
         narrativeInput.push(renderTemplateNarrative({ quadrants: input.quadrants.slice(), degraded_reason: input.degraded_reason }));
     }
     const adjudication = adjudicate({
@@ -193,7 +193,7 @@ export function buildReport(input) {
         decided_at: input.decided_at,
         human: input.human
     });
-    // 隔离升级：关键字段异常或单个字段异常率超标时，整份报告判定升级为不支持；原因记录在 reason_class 和收仓体检段落中。
+    // 隔离升级：要紧的字段坏了，或者单个字段的异常率超线，整份报告就升成不支持；原因写进 reason_class 和采数体检那一节。
     const intakeHealth = input.intake_health !== undefined ? input.intake_health : null;
     const escalation = intakeHealth ? intakeEscalation(intakeHealth.fields) : 'none';
     if (escalation !== 'none' && adjudication.overall !== 'unsupported') {
@@ -244,7 +244,7 @@ export function renderMarkdown(r) {
     out.push('# ' + r.report_id + ' — ' + r.scale + ' 首报（' + r.subject_ref + '）');
     out.push('> ' + r.receipt.mark);
     out.push('>');
-    out.push('> 骨架 ' + r.schema_version + '（章顺序锁定）· 裁定协议 ' + r.adjudication.protocol_version + ' · 生成于 ' + r.generated_at);
+    out.push('> 报告模板 ' + r.schema_version + '（章节顺序固定）· 裁决规则 ' + r.adjudication.protocol_version + ' · 生成于 ' + r.generated_at);
     if (r.stability !== null || r.capabilities.length > 0) {
         out.push('> - stability: ' + (r.stability !== null ? r.stability : 'unspecified') + (r.capabilities.length > 0 ? ' · capabilities: ' + r.capabilities.join(', ') : ''));
     }
@@ -254,7 +254,7 @@ export function renderMarkdown(r) {
     }
     if (r.preview_disclosure) {
         out.push('>');
-        out.push('> 披露块（preview 标注诚实，机器可读字段见侧车 preview_disclosure）');
+        out.push('> 预览说明块（预览期该说的都写明了，机器读的字段见随附的 JSON 里的 preview_disclosure）');
         out.push('> - capability: ' + r.preview_disclosure.capability_label);
         out.push('> - calibration_scope: ' + r.preview_disclosure.calibration_scope);
         out.push('> - structural_limitations: ' + escapeMarkdownExcerptInline(r.preview_disclosure.structural_limitations.join('；')));
@@ -278,7 +278,7 @@ export function renderMarkdown(r) {
             out.push('- stale_data_marker: ' + r.stale.marker + '（SLA ' + r.stale.sla_seconds + 's / 实测延迟 ' + r.stale.lag_seconds + 's）');
             out.push('- read_model_version: ' + r.stale.read_model_version + ' · fact_watermark_version: ' + r.stale.fact_watermark_version);
             out.push('- top_findings: ' + r.top_findings.join(', '));
-            out.push('- fact_ids: ' + r.fact_ids.length + ' 条（清单见侧车 JSON）');
+            out.push('- fact_ids: ' + r.fact_ids.length + ' 条（完整清单在随附的机器读 JSON 里）');
         }
         else if (ch.id === 'C2') {
             for (const q of r.quadrants) {
@@ -290,15 +290,15 @@ export function renderMarkdown(r) {
                 out.push('- verdict_gate: ' + q.verdict_gate.protocol_version + ' / ' + q.verdict_gate.decision + ' / evidence_flag=' + q.verdict_gate.evidence_flag + ' / decided_at=' + q.verdict_gate.decided_at + ' / audit_ref=' + q.verdict_gate.audit_ref);
                 out.push('');
             }
-            out.push('#### 结构化裁决块（agent 可消费）');
+            out.push('#### 裁决明细（机器能直接读）');
             out.push('- protocol_version: ' + r.adjudication.protocol_version);
             out.push('- overall: ' + r.adjudication.overall + ' · decided_at: ' + r.adjudication.decided_at);
             for (const e of r.adjudication.entries) {
                 out.push('- ' + e.criterion_id + ': ' + e.band + ' | basis=' + e.basis_refs.join('+') + ' | facts=' + (e.anchored_fact_ids.length === 0 ? '(none)' : e.anchored_fact_ids.join(',')) + ' | evidence=' + (e.anchored_evidence_ids.length === 0 ? '(none)' : e.anchored_evidence_ids.join(',')) + ' | ' + e.rationale);
             }
-            out.push('- human_adjudication: ' + r.adjudication.human.status + '（裁定仍由人做，见 B5）');
+            out.push('- human_adjudication: ' + r.adjudication.human.status + '（最后拍板还是人来做，见 B5）');
             if (r.narrative_sections.length > 0) {
-                out.push('#### 叙事段（宿主 agent 生成、内核盖章，叙事内容不携带判定档位）');
+                out.push('#### 叙事段（宿主 agent 写、内核盖章，叙事里不许带判定档）');
                 for (const ns of r.narrative_sections) {
                     const grounded = ns.seal.checks.filter(function (c) { return c.support === 'supports'; }).length;
                     out.push('- [' + ns.section_id + '] author=' + ns.author + ' model_id=' + (ns.model_id ? ns.model_id : '(none)') + ' stamp=' + ns.seal.stamp + ' grounded=' + grounded + '/' + ns.seal.checks.length);
@@ -321,7 +321,7 @@ export function renderMarkdown(r) {
                 out.push('- 引文原文: ' + (e.excerpt.length > 0 ? escapeMarkdownExcerptInline(e.excerpt) : '（缺失 —— ' + UNVERIFIED_MARK + '）'));
                 out.push('');
             }
-            out.push('#### 引文→结论支持关系校验');
+            out.push('#### 引文能不能撑住结论（逐条核对）');
             for (const c of r.adjudication.citation_checks) {
                 out.push('- ' + c.claim_id + ' -> ' + c.evidence_id + ': ' + c.support + '（matched=' + c.matched_tokens.join('|') + ' missing=' + c.missing_tokens.join('|') + '）' + c.reason);
             }
@@ -339,30 +339,30 @@ export function renderMarkdown(r) {
         }
         out.push('');
     }
-    // ---------- 收仓体检：有无异常都保持相同结构 ----------
+    // ---------- 采数体检：有毛病没毛病都保持一个结构 ----------
     out.push('## Intake Health');
     out.push('');
-    out.push('- 契约：违约两级处置——整行协议格式破坏立刻中断，字段内容异常则放入隔离区单独记录');
+    out.push('- 规矩：格式坏到整行都读不出来就当场停；只是某个字段的内容不对，就单独记一笔放一边，审计照跑');
     if (r.intake_health === null) {
-        out.push('- 摄入无病态声明：quarantined=0 · normalized=0（未提供体检数据时默认无异常，证据缺席不等于证据为零）');
+        out.push('- 采数体检：没给体检数据的就按「没查出问题」处理（quarantined=0 · normalized=0）；没查出问题不等于没有问题，只是这次没有体检数据');
     }
     else {
         const ih = r.intake_health;
         for (const f of ih.fields) {
-            const eq = f.clean + f.normalized + f.quarantined === f.total ? '恒等式=PASS' : '恒等式=MISMATCH';
+            const eq = f.clean + f.normalized + f.quarantined === f.total ? '三样加起来对得上=PASS' : '三样加起来对不上=MISMATCH';
             out.push('- field ' + f.field_name + ': total=' + f.total + ' clean=' + f.clean + ' normalized=' + f.normalized + ' quarantined=' + f.quarantined + '（' + eq + '）');
         }
-        out.push('- affected_commits（quarantined 去重）: ' + ih.affected_commits);
-        // 明确记录 NULL 含义，避免误解为未设置
-        out.push('- quarantine_log.recorded_at（写入时间）: ' + (ih.recorded_at === null ? 'NULL（因字段异常导致观测时间无法获取）' : ih.recorded_at));
+        out.push('- affected_commits（按提交去重后的条数）: ' + ih.affected_commits);
+        // NULL 是什么意思写明，省得被当成没设置
+        out.push('- quarantine_log.recorded_at（什么时候记的）: ' + (ih.recorded_at === null ? 'NULL（字段坏了，那一刻的时间没拿到）' : ih.recorded_at));
         const totalCommits = ih.fields.filter(function (f) { return f.field_name === 'committer_date'; })[0];
-        out.push('- 统计排除声明：日期统计基于 ' + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + ' 次提交（已排除隔离的 ' + ih.excluded_commits + ' 次提交；异常提交不参与指标计算）');
-        out.push('- 阈值规则：单字段异常率超过 ' + ih.threshold_ratio + ' 则整份报告升级为 unsupported；escalation=' + ih.escalation);
+        out.push('- 统计时剔掉了哪些：日期统计按 ' + String((totalCommits ? totalCommits.total : 0) - ih.excluded_commits) + ' 次提交算（剔掉了被隔离的 ' + ih.excluded_commits + ' 次提交；这类提交不参与指标计算）');
+        out.push('- 什么时候会升级判定：单个字段出问题的比例超过 ' + ih.threshold_ratio + '，整份报告就改成不支持；escalation=' + ih.escalation);
         if (ih.quarantined_rows.length === 0) {
-            out.push('- quarantined rows: 无（摄入无病态）');
+            out.push('- quarantined rows: 无（这次采数没查出问题）');
         }
         else {
-            out.push('- quarantined-only SHA 表（sha | field | reason_code | raw_echo 截断呈现）：');
+            out.push('- 单列出来的提交表（只列被隔离的：sha | field | reason_code | raw_echo 太长就截断）：');
             out.push('');
             out.push('  | sha | field | reason_code | raw_echo |');
             out.push('  | --- | --- | --- | --- |');
@@ -517,8 +517,8 @@ export function degradeReport(r, reason) {
         preview_disclosure: r.preview_disclosure,
         narrative_sections: []
     };
-    // 降级兜底：使用内核模板叙事作为降级补充说明。
-    // 已盖章的宿主叙事不悄悄丢弃，按降级后的证据重新盖章留痕，模板叙事追加在后面。
+    // 降级兜底：拿内核模板叙事补一段。
+    // 已经盖过章的宿主叙事不悄悄扔，按降级后的证据重新盖一遍留痕，模板叙事追加在后头。
     const hostKept = r.narrative_sections.map(function (s) {
         return { section_id: s.section_id, author: s.author, model_id: s.model_id, text: s.text, claims: s.claims.slice() };
     });

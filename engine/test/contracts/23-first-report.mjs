@@ -1,8 +1,8 @@
-// 23-first-report.mjs — 首报全链执行（采集 → fact → 叙事 → 裁决 → 报告）
-// 用法：node engine/test/contracts/23-first-report.mjs
-// 覆盖 A-026 / A-027｜spec §R3-D5｜主干=端到端价值验证闭环先行｜A/B/C 三层验收闸门
-// 依赖：零三方包；直接 import engine/src/collect/collectors.ts 与 engine/src/report/generate.ts（Node 类型剥离）。
-// 纪律：B 层阈值全部读自 22-criteria-pre-registration.md 对应的预声明常量，跑后禁调（§7）。
+// 23-first-report.mjs — 把首报整条链跑一遍（先采数、写成 fact、讲成话、再裁定、最后出报告）
+// 怎么跑：node engine/test/contracts/23-first-report.mjs
+// 管的是 A-026 / A-027｜spec §R3-D5｜主路是先把端到端那条价值验证的路走通｜A/B/C 三层验收闸
+// 依赖：不引任何三方包；直接 import engine/src/collect/collectors.ts 和 engine/src/report/generate.ts（Node 能剥类型）。
+// 纪律：B 层那些阈值全都从 22-criteria-pre-registration.md 里对应的预声明常量读，跑完不许再改（§7）。
 
 import { readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';

@@ -1,7 +1,7 @@
-// gen-demo-golden.mjs — fixtures/golden 重渲染器（#45/A-050；#43 golden CI 消费入口）
-// 用法：node scripts/gen-demo-golden.mjs          # 全三场景重渲染 + manifest 重写
-// 同管线同定义：调 dist/demo/demo.js runDemo —— golden 与 `macro-audit demo --out` 产物零差异；
-// 禁自动重生成直通 main（D-030③：golden 更新走 PR 审查，本脚本只负责产出）。
+// gen-demo-golden.mjs —— 把 fixtures/golden 重出一遍（#45/A-050；#43 的 golden CI 就从这儿进）
+// 用法：node scripts/gen-demo-golden.mjs          # 三个场景全重出 + manifest 重写
+// 管线一样、定义也一样：调的是 dist/demo/demo.js 的 runDemo —— 出来的跟 `macro-audit demo --out` 一模一样；
+// 禁自动重生成直通 main（D-030③：golden 要更新走 PR 审查，这脚本只管出东西）。
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

@@ -1,8 +1,8 @@
-// gen-micro-b-emission-golden.mjs — #80 步① 发射骨架 golden 生成器（fixture golden=字段骨架非内容值）
-// 骨架维度：metric 集+计数 / subject 规范化形清单 / value_json 键集 / role 标记 / skip reason /
-//   case-only 冲突对 / 血缘载荷键集+edges / 对账判据 per_analysis。内容值（行数/评分/git_version）不锁。
-// 用法：node scripts/gen-micro-b-emission-golden.mjs          生成/更新 golden（PR 审查制 D-030③）
-//        node scripts/gen-micro-b-emission-golden.mjs --check  diff empty 判据（守卫调用面）
+// gen-micro-b-emission-golden.mjs —— #80 步① 出脉冲骨架的 golden（golden 认的是字段骨架，不是具体值）
+// 骨架里管这些：metric 的集体加计数 / subject 归整后的清单 / value_json 的键集 / role 标记 / skip 的原因 /
+// 只差大小写的那种冲突对 / 血缘载荷的键集加 edges / 对账判据 per_analysis。具体值（行数、评分、git_version）不锁。
+// 用法：node scripts/gen-micro-b-emission-golden.mjs          生成或更新 golden（走 PR 审查，D-030③）
+// node scripts/gen-micro-b-emission-golden.mjs --check  diff 为空就判过（守卫就这么调）
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';

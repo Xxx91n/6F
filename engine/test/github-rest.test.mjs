@@ -73,7 +73,7 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const m64 = byMetric(r.facts, 'github_rest.pr_metadata').map(val).find((v) => v.number === 64);
   check('A9 detail #64 merged=true + changed_files=2', m64 && m64.merged === true && m64.changed_files === 2);
   const d64 = byMetric(r.facts, 'github_rest.pr_diff').map(val).find((v) => v.number === 64);
-  check('A10 diff #64 → api 通道（本地缺席兜底）+bytes>1000', d64 && d64.channel === 'api' && d64.bytes > 1000, d64 ? String(d64.bytes) : 'missing');
+  check('A10 diff #64 → api 通道（本地缺席时的退路）+bytes>1000', d64 && d64.channel === 'api' && d64.bytes > 1000, d64 ? String(d64.bytes) : 'missing');
   const run = val(byMetric(r.facts, 'github_rest.run')[0]);
   check('A11 run 汇总 calls=4/errors=0/stopped=null', run.calls === 4 && run.errors === 0 && run.stopped_reason === null, JSON.stringify(run));
   check('A12 token 入 wire（fetcher 收到），不进任何 fact', cap.every((q) => q.token === 'ENVTOK-PLACEHOLDER') && !JSON.stringify(r.facts).includes('ENVTOK-PLACEHOLDER'));
@@ -102,8 +102,8 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const cap = [];
   const client2 = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: cassetteFetcher({ name: 'one', calls: [cas.calls[3]] }, cap) });
   const d2 = await G.resolvePrDiff(client2, 'Xxx91n', 'env-manager', 64, 'deadbeef'.repeat(5), 'feedbeef'.repeat(5), repo);
-  check('D5 sha 本地缺席 → api 兜底通道', d2.ok && d2.channel === 'api' && d2.text.length > 1000);
-  check('D6 api 兜底确实产生了调用', client2.callLog.length === 1);
+  check('D5 sha 本地缺席 → 退到 api 通道', d2.ok && d2.channel === 'api' && d2.text.length > 1000);
+  check('D6 api 退路确实发出了调用', client2.callLog.length === 1);
   // spec 缩小范围：sha 双解但本地 diff 失败（orphan 分支无 merge-base）→ 如实降级，不悄悄改道 API
   git(['checkout', '-q', '--orphan', 'orph']);
   git(['reset', '-q']); writeFileSync(join(repo, 'o.txt'), 'o\n');
@@ -111,7 +111,7 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   const orphanSha = git(['rev-parse', 'HEAD']).stdout.trim();
   const client3 = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: async () => { throw new Error('must-not-call'); } });
   const d3 = await G.resolvePrDiff(client3, 'o', 'r', 9, base, orphanSha, repo);
-  check('D7 本地可解但 diff 失败 → local-git 降级不兜底 API', d3.ok === false && d3.channel === 'local-git' && d3.error_kind === 'local-diff' && client3.callLog.length === 0, JSON.stringify(d3).slice(0, 200));
+  check('D7 本地能解但 diff 失败 → local-git 如实降级，不改走 API', d3.ok === false && d3.channel === 'local-git' && d3.error_kind === 'local-diff' && client3.callLog.length === 0, JSON.stringify(d3).slice(0, 200));
 
   // #116 安全审计：git diff range 拼接明确 SHA 十六进制校验（7~40位 hex）
   const hackOption = '--output=HACK.txt';
@@ -135,11 +135,11 @@ check('B4 Xxx91n/User → false', G.platformDeclaredBot('Xxx91n', 'User') === fa
   // resolvePrDiff 入口防线（结构化拒绝，local-diff，零 API 调用，零 git diff）
   const clientSec = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: async () => { throw new Error('must-not-call'); } });
   const badPr1 = await G.resolvePrDiff(clientSec, 'o', 'r', 10, hackOption, head, repo);
-  check('D13 resolvePrDiff 明确拒 --output 且不兜底 API', badPr1.ok === false && badPr1.channel === 'local-git' && badPr1.error_kind === 'local-diff' && clientSec.callLog.length === 0 && /invalid base or head git sha/i.test(badPr1.detail || ''));
+  check('D13 resolvePrDiff 明确拒 --output 且不改走 API', badPr1.ok === false && badPr1.channel === 'local-git' && badPr1.error_kind === 'local-diff' && clientSec.callLog.length === 0 && /invalid base or head git sha/i.test(badPr1.detail || ''));
   const badPr2 = await G.resolvePrDiff(clientSec, 'o', 'r', 11, base, pathTraversal, repo);
   check('D14 resolvePrDiff 明确拒路径遍历', badPr2.ok === false && badPr2.channel === 'local-git' && badPr2.error_kind === 'local-diff' && clientSec.callLog.length === 0);
 
-  // 空 baseSha/headSha（PR 不在 listing/details 中）保持 API 兜底
+  // 空 baseSha/headSha（PR 不在 listing/details 中）时保持走 API 退路
   const clientEmpty = G.createGithubRestClient({ strategy: 'env-token', token: 'T', degraded: false, disclosures: [] }, { fetcher: cassetteFetcher({ name: 'empty-sha', calls: [cas.calls[3]] }, []) });
   const emptyDiff = await G.resolvePrDiff(clientEmpty, 'Xxx91n', 'env-manager', 64, '', '', repo);
   check('D15 空 SHA 回退到 API diff 通道', emptyDiff.ok && emptyDiff.channel === 'api' && clientEmpty.callLog.length === 1);
@@ -231,12 +231,12 @@ check('E4 git@ URL → ok', G.parseGithubRepoRef('git@github.com:Xxx91n/env-mana
 const ng = G.parseGithubRepoRef('https://gitlab.com/a/b');
 check('E5 非 github 托管明确拒', ng.ok === false && /unsupported/.test(ng.reason));
 
-// --- K 常量钉死 ---
+// --- K 常量固定住 ---
 check('K1 X-GitHub-Api-Version pin=2022-11-28', G.GITHUB_API_VERSION === '2022-11-28');
 check('K2 adapter id + family', G.GITHUB_REST_ADAPTER_ID === 'github-rest-adapter@v1' && G.GITHUB_REST_FAMILY === 'upstream-github-rest');
 check('K3 planned 面登记（review/comment 不入最小集）', G.GITHUB_REST_PLANNED_SURFACES.includes('pulls.reviews') && G.GITHUB_REST_PLANNED_SURFACES.includes('pulls.comments'));
 
-// --- L live opt-in 凭据腿（#72/D-080③：凭据缺席环境明确报告 SKIPPED 不算 PASS——防假绿） ---
+// --- L live opt-in 凭据这一路（#72/D-080③：环境里没有凭据时明确报 SKIPPED，不算 PASS——防假装通过） ---
 {
   const probe = G.resolveGithubCredential(process.env, G.probeGhAuthToken);
   if (probe.strategy === 'env-token' || probe.strategy === 'gh-token') {

@@ -1,22 +1,22 @@
-// fact/file-card.ts — Micro-B 单文件档审计卡
-// 理由：文件卡是只读阅读视图，只给建议不进裁决，且在 MCP 接口下绝不写入数据。
-// 纯逻辑模块：输入为已有事实数据与当前提交号；不直接访问文件系统，不启动子进程。
-// 卡片分层设计：
-//   kernel 层：基础观测数据按分析项归类直出，每行携带出处坐标与关联信息；
-//   derived 层：根据基础数据计算得出的衍生指标（如热点优先级规则、仓内百分位排行等），可稳定复算；
-//   narrative 层：文字说明部分，只允许引用已计算出的键名，并附带键名存在性检查结果。
-// 独立定位：本卡片不包含正式裁决结论，明确标记 advisory: true，优先级仅用于排序参考。
-// 未找到数据的四种状态：从未采集（附带操作提示）/ 当前提交未追踪 / 不适用（如二进制文件或生成文件）/ 已改名跳转。
-// 文件改名记录处理：通过改名事实构建改名关系图，自动反向追溯历史旧名，将旧名字段并入当前文件卡中。
-// 历史不足与特殊状态：新文件或修改次数过少时只保留基础静态指标，不输出衍生排行。
+// fact/file-card.ts —— 单文件档的那张卡
+// 这张卡是给人看的只读视图：只出建议、不下判定，走 MCP 那头也绝不往库里写东西。
+// 纯逻辑：进来的是现成的事实和当前提交号；不直接碰文件系统，不起子进程。
+// 卡片分三层：
+// kernel 层：基础观测按分析项归好直接摆出来，每行带着出处和关联信息；
+// derived 层：拿基础数据算出来的衍生指标（热点优先级规则、仓内百分位排行这些），每次都能算出同一个数；
+// narrative 层：说人话的部分，只许引用已经算出来的键名，还附一份「这个键在不在」的检查结果。
+// 这卡的定位：不下正式判定，明写 advisory: true，优先级只是排个先后供参考。
+// 找不到数据有四种说法：从来没采过（顺带告诉你怎么办）/ 这个提交没采过 / 用不上（二进制文件或生成文件这类）/ 改过名，给你指到新名字去。
+// 改名怎么处理：拿改名事实搭一张改名关系图，自动往回追旧名字，把旧名下的字段并进当前这张卡。
+// 历史不够和有特殊情况：新文件或者改的次数太少，就只留基础静态指标，衍生排行不出。
 import { normalizeSubjectPath } from './subject.js';
 export const FILE_CARD_SCHEMA_VERSION = 'file-card@v1';
 export const FILE_CARD_RULE_VERSION = 'hotspot_priority_v1';
 export const FILE_CARD_TOP_N = 20;
-export const FILE_CARD_INSUFFICIENT_MIN_REVS = 3; // 修改少于 3 次视为历史不足（包含新文件 1 次）
-// 失败与历史不足时的字段过滤：
-//   依赖历史演化数据的分析项在历史不足或新文件时不放入卡片；
-//   静态指标项则正常保留。
+export const FILE_CARD_INSUFFICIENT_MIN_REVS = 3; // 改不到 3 次就算历史不够（新文件算 1 次）
+// 出问题或者历史不够时，字段这么筛：
+// 得靠历史演化才能算的分析项，历史不够或是新文件，不进卡；
+// 静态指标照常留着。
 export const FILE_CARD_HISTORY_DERIVED_FACETS = [
     'entity-churn', 'entity-ownership', 'code-age', 'hotspots', 'coupling'
 ];
@@ -28,7 +28,7 @@ export const FILE_CARD_STATIC_FACETS = [
     'communication', 'coordination-needs', 'team-composition', 'marginal-owner-risk', 'pair-programming',
     'function-hotspots'
 ];
-export const FILE_CARD_LINEAGE_MAX_ANCESTORS = 64; // 祖先名称追溯上限，防止异常改名环消耗过多资源
+export const FILE_CARD_LINEAGE_MAX_ANCESTORS = 64; // 往上追旧名最多追这么多层，免得异常改名环拖垮资源
 export function headShaOfRepoRef(repoRef) {
     const i = repoRef.lastIndexOf('@');
     return i >= 0 && i < repoRef.length - 1 ? repoRef.slice(i + 1) : null;
@@ -36,7 +36,7 @@ export function headShaOfRepoRef(repoRef) {
 function asNum(v) {
     return typeof v === 'number' && Number.isFinite(v) ? v : null;
 }
-// 收集所有可引用的字段键名：包括基础指标键、衍生指标键和观测状态键，仅允许引用已存在的键。
+// 把能引用的键名收拢起来：基础指标键、衍生指标键、观测状态键，只准引用已经有的。
 export function fileCardCitationKeys(card) {
     const keys = ['observation.head_sha', 'staleness.drift', 'source', 'failure_state', 'kernel.set_truncated', 'kernel.suppressed_facets'];
     if (card.lineage !== null) {
@@ -62,7 +62,7 @@ export function fileCardCitationKeys(card) {
     }
     return keys;
 }
-// 检查引用的键名是否全部有效，返回是否通过及缺失的键名列表。
+// 查引用的键名是不是个个都在，返回过没过、缺了谁。
 export function validateFileCardCitations(card, referenced) {
     const have = new Set(fileCardCitationKeys(card));
     const missing = referenced.filter(function (k) { return !have.has(k); });
@@ -102,8 +102,8 @@ function missCard(subject, miss, input, headSha) {
         narrative: { hints: [], key_check: { referenced: [], missing: [], ok: true } }
     };
 }
-// ---------- 文件改名关联与历史追溯 ----------
-// 从事实数据中提取 file.renamed 改名事件，解析改名来源与目标，按唯一键去重。
+// ---------- 改名关系和往回追溯 ----------
+// 从事实里把 file.renamed 挑出来，认出改名的从哪儿到哪儿，按唯一键去重。
 function collectRenameEdges(facts) {
     const seen = new Set();
     const edges = [];
@@ -127,9 +127,9 @@ function collectRenameEdges(facts) {
     }
     return edges;
 }
-// 反向遍历改名关系图，寻找历史旧路径；处理多跳改名、循环改名检测和链路超长截断。
+// 顺着改名图往回走，找历史上的旧路径；多跳改名、绕成环、链太长截断都得管。
 function resolveLineageAncestors(subject, edges) {
-    // byTo 表示新路径到旧路径的反向映射；byFrom 表示从旧路径到新路径的正向映射。
+    // byTo 是新路径对旧路径的反查表；byFrom 是旧路径对新路径的顺查表。
     const byTo = new Map();
     const byFrom = new Map();
     for (const e of edges) {
@@ -149,7 +149,7 @@ function resolveLineageAncestors(subject, edges) {
             return a.commit_sha === b.commit_sha ? (a.from < b.from ? -1 : a.from > b.from ? 1 : 0) : (a.commit_sha < b.commit_sha ? -1 : 1);
         });
     }
-    // 沿改名方向判断是否形成闭环改名回路。
+    // 照着改名的方向走，看会不会绕回自己。
     function reachesForward(start, target) {
         const seen = new Set([start]);
         const fq = [start];
@@ -211,9 +211,9 @@ export function buildFileCard(input) {
     }
     const subject = norm.subject;
     const headSha = input.setRepoRef !== null ? headShaOfRepoRef(input.setRepoRef) : null;
-    // 数据缺失状态判定顺序：先看有无对应提交的数据，再看文件是否存在或发生过改名。
+    // 判「没数据」的先后：先看这个提交有没有数据，再看文件在不在、改没改过名。
     if (input.setRepoRef === null) {
-        // 指定提交前缀存在多个匹配项时，不随意猜测，明确提示前缀不唯一。
+        // 提交前缀撞上好几个，不许瞎猜，明说这个前缀不唯一。
         if (input.pinnedAmbiguous !== undefined && input.pinnedAmbiguous.length > 1) {
             return missCard(subject, {
                 state: 'not_tracked_at_sha',
@@ -236,7 +236,7 @@ export function buildFileCard(input) {
             cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
         }, input, null);
     }
-    // 整理改名记录，寻找历史旧路径并一并拉取旧名下的历史数据。
+    // 把改名记录理一遍，找出历史旧名，顺手把旧名下的历史数据也拉回来。
     const edgePool = collectRenameEdges(input.lineageFacts !== undefined && input.lineageFacts.length > 0
         ? input.setFacts.concat(input.lineageFacts)
         : input.setFacts);
@@ -244,7 +244,7 @@ export function buildFileCard(input) {
     const stitchedNames = new Set([subject].concat(resolved.subjects));
     const mine = input.setFacts.filter(function (f) { return f.metric === 'codelore.file_facet_row' && stitchedNames.has(f.subject_ref); });
     if (mine.length === 0) {
-        // 二进制文件、生成文件或特殊跳过文件：明确说明不适用，不输出空卡片。
+        // 二进制文件、生成文件、按规定跳过的文件：明说用不上，别出张空卡糊弄人。
         const skip = input.setFacts.filter(function (f) {
             if (f.metric !== 'codelore.file_subject_skip') {
                 return false;
@@ -268,7 +268,7 @@ export function buildFileCard(input) {
                 detail: '该文件不参与单文件分析（' + reason + '），属于正常跳过而非数据缺失'
             }, input, headSha);
         }
-        // 检测到改名情况，提示已重命名，并确认新路径是否有对应事实数据。
+        // 认出是改过名的，就告诉你改到哪儿了，顺便看看新路径有没有事实数据。
         const ev = edgePool.filter(function (e) { return e.from === subject; })[0];
         if (ev) {
             const targetHasFacts = input.setFacts.some(function (f) { return f.metric === 'codelore.file_facet_row' && f.subject_ref === ev.to; });
@@ -287,7 +287,7 @@ export function buildFileCard(input) {
             cli_guidance: input.cliGuidance === null ? undefined : input.cliGuidance
         }, input, headSha);
     }
-    // ---------- 基础层：整理各分析项的行数据与出处信息 ----------
+    // ---------- 基础层：把每个分析项的行和出处理出来 ----------
     const facetRows = {};
     for (const f of mine) {
         let v;
@@ -300,7 +300,7 @@ export function buildFileCard(input) {
         const analysis = typeof v.analysis === 'string' ? v.analysis : 'unknown';
         const row = (v.row !== null && typeof v.row === 'object' ? v.row : {});
         const arr = facetRows[analysis] || (facetRows[analysis] = []);
-        // 保留每一行的原始归属路径，改名合并进来的旧数据仍保留旧路径标记。
+        // 每一行原本属于哪个路径得留着；改名并进来的老数据还挂老路径的标记。
         arr.push({ row: row, fact_ref: f.fact_id, observed_at: f.observed_at, evidence_ref: f.evidence_ref, subject_ref: f.subject_ref });
     }
     const analyses = Object.keys(facetRows).sort();
@@ -308,7 +308,7 @@ export function buildFileCard(input) {
     for (const a of analyses) {
         ordered[a] = facetRows[a];
     }
-    // ---------- 衍生层：计算热点得分与相对排行（带规则版本） ----------
+    // ---------- 衍生层：算热点得分和相对排名（记着规则版本） ----------
     let revisions = null;
     let hotspotScore = null;
     for (const r of ordered['revisions'] || []) {
@@ -327,8 +327,8 @@ export function buildFileCard(input) {
             hotspotScore = s;
         }
     }
-    // 在同仓库所有文件中计算百分位排行（中位数法平滑并列情况）。
-    // 已被新名称取代的旧路径不重复计入分布，防止重复统计。
+    // 在同一个仓的所有文件里算百分位（用中位数法把并列的摆平）。
+    // 被新名字顶替掉的旧路径不再重复计数，免得同一份数据算两遍。
     const supersededNames = new Set();
     {
         const namesWithRows = new Set();
@@ -374,11 +374,11 @@ export function buildFileCard(input) {
     }
     const topN = hotspotScore === null ? null : peerScores.filter(function (s) { return s > hotspotScore; }).length < FILE_CARD_TOP_N;
     const band = pct === null ? null : (pct >= 0.9 ? 'high' : (pct >= 0.6 ? 'medium' : 'low'));
-    // 历史不足判定：修改次数过少时只保留静态基础指标，不输出需要演化历史的分析项。
+    // 历史够不够：改的次数太少就只留基础静态指标，要演化的分析项不出。
     const failure = revisions === 1 ? 'new_file'
         : (revisions !== null && revisions < FILE_CARD_INSUFFICIENT_MIN_REVS) ? 'insufficient_history' : 'ok';
     const suppressed = failure !== 'ok';
-    // 过滤需隐藏的指标：将历史演化类指标移入 suppressed_facets，避免样本过少产生失真读数。
+    // 该藏起来的指标：把要靠历史演化的分析项挪进 suppressed_facets，样本太少会读出假数。
     const keptFacets = {};
     const suppressedFacets = [];
     for (const a of analyses) {
@@ -408,7 +408,7 @@ export function buildFileCard(input) {
         source: input.source,
         failure_state: failure,
         miss: null,
-        // 改名追溯详情：如果解析到了改名记录或环，如实记录改名链路与是否截断。
+        // 改名追溯的细节：追到了记录或者绕了环，就照实写下链路和有没有被截。
         lineage: resolved.edgesUsed.length > 0 || resolved.cycleDetected
             ? { stitched_from: resolved.subjects, edges: sortLineageEdges(resolved.edgesUsed), cycle_detected: resolved.cycleDetected, truncated: resolved.truncated || input.lineageEdgeCapHit === true }
             : null,
@@ -424,7 +424,7 @@ export function buildFileCard(input) {
         },
         narrative: { hints: [], key_check: { referenced: [], missing: [], ok: true } }
     };
-    // 说明层：列出所有可供外部引用的计算指标字段，并完成校验。
+    // 说明层：把外面能引用的指标字段全列出来，顺手核一遍。
     card.narrative.hints = fileCardCitationKeys(card);
     card.narrative.key_check = { referenced: card.narrative.hints.slice(), missing: [], ok: true };
     return card;

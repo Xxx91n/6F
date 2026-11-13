@@ -1,9 +1,10 @@
-// 56-checker-heldout-eval.mjs —— #56 修复后 held-out 首跑评测（D-064⑤ F5＋D-065；与 52a 标定语料分区存管）
-// 被测件=dist 的 checkAllCitations（presence-level 判定＋语境剥离）。
-// 规则：contract 层（positive/negation/pseudo/quoted/unbalanced/ungrounded）gold=checker 契约真值 100% 对齐；
-//   disclosed 层（fn-paraphrase / attachment-ambiguous）gold=人类语义真值 supports、checker 如实判 insufficient
-//   → 记 disclosed_fn（presence-level 语义召回缺口归 human-in-loop，非契约违规）。
-// 纪律：只测不调——本脚本不改 checker；禁参照 52a 语料标签调参；held-out 只评一次首跑。
+// 56-checker-heldout-eval.mjs —— #56 修完之后，拿留出来的那批语料第一次跑评测（D-064⑤ F5＋D-065；跟 52a 调准用的语料分开存，不能混）
+// 测的是 dist 里的 checkAllCitations（判有没有说到点上，顺带剥掉语境）。
+// 规矩：契约这一层（positive/negation/pseudo/quoted/unbalanced/ungrounded）gold 是 checker 契约里的真值，
+//   要求 100% 对得上；
+//   披露这一层（fn-paraphrase / attachment-ambiguous）gold 按人的理解是真 supports，checker 如实判 insufficient
+//   → 记成 disclosed_fn（这属于「只说提到了、没说到点上」这种语义召回缺口，交给人来看，不算契约违规）。
+// 纪律：只测不调——这个脚本不改 checker；不许参照 52a 那批语料的标签来调参；留出来的这批只评一次，就是第一次跑。
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';

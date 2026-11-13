@@ -1,7 +1,7 @@
 // codelore-llm.test.mjs — explain 族 LLM 面 golden 契约测试两形态（#36/A-041/D-035②）
-// 形态一 门控关：env 未配置 → llm_gate(configured=false) + 每面 llm_gated 降级披露 + runner 零调用（不真调 LLM 的机检证明）。
+// 形态一 门控关：env 未配置 → llm_gate(configured=false) + 每面 llm_gated 降级披露 + runner 零调用（这就是「不真调 LLM」的机器证明）。
 // 形态二 门控开：env 注入 + runner 回放 synthetic cassette → llm_narrative + llm_cost 计量。
-// 绝不真调 LLM、不需要真 key；红证 = 未配置不悄悄忽略/不超 cap/env 值不落 fact/畸形输入拒识。
+// 绝不真调 LLM、不需要真 key；要证明的事：未配置时不悄悄忽略、不超上限、env 值不落 fact、畸形输入拒识。
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -29,13 +29,13 @@ const J = (f) => JSON.parse(f.value_json);
 t('A1 LLM 面契约表 = explain-file + diff 两面', () => {
   assert.deepEqual(C.CODELORE_LLM_FACETS.map((f) => f.face), ['explain-file', 'diff']);
 });
-t('A2 CODELORE_LLM_* env 族五变量钉死（0.28.0 实物枚举）', () => {
+t('A2 CODELORE_LLM_* env 族五个变量锁死（0.28.0 实物枚举）', () => {
   assert.deepEqual([...C.CODELORE_LLM_ENV_VARS].sort(), ['ANTHROPIC_API_KEY', 'CODELORE_LLM_API_KEY', 'CODELORE_LLM_BASE_URL', 'CODELORE_LLM_MODEL', 'CODELORE_LLM_PROVIDER'].sort());
 });
 t('A3 pin 0.28.0 不变 + binary-discovery 不变', () => {
   assert.equal(C.CODELORE_PINNED_VERSION, '0.28.0');
 });
-t('A4 manifest 三件 synthetic cassette sha256 钉死', () => {
+t('A4 manifest 三件 synthetic cassette 的 sha256 锁死', () => {
   assert.equal(manifest.synthetic, true);
   for (const [name, spec] of Object.entries(manifest.files)) {
     const p = join(FX, spec.file);
@@ -152,7 +152,7 @@ t('D2 uncited stamp → grounded=false + claims 原样列出', () => {
   assert.equal(v.grounded, false);
   assert.deepEqual(v.uncited_claims, ['copied from elsewhere', 'abandoned last week']);
 });
-t('D3 缺 narrative 段标 → llm_error(detail=narrative-marker-absent) 不出假阳性', () => {
+t('D3 缺 narrative 段标 → llm_error(detail=narrative-marker-absent)，不会误报成成功', () => {
   const runner = () => ({ ok: true, status: 0, stdout: 'fact sheet only\n\n[code-health]\n  score = 1\n', stderrTail: '' });
   const facts = C.collectCodeloreLlm({ repoRoot: 'fixture', resolver: fakeResolver, runner, env: { CODELORE_LLM_MODEL: 'm' }, explainPaths: ['x.ts'], facets: [C.CODELORE_LLM_FACETS[0]] }, CTX);
   const e = facts.find((f) => f.metric === 'codelore.llm_error');
@@ -213,7 +213,7 @@ t('E1 env 秘密值不出现在任何 fact', () => {
   }
 });
 
-// ---------- F. 解析器红证 ----------
+// ---------- F. 解析器该红的地方必须红 ----------
 t('F1 无段标输入 → narrative=null 其余字段空', () => {
   const p = C.parseLlmNarrative('plain text\n[sec]\n k = v\n');
   assert.equal(p.narrative, null);

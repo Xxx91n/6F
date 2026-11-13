@@ -583,7 +583,7 @@
       "rec_id": "R-45-DEGRADEDINCOMPLETE-2",
       "priority": "P3",
       "action": "供应链象限维持「⚠ 数据未接」：Scorecard/repomix 按层需求队列接入不插队（D-034③④）",
-      "rationale": "preview 诚实形态保持——supply-chain: ⚠ unverified 为披露块常驻印记",
+      "rationale": "preview 诚实形态保持——supply-chain: ⚠ unverified 是预览说明里固定要带的一条",
       "expected_impact": "披露诚实性保持",
       "effort": "S",
       "verdict_gate_stamp": "insufficient ⚠ unverified",
@@ -611,7 +611,7 @@
       "section_id": "kernel-template-fallback",
       "author": "kernel-template",
       "model_id": null,
-      "text": "本段为内核模板叙事（降级兜底 ⚠ unverified）：四象限覆盖 strategy·structure·behavior·supply_chain，各维度判定见 C2 结构化裁决块（本段不重复断言任何判定）；证据与引文支持关系见 C3；降级原因：FP-45-2 采集域证据不完整：docs/adr 语料仅 2 份且字段残缺、意图面文档缺失 → 主前提不可裁定，发起 GapRequest 降级产出。正式叙事由宿主 agent 通过事实表只读投影取数后生成，模板叙事不替代正式叙事。",
+      "text": "本段为内核模板叙事（降级兜底 ⚠ unverified）：四象限覆盖 strategy·structure·behavior·supply_chain，各维度判定见 C2 的裁决明细（本段不重复断言任何判定）；证据与引文支持关系见 C3；降级原因：FP-45-2 采集域证据不完整：docs/adr 语料仅 2 份且字段残缺、意图面文档缺失 → 主前提不可裁定，发起 GapRequest 降级产出。正式叙事由宿主 agent 通过事实表只读投影取数后生成，模板叙事不替代正式叙事。",
       "claims": [],
       "seal": {
         "protocol": "ADR-0013-C/v1+narrative-seal/v1",

@@ -1,4 +1,4 @@
-// intake.test.mjs — Repo Intake 输入面契约测试（本地默认/owner-repo 本地优先/URL opt-in / D-013；CI 每平台；作用于 dist 编译产物）
+// intake.test.mjs — 接仓库输入面契约测试（本地默认/owner-repo 本地优先/URL opt-in / D-013；CI 每平台；作用于 dist 编译产物）
 // 全离线：本地临时 git 仓 + file:// URL 等价路径实跑 clone，无网络调用。
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync } from 'node:fs';
@@ -91,7 +91,7 @@ check('K2 normalizeRepoUrlKey 去尾 / 与 .git 组合', I.normalizeRepoUrlKey('
 check('K3 异拼写同键：o/r 与 o/r.git 同 sha 缓存槽', I.sha256Short(I.normalizeRepoUrlKey('https://h/o/r')) === I.sha256Short(I.normalizeRepoUrlKey('https://h/o/r.git')));
 
 // --- F 快照时点披露（#55/D-059⑦）：缓存命中不 fetch 须如实披露时点 ---
-check('F1 本地腿 snapshot_fetched_at=null（无 fetch 概念）', r1.snapshot_fetched_at === null && r1.cache_hit === false && r1.refreshed === false);
+check('F1 本地这一路 snapshot_fetched_at=null（没有 fetch 这回事）', r1.snapshot_fetched_at === null && r1.cache_hit === false && r1.refreshed === false);
 check('F2 新 clone snapshot_fetched_at=ISO 非空＋cache_hit=false', typeof r3.snapshot_fetched_at === 'string' && /Z$/.test(r3.snapshot_fetched_at) && r3.cache_hit === false);
 check('F3 缓存命中：cache_hit=true＋refreshed=false＋snapshot_fetched_at 保旧 clone 时点（远端新提交不可见如实披露）', r4.cache_hit === true && r4.refreshed === false && typeof r4.snapshot_fetched_at === 'string');
 

@@ -1,10 +1,10 @@
-// 46-check.mjs —— #46 回归 CI 迁回 6F 自有 CI 守卫（R7-05 / D-046 / D-013 / D-033）
-// 断言面：A=6F workflow 契约（触发面/opt-in 输入/intake 隔离/链/工件断言/权限/诚实语义）
+// 46-check.mjs —— #46 回归 CI 迁回 6F 自有 CI 的检查脚本（R7-05 / D-046 / D-013 / D-033）
+// 查什么：A=6F workflow 契约（触发面/opt-in 输入/intake 隔离/链/工件检查/权限/诚实语义）
 //   → B=jiahao 单文件撤除（工作树缺席 + 删除提交 name-status 恰 1 文件 D）
 //   → C=本地 one-shot 验证工件（46-out 工件集 + 回执 + 裁定三档照实写数字）
 //   → D=引擎健康回归（33-check exit 0 + dist/cli.js 在 + one-shot 脚本迁移注记同步）
 //   → E=文书（BACKLOG #46 行 + 本轮报告含 #46 窗口节）
-// 纪律：只读断言（git 只读子命令 + fs 读，零写仓内状态）；exit 0 + PASS N/N 为绿。
+// 纪律：只读检查（git 只读子命令 + fs 读，零写仓内状态）；exit 0 + PASS N/N 为绿。
 // 规则：job 通过=管线跑通+工件齐备，非裁定绿（supported/unsupported/insufficient 三档如实，反复接受非跑通 D-033）。
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -17,11 +17,11 @@ const NL = '\n';
 const REPO = join(HERE, '..', '..', '..');
 // guard-meta（D-159②/D-160③ 自声明——未声明=红）
 const TIER = 'env-contract';
-// D-214① consumption_forms（多形态消费方——B/C4 组级 need sibling:jiahao）：dev-full=完整克隆＋sibling jiahao 工作树在位全断言面；ci-shallow=CI 浅克隆（sibling 缺席→B/C4 组 SKIP，A/D/E 仓内段照跑）。
+// D-214① consumption_forms（多形态消费方——B/C4 组级 need sibling:jiahao）：dev-full=完整克隆＋同级仓 jiahao 工作树在位就全查；ci-shallow=CI 浅克隆（同级仓缺席→B/C4 组 SKIP，A/D/E 仓内段照跑）。
 const CONSUMPTION_FORMS = ['dev-full', 'ci-shallow'];
 const PROTECTED_SURFACE = '46 回归 CI 迁回面（6F workflow 契约＋jiahao 撤除＋46-out 工件）';
 const JIAHAO = siblingPath('jiahao');
-// 组级前置（D-164-a②；R42 审计 O3 缩小范围）：B 组与 C4 挂 sibling:jiahao；A/C1~C3/D/E 零需 portable 段不因 sibling 缺席连坐
+// 组级前置（D-164-a②；R42 审计 O3 缩小范围）：B 组与 C4 挂 sibling:jiahao；A/C1~C3/D/E 这几段不靠同级仓，不因它缺席被连坐
 const WF = join(REPO, '.github', 'workflows', 'macro-b-regression.yml');
 const OUT = join(REPO, 'engine', 'test', 'fixtures', 'contracts', '46-out');
 
@@ -42,7 +42,7 @@ if (wf !== null) {
   t('A6 https-only 准入闸门在（ssh/git/file/ext:: 拒入）', wf.indexOf('https://*') >= 0 && wf.indexOf('仅允许 https://') >= 0);
   t('A7 intake 隔离纪律三件：core.hooksPath noop + protocol.ext.allow=never + 浅拒断言', wf.indexOf('core.hooksPath') >= 0 && wf.indexOf('protocol.ext.allow=never') >= 0 && wf.indexOf('--is-shallow-repository') >= 0);
   t('A8 链完整：engine build + 39-macro-b-one-shot.mjs --repo/--root/--out', wf.indexOf('npm run build') >= 0 && wf.indexOf('39-macro-b-one-shot.mjs') >= 0 && wf.indexOf('--repo') >= 0 && wf.indexOf('--root') >= 0 && wf.indexOf('--out') >= 0);
-  t('A9 工件断言面：receipt_id RCP 强断言 + scale Macro-B + md + facts + measurements + duckdb', ['"receipt_id"', 'RCP-[0-9a-f]{16}', '"scale": "Macro-B"', '-facts.jsonl', '-measurements.json', '39-audit-facts.duckdb'].every(s => wf.indexOf(s) >= 0));
+  t('A9 工件检查项：receipt_id RCP 强断言 + scale Macro-B + md + facts + measurements + duckdb', ['"receipt_id"', 'RCP-[0-9a-f]{16}', '"scale": "Macro-B"', '-facts.jsonl', '-measurements.json', '39-audit-facts.duckdb'].every(s => wf.indexOf(s) >= 0));
   t('A10 upload-artifact@v4 + if always()', wf.indexOf('actions/upload-artifact@v4') >= 0 && wf.indexOf('always()') >= 0);
   t('A11 permissions contents: read（最小权限）', /permissions:[\s\S]*?contents:\s*read/.test(wf));
   t('A12 无 MACRO_AUDIT_6F_TOKEN（D-046⑤ 跨私仓面取消）+ 无 repository: Xxx91n/6F 跨仓 checkout', wf.indexOf('MACRO_AUDIT_6F_TOKEN') < 0 && wf.indexOf('repository: Xxx91n/6F') < 0);
@@ -53,12 +53,12 @@ if (wf !== null) {
   t('A17 verify 步强断言：test -s 非零字节 + receipt_id RCP-[0-9a-f]{16} 格式断言', wf.indexOf('test -s') >= 0 && wf.indexOf('RCP-[0-9a-f]{16}') >= 0 && wf.indexOf('"receipt_id"') >= 0);
 }
 
-// A18（D-176②）：.github/workflows/*.yml parse 档病态闸——拦 L144 未引号 plain 标量含 ': '（冒号+空白）死件同型
+// A18（D-176②）：.github/workflows/*.yml 解析这一层要拦坏写法——值没加引号又带 ': '（冒号加空格）的，当初就出过这种把文件写坏的事
 // 零依赖手写最小结构闸（D-176 scoping：yaml 包/全量 parse 升格=条件项，引入须独立 commit 走 D-139）；命中=文件名:行号+行摘
 const WF_DIR = join(REPO, '.github', 'workflows');
 const wfSick = [];
 const wfFiles = existsSync(WF_DIR) ? readdirSync(WF_DIR).filter(f => /\.ya?ml$/.test(f)) : [];
-// plain 标量起始指示符集（' " | > [ ] { } & * ! % @ ` #——charCode 判定：源码零裸引号，防普查剥注释面引号态漂移；#=注释起始符于值位置即整行注释值实为 null 非病态）
+// plain 标量起始指示符集（' " | > [ ] { } & * ! % @ ` #——charCode 判定：源码不写裸引号，免得扫描时剥掉注释那层把引号态带歪；#=注释起始符在值位置时整行就是注释，值实为 null，不算病态）
 const NONPLAIN_START = new Set([39, 34, 124, 62, 91, 93, 123, 125, 38, 42, 33, 37, 64, 96, 35]);
 for (const f of wfFiles) {
   let blockIndent = -1;                                  // 块标量（|/>）体区段缩进水线（-1=区外；体内更深缩进行/空行不涉键行判定）
@@ -76,14 +76,14 @@ for (const f of wfFiles) {
     if (/:(\s|$)/.test(bare)) wfSick.push(f + ':' + (i + 1) + ' ' + line.trim().slice(0, 80));
   });
 }
-t('A18 workflows/*.yml 无未引号标量含 ": " 病态模式（parse 档闸——拦 macro-b 死件同型，files=' + wfFiles.length + '）', wfFiles.length > 0 && wfSick.length === 0, wfSick.join(' | '));
+t('A18 workflows/*.yml 里没有不加引号又带 ": " 的坏写法（当初 macro-b 就是这么写坏的，files=' + wfFiles.length + '）', wfFiles.length > 0 && wfSick.length === 0, wfSick.join(' | '));
 
 // ---------- B. jiahao 单文件撤除（T2 交付面） ----------
 const JH46 = [need('sibling:jiahao', existsSync(JIAHAO))];
 if (groupProbe('46-check', 'B', JH46)) {
   const jhWf = join(JIAHAO, '.github', 'workflows', 'macro-b-regression.yml');
-  // F-7 漂移披露补腿（D-159⑤ 兑现）：sibling 在但状态越出钉定时代（文件重现/删除提交不可达/变更面不符）
-  //   →WARN 方言披露不计数（同 37-C1 失效型）；非漂移路径保留原断言 verbatim（sibling 态属环境面非本仓契约）
+  // F-7 漂移披露补的那一路（D-159⑤ 兑现）：同级仓在，但状态越出钉定的那个年代（文件重现/删除提交不可达/变更面不符）
+  //   →WARN 当方言披露、不计数（同 37-C1 失效型）；非漂移路径保留原断言一字不改（同级仓的状态属环境面，不是本仓契约）
   if (existsSync(jhWf)) {
     console.log('WARN B1 jiahao 工作树该文件重现——sibling 漂移越出钉定时代，断言失效不计数（方言披露面 D-159⑤）');
   } else {
@@ -103,14 +103,14 @@ if (groupProbe('46-check', 'B', JH46)) {
   }
 }
 
-// ---------- C. 本地 one-shot 验证工件（T1 验收：回归腿 test 闭环） ----------
+// ---------- C. 本地 one-shot 验证工件（T1 验收：回归那一路的流程要能跑完） ----------
 const C_FILES = ['39-macro-b-jiahao.md', '39-macro-b-jiahao.json', '39-macro-b-jiahao-facts.jsonl', '39-macro-b-jiahao-measurements.json', '39-macro-b-measurements.json', '39-audit-facts.duckdb'];
 t('C1 46-out/ 工件集六件齐备', C_FILES.every(f => existsSync(join(OUT, f))), C_FILES.filter(f => !existsSync(join(OUT, f))).join(','));
 const side = existsSync(join(OUT, '39-macro-b-jiahao.json')) ? txt(join(OUT, '39-macro-b-jiahao.json')) : '';
 t('C2 sidecar 含 receipt + scale Macro-B（与 CI verify 步同款断言）', side.indexOf('"receipt"') >= 0 && side.indexOf('"scale": "Macro-B"') >= 0);
 const meas = existsSync(join(OUT, '39-macro-b-jiahao-measurements.json')) ? JSON.parse(txt(join(OUT, '39-macro-b-jiahao-measurements.json'))) : null;
 t('C3 实测数在位：pc1/pc2 过 + TC 三档判定 + NC-1 过', !!meas && meas.pc1 && meas.pc1.pass === true && meas.pc2 && meas.pc2.pass === true && meas.tc1 && meas.tc1.verdict && meas.tc2 && meas.tc2.verdict && meas.tc3 && meas.tc3.verdict && meas.nc1 && meas.nc1.pass === true);
-// C4 独挂 sibling 闸（D-164-a②＋R42 审计 O3）：唯它触 jiahao 活仓对象；C1~C3 仓内 46-out 断言脱连坐照跑
+// C4 单独挂同级仓这道闸（D-164-a②＋R42 审计 O3）：只有它会碰 jiahao 那个活仓；C1~C3 只管仓内 46-out，不跟着连坐，照跑
 if (groupProbe('46-check', 'C4', JH46) && meas) {
   const headOk = /^[0-9a-f]{40}$/.test(meas.head_sha || '');
   const headType = headOk ? git(JIAHAO, ['cat-file', '-t', meas.head_sha]) : null;

@@ -1,10 +1,10 @@
 // 52a-gen-corpus.mjs —— #52a 合成 claim-evidence 语料生成器（D-061；确定性构造，版本化 golden claim set）
-// 构造纪律：gold 标签=构造意图标签（合成语料身份如实披露）；双标子集 gold_b=同一标定者二轮独立标注
-// （intra-rater——单人标定的诚实规则，非双人互标；限制披露随 eval JSON 一起走）。
+// 构造纪律：gold 标签=构造意图标签（合成语料的身份照实披露）；双标子集 gold_b=同一个标定者第二轮独立标注
+// （intra-rater——单人标定的诚实规则，不是双人互标；限制照实披露，跟 eval JSON 一起走）。
 // 分层=checker 判定空间：presence 成立/不成立、grounded=false/excerpt 空、证据锚不可解析、
-//   语义对抗 FN（改写/同义——presence≠support 的 CiteEval 区分面）、语义对抗 FP（否定/引语包裹命中）、
+//   语义对抗 FN（改写/同义——presence≠support 的 CiteEval 区分点）、语义对抗 FP（否定/引语包裹命中）、
 //   边界样本（大小写/边界位/CJK 混排/部分命中）、band-leak 注入（6 模式×注入＋干净对照）。
-// 产出：52a-checker-eval-corpus.json（UTF-8 无 BOM；内容哈希进 eval 结果作 corpus 身份指纹）。
+// 产出：52a-checker-eval-corpus.json（UTF-8 无 BOM；内容哈希进 eval 结果，当语料的身份指纹）。
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -78,7 +78,7 @@ const B = [
 ];
 for (const b of B) { items.push(mkItem('presence-missing', 'insufficient', 'insufficient', b[0], b[1], { note: b[2] })); }
 
-// ---- C. grounded=false / excerpt 空（引文未落地；gold=insufficient） ----
+// ---- C. grounded=false / excerpt 空（引文没落地；gold=insufficient） ----
 for (let i = 0; i < 5; i++) {
   items.push(mkItem('ungrounded', 'insufficient', 'insufficient', 'coverage 0.85 ' + i, ['coverage'], { grounded: false, note: 'grounded=false 锚在也被拒（有引文≠支撑）' }));
 }
@@ -91,7 +91,7 @@ for (let i = 0; i < 6; i++) {
   items.push(mkItem('unresolvable-anchor', 'insufficient', 'insufficient', 'receipt stable ' + i, ['receipt'], { missEv: true, note: 'evidence_id 不存在 → 锚不可解析拒' }));
 }
 
-// ---- E. 语义对抗 FN：锚缺席但改写/同义语义在场（gold=supports，presence-checker 必缺） ----
+// ---- E. 语义对抗 FN：锚缺席，但改写/同义的语义在里面（gold=supports，按 presence 查的 checker 必然漏掉） ----
 const E = [
   ['定位覆盖比值为 0.85，实测全绿', ['s1_keyword_coverage_ratio'], '改写锚（字段名 vs 中文释义）'],
   ['the lag between commit and ADR date is large', ['git.adr_lag_days'], '同义改写（lag 语义在场）'],
@@ -108,7 +108,7 @@ const E = [
 ];
 for (const e of E) { items.push(mkItem('adversarial-fn-paraphrase', 'supports', 'supports', e[0], e[1], { note: e[2] })); }
 
-// ---- F. 语义对抗 FP：锚字面命中但语境否定/引语包裹（gold=insufficient，presence-checker 必误判） ----
+// ---- F. 语义对抗 FP：锚的字面命中了，但语境是否定/被引语包着（gold=insufficient，按 presence 查的 checker 必然判错） ----
 const F = [
   ['the repo does NOT support multi-language output', ['support', 'multi-language'], '否定包裹（NOT ... 命中锚）'],
   ['覆盖率未达 0.85 门槛', ['0.85', '门槛'], '否定语境（未达含锚）'],
@@ -142,7 +142,7 @@ const G = [
 ];
 for (const g of G) { items.push(mkItem('boundary', g[3], g[4], g[0], g[1], { note: g[2] })); }
 
-// ---- band-leak 注入面（narrative 段文本机检；gold_leak=是否应检出） ----
+// ---- band-leak 注入这一块（叙事段文本机器检查；gold_leak=该不该检出） ----
 const bandItems = [
   { id: 'B-01', pattern: 'dimension-band-assignment', text: 'S1: supported 该维度达标', gold: true, note: '维度 band 赋值句' },
   { id: 'B-02', pattern: 'verdict-field-en', text: 'the verdict field shows supported', gold: true, note: 'verdict 裸词（从严本意）' },

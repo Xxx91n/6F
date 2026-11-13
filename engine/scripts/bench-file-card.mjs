@@ -1,8 +1,8 @@
-// scripts/bench-file-card.mjs — #80 步③ 文件卡投影 benchmark（D-137/D-127：p95 分档＋target/danger 双阈值＋机器可裁决）
+// scripts/bench-file-card.mjs —— #80 步③ 量一量文件卡投影要多久（D-137/D-127：p95 分档，target/danger 两道线，机器自己判得过不过）
 // 用法：node scripts/bench-file-card.mjs [--runs N] [--db <path>...] [--out <artifact.json>]
-// 测量面：projectFileCard 端到端（开库→选集→取行→缝合→建卡）×试点库实档＋合成病态图 stress
-//   （深链 60 跳＋宽边 500 条＋20k facet 行）。分档=按观测集事实行数分 small/medium/large。
-// 阈值=实测预登记（见下方 THRESHOLDS 常量——登记值先于批内 commit 锁死，实跑数值留 artifact）。
+// 量的是 projectFileCard 从头到尾（开库→选集→取行→缝合→建卡），拿试点的真库跑，外加一张合成的病态图施压
+// （深到 60 跳的链＋500 条宽边＋2 万条 facet 行）。分档按观测集里事实的行数分 small/medium/large。
+// 门槛是实测预登记（见下头 THRESHOLDS 常量——登记值在这批提交之前就锁死，实跑的数留在 artifact 里）。
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -15,12 +15,12 @@ const P = await import(pathToFileURL(join(root, 'dist', 'fact', 'projection.js')
 const S = await import(pathToFileURL(join(root, 'dist', 'fact', 'store.js')).href);
 const FC = await import(pathToFileURL(join(root, 'dist', 'fact', 'file-card.js')).href);
 
-// ── 预登记阈值（ms）——实测预登记制：先测后写锁票面，target=正常达成档 danger=病态上限档
-//   登记值档已随治理工件退役（git 历史可查 .scratch/macro-audit/reports/80-bench-thresholds.md）
+// ── 预登记门槛（毫秒）——先测后写、写进票面的规矩：target 是正常该打到的档，danger 是病态的上限档
+// 当时登记的档值跟着治理工件一块儿退役了（翻 git 历史能看到 .scratch/macro-audit/reports/80-bench-thresholds.md）
 const THRESHOLDS = {
-  small:  { target: 200,  danger: 800   },   // <5k facts（实测基线 p95≤72ms——target≈3×基线留异机余量）
-  medium: { target: 800,  danger: 3000  },   // 5k~50k facts
-  large:  { target: 4000, danger: 12000 },   // >50k facts（含病态血缘图 stress——合成件实测 p95≈85ms 纯建卡面）
+  small:  { target: 200,  danger: 800   }, // 不超过 5k 条事实（实测基线 p95 不到 72ms——target 按基线的 3 倍留点异机余量）
+  medium: { target: 800,  danger: 3000  },   // 5 千到 5 万条事实
+  large:  { target: 4000, danger: 12000 }, // 超过 5 万条事实（含病态血缘图施压——合成件实测 p95 约 85ms，纯建卡那一段）
 };
 
 function parseArgs(argv) {
@@ -52,7 +52,7 @@ function tierOf(factCount) {
   return factCount < 5000 ? 'small' : factCount <= 50000 ? 'medium' : 'large';
 }
 
-// 合成病态图：60 跳深链＋500 条宽边＋N 条 facet 行——纯 buildFileCard CPU 面（无 IO）
+// 合成病态图：60 跳的深链＋500 条宽边＋N 条 facet 行——纯 buildFileCard 那点 CPU（不碰 IO）
 function syntheticSet(nRows, nEdges, chainLen) {
   const facts = [];
   let seq = 0;
@@ -71,7 +71,7 @@ function syntheticSet(nRows, nEdges, chainLen) {
   for (let i = 0; i < nEdges; i++) {
     facts.push(mk('file.renamed', 'w' + i + '.ts', { from: 'wold' + i + '.ts', to: 'w' + i + '.ts', commit_sha: String(900000 + i).padStart(40, '9'), similarity: 80 }));
   }
-  // 深链末端行：v<chainLen>.ts 自带行（缝合触发面）
+  // 深链最后一行的数据：v<chainLen>.ts 自带的那行（缝合就在这儿触发）
   facts.push(mk('codelore.file_facet_row', 'v' + chainLen + '.ts', { analysis: 'hotspots', row: { path: 'v' + chainLen + '.ts', revisions: 3, hotspot_score: 1 } }));
   return facts;
 }
@@ -85,7 +85,7 @@ async function benchDb(dbPath, repo, subject, runs) {
     ts.push(performance.now() - t0);
   }
   ts.sort((a, b) => a - b);
-  // A5：分档按票面语义=观测集事实行数（非卡内行数）——实测 Micro-B 行数于选中 repo_ref
+  // A5：分档照票面说的是观测集里事实的行数（不是卡里的行数）——拿选中 repo_ref 的实测单文件档行数算
   let setFacts = 0;
   if (card && card.repo_ref) {
     const conn = await S.openReader(dbPath);
@@ -119,11 +119,11 @@ async function main() {
     if (!subject) { throw new Error('BENCH-ARGS 未知 --db 基名且未给 --subject：' + base); }
     results.push(await benchDb(db, repo, subject, o.runs));
   }
-  // 合成 stress：20000 facet 行＋60 跳深链＋500 宽边——大档
+  // 合成施压：2 万条 facet 行＋60 跳深链＋500 条宽边——算大档
   const synthFacts = syntheticSet(20000, 500, 60);
   const synth = benchBuild(synthFacts, 'v60.ts', o.runs);
   synth.synthetic = '20000-rows/500-edges/60-hop-chain';
-  synth.tier = tierOf(synthFacts.length);   // A5：档名按票面行数界自动归属（20k+ 行→medium，不硬写）
+  synth.tier = tierOf(synthFacts.length); // A5：档名按票面那套行数界限自动落（2 万行往上就是 medium，不写死）
   const verdicts = [];
   for (const r of results.concat([synth])) {
     const tier = r.tier || tierOf(r.set_facts !== undefined ? r.set_facts : (r.rows || 0));
@@ -136,7 +136,7 @@ async function main() {
   if (o.out) { mkdirSync(dirname(o.out), { recursive: true }); writeFileSync(o.out, text); }
   process.stdout.write(text);
   const bad = verdicts.filter(v => v.verdict === 'danger').length;
-  process.exit(bad > 0 ? 1 : 0);   // danger 档=非零退出（机器可裁决）
+  process.exit(bad > 0 ? 1 : 0); // 掉进 danger 档就退非零（机器好判）
 }
 
 main().catch(e => { console.error('BENCH-FAIL ' + (e && e.message ? e.message : e)); process.exit(2); });

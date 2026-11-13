@@ -32,13 +32,13 @@
 - 数据底座用一张事实表（DuckDB `audit_fact`）：事件只往后加，不改旧行；查询从事实表拉只读投影。
 - 判定分散在各档做，裁决规则共享一份：中心只放元逻辑（裁决规则、契约、路由），不直接读写具体数据。
 - 报告合并规则：先对齐时间，再去重证据，标出冲突，定主裁决。冲突裁决先看证据强度，强度相同再看时间戳，冲突本身要能被看到、能被回头查。
-- 一条结论要过证据闸和证据够用闸：证据不够就写「看不出来」（`insufficient`），并正式提缺口请求，不许硬凑。
+- 一条结论要先拿证据、再过证据够不够这一关：证据不够就写「看不出来」（`insufficient`），并正式提缺口请求，不许硬凑。
 - 退出码 0 只表示管线跑完，`unsupported` / `insufficient` 也算跑完；它不是「判定通过」。非零退出还包括协议崩溃、IO 失败、strict 崩，以及输入不合格（`MICRO-A-INPUT` / `MICRO-A-SCOPE`）和未实装能力（`SCALE-NOT-IMPLEMENTED`，这两类用 exit 2）。CI 接入口要三查：退出码 0、JSON 能解析、verdict 枚举合法，三条都过才算数。
 - 事实表只让一个写者进来：`store.ts` 是唯一写入口，抢不到文件锁的一方立刻报错，不盲目重试；写进去的行串行追加，终读不重复。升级路径先留好，等真有并行写需求再往上走。
 - 上游坏输入分两级处理：整行格式坏就立刻停（协议级）；单个字段坏就隔离，审计接着跑（字段级）。坏字段单独记进 `quarantine_log`，记下原因码、原始字节指纹和处置结果；分类器返回状态、值、原因码和原始字节（`raw`），永不抛出。恒等式 `total = clean + normalized + quarantined` 要能在库里逐字段重算。原始字节按约 64 KiB 截断，同时记 `is_trunc` / `original_length` / `sha256_full` 三件套；完整现场用 `commit_sha` 从 git 对象还原。每个 commit 的事实和隔离记录同事务写入；任一 INSERT 失败整批回滚并非零退出，幂等重跑能自愈。`--strict-quarantine` 的基线只减不增，`unclassified` 永不可入基线；启用它时，基线外原因码或基线滞留码会直接报 `STRICT-QUARANTINE-VIOLATION` 并中止审计，这是「字段坏了还继续跑」的例外。
-- 报告里永远有「收仓体检」一节，按固定报告结构排；写清楚坏字段的数量、受影响的提交和恒等式读数，零坏字段也要写「无」，不能省掉。
-- Micro-A 没有收仓探针，收仓体检一节写「未采集」，不写「无」，也不拿零异常冒充。
-- Macro-C 校准用的基准语料自持：打成 frozen bundle 放仓里，用独立的 `engine/baseline-lock.yaml` 记版本、体积和哈希，不混进产品上游的 `engine/upstream-lock.yaml`；`85-check` C 组读这份 lock 并物化仓内 bundle。
+- 报告里永远有「采数体检」一节，按固定报告结构排；写清楚坏字段的数量、受影响的提交和恒等式读数，零坏字段也要写「无」，不能省掉。
+- Micro-A 没有接仓库那一步的探针，采数体检一节写「未采集」，不写「无」，也不拿零异常冒充。
+- Macro-C 校对用的固定语料自己管：打成 frozen bundle 放进仓里，用独立的 `engine/baseline-lock.yaml` 记版本、体积和哈希，不混进产品上游的 `engine/upstream-lock.yaml`；`85-check` C 组读这份 lock 并物化仓内 bundle。
 
 ### 4. 报告和演示
 
@@ -50,9 +50,9 @@
 - 卡上明确 `advisory: true`，没有 verdict 或 gate-consumable 字段；priority 只负责排序，不是判定。失败态要明确：`new_file` / `insufficient_history` 只给静态指标，`binary` / `generated` 标 `card_type: not_applicable`，不出空卡；指标集是固定清单，配置只能调阈值和规则参数。
 - 查询默认取最新观测集；`at:<sha>` 是明确指定的固定点；过期时同时披露观测时的 head 和当前 head。按 `at:<sha>` 查改名文件时，路径和血缘按查询时点解析，事实按固定 SHA 取值；不能拿固定 SHA 限制血缘，否则历史文件卡会误报未找到。查不到分四类写清：`never_collected`、`not_tracked_at_sha`、`not_applicable`、`renamed_to`；`renamed_to` 每次请求重新验证，不能无条件跳转，`revalidated: false` 时目标不算已确认命中，目标查询仍可能二次 miss。补采只走当前 HEAD 的整仓重跑，追加新观测集，不覆盖旧集。文件路径按仓根相对、斜杠分隔、Unicode NFC 归一，大小写不折叠。
 
-### 5. 收仓、上游和托管平台
+### 5. 接仓库、上游和托管平台
 
-- 收仓默认本地路径；远程地址要用户明确同意才 clone。clone 到本地隔离缓存，之后按本地仓处理；一律全深度 clone，浅克隆拒绝。凭据沿用本地 git 凭据链，不新建凭据库。MCP 面只读，不提供 clone 入口。
+- 接仓库默认本地路径；远程地址要用户明确同意才 clone。clone 到本地隔离缓存，之后按本地仓处理；一律全深度 clone，浅克隆拒绝。凭据沿用本地 git 凭据链，不新建凭据库。MCP 面只读，不提供 clone 入口。
 - 上游接入走双轨，两条路都要经过中间层，逐上游锁版本并配 golden 契约测试：库形态用包管理器 + lockfile 固定版本；命令行形态走外部 CLI/库适配。vendor 源码进仓只在离线分发或上游废弃且无替代时启用，必须带 `UPSTREAM` 清单和 `patches/` 目录。
 - 托管平台数据取数（Micro-A）主路 = GitHub REST API + `GITHUB_TOKEN`，`X-GitHub-Api-Version` 头固定；已认证的 gh 只作可选加速，不是契约承诺；无认证 REST 明确降级并披露限流。Bot 判读只认平台声明的 Bot 身份，不承诺语义级人/机判定。raw 上游响应不出中间层。
 - 方法论壳只读：判定、写库、出报告只能走内核 CLI；skill 壳只调只读 MCP 查询面。
@@ -70,16 +70,17 @@
 
 - Node 下限 22.18，CI 矩阵 [22, 24]；不保留 Node 20 的跳过分支。
 - 文档权威由 `engine/test/contracts/docs-authority-check.mjs` 检查，CI 单腿是 `.github/workflows/docs-ci.yml`：门面指回 `docs/authority.md`、ADR 编号能打开、D 编号都归到归档索引、退役死锚拒绝、门面不自称权威。tracker #47 复盘又补了两条：`§D-NNN` / `§A-NNN`（2 位以上）的退役死锚拒绝；门面里的「唯一权威」按 `docs/authority.md` §2 的放行清单判。
-- `33-gate-registry.json` 是活契约，每条可执行引用都必须能打开；已经删掉的脚本逐条标 `historical`。
-- 首报检查 `23-first-report-check.mjs` 读仓内冻结件，不重新渲染；golden-ci 负责重新渲染后的逐字节比对。
-- 检查脚本的豁免判据看实际使用位置，不看注释或字面提名；多命中探针要覆盖 `.includes(` / `.test(` 调用形态和 `.scratch/macro-audit/` 目录，防止只在某一种写法上生效。
+- `33-gate-registry.json` 是真会被读的登记表，每条可执行引用都必须能打开；已经删掉的脚本逐条标 `historical`。
+- 「现行 ADR」不再是一个写死的号：在仓 ADR 集合 = `docs/adr/` 下被 git 跟踪、盘上真有文件的那些 `NNNN-名字.md`，再剔掉 `docs/authority.md` §3 块 `numbers` 清单里的历史号。加一份新 ADR 不用回改脚本。起点号固定是 `ADR-0028`（现行纪元从头算起的那一份），块里 `entry` 写的就是它；脚本里另存一个期望值 0028 只用于核对，读来的和期望的不一致就红。同一个号出现两份文件算红（去掉「只有一份」不等于允许同号并存）。哪份被接受了、能不能当指针目标，靠人看各自的 `Status:` 行，脚本不解析它。（tracker #230）
+- 首报检查 `23-first-report-check.mjs` 读仓内冻住的存档，不重新渲染；golden-ci 负责重新渲染后的逐字节比对。
+- 检查脚本的豁免判据看实际使用位置，不看注释或字面提名；多命中探针要覆盖 `.includes(` / `.test(` 这些写法和 `.scratch/macro-audit/` 目录，防止只在某一种写法上生效。
 - 本仓源码检出只支持全量历史：CI 的三条 workflow 都是 `fetch-depth: 0`；浅克隆和 `--filter=` 一类部分历史不在支持范围内，部分历史目前也不判降级，仍可能交出边界 commit。报告锚点取不到真值时落 `degraded:` 标记，不返回边界 commit。
 
 ### 8. 历史编号和归档
 
 - 历史编号只用来查历史，不再新增。`D-NNN`、`A-NNN`、旧 BACKLOG 票号 `#32`–`#94`、旧 ADR 号 `ADR-0001`–`ADR-0027` 都属于这一类；可操作的规则写在 `docs/authority.md` §3。
 - `docs/archive/decisions/` 放记录原文和索引，声明非权威、只读；新决定不得写进去。
-- 按字节固定的记录和冻结件保留原始现场（包括本机绝对路径），前提是归档处写明这是历史产物；现行文本里不再抄旧编号。
+- 按字节固定的记录和冻住的存档保留原始现场（包括本机绝对路径），前提是归档处写明这是历史产物；现行文本里不再抄旧编号。
 - 旧 24 份 ADR 已经删掉，正文只在 git 历史里：先 `git log --diff-filter=D --name-only -- docs/adr` 找到删除提交，再 `git show <删除提交>^:docs/adr/<文件名>` 取回原文。
 
 ### 9. 这次替代了什么
@@ -96,7 +97,7 @@
 
 ## Consequences
 
-- 旧 24 份删除之后，现行架构决定只有一个入口：`docs/adr/0028-*.md`；索引只列这一份，查找成本从翻 24 份降到一个文件。
+- 旧 24 份删除之后，现行架构决定的入口是 `docs/adr/` 下的那几份 ADR，状态和清单看生成的索引。`ADR-0029` 从 tracker #231 起也是现行（机器读的名字哪些能改）。
 - 旧决定仍然可查，但要动 git 历史，不能当作现行位置引用。
 - `docs/authority.md`、检查脚本和归档 README 各自只记自己那一段规则，不在三处互相抄。
 - 这次改动不改变产品功能，不改变任何机器读的名字、字段、命令、错误码、文件路径和插件身份。

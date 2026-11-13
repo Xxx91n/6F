@@ -1,11 +1,11 @@
-// 守卫：fact table schema v0（A-021 / spec.md §R3-D2）
+// 检查：事实表 schema v0（A-021 / spec.md §R3-D2）
 // 用法：node engine/test/contracts/20-fact-schema-check.mjs
 // 约定：零依赖（不 import @duckdb/node-api）；直接 import 纯逻辑 schema.ts（Node 22 类型剥离）。
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { stripComments } from './_lib/check-kit.mjs';
-// guard-meta（D-159②/D-160③ 自声明——未声明=红）
+// guard-meta（D-159②/D-160③ 自己声明——没写就是红）
 const TIER = 'portable';
 const PROTECTED_SURFACE = '守卫：fact table schema v0（A-021 / spec.md §R3-D2）';
 
@@ -21,7 +21,7 @@ const PKG_JSON = join(REPO, 'engine', 'package.json');
 const results = [];
 function check(id, pass, detail) { results.push([id, !!pass, String(detail)]); }
 
-// R38/#75批2（r37 审计 P-4/20-A5）：本地裸「//」剥离器退役——不剥 /* */ 块注使注释内 SQL 词可误报、不保字符串字面量；_lib 库版自消费收尾（54-check B 先例同型）。
+// R38/#75批2（r37 审计 P-4/20-A5）：本地那个只会剥「//」的旧工具撤了——它不剥 /* */ 块注释，注释里的 SQL 词会被误报，字符串字面量也保不住；改用 _lib 里那份（54-check B 早就这么干过）。
 
 function exportedFnNames(src) {
   const out = [];
@@ -48,7 +48,7 @@ const SQ = String.fromCharCode(39);
 
 // ---- B 组：绑定选型唯一 + 三候选项量化 ----
 const sel = manifest.binding.selected;
-check('B1', sel === '@duckdb/node-api', 'selected=' + sel);
+check('B1 绑定选型就是 @duckdb/node-api', sel === '@duckdb/node-api', 'selected=' + sel);
 check('B2', manifest.candidates.length >= 3, 'candidates=' + manifest.candidates.length);
 const selCands = manifest.candidates.filter(function (c) { return c.verdict === 'selected'; });
 check('B3', selCands.length === 1 && selCands[0].npm === sel, 'selectedCount=' + selCands.length);
@@ -130,8 +130,8 @@ const VERBS = ['update','delete','replace','merge','drop','alter','truncate','pa
 const fns = exportedFnNames(storeSrc);
 const badFns = fns.filter(function (f) { const l = f.toLowerCase(); return VERBS.some(function (v) { return l.indexOf(v) >= 0; }); });
 check('A4', fns.length > 0 && badFns.length === 0, 'exports=' + fns.join(',') + ' bad=' + JSON.stringify(badFns));
-// R37/#75批1（D-094(b) 合法演化→改断言）：裸词 UPDATE/DELETE 撞 Map.delete/instanceOf.delete 等 JS API——
-// 改为 SQL 语句形态正则（写语句语境匹配，词界+子句结构；误判面收敛而写 SQL 必中）。
+// R37/#75批1（D-094(b) 合法演化→改判据）：裸词 UPDATE/DELETE 撞 Map.delete/instanceOf.delete 等 JS API——
+// 改为 SQL 语句形态正则（写语句语境匹配，词界+子句结构；误判范围收窄，但真写 SQL 必中）。
 const BAD_TOKENS = [
   ['UPDATE..SET', /\bUPDATE\s+\w+\s+SET\b/i],
   ['DELETE FROM', /\bDELETE\s+FROM\b/i],

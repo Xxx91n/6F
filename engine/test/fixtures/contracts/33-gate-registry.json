@@ -6,9 +6,9 @@
   "purpose": "全挂门项机读登记表——三字段（最迟拍板时点/触发事件/复审时点）统一索引；到期复审纪律见 watch_rule（D-026⑤）。可执行引用一致性由 87-check.mjs 机检；33-check 退役后的历史引用逐条登记在 meta.reference_resolution.historical",
   "binding_table": "../macro-audit/reports/R5-Q5-atomcode-research.md §3",
   "watch_rule": "触发已发生而未拍的行 1 个工作日内升级；到期未触发按硬到期日重组改绑一次；再到期升级用户（D-026⑤）",
-  "extended": "A-053（2026-09-16）#33-ext：manual_watch 五要素齐备化（owner/review_event/verify_method 补齐＋confirmations 字段归一）＋micro-a-preview-prep 事件登记＋守卫 fail-closed 事件引用/event_bound 覆盖率/risk_accepted 候选名单扩展——round8-35-audit W6 补洞",
-  "watch_schema": "watch 三态：event_bound（默认——须 trigger_event 或 deadline_event 至少一锚）/ manual_watch（五要素：标记=watch 字段值本身＋责任人 owner＋复审时点 review_at prose＋review_event 机读锚＋验证方法 verify_method＋确认留痕 confirmations[]）/ risk_accepted（三要素：acceptor＋reason＋expires_at——翻转权属人工裁决，守卫仅输出 RISK-ACCEPTED-CANDIDATE 候选名单不自动改 status）",
-  "confirmation_schema": "confirmations[] 记录必备四字段：at（时间戳）/by（判定人）/criterion_version（判据版本）/reason（理由）；evidence=证据锚（缺→WARN）；decision=裁定标签",
+  "extended": "A-053（2026-09-16）#33-ext：把 manual_watch 的五要素补全（owner/review_event/verify_method 都写上，confirmations 字段统一口径），再登记 micro-a-preview-prep 事件，守卫那边补上 fail-closed 的事件引用和 event_bound 覆盖率检查、扩展 risk_accepted 候选名单——这是 round8-35-audit W6 补的洞",
+  "watch_schema": "watch 分三种：event_bound 是默认值，要求 trigger_event 或 deadline_event 至少挂一个锚；manual_watch 要五样东西——标记就是 watch 字段本身，再加责任人 owner、复审时点 review_at（用文字写清）、review_event 机读锚、验证方法 verify_method、确认留痕 confirmations[]；risk_accepted 要三样——acceptor、reason、expires_at，改不改状态由人拍板，守卫只输出一份 RISK-ACCEPTED-CANDIDATE 候选名单，不自动改 status",
+  "confirmation_schema": "confirmations[] 每条记录该有哪些键、哪些必填，清单只在 engine/test/contracts/87-check.mjs 的 CONFIRMATION_ALLOWED／CONFIRMATION_REQUIRED 两个常量里写一份，本表不抄第二份。行为：必填的那几项要写、不能是空白；evidence 可以整个不写，不写时得在 87-check 的豁免名单里逐条写明理由，写了却给空串或给的不是字符串照样算红。多写别的键、少了必填项，都由 87-check E3 判红",
   "reference_resolution": {
    "rule": "registry 内每个 .mjs 引用按 resolution_roots 逐根解析，只认 git 已跟踪文件；解析失败者必须在 historical 逐条登记（kind＋reason），否则 87-check 判红。historical 是历史登记，不代表该脚本仍可执行；guards[]/verify_method 中的 historical 引用按历史留痕读，现行载体见各条 reason 与 registry 的 watch_rule。historical 条目须仍被本表引用且在工作树不可解析——复活即红。reports/* 归档路径 kind=archived-path，已删脚本 kind=retired-script。通配/占位写法（*-check.mjs、NN-check.mjs）不是文件引用，不参与解析。本守卫只判可执行引用（.mjs）；非执行证据路径（.json/.md 等）不在判定面。historical reason 内的 .mjs 替代指针同样参与解析对账；D3 的「仍被引用」只认声明面之外的引用（防自证）。",
    "resolution_roots": [
@@ -21,107 +21,107 @@
    "historical": {
     "01-check.mjs": {
      "kind": "retired-script",
-     "reason": "01 语料提取守卫已退役（语料治理迁出 .scratch 后无同名守卫；最后读数见 item 61 的 82/82 历史确认）"
+     "reason": "01 语料提取守卫已经退役（语料治理搬出 .scratch 以后就没有同名守卫了；最后一次读数见 item 61 的 82/82 历史确认）"
     },
     "01-extract.mjs": {
      "kind": "retired-script",
-     "reason": "01 语料提取器为历史复测载体（item 73 记录其 extractIntent 读数），现无同名脚本"
+     "reason": "01 语料提取器当年是拿来复测的载体（item 73 记着它的 extractIntent 读数），现在没有同名脚本了"
     },
     "26-check.mjs": {
      "kind": "retired-script",
-     "reason": "早期 git-object 族守卫已退役；item 65 明载「26-check 幽灵钉归 D-094 普查通道不拉回」"
+     "reason": "早期的 git-object 一族守卫都退役了；item 65 里写得很清楚：「26-check 幽灵钉归 D-094 普查通道不拉回」"
     },
     "27-check.mjs": {
      "kind": "retired-script",
-     "reason": "早期 git-object 族守卫已退役（与 26-check 同批；item 65 明载不留回）"
+     "reason": "早期的 git-object 一族守卫都退役了（和 26-check 同一批；item 65 写明不拉回来）"
     },
     "28-check.mjs": {
      "kind": "retired-script",
-     "reason": "早期 git-object 族守卫已退役（与 26-check 同批；item 65 明载不留回）"
+     "reason": "早期的 git-object 一族守卫都退役了（和 26-check 同一批；item 65 写明不拉回来）"
     },
     "37-check.mjs": {
      "kind": "retired-script",
-     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+     "reason": "早期的 env-gated 守卫都退役了；这一族现在跑的检查是 46、50、53、78、80、83、85、86-check"
     },
     "38-check.mjs": {
      "kind": "retired-script",
-     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+     "reason": "早期的 env-gated 守卫都退役了；这一族现在跑的检查是 46、50、53、78、80、83、85、86-check"
     },
     "39-check.mjs": {
      "kind": "retired-script",
-     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+     "reason": "早期的 env-gated 守卫都退役了；这一族现在跑的检查是 46、50、53、78、80、83、85、86-check"
     },
     "39-mw-child.mjs": {
      "kind": "retired-script",
-     "reason": "#39 多写者 self-probe 的一次性探针脚本，随实验退役（结论已留 item 16 的 confirmation）"
+     "reason": "#39 多写者 self-probe 用的一次性探针脚本，实验做完就退了（结论留在 item 16 的 confirmation 里）"
     },
     "39-mw-self-probe.mjs": {
      "kind": "retired-script",
-     "reason": "#39 多写者 self-probe 的一次性探针脚本，随实验退役（结论已留 item 16 的 confirmation）"
+     "reason": "#39 多写者 self-probe 用的一次性探针脚本，实验做完就退了（结论留在 item 16 的 confirmation 里）"
     },
     "40-check.mjs": {
      "kind": "retired-script",
-     "reason": "早期 env-gated 守卫已退役；同族现行承载为 46、50、53、78、80、83、85、86-check"
+     "reason": "早期的 env-gated 守卫都退役了；这一族现在跑的检查是 46、50、53、78、80、83、85、86-check"
     },
     "75a-check.mjs": {
      "kind": "retired-script",
-     "reason": "75a-check 守卫普查器已退役（75a-T3/T4/M1/M3 对账均无自动断言，改人工同窗维护）；本引用为历史登记"
+     "reason": "75a-check 这个守卫普查器已经退役（75a-T3/T4/M1/M3 的账现在没有自动断言了，改成人工在同一个窗口维护）；这里只是历史登记"
     },
     "84-check.mjs": {
      "kind": "retired-script",
-     "reason": "84-check 多形态消费方守卫已退役；item 81 的 84-check 引用为历史登记证据"
+     "reason": "84-check 这个多形态消费方守卫已经退役；item 81 里那处 84-check 引用是当时留下的证据"
     },
     "guard-all-run.mjs": {
      "kind": "retired-script",
-     "reason": "全量守卫运行器已退役；现行入口为 engine/test/contracts-run.mjs"
+     "reason": "全量守卫的运行器已经退役；现在统一从 engine/test/contracts-run.mjs 进"
     },
     "reports/01-check.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档之后它就不在工作树里了（ADR-0027 规定 reports/* 这类路径统一登记成 historical）"
     },
     "reports/33-check.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；33-check 的 manual_watch 自动扫描已无现行载体，复审按 watch_rule/review_event 人工执行（#40 归档后该路径不在工作树，ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；33-check 那套 manual_watch 自动扫描现在没有东西在跑了，复审改成照 watch_rule/review_event 人工来做（#40 归档后这个路径不在工作树里，ADR-0027 规定 reports/* 按 historical 登记）"
     },
     "reports/37-check.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档之后它就不在工作树里了（ADR-0027 规定 reports/* 这类路径统一登记成 historical）"
     },
     "reports/46-check.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档之后它就不在工作树里了（ADR-0027 规定 reports/* 这类路径统一登记成 historical）"
     },
     "reports/47-check.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档之后它就不在工作树里了（ADR-0027 规定 reports/* 这类路径统一登记成 historical）"
     },
     "reports/48-micro-a-preview.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档之后它就不在工作树里了（ADR-0027 规定 reports/* 这类路径统一登记成 historical）"
     },
     "reports/50-check.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档之后它就不在工作树里了（ADR-0027 规定 reports/* 这类路径统一登记成 historical）"
     },
     "reports/75a-check.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档之后它就不在工作树里了（ADR-0027 规定 reports/* 这类路径统一登记成 historical）"
     },
     "reports/84-check.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档之后它就不在工作树里了（ADR-0027 规定 reports/* 这类路径统一登记成 historical）"
     },
     "reports/_lib/env-contract.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档后不在工作树（ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；#40 归档之后它就不在工作树里了（ADR-0027 规定 reports/* 这类路径统一登记成 historical）"
     },
     "reports/check-kit-regex-check.mjs": {
      "kind": "archived-path",
-     "reason": "指向已退役的 .scratch/architecture-recovery/reports/ 归档现场；原机检脚本随 reports/ 归档退役，现行=每审计窗人工盘查（见 item 75 的 review_at/review_event）（ADR-0027 定 reports/* 按 historical 登记）"
+     "reason": "指的是已经退役的 .scratch/architecture-recovery/reports/ 归档现场；原来那个机检脚本跟着 reports/ 一起归档退役了，现在每个审计窗人工过一遍（见 item 75 的 review_at/review_event）（ADR-0027 规定 reports/* 按 historical 登记）"
     },
     "xfail-run.mjs": {
      "kind": "retired-script",
-     "reason": "xfail 三态运行器已退役（D-071 建制期产物；known-red 机制换代后不再运行）"
+     "reason": "xfail 三态运行器已经退役（D-071 建制那会儿的产物；known-red 机制换代以后就不跑了）"
     }
    }
   }
@@ -130,23 +130,23 @@
   "stage2-double-closeout": {
    "occurred": true,
    "date": "2026-09-15",
-   "evidence": "#30 2a + #31 2b 双结题（ledger A-035/A-036 done）"
+   "evidence": "#30 的 2a 和 #31 的 2b 两张都结题了（账本里 A-035/A-036 都是 done）"
   },
   "stage3-kickoff-gate": {
    "occurred": true,
    "date": "2026-09-15",
-   "evidence": "R5 票据包立案 #32~#43（commit vrm, r5-t0-ticket-pack）"
+   "evidence": "R5 的票据包立案了，从 #32 到 #43（commit vrm，r5-t0-ticket-pack）"
   },
   "stage3-rollout": {
    "occurred": false,
    "in_progress": true,
-   "evidence": "R5 执行轮进行中（#35+ 扩面票执行即铺开）"
+   "evidence": "R5 这一轮正在执行（#35 往后的扩面票一开始跑就铺开）"
   },
   "listing-submission": {
    "occurred": true,
-   "note": "D-042 收窄义=A+C 双轨下提交本体=用户授权 push（无表单/审核点击）；2026-09-17 用户「全部授权」→ 栈推 origin＋PR #2 合入 main，marketplace.json 生效于默认分支（新鲜克隆验证：name=xxx91n/plugin=6f/license=Apache-2.0/strict）；路径 B 官方目录表单仍未授权不触碰",
+   "note": "D-042 收窄后的意思：A+C 双轨下「提交」这件事本身就是用户授权后 push（没有表单要填，也没有审核要点）；2026-09-17 用户说「全部授权」，于是把栈推去 origin、PR #2 合进 main，marketplace.json 在默认分支上生效（拿新鲜克隆验过：name=xxx91n/plugin=6f/license=Apache-2.0/strict）；路径 B 那个官方目录表单还没授权，不碰",
    "date": "2026-09-17",
-   "evidence": "PR https://github.com/Xxx91n/6F/pull/2 merged 2026-09-17T01:13:59Z＋gh api contents/.claude-plugin/marketplace.json on main＋fresh clone 校验"
+   "evidence": "PR https://github.com/Xxx91n/6F/pull/2 在 2026-09-17T01:13:59Z 合并了，用 gh api contents/.claude-plugin/marketplace.json 查过 main 上的那份，又拿新鲜克隆验了一遍"
   },
   "listing-material-freeze": {
    "occurred": false
@@ -169,17 +169,17 @@
   "first-external-repo": {
    "occurred": true,
    "date": "2026-09-16",
-   "evidence": "#40 落点：open-gsd/gsd-core 经 URL opt-in 接入（engine repo add → 40-clone-cache/repos/f0b1eba9471ef4de，全深度 5887 commits 浅拒通过）→ Macro-B one-shot unsupported（RCP-d4f119c5a2cac629）——D-013 首实用户 / D-033 GA 前置达成。锚：reports/40-intake-receipt.json + 40-out/40-macro-b-gsd-core.* + 40-external-comparison.json"
+   "evidence": "#40 的落点：open-gsd/gsd-core 经 URL 同意后接进来（engine repo add → 40-clone-cache/repos/f0b1eba9471ef4de，要全深度 5887 个 commit 才跑得通，浅克隆被拒）→ Macro-B one-shot unsupported（RCP-d4f119c5a2cac629）——D-013 说的首个真实用户，和 D-033 的 GA 前置都到位了。锚是 reports/40-intake-receipt.json、40-out/40-macro-b-gsd-core.*、40-external-comparison.json"
   },
   "mw-regression-ci": {
    "occurred": true,
    "date": "2026-09-16",
-   "evidence": "#39 落点：jiahao 仓 .github/workflows/macro-b-regression.yml（schedule 周一 03:17 UTC 定时回归 + workflow_dispatch；已上架层限定只跑 Macro-B one-shot）——Macro-B 进 CI 定时回归成立（jiahao commit 84077dab / but zqm @ r9-39-macro-b-regression）"
+   "evidence": "#39 的落点：jiahao 仓的 .github/workflows/macro-b-regression.yml（每周一 03:17 UTC 定时回归，也能手动 workflow_dispatch；只跑已经上架的层，也就是 Macro-B one-shot）——Macro-B 进了 CI 定时回归，成立（jiahao commit 84077dab / but zqm @ r9-39-macro-b-regression）"
   },
   "macro-c-shared-duckdb": {
    "occurred": true,
    "date": "2026-09-16",
-   "evidence": "#38 落点核查：共用成立——38-audit-facts.duckdb 同一 audit_fact 表内 Macro-B 228 条（23-facts 回放）+ Macro-C 1012 条，同一 appendFact 写路径；38-check.mjs E 组证据"
+   "evidence": "#38 落点核查：确实共用一个库——38-audit-facts.duckdb 里同一张 audit_fact 表装着 Macro-B 的 228 条（23-facts 回放进去的）和 Macro-C 的 1012 条，走的是同一条 appendFact 写路径；证据在 38-check.mjs 的 E 组"
   },
   "macro-a-start": {
    "occurred": false
@@ -187,27 +187,27 @@
   "micro-a-preview-prep": {
    "occurred": true,
    "date": "2026-09-16",
-   "evidence": "#48 落点：Micro-A preview 单票铺开——恰 4 条已 merged 票面写死实例（env-manager #64 release-please 机器生成/#55 dependabot[bot]/#51 人类 + jiahao #6 人类）经 github-rest-adapter@v1 实采集→Micro-A 报告双件×4＋goose-duck-agent 无托管面拒绝件；锚：reports/48-micro-a-measurements.json + 48-check.mjs"
+   "evidence": "#48 的落点：Micro-A preview 靠一张票铺开——4 条已经 merged、票面上写死的实例（env-manager 的 #64 是 release-please 机器生成、#55 是 dependabot[bot]、#51 是真人，再加上 jiahao 的 #6 真人），经 github-rest-adapter@v1 真去采了一遍 →Micro-A 报告出了双件×4，另外 goose-duck-agent 因为没托管面出了一份拒绝件；锚是 reports/48-micro-a-measurements.json 和 48-check.mjs"
   },
   "presentation-demand-signal": {
    "occurred": false,
-   "note": "D-055 触发器：用户/宿主生态明确要求 hooks 呈现面实建"
+   "note": "D-055 的触发器：用户或者宿主生态明确提出来，要真把 hooks 呈现面建起来"
   },
   "narrative-surface-landed": {
    "occurred": true,
    "date": "2026-09-16",
-   "evidence": "#50 落点：叙事实物出现——engine/src/report/narrative.ts（sealNarrative 三态/band 红线/model id）＋references 三件＋mcp facts 只读投影；narrative.test.mjs 25 断言"
+   "evidence": "#50 的落点：叙事这块真有实物了——engine/src/report/narrative.ts（sealNarrative 的三态、band 那条红线、model id），加上 references 三件、mcp facts 只读投影；narrative.test.mjs 有 25 条断言"
   },
   "repomix-reopen-demand": {
    "occurred": false,
-   "note": "D-056 触发器：审计证据导出包/Macro-A 跨仓打包实证需求出现"
+   "note": "D-056 的触发器：有人真的要用导出审计证据包这个功能，或者 Macro-A 跨仓打包真有了实证需求"
   },
   "host-narrative-corpus": {
    "occurred": false
   },
   "first-external-install": {
    "occurred": true,
-   "note": "A-068 T6 实证（2026-09-18）：claude plugin marketplace add Xxx91n/6F→install 6f@xxx91n 远端实证 Skills(1)+MCP(1)，kernel CLI 全局上 PATH selftest 5/5"
+   "note": "A-068 T6 的实证（2026-09-18）：远端跑 claude plugin marketplace add Xxx91n/6F 再 install 6f@xxx91n，装上 Skills(1)+MCP(1)，kernel CLI 进了全局 PATH，selftest 5/5 过"
   },
   "macro-b-ga": {
    "occurred": false
@@ -221,122 +221,122 @@
   },
   "claude-validate-promotion": {
    "occurred": false,
-   "note": "D-066⑥：claude plugin validate advisory 位跑满 2 个版本窗口且无 SKIP 污染→转 enforce 断言位"
+   "note": "D-066⑥：claude plugin validate 的 advisory 位连着跑满 2 个版本窗口，中间没被 SKIP 污染过——就转成 enforce 断言位"
   },
   "cue-table-second-consumer": {
    "occurred": false,
-   "note": "D-069②：cue 表被第二消费者引用或需热更新→抽独立 JSON 文件+D-068 式版本断言"
+   "note": "D-069②：cue 表要是被第二个消费者引用，或者需要不改代码就能换词——那就抽成单独的 JSON 文件，再加上 D-068 那种版本断言"
   },
   "duckdb-vendored-presigned": {
    "occurred": false,
-   "note": "D-072⑥(a) 复审触发：duckdb 官方出现预签名/预编译分发渠道，或平台包尺寸/数量恶化至自愈路径不可行→vendored bindings 重评"
+   "note": "D-072⑥(a) 的复审触发：duckdb 官方出了预签名或者预编译的分发渠道，或者平台包大到／多到自愈路径已经没法走了——就重新评 vendored bindings"
   },
   "duckdb-wasm-persistence-fixed": {
    "occurred": false,
-   "note": "D-072⑥(c) 复审触发：duckdb-wasm #2192 类持久化缺陷修复合入≥1 个稳定版＋本仓 append→重开 SWMR 实测通过→wasm 换绑重评"
+   "note": "D-072⑥(c) 的复审触发：duckdb-wasm #2192 那类持久化缺陷的修复进了至少 1 个稳定版，本仓的 append 再开一遍 SWMR 实测也过了——就重新评换绑 wasm"
   },
   "claude-hooks-windows-fixed": {
    "occurred": false,
-   "note": "D-072⑥(b) 复审触发：上游 #43380/#16116/#420 修复落地＋D-055 hooks 真实需求信号出现→SessionStart bootstrap 重评"
+   "note": "D-072⑥(b) 的复审触发：上游 #43380／#16116／#420 的修复真合进去了，再加上 D-055 的 hooks 真实需求信号出现——那就重新评 SessionStart bootstrap"
   },
   "git-iso-contract-violated": {
    "occurred": false,
-   "note": "D-076②：GITCLI-OUTPUT-CONTRACT 在真实采集路径命中≥1 次且根因=git 上游输出形状漂移（非本仓数据损坏）→git-ISO 契约复审"
+   "note": "D-076②：GITCLI-OUTPUT-CONTRACT 在真实采集路径上命中至少 1 次，而且根因是 git 上游输出形状漂移（不是本仓数据坏了）——那就重新审 git-ISO 契约"
   },
   "sql-strip-escape-observed": {
    "occurred": false,
-   "note": "D-076②：stripSqlLiterals 在真实 SQL 面漏判致错误放行/误拒≥1 例实证（须最小复现 SQL＋正确判定），或该门面角色被宣称升级为安全边界→守卫形态复审"
+   "note": "D-076②：stripSqlLiterals 在真实 SQL 面上漏判，导致错误放行或者误拒，至少 1 例拿得出实证（要带最小复现的 SQL 和正确判定），或者有人宣称它已经升级成安全边界——那就重新审这个守卫的形态"
   },
   "dist-in-repo-superseded": {
    "occurred": false,
-   "note": "D-076②：D-038 npm publish 激活，或 pack 体积过阈，或官方 javascript-action 惯例反转（弃 dist-in-repo 指引）→dist 入库决策复审"
+   "note": "D-076②：D-038 的 npm publish 被激活，或者 pack 体积越过阈值，或者官方的 javascript-action 惯例反转了（不再推荐把 dist 提交进仓库）——那就重新审 dist 进不进仓这件事"
   },
   "github-rest-reviews-active": {
    "occurred": false,
-    "note": "D-081②：pulls.reviews 移出 GITHUB_REST_PLANNED_SURFACES（engine/src/upstream/github-rest.ts 导出常量；review 面激活、fact 实产）之日=事件发生；机检=72-check C1/C2 对导出常量做成员断言（原 33-check H2 已退役）"
+    "note": "D-081②：pulls.reviews 从 GITHUB_REST_PLANNED_SURFACES 里移出去（这是 engine/src/upstream/github-rest.ts 导出的常量）；移出去那天 review 面激活、fact 真的产出，就是事件发生；机检是 72-check C1/C2 对着这个导出常量做成员断言（原来 33-check 的 H2 已经退役）"
   },
   "quadrant-rubric-params-draft": {
    "occurred": false,
-   "note": "D-084④：「quadrant-rubric 初版参数起草」票立项之日=事件发生；权重/强弱语义进 quadrant-rubric 判据面（不进映射表/路由契约——D-084 映射表无权重列）。机检=本登记表值守复核＋立案票审计清点。"
+   "note": "D-084④：「quadrant-rubric 初版参数起草」这张票立项那天=事件发生；权重、强弱这类语义归到 quadrant-rubric 的判据面（不进映射表也不进路由契约——D-084 的映射表本来就没有权重列）。机检方式是值守人复核这张登记表，加上立案票在审计时清点。"
   },
   "engine-ci-main-green": {
    "occurred": true,
-   "note": "D-089⑤：.github/workflows/engine-ci.yml 在 main 分支最近一次实跑 conclusion=success 之日=事件发生（CI badge 前置——诚实徽记不预埋死链）。机检=gh run list --workflow engine-ci.yml --branch main --limit 1。",
+   "note": "D-089⑤：.github/workflows/engine-ci.yml 在 main 分支上最近一次真跑出 conclusion=success，那天就是这个事件发生（挂 CI 徽标的前提——徽标要诚实，不能先埋一条死链）。机检命令是 gh run list --workflow engine-ci.yml --branch main --limit 1。",
    "date": "2026-09-22",
-   "evidence": "engine-ci.yml main 实跑 run 35681529820 conclusion=success（R26 修复链合入 main d207a0a 后首绿）；readme-ci-badge 挂徽解锁→#77"
+   "evidence": "engine-ci.yml 在 main 上真跑了一次 run 35681529820，conclusion=success（R26 的修复链合进 main 的 d207a0a 以后第一次绿）；这一绿就把 readme-ci-badge 挂徽标解锁了，交给 #77"
   },
   "official-catalog-icon-required": {
    "occurred": false,
-   "note": "D-099③：B 轨官方目录提交流程定义/要求 icon 字段之日=事件发生（当前 marketplace.json/plugin.json schema 实证无 icon 字段——消费面未出现）"
+   "note": "D-099③：B 轨那边官方目录的提交流程开始定义、或者要求 icon 字段了，那天就是这个事件发生（现在查 marketplace.json/plugin.json 的 schema，确实没有 icon 字段——说明还没有人要用这个字段）"
   },
   "docs-site-deployed": {
    "occurred": false,
-   "note": "D-099③：docs/ 内容以 HTML 站形态实际对外部署之日=事件发生（favicon/apple-touch-icon 派生消费面届时才出现）"
+   "note": "D-099③：docs/ 里的内容真的以 HTML 站的形式对外部署了，那天就是这个事件发生（favicon/apple-touch-icon 这类派生资产到那时候才有得用）"
   },
   "quarantine-new-signal": {
    "occurred": false,
-   "evidence": "quarantine_log 词表外 reason_code 首见 / unclassified_field_anomaly 命中新字段族或新病态形态——检测面 SQL 派生（D-113③）；登记=轮29 T2/#78 实施窗"
+   "evidence": "quarantine_log 里第一次见到词表以外的 reason_code，或者 unclassified_field_anomaly 撞上了新的一族字段、新的病态形态——检测面靠 SQL 派生（D-113③）；登记是轮29 T2／#78 的实施窗"
   },
   "first-external-contributor": {
    "occurred": false,
-   "note": "D-130③/#82：首个外部贡献者出现（非 maintainer 账号发起的 PR/issue/discussion）之日=事件发生——本仓自创机制如实标注；外部贡献者体验在外部用户出现时测量，当前群体=0，禁提前自服务化文档重构"
+   "note": "D-130③／#82：头一个外部贡献者出现（不是 maintainer 账号发起的 PR/issue/discussion），那天就是这个事件发生——这是本仓自己想出来的机制，如实标一笔；外部贡献者的体验要等外部用户真的出现了再量，现在的群体数还是 0（还没有外人），不许提前把文档改成自服务式"
   },
   "first-non-z-dialect-host": {
    "occurred": false,
-   "note": "D-138：首个 git<2.45 方言宿主出现（%cI 吐 +00:00 尾缀——采集环境披露面方言吸收事件计数>0 的真实宿主）之日=事件发生；golden 跨宿主稳定声明的本仓不可证伪面等此事件点火取证"
+   "note": "D-138：头一个 git<2.45 的方言宿主出现（%cI 吐出来的时间带 +00:00 尾巴——也就是采集环境披露面上方言吸收事件计数>0 的真实宿主），那天就是这个事件发生；golden 换台机器也稳这个说法在本仓没法证伪，就等这个事件点火去取证"
   },
   "format-piggyback-recurrence": {
    "occurred": false,
-   "note": "D-139：格式化-only／机械重缩进变更再次搭车语义提交（V1 型复发）之日=事件发生——审计窗 diff 复核检出即翻转"
+   "note": "D-139：只有格式化、或者机械重缩进这种改动又搭在一次语义提交里（V1 型复发），那天就是这个事件发生——审计窗核 diff 的时候查出来就翻"
   },
   "review-intake-mistriage-recurrence": {
    "occurred": false,
-   "note": "D-142③：外部评审摄入再现「未钉快照 SHA／未对照当前 HEAD 分诊即呈报」——快照已修项被当开放缺陷进裁定链之日=事件发生（审计窗/摄入动作检出即翻转）；覆盖面含第四档误分诊——证伪态误投 pending 或裁定链同列事件（D-146③）"
+   "note": "D-142③：外部评审收进来的时候又出现「未钉快照 SHA／未对照当前 HEAD 分诊即呈报」——已经修好的项被当成还没修的缺陷塞进裁定链，那天就是这个事件发生（审计窗或者收件那一步查出来就翻）；范围还包括第四种分错：已经证伪的东西被误投成 pending 或者裁定链（D-146③）"
   },
   "t3-guard-manifest-shipped": {
    "occurred": true,
    "date": "2026-09-27",
-   "evidence": "known-red-manifest.json+guard-all-run.mjs+75a-check.mjs+75a-census-register.json 落盘（#75批1 T1，A-097）——60 件全跑红集={01}⊆册"
+   "evidence": "known-red-manifest.json、guard-all-run.mjs、75a-check.mjs、75a-census-register.json 都落盘了（#75批1 T1，A-097）——60 件全跑一遍，红的集合就是 {01}，在册子里"
   },
   "corpus-resnapshot-landed": {
    "occurred": false,
-   "note": "#75批1 登记：01-check 语料再生退化的复审事件锚（kr-01-corpus-regen；任意语料重采样票落地即翻）",
+   "note": "#75批1 登记：01-check 语料重新采样后退化，这件事的复审锚（kr-01-corpus-regen；哪张语料重采样的票落地，它就翻）",
    "superseded_by": "D-172①⑤——kr-01 于 2026-09-29 经冻结重钉闭合（01-corpora/align/spotcheck 字节级恢复）；「任意语料重采样票落地」腿判无属主不合格锚点，不作翻转条件，事件保留存证不翻 occurred"
   },
   "next-audit-window": {
    "occurred": false,
-   "note": "下一审计窗哨兵锚——任一审计窗开启即 occurred=true（manual_watch 复审节律机读锚，D-155 裸 prose 锚合格化改写）"
+   "note": "下一个审计窗的哨兵锚——哪个审计窗一开就 occurred=true（manual_watch 复审节律的机读锚，D-155 把原来光靠文字描述的锚改成了能机读的）"
   },
   "env-contract-tier-active": {
    "occurred": true,
    "date": "2026-09-28",
-   "evidence": "R40-T1（D-159②④）落地：全量守卫 tier 自声明建制——env-contract={37-check,39-check,46-check}（sibling 活体依赖三件，画像 9→3 勘误在案）＋portable×57；GUARD_SIBLING_ROOT SSOT 寻址；SKIP-with-reason 三态呈现契约同票"
+   "evidence": "R40-T1（D-159②④）落地：所有守卫都自己声明 tier 这套做法建起来了——env-contract 这一档是 37-check、39-check、46-check 三个（都要靠同级仓的活体依赖，原来算 9 个、勘误成 3 个，有在案记录），其余 portable 一共 57 个；同级仓路径靠 GUARD_SIBLING_ROOT 这一处 SSOT 来寻址；跳过（SKIP-with-reason）时得写清原因、按三种状态呈现，这个契约在同一张票里定的"
   },
   "retired-class-schema-active": {
    "occurred": true,
    "date": "2026-09-28",
-   "evidence": "R40-T1（D-160②⑤）落地：known-red-manifest.json retired 类终态留档 schema 生效（八要素+归档实物+出运行集——75a-M3 机检）＋_retired/ 归档目录建制＋D-094 划界注记成对落盘"
+   "evidence": "R40-T1（D-160②⑤）落地：known-red-manifest.json 里 retired 这个类的终态留档格式生效了（八要素、留归档实物、并且退出运行集——75a-M3 机检），_retired/ 归档目录也建起来了，D-094 的划界注记跟着一起落盘"
   },
   "exposure-ladder-registered": {
    "occurred": true,
    "date": "2026-09-28",
-   "evidence": "R40-T1（D-162③④⑥）落地：暴露梯度三段建制登记——Stage-0 被动挂牌追认即刻生效＋Stage-2 四判据包+30 日静默窗入 manual_watch 值守（D-155 同形态）＋D-031⑤ 重查义务挂判据①"
+   "evidence": "R40-T1（D-162③④⑥）落地：对外露出的三段台阶都登记上了——Stage-0 是被动挂牌，追认之后立刻生效；Stage-2 要过四判据包，再加 30 天静观期，放进 manual_watch 值守（跟 D-155 一个形态）；D-031⑤ 的重查义务挂在判据①上"
   },
   "env-contract-generalization-landed": {
    "occurred": false,
-   "note": "R41 收口登记：env-contract 泛化探测面（git-object:/engine-deps:/asset: 三类 need 扩展）落地即翻——fresh-clone-rerun-watch 复跑激活锚（D-163⑦/D-165②）"
+   "note": "R41 收口时登记：env-contract 的泛化探测面（把 need 扩成 git-object:/engine-deps:/asset: 三类）一落地就翻——这是 fresh-clone-rerun-watch 重新复跑的激活锚（D-163⑦／D-165②）"
   },
   "protected-surface-death-event": {
    "occurred": false,
-   "note": "R41 收口登记：任一守卫 PROTECTED_SURFACE 消亡判据事件（对象移除/上层吸收/更强更窄契约取代——D-160① 判据集）——protected-surface-death-watch 触发锚（D-164-b，钉事件非纯时间窗）"
+   "note": "R41 收口时登记：任何一个守卫的 PROTECTED_SURFACE 撞上消亡判据事件（对象被删／被上层吸收／被更强更窄的契约取代——这三种就是 D-160① 的判据集）——这是 protected-surface-death-watch 的触发锚（D-164-b，钉的是事件，不是纯时间窗）"
   },
   "tier-misdeclaration-detected": {
    "occurred": false,
-   "note": "R41 收口登记：任何守卫 TIER 自声明被探测/普查证伪（portable 件实有外部前置或反向）——tier-misdeclaration-recurrence 触发锚（D-165③；R41 fresh-clone 五件误声明为原案）"
+   "note": "R41 收口时登记：任何一个守卫的 TIER 自声明被探测或者普查推翻了（标 portable 的其实有外部前置，或者反过来）——这是 tier-misdeclaration-recurrence 的触发锚（D-165③；R41 fresh-clone 里那五件误声明就是原案）"
   },
   "npm-v12-adopted-or-bootstrap-touched": {
    "occurred": false,
-   "note": "R41 收口登记：本仓采用 npm v12 或 install/bootstrap 路径文件被触碰——npm-v12-allowscripts-review 触发锚（D-163⑧；install scripts 默认关闭体制下 D-072 自愈路径复评义务）"
+   "note": "R41 收口时登记：本仓上了 npm v12，或者 install/bootstrap 那条路径上的文件被动了——就是 npm-v12-allowscripts-review 的触发锚（D-163⑧；install scripts 默认关掉这套规矩下，D-072 的自愈路径有义务重新评一遍）"
   },
   "batch2beta-trigger-ignited": {
    "occurred": false,
@@ -344,38 +344,38 @@
   },
   "check-kit-stripcomments-signature-change": {
    "occurred": false,
-   "note": "R54 T1-C（D-196②）登记：_lib/check-kit.mjs stripComments 新增 JS 语法形态或签名变更——check-kit-regex-blindspot-watch 触发锚（事件驱动非日历，D-164-b 钉事件非纯时间窗）"
+   "note": "R54 T1-C 登记（D-196②）：_lib/check-kit.mjs 的 stripComments 要是新增了 JS 语法形态，或者签名改了——就是 check-kit-regex-blindspot-watch 的触发锚（按事件触发，不看日历，D-164-b 钉的是事件不是纯时间窗）"
   },
   "supply-chain-unqueue": {
    "occurred": false,
-   "note": "R56 收口登记（D-206）：①B6（per-layer GA 判据）议程前置——supply-chain 行成为某层 GA 判据消费面；②Macro-B 报告 supply-chain 行真实查询消费信号。任一发生即按预声明源判据（reports/R56-Q5）接线 Scorecard"
+   "note": "R56 收口时登记（D-206）：①B6（每层的 GA 判据）被排到前面——supply-chain 那行被某一层的 GA 判据拿去用了；②Macro-B 的报告真去查了 supply-chain 那行。两条里任意一条发生，就按提前写好的源判据（reports/R56-Q5）把 Scorecard 接上"
   },
   "baggage-inbound-recheck": {
    "occurred": false,
-   "note": "R56 收口登记（D-208③）：①宿主侧可承载 trace context 的 MCP 契约面确立；②D-062 Macro-A DoR 达成。任一发生即重裁 inbound 注入——注入值不得占 trace_id/run_id 本体（D-108）"
+   "note": "R56 收口时登记（D-208③）：①宿主那边能承接 trace context 的 MCP 契约面立住了；②D-062 的 Macro-A DoR 达成。两条里任意一条出现，就重裁 inbound 注入——注入值不许占 trace_id/run_id 本体（D-108）"
   },
   "dist-ratchet-headroom-low": {
    "occurred": false,
-   "note": "R62 收口登记（D-211②）：dist/cli.js 棘轮余量 <25%（棘轮余量读数<0.25，现 cap=385,000B——常量名见 ratchet-headroom-watch.trigger）实测越线即翻——ratchet-headroom-watch 转 triggered-bound＋强制分发形态重评票"
+   "note": "R62 收口时登记（D-211②）：dist/cli.js 的棘轮余量低于 25%（棘轮余量读数 <0.25，现在上限是 385,000B——常量名写在 ratchet-headroom-watch.trigger 里），实测一越线就翻——ratchet-headroom-watch 转成 triggered-bound，同时强制开一张分发形态重评票"
   },
   "gitbutler-eof-hunk-obsolete": {
    "occurred": false,
-   "note": "R66 收口登记（D-216⑤）：GitButler EOF-only hunk 复现探针转绿（上游修复）→兜底授权收回＋watch 注销——gitbutler-eof-hunk-watch 值守项的双通道收回钩之一（另一=审计窗例行复审）"
+   "note": "R66 收口时登记（D-216⑤）：GitButler 的 EOF-only hunk 复现探针转绿了（上游修了）——那就把兜底授权收回来、把这个 watch 注销，这是 gitbutler-eof-hunk-watch 值守项两条收回路子里的一条（另一条是审计窗例行复审）"
   },
   "consumption-forms-enumeration-active": {
    "occurred": true,
-   "note": "R67 T1 #91 登记（D-214①）：consumption_forms 枚举面落地当轮即点火——十八件多形态消费方守卫声明集↔registry consumption-forms-multi-consumer-class guards 对账同窗兑现（75a-T4）"
+   "note": "R67 T1 #91 登记（D-214①）：consumption_forms 这套枚举落地的那个窗口就点火——十八个多形态消费方守卫各自的声明集，跟登记表里 consumption-forms-multi-consumer-class 的 guards 在同一个窗口对账兑现（75a-T4）"
   },
   "consumption-form-change-detected": {
    "occurred": false,
-   "note": "R67 T1 #91 登记（D-214③）：外部 clone 方式变更／CI checkout fetch-depth 配置变更／sibling 消费方式变更任一发生即点火——触发被消费守卫 consumption_forms 复审（engine-ci.yml fetch-depth 变更=同族先例实锤）"
+   "note": "R67 T1 #91 登记（D-214③）：外面 clone 的方式变了，或者 CI 里 checkout 的 fetch-depth 配置变了，或者 sibling 的消费方式变了，任意一条发生就点火——让被消费的那个守卫重新审一遍它的 consumption_forms（engine-ci.yml 的 fetch-depth 变更就是同一族的先例）"
   }
  },
  "items": [
   {
    "id": "25-B1.3",
    "family": "checklist-25",
-   "title": "A-006 重启触发器接入 D-007 演示脚本",
+   "title": "把 A-006 的重启触发器接进 D-007 的演示脚本",
    "deadline_event": "ai-codegen-mainstream",
    "deadline": "维持 deferred（A-006 触发矩阵 T1-T8 未越线）",
    "trigger_event": "ai-codegen-mainstream",
@@ -387,7 +387,7 @@
   {
    "id": "25-B5-3",
    "family": "checklist-25",
-   "title": "A-006 评估仅 framework 未实际扫描",
+   "title": "A-006 只评了框架，没真去扫",
    "deadline_event": "ai-codegen-mainstream",
    "deadline": "随 B1.3 维持 deferred",
    "trigger_event": "ai-codegen-mainstream",
@@ -399,7 +399,7 @@
   {
    "id": "25-B2.1",
    "family": "checklist-25",
-   "title": ".scratch/ 跟踪策略定版（.gitignore 与否）",
+   "title": ".scratch/ 到底要不要进版本库，定下来（进不进 .gitignore）",
    "deadline_event": "stage3-rollout",
    "deadline": "阶段 3 铺开前",
    "trigger_event": "external-collaborator-or-ci-noise",
@@ -411,7 +411,7 @@
   {
    "id": "25-B3.2",
    "family": "checklist-25",
-   "title": "docs/adr/ 链接到 docs/decisions/ 索引补全",
+   "title": "把 docs/adr/ 的索引补齐，链到 docs/decisions/",
    "deadline_event": "listing-material-freeze",
    "deadline": "listing 材料冻结时",
    "trigger_event": "stage3-close",
@@ -423,7 +423,7 @@
   {
    "id": "25-B3.3",
    "family": "checklist-25",
-   "title": "仓根 CHANGELOG.md 口径（14 ADR + A-001~A-048 + 执行轮）",
+   "title": "仓根 CHANGELOG.md 该写什么（14 条 ADR、A-001~A-048、各执行轮）",
    "deadline_event": "stage3-first-tag",
    "deadline": "阶段 3 首发 tag 前",
    "trigger_event": "stage3-kickoff-gate",
@@ -436,7 +436,7 @@
   {
    "id": "25-P1",
    "family": "checklist-25",
-   "title": "五层盒子实体齐备且合规（plugin schema 逐字段正式核对）",
+   "title": "五层盒子的实物齐了也合规（照 plugin schema 一个一个字段正式对过）",
    "deadline_event": "listing-submission",
    "deadline": "上架提交前",
    "trigger_event": "listing-submission",
@@ -452,7 +452,7 @@
      "by": "T6 授权后复核",
      "criterion_version": "listing-submission occurred 后处置",
      "decision": "post-hoc-stay-pending",
-     "reason": "上架提交已发生（授权 push+PR#2 合 main）；本项「五层盒子实体齐备合规」经 #41b 核对部分覆盖（三 manifest 字段对账过），schema 逐字段正式核对与 strict 语义复核留 stage3-close 收口",
+     "reason": "上架提交已经做了（授权 push，PR#2 合进 main）；本项「五层盒子实体齐备合规」经 #41b 核对只覆盖了一部分（三份 manifest 的字段对过账），schema 逐字段正式核对和 strict 语义复核留到 stage3-close 收口",
      "evidence": "PR#2 merged＋41b-check.mjs＋t8-watch-review.md"
     },
     {
@@ -460,8 +460,8 @@
      "by": "T6 授权后复核",
      "criterion_version": "listing-submission occurred 后处置",
      "decision": "discharged-decided",
-     "reason": "提交前值守面实益闭合：plugin schema 合规由 #34 闭环，D-052 字段值由 #41b 逐键对账（41b-check 30/30 含 strict/name/license/author 断言）；提交后经新鲜克隆复核 marketplace.json on main 生效",
-     "evidence": "41b-check.mjs＋PR#2 merged＋fresh clone 校验"
+     "reason": "提交前值守该做的都做完了：plugin schema 合规由 #34 关掉，D-052 的字段值由 #41b 一个键一个键对账（41b-check 30/30，含 strict/name/license/author 断言）；提交后拿新鲜克隆复核过，main 上的 marketplace.json 确实生效",
+     "evidence": "41b-check.mjs 通过，PR#2 已 merged，再加一遍全新克隆校验"
     }
    ],
    "decision": "D-052 字段值＋#34 schema 合规＋#41b 核对留痕"
@@ -469,7 +469,7 @@
   {
    "id": "25-P2",
    "family": "checklist-25",
-   "title": "版本与上游锁定制度化",
+   "title": "版本和上游锁定，定成制度",
    "deadline_event": "stage2-double-closeout",
    "deadline": "数值化承诺最迟 阶段 2 双结题",
    "trigger_event": "stage2-double-closeout",
@@ -482,7 +482,7 @@
   {
    "id": "25-P3",
    "family": "checklist-25",
-   "title": "审核材料（样例报告+演示入口+5 步走查）",
+   "title": "审核要的材料（样例报告、演示入口、5 步走查）",
    "deadline_event": "stage3-close",
    "deadline": "阶段 3 收口窗",
    "trigger_event": "stage3-close",
@@ -497,7 +497,7 @@
      "by": "T6 授权后复核",
      "criterion_version": "listing-submission occurred 后处置",
      "decision": "post-hoc-stay-pending",
-     "reason": "上架提交已发生；审核材料（样例报告+演示入口+5 步走查）= examples/first-report 四件+#45 演示入口已在仓，5 步走查文档留 stage3-close",
+     "reason": "上架提交已经做了；审核要的材料（样例报告、演示入口、5 步走查）里，examples/first-report 四件加 #45 的演示入口已经在仓里，5 步走查的文档留到 stage3-close",
      "evidence": "PR#2 merged＋41b-check.mjs＋t8-watch-review.md"
     },
     {
@@ -505,7 +505,7 @@
      "by": "T6 授权后复核",
      "criterion_version": "listing-submission occurred 后处置",
      "decision": "rebound-to-stage3-close",
-     "reason": "listing-submission 已 occurred（授权 push=提交本体）而本项未完整闭合——改绑 stage3-close 收口窗；提交先于验收的事实如实留痕不抹",
+     "reason": "listing-submission 已经 occurred（授权 push 就是提交本身），可本项还没完整闭合——改绑到 stage3-close 的收口窗；提交排在接受前面这件事如实留痕，不抹掉",
      "evidence": "PR#2 merged＋41b-check.mjs"
     }
    ]
@@ -513,7 +513,7 @@
   {
    "id": "25-P4",
    "family": "checklist-25",
-   "title": "listing 最小集（图标/截图/描述/支持链接）",
+   "title": "上架最少要有这些东西（图标、截图、描述、支持链接）",
    "deadline_event": "stage3-close",
    "deadline": "阶段 3 收口窗（功能冻结后）",
    "trigger_event": "stage3-close",
@@ -528,7 +528,7 @@
      "by": "T6 授权后复核",
      "criterion_version": "listing-submission occurred 后处置",
      "decision": "post-hoc-stay-pending",
-     "reason": "上架提交已发生；listing 最小集=icon.svg+description.md+marketplace 字段已就位，但「功能冻结后截图拍真实 UI」未完成——截图面诚实缺口，stage3-close 复审",
+     "reason": "上架提交已经做了；上架最少要的那套（icon.svg、description.md、marketplace 字段）都到位了，但「功能冻结后截图拍真实 UI」还没做——截图这块是诚实缺口，stage3-close 再复审",
      "evidence": "PR#2 merged＋41b-check.mjs＋t8-watch-review.md"
     },
     {
@@ -536,7 +536,7 @@
      "by": "T6 授权后复核",
      "criterion_version": "listing-submission occurred 后处置",
      "decision": "rebound-to-stage3-close",
-     "reason": "listing-submission 已 occurred（授权 push=提交本体）而本项未完整闭合——改绑 stage3-close 收口窗；提交先于验收的事实如实留痕不抹",
+     "reason": "listing-submission 已经 occurred（授权 push 就是提交本身），可本项还没完整闭合——改绑到 stage3-close 的收口窗；提交排在接受前面这件事如实留痕，不抹掉",
      "evidence": "PR#2 merged＋41b-check.mjs"
     },
     {
@@ -544,15 +544,15 @@
      "by": "轮21 T8 #41b 残余面复核",
      "criterion_version": "listing-submission 残余值守",
      "decision": "reviewed-stay-pending",
-     "reason": "轮21 T8 资产核对留痕：.claude-plugin/marketplace.json plugins[0] 全键核对=零图形资产（无 icon/screenshots/hero/promo tile 字段亦无 assets/ 目录）；41b-check 33/33 对账面全绿；B 轨资产创作属用户授权面（不授权不动）→stay pending",
-     "evidence": "marketplace.json 键面 grep 实证＋41b-check 33/33＋ls engine 无 assets/ 目录"
+     "reason": "轮21 T8 核资产留的痕：.claude-plugin/marketplace.json 的 plugins[0] 全键都对过，没有任何图形资产（没有 icon/screenshots/hero/promo tile 这些字段，也没有 assets/ 目录）；41b-check 33/33 对账面全绿；B 轨的资产创作得用户授权（不授权就不动）→继续 pending",
+     "evidence": "拿 grep 把 marketplace.json 的键面过了一遍，有实证；41b-check 33/33；ls engine 底下没有 assets/ 目录"
     }
    ]
   },
   {
    "id": "25-P5",
    "family": "checklist-25",
-   "title": "发布通道与凭据（Agent Plugins 方向已拍 D-027；凭据申请）",
+   "title": "发布通道和凭据（Agent Plugins 这个方向 D-027 已经拍了；现在要申请凭据）",
    "deadline_event": "stage3-kickoff-gate",
    "deadline": "凭据申请最迟 阶段 3 开工门启动",
    "trigger_event": "stage3-kickoff-gate",
@@ -565,7 +565,7 @@
   {
    "id": "25-D3",
    "family": "checklist-25",
-   "title": "listing 图形资产（图标/截图/hero/promo tile）",
+   "title": "上架用的图形素材（图标、截图、hero、promo tile）",
    "deadline_event": "stage3-close",
    "deadline": "阶段 3 收口窗（同 P4）",
    "trigger_event": "stage3-close",
@@ -580,7 +580,7 @@
      "by": "T6 授权后复核",
      "criterion_version": "listing-submission occurred 后处置",
      "decision": "post-hoc-stay-pending",
-     "reason": "上架提交已发生；图形资产=icon.svg 自绘已就位，截图/hero/promo tile 挂「真实 UI」纪律未产出——同 P4 诚实缺口",
+     "reason": "上架提交已经做了。图形资产里只有 icon.svg 是自己画的、到位了；截图、hero、promo tile 还挂着「真实 UI」这条规矩没产出——跟 P4 是同一个诚实缺口",
      "evidence": "PR#2 merged＋41b-check.mjs＋t8-watch-review.md"
     },
     {
@@ -588,7 +588,7 @@
      "by": "T6 授权后复核",
      "criterion_version": "listing-submission occurred 后处置",
      "decision": "rebound-to-stage3-close",
-     "reason": "listing-submission 已 occurred（授权 push=提交本体）而本项未完整闭合——改绑 stage3-close 收口窗；提交先于验收的事实如实留痕不抹",
+     "reason": "listing-submission 已经 occurred（授权 push 就是提交本身），可本项还没完整闭合——改绑到 stage3-close 的收口窗；提交排在接受前面这件事如实留痕，不抹掉",
      "evidence": "PR#2 merged＋41b-check.mjs"
     },
     {
@@ -596,15 +596,15 @@
      "by": "轮21 T8 #41b 残余面复核",
      "criterion_version": "listing-submission 残余值守",
      "decision": "reviewed-stay-pending",
-     "reason": "轮21 T8 资产核对留痕：.claude-plugin/marketplace.json plugins[0] 全键核对=零图形资产（无 icon/screenshots/hero/promo tile 字段亦无 assets/ 目录）；41b-check 33/33 对账面全绿；B 轨资产创作属用户授权面（不授权不动）→stay pending",
-     "evidence": "marketplace.json 键面 grep 实证＋41b-check 33/33＋ls engine 无 assets/ 目录"
+     "reason": "轮21 T8 核资产留的痕：.claude-plugin/marketplace.json 的 plugins[0] 全键都对过，没有任何图形资产（没有 icon/screenshots/hero/promo tile 这些字段，也没有 assets/ 目录）；41b-check 33/33 对账面全绿；B 轨的资产创作得用户授权（不授权就不动）→继续 pending",
+     "evidence": "拿 grep 把 marketplace.json 的键面过了一遍，有实证；41b-check 33/33；ls engine 底下没有 assets/ 目录"
     }
    ]
   },
   {
    "id": "25-D4",
    "family": "checklist-25",
-   "title": "演示入口（内置样例项目/demo 数据面）",
+   "title": "演示入口（自带样例项目、demo 数据面）",
    "deadline_event": "stage3-rollout",
    "deadline": "阶段 3 铺开前",
    "trigger_event": "stage3-kickoff-gate",
@@ -617,7 +617,7 @@
   {
    "id": "25-D5",
    "family": "checklist-25",
-   "title": "样例资产版本跟随纪律",
+   "title": "样例资产要跟着版本一起换",
    "deadline_event": "first-sample-release",
    "deadline": "首个含样例发布前（与 CHANGELOG 同门）",
    "trigger_event": "stage3-first-tag",
@@ -629,7 +629,7 @@
   {
    "id": "desk-task2",
    "family": "ledger-two-field",
-   "title": "任务2 S2 ADR 质量判据待探针占位",
+   "title": "任务2 的 S2 ADR 质量判据，探针位先占着",
    "deadline_event": null,
    "deadline": "满足判据：≥1 外部目标仓 ADR 集跑 TC-1 达 judgeable≥min_n(5)",
    "trigger_event": "first-external-repo",
@@ -645,7 +645,7 @@
      "by": "#40 外部仓 one-shot 实跑",
      "criterion_version": "30-desk-calibration.json items[task=2].probe.satisfaction 原文",
      "decision": "trigger-fired-criterion-met",
-     "reason": "首个非 6F 目标仓 open-gsd/gsd-core 经 URL opt-in 接入并跑 Macro-B：TC-1 judgeable_n=92 ≥ min_n(5)，外部仓 ADR 集 TC-1 可判定 → 探针占位满足判据达成，转 triggered-bound",
+     "reason": "第一个不是 6F 的目标仓 open-gsd/gsd-core 经 URL 同意后接进来跑 Macro-B：TC-1 的 judgeable_n=92 ≥ min_n(5)，外部仓的 ADR 集 TC-1 判得出来 → 探针占位满足判据，转 triggered-bound",
      "evidence": "reports/40-out/40-macro-b-gsd-core-measurements.json tc1.judgeable_n=92 + reports/40-intake-receipt.json + reports/40-external-comparison.json"
     }
    ]
@@ -653,7 +653,7 @@
   {
    "id": "desk-task4",
    "family": "ledger-two-field",
-   "title": "任务4 待探针占位",
+   "title": "任务4 的探针位先占着",
    "deadline_event": null,
    "deadline": "满足判据见 30-desk-calibration.json",
    "trigger_event": null,
@@ -670,7 +670,7 @@
   {
    "id": "desk-task5",
    "family": "ledger-two-field",
-   "title": "任务5 S3/S4/S5 行占位待探针",
+   "title": "任务5 的 S3/S4/S5 几行先占位，等探针",
    "deadline_event": null,
    "deadline": "满足判据见 30-desk-calibration.json",
    "trigger_event": "stage3-rollout",
@@ -683,7 +683,7 @@
   {
    "id": "desk-task7",
    "family": "ledger-two-field",
-   "title": "任务7 多写者域并发策略（self-probe）",
+   "title": "任务7 多写者域的并发策略（self-probe）",
    "deadline_event": null,
    "deadline": "满足判据见 30-desk-calibration.json",
    "trigger_event": "stage3-rollout",
@@ -699,8 +699,8 @@
      "by": "#39 多写者 self-probe 实测（触发器 a 激活即封口，D-034④a）",
      "criterion_version": "30-desk-calibration.json items[task=7].probe.satisfaction",
      "decision": "self-probe-executed",
-     "reason": "实测封口读数：同进程第二 openWriter 即锁拒；conn.closeSync 不放锁（DuckDBInstance 持有至进程退出，reopen denied 佐证）；跨进程并行写者 1 胜 3 lock_denied（fail-fast 无撕裂写）；持锁期 reader/writer 皆拒；跨进程串行追加 2/2 成立；终读回 66/66 行零重复 fact_id。判据「多写者并发写入无丢行/乱序/冲突」读数 = 并行多写者被 DuckDB 单文件锁互斥化——并发策略维持 SWMR 单写者序列化门面（store.ts 唯一写入口），多采集器并行直写不满足判据；最终裁决权留收口窗口",
-     "evidence": "reports/39-mw-self-probe.json（39-mw-self-probe.mjs + 39-mw-child.mjs 实跑产物；probe 库 39-mw-probe.duckdb）"
+     "reason": "实测封口的读数：同进程里第二个 openWriter 直接锁拒；conn.closeSync 不放锁（DuckDBInstance 一直持有到进程退出，reopen 被拒就是旁证）；跨进程并行的写者 1 个赢、3 个 lock_denied（fail-fast，写没被撕）；持锁期间 reader/writer 都拒；跨进程串行追加 2/2 成立；最后读回 66/66 行，fact_id 零重复。判据「多写者并发写入无丢行/乱序/冲突」的读数=并行多写者被 DuckDB 的单文件锁互斥掉了——并发策略维持 SWMR 那种同一时刻只有一个写者的序列化门面（store.ts 是唯一写入口），多个采集器并行直写不满足判据；最终裁决权留到收口窗口",
+     "evidence": "reports/39-mw-self-probe.json（39-mw-self-probe.mjs 和 39-mw-child.mjs 实跑的产物；probe 库是 39-mw-probe.duckdb）"
     }
    ],
    "decision": "D-043"
@@ -708,7 +708,7 @@
   {
    "id": "desk-task9",
    "family": "ledger-two-field",
-   "title": "任务9 待探针占位",
+   "title": "任务9 的探针位先占着",
    "deadline_event": null,
    "deadline": "满足判据见 30-desk-calibration.json",
    "trigger_event": null,
@@ -725,7 +725,7 @@
   {
    "id": "desk-task10",
    "family": "ledger-two-field",
-   "title": "任务10 待探针占位",
+   "title": "任务10 的探针位先占着",
    "deadline_event": null,
    "deadline": "满足判据见 30-desk-calibration.json",
    "trigger_event": "stage3-rollout",
@@ -738,7 +738,7 @@
   {
    "id": "desk-task11",
    "family": "ledger-two-field",
-   "title": "任务11 待探针占位",
+   "title": "任务11 的探针位先占着",
    "deadline_event": null,
    "deadline": "满足判据见 30-desk-calibration.json",
    "trigger_event": null,
@@ -755,7 +755,7 @@
   {
    "id": "desk-task13",
    "family": "ledger-two-field",
-   "title": "任务13 待探针占位",
+   "title": "任务13 的探针位先占着",
    "deadline_event": null,
    "deadline": "满足判据见 30-desk-calibration.json",
    "trigger_event": "stage3-rollout",
@@ -768,7 +768,7 @@
   {
    "id": "desk-task14",
    "family": "ledger-two-field",
-   "title": "任务14 待探针占位",
+   "title": "任务14 的探针位先占着",
    "deadline_event": null,
    "deadline": "满足判据见 30-desk-calibration.json",
    "trigger_event": "stage3-rollout",
@@ -781,7 +781,7 @@
   {
    "id": "desk-task15",
    "family": "ledger-two-field",
-   "title": "任务15 待探针占位",
+   "title": "任务15 的探针位先占着",
    "deadline_event": null,
    "deadline": "满足判据见 30-desk-calibration.json",
    "trigger_event": "micro-a-preview-prep",
@@ -796,7 +796,7 @@
      "by": "#40 外部仓 one-shot 落点核查",
      "criterion_version": "30-desk-calibration.json items[task=15].probe.satisfaction 原文",
      "decision": "trigger-fired-criterion-unmet",
-     "reason": "first-external-repo 已 occurred；但本项满足判据 =「≥1 条 Micro-A 真实 PR 报告产出且字段清单满足骨架交集」——Micro-A 为未上架层（capability 3 of 5，not_in_preview），#40 产出为 Macro-B 报告不构成本项判据 → 状态保持 pending，值守通道呈报待 Micro-A 上架后判定",
+     "reason": "first-external-repo 已经 occurred 了；可本项的判据是「≥1 条 Micro-A 真实 PR 报告产出且字段清单满足骨架交集」——Micro-A 是还没上架的层（capability 3 of 5，not_in_preview），#40 产出的是 Macro-B 报告，够不上这条判据 → 状态保持 pending，值守通道呈报，等 Micro-A 上架了再判",
      "evidence": "reports/40-external-comparison.json + 30-desk-calibration.json items[task=15]"
     },
     {
@@ -804,8 +804,8 @@
      "by": "#48 Micro-A preview 落地复核",
      "criterion_version": "30-desk-calibration.json items[task=15].probe.satisfaction 原文",
      "decision": "trigger-fired-criterion-met",
-     "reason": "micro-a-preview-prep occurred＝Micro-A preview 已落地：4 条真实 PR 报告双件产出（env-manager #64/#55/#51＋jiahao #6，恰 4 条已 merged 票面写死实例），subject_ref=PR 级（owner/repo#N）粒度切片，字段清单满足骨架交集（REPORT_SKELETON required_fields ∩ MICRO_A_SLICE_FIELDS 机械导出断言全过，golden+真跑双通道）——满足判据成立，desk-task15 判 decided",
-     "evidence": "reports/48-micro-a-*.md/.json 四件＋48-micro-a-measurements.json＋48-micro-a-golden-assertions.json"
+     "reason": "micro-a-preview-prep occurred 了＝Micro-A preview 真落地：4 条真实 PR 报告出双件（env-manager 的 #64／#55／#51 加 jiahao 的 #6，正好是 4 条已 merged、票面写死的实例），subject_ref=PR 级（owner/repo#N）粒度切片，字段清单满足骨架交集（REPORT_SKELETON required_fields ∩ MICRO_A_SLICE_FIELDS 机械导出的断言全过，golden 加真跑两路都过）——判据成立，desk-task15 判 decided",
+     "evidence": "reports/48-micro-a-*.md/.json 四件，加 48-micro-a-measurements.json、48-micro-a-golden-assertions.json"
     }
    ],
    "errata": "前身绑定 first-external-repo 于 2026-09-16 判定错配（判据=Micro-A 产出，#40 实产 Macro-B 报告）——fired 记录转审计痕迹不删（D-044：分层账本纪律，fired=不可变历史／绑定=可修正配置）"
@@ -813,7 +813,7 @@
   {
    "id": "codelore-deferred-faces",
    "family": "codelore-deferred",
-   "title": "CodeLore 暂缓面集 21 速写名（#51 激活 3 面后重计；审计 C11 去歧义：function-coupling 由 function-* 通配覆盖，具名判据留在 face_criteria）",
+   "title": "CodeLore 暂缓的分析项组，21 个速写名（#51 激活 3 面以后重算；审计 C11 去了歧义：function-coupling 由 function-* 通配盖住，具名判据留在 face_criteria）",
    "deadline_event": null,
    "deadline": "满足判据：各层 preview 拉动该面时 golden 契约补齐",
    "trigger_event": null,
@@ -851,15 +851,15 @@
      "by": "#48 前置清点",
      "criterion_version": "micro-a-preview-prep occurred 复审",
      "decision": "reviewed-stay-pending",
-     "reason": "Micro-A preview 判据=证据完整性/托管面资格闸/选择性——不拉 codelore 暂缓面集（行为象限接入归 #51 Macro-B 切片，非本票）；维持 pending",
-     "evidence": "reports/48-micro-a-criteria.md 判据集"
+     "reason": "Micro-A preview 的判据是证据完整性／托管面资格闸／选择性——不拉 codelore 那些暂缓的分析项组（行为象限的接入归 #51 的 Macro-B 切片，不是这张票）；维持 pending",
+     "evidence": "reports/48-micro-a-criteria.md 那套判据"
     },
     {
      "at": "2026-09-16",
      "by": "#51 落盘复核",
      "criterion_version": "manual_watch 复核（面集增减如实登记）",
      "decision": "partial-activation-noted",
-     "reason": "暂缓面集 3 面激活（hotspots/coupling/function-hotspots→CODELORE_BEHAVIOR_FACETS group=behavior，Macro-B behavior 切片消费）；function-coupling 新登记暂缓（--target 参数面形态）；其余暂缓面不动。非事件翻转——面集状态留痕。",
+     "reason": "暂缓的分析项组里有 3 面激活了（hotspots/coupling/function-hotspots→CODELORE_BEHAVIOR_FACETS，group=behavior，由 Macro-B 的行为切片消费）；function-coupling 新登记成暂缓（--target 参数面那种形态）；其余暂缓面不动。不是事件翻转——只是把组的状态留个痕。",
      "evidence": "engine/src/upstream/codelore.ts CODELORE_BEHAVIOR_FACETS + reports/51-behavior-schema.json + 51-check.mjs"
     },
     {
@@ -867,7 +867,7 @@
      "by": "T8 值守面复核",
      "criterion_version": "manual_watch 复核（#51 激活面集同步登记）",
      "decision": "faces-synced-stay-pending",
-     "reason": "#51 已激活 hotspots/coupling/function-hotspots→CODELORE_BEHAVIOR_FACETS（behavior 切片），faces[] 移除该 3 面并新登记 function-coupling（--target 参数面暂缓）；其余暂缓面不动。review_event 推进至 stage3-close（micro-a-preview-prep 锚点已消费两轮复核）",
+     "reason": "#51 已经把 hotspots/coupling/function-hotspots 激活进 CODELORE_BEHAVIOR_FACETS（行为切片），faces[] 里把这 3 面拿掉，新登记 function-coupling（--target 参数面暂缓）；其余暂缓面不动。review_event 推到 stage3-close（micro-a-preview-prep 这个锚已经消费了两轮复核）",
      "evidence": "engine/src/upstream/codelore.ts CODELORE_BEHAVIOR_FACETS＋reports/51-behavior-schema.json＋51-check.mjs＋t8-watch-review.md"
     }
    ],
@@ -885,7 +885,7 @@
   {
    "id": "mw-trigger-a",
    "family": "multi-writer",
-   "title": "多写者触发器 a：Macro-B 进 CI 定时回归",
+   "title": "多写者触发器 a：Macro-B 进了 CI 定时回归",
    "deadline_event": null,
    "deadline": "无（事件驱动项，无日历最迟时点）",
    "trigger_event": "mw-regression-ci",
@@ -899,7 +899,7 @@
      "by": "#39 jiahao Macro-B 回归 CI 接入",
      "criterion_version": "D-034④ 触发器条款",
      "decision": "trigger-fired",
-     "reason": "jiahao 仓新增 .github/workflows/macro-b-regression.yml：Macro-B（已上架层，capability 1 of 5 · preview）对本仓 schedule 定时回归（+workflow_dispatch；不接 push/PR——回归≠门禁）→ 触发器 (a) 激活，多写者域进入 self-probe 实测封口通道（本票已执行实测并落文）",
+     "reason": "jiahao 仓新增了 .github/workflows/macro-b-regression.yml：Macro-B（已上架的层，capability 1 of 5 · preview）对本仓做 schedule 定时回归（也能 workflow_dispatch；不接 push/PR——回归不是门禁）→ 触发器 (a) 激活，多写者这个域进入 self-probe 实测封口的通道（这张票已经实跑过并落文）",
      "evidence": "jiahao .github/workflows/macro-b-regression.yml（jiahao commit 84077dab / but zqm @ r9-39-macro-b-regression）+ reports/39-mw-self-probe.json + reports/39-macro-b-measurements.json"
     }
    ],
@@ -909,7 +909,7 @@
   {
    "id": "mw-trigger-b",
    "family": "multi-writer",
-   "title": "多写者触发器 b：Macro-C preview 共用同一 DuckDB",
+   "title": "多写者触发器 b：Macro-C preview 和 Macro-B 共用同一个 DuckDB",
    "deadline_event": null,
    "deadline": "无（事件驱动项，无日历最迟时点）",
    "trigger_event": "macro-c-shared-duckdb",
@@ -923,8 +923,8 @@
      "by": "#38 Macro-C preview 落点核查",
      "criterion_version": "D-034④ 触发器条款",
      "decision": "trigger-fired",
-     "reason": "Macro-C preview 与 Macro-B 共用同一 audit_fact DuckDB（reports/38-audit-facts.duckdb）：Macro-B 存档事实经 appendFact 回放 228 条 + Macro-C 新事实追加 1012 条，同库双 scale 成立 → 多写者域进入 self-probe 实测封口通道（触发已发生未拍 → 值守升级路径）",
-     "evidence": "reports/38-macro-c-measurements.json shared_duckdb 节 + 38-check.mjs E 组"
+     "reason": "Macro-C preview 和 Macro-B 共用同一个 audit_fact DuckDB（reports/38-audit-facts.duckdb）：Macro-B 存档的事实经 appendFact 回放 228 条，Macro-C 的新事实追加 1012 条，同一个库两个档都成立 → 多写者这个域进入 self-probe 实测封口的通道（触发已经发生、还没封口 → 值守升级的路径）",
+     "evidence": "reports/38-macro-c-measurements.json 里 shared_duckdb 那一节＋38-check.mjs 的 E 组"
     }
    ],
    "decision": "D-043",
@@ -933,7 +933,7 @@
   {
    "id": "mw-trigger-c",
    "family": "multi-writer",
-   "title": "多写者触发器 c：Macro-A 启动",
+   "title": "多写者触发器 c：Macro-A 真启动",
    "deadline_event": null,
    "deadline": "无（事件驱动项，无日历最迟时点）",
    "trigger_event": "macro-a-start",
@@ -946,7 +946,7 @@
   {
    "id": "codelore-residual-faces",
    "family": "codelore-deferred",
-   "title": "CodeLore 枚举残余 4 面去向裁决（#35 审计 W1）",
+   "title": "CodeLore 枚举下来还剩 4 个面，去向要裁（#35 审计 W1）",
    "deadline_event": "stage3-close",
    "deadline": "满足判据：收口窗口裁决去向（登记入暂缓面集/划归后续批次/显式弃用）并落 D-xxx 原文",
    "trigger_event": "stage3-close",
@@ -960,8 +960,8 @@
      "by": "#48 前置清点",
      "criterion_version": "micro-a-preview-prep occurred 复审",
      "decision": "reaffirmed",
-     "reason": "micro-a-preview-prep 已 occurred；本项残余 4 面去向裁决仍归 stage3-close 收口窗口（本票不消费）——decided 状态维持",
-     "evidence": "无消费面：48-micro-a-preview.mjs 不触 codelore"
+     "reason": "micro-a-preview-prep 已经 occurred 了；本项这 4 个残余面的去向还是归 stage3-close 的收口窗口裁（这张票不消费）——decided 状态维持",
+     "evidence": "没有消费面：48-micro-a-preview.mjs 根本不碰 codelore"
     }
    ],
    "faces": [
@@ -989,7 +989,7 @@
   {
    "id": "codelore-llm-mcp-face",
    "family": "codelore-deferred",
-   "title": "CodeLore MCP explain_file LLM 叙事面（#36 枚举登记）",
+   "title": "CodeLore 的 MCP explain_file 那一面带 LLM 叙事（#36 枚举登记）",
    "deadline_event": null,
    "deadline": "满足判据：层 preview 需要 MCP 传输 LLM 叙事面时契约补齐（golden 两形态 + env 门控复用本票契约）",
    "trigger_event": null,
@@ -1003,16 +1003,16 @@
      "by": "#48 前置清点",
      "criterion_version": "micro-a-preview-prep occurred 复审",
      "decision": "reviewed-stay-pending",
-     "reason": "Micro-A preview 数据面=GitHub REST 适配器（PR 枚举/元数据/diff）——MCP LLM 叙事面非本 preview 刚需（diff --llm 行级评审叙事归 #50 叙事双轨宿主 agent 面，D-053）；维持 pending 待对应拉动",
-     "evidence": "reports/48-micro-a-preview.mjs（pipeline 仅消费 github-rest-adapter@v1 事实面）"
+     "reason": "Micro-A preview 的数据面就是 GitHub REST 适配器（PR 枚举／元数据／diff）——MCP 那套 LLM 叙事面不是这个 preview 的刚需（diff --llm 这种行级评审叙事归 #50 的叙事双轨、宿主 agent 那面，D-053）；维持 pending，等对应的拉动来",
+     "evidence": "reports/48-micro-a-preview.mjs（pipeline 只消费 github-rest-adapter@v1 的事实面）"
     },
     {
      "at": "2026-09-17",
      "by": "T8 值守面复核",
      "criterion_version": "manual_watch 复核",
      "decision": "reviewed-stay-pending",
-     "reason": "Micro-A preview 已闭环仍走 GitHub REST 面（#48）；diff --llm/MCP explain_file 叙事面无层刚需；维持 pending，下一复审锚=stage3-close（或 Micro-B/Macro-A preview 拉动先到者）",
-     "evidence": "reports/48-micro-a-preview.mjs 数据面=github-rest-adapter＋t8-watch-review.md"
+     "reason": "Micro-A preview 已经闭环了，走的还是 GitHub REST 那面（#48）；diff --llm/MCP explain_file 这套叙事面，哪一层都没有刚需；维持 pending，下一个复审锚=stage3-close（或者 Micro-B/Macro-A 的 preview 拉动先到）",
+     "evidence": "reports/48-micro-a-preview.mjs 的数据面=github-rest-adapter，加上 t8-watch-review.md"
     }
    ],
    "faces": [
@@ -1026,7 +1026,7 @@
   {
    "id": "upstream-probes-scorecard-repomix",
    "family": "upstream-queue",
-   "title": "Scorecard 探针——层需求拉动接入不插队（#42 / D-034③）；repomix 半项已于 D-056 退役销项",
+   "title": "Scorecard 探针——有层真的需要才接，不插队（#42/D-034③）；repomix 那半项 D-056 已经退役销项了",
    "deadline_event": null,
    "deadline": "满足判据：某层 preview 报告需要供应链评分（OpenSSF Scorecard）数据面时启动接入票；接入前须先定 pin_type+version 并补 golden 契约（engine/upstream-lock.yaml 行 openssf-scorecard=planned，锁定先于依赖）。repomix-gitingest 行=retired（D-056），重开走 repomix-reopen-trigger 项",
    "trigger_event": null,
@@ -1043,24 +1043,24 @@
      "by": "#48 前置清点",
      "criterion_version": "micro-a-preview-prep occurred 复审",
      "decision": "reviewed-stay-planned",
-     "reason": "Micro-A preview 供应链象限维持 not_applicable＋⚠数据未接 披露制（D-034③ 层需求拉动不插队；dependabot PR 供应链信号仅作事实落库不裁决）——无 Scorecard 刚需",
-     "evidence": "reports/48-micro-a-env-manager-pr55.json supply_chain 象限行"
+     "reason": "Micro-A preview 的供应链象限维持 not_applicable＋⚠数据未接 这种披露方式（D-034③ 有层需求拉动才接，不插队；dependabot PR 的供应链信号只当事实落库，不拿来做裁决）——没有 Scorecard 的刚需",
+     "evidence": "reports/48-micro-a-env-manager-pr55.json 里 supply_chain 象限那一行"
     },
     {
      "at": "2026-09-17",
      "by": "T8 值守面复核",
      "criterion_version": "manual_watch 复核",
      "decision": "reviewed-stay-pending",
-     "reason": "Macro-B/Micro-A preview 均无供应链象限数据面刚需（Macro-B 维持 ⚠ 数据未接 披露制，D-034③）；scorecard=planned 不动、repomix=retired 不动（D-056）；下一复审锚=stage3-close",
-     "evidence": "README 能力矩阵 preview 口径＋engine/upstream-lock.yaml＋t8-watch-review.md"
+     "reason": "Macro-B/Micro-A 的 preview 都没有供应链象限数据面的刚需（Macro-B 维持 ⚠ 数据未接 的披露方式，D-034③）；scorecard=planned 不动，repomix=retired 不动（D-056）；下一个复审锚=stage3-close",
+     "evidence": "README 能力矩阵里 preview 的口径＋engine/upstream-lock.yaml＋t8-watch-review.md"
     },
     {
      "at": "2026-10-25",
      "by": "#43 逾期上游复审盘点",
      "criterion_version": "#43 逾期逐行处置纪律（docs/versioning.md §4 立法＋44-check C5 advisory 段；D-037④ 仅指手动窗口既有纪律，不承载新规则）",
      "decision": "deferred-no-runtime-surface",
-     "reason": "openssf-scorecard 行 next_review 2026-10-16 逾期，由本项代持显式 deferred：planned 行 version/pin_type=null＝无 pin 无制品可实跑，仓内零 Scorecard 消费位（supply_chain 象限维持 ⚠ 数据未接，D-034③ 禁插队）；层需求未拉动→本项 status=pending 维持、锁表逾期日期不刷新（禁无证据批量刷新）；转接入票时按 verify_method 先定 pin_type+version＋golden 契约三前置再同步本行",
-     "evidence": "engine/upstream-lock.yaml openssf-scorecard 行 review_deferred＋2026-10-25 实跑 44-check C5 overdue=[openssf-scorecard,codelore-sqlite-dump]"
+     "reason": "openssf-scorecard 那一行的 next_review 2026-10-16 逾期了，由本项代持、明确写成 deferred：planned 那行 version/pin_type=null＝没有 pin，也没有制品可以实跑，仓里零个 Scorecard 消费位（supply_chain 象限维持 ⚠ 数据未接，D-034③ 不许插队）；层需求没拉动 →本项 status=pending 维持，锁表里那个逾期日期不刷新（不许没证据就批量刷）；转成接入票的时候照 verify_method 先把 pin_type+version 和 golden 契约这三样前置定了，再同步这一行",
+     "evidence": "engine/upstream-lock.yaml 的 openssf-scorecard 那一行 review_deferred＋2026-10-25 真跑 44-check 的 C5 overdue=[openssf-scorecard,codelore-sqlite-dump]"
     }
    ],
    "review_event": "stage3-close"
@@ -1068,7 +1068,7 @@
   {
    "id": "hooks-presentation-face",
    "family": "extension-face",
-   "title": "hooks 呈现面实建触发器（D-055：层④=可选呈现面/声明位，现无实物）",
+   "title": "hooks 呈现面实建触发器（D-055：第④层是可选的呈现面／声明位，现在还没实物）",
    "deadline_event": null,
    "deadline": "无硬到期——纯条件激活项",
    "trigger_event": "presentation-demand-signal",
@@ -1082,7 +1082,7 @@
   {
    "id": "narrative-eval-surface",
    "family": "quality-eval",
-   "title": "宿主叙事质量 eval（#52b）——锚改真实宿主叙事语料；checker 仪器标定已拆 #52a 即时执行不占本锚",
+   "title": "宿主叙事质量 eval（#52b）——锚改成真实宿主的叙事语料；checker 仪器标定已经拆成 #52a 立刻做，不占这个锚",
    "deadline_event": null,
    "deadline": "无硬到期——被评测对象（宿主 agent 叙事段）于 #50 落地后方存在",
    "trigger_event": "host-narrative-corpus",
@@ -1099,7 +1099,7 @@
      "by": "#50 闭环验收",
      "criterion_version": "registry verify_method 原文（#50 闭环确认→triggered-bound 并立评测票）",
      "decision": "triggered-bound-ticket-filed",
-     "reason": "#50 闭环达成（叙事实物存在：narrative.test 25/25＋references 三件＋mcp facts 投影）——按 verify_method 转 triggered-bound；评测票立案=BACKLOG #52（评测面判据独立于本票，防自写自评）",
+     "reason": "#50 闭环达成（叙事这块有实物了：narrative.test 25/25、references 三件、mcp facts 投影）——照 verify_method 转 triggered-bound；评测票立成 BACKLOG #52（评测面的判据独立于这张票，防自写自评）",
      "evidence": "test/narrative.test.mjs + reports/50-check.mjs + BACKLOG #52"
     },
     {
@@ -1107,16 +1107,16 @@
      "by": "T8 值守面复核",
      "criterion_version": "manual_watch 复核",
      "decision": "bound-confirmed-stay",
-     "reason": "#50 闭环已翻转本项→triggered-bound＋立案 #52（grounded stamp 准确率/κ 校准基线）；评测票未开工，状态维持 triggered-bound；复审锚推进至 stage3-close（#52 闭环验收同窗复核）",
-     "evidence": "BACKLOG #52 立案行＋50-report.md＋t8-watch-review.md"
+     "reason": "#50 闭环已经翻转了本项→triggered-bound，同时立了 #52（grounded stamp 准确率／κ 校准基线）；评测票还没开工，状态维持 triggered-bound；复审锚推到 stage3-close（#52 的闭环验收在同一个窗口复核）",
+     "evidence": "BACKLOG #52 里立案的那一行＋50-report.md＋t8-watch-review.md"
     },
     {
      "at": "2026-09-17",
      "by": "轮15 grill D-061",
      "criterion_version": "D-061 拆票纪律",
      "decision": "re-anchored",
-     "reason": "被测对象拆分：checker 标定拆 #52a 即时（不占本锚）；本项收窄为宿主叙事质量 eval，锚改 host-narrative-corpus（真实语料 N≥50 段）",
-     "evidence": "decision-ledger.md D-061（#52→#52a/#52b 拆票＋改锚 host-narrative-corpus）＋BACKLOG #52a/#52b 行＋52a-eval-results.json"
+     "reason": "被测对象拆开：checker 标定拆成 #52a 马上做（不占这个锚）；本项收窄成宿主叙事质量的 eval，锚改成 host-narrative-corpus（真实语料 N≥50 段）",
+     "evidence": "decision-ledger.md D-061（把 #52 拆成 #52a/#52b，复评锚也改成 host-narrative-corpus）＋BACKLOG 的 #52a/#52b 两行＋52a-eval-results.json"
     }
    ],
    "source": "macro-audit decision-ledger D-057②（评测面登记暂缓面，先物后尺；内嵌 #50=自写自评失独立性、永不评=model id 死字段）",
@@ -1125,7 +1125,7 @@
   {
    "id": "repomix-reopen-trigger",
    "family": "upstream-queue",
-   "title": "repomix-gitingest 重开触发器（D-056：retired 行留档，重开=另立需求票重评估）",
+   "title": "repomix-gitingest 重开的触发器（D-056：retired 那行留着档，要重开就另立一张需求票重新评）",
    "deadline_event": null,
    "deadline": "无硬到期——纯条件激活项",
    "trigger_event": "repomix-reopen-demand",
@@ -1139,7 +1139,7 @@
   {
    "id": "runtime-doctor-trigger",
    "family": "distribution",
-   "title": "运行时 doctor 探测面（D-059③ 缓项）——selftest 仅 manifest 完整性对账，doctor 级探测（duckdb/git/上游可达性）待外部安装链路出现再建",
+   "title": "运行时的 doctor 探测面（D-059③ 缓一缓的项）——selftest 只对 manifest 做完整性对账，doctor 级别的探测（duckdb/git／上游通不通）等外部安装链路出现了再建",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "first-external-install",
@@ -1155,24 +1155,24 @@
      "by": "轮15 grill D-059③",
      "criterion_version": "D-059③",
      "decision": "registered",
-     "reason": "锐评#3 缓项：selftest=分发物完整性合法，doctor 级运行时探测挂首个外部安装链路触发；#48 env-manager 已含其自身范围的运行时探测载体",
-     "evidence": "decision-ledger.md D-059③（缓项裁定：selftest 维持本职、doctor 挂 first-external-install）＋#48 env-manager 运行时探测载体"
+     "reason": "锐评#3 那个缓一缓的项：selftest 只管分发物完整性，这是站得住的，doctor 那边的运行时探测挂到第一个外部安装链路来触发；#48 的 env-manager 已经带上了它自己范围内的运行时探测载体",
+     "evidence": "decision-ledger.md D-059③（缓着的那项定了：selftest 还是干原来的活、doctor 等 first-external-install 再上）＋#48 里 env-manager 已有它自己那块的运行时探测"
     },
     {
      "at": "2026-09-18",
      "by": "T6 市场安装 A-068 → BACKLOG #62",
      "criterion_version": "D-059③",
      "decision": "triggered-bound",
-     "reason": "first-external-install occurred：claude plugin marketplace add Xxx91n/6F→install 6f@xxx91n 远端实证 Skills(1)+MCP(1)＋selftest 5/5——doctor 探测票 #62 立案",
-     "evidence": "A-068（commit t6 两连＋land push origin/main 5493ff9）＋T6 closeout handoff"
+     "reason": "first-external-install occurred：远端跑 claude plugin marketplace add Xxx91n/6F 再 install 6f@xxx91n，实证装上 Skills(1)+MCP(1)，selftest 5/5——doctor 探测票 #62 立案",
+     "evidence": "A-068（commit t6 连了两下＋落地推到 origin/main 5493ff9）＋T6 收尾交接"
     },
     {
      "at": "2026-09-18",
      "by": "轮21 T6 BACKLOG #62 闭环",
      "criterion_version": "D-059③",
      "decision": "discharged-decided",
-     "reason": "first-external-install 绑定票 #62 已实装验收：doctor 子命令三腿 probe（duckdb 自愈链/git/registry HEAD）＋三态聚合＋结构化 JSON＋exit fail→1；selftest 对账本职不扩容分工钉死",
-     "evidence": "A-075＋commit kvw @ r21-62-runtime-doctor＋doctor.test 9/9＋node dist/cli.js doctor 实跑三腿全 ok"
+     "reason": "first-external-install 绑的票 #62 已经实装验收：doctor 子命令三条腿的 probe（duckdb 自愈链／git/registry HEAD），三态聚合、结构化 JSON、exit fail→1；selftest 只管对账本职、不扩容，这个分工钉死了",
+     "evidence": "A-075＋commit kvw @ r21-62-runtime-doctor＋doctor.test 9/9＋node dist/cli.js doctor 真跑三条腿全 ok"
     }
    ],
    "bound_to": "#62"
@@ -1180,7 +1180,7 @@
   {
    "id": "bundle-retirement-trigger",
    "family": "golden-artifact",
-   "title": "frozen bundle/overlay 退役触发器（D-059⑨）——历史锚定件有完整 provenance 暂留，GA 时 clean-commit baseline 替换",
+   "title": "冻住的 bundle/overlay 什么时候退役（D-059⑨）——这些历史锚定件来路齐全，先留着，等 GA 时换成 clean-commit baseline",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "macro-b-ga",
@@ -1196,15 +1196,15 @@
      "by": "轮15 grill D-059⑨",
      "criterion_version": "D-059⑨",
      "decision": "registered",
-     "reason": "锐评#9 缓项双轨之一：bundle 有完整 provenance 非「圆谎」，挂 GA 替换触发器",
-     "evidence": "decision-ledger.md D-059⑨（GA 时 clean-commit baseline 替换口径）＋43-check PASS 28/28（bundle/overlay 腿在保）"
+     "reason": "锐评#9 里那批缓一缓的项，这是双轨之一：bundle 有完整来路，不是「圆谎」，挂一个 GA 替换的触发器",
+     "evidence": "decision-ledger.md 的 D-059⑨（GA 的时候用 clean-commit baseline 替换这个口径），加上 43-check PASS 28/28（bundle/overlay 那条腿还保着）"
     }
    ]
   },
   {
    "id": "duckdb-binary-watch",
    "family": "golden-artifact",
-   "title": "checked-in DuckDB 二进制出仓值守（D-059⑨ 双轨之二）——二进制进仓反模式但当前守卫依赖，挂值守不清仓",
+   "title": "仓库里带的 DuckDB 二进制什么时候出仓，得盯着（D-059⑨ 双轨里的另一条）——二进制进仓是反模式，可现在守卫还靠它，就先挂着不清仓",
    "deadline_event": null,
    "deadline": "无（值守项）",
    "trigger_event": null,
@@ -1220,8 +1220,8 @@
      "by": "轮15 grill D-059⑨",
      "criterion_version": "D-059⑨",
      "decision": "registered",
-     "reason": "锐评#9 缓项双轨之二：duckdb 二进制挂清单值守非立即清除（守卫面依赖在案）",
-     "evidence": "decision-ledger.md D-059（binary 缺席 ADVISORY 口径）＋44-check ADVISORY 段（binary 缺席如实报）"
+     "reason": "锐评#9 里那批缓一缓的项，这是另一条：duckdb 二进制挂进清单盯着，不是马上清掉（守卫面还依赖着，在案）",
+     "evidence": "decision-ledger.md 的 D-059（binary 不在的时候按 ADVISORY 报这个口径），加上 44-check 的 ADVISORY 段（binary 不在就如实报）"
     }
    ],
    "review_event": "macro-b-ga"
@@ -1229,7 +1229,7 @@
   {
    "id": "golden-verifier-dirty-on-rerun",
    "family": "golden-artifact",
-   "title": "golden 工件/verifier 耦合脏树观察项（D-063② L2）——守卫重跑重写 receipt/trace 锚致脏树",
+   "title": "golden 工件和 verifier 缠在一起，一重跑就脏树，观察项（D-063② L2）——守卫重跑会重写 receipt/trace 锚，仓库就脏了",
    "deadline_event": null,
    "deadline": "无（观察项）",
    "trigger_event": "golden-dirty-rerun",
@@ -1245,8 +1245,8 @@
      "by": "轮15 grill D-063②",
      "criterion_version": "D-063②",
      "decision": "registered",
-     "reason": "L2 观察项登记：单次现象不立票（quarantine 阈值惯例）；五要素已填全；不并入 D-059⑨（触发器异构）",
-     "evidence": "decision-ledger.md D-063②（manual_watch 五要素：≥3 次或 GA→立票，修法=守卫旗标化）＋43-check golden 闭环"
+     "reason": "L2 观察项登记：单次出现不立票（quarantine 阈值的老规矩）；五要素填全了；不并进 D-059⑨（触发器不是一回事）",
+     "evidence": "decision-ledger.md 的 D-063②（manual_watch 五要素：≥3 次或者 GA 就立票，修法是给守卫加旗标），加上 43-check 的 golden 闭环"
     }
    ],
    "review_event": "golden-dirty-rerun"
@@ -1254,7 +1254,7 @@
   {
    "id": "demo-cleanup-observe",
    "family": "code-hygiene",
-   "title": "demo.ts 清理观察项（D-064⑥ F13）：git() 死码＋~30 行 identity-alias Middle Man——diff 最小化留置有自知注释",
+   "title": "demo.ts 的清理观察项（D-064⑥ F13）：git() 死代码＋约 30 行 identity-alias Middle Man——为了让 diff 最小先留着，留有自知之明的注释",
    "deadline_event": null,
    "deadline": "无（顺带清理项）",
    "trigger_event": null,
@@ -1271,22 +1271,22 @@
      "by": "轮17 grill D-064⑥",
      "criterion_version": "D-064⑥",
      "decision": "registered",
-     "reason": "F13 缓项：注释自认留置非缺陷；现在删=污染 r16 已验收分支，挂顺带清观察项"
+     "reason": "F13 那个缓一缓的项：注释里自己认了是先留着，不是缺陷；现在删等于把已经验收过的 r16 分支弄脏，挂成一个顺手清理的观察项"
     },
     {
      "at": "2026-09-17",
      "by": "轮18 #57 T1",
      "criterion_version": "D-064⑥",
      "decision": "discharged-decided",
-     "reason": "触发面命中：本票触及 demo.ts——git() 死码已于 r16fix(f3354ea) 清除；~34 行 identity-alias Middle Man 块本票内联（demo.test O2 golden 逐字节复核输出恒等）；F10 空值守卫＋F11 evidence_flag 改名随票",
-     "evidence": "demo.ts §3-§7 直引 probes/col/ev 无 alias 层；npm test demo 38/38；53-check 25/25"
+     "reason": "触发面命中了：这张票动了 demo.ts——git() 的死代码早在 r16fix(f3354ea) 就清掉了；约 34 行 identity-alias Middle Man 块在这张票里内联（demo.test 的 O2 golden 逐字节复核过，输出一样）；F10 的空值守卫和 F11 的 evidence_flag 改名跟着这张票一起做",
+     "evidence": "demo.ts 的 §3-§7 直接引用 probes/col/ev，没有 alias 层；npm test 的 demo 38/38；53-check 25/25"
     }
    ]
   },
   {
    "id": "claude-validate-promotion-watch",
    "family": "distribution",
-   "title": "claude plugin validate advisory→enforce 转段值守（D-066⑥＋D-077 修订：人工读 receipts 证据翻转）——advisory 满 2 版本窗口无 SKIP 污染即升 enforce",
+   "title": "claude plugin validate 从 advisory 转 enforce 的转段值守（D-066⑥＋D-077 修订：人读 receipts 的证据来翻）——advisory 连着 2 个版本窗口没被 SKIP 污染就升 enforce",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "claude-validate-promotion",
@@ -1302,16 +1302,16 @@
      "by": "轮19 grill D-066",
      "criterion_version": "D-066⑥",
      "decision": "registered",
-     "reason": "真校验器两段式第二段：外部工具版本漂移不可钉 enforce，2 干净窗口后转段",
-     "evidence": "decision-ledger.md D-066＋R19-Q1 报告"
+     "reason": "真校验器分两段走，这是第二段：外部工具版本会漂，不能钉死 enforce，连着 2 个干净窗口之后再转段",
+     "evidence": "decision-ledger.md 的 D-066，加上 R19-Q1 报告"
     },
     {
      "at": "2026-09-18",
      "by": "轮22 grill D-077",
      "criterion_version": "D-077③",
      "decision": "migrated",
-     "reason": "原 event_bound 在 CI 面永 false（SKIP 恒真=永无无污染窗口）系环境分层缺口；改 manual_watch 人工读本地 receipts 证据翻转——「2 版本窗口全绿」判据原文不动，仅证据载体（streak→receipts.jsonl）与翻牌执行者（自动→人工确认）变化",
-     "evidence": "decision-ledger.md D-077＋R21 审计 F5 实测＋R22-Q5 报告"
+     "reason": "原来那套 event_bound 在 CI 那边永远是 false（SKIP 恒真，也就永远等不到无污染的窗口），这是环境分层上的缺口；改成 manual_watch，人读本地 receipts 的证据来翻——「2 版本窗口全绿」这条判据原文不动，动的只是证据载体（streak→receipts.jsonl）和翻牌的人（自动→人工确认）",
+     "evidence": "decision-ledger.md 的 D-077，加上 R21 审计 F5 的实测、R22-Q5 报告"
     }
    ],
    "review_event": "stage3-close"
@@ -1319,7 +1319,7 @@
   {
    "id": "cue-table-extraction-trigger",
    "family": "quality-eval",
-   "title": "cue 表抽独立 JSON 触发器（D-069②）——第二消费者出现或需热更新→独立文件+D-068 式版本断言",
+   "title": "cue 表抽成独立 JSON 的触发器（D-069②）——第二个消费者出现了，或者需要不改代码就能换词 → 抽成独立文件，再加 D-068 那种版本断言",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "cue-table-second-consumer",
@@ -1335,15 +1335,15 @@
      "by": "轮19 grill D-069",
      "criterion_version": "D-069②",
      "decision": "registered",
-     "reason": "单消费者形态抽 JSON=纯开销＋失类型检查（hunspell 版本化=多消费者驱动先例）——挂触发器不预判",
-     "evidence": "decision-ledger.md D-069＋R19-Q4 报告"
+     "reason": "只有一个消费者还把 JSON 抽出去=白花开销，还丢类型检查（hunspell 那个版本化就是多消费者驱动的先例）——挂触发器，不提前下判断",
+     "evidence": "decision-ledger.md 的 D-069，加上 R19-Q4 报告"
     }
    ]
   },
   {
    "id": "duckdb-vendored-review",
    "family": "distribution",
-   "title": "vendored bindings 复审触发器（D-072⑥a）——官方预签名分发或平台包恶化出现时重评原生绑定入库",
+   "title": "vendored bindings 复审触发器（D-072⑥a）——官方出预签名分发了，或者平台包恶化了，就重新评原生绑定进不进仓",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "duckdb-vendored-presigned",
@@ -1359,15 +1359,15 @@
      "by": "轮21 grill D-072",
      "criterion_version": "D-072⑥",
      "decision": "registered",
-     "reason": "duckdb 缺口三备选否决挂量化复审触发器",
-     "evidence": "decision-ledger.md D-072＋R21-Q2 报告"
+     "reason": "duckdb 缺口那三个备选都否掉了，挂一个带量化指标的复审触发器",
+     "evidence": "decision-ledger.md 的 D-072，加上 R21-Q2 报告"
     }
    ]
   },
   {
    "id": "duckdb-wasm-review",
    "family": "distribution",
-   "title": "duckdb-wasm 换绑复审触发器（D-072⑥c）——#2192 类持久化缺陷修复＋SWMR 实测通过后重评",
+   "title": "duckdb-wasm 换绑复审触发器（D-072⑥c）——#2192 那类持久化缺陷修好了，SWMR 实测也过了，再重新评",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "duckdb-wasm-persistence-fixed",
@@ -1383,15 +1383,15 @@
      "by": "轮21 grill D-072",
      "criterion_version": "D-072⑥",
      "decision": "registered",
-     "reason": "duckdb 缺口三备选否决挂量化复审触发器",
-     "evidence": "decision-ledger.md D-072＋R21-Q2 报告"
+     "reason": "duckdb 缺口那三个备选都否掉了，挂一个带量化指标的复审触发器",
+     "evidence": "decision-ledger.md 的 D-072，加上 R21-Q2 报告"
     }
    ]
   },
   {
    "id": "claude-hooks-bootstrap-review",
    "family": "distribution",
-   "title": "SessionStart bootstrap 复审触发器（D-072⑥b）——上游 hook bug 链修复＋D-055 信号出现时重评",
+   "title": "SessionStart bootstrap 复审触发器（D-072⑥b）——上游那串 hook bug 修好了，再加上 D-055 的信号出现，就重新评",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "claude-hooks-windows-fixed",
@@ -1407,15 +1407,15 @@
      "by": "轮21 grill D-072",
      "criterion_version": "D-072⑥",
      "decision": "registered",
-     "reason": "duckdb 缺口三备选否决挂量化复审触发器",
-     "evidence": "decision-ledger.md D-072＋R21-Q2 报告"
+     "reason": "duckdb 缺口那三个备选都否掉了，挂一个带量化指标的复审触发器",
+     "evidence": "decision-ledger.md 的 D-072，加上 R21-Q2 报告"
     }
    ]
   },
   {
    "id": "xfail-second-track-trigger",
    "family": "code-hygiene",
-   "title": "断言输入面快照化第二轨触发器（D-071⑨）——XFAIL 条目触 cap 或单条目连续 2 复审锚无变化→立快照化票",
+   "title": "断言输入面快照化的第二轨触发器（D-071⑨）——XFAIL 条目撞到上限，或者单条目连着 2 个复审锚都没变化 → 立一张快照化票",
    "deadline_event": null,
    "deadline": "无（值守项）",
    "trigger_event": null,
@@ -1432,23 +1432,23 @@
      "by": "轮21 grill D-071",
      "criterion_version": "D-071⑨",
      "decision": "registered",
-     "reason": "清单制是止血层非治本层——第二轨治本挂触发器不立大票",
-     "evidence": "decision-ledger.md D-071＋R21-Q1 报告 §4 第二轨"
+     "reason": "清单制是止血用的，不是治本的——治本走第二轨，挂触发器，不立大票",
+     "evidence": "decision-ledger.md D-071＋R21-Q1 报告 §4 讲的第二轨"
     },
     {
      "at": "2026-09-18",
      "by": "轮22 grill D-073",
      "criterion_version": "D-073①",
      "decision": "triggered-bound",
-     "reason": "cap=10/10 已满即触发条件实然命中（条款内 fired 认定非绕序）——处置走 #65 批量分拣票，期序纪律保在处置层",
-     "evidence": "decision-ledger.md D-073＋stale-assertions.json entries=10/10＋R22-Q1 报告"
+     "reason": "cap=10/10 已经满了，触发条件自然就命中了（条款里认定 fired，不是绕开顺序）——处置走 #65 那张批量分拣票，期序纪律在处置层守着",
+     "evidence": "decision-ledger.md D-073＋stale-assertions.json 里 entries=10/10＋R22-Q1 报告"
     },
     {
      "at": "2026-09-26",
      "by": "轮35 grill D-144③",
      "criterion_version": "D-144③",
      "decision": "trigger-event-ratified",
-     "reason": "第四轮锐评两轮实证（r32-t0/r35-t0 复绿 commit）=增长面腿显式触发事件——Trigger-gated Closure 追认非改向，零 revised；执行载体并入 #75批1（41a-D7 类高频钉→结构不变量改写）",
+     "reason": "第四轮锐评有两次实证（r32-t0/r35-t0 复绿的 commit）=增长那条腿的显式触发事件——Trigger-gated Closure 追认，不是改向，零 revised；执行的载体并进 #75批1（41a-D7 那类高频钉改成结构不变量）",
      "evidence": "decision-ledger.md D-144③；reports/R35-Q1-atomcode-research.md"
     },
     {
@@ -1456,8 +1456,8 @@
      "by": "轮36 grill D-148③",
      "criterion_version": "D-148③",
      "decision": "confirmed-third-recurrence",
-     "reason": "M-015 事件=复绿税第三次实证（r35-closeout 落盘 commit db40c8f 自身漏编年触红 41a-D7，1714e8b 补录修复）——生效时点语义空白经 grandfather 规约立法封口：豁免对象=新规程非追溯旧守卫（41a-D7 当时已生效且正确履职红→补录=机制工作非失效）",
-     "evidence": "decision-ledger.md D-148③＋1714e8b commit＋reports/R36-Q1-atomcode-research.md §结论三四"
+     "reason": "M-015 那个事件=复绿税第三次实证（r35-closeout 落盘 commit db40c8f 自己漏了编年，触红 41a-D7，1714e8b 补录修好）——生效时点的语义空白，靠 grandfather 规约立法封口：豁免的对象是新规程，不追溯旧守卫（41a-D7 当时已经生效、也正确履职触了红，补录=机制这活在干，不是机制失效）",
+     "evidence": "decision-ledger.md D-148③＋1714e8b 那次 commit＋reports/R36-Q1-atomcode-research.md §结论三四"
     }
    ],
    "bound_to": "#65（cap 腿已分拣清零）＋#75批1（增长面腿——41a-D7 类结构不变量改写，D-144③）"
@@ -1465,7 +1465,7 @@
   {
    "id": "git-iso-contract-review",
    "family": "code-hygiene",
-   "title": "git-ISO 契约复审触发器（D-076②）——真实采集路径命中契约违例且根因=git 上游形状漂移时重评严正则口径",
+   "title": "git-ISO 契约复审触发器（D-076②）——真实采集路径上撞了契约违例，而且根因是 git 上游形状漂移，就重评严正则的口径",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "git-iso-contract-violated",
@@ -1481,15 +1481,15 @@
      "by": "轮22 grill D-076",
      "criterion_version": "D-076②",
      "decision": "registered",
-     "reason": "锐评立场批评零新增实证不满足 D-075 revised 受理边界——决策维持、观察价值转写为可证伪复审触发器",
-     "evidence": "decision-ledger.md D-076＋R22-Q4 报告 ③git-iso-contract-violated"
+     "reason": "锐评那个立场批评没带来新的实证，够不上 D-075 revised 的受理边界——决策维持，观察价值改写成一条能证伪的复审触发器",
+     "evidence": "decision-ledger.md 的 D-076，加上 R22-Q4 报告里的 ③git-iso-contract-violated"
     }
    ]
   },
   {
    "id": "sql-strip-escape-review",
    "family": "code-hygiene",
-   "title": "SQL 剥字面量逃逸复审触发器（D-076②）——真实 SQL 面漏判实证或门面角色升级为安全边界时重评启发式守卫形态",
+   "title": "SQL 剥字面量的逃逸复审触发器（D-076②）——真实 SQL 面上漏判有实证，或者有人把这层门面的角色升成安全边界，就重评这个启发式守卫的形态",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "sql-strip-escape-observed",
@@ -1505,15 +1505,15 @@
      "by": "轮22 grill D-076",
      "criterion_version": "D-076②",
      "decision": "registered",
-     "reason": "锐评立场批评零新增实证不满足 D-075 revised 受理边界——决策维持、观察价值转写为可证伪复审触发器",
-     "evidence": "decision-ledger.md D-076＋R22-Q4 报告 ③sql-strip-escape-observed"
+     "reason": "锐评那个立场批评没带来新的实证，够不上 D-075 revised 的受理边界——决策维持，观察价值改写成一条能证伪的复审触发器",
+     "evidence": "decision-ledger.md D-076＋R22-Q4 报告 ③ 那儿记的 sql-strip-escape-observed"
     }
    ]
   },
   {
    "id": "dist-in-repo-review",
    "family": "distribution",
-   "title": "dist 入库复审触发器（D-076②＋D-211② 映射更新）——npm publish 激活/pack 体积过阈/官方惯例反转/棘轮余量<25% 越线时重评制品随源进仓",
+   "title": "dist 进不进仓的复审触发器（D-076②＋D-211② 映射更新过）——npm publish 激活了／pack 体积过阈／官方惯例反转／棘轮余量 <25% 越线，这四种任一发生就重评制品到底要不要跟着源码一起进仓",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "dist-in-repo-superseded",
@@ -1529,15 +1529,15 @@
      "by": "轮22 grill D-076",
      "criterion_version": "D-076②",
      "decision": "registered",
-     "reason": "锐评立场批评零新增实证不满足 D-075 revised 受理边界——决策维持、观察价值转写为可证伪复审触发器",
-     "evidence": "decision-ledger.md D-076＋R22-Q4 报告 ③dist-in-repo-superseded"
+     "reason": "锐评那个立场批评没带来新的实证，够不上 D-075 revised 的受理边界——决策维持，观察价值改写成一条能证伪的复审触发器",
+     "evidence": "decision-ledger.md 的 D-076，加上 R22-Q4 报告里的 ③dist-in-repo-superseded"
     },
     {
      "at": "2026-10-04",
      "by": "R62 grill D-211②",
      "criterion_version": "D-211②",
      "decision": "registered",
-     "reason": "第五轮锐评 dist 310KB 批评部分重开留痕三件之一——批评吸收映射：棘轮余量读数入值守面为第四子事件；D-181 单文件提交 bundle 本体维持（check-dist 官方同构＋size-limit 棘轮惯例反向支持）",
+     "reason": "第五轮锐评说 dist 310KB，批评部分重开留痕三件之一——批评怎么吸收的：棘轮余量的读数进值守面，当第四个子事件；D-181 那个单文件提交 bundle 本体维持（check-dist 跟官方同构，size-limit 棘轮惯例反过来支持它）",
      "evidence": "decision-ledger.md D-211②＋reports/R62-Q1-atomcode-research.md"
     },
     {
@@ -1545,15 +1545,15 @@
      "by": "R63 T1 执行批（D-211② 第四子事件）",
      "criterion_version": "D-076②+D-211②",
      "decision": "sub-event-fired",
-     "reason": "第四子事件=棘轮余量越线实测发生（373,105B/cap 385,000B，headroom 3.1%＜25%）——分发形态重评票 #90 已立案；重评裁定（拆仓/publish/体积治理/限值重推导）待用户/裁定链主权面，前三子事件（publish 激活/pack 过阈/官方弃指引）未发生",
-     "evidence": "registry ratchet-headroom-watch triggered confirmation＋BACKLOG #90＋check-dist 实测读数"
+     "reason": "第四个子事件=棘轮余量越线，实测发生了（373,105B/cap 385,000B，headroom 3.1%＜25%）——分发形态重评票 #90 已经立了；重评怎么裁（拆仓／publish／体积治理／限值重推导）等用户和裁定链那边定主权，前面三个子事件（publish 激活／pack 过阈／官方弃指引）都还没发生",
+     "evidence": "registry 里 ratchet-headroom-watch 的 triggered 确认行，加 BACKLOG #90，加 check-dist 的实测读数"
     }
    ]
   },
   {
    "id": "github-rest-review-coverage-dimension",
    "family": "upstream-dimension-map",
-   "title": "review 覆盖切片 S5↔S4 归属裁定（D-081 双挂行事件锚化）",
+   "title": "review 覆盖切片 S5↔S4 该归哪边，要裁（D-081 那条暂挂两边的行，改成事件锚）",
    "deadline_event": null,
    "deadline": "无硬到期——纯事件驱动（次锚=映射表 next_review，日期以 docs/upstream-dimension-map.md 复审字段为唯一权威、本行不钉字面值防漂移）",
    "trigger_event": "github-rest-reviews-active",
@@ -1566,7 +1566,7 @@
   {
    "id": "rubric-weight-drafting",
    "family": "quadrant-rubric",
-   "title": "权重语义 rubric 层立案——「quadrant-rubric 初版参数起草」触发（D-084④：映射表无权重列，权重/强弱语义归判据面）",
+   "title": "权重的语义在 rubric 层立项——「quadrant-rubric 初版参数起草」触发（D-084④：映射表里没有权重列，权重和强弱的语义归判据面）",
    "deadline_event": null,
    "deadline": "无硬到期——纯事件驱动（次锚=映射表 next_review，日期以 docs/upstream-dimension-map.md 复审字段为唯一权威、本行不钉字面值防漂移）",
    "trigger_event": "quadrant-rubric-params-draft",
@@ -1579,7 +1579,7 @@
   {
    "id": "readme-ci-badge",
    "family": "facade",
-   "title": "README CI badge 挂徽触发器（D-089⑤——main 上 engine-ci 实跑绿后方可挂 CI 徽记）",
+   "title": "README 挂 CI 徽标的触发器（D-089⑤——main 上 engine-ci 真跑绿了才能挂 CI 徽记）",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "engine-ci-main-green",
@@ -1595,7 +1595,7 @@
      "by": "轮24 grill D-089",
      "criterion_version": "D-089⑤",
      "decision": "registered",
-     "reason": "badge 诚实纪律——CI 徽记以 main 实跑绿为锚不预埋死链",
+     "reason": "徽标要诚实——CI 徽记以 main 上真跑绿为锚，不许先埋一条死链",
      "evidence": "decision-ledger.md D-089⑤"
     },
     {
@@ -1603,7 +1603,7 @@
      "by": "轮27 收口（事件翻转实证）",
      "criterion_version": "D-089⑤",
      "decision": "trigger-fired",
-     "reason": "engine-ci-main-green 事件发生：main 实跑 35681529820 success——挂徽解锁，随 #77 门面收口包落地（挂载完成方翻 status）",
+     "reason": "engine-ci-main-green 这个事件发生了：main 上真跑 35681529820 success——挂徽解锁，随 #77 的门面收口包落地（挂载做完的那一方负责翻 status）",
      "evidence": "gh run list --workflow engine-ci.yml --branch main → run 35681529820 conclusion=success"
     },
     {
@@ -1611,15 +1611,15 @@
      "by": "R47-impl 执行批（轮48 T1，分支 r48-t1-exec）",
      "criterion_version": "D-089⑤/D-175②⑦",
      "decision": "badge-mounted",
-     "reason": "挂载完成翻 status（项内纪律「挂载完成方翻 status」兑现）：CI 徽标已于 2026-09-22 实挂 README.md（actions/workflows/engine-ci.yml/badge.svg?branch=main——engine-ci-main-green 事件 fired run 35681529820 success 同日解锁）；33-check H4 互等断言持续绿（occurred↔徽标在场）。如实披露：当前 main 最新实跑 36324002874（2026-09-27）conclusion=failure——根因=engine-ci.yml 末步 78-check 缺 working-directory 覆盖（job 默认 engine/ cwd 致 .scratch 路径错寻 MODULE_NOT_FOUND，e6724489 引入即带缺陷），徽标如实显红=诚实徽记生效非徽章缺陷；cwd 修复随本批同分支 engine-ci.yml 一行补丁落地。",
-     "evidence": "README.md 徽标行＋gh run list --workflow engine-ci.yml --branch main 读数＋.github/workflows/engine-ci.yml 修复 diff"
+     "reason": "挂载做完，翻 status（项内那条「挂载完成方翻 status」兑现）：CI 徽标 2026-09-22 已经实挂到 README.md（actions/workflows/engine-ci.yml/badge.svg?branch=main——engine-ci-main-green 事件 fired run 35681529820 success，同一天解锁）；33-check H4 那个互等断言一直是绿的（occurred 跟徽标在场对得上）。如实披露：现在 main 上最新实跑 36324002874（2026-09-27）conclusion=failure——根因是 engine-ci.yml 最后一步 78-check 没覆盖 working-directory（job 默认 cwd 在 engine/，导致 .scratch 路径找错，报 MODULE_NOT_FOUND，e6724489 引进的时候就带着这个缺陷），徽标如实显红=诚实徽记生效，不是徽章的毛病；cwd 修复跟着本批在同一分支上打一行 engine-ci.yml 补丁落地。",
+     "evidence": "README.md 那行徽标＋gh run list --workflow engine-ci.yml --branch main 读出来的数＋.github/workflows/engine-ci.yml 那处修复 diff"
     }
    ]
   },
   {
    "id": "readme-motion-gif",
    "family": "facade",
-   "title": "README 演示动图（motion GIF）触发器（D-089⑤——CLI/demo 输出面冻结后拍实录防快照过期）",
+   "title": "README 演示动图的触发器（D-089⑤——CLI/demo 输出面冻结以后再拍实录，免得快照过期）",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "listing-material-freeze",
@@ -1635,7 +1635,7 @@
      "by": "轮24 grill D-089",
      "criterion_version": "D-089⑤",
      "decision": "registered",
-     "reason": "实录过期快——功能冻结后拍真实 UI（25-P4/25-D3 同锚纪律）",
+     "reason": "实录过时得快——功能冻结以后再拍真实 UI（跟 25-P4/25-D3 同一个锚的纪律）",
      "evidence": "decision-ledger.md D-089⑤"
     }
    ]
@@ -1643,7 +1643,7 @@
   {
    "id": "official-catalog-icon-required",
    "family": "facade",
-   "title": "官方目录 icon 字段要求触发器（D-099③——B 轨提交若定义 icon 字段则从 icon.svg 脚本化派生 PNG 集）",
+   "title": "官方目录要求 icon 字段的触发器（D-099③——B 轨提交要是定义了 icon 字段，就照 icon.svg 用脚本派生一套 PNG）",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "official-catalog-icon-required",
@@ -1659,7 +1659,7 @@
      "by": "轮27 grill D-099",
      "criterion_version": "D-099③⑥",
      "decision": "registered",
-     "reason": "消费面驱动制——品牌资产仅在有真实消费面时派生；当前分发 schema 无 icon 字段消费面=零",
+     "reason": "有消费面才做——品牌资产只在真有消费面的时候才派生；现在的分发 schema 没有 icon 字段，消费面=零",
      "evidence": "decision-ledger.md D-099"
     }
    ]
@@ -1667,7 +1667,7 @@
   {
    "id": "docs-site-deployed",
    "family": "facade",
-   "title": "docs 站部署触发器（D-099③——docs 静态站实际部署时派生 favicon 族）",
+   "title": "docs 站部署触发器（D-099③——docs 静态站真部署了，再派生 favicon 那一族）",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "docs-site-deployed",
@@ -1683,15 +1683,15 @@
      "by": "轮27 grill D-099",
      "criterion_version": "D-099③⑥",
      "decision": "registered",
-     "reason": "消费面驱动制——favicon 族仅在「存在被浏览器打开的 HTML 页面」时有消费面（web.dev 实证：manifest 须经 link 挂 HTML 才生效）",
-     "evidence": "decision-ledger.md D-099；R27-Q2 调研报告"
+     "reason": "有消费面才做——favicon 这一族只有在「存在被浏览器打开的 HTML 页面」时才有消费面（web.dev 的实证：manifest 得靠 link 挂进 HTML 才生效）",
+     "evidence": "decision-ledger.md 的 D-099；R27-Q2 调研报告"
     }
    ]
   },
   {
    "id": "78-quarantine-signal-review",
    "family": "quarantine",
-   "title": "#78 quarantine_log 缺口信号复核触发器（D-113② 单向权威——缺口语义唯一权威在 docs/known-gaps.md，本条目只持触发器五要素不复制缺口字段）",
+   "title": "#78 quarantine_log 缺口信号复核触发器（D-113② 只认一处说法——缺口的说法只在 docs/known-gaps.md 里定，本条目只记触发器的五要素，不抄缺口字段）",
    "deadline_event": null,
    "deadline": "无（事件驱动项）",
    "trigger_event": "quarantine-new-signal",
@@ -1707,7 +1707,7 @@
      "by": "轮29 T2/#78 实施窗",
      "criterion_version": "D-113②④",
      "decision": "registered",
-     "reason": "缺口信号复核触发器登记——检测面自动 intake、裁决面人审（DryRun/SBOM→VEX 三层同构）；多数缺口经阈值/strict 硬崩处置无需专门触发器，trigger_id 可空",
+     "reason": "缺口信号复核触发器登记——检测那头自动收件，裁决那头人来审（跟 DryRun/SBOM→VEX 三层的结构一样）；多数缺口靠阈值或者 strict 硬崩就处理掉了，不用专门架触发器，trigger_id 可以空着",
      "evidence": "docs/known-gaps.md GAP-078-01~04；decision-ledger.md D-113"
     }
    ]
@@ -1715,7 +1715,7 @@
   {
    "id": "82-first-external-contributor",
    "family": "repo-maintenance",
-   "title": "#82 首个外部贡献者出现 → 贡献者体验/文档就绪复核（D-130③ 仓内自创机制如实标注）",
+   "title": "#82 头一个外部贡献者出现 → 复核贡献者体验和文档够不够用（D-130③ 这是本仓自己想出来的机制，如实标一笔）",
    "deadline_event": "first-external-contributor",
    "deadline": "无（事件驱动项）",
    "trigger_event": "first-external-contributor",
@@ -1731,7 +1731,7 @@
      "by": "轮32 T3/#82 执行窗",
      "criterion_version": "D-130③",
      "decision": "registered",
-     "reason": "外部贡献者体验在外部用户出现时测量——当前群体=0 禁提前自服务化文档重构；事件登记+本条目绑定使触发有物可触",
+     "reason": "外部贡献者的体验要等真有外部用户了再量——现在的群体数还是 0，不许提前把文档改成自服务式；把事件登记上、跟本条目绑住，触发的时候才有东西可触",
      "evidence": "decision-ledger.md D-130；33-gate-registry.json events.first-external-contributor"
     }
    ]
@@ -1739,7 +1739,7 @@
   {
    "id": "81-first-non-z-dialect-host",
    "family": "instrument-dialect",
-   "title": "#81 首遇非 Z 方言宿主 → golden 再生＋差集工件留证（D-138/F11 不可证面闭合路径）",
+   "title": "#81 头一回碰上非 Z 方言的宿主 → 重跑 golden，再把差集留成工件（D-138/F11 那条没法在本仓证伪的面，走这条路闭合）",
    "deadline_event": "first-non-z-dialect-host",
    "deadline": "无（事件驱动项）",
    "trigger_event": "first-non-z-dialect-host",
@@ -1755,7 +1755,7 @@
      "by": "轮32 收口整理窗",
      "criterion_version": "D-138①",
      "decision": "registered",
-     "reason": "golden 跨宿主稳定在本仓不可证伪（本宿主 git 方言本即 Z、再生零差集）——机制层已由 dialect-boundary.test.mjs 合成 +00:00/Z 双语料覆盖（fieldStats 逐字节一致＋吸收事件 4/0 分列），真宿主差集工件义务转本事件触发封口",
+     "reason": "golden 换台机器还稳不稳，在本仓没法证伪（本机的 git 方言本来就是 Z，重跑差集是零）——机制这层已经由 dialect-boundary.test.mjs 用合成的 +00:00/Z 双语料盖住了（fieldStats 逐字节一致、吸收事件 4/0 分开列），真宿主的差集工件这个义务就等这个事件触发来封口",
      "evidence": "decision-ledger.md D-138；reports/R32-Q5-atomcode-research.md；engine/test/dialect-boundary.test.mjs C1/C3"
     }
    ]
@@ -1763,7 +1763,7 @@
   {
    "id": "89-format-piggyback-recurrence",
    "family": "process-hygiene",
-   "title": "格式化搭车复发 → 升级 diff 噪声守卫（D-139③ deferred 触发器——R32 V1 过程违规防复发升级路径）",
+   "title": "格式化搭车又来一次 → 升级成 diff 噪声守卫（D-139③ 挂起中的触发器——R32 V1 那次过程违规的防复发路）",
    "deadline_event": "format-piggyback-recurrence",
    "deadline": "无（事件驱动项）",
    "trigger_event": "format-piggyback-recurrence",
@@ -1779,7 +1779,7 @@
      "by": "轮32 收口整理窗",
      "criterion_version": "D-139③",
      "decision": "registered",
-     "reason": "R32 审计 V1 过程违规（重缩进搭车）单次发生按轻规约处置（AGENTS.md 负向行）；复发=规约失效证据，守卫化条件点燃",
+     "reason": "R32 审计里 V1 那次过程违规（重缩进搭车）只发生一次，按轻规约处理（AGENTS.md 里那条负向行）；再复发就说明规约不管用了，守卫化的条件就点上",
      "evidence": "decision-ledger.md D-139；reports/2026-09-24-r32-audit-report.md §6 V1"
     }
    ]
@@ -1787,7 +1787,7 @@
   {
    "id": "90-review-intake-mistriage-recurrence",
    "family": "process-hygiene",
-   "title": "评审摄入误分诊复发 → 升级摄入校验守卫（D-142③ deferred 触发器——快照滞后误报防复发升级路径）",
+   "title": "评审收件分错又来一次 → 升级成收件校验守卫（D-142③ 挂起中的触发器——快照没跟上导致误报的防复发路）",
    "deadline_event": "review-intake-mistriage-recurrence",
    "deadline": "无（事件驱动项）",
    "trigger_event": "review-intake-mistriage-recurrence",
@@ -1803,7 +1803,7 @@
      "by": "轮34 收口整理窗",
      "criterion_version": "D-142③",
      "decision": "registered",
-     "reason": "R34 锐评快照滞后（快照 44cc2a4 呈报时主线已 811d930）按一行摄入规程处置（AGENTS.md）；复发=规程失效证据，守卫化条件点燃",
+     "reason": "R34 锐评那次快照滞后（快照定格在 44cc2a4，呈报时主线已经到 811d930）按一行收件规程处理（AGENTS.md）；再复发就说明规程不管用，守卫化的条件就点上",
      "evidence": "decision-ledger.md D-142；reports/R34-Q3-atomcode-research.md"
     }
    ]
@@ -1811,7 +1811,7 @@
   {
    "id": "guard-baseline-upgrade-trigger",
    "family": "code-hygiene",
-   "title": "收口判据升格触发器（D-149④）——T3 manifest 产出当轮「守卫组」判据升格为 58 件全跑＋红集⊆known-red manifest＋manifest 件复绿告警",
+   "title": "收口判据升格触发器（D-149④）——T3 的 manifest 一产出，当轮「守卫组」判据就升成 58 件全跑＋红集必须包含在 known-red manifest 里＋册上的件复绿要告警",
    "deadline_event": null,
    "deadline": "无（值守项）",
    "trigger_event": "t3-guard-manifest-shipped",
@@ -1828,16 +1828,16 @@
      "by": "轮36 grill D-149④",
      "criterion_version": "D-149④",
      "decision": "registered",
-     "reason": "两阶段防 graveyard 固驻——止血期收口判据=18 件基线枚举全绿（AGENTS.md 锚面固化）；升格条件=manifest 产出当轮（Trigger-gated Closure 同 D-071⑨ 惯例）",
-     "evidence": "decision-ledger.md D-149④＋AGENTS.md 守卫组指称行"
+     "reason": "分两段防着固驻成坟场——止血期的收口判据=18 件基线枚举全绿（AGENTS.md 那个锚面固化下来的）；升格的条件=manifest 产出的那一轮（Trigger-gated Closure 跟 D-071⑨ 同规矩）",
+     "evidence": "decision-ledger.md 的 D-149④，加上 AGENTS.md 里指守卫组的那一行"
     },
     {
      "at": "2026-09-27",
      "by": "轮37 T1（A-097）",
      "criterion_version": "D-149④",
      "decision": "fired",
-     "reason": "T3/#75批1 manifest 产出当轮——升格判据生效：全量跑 60 件（动态枚举）＋红集⊆manifest＋册件复绿 strict 告警（guard-all-run.mjs）",
-     "evidence": "known-red-manifest.json（1 件 legit-drift：kr-01-corpus-regen）＋guard-all-run.mjs GUARD-ALL-RESULT: PASS 实跑"
+     "reason": "T3／#75批1 的 manifest 产出那一轮——升格判据生效：全量跑 60 件（动态枚举），红集必须包含在 manifest 里，册上的件复绿要 strict 告警（guard-all-run.mjs）",
+     "evidence": "known-red-manifest.json（1 件 legit-drift：kr-01-corpus-regen），加上 guard-all-run.mjs 实跑的 GUARD-ALL-RESULT: PASS"
     }
    ],
    "bound_to": "#75批1（T3 字面钉普查产出 manifest——静默红 12 件画像为本普查输入）"
@@ -1845,7 +1845,7 @@
   {
    "id": "r1-lineage-edgecap-accepted-risk",
    "family": "micro-b-file-card",
-   "title": "R1 lineageEdgeCapHit 病态角披露缺口——subject 无边＋祖先边池触帽时卡面 lineage:null 帽事件不可见（D-148② Accepted-Risk 裁立）",
+   "title": "R1 的 lineageEdgeCapHit 病态角，披露上有缺口——subject 一条边都没有、祖先边池又撞到上限时，卡面上 lineage:null 这个帽事件看不见（D-148② 裁成 Accepted-Risk）",
    "deadline_event": null,
    "deadline": "无（复评触发制）",
    "trigger_event": null,
@@ -1854,7 +1854,7 @@
    "status": "decided",
    "watch": "risk_accepted",
    "acceptor": "用户（2026-09-27 R36-Q1 拍板）",
-   "reason": "病态角非硬错——触发需 subject 零边∧边池触帽双重条件；披露伞 truncated 在有边时如实工作；补偿控制=reprobe 路径经非空 lineage 块回查",
+   "reason": "病态角不是硬错——要同时满足两个条件才触发：subject 一条边都没有，并且边池已经撞到上限；有边的时候那层 truncated 披露是照实工作的；补偿办法是让 reprobe 路径走非空 lineage 块回查一遍",
    "expires_at": "min(复评触发：subject 零边且触帽真实案例先到, 2026-12-28 日历兜底)（D-171①a 腐化基座类标准形——2026-09-29 用户批准重立项生效）",
    "owner": "macro-audit 队列值守",
    "review_event": "stage3-close",
@@ -1865,7 +1865,7 @@
      "by": "轮36 grill D-148②",
      "criterion_version": "D-148②",
      "decision": "accepted-risk",
-     "reason": "Three-Disposition 三要素齐备（不修理由/补偿控制/复评触发）；finding-triage/OWASP 分诊三态同构",
+     "reason": "Three-Disposition 三要素齐备（不修的理由、补偿控制、复评触发）；跟 finding-triage/OWASP 分诊的三态同构",
      "evidence": "decision-ledger.md D-148②＋reports/R36-Q1-atomcode-research.md"
     },
     {
@@ -1873,24 +1873,24 @@
      "by": "R44-T1 存量RA普查（D-169-b③）",
      "criterion_version": "D-169-b③",
      "decision": "ra-census-fields-verified",
-     "reason": "两检查字段核验：裁者具名=用户（2026-09-27 R36-Q1 拍板）✓；到期在册=expires_at 复评触发事件制 ✓（grandfather 事件制形态保留标注：五要件口径下 expiry 为事件锚非日历——普查标注非重做，不重裁内容）；非到期缺失/已过档，不重立项",
-     "evidence": "registry 本项 acceptor/expires_at 字段机读核验"
+     "reason": "两个检查字段核过：裁的人具名=用户（2026-09-27 R36-Q1 拍的板）✓；到期在册=expires_at 走复评触发事件制 ✓（grandfather 事件制这个形态保留并标注：五要件的口径下 expiry 是事件锚不是日历——这是普查标注，不是重做，内容不重裁）；不是到期缺失也不是已经过档，不重立项",
+     "evidence": "registry 里本项的 acceptor/expires_at 两个字段，机器读完核过"
     },
     {
      "at": "2026-09-29",
      "by": "R46-T1 执行批（D-171③a）",
      "criterion_version": "D-171③a",
      "decision": "refiled-draft-pending-approval",
-     "reason": "r1 判腐化基座类（reprobe 补偿控制=代码路径依赖可静默腐化——重构删路径不产生事件）→按新标五要件重立项 RA 档案草案 docs/ra/r1-lineage-edgecap-accepted-risk.md 成文呈批（到期=min(复评触发事件,2026-12-28)＋复审钩重验补偿控制存续）；具名裁者=用户——批准决定待决前原事件制到期字段维持值守，不预判裁定",
-     "evidence": "docs/ra/r1-lineage-edgecap-accepted-risk.md（呈批件）"
+     "reason": "r1 判成腐化基座这一类（reprobe 这个补偿控制=依赖代码路径，可以悄悄腐化——重构把路径删了根本不产生事件）→照新标的五要件重立项，RA 档案草案 docs/ra/r1-lineage-edgecap-accepted-risk.md 写成文呈批（到期=min(复评触发事件,2026-12-28)，加复审钩重验补偿控制还在不在）；裁的人具名=用户——批准决定没下来之前，原来那套事件制到期的字段维持值守，不预判裁定",
+     "evidence": "docs/ra/r1-lineage-edgecap-accepted-risk.md（报上去等人批的那份）"
     },
     {
      "at": "2026-09-29",
      "by": "用户（Xxx91n）批准——轮46 审计 LOOP 批落册",
      "criterion_version": "D-171③a 五要件",
      "decision": "refile-approved",
-     "reason": "用户批准 r1 腐化基座类重立项（呈批件 docs/ra/r1-lineage-edgecap-accepted-risk.md）：到期转 min(复评触发,2026-12-28) 双锚＋复审钩重验补偿控制存续；批准人=用户≠呈批人=执行批——D-169-b② 职责分离合规",
-     "evidence": "docs/ra/r1-lineage-edgecap-accepted-risk.md §6 回填＋本项 expires_at/verify_method 双锚字段"
+     "reason": "用户批了 r1 腐化基座这一类的重立项（呈批件 docs/ra/r1-lineage-edgecap-accepted-risk.md）：到期转成 min(复评触发,2026-12-28) 双锚，加复审钩重验补偿控制还在不在；批准人是用户≠呈批人是执行批——D-169-b② 的职责分离合规",
+     "evidence": "docs/ra/r1-lineage-edgecap-accepted-risk.md §6 填回去了＋本项的 expires_at/verify_method 两个锚字段"
     }
    ],
    "bound_to": "#80 步③血缘缝合呈报项（R36-T2 审计窗产出）"
@@ -1898,7 +1898,7 @@
   {
    "id": "r2-peer-dedup-reaffirmed",
    "family": "micro-b-file-card",
-   "title": "R2 peer 去重一跳＋renamed_to 多 to-竞争边取首匹配——确认式呈报（D-148②：票面「带病边界不修」注记在案＋补复评触发条件，非新裁）",
+   "title": "R2 peer 去重跳一跳＋renamed_to 多条 to-竞争边取第一个匹配——这事是确认式呈报（D-148②：票面上「带病边界不修」注记在案，这轮只补复评触发条件，不算新裁）",
    "deadline_event": null,
    "deadline": "无（复评触发制）",
    "trigger_event": null,
@@ -1907,7 +1907,7 @@
    "status": "decided",
    "watch": "risk_accepted",
    "acceptor": "用户（2026-09-27 R36-Q1 拍板=re-affirmation 非新裁）",
-   "reason": "票面「带病边界注明不修」既决——本轮动作仅补复评触发条件字段（accepted-risk 文书 Approver+Date+trigger 惯例），措辞与「注明不修」同调故零 revised",
+   "reason": "票面上「带病边界注明不修」早就定了——这轮只补了复评触发条件那几个字段（accepted-risk 文书的老规矩是 Approver＋Date＋trigger），话跟「注明不修」是一个调子，所以不算改向",
    "expires_at": "复评触发：renamed_to 多 to 竞争边产生实际取首匹配歧义案例即重开",
    "owner": "macro-audit 队列值守",
    "review_event": "stage3-close",
@@ -1918,24 +1918,24 @@
      "by": "轮36 grill D-148②",
      "criterion_version": "D-148②",
      "decision": "reaffirmed",
-     "reason": "确认式呈报非改向——既有票面注记+补齐触发字段",
-     "evidence": "decision-ledger.md D-148②＋2026-09-26-r36-t2-audit-pass-handoff.md 呈报项留档"
+     "reason": "确认式呈报，不是改向——既有票面注记，把触发字段补齐",
+     "evidence": "decision-ledger.md D-148②＋2026-09-26-r36-t2-audit-pass-handoff.md 里呈报项留了档"
     },
     {
      "at": "2026-09-28",
      "by": "R44-T1 存量RA普查（D-169-b③）",
      "criterion_version": "D-169-b③",
      "decision": "ra-census-fields-verified",
-     "reason": "两检查字段核验：裁者具名=用户（2026-09-27 R36-Q1 拍板=re-affirmation）✓；到期在册=expires_at 复评触发事件制 ✓（grandfather 事件制形态保留同上）；非到期缺失/已过档，不重立项",
-     "evidence": "registry 本项 acceptor/expires_at 字段机读核验"
+     "reason": "两个检查字段核过：裁的人具名=用户（2026-09-27 R36-Q1 拍的板就是这次 re-affirmation）✓；到期在册=expires_at 走复评触发事件制 ✓（grandfather 事件制形态保留，同上）；不是到期缺失也不是已经过档，不重立项",
+     "evidence": "registry 里本项的 acceptor/expires_at 两个字段，机器读完核过"
     },
     {
      "at": "2026-09-29",
      "by": "R46-T1 执行批（D-171③b）",
      "criterion_version": "D-171③b",
      "decision": "wontfix-permanent-reaffirmed-annotated",
-     "reason": "r2 判 wontfix 恒久类追认——接受对象=不随时间衰减的设计事实（票面「带病边界注明不修」既决）且无存续依赖补偿控制→事件制到期合法保留无需重批；双条件核验在册：触发事件=本项可核验 sentinel（expires_at 复评触发锚＋review_event=stage3-close 绑值守）＋低频盘查钩=T3 审计窗存量普查复读；本行=字段标注非内容重裁",
-     "evidence": "registry 本项 expires_at/trigger/review_at 机读在册"
+     "reason": "r2 判成 wontfix 恒久这一类，追认——接受的对象是不随时间衰减的设计事实（票面上「带病边界注明不修」早就定了），而且没有存续要依赖的补偿控制 → 走事件制到期合法保留，不用重批；两个条件核过都在册：触发事件=本项可核验的 sentinel（expires_at 复评触发锚，加 review_event=stage3-close 绑值守），低频盘查钩=T3 审计窗对存量做普查重读；这一行只是字段标注，不是内容重裁",
+     "evidence": "registry 里本项的 expires_at/trigger/review_at 都机器读得到"
     }
    ],
    "bound_to": "#80 步③血缘缝合呈报项（B6 延续）"
@@ -1943,7 +1943,7 @@
   {
    "id": "known-red-kr-01-corpus-regen",
    "family": "guard-baseline",
-   "title": "known-red kr-01：01-check 语料再生退化（intent≥5 破/分数溯源断）复审锚",
+   "title": "known-red kr-01：01-check 的语料重新采样后退化了（intent≥5 破了／分数溯源断了），复审锚",
    "deadline_event": null,
    "deadline": "2026-12-31（expires_fallback）",
    "trigger_event": "corpus-resnapshot-landed",
@@ -1961,7 +1961,7 @@
      "by": "R40-T1（D-159④）",
      "criterion_version": "D-159④",
      "decision": "lifecycle-note",
-     "reason": "env 缺陷面关账：01-check.mjs 自指绝对路径改 repo-relative（import.meta.url 锚）——异地 clone 必红无条件病修复；语料退化 D1/D5 在册红面维持，review_anchor 未命中不摘除",
+     "reason": "env 这个缺陷面关账：01-check.mjs 里指自己的绝对路径改成仓相对（用 import.meta.url 当锚）——换个地方 clone 必然红、没条件的毛病修掉了；语料退化 D1/D5 那条在册的红面维持，review_anchor 没命中就不摘",
      "evidence": "reports/01-check.mjs R=dirname(import.meta.url)＋known-red-manifest.json kr-01 lifecycle_log"
     },
     {
@@ -1969,20 +1969,20 @@
      "by": "R46-T1 执行批",
      "criterion_version": "D-172①⑤",
      "decision": "closed-resolved",
-     "reason": "冻结重钉兑现：git show 3a049d45 原 blob 字节级恢复 3 件（sha256 对账一致）＋01-check PASS 82/82（D1 intent 9≥5＋D5 45/45 互认恢复＋F 组 frozen 钉值断言落位）→manifest kr-01 人工摘除，结案=已消解（冻结重钉＋frozen 立法）＋lifecycle_log 追加误伤归因；review_anchor 无属主腿修正注记落地",
-     "evidence": "reports/known-red-manifest.json closed[] kr-01 条目＋01-check.mjs 82/82 实跑"
+     "reason": "冻住的重新钉回去，兑现：git show 3a049d45 把原来的 blob 按字节恢复 3 件（sha256 对得上），01-check PASS 82/82（D1 的 intent 9≥5、D5 的 45/45 互认恢复、F 组 frozen 钉值断言也落位）→manifest 里 kr-01 人工摘掉，结案=已消解（冻结重新钉＋frozen 立法），lifecycle_log 追加误伤归因；review_anchor 没有属主那一条的修正注记落地",
+     "evidence": "reports/known-red-manifest.json 的 closed[] 里 kr-01 那条＋01-check.mjs 跑出 82/82"
     }
    ],
    "review_anchor_correction": {
     "at": "2026-09-29",
     "ref": "D-172⑤",
-    "note": "原 trigger/review_anchor「anysearch-cli 语料重采样票落地」腿判无属主不合格锚点（上游无认领票＋跨仓主权禁代排产立案——graveyard/issue-links-no-resolve 反模式）；实际闭合腿=「三仓语料冻结重钉」——字段级修正注记随本批落，册件摘除走 strict 复绿正轨"
+    "note": "原来的 trigger/review_anchor 那条「anysearch-cli 语料重采样票落地」按腿判过：没有属主，是不合格的锚点（上游没有认领票，跨仓主权也不许代排产立案——graveyard/issue-links-no-resolve 那个反模式）；真正闭合的那一腿=「三仓语料冻结重钉」——这条字段级的修正注记跟着这批一起落，册件摘除还是走 strict 复绿那条正路"
    }
   },
   {
    "id": "batch2beta-techdebt-review",
    "family": "techdebt-ledger",
-   "title": "批2-β 技术债节级复审锚（known-gaps 登记批八件 GAP-B2B-01~08）",
+   "title": "批2-β 技术债那一节的复审锚（known-gaps 登记批的八件 GAP-B2B-01~08）",
    "deadline_event": null,
    "deadline": "—（manual_watch：复审节律驱动非事件触发）",
    "trigger_event": null,
@@ -2000,47 +2000,47 @@
      "by": "R42-T1 审计窗随读",
      "criterion_version": "D-156②",
      "decision": "status-unchanged",
-     "reason": "GAP-B2B-01~08 逐件复审：全八件 status=triaged/仓内定期检查、mini-五要素齐备——批2-β 未落地，复审窗未至（锚=next-audit-window）；本窗无迁移",
-     "evidence": "docs/known-gaps.md 批2-β 节八行 status 列全 triaged"
+     "reason": "GAP-B2B-01~08 一件一件复审：八件都是 status=triaged、写着仓内定期检查，mini 五要素齐备——批2-β 还没落地，复审窗没到（锚=next-audit-window）；这个窗口没有状态迁移",
+     "evidence": "docs/known-gaps.md 批2-β 那一节，八行的 status 列全是 triaged"
     },
     {
      "at": "2026-09-28",
      "by": "R44-T3 审计窗随读＋T1-B 普查同窗",
      "criterion_version": "D-156②/D-169-b③",
      "decision": "status-unchanged",
-     "reason": "GAP-B2B-01~08 逐件重审：全八件 status=triaged/owner=仓内定期检查、mini-五要素 8/8 字段齐备、review_by=批2-β 落地后下一审计窗（事件锚在册）——批2-β 未落地复审窗未至，本窗无迁移；兼作触发器①读数=无恶化（较基线同态）；RA 两字段标注=裁者可溯源（D-155①/D-156② 轮39 立法登记）＋复审锚在册",
-     "evidence": "docs/known-gaps.md 批2-β 节八行字段机读核验（fields=8/8 mini5ok=true ×8）"
+     "reason": "GAP-B2B-01~08 一件件重审：八件都 status=triaged、owner=仓内定期检查，mini 五要素 8/8 字段齐备，review_by=批2-β 落地后的下一个审计窗（事件锚在册）——批2-β 没落地，复审窗没到，这个窗口没有迁移；同时当触发器①的读数用=没恶化（跟基线一样）；RA 那两个字段标着=裁定的人能顺着查（D-155①／D-156② 轮39 立法登记），复审锚也在册",
+     "evidence": "docs/known-gaps.md 批2-β 那一节，八行字段是机读核过的（fields=8/8，mini5ok=true，八行都是）"
     },
     {
      "at": "2026-09-28",
      "by": "R45 审计窗哨兵值守（r44-t1-exec 批审计同窗）",
      "criterion_version": "D-156②/D-169-b③",
      "decision": "status-unchanged",
-     "reason": "GAP-B2B-01~08 复核：全八件 status=triaged/owner=仓内定期检查同态、mini-五要素字段仍齐备、复审锚在册——批2-β 未落地复审窗未至；兼作触发器①读数=无恶化",
-     "evidence": "docs/known-gaps.md 批2-β 节八行复核（审计窗逐行重读，与 R44 登记读数同态）"
+     "reason": "GAP-B2B-01~08 复核：八件都 status=triaged、owner=仓内定期检查，状态一样，mini 五要素字段还齐备，复审锚在册——批2-β 没落地，复审窗没到；同时当触发器①的读数用=没恶化",
+     "evidence": "docs/known-gaps.md 批2-β 那一节，八行复核过（审计窗一行行重读，跟 R44 登记时的读数一样）"
     },
     {
      "at": "2026-09-29",
      "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
      "criterion_version": "D-169-a②/D-155②",
      "decision": "status-unchanged",
-     "reason": "GAP-B2B-01~08 逐件 status 重审：全 8 件 triaged 维持零恶化读数＋mini-五要素齐备抽查 8/8（gap_id/证据链/owner/notes/review_by/trigger_id 全在册）——批2-β 未落地故本复审仅值守读数",
-     "evidence": "docs/known-gaps.md 批2-β 登记批节 8 行机读"
+     "reason": "GAP-B2B-01~08 一件件重审 status：8 件都是 triaged，读数维持零恶化，mini 五要素抽查齐备 8/8（gap_id、证据链、owner、notes、review_by、trigger_id 全在册）——批2-β 没落地，所以这次复审只是值守读数",
+     "evidence": "docs/known-gaps.md 批2-β 登记批那一节，8 行是机读的"
     },
     {
      "at": "2026-09-29",
      "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
      "criterion_version": "D-156②/D-169-b③",
      "decision": "status-unchanged",
-     "reason": "GAP-B2B-01~08 逐件 status 重审读数：全八件 triaged 维持零恶化＋mini-五要素齐备（gap_id/类别/证据链/owner/notes/复审锚/trigger_id 在册）——批2-β 未落地复审窗未至，兼作触发器①读数=无恶化",
-     "evidence": "docs/known-gaps.md 批2-β 节八行逐行重读"
+     "reason": "GAP-B2B-01~08 一件件重审 status 的读数：八件都是 triaged，维持零恶化，mini 五要素齐备（gap_id、类别、证据链、owner、notes、复审锚、trigger_id 在册）——批2-β 没落地，复审窗没到，同时当触发器①的读数用=没恶化",
+     "evidence": "docs/known-gaps.md 批2-β 那一节，八行一行一行重读过"
     }
    ]
   },
   {
    "id": "codebuddy-ide-gap-watch",
    "family": "host-pilot-residual",
-   "title": "CodeBuddy IDE 形态缺口值守——CLI 已 verified 三判据 hit／IDE 关窗后未实测残项",
+   "title": "CodeBuddy IDE 形态缺口值守——CLI 上三条判据都验过、都命中；IDE 关窗以后没实测，这块是残项",
    "deadline_event": null,
    "deadline": "—（manual_watch）",
    "trigger_event": null,
@@ -2058,39 +2058,39 @@
      "by": "R43 收口节",
      "criterion_version": "D-168②",
      "decision": "ra-dossier-path-initiated",
-     "reason": "GAP-HOST-01 走 RA 五要件档案路径——执行窗起草呈用户批（具名裁者=用户，Agent 不代批）；关档/续等实证皆合法终态；本哨兵续任",
-     "evidence": "decision-ledger R43 收口节去向表 D-168 行"
+     "reason": "GAP-HOST-01 走的是 RA 五要件档案那条路——执行窗起好草呈给用户批（裁的人具名就是用户，Agent 不代批）；关档或者继续等实证，两种都是合法的终态；这个哨兵接着干",
+     "evidence": "decision-ledger 的 R43 收口节去向表里 D-168 那一行"
     },
     {
      "at": "2026-09-28",
      "by": "R44-T1 执行批呈批＋用户拍板",
      "criterion_version": "D-168②/D-169-b②",
      "decision": "ra-approved-closed",
-     "reason": "GAP-HOST-01 RA 五要件档案（docs/ra/GAP-HOST-01.md）成文呈批→用户裁定「关档」：accepted-risk 封闭处置落地（atomcode 深调研同向强化：五要件对齐 NIST SP 800-37 R2/ISO 27001/27005/GRC 五字段；续等实证≈risk-deferral 反模式；与 current 账本零冲突）；known-gaps status=accepted-risk 词表第四态增列；本哨兵转补偿控制＋复审钩续任（min(下次 IDE 会话,2026-12-27)，逾期失效须重立项）",
-     "evidence": "docs/ra/GAP-HOST-01.md §6 批准登记＋docs/known-gaps.md GAP-HOST-01 行"
+     "reason": "GAP-HOST-01 的 RA 五要件档案（docs/ra/GAP-HOST-01.md）写完呈批 → 用户裁「关档」：accepted-risk 这套封闭处置落地（atomcode 的深调研同向加强：五要件对齐 NIST SP 800-37 R2/ISO 27001/27005/GRC 的五个字段；接着继续等实证，约等于 risk-deferral 那个反模式；跟现在的账本零冲突）；known-gaps 的 status 增加了 accepted-risk 这第四个状态；本哨兵转成补偿控制＋复审钩接着干（min(下次 IDE 会话,2026-12-27)，过了这个期限就失效，得重立项）",
+     "evidence": "docs/ra/GAP-HOST-01.md §6 的批准登记，加上 docs/known-gaps.md 里 GAP-HOST-01 那一行"
     },
     {
      "at": "2026-09-28",
      "by": "R45 审计窗哨兵值守（r44-t1-exec 批审计同窗）",
      "criterion_version": "D-168②/D-169-b②",
      "decision": "status-unchanged",
-     "reason": "GAP-HOST-01 RA 关档态维持：docs/ra/GAP-HOST-01.md 五要件档案在册、用户批准有效；复审钩 min(下次 CodeBuddy IDE 会话,2026-12-27) 未到、档案未失效——补偿控制＋复审钩续守望",
-     "evidence": "docs/ra/GAP-HOST-01.md §6＋docs/known-gaps.md GAP-HOST-01 行 status=accepted-risk 复核"
+     "reason": "GAP-HOST-01 的 RA 保持关档状态：docs/ra/GAP-HOST-01.md 五要件档案在册，用户批准还有效；复审钩 min(下次 CodeBuddy IDE 会话,2026-12-27) 还没到，档案也没失效——补偿控制加复审钩接着守",
+     "evidence": "docs/ra/GAP-HOST-01.md §6，加上 docs/known-gaps.md 里 GAP-HOST-01 那行 status=accepted-risk 的复核"
     },
     {
      "at": "2026-09-29",
      "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
      "criterion_version": "D-168②/D-169-b②/D-171①a",
      "decision": "status-unchanged",
-     "reason": "GAP-HOST-01 RA 关档态维持：docs/ra/GAP-HOST-01.md 五要件档案在册、用户批准有效；复审钩 min(下次 IDE 会话,2026-12-27) 未到未失效——腐化基座类标准形续守望",
-     "evidence": "docs/ra/GAP-HOST-01.md §6＋docs/known-gaps.md GAP-HOST-01 行复核"
+     "reason": "GAP-HOST-01 的 RA 还是关着：docs/ra/GAP-HOST-01.md 五要件档案在册，用户批准有效；复审钩 min(下次 IDE 会话,2026-12-27) 没到也没失效——腐化基座这一类的标准形，接着守",
+     "evidence": "docs/ra/GAP-HOST-01.md §6，加上 docs/known-gaps.md 里 GAP-HOST-01 那行的复核"
     }
    ]
   },
   {
    "id": "codebuddy-f02-display-watch",
    "family": "host-side-observation",
-   "title": "F-02 CodeBuddy 宿主展示盲区观察项——mcp list 不列插件注入 server 而会话内实 connected（宿主侧行为，非本仓缺陷，不立案）",
+   "title": "F-02 CodeBuddy 宿主展示盲区观察项——mcp list 不列插件注入的 server，可会话里其实是连着的（这是宿主那边的行为，不是本仓的毛病，不立票）",
    "deadline_event": null,
    "deadline": "—（manual_watch）",
    "trigger_event": null,
@@ -2108,24 +2108,24 @@
      "by": "R44-T3 审计窗哨兵复测",
      "criterion_version": "D-155③",
      "decision": "status-unchanged",
-     "reason": "宿主侧复测：codebuddy mcp list @ CLI 2.151.0 输出「No MCP servers configured」——插件注入 server 展示盲区持续（宿主侧行为非本仓缺陷，不立案维持）；触发源=宿主版本演进，继续守望",
-     "evidence": "codebuddy mcp list 实跑 stdout（2026-09-28，工作目录 D:/Aworker/6F）"
+     "reason": "宿主那边复测：codebuddy mcp list @ CLI 2.151.0 输出「No MCP servers configured」——插件注入的 server 在展示上还是盲区（这是宿主那边的行为，不是本仓的毛病，不立案，继续看着）；触发源头是宿主版本在演进，接着守",
+     "evidence": "codebuddy mcp list 实跑出来的 stdout（2026-09-28，工作目录 D:/Aworker/6F）"
     },
     {
      "at": "2026-09-28",
      "by": "R45 审计窗哨兵值守（r44-t1-exec 批审计同窗）",
      "criterion_version": "D-155③",
      "decision": "status-unchanged",
-     "reason": "宿主侧复测：codebuddy mcp list 本审计窗复跑输出「No MCP servers configured. Use codebuddy mcp add to add a server.」——插件注入 server 展示盲区持续（宿主侧行为非本仓缺陷，不立案维持）",
-     "evidence": "codebuddy mcp list 实跑 stdout（2026-09-28 审计窗复跑，cwd=D:/Aworker/6F）"
+     "reason": "宿主那边复测：codebuddy mcp list 这个审计窗又跑了一遍，输出「No MCP servers configured. Use codebuddy mcp add to add a server.」——插件注入的 server 在展示上还是盲区（这是宿主那边的行为，不是本仓的毛病，不立案，维持观察）",
+     "evidence": "codebuddy mcp list 实跑的 stdout（2026-09-28 审计窗又跑了一遍，cwd=D:/Aworker/6F）"
     },
     {
      "at": "2026-09-29",
      "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
      "criterion_version": "D-155③",
      "decision": "blind-spot-persists",
-     "reason": "实测复跑 `codebuddy mcp list`→「No MCP servers configured」——会话内 MCP server 连通态与 CLI 列表盲区续存；宿主侧未修不代办上报",
-     "evidence": "codebuddy mcp list 2026-09-29 实跑输出"
+     "reason": "实测又跑了一遍 `codebuddy mcp list`→「No MCP servers configured」——会话里 MCP server 是连着的，CLI 列表还是看不见，这个盲区还在；宿主那边没修，我们不代办上报",
+     "evidence": "codebuddy mcp list 2026-09-29 实跑的输出"
     }
    ],
    "bound_to": "T1 findings F-02——宿主侧展示盲区（D-155③）"
@@ -2133,7 +2133,7 @@
   {
    "id": "env-gated-guard-class",
    "family": "code-hygiene",
-   "title": "env-gated 守卫类登记（D-159①④/D-163）——十二件 env-contract tier 历史登记（37/38/39/40 已退役，现行 8 件；sibling 三件＋engine-deps 九件含 asset/engine 混合面原计数）；声明集↔本项 guards 对账现由人工同窗维护（75a-T3 已随 75a-check 退役；新增/摘除 env-contract 守卫须同窗更新本项）",
+   "title": "env-gated 守卫这一类登记（D-159①④／D-163）——env-contract 这一档历史上记了十二件（37/38/39/40 已退役，现在 8 件；sibling 三件＋engine-deps 九件，含 asset/engine 混合面的原计数）；声明集跟本项 guards 对账现在由人工同窗维护（75a-T3 跟着 75a-check 一起退役了；新增或者摘掉 env-contract 守卫，得同窗更新本项）",
    "deadline_event": null,
    "deadline": "无（登记项）",
    "trigger_event": "env-contract-tier-active",
@@ -2163,39 +2163,39 @@
      "by": "R40-T1（D-159④）",
      "criterion_version": "D-159①④",
      "decision": "registered",
-     "reason": "manifest env-gated 类延伸=registry 条目+事件沿 D-149④ 形态登记；sibling 画像 9→3 勘误随批（38/40/42/48/49/51 内容级提及零依赖不并入；26-check 幽灵钉归 D-094 普查通道不拉回）",
-     "evidence": "reports/37-check.mjs、39-check.mjs、46-check.mjs envProbe 启动探测＋_lib/env-contract.mjs SSOT"
+     "reason": "manifest 的 env-gated 这一类往外延伸=registry 条目加事件，照 D-149④ 的形态登记；sibling 画像从 9 到 3 的勘误跟着这批一起改（38/40/42/48/49/51 只是内容里提一句、零依赖，不并进来；26-check 那个幽灵钉归 D-094 的普查通道，不拉回来）",
+     "evidence": "reports/37-check.mjs、39-check.mjs、46-check.mjs 启动时的 envProbe 探测，加上 _lib/env-contract.mjs 这个 SSOT"
     },
     {
      "at": "2026-09-28",
      "by": "R42-T1（D-163④/D-164-a②③）",
      "criterion_version": "D-163③④⑥",
      "decision": "expanded",
-     "reason": "泛化探测立法兑现：envProbe→groupProbe 组级化；engine-deps 七件（38-E1/39-D/40-D13/50-F1/53-B3·C·E·F·G/78-E·F/80-G8/83-G——38 兼 asset 无关、40 兼 asset:40-clone-cache、39/46 兼 sibling）入册；git-object 五件（23/26/27/28/43）经临时仓零写物化实为 portable 不入册",
-     "evidence": "reports/_lib/env-contract.mjs groupProbe/gitObjectNeedOk/engineDepsOk＋各 check groupProbe 调用点；run=guard-all-run 组级 SKIP-GROUP 计数"
+     "reason": "泛化探测立法的兑现：envProbe 变成 groupProbe，做到组级；engine-deps 七件（38-E1/39-D/40-D13/50-F1/53-B3·C·E·F·G/78-E·F/80-G8/83-G——38 还兼着 asset 无关、40 兼 asset:40-clone-cache、39/46 兼 sibling）进册；git-object 那五件（23/26/27/28/43）用临时仓零写物化，实际是 portable，不进册",
+     "evidence": "reports/_lib/env-contract.mjs 的 groupProbe/gitObjectNeedOk/engineDepsOk，加各 check 里调 groupProbe 的地方；运行时是 guard-all-run 的组级 SKIP-GROUP 计数"
     },
     {
      "at": "2026-09-28",
      "by": "R42 审计 LOOP 修批",
      "criterion_version": "D-164-a⑤",
      "decision": "census-registered",
-     "reason": "47-check 组内异质普查落机读登记面（审计 O5 残留闭环）：A 源面/B cassette×5 离线/C smoke+实跑 github-rest.test/D dist 契约/E 锁表/F 文档/G BOM——七组齐次 portable 零环境前置不拆件；同窗 46-check 闸粒度收窄为 B＋C4 双闸（C1~C3 仓内断言脱连坐——审计 O3）",
-     "evidence": "reports/47-check.mjs 全文零 siblingPath/envProbe/groupProbe/engineDepsOk 引用（grep 干净）；reports/46-check.mjs B·C4 双闸落地"
+     "reason": "47-check 组内异质的普查落到机读登记这面（审计 O5 的残留闭环）：A 源面／B cassette×5 离线／C smoke 加实跑 github-rest.test/D dist 契约／E 锁表／F 文档／G BOM——七组都是齐次的 portable、零环境前置，不拆件；同一个窗口里 46-check 的闸粒度收窄成 B＋C4 两道（C1~C3 都是仓内断言，不再连坐——审计 O3）",
+     "evidence": "reports/47-check.mjs 全文没引用 siblingPath/envProbe/groupProbe/engineDepsOk（grep 干净）；reports/46-check.mjs 的 B·C4 两道闸落地"
     },
     {
      "at": "2026-10-03",
      "by": "R57 T1 执行批",
      "criterion_version": "D-159①④/D-163",
      "decision": "registered",
-     "reason": "85-check（#84 Macro-C 一等面守卫，sibling+engine-deps 组级闸）与 86-check（#87 摘帽守卫，engine-deps 组级闸）落盘实测绿入列——T3 对账同窗兑现"
+     "reason": "85-check（#84 Macro-C 一等面守卫，sibling 加 engine-deps 的组级闸）和 86-check（#87 摘帽守卫，engine-deps 组级闸）落盘以后实测绿，入列——T3 对账在同一个窗口兑现"
     },
     {
      "at": "2026-10-26",
      "by": "#33／ADR-0026（基准语料自持）",
      "criterion_version": "D-159①④/D-163②/D-074",
      "decision": "rescoped",
-     "reason": "85-check C 组组级闸换轨：`sibling:anysearch-cli`＋`asset:anysearch-cli/docs/adr` 摘除，改为红断言 `C-GATE`（在仓 frozen bundle 的 list-heads 唯一项＝钉值＋空仓 verify；钉值唯一权威迁至 engine/baseline-lock.yaml 三元钉）＋组级闸只留 `engine-deps:@duckdb/node-api`。tier 仍 env-contract、guards 集不变（十二件／sibling 三件＝37/39/46 不变）；C 组不再依赖同级仓工作树，无 sibling 的机器（含 CI 六腿）C-GATE/C0/C-INV/C1~C6 实跑，GAP-CI-01 由 ci_surface_unreachable 转 closed",
-     "evidence": "engine/baseline-lock.yaml（version＋bundle_sha256＋bundle_bytes）＋engine/test/fixtures/frozen/anysearch-cli-770d2549.bundle；85-check A10~A13 机检（锁表结构/制品完整性/活跃路径无本机绝对路径/上游锁表零 anysearch）；实测 `git bundle list-heads`＝770d2549… HEAD 唯一位、clone 后 rev-list --count=822、docs/adr=104 件"
+     "reason": "85-check 的 C 组组级闸换轨：`sibling:anysearch-cli` 和 `asset:anysearch-cli/docs/adr` 摘掉，改成红断言 `C-GATE`（仓里冻住的 bundle，list-heads 只有唯一一项＝钉值，加上空仓 verify；钉值的唯一权威搬到 engine/baseline-lock.yaml 的三元钉），组级闸只剩 `engine-deps:@duckdb/node-api`。tier 还是 env-contract，guards 集不变（十二件／sibling 三件＝37/39/46 不变）；C 组不再依赖同级仓的工作树，没有 sibling 的机器（含 CI 六腿）也能把 C-GATE/C0/C-INV/C1~C6 实跑起来，GAP-CI-01 从 ci_surface_unreachable 转成 closed",
+     "evidence": "engine/baseline-lock.yaml（version、bundle_sha256、bundle_bytes）加 engine/test/fixtures/frozen/anysearch-cli-770d2549.bundle；85-check 的 A10~A13 机检（锁表结构、制品完整性、活跃路径里没有本机绝对路径、上游锁表零 anysearch）；实测 `git bundle list-heads`＝770d2549… HEAD 是唯一一项，clone 完 rev-list --count=822，docs/adr=104 件"
     }
    ],
    "bound_to": "#R40-T1 执行窗（D-159 环境契约分层立法兑现）"
@@ -2203,7 +2203,7 @@
   {
    "id": "guard-retirement-class",
    "family": "code-hygiene",
-   "title": "retired 退役类登记（D-160①②⑤）——绿守卫守护面消亡终态留档：manifest retired 类＋_retired/ 归档目录建制；断言量/年龄/通过史不作退役判据（D-160⑥ 裁军诉求显式驳回留痕）",
+   "title": "retired 退役这一类登记（D-160①②⑤）——守卫的守护面消亡了，终态要留档：manifest 的 retired 类＋_retired/ 归档目录建起来；断言多少条／年头多久／以前一直过，都不算退役的理由（D-160⑥ 那个要裁军的诉求，明确驳回并留痕）",
    "deadline_event": null,
    "deadline": "无（登记项）",
    "trigger_event": "retired-class-schema-active",
@@ -2220,40 +2220,40 @@
      "by": "R40-T1（D-160⑤）",
      "criterion_version": "D-160①②③⑤",
      "decision": "registered",
-     "reason": "era-scoped 退役机制建制兑现：manifest retired 类终态留档非删除＋_retired/ 归档考古面＋protected_surface+tier 双字段显式扩展（D-159 schema 延伸）＋首件退役经 T3 窗逐件呈报；retired 终态化不设二次出口=明示设计选择",
-     "evidence": "reports/known-red-manifest.json retired 类+retired_policy、reports/_retired/README.md、75a-check.mjs M3 断言"
+     "reason": "按年代划界的退役机制建起来了，兑现：manifest 的 retired 类用来终态留档、不是删掉，加上 _retired/ 这个归档考古面，protected_surface 和 tier 两个字段显式扩进去（D-159 的 schema 往外延伸），第一件退役要经 T3 窗一件件呈报；retired 终态化以后不设第二次出口=明说的设计选择",
+     "evidence": "reports/known-red-manifest.json 的 retired 类和 retired_policy、reports/_retired/README.md、75a-check.mjs 的 M3 断言"
     },
     {
      "at": "2026-09-28",
      "by": "R44-T3 审计窗随读",
      "criterion_version": "D-160①②③⑤",
      "decision": "channel-idle",
-     "reason": "退役通道登记项随读：manifest retired[] 空类维持＋_retired/ 归档目录在位（仅 README）＋无退役提案——通道建制完好零使用，消亡事件零发生",
-     "evidence": "known-red-manifest.json retired=[]＋reports/_retired/README.md 在位核验"
+     "reason": "退役通道这个登记项顺带读：manifest 的 retired[] 还是空的，_retired/ 归档目录在位（里面只有 README），也没有退役提案——通道建得好好的、一次没用，消亡事件零发生",
+     "evidence": "known-red-manifest.json 的 retired=[]，加上 reports/_retired/README.md 在位核过"
     },
     {
      "at": "2026-09-28",
      "by": "R45 审计窗哨兵值守（r44-t1-exec 批审计同窗）",
      "criterion_version": "D-160①②③⑤",
      "decision": "channel-idle",
-     "reason": "退役通道随读复核：manifest retired[] 空类维持＋_retired/ 归档目录在位（仅 README）＋无退役提案——通道建制完好零使用，消亡事件零发生",
-     "evidence": "known-red-manifest.json retired=[]＋reports/_retired/README.md 在位复核（审计窗重读）"
+     "reason": "退役通道顺带复核：manifest 的 retired[] 还是空的，_retired/ 归档目录在位（只剩 README），没有退役提案——通道建得好好的、一次没用，消亡事件零发生",
+     "evidence": "known-red-manifest.json 的 retired=[]，加上 reports/_retired/README.md 在位复核过（审计窗重读的）"
     },
     {
      "at": "2026-09-29",
      "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
      "criterion_version": "D-160①②③⑤",
      "decision": "channel-idle",
-     "reason": "退役通道随读：manifest retired[] 空类维持＋_retired/ 归档目录在位（仅 README）＋无退役提案——通道建制完好零使用",
-     "evidence": "known-red-manifest.json retired=[]＋reports/_retired/README.md 在位"
+     "reason": "退役通道顺带读：manifest 的 retired[] 还是空的，_retired/ 归档目录在位（只剩 README），没有退役提案——通道建得好好的，一次没用",
+     "evidence": "known-red-manifest.json 的 retired=[]，加上 reports/_retired/README.md 在位"
     },
     {
      "at": "2026-09-29",
      "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
      "criterion_version": "D-160①②③⑤",
      "decision": "channel-idle",
-     "reason": "退役通道随读：manifest retired[] 空类维持＋_retired/README.md 在位＋无退役提案——通道建制完好零使用",
-     "evidence": "known-red-manifest.json retired=[]＋reports/_retired/README.md 在场＋75a M3 PASS"
+     "reason": "退役通道顺带读：manifest 的 retired[] 还是空的，_retired/README.md 在位，没有退役提案——通道建得好好的，一次没用",
+     "evidence": "known-red-manifest.json 的 retired=[]，加上 reports/_retired/README.md 在场，75a M3 PASS"
     }
    ],
    "bound_to": "#R40-T1 执行窗（D-160 era-scoped 退役机制立法兑现）"
@@ -2261,7 +2261,7 @@
   {
    "id": "stage2-launch-criteria",
    "family": "code-hygiene",
-   "title": "Stage-2 公开推广判据包值守（D-162③④⑥）——预声明四判据全达标＋30 日静默窗方启；Stage-1 宿主资格=逐案用户闸门（D-162⑤ 不立机检）",
+   "title": "Stage-2 对外公开的判据包值守（D-162③④⑥）——四条判据提前写好、全达标，再加 30 天静观期才开；Stage-1 的宿主资格一案子一议，用户把关（D-162⑤ 不设机检）",
    "deadline_event": null,
    "deadline": "无（判据包值守项——判据未达标主动推广=禁制）",
    "trigger_event": "exposure-ladder-registered",
@@ -2269,7 +2269,7 @@
    "review_at": "每审计窗核对四判据读数（T3 值守并入）；判据①执行时重查 agent-plugin 标注规范悬置条款（D-031⑤ 义务挂判据①——R40-Q6 调研再证未成文维持悬置）",
    "status": "decided",
    "owner": "macro-audit 队列值守",
-   "verify_method": "四判据机查/台账可核：①capability 5/5（Macro-A 层 preview 上架=ADR-0017 漏斗终点）②fresh clone 不红海（操作性定义=D-159 env-contract tier 判据防双裁）③GAP-HOST-01 关闭（IDE 面 verified 或 D-148 三要素齐备 accepted-risk）④试点 findings 全部过摄入分诊四态封闭处置——无未分诊残留（D-162⑥ 措辞：禁「无 pending」）；参数 A(a)=判据④封闭处置后 30 日无新增 finding 回流方算达标（KEP-5241 两周先例放宽至月度窗）",
+   "verify_method": "判据原文见 docs/spec.md §R11：四条判据=R11-2、静观期怎么算=R11-3、试点意见分诊四态=R11-4、谁签字和证据保鲜=R11-5。本项只剩机读读数和证据锚，不再自己写一份判据正文；旧的可操作口径（env-contract tier 防双裁、30 日回流参数）留在本项历史确认行里。",
    "review_event": "next-audit-window",
    "watch": "manual_watch",
    "confirmations": [
@@ -2278,80 +2278,120 @@
      "by": "R40-T1（D-162③⑤⑥）",
      "criterion_version": "D-162①②③④⑤⑥",
      "decision": "registered",
-     "reason": "暴露梯度三段建制登记：Stage-0 被动挂牌追认即刻生效（marketplace 公开零外联=D-051 既有事实语义命名非动作；release≠launch 二分）；Stage-1 定向邀请逐案 charter（D-151 形态，宿主资格=逐案用户闸门不立机检——用户主权 D-026/D-027 同族）；Stage-2 四判据包+30 日静默窗入册值守；负向留痕：禁提前启动/禁开放描述/禁绕开 D-159 回指/禁绕摄入四态/禁 Stage-1 泛化开放 beta/禁动 D-051、ADR-0017 层序/禁轮内动 marketplace 字段",
-     "evidence": "registry 本项＋CONTEXT 暴露梯度词条"
+     "reason": "对外露出的三段台阶都登记了：Stage-0 被动挂牌追认即刻生效（marketplace 公开、零外联=D-051 那个既有事实，给它起个名字，不是个动作；release≠launch 这个二分）；Stage-1 定向邀请，一案子一份 charter（D-151 那个形态，宿主资格一案子一议、用户把关，不设机检——用户主权，跟 D-026/D-027 同一族）；Stage-2 四判据包加 30 天静观期，进册值守；负向也留痕：不许提前启动／不许写开放描述／不许绕开 D-159 往回指／不许绕开收件的四种状态／不许把 Stage-1 泛化开放 beta／不许动 D-051 和 ADR-0017 的层序／不许在本轮动 marketplace 字段",
+     "evidence": "registry 里本项＋CONTEXT 里暴露梯度那一条"
     },
     {
      "at": "2026-09-28",
      "by": "R41 fresh-clone 实测（D-163/D-165②）",
      "criterion_version": "D-162②",
      "decision": "criterion-02-fail-read",
-     "reason": "fresh clone（独立 worktree 无本机环境）guard-all-run 实测：14 红/13 册外新红——判据②「不红海」当前 FAIL，Stage-2 维持关闭；处置路由=D-163 泛化立法，复验哨兵=fresh-clone-rerun-watch",
-     "evidence": "decision-ledger.md R41 收口节；D-163/D-165②"
+     "reason": "全新克隆（独立 worktree，没有本机环境）跑 guard-all-run，实测：14 红／13 条是册外的新红——判据②「不红海」现在 FAIL，Stage-2 维持关闭；处置路线=D-163 的泛化立法，复验的哨兵=fresh-clone-rerun-watch",
+     "evidence": "decision-ledger.md R41 收口那一节；D-163/D-165②"
     },
     {
      "at": "2026-09-28",
      "by": "R42-T1 fresh-clone 复验（D-163/D-164-a 兑现后）",
      "criterion_version": "D-162②",
      "decision": "criterion-02-pass-read",
-     "reason": "判据②「fresh clone 不红海」实测翻绿：clone+bootstrap+guard-all-run 未册化红=0、SKIP 全带三段可读 reason（见 fresh-clone-rerun-watch 同窗确认）——余判据不变：①capability 5/5（Macro-A preview 上架=漏斗终点）未达，③GAP-HOST-01 未闭，④A(a) 30 日窗计时中；Stage-2 维持关闭，值守非绿宣称",
-     "evidence": "clone 实跑 footer：ran=60 green=58 skipped=1 group-skipped=3 red=1(registered) problems=0"
+     "reason": "判据②「fresh clone 不红海」实测翻绿了：clone 加 bootstrap 加 guard-all-run，没在册的红=0，SKIP 全带三段能读的原因（见 fresh-clone-rerun-watch 同窗确认）——剩下的判据没变：①capability 5/5（Macro-A preview 上架=漏斗终点）没到，③GAP-HOST-01 没关，④A(a) 的 30 天窗在计时；Stage-2 维持关闭，值守岗位上不宣称绿",
+     "evidence": "clone 真跑出来的表尾：ran=60 green=58 skipped=1 group-skipped=3 red=1(registered) problems=0"
     },
     {
      "at": "2026-09-28",
      "by": "R43 收口节",
      "criterion_version": "D-168/D-170",
      "decision": "layered-disposition-registered",
-     "reason": "判据① Macro-A 绑死 DoR（DoR-b 不满足：≥2 真实仓生产线 facts 不存在——如实报阻塞非绕闸）／判据③ RA 档案呈批中／判据④ 30 日窗计时确认；锐评裁定层闭环但验收层开放双行呈报",
-     "evidence": "decision-ledger R43 收口节分层定稿读数"
+     "reason": "判据①Macro-A 绑死在 DoR 上（DoR-b 不满足：≥2 个真实仓的生产线 facts 不存在——如实报阻塞，不绕闸）／判据③ RA 档案呈批中／判据④ 30 天窗计时确认；锐评那边裁定层关了，验收层还开着，这两行都呈报",
+     "evidence": "decision-ledger R43 收口那一节里分层定稿的读数"
     },
     {
      "at": "2026-09-28",
      "by": "R44-T3 审计窗四判据读数",
      "criterion_version": "D-162③④⑥/D-168②",
      "decision": "criterion-03-ra-closed",
-     "reason": "四判据读数：①capability 5/5 阻塞维持（Macro-A 绑 DoR-b：≥2 真实仓生产线 facts 不存在——如实报非绕闸）②fresh-clone PASS 维持（R42 criterion-02-pass-read；本轮 runner 仅增 partial 派生展示行无环境面影响）③**本轮达标**：GAP-HOST-01 经 RA 五要件档案用户批「关档」——判据③口径「accepted-risk 五要件齐备关闭」形态命中（D-162③+D-168②）④30 日静默窗计时中（findings 封闭处置后计时起算）——**Stage-2 维持关闭（①④未达）**",
-     "evidence": "docs/ra/GAP-HOST-01.md＋decision-ledger R43 收口节执行窗兑现小节"
+     "reason": "四判据读数：①capability 5/5 阻塞维持（Macro-A 绑 DoR-b：≥2 个真实仓的生产线 facts 不存在——如实报，不绕闸）②fresh-clone PASS 维持（R42 的 criterion-02-pass-read；这一轮 runner 只多了 partial 派生展示行，不占环境面）③**这一轮达标**：GAP-HOST-01 经 RA 五要件档案、用户批「关档」——判据③那个「accepted-risk 五要件齐备关闭」的形态命中（D-162③+D-168②）④30 天静观期在计时（findings 封闭处置以后开始算）——**Stage-2 维持关闭（①④没到）**",
+     "evidence": "docs/ra/GAP-HOST-01.md＋decision-ledger R43 收口那一节里执行窗兑现的那一小节"
     },
     {
      "at": "2026-09-28",
      "by": "R45 审计窗哨兵值守（r44-t1-exec 批审计同窗）",
      "criterion_version": "D-162③④⑥/D-168②",
      "decision": "status-unchanged",
-     "reason": "四判据复核读数：①capability 5/5 阻塞维持（Macro-A 绑 DoR-b ≥2 真实仓 facts 仍不存在）②fresh-clone PASS 维持③criterion-03 RA-closed 维持（GAP-HOST-01 RA 档在册未失效）④30 日静默窗计时中——Stage-2 维持关闭（①④未达）",
-     "evidence": "docs/ra/GAP-HOST-01.md＋R44 执行报告判据读数同窗复核同态"
+     "reason": "四判据复核读数：①capability 5/5 阻塞维持（Macro-A 绑 DoR-b，≥2 个真实仓 facts 还是没有）②fresh-clone PASS 维持③criterion-03 的 RA-closed 维持（GAP-HOST-01 的 RA 档在册没失效）④30 天静观期在计时——Stage-2 维持关闭（①④没到）",
+     "evidence": "docs/ra/GAP-HOST-01.md＋R44 执行报告里的判据读数，同一窗口复核过、数一样"
     },
     {
      "at": "2026-09-29",
      "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
      "criterion_version": "D-162③⑥",
      "decision": "criteria-readings",
-     "reason": "四判据读数：①阻塞维持（DoR-b 真实仓 facts 面未形成，Macro-A 未启动）②维持（本轮全量跑未册化红=0——kr-01 摘除后册集空）③维持（GAP-HOST-01=RA 五要件齐备关闭，复审钩未逾期）④计时中（30 日静默窗未达标）→Stage-2 维持关闭",
-     "evidence": "guard-all-run 全量实跑＋docs/ra/GAP-HOST-01.md＋registry 读数"
+     "reason": "四判据读数：①阻塞维持（DoR-b 要求真实仓 facts 这面没形成，Macro-A 没启动）②维持（这一轮全量跑，没在册的红=0——kr-01 摘掉以后册集是空的）③维持（GAP-HOST-01=RA 五要件齐备关闭，复审钩没逾期）④在计时（30 天静观期没到）→Stage-2 维持关闭",
+     "evidence": "guard-all-run 全量真跑＋docs/ra/GAP-HOST-01.md＋registry 的读数"
     },
     {
      "at": "2026-09-29",
      "by": "R46-impl 执行批（轮47 T1，分支 r47-t1-exec）",
      "criterion_version": "D-173①~⑤",
      "decision": "window-state-corrected",
-     "reason": "窗读数链式更正（D-173①④兑现）：静默窗语义钉定后，前六次承载窗读数的确认行语义悬空——confs#0 registered（「四判据包+30日静默窗入册值守」登记行=窗规格入册非计时宣称）／#2 criterion-02-pass-read（「④A(a) 30日窗计时中」）／#3 layered-disposition-registered（「判据④ 30日窗计时确认」）／#4 criterion-03-ra-closed（「④30日静默窗计时中（findings封闭处置后计时起算）」）／#5 status-unchanged（「④30日静默窗计时中」）／#6 criteria-readings（「④计时中（30日静默窗未达标）」）——窗起点事件未发生（start_event∈{pilot_started,findings_all_closed,freeze_declared} 无一注册：Stage-1 charter 空集=零试点）⇒无起点锚的计时宣称=不可审计读数；判据④读数口径更正为 window_state=not_started（vacuous silence≠stability——空真不是稳定性证据）；读数链留痕不改写（D-146⑤ 勘误链二阶修正——原确认行逐字保留，本行即更正注记）。",
-     "evidence": "registry 本项 window_state/window 机读字段＋decision-ledger.md D-173"
+     "reason": "窗读数的链条式更正（D-173①④兑现）：静观期的语义钉死以后，前面六次承载窗读数的确认行语义就悬空了——confs#0 registered（那行只是登记窗的规格，不是计时宣称；以下只点行名和它说的读数，说法这轮换成人话了、读数没动）／#2 criterion-02-pass-read／#3 layered-disposition-registered／#4 criterion-03-ra-closed／#5 status-unchanged／#6 criteria-readings——这五行都写着 30 天窗在计时——窗的起点事件根本没发生（start_event∈{pilot_started,findings_all_closed,freeze_declared} 一个都没注册：Stage-1 charter 是空集=零试点）⇒没有起点锚还宣称计时=不可审计的读数；判据④的读数口径更正成 window_state=not_started（空真不等于稳——空的静默不是稳定性的证据）；前面的读数照旧留着不改（D-146⑤ 勘误链的二阶修正——各行的读数本身不动，这一行是另外加的更正注记）。",
+     "evidence": "registry 里本项的 window_state/window 两个字段机器读＋decision-ledger.md D-173"
     },
     {
      "at": "2026-09-29",
      "by": "R47-impl 执行批（轮48 T1，分支 r48-t1-exec）",
      "criterion_version": "D-174①④",
      "decision": "window-state-enum-established",
-     "reason": "window_state 枚举键补位（D-174①④ 兑现）：window_state_enum=[\"not_started\",\"running\",\"satisfied_at\"] 顶层旁挂 window_state——同容器枚举覆盖不对称建制欠账消解（install-manifest-spec 结构缺口 bug 修复先例；值域闭集机读化，写错值有数据面闸）；枚举键=值域声明约束既有字段非数据字段扩张，window_state=not_started 当前值不动；跨字段断言（running/satisfied_at 态须 start_event 已注册）=可选叠加层未做——做则归 33-check 且须 D-147 预声明验证包工序（列 (d) 面候选呈裁量位）。",
-     "evidence": "registry 本项 window_state_enum 机读字段＋decision-ledger.md D-174"
+     "reason": "window_state 的枚举键补上（D-174①④ 兑现）：window_state_enum=[\"not_started\",\"running\",\"satisfied_at\"] 挂在顶层 window_state 旁边——同一个容器里枚举覆盖不对称、建制欠的账清掉了（install-manifest-spec 结构缺口那个 bug 修复有先例；值域做成闭集、机器能读，写错值有数据面的闸兜着）；枚举键=给值域做个声明，约束的是既有字段，不是扩数据字段，window_state=not_started 的当前值不动；跨字段断言（running/satisfied_at 这两种状态必须 start_event 已经注册）=可选的那层叠加没做——要做就归 33-check，而且得走 D-147 预声明验证包的工序（列 (d) 那个面的候选，呈到裁量位）。",
+     "evidence": "registry 里本项的 window_state_enum 字段机器读＋decision-ledger.md D-174"
     },
     {
      "at": "2026-09-29",
      "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
      "criterion_version": "D-162③④⑥/D-173/D-174",
      "decision": "status-unchanged",
-     "reason": "四判据复核读数：①capability 5/5 阻塞维持（Macro-A 绑 DoR-b ≥2 真实仓 facts 仍不存在——如实报非绕闸）②fresh-clone PASS 维持（R42 criterion-02-pass-read 在案）③GAP-HOST-01 RA-closed 维持（docs/ra/ 档案两件在册）④window_state=not_started（start_event=null 零试点窗未启动——不报「计时中」）——Stage-2 维持关闭（①④未达）",
-     "evidence": "registry 本项 window_state=not_started 机读＋docs/ra/GAP-HOST-01.md/r1-*.md 在场"
+     "reason": "四判据复核读数：①capability 5/5 阻塞维持（Macro-A 绑 DoR-b，≥2 个真实仓 facts 还是没有——如实报，不绕闸）②fresh-clone PASS 维持（R42 的 criterion-02-pass-read 在案）③GAP-HOST-01 的 RA-closed 维持（docs/ra/ 里两份档案在册）④window_state=not_started（start_event=null，零试点，窗没启动——不报「计时中」）——Stage-2 维持关闭（①④没到）",
+     "evidence": "registry 里本项的 window_state=not_started 机器读得到＋docs/ra/GAP-HOST-01.md 和 r1-*.md 都还在"
+    },
+    {
+     "at": "2026-11-13",
+     "by": "tracker #27 grill 执行",
+     "criterion_version": "spec R11（2026-11-13 版）",
+     "decision": "criteria-source-moved-to-spec",
+     "reason": "四条判据的原文从一份已经退役的文件收回 docs/spec.md R11：判据本体、静观期起点、试点意见分诊四态、证据保鲜都写成现行条文；本项以后只留机读读数和证据锚，不再自己写一份判据正文。四项读数一条没动——①阻塞、②通过但过期、③达标、④没开始，静观期维持 not_started。",
+     "evidence": "docs/spec.md §R11；本项 verify_method 改成指向 R11；engine 下 npm test 退出码 0，末尾 PASS 30/30 contract checks SKIP-GROUPS=0"
+    },
+    {
+     "at": "2026-11-13",
+     "by": "tracker #27 读数批",
+     "criterion_version": "spec R11（2026-11-13 版）",
+     "decision": "criterion-01-blocked-read",
+     "reason": "判据①阻塞：五档里只差跨仓战略档（Macro-A），它没进预览。卡在自己的启动条件第二条——至少两个真实仓库的生产数据上把跨仓对照跑通，调研用的仓不算数。钥匙在用户手上，Agent 造不出来；放宽口径另开 tracker #243 裁。",
+     "evidence": "README.md 的能力状态表（Macro-A = Not yet in preview）＋docs/spec.md §R8-4 状态快照＋spec §R11-2①；2026-11-13 核过"
+    },
+    {
+     "at": "2026-11-13",
+     "by": "tracker #27 读数批",
+     "criterion_version": "spec R11（2026-11-13 版）",
+     "decision": "criterion-02-stale-read",
+     "reason": "判据②读数通过但已过期：2026-10-05 R63 T1 执行批那次干净克隆实测，干净 HEAD 09c73858，ran=65 green=65 red=0 problems=0，唯一 group-skip 是 40-B 且带了原因。到 2026-11-13 已经 39 天，超过 R11-5 定的 30 天保鲜期，开窗前必须重跑一次；本轮不重跑，因为静观窗不启动。",
+     "evidence": "本 registry 文件 fresh-clone-rerun-watch 的 2026-10-05 确认行（decision=fresh-clone-green）＋spec §R11-6②"
+    },
+    {
+     "at": "2026-11-13",
+     "by": "tracker #27 读数批",
+     "criterion_version": "spec R11（2026-11-13 版）",
+     "decision": "criterion-03-closed-read",
+     "reason": "判据③达标：GAP-HOST-01 按已接受风险关档，风险档案五节齐备，用户 2026-09-28 批准，复查钩挂 2026-12-27。读数措辞只能是「风险接受、已关档」，不许写成「IDE 已验证」——CLI 的证据不外推到 IDE。",
+     "evidence": "docs/ra/GAP-HOST-01.md（状态=已批准=结案）＋docs/known-gaps.md 的 GAP-HOST-01 行（accepted-risk，复查钩 min(下次 IDE 形态会话,2026-12-27)）＋spec §R11-2③"
+    },
+    {
+     "at": "2026-11-13",
+     "by": "tracker #27 读数批",
+     "criterion_version": "spec R11（2026-11-13 版）",
+     "decision": "criterion-04-not-started",
+     "reason": "判据④没开始：Stage-1 一个试点都没有，charter 是空集，静观期三个起点（pilot_started／findings_all_closed／freeze_declared）一个都没注册，window_state=not_started、start_event=null。零试点时「没有未分诊残留」是空真，照实标注，不当达标；要启动得先有真试点，另开 tracker #242 裁。",
+     "evidence": "本项 window_state／window 两个字段机器读＋spec §R11-3、§R11-6④"
     }
    ],
    "bound_to": "#R40-T1 执行窗（D-162 暴露梯度三段立法兑现——判据包登记）",
@@ -2376,7 +2416,7 @@
       "source_class": "capability",
       "reset_at": null,
       "new_window_start": null,
-      "note": "窗未启动不重置（D-173②④）——能力面归类先例在案：证据完整性错值=capability 非 hygiene"
+      "note": "窗还没启动，所以不重置（D-173②④）——能力面怎么归类的先例在案：证据完整性错值算 capability，不算 hygiene"
      }
     ],
     "decision_date": {
@@ -2389,7 +2429,7 @@
   {
    "id": "fresh-clone-rerun-watch",
    "family": "code-hygiene",
-   "title": "fresh-clone 复跑哨兵（D-163⑦/D-165②）——env-contract 泛化探测面落地后 fresh clone 全量守卫复跑，验证「外人 clone 不红海」判据② 转绿",
+   "title": "fresh-clone 复跑哨兵（D-163⑦／D-165②）——env-contract 的泛化探测面落地以后，拿全新克隆把全部守卫跑一遍，看「外人 clone 不红海」这条判据②能不能转绿",
    "deadline_event": null,
    "deadline": "无（哨兵值守项——判据② 未复验转绿前 Stage-2 维持关闭）",
    "trigger_event": "env-contract-generalization-landed",
@@ -2406,7 +2446,7 @@
      "by": "R41 收口（D-163⑦/D-165②）",
      "criterion_version": "D-162②/D-163⑦/D-165②",
      "decision": "registered",
-     "reason": "分层定稿验收层值守载体：fresh-clone 判据② 实测 FAIL（14 红/13 册外）如实值守不粉饰；复跑义务挂泛化落地时点锚，防执行窗无限期变相 accepted-risk",
+     "reason": "分层定稿验收那一层的值守载体：fresh-clone 判据② 实测 FAIL（14 红／13 条在册外），如实值守不粉饰；复跑的义务挂在泛化落地那个时点锚上，免得执行窗无限期变成变相的 accepted-risk",
      "evidence": "decision-ledger.md D-163⑦/D-165②④；reports/R41-Q3-atomcode-research.md"
     },
     {
@@ -2414,23 +2454,23 @@
      "by": "R42-T1 执行窗（D-163②③④/D-164-a 兑现后复跑）",
      "criterion_version": "D-165②",
      "decision": "criterion-met",
-     "reason": "fresh clone（D:/tmp-fc/6F-clone，git clone --no-local file:// 传输面——幽灵对象不随克隆）+ git apply 本批 diff + engine npm ci --ignore-scripts（9 pkg）→ guard-all-run 60 件：green=58/registered-red=1(01-check kr-01)/skipped=1(37 sibling 整件)/group-skipped=3（39-B sibling、40-B asset、46-B/C sibling）全带三段可读 reason——未册化红=0 判据② 达成；git-object 五件经仓内 bundle 临时仓零写物化全绿（主仓 object store 零写实证）",
-     "evidence": "reports/_lib/env-contract.mjs groupProbe/gitObjectNeedOk/engineDepsOk；clone 跑 log=footer allOk=false（skip≠绿如实）"
+     "reason": "全新克隆（D:/tmp-fc/6F-clone，git clone --no-local 走 file:// 传输——幽灵对象不会跟着克隆走）＋git apply 这批 diff＋engine npm ci --ignore-scripts（9 个包）→跑 guard-all-run 60 件：green=58/registered-red=1（01-check 的 kr-01）／skipped=1（37 整件因为 sibling）／group-skipped=3（39-B 的 sibling、40-B 的 asset、46-B/C 的 sibling），全都带三段能读的原因——没在册的红=0，判据② 达成；git-object 那五件用仓内 bundle 的临时仓零写物化，全绿（主仓的 object store 零写，有实证）",
+     "evidence": "reports/_lib/env-contract.mjs 的 groupProbe/gitObjectNeedOk/engineDepsOk；clone 跑出来 log=footer allOk=false（跳过不等于绿，如实写）"
     },
     {
      "at": "2026-09-29",
      "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
      "criterion_version": "D-163⑦/D-165②",
      "decision": "standby-read",
-     "reason": "随读：env-contract 泛化探测面（git-object:/engine-deps:/asset:）未落地→复跑义务未激活；本机全量守卫跑绿＋未册化红=0（判据②读数并入 stage2-launch-criteria）",
-     "evidence": "registry env-contract-generalization-landed occurred=false＋本批全量守卫读数"
+     "reason": "顺带读的：env-contract 的泛化探测面（git-object:/engine-deps:/asset:）还没落地 →复跑义务没激活；本机全量守卫跑绿，没在册的红=0（判据② 的读数并进 stage2-launch-criteria）",
+     "evidence": "registry 里 env-contract-generalization-landed 的 occurred=false，加本批全量守卫的读数"
     },
     {
      "at": "2026-10-04",
      "by": "R62 grill D-211①",
      "criterion_version": "D-211①",
      "decision": "standby-read",
-     "reason": "随读：84-check fixtureRun 硬钉孤儿 commit 201935fc 致 fresh-clone 红（共享 fail 计数→rc=1）——判据② 新违例面登记；已立 #88 自足修票（修法 impl 参数不预钉），修复后复跑读数并入本哨兵；另留痕 84-check 不在任何 CI workflow 射程（engine-ci 止于 78-check）=覆盖缺口按 D-163 探测面扩列归 #88 票面",
+     "reason": "顺带读的：84-check 的 fixtureRun 把孤儿 commit 201935fc 钉死了，导致 fresh-clone 红（fail 计数是共用的 →rc=1）——判据② 的违例面新登记；已经立了 #88 这张让它自足的修票（修法是 impl 参数不预钉），修好以后复跑的读数并进本哨兵；另外留痕：84-check 不在任何 CI workflow 的射程里（engine-ci 跑到 78-check 就停）=覆盖缺口，按 D-163 的探测面扩列，归 #88 票面",
      "evidence": "decision-ledger.md D-211①＋84-check.mjs L478-503/L548-552"
     },
     {
@@ -2438,8 +2478,8 @@
      "by": "R63 T1 执行批（#88 修复后哨兵读数——D-211①/D-163⑥）",
      "criterion_version": "D-163⑥+D-159②",
      "decision": "fresh-clone-green",
-     "reason": "#88 fixture 自足修后鲜克隆双读数：首读（六 commit 中窗）ran=65 green=62 red=3（70-E1/75a-C1=派生未再基线＋53-B2=合法演化漏网——84-check 本体 GREEN 票面判据过，三红归因在账本 R63 收口节）；复读（closeout bundle 后干净 HEAD 09c73858）ran=65 green=65 red=0 problems=0＋唯一 group-skip 40-B（asset:40-clone-cache 环境缺席带三段 reason）——未册化红=0＋SKIP 全带 reason 判据满，判据② 操作性读数维持 pass 态",
-     "evidence": "decision-ledger.md R63 收口节 T2 哨兵登记＋两轮 guard-all-run footer（首读 allOk=false problems=3／复读 GUARD-ALL-RESULT: PASS problems=0）"
+     "reason": "#88 把 fixture 改成自足以后，鲜克隆跑了两遍：头一遍（六个 commit 的中窗）ran=65、green=62、red=3（70-E1/75a-C1=派生没再落基线，加上 53-B2=合法演化漏网——84-check 本体是 GREEN，票面判据过了，这三条红归因写在账本的 R63 收口节）；第二遍（closeout bundle 之后干净 HEAD 09c73858）ran=65、green=65、red=0、problems=0，唯一一个 group-skip 是 40-B（asset:40-clone-cache 环境缺席，带了三段原因）——没在册的红=0、SKIP 全带原因，判据满，判据② 的操作性读数维持 pass 态",
+     "evidence": "decision-ledger.md 的 R63 收口节 T2 哨兵登记，加两轮 guard-all-run 的 footer（头一遍 allOk=false、problems=3，第二遍 GUARD-ALL-RESULT: PASS、problems=0）"
     }
    ],
    "bound_to": "stage2-launch-criteria 判据② 操作性复验动作"
@@ -2447,7 +2487,7 @@
   {
    "id": "protected-surface-death-watch",
    "family": "code-hygiene",
-   "title": "retired 消亡判据事件哨兵（D-164-b）——任一 PROTECTED_SURFACE 消亡判据事件发生即激活复裁通道；retired 发射腿首例临窗再裁建制与否",
+   "title": "retired 消亡判据事件的哨兵（D-164-b）——任何一个 PROTECTED_SURFACE 撞上消亡判据事件就启动复裁通道；第一件退役要不要临窗再裁一下建制，那时候定",
    "deadline_event": null,
    "deadline": "无（哨兵值守项——触发条件钉消亡判据事件非纯时间窗，防首件退役落两审计窗间静默丢失〔调研 C4〕）",
    "trigger_event": "protected-surface-death-event",
@@ -2464,7 +2504,7 @@
      "by": "R41 收口（D-164-b）",
      "criterion_version": "D-160①/D-164-b",
      "decision": "registered",
-     "reason": "案例驱动纪律（D-079 建制由 39-F2 首例触发、D-094/A-097 同型）——retired 册空期不建发射机件；哨兵钉消亡判据事件触发防首件退役两窗间静默丢失",
+     "reason": "按案例驱动（D-079 这个建制由 39-F2 首例触发，D-094/A-097 是同一型）——退役册还空着的时候不建发射机件；哨兵钉住消亡判据事件来触发，防第一件退役在两个窗口之间悄悄丢了",
      "evidence": "decision-ledger.md D-164；reports/R41-Q2-atomcode-research.md C3/C4/C7"
     },
     {
@@ -2472,47 +2512,47 @@
      "by": "R42-T1 审计窗随读",
      "criterion_version": "D-160①/D-164-b",
      "decision": "zero-event-read",
-     "reason": "消亡面人工普查：59 件 -check.mjs 全在位且 PROTECTED_SURFACE 声明非空（75a-T2 机查复核同证）——本窗零消亡事件，不预建退役发射机件",
-     "evidence": "reports/75a-check.mjs T2 断言绿；reports/75a-census-findings.json"
+     "reason": "消亡面人工普查：59 件 -check.mjs 全在位，PROTECTED_SURFACE 声明也都非空（75a-T2 机查复核，同样能证）——这个窗口零消亡事件，不预建退役的发射机件",
+     "evidence": "reports/75a-check.mjs 的 T2 断言是绿的；reports/75a-census-findings.json"
     },
     {
      "at": "2026-09-28",
      "by": "R44-T3 审计窗随读",
      "criterion_version": "D-160①/D-164-b",
      "decision": "zero-event-read",
-     "reason": "消亡面普查：60 件守卫件（*-check.mjs＋xfail-run.mjs）PROTECTED_SURFACE 声明全非空机读核验＋引用物在位普查零消亡事件——退役发射腿不预建维持",
-     "evidence": "reports/ 枚举机读：60/60 declared、0 missing/empty；retired[] 空"
+     "reason": "消亡面普查：60 件守卫件（*-check.mjs 加 xfail-run.mjs）的 PROTECTED_SURFACE 声明全非空，机读核过，引用物也都在位，零消亡事件——退役那条发射腿不预建，维持",
+     "evidence": "reports/ 全目录机器读一遍：60/60 都写了声明、0 个缺失或空；retired[] 也是空的"
     },
     {
      "at": "2026-09-28",
      "by": "R45 审计窗哨兵值守（r44-t1-exec 批审计同窗）",
      "criterion_version": "D-160①/D-164-b",
      "decision": "zero-event-read",
-     "reason": "消亡面独立重数：审计窗对 reports/ 全量 60 件守卫件（*-check.mjs＋xfail-run.mjs）PROTECTED_SURFACE 声明机读核验 60/60 非空＋引用物在位零消亡事件——退役发射腿不预建维持",
-     "evidence": "审计窗机读普查 60/60 declared、0 missing/empty（与 R44 登记读数一致）"
+     "reason": "消亡面单独重数一遍：审计窗对 reports/ 全部 60 件守卫件（*-check.mjs 加 xfail-run.mjs）的 PROTECTED_SURFACE 声明机读核验 60/60 非空，引用物在位，零消亡事件——退役那条腿不预建，维持",
+     "evidence": "审计窗机器读一遍：60/60 都写了声明、0 个缺失或空（跟 R44 登记的数对得上）"
     },
     {
      "at": "2026-09-29",
      "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
      "criterion_version": "D-160①",
      "decision": "census-clean",
-     "reason": "PROTECTED_SURFACE 引用物存在性普查：守卫文件 61 件扫描、60/60 守卫声明非空（guard-all-run.mjs=运行器非守卫不计入）＋零消亡判据事件——守护面全存活",
-     "evidence": "reports/ 全 *-check.mjs PROTECTED_SURFACE 常量扫描机读"
+     "reason": "PROTECTED_SURFACE 引用的东西在不在，做一次普查：扫了 61 件守卫文件，60/60 守卫的声明非空（guard-all-run.mjs 是运行器不是守卫，不算进去），零消亡判据事件——守护面全活着",
+     "evidence": "reports/ 下所有 *-check.mjs 的 PROTECTED_SURFACE 常量机器扫一遍"
     },
     {
      "at": "2026-09-29",
      "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
      "criterion_version": "D-160①",
      "decision": "census-clean",
-     "reason": "PROTECTED_SURFACE 引用物存在性普查：reports/ 守卫文件 61 件扫描（d179-check 新入列）61/61 声明非空＋guard-all-run 61/61 实跑全绿＝守护面全存活，零消亡判据事件",
-     "evidence": "reports/ 全 *-check.mjs PROTECTED_SURFACE 常量机扫＋guard-all-run footer ran=61 green=61"
+     "reason": "PROTECTED_SURFACE 引用的东西在不在，做一次普查：扫了 reports/ 里 61 件守卫文件（d179-check 新进列），61/61 声明非空，guard-all-run 实跑 61/61 全绿=守护面全活着，零消亡判据事件",
+     "evidence": "reports/ 下所有 *-check.mjs 的 PROTECTED_SURFACE 常量机器扫＋guard-all-run 表尾 ran=61 green=61"
     },
     {
      "at": "2026-10-02",
      "by": "R54 T1-D 执行批",
      "criterion_version": "D-201③",
      "decision": "registered",
-     "reason": "verify_method 口径行补注——指针纪律引用物单列册工件不纳入消亡普查（判据澄清非通道剥夺，表述红线遵守）",
+     "reason": "给 verify_method 的口径行补一句注——按指针纪律单列出来的册工件不纳入消亡普查（这是把判据说清楚，不是把通道拿掉，表述的红线照守）",
      "evidence": "decision-ledger.md D-201③；WORKFLOW §4.2.10-12"
     }
    ],
@@ -2521,7 +2561,7 @@
   {
    "id": "tier-misdeclaration-recurrence",
    "family": "process-hygiene",
-   "title": "tier 自声明误报复发 → 升级声明真实性普查守卫（D-165③ 触发器——13 红中五件自声明 portable 误属裁定质量缺陷同族登记）",
+   "title": "tier 自声明误报又来了 → 升级成声明真实性的普查守卫（D-165③ 的触发器——13 条红里五件自声明 portable 属误，这是裁定质量的毛病，同一族登记）",
    "deadline_event": "tier-misdeclaration-detected",
    "deadline": "无（事件驱动项）",
    "trigger_event": "tier-misdeclaration-detected",
@@ -2537,7 +2577,7 @@
      "by": "R41 收口（D-165③）",
      "criterion_version": "D-165③",
      "decision": "registered",
-     "reason": "13 册外红中五件自声明 portable 误=裁定质量缺陷非纯执行欠账——90-review-intake-mistriage-recurrence 同族触发器登记防同型复发无点燃条件",
+     "reason": "13 条册外的红里，五件自己声明成 portable 的是误=这是裁定质量的缺陷，不只是执行欠账——90-review-intake-mistriage-recurrence 这条同族的触发器登记上，防同型复发，现在还没点燃条件",
      "evidence": "decision-ledger.md D-165③；reports/R41-Q3-atomcode-research.md §4-3"
     }
    ]
@@ -2545,7 +2585,7 @@
   {
    "id": "npm-v12-allowscripts-review",
    "family": "process-hygiene",
-   "title": "npm v12 allowScripts 复审触发器（D-163⑧）——install scripts 默认关闭体制下 D-072 自愈路径/安装文档复评",
+   "title": "npm v12 的 allowScripts 复审触发器（D-163⑧）——install scripts 默认关掉这套规矩下，D-072 的自愈路径和安装文档要重新评",
    "deadline_event": "npm-v12-adopted-or-bootstrap-touched",
    "deadline": "无（事件驱动项）",
    "trigger_event": "npm-v12-adopted-or-bootstrap-touched",
@@ -2561,15 +2601,15 @@
      "by": "R41 收口（D-163⑧）",
      "criterion_version": "D-163⑧",
      "decision": "registered",
-     "reason": "npm v12 install-scripts 默认关闭=自愈路径被官方拦截的时效性警示；探测+修复指引非自愈路线 D-163 已采纳，本触发器值守既有自愈面（D-072）在体制变化下的复审义务",
-     "evidence": "decision-ledger.md D-163⑧；reports/R41-Q1-atomcode-research.md npm v12 时效警示"
+     "reason": "npm v12 把 install-scripts 默认关掉=自愈路径被官方拦住，这是个时效性警示；探测加修复指引不是自愈路线，D-163 已经采纳了，这个触发器守的是既有自愈面（D-072）在体制变了以后的复审义务",
+     "evidence": "decision-ledger.md D-163⑧；reports/R41-Q1-atomcode-research.md 里 npm v12 的时效提醒"
     }
    ]
   },
   {
    "id": "batch2beta-open-triggers",
    "family": "techdebt-ledger",
-   "title": "批2-β 开启触发器锚（D-169-a②——三事件任一即临窗裁开工；「执行窗空」=必要非充分条件）",
+   "title": "批2-β 什么时候能开，触发器先钉住（D-169-a②——三个事件里任意一个发生就临窗裁开工；「执行窗空」只是必要条件，不是充分条件）",
    "deadline_event": null,
    "deadline": "—（事件锚驱动非日历）",
    "trigger_event": "batch2beta-trigger-ignited",
@@ -2587,47 +2627,47 @@
      "by": "R43 收口节注册",
      "criterion_version": "D-169-a②",
      "decision": "registered",
-     "reason": "触发器注册兑现 D-170③「未注册触发器不算锚定」——三事件锚立、点火检查挂审计窗",
-     "evidence": "本项落册"
+     "reason": "触发器注册兑现了 D-170③ 那句「未注册触发器不算锚定」——三个事件锚立起来，点火的检查挂在审计窗",
+     "evidence": "这一项落进册里了"
     },
     {
      "at": "2026-09-28",
      "by": "R44-T3 审计窗点火检查",
      "criterion_version": "D-169-a②",
      "decision": "trigger-not-ignited",
-     "reason": "三问核验全否：①GAP-B2B-01~08 读数较基线无恶化（全 triaged 同态）②第二同型需求未出现（无 open/closed 枚举/常量 SSOT/reserved 机制新需求确认）③known-gaps 无新增条目命中批2-β 机制——trigger_event 未置 occurred，批2-β 维持 deferred（「执行窗空」必要非充分）",
-     "evidence": "docs/known-gaps.md 全量行读数＋registry 本项 verify_method 三问"
+     "reason": "三个问题核下来全是否：①GAP-B2B-01~08 的读数比基线没恶化（都是 triaged，状态一样）②第二种同型的需求没出现（open/closed 枚举、常量 SSOT、reserved 机制都没有新需求确认）③known-gaps 没有新增条目命中批2-β 那套机制——trigger_event 没置成 occurred，批2-β 维持 deferred（「执行窗空」只是必要条件，不是充分条件）",
+     "evidence": "docs/known-gaps.md 全部行的读数，加上 registry 里本项 verify_method 那三个问题"
     },
     {
      "at": "2026-09-28",
      "by": "R45 审计窗哨兵值守（r44-t1-exec 批审计同窗）",
      "criterion_version": "D-169-a②",
      "decision": "trigger-not-ignited",
-     "reason": "三问复验全否：①GAP-B2B-01~08 全 triaged 同态较基线无恶化②无第二同型需求（无 open/closed 枚举/常量 SSOT/reserved 机制新需求确认）③known-gaps 无新增条目命中批2-β 机制——trigger_event 未置 occurred，批2-β 维持 deferred",
-     "evidence": "docs/known-gaps.md 全量行复核＋registry 本项 verify_method 三问复跑"
+     "reason": "三个问题又核了一遍，全是否：①GAP-B2B-01~08 都是 triaged，状态一样，比基线没恶化②第二种同型需求没出现（open/closed 枚举、常量 SSOT、reserved 机制都没有新需求确认）③known-gaps 没有新增条目命中批2-β 那套机制——trigger_event 没置成 occurred，批2-β 维持 deferred",
+     "evidence": "docs/known-gaps.md 全部行的复核，加上 registry 本项 verify_method 那三个问题又跑了一遍"
     },
     {
      "at": "2026-09-29",
      "by": "R46 审计窗哨兵值守（r46-t1-exec 执行批同窗）",
      "criterion_version": "D-169-a②",
      "decision": "all-no-deferred-holds",
-     "reason": "点火检查三问全否：①GAP-B2B-01~08 读数较基线无恶化（8/8 triaged）②同型需求第二例未出现③known-gaps 无新增条目命中批2-β 机制（open/closed 枚举/常量 SSOT/reserved）→挂账续持不入 WIP",
-     "evidence": "docs/known-gaps.md 台账全量复核"
+     "reason": "点火检查的三个问题全是否：①GAP-B2B-01~08 读数比基线没恶化（8/8 triaged）②同型需求的第二例没出现③known-gaps 没有新增条目命中批2-β 那套机制（open/closed 枚举／常量 SSOT/reserved）→挂账继续持有，不进 WIP",
+     "evidence": "docs/known-gaps.md 台账全部行复核过"
     },
     {
      "at": "2026-09-29",
      "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
      "criterion_version": "D-169-a②",
      "decision": "trigger-not-ignited",
-     "reason": "审计窗三问核验全否：①GAP-B2B-01~08 读数全 triaged 同态较 R46 基线零恶化（docs/known-gaps.md 八行逐行重读）②第二同型需求未出现（open/closed 枚举/常量 SSOT/reserved 机制无新需求确认）③known-gaps 无新增条目命中批2-β 机制——挂账续持，批3/批4 不预裁边界未破",
-     "evidence": "docs/known-gaps.md GAP-B2B-01~08 行机读＋registry 事件锚在案"
+     "reason": "审计窗三个问题核下来全是否：①GAP-B2B-01~08 读数全是 triaged，跟 R46 基线一样，零恶化（docs/known-gaps.md 那八行一行行重读过）②第二种同型需求没出现（open/closed 枚举／常量 SSOT/reserved 机制都没新需求确认）③known-gaps 没有新增条目命中批2-β 那套机制——挂账继续持有，批3／批4 不预裁这条边界没破",
+     "evidence": "docs/known-gaps.md 里 GAP-B2B-01~08 那几行是机读的，registry 的事件锚在案"
     }
    ]
   },
   {
    "id": "anysearch-cli-intent-drift-watch",
    "family": "upstream-drift",
-   "title": "anysearch-cli intent 面上游漂移观察项——语料 intent 面实测 8→1（c6fe0f8 loop-2 再生捕获）＋该退化无认领票",
+   "title": "anysearch-cli 的 intent 面在上游漂了——语料 intent 面实测 8→1（c6fe0f8 loop-2 重采样时抓到）＋这个退化还没人认领",
    "deadline_event": null,
    "deadline": "—（manual_watch 观察项）",
    "trigger_event": null,
@@ -2645,32 +2685,32 @@
      "by": "R46-T1 执行批",
      "criterion_version": "D-172④",
      "decision": "registered",
-     "reason": "上游漂移移交观察项落地：intent 9→1 退化读数＋「该退化无认领票」双标注在册；跨仓主权——不代立案不代排产（D-172④ 负向）；漂移移交=观察项非代管",
-     "evidence": "known-red-manifest.json frozen_evidence_packs 节＋closed kr-01 lifecycle_log＋01-check F 组钉值"
+     "reason": "上游漂移移交成观察项，落地了：intent 9→1 的退化读数，加上「该退化无认领票」两条都标进册；跨仓这块主权不在我们手上——不代立案也不代排产（D-172④ 那条负向）；漂移移交过来就是观察，不是代管",
+     "evidence": "known-red-manifest.json 的 frozen_evidence_packs 那一节，加上 closed 的 kr-01 lifecycle_log，再加 01-check F 组的钉值"
     },
     {
      "at": "2026-09-29",
      "by": "轮46 审计 LOOP 修复批（F1 勘误兑现）",
      "criterion_version": "D-146⑤",
      "decision": "errata-anchor-corrected",
-     "reason": "冻结锚勘误：实测退化系 anysearch-cli intent 8→1→8（非 9→1）——frozen 01-corpora.json 三时点 intent.len=8（0e5b2514/3a049d45/重钉后）＋frozen 01-report.md 自记意图单元=8；本项 title/source/verify_method 字段更正为 8，原确认行留痕不改写",
-     "evidence": "01-report.md 意图单元行＋git 历史三时点实测＋decision-ledger.md 轮46 LOOP 勘误节"
+     "reason": "冻结锚的勘误：实测退化其实是 anysearch-cli 的 intent 8→1→8（不是 9→1）——frozen 的 01-corpora.json 在三个时点都是 intent.len=8（0e5b2514/3a049d45／重钉之后），frozen 的 01-report.md 自己也记着意图单元=8；本项的 title/source/verify_method 字段更正成 8，原来的确认行留痕不改写",
+     "evidence": "01-report.md 里意图单元那一行，加上 git 历史三个时点的实测，再加 decision-ledger.md 轮46 LOOP 的勘误节"
     },
     {
      "at": "2026-09-29",
      "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
      "criterion_version": "D-172④",
      "decision": "drift-confirmed-escalate-to-ruling",
-     "reason": "续读实测：同一提取逻辑（01-extract.mjs 谓词）复测上游 anysearch-cli intent 面计数=1（readme:h1）——对 frozen 锚=8 持续退化（与 c6fe0f8 读数=1 同签名）；归因=上游 r69-t2 README 登录页 IA 重构（定位 bullets 段消除）属上游自主改版非 6F 面漂移事件，「该退化无认领票」标注维持准确；按册项 verify_method 漂移坐实→呈裁冻结包代表性衰减声明＋S1 重校准有意图裁定（列入下轮 grill 方向候选）",
-     "evidence": "01-extract.mjs extractIntent 复测 anysearch-cli intent=1＋frozen 01-corpora.json 锚 intent.len=8＋上游 commit bbb3ba73（r69-t2 README IA 重构）实物在史"
+     "reason": "接着往下读实测：用同一套提取逻辑（01-extract.mjs 的判定条件）复测上游 anysearch-cli 的 intent 面，计数=1（readme:h1）——相对 frozen 的锚 8 是持续退化（跟 c6fe0f8 那次读数=1 同一个样子）；原因归到上游 r69-t2 把 README 登录页的 IA 重构了（定位用的 bullets 段没了），这是上游自己改版，不是 6F 这面漂移，「该退化无认领票」的标注还是准的；照册项的 verify_method，漂移坐实了 →呈上去裁：冻结包的代表性衰减声明，加上 S1 重校准要不要有意裁（列进下轮 grill 的方向候选）",
+     "evidence": "用 01-extract.mjs 的 extractIntent 复测，anysearch-cli 的 intent=1；frozen 的 01-corpora.json 锚是 intent.len=8；上游那个 commit bbb3ba73（r69-t2 重构 README IA）实物还在史里"
     },
     {
      "at": "2026-09-30",
      "by": "R50-T1 执行批（文书批）",
      "criterion_version": "D-182①②③④",
      "decision": "decay-declared",
-     "reason": "D-182 裁定兑现：「01 系冻结包对当前上游 anysearch-cli 的代表性已衰减」声明入册（as-of 快照历史证据语义——对冻结时点后上游代表性失效，BNC 快照语义）；S1 重校准=缓行挂消费拉动（触发锚=下次真实消费上游代表性校准的测量需求出现）；上游代表性缺口按 Accepted Risk 五要件注册（docs/ra/upstream-representativeness-gap.md）；册项保持 pending/manual_watch 续看不销项（D-182④）；冻结件字节零动（D-172①）",
-     "evidence": "decision-ledger.md D-182 裁条＋docs/ra/upstream-representativeness-gap.md 五要件＋known-gaps.md GAP-REP-01＋reports/R49-Q3-atomcode-research.md"
+     "reason": "D-182 的裁定兑现了：「01 系冻结包对当前上游 anysearch-cli 的代表性已衰减」这句声明进册（as-of 快照的历史证据语义——说的是冻结那个时点之后上游的代表性失效，跟 BNC 快照一个意思）；S1 重校准先缓着，挂到有消费拉动的时候（触发锚=下一次真要用上游代表性校准、有测量需求出现）；上游代表性这个缺口按 Accepted Risk 五要件注册（docs/ra/upstream-representativeness-gap.md）；册项保持 pending/manual_watch 继续看，不销项（D-182④）；冻住的存档一个字节都不动（D-172①）",
+     "evidence": "decision-ledger.md 的 D-182 裁定条，加上 docs/ra/upstream-representativeness-gap.md 的五要件、known-gaps.md 的 GAP-REP-01、reports/R49-Q3-atomcode-research.md"
     }
    ],
    "bound_to": "#轮46 T1-E（D-172④）"
@@ -2678,7 +2718,7 @@
   {
    "id": "ci-workflow-liveness-watch",
    "family": "repo-maintenance",
-   "title": "CI workflow 活性值守——workflow 文件级解析死亡/平台调度停用/注册漂移三类失效均无仓内可观测信号，哨兵节律盘查补网（macro-b-regression 死件案 D-176 防再发）",
+   "title": "CI workflow 还活不活着，得有人盯着——workflow 文件解析坏掉、平台把调度停了、注册漂了，这三类失效仓里都看不出信号，靠哨兵按节律盘查补上（macro-b-regression 那次死件，D-176，别再犯）",
    "deadline_event": null,
    "deadline": "—（manual_watch）",
    "trigger_event": null,
@@ -2696,23 +2736,23 @@
      "by": "R49-impl 执行批（轮49 T1，分支 r49-t1-exec）",
      "criterion_version": "D-176③",
      "decision": "ci-liveness-sentinel-registered",
-     "reason": "D-176③ 兑现：死件复原后活性兜底建制——workflow 文件级解析失败致 schedule 静默死亡系本窗新发现失效形态（冒号病态→解析拒绝→dispatch 无声 0 跑），仓内断言网原无死角；双轨闸=46-check A18 文本档拦网＋本册哨兵补平台态（dispatches/API 列读不可达时 gh workflow list 等价）",
-     "evidence": "registry 本项＋decision-ledger.md D-176＋46-check.mjs A18"
+     "reason": "D-176③ 兑现：死掉的那件复原以后，活性兜底建起来了——workflow 文件解析失败导致 schedule 悄悄死掉，是这窗口新发现的失效形态（冒号写坏→解析被拒→dispatch 一声不响跑 0 次），仓里的断言网原来没有这一块；两路闸：46-check A18 从文本这头拦，本册哨兵补平台那头的状态（dispatches/API 那列读不到的时候，gh workflow list 等价，能顶上）",
+     "evidence": "registry 里本项，加上 decision-ledger.md 的 D-176、46-check.mjs 的 A18"
     },
     {
      "at": "2026-09-29",
      "by": "R49 审计窗哨兵值守（r49-t1-exec 批同窗，分支 r49-audit）",
      "criterion_version": "D-176③",
      "decision": "sentinel-first-read-degradation-persists",
-     "reason": "册项落地后首窗三读数实跑：①gh workflow list 实测 workflow 名=文件路径 .github/workflows/macro-b-regression.yml（name≠path 退化签名在案）＋gh run list 近 8 push 全 completed/failure 时长 0s（0s 败迹签名全对上）＋schedule 列 active 但死件态未注册触发——平台侧签名与 D-176 诊断逐字一致，复原待 r49-t1-exec push（D-176④ 外部事件锚）；②actionlint 本机未装（随读工具缺位——PyYAML 等值解析器代读三 workflow 全绿）；③46-check A18 读数在绿（files=3 零命中）。workflow_dispatch 实跑未授权不入哨义",
-     "evidence": "gh workflow list/run list 实测输出＋PyYAML safe_load 三件全过＋46-check A18 PASS"
+     "reason": "册项落地后头一个窗口，三个读数都实跑了：①gh workflow list 实测 workflow 名显示的是文件路径 .github/workflows/macro-b-regression.yml（name≠path 这个退化签名对上了），gh run list 看最近 8 次 push 全是 completed/failure、时长 0s（0s 就败的签名也全对上），schedule 那列写着 active 但死件状态一直没注册触发——平台那边的签名跟 D-176 的诊断一字不差，复原要等 r49-t1-exec 那次 push（D-176④ 外部事件锚）；②actionlint 本机没装（手边缺工具——拿 PyYAML 做等值解析代读，三个 workflow 全绿）；③46-check A18 的读数还是绿（files=3 零命中）。workflow_dispatch 实跑没授权，不算进哨兵职责",
+     "evidence": "gh workflow list/run list 的实测输出，加上 PyYAML safe_load 三件全过、46-check A18 PASS"
     }
    ]
   },
   {
    "id": "check-kit-regex-blindspot-watch",
    "family": "guard-baseline",
-   "title": "check-kit stripComments regex 盲区哨兵（D-196① 不摘除＋② 降级 manual_watch＋补注册）——stripComments 新增 JS 语法形态或签名变更事件驱动盘查",
+   "title": "check-kit 的 stripComments 正则盲区哨兵（D-196① 不摘掉＋② 降成 manual_watch＋补登记）——stripComments 一新增 JS 语法形态，或者签名变了，就按事件去盘查",
    "deadline_event": null,
    "deadline": "无（事件驱动非日历——D-196② trigger 钉 stripComments 新增 JS 语法形态或签名变更）",
    "trigger_event": "check-kit-stripcomments-signature-change",
@@ -2731,15 +2771,15 @@
      "by": "R54 T1-C 执行批",
      "criterion_version": "D-196②",
      "decision": "registered",
-     "reason": "哨兵降级 manual_watch＋补注册落盘（显式驳回摘除——D-160⑥ 守护面存续）；GAP-CK-01 已 closed＋迁入闸退役，残余值守面=stripComments 语法形态盲区事件驱动盘查",
-     "evidence": "decision-ledger.md D-196 行；reports/check-kit-regex-check.mjs 读数；WORKFLOW §4.2.10"
+     "reason": "哨兵降成 manual_watch，把补登记落盘（这一条是明确驳回的，不是真摘掉——D-160⑥ 说守护面还在）；GAP-CK-01 已经 closed，迁入的那道闸也退役了，剩下的值守面就是 stripComments 语法形态的盲区，等事件来了再盘",
+     "evidence": "decision-ledger.md 的 D-196 那一行；reports/check-kit-regex-check.mjs 的读数；WORKFLOW §4.2.10"
     }
    ]
   },
   {
    "id": "supply-chain-closure-trigger",
    "family": "trigger-gated-closure",
-   "title": "supply-chain 象限解排触发器（D-206）：续排合法，双事件任一触发即按预声明源判据接线 Scorecard",
+   "title": "supply-chain 象限解排的触发器（D-206）：接着排是合法的，两个事件里任意一个触发，就照提前写好的源判据把 Scorecard 接上",
    "deadline_event": null,
    "deadline": "无（事件驱动非日历）",
    "trigger_event": "supply-chain-unqueue",
@@ -2748,12 +2788,12 @@
    "status": "deferred",
    "watch": "event_bound",
    "decision_ref": "D-206",
-   "note": "解排时源判据已预声明（reports/R56-Q5-atomcode-research.md）：API-first 主线 scorecard.dev REST＋Go binary 双轨逃生舱（非头部仓 miss 自动降级）；#2124 exit-0 吞错坑入 golden 断言；OSV/deps.dev=未接入知识储备不进象限语义"
+   "note": "解排时候的源判据先写好了（reports/R56-Q5-atomcode-research.md）：主线走 API-first 的 scorecard.dev REST，另备一条 Go binary 双轨逃生舱（不是头部仓拿不到就自动降级）；#2124 那个 exit-0 吞错的坑要进 golden 断言；OSV/deps.dev 只是备着的知识，没接进来，不算进象限语义"
   },
   {
    "id": "baggage-inbound-recheck",
    "family": "trigger-gated-closure",
-   "title": "baggage inbound 接受语义重裁册（D-208③）：inbound trace 注入合法性挂双事件重裁",
+   "title": "baggage inbound 接受语义要重裁（D-208③）：inbound trace 注入合不合法，挂两个事件再裁",
    "deadline_event": null,
    "deadline": "无（事件驱动非日历）",
    "trigger_event": "baggage-inbound-recheck",
@@ -2762,12 +2802,12 @@
    "status": "deferred",
    "watch": "event_bound",
    "decision_ref": "D-208",
-   "note": "册内预声明重裁判据：届时 bazel 型 opt-in 注入是合法候选，但注入值不得占用 trace_id/run_id 本体（D-108 幂等键不动）——走独立列或 linkage 面；Macro-A linkage fact 义务=双向 id＋两侧执行时点留痕"
+   "note": "册子里先把重裁的判据写死：到时候 bazel 那种 opt-in 注入算合法候选，但注入值不许占 trace_id/run_id 本体（D-108 的幂等键不动）——得走单独的列或者 linkage 面；Macro-A 的 linkage fact 义务是两边 id 都要有，两边执行时点都留痕"
   },
   {
    "id": "ratchet-headroom-watch",
    "family": "distribution",
-   "title": "dist 棘轮余量警戒线值守（D-211②）——余量 <25% 强制开一次分发形态重评票（棘轮管静默增长、警戒线管计划性到顶）",
+   "title": "dist 棘轮余量的警戒线值守（D-211②）——余量 <25% 就强制开一次分发形态重评票（棘轮管的是悄悄变大，警戒线管的是有计划地顶到上限）",
    "deadline_event": null,
    "deadline": "无（值守项——越线即强制重评票，非静默增长通道）",
    "trigger_event": null,
@@ -2784,7 +2824,7 @@
      "by": "R62 grill D-211②",
      "criterion_version": "D-211②",
      "decision": "registered",
-     "reason": "第五轮锐评 dist 310KB 批评部分重开留痕三件之二——警戒线立法（size-limit 对称面先例）；D-181 本体维持",
+     "reason": "第五轮锐评说 dist 310KB，批评部分重开留痕三件之二——警戒线立法（size-limit 那个对称面的先例）；D-181 本体维持",
      "evidence": "decision-ledger.md D-211②＋reports/R62-Q1-atomcode-research.md"
     },
     {
@@ -2792,15 +2832,15 @@
      "by": "R63 T1 执行批（D-211② 触发兑现）",
      "criterion_version": "D-211②",
      "decision": "triggered",
-     "reason": "dist bundle commit（#85② 产线化 +62.8KB）时点读数=373,105B/cap 385,000B margin 11,895B——headroom=3.1%＜25% 警戒线（立法时点已知 19.4% 越线，本窗 bundle 首读确认翻转 dist-ratchet-headroom-low）；强制立分发形态重评票=BACKLOG #90（dist-in-repo-review 裁定面四选；重评前回读 D-181 385,000B 推导论证）",
-     "evidence": "engine/scripts/check-dist.mjs DIST-RATCHET PASS 373105B/cap 385000B margin 11895B＋decision-ledger.md R63 收口节＋BACKLOG #90"
+     "reason": "dist bundle commit（#85② 产线化，+62.8KB）那个时点的读数=373,105B/cap 385,000B，margin 11,895B——headroom=3.1%＜25%，越了警戒线（立法时点就知道 19.4% 会越线，这个窗口 bundle 第一次读就确认翻转 dist-ratchet-headroom-low）；强制立分发形态重评票=BACKLOG #90（dist-in-repo-review 那边可以四选一；重评之前要回读 D-181 把 385,000B 推导出来的那段论证）",
+     "evidence": "engine/scripts/check-dist.mjs 打出 DIST-RATCHET PASS 373105B/cap 385000B margin 11895B＋decision-ledger.md R63 收口那一节＋BACKLOG #90"
     },
     {
      "at": "2026-10-07",
      "by": "R66 grill Q5（#90 裁定兑现）",
      "criterion_version": "D-211②",
      "decision": "adjudicated",
-     "reason": "强制重评票兑现——R66-Q5 裁定=分发形态维持＋体积治理先行（minifyWhitespace+minifySyntax，禁 identifiers/sourcemap）＋cap 按新实测×1.25 向下重推导（D-217）；执行面=BACKLOG #92；#90 核销随 #92",
+     "reason": "强制重评票兑现——R66-Q5 裁定=分发形态维持，先做体积治理（minifyWhitespace 加 minifySyntax，不许动 identifiers/sourcemap），cap 按新实测 ×1.25 往下重推导（D-217）；执行面=BACKLOG #92；#90 跟着 #92 一起核销",
      "evidence": "decision-ledger.md D-217＋.scratch/macro-audit/reports/R66-Q5-atomcode-research.md"
     },
     {
@@ -2808,15 +2848,15 @@
      "by": "R67 T1 执行批（#92/D-217 兑现后 margin 归位）",
      "criterion_version": "D-211②",
      "decision": "pending",
-     "reason": "D-217 minify 治理落地后 dist/cli.js=297,074B/cap 371,342B margin 74,268B——headroom=20.0%＜25% 但远超触发态（旧 3.1%→新 20.0%）；cap 已按 D-217 向下重推导（385,000→371,342），margin 归位非越线态；转 pending 回退义务兑现（triggered-bound→pending）；#90 核销同行",
-     "evidence": "engine/scripts/check-dist.mjs DIST-RATCHET PASS 297074B/cap 371342B margin 74268B＋decision-ledger.md R67 收口节"
+     "reason": "D-217 的 minify 治理落地以后 dist/cli.js=297,074B/cap 371,342B，margin 74,268B——headroom=20.0%＜25%，但比触发态好得多（旧的 3.1% 变成新的 20.0%）；cap 已经照 D-217 往下重推导（385,000→371,342），margin 归位不是越线态；转 pending 那个回退义务兑现了（triggered-bound→pending）；#90 核销跟着一起做",
+     "evidence": "engine/scripts/check-dist.mjs 打出 DIST-RATCHET PASS 297074B/cap 371342B margin 74268B＋decision-ledger.md R67 收口那一节"
     }
    ]
   },
   {
    "id": "ceremony-ratio-watch",
    "family": "process-governance",
-   "title": "工程仪式时间占比观察册（D-211③）——non-automatable 判断面登记为 Stage-2 前接受成本，实测越线再立量化预算（先计量不照搬 50% 外部数字）",
+   "title": "工程仪式占多少时间，观察册（D-211③）——那些没法自动判的判断面，登记成 Stage-2 之前的接受成本，实测真越线了再立量化预算（先量，不照搬外头说的 50%）",
    "deadline_event": null,
    "deadline": "无（观察册——占比实测越线或新贡献者可读性信号出现再裁定）",
    "trigger_event": null,
@@ -2833,7 +2873,7 @@
      "by": "R62 grill D-211③",
      "criterion_version": "D-211③",
      "decision": "registered",
-     "reason": "第五轮锐评「80% 元治理」批评双轨登记——non-automatable 判断面=Stage-2 前接受成本（Rust RFC substantial-only 先例）；量化预算待实测不照搬外部数字",
+     "reason": "第五轮锐评说「80% 元治理」，这条批评双轨登记——那些没法自动判的判断面，算作 Stage-2 之前的接受成本（Rust RFC 有 substantial-only 的先例）；量化预算等实测出来再说，不照搬外头的数字",
      "evidence": "decision-ledger.md D-211③＋reports/R62-Q1-atomcode-research.md"
     }
    ]
@@ -2841,7 +2881,7 @@
   {
    "id": "gitbutler-eof-hunk-watch",
    "family": "repo-maintenance",
-   "title": "GitButler EOF-only hunk 兜底通道值守（D-216⑤）——but 版本升级/审计窗复审即重放 R65 复现探针，转绿即收回授权并注销本项",
+   "title": "GitButler 的 EOF-only hunk 兜底通道值守（D-216⑤）——but 一升版本，或者审计窗复审的时候，就把 R65 的复现探针重跑一遍，转绿了就收回授权、注销本项",
    "deadline_event": null,
    "deadline": "无（事件驱动——but 升级或审计窗复审即评估收回）",
    "trigger_event": null,
@@ -2858,7 +2898,7 @@
      "by": "R66 grill D-216⑤",
      "criterion_version": "D-216",
      "decision": "registered",
-     "reason": "EOF-only hunk scoped git 兜底授权的收回钩——双通道（版本升级探针＋审计窗例行复审）；R65 实证 but 对 EOF-only hunk 不可生成/应用（上游 #5758 独立佐证）",
+     "reason": "EOF-only hunk 走 scope 内 git 兜底授权，这是收回钩——两条通道（版本升级探针＋审计窗例行复审）；R65 实证了 but 对 EOF-only hunk 既生成不了也应用不了（上游 #5758 是独立佐证）",
      "evidence": "decision-ledger.md D-216＋.scratch/macro-audit/reports/R66-Q4-atomcode-research.md"
     },
     {
@@ -2866,7 +2906,7 @@
      "by": "R67 T1 执行批（#94/D-216 兜底通道首用核验）",
      "criterion_version": "D-216①",
      "decision": "confirmed",
-     "reason": "D-216 EOF-only hunk 兜底通道首用落地——产物三件＋census-register＋frozen 件共 5 次单文件兜底 commit 均满足机检双判据与强制标注串；GitButler 工具限制依然存在，兜底通道维持开放，watch 维持 pending",
+     "reason": "D-216 的 EOF-only hunk 兜底通道头一次用，落地了——产物三件、census-register、frozen 件加起来 5 次单文件兜底 commit，每次都满足机检的两条判据和强制标注串；GitButler 这个限制还在，兜底通道继续开着，watch 维持 pending",
      "evidence": "commits 047463ec, 113630ae, b4717211, eb73705c, 30d8665d＋.scratch/macro-audit/reports/2026-10-08-r67-t1-exec-report.md"
     }
    ]
@@ -2874,7 +2914,7 @@
   {
    "id": "consumption-forms-multi-consumer-class",
    "family": "code-hygiene",
-   "title": "consumption_forms 多形态消费方守卫类登记（D-214①）——十七件多形态消费方守卫（groupProbe 十六件＋整件 envProbe 一件 37-check＋组级闸改红断言一件 43-check：#72 后其准入从 groupProbe 改为红的 B5-GATE，但两形态行为仍不同，故留类）；声明集↔本项 guards 对账现由**人工同窗维护**（75a-T4 已退役，无自动断言；新增/摘除多形态消费方守卫须同窗更新本项）",
+   "title": "consumption_forms 多形态消费方守卫这一类，登记（D-214①）——十七件多形态消费方守卫（groupProbe 十六件＋整件 envProbe 一件 37-check＋组级闸改成红断言一件 43-check：#72 之后它的准入从 groupProbe 改成红的 B5-GATE，但两种形态下的行为还是不一样，所以留在这一类）；声明集跟本项 guards 对账现在由**人工在同一个窗口维护**（75a-T4 已退役，没有自动断言；新增或者摘掉多形态消费方守卫，得同窗更新本项）",
    "deadline_event": null,
    "deadline": "无（登记项）",
    "trigger_event": "consumption-forms-enumeration-active",
@@ -2910,23 +2950,23 @@
      "by": "R67 T1 执行批 #91（D-214①）",
      "criterion_version": "D-214①",
      "decision": "registered",
-     "reason": "consumption_forms 枚举面首建：多形态消费方=带组级 need() 前置守卫（groupProbe 十七件 23/26/27/28/38/39/40/43/46/50/53/78/80/83/84/85/86＋整件 envProbe 一件 37-check），逐件声明 ['dev-full','ci-shallow']；单 dev 消费方守卫（余 47 件）不强制枚举不设枚举税（D-214① 粒度收窄）",
-     "evidence": "reports/84-check.mjs HISTREACH groupProbe git-history:full＋_lib/env-contract.mjs groupProbe/envProbe＋各 check groupProbe 调用点"
+     "reason": "consumption_forms 这套枚举头一次建：多形态消费方=带组级 need() 前置的守卫（groupProbe 十七件 23/26/27/28/38/39/40/43/46/50/53/78/80/83/84/85/86，加上整件 envProbe 一件 37-check），一件件声明 ['dev-full','ci-shallow']；只有一种 dev 消费方的守卫（剩下 47 件）不强制枚举，不收这份税（D-214① 把粒度收窄了）",
+     "evidence": "reports/84-check.mjs 的 HISTREACH 走 groupProbe git-history:full，加 _lib/env-contract.mjs 的 groupProbe/envProbe，加各 check 里调 groupProbe 的地方"
     },
     {
      "at": "2026-10-26",
      "by": "#72（43-check 组级闸改红断言）",
      "criterion_version": "D-214①",
      "decision": "rescoped",
-     "reason": "43-check 的 B5/C 准入由 groupProbe(git-object:) 改为红断言 B5-GATE（在仓冻结件缺陷＝仓库面，不该退化成 SKIP）。该类仍保留 43-check——两种消费形态下行为依旧不同（浅克隆走 bundle 物化、全克隆短路），只是不再有组级 need 前置；计数由「十八件（groupProbe 十七件）」改为「十七件（groupProbe 十六件＋envProbe 一件＋红闸一件）」。75a-T4 已退役，本项现由人工同窗维护。",
-     "evidence": "engine/test/contracts/43-check.mjs B5-GATE／T0；engine/test/contracts-run.mjs SKIP-GROUPS=0"}
+     "reason": "43-check 的 B5/C 准入原来是 groupProbe(git-object:)，现在改成红断言 B5-GATE（仓库里冻住的那件有缺陷＝仓库这面的问题，不该退化成 SKIP）。这一类还留着 43-check——两种消费形态下它的行为还是不一样（浅克隆走 bundle 物化、全克隆短路），只是不再有组级 need 前置；计数从「十八件（groupProbe 十七件）」改成「十七件（groupProbe 十六件＋envProbe 一件＋红闸一件）」。75a-T4 已退役，现在这块由人在同一个窗口维护。",
+     "evidence": "engine/test/contracts/43-check.mjs B5-GATE/T0；engine/test/contracts-run.mjs SKIP-GROUPS=0"}
    ],
    "bound_to": "#91 探测面立法落地批（D-214① consumption_forms 枚举面首建）"
   },
   {
    "id": "consumption-form-change-watch",
    "family": "code-hygiene",
-   "title": "新增消费形态触发器（D-214③）——外部 clone 方式变更／CI checkout 配置变更（fetch-depth）／sibling 消费方式变更→触发被消费守卫 consumption_forms 复审",
+   "title": "新增消费形态的触发器（D-214③）——外面 clone 的方式变了／CI checkout 的配置（fetch-depth）变了／sibling 消费方式变了 → 就触发被消费的守卫重审 consumption_forms",
    "deadline_event": null,
    "deadline": "无（事件驱动）",
    "trigger_event": "consumption-form-change-detected",
@@ -2943,7 +2983,7 @@
      "by": "R67 T1 执行批 #91（D-214③）",
      "criterion_version": "D-214③",
      "decision": "registered",
-     "reason": "消费形态静默变更同型更早期标本=checkout@v2 默认浅克隆致全网失效；不修触发器则仍靠人记（原 (a) 缺陷）——engine-ci fetch-depth 变更已配为同族先例实锤",
+     "reason": "消费形态悄悄变了，同型更早的标本是 checkout@v2 默认浅克隆把全网弄挂那次；不把触发器修起来，还得靠人记着（原来那条 (a) 缺陷）——engine-ci 的 fetch-depth 变更已经配成同族的先例了，这是个实锤",
      "evidence": "decision-ledger.md D-214③＋.scratch/macro-audit/reports/R66-Q2-atomcode-research.md"
     },
     {
@@ -2951,8 +2991,8 @@
      "by": "#33／ADR-0026（基准语料自持）",
      "criterion_version": "D-214③",
      "decision": "fired",
-     "reason": "sibling 消费方式变更实锤点火：85-check C 组由「同级仓 anysearch-cli 工作树 clone」改为「仓内 frozen bundle clone」，被消费守卫 consumption_forms 复审结论=声明不变仍成立（`['dev-full','ci-shallow']` 两形态照跑：dev-full 全断言面、ci-shallow 由 engine-deps 组级闸兜 duckdb 原生绑定），且 C 组首次真正进入 ci-shallow 形态（原无 sibling 只能 SKIP-GROUP）；engine-ci checkout fetch-depth 未变（仍 0），clone 深度策略未变",
-     "evidence": "engine/test/contracts/85-check.mjs CONSUMPTION_FORMS＋DEPS_C（engine-deps 单闸）＋C-GATE 红断言（内容缺陷不退化成 SKIP）；engine/baseline-lock.yaml 三元钉；无 sibling 环境（GUARD_SIBLING_ROOT 指向不存在目录）实跑 C-GATE/C0/C-INV/C1~C6 全绿"
+     "reason": "sibling 消费方式确实变了，点火：85-check 的 C 组原来是从「同级仓 anysearch-cli 工作树 clone」，改成了「仓内 frozen bundle clone」，被消费的守卫重审 consumption_forms，结论是声明不用变还成立（`['dev-full','ci-shallow']` 两种形态照跑：dev-full 全断言面，ci-shallow 由 engine-deps 的组级闸兜住 duckdb 原生绑定），而且 C 组头一回真进了 ci-shallow 形态（原来没有 sibling，只能 SKIP-GROUP）；engine-ci 的 checkout fetch-depth 没变（还是 0），clone 深度策略也没变",
+     "evidence": "engine/test/contracts/85-check.mjs 的 CONSUMPTION_FORMS，加 DEPS_C（engine-deps 那道单闸），加 C-GATE 红断言（内容有缺陷也不退化成 SKIP）；engine/baseline-lock.yaml 的三元钉；在没有 sibling 的环境里（GUARD_SIBLING_ROOT 指向一个不存在的目录）实跑 C-GATE/C0/C-INV/C1~C6，全绿"
     }
    ]
   }

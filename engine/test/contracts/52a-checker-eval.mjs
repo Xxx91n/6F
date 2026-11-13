@@ -1,10 +1,11 @@
-// 52a-checker-eval.mjs —— #52a checker 仪器标定评测（D-061；合成语料跑 checker，产 eval JSON）
-// 被测件=dist 的 checkAllCitations（presence 判定）+ scanBandViolations（band 红线机检）。
-// 指标面：分类别 TP/FP/TN/FN＋precision/recall/F1（supports 类）＋FP/FN 分型（CiteEval：presence≠support）；
-//   band-leak 检出率（每模式＋总体＋干净对照假阳率）；κ 基线三报——checker-vs-gold κ（全集＋非对抗子集）
-//   ＋intra-rater κ（gold vs gold_b 双标子集=human-human 天花板替代位，单人二轮规则如实披露）
-//   ＋raw agreement＋bootstrap CI（2000 resample，种子 PRNG 确定性）。
-// 纪律：本脚本只测不改——checker 阈值零触碰（防调参泄漏）；暴露缺陷如实入 findings，另立修复票。
+// 52a-checker-eval.mjs —— #52a 拿一批合成语料把 checker 调准、出评测结果（D-061；产 eval JSON）
+// 测的是 dist 里的 checkAllCitations（判有没有说到点上）加上 scanBandViolations（机器检查结论有没有越档）。
+// 看这几个数：按类别分 TP/FP/TN/FN，算出 precision/recall/F1（supports 这一类），再把 FP/FN 分型
+//   （CiteEval 的说法：提到了不等于支持）；
+//   还有 band 泄漏的检出率（每种模式、总体、以及干净对照的误报率）；κ 基线报三组——checker 对 gold 的 κ（全集和非对抗子集）
+//   加上 intra-rater κ（gold 对 gold_b 这份双标子集，拿它顶替人跟人一致性的天花板，单人标两遍这个做法如实写出来）
+//   再加上原始一致率、以及 bootstrap 置信区间（重采样 2000 次，随机数用固定种子，结果可复跑）。
+// 纪律：这个脚本只测不改——checker 的阈值一个手指都不碰（防止调参把结果调好看）；发现缺陷如实写进 findings，另开修复票。
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';

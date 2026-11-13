@@ -6,13 +6,13 @@ export declare const PRESENCE_LIMITS: {
     fn_disclosure: string;
     adversarial_fp_guard: string;
 };
-/** 预声明窗口（字符）：命中点向前找 pre-negation cue 的最大距离。 */
+/** 事先定好的窗口（按字符）：从撞上那点往前找否定词，最远找多远。 */
 export declare const NEG_WINDOW_PRE = 60;
-/** 预声明窗口（字符）：命中点向后找 post-negation cue 的最大距离（后置否定短，例「X 不成立」）。 */
+/** 事先定好的窗口（按字符）：从撞上那点往后找否定词，最远找多远（后置否定一般短，比如「X 不成立」）。 */
 export declare const NEG_WINDOW_POST = 40;
-/** 归属引导语掩蔽尾长（字符）：引导词到其归属段末（句读或长度先到者）。 */
+/** 归属引导语的遮罩尾长（按字符）：从引导词一直到它那段话结尾（碰到标点或长度先用完的那个）。 */
 export declare const ATTRIBUTION_TAIL = 80;
-/** 引语前置言语/归属 cue 回溯窗（字符）。 */
+/** 引号前面找说话/归属词的往回看窗口（按字符）。 */
 export declare const SPEECH_LOOKBACK = 24;
 export interface EvidenceItem {
     evidence_id: string;

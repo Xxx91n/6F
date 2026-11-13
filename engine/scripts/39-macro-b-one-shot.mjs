@@ -1,13 +1,13 @@
-// 39-macro-b-one-shot.mjs — Macro-B（已上架层）三仓 one-shot 泛化验证（#39 / A-044 / R5-08 / spec §R5-D8）
-// 用法：
-// [轮16/#53-D-060⑤] 本脚本已转 audit 一等命令（macro-audit audit）的回归对照物——非命令面主入口；audit 产物字段⊆本脚本产物字段，漂移即报警（53-check 断言）。
-//   node 39-macro-b-one-shot.mjs                                      # 默认三仓全跑（GUARD_SIBLING_ROOT/{env-manager,anysearch-cli,jiahao}，默认 D:/Aworker），产物落本目录
-//   node 39-macro-b-one-shot.mjs --repo jiahao --root <abs> --out <dir>  # 单仓形态（CI 回归用：6F .github/workflows/macro-b-regression.yml）
-// 链 = 采集（gitlog + adr-structure@v2 + positioning）→ fact（39-macro-b-<repo>-facts.jsonl + 共享 39-audit-facts.duckdb）
-//   → 裁决（PC-1/PC-2 正对照 + TC-1/2/3 真判据 + NC-1 负对照，阈值=22-criteria-pre-registration.md 预声明，跑后禁调）
-//   → 报告（buildReport + preview_disclosure「capability 1 of 5 · preview」）
-// 纪律：被测仓只读（git 只读子命令 + 文件读，绝不写）；唯一写动作 = --out 目录 39-* 工件。
-//       试点成功度量 = 反复接受非跑通（D-033）：裁定带 supported/unsupported/insufficient 三档照实写数字。
+// 39-macro-b-one-shot.mjs —— 拿三个仓各跑一遍单仓四象限档，看它是不是只会认自家仓（#39 / A-044 / R5-08 / spec §R5-D8）
+// 怎么跑：
+// [轮16/#53-D-060⑤] 这脚本现在是 audit 那条正式命令的回归对照物，不算命令入口；audit 产物的字段得是这脚本的子集，一旦漂移就报警（53-check 盯着）。
+// node 39-macro-b-one-shot.mjs                                      # 默认三仓全跑（GUARD_SIBLING_ROOT/{env-manager,anysearch-cli,jiahao}，默认 D:/Aworker），产物落本目录
+// node 39-macro-b-one-shot.mjs --repo jiahao --root <abs> --out <dir>  # 单仓形态（CI 回归用：6F .github/workflows/macro-b-regression.yml）
+// 整条链＝采（gitlog 加 adr-structure@v2 加 positioning）→ 落事实（39-macro-b-<repo>-facts.jsonl 加共用的 39-audit-facts.duckdb）
+// → 判（PC-1/PC-2 正对照，TC-1/2/3 真判据，NC-1 负对照；门槛就照 22-criteria-pre-registration.md 事先写死的，跑完不许改）
+// → 出报告（buildReport 加 preview_disclosure「capability 1 of 5 · preview」）
+// 规矩：被审的仓只读（只跑 git 只读子命令和读文件，绝不写）；唯一往外写的就是 --out 目录里的 39-* 工件。
+// 试点算不算成功＝反复接受跑不通（D-033）：判下来 supported/unsupported/insufficient 三档，数字照实写。
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -33,7 +33,7 @@ const STRICT_Q = process.env[Q.STRICT_QUARANTINE_ENV] === '1';   // #78/D-110④
 const SR = await import(pathToFileURL(join(DIST, 'audit', 'safe-read.js')).href);
 const { listAdrFilesSafe, probeRepoEntry, readRepoFileSafe, makeFileSubjectSkipFact } = SR;
 
-// ---------- §0 参数：默认三仓全跑；--repo/--root/--out = 单仓 CI 形态 ----------
+// ---------- §0 参数：默认三仓全跑；--repo/--root/--out 是单仓的 CI 形态 ----------
 const DEFAULT_REPOS = [
   { repo: 'env-manager', root: siblingPath('env-manager') },
   { repo: 'anysearch-cli', root: siblingPath('anysearch-cli') },
@@ -53,9 +53,9 @@ const TARGETS = ARGS.repo ? [{ repo: ARGS.repo, root: resolve(ARGS.root || '.') 
 const OUTDIR = resolve(ARGS.out);
 if (!existsSync(OUTDIR)) { mkdirSync(OUTDIR, { recursive: true }); }
 
-// ---------- 崩溃桶等位 catch 包体（#78/D-109① 双通道第二腿）：try 覆盖 §1~出口——协议崩=结构化工件+stderr；exit 2 仅限解析分歧 ----------
+// ---------- 崩溃桶在等的一场 catch（#78/D-109① 双通道的第二条腿）：try 罩住 §1 到出口——协议崩就出结构化工件加 stderr；exit 2 只留给解析分歧 ----------
 try {
-// ---------- §1 预声明阈值（与 22-criteria-pre-registration.md 逐字对齐，跑后禁调） ----------
+// ---------- §1 事先定死的门槛（跟 22-criteria-pre-registration.md 逐字对得上，跑完不许改） ----------
 const PRE_REG = 'engine/test/fixtures/contracts/22-criteria-pre-registration.md';
 const C_BASIS = 'engine/test/fixtures/contracts/22-c-adjudication-basis.md';
 const TC1_LAG_DAYS = 90;
@@ -70,7 +70,7 @@ const rawProbe = JSON.parse(readFileSync(join(REPO,'engine','test','fixtures','c
 const STOPWORDS = rawProbe.tc3_s1_coverage.stopwords;
 if (!Array.isArray(STOPWORDS)) { throw new Error('STOPWORDS-MISSING: 22-threshold-raw.json#tc3_s1_coverage.stopwords 不可解析'); }
 
-// ---------- §2 正/负对照夹具（与 23-first-report.mjs 同构；PC-2 日期随被测仓观测日漂移保持 lag>0） ----------
+// ---------- §2 正对照和负对照的夹具（跟 23-first-report.mjs 一个结构；PC-2 的日期跟着被审仓的观测日走，好让 lag 一直大于 0） ----------
 const GOLDEN_ADR = [
   '# ADR-9999: PC-1 golden fixture',
   '',
@@ -119,15 +119,15 @@ function pickExcerpt(absOrRelPath, tokens, base) {
   throw new Error('EXCERPT-MISS: ' + absOrRelPath + ' tokens=' + String(tokens));
 }
 
-// ---------- §3 单仓 one-shot 全链 ----------
+// ---------- §3 单仓 one-shot 整条链 ----------
 async function runOneShot(target) {
   const NAME = target.repo;
   const ROOT = target.root;
   const HEAD_SHA = git(ROOT, ['rev-parse', 'HEAD']).trim();
-  // #42：probe 同源 audit.ts（probeMacroBRepo 内走 git log --format=%cI）；HEAD 病态仍走 normalizeGitIsoDate 抛型回执。
+  // #42：探针跟 audit.ts 同源（probeMacroBRepo 里头走 git log --format=%cI）；HEAD 坏了照样走 normalizeGitIsoDate 那套抛型回执。
   const probes = MB.probeMacroBRepo(ROOT, HEAD_SHA);
   const HEAD_DATE = probes.headDate === null ? I.normalizeGitIsoDate(probes.headRaw) : probes.headDate;
-  // 对照物无 quarantine 桶：首个字段级病态原文交严格回执抛错＝「解析失败」预期分歧格（D-118④）。
+  // 对照物没有隔离桶：头一个字段级坏值原样交给严格回执去抛错，这就是「解析失败」那个预期分歧格（D-118④）。
   const firstQuarantined = probes.fieldEvents.find(function (e) { return e.disposition === 'quarantined'; });
   if (firstQuarantined) { I.normalizeGitIsoDate(firstQuarantined.raw); }
   const TREE_SHA = probes.treeSha;
@@ -141,11 +141,11 @@ async function runOneShot(target) {
     observedAt: HEAD_DATE
   };
 
-  // -- 采集：gitlog（PROBE-INVARIANT 由共享探针断言：解析数==rev-list 数） --
+  // -- 采：gitlog（PROBE-INVARIANT 由共享探针断言：解析出来的条数等于 rev-list 的条数） --
 
-  // -- 采集：ADR 语料（adr-structure@v2 回退链） --
-  // #113：每个被安全读取拒绝的输入都发 codelore.file_subject_skip 事实（进 JSONL/duckdb/报告披露），
-  //   不再悄悄丢弃——回归工作流跑本脚本对着不可信仓，看不见的拒绝=看不见的语料缺口。
+  // -- 采：ADR 语料（adr-structure@v2 的回退链） --
+  // #113：每个被安全读取拒掉的输入都发一条 codelore.file_subject_skip 事实（进 JSONL、duckdb、报告披露），
+  // 不再悄悄扔掉——回归工作流拿这脚本怼不可信仓，看不见的拒绝就是看不见的语料缺口。
   const skipFacts = [];
   const skipSeen = new Set();
   const pushSkip = function (rel, reason) {
@@ -181,7 +181,7 @@ async function runOneShot(target) {
   }
   const gitFacts = C.collectGitlog({ commits: commits, paths: adrPaths, adrDates: adrDateMap }, ctx);
 
-  // -- 采集：positioning（意图面=仓根 CONTEXT/README/AGENTS 存在者；交付面=git log subjects） --
+  // -- 采：positioning（意图面＝仓根下的 CONTEXT/README/AGENTS，有才取；交付面＝git log 的提交标题） --
   const intentDocs = [];
   for (const cand of INTENT_CANDIDATES) {
     if (probeRepoEntry(ROOT, cand) === 'absent') { continue; }
@@ -196,7 +196,7 @@ async function runOneShot(target) {
     : [];
   const realFacts = adrFacts.concat(skipFacts, posFacts, gitFacts);
 
-  // -- 正对照 PC-1 / PC-2（管线健康闸，夹具与被测仓无关） --
+  // -- 正对照 PC-1 / PC-2（管线还活着的闸，夹具跟被审仓没关系） --
   const pc1AdrFacts = C.collectAdrStructure({ documents: [{ path: 'fixtures/39-pc1-golden-adr.md', text: GOLDEN_ADR }] }, ctx);
   const pc1PosFacts = C.collectPositioning({ intentDocs: [{ path: 'fixtures/39-pc1-positioning.md', text: POS_DECL }], deliveryDocs: [{ path: 'fixtures/39-pc1-delivery.md', text: POS_DECL }], topN: TC3_TOPN, stopwords: STOPWORDS }, ctx);
   const pc1Five = pc1AdrFacts.find(function (f) { return f.metric === 'adr.five_piece_completeness'; });
@@ -211,7 +211,7 @@ async function runOneShot(target) {
   const pc2Lag = pc2Facts.filter(function (f) { return f.metric === 'git.adr_lag_days'; });
   const pc2 = { pass: pc2Lag.length > 0 && JSON.parse(pc2Lag[0].value_json).delta_days > 0, delta_days: pc2Lag.length > 0 ? JSON.parse(pc2Lag[0].value_json).delta_days : null };
 
-  // -- 负对照 NC-1（被测仓内非 ADR 文件，五件套预期 0 命中） --
+  // -- 负对照 NC-1（被审仓里挑非 ADR 文件，五件套本来就该 0 命中） --
   let nc1Path = null;
   let nc1Text = null;
   for (const cand of NC1_CANDIDATES) {
@@ -231,7 +231,7 @@ async function runOneShot(target) {
   const nc1 = { path: nc1Path, fact_count: nc1Facts.length, five_piece_present: nc1Five ? JSON.parse(nc1Five.value_json).present : -1, supersede_present: nc1Sup ? JSON.parse(nc1Sup.value_json).present : null };
   nc1.pass = nc1.fact_count > 0 && nc1.five_piece_present === 0 && nc1.supersede_present === false;
 
-  // -- 真判据 TC-1 / TC-2 / TC-3（预声明阈值，实测） --
+  // -- 真判据 TC-1 / TC-2 / TC-3（门槛事先定死，这儿看实测） --
   const lagValues = gitFacts.filter(function (f) { return f.metric === 'git.adr_lag_days'; }).map(function (f) { return JSON.parse(f.value_json); });
   const tc1Judgeable = lagValues.length;
   const tc1Backfill = lagValues.filter(function (v) { return v.delta_days > TC1_LAG_DAYS; }).length;
@@ -255,14 +255,14 @@ async function runOneShot(target) {
   const tc3Ratio = tc3Lowest ? tc3Lowest.value.ratio : 0;
   const tc3Verdict = intentDocs.length === 0 ? 'INCONCLUSIVE' : (tc3Ratio < TC3_RED ? 'RED' : (tc3Ratio < TC3_GREEN ? 'AMBER' : 'GREEN'));
 
-  // -- fact：JSONL（只追加形态绑定 audit_fact 列；PC/NC 夹具不入流，与 #23 同构） --
+  // -- 落事实：JSONL（只追加的形态对齐 audit_fact 的列；PC/NC 的夹具不掺进来，跟 #23 一个结构） --
   const factRows = realFacts.map(function (f, i) {
     return { fact_seq: i + 1, fact_id: f.fact_id, schema_version: S.SCHEMA_VERSION_V0, trace_id: f.trace_id, baggage_id: f.baggage_id, scale: f.scale, quadrant: f.quadrant, dimension: f.dimension, collector_id: f.collector_id, repo_ref: f.repo_ref, subject_ref: f.subject_ref, evidence_ref: f.evidence_ref, metric: f.metric, value_json: f.value_json, observed_at: f.observed_at, ingested_at: HEAD_DATE };
   });
   const FACTS_PATH = join(OUTDIR, '39-macro-b-' + NAME + '-facts.jsonl');
   writeFileSync(FACTS_PATH, factRows.map(function (r) { return JSON.stringify(r); }).join(NL) + NL, 'utf8');
 
-  // -- 实测数落盘（供引文回查 + 39-check 断言面） --
+  // -- 实测数落盘（回头查引文用，39-check 也从这儿断言） --
   const meas = {
     repo: NAME, root: ROOT, observed_at: HEAD_DATE, head_sha: HEAD_SHA, tree_sha: TREE_SHA, commit_count: COMMIT_COUNT,
     adr_count: tc2Total, intent_docs: intentDocs.map(function (d) { return d.path; }), fact_count: realFacts.length,
@@ -274,7 +274,7 @@ async function runOneShot(target) {
   const MEAS_NAME = '39-macro-b-' + NAME + '-measurements.json';
   writeFileSync(join(OUTDIR, MEAS_NAME), JSON.stringify(meas, null, 2) + NL, 'utf8');
 
-  // -- 证据（C3）+ 结论→引文锚 --
+  // -- 证据（C3）加结论→引文锚 --
   const evidence = [];
   function addEvidence(id, path, token, claim, reproCmd, base) {
     const ex = pickExcerpt(path, token, base || null);
@@ -303,7 +303,7 @@ async function runOneShot(target) {
   addClaim('CL-39-' + R + '-05', 'EV-39-' + R + '-05', ['five_piece_present']);
   addClaim('CL-39-' + R + '-06', 'EV-39-' + R + '-07', ['Macro-B 对三试点仓各跑一次 one-shot 泛化验证']);
 
-  // -- 裁决条目（C2；band 三档如实：supported/unsupported/insufficient） --
+  // -- 裁决条目（C2；band 三档照实写：supported/unsupported/insufficient） --
   function tcBand(v) {
     if (v === 'INCONCLUSIVE') { return 'insufficient'; }
     if (v === 'RED') { return 'unsupported'; }
@@ -328,7 +328,7 @@ async function runOneShot(target) {
   ];
   const strategyBand = G.deriveOverallBand(adjudicationEntries);
 
-  // -- 四象限数据（Macro-B 已上架采集面 = strategy 原生；其余 not_applicable 如实披露） --
+  // -- 四象限数据（单仓四象限档上了架的采集面＝strategy 原生；剩下几面照实标 not_applicable） --
   const GATE = { protocol_version: G.ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'reports/39-macro-b-one-shot.mjs' };
   const quadrants = [
     { quadrant: 'strategy', applicability: 'native', verdict: strategyBand, score: null, confidence: 0.6, dimensions: ['S1', 'S2'], slice_fields: { s1_keyword_coverage_ratio: Number(meas.tc3.lowest_ratio_4), s2_five_piece_mean_ratio: Number(meas.tc2.mean_ratio_4), adr_count: tc2Total, lag_judgeable_n: tc1Judgeable, intent_docs: intentDocs.length }, verdict_gate: { protocol_version: GATE.protocol_version, decision: strategyBand, evidence_flag: tc2Verdict === 'RED', decided_at: HEAD_DATE, override_reason: null, audit_ref: GATE.audit_ref }, conflict_markers: [] },
@@ -342,7 +342,7 @@ async function runOneShot(target) {
   ];
   const HEADLINE = NAME + ' Macro-B one-shot（capability 1 of 5 · preview）：' + COMMIT_COUNT + ' commits / ADR ' + tc2Total + ' 份 / facts ' + realFacts.length + '——TC-1 ' + tc1Verdict + '（n=' + tc1Judgeable + '）、TC-2 ' + tc2Verdict + '（mean=' + meas.tc2.mean_ratio_4 + '）、TC-3 ' + tc3Verdict + '（' + meas.tc3.lowest_ratio_4 + '）→ 综合裁定 ' + strategyBand + '（反复接受非跑通：三档照实写数字）。';
 
-  // -- Intake Health（#42：与 audit.ts 同源投影 probes；workflow 契约要求 fields 恒为数组） --
+  // -- 采数体检（#42：跟 audit.ts 一个来源，都投影 probes；workflow 契约要求 fields 一直是数组） --
   const excludedCommits = commits.filter(function (c) { return c.date === null; }).length;
   const quarantinedRows = probes.fieldEvents.filter(function (e) { return e.disposition === 'quarantined'; });
   const intakeHealth = {
@@ -355,7 +355,7 @@ async function runOneShot(target) {
     recorded_at: probes.headDate
   };
 
-  // #113：被安全读取拒绝的输入必须进报告披露块（不悄悄忽略）——与 audit.ts / macro-c.ts 同文案规则。
+  // #113：被安全读取拒掉的输入必须进报告披露块（不许悄悄忽略）——文案规矩跟 audit.ts / macro-c.ts 一样。
   const structuralLimitations = [
     '同主仓确认偏差：三试点仓与产品同主——dogfooding = generative not evaluative（D-033），本报告属校准+冒烟，不构成泛化证据',
     '泛化证据缺口：Macro-B GA 前置须 ≥1 非自有公开仓经 URL opt-in（#40 / D-013）',
@@ -414,13 +414,13 @@ async function runOneShot(target) {
   };
 }
 
-// ---------- §4 主流程：逐仓 one-shot → 共享事实库 → 汇总实测 ----------
+// ---------- §4 主流程：一个仓一个仓跑 one-shot → 共用事实库 → 汇总实测 ----------
 const results = [];
 for (const t of TARGETS) {
   results.push(await runOneShot(t));
 }
 
-// 共享事实库：39-audit-facts.duckdb——三仓 Macro-B 事实同一 audit_fact 表同一 appendFact 写路径
+// 共用事实库：39-audit-facts.duckdb——三仓的单仓四象限档事实进同一张 audit_fact 表，走同一个 appendFact 写
 const DB = join(OUTDIR, '39-audit-facts.duckdb');
 if (existsSync(DB)) { unlinkSync(DB); }
 const writer = await STORE.openWriter(DB);
@@ -477,7 +477,7 @@ for (const r of results) {
 console.log('[39] duckdb appended=' + appended + ' dedup_dropped=' + dedupDropped + ' ' + JSON.stringify(dbCounts.by_repo) + ' strict_quarantine=' + (STRICT_Q ? 'on' : 'off'));
 process.exit(0);
 } catch (e) {
-  // 崩溃桶等位落盘（D-109①/②）：error_code 取 e.code 或消息首词；工件写失败=证据丢失=工业上界如实（D-109③ 不设兜底）
+  // 崩溃桶等位落盘（D-109①/②）：error_code 取 e.code，取不到就取消息头一个词；工件写失败＝证据丢了＝就照实说能扛到哪儿为止（D-109③ 不设兜底）
   const msg = String((e && e.message) || e);
   const code = (e && e.code) || ((/^[A-Z][A-Z0-9-]+:/).test(msg) ? msg.match(/^([A-Z][A-Z0-9-]+):/)[1] : 'ONESHOT-UNCAUGHT');
   let artifactPath = null;
@@ -489,8 +489,8 @@ process.exit(0);
     writeFileSync(artifactPath, JSON.stringify(art, null, 2) + NL, 'utf8');
   } catch (_) { artifactPath = null; }
   console.error(JSON.stringify({ error: code, message: msg.slice(0, 400), crash_artifact: artifactPath, strict_quarantine: STRICT_Q }));
-  // #42 复审：仅畸形输入解析分歧（GITCLI-OUTPUT-CONTRACT）走 workflow 预期分歧格 exit 2；
-  // 探针不变量/环境失败与其余错误=exit 4（阻断，工件仍在）。
+  // #42 复审：只有畸形输入那种解析分歧（GITCLI-OUTPUT-CONTRACT）才走 workflow 的预期分歧格 exit 2；
+  // 探针不变量坏了、环境不成与别的错都是 exit 4（直接阻断，工件照样留着）。
   const isDivergence = code === 'GITCLI-OUTPUT-CONTRACT';
   process.exit(isDivergence ? 2 : 4);
 }

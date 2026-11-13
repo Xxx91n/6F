@@ -1,10 +1,10 @@
-// audit/micro-a.ts —— 改动档（PR 档）审计核心流程
-// 针对单个拉取请求（PR）的代码差异与相关信息进行审计：
-//   1. 检查 PR 元数据与差异详情
-//   2. 区分改动形态（人类提交、自动化发布机器人等）
-//   3. 检查报告各必要字段完整性
-//   4. 事实入库与证据生成
-// 原则：对远程仓库只读；凭据用完即清，不写入事实库；时间戳保持确定性。
+// audit/micro-a.ts —— 改动档（PR 档）的主流程
+// 盯的是一个 PR 改了什么：
+// 1. 先看 PR 的元数据和 diff
+// 2. 分清这改动是谁弄的（人还是自动发版机器人这类）
+// 3. 检查报告该有的字段齐不齐
+// 4. 事实入库，证据造出来
+// 死规矩：对远端仓库只读；凭据用完就清，不落进事实库；时间戳得可复现。
 import { readFileSync, writeFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, unlinkSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, resolve, dirname } from 'node:path';
@@ -18,7 +18,7 @@ import { isShallowRepo } from '../intake/intake.js';
 import { openWriter, closeDuckdb } from '../fact/store.js';
 import { writeRunFactsAndEvents } from './fact-write.js';
 const NL = String.fromCharCode(10);
-// ---------- 判据常量（跑前写死，跑完不许改动） ----------
+// ---------- 判据常量：开工前定死，跑完不许改 ----------
 export const MICRO_A_CAPABILITY_LABEL = 'capability 3 of 5 · preview';
 export const MICRO_A_REPORT_ID_PREFIX = 'MA-48-';
 export const MICRO_A_SLICE_FIELDS = [
@@ -28,9 +28,9 @@ export const MICRO_A_SLICE_FIELDS = [
     'diff_channel', 'diff_files_changed', 'diff_additions', 'diff_deletions', 'diff_bytes',
     'credential_strategy', 'credential_degraded', 'api_calls', 'rate_limit_remaining'
 ];
-const RELEASE_TITLE = new RegExp('^chore[(][^)]*[)]: release [0-9]+[.][0-9]+[.][0-9]+'); // 匹配 release-please 提交标题
+const RELEASE_TITLE = new RegExp('^chore[(][^)]*[)]: release [0-9]+[.][0-9]+[.][0-9]+'); // 认 release-please 那种发版提交的标题
 const CRITERIA_PATH = 'engine/test/fixtures/contracts/48-micro-a-criteria.md';
-// 理由：证据坐标必须指向仓库内现行可解析的文件。
+// 证据坐标必须指到仓里现成能打开的文件。
 const LEDGER_PATH = 'docs/archive/decisions/macro-audit-ledger.md';
 const LEDGER_REPRO = 'git -C <repo> show HEAD:' + LEDGER_PATH;
 const CRITERION_IDS = ['PC-1', 'TC-1', 'TC-2', 'TC-3', 'TC-4', 'NC-1'];
@@ -44,12 +44,10 @@ export const MICRO_A_PILOTS = [
         ] },
     { name: 'jiahao', owner: 'Xxx91n', repo: 'jiahao', pins: [{ n: 6, form: 'human' }] }
 ];
-export const MICRO_A_REFUSAL_FACE = { name: 'goose-duck-agent', owner: 'Xxx91n', repo: 'goose-duck-agent' }; // 负对照主体（合并 PR 数为 0）
-export const MICRO_A_DRIFT_FACE = { name: 'anysearch-cli', owner: 'Xxx91n', repo: 'anysearch-cli' };
 export function isMicroAInputError(e) {
     return !!e && typeof e === 'object' && (e.code === 'MICRO-A-INPUT' || e.code === 'MICRO-A-SCOPE');
 }
-// ---------- 运行时间戳（支持环境变量固定，默认 epoch 0） ----------
+// ---------- 运行时间戳：可以用环境变量钉住，默认按 epoch 0 ----------
 export function deterministicRunAt() {
     const e = process.env.SOURCE_DATE_EPOCH;
     if (e === undefined || e === '') {
@@ -69,7 +67,7 @@ function tryGit(root, args) {
         return null;
     }
 }
-// 解析判据文件的变更提交：若浅克隆无法追溯完整历史，则明确返回降级标记，不假装拿到完整提交
+// 去查判据文件是哪次提交改的：浅克隆追不到完整历史，就照实返回降级标记，不装作拿到了
 export function resolvePreregCommit(root, criteriaPath) {
     if (root === null) {
         return preregDegraded('no-source-repo');
@@ -155,7 +153,7 @@ export async function fetchDiffArtifactMicroA(t, n, baseSha, headSha, shared, ou
     }
     return { ok: d.ok, channel: d.channel, bytes: d.text.length, stats: d.stats, error: d.ok ? null : String(d.detail || d.error_kind || 'unknown') };
 }
-// ---------- 提交形态分类 ----------
+// ---------- 改动是谁弄的 ----------
 export function classifyForm(v) {
     if (v.bot_declared === true && /dependabot/i.test(String(v.author_login))) {
         return 'platform-declared-bot/dependabot';
@@ -168,7 +166,7 @@ export function classifyForm(v) {
     }
     return 'human';
 }
-// ---------- 报告必要字段检查 ----------
+// ---------- 报告该有的字段查一遍 ----------
 export function skeletonIntersectionReport(sidecar, mdText) {
     const missing = [];
     const rename = { stale_data_marker: 'stale.marker', staleness_sla_seconds: 'stale.sla_seconds', read_model_lag_seconds: 'stale.lag_seconds', read_model_version: 'stale.read_model_version', fact_watermark_version: 'stale.fact_watermark_version', evidence_items: 'evidence' };
@@ -260,7 +258,7 @@ export function skeletonIntersectionReport(sidecar, mdText) {
     }
     return { ok: missing.length === 0, missing: missing };
 }
-// ---------- 辅助函数 ----------
+// ---------- 小工具 ----------
 function val(f) { return JSON.parse(f.value_json); }
 function byMetric(facts, m) { return facts.filter(function (f) { return f.metric === m; }); }
 function prFact(facts, metric, n) {
@@ -313,14 +311,14 @@ export async function buildPrReportMicroA(t, pin, collected, gate, shared, opts)
     const merged = (meta !== null && meta.merged === true) || (sum !== null && sum.merged_at !== null && sum.state === 'closed');
     const formActual = meta !== null ? classifyForm(meta) : (sum !== null ? classifyForm(sum) : 'unknown');
     const formMatch = formActual === pin.form;
-    // 提取 diff 差异产物
+    // 把 diff 产物取出来
     const artName = PRE + NAME + '-pr' + pin.n + '.diff';
     const art = await fetchDiffArtifactMicroA(t, pin.n, sum ? String(sum.base_sha) : '', sum ? String(sum.head_sha) : '', shared, opts.outDir, artName);
-    // 判据规则评估
+    // 算判据
     const tripleOk = sumF !== null && metaF !== null && diffF !== null && merged === true;
     const numStatsOk = diff !== null && typeof diff.files_changed === 'number' && typeof diff.additions === 'number' && typeof diff.deletions === 'number';
     const channelOk = diff !== null && (diff.channel === 'local-git' || diff.channel === 'api') && typeof diff.bytes === 'number' && diff.bytes > 0;
-    // 接口获取 diff 时若无具体行数统计，需有相应说明
+    // 接口给的 diff 里没有具体行数统计时，得写明白
     const tc2ok = channelOk && (diff !== null && diff.channel === 'api' ? (typeof diff.detail === 'string' && diff.detail.length > 0) : numStatsOk);
     const botFieldsOk = sum !== null && typeof sum.bot_declared === 'boolean' && typeof sum.bot_basis === 'string' && String(sum.bot_basis).indexOf('platform-declared') === 0;
     const EV = function (k) { return 'EV-48-' + R + '-PR' + pin.n + '-0' + k; };
@@ -333,7 +331,7 @@ export async function buildPrReportMicroA(t, pin, collected, gate, shared, opts)
         { criterion_id: 'NC-1', band: merged && formMatch ? 'supported' : 'unsupported', basis_refs: ['B4'], anchored_fact_ids: sumF ? [sumF.fact_id] : [], anchored_evidence_ids: [EV(3)], decided_at: RUN_AT, rationale: '负对照：入选实例 ' + pin.form + ' 票面写死；实测 form=' + formActual + ' merged=' + String(merged) + '（closed-unmerged 不入集、形态错配即判负）' }
     ];
     const overall = deriveOverallBand(entries);
-    // 改动档各专属字段内容
+    // 改动档自己那些字段
     const sliceFields = {
         pr_number: pin.n,
         pr_title: sum ? String(sum.title) : '',
@@ -359,7 +357,7 @@ export async function buildPrReportMicroA(t, pin, collected, gate, shared, opts)
         api_calls: run ? run.calls : null,
         rate_limit_remaining: run ? run.final_remaining : null
     };
-    // 构建引文证据
+    // 把引文证据搭起来
     const evidence = [];
     function addEvidence(id, src, tokens, claim, repro, base) {
         let ex = null;
@@ -391,7 +389,7 @@ export async function buildPrReportMicroA(t, pin, collected, gate, shared, opts)
         { claim_id: 'CL-48-' + R + '-PR' + String(pin.n) + '-04', evidence_id: EV(4), required_tokens: ['D-049'] },
         { claim_id: 'CL-48-' + R + '-PR' + String(pin.n) + '-05', evidence_id: EV(5), required_tokens: ['TC-4'] }
     ];
-    // 四象限状态（改动档仅分析行为面，其余象限如实披露为不适用）
+    // 四个象限的状态：改动档只看行为面，其他面照实说不在范围内
     const GATE = { protocol_version: ADJUDICATION_PROTOCOL_VERSION, audit_ref: 'engine/src/audit/micro-a.ts' };
     const isDep = formActual === 'platform-declared-bot/dependabot';
     const quadrants = [
@@ -546,7 +544,7 @@ export async function buildRefusalReportMicroA(g, shared, opts) {
     }
     return { refusal_for: g.name, overall: report.overall_verdict, receipt: report.receipt.receipt_id, outputs: { md: mdName, sidecar: jsonName } };
 }
-// ---------- 组装改动档审计命令 ----------
+// ---------- 拼改动档的命令入口 ----------
 export async function runMicroAAudit(opts) {
     const ref = parseGithubRepoRef(opts.input);
     const pilotList = MICRO_A_PILOTS.map(function (p) { return p.owner + '/' + p.repo; });
@@ -564,9 +562,9 @@ export async function runMicroAAudit(opts) {
     mkdirSync(outDir, { recursive: true });
     const MEAS_NAME = 'audit-measurements.json';
     const FACTS_NAME = 'audit-facts.jsonl';
-    const shared = {}; // 实际运行：内部探测环境变量或 token，若缺失则正常降级处理
+    const shared = {}; // 真跑的时候自己去读环境变量或 token，没有就照常降级
     const t = { name: pilot.name, owner: pilot.owner, repo: pilot.repo, root: null, pins: pilot.pins };
-    // 执行采集
+    // 跑采集
     const collected = await collectMicroA(t, shared, undefined, runAt);
     const gate = { merged_prs: collected.mergedCount, eligible: collected.mergedCount >= 1 };
     const meas = {
@@ -586,12 +584,12 @@ export async function runMicroAAudit(opts) {
             perPr.push({ n: r.pr, form_expected: r.form_expected, form_actual: r.form_actual, form_match: r.form_match, merged: r.merged, overall: r.overall, receipt: r.receipt, diff_channel: r.diff_channel, diff_artifact: r.outputs.diff, diff_bytes: r.artifact.bytes, skeleton_ok: r.skeleton.ok, skeleton_missing: r.skeleton.missing });
         }
     }
-    // 未通过资格检查时生成拒绝报告
+    // 资格没过就出拒收报告
     let refusalResult = null;
     if (!gate.eligible) {
         refusalResult = await buildRefusalReportMicroA({ name: pilot.name, owner: pilot.owner, repo: pilot.repo, headSha: collected.headSha, root: null, facts: collected.res.facts, ctx: collected.ctx }, shared, { golden: false, outDir: outDir, measName: MEAS_NAME });
     }
-    // 事实落盘保存
+    // 事实落盘
     const dbPath = join(outDir, 'facts.duckdb');
     if (existsSync(dbPath)) {
         unlinkSync(dbPath);
@@ -614,10 +612,10 @@ export async function runMicroAAudit(opts) {
     });
     await writer.run('FORCE CHECKPOINT');
     closeDuckdb(writer);
-    // 写入 JSONL 格式事实与测量指标
+    // 把 JSONL 事实和测量指标写出去
     writeFileSync(join(outDir, FACTS_NAME), collected.res.facts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
     writeFileSync(join(outDir, MEAS_NAME), JSON.stringify(meas, null, 2) + NL, 'utf8');
-    // 读取主报告输出
+    // 读主报告，输出
     const primaryMdName = prResults.length > 0 ? prResults[0].outputs.md : refusalResult.outputs.md;
     const primaryJsonName = prResults.length > 0 ? prResults[0].outputs.sidecar : refusalResult.outputs.sidecar;
     const primaryMd = readFileSync(join(outDir, primaryMdName), 'utf8');

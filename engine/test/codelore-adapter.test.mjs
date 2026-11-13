@@ -1,5 +1,5 @@
 // codelore-adapter.test.mjs — golden 契约测试（录制输出回放，atomcode-r6-31 §2.3 模式）
-// 断言面 = 纯解析器（fixture → 结构）+ pin 校验 + 错误路径；不测真实二进制（探针脚本做）。
+// 查什么 = 纯解析器（fixture → 结构）+ pin 校验 + 出错路径；真实二进制不在这测（另有一段试跑脚本去试）。
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -47,7 +47,7 @@ t('G5 漂变输入被拒：summary 行形状漂移 → 抛错', () => {
   assert.throws(() => C.parseSummaryJson('{"not":"array"}'), /not an array/);
 });
 
-t('G6 畸形 explain 输出不产生节（空 dossier 而非假阳性）', () => {
+t('G6 畸形 explain 输出不产生节（空 dossier，不是假装有货）', () => {
   const d = C.parseExplainDossier('some prose\nnot a dossier\nkey = value without section');
   assert.deepEqual(d.sections, {});
 });
@@ -77,19 +77,19 @@ t('G8 parseExplainDossier 防原型污染（#115）：__proto__ / constructor / 
 
   const d = C.parseExplainDossier(payload);
 
-  // 1. Object.prototype 无新增污染键且进程级内置行为正常
+  // 1. Object.prototype 没多出污染键，进程级内置行为也正常
   assert.equal(({}).pollutedKey, undefined);
   assert.equal(({}).pollutedConstructor, undefined);
   assert.equal(({}).pollutedPrototype, undefined);
   assert.equal(String({}), '[object Object]');
 
-  // 2. 危险节名被拒且未挂载在 sections 自身属性上，原型保持 Object.prototype
+  // 2. 危险节名被拒，也没挂到 sections 自己的属性上，原型还是 Object.prototype
   assert.equal(Object.prototype.hasOwnProperty.call(d.sections, '__proto__'), false);
   assert.equal(Object.getPrototypeOf(d.sections), Object.prototype);
   assert.equal(Object.prototype.hasOwnProperty.call(d.sections, 'constructor'), false);
   assert.equal(Object.prototype.hasOwnProperty.call(d.sections, 'prototype'), false);
 
-  // 3. 正常节名保留且排除危险属性名；危险节名下属性不泄露到前序正常节
+  // 3. 正常节名留着，危险属性名排掉；危险节名下的属性不会漏到前面那些正常节
   assert.ok(d.sections['before-danger']);
   assert.deepEqual(Object.keys(d.sections['before-danger']), ['beforeKey']);
   assert.equal(d.sections['before-danger'].beforeKey, 'keep');

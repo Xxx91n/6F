@@ -1,5 +1,5 @@
 // report-preview.test.mjs — preview 披露块契约测试（#38/A-043；Preview 分级发布：标注诚实是决策本体/D-037②）
-// 断言面 = preview_disclosure 报告头块渲染 + 侧车机器可读字段 + degradeReport 降级保留
+// 查什么 = preview_disclosure 报告头块渲染 + 侧车机器可读字段 + degradeReport 降级保留
 //        + 非 preview 报告零污染（骨架/侧车形态不变）+ 骨架 C1-C4 顺序不漂。
 // 纯逻辑测试：只 import dist/report/generate.js，不起子进程不读仓外文件。
 import assert from 'node:assert/strict';
@@ -55,7 +55,7 @@ const baseInput = (extra) => ({
 t('A1 preview 报告头含披露块全字段（capability/校准域/结构限制/未上架层）', () => {
   const r = G.buildReport(baseInput({ preview_disclosure: DISCLOSURE }));
   const md = G.renderMarkdown(r);
-  assert.ok(md.includes('披露块'), 'missing 披露块 marker');
+  assert.ok(md.includes('预览说明块'), 'missing 预览说明块 marker');
   assert.ok(md.includes('capability 2 of 5 · preview'));
   assert.ok(md.includes('单仓校准（anysearch-cli）'));
   assert.ok(md.includes('不构成泛化证据'));
@@ -71,7 +71,7 @@ t('A2 侧车机器可读字段 preview_disclosure 齐备', () => {
 t('A3 披露块在骨架 C1 之前且不扰章序（C1-C4 不变）', () => {
   const r = G.buildReport(baseInput({ preview_disclosure: DISCLOSURE }));
   const md = G.renderMarkdown(r);
-  const discIdx = md.indexOf('披露块');
+  const discIdx = md.indexOf('预览说明块');
   const c1Idx = md.indexOf('## C1');
   assert.ok(discIdx > 0 && discIdx < c1Idx, 'disclosure must be in header area before C1');
   const skel = G.skeletonOf(md).map((s) => s.slice(0, 2));
@@ -82,7 +82,7 @@ t('A3 披露块在骨架 C1 之前且不扰章序（C1-C4 不变）', () => {
 t('B1 无 preview_disclosure → 报告无披露块、侧车字段为 null', () => {
   const r = G.buildReport(baseInput({}));
   const md = G.renderMarkdown(r);
-  assert.ok(!md.includes('披露块'), 'non-preview report must not emit 披露块');
+  assert.ok(!md.includes('预览说明块'), 'non-preview report must not emit 预览说明块');
   const sc = JSON.parse(G.renderSidecar(r));
   assert.equal(sc.preview_disclosure, null);
 });
@@ -92,7 +92,7 @@ t('C1 degradeReport 保留 preview_disclosure（降级不丢披露义务）', ()
   const r = G.buildReport(baseInput({ preview_disclosure: DISCLOSURE }));
   const d = G.degradeReport(r, 'test-degraded');
   const md = G.renderMarkdown(d);
-  assert.ok(md.includes('披露块') && md.includes('单仓校准（anysearch-cli）'));
+  assert.ok(md.includes('预览说明块') && md.includes('单仓校准（anysearch-cli）'));
   assert.ok(md.includes(G.UNVERIFIED_MARK), 'degraded must carry ⚠ unverified');
   const sc = JSON.parse(G.renderSidecar(d));
   assert.deepEqual(sc.preview_disclosure, DISCLOSURE);
@@ -166,8 +166,8 @@ t('S3 引文/claim 支撑校验不受输出编码影响（checkAllCitations 针�
 });
 
 // ---------- P. prereg 锚取值规则（tracker #100／R9-1：可解析 commit 或明确标记，禁模糊态） ----------
-// 正负对照都落在这里：口径只有落到产线 choke point（buildReceipt）才不是文书承诺。
-t('P1 三形态各自命中——commit 形／明确哨兵／明确降级（前缀即判别面，不读源码也能分辨）', () => {
+// 正负对照都落在这里：只有落到产线上真正卡住的那个点（buildReceipt），才算数，文书上写了不算。
+t('P1 三形态各自命中——commit 形／明确哨兵／明确降级（前缀就能分辨，不读源码也能分出来）', () => {
   assert.equal(G.classifyPreregAnchor('e356581e'), 'commit');
   assert.equal(G.classifyPreregAnchor('a'.repeat(40)), 'commit');
   assert.equal(G.preregSentinel('38-script-const'), 'sentinel:38-script-const');
@@ -176,7 +176,7 @@ t('P1 三形态各自命中——commit 形／明确哨兵／明确降级（前�
   assert.equal(G.classifyPreregAnchor(G.preregDegraded('shallow-clone')), 'degraded');
 });
 
-t('P2 模糊态判否——历史裸字面量与无前缀值一律不再构成合法锚', () => {
+t('P2 模糊态判否——历史裸字面量和不带前缀的值，都不再算合法锚', () => {
   const AMBIGUOUS = [
     '38-script-const', '45-demo-criteria', 'unknown', 'unanchored', 'x', '',
     'sentinel:', 'degraded:', 'sentinel:bad reason', 'Sentinel:x', 'SENTINEL:x',
@@ -185,25 +185,25 @@ t('P2 模糊态判否——历史裸字面量与无前缀值一律不再构成�
   for (const v of AMBIGUOUS) { assert.equal(G.classifyPreregAnchor(v), 'ambiguous', 'must reject ' + JSON.stringify(v)); }
 });
 
-t('P2b commit 形下限取 git 能 emit 的最小宽度——4 位放行、3 位判否（core.abbrev<4 被 git 忽略）', () => {
+t('P2b commit 形下限取 git 能输出的最小宽度——4 位放行、3 位判否（core.abbrev<4 被 git 忽略）', () => {
   assert.equal(G.classifyPreregAnchor('7670'), 'commit');
   assert.equal(G.classifyPreregAnchor('767'), 'ambiguous');
 });
 
-t('P3 buildReport 在产线 choke point 拒收模糊态锚（不是只写在文书里的规则）', () => {
+t('P3 buildReport 在产线上真正卡住的那个点拒收模糊态锚（不是只写在文书里的规则）', () => {
   assert.throws(
     () => G.buildReport(baseInput({ gate_ref: { prereg_commit: '38-script-const', criteria_path: 'p', basis_path: 'b', criterion_ids: [] } })),
     /PREREG-ANCHOR-AMBIGUOUS/
   );
 });
 
-t('P4 degradeReport 同一路径——降级变体不得绕过规则', () => {
+t('P4 degradeReport 走同一条路径——降级变体也不许绕过规则', () => {
   const forged = G.buildReport(baseInput());
   forged.receipt.gate_ref.prereg_commit = 'unanchored';
   assert.throws(() => G.degradeReport(forged, '降级原因'), /PREREG-ANCHOR-AMBIGUOUS/);
 });
 
-t('P5 三形态各自放行（正对照：收紧判据没有把合法锚一起拒掉）', () => {
+t('P5 三形态各自放行（正对照：收紧判据没把合法锚一起拒掉）', () => {
   for (const v of ['e356581e', 'a'.repeat(40), G.preregSentinel('38-script-const'), G.preregDegraded('shallow-clone')]) {
     const r = G.buildReport(baseInput({ gate_ref: { prereg_commit: v, criteria_path: 'p', basis_path: 'b', criterion_ids: [] } }));
     assert.equal(r.receipt.gate_ref.prereg_commit, v);

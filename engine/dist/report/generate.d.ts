@@ -15,14 +15,14 @@ export interface SkeletonChapter {
 export declare const REPORT_SKELETON: readonly SkeletonChapter[];
 export declare const CHAPTER_COUNT: number;
 /**
- * 输出编码（#114）：对被审计仓进入 report.md 的引文做 HTML 实体转义，
- * 防止 Markdown 渲染链中不可信输入触发存储型 XSS。
+ * 输出编码（#114）：被审计仓的引文要进 report.md，先做 HTML 实体转义，
+ * 免得 Markdown 渲染那一路被不可信输入钻空子，闹出存储型 XSS。
  */
 export declare function escapeMarkdownExcerpt(text: string): string;
 /**
- * 单行化（#113 返修 / #114 同面）：转义后再把换行折成 `⏎`。
- * 不折行时，引文里的 `> ` / `# ` / `|` 会落在行首，仍能跳出列表项与引用块、伪造标题或表格行——
- * HTML 实体只挡标签注入，挡不住 Markdown 块级语法。单行是这一层唯一可判定的形态。
+ * 折成一行（#113 返修 / #114 同一面）：转义之后再把换行折成 `⏎`。
+ * 不折的话，引文里的 `> ` / `# ` / `|` 落在行首，还能跳出列表和引用块、伪造标题或表格行——
+ * HTML 实体只挡标签，挡不住 Markdown 的块级语法。折成一行是这一层唯一说得准的形态。
  */
 export declare function escapeMarkdownExcerptInline(text: string): string;
 export declare function chapterHeading(ch: SkeletonChapter): string;
@@ -52,7 +52,7 @@ export interface AdjudicationBlock {
     human: HumanAdjudication;
     citation_checks: CitationCheck[];
 }
-/** #61 r18① 守卫式提炼：anchored_fact_ids 取首件（空集→空数组）——audit/demo 六处同款守卫式统一 */
+/** #61 r18① 顺手收的一个小工具：anchored_fact_ids 只取头一件（空集就给空数组）——audit 和 demo 六处都这么用 */
 export declare function firstFactIds(list: readonly {
     fact_id: string;
 }[]): string[];

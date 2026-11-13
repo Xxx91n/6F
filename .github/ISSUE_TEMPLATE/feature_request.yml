@@ -29,7 +29,7 @@ body:
         - Macro-B (repo quadrant)
         - Macro-C (evolution archaeology)
         - Micro-A (PR diff)
-        - Micro-B (file level — not yet in preview)
+        - Micro-B (file level)
         - Macro-A (cross-repo — not yet in preview)
         - Not sure / cross-cutting
     validations:

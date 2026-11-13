@@ -20,16 +20,6 @@ export interface MicroAPilot {
     pins: readonly MicroAPin[];
 }
 export declare const MICRO_A_PILOTS: readonly MicroAPilot[];
-export declare const MICRO_A_REFUSAL_FACE: {
-    name: string;
-    owner: string;
-    repo: string;
-};
-export declare const MICRO_A_DRIFT_FACE: {
-    name: string;
-    owner: string;
-    repo: string;
-};
 export interface MicroAInputError {
     code: 'MICRO-A-INPUT' | 'MICRO-A-SCOPE';
     message: string;

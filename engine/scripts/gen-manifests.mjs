@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const meta = JSON.parse(readFileSync(join(root, "manifest.meta.json"), "utf8"));
 
-// D-219：产物尾行哨兵——JSON 生成物统一 LF 尾行（POSIX 3.206 文本文件定义＋工业三源唯一标准）；
-//   stable() 追加 \n，drift 比对改字节等价（去双侧 .trim()——trim 对 EOL 差异结构性失明，哨兵对自身缺陷自载盲区）。
+// D-219：生成物的尾行有个哨兵——JSON 一律以 LF 结尾（POSIX 3.206 的文本文件定义，工业上三家都这么定）；
+// stable() 会补一个 \n，drift 比对改成逐字节比（两边都不 .trim() 了——trim 对行尾差异结构性看不见，哨兵对自己身上的毛病自带盲区）。
 function stable(o) { return JSON.stringify(o, null, 2) + "\n"; }
 
 const AP_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
@@ -14,9 +14,9 @@ const AP_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
 const targets = [
   ["plugin.json", { $schema: AP_SCHEMA, name: meta.name, version: meta.version, description: meta.description, author: meta.author, homepage: meta.homepage, repository: meta.repository, license: meta.license, extensions: Object.fromEntries(meta.extensions.map(ns => [ns, { path: "extensions/" + ns }])) }],
   [join(".claude-plugin", "plugin.json"), { name: meta.claudePlugin.name, version: meta.claudePlugin.version, description: meta.description, author: meta.author, homepage: meta.homepage, repository: meta.repository, license: meta.license, skills: meta.skills.map(s => "./skills/" + s) }],
-  // Claude Code 插件根 .mcp.json 为标准自动发现位（标准 MCP 配置格式：type 非 transport，无 readOnly）。
-  // #59/D-067 自包含分发：git-clone 安装无 node_modules/PATH 注册——command=node 钦定宿主运行时，
-  // ${CLAUDE_PLUGIN_ROOT} 放 args 不放 command（Windows 最小暴露面）；裸命令名+PATH=官方排错表明示反模式。
+  // Claude Code 插件根目录的 .mcp.json 是标准的自动发现位（标准 MCP 配置格式：写 type 不写成 transport，也没 readOnly）。
+  // #59/D-067 自带分装：从 git 拉下来装的时候没有 node_modules，也不往 PATH 里注册——command 就写 node，用宿主自己的运行时，
+  // ${CLAUDE_PLUGIN_ROOT} 放 args 里、不放 command 里（Windows 上少露一点是一点）；裸命令名加 PATH 那条是官方排错手册明写的反模式。
   [".mcp.json", { mcpServers: { "macro-audit-kernel": { type: meta.mcp.transport, command: "node", args: ["${CLAUDE_PLUGIN_ROOT}/dist/cli.js", "mcp"], ...(meta.mcp.env ? { env: meta.mcp.env } : {}) } } }]
 ];
 
@@ -26,7 +26,7 @@ for (const t of targets) {
   const full = join(root, rel);
   const expected = stable(t[1]);
   if (existsSync(full)) {
-    // D-219：字节等价比对（去 .trim()——EOL 差异不再结构性隐形；哨兵对自身尾行盲区天然闭环）
+    // D-219：按字节比（不许 .trim()——行尾差异别又悄悄看不见了；哨兵对自家尾行的盲区这下自己补上了）
     if (readFileSync(full, "utf8") !== expected) { console.log("DRIFT " + rel); drift++; }
     else { console.log("CLEAN " + rel); }
   } else { console.log("NEW   " + rel); }
