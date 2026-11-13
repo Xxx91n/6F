@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Capability boundaries are recorded honestly — check the README capability matrix first. Macro-B / Macro-C / Micro-A / Micro-B are in preview; Macro-A is **Not yet in preview** (roadmap, not a usable promise).
+        We write down what each capability can do and what it cannot — check the README capability matrix first. Macro-B / Macro-C / Micro-A are in preview; Micro-B / Macro-A are **Not yet in preview** (on the roadmap, not a usable promise).
   - type: textarea
     id: problem
     attributes:

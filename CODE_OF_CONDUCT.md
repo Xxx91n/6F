@@ -1,6 +1,6 @@
 # Contributor Covenant Code of Conduct
 
-Where a decision or a term belongs is written once, in [`docs/authority.md`](docs/authority.md) — the authority surface. This page only covers how people treat each other in project spaces.
+**[`docs/authority.md`](docs/authority.md) — the authority surface — is the one place that says where a decision or a term belongs.** This page only covers how people treat each other in project spaces.
 
 ## Our Pledge
 
