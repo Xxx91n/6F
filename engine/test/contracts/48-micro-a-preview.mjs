@@ -124,7 +124,7 @@ export function sampleLedger(pilots = PILOTS, added = MA48.MICRO_A_SAMPLE_ADDED,
   for (const id of Object.keys(added)) {
     const onRoster = rows.some(function (r) { return r.id === id; });
     if (onRoster || retired[id]) { continue; }
-    throw new Error('校对样本台账漏了退役登记：' + id + ' 不在名册里了，也没写退役（补 MICRO_A_SAMPLE_RETIRED，或从 MICRO_A_SAMPLE_ADDED 删掉）');
+    throw new Error('校对样本台账漏了退役登记：' + id + ' 不在名册里了，加入记录还在、退役却没写。留在 MICRO_A_SAMPLE_ADDED 里，补一条 MICRO_A_SAMPLE_RETIRED（哪一版退的、为什么退）——别删加入记录，删了这条样本的历史就查不到了；只有当加入记录本身就填错时才删');
   }
   for (const id of Object.keys(retired)) {
     if (rows.some(function (r) { return r.id === id; })) { continue; }

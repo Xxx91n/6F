@@ -92,6 +92,9 @@ t('U10 加入版本是历史真值，不是一律填当前版本', LEDGER_ROWS.e
 function ledgerThrew(pilots, added, retired) {
   try { MA.microASampleLedger(pilots, added, retired); return false; } catch (e) { return true; }
 }
+function ledgerError(pilots, added, retired) {
+  try { MA.microASampleLedger(pilots, added, retired); return ''; } catch (e) { return String(e && e.message); }
+}
 const ONE_PILOT = [{ name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', pins: [{ n: 64, form: 'machine-generated/release-please' }] }];
 t('U11 名册加了一条样本、台账没跟上 → 当场报错（不是悄悄漏一条）',
   ledgerThrew(ONE_PILOT.concat([{ name: 'new-roster-repo', owner: 'X', repo: 'new-roster-repo', pins: [{ n: 7, form: 'human' }] }]), { 'env-manager#64': { added_in: '0.1.0' } }, {}));
@@ -111,6 +114,11 @@ t('U12 登记了退役却还留在名册里 → 当场报错；真退出的样�
 t('U13 样本不在名册了、也没写退役登记 → 当场报错（不许从台账里悄悄消失）',
   ledgerThrew([], { 'gone-repo#7': { added_in: '0.1.0' } }, {})
   && ledgerThrew(ONE_PILOT, { 'env-manager#64': { added_in: '0.1.0' }, 'gone-repo#7': { added_in: '0.1.0' } }, {})
+  // 报错文案不许把人引到「删掉加入记录」上：那正好把本票要保住的历史丢了
+  // （CodeRabbit 第 4 条，成立）。要指去补退役登记。
+  && ledgerError([], { 'gone-repo#7': { added_in: '0.1.0' } }, {}).indexOf('MICRO_A_SAMPLE_RETIRED') >= 0
+  && ledgerError([], { 'gone-repo#7': { added_in: '0.1.0' } }, {}).indexOf('或从 MICRO_A_SAMPLE_ADDED 删掉') < 0
+  && ledgerError([], { 'gone-repo#7': { added_in: '0.1.0' } }, {}).indexOf('别删加入记录') >= 0
   && (function () {
     // 写了退役的那条要放行（这是正常退出，不是漏登）
     const rows = MA.microASampleLedger(ONE_PILOT, { 'env-manager#64': { added_in: '0.1.0' }, 'gone-repo#7': { added_in: '0.1.0' } }, { 'gone-repo#7': { retired_in: '0.3.0', reason: '仓归档' } });
