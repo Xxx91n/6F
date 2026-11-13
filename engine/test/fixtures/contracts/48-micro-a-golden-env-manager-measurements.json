@@ -11,6 +11,40 @@
   "eligible": true,
   "stopped_reason": null,
   "fact_count": 71,
+  "sample_ledger": [
+    {
+      "id": "env-manager#64",
+      "repo": "env-manager",
+      "pr": 64,
+      "added_in": "0.1.0",
+      "retired_in": null,
+      "retired_reason": null
+    },
+    {
+      "id": "env-manager#55",
+      "repo": "env-manager",
+      "pr": 55,
+      "added_in": "0.1.0",
+      "retired_in": null,
+      "retired_reason": null
+    },
+    {
+      "id": "env-manager#51",
+      "repo": "env-manager",
+      "pr": 51,
+      "added_in": "0.1.0",
+      "retired_in": null,
+      "retired_reason": null
+    },
+    {
+      "id": "jiahao#6",
+      "repo": "jiahao",
+      "pr": 6,
+      "added_in": "0.1.0",
+      "retired_in": null,
+      "retired_reason": null
+    }
+  ],
   "per_pr": [
     {
       "n": 64,

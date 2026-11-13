@@ -74,6 +74,57 @@ t('U7-P 判别臂：假导出或源码残留必拦住（防止检查变成永远
   && deadFaceLeftovers({}, 'export const MICRO_A_DRIFT_FACE = {};', '').indexOf('src:MICRO_A_DRIFT_FACE') >= 0
   && deadFaceLeftovers({}, '', 'export declare const MICRO_A_REFUSAL_FACE: {};').indexOf('dts:MICRO_A_REFUSAL_FACE') >= 0);
 
+// ---------- U8~U12 校对样本台账（spec §R8-2「校对样本要记的字段」，tracker #241） ----------
+// 一条样本五行：稳定 ID、来源仓、PR 号、加入版本、退役原因那一格。四条样本都是随 #48 那次
+// （3e588e0，2026-09-17）写死进名册的，那条提交在 0.1.0 发行之后、0.2.0 之前，所以加入版本是 0.1.0。
+const LEDGER_ROWS = MA.microASampleLedger();
+const LEDGER_IDS = LEDGER_ROWS.map(function (r) { return r.id; });
+const ROSTER_IDS = MA.MICRO_A_PILOTS.reduce(function (acc, p) {
+  for (const pin of p.pins) { acc.push(p.name + '#' + pin.n); }
+  return acc;
+}, []);
+t('U8 台账跟名册一条对一条，稳定 ID 是「仓名#PR 号」', JSON.stringify(LEDGER_IDS) === JSON.stringify(ROSTER_IDS) && LEDGER_ROWS.length === 4, JSON.stringify(LEDGER_IDS));
+t('U9 五样都记了：稳定 ID、来源仓、PR 号、加入版本、退役原因那一格', LEDGER_ROWS.every(function (r) {
+  return typeof r.id === 'string' && r.id.indexOf('#') > 0 && typeof r.repo === 'string' && r.repo.length > 0
+    && typeof r.pr === 'number' && r.added_in === '0.1.0' && r.retired_in === null && r.retired_reason === null;
+}), JSON.stringify(LEDGER_ROWS[0]));
+t('U10 加入版本是历史真值，不是一律填当前版本', LEDGER_ROWS.every(function (r) { return r.added_in === '0.1.0'; }) && LEDGER_ROWS.every(function (r) { return r.added_in !== '0.3.0'; }));
+function ledgerThrew(pilots, added, retired) {
+  try { MA.microASampleLedger(pilots, added, retired); return false; } catch (e) { return true; }
+}
+function ledgerError(pilots, added, retired) {
+  try { MA.microASampleLedger(pilots, added, retired); return ''; } catch (e) { return String(e && e.message); }
+}
+const ONE_PILOT = [{ name: 'env-manager', owner: 'Xxx91n', repo: 'env-manager', pins: [{ n: 64, form: 'machine-generated/release-please' }] }];
+t('U11 名册加了一条样本、台账没跟上 → 当场报错（不是悄悄漏一条）',
+  ledgerThrew(ONE_PILOT.concat([{ name: 'new-roster-repo', owner: 'X', repo: 'new-roster-repo', pins: [{ n: 7, form: 'human' }] }]), { 'env-manager#64': { added_in: '0.1.0' } }, {}));
+t('U12 登记了退役却还留在名册里 → 当场报错；真退出的样本不在名册里仍能查到来源仓和退役原因',
+  ledgerThrew(ONE_PILOT, { 'env-manager#64': { added_in: '0.1.0' } }, { 'env-manager#64': { retired_in: '0.1.0', reason: '换样本' } })
+  && ledgerThrew([], { 'x#1': { added_in: '0.1.0' } }, { 'x#1': { retired_in: '0.1.0', reason: '' } })
+  && (function () {
+    // 退出时补了退役登记的那条要照常出行：加入版本从加入台账带过来，来源仓和 PR 号从稳定 ID 拆回来。
+    // 原先这里还塞了一条只加了、没退役、也不在名册的 'x#1'——那正是 U13 要判红的漏登，不该在 U12 里当正常样本。
+    const rows = MA.microASampleLedger([], { 'y#2': { added_in: '0.1.0' } }, { 'y#2': { retired_in: '0.1.0', reason: '仓归档' } });
+    const y = rows.filter(function (r) { return r.id === 'y#2'; })[0];
+    return rows.length === 1 && !!y && y.repo === 'y' && y.pr === 2 && y.added_in === '0.1.0' && y.retired_in === '0.1.0' && y.retired_reason === '仓归档';
+  })());
+
+// CodeRabbit 第 1 条（成立）：样本从名册上删掉、只留加入记录、又没写退役——以前两个循环都不碰它，
+// 样本就这么从台账里消失，「什么时候退的、为什么」照样没人说得清。现在必须当场报错。
+t('U13 样本不在名册了、也没写退役登记 → 当场报错（不许从台账里悄悄消失）',
+  ledgerThrew([], { 'gone-repo#7': { added_in: '0.1.0' } }, {})
+  && ledgerThrew(ONE_PILOT, { 'env-manager#64': { added_in: '0.1.0' }, 'gone-repo#7': { added_in: '0.1.0' } }, {})
+  // 报错文案不许把人引到「删掉加入记录」上：那正好把本票要保住的历史丢了
+  // （CodeRabbit 第 4 条，成立）。要指去补退役登记。
+  && ledgerError([], { 'gone-repo#7': { added_in: '0.1.0' } }, {}).indexOf('MICRO_A_SAMPLE_RETIRED') >= 0
+  && ledgerError([], { 'gone-repo#7': { added_in: '0.1.0' } }, {}).indexOf('或从 MICRO_A_SAMPLE_ADDED 删掉') < 0
+  && ledgerError([], { 'gone-repo#7': { added_in: '0.1.0' } }, {}).indexOf('别删加入记录') >= 0
+  && (function () {
+    // 写了退役的那条要放行（这是正常退出，不是漏登）
+    const rows = MA.microASampleLedger(ONE_PILOT, { 'env-manager#64': { added_in: '0.1.0' }, 'gone-repo#7': { added_in: '0.1.0' } }, { 'gone-repo#7': { retired_in: '0.3.0', reason: '仓归档' } });
+    return rows.length === 2 && rows.some(function (r) { return r.id === 'gone-repo#7' && r.retired_in === '0.3.0'; });
+  })());
+
 // ---------- R 单 PR 报告（PR64 golden 那一路＋PR51 diff 缺席那一路——48 goldenMain 同构） ----------
 writeFileSync(join(outDir, measName), JSON.stringify({ repos: ['env-manager', 'goose-duck-agent'], prs_listed: collected.res.prs_listed }, null, 2) + NL, 'utf8');
 writeFileSync(join(outDir, factsName), collected.res.facts.map(function (f) { return JSON.stringify(f); }).join(NL) + NL, 'utf8');
