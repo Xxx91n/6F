@@ -390,8 +390,10 @@ const ROSTER_SAMPLES = MA.MICRO_A_PILOTS.reduce(function (acc, p) {
 const goldenMeas = JSON.parse(txt(join(FX, '48-micro-a-golden-env-manager-measurements.json')));
 const LEDGER_G = goldenMeas.sample_ledger;
 const LEDGER_BAD = ledgerProblems(LEDGER_G);
+// 建索引时跳过坏行：台账里混进 null／非对象时，ledgerProblems 已经记下这条问题，这里再伸手读 r.id
+// 就会抛 TypeError 把整条检查打断——G1 的明细和后面几条断言都轮不到跑，红得没名没姓（跟 tracker #72 那次一个毛病）。
 const LEDGER_BY_ID = {};
-if (Array.isArray(LEDGER_G)) { for (const r of LEDGER_G) { LEDGER_BY_ID[r.id] = r; } }
+if (Array.isArray(LEDGER_G)) { for (const r of LEDGER_G) { if (r !== null && typeof r === 'object') { LEDGER_BY_ID[r.id] = r; } } }
 const LEDGER_MISSING = ROSTER_SAMPLES.filter(function (s) { return !LEDGER_BY_ID[s.id]; }).map(function (s) { return s.id; });
 const LEDGER_UNMATCHED = ROSTER_SAMPLES.filter(function (s) {
   const r = LEDGER_BY_ID[s.id];
@@ -415,11 +417,17 @@ const LEDGER_TAMP = [
   ledgerProblems([{ id: 'x', repo: 'x', pr: 1, added_in: '0.1.0', retired_in: null, retired_reason: null }, null]),
   ledgerProblems('不是数组')
 ];
+// 台账里混进 null 行时，建索引那一步不许抛 TypeError 把整条检查打断（CodeRabbit 第 3 条，成立）：
+// 坏行由 ledgerProblems 记进 G1 的明细，脚本照常跑完并给出有名有姓的红。
+const NULL_ROW_INDEX = {};
+if ([{ id: 'ok#1' }, null].length === 2) { for (const r of [{ id: 'ok#1' }, null]) { if (r !== null && typeof r === 'object') { NULL_ROW_INDEX[r.id] = r; } } }
+const NULL_ROW_PROBLEMS = ledgerProblems([{ id: 'ok#1', repo: 'ok', pr: 1, added_in: '0.1.0', retired_in: null, retired_reason: null }, null]);
 // 加入版本被改成「当前版本」那种走法：四条全填 0.3.0，按 G3 的判法必须一条都过不了。
 const TAMPERED_ADDED = ROSTER_SAMPLES.map(function (s) { return { id: s.id, repo: s.repo, pr: s.pr, added_in: '0.3.0', retired_in: null, retired_reason: null }; });
 const TAMPERED_ADDED_WRONG = TAMPERED_ADDED.filter(function (r) { return r.added_in !== SAMPLE_ADDED_PINNED[r.id]; });
 t('G5 正反对照：缺字段／行不是对象／台账不是数组都要点名，加入版本被改成当前版本必须判红',
   LEDGER_TAMP[0].length === 1 && LEDGER_TAMP[0][0].indexOf('retired_in') >= 0 && LEDGER_TAMP[1].length === 1 && LEDGER_TAMP[2].length === 1
+  && NULL_ROW_PROBLEMS.length === 1 && NULL_ROW_INDEX['ok#1'] !== undefined && Object.keys(NULL_ROW_INDEX).length === 1
   && TAMPERED_ADDED_WRONG.length === TAMPERED_ADDED.length,
   '缺字段=' + JSON.stringify(LEDGER_TAMP[0]) + ' 非对象=' + JSON.stringify(LEDGER_TAMP[1]) + ' 非数组=' + JSON.stringify(LEDGER_TAMP[2]) + ' 改版本判红=' + TAMPERED_ADDED_WRONG.length + '/' + TAMPERED_ADDED.length);
 

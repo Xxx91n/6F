@@ -99,9 +99,22 @@ t('U12 登记了退役却还留在名册里 → 当场报错；真退出的样�
   ledgerThrew(ONE_PILOT, { 'env-manager#64': { added_in: '0.1.0' } }, { 'env-manager#64': { retired_in: '0.1.0', reason: '换样本' } })
   && ledgerThrew([], { 'x#1': { added_in: '0.1.0' } }, { 'x#1': { retired_in: '0.1.0', reason: '' } })
   && (function () {
-    const rows = MA.microASampleLedger([], { 'x#1': { added_in: '0.1.0' }, 'y#2': { added_in: '0.1.0' } }, { 'y#2': { retired_in: '0.1.0', reason: '仓归档' } });
+    // 退出时补了退役登记的那条要照常出行：加入版本从加入台账带过来，来源仓和 PR 号从稳定 ID 拆回来。
+    // 原先这里还塞了一条只加了、没退役、也不在名册的 'x#1'——那正是 U13 要判红的漏登，不该在 U12 里当正常样本。
+    const rows = MA.microASampleLedger([], { 'y#2': { added_in: '0.1.0' } }, { 'y#2': { retired_in: '0.1.0', reason: '仓归档' } });
     const y = rows.filter(function (r) { return r.id === 'y#2'; })[0];
     return rows.length === 1 && !!y && y.repo === 'y' && y.pr === 2 && y.added_in === '0.1.0' && y.retired_in === '0.1.0' && y.retired_reason === '仓归档';
+  })());
+
+// CodeRabbit 第 1 条（成立）：样本从名册上删掉、只留加入记录、又没写退役——以前两个循环都不碰它，
+// 样本就这么从台账里消失，「什么时候退的、为什么」照样没人说得清。现在必须当场报错。
+t('U13 样本不在名册了、也没写退役登记 → 当场报错（不许从台账里悄悄消失）',
+  ledgerThrew([], { 'gone-repo#7': { added_in: '0.1.0' } }, {})
+  && ledgerThrew(ONE_PILOT, { 'env-manager#64': { added_in: '0.1.0' }, 'gone-repo#7': { added_in: '0.1.0' } }, {})
+  && (function () {
+    // 写了退役的那条要放行（这是正常退出，不是漏登）
+    const rows = MA.microASampleLedger(ONE_PILOT, { 'env-manager#64': { added_in: '0.1.0' }, 'gone-repo#7': { added_in: '0.1.0' } }, { 'gone-repo#7': { retired_in: '0.3.0', reason: '仓归档' } });
+    return rows.length === 2 && rows.some(function (r) { return r.id === 'gone-repo#7' && r.retired_in === '0.3.0'; });
   })());
 
 // ---------- R 单 PR 报告（PR64 golden 那一路＋PR51 diff 缺席那一路——48 goldenMain 同构） ----------

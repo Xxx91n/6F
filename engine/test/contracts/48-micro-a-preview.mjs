@@ -119,6 +119,13 @@ export function sampleLedger(pilots = PILOTS, added = MA48.MICRO_A_SAMPLE_ADDED,
       rows.push({ id: id, repo: pilot.name, pr: pr.n, added_in: add.added_in, retired_in: null, retired_reason: null });
     }
   }
+  // 只剩加入记录、却既不在名册也没登记退役的那一条，两个循环都不会碰它——样本就这么从台账里消失，
+  // 「什么时候退的、为什么」照样没人说得清。所以最后再扫一遍加入台账。
+  for (const id of Object.keys(added)) {
+    const onRoster = rows.some(function (r) { return r.id === id; });
+    if (onRoster || retired[id]) { continue; }
+    throw new Error('校对样本台账漏了退役登记：' + id + ' 不在名册里了，也没写退役（补 MICRO_A_SAMPLE_RETIRED，或从 MICRO_A_SAMPLE_ADDED 删掉）');
+  }
   for (const id of Object.keys(retired)) {
     if (rows.some(function (r) { return r.id === id; })) { continue; }
     const r = retired[id];
