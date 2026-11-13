@@ -104,7 +104,7 @@ t('A15 其他调用方仍须先登记本地路径', strictPathOK, rosterError);
 
 // 仓主或仓名变了，不能继续把旧的本地仓当成新仓。
 const originRepo = mkdtempSync(join(tmpdir(), '48-pilot-origin-'));
-let originOK = false, originError = '';
+let originOK = false, localOriginOK = false, remoteOriginOK = false, originError = '';
 try {
   const git = function (args) {
     const r = spawnSync('git', args, { encoding: 'utf8' });
@@ -116,15 +116,25 @@ try {
   const matched = MOD.realPilot(pilot, originRepo);
   const changedOwner = MOD.realPilot({ ...pilot, owner: 'other-owner' }, originRepo);
   const changedRepo = MOD.realPilot({ ...pilot, repo: 'other-repo' }, originRepo);
+  git(['-C', originRepo, 'remote', 'set-url', 'origin', 'Xxx91n/env-manager']);
+  const localOrigin = MOD.realPilot(pilot, originRepo);
+  git(['-C', originRepo, 'remote', 'set-url', 'origin', 'git@github.com:Xxx91n/env-manager.git']);
+  const sshOrigin = MOD.realPilot(pilot, originRepo);
+  git(['-C', originRepo, 'remote', 'set-url', 'origin', 'https://github.com.example/Xxx91n/env-manager']);
+  const otherHostOrigin = MOD.realPilot(pilot, originRepo);
   git(['-C', originRepo, 'remote', 'remove', 'origin']);
   const noOrigin = MOD.realPilot(pilot, originRepo);
   originOK = matched.root === originRepo && changedOwner.root === null && changedRepo.root === null && noOrigin.root === null;
+  localOriginOK = localOrigin.root === null;
+  remoteOriginOK = sshOrigin.root === originRepo && otherHostOrigin.root === null;
 } catch (e) {
   originError = String(e && e.message ? e.message : e);
 } finally {
   rmSync(originRepo, { recursive: true, force: true });
 }
 t('A16 本地仓须与名册一致，否则走托管接口', originOK, originError);
+t('A17 相对路径不能当 GitHub origin', localOriginOK, originError);
+t('A18 GitHub SSH 地址可用，其他主机走托管接口', remoteOriginOK, originError);
 
 // ---------- B. golden 实跑（cassette 离线回放） ----------
 const GOLDEN_OUT = mkdtempSync(join(tmpdir(), '48-golden-'));

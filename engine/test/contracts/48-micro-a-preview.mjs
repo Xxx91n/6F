@@ -98,12 +98,15 @@ const PREREG_COMMIT = MA48.resolvePreregCommit(REPO, CRITERIA_PATH).replace(/^([
 export const PILOTS = MA48.MICRO_A_PILOTS.map(function (pilot) {
   return { name: pilot.name, owner: pilot.owner, repo: pilot.repo, prs: pilot.pins };
 });
-/** 本地仓的 origin 与名册一致才用；对不上就从托管接口读取。 */
+/** 只核对 origin 配置，不证明本地仓来源；对不上就从托管接口读取。 */
 export function realPilot(pilot, root = siblingPath(pilot.name, { optional: true })) {
   if (root && existsSync(root)) {
     const origin = spawnSync('git', ['-C', root, 'remote', 'get-url', 'origin'], { encoding: 'utf8' });
-    const ref = GH.parseGithubRepoRef(origin.status === 0 ? origin.stdout.trim() : '');
-    if (!ref.ok || ref.owner.toLowerCase() !== pilot.owner.toLowerCase() || ref.repo.toLowerCase() !== pilot.repo.toLowerCase()) { root = null; }
+    const url = origin.status === 0 ? origin.stdout.trim() : '';
+    const ref = GH.parseGithubRepoRef(url);
+    // 通用解析器接受 owner/repo 简写，但 Git 把它当成本地相对路径，不能当 GitHub origin。
+    const githubOrigin = /^(?:https?:\/\/github\.com\/|git@github\.com:)/i.test(url);
+    if (!githubOrigin || !ref.ok || ref.owner.toLowerCase() !== pilot.owner.toLowerCase() || ref.repo.toLowerCase() !== pilot.repo.toLowerCase()) { root = null; }
   }
   return { name: pilot.name, owner: pilot.owner, repo: pilot.repo, root: root, prs: pilot.prs };
 }
